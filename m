@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262870AbUB0Nbz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 08:31:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262877AbUB0Nbz
+	id S262872AbUB0Nd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 08:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262871AbUB0NcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 08:31:55 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:37827 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262870AbUB0Nbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 08:31:51 -0500
-Date: Fri, 27 Feb 2004 08:31:40 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][2.6] linux/README update
-In-Reply-To: <20040227132535.A32506@infradead.org>
-Message-ID: <Pine.LNX.4.58.0402270827240.17504@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0402270815350.17504@montezuma.fsmlabs.com>
- <20040227132535.A32506@infradead.org>
+	Fri, 27 Feb 2004 08:32:00 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:642 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262872AbUB0Nby
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 08:31:54 -0500
+Date: Fri, 27 Feb 2004 08:33:23 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Tibor Kendl <kendl@flexys.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Set gcc to kernel header path
+In-Reply-To: <403F4B58.1010901@flexys.hu>
+Message-ID: <Pine.LNX.4.53.0402270823500.6853@chaos>
+References: <403F4B58.1010901@flexys.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004, Christoph Hellwig wrote:
+On Fri, 27 Feb 2004, Tibor Kendl wrote:
 
-> On Fri, Feb 27, 2004 at 08:18:20AM -0500, Zwane Mwaikambo wrote:
-> > + - Do a "make" to create a compressed kernel image. It is also
-> > +   possible to do "make install" if you have lilo installed to suit the
-> > +   kernel makefiles, but you may want to check your particular lilo setup first.
+> Dear mailing list members!
 >
-> this is still very x86 centric :)
+> I'd like to know, how do you solve this problem on your own systems.
+> I've installed a linux distribution with a 2.2.18 kernel, than i've
+> downloaded, compiled and installed a 2.6.2 kernel. How can i make, if i
+> want to compile any application ( like Samba, Apache, KDE, etc...), the
+> gcc compiler use the '/usr/src/linux-2.6.2/include' header path instaead
+> of the '/usr/include' for such include directories like 'linux', 'asm',
+> 'asm-generic', etc...?
+>
+> Yours
+> Tibor Kendl
+>
 
-Drat! I tried inserting the "e.g. arch/i386/boot/bzImage" to fool you
-guys =), would it be worth making it more vague so that it was less x86
-centric?
+
+	gcc -I/usr/src/linux-2.6.2/include
+
+... if you are sure that's what you want. Normally, you use the
+headers that your 'C' runtime library was compiled with, i.e.,
+what's in /usr/include.
+
+gcc will search the -I/path first, then do the other ones unless
+you use  -nostdinc on the command-line as well. If you use
+-nostdinc, you need to also put -I`gcc -print-file-name=include` on
+the command line, also or else gcc won't find stddef.h, etc., which
+are not in one of the "standard places".
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

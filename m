@@ -1,77 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbTLAHbj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 02:31:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTLAHbi
+	id S261406AbTLAHnl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 02:43:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTLAHnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 02:31:38 -0500
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:8576 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S262186AbTLAHbZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 02:31:25 -0500
-Date: Mon, 1 Dec 2003 08:28:00 +0100
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11 -- Failed to open /dev/ttyS0: No such device
-Message-ID: <20031201072800.GA2026@finwe.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031130071757.GA9835@node1.opengeometry.net> <20031130102351.GB10380@outpost.ds9a.nl> <20031130113656.GA28437@finwe.eu.org> <microsoft-free.87ekvpc0ms.fsf@eicq.dnsalias.org> <20031130222222.GA11809@finwe.eu.org> <microsoft-free.87vfp1nuxh.fsf@eicq.dnsalias.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <microsoft-free.87vfp1nuxh.fsf@eicq.dnsalias.org>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.4i
+	Mon, 1 Dec 2003 02:43:41 -0500
+Received: from bluejay.broadware.com ([209.219.63.5]:54656 "EHLO
+	bluejay.broadware.com") by vger.kernel.org with ESMTP
+	id S261406AbTLAHnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 02:43:39 -0500
+Message-ID: <003c01c3b7de$b2f02090$04740718@vaiors410>
+From: "Suman Puthana" <suman@broadware.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Suman Puthana" <suman@broadware.com>
+Subject: problem with iowait (disk I/O) in 2.4.21 kernel
+Date: Sun, 30 Nov 2003 23:35:04 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Youngs wrote:
+Hello,
 
->   >>I _think_ this patch will bring back auto-loading of the serial module
->   >>for you.  Please let me know how it goes. 
-> 
->   JK> Well: patched, installed new serial_core.ko, then depmod -a, and
->   JK> try to access ttySwhatever.
-> 
-> As Russell said, the patch was wrong, revert it.  Sorry about that, my
-> bad. 
+Is anybody aware of any changes in the 2.4.21 kernel which affects disk I/O
+badly?  We are noticing that the cpu taken up by iowait's is causing
+significant degradation in disk performance.
 
-Nothing bad happened :)
+We have an application in which there are multiple processes writing to disk
+simultaneously, each process writing anywhere from 16 - 64 K Bytes at a time
+and sleeping for about 50 ms depending on how long the write() call takes to
+finish. It is important that the write() finishes within 50 ms for this
+application. The file's are opened with the open() call with the standard
+O_RDWR and O_CREAT flags.
 
-> I'm pretty sure that the problem has its roots in...
+On the 2.4.18 kernel, 25 of these processes take up about 15% of CPU on a
+dual Xeon Pentium 4 2.4 GHz processor with 1 MB of memory for a total
+throughput of about 7 MBps which is very good.  The write() calls typically
+take less than 5 ms to complete and we sleep for the remaining 45 ms or so.
 
-> --- a/fs/char_dev.c	Sun Nov 23 17:33:38 2003
-> +++ b/fs/char_dev.c	Sun Nov 23 17:33:38 2003
-> @@ -434,7 +434,7 @@
->  
->  static struct kobject *base_probe(dev_t dev, int *part, void *data)
->  {
-> -	request_module("char-major-%d", MAJOR(dev));
-> +	request_module("char-major-%d-%d", MAJOR(dev), MINOR(dev));
->  	return NULL;
->  }
-> ...from Rusty, which went into 2.6.0-test10.
+But on the same system when we installed the 2.4.21 kernel, these 25
+processes take anywhere between 40 - 70 % of the CPU depending on how  much
+CPU the iowait is taking up. The iowait part of it varies all the way from
+10 - 60 %. (The iowait CPU is within 1% on the 2.4.18 kernel.).  What is
+even worse - sometimes the write() calls take anywhere between 1 - 2
+seconds( yes seconds!) to return, which degrades the performance of our
+application server pretty badly.
 
-> Does this work any better?
+ It happens on all kinds of storage devices so it's definitely not a
+hardware problem.(We tested on the standard IDE disk all the way upto the
+EMC clariion storage system).
 
-> --- linux-2.6.0-test11/drivers/serial/8250.c	2003-11-27 11:03:42.000000000 +1000
-> +++ linux-2.6.0-test11-sy/drivers/serial/8250.c	2003-12-01 11:40:44.000000000 +1000
-[...]
-> @@ -2195,3 +2196,4 @@
->  MODULE_PARM(force_rsa, "1-" __MODULE_STRING(PORT_RSA_MAX) "i");
->  MODULE_PARM_DESC(force_rsa, "Force I/O ports for RSA");
->  #endif
-> +MODULE_ALIAS_CHARDEV_MAJOR(TTY_MAJOR);
+Is this iowait something which was introduced in the 2.4.21 kernel core code
+or in the file system driver code? It definitely happens with jfs, reiserfs
+and also on ext3 though not as badly . Is there a way to turn it off or to
+make it take up lesser CPU?
 
-1. Yup, with first patch revertet everything works as before
-2. With both patch applied I don't have to manually load
-   any module (8250 and serial_core are autoloaded), but
-   my pseudomodule serial isn't loaded anymore.
+Any insight or pointers regarding this problem would be greatly
+appreciated.  Thank you for your support.
 
-Thanks!
+- Suman Puthana
 
-bye
+PS - Something else of interest here is that when the iowait part of the CPU
+increases, iostat shows a significantly  higher throughput than what we are
+actually trying to write to disk. (When sampled over 30 seconds, when we are
+trying to write 7 MBps, iostat actually shows 11-12 MBps when iowait goes
+upto 30-40 %). It's almost like there's some internal copies going on.
 
--- 
-Jacek Kawa  **SPAM - Stowarzyszenie Polskich Artystów Muzyków**
+
+

@@ -1,50 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbTJHJAp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 05:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbTJHJAp
+	id S261311AbTJHJUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 05:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTJHJUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 05:00:45 -0400
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:37000 "EHLO
-	einstein31.homenet") by vger.kernel.org with ESMTP id S261162AbTJHJAo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 05:00:44 -0400
-Date: Wed, 8 Oct 2003 09:59:05 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein31.homenet
-To: Dave Jones <davej@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: changes to microcode update driver.
-In-Reply-To: <20031007135417.GC11840@redhat.com>
-Message-ID: <Pine.LNX.4.44.0310080953550.1126-100000@einstein31.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Oct 2003 05:20:09 -0400
+Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:7828 "EHLO
+	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S261311AbTJHJUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 05:20:03 -0400
+Subject: 2.6.0-test6 drivers/pci/devlist.h and classlist.h appear hideously
+	corrupt
+From: david nicol <whatever@davidnicol.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1065604797.30213.53.camel@plaza.davidnicol.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 08 Oct 2003 04:19:58 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003, Dave Jones wrote:
-> Assuming that it can be done without the old tools breaking, sounds good
-> to me.  How will microcode_ctl -i react if you remove the ioctl ?
-> Folks _will_ upgrade kernels without updating userspace.
 
-It will fail and Red Hat's startup scripts will show the red [FAILED]
-thing which users are always afraid of.
+It appears that the second doublequote in
+each line has been replaced with CLASS(%s%s, "%s")
+and the names of the macros have also been altered.
 
-So, I thought initially we should just return 0 in that ioctl (with the 
-comment that it's going away) and then remove it completely, after 
-microcode_ctl has been updated.
+This is a generated file, and it appears
+that the classlist.h file is the corrupt one;
+the first four letters on every line get
+lopped during the build.  That seems very weird,
+but it is what is happening:
 
-The patch was almost ready (together with Intel's changes) but I 
-discovered that microcode module (or in fact ANY module that is loaded 
-first on my system, 2.6.0-test6) is not unloadable, i.e. usage count stays 
-at 1 even though nothing is using it. I am not aware of this general 
-problem being discussed on linux-kernel list, so I thought I should debug 
-it first (after all, it may be something I am doing that causes it). And 
-yes my kernel is configured to allow unloading, even forced unloading.
+S(0c03, "USB Controller")
+S(0c04, "Fibre Channel")
+S(0c05, "SMBus")
 
-(still feeling ashamed after yesterday's thing with me forgetting to 
-configure siimage driver and complaining that generic ATA is too slow :)
+here is what make clean && make gives me:
 
-Kind regards
-Tigran
+  CC      drivers/pci/pool.o
+  CC      drivers/pci/quirks.o
+  HOSTCC  drivers/pci/gen-devlist
+  DEVLIST drivers/pci/devlist.h
+  CC      drivers/pci/names.o
+In file included from drivers/pci/names.c:38:
+drivers/pci/devlist.h:7576:11: missing terminating ' character
+drivers/pci/devlist.h:7696:30: missing terminating ' character
+drivers/pci/devlist.h:7704:30: missing terminating ' character
+drivers/pci/devlist.h:7710:34: missing terminating ' character
+
+
+It appears that the first four chars of each line are getting
+lopped from devlist.h as well:
+
+$ head drivers/pci/devlist.h
+OR(0000,"Gammagraphx, Inc.CLASS(%s%s, "%s")
+ENDOR()
+
+OR(001a,"Ascend Communications, Inc.CLASS(%s%s, "%s")
+ENDOR()
+
+
+
+What is going on here?  There isn't any significant difference between
+the test4and test6 in this directory that I can find, and
+it happens even with the test4 pci.ids file.
+
+
+
+-- 
+david nicol / in 1310 the Dutch invented insurance
 

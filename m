@@ -1,93 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266136AbUAUTyR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 14:54:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUAUTyR
+	id S266091AbUAUTrK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 14:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266093AbUAUTrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 14:54:17 -0500
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:44488 "EHLO
-	mwinf0601.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S266136AbUAUTyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 14:54:14 -0500
-Date: Wed, 21 Jan 2004 20:54:10 +0100
-From: Romain Lievin <romain@rlievin.dyndns.org>
-To: Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: [PATCH] "gconfig" removed root folder...
-Message-ID: <20040121195410.GA13333@rlievin.dyndns.org>
-References: <1074177405.3131.10.camel@oebilgen>
+	Wed, 21 Jan 2004 14:47:10 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:10393 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266091AbUAUTrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 14:47:05 -0500
+Date: Wed, 21 Jan 2004 19:45:59 +0000
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Jakob Kemi <jakob.kemi@post.utfors.se>
+Subject: Large stack allocation in w9966 driver.
+Message-ID: <20040121194559.GB9162@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Jakob Kemi <jakob.kemi@post.utfors.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1074177405.3131.10.camel@oebilgen>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Another large on-stack allocation. (This time around 2KB).
 
-This new patch includes Muli's remarks.
-Need to be applied against a 2.6.1 kernel.
+		Dave
 
-Thanks, Romain.
-==========================[ cut here]==========================
-diff -Naur linux-2.6.1/scripts/kconfig/gconf.c linux/scripts/kconfig/gconf.c
---- linux-2.6.1/scripts/kconfig/gconf.c	2004-01-15 21:45:22.000000000 +0100
-+++ linux/scripts/kconfig/gconf.c	2004-01-21 20:48:04.000000000 +0100
-@@ -23,6 +23,9 @@
- #include <unistd.h>
- #include <time.h>
- #include <stdlib.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
+
+diff -Nru a/drivers/media/video/w9966.c b/drivers/media/video/w9966.c
+--- a/drivers/media/video/w9966.c	Wed Jan 21 19:10:44 2004
++++ b/drivers/media/video/w9966.c	Wed Jan 21 19:10:44 2004
+@@ -875,6 +875,7 @@
+ 	unsigned char addr = 0xa0;	// ECP, read, CCD-transfer, 00000
+ 	unsigned char* dest = (unsigned char*)buf;
+ 	unsigned long dleft = count;
++	unsigned char *tbuf;
+ 	
+ 	// Why would anyone want more than this??
+ 	if (count > cam->width * cam->height * 2)
+@@ -894,11 +895,14 @@
+ 		w9966_pdev_release(cam);
+ 		return -EFAULT;
+ 	}
+-	
 +
- 
- //#define DEBUG
- 
-@@ -643,14 +646,29 @@
- store_filename(GtkFileSelection * file_selector, gpointer user_data)
- {
- 	const gchar *fn;
-+	gchar trailing;
-+	gchar *safe_fn;
-+	struct stat sb;
- 
--	fn = gtk_file_selection_get_filename(GTK_FILE_SELECTION
-+	fn = gtk_file_selection_get_filename (GTK_FILE_SELECTION
- 					     (user_data));
- 
--	if (conf_write(fn))
--		text_insert_msg("Error", "Unable to save configuration !");
-+	/* protect against 'root directory' bug */
-+	trailing = fn[strlen (fn)-1];
-+	safe_fn = g_strdup (fn);
++	tbuf = kmalloc(W9966_RBUFFER, GFP_KERNEL);
++	if (tbuf == NULL)
++		return -ENOMEM;
 +
-+	if(!stat (fn, &sb))
-+		if (S_ISDIR(sb.st_mode))
-+			if (trailing != '/')
-+			{
-+				g_free (safe_fn);
-+				safe_fn = g_strconcat (fn, "/", NULL);
-+			}
+ 	while(dleft > 0)
+ 	{
+ 		unsigned long tsize = (dleft > W9966_RBUFFER) ? W9966_RBUFFER : dleft;
+-		unsigned char tbuf[W9966_RBUFFER];
+ 	
+ 		if (parport_read(cam->pport, tbuf, tsize) < tsize) {
+ 			w9966_pdev_release(cam);
+@@ -911,7 +915,8 @@
+ 		dest += tsize;
+ 		dleft -= tsize;
+ 	}
+-	
++	kfree(tbuf);
++
+ 	w9966_wReg(cam, 0x01, 0x18);	// Disable capture
+ 	w9966_pdev_release(cam);
  
--	gtk_widget_destroy(GTK_WIDGET(user_data));
-+	if (conf_write (safe_fn))
-+		text_insert_msg("Error", "Unable to save configuration !");
-+	g_free (safe_fn);
-+	gtk_widget_destroy (GTK_WIDGET(user_data));
- }
- 
- void on_save_as1_activate(GtkMenuItem * menuitem, gpointer user_data)
-
--- 
-Romain Li�vin (roms):         <roms@tilp.info>
-Web site:                     http://tilp.info
-"Linux, y'a moins bien mais c'est plus cher !"
-
-
-
-
-
-

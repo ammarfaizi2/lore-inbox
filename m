@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315275AbSEYTv2>; Sat, 25 May 2002 15:51:28 -0400
+	id <S315276AbSEYTyB>; Sat, 25 May 2002 15:54:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315276AbSEYTv1>; Sat, 25 May 2002 15:51:27 -0400
-Received: from adsl.hlfl.org ([62.212.107.116]:36100 "HELO adsl.hlfl.org")
-	by vger.kernel.org with SMTP id <S315275AbSEYTv1>;
-	Sat, 25 May 2002 15:51:27 -0400
-Date: Sat, 25 May 2002 21:51:26 +0200
-From: Arnaud Launay <asl@launay.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.18] Modules unresolved symbols
-Message-ID: <20020525215126.A340@launay.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S315278AbSEYTyA>; Sat, 25 May 2002 15:54:00 -0400
+Received: from relay01.valueweb.net ([216.219.253.235]:18181 "EHLO
+	relay01.valueweb.net") by vger.kernel.org with ESMTP
+	id <S315276AbSEYTx7>; Sat, 25 May 2002 15:53:59 -0400
+Message-ID: <3CEFEB73.5BB2C14C@opersys.com>
+Date: Sat, 25 May 2002 15:52:19 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: Wolfgang Denk <wd@denx.de>, linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <20020525110208.A15969@work.bitmover.com> <20020525182617.D627E11972@denx.denx.de> <20020525114426.B15969@work.bitmover.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-PGP-Key: http://launay.org/pgpkey.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Vanilla 2.5.18 gives me the following unresolved symbols:
+Larry McVoy wrote:
+> I've spoken with Victor about this topic a few times and while I will not
+> speak for him in specifics, I will say he's equally unthrilled with a lot
+> of what gones on.  It's tiresome.
 
+Just a general observation. Your arguments are indeed the same. I've
+had the same discussion I've had with you with Victor many times.
 
-depmod: *** Unresolved symbols in /lib/modules/2.5.18/kernel/drivers/acpi/acpi_thermal.o
-depmod:         acpi_processor_set_thermal_limit
-depmod: *** Unresolved symbols in /lib/modules/2.5.18/kernel/drivers/ide/ide-mod.o
-depmod:         blk_get_request
-depmod: *** Unresolved symbols in /lib/modules/2.5.18/kernel/fs/ext2/ext2.o
-depmod:         write_mapping_buffers
+There is, however, some differences between your situations. I can
+rewrite a software that does similar things as yours and sell it
+or give it away using whichever license I like. I can't write a similar
+software to Victor's and sell it or give it away using whichever
+license I like.
 
-For ide-mod and ext2, it was already there in 2.5.17.
+There's no need to reply and point out that that's what patents are all
+about. I can see that for myself. I'm just pointing out that your
+situation is not exactly the same as Victor's.
 
-	Arnaud.
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268373AbTAMW1e>; Mon, 13 Jan 2003 17:27:34 -0500
+	id <S268368AbTAMWZN>; Mon, 13 Jan 2003 17:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268374AbTAMW1e>; Mon, 13 Jan 2003 17:27:34 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:1552 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S268373AbTAMW1d>; Mon, 13 Jan 2003 17:27:33 -0500
-Message-ID: <3E23297A.46A57515@linux-m68k.org>
-Date: Mon, 13 Jan 2003 22:02:50 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	id <S268370AbTAMWZN>; Mon, 13 Jan 2003 17:25:13 -0500
+Received: from sex.inr.ac.ru ([193.233.7.165]:59871 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S268368AbTAMWZM>;
+	Mon, 13 Jan 2003 17:25:12 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200301132232.BAA09527@sex.inr.ac.ru>
+Subject: Re: [RFC] Migrating net/sched to new module interface
+To: rusty@rustcorp.com.au (Rusty Russell)
+Date: Tue, 14 Jan 2003 01:32:56 +0300 (MSK)
+Cc: kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20030103051033.1A2AA2C003@lists.samba.org> from "Rusty Russell" at Jan 3, 3 04:10:19 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: John Levon <levon@movementarian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: make xconfig broken in bk current
-References: <200301121512.59840.tomlins@cam.org> <20030112203150.GA53199@compsoc.man.ac.uk> <3E2200C6.665A12CA@linux-m68k.org> <20030113012032.GA73639@compsoc.man.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello!
 
-John Levon wrote:
-
-> > We can discuss this during 2.7, until then I prefer to keep it close to
-> > the kernel, as the config system still has to mature a bit more.
+> Hmm, I thought the sched stuff all runs under the network brlock?  If
+> so, it doesn't need to be held in, since it's not preemptible.
 > 
-> OK, so you're fine with the moving to a different package when the
-> config library reaches a stable API ? Fair enough.
+> I haven't checked, though...
 
-Yes, my main requirement is that the separate package is working fine in
-a few distributions.
+It runs under semaphore.
 
-> You don't seem to set MOC correctly if you guess a Qt dir. It doesn't
-> cater for binaries called moc2 or libraries called qt3 or qt2[1]
 
-I haven't seen this yet and I would expect (sym)links to the default
-version.
+Which does not matter at all, because the hole
 
-bye, Roman
+void cleanup_module(void)
+{
+<an instance is cloned here>
+        unregister_qdisc(&cbq_qdisc_ops);
+}
 
+remained in any case, be it under some preemptive, nonprepemtive lock or
+not under a lock at all.
+
+BTW, Rusty, a question... I do not understand, what is purpose of this "new"
+module stuff at all? If we still need to query something in module.c to create
+each instanse of something it smells exactly "old" broken approach. I just
+do not see differences. It is not essential in this particular case,
+but it would be funny to ask it each time when creating a tcp socket.
+
+Alexey
 

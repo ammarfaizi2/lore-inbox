@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291871AbSBARWF>; Fri, 1 Feb 2002 12:22:05 -0500
+	id <S291868AbSBARYZ>; Fri, 1 Feb 2002 12:24:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291870AbSBARVz>; Fri, 1 Feb 2002 12:21:55 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:14512 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S291868AbSBARVn>;
-	Fri, 1 Feb 2002 12:21:43 -0500
-Message-ID: <3C5ACE88.1050002@us.ibm.com>
-Date: Fri, 01 Feb 2002 09:21:12 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020126
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@caldera.de>
-CC: linux-kernel@vger.kernel.org
+	id <S291870AbSBARYP>; Fri, 1 Feb 2002 12:24:15 -0500
+Received: from ns.caldera.de ([212.34.180.1]:13206 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S291868AbSBARYC>;
+	Fri, 1 Feb 2002 12:24:02 -0500
+Date: Fri, 1 Feb 2002 18:23:54 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][RFC] kthread abstraction
-In-Reply-To: <20020201163818.A32551@caldera.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020201182354.A7740@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020201163818.A32551@caldera.de> <3C5ACE88.1050002@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C5ACE88.1050002@us.ibm.com>; from haveblue@us.ibm.com on Fri, Feb 01, 2002 at 09:21:12AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I notice that the BKL is held for a short time, while daemonizing:
-+ 
-lock_kernel();
-+ 
-daemonize();
-+ 
-reparent_to_init();
-+ 
-strcpy(current->comm, kth->name);
-+ 
-unlock_kernel();
+On Fri, Feb 01, 2002 at 09:21:12AM -0800, Dave Hansen wrote:
+> Have you noticed that a lot of kernel daemons hold the BKL whenever 
+> they're active?
 
-Have you noticed that a lot of kernel daemons hold the BKL whenever 
-they're active?  Things like nfsd are always holding the BKL, only 
-releasing it on schedule(), and exit.  Is there any compelling reason to 
-hold the BKL during times other than during the daemonize() process?
+I've seen it a few times.
+
+> Things like nfsd are always holding the BKL, only 
+> releasing it on schedule(), and exit.  Is there any compelling reason to 
+> hold the BKL during times other than during the daemonize() process?
+
+In general there is no reason.  If the data the thread accesses is not
+protected by anything but BKL it must hold it - else it seems superflous
+to me.
+
+	Christoph
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+Of course it doesn't work. We've performed a software upgrade.

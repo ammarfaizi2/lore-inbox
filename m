@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUACUPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 15:15:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUACUPZ
+	id S263646AbUACUcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 15:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUACUcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 15:15:25 -0500
-Received: from users.ccur.com ([208.248.32.211]:4445 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id S263772AbUACUPX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 15:15:23 -0500
-Date: Sat, 3 Jan 2004 15:15:15 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       albert.cahalan@ccur.com, jim.houston@ccur.com
-Subject: Re: siginfo_t fracturing, especially for 64/32-bit compatibility mode
-Message-ID: <20040103201515.GA4115@rudolph.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
-References: <20040102194909.GA2990@rudolph.ccur.com> <20040103012433.6aa4cafb.ak@suse.de>
-Mime-Version: 1.0
+	Sat, 3 Jan 2004 15:32:25 -0500
+Received: from smtp2.fre.skanova.net ([195.67.227.95]:34503 "EHLO
+	smtp2.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S263646AbUACUcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 15:32:23 -0500
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jens Axboe <axboe@suse.de>, packet-writing <packet-writing@suse.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext2 on a CD-RW
+References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
+	<20040103191414.GE1080@elf.ucw.cz>
+From: Peter Osterlund <petero2@telia.com>
+Date: 03 Jan 2004 21:32:13 +0100
+In-Reply-To: <20040103191414.GE1080@elf.ucw.cz>
+Message-ID: <m2hdzc93jm.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040103012433.6aa4cafb.ak@suse.de>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I decided to do a more systematic search.
+Pavel Machek <pavel@suse.cz> writes:
 
-The below table summarizes all user-mode si_code values declared
-and sent by either the kernel or by glibc.
+> > --- linux/drivers/block/pktcdvd.c.old	2004-01-02 00:23:57.000000000 +0100
+> > +++ linux/drivers/block/pktcdvd.c	2004-01-02 00:24:01.000000000 +0100
+> > @@ -2164,6 +2164,7 @@
+> >  	request_queue_t *q = disks[pkt_get_minor(pd)]->queue;
+> >  
+> >  	blk_queue_make_request(q, pkt_make_request);
+> > +	blk_queue_hardsect_size(q, CD_FRAMESIZE);
+> >  	blk_queue_max_sectors(q, PACKET_MAX_SECTORS);
+> >  	blk_queue_merge_bvec(q, pkt_merge_bvec);
+> >  	q->queuedata = pd;
+> > 
+> 
+> Where do I get this file? It does not appear to be in 2.6.0.
+> 
+> [I have few partly-bad cd-rws, and putting ext2 on them would be
+> "cool" :-)]
 
-Method was simple grep.  Therefore tricky uses were not accounted
-for.
+Look here:
 
-  code name	value	glibc-2.3.2 send-usage		2.6.1-rc2 send-usage
-  ------------	------	----------------------------	--------------------
-  SI_ASYNCNL	-6	si_pid, si_uid, si_value	never sent
-  SI_TKILL	-6	never sent			si_pid, si_uid
-  SI_SIGIO	-5	never sent			never sent
-  SI_ASYNCIO	-4	si_pid, si_uid, si_value	si_addr
-  SI_MESGQ	-3	never sent			never sent
-  SI_QUEUE	-1	si_pid, si_uid, si_value	never sent
+        http://w1.894.telia.com/~u89404340/packet.html
 
-Observations:
+Download here:
 
-  glibc only sends siginfo_t's with si_pid, si_uid, and si_value set.
-  This makes trivial the conversion of 32bit user-space-originated
-  siginfo_t's to the 64-bit form.
+        http://w1.894.telia.com/~u89404340/patches/packet/2.6/
 
-  The SI_ASYNCNL and SI_TKILL values collide but this collision is
-  conversion-safe, as the fields used are compatible.  However
-  applications may on occasion have trouble determining which
-  subsystem sent a received siginfo_t of this type.
+Note that this software is still beta quality at best. I'm not sure if
+you'll have any success with partly bad cd-rws, but it doesn't hurt to
+try I guess.
 
-  SI_ASYNCIO uses are incompatible.  This prevents the kernel from
-  being able to determine which fields to convert when a 64-bit
-  siginfo_t of this type is to be sent to a 32-bit application.
-  
-  SI_SIGIO is not used by either the kernel or glibc.  This was
-  somewhat suprising given the extensive coverage of SI_SIGIO in the
-  man pages.
+I haven't made a new release with the two latest bug fixes, so if you
+plan to put ext2 on the disc, you need the quoted hardsect_size patch
+and the bio split patch from a few days ago.
 
-  The kernel likes to send user siginfo_t's to applications, rather
-  the restrict itself to kernel siginfo_t types.  This is a misuse of
-  the user-siginfo_t concept, though (so far) largely harmless.
+        http://marc.theaimsgroup.com/?l=linux-kernel&m=107306015810846&w=2
 
-Joe
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263486AbTIHSwd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 14:52:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTIHSwc
+	id S263488AbTIHSxB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 14:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263492AbTIHSxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 14:52:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62373 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263486AbTIHSwb (ORCPT
+	Mon, 8 Sep 2003 14:53:01 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:11229 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S263488AbTIHSw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 14:52:31 -0400
-Date: Mon, 8 Sep 2003 11:52:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Hugh Dickins <hugh@veritas.com>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Make futex waiters take an mm or inode reference
-In-Reply-To: <20030908183416.GF27097@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0309081144390.3202-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Sep 2003 14:52:56 -0400
+From: jbarnes@sgi.com
+Date: Mon, 8 Sep 2003 11:47:40 -0700
+To: acpi-devel@lists.sourceforge.net
+Subject: [PATCH] don't use alloc_bootmem in ACPI table initialization
+Message-ID: <20030908184740.GA758@sgi.com>
+Mail-Followup-To: acpi-devel@lists.sf.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Already talked with Andy about this one, is it ok to push to Linus?
 
-On Mon, 8 Sep 2003, Jamie Lokier wrote:
-> 
-> This patch makes each futex waiter hold a reference to the mm or inode
-> that a futex is keyed on.
+Thanks,
+Jesse
 
-I get the inode part, but let's think about the mm part a bit more.
 
-In particular, passing off a futex that points to private memory to
-somebody else just _doesn't_work_. It's insane. So I'd suggest saying that
-an anonymous futex is only an <address,offset> pair, and drop the "mm"  
-entirely. Let's make an anonymous futex _really_ anonymous, and document
-that it's only an "address" - passing it off via UNIX domain sockets is
-fine, it just doesn't do anything useful.
-
-So is there any reason to really having "private.mm" AT ALL? From what I
-can tell, it is not actually ever used (all "mm" users are "current->mm"),
-so I don't see the point of incrementing a count for it either.
-
-Or did I miss something?
-
-			Linus
-
+diff -Nru a/drivers/acpi/tables.c b/drivers/acpi/tables.c
+--- a/drivers/acpi/tables.c	Wed Jul 30 11:45:27 2003
++++ b/drivers/acpi/tables.c	Wed Jul 30 11:45:27 2003
+@@ -69,7 +69,8 @@
+ 
+ static unsigned long		sdt_pa;		/* Physical Address */
+ static unsigned long		sdt_count;	/* Table count */
+-static struct acpi_table_sdt	*sdt_entry;
++
++static struct acpi_table_sdt	sdt_entry[ACPI_MAX_TABLES];
+ 
+ void
+ acpi_table_print (
+@@ -413,12 +414,6 @@
+ 			sdt_count = ACPI_MAX_TABLES;
+ 		}
+ 
+-		sdt_entry = alloc_bootmem(sdt_count * sizeof(struct acpi_table_sdt));
+-		if (!sdt_entry) {
+-			printk(KERN_ERR "ACPI: Could not allocate mem for SDT entries!\n");
+-			return -ENOMEM;
+-		}
+-
+ 		for (i = 0; i < sdt_count; i++)
+ 			sdt_entry[i].pa = (unsigned long) mapped_xsdt->entry[i];
+ 	}
+@@ -463,12 +458,6 @@
+ 			printk(KERN_WARNING PREFIX "Truncated %lu RSDT entries\n",
+ 				(sdt_count - ACPI_MAX_TABLES));
+ 			sdt_count = ACPI_MAX_TABLES;
+-		}
+-
+-		sdt_entry = alloc_bootmem(sdt_count * sizeof(struct acpi_table_sdt));
+-		if (!sdt_entry) {
+-			printk(KERN_ERR "ACPI: Could not allocate mem for SDT entries!\n");
+-			return -ENOMEM;
+ 		}
+ 
+ 		for (i = 0; i < sdt_count; i++)

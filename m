@@ -1,207 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbUBTXSb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 18:18:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbUBTXSb
+	id S261320AbUBTXXk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 18:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbUBTXXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 18:18:31 -0500
-Received: from p237-dialup.snap.net.nz ([202.124.102.237]:384 "EHLO
-	sceptic.lug.net.nz") by vger.kernel.org with ESMTP id S261306AbUBTXSZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 18:18:25 -0500
-Date: Sat, 21 Feb 2004 12:22:44 +1300 (NZDT)
-From: Keith Duthie <psycho@albatross.co.nz>
-To: linux-kernel@vger.kernel.org
-Subject: apm suspend causes uninterruptible sleep in process
-Message-ID: <Pine.LNX.4.53.0402211201540.161@loki.albatross.co.nz>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810816-266476936-1077319364=:161"
+	Fri, 20 Feb 2004 18:23:40 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:39365 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S261320AbUBTXXj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 18:23:39 -0500
+Date: Fri, 20 Feb 2004 08:17:38 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040220161738.GF1269@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20040216190927.GA2969@us.ibm.com> <200402201535.47848.phillips@arcor.de> <20040220140116.GD1269@us.ibm.com> <200402201800.12077.phillips@arcor.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402201800.12077.phillips@arcor.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Fri, Feb 20, 2004 at 06:00:32PM -0500, Daniel Phillips wrote:
+> On Friday 20 February 2004 09:01, Paul E. McKenney wrote:
+> > On Fri, Feb 20, 2004 at 03:37:26PM -0500, Daniel Phillips wrote:
+> > > Actually, I erred there in that invalidate_mmap_range should not export
+> > > the flag, because it never makes sense to pass in non-zero from a DFS.
+> >
+> > Doesn't vmtruncate() want to pass non-zero "all" in to
+> > invalidate_mmap_range() in order to maintain compatibility with existing
+> > Linux semantics?
+> 
+> That comes from inside.  The DFS's truncate interface should just be 
+> vmtruncate.  If I missed something, please shout.
 
----1463810816-266476936-1077319364=:161
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Agreed, the DFS's truncate interface should be vmtruncate().
 
-In kernel 2.6.3 (not sure about previous 2.6 kernels), after suspending
-with apm the process which was accessing the sound device (artsd) is left
-in the uninterruptible sleep state.
+Your earlier patch has a call to invalidate_mmap_range() within
+vmtruncate(), which passes "1" to the last arg, so as to get
+rid of all mappings to the truncated portion of the file.
+So either invalidate_mmap_range() needs to keep the fourth arg
+or needs to be a wrapper for an underlying function that
+vmtruncate() can call, or some such.
 
-Suspend previously worked in 2.4.20 with the low-latency patch, the
-preempt patch, and ALSA 0.9.6; the same problem occurs in 2.4.22 with ALSA
-(both with and without the aforementioned patches).
+The latter may be what you intended to do.
 
-gcc is 2.95.3
-make is 3.79.1
-binutils is 2.14 20030612
-apm is 3.0.2
-
-.config.gz is attached.
--- 
-Just because it isn't nice doesn't make it any less a miracle.
-     http://users.albatross.co.nz/~psycho/     O-   -><-
----1463810816-266476936-1077319364=:161
-Content-Type: APPLICATION/octet-stream; name=".config.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0402211222440.161@loki.albatross.co.nz>
-Content-Description: 
-Content-Disposition: attachment; filename=".config.gz"
-
-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
-
----1463810816-266476936-1077319364=:161--
+						Thanx, Paul

@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268963AbTBZWvo>; Wed, 26 Feb 2003 17:51:44 -0500
+	id <S269127AbTBZW52>; Wed, 26 Feb 2003 17:57:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269030AbTBZWvo>; Wed, 26 Feb 2003 17:51:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14611 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268963AbTBZWvn>; Wed, 26 Feb 2003 17:51:43 -0500
-Message-ID: <3E5D474F.3010104@zytor.com>
-Date: Wed, 26 Feb 2003 15:01:35 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
-X-Accept-Language: en, sv
+	id <S269131AbTBZW52>; Wed, 26 Feb 2003 17:57:28 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:56729 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S269127AbTBZW51>;
+	Wed, 26 Feb 2003 17:57:27 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] klibc for 2.5.63
-References: <Pine.LNX.3.96.1030226175147.17755A-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1030226175147.17755A-100000@gatekeeper.tmr.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15965.18601.973394.137184@gargle.gargle.HOWL>
+Date: Thu, 27 Feb 2003 00:07:21 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ion Badulescu <ionut@badula.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+       <mingo@redhat.com>
+Subject: Re: [BUG] 2.5.63: ESR killed my box!
+In-Reply-To: <Pine.LNX.4.44.0302261400160.3156-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302261637560.8828-100000@guppy.limebrokerage.com>
+	<Pine.LNX.4.44.0302261400160.3156-100000@home.transmeta.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> 
-> I'm glad to see this, hopefully from time to time this will be released
-> for general use (ie. non-bk format).
-> 
+Linus Torvalds writes:
+ > > 1) apic_write_around(APIC_ID, boot_cpu_physical_apicid) places the APIC 
+ > > value in the lower 8 bits of APIC_ID, when it should be in the upper 8. As 
+ > > as result, it effectively forces the APIC id to always be 0 for the boot 
+ > > CPU, which is fatal on SMP AMD boxes.
+ > 
+ > Wouldn't it be nicer to just fix the write instead? I can see the 
+ > potential to actually want to change the APIC ID - in particular, if the 
+ > SMP MP tables say that the APIC ID for the BP should be X, maybe we should 
+ > actually write X to it instead of just using what is there.
+ > 
+ > In particular, Mikaels patch will BUG() if the MP tables don't match the 
+ > APIC ID. I think that's extremely rude: we should select one of the two 
+ > and just run with it, instead of unconditionally failing.
 
-klibc standalone (not part of the kernel tree, which is what Greg is
-working on ***THANK YOU GREG***) is available at:
+Yes, but that was just a test patch to test my suspicions about why
+a UP_APIC kernel failed on an SMP K7 box. (CPU #1 was BSP and was
+programmed with CPU #0's local APIC ID.)
 
-   ftp://ftp.kernel.org/pub/linux/libs/klibc/
+I assume that an SMP machine once booted by the BIOS will have
+unique local APIC IDs. They're typically either hardwired or programmed
+by the BIOS. If the MP table then disagrees with what's in the
+CPUs' local APIC IDs, who do you trust: the MP table or the CPUs?
+I personally would trust the CPUs and leave the local APIC IDs alone,
+in particular since writing to them always risks collisions, especially
+in the UP-kernel-on-SMP-HW case.
 
-	-hpa
+So I think the BUG should be a warning, but we shouldn't clobber APIC_ID.
 
+/Mikael

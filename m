@@ -1,119 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268021AbUIUTfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268024AbUIUTia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268021AbUIUTfq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 15:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268024AbUIUTfq
+	id S268024AbUIUTia (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 15:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUIUTia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 15:35:46 -0400
-Received: from c-24-19-11-70.client.comcast.net ([24.19.11.70]:26580 "EHLO
-	ultimation.org") by vger.kernel.org with ESMTP id S268021AbUIUTfh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 15:35:37 -0400
-Message-ID: <16359.69.25.132.5.1095795335.squirrel@69.25.132.5>
-In-Reply-To: <20040921190710.GA4237@ucw.cz>
-References: <12361.69.25.132.5.1095791755.squirrel@69.25.132.5>
-    <20040921190710.GA4237@ucw.cz>
-Date: Tue, 21 Sep 2004 12:35:35 -0700 (PDT)
-Subject: Re: [PATCH] Support for Snapstream Firefly remote added to 
-     ati_remote.c
-From: dylan@ultimation.org
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Cc: dylan@ultimation.org, greg@kroah.com, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3-RC1
-X-Mailer: SquirrelMail/1.4.3-RC1
+	Tue, 21 Sep 2004 15:38:30 -0400
+Received: from mail3.utc.com ([192.249.46.192]:16077 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S268024AbUIUTi1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 15:38:27 -0400
+Message-ID: <41508311.6070606@cybsft.com>
+Date: Tue, 21 Sep 2004 14:37:53 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
+References: <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <415071D4.9060601@cybsft.com> <20040921192143.GA1184@elte.hu>
+In-Reply-To: <20040921192143.GA1184@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Sep 21, 2004 at 11:35:55AM -0700, dylan@ultimation.org wrote:
->
->> I've added support for the Snapstream Firefly X10 remote
->> (http://www.snapstream.com/Products/firefly/). This involved adding a
->> new
->> product ID, and adding some additional logic to the event_lookup
->> function.
->> The Firefly alternately encodes the keypress data differently than the
->> driver currently expects, so that every other keypress is invalid with
->> the
->> current driver version. The transformation is pretty simple; I'm
->> assuming
->> it's there simply to allow the driver to distinguish between what two
->> distinct key events looks like and what it looks like to drop signal in
->> the middle of holding a remote button.
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> 
+>>Ingo Molnar wrote:
 >>
->> As well, I also added a module_param called disable_keyboard which
->> allows
->> the user to toggle off whether the driver actually sends key events, or
->> simply generates raw evdev events. I found this useful, since I'm
->> working
->> on an app that reads the evdev events natively and then sends it's own
->> keyboard/mouse/window events in X. The keyboard events being sent by the
->> driver were interfering with the events I wanted to generate myself.
+>>>i've released the -S1 VP patch:
+>>>
+>>> http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S1
+>>>
 >>
->> This patch applies to version 2.6.9-rc1-mm4.
->>
->> Signed-off-by: Dylan Paris <kernelcontrib@ultimation.org>
->>
->> @@ -280,6 +289,9 @@ static struct
->>         {KIND_FILTERED, 0xf4, 0x2F, EV_KEY, KEY_END, 1},        /* END
->> */
->>         {KIND_FILTERED, 0xf5, 0x30, EV_KEY, KEY_SELECT, 1},     /*
->> SELECT */
->>
->> +       /* Firefly Remote Buttons */
->> +       {KIND_FILTERED, 0xf1, 0x2c, EV_KEY, KEY_KATAKANA, 1},     /*
->> MAXIMIZE */
->> +
->
-> Now, now, would it be too hard to add a proper key definition into
-> input.h? I don't think you want the remote to change character sets on
-> Japanese machines.
->
+>>Two separate oopses this morning running that above patch. One appears
+>>to happen in locks_delete_lock. [...]
+> 
+> 
+> i too got this one today. Seems to be related to the BKL changes -
+> locks.c is a heavy user of the BKL. You have an SMP system, right? Does
+> the oops happen if you boot with maxcpus=1?
+> 
+> 	Ingo
+> 
+This was on my SMP system. I can try the maxcpus=1. However, the trouble 
+may be reproducing the oops. This happened at ~5:35 this morning (~9 
+hrs. ago). Hadn't happened again as of an hour ago when I booted S2. I 
+will give it a try though.
 
-Will do.
-
->> @@ -460,6 +479,7 @@ static void ati_remote_input_report(stru
->>         struct input_dev *dev = &ati_remote->idev;
->>         int index, acc;
->>         int remote_num;
->> +       int ev_type;
->>
->>         /* Deal with strange looking inputs */
->>         if ( (urb->actual_length != 4) || (data[0] != 0x14) ||
->> @@ -492,7 +512,9 @@ static void ati_remote_input_report(stru
->>
->>         if (ati_remote_tbl[index].kind == KIND_LITERAL) {
->>                 input_regs(dev, regs);
->> -               input_event(dev, ati_remote_tbl[index].type,
->> +
->> +               ev_type = ((disable_keyboard) ? 0 : >
->> ati_remote_tbl[index].type);
->> +               input_event(dev, ev_type,
->>                         ati_remote_tbl[index].code,
->>                         ati_remote_tbl[index].value);
->>                 input_sync(dev);
->
-> I won't let you abuse the input API this way. Event type 0 is EV_SYN and
-> is reserved for synchronization and configuration change notifications.
-> Definitely not for sending events that look like keystrokes but aren't.
->
-> There is a nice ioctl, called EVIOCGRAB which will give you what you
-> want (the console won't be receiving the events anymore) without any
-> ugly hacks.
->
-
-Sorry for the hacks, I'm still learning about how this all works. I was
-just excited that I was able to get it "work" at all, even if it was
-really ugly. ;)  I'll look into EVIOCGRAB and touch up the patch before
-thinking about resubmitting again. Thanks for the input!
-
-> --
-> Vojtech Pavlik
-> SuSE Labs, SuSE CR
->
-
-
+kr

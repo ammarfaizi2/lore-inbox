@@ -1,111 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263346AbUCNL5y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 06:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263347AbUCNL5y
+	id S263347AbUCNMEr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 07:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbUCNMEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 06:57:54 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:45330 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S263346AbUCNL5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 06:57:48 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Olaf Hering <olh@suse.de>
-Subject: Re: Does sysfs really provides persistent hardware path to devices?
-Date: Sun, 14 Mar 2004 14:53:56 +0300
-User-Agent: KMail/1.6.1
-Cc: Greg KH <greg@kroah.com>, jw schultz <jw@pegasys.ws>,
-       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-References: <E19odOM-000NwL-00.arvidjaar-mail-ru@f22.mail.ru> <200401172334.13561.arvidjaar@mail.ru> <20040119130817.GA27953@suse.de>
-In-Reply-To: <20040119130817.GA27953@suse.de>
+	Sun, 14 Mar 2004 07:04:47 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:63194 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id S263347AbUCNMEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 07:04:45 -0500
+Date: Sun, 14 Mar 2004 13:04:27 +0100 (MET)
+From: Arjen Verweij <A.Verweij2@ewi.tudelft.nl>
+Reply-To: a.verweij@student.tudelft.nl
+To: Craig Bradney <cbradney@zip.com.au>
+cc: Ross Dickson <ross@datscreative.com.au>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       <linux-kernel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       Daniel Drake <dan@reactivated.net>
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
+ instead of apic ack delay.
+In-Reply-To: <Pine.GHP.4.44.0403090007110.9764-100000@elektron.its.tudelft.nl>
+Message-ID: <Pine.GHP.4.44.0403141301390.29651-100000@elektron.its.tudelft.nl>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403141453.59145.arvidjaar@mail.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 January 2004 16:08, Olaf Hering wrote:
->  On Sat, Jan 17, Andrey Borzenkov wrote:
-> > > > Well, we did not move a tiny bit since the beginning of this thread
-> > > > :) You still did not show me namedev configuration that implements
-> > > > persistent name for a device based on its physical location :)))
-> > >
-> > > Ok, do you have any other ideas of how to do this?
-> >
-> > given current sysfs implementation - using wildcards remains the only
-> > solution. I for now am using this trivial script:
-> >
-> > pts/0}% cat /etc/udev/scripts/removables
-> > #!/usr/bin/perl
-> >
-> > my $devpath, $base;
-> >
-> > $base = $1 if ($ARGV[0] =~ /(.*\D)\d*$/);
-> > $devpath = readlink "/sys/block/$base/device";
-> >
-> > if ($devpath =~
-> > m|/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.4/2-2.4:1.0/host\d+/\d+:0
-> >:0:0|) {
-> >         print "flash0";
-> > } elsif ($devpath =~
-> > m|/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.1/2-2.1:1.0/host\d+/\d+:0
-> >:0:0|) {
-> >         print "flash1";
-> > } elsif ($devpath =~ m|/devices/legacy/host\d+/\d+:0:4:0|) {
-> >         print "jaz";
-> > } else {
-> >         exit(1);
-> > }
+Hi,
+
+I added a section about Wake-on-LAN on my humble website. Most of you
+never seem to turn your boxes off, but maybe it could proof useful in the
+future.
+
+http://atlas.et.tudelft.nl/verwei90/nforce2/wol.html
+
+Regards,
+
+Arjen
+
+On Tue, 9 Mar 2004, Arjen Verweij wrote:
+
+> Yes, but for me the temp diff in Celsius between idle and load for the CPU
+> is almost 20 degrees. This has a dramatic impact on the case temperature
+> when it is closed because I haven't added fans in the top of the case yet.
 >
-> I'm not sure what you are trying to do.
+> So you see I value the disconnect quite a bit. Maybe when I get better
+> cooling I will disable it altogether in the BIOS so this headache will
+> disappear forever ;)
+>
+> Arjen
+>
+> On Mon, 8 Mar 2004, Craig Bradney wrote:
+>
+> > Hi Arjen
+> >
+> > <snip>
+> >
+> > > So far I have seen this only once, and I don't know what causes it.
+> > >
+> > > Ross, I prefer using your old patch because it keeps my temperature within
+> > > reasonable bounds when the case is closed. Sorry.
+> > >
+> >
+> > <snip>
+> >
+> > I have put the idle=C1halt patch that Ross released a little while back
+> > now into Gentoo-dev-sources-2.6.3 as I reported to the list yesterday. I
+> > no longer use the old apic_tack=2 patch. I have been playing silly
+> > buggers with hardware, but so far the PC has made it to 11 hours and now
+> > 7 hours with no issues.
+> >
+> > After those 11 hours I decided I'd change the PC setup in here and
+> > disconnected a fan and a hard drive and moved my server s/w (apache etc)
+> > to this PC so I only have one in here fpr now.
+> >
+> > Right now, CPU is at 34C which is only 1-3C higher than with the other
+> > patch, including having one less fan sucking air out the back of the
+> > box. Motherboard is actually lower (27C) than before (29C). Ambient room
+> > temp is normal.
+> >
+> > After those 11 hours, I am quite sure that on normal use (ie not
+> > compiling) the motherboard and cpu was 1-2C lower than with apic_tack=2.
+> >
+> > regards
+> > Craig
+> >
+>
+>
 
-I am trying to assign name for a USB slot on my PCs front so that when I plug 
-in USB stick or USB drive or whatever I get the same name. Always.
-
-> Working with the 'physical 
-> location' of removeable devices will probably fail.
-
-why? The 'physical location' is the only thing that is unlikely to change 
-unless you physically change you hardware.
-
-Anyway - it appears that udev (as of 022 now) still does not support doing it. 
-Once more - I want to make sure that SCSI disk plugged in specific USB slot 
-(that does not ever change) always gets the same name. So that I always know 
-how to access it.
-
-naive user would think that something like
-
-KERNEL="sd*" BUS="usb" PLACE="2.4:1.0" SYMLINK="flash0/sd%n"
-
-would work. Surely it does not. When udev sees "sd*" it does not see bus USB. 
-When udev sees bus USB it does not see "sd*". It does (probably) see sd* on 
-bus SCSI but it does not help me in any way because I have no way to 
-associate SCSI ID with USB port. While kernel does know that "sda" is a child 
-of USB port 2.4:0.1 I do not see any way to express it in udev.
-
-Could somebody explain what am I doing wrong. Thank you. 
-
-> The usb-storage 
-> devices here have a serial field, I really hope it is unique, use it.
-
-Sigh ... let me quote:
-
-> I have 6 different firewire hard drives, and an iPod, a usb stick, a usb
-> stick/camera combo, and a bunch of flash memory products (CF, SM, SD) so
-> such a thing would be incredibly useful to me.  I'm always modifying my
-> fstab to keep things in order.
-
-so you suggest him to add every device separately? And if he has half a dozen 
-friends having half a dozen devices each - do you suggest adding yet another 
-40 lines for all of them? And keep it in sync with all updates and upgrades?
-
-On the contrary he likely has just a couple of USB ports and one firewire and 
-he just needs three lines for *any* device which is ever going to be plugged 
-in. Or he would need if it was supported.
-
-thank you
-
--andrey

@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270578AbUJTWy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269153AbUJTWaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270578AbUJTWy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 18:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270553AbUJTWyu
+	id S269153AbUJTWaF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270563AbUJTWTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 18:54:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62888 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270590AbUJTWvN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 18:51:13 -0400
-Date: Wed, 20 Oct 2004 15:53:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: jt@hpl.hp.com
-Cc: jt@bougret.hpl.hp.com, davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6 IrDA] Stir driver usb reset fix
-Message-Id: <20041020155349.4514de82.akpm@osdl.org>
-In-Reply-To: <20041020010733.GJ12932@bougret.hpl.hp.com>
-References: <20041020010733.GJ12932@bougret.hpl.hp.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 18:19:09 -0400
+Received: from jpnmailout01.yamato.ibm.com ([203.141.80.81]:45964 "EHLO
+	jpnmailout01.yamato.ibm.com") by vger.kernel.org with ESMTP
+	id S270553AbUJTWQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 18:16:31 -0400
+In-Reply-To: <20041020191531.GC21315@elf.ucw.cz>
+Subject: Re: [ACPI] Machines self-power-up with 2.6.9-rc3 (evo N620c, ASUS, ...)
+To: Pavel Machek <pavel@ucw.cz>
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       acpi-devel-admin@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 6.0.2CF2 July 23, 2003
+Message-ID: <OF014FB65F.1C41FFC8-ON49256F33.007639BA-49256F33.0079C800@jp.ibm.com>
+From: Hiroshi 2 Itoh <HIROIT@jp.ibm.com>
+Date: Thu, 21 Oct 2004 07:15:22 +0900
+X-MIMETrack: Serialize by Router on D19ML115/19/M/IBM(Release 6.51HF338 | June 21, 2004) at
+ 2004/10/21 07:15:26
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
+
+
+
+
+Pavel,
+
+Thanks for your report. I have some suggestions to identify your
+problem and help ACPI developers to work more effectively.
+
+The developers are working both fixing ACPI related bugs and applying
+work around for bad BIOS behaviors. At this time I think fixing
+bugs is more important than applying work around.
+
+So if your problem on some machine is so serious, could you please
+give us the BIOS version and whether the machine suspend/resume is
+OK in ACPI mode of Windows 2000/XP too? Of course DSDT table check
+is highly helpful. http://bugzilla.kernel.org/ is prepared for such
+purpose.
+
+I believe such details help the developers to avoid spending much
+time to rescue desperate BIOS and to keep tight release schedule.
+
+- Hiro
+
+acpi-devel-admin@lists.sourceforge.net wrote on 2004/10/21 04:15:31:
+
+> Hi!
 >
-> 	o [CORRECT] stir4200 - get rid of reset on speed change
-> The Sigmatel 4200 doesn't accept the address setting which gets done on
-> USB reset.  The USB core recently changed to resend address (or
-> something like that), so usb_reset_device is failing.
-
-This needs fixups due to competing changes.  Please review:
-
-
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
-
-From: Stephen Hemminger
-
-o [CORRECT] stir4200 - get rid of reset on speed change The Sigmatel 4200
-  doesn't accept the address setting which gets done on USB reset.  The USB
-  core recently changed to resend address (or something like that), so
-  usb_reset_device is failing.
-
-The device works without doing the USB reset on speed change, it just
-will be less robust in recovering when things get wedged (like coming
-out of FIR mode).
-
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/drivers/net/irda/stir4200.c |    3 ---
- 1 files changed, 3 deletions(-)
-
-diff -puN drivers/net/irda/stir4200.c~irda-stir-driver-usb-reset-fix drivers/net/irda/stir4200.c
---- 25/drivers/net/irda/stir4200.c~irda-stir-driver-usb-reset-fix	Wed Oct 20 15:51:39 2004
-+++ 25-akpm/drivers/net/irda/stir4200.c	Wed Oct 20 15:52:50 2004
-@@ -528,11 +528,8 @@ static int change_speed(struct stir_cb *
- 		err = rc;
- 		goto out;
- 	}
--	err = usb_reset_device(stir->usbdev);
- 	if (rc)
- 		usb_unlock_device(stir->usbdev);
--	if (err)
--		goto out;
- 
- 	/* Reset modulator */
- 	err = write_reg(stir, REG_CTRL1, CTRL1_SRESET);
-_
+> I'm seeing bad problem with N620c notebook (and have reports of more
+> machines behaving like this, for example ASUS L8400C.) If I shutdown
+> machine with lid closed, opening lid will power the machine up. Ouch.
+> 2.6.7 behaves okay.
+>
+> Ouch, acpi=off makes it even worse [2.6.9-rc3, N620c]. I get some very
+> strange show on the leds (battery charge led blinks fast?!), then
+> machine powers up itself. This happens even with lid initially
+> open. 2.6.7 works as expected.
+>
+> Any ideas?
+>                         Pavel
 

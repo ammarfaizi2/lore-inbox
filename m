@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbTDXHbx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 03:31:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbTDXHbx
+	id S261328AbTDXHb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 03:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTDXHb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 03:31:53 -0400
-Received: from [196.41.29.142] ([196.41.29.142]:1019 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S261323AbTDXHbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 03:31:52 -0400
-Subject: Re: [PATCH] 2.5.68-bk1 crash in devfs_remove() for defpts files
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Cc: Pavel Roskin <proski@gnu.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1050957875.1224.2.camel@flat41>
-References: <Pine.LNX.4.55.0304211338540.1491@marabou.research.att.com>
-	 <20030421195555.A28583@lst.de> <20030421195847.A28684@lst.de>
-	 <Pine.LNX.4.55.0304211451110.1798@marabou.research.att.com>
-	 <20030421210020.A29421@lst.de>
-	 <Pine.LNX.4.55.0304211539350.2462@marabou.research.att.com>
-	 <20030421215637.A30019@lst.de>
-	 <Pine.LNX.4.55.0304211630230.2599@marabou.research.att.com>
-	 <1050957875.1224.2.camel@flat41>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1051169958.3604.2619.camel@workshop.saharact.lan>
+	Thu, 24 Apr 2003 03:31:58 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:47495 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261328AbTDXHb4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 03:31:56 -0400
+Date: Thu, 24 Apr 2003 08:44:00 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030424074400.GD28253@mail.jlokier.co.uk>
+References: <20030424051510.GK8931@holomorphy.com> <Pine.LNX.4.44.0304232217550.19326-100000@home.transmeta.com> <20030424061500.GN8978@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 24 Apr 2003 09:39:18 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030424061500.GN8978@holomorphy.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-04-21 at 22:44, Grzegorz Jaskiewicz wrote:
+William Lee Irwin III wrote:
+> Well, my walking out of computing is tied to complete prevention of
+> kernel hacking on commodity hardware, so you've not lost anything yet.
+> I only really care if it's no longer possible to get a commodity system
+> to run Linux on at all, not about crypto dongles.
 
-> to use devfs only, it is funny but fe to open /dev/sound/* you need to
-> be root, or chmod it manually before use. (i've got seperate
-> /etc/init.d/chdevfsmod file to do that)
-> 
+Hi William,
 
-Add to /etc/devfsd.conf:
+If it ever gets that bad, email me and we'll find a way to create
+hardware without those restrictions, and get it to people who want it.
 
------------------------------
-REGISTER        sound/.*     PERMISSIONS root.audio 660
-REGISTER        snd/.*       PERMISSIONS root.audio 660
------------------------------
+If the hardware that comes out of industry won't let you hack, hey you
+still have basic materials like SiO2 from the real world to make your
+own.  Tough, but rewarding :)
 
-Or whatever perms you wish ...
+It only gets _really_ bad when it becomes illegal to make your own
+hardware :(
 
-
-Regards,
-
--- 
-Martin Schlemmer
-
-
+-- Jamie

@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVAKTjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVAKTqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbVAKTjY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVAKThQ
+	id S262190AbVAKTqf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:46:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVAKTqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:37:16 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:53453 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262343AbVAKTgv (ORCPT
+	Tue, 11 Jan 2005 14:46:18 -0500
+Received: from mail.joq.us ([67.65.12.105]:53667 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262190AbVAKTly (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:36:51 -0500
-Date: Tue, 11 Jan 2005 11:29:09 -0800
-From: Greg KH <greg@kroah.com>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/PATCH] add support for sysdev class attributes
-Message-ID: <20050111192909.GA4623@kroah.com>
-References: <1105136891.13391.20.camel@pants.austin.ibm.com> <20050108050729.GA7587@kroah.com> <1105372684.27280.3.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Tue, 11 Jan 2005 14:41:54 -0500
+To: Matt Mackall <mpm@selenic.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Chris Wright <chrisw@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050110212019.GG2995@waste.org>
+	<200501111305.j0BD58U2000483@localhost.localdomain>
+	<20050111191701.GT2940@waste.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Tue, 11 Jan 2005 13:42:33 -0600
+In-Reply-To: <20050111191701.GT2940@waste.org> (Matt Mackall's message of
+ "Tue, 11 Jan 2005 11:17:02 -0800")
+Message-ID: <87ekgr3g7q.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105372684.27280.3.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 09:58:03AM -0600, Nathan Lynch wrote:
-> On Fri, 2005-01-07 at 21:07 -0800, Greg KH wrote:
-> > On Fri, Jan 07, 2005 at 04:28:12PM -0600, Nathan Lynch wrote:
-> > > @@ -88,6 +123,12 @@ int sysdev_class_register(struct sysdev_
-> > >  	INIT_LIST_HEAD(&cls->drivers);
-> > >  	cls->kset.subsys = &system_subsys;
-> > >  	kset_set_kset_s(cls, system_subsys);
-> > > +
-> > > +	/* I'm not going to claim to understand this; see
-> > > +	 * fs/sysfs/file::check_perm for how sysfs_ops are selected
-> > > +	 */
-> > > +	cls->kset.kobj.ktype = &sysdev_class_ktype;
-> > > +
-> > 
-> > I think you need to understand this, and then submit a patch without
-> > such a comment :)
-> > 
-> > And probably without such code, as I don't think you need to do that.
-> 
-> Sure, now I'm not sure how I convinced myself that bit was needed.
-> Things work fine without it.
-> 
-> Before I repatch, does sysdev_class_ktype need a release function?
+> On Tue, Jan 11, 2005 at 08:05:08AM -0500, Paul Davis wrote:
+>> I am not sure what you mean here. I think we've established that
+>> SCHED_OTHER cannot be made adequate for realtime audio work. Its
+>> intended purpose (timesharing the machine in ways that should
+>> generally benefit tasks that don't do a lot and/or are dominated by
+>> user interaction, thus rendering the machine apparently responsive) is
+>> really at odds with what we need.
 
-Why would it not?
+Matt Mackall <mpm@selenic.com> writes:
+> We have not established that at all. In principle, because SCHED_OTHER
+> tasks running at full priority lie on the boundary between SCHED_OTHER
+> and SCHED_FIFO, they can be made to run arbitrarily close to the
+> performance of tasks in SCHED_FIFO. With the upside that they won't be
+> able to deadlock the machine.
+>
+> And I mean arbitrarily close in the strict delta-epsilon sense.
+> It's not perfect, but neither is SCHED_FIFO, in principle or in
+> practice. 
 
-thanks,
+Though inelegant in theory, SCHED_FIFO *has* been shown to work in
+practice.  The POSIX 1003.4 committee were not all a bunch of idiots.
+That stuff *is* useful and *does* work (given appropriate privileges).
 
-greg k-h
+Your assertions have not been reduced to practice.  This is a
+significant difference.  Write some code, then we can discuss whether
+it solves any problems or not.  I doubt it, but prove me wrong and
+next year you can be the proud author of a scheduler used for hundreds
+of audio applications.
+
+Meanwhile, what about 2005?  It's "almost upon us".  :-/
+-- 
+  joq

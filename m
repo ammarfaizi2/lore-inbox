@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287886AbSBRVhY>; Mon, 18 Feb 2002 16:37:24 -0500
+	id <S287841AbSBRVlE>; Mon, 18 Feb 2002 16:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287817AbSBRVhM>; Mon, 18 Feb 2002 16:37:12 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43784 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287699AbSBRVhD>; Mon, 18 Feb 2002 16:37:03 -0500
-Subject: Re: time goes backwards periodically on laptop if booted in low-power mode
-To: ncw@axis.demon.co.uk (Nick Craig-Wood)
-Date: Mon, 18 Feb 2002 21:50:44 +0000 (GMT)
-Cc: dank@kegel.com (Dan Kegel),
-        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <20020218213049.A28604@axis.demon.co.uk> from "Nick Craig-Wood" at Feb 18, 2002 09:30:49 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S287862AbSBRVky>; Mon, 18 Feb 2002 16:40:54 -0500
+Received: from 162-39.84.64.covalent.net ([64.84.39.162]:44718 "EHLO
+	doom.sfo.covalent.net") by vger.kernel.org with ESMTP
+	id <S287841AbSBRVkp>; Mon, 18 Feb 2002 16:40:45 -0500
+Date: Mon, 18 Feb 2002 13:40:41 -0800
+From: john <john@zlilo.com>
+To: linux-kernel@vger.kernel.org
+Subject: kupdated using all CPU
+Message-ID: <20020218134041.A2586@doom.sfo.covalent.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16cvgK-0006uq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Linux: http://zlilo.com/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This isn't fixing the root cause of the problem which is interactions
-> between the BIOS power management and the kernel I believe, but it
-> does fix the problem and is really quite cheap so perhaps might be
+hi,
+ive searched all over and found many references to this problem, but never found an actual solution.
+the problem is that during heavy disk I/O, kupdated will periodically take up ALL the cpu.  like the mouse will stop responding, nothing moves.  the system is frozen until its done doing whatever its doing.
+the problem is mostly evident on large file transfers or doing something like copying a large file or untarring a large tarball, etc.
+i am running 2.4.17 on an IBM R30 thinkpad.  problem occurs on 2.4.16 also.
 
-do_gettimeofday is still going to give strange results - and consider
-the case where you boot slow and speed up...
-
-If you can give me the DMI strings for the affected boxes I can add
-them to the DMi tables (see ftp://ftp.linux.org.uk/pub/linux/alan/DMI*)
+so is there already an answer about this that i just cant find?
+any help appreciated, thanks.
+-j

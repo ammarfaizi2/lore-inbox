@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVDDHKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVDDHP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVDDHKq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 03:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVDDHKp
+	id S261583AbVDDHP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 03:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVDDHP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 03:10:45 -0400
-Received: from blackhole.adamant.ua ([212.26.128.69]:57357 "EHLO
-	blackhole.adamant.ua") by vger.kernel.org with ESMTP
-	id S261583AbVDDHKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 03:10:11 -0400
-Date: Mon, 4 Apr 2005 10:10:03 +0300
-From: Alexander Trotsai <mage@adamant.ua>
-To: Tejun Heo <htejun@gmail.com>
-Cc: John Lash <jkl@sarvega.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: Re: sata_sil Mod15Write quirk workaround patch for vanilla kernel avaialble.
-Message-ID: <20050404071002.GI4383@blackhole.adamant.ua>
-References: <424C10C3.9080102@gmail.com> <20050331111044.4a3672cd@homer.sarvega.com> <424C7EF0.5000206@gmail.com>
+	Mon, 4 Apr 2005 03:15:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:45250 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261583AbVDDHPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 03:15:25 -0400
+Date: Mon, 4 Apr 2005 08:15:13 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Mark Lord <lkml@rtr.ca>, zlynx@acm.org, greg@kroah.com, floam@sh.nu,
+       mrmacman_g4@mac.com, linux-kernel@vger.kernel.org
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+Message-ID: <20050404071513.GA4754@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Paul Jackson <pj@engr.sgi.com>, Mark Lord <lkml@rtr.ca>,
+	zlynx@acm.org, greg@kroah.com, floam@sh.nu, mrmacman_g4@mac.com,
+	linux-kernel@vger.kernel.org
+References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com> <20050327181221.GB14502@kroah.com> <1112058277.14563.4.camel@localhost> <20050329033350.GA6990@kroah.com> <1112069010.12853.52.camel@localhost> <42507F2F.1050405@rtr.ca> <20050403210145.0d1c1eff.pj@engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <424C7EF0.5000206@gmail.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050403210145.0d1c1eff.pj@engr.sgi.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 01, 2005 at 07:51:28AM +0900, Tejun Heo wrote:
-TH>  Hello, John.
-TH> 
-TH> John Lash wrote:
-TH> >On Fri, 01 Apr 2005 00:01:23 +0900
-TH> >Tejun Heo <htejun@gmail.com> wrote:
-TH> >
-TH> >
-TH> >>Hello, guys.
-TH> >>
-TH> >>I  generated m16w workaround patch for 2.6.11.6 (by just removing two
-TH> >>lines :-) and set up a page regarding m15w quirk and the workaournd.
-TH> >>I'm planning on updating m15w patch against the vanilla tree until it
-TH> >>gets into the mainline so that impatient users can try out and it gets
-TH> >>more testing.
-TH> >>
-TH> >>http://home-tj.org/m15w
-TH> >>
-TH> >>Thanks.
-TH> >>
-TH> >>-- 
-TH> >>tejun
-TH> >>
-TH> >
-TH> >
-TH> >Tejun,
-TH> >
-TH> >I applied the patch to a clean 2.6.11.6 kernel and got an unresolved
-TH> >symbol error for "ATA_TFLAG_LBA". I tried changing that to 
-TH> >"ATA_TFLAG_LBA48" and
-TH> >it compiles and runs.
-TH> >
-TH> >So far, no problems. Thanks a lot for the patch.
-TH> 
-TH>  I'm sorry.  I uploaded the original patch against libata-dev-2.6 tree. 
-TH>  The two BUG_ON() lines should just be removed.  I've uploaded fixed 
-TH> patch.  Thanks for pointing out.
+On Sun, Apr 03, 2005 at 09:01:45PM -0700, Paul Jackson wrote:
+> Mark wrote:
+> > Probably all Linux binary drivers *are* compiled using GPL'd header files,
+> > and thus are themselves subject to the GPL.
+> 
+> I doubt that there is a consensus that simply compiling something with
+> a GPL header necessarily and always subjects it to the GPL.  See your lawyer.
 
-Thanks
-Seems to be worked (I'm install with ide-ata-2.6 patch)
-But with heavy read load write performance is very very bad
-(near 50-100 KBps)
-But I think that is not problem of Silicon card (I have also
-to SATA hard drives on Intel onboard SATA controller with
-same performance troubles)
+For a header as in interface maybe not.  For headers containing significant
+code in inline functions the binary drivers is definitly a derived work.
 
--- 
-Best regard, Aleksander Trotsai aka MAGE-RIPE aka MAGE-UANIC
-My PGP key at ftp://blackhole.adamant.ua/pgp/trotsai.key[.asc]

@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265081AbUEYToj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265084AbUEYTms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265081AbUEYToj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 15:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUEYToj
+	id S265084AbUEYTms (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 15:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbUEYTlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 15:44:39 -0400
-Received: from mail.kssb.net ([198.248.45.1]:30311 "EHLO california.campus")
-	by vger.kernel.org with ESMTP id S265082AbUEYToX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 15:44:23 -0400
-Message-ID: <40B3A219.6090202@kssb.net>
-Date: Tue, 25 May 2004 14:44:25 -0500
-From: Bradley Hook <bhook@kssb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> <1085468812.2783.7.camel@laptop.fenrus.com> <B58A76BA-AE60-11D8-BD27-000A95CC3A8A@mesatop.com> <40B36E0B.3090605@kssb.net> <40B395A0.2040002@timesys.com>
-In-Reply-To: <40B395A0.2040002@timesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 May 2004 19:44:22.0238 (UTC) FILETIME=[AD3CBFE0:01C44290]
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 25 May 2004 15:41:39 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:54671
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265081AbUEYTlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 15:41:20 -0400
+Date: Tue, 25 May 2004 21:41:15 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 4g/4g for 2.6.6
+Message-ID: <20040525194115.GE29378@dualathlon.random>
+References: <20040524124834.GB29378@dualathlon.random> <Pine.LNX.4.44.0405251514490.26157-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0405251514490.26157-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-La Monte H.P. Yarroll wrote:
+On Tue, May 25, 2004 at 03:15:14PM -0400, Rik van Riel wrote:
+> On Mon, 24 May 2004, Andrea Arcangeli wrote:
+> > On Mon, May 24, 2004 at 10:25:22AM +0200, Ingo Molnar wrote:
+> > > on how quickly 'x86 with more than 4GB of RAM' and 
+> > 
+> > s/4GB/32GB/
+> > 
+> > my usual x86 test box has 48G of ram (though to keep an huge margin of
+> > safety we assume 32G is the very safe limit).
 > 
->>
->> Why not design the DCO so that it assumes an author accepts the most 
->> recent published version unless specified. You could then shorten the 
->> line to:
->>
->> DCO-Sign-Off: Random J Developer <random@developer.org>
-> 
-> 
-> If I'm looking at a 15 year old document where do I go to find out what
-> "most recent published version" meant at that time?  This assumes we're
-> talking about a document that has a clear timestamp.  If we care about
-> the version number at all, it should be in every signoff line.
-> 
+> Just how many 3GB sized processes can you run on that
+> system, if each of them have a hundred or so VMAs ?
 
-It's similar to when an author licenses something under GPL with:
+with 400m of normal zone we can allocate 5000000 vmas, if each task uses
+100 of them that's around 50000 processes. The 3G size doesn't matter.
 
-"either version 2 of the License, or (at your option) any later version."
+I think you meant each task using some _dozen_thousand_ of vmas (not
+hundreds), that's what actually happens with 32k large vmas spread over
+2G of shared memory on some database (assuming no merging, with merging
+it goes down to the few thousands), but remap_file_pages has been
+designed exactly to avoid allocating several thousands of VMA per task,
+no? So it's just 1 vma per task (plus a few more vmas for the binary
+shared libs and anonymous memory).
 
-By doing this, you are trusting that whoever is in charge of releasing a 
-new revision of the DCO is not going to put something in there that 
-would alter the base meaning or intent of the DCO; Only corrections or 
-additions to allow for special cases. Notice that the DCO reads as 3 
-options ORed together, which means only 1 has to be true. If that design 
-were maintained, then any additions/corrections should not have an 
-affect on an old sign-off.
-
-If anyone is concerned about this, then they should include a version 
-number in the sign off. But put the version after the line identifier 
-(Signed-off-by:), and only if you - the person signing off - are going 
-to care about it. But if you're that paranoid, you should probably also 
-be explicitly stating which option you are signing off on, and "what 
-DCO" you are using...
-
-DCO 1.0(a) as submitted by Linus Torvalds on the LKML on 5/23/04: Random 
-J Developer <random@developer.org>
-
-Come on now, get serious.
-
-~Brad
+Clearly by opening enough files or enough network sockets or enough vmas
+or similar, you can still run out of normal zone, even on a 2G system,
+but this is not the point or you would be shipping 4:4 on the 2G systems
+too, no? We're not trying to make it impossible to run out of zone
+normal, even 4:4 can't make that impossible to happen on >4G boxes.

@@ -1,83 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318210AbSHZTRl>; Mon, 26 Aug 2002 15:17:41 -0400
+	id <S317673AbSHZTYL>; Mon, 26 Aug 2002 15:24:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318229AbSHZTRl>; Mon, 26 Aug 2002 15:17:41 -0400
-Received: from robur.slu.se ([130.238.98.12]:42763 "EHLO robur.slu.se")
-	by vger.kernel.org with ESMTP id <S318210AbSHZTRk>;
-	Mon, 26 Aug 2002 15:17:40 -0400
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	id <S317772AbSHZTYL>; Mon, 26 Aug 2002 15:24:11 -0400
+Received: from AMarseille-201-1-2-149.abo.wanadoo.fr ([193.253.217.149]:8048
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S317673AbSHZTYK>; Mon, 26 Aug 2002 15:24:10 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Daniel Egger <degger@fhm.edu>, Alan Cox <alan@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre4-ac2
+Date: Mon, 26 Aug 2002 22:37:20 +0200
+Message-Id: <20020826203720.1562@192.168.4.1>
+In-Reply-To: <1030388788.2797.13.camel@irongate.swansea.linux.org.uk>
+References: <1030388788.2797.13.camel@irongate.swansea.linux.org.uk>
+X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <15722.33143.220568.646900@robur.slu.se>
-Date: Mon, 26 Aug 2002 21:28:55 +0200
-To: "Mala Anand" <manand@us.ibm.com>
-Cc: jamal <hadi@cyberus.ca>, davem@redhat.com, netdev@oss.sgi.com,
-       Robert Olsson <Robert.Olsson@data.slu.se>,
-       "Bill Hartner" <bhartner@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
-In-Reply-To: <OFFFA46B92.252E5659-ON87256C21.000BB73B@boulder.ibm.com>
-References: <OFFFA46B92.252E5659-ON87256C21.000BB73B@boulder.ibm.com>
-X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>If it was x86 I'd say "keep it for 2.4, delete it in 2.5, in the 2.4 one
+>add a printk advising people to switch driver". I don't know how the ppc
+>world is accustomed to handling this though
 
-Mala Anand writes:
- > I know you don't subscribe to lkml. Have you seen these results?
- > On Numa machine it showed around 3% improvement using SPECweb99.
+Well, we aren't not really accustomed to obsoleting a driver yet ;)
 
- In slab terms you moved part of the destructor to the constructor
- but the main problem is still there. The skb entered the "wrong" CPU
- so to be "reused from the slab again" the work has to done regardless
- if it's in the constructor or destructor.
+My original intend was just that (keep it in 2.4 and delete it in 2.5)
+but now, working sungem has been around 2.4 for quite some time and new
+machines aren't properly suported by it etc...
 
- Eventually if we accept some cache misses a skb could possibly be re-routed
- to the proper slab/CPU for this we would need some skb coloring.
+The printk big bold warning on driver load may be the best option for 2.4
 
- 
- Also I noticed your TCP results w. e1000. 
- Here is what I see:
- 
-Linux 2.4.20-pre4/UP PIII @ 933 MHz w. Intel's e100 2 port GIGE adapter.
-e1000 4.3.2-k1 (current kernel version) and current NAPI patch. For NAPI 
-e1000 driver used RxIntDelay=1. RxIntDelay=0 caused problem now. Non-NAPI
-driver used RxIntDelay=64. (default)
-
-Three tests: TCP, UDP, packet forwarding.
+Ben.
 
 
-Netperf. TCP socket size 131070, Single TCP stream. Test length 30 s.
-
-M-size   e1000    NAPI-e1000
-============================
-      4   20.74    20.69  Mbit/s data received.
-    128  458.14   465.26 
-    512  836.40   846.71 
-   1024  936.11   937.93 
-   2048  940.65   939.92 
-   4096  940.86   937.59
-   8192  940.87   939.95 
-  16384  940.88   937.61
-  32768  940.89   939.92
-  65536  940.90   939.48
- 131070  940.84   939.74
-
-
-Netperf. UDP_STREAM. 1440 pkts. Single UDP stream. Test length 30 s.
-         e1000    NAPI-e1000
-====================================
-         955.7    955.7   Mbit/s data received.
-
-
-Forwarding test. 1 Mpkts at 970 kpps injected.
-          e1000   NAPI-e1000
-=============================================
-Tput       305   298580   Pkts routed.
-
-
-
-Cheers.
-
-						--ro

@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbSKHSKt>; Fri, 8 Nov 2002 13:10:49 -0500
+	id <S261339AbSKHSOX>; Fri, 8 Nov 2002 13:14:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261335AbSKHSKt>; Fri, 8 Nov 2002 13:10:49 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:53660 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261333AbSKHSKs>; Fri, 8 Nov 2002 13:10:48 -0500
-Subject: Re: [PATCH-2.5.46] IDE BIOS timings
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Torben Mathiasen <torben.mathiasen@hp.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021108165641.GA18126@suse.de>
-References: <20021107164009.GL1737@tmathiasen>
-	<1036775438.16898.31.camel@irongate.swansea.linux.org.uk> 
-	<20021108165641.GA18126@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Nov 2002 18:40:50 +0000
-Message-Id: <1036780850.16651.105.camel@irongate.swansea.linux.org.uk>
+	id <S261377AbSKHSOX>; Fri, 8 Nov 2002 13:14:23 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54954 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261339AbSKHSOW>; Fri, 8 Nov 2002 13:14:22 -0500
+Subject: Re: 2.5.46-mm1: CONFIG_SHAREPTE do not work with KDE 3
+From: Paul Larson <plars@linuxtestproject.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DC9F1C0.70712ED4@digeo.com>
+References: <200211070547.00387.Dieter.Nuetzel@hamburg.de> 
+	<3DC9F1C0.70712ED4@digeo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-oTwFtoBfHDCFfKYwKB4H"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 08 Nov 2002 12:18:33 -0600
+Message-Id: <1036779514.17557.7.camel@plars>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-08 at 16:56, Jens Axboe wrote:
-> > Linus please drop this patch for now. Its not been tested on enough
-> > controllers, its making things unneccessarily ugly and its also just
-> > going to make updates hard.
-> 
-> Alan, the patch is pretty much straight forward. Cleaning up the magic
-> numbers and ->autotune consistencies is a good thing, imo.
 
-You can clean up the naming but it still hasn't been tested, not all
-bioses neccessarily give us timings we can trust either.  I'm not
-opposed to the concept but after the previous IDE mess in 2.5 merging
-something that isnt tested on lots of controllers and might have weird
-effects does both me a bit
+--=-oTwFtoBfHDCFfKYwKB4H
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, 2002-11-06 at 22:53, Andrew Morton wrote:
+> Dieter N=FCtzel wrote:
+> >=20
+> > When I enable shared 3rd-level pagetables between processes KDE 3.0.x a=
+nd KDE
+> > 3.1 beta2 at least do not work.
+> >=20
+>=20
+> Yup.  That's a bug which happens to everyone in the world
+> except Dave :(
+I've tried to reproduce this also on a RH 7.3 box.  ksmserver is
+running, but strace says it's stuck on a select() call.  There are no
+kernel messages, but I got this from startx:
+
+DCOPServer up and running.
+Warning: connect() failed: : Connection refused
+
+It looks like maybe this problem shows up in different ways.  Anyone
+have ideas about how to debug this?
+
+-Paul Larson
+
+--=-oTwFtoBfHDCFfKYwKB4H
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAj3L//kACgkQbkpggQiFDqdDUgCfeTKb4GnjAESwRti133KFb32D
+1hcAn0SCyYQPF9g5Hea1A4wDMesB/6YW
+=Yo2V
+-----END PGP SIGNATURE-----
+
+--=-oTwFtoBfHDCFfKYwKB4H--
 

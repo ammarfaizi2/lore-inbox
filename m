@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286012AbRLTDvE>; Wed, 19 Dec 2001 22:51:04 -0500
+	id <S286011AbRLTDrn>; Wed, 19 Dec 2001 22:47:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286044AbRLTDuy>; Wed, 19 Dec 2001 22:50:54 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:53253 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286012AbRLTDur>;
-	Wed, 19 Dec 2001 22:50:47 -0500
-Date: Thu, 20 Dec 2001 01:50:36 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112181508001.3410-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0112200149330.15741-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286012AbRLTDrd>; Wed, 19 Dec 2001 22:47:33 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:55393 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S286011AbRLTDrU>; Wed, 19 Dec 2001 22:47:20 -0500
+Date: Wed, 19 Dec 2001 22:47:17 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: billh@tierra.ucsd.edu, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: aio
+Message-ID: <20011219224717.A3682@redhat.com>
+In-Reply-To: <20011219182628.A13280@burn.ucsd.edu> <20011219.184527.31638196.davem@redhat.com> <20011219190716.A26007@burn.ucsd.edu> <20011219.191354.65000844.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011219.191354.65000844.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 07:13:54PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, Linus Torvalds wrote:
+On Wed, Dec 19, 2001 at 07:13:54PM -0800, David S. Miller wrote:
+> I don't think AIO, because of it's non-trivial impact to the tree, is
+> at all outside the scope of this list.  This is in fact the place
+> where major stuff like AIO is meant to be discussed, not some special
+> list where only "AIO people" hang out, of course people on that list
+> will be enthusiastic about AIO!
 
-> The thing is, I'm personally very suspicious of the "features for that
-> exclusive 0.1%" mentality.
+Well maybe yourself and others should make some comments about it then.
 
-Then why do we have sendfile(), or that idiotic sys_readahead() ?
+> Frankly, on your other comments, I don't give a rats ass what BSD/OS
+> people are doing about, nor how highly they rate, Java.  That is
+> neither here nor there.  Java is going to be dead in a few years, and
+> let's just agree to disagree about this particular point ok?
 
-(is there _any_ use for sys_readahead() ?  at all ?)
+Who cares about Java?  What about high performance LDAP servers or tux-like 
+userspace performance?  How about faster select and poll?  An X server that 
+doesn't have to make a syscall to find out that more data has arrived?  What 
+about nbd or iscsi servers that are in userspace and have all the benefits 
+that their kernel side counterparts do?
 
-cheers,
-
-Rik
+		-ben
 -- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Fish.

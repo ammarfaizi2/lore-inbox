@@ -1,199 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbULJRJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbULJRRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbULJRJu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 12:09:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbULJRJu
+	id S261759AbULJRRP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 12:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbULJRRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 12:09:50 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:5279 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S261764AbULJRJc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 12:09:32 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Documentation for ia64 serial device name changes
-Date: Fri, 10 Dec 2004 10:09:25 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+	Fri, 10 Dec 2004 12:17:15 -0500
+Received: from anubis.medic.chalmers.se ([129.16.30.218]:12188 "EHLO
+	anubis.medic.chalmers.se") by vger.kernel.org with ESMTP
+	id S261759AbULJRRN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 12:17:13 -0500
+Date: Fri, 10 Dec 2004 18:17:11 +0100 (MET)
+From: Peter Karlsson <petekarl@student.chalmers.se>
+X-X-Sender: petekarl@valandil.dd.chalmers.se
+To: linux-kernel@vger.kernel.org
+Subject: Comments on new kernel dev. model
+In-Reply-To: <1102695710.26320.48.camel@weaponx.rchland.ibm.com>
+Message-ID: <Pine.GSO.4.58.0412101756290.2604@valandil.dd.chalmers.se>
+References: <20041210005055.GA17822@kroah.com>  <20041210005514.GB17822@kroah.com>
+  <1102688117.26320.7.camel@weaponx.rchland.ibm.com>  <20041210152728.GA5827@kroah.com>
+ <1102695710.26320.48.camel@weaponx.rchland.ibm.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_FhduBgZO2kYp47+"
-Message-Id: <200412101009.25904.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_FhduBgZO2kYp47+
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hello!
 
-Please add the attached documentation patch before 2.6.10,
-because it includes some ia64 serial device naming changes
-that are bound to cause confusion.
+Historically, users, like me, have been able to download a "stable"
+kernel. With the new development model, where it is up to distributions
+to "stabilise" the kernel, these days are gone. This is a, sort-of,
+regression from my POV, making it so much harder for DIY-"distros" like
+LFS (and to a lesser extent gentoo). I realise this has been debated quite
+a lot before, and as an illiterate when it comes to C-programming ("hello
+world" is the limit for me right now) I cannot contribute (so far). Ok,
+that's all I have to say. I'm gonna crawl under the rock from where I came
+now...
 
- Documentation/ia64/serial.txt |  144 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 144 insertions(+)
+Best regards
 
---Boundary-00=_FhduBgZO2kYp47+
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="serial-doc.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="serial-doc.patch"
+Peter Karlsson
 
-Document how Linux/ia64 names serial devices and how to use them
-as console devices.
-
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-
---- /dev/null	2003-09-17 12:43:43.000000000 -0600
-+++ linux-2.5/Documentation/ia64/serial.txt	2004-12-08 10:36:38.893573600 -0700
-@@ -0,0 +1,144 @@
-+SERIAL DEVICE NAMING
-+
-+    As of 2.6.10, serial devices on ia64 are named based on the
-+    order of ACPI and PCI enumeration.  The first device in the
-+    ACPI namespace (if any) becomes /dev/ttyS0, the second becomes
-+    /dev/ttyS1, etc., and PCI devices are named sequentially
-+    starting after the ACPI devices.
-+
-+    Prior to 2.6.10, there were confusing exceptions to this:
-+
-+	- Firmware on some machines (mostly from HP) provides an HCDP
-+	  table[1] that tells the kernel about devices that can be used
-+	  as a serial console.  If the user specified "console=ttyS0"
-+	  or the EFI ConOut path contained only UART devices, the
-+	  kernel registered the device described by the HCDP as
-+	  /dev/ttyS0.
-+
-+	- If there was no HCDP, we assumed there were UARTs at the
-+	  legacy COM port addresses (I/O ports 0x3f8 and 0x2f8), so
-+	  the kernel registered those as /dev/ttyS0 and /dev/ttyS1.
-+
-+    Any additional ACPI or PCI devices were registered sequentially
-+    after /dev/ttyS0 as they were discovered.
-+ 
-+    With an HCDP, device names changed depending on EFI configuration
-+    and "console=" arguments.  Without an HCDP, device names didn't
-+    change, but we registered devices that might not really exist.
-+
-+    For example, an HP rx1600 with a single built-in serial port
-+    (described in the ACPI namespace) plus an MP[2] (a PCI device) has
-+    these ports:
-+
-+                                  pre-2.6.10      pre-2.6.10
-+                    MMIO         (EFI console    (EFI console
-+                   address        on builtin)     on MP port)    2.6.10
-+                  ==========      ==========      ==========     ======
-+      builtin     0xff5e0000        ttyS0           ttyS1         ttyS0
-+      MP UPS      0xf8031000        ttyS1           ttyS2         ttyS1
-+      MP Console  0xf8030000        ttyS2           ttyS0         ttyS2
-+      MP 2        0xf8030010        ttyS3           ttyS3         ttyS3
-+      MP 3        0xf8030038        ttyS4           ttyS4         ttyS4
-+  
-+CONSOLE SELECTION
-+
-+    EFI knows what your console devices are, but it doesn't tell the
-+    kernel quite enough to actually locate them.  The DIG64 HCDP
-+    table[1] does tell the kernel where potential serial console
-+    devices are, but not all firmware supplies it.  Also, EFI supports
-+    multiple simultaneous consoles and doesn't tell the kernel which
-+    should be the "primary" one.
-+
-+    So how do you tell Linux which console device to use?
-+
-+	- If your firmware supplies the HCDP, it is simplest to
-+	  configure EFI with a single device (either a UART or a VGA
-+	  card) as the console.  Then you don't need to tell Linux
-+	  anything; the kernel will automatically use the EFI console.
-+
-+	  (This works only in 2.6.6 or later; prior to that you had
-+	  to specify "console=ttyS0" to get a serial console.)
-+
-+	- Without an HCDP, Linux defaults to a VGA console unless you
-+	  specify a "console=" argument.
-+
-+    NOTE: Don't assume that a serial console device will be /dev/ttyS0.
-+    It might be ttyS1, ttyS2, etc.  Make sure you have the appropriate
-+    entries in /etc/inittab (for getty) and /etc/securetty (to allow
-+    root login).
-+
-+EARLY SERIAL CONSOLE
-+
-+    The kernel can't start using a serial console until it knows where
-+    the device lives.  Normally this happens when the driver enumerates
-+    all the serial devices, which can happen a minute or more after the 
-+    kernel starts booting.
-+
-+    2.6.10 and later kernels have an "early uart" driver that works
-+    very early in the boot process.  The kernel will automatically use
-+    this if the user supplies an argument like "console=uart,io,0x3f8",
-+    or if the EFI console path contains only a UART device and the
-+    firmware supplies an HCDP.
-+
-+TROUBLESHOOTING SERIAL CONSOLE PROBLEMS
-+ 
-+    No kernel output after elilo prints "Uncompressing Linux... done":
-+
-+	- You specified "console=ttyS0" but Linux changed the device
-+	  to which ttyS0 refers.  Configure exactly one EFI console
-+	  device[3] and remove the "console=" option.
-+
-+	- The EFI console path contains both a VGA device and a UART.
-+	  EFI and elilo use both, but Linux defaults to VGA.  Remove
-+	  the VGA device from the EFI console path[3].
-+  
-+	- Multiple UARTs selected as EFI console devices.  EFI and
-+	  elilo use all selected devices, but Linux uses only one.
-+	  Make sure only one UART is selected in the EFI console
-+	  path[3].
-+
-+	- You're connected to an HP MP port[2] but have a non-MP UART
-+	  selected as EFI console device.  EFI uses the MP as a
-+	  console device even when it isn't explicitly selected.
-+	  Either move the console cable to the non-MP UART, or change
-+	  the EFI console path[3] to the MP UART.
-+ 
-+    Long pause (60+ seconds) between "Uncompressing Linux... done" and
-+    start of kernel output:
-+ 
-+	- No early console because you used "console=ttyS<n>".  Remove
-+	  the "console=" option if your firmware supplies an HCDP.
-+
-+	- If you don't have an HCDP, the kernel doesn't know where
-+	  your console lives until the driver discovers serial
-+	  devices.  Use "console=uart, io,0x3f8" (or appropriate
-+	  address for your machine).
-+ 
-+    Kernel and init script output works fine, but no "login:" prompt:
-+ 
-+	- Add getty entry to /etc/inittab for console tty.  Look for
-+	  the "Adding console on ttyS<n>" message that tells you which
-+	  device is the console.
-+ 
-+    "login:" prompt, but can't login as root:
-+ 
-+	- Add entry to /etc/securetty for console tty.
-+ 
-+
-+
-+[1] http://www.dig64.org/specifications/DIG64_PCDPv20.pdf
-+    The table was originally defined as the "HCDP" for "Headless
-+    Console/Debug Port."  The current version is the "PCDP" for
-+    "Primary Console and Debug Port Devices."
-+
-+[2] The HP MP (management processor) is a PCI device that provides
-+    several UARTs.  One of the UARTs is often used as a console; the
-+    EFI Boot Manager identifies it as "Acpi(HWP0002,700)/Pci(...)/Uart".
-+    The external connection is usually a 25-pin connector, and a
-+    special dongle converts that to three 9-pin connectors, one of
-+    which is labelled "Console."
-+
-+[3] EFI console devices are configured using the EFI Boot Manager
-+    "Boot option maintenance" menu.  You may have to interrupt the
-+    boot sequence to use this menu, and you will have to reset the
-+    box after changing console configuration.
-
---Boundary-00=_FhduBgZO2kYp47+--

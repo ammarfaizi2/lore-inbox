@@ -1,63 +1,67 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <153860-31090>; Mon, 14 Dec 1998 08:08:14 -0500
-Received: from tigra-eth0.gu.net ([194.93.191.131]:3846 "EHLO tigra.gu.net" ident: "ksi") by vger.rutgers.edu with ESMTP id <154509-31090>; Mon, 14 Dec 1998 06:57:16 -0500
-Date: Mon, 14 Dec 1998 14:22:49 +0200 (EET)
-From: Serguei Koubouchine <ksi@gu.net>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.rutgers.edu
-Subject: Re: ARRGHH !!! Gated is broken again in 2.1.131 ...
-In-Reply-To: <Pine.LNX.3.96.981213125057.15918B-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.05.KSI2.9812141405160.24610-100000@tigra.gu.net>
-X-FTN-PID: Pine-3.96.KSI
-X-FTN-Tearline: Pine-3.96.KSI (KSI Linux)
-X-FTN-Origin: -= KSI's Nest =- Kiev Ukraine (2:463/400)
+Received: by vger.rutgers.edu id <154887-31090>; Tue, 15 Dec 1998 16:26:48 -0500
+Received: from MERCURY.CS.UREGINA.CA ([142.3.200.53]:19787 "EHLO MERCURY.CS.UREGINA.CA" ident: "karimi") by vger.rutgers.edu with ESMTP id <155380-31090>; Tue, 15 Dec 1998 15:40:31 -0500
+Date: Tue, 15 Dec 1998 15:13:28 -0600 (CST)
+From: Kamran Karimi <karimi@cs.uregina.ca>
+To: linux-kernel@vger.rutgers.edu
+Subject: Distributed Programming with DIPC
+Message-ID: <Pine.SGI.3.91.981215151225.5223A-100000@MERCURY.CS.UREGINA.CA>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Sun, 13 Dec 1998, Mr. James W. Laferriere wrote:
+To people interested in distributed programming and clustering under Linux,
 
-> 
-> 	Hello Serguei,
-> 
-> On Sun, 13 Dec 1998, Serguei Koubouchine wrote:
-> > On Sat, 12 Dec 1998, Mr. James W. Laferriere wrote:
-> > > > It is not 2.1 specific, I saw and fixed this bug in early 1.3 (or
-> >even 1.1?
-> > > > I do not remember, it was years ago), when RTF_REJECT appeared.
-> > > > 
-> > > > As I understood the case with OSPF is closed. OK.
-> > > 	You mean the one reported by Serguei Koubouchine ?
-> > 
-> > Yes, gated DOES work again (2.1.131-ac10 + modified kernel-ss981207.dif.gz,
-> > gated-3.5.10 + patches).                            ^^^^^^^^^^^^^^^ 2)
->                  ^^^^^^^ 1) Which patches ?, Could you give an URL ?
-> 	Or are these something you have put together ?
-> 	Could you post or place for ftp these ? (1 & 2)
+ This is to introduce DIPC (Distributed Inter-Process Communication). 
+DIPC is a software-only solution for very easy distributed programming under 
+the Linux operating system. Here developers design their applications 
+as a group of processes, each possibly running on a different Linux computer, 
+and then use DIPC to _transparently_ exchange data between them. The main 
+objective of the DIPC project is to make distributed programming as much like 
+"normal" programming as possible.
 
-I do make the localized Linux distribution (KSI Linux) for use primarily in
-ex-USSR (the right locales, cyrilization out of the box etc.). The about to
-be released version 2.0 (Nostromo) is kinda different from every
-distribution on the market now - it's built around 2.1.xxx and includes
-almost all networking staff from Alexey (we DO use traffic control with CBQ
-rather extensively in a production environment). You can find RPMs and SRPMs
-on ftp://ftp.ksi-linux.com/pub/Devel/Nostromo (the directory is a little bit
-outdated, I'll sync it with the main tree tomorrow). If you do not have (or
-do not like) RPM for some reason, you can find the patches extracted from
-SRPMs at ftp://ftp.ksi-linux.com/pub/patches.
+ DIPC hides itself behind UNIX System V's IPC mechanisms, consisting of 
+Semaphores, Messages, and Shared Memories, and makes them work over a network. 
+This means that DIPC offers, among other things, Transparent Distributed 
+Shared Memory (DSM) with strict consistency: Processes can read from and 
+write to the shared memory with no need for any explicit synchronization!
+This makes DIPC very different from systems like PVM or MPI. The source code 
+of a DIPC program is nearly identical to a normal UNIX program using System V 
+IPC. Actually, a DIPC program can even run in a Linux computer with no DIPC 
+support; no need for recompilation. System V IPC is widely available in 
+UNIX variants, and is very well documented, meaning that developers may 
+already know the programming interface, or they can learn it very easily, 
+confident that the usefulness of the newly learned material is not tied to 
+the availability of DIPC. This is in sharp contrast to most other distributed 
+programming systems.
 
-> 	2) Hmmm, that almost looks like one of Alexey's filenames but I
-> 	can't find a file on his site of that name . Tia
+ Using a mainly "shared-memory" programming interface means that the same 
+distributed application can also run on a multi-processor Linux machine
+at "full speed"
 
-Yes, it's the Alexey's 981206 updated to apply cleanly against ac kernels.
-The latest one is kernel-ss981212.dif.gz made against 2.1.131-ac10 (fits
-nicely into ac-11). You can find it in the patches directory too.
+ DIPC modifies the Linux kerenl in order to offer its excellent degree of 
+transparency. There are no needs for any link libraries, and it can be 
+used from any programming language that allows access to the OS calls.
+The hardware can consist of a single Linux machine, or a cluster of computers 
+connected to each other by a TCP/IP network. DIPC has been tested on 
+inter-continental WANs and is a heterogeneous system, as it can run on 
+Linux/i386 and Linux/m68k, with both versions being able to talk to each
+other. (volunteers for porting DIPC to other CPU families are welcome).
 
-=======================================================================
-Serguei Koubouchine aka the Tamer < > The impossible we do immediately.
-e-mail: ksi@gu.net   SK320-RIPE   < > Miracles require 24-hour notice.
-=======================================================================
+ People intersted in distributed systems can easily and safely try DIPC. After 
+patching a standard Linux kernel, DIPC becomes a configuration option 
+(make config), and can be left out at compile time if desired. When DIPC is 
+compiled in, it can be turned off any time with no need for a reboot.
 
+ For more more information about DIPC, visit http://wallybox.cei.net/dipc . 
+You can download the package (which includes the sources and the 
+documentation) from the web page, or from ftp://wallybox.cei.net/pub/dipc . 
+A mailing list devoted to discussions about DIPC is addressed at
+linux-dipc@wallybox.cei.net . Feel free to send your comments and questions
+here. To view the previous posts to DIPC's mailing list target your browser 
+at http://wallybox.cei.net/dipc/ml-archive .
+
+-Kamran Karimi
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,130 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268570AbUHLN5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268571AbUHLN7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268570AbUHLN5R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 09:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268572AbUHLN5R
+	id S268571AbUHLN7E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 09:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268572AbUHLN7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 09:57:17 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:14745 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268571AbUHLN45 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 09:56:57 -0400
-Message-ID: <f0cc3e3e04081206568f413e5@mail.gmail.com>
-Date: Thu, 12 Aug 2004 23:56:56 +1000
-From: Omar Kilani <omar.kilani@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Performance Degradation: 2.6.8-rc4-bk1 vs RHEL 2.4.21-15.0.3
-In-Reply-To: <f0cc3e3e04081206354300a561@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Aug 2004 09:59:04 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:7637 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268571AbUHLN6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 09:58:55 -0400
+Subject: Re: Linux SATA RAID FAQ
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
+References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <f0cc3e3e040812054511f253aa@mail.gmail.com> <295911442.20040812150922@dns.toxicfilms.tv> <f0cc3e3e04081206354300a561@mail.gmail.com>
+Message-Id: <1092315392.21994.52.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 12 Aug 2004 13:56:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to self,
+On Iau, 2004-08-12 at 14:38, Bernd Eckenfels wrote:
+> Speaing of that, does that mean that other OSes (i.e. Windows) are using
+> BIOS provided code to do raid, or do they also have raid software drivers
+> and the bios is only used on bootup for signature detection and formatting?
 
-Some additional stats. I ran 'vmstat 1' during the ab run. Results:
+Normally BIOS and windows drivers doing their raid. It isn't entirely
+that simple. The 3ware is hardware raid as are some of the other high
+end devices (eg aacraid sata boards). There are also some low end
+devices with part of the raid logic in hardware (some promise) although
+I don't believe we use that to the full yet.
 
-2.4.21-2ts (RHEL 2.4.21-15.0.3):
+I'm currently trying to fix up the IT8212 which is an older PATA board
+which does have real h/w raid 0/1
 
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  0      0 304852  18760 142880    0    0     0     0  104 22327 39 50 10  0
- 2  0      0 304256  18760 143196    0    0     0     0  103 22740 38 50 12  0
- 1  0      0 303176  18760 143504    0    0     0     0  106 22306 41 47 12  0
- 3  0      0 302808  18760 143824    0    0     0     0  102 22410 36 50 15  0
- 1  0      0 302548  18768 144140    0    0     0  1612  131 22384 39 50 11  0
- 3  0      0 302224  18768 144456    0    0     0     0  107 22707 34 57  9  0
- 3  0      0 301932  18768 144776    0    0     0     0  104 22399 42 44 14  0
- 3  0      0 301784  18768 145092    0    0     0     0  103 22635 36 52 11  0
- 2  0      0 301164  18768 145408    0    0     0     0  102 22613 32 57 11  0
- 2  0      0 301064  18776 145724    0    0     0  1608  134 22595 38 49 13  0
- 1  0      0 300672  18776 146040    0    0     0     0  102 22444 38 51 11  0
- 1  0      0 300088  18776 146356    0    0     0     0  103 21374 40 50 10  0
- 2  0      0 299628  18776 146668    0    0     0     0  109 20670 31 52 17  0
- 2  0      0 299440  18780 146988    0    0     0     0  103 21666 44 46 10  0
- 3  0      0 299100  18788 147304    0    0     0  1664  138 22305 36 51 12  0
- 2  0      0 298664  18788 147620    0    0     0     0  108 22328 36 49 15  0
- 2  0      0 298264  18788 147936    0    0     0     0  105 22404 34 50 17  0
- 1  0      0 297792  18788 148248    0    0     0     0  105 22415 37 50 13  0
- 1  0      0 297412  18788 148564    0    0     0     0  105 22480 37 50 13  0
- 2  0      0 296560  18804 148876    0    0     0  1640  138 22471 35 51 14  0
- 1  0      0 296040  18804 149188    0    0     0     0  104 22395 36 51 13  0
- 2  0      0 296048  18804 149504    0    0     0     0  104 22405 32 52 16  0
- 2  0      0 295440  18804 149820    0    0     0     0  109 22162 37 50 13  0
- 1  0      0 294676  18804 150136    0    0     0     0  106 22317 37 48 15  0
- 1  0      0 294384  18812 150452    0    0     0  1580  132 22068 41 46 12  1
- 1  0      0 294208  18812 150768    0    0     0     0  104 22168 42 49  9  0
- 3  0      0 293796  18816 151084    0    0     0     0  109 22345 40 49 12  0
- 2  0      0 293300  18816 151396    0    0     0     0  104 22793 37 49 14  0
- 1  1      0 292828  18816 151712    0    0     0  1568  106 22518 36 52 11  0
- 3  0      0 292680  18824 152028    0    0     0    40  139 22407 41 47 12  0
- 2  0      0 291952  18824 152344    0    0     0     0  105 21948 39 51 10  0
- 2  0      0 291092  18824 152668    0    0     0     0  104 20059 35 50 15  0
- 1  0      0 289944  18824 152908    0    0     0     0  114 13542 39 39 22  0
- 0  0      0 293840  18832 152908    0    0     0  1236  140    53 12  0 84  4
- 0  0      0 293840  18832 152908    0    0     0     0  103    11  0  0 100  0
+Alan
 
-
-2.6.8-rc4-mm1:
-
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 4  0      0 396092   8300  55140    0    0     0     0 1014 13901 23 65 12  0
- 2  0      0 396796   8300  55140    0    0     0     0 1007 11587 30 66  4  0
- 1  0      0 395964   8300  55660    0    0     0     0 1005 14045 23 64 13  0
- 2  0      0 394492   8300  55660    0    0     0     0 1007 13333 24 68  8  0
- 2  0      0 393980   8308  55912    0    0     0  1044 1016 13234 26 68  7  0
- 2  0      0 393340   8308  56172    0    0     0   228 1012 13498 23 66 10  0
- 2  0      0 393588   8308  56172    0    0     0     0 1007 11800 29 67  4  0
- 2  0      0 393332   8308  56432    0    0     0     0 1009 13183 24 67  8  0
- 2  0      0 392820   8308  56692    0    0     0     0 1006 12992 27 68  6  0
- 2  0      0 392436   8316  56944    0    0     0   816 1016 13064 25 69  6  0
- 1  0      0 391988   8316  56944    0    0     0     0 1007 12894 27 69  5  0
- 2  0      0 391604   8316  57204    0    0     0     0 1009 13508 24 66 10  0
- 1  0      0 391412   8316  57464    0    0     0     0 1008 12780 27 69  4  0
- 1  0      0 391348   8316  57464    0    0     0     0 1007 13431 25 65 10  0
- 1  0      0 391028   8324  57716    0    0     0   992 1016 13699 25 63 12  0
- 3  0      0 390836   8324  57976    0    0     0     0 1006 12496 30 68  3  0
- 2  0      0 390708   8324  57976    0    0     0     0 1008 12498 27 71  2  0
- 2  0      0 390580   8324  58496    0    0     0     0 1009 13158 25 65 10  0
- 1  0      0 390452   8324  58496    0    0     0     0 1007 12676 26 66  8  0
- 2  0      0 390772   8332  58748    0    0     0  1024 1017 12255 27 62 10  0
- 2  0      0 389804   8336  58744    0    0     0     0 1005 13003 27 68  4  0
- 2  0      0 389612   8336  59264    0    0     0     0 1006 12848 26 70  5  0
- 2  0      0 389420   8336  59264    0    0     0     0 1008 12725 27 69  3  0
- 2  0      0 389036   8336  59524    0    0     0     0 1007 13007 26 69  6  0
- 2  0      0 388844   8344  59776    0    0     0  1000 1018 13096 26 68  7  0
- 2  0      0 388588   8344  59776    0    0     0     0 1007 13790 23 66 12  0
- 2  0      0 388396   8344  60036    0    0     0     0 1005 13315 24 67  9  0
- 2  0      0 388140   8344  60296    0    0     0     0 1007 12510 27 71  2  0
- 2  0      0 387820   8344  60296    0    0     0     0 1008 13011 25 69  6  0
- 2  0      0 387564   8352  60808    0    0     0   996 1018 13343 23 69  8  0
- 2  0      0 387436   8352  60808    0    0     0     4 1010 12532 29 70  2  0
- 1  0      0 386988   8352  60808    0    0     0     0 1010 13909 24 63 13  0
- 1  0      0 386988   8352  61328    0    0     0     0 1008 12854 26 67  7  0
- 2  0      0 385516   8352  61328    0    0     0     0 1013 12836 26 65  9  0
- 2  0      0 386284   8360  61580    0    0     0  1044 1017 12728 29 68  4  0
- 1  0      0 386924   8360  61840    0    0     0    68 1022 11707 29 65  6  0
- 1  0      0 386412   8360  61840    0    0     0     0 1009 14099 24 65 12  0
- 2  0      0 385836   8360  62100    0    0     0     0 1010 12837 27 69  4  0
- 2  0      0 384556   8360  62360    0    0     0     0 1008 12659 28 70  3  0
- 2  0      0 384172   8368  62612    0    0     0  1032 1022 13203 24 69  7  0
- 2  0      0 383916   8368  62612    0    0     0     0 1007 13499 24 67  9  0
- 2  0      0 383660   8372  63128    0    0     0     0 1010 12915 26 68  6  0
- 2  0      0 383404   8372  63128    0    0     0     0 1011 12856 26 70  5  0
- 2  0      0 383084   8372  63388    0    0     0     0 1009 13076 27 67  6  0
- 2  0      0 382828   8380  63640    0    0     0  1000 1022 13054 25 68  7  1
- 2  0      0 382572   8380  63640    0    0     0     0 1009 13559 24 66 10  0
- 2  0      0 382444   8380  63900    0    0     0     0 1010 12554 28 70  3  0
- 2  0      0 382196   8380  64160    0    0     0     0 1008 12754 27 69  4  0
- 2  0      0 381748   8380  64420    0    0     0     0 1008 13483 25 65 10  0
- 2  0      0 381492   8388  64412    0    0     0   996 1017 12901 28 67  6  0
- 0  0      0 385076   8388  64412    0    0     0     0 1024  6320 29 31 41  0
- 0  0      0 385076   8388  64412    0    0     0     0 1007     8  0  0 100  0
-
-Anything else I should be monitoring?
-
-Regards,
-Omar Kilani

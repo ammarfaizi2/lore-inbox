@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263633AbUDTSGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUDTSQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbUDTSGT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 14:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUDTSGT
+	id S263448AbUDTSQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 14:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263724AbUDTSQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 14:06:19 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:18848 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263633AbUDTSGR (ORCPT
+	Tue, 20 Apr 2004 14:16:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:660 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263448AbUDTSQP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 14:06:17 -0400
-Message-ID: <4085667C.5080001@colorfullife.com>
-Date: Tue, 20 Apr 2004 20:05:48 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
+	Tue, 20 Apr 2004 14:16:15 -0400
+Date: Tue, 20 Apr 2004 18:15:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: chris@scary.beasts.org, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add 64-bit get_user and __get_user for i386
+In-Reply-To: <20040420174147.GA20924@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0404201808150.2653@ppc970.osdl.org>
+References: <20040420020922.GA18348@mail.shareable.org>
+ <Pine.LNX.4.58.0404191945490.29941@ppc970.osdl.org> <20040420174147.GA20924@mail.shareable.org>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Jakub Jelinek <jakub@redhat.com>, akpm@osdl.org, drepper@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] per-user signal pending and message queue limits
-References: <20040419212810.GB10956@logos.cnet> <20040419224940.GY31589@devserv.devel.redhat.com> <20040420141319.GB13259@logos.cnet>
-In-Reply-To: <20040420141319.GB13259@logos.cnet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
 
->Indeed, it seems more correct to account for something else than "nr of message queues".
+
+On Tue, 20 Apr 2004, Jamie Lokier wrote:
 >
->Memory occupied sounds better, yeap?
->  
->
-I agree, but note that there is one hidden problem:
-There can be one notification for each registered message queue. If 
-there are more than ~560 queues and one process wants to install 
-SIGEV_THREAD notification handlers for all of them, then the netfilter 
-code will run against the socket rmem limit and mq_notify will block.
-_If_ there are users that do that we'll have to bypass the normal 
-sk_rmem_alloc and add an mqueue specific limit.
+> Patch re-rolled.  The only change is the removal of that cast,
+> and a clarifying comment in getuser.S.
 
---
-    Manfred
+Well, it's not applying against current kernels (which have already 
+un-inlined some of these things), and that comment still isn't clear to 
+me. There's a comment about casting things, but the thing is, the macro 
+contains no casts anywhere...
 
+Other than that, I'm convinced.
 
+		Linus

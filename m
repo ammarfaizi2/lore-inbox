@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262318AbSI1UIW>; Sat, 28 Sep 2002 16:08:22 -0400
+	id <S262320AbSI1UQ5>; Sat, 28 Sep 2002 16:16:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262319AbSI1UIW>; Sat, 28 Sep 2002 16:08:22 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:54276 "EHLO
+	id <S262321AbSI1UQ5>; Sat, 28 Sep 2002 16:16:57 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:29957 "EHLO
 	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S262318AbSI1UIV>; Sat, 28 Sep 2002 16:08:21 -0400
-Date: Sat, 28 Sep 2002 21:13:08 +0100
+	id <S262320AbSI1UQ4>; Sat, 28 Sep 2002 16:16:56 -0400
+Date: Sat, 28 Sep 2002 21:22:18 +0100
 From: John Levon <movement@marcelothewonderpenguin.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.39 kmem_cache bug
-Message-ID: <20020928201308.GA59189@compsoc.man.ac.uk>
+Subject: Re: [PATCH] fix 2.5.39 floppy driver
+Message-ID: <20020928202218.GB59189@compsoc.man.ac.uk>
+References: <200209281914.VAA06013@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200209281914.VAA06013@harpo.it.uu.se>
 User-Agent: Mutt/1.3.25i
 X-Url: http://www.movementarian.org/
 X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 28, 2002 at 09:14:04PM +0200, Mikael Pettersson wrote:
 
-kmem_cache_destroy() is falsely reporting
-"kmem_cache_destroy: Can't free all objects" in 2.5.39. I have
-verified my code was freeing all allocated items correctly.
+>    Fixed by applying Al Viro's O100-get_gendisk-C38 patch.
+>    Fixed by applying Al Viro's O101-floppy_sizes-C38 patch.
+>    Quick fix: add the missing set_capacity() calls.
 
-Reverting this chunk :
-
--                       list_add(&slabp->list, &cachep->slabs_free);
-+/*                     list_add(&slabp->list, &cachep->slabs_free);            */
-+                       if (unlikely(list_empty(&cachep->slabs_partial)))
-+                               list_add(&slabp->list, &cachep->slabs_partial);
-+                       else
-+                               kmem_slab_destroy(cachep, slabp);
-
-and the problem goes away. I haven't investigated why.
-
-This is with CONFIG_SMP, !CONFIG_PREEMPT
+Works great for me. Thanks.
 
 regards
 john

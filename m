@@ -1,90 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbQKEBh5>; Sat, 4 Nov 2000 20:37:57 -0500
+	id <S129030AbQKEBpT>; Sat, 4 Nov 2000 20:45:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129247AbQKEBhr>; Sat, 4 Nov 2000 20:37:47 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:63760 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129030AbQKEBhi>; Sat, 4 Nov 2000 20:37:38 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC2C@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
-        Russell King <rmk@arm.linux.org.uk>
-Cc: "'David Woodhouse'" <dwmw2@infradead.org>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: RE: USB init order dependencies.
-Date: Sat, 4 Nov 2000 17:36:51 -0800 
+	id <S129247AbQKEBpJ>; Sat, 4 Nov 2000 20:45:09 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:23309 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129030AbQKEBpA>; Sat, 4 Nov 2000 20:45:00 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux-2.4.0-test10
+Date: 4 Nov 2000 17:44:57 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8u2e2p$2ju$1@cesium.transmeta.com>
+In-Reply-To: <E13qiR9-0008FT-00@the-village.bc.nu> <20001102171717.L1876@redhat.com> <20001104194937.E3423@wonderland.linux.it>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While Jeff and I basically agree on the short-term
-solution (if one is still needed, altho I'm not aware of
-any init order problems in USB in 2.4.0-test10), my
-recollection of Linus's preference (without
-looking it up) is to remove the calls from init/main.c
-and to use __initcalls.
+Followup to:  <20001104194937.E3423@wonderland.linux.it>
+By author:    "Marco d'Itri" <md@Linux.IT>
+In newsgroup: linux.dev.kernel
+>
+> On Nov 02, "Stephen C. Tweedie" <sct@redhat.com> wrote:
+> 
+>  >2.2 O_SYNC is actually broken too --- it doesn't sync all metadata (in
+>  >particular, it doesn't update the inode), but I'd rather fix that for
+>  >2.4 rather than change 2.2, as the main users of O_SYNC, databases,
+>  >are writing to preallocated files anyway.
+> What about fsync(2)? Will it update metadata too?
+> 
 
-~Randy
+It better.  fdatasync(), if implemented, is allowed to skip that
+requirement.
 
-> -----Original Message-----
-> From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
-> Sent: Saturday, November 04, 2000 12:25 AM
-> To: Russell King
-> Cc: Dunlap, Randy; 'David Woodhouse'; torvalds@transmeta.com;
-> linux-kernel@vger.kernel.org
-> Subject: Re: USB init order dependencies.
-> 
-> 
-> Russell King wrote:
-> > 
-> > Dunlap, Randy writes:
-> > > David is entitled to his opinion (IMO).
-> > > And I dislike this patch, as he and I have already discussed.
-> > >
-> > > Short of fixing the link order, I like Jeff's suggestion
-> > > better (if it actually works, that is):  go back to the
-> > > way it was a few months ago by calling usb_init()
-> > > from init/main.c and making the module_init(usb_init);
-> > > in usb.c conditional (#ifdef MODULE).
-> > 
-> > However, that breaks the OHCI driver on ARM.  Unless we're 
-> going to start
-> > putting init calls back into init/main.c so that we can 
-> guarantee the order
-> > of init calls which Linus will not like, you will end up 
-> with a lot of ARM
-> > guys complaining.
-> > 
-> > Linus, your opinion would be helpful at this point.
-> 
-> Back when some of the initial USB initcall stuff started appearing,
-> there were similar discussions, similar problems, and similar
-> solutions.  I was also wondering how fbdev (which needs to give you a
-> console ASAP) would work with initcalls, etc.  At the time (~6 months
-> ago?), Linus' opinion was basically "if the link order 
-> hacking starts to
-> get ugly, just put it in init/main.c"  So, Randy really should be
-> calling the quoted text above "Linus' suggestion" ;-)
-> 
-> Putting a call into init/main.c isn't a long term solution, but it
-> should get us there for 2.4.x...  init/main.c is also the 
-> best solution
-> for ugly cross-directory link order dependencies.  I would 
-> say the link
-> order of foo.o's in linux/Makefile is the most delicate/fragile of all
-> the Makefiles...  touching linux/Makefile link order this 
-> close to 2.4.0
-> is asking for trouble.  Compared to that, adding a few lines to
-> init/main.c isn't so bad.
-> 
-> IMHO,
-> 
-> 	Jeff
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

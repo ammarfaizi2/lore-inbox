@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265683AbTF2Osy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 10:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265676AbTF2Osy
+	id S265676AbTF2Oy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 10:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265686AbTF2Oy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 10:48:54 -0400
-Received: from mail.cs.Virginia.EDU ([128.143.137.19]:10151 "EHLO
-	ares.cs.Virginia.EDU") by vger.kernel.org with ESMTP
-	id S265674AbTF2Osv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 10:48:51 -0400
-Date: Sun, 29 Jun 2003 11:03:00 -0400 (EDT)
-From: Ronghua Zhang <rz5b@cs.virginia.edu>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: linux-net@vger.kernel.org, kernelnewbies@nl.linux.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: How to send multiple TCP packets from a kernel thread ASAP?
-In-Reply-To: <20030629145054.GZ28900@mea-ext.zmailer.org>
-Message-ID: <Pine.GSO.4.51.0306291101190.18257@mamba.cs.Virginia.EDU>
-References: <Pine.GSO.4.51.0306291023170.12980@mamba.cs.Virginia.EDU>
- <20030629145054.GZ28900@mea-ext.zmailer.org>
+	Sun, 29 Jun 2003 10:54:29 -0400
+Received: from [65.248.106.250] ([65.248.106.250]:34234 "EHLO brianandsara.net")
+	by vger.kernel.org with ESMTP id S265676AbTF2Oy2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 10:54:28 -0400
+From: Brian Jackson <brian@brianandsara.net>
+Organization: brianandsara.net
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+Date: Sun, 29 Jun 2003 10:08:30 -0500
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <1056867876.11843.1.camel@sonja> <Pine.LNX.4.56.0306290619560.24286@filesrv1.baby-dragons.com>
+In-Reply-To: <Pine.LNX.4.56.0306290619560.24286@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306291008.30571.brian@brianandsara.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think so, because the timestamp is when prinkt is called, not when
-the content is actually printed out, and printk will not block.
+I don't really care which is faster, so please don't cc me in any replieds to 
+this thread, I 'm just telling my experience.
 
-Ronghua
+I've tried OpenGFS on an external firewire hard drive, and I got 13 MB/s(it 
+was read, but it shows that the bus can at least handle that much) on a 
+WD310100 (which is a pretty old 10GB udma33 hard drive). That would probably 
+be even better with ext2 or some fs other than OpenGFS.
 
-On Sun, 29 Jun 2003, Matti Aarnio wrote:
+--Brian Jackson
 
-> On Sun, Jun 29, 2003 at 10:37:12AM -0400, Ronghua Zhang wrote:
-> > Hi,
-> >   I came to a situation that requires to send multiple TCP packets (one
-> > for each connection) from a kernel thread as soon as possible. The
-> > following is the skeleton of my code:
+On Sunday 29 June 2003 05:24 am, Mr. James W. Laferriere wrote:
+> 	Hello Daniel ,
 >
->   I should say this is a heissenbug ... one which happens because
->   you are observing it with printk().
+> On Sun, 29 Jun 2003, Daniel Egger wrote:
+> > Am Sam, 2003-06-28 um 22.31 schrieb Alan Cox:
+> > > I'm testing the USB2 disk idea at the moment. Big problem is
+> > > performance - 5Mbytes/second isnt the best backup rate in the world.
+> >
+> > Which are 300Mbytes/minute, still faster than many tapes.
 >
-> > kernel_thread()
-> > {
-> >     foreach sk in (alive connections){
-> >         tp = &(sk->tp_pinfo.af_tcp);
-> >
-> >         skb = alloc_skb(xxx, GFP_ATOMIC);
-> >         /* build TCP header */
-> >         tcp_build_and_update_options(.....);
-> >         tp->af_specific->send_check(sk, th, skb->len, skb);
-> >
-> >         tp->af_specific->queue_xmit(skb);
-> >         printk("packet send out for sk %p, at %lu\n", sk, jiffies);
-> >     }
-> > }
-> >
-> > the output is always like this:
-> > packet send out for sk 1 at 1000
-> > packet send out for sk 2 at 1001
-> > packet send out for sk 3 at 1002
-> > ...
-> >
-> > It looks like this kernel thread get rescheduled after it has sent out 1
-> > packet. But why? each iteration certainly does not need 10ms, why it get
-> > rescheduled? Is it because af_specific->queue_xmit() is blocking
-> > operation? but I notice that tcp_transmit_skb() also call it, and
-> > tcp_transmit_skb() should not call any blockalbe operation. I try to
-> > increase its priority or change its schedule policy,but has no effect
-> > at all. Any suggestion is appreciated! This is really urgent.
-> >
-> >
-> > Ronghua
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+>             ^^^^^^^^^^^^^^^^
+> 	5MB/Sec is faster than MOST tapes drivs ?  Or ???
+> 	If you are talking older scsi-2 or 1 drives yes .
+> 	But on a properly tuned system any of the newer tape drives s/b
+> 	able beat that hands down .
 >
+> > I've also made the experience that IEEE1394 (aka Firewire/iLink) is
+> > always faster than USB2.
+>
+> 	I'd like to see a raising hands that have this functional at
+> 	anywhere near line (60% is close enough) rate ?
+> 		Tia ,  JimL
+
+-- 
+OpenGFS -- http://opengfs.sourceforge.net
+Home -- http://www.brianandsara.net
+

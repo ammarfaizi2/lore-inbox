@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbVALD5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbVALEDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbVALD5N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 22:57:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbVALD5N
+	id S262835AbVALEDP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 23:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262871AbVALEDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 22:57:13 -0500
-Received: from web60607.mail.yahoo.com ([216.109.118.245]:62064 "HELO
-	web60607.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262835AbVALD5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 22:57:02 -0500
+	Tue, 11 Jan 2005 23:03:15 -0500
+Received: from web60609.mail.yahoo.com ([216.109.119.83]:25939 "HELO
+	web60609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262835AbVALEDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 23:03:13 -0500
 Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com;
-  b=1NrDvReeyl2GmjhrpQNc3RmZgASs8HB3uthMOlcP9xnG0OSeQ3OsWueJkuWW4r5yQkVDb0rlNBx5moSfpFo0X0Jt/qDTb2B9mF6hVVXoBmX1JX9O60d/0tbH3e4WnFlw3ikY12CXtgdbR3INZ2UIeOBqFtYLJqubbMHUJHQ7apY=  ;
-Message-ID: <20050112035659.32160.qmail@web60607.mail.yahoo.com>
-Date: Tue, 11 Jan 2005 19:56:58 -0800 (PST)
+  b=ngQ4rAAFYwIuhkD9uoNzKdMQbQSADR0y+KiMsUvNHjzQBp8sLc394BXzRDkSbCfYYo/is/iPU8zB+k5swUCGzsigRfBfZkzvhGoX+p3l9+2/ZwhwTEz5r9/Pp7/14/ZaUoeW0RZnx3ZhFlSWrDpLxdkWsnOdz530D+0v7ELjCy4=  ;
+Message-ID: <20050112040312.44853.qmail@web60609.mail.yahoo.com>
+Date: Tue, 11 Jan 2005 20:03:12 -0800 (PST)
 From: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Complete commentary on kernel code needed
+Subject: Making sys_read to operate only on pipefs
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,13 +24,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello linux-experts,
-       I want a complete commentary on linux kernel
-code. I found one such book. But are there any online
-books available for this stuff? If one such book is
-available I request you people to send me the whole
-file or atleast the URL.
+   I am intercepting syscalls in kernel 2.4.28. I want
+to intercept read system call for the pipefilesystem.
+Ofcoure read is a more generic syscall. But while
+intercepting it, I have to determine whether this one
+operates on a pipe. If it is, I want to perform some
+other work, else nothing should be done and the normal
+work has to be performed.For this, can I compare the
+read function pointer in file operation structure with
+the function pipe_read prototype in pipe.c. Is it
+possible? If not how can I do that?
 
-Regards,
+Thanks,
 selva
 
 

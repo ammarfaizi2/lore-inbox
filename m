@@ -1,626 +1,333 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292796AbSCIPKz>; Sat, 9 Mar 2002 10:10:55 -0500
+	id <S292802AbSCIPdd>; Sat, 9 Mar 2002 10:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292800AbSCIPKs>; Sat, 9 Mar 2002 10:10:48 -0500
-Received: from sushi.toad.net ([162.33.130.105]:19640 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S292796AbSCIPKh>;
-	Sat, 9 Mar 2002 10:10:37 -0500
-Subject: Re: PnP BIOS driver status
-From: Thomas Hood <jdthood@mail.com>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 09 Mar 2002 10:11:33 -0500
-Message-Id: <1015686695.940.214.camel@thanatos>
-Mime-Version: 1.0
+	id <S292803AbSCIPdZ>; Sat, 9 Mar 2002 10:33:25 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:54749 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S292802AbSCIPdL> convert rfc822-to-8bit; Sat, 9 Mar 2002 10:33:11 -0500
+Message-Id: <200203091416.g29EGBaO007081@codeman.linux-systeme.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+Reply-To: mcp@linux-systeme.de
+Organization: Linux-Systeme GmbH
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Kernel 2.4.18-mcp3-WOLK
+Date: Sat, 9 Mar 2002 14:46:19 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are the additional bits from the -ac tree, plus Brian's
-SMP fix, diffed against 2.5.6 + 2.5.5-dj3 patch.  The changes
-include:
+Kernel - patched - mcp3-WOLK - Base: Linux kernel 2.4.18
 
-- Improve some comments
-- Postpone starting the kernel thread (Alan Cox)
-- Call kernel thread 'kpnpbiosd' instead of 'kpnpbios'
-- Consolidate printing of error messages to save space
-- Add __init and __exit tags and return appropriate error codes
-- Print slightly more consistent messages
-- Get closer to supporting build-as-module
-- Make SMP safe (Brian Gerst)
+by Marc-Christian Petersen <mcp@linux-systeme.de>
 
---
-Thomas
 
---- linux-2.5.6_2.5.5-dj3/include/linux/pnpbios.h_DJ	Fri Mar  8 18:37:58 2002
-+++ linux-2.5.6_2.5.5-dj3/include/linux/pnpbios.h	Fri Mar  8 19:43:25 2002
-@@ -143,7 +143,8 @@
- extern int  pnpbios_dont_use_current_config;
- extern void *pnpbios_kmalloc(size_t size, int f);
- extern int pnpbios_init (void);
--extern void pnpbios_proc_init (void);
-+extern int pnpbios_proc_init (void);
-+extern void pnpbios_proc_exit (void);
- 
- extern int pnp_bios_dev_node_info (struct pnp_dev_node_info *data);
- extern int pnp_bios_get_dev_node (u8 *nodenum, char config, struct pnp_bios_node *data);
---- linux-2.5.6_2.5.5-dj3/drivers/pnp/pnpbios_core.c_DJ	Fri Mar  8 18:40:02 2002
-+++ linux-2.5.6_2.5.5-dj3/drivers/pnp/pnpbios_core.c	Sat Mar  9 10:08:21 2002
-@@ -4,7 +4,7 @@
-  * Originally (C) 1998 Christian Schmidt <schmidt@digadd.de>
-  * Modifications (c) 1998 Tom Lees <tom@lpsg.demon.co.uk>
-  * Minor reorganizations by David Hinds <dahinds@users.sourceforge.net>
-- * Modifications (c) 2001 by Thomas Hood <jdthood@mail.com>
-+ * Modifications (c) 2001,2002 by Thomas Hood <jdthood@mail.com>
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU General Public License as published by the
-@@ -141,7 +141,9 @@
- static spinlock_t pnp_bios_lock;
- 
- static inline u16 call_pnp_bios(u16 func, u16 arg1, u16 arg2, u16 arg3,
--                                u16 arg4, u16 arg5, u16 arg6, u16 arg7)
-+				u16 arg4, u16 arg5, u16 arg6, u16 arg7,
-+				void *ts1_base, u32 ts1_size,
-+				void *ts2_base, u32 ts2_size)
- {
- 	unsigned long flags;
- 	u16 status;
-@@ -155,7 +157,12 @@
- 
- 	/* On some boxes IRQ's during PnP BIOS calls are deadly.  */
- 	spin_lock_irqsave(&pnp_bios_lock, flags);
--	__cli();
-+
-+	if (ts1_size)
-+		Q2_SET_SEL(PNP_TS1, ts1_base, ts1_size);
-+	if (ts2_size)
-+		Q2_SET_SEL(PNP_TS2, ts2_base, ts2_size);
-+
- 	__asm__ __volatile__(
- 	        "pushl %%ebp\n\t"
- 		"pushl %%edi\n\t"
-@@ -205,6 +212,11 @@
-  *
-  */
- 
-+static void pnpbios_warn_unexpected_status(const char * module, u16 status)
-+{
-+	printk(KERN_ERR "PnPBIOS: %s: Unexpected status 0x%x\n", module, status);
-+}
-+
- void *pnpbios_kmalloc(size_t size, int f)
- {
- 	void *p = kmalloc( size, f );
-@@ -216,7 +228,7 @@
- /*
-  * Call this only after init time
-  */
--static int pnp_bios_present(void)
-+static inline int pnp_bios_present(void)
- {
- 	return (pnp_bios_hdr != NULL);
- }
-@@ -251,10 +263,10 @@
- static int __pnp_bios_dev_node_info(struct pnp_dev_node_info *data)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, data, sizeof(struct pnp_dev_node_info));
--	status = call_pnp_bios(PNP_GET_NUM_SYS_DEV_NODES, 0, PNP_TS1, 2, PNP_TS1, PNP_DS, 0, 0);
-+	status = call_pnp_bios(PNP_GET_NUM_SYS_DEV_NODES, 0, PNP_TS1, 2, PNP_TS1, PNP_DS, 0, 0,
-+			       data, sizeof(struct pnp_dev_node_info), 0, 0);
- 	data->no_nodes &= 0xff;
- 	return status;
- }
-@@ -263,7 +275,7 @@
- {
- 	int status = __pnp_bios_dev_node_info( data );
- 	if ( status )
--		printk(KERN_WARNING "PnPBIOS: dev_node_info: Unexpected status 0x%x\n", status);
-+		pnpbios_warn_unexpected_status( "dev_node_info", status );
- 	return status;
- }
- 
-@@ -284,13 +296,12 @@
- static int __pnp_bios_get_dev_node(u8 *nodenum, char boot, struct pnp_bios_node *data)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
- 	if ( !boot & pnpbios_dont_use_current_config )
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, nodenum, sizeof(char));
--	Q2_SET_SEL(PNP_TS2, data, 64 * 1024);
--	status = call_pnp_bios(PNP_GET_SYS_DEV_NODE, 0, PNP_TS1, 0, PNP_TS2, boot ? 2 : 1, PNP_DS, 0);
-+	status = call_pnp_bios(PNP_GET_SYS_DEV_NODE, 0, PNP_TS1, 0, PNP_TS2, boot ? 2 : 1, PNP_DS, 0,
-+			       nodenum, sizeof(char), data, 65536);
- 	return status;
- }
- 
-@@ -299,7 +310,7 @@
- 	int status;
- 	status =  __pnp_bios_get_dev_node( nodenum, boot, data );
- 	if ( status )
--		printk(KERN_WARNING "PnPBIOS: get_dev_node: Unexpected status 0x%x\n", status);
-+		pnpbios_warn_unexpected_status( "get_dev_node", status );
- 	return status;
- }
- 
-@@ -313,12 +324,12 @@
- static int __pnp_bios_set_dev_node(u8 nodenum, char boot, struct pnp_bios_node *data)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
- 	if ( !boot & pnpbios_dont_use_current_config )
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, data, /* *((u16 *) data)*/ 65536);
--	status = call_pnp_bios(PNP_SET_SYS_DEV_NODE, nodenum, 0, PNP_TS1, boot ? 2 : 1, PNP_DS, 0, 0);
-+	status = call_pnp_bios(PNP_SET_SYS_DEV_NODE, nodenum, 0, PNP_TS1, boot ? 2 : 1, PNP_DS, 0, 0,
-+			       data, 65536, 0, 0);
- 	return status;
- }
- 
-@@ -327,7 +338,7 @@
- 	int status;
- 	status =  __pnp_bios_set_dev_node( nodenum, boot, data );
- 	if ( status ) {
--		printk(KERN_WARNING "PnPBIOS: set_dev_node: Unexpected status 0x%x\n", status);
-+		pnpbios_warn_unexpected_status( "set_dev_node", status );
- 		return status;
- 	}
- 	if ( !boot ) { /* Update devlist */
-@@ -347,10 +358,10 @@
- static int pnp_bios_get_event(u16 *event)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, event, sizeof(u16));
--	status = call_pnp_bios(PNP_GET_EVENT, 0, PNP_TS1, PNP_DS, 0, 0 ,0 ,0);
-+	status = call_pnp_bios(PNP_GET_EVENT, 0, PNP_TS1, PNP_DS, 0, 0 ,0 ,0,
-+			       event, sizeof(u16), 0, 0);
- 	return status;
- }
- #endif
-@@ -362,9 +373,9 @@
- static int pnp_bios_send_message(u16 message)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	status = call_pnp_bios(PNP_SEND_MESSAGE, message, PNP_DS, 0, 0, 0, 0, 0);
-+	status = call_pnp_bios(PNP_SEND_MESSAGE, message, PNP_DS, 0, 0, 0, 0, 0, 0, 0, 0, 0);
- 	return status;
- }
- #endif
-@@ -376,10 +387,10 @@
- static int pnp_bios_dock_station_info(struct pnp_docking_station_info *data)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, data, sizeof(struct pnp_docking_station_info));
--	status = call_pnp_bios(PNP_GET_DOCKING_STATION_INFORMATION, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0);
-+	status = call_pnp_bios(PNP_GET_DOCKING_STATION_INFORMATION, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
-+			       data, sizeof(struct pnp_docking_station_info), 0, 0);
- 	return status;
- }
- #endif
-@@ -392,10 +403,10 @@
- static int pnp_bios_set_stat_res(char *info)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, info, *((u16 *) info));
--	status = call_pnp_bios(PNP_SET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0);
-+	status = call_pnp_bios(PNP_SET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
-+			       info, *((u16 *) info), 0, 0);
- 	return status;
- }
- #endif
-@@ -407,10 +418,10 @@
- static int __pnp_bios_get_stat_res(char *info)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, info, 64 * 1024);
--	status = call_pnp_bios(PNP_GET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0);
-+	status = call_pnp_bios(PNP_GET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
-+			       info, 65536, 0, 0);
- 	return status;
- }
- 
-@@ -419,7 +430,7 @@
- 	int status;
- 	status = __pnp_bios_get_stat_res( info );
- 	if ( status )
--		printk(KERN_WARNING "PnPBIOS: get_stat_res: Unexpected status 0x%x\n", status);
-+		pnpbios_warn_unexpected_status( "get_stat_res", status );
- 	return status;
- }
- 
-@@ -430,11 +441,10 @@
- static int pnp_bios_apm_id_table(char *table, u16 *size)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, table, *size);
--	Q2_SET_SEL(PNP_TS2, size, sizeof(u16));
--	status = call_pnp_bios(PNP_GET_APM_ID_TABLE, 0, PNP_TS2, 0, PNP_TS1, PNP_DS, 0, 0);
-+	status = call_pnp_bios(PNP_GET_APM_ID_TABLE, 0, PNP_TS2, 0, PNP_TS1, PNP_DS, 0, 0,
-+			       table, *size, size, sizeof(u16));
- 	return status;
- }
- #endif
-@@ -445,10 +455,10 @@
- static int __pnp_bios_isapnp_config(struct pnp_isa_config_struc *data)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return PNP_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, data, sizeof(struct pnp_isa_config_struc));
--	status = call_pnp_bios(PNP_GET_PNP_ISA_CONFIG_STRUC, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0);
-+	status = call_pnp_bios(PNP_GET_PNP_ISA_CONFIG_STRUC, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0,
-+			       data, sizeof(struct pnp_isa_config_struc), 0, 0);
- 	return status;
- }
- 
-@@ -457,7 +467,7 @@
- 	int status;
- 	status = __pnp_bios_isapnp_config( data );
- 	if ( status )
--		printk(KERN_WARNING "PnPBIOS: isapnp_config: Unexpected status 0x%x\n", status);
-+		pnpbios_warn_unexpected_status( "isapnp_config", status );
- 	return status;
- }
- 
-@@ -467,10 +477,10 @@
- static int __pnp_bios_escd_info(struct escd_info_struc *data)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return ESCD_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, data, sizeof(struct escd_info_struc));
--	status = call_pnp_bios(PNP_GET_ESCD_INFO, 0, PNP_TS1, 2, PNP_TS1, 4, PNP_TS1, PNP_DS);
-+	status = call_pnp_bios(PNP_GET_ESCD_INFO, 0, PNP_TS1, 2, PNP_TS1, 4, PNP_TS1, PNP_DS,
-+			       data, sizeof(struct escd_info_struc), 0, 0);
- 	return status;
- }
- 
-@@ -479,7 +489,7 @@
- 	int status;
- 	status = __pnp_bios_escd_info( data );
- 	if ( status )
--		printk(KERN_WARNING "PnPBIOS: escd_info: Unexpected status 0x%x\n", status);
-+		pnpbios_warn_unexpected_status( "escd_info", status );
- 	return status;
- }
- 
-@@ -490,12 +500,10 @@
- static int __pnp_bios_read_escd(char *data, u32 nvram_base)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return ESCD_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, data, 64 * 1024);
--	set_base(gdt[PNP_TS2 >> 3], nvram_base);
--	set_limit(gdt[PNP_TS2 >> 3], 64 * 1024);
--	status = call_pnp_bios(PNP_READ_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0);
-+	status = call_pnp_bios(PNP_READ_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0,
-+			       data, 65536, (void *)nvram_base, 65536);
- 	return status;
- }
- 
-@@ -504,7 +512,7 @@
- 	int status;
- 	status = __pnp_bios_read_escd( data, nvram_base );
- 	if ( status )
--		printk(KERN_ERR "PnPBIOS: read_escd: Unexpected status 0x%x\n", status);
-+		pnpbios_warn_unexpected_status( "read_escd", status );
- 	return status;
- }
- 
-@@ -515,12 +523,10 @@
- static int pnp_bios_write_escd(char *data, u32 nvram_base)
- {
- 	u16 status;
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return ESCD_FUNCTION_NOT_SUPPORTED;
--	Q2_SET_SEL(PNP_TS1, data, 64 * 1024);
--	set_base(gdt[PNP_TS2 >> 3], nvram_base);
--	set_limit(gdt[PNP_TS2 >> 3], 64 * 1024);
--	status = call_pnp_bios(PNP_WRITE_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0);
-+	status = call_pnp_bios(PNP_WRITE_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0,
-+			       data, 65536, (void *)nvram_base, 65536);
- 	return status;
- }
- #endif
-@@ -602,10 +608,10 @@
- 	int docked = -1, d = 0;
- 	daemonize();
- 	reparent_to_init();
--	strcpy(current->comm, "kpnpbios");
-+	strcpy(current->comm, "kpnpbiosd");
- 	while(!unloading && !signal_pending(current))
- 	{
--		int err;
-+		int status;
- 		
- 		/*
- 		 * Poll every 2 seconds
-@@ -615,9 +621,9 @@
- 		if(signal_pending(current))
- 			break;
- 
--		err = pnp_bios_dock_station_info(&now);
-+		status = pnp_bios_dock_station_info(&now);
- 
--		switch(err)
-+		switch(status)
- 		{
- 			/*
- 			 * No dock to manage
-@@ -631,7 +637,7 @@
- 				d = 1;
- 				break;
- 			default:
--				printk(KERN_WARNING "PnPBIOS: pnp_dock_thread: Unexpected status 0x%x\n", err);
-+				pnpbios_warn_unexpected_status( "pnp_dock_thread", status );
- 				continue;
- 		}
- 		if(d != docked)
-@@ -874,13 +880,13 @@
- static void __init build_devlist(void)
- {
- 	u8 nodenum;
--	int nodes_got = 0;
--	int devs = 0;
-+	unsigned int nodes_got = 0;
-+	unsigned int devs = 0;
- 	struct pnp_bios_node *node;
- 	struct pnp_dev_node_info node_info;
- 	struct pci_dev *dev;
- 	
--	if (!pnp_bios_present ())
-+	if (!pnp_bios_present())
- 		return;
- 
- 	if (pnp_bios_dev_node_info(&node_info) != 0)
-@@ -912,7 +918,7 @@
- 		else
- 			devs++;
- 		if (nodenum <= thisnodenum) {
--			printk(KERN_ERR "PnPBIOS: build_devlist(): Node number 0x%x is out of sequence following node 0x%x. Aborting.\n", (int)nodenum, (int)thisnodenum);
-+			printk(KERN_ERR "PnPBIOS: build_devlist: Node number 0x%x is out of sequence following node 0x%x. Aborting.\n", (unsigned int)nodenum, (unsigned int)thisnodenum);
- 			break;
- 		}
- 	}
-@@ -1215,14 +1221,14 @@
- {
- 	union pnp_bios_expansion_header *check;
- 	u8 sum;
--	int i, length;
-+	int i, length, r;
- 
- 	spin_lock_init(&pnp_bios_lock);
- 	spin_lock_init(&pnpbios_devices_lock);
- 
- 	if(pnpbios_disabled) {
- 		printk(KERN_INFO "PnPBIOS: Disabled\n");
--		return 0;
-+		return -ENODEV;
- 	}
- 
- 	if ( is_sony_vaio_laptop )
-@@ -1264,12 +1270,21 @@
- 		pnp_bios_hdr = check;
- 		break;
- 	}
-+	if (!pnp_bios_present())
-+		return -ENODEV;
- 	build_devlist();
- 	if ( ! dont_reserve_resources )
- 		reserve_resources();
- #ifdef CONFIG_PROC_FS
--	pnpbios_proc_init();
-+	r = pnpbios_proc_init();
-+	if (r)
-+		return r;
- #endif
-+	return 0;
-+}
-+
-+static int __init pnpbios_thread_init(void)
-+{
- #ifdef CONFIG_HOTPLUG	
- 	init_completion(&unload_sem);
- 	if(kernel_thread(pnp_dock_thread, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL)>0)
-@@ -1278,23 +1293,46 @@
- 	return 0;
- }
- 
--#ifdef MODULE
-+#ifndef MODULE
-+
-+/* init/main.c calls pnpbios_init early */
-+
-+/* Start the kernel thread later: */
-+module_init(pnpbios_thread_init);
-+
-+#else
-+
-+/*
-+ * N.B.: Building pnpbios as a module hasn't been fully implemented
-+ */
- 
- MODULE_LICENSE("GPL");
- 
--/* We have to run it early and not as a module. */
--module_init(pnpbios_init);
-+static int __init pnpbios_init_all(void)
-+{
-+	int r;
- 
--#ifdef CONFIG_HOTPLUG
--static void pnpbios_exit(void)
-+	r = pnpbios_init();
-+	if (r)
-+		return r;
-+	r = pnpbios_thread_init();
-+	if (r)
-+		return r;
-+	return 0;
-+}
-+
-+static void __exit pnpbios_exit(void)
- {
--	/* free_resources() ought to go here */
--	/* pnpbios_proc_done() */
-+#ifdef CONFIG_HOTPLUG
- 	unloading = 1;
- 	wait_for_completion(&unload_sem);
-+#endif
-+	pnpbios_proc_exit();
-+	/* We ought to free resources here */
-+	return;
- }
- 
-+module_init(pnpbios_init_all);
- module_exit(pnpbios_exit);
- 
--#endif
- #endif
---- linux-2.5.6_2.5.5-dj3/drivers/pnp/pnpbios_proc.c_DJ	Fri Mar  8 18:37:58 2002
-+++ linux-2.5.6_2.5.5-dj3/drivers/pnp/pnpbios_proc.c	Fri Mar  8 19:10:32 2002
-@@ -2,7 +2,20 @@
-  * /proc/bus/pnp interface for Plug and Play devices
-  *
-  * Written by David Hinds, dahinds@users.sourceforge.net
-- * Modified by Thomas Hood, jdthood_AT_mail.com
-+ * Modified by Thomas Hood, jdthood@mail.com
-+ *
-+ * The .../devices and .../<node> and .../boot/<node> files are
-+ * utilized by the lspnp and setpnp utilities, supplied with the
-+ * pcmcia-cs package.
-+ *     http://pcmcia-cs.sourceforge.net
-+ *
-+ * The .../escd file is utilized by the lsescd utility written by
-+ * Gunther Mayer.
-+ *     http://home.t-online.de/home/gunther.mayer/lsescd
-+ *
-+ * The .../legacy_device_resources file is not used yet.
-+ *
-+ * The other files are human-readable.
-  */
- 
- //#include <pcmcia/config.h>
-@@ -66,7 +79,7 @@
- 
- 	/* sanity check */
- 	if (escd.escd_size > (32*1024)) {
--		printk(KERN_ERR "PnPBIOS: Error: ESCD size is too great\n");
-+		printk(KERN_ERR "PnPBIOS: proc_read_escd: ESCD size is too great\n");
- 		return -EFBIG;
- 	}
- 
-@@ -122,7 +135,7 @@
- 			     node->type_code[0], node->type_code[1],
- 			     node->type_code[2], node->flags);
- 		if (nodenum <= thisnodenum) {
--			printk(KERN_ERR "PnPBIOS: proc_read_devices(): Node number 0x%x is out of sequence following node 0x%x. Aborting.\n", (int)nodenum, (int)thisnodenum);
-+			printk(KERN_ERR "%s Node number 0x%x is out of sequence following node 0x%x. Aborting.\n", "PnPBIOS: proc_read_devices:", (unsigned int)nodenum, (unsigned int)thisnodenum);
- 			*eof = 1;
- 			break;
- 		}
-@@ -177,20 +190,22 @@
-  * work and the pnpbios_dont_use_current_config flag
-  * should already have been set to the appropriate value
-  */
--void pnpbios_proc_init( void )
-+int __init pnpbios_proc_init( void )
- {
- 	struct pnp_bios_node *node;
- 	struct proc_dir_entry *ent;
- 	char name[3];
--	int i;
- 	u8 nodenum;
- 
--	if (pnp_bios_dev_node_info(&node_info) != 0) return;
-+	if (pnp_bios_dev_node_info(&node_info))
-+		return -EIO;
- 	
- 	proc_pnp = proc_mkdir("pnp", proc_bus);
--	if (!proc_pnp) return;
-+	if (!proc_pnp)
-+		return -EIO;
- 	proc_pnp_boot = proc_mkdir("boot", proc_pnp);
--	if (!proc_pnp_boot) return;
-+	if (!proc_pnp_boot)
-+		return -EIO;
- 	create_proc_read_entry("devices", 0, proc_pnp, proc_read_devices, NULL);
- 	create_proc_read_entry("configuration_info", 0, proc_pnp, proc_read_pnpconfig, NULL);
- 	create_proc_read_entry("escd_info", 0, proc_pnp, proc_read_escdinfo, NULL);
-@@ -198,8 +213,11 @@
- 	create_proc_read_entry("legacy_device_resources", 0, proc_pnp, proc_read_legacyres, NULL);
- 	
- 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
--	if (!node) return;
--	for (i=0,nodenum = 0; i<0xff && nodenum != 0xff; i++) {
-+	if (!node)
-+		return -ENOMEM;
-+
-+	for (nodenum=0; nodenum<0xff; ) {
-+		u8 thisnodenum = nodenum;
- 		if (pnp_bios_get_dev_node(&nodenum, 1, node) != 0)
- 			break;
- 		sprintf(name, "%02x", node->handle);
-@@ -217,11 +235,17 @@
- 			ent->write_proc = proc_write_node;
- 			ent->data = (void *)(long)(node->handle+0x100);
- 		}
-+		if (nodenum <= thisnodenum) {
-+			printk(KERN_ERR "%s Node number 0x%x is out of sequence following node 0x%x. Aborting.\n", "PnPBIOS: proc_init:", (unsigned int)nodenum, (unsigned int)thisnodenum);
-+			break;
-+		}
- 	}
- 	kfree(node);
-+
-+	return 0;
- }
- 
--void pnpbios_proc_done(void)
-+void __exit pnpbios_proc_exit(void)
- {
- 	int i;
- 	char name[3];
-@@ -241,4 +265,6 @@
- 	remove_proc_entry("devices", proc_pnp);
- 	remove_proc_entry("boot", proc_pnp);
- 	remove_proc_entry("pnp", proc_bus);
-+
-+	return;
- }
+Some words, this is my first public release. I think its ready to use for others.
 
+Thanks to darix <darix@irssi.de> for the project name WOLK :-)
+
+
+What is this? Why another patchset/patched kernel?
+
+Using Linux since years, very tired of there are not really good patchsets available. Saw FOLK Patch/Kernel which is very very buggy. Inspired by the jp-Patchsets from Joerg Prante <joerg@infolinux.de>.
+
+The -mcp-WOLK kernels are development kernels for testing purpose only.
+!! If you want to use it in production, use it at your own risk !!
+Their purpose is to provide a service for developers and end-users who can't be up to date with the latest kernels/patches but want to test many features out there linux can use. Maybe, (hopefully) some of them will be included into the mainstream kernel 2.4 soon.
+There will always be a new WOLK if there is a new final kernel released. 
+
+You are missing a patch? Patches will be added by request.
+You think one or more of the patches are fully useless? Tell me why.
+You have minor, major or heavy mega problems, let me know. I will try to fix.
+You think this is great? Let me know too :-)
+
+Unfortunately you must use the whole kernel with the patches applied, cause at the moment i don't have time to make a patchset to the Vanilla Kernel from kernel.org. If i have more time, i will do so! I think i will do so for the next 2.4.19-mcp4-WOLK release.
+
+I think i made some people happy, cause this patched kernel includes some very nice features, and, of course, for the end-WIN-(L)users Win4Lin3 Support. Don't hit me for that ;)
+
+
+Overview:
+---------
+The -mcp3-WOLK kernel contains: (over 70 Patches)
+
+
+SET_PERSONALITY fix
+
+security fix x86
+----------------
+A security hole was recently found in both the 2.2 and 2.4 trees of linux kernels. The hole is x86 processor specific, and allows an attacker to kill processes he doesn't own. This is not a hole in grsecurity, but in all linux kernels.
+http://www.grsecurity.net/linux-2.4.18.secfix.patch
+
+
+grsec 1.9.4 REAL Final
+----------------------
+really great security patch
+Brad Spengler / Michael Dalton
+http://www.grsecurity.net
+(Included is gradm 1.2.1, find it under tools/)
+
+
+Win4Lin3
+--------
+Use Windows under Linux with Win4Lin (commercial)
+Netraverse
+http://www.netraverse.com/
+
+
+preempt + stuff
+---------------
+full preempting kernel tasks for low latency
+Robert Love
+http://www.tech9.net/rml/linux
+
+
+EMU10k1 (SBLive etc.)
+---------------------
+These are updates to the in-kernel driver for the emu10k1
+Robert Love
+http://www.kernel.org/pub/linux/kernel/people/rml/emu10k1/
+
+
+crypto + loop jari
+------------------
+international cryptographic API patch
+Herbert Valerio Riedel et.al.
+http://www.kernel.org/pub/linux/kernel/people/hvr/
+
+
+Boot time ioremap
+-----------------
+Implements a version of ioremap() which is functional at the very
+early stages of the i386 boot sequence.
+Mikael Pettersson
+http://www.csd.uu.se/~mikpe/linux/kernel-patches/2.4/
+
+
+Early DMI Scan
+--------------
+Moves the i386 DMI scan to an earlier point in the boot sequence, so that
+the DMI data can be used to guide hardware detection and initialisation.
+Mikael Pettersson
+http://www.csd.uu.se/~mikpe/linux/kernel-patches/2.4/
+
+
+DMI APIC Fixups
+---------------
+Adds DMI scan rules and apic.c workarounds for broken BIOSen, which is needed to avoid hard lockups on some machines in certain configurations. The machines currently handled by this patch are: Dell Inspiron and Latitude, IBMT hinkpad T20, Intel AL440LX, and Microstar 6163.
+Mikael Pettersson
+http://www.csd.uu.se/~mikpe/linux/kernel-patches/2.4/
+
+
+IDE
+---
+IDE enhancements 
+Andre Hedrick
+http://www.kernel.org/pub/linux/kernel/people/hedrick/
+
+
+Software RAID enhancements
+--------------------------
+patch set to manage multiple RAID devices (span chunks, MD partitioning)
+Neil Brown
+http://cgi.cse.unsw.edu.au/~neilb/patches/linux-stable/
+
+
+loop crypto device/twofish
+--------------------------
+from older version of the international crypto patch
+
+
+JFS 1.0.15 
+----------     
+IBM journal file system
+Steve Best et.al
+http://oss.software.ibm.com/developerworks/oss/jfs/
+
+
+freeswan 1.95  
+-------------
+free IPsec implementation 
+John Gilmore et.al.
+http://www.freeswan.org
+
+
+freeswan x.509 patch
+--------------------
+Andreas Steffen et.al
+http://www.strongsec.com/freeswan/
+
+
+Tekram DC395 Patch
+------------------
+Kurt Garloff
+http://www.garloff.de/kurt/linux/dc395/
+ftp://ftp.suse.com/pub/people/garloff/linux/dc395/
+
+
+HTB Scheduling
+--------------
+Martin Devera
+http://luxik.cdi.cz/~devik/qos/htb/
+
+
+NWFS (Netware FileSystem)
+-------------------------
+J. Merkey
+http://www.kernel.org/pub/linux/kernel/people/jmerkey/nwfs/
+
+
+IPVS (Linux Virtual Server)
+---------------------------
+http://www.linuxvirtualserver.org/deployment.html
+http://www.linuxvirtualserver.org/
+(Included tools to use IPVS, find it under tools/)
+
+
+NFS Patches
+-----------
+Trond Myklebust
+http://www.fys.uio.no/~trondmy/src/2.4.18/
+
+
+VFAT Symlinks Patch
+-------------------
+Make Windows .lnk files look like real symlinks
+Jan Pazdziora
+http://www.fi.muni.cz/~adelton/linux/vfat-symlink/
+
+
+Load Kill Patch
+---------------
+Kill process with excessive load
+http://www.cssc-inc.com/loadkill-0.1.patch
+
+
+Filesystem in Userspace Patch
+-----------------------------
+http://sourceforge.net/projects/avf
+
+
+XFS + KDB (cvs snapshot 04. March 2002)
+---------------------------------------
+High performance journaling filesystem
+SGI / Stephen Lord et al
+ftp://oss.sgi.com/projects/xfs/download/patches/2.4.18
+
+
+Adaptec SCSI Driver Updates
+---------------------------
+http://people.freebsd.org/~gibbs/linux/
+
+
+i2c 2.6.2
+---------
+Hardware monitoring
+Alexander Larsson et.al.
+http://www.netroedge.com/~lm78/
+
+
+lm_sensors 2.6.2
+----------------
+Hardware monitoring
+Alexander Larsson et.al.
+http://www.netroedge.com/~lm78/
+
+
+badMEM
+-------
+If you want to use it, you must first configure the badmem tools located at the tools directory included in this package
+http://badmem.sourceforge.net/
+
+
+Enterprise Event Logging System
+-------------------------------
+http://evlog.sourceforge.net/
+
+
+Kernel Panic Message Dumper
+---------------------------
+http://www-miaif.lip6.fr/willy/linux-patches/
+
+
+accessfs
+--------
+http://home.t-online.de/home/olaf.dietsche/linux/
+
+
+ACPI
+----
+http://sourceforge.net/projects/acpi/
+
+
+timepeg
+-------
+Andrew Morton
+http://www.zipworld.com.au/~akpm/linux/ext3/
+
+
+Compressed Cache
+----------------
+http://linuxcompressed.sourceforge.net/
+
+
+Extended ptrace
+---------------
+http://www.elis.rug.ac.be/~fcorneli/
+
+
+bttv
+----
+http://bytesex.org/bttv/
+
+
+TIOCGDEV
+--------
+new ioctl to return the console mapping
+Kurt Garloff
+http://banyan.dlut.edu.cn/news/121600/0116.html
+
+
+
+And some other small patches ... Have a look yourself in the included applied_patches directory. ( I love Open Source :-)
+
+Credits go to all the people who created the patches, working hard on
+improving the quality.
+
+
+Installation
+------------
+* get the WOLK Kernel from: http://sourceforge.net/projects/mcp-wolk/
+* untar the kernel source you've downloaded to your favourite place on
+  your harddisk. I suggest you untar it in /usr/src
+  You will get a directory named linux-2.4.18-mcp3-WOLK
+* I have included my .config File, change it to your needs with:
+  make {config|menuconfig}
+* compile and install the kernel, compile/install modules
+* Have a look at the tools/ directory included in this package.
+
+--------------------------------------------------------------------------
+Feel free to send me feedback. Please CC, I am not subscribed to the lkml.
+--------------------------------------------------------------------------
+
+The next WOLK Kernel will be available some days after the 2.4.19 final kernel release.
+
+
+Todo for the next releases:
+---------------------------
+- Mosix/OpenMosix (why the hell they are so slow to release new patches.
+  Hurry up !!
+- FTPFS (does not work now, just very old, but usefull)
+- OpenAFS
+- OpenGFS
+- ALSA
+
+
+Enjoy!
+
+Marc-Christian Petersen <mcp@linux-systeme.de>
+Unix/Linux Administrator
+Essen, Germany
 

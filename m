@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbULOSRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbULOSU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbULOSRy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 13:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbULOSRk
+	id S262433AbULOSU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 13:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbULOSU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 13:17:40 -0500
-Received: from mpls-qmqp-03.inet.qwest.net ([63.231.195.114]:50187 "HELO
-	mpls-qmqp-03.inet.qwest.net") by vger.kernel.org with SMTP
-	id S262432AbULOSRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 13:17:37 -0500
-Date: Wed, 15 Dec 2004 11:17:33 -0700
-Message-ID: <41C07FBD.90108@qwest.net>
-From: "John S. Worley" <jsworley@qwest.net>
-To: linux-ia64@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Subject: Need interactive ACPI interpreter
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Dec 2004 13:20:57 -0500
+Received: from ns1.digitalpath.net ([65.164.104.5]:16582 "HELO
+	mail.digitalpath.net") by vger.kernel.org with SMTP id S262433AbULOSUb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 13:20:31 -0500
+Date: Wed, 15 Dec 2004 10:19:44 -0800
+From: Ray Van Dolson <rayvd@digitalpath.net>
+To: linux-kernel@vger.kernel.org
+Subject: unregister_netdevice: waiting for ppp546 to become free. Usage count = 1 (using tbf)
+Message-ID: <20041215181944.GA4267@digitalpath.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all -
+Been seeing this problem from time to time--
 
-     I am looking for a user-mode, interactive ACPI
-interpreter under Linux. Specifically, I need to be able
-to load arbitrary ACPI file(s) (AML or ASL) and then execute
-the methods and see the results. If it can read from
-/proc as well, so much the better.
+After running /sbin/reboot the following message (or similar) loops
+continuously and the only way to recover is to hard reboot the system.
 
-     I have scanned the Web and the usual places, but
-no luck so far.
+unregister_netdevice: waiting for ppp546 to become free. Usage count = 1
 
-	Thanks,
-	John Worley
-	jsworley@qwest.net
+We are using "tc" to do traffic shaping with the tbf (tocket bucket
+filter).  Kernel is 2.6.9.
 
+I found the following which appears to be similar:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109317866203856&w=2
+
+Except that it relates to cbq specifically.  Could there be an issue with
+the tbf code as well?
+
+Ray

@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbTJGSoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 14:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbTJGSoJ
+	id S262709AbTJGS1N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 14:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTJGSZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 14:44:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40320 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262730AbTJGSoH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 14:44:07 -0400
-Date: Tue, 7 Oct 2003 19:44:05 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: insecure <insecure@mail.od.ua>
-Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: devfs and udev
-Message-ID: <20031007184405.GX7665@parcelfarce.linux.theplanet.co.uk>
-References: <20031007131719.27061.qmail@web40910.mail.yahoo.com> <yw1xllrxdvhh.fsf@users.sourceforge.net> <200310072128.09666.insecure@mail.od.ua>
+	Tue, 7 Oct 2003 14:25:52 -0400
+Received: from mail.kroah.org ([65.200.24.183]:61059 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262677AbTJGSZi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 14:25:38 -0400
+Date: Tue, 7 Oct 2003 11:10:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Hugo Mills <hugo-lkml@carfax.org.uk>, linux-kernel@vger.kernel.org,
+       Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: devfs vs. udev
+Message-ID: <20031007181041.GI1956@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <yw1xad8dfcjg.fsf@users.sourceforge.net> <pan.2003.10.07.13.41.23.48967@dungeon.inka.de> <yw1xekxpdtuq.fsf@users.sourceforge.net> <20031007142349.GX1223@rdlg.net> <pan.2003.10.07.16.06.52.842471@dungeon.inka.de> <20031007165404.GB29870@carfax.org.uk> <20031007174928.GB1956@kroah.com> <20031007175817.GB1125@carfax.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200310072128.09666.insecure@mail.od.ua>
+In-Reply-To: <20031007175817.GB1125@carfax.org.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 07, 2003 at 09:28:09PM +0300, insecure wrote:
- 
-> I am pro-devfs guy too.
-> If its internals are bad in some way or other, internals
-> may be fixed. But devfs userspace-visible interface was
-> not flawed (IMO).
+On Tue, Oct 07, 2003 at 06:58:17PM +0100, Hugo Mills wrote:
+> On Tue, Oct 07, 2003 at 10:49:28AM -0700, Greg KH wrote:
+> > On Tue, Oct 07, 2003 at 05:54:04PM +0100, Hugo Mills wrote:
+> > > 
+> > >    Surely udev needs the ability to make more than one device node or
+> > > symlink when a device is plugged in anyway, so I just see this as an
+> > > issue of writing the appropriate default configuration files.
+> > 
+> > More than one device node per device?  Why would you want that?
 > 
-> What am I supposed to do, starting to use mknod again? Uggggh...
+>    OK, more than one actual node per device (i.e. per major:minor
+> pair) may not necessarily be required, but in devfs there are, for
+> example device nodes created in /dev/scsi/host0/bus0/device0/lun0/...
+> etc, and links to those device nodes created in /dev/discs/disc0/...
+> It can occasionally be useful to have the two distinct namespaces
+> available.
 
-	Feel free to try and redesign the internals until they become
-acceptable.  Since *nobody* had achieved that and those who'd tried
-had generally come to conclusion that things is FUBAR...  Good luck,
-but I'm not holding my breath.
+Yes, symlinks are on the TODO list, as lots of people want them
+/dev/cdrom, /dev/pilot, etc.
+
+thanks,
+
+greg k-h

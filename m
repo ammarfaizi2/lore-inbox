@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132315AbRA2P1L>; Mon, 29 Jan 2001 10:27:11 -0500
+	id <S132432AbRA2P1V>; Mon, 29 Jan 2001 10:27:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132549AbRA2P1B>; Mon, 29 Jan 2001 10:27:01 -0500
-Received: from sin.sloth.org ([207.0.237.38]:48132 "EHLO sin.sloth.org")
-	by vger.kernel.org with ESMTP id <S132315AbRA2P0p>;
-	Mon, 29 Jan 2001 10:26:45 -0500
-Date: Mon, 29 Jan 2001 10:26:44 -0500
-From: Geoffrey Gallaway <geoffeg@sloth.org>
-To: linux-kernel@vger.kernel.org
-Subject: Incorrect NFS_Config documentation
-Message-ID: <20010129102644.A24448@sin.sloth.org>
+	id <S132549AbRA2P1L>; Mon, 29 Jan 2001 10:27:11 -0500
+Received: from [213.95.15.193] ([213.95.15.193]:40975 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132432AbRA2P04>;
+	Mon, 29 Jan 2001 10:26:56 -0500
+Date: Mon, 29 Jan 2001 13:30:16 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: James Sutherland <jas88@cam.ac.uk>,
+        Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ECN: Clearing the air (fwd)
+Message-ID: <20010129133016.A28458@gruyere.muc.suse.de>
+In-Reply-To: <951am4$gbf$1@ncc1701.cistron.net> <Pine.SOL.4.21.0101281642180.16734-100000@green.csi.cam.ac.uk> <14965.7321.926528.391631@pizda.ninka.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <14965.7321.926528.391631@pizda.ninka.net>; from davem@redhat.com on Sun, Jan 28, 2001 at 11:32:41PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 28, 2001 at 11:32:41PM -0800, David S. Miller wrote:
+> 
+> James Sutherland writes:
+>  > Except you can detect and deal with these "PMTU black holes". Just as you
+>  > should detect and deal with ECN black holes. Maybe an ideal Internet
+>  > wouldn't have them, but this one does. If you can find an ideal Internet,
+>  > go code for it: until then, stick with the real one. It's all we've got.
+> 
+> Guess what, Linux works not around PMTU black holes either for the
+> same exact reason we will not work around ECN.
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Actually PMTU black hole detection is very hard. I tried to implement it, but
+failed to make it not do bad things occasionally. 
 
-In 2.4.0 kernel's config help for CONFIG_NFSD:
----
-=2E....
 
-In either case, you will need support software; the respective
-locations are given in the file Documentation/Changes in the NFS
-section.                                                               =20
-
-=2E....
----
-
-However, I see no NFS section in Documentation/Changes.
-
-Geoff
-
---=20
-Geoffrey Gallaway || The only certainty is that nothing is certain.
-geoffeg@sloth.org ||
-D e v o r z h u n || 				-- Fortune Cookie
-
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjp1i7QACgkQrAD4O1w1lqNSkQCfXUSEpCDF3y728Xr75HX0QGk8
-6scAn0Mk0/Zuw5D8hR+W3ZGdsxPbFrd4
-=17dG
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

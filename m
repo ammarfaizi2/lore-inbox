@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319281AbSIKTCN>; Wed, 11 Sep 2002 15:02:13 -0400
+	id <S319292AbSIKTEy>; Wed, 11 Sep 2002 15:04:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319291AbSIKTCN>; Wed, 11 Sep 2002 15:02:13 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:64197 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S319281AbSIKTCM> convert rfc822-to-8bit; Wed, 11 Sep 2002 15:02:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: Xuan Baldauf <xuan--reiserfs@baldauf.org>
-Subject: Re: Heuristic readahead for filesystems
-Date: Wed, 11 Sep 2002 21:04:41 +0200
-User-Agent: KMail/1.4.1
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L.0209111340060.1857-100000@imladris.surriel.com> <200209112030.27269.oliver@neukum.name> <3D7F8ECA.21086A5@baldauf.org>
-In-Reply-To: <3D7F8ECA.21086A5@baldauf.org>
+	id <S319293AbSIKTEy>; Wed, 11 Sep 2002 15:04:54 -0400
+Received: from [143.166.83.88] ([143.166.83.88]:20742 "HELO
+	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S319292AbSIKTEx>; Wed, 11 Sep 2002 15:04:53 -0400
+X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
+Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1E7FF@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: mochel@osdl.org, greg@kroah.com
+cc: phillips@arcor.de, linux-kernel@vger.kernel.org
+Subject: RE: [RFC][PATCH] x86 BIOS Enhanced Disk Device (EDD) polling
+Date: Wed, 11 Sep 2002 14:09:32 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209112104.41987.oliver@neukum.name>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 11614B7B3806843-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 11. September 2002 20:43 schrieb Xuan Baldauf:
+> The next logical extension would be to make a symlink 'disk' in each
+> directory that points at the PCI 
+> bus:dev.fn/scsiX/a:b:c:d:disk file for the
+> appropriate disk.  However, I'm in a quandry...  There's no 
+> simple way to do this.
 
-> > Please correct me, if I am wrong, but wouldn't read() block ?
->
-> AFAIK, "man open" tells
->
-> [...]
->       int open(const char *pathname, int flags);
-> [...]
->        O_NONBLOCK or O_NDELAY
->                The file is opened in non-blocking mode. Neither the open
-> nor any __subsequent__ operations  on  the  file  descriptor
->                which is returned will cause the calling process to wait.
-> [...]
->
-> So read won't block if the file has been opened with O_NONBLOCK.
+Or is there? :-)
 
-Well, so the man page tells you. The kernel sources tell otherwise, unless
-I am badly mistaken.
+Patrick, in drivers/base/core.c, there's this concept of platform_notify()
+and platform_notify_remove().  Could I exploit this to get callbacks to the
+EDD code to create a symlink at that point?  These aren't exported to
+modules ATM, and I could see how multiple things may want to use this hook -
+so instead, how about notifier lists (ala reboot notifiers) that the EDD
+code could register with, instead of a single entry?  As a list, modules
+could add/remove themselves easily.
 
-> > Aio should be able to do it. But even that want help you with the stat
-> > data.
->
-> Aio would help me announcing stat() usage for the future?
+Then, one more request - giving back the ability to make a symlink given the
+device, not just a name.
 
-No, it won't. But it would solve the issue of reading ahead.
-Stating needs a kernel implementation of 'stat ahead'
+Thanks,
+Matt
+
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+

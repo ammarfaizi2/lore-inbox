@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267559AbTALWR5>; Sun, 12 Jan 2003 17:17:57 -0500
+	id <S267553AbTALWOI>; Sun, 12 Jan 2003 17:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267560AbTALWR5>; Sun, 12 Jan 2003 17:17:57 -0500
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:9493
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S267559AbTALWRz>; Sun, 12 Jan 2003 17:17:55 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "Dimitrie O. Paun" <dpaun@rogers.com>
-Reply-To: dpaun@rogers.com
-Organization: DSSD Software Inc.
-To: robw@optonline.net, Linus Torvalds <torvalds@transmeta.com>
+	id <S267559AbTALWOI>; Sun, 12 Jan 2003 17:14:08 -0500
+Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:27609 "EHLO
+	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267553AbTALWOH>; Sun, 12 Jan 2003 17:14:07 -0500
+Date: Sun, 12 Jan 2003 17:21:00 -0500
+From: Rob Wilkens <robw@optonline.net>
 Subject: Re: any chance of 2.6.0-test*?
-Date: Sun, 12 Jan 2003 15:59:51 -0500
-User-Agent: KMail/1.4.3
-Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       William Lee Irwin III <wli@holomorphy.com>,
+In-reply-to: <20030112215949.GA2392@www.kroptech.com>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301121208020.14031-100000@home.transmeta.com> <1042404503.1208.95.camel@RobsPC.RobertWilkens.com>
-In-Reply-To: <1042404503.1208.95.camel@RobsPC.RobertWilkens.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301121559.51062.dpaun@rogers.com>
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.103.156.204] using ID <dpaun@rogers.com> at Sun, 12 Jan 2003 17:25:50 -0500
+Reply-to: robw@optonline.net
+Message-id: <1042410059.1208.150.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+ <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+ <20030112211530.GP27709@mea-ext.zmailer.org>
+ <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+ <20030112215949.GA2392@www.kroptech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 12, 2003 03:48 pm, Rob Wilkens wrote:
-> As someone else pointed out, it's provable that goto isn't needed, and
-> given that C is a minimalist language, I'm not sure why it was included.
+On Sun, 2003-01-12 at 16:59, Adam Kropelin wrote:
+> Congratulations. You've possibly increased the speed of an error path by 
+> an infintessimal amount at the expense of increasing the size of kernel
+> image and making the code harder to read and maintain. (I say "possibly"
+> since with caching effects you may have actually slowed the code down.)
 
-Rob,
-You should really try to post one controversial thing at a time... :)
-Anyway, all programming languages (minimalistic or not) are Turing
-complete, maybe you want to program in Turing-machine language?
+Hey, if the compiler does it's job right, I increased the speed of
+something in the kernel.  And, as a kernel newbie, I'm proud of that.  I
+also did it in under 12 minutes (from time stamp of message received to
+time stamp of message sent after code compiled and diff'd).  
 
-On a side note, I do hope you realize that Linus & Co. are considered
-by smart people in the business as being some of the best. And for good
-reason, too. That is to say, they are held in high esteem by a lot of
-very, _very_ smart people, based on their continuous review of the
-exceptional work done on the kernel. Now, doesn't it strike you a little
-bit odd that you come in here and find all this obvious "problems"?
-How come you are the only one seeing all thing things that any 1st year
-CS student should be able to spot, yet hundreds of the brightest minds
-in the business failed to notice?
+> Harder to read: The primary code path is polluted with repetative code
+> that has no bearing on its primary mission.
 
--- 
-Dimi.
+I thought it was easier to read.  For me, I can read "ok, this condition
+happens, I fail"... Or "if this other condition happens, I release my
+path, then I fail"...  
+
+Whereas the "goto out" was very unclear.  It made me page down to figure
+out what was going on.  
+
+That's the whole point.. To just browse the code.. I shouldn't have to
+page down to understand what the code right in front of me is doing. 
+"goto out" is unclear.  "retun error" is clear.  "path_release" seems
+like a relatively plain english function name and I can guess what it
+does without knowing exactly what it does.  I can also surmise that if I
+go beyond a certain point in the function that I need to path_release()
+the same way a non-kernel programmer might need to free memory allocated
+inside of a function before returning to the calling function. 
+
+It really is that simple.  
+
+> Harder to maintain: Add an extra resource allocation near the top and
+> now you have to hunt out every failure case and manually update them all
+> (with yet more duplicate code) instead of just amending the cleanup code
+> at the end of the function.
+
+It took me 12 minutes from message received to message sent to update
+the entire block of code to handle the new case.  How long do you think
+it would take to make a minor modification that would only have to do a
+portion of what I did?  Is it such a burden on the developer to make the
+code more readable?
+
+-Rob
 

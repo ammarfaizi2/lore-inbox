@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287939AbSA3TVG>; Wed, 30 Jan 2002 14:21:06 -0500
+	id <S288948AbSA3TUQ>; Wed, 30 Jan 2002 14:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289082AbSA3TU5>; Wed, 30 Jan 2002 14:20:57 -0500
-Received: from office.mandrakesoft.com ([195.68.114.34]:53500 "EHLO
-	office.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S289003AbSA3TUp>; Wed, 30 Jan 2002 14:20:45 -0500
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-Cc: "Chris Ricker" <kaboom@gatech.edu>,
-        "Linus Torvalds" <torvalds@transmeta.com>,
-        "World Domination Now!" <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.44.0201291938530.26901-100000@verdande.oobleck.net>
-	<001601c1a98c$9681f760$dcf583d0@pcs586>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <001601c1a98c$9681f760$dcf583d0@pcs586>
-Date: 30 Jan 2002 20:11:18 +0100
-Message-ID: <m2d6zrmz6x.fsf@localhost.mandrakesoft.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S287939AbSA3TUG>; Wed, 30 Jan 2002 14:20:06 -0500
+Received: from zero.tech9.net ([209.61.188.187]:51727 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S284902AbSA3TUA>;
+	Wed, 30 Jan 2002 14:20:00 -0500
+Subject: Re: BKL in tty code?
+From: Robert Love <rml@tech9.net>
+To: Alex Khripin <akhripin@mit.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020130184950.GA22442@morgoth.mit.edu>
+In-Reply-To: <20020130184950.GA22442@morgoth.mit.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 30 Jan 2002 14:25:59 -0500
+Message-Id: <1012418760.3219.43.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "matthew" == Matthew D Pitts <mpitts@suite224.net> writes:
+On Wed, 2002-01-30 at 13:49, Alex Khripin wrote:
 
-matthew> Chris,
-matthew> Thank you for saying this... I have things I would like do/add to the kernel
-matthew> and I am not sure who to send them to.
+> I'm very much a newbie, and I'm wondering about the big kernel locks
+> in tty_io.c. What exactly are the locks in the read and write for? Is the
+> tty device that contested? Couldn't a finer grained lock be used?
 
-matthew> Also, is there presently a maintainer for Supermount? If not, I would be
-matthew> willing to pick it up for 2.5.x, as it is one of the things I want to work
-matthew> on.
+It has less to do with lock contention and much more to do with the
+design of the tty / console layer.  It isn't the kernel's prettiest
+code.
 
+There is probably some cleanup that is possible, but really getting the
+thing in gear (which means no BKL, which is probably the hardest part to
+rip out) require some level of rewrite.
 
-I am working on it.  Actual version worked quite well in 2.4.x series,
-but last kernels are showing same problems, worknig on that.
+	Robert Love
 
-Later, Juan.
-
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy

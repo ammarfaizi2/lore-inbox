@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbRE2OMQ>; Tue, 29 May 2001 10:12:16 -0400
+	id <S261347AbRE2OJ4>; Tue, 29 May 2001 10:09:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261386AbRE2OMG>; Tue, 29 May 2001 10:12:06 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10507 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261353AbRE2OLr>;
-	Tue, 29 May 2001 10:11:47 -0400
-Date: Tue, 29 May 2001 16:11:01 +0200
-From: Jens Axboe <axboe@kernel.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 4GB I/O, cut three
-Message-ID: <20010529161101.O26871@suse.de>
-In-Reply-To: <20010529160704.N26871@suse.de>
-Mime-Version: 1.0
+	id <S261353AbRE2OJq>; Tue, 29 May 2001 10:09:46 -0400
+Received: from pat.uio.no ([129.240.130.16]:62460 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S261347AbRE2OJm>;
+	Tue, 29 May 2001 10:09:42 -0400
+To: dobos_s@IBCnet.hu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19 locks up on SMP - tcp-hang patch NOT fixed the problem!
+In-Reply-To: <OF56FACC45.D8F8889E-ONC1256A5B.004A7C70@ibcnet.hu>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 29 May 2001 16:08:10 +0200
+In-Reply-To: dobos_s@IBCnet.hu's message of "Tue, 29 May 2001 15:50:22 +0200"
+Message-ID: <shsitikmenp.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010529160704.N26871@suse.de>; from axboe@kernel.org on Tue, May 29, 2001 at 04:07:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 29 2001, Jens Axboe wrote:
-> Hi,
-> 
-> Another day, another version.
+>>>>> " " == dobos s <dobos_s@IBCnet.hu> writes:
 
-Hrmpf, let me point out where it is too...
+     > I have the problem.  As I read mails between Alan, Ioan and
+     > Trond on the above subject I decided to try Trond's tcp-hang
+     > patch to see It really solves the problem.
 
-*.kernel.org/pub/linux/kernel/axboe/patches/2.4.5/
+     > I dont think so. In my source tree there are not compiled files
+     > in net/sunrpc dir, and CONFIG_SUNRPC is not set in my .config!
 
-the READHE there details what is in each patch, or you can grab
-block-highmem-all-3 which has it all.
+That patch was only meant to fix a hang in NFS and friends. It's
+doesn't fix anything in the generic TCP code.
 
--- 
-Jens Axboe
-
+Cheers,
+   Trond

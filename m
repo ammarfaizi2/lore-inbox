@@ -1,70 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTKVMsG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 07:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbTKVMsF
+	id S262251AbTKVMy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 07:54:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbTKVMyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 07:48:05 -0500
-Received: from smtp5.wanadoo.fr ([193.252.22.26]:13682 "EHLO
-	mwinf0502.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262228AbTKVMsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 07:48:02 -0500
-Message-ID: <3FBF5C79.5050409@wanadoo.fr>
+	Sat, 22 Nov 2003 07:54:25 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46274 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262251AbTKVMyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 07:54:23 -0500
 Date: Sat, 22 Nov 2003 13:54:17 +0100
-From: Remi Colinet <remi.colinet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test9-mm5 : compile error
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Buck Rekow <rekow@bigskytel.com>
+Cc: rth@twiddle.net, linux-kernel@vger.kernel.org, breed@users.sourceforge.net,
+       achirica@users.sourceforge.net
+Subject: Re: PROBLEM: Aironet compile failure 2.6-test9/Alpha architecture
+Message-ID: <20031122125417.GP16828@fs.tum.de>
+References: <3FBD67E7.5020405@bigskytel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FBD67E7.5020405@bigskytel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Nov 20, 2003 at 06:18:31PM -0700, Buck Rekow wrote:
 
-Any idea about this error?
+>  Aironet is not listed as i can find in the file MAINTAINERS, however, 
+> This report needs to go somewhere and do something. The maintainer is 
+> however listed in airo.c. merry carbon-copy, people.
+> 
+> Quite simply, the compile fails with the following error.   I'm not sure 
+> anyone else  is using an aironet card under Alpha, so I guess someone 
+> needs to report this.
+> I must say Aironet can be a real pain.
+> 
+> predator:/usr/src/linux-2.6.0-test9# make modules
+> make[1]: `arch/alpha/kernel/asm-offsets.s' is up to date.
+>  CC [M]  drivers/net/wireless/airo.o
+> drivers/net/wireless/airo.c: In function `emmh32_setseed':
+> drivers/net/wireless/airo.c:1458: internal error--unrecognizable insn:
+> (insn:TI 512 478 513 (set (reg:DI 1 $1)
+>        (plus:DI (reg:DI 30 $30)
+>            (const_int 4398046511104 [0x40000000000]))) -1 (insn_list 51 
+> (insn_list:REG_DEP_ANTI 494 (nil)))
+>    (nil))
+> cpp0: output pipe has been closed
+> make[3]: *** [drivers/net/wireless/airo.o] Error 1
+> make[2]: *** [drivers/net/wireless] Error 2
+> make[1]: *** [drivers/net] Error 2
+> make: *** [drivers] Error 2
+> 
+> Here is the output of ver_linux
+> Gnu C                  2.95.4
+>...
+> There is a possibility this may be caused by GCC bug PR-9164, which is 
+> present in debian 3.0  Alpha (Debian people: READ: *fix it*)  which I am 
+> running.    
+> 
+>  Hope this is fixable.
 
-  CC      lib/rwsem.o
-  CC      lib/string.o
-  CC      lib/vsprintf.o
-  AR      lib/lib.a
-  LD      arch/i386/lib/built-in.o
-  AS      arch/i386/lib/checksum.o
-  CC      arch/i386/lib/dec_and_lock.o
-  CC      arch/i386/lib/delay.o
-  AS      arch/i386/lib/getuser.o
-  CC      arch/i386/lib/iodebug.o
-  CC      arch/i386/lib/kgdb_serial.o
-  CC      arch/i386/lib/memcpy.o
-  CC      arch/i386/lib/strstr.o
-  CC      arch/i386/lib/usercopy.o
-  AR      arch/i386/lib/lib.a
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-arch/i386/oprofile/built-in.o: In function `oprofile_reset_stats':
-/usr/src/mm/include/asm/bitops.h:251: undefined reference to 
-`cpu_possible_map'
-arch/i386/oprofile/built-in.o: In function `oprofile_create_stats_files':
-/usr/src/mm/include/asm/bitops.h:251: undefined reference to 
-`cpu_possible_map'
-make: *** [.tmp_vmlinux1] Error 1
+This is a bug in the compiler, but the gcc developers stopped any 
+development on 2.95 long time ago.
 
-grep SMP .config
-CONFIG_BROKEN_ON_SMP=y
-# CONFIG_X86_BIGSMP is not set
-CONFIG_SMP=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_SMP=y
+Besides the fact that you'd have to wait half a year (or maybe two
+years) until Debian 3.1 releases to get the fix if it was fixed, I doubt
+anyone of the Debian gcc maintainers would spend his time on fixing bugs 
+in gcc 2.95 .
 
-grep OPROFILE .config
-CONFIG_OPROFILE=y
+You might have luck with trying to use the gcc-3.0 in stable to compile 
+your kernel, but since I doubt anyone backported gcc 3.2 or 3.3 for 
+alpha to the pretty ancient Debian stable it might be that the only way 
+to get kernel 2.6 running for you would be to try to locally modify 
+airo.c in a way that your gcc compiles it.
 
-Remi
+>    Buck Rekow
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,235 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVCXPJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262541AbVCXPKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262517AbVCXPJu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 10:09:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVCXPJr
+	id S262541AbVCXPKP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 10:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVCXPKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 10:09:47 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:6885 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S262517AbVCXPJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 10:09:25 -0500
-Message-ID: <4242D820.8070801@mesatop.com>
-Date: Thu, 24 Mar 2005 08:09:20 -0700
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Thunderbird 1.0 (Multics)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-mm2 (build error In function `zft_init')
-References: <20050324044114.5aa5b166.akpm@osdl.org>
-In-Reply-To: <20050324044114.5aa5b166.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+	Thu, 24 Mar 2005 10:10:15 -0500
+Received: from geode.he.net ([216.218.230.98]:3854 "HELO noserose.net")
+	by vger.kernel.org with SMTP id S262541AbVCXPJ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 10:09:59 -0500
+From: ecashin@noserose.net
+Message-Id: <1111676997.25277@geode.he.net>
+Date: Thu, 24 Mar 2005 07:09:57 -0800
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.11] aoe [2/12]: allow multiple aoe devices with same MAC addr
+References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following build error with 2.6.12-rc1-mm2:
 
-   CC      init/version.o
-   LD      init/built-in.o
-   LD      .tmp_vmlinux1
-drivers/built-in.o(.init.text+0x4323): In function `zft_init':
-: undefined reference to `class_device_creat'
-make: *** [.tmp_vmlinux1] Error 1
+allow multiple aoe devices with same MAC addr
 
-2.6.12-rc1-mm1 built and is running just fine.  I used the
--rc1-mm1 .config, did make oldconfig, make bzImage.  Here is
-the .config:
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
 
-[steven@spc1 linux-2.6.12-rc1-mm2]$ grep ^CONFIG .config
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_CLEAR_PAGES=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-CONFIG_LOCALVERSION="-GX110"
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_KALLSYMS=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_BASE_SMALL=0
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HPET_TIMER=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_EDD=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_PHYSICAL_START=0x100000
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_BLK_DEV_RAM_SIZE=32000
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_AOE_PARTITIONS=16
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_IP_TCPDIAG=y
-CONFIG_XFRM=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_8250_EXTENDED=y
-CONFIG_SERIAL_8250_SHARE_IRQ=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_FTAPE=y
-CONFIG_ZFTAPE=y
-CONFIG_ZFT_DFLT_BLK_SZ=10240
-CONFIG_ZFT_COMPRESSOR=y
-CONFIG_FT_NR_BUFFERS=3
-CONFIG_FT_PROC_FS=y
-CONFIG_FT_NORMAL_DEBUG=y
-CONFIG_FT_STD_FDC=y
-CONFIG_FT_FDC_THR=8
-CONFIG_FT_FDC_MAX_RATE=2000
-CONFIG_FT_ALPHA_CLOCK=0
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_VIDEO_DEV=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISER4_FS=y
-CONFIG_REISERFS_FS=y
-CONFIG_DNOTIFY=y
-CONFIG_ISO9660_FS=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_NTFS_FS=y
-CONFIG_NTFS_RW=y
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_DEVFS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=y
-CONFIG_NLS_ASCII=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_UTF8=y
-CONFIG_PRINTK_TIME=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_FRAME_POINTER=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_SECURITY=y
-CONFIG_SECURITY_NETWORK=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_CRC_CCITT=y
-CONFIG_CRC32=y
-CONFIG_LIBCRC32C=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
+diff -uprN a/drivers/block/aoe/aoe.h b/drivers/block/aoe/aoe.h
+--- a/drivers/block/aoe/aoe.h	2005-03-10 12:19:04.000000000 -0500
++++ b/drivers/block/aoe/aoe.h	2005-03-10 12:19:11.000000000 -0500
+@@ -156,7 +156,7 @@ void aoecmd_cfg_rsp(struct sk_buff *);
+ 
+ int aoedev_init(void);
+ void aoedev_exit(void);
+-struct aoedev *aoedev_bymac(unsigned char *);
++struct aoedev *aoedev_by_aoeaddr(int maj, int min);
+ void aoedev_downdev(struct aoedev *d);
+ struct aoedev *aoedev_set(ulong, unsigned char *, struct net_device *, ulong);
+ int aoedev_busy(void);
+diff -uprN a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
+--- a/drivers/block/aoe/aoecmd.c	2005-03-10 12:19:04.000000000 -0500
++++ b/drivers/block/aoe/aoecmd.c	2005-03-10 12:19:11.000000000 -0500
+@@ -380,14 +380,15 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 	register long n;
+ 	ulong flags;
+ 	char ebuf[128];
+-	
++	u16 aoemajor;
++
+ 	hin = (struct aoe_hdr *) skb->mac.raw;
+-	d = aoedev_bymac(hin->src);
++	aoemajor = __be16_to_cpu(*((u16 *) hin->major));
++	d = aoedev_by_aoeaddr(aoemajor, hin->minor);
+ 	if (d == NULL) {
+ 		snprintf(ebuf, sizeof ebuf, "aoecmd_ata_rsp: ata response "
+ 			"for unknown device %d.%d\n",
+-			 __be16_to_cpu(*((u16 *) hin->major)),
+-			hin->minor);
++			 aoemajor, hin->minor);
+ 		aoechr_error(ebuf);
+ 		return;
+ 	}
+diff -uprN a/drivers/block/aoe/aoedev.c b/drivers/block/aoe/aoedev.c
+--- a/drivers/block/aoe/aoedev.c	2005-03-07 17:37:14.000000000 -0500
++++ b/drivers/block/aoe/aoedev.c	2005-03-10 12:19:11.000000000 -0500
+@@ -13,7 +13,7 @@ static struct aoedev *devlist;
+ static spinlock_t devlist_lock;
+ 
+ struct aoedev *
+-aoedev_bymac(unsigned char *macaddr)
++aoedev_by_aoeaddr(int maj, int min)
+ {
+ 	struct aoedev *d;
+ 	ulong flags;
+@@ -21,7 +21,7 @@ aoedev_bymac(unsigned char *macaddr)
+ 	spin_lock_irqsave(&devlist_lock, flags);
+ 
+ 	for (d=devlist; d; d=d->next)
+-		if (!memcmp(d->addr, macaddr, 6))
++		if (d->aoemajor == maj && d->aoeminor == min)
+ 			break;
+ 
+ 	spin_unlock_irqrestore(&devlist_lock, flags);
+@@ -125,7 +125,6 @@ aoedev_set(ulong sysminor, unsigned char
+ 	d->ifp = ifp;
+ 
+ 	if (d->sysminor != sysminor
+-	|| memcmp(d->addr, addr, sizeof d->addr)
+ 	|| (d->flags & DEVFL_UP) == 0) {
+ 		aoedev_downdev(d); /* flushes outstanding frames */
+ 		memcpy(d->addr, addr, sizeof d->addr);
 
 
-Steven
+-- 
+  Ed L. Cashin <ecashin@coraid.com>

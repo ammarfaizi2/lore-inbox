@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbUKOPFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbUKOPJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUKOPFh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 10:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbUKOPFh
+	id S261617AbUKOPJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 10:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbUKOPJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 10:05:37 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:24234 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261606AbUKOPFc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 10:05:32 -0500
-Date: Mon, 15 Nov 2004 16:05:30 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Blizbor <kernel@globalintech.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 native IPsec implementation question
-In-Reply-To: <4198C1A4.8080707@globalintech.pl>
-Message-ID: <Pine.LNX.4.53.0411151557550.17812@yvahk01.tjqt.qr>
-References: <4198B2B6.9050803@globalintech.pl> <Pine.LNX.4.53.0411151455020.17543@yvahk01.tjqt.qr>
- <4198C1A4.8080707@globalintech.pl>
+	Mon, 15 Nov 2004 10:09:57 -0500
+Received: from fep02fe.ttnet.net.tr ([212.156.4.132]:24008 "EHLO
+	fep02.ttnet.net.tr") by vger.kernel.org with ESMTP id S261617AbUKOPJ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 10:09:56 -0500
+Message-ID: <4198C64A.6050900@ttnet.net.tr>
+Date: Mon, 15 Nov 2004 17:07:54 +0200
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20041003
+X-Accept-Language: tr, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+To: jgarzik@pobox.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [netdrvr] netdev-2.4 queue updated
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> John W. Linville:
+>   o 3c59x: resync with 2.6
+> 
 
->These almost exactly are rules I want to implement.
->But, when you run tcpdump -nni eth0 you can see ESP traffic _and_ one
->direction of something going through IPsec.
+Any specific reason that the following two are not included ?
 
-I think that PF_PACKETs "bypass" the firewall. Don't count on that, though.
-(It's because I still see incoming port attempts despite having a tight
--P DROP)
+3c59x: reload EEPROM values at rmmod for needy cards:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109726032213947&w=2
 
->Moreover "-i eth0 -j DROP" blocks IPsec traffic ... (or -o eth0 i don't
->remember direction)
+3c59x: remove EEPROM_RESET for 3c905 :
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109802672909516&w=2
 
-You "sit" on the network card chip and then think of input and output.
-Btw, -j DROP will only drop what has not been matched up to now. So if you get
-to -j ACCEPT IPsec traffic beforehand (I think -m ah / -m esp, did not
-it?), they will never reach -j DROP.
+Regards,
+Ozkan Sezer
 
 
-
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbUDNOkH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 10:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbUDNOkH
+	id S263864AbUDNOoB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 10:44:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264248AbUDNOoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 10:40:07 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:56223 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S261380AbUDNOjt (ORCPT
+	Wed, 14 Apr 2004 10:44:00 -0400
+Received: from ns.suse.de ([195.135.220.2]:48770 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263864AbUDNOn5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 10:39:49 -0400
-Date: Wed, 14 Apr 2004 16:39:42 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Guillaume =?iso-8859-1?q?Lac=F4te?= <Guillaume@Lacote.name>
-Cc: Paulo Marques <pmarques@grupopie.com>,
-       =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org, Linux@glacote.com
-Subject: Re: Using compression before encryption in device-mapper
-In-Reply-To: <200404141602.43695.Guillaume@Lacote.name>
-Message-ID: <Pine.LNX.4.58.0404141612250.16891@alpha.polcom.net>
-References: <200404131744.40098.Guillaume@Lacote.name>
- <200404141202.07021.Guillaume@Lacote.name> <407D3231.2080605@grupopie.com>
- <200404141602.43695.Guillaume@Lacote.name>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Apr 2004 10:43:57 -0400
+Date: Wed, 14 Apr 2004 16:41:35 +0200
+From: Andi Kleen <ak@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: dvhltc@us.ibm.com, linux-kernel@vger.kernel.org, mingo@redhat.com,
+       mjbligh@us.ibm.com, ricklind@us.ibm.com, akpm@osdl.org
+Subject: Re: 2.6.5-rc3-mm4 x86_64 sched domains patch
+Message-Id: <20040414164135.75f1856f.ak@suse.de>
+In-Reply-To: <407D473B.8010109@yahoo.com.au>
+References: <1081466480.10774.0.camel@farah>
+	<20040414154456.78893f3f.ak@suse.de>
+	<407D473B.8010109@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that not only compression should be moved to fs layer but 
-possibly encryption also.
+On Thu, 15 Apr 2004 00:14:19 +1000
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-How?
-In Reiser4 there are plugins.
-In other fses (as far as I remember e2compr and maybe other posts on 
-this list) there is only one bigger problem with compression and only if 
-we want to support mmap (I do not remember more details about the problem) 
-and the problem is somewhere between current mm and vfs implementation. I 
-think that (probably) Linus said once that this problem can be solved by 
-changing these implementations. The same probably goes for encryption.
-In order to protect guessing the key from decrypting possibly-well-known 
-values in superblock and other metadata (cuch as fs size and signature) we 
-could probably place random numbers before them and xor each 4 bytes with 
-last 4 bytes before encryption (or use any other hash function).
+> Andi Kleen wrote:
+> > On Thu, 08 Apr 2004 16:22:09 -0700
+> > Darren Hart <dvhltc@us.ibm.com> wrote:
+> > 
+> > 
+> > 
+> >>This patch is intended as a quick fix for the x86_64 problem, and
+> > 
+> > 
+> > Ingo's latest tweaks seemed to already cure STREAM, but some more
+> > tuning is probably a good idea agreed.
+> > 
+> 
+> Where is STREAM versus other kernels? You said you got
+> best performance on a custom 2.4 kernel. Do we match
+> that?
 
-Why?
-Because in dm approach you are encrypting entire blocks at once and in fs 
-approach you are encrypting only needed parts. This can even bring more 
-security because if fs is merging small files into one block and if it is 
-patched to move begining of not full block data into random position in 
-that block attacker must crack all fs and its metadata structures to know 
-where your data actually is and what key is used to encrypt them (we can 
-have several different keys for different parts of fs to make things 
-harder). So we can have situation that in one block there is 2 or 3 or 
-maybe more files (or parts) encrypted using different keys and hashes and 
-that these files reside at different offsets in that block. I think that 
-this is easier to implement and protects better.
+Differences were below the measurement error, so I consider it fixed.
 
-What do you think?
+> 
+> How is your performance for other things? I recall you
+> may have told me about some other (smaller) issues you
+> were seeing?
 
+I haven't tested much yet.  I can compare kernel compilations later.
 
-Grzegorz Kulewski
+Also I'm still somewhat hoping that the IBM benchmark team will take a stab at 
+it - they are much better than me at running many tests.
 
+-Andi

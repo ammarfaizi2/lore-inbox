@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266846AbUBMJar (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 04:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266852AbUBMJar
+	id S266874AbUBMJp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 04:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUBMJp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 04:30:47 -0500
-Received: from main.gmane.org ([80.91.224.249]:6534 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266846AbUBMJaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 04:30:46 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Simon Oosthoek <simon@ti-wmc.nl>
-Subject: Re: Problem EIP + kernel panic
-Date: Fri, 13 Feb 2004 10:28:20 +0100
-Message-ID: <c0i5bk$src$1@sea.gmane.org>
-References: <200402120105.33222.egan@club-internet.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: darla.ti-wmc.nl
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-In-Reply-To: <200402120105.33222.egan@club-internet.fr>
+	Fri, 13 Feb 2004 04:45:28 -0500
+Received: from kempelen.iit.bme.hu ([152.66.241.120]:8699 "EHLO
+	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S266874AbUBMJpX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 04:45:23 -0500
+Date: Fri, 13 Feb 2004 10:45:18 +0100 (MET)
+Message-Id: <200402130945.i1D9jIB19896@kempelen.iit.bme.hu>
+From: Miklos Szeredi <mszeredi@inf.bme.hu>
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] add allocation failure check to copy_namespace()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Emmanuel Gaudin wrote:
-> Hi everybody , and sorry for my english.
-> 
-> I am under debian sid and i have installed the kernel 2.424 . After few time i 
-> noticed that the new kernel-image on the debian apt tree was available. So i 
-> decidede to install it. (For the 2.4.24 i did with the kernel sources and 
-> make dep etc..) I have installed it then i reboot.
-> On the reboot i have a kernel panic due to a eip problem.
-> My mother board is a p4p800 and the kernel version i've installed is the 
-> 2.6.2-smp. (i have a 2.6 ghz intel cpu with hyperthreading.) 
-> 
-> Have someone an idea? 
+Hi!
 
-Try booting with kernel parameter pnpbios=off, it's a problem with the 
-pnp implementation of the intel 8(6?/7)5 chipset. (a bios upgrade to P18 
-didn't help for me, I don't know if recent changes in 2.6.3-... address 
-this issue)
+The following patch adds a missing allocation failure check to
+copy_namespace() in fs/namespace.c
 
-I may not be the best person to answer this, I just know this is the 
-problem ;-)
+Miklos
 
-Cheers
-
-Simon
+--- namespace.c~	2003-12-18 03:59:05.000000000 +0100
++++ namespace.c	2004-02-13 10:32:42.000000000 +0100
+@@ -820,6 +820,8 @@
+ 	down_write(&tsk->namespace->sem);
+ 	/* First pass: copy the tree topology */
+ 	new_ns->root = copy_tree(namespace->root, namespace->root->mnt_root);
++	if (!new_ns->root)
++		goto out_sem;
+ 	spin_lock(&vfsmount_lock);
+ 	list_add_tail(&new_ns->list, &new_ns->root->mnt_list);
+ 	spin_unlock(&vfsmount_lock);
+@@ -863,6 +865,8 @@
+ 	put_namespace(namespace);
+ 	return 0;
+ 
++out_sem:
++	up_write(&tsk->namespace->sem);	
+ out:
+ 	put_namespace(namespace);
+ 	return -ENOMEM;
 

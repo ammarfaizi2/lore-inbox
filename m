@@ -1,26 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267870AbTBRRLt>; Tue, 18 Feb 2003 12:11:49 -0500
+	id <S267932AbTBRRPF>; Tue, 18 Feb 2003 12:15:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267882AbTBRRLs>; Tue, 18 Feb 2003 12:11:48 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:6928 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id <S267870AbTBRRKn>;
-	Tue, 18 Feb 2003 12:10:43 -0500
-Date: Tue, 18 Feb 2003 18:20:40 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [TRIVIAL][PATCH][RESEND]
-In-Reply-To: <20030218171747.GB2470@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.51.0302181820280.27061@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0302181806080.19871@dns.toxicfilms.tv>
- <20030218171747.GB2470@mars.ravnborg.org>
+	id <S267927AbTBRROt>; Tue, 18 Feb 2003 12:14:49 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:20682 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S267899AbTBRRMl>; Tue, 18 Feb 2003 12:12:41 -0500
+Date: Tue, 18 Feb 2003 17:24:16 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Pam Delaney <pdelaney@lsil.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] broken MPT Fusion build
+Message-ID: <Pine.LNX.4.44.0302181717440.7702-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Use diff -u when generating patches.
+2.5.62's removal of scsi_set_pci_device broke the MPT Fusion build.
 
-shall i rediff ?
+--- 2.5.62/drivers/message/fusion/mptbase.h	Thu Jan  2 09:06:16 2003
++++ linux/drivers/message/fusion/mptbase.h	Tue Feb 18 16:53:18 2003
+@@ -603,7 +603,7 @@
+ 	dma_addr_t		 sense_buf_pool_dma;
+ 	u32			 sense_buf_low_dma;
+ 	int			 mtrr_reg;
+-	void			*pcidev;	/* struct pci_dev pointer */
++	struct pci_dev		*pcidev;
+ 	u8			*memmap;	/* mmap address */
+ 	struct Scsi_Host	*sh;		/* Scsi Host pointer */
+ 	ScsiCfgData		spi_data;	/* Scsi config. data */
 

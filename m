@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbUCIVNR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 16:13:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbUCIVNR
+	id S262203AbUCIVOn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 16:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbUCIVOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 16:13:17 -0500
-Received: from [66.62.77.7] ([66.62.77.7]:11689 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S262205AbUCIVNO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 16:13:14 -0500
-Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
-From: Dax Kelson <dax@gurulabs.com>
-To: James Ketrenos <jketreno@linux.co.intel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <404E27E6.40200@linux.co.intel.com>
-References: <404E27E6.40200@linux.co.intel.com>
-Content-Type: text/plain
-Message-Id: <1078866774.2925.15.camel@mentor.gurulabs.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 09 Mar 2004 14:12:54 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Mar 2004 16:14:43 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:14541
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262203AbUCIVOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 16:14:40 -0500
+Message-ID: <404E33A7.6070800@redhat.com>
+Date: Tue, 09 Mar 2004 13:14:15 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ppc/ppc64 and x86 vsyscalls
+References: <1078708647.5698.196.camel@gaston> <404D7AC3.9050207@redhat.com> <1078830318.9746.3.camel@gaston>
+In-Reply-To: <1078830318.9746.3.camel@gaston>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-09 at 13:24, James Ketrenos wrote:
-> I am pleased to announce the launch of an open source development project for
-> the Intel PRO/Wireless 2100 miniPCI network adapter. The project has been
-> created and is hosted at http://ipw2100.sf.net.
+Benjamin Herrenschmidt wrote:
 
-I applaud Intel for starting to plug this major hole. This looks
-promising.
+> Ok. So the challenge is to write the necessary code in the kernel
+> to build that DSO based on the various functions after detection
+> of the CPU type.
+> 
+> Another option would be to pre-build a bunch of them at kernel compile
+> time. I have to investigate. The risk is that we end up with too
+> many combinations, thus bloating the kernel image.
 
-I took a look at the website and see the GPL driver and the closed
-firmware.
+You can create one "big" DSO which covers all the configured processors.
+ Then at kernel start time, you determine the actual processor and
+adjust the symbol table offsets to point to the correct version.  There
+is no requirement that the table used is identical to the one on disk.
+It's loaded into ordinary memory which can be modified.
 
-Is it is really *firmware*, in that it loads and executes purely within
-the Intel PRO/Wireless 2100 itself and not in the linux kernel on the
-main CPU? If so, bravo!
+The tricky part of this would be to determine the symbol table slots.
+But even this is quite simple.  Just locate the symbol table in the
+ELF-way, then iterate over the entries and use strcmp() for the names
+and act upon match.  What you shouldn't do is to generate pointer to the
+symbol table entries somewhere.  This is probably fragile and not worth
+the few cycles you'll save.
 
-Does a similar effort exist for the upcoming Sonoma 802.11a/b/g
-component? Will Linux support be available for Sonoma at launch?
-
-Dax Kelson
-
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

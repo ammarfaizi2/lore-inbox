@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbULFTBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbULFTEC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbULFTBy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 14:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbULFTBx
+	id S261607AbULFTEC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 14:04:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbULFTEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 14:01:53 -0500
-Received: from ctb-mesg2.saix.net ([196.25.240.74]:55750 "EHLO
-	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S261618AbULFS6k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 13:58:40 -0500
-From: "Niel Lambrechts" <antispam@telkomsa.net>
-To: "'John Lash'" <jkl@sarvega.com>
-Cc: "'Burton Windle'" <bwindle@fint.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: kernel panic after changing processor arch
-Date: Mon, 6 Dec 2004 20:58:33 +0200
-Message-ID: <000101c4dbc5$96844e70$0a00000a@MERCKX>
+	Mon, 6 Dec 2004 14:04:02 -0500
+Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:33349 "EHLO
+	exil1.paradigmgeo.net") by vger.kernel.org with ESMTP
+	id S261607AbULFTD5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 14:03:57 -0500
+Content-class: urn:content-classes:message
+Subject: RE: Correctly determine amount of "free memory"
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <20041206123705.5fbac5b4@homer.sarvega.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Mon, 6 Dec 2004 21:00:57 +0200
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Message-ID: <06EF4EE36118C94BB3331391E2CDAAD9CD06D4@exil1.paradigmgeo.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Correctly determine amount of "free memory"
+Thread-Index: AcTbwYo5j+S6lmIiSNepe8j1ElzJ2gAALSyA
+From: "Gregory Giguashvili" <Gregoryg@ParadigmGeo.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> my first guess would be that the reiserfs module on your 
-> initrd needs to be recompiled using the PENTIUMM arch.....
-> 
-> --john
+> That's not really a meaningful question. 
+Sorry, I did my best :)
 
-No.
+> The qualified answer is that /proc/meminfo gives you the available
+information and what number 
+> you want depends upon what you plan to do with it. Swapping is not
+necessarily the right metric 
+> for two reasons.
+I plan to commit the largest chunk of memory in the quickest way. This
+operation may be slowed down by swapping - that's why I don't want to
+get there. If swapping is not the right metric, what is then? 
 
-I did:
-make menuconfig - change from i686 to pentiumm - save settings.
-make 
-make install
-mkinitrd -s 1024x768 -k "bzImage.2.6.8-24.5-default" -I "initrd" -m
-"reiserfs"
-lilo
+According to my humble experiments with 2.4 and 2.6 kernels, some cashed
+memory reported in /proc/meminfo is reused and some is swapped. The real
+problem here is that I couldn't find the right way to "predict" how much
+cached memory will be discarded before starting to swap when system is
+low on available RAM.
 
-If I "mount -o loop" the new initrd, modinfo shows the type of
-reiserfs.ko to be "PENTIUMM" as I would expect...
-
-I have also tried compiling reiserfs support directly into the kernel
-and dropping reiserfs from the -m option, to no avail.
-
--Niel
-
+Thanks
+Giga

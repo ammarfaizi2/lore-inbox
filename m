@@ -1,97 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315430AbSGAEDb>; Mon, 1 Jul 2002 00:03:31 -0400
+	id <S315370AbSGAGq2>; Mon, 1 Jul 2002 02:46:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSGAEDa>; Mon, 1 Jul 2002 00:03:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1042 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315430AbSGAED3>;
-	Mon, 1 Jul 2002 00:03:29 -0400
-Date: Mon, 1 Jul 2002 05:05:55 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Janitors <kernel-janitor-discuss@lists.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC] BH removal text
-Message-ID: <20020701050555.F29045@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
+	id <S315375AbSGAGq1>; Mon, 1 Jul 2002 02:46:27 -0400
+Received: from ns.suse.de ([213.95.15.193]:28676 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315370AbSGAGq0>;
+	Mon, 1 Jul 2002 02:46:26 -0400
+To: Nicholas Miell <nmiell@attbi.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [announce] [patch] batch/idle priority scheduling, SCHED_BATCH
+References: <Pine.LNX.4.44.0207010122580.11969-300000@e2>
+	<1025492120.12685.8.camel@entropy>
+From: Andreas Jaeger <aj@suse.de>
+Date: Mon, 01 Jul 2002 08:48:51 +0200
+In-Reply-To: <1025492120.12685.8.camel@entropy> (Nicholas Miell's message of
+ "30 Jun 2002 19:55:18 -0700")
+Message-ID: <ho1yaodju4.fsf@gee.suse.de>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) XEmacs/21.4 (Artificial
+ Intelligence, i386-suse-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nicholas Miell <nmiell@attbi.com> writes:
 
-I'm soliciting comments before people start implementing these things.
-Please, do NOT start changing anything based on the instructions given
-below.  I do intend to update the floppy.c patch to fix the problems
-I mentioned below, but I'm going to sleep first.
+> On Sun, 2002-06-30 at 17:26, Ingo Molnar wrote:
+>
+>> -#define SCHED_OTHER		0
+>> +#define SCHED_NORMAL		0
+>
+>>From IEEE 1003.1-2001 / Open Group Base Spec. Issue 6:
+> "Conforming implementations shall include one scheduling policy
+> identified as SCHED_OTHER (which may execute identically with either the
+> FIFO or round robin scheduling policy)."
+>
+> So, you probably want to add a "#define SCHED_OTHER SCHED_NORMAL" here
+> in order to prevent future confusion, especially because the user-space
+> headers have SCHED_OTHER, but no SCHED_NORMAL.
 
-PRERELEASE VERSION 2002-06-30-01
+This can be done in glibc.  linux/sched.h should not be used by
+userspace applications, glibc has the define in <bits/sched.h> which
+is included from <sched.h> - and <sched.h> is the file defined by
+Posix.
 
-A janitor's guide to removing bottom halves
-===========================================
-
-First, ignore the serial devices.  They're being taken care of
-independently.
-
-Apart from these, we use 3 bottom halves currently.  IMMEDIATE_BH,
-TIMER_BH and TQUEUE_BH.  There is a spinlock (global_bh_lock) which
-is held when running any of these three bottom halves, so none of them
-can run at the same time.  IMMEDIATE_BH runs the immediate task queue
-(tq_immediate).  TQUEUE_BH runs the timer task queue (tq_timer).
-TIMER_BH first calls update_times(), then runs the timer list.
-
-What does all that mean?
-------------------------
-
-Right now, the kernel guarantees it will only enter your driver (or
-indeed any user, but we're mostly concerned with drivers) through one of
-these entry points at a time.  If we get rid of bottom halves, we will be
-able to enter a driver simultaneously through any active timer routine,
-any active immediate task routine and any active timer task routine.
-
-So how do we modify drivers?
-----------------------------
-
-I am of the opinion that we should remove tq_immediate entirely.
-Every current user of it should be converted to use a private tasklet.
-Example code for floppy.c to show how to do this can be found at:
-http://ftp.linux.org.uk/pub/linux/willy/patches/floppy.diff
-Note that this patch is BROKEN.  There's no locking to prevent any of our
-timers from being called at the same time as our tasklet.  See below ...
-
-Some of the users of tq_timer should probably be converted to
-schedule_task so they run in a user context rather than interrupt context.
-But there will always be a need for a task queue to be run in interrupt
-context after a fixed period of time has elapsed in order to allow
-for interrupt mitigation.  I think a better interface should be used
-for tq_timer anyway -- I will be proposing a queue_timer_task() macro.
-We can use conversion to this interface as a flag to indicate that a
-driver has been checked for SMP locking.
-
-The same thing goes for add_timer users, except that there's no better
-interface that I want to convert drivers to.  So a comment beside the
-add_timer usage indicating that you've checked the locking and it's OK
-is helpful.
-
-So how should we do the locking?
---------------------------------
-
-Notice that right now we use a spinlock whenever we call any of these
-entry points.  So it should be safe to declare a new spinlock within
-this driver and acquire/release it at entry & exit to each of these
-types of functions.  It's easier than converting drivers which use the
-BKL because they might sleep or acquire it twice.  Be wary of reusing an
-existing spinlock because it might be acquired from interrupt context,
-so you'd have to use spin_lock_irq to acquire it in other contexts.
-
-Of course, that's the lazy way of doing it.  What I'm hoping is that each
-Janitor will take a driver and spend a week checking over its locking.
-There's only 80 files in the kernel which use tq_immediate; with 10
-Janitors involved, that's 8 drivers each -- that's only 2 months and we
-have 4.
-
-That doesn't mean that we shouldn't worry about the 38 files which use
-tq_timer, but they are almost all tty related and are therefore Hard ;-)
-
+Andreas
 -- 
-Revolutions do not require corporate support.
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj

@@ -1,69 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264120AbUCZT3s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 14:29:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264128AbUCZT3s
+	id S264127AbUCZTbg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 14:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbUCZTbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 14:29:48 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:37518 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S264120AbUCZT3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 14:29:46 -0500
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: lkml@lpbproduction.scom
-Subject: Re: 2.6.5-rc2-mm3
-Date: Fri, 26 Mar 2004 20:36:47 +0100
-User-Agent: KMail/1.5
-References: <40631649.9070000@blueyonder.co.uk> <200403261152.52237.lkml@lpbproductions.com>
-In-Reply-To: <200403261152.52237.lkml@lpbproductions.com>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 26 Mar 2004 14:31:36 -0500
+Received: from smtp.virgilio.it ([212.216.176.142]:8638 "EHLO
+	vsmtp2alice.tin.it") by vger.kernel.org with ESMTP id S264127AbUCZTb0
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Fri, 26 Mar 2004 14:31:26 -0500
+Message-ID: <40648545.2040004@futuretg.com>
+Date: Fri, 26 Mar 2004 20:32:21 +0100
+From: "Dr. Giovanni A. Orlando" <gorlando@futuretg.com>
+Organization: Future Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Hans Reiser <reiser@namesys.com>
+CC: Nikita Danilov <Nikita@namesys.com>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       Reiserfs mail-list <Reiserfs-List@namesys.com>,
+       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: Reiser4 needs more testers
+References: <16484.24086.167505.94478@laputa.namesys.com> <406462C1.5020507@namesys.com>
+In-Reply-To: <406462C1.5020507@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403262036.47193.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like what I've reported as the Bug #2368 (dual Opteron).
+Hans Reiser wrote:
 
-Rafael
+Hi Hans,
 
-On Friday 26 of March 2004 19:52, Matt H. wrote:
-> Same results here... Forze at ' Free unused kernel memory ". I'm using an
-> Athlon 3000+ , and reiserfs..
+    We will test the last snapshot.
+
+Thanks,
+Giovanni
+
+> We have one NFS related bug remaining, and one mmap all of memory 
+> related bug (and performance issue) that you can hit using iozone.  We 
+> will fix both of these in next week's snapshot, they were both 
+> multi-day bug fixes.  When they are fixed, unless users/distros find 
+> bugs next week we will submit it for inclusion in the -mm and then the 
+> official kernel.
 >
-> Matt H.
+> We hope it is now fairly stable for average users if you avoid those 
+> two issues (we need to get rid of those dire warnings about its 
+> stability...., we will remember that next snapshot....;-) )
 >
-> On Thursday 25 March 2004 10:26 am, you wrote:
-> > Builds OK on Athlon  XP2200+, but froze at Freeing unused kernel memory:
-> > 180k freed. SysRQ-B and on reboot, it got past that poing then froze
-> > solid later on. This is from boot.omsg, hope to gather more data later.
-> > <6>Freeing unused kernel memory: 180k freed
-> > <4>Removing [35127 37455 0x0 SD]..done
-> > <4>Removing [3904 35127 0x0 SD]..done
-> > <4>There were 2 uncompleted unlinks/truncates. Completed
-> > <6>Adding 3823460k swap on /dev/hda2.  Priority:42 extents:1
-> > <4>hdb: Speed warnings UDMA 3/4/5 is not functional.          ### THE
-> > CDROM ###
-> > Kernel logging (ksyslog) stopped.
-> > Kernel log daemon terminating.
-> > Regards
-> > Sid.
+> We need a lot more real user testers, because we have run out of 
+> scripts that can crash it, and there are distros that would like to 
+> ship it soon.  Please also complain to vitaly@namesys.com and 
+> ramon@namesys.com about poor documentation, etc., ....
 >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> The new reiser4 snapshot (against 2.6.5-rc2) is available at
+>
+> http://www.namesys.com/snapshots/2004.03.26/
+>
+>
+
 
 -- 
-Rafael J. Wysocki, Ph.D.
-SiSK
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+
+-- 
+
+--
+Check FT Websites ... 
+http://www.futuretg.com  - ftp://ftp.futuretg.com
+http://www.FTLinuxCourse.com
+                            /Certification
+http://www.rpmparadaise.org
+http://GNULinuxUtilities.com
+http://www.YourPersonalOperatingSystem.com
+
+
+--
+
+       Europe:                          USA:
+	Future Technologies             Future Technologies
+	Viale Grigoletti, 20            1158 26th Street #592
+	33170 - Pordenone (PN)          Santa Monica, CA 90403
+	Italy.                          USA.
+
+
+

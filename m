@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVATHSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVATHjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbVATHSc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 02:18:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVATHSc
+	id S261858AbVATHjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 02:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVATHjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 02:18:32 -0500
-Received: from av1-1-sn4.m-sp.skanova.net ([81.228.10.116]:55258 "EHLO
-	av1-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S261764AbVATHRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 02:17:41 -0500
-Date: Thu, 20 Jan 2005 08:17:38 +0100 (CET)
-From: Peter Osterlund <petero2@telia.com>
-X-X-Sender: petero@p4.localdomain
-To: Daniel Gryniewicz <daniel@gryniewicz.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.11-rc1
-In-Reply-To: <1106196553.11875.2.camel@athena.fprintf.net>
-Message-ID: <Pine.LNX.4.58.0501200813330.26770@telia.com>
-References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> 
- <1106168848.22163.10.camel@athena.fprintf.net>  <200501192316.04173.dtor_core@ameritech.net>
- <1106196553.11875.2.camel@athena.fprintf.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Jan 2005 02:39:18 -0500
+Received: from postman4.arcor-online.net ([151.189.20.158]:36331 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261858AbVATHjO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 02:39:14 -0500
+Date: Thu, 20 Jan 2005 08:39:11 +0100
+From: Juergen Quade <quade@hnsr.de>
+To: Daniel Caujolle-Bert <segfault@club-internet.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Alps touchpad probing failure
+Message-ID: <20050120073911.GA13979@hsnr.de>
+References: <200501200024.01963.segfault@club-internet.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <200501200024.01963.segfault@club-internet.fr>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jan 2005, Daniel Gryniewicz wrote:
+On Thu, Jan 20, 2005 at 12:23:58AM +0100, Daniel Caujolle-Bert wrote:
+> Hi,
+> 
+>  With 2.6.11-rc1 bk6 and bk7 (didn't tried with < bk6), my alps touchpad is no 
+> more correctly probed, it's recognised as a standard PS/2 mouse.
+>  So, with this trivial two line patch, everything is working again.
+> 
+> Cheers.
 
-> On Wed, 2005-01-19 at 23:16 -0500, Dmitry Torokhov wrote:
-> > On Wednesday 19 January 2005 16:07, Daniel Gryniewicz wrote:
-> > > On Tue, 2005-01-11 at 21:09 -0800, Linus Torvalds wrote:
-> > > > Ok, the big merges after 2.6.10 are hopefully over, and 2.6.11-rc1 is out
-> > > > there.
-> > > >
-> > > > Peter Osterlund:
-> > > >   o input: Add ALPS touchpad driver, driver by Neil Brown, Peter
-> > > >     Osterlund and Dmitry Torokhov, some fixes by Vojtech Pavlik.
-> > >
-> > > 2.6.11-rc1 broke my ALPS touchpad.  I have a Dell Inspiron 8600, and
-> > > previously, I was patching my kernels with the patch from
-> > >
-> > > Message-Id: <200407110045.08208.dtor_core@ameritech.net>
-> > > Subject: [RFT/PATCH 2.6] ALPS touchpad driver
-> > >
-> > > and this worked fine.
-> > >
-> > Could you please try this patch by Peter Osterlund:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=110513688110246&q=raw
-> >
-> > It looks like Kensington and ALPS hate each other.
->
-> That fixed it, thanks.  I hope this can make it in before 2.6.11 final,
-> but if it doesn't, I'll just patch it in.
+I have had the same problems...
+Now solved ...
 
-OK, I've got another report in private mail where this patch fixed the
-ALPS detection, so the score for this patch is now 3 success reports and 0
-problem reports. I also think the patch should be included before 2.6.11
-final.
+Thanks for the patch,
 
-The patch is already in -mm btw, it's called alps-touchpad-detection-fix.
+         Juergen.
+> -- 
+> 73's de Daniel "Der Schreckliche", F1RMB.
+> 
+>              -=- Daniel Caujolle-Bert -=- segfault@club-internet.fr -=-
+>                         -=- http://naboo.homelinux.org -=-
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+> --- linux-2.6.11-rc1/drivers/input/mouse/alps.c	2005-01-19 19:43:36.000000000 +0100
+> +++ linux/drivers/input/mouse/alps.c	2005-01-19 19:34:32.000000000 +0100
+> @@ -194,6 +194,12 @@
+>  	int i;
+>  
+>  	/*
+> +	 * Let's clean the stuff.
+> +	 */
+> +	if(psmouse_reset(psmouse) < 0)
+> +	  printk(KERN_ERR "alps reset failed\n");
+> +
+> +	/*
+>  	 * First try "E6 report".
+>  	 * ALPS should return 0x00,0x00,0x0a or 0x00,0x00,0x64
+>  	 */

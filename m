@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262901AbREVX7l>; Tue, 22 May 2001 19:59:41 -0400
+	id <S262906AbREWADp>; Tue, 22 May 2001 20:03:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262903AbREVX7b>; Tue, 22 May 2001 19:59:31 -0400
-Received: from tpau.muc.eurocyber.net ([195.143.108.12]:60945 "EHLO
-	tpau.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S262901AbREVX7U>; Tue, 22 May 2001 19:59:20 -0400
-Message-ID: <3B0AFCFB.CAE7A145@teraport.de>
-Date: Wed, 23 May 2001 01:57:47 +0200
-From: Martin Knoblauch <martin.knoblauch@teraport.de>
-Organization: Teraport GmbH
-X-Mailer: Mozilla 4.6 [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
+	id <S262912AbREWADc>; Tue, 22 May 2001 20:03:32 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:6284 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262910AbREWADW>;
+	Tue, 22 May 2001 20:03:22 -0400
+Date: Tue, 22 May 2001 20:03:20 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <UTC200105222333.BAA77751.aeb@vlet.cwi.nl>
+Message-ID: <Pine.GSO.4.21.0105221952110.17373-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@transmeta.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-In-Reply-To: <3B0A28C0.2FFFC935@TeraPort.de> <3B0A3794.15BDF9D6@TeraPort.de> <3B0A99E7.467CE534@transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" wrote:
-> 
-> "Martin.Knoblauch" wrote:
-> >
-> >  After some checking, I could have made the answer a bit less terse:
-> >
-> > - it would require that the kernel is compiled with cpuid [module]
-> > support
-> >   - not everybody may want enable this, just for getting one or two
-> >     harmless numbers.
-> 
-> If so, then that's their problem.  We're not here to solve the problem of
-> stupid system administrators.
->
 
- They may not be stupid, just mislead :-( When Intel created the "cpuid"
-Feature some way along the P3 line, they gave a stupid reason for it and
-created a big public uproar. As silly as I think that was (on both
-sides), the term "cpuid" is tainted. Some people just fear it like hell.
-Anyway.
- 
-> > - you would need a utility with root permission to analyze the cpuid
-> > info. The
-> >   cahce info does not seem to be there in clear ascii.
-> 
-> Bullsh*t.  /dev/cpu/%d/cpuid is supposed to be mode 444 (world readable.)
-> 
 
- Thanks you :-) In any case, on my system (Suse 7.1) the files are mode
-400.
+On Wed, 23 May 2001 Andries.Brouwer@cwi.nl wrote:
 
-Martin
+> I am not sure whether we agree or differ in opinion. I wouldn't mind
+> 
+> /* pairing for dev_t to bd_op/cd_op */
+> struct bc_device {
+>         struct list_head        bd_hash;
+>         atomic_t                bd_count;
+>         dev_t                   bd_dev;
+>         atomic_t                bd_openers;
+>         union {
+> 		struct block_device_operations_and_data *bd_op;
+> 		struct char_device_operations_and_data *cd_op;
+> 	}
+>         struct semaphore        bd_sem;
+> };
+> 
+> typedef struct bc_device *kdev_t;
+
+What for? What part of the kernel needs a device and doesn't know apriory
+whether it's block or character one?
+
+> and in an inode
+> 
+> 	kdev_t dev;
+Useless. If you hope that block_device will help to solve rmmod races -
+sorry, it won't. Wrong layer.
+
+> 	dev_t rdev;
+Reasonable.
+

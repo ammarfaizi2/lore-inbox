@@ -1,50 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbULYNuN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbULYNxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbULYNuN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 08:50:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbULYNuN
+	id S261507AbULYNxb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 08:53:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbULYNxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 08:50:13 -0500
-Received: from zork.zork.net ([64.81.246.102]:43972 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S261430AbULYNuC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 08:50:02 -0500
-From: Sean Neakums <sneakums@zork.net>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Con Kolivas <kernel@kolivas.org>,
+	Sat, 25 Dec 2004 08:53:31 -0500
+Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:39616 "EHLO
+	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261507AbULYNxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 08:53:23 -0500
+Message-ID: <41CD70B9.8080001@kolivas.org>
+Date: Sun, 26 Dec 2004 00:52:57 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sean Neakums <sneakums@zork.net>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@osdl.org>
 Subject: Re: 2.6.10-ck1
-References: <200412250800_MC3-1-91AD-1E8B@compuserve.com>
-Mail-Followup-To: Chuck Ebbert <76306.1226@compuserve.com>, Con Kolivas
-	<kernel@kolivas.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-Date: Sat, 25 Dec 2004 13:49:59 +0000
-In-Reply-To: <200412250800_MC3-1-91AD-1E8B@compuserve.com> (Chuck Ebbert's
-	message of "Sat, 25 Dec 2004 07:57:49 -0500")
-Message-ID: <6upt0ymqrc.fsf@zork.zork.net>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+References: <200412250800_MC3-1-91AD-1E8B@compuserve.com> <6upt0ymqrc.fsf@zork.zork.net>
+In-Reply-To: <6upt0ymqrc.fsf@zork.zork.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig32D10D3474C1AFB7724B4647"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert <76306.1226@compuserve.com> writes:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig32D10D3474C1AFB7724B4647
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Con Kolivas wrote:
->
->> .fix_noswap.diff
->> Build fix for config without swap
->
->   So 2.6.10 won't build without swap enabled?
+Sean Neakums wrote:
+> Chuck Ebbert <76306.1226@compuserve.com> writes:
+> 
+> 
+>>Con Kolivas wrote:
+>>
+>>
+>>>.fix_noswap.diff
+>>>Build fix for config without swap
+>>
+>>  So 2.6.10 won't build without swap enabled?
+> 
+> 
+> Built fine here.
+> 
+> 
+>>  This was a known problem; how did it get out the door without that fix?
+> 
+> 
+> It looks like a different (and cleaner) fix was applied:
+> #define swap_token_default_timeout 0 when CONFIG_SWAP=n.
 
-Built fine here.
+Ah thanks. I should have looked more carefully. I simply didn't see the 
+fix Chuck posted. This should be better as Chuck's fix didn't disable 
+the swap token (which still does stuff even with swap disabled).
 
->   This was a known problem; how did it get out the door without that fix?
+Cheers,
+Con
 
-It looks like a different (and cleaner) fix was applied:
-#define swap_token_default_timeout 0 when CONFIG_SWAP=n.
+--------------enig32D10D3474C1AFB7724B4647
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBzXC5ZUg7+tp6mRURAoMeAJ9QAtoVYjphupxHDPagd1q5GpXqAwCfYGXo
+m/axbpCnJX/+pI/tESDWJwQ=
+=tOCA
+-----END PGP SIGNATURE-----
+
+--------------enig32D10D3474C1AFB7724B4647--

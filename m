@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132109AbRDAJSv>; Sun, 1 Apr 2001 05:18:51 -0400
+	id <S132111AbRDAJbl>; Sun, 1 Apr 2001 05:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132112AbRDAJSl>; Sun, 1 Apr 2001 05:18:41 -0400
-Received: from hyperion.expio.net.nz ([202.27.199.10]:4366 "EHLO expio.co.nz")
-	by vger.kernel.org with ESMTP id <S132109AbRDAJSc>;
-	Sun, 1 Apr 2001 05:18:32 -0400
-Message-ID: <00a401c0ba8c$c54efdd0$1400a8c0@expio.net.nz>
-From: "Simon Garner" <sgarner@expio.co.nz>
-To: "Allen Campbell" <lkml@campbell.cwx.net>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <004801c0ba62$6cd67810$1400a8c0@expio.net.nz> <20010331221319.A95411@const.>
-Subject: Re: Asus CUV4X-D, 2.4.3 crashes at boot
-Date: Sun, 1 Apr 2001 21:18:25 +1200
+	id <S132110AbRDAJbc>; Sun, 1 Apr 2001 05:31:32 -0400
+Received: from c213.89.109.26.cm-upc.chello.se ([213.89.109.26]:3332 "EHLO
+	pescadero.ampr.org") by vger.kernel.org with ESMTP
+	id <S132111AbRDAJbW>; Sun, 1 Apr 2001 05:31:22 -0400
+Message-ID: <3AC6F522.93101FDE@ufh.se>
+Date: Sun, 01 Apr 2001 11:30:11 +0200
+From: Peter Enderborg <pme@ufh.se>
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Version 6.1.6 of the aic7xxx driver availalbe
+In-Reply-To: <200104010434.f314Yks62066@aslan.scsiguy.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Allen Campbell" <lkml@campbell.cwx.net>
+"Justin T. Gibbs" wrote:
 
-> I've seen the exact same behavior with my CUV4X-D (2x1GHz) under
-> 2.4.2 (debian woody).  In addition, the kernel would sometimes hang
-> around NMI watchdog enable.  At least, I think it's trying to
-> `enable'.  The hang would occur around 50% of boot attempts.  Once
-> booted, everything was stable.  A non-SMP 2.4.2 kernel (no IO-APIC
-> either, sorry, didn't test that) always booted without hangs.
+> >"Justin T. Gibbs" wrote:
+> >
+> >> >I upgraded to 2.4.3 from 2.4.1 today and I get a lot of recovery on the scs
+> >i
+> >> >bus.
+> >> >I also upgraded to the "latest" aic7xxx driver but still the sam problems.
+> >> >A typical revery in my logs.
+>
+> This really looks like you bus is not up to snuff.  We timeout during
+> a write to the drive.  Although the chip has data to write, the target
+> has stopped asking for data.  This is a classic symptom of a lost signal
+> transition on the bus.  The old driver may have worked in the past
+> because it was not quite as fast at driving the bus.  2.2.19 uses the
+> "old" aic7xxx driver but includes some performance improvements over 2.2.18.
+> The new driver has similar improvements.  Check your cables.  Check
+> your terminators.  Etc.
+>
 
-Yep, sounds like the same problem.
+I dont think so. The system is very simple. On the 50 pin Fast scsi there is the
+CD.
+And on the Ultra2 device the IBM harddrive.  On the cable there is a terminator.
+(This is the cable from ASUS delivered with the motherboard. Is a balanced pair
+cable.) On the
+harddrive there is a strap for termination and in the BIOS there is a swich
+for ternination. The strip is off. (I have tryed on also) And the BIOS controlled
+termination is ON. I have tryed all permutations! But I have found a workaround.
+The wide scsi was not in use and have the same connector so  I moved the
+harddriv to that bus and now everything works with 2.4.3. Or at least
+for a half an hour...  But the drive is a LVD and should be on the Ultra2
+connector.
+
 
 
 >
-> Strangely, (happily for me,) the boot hangs stopped with 2.4.3.
-> I've booted maybe 10 times (hot and cold) since I built 2.4.3 and
-> I've had no hangs.  When I get back to the box, I'll try booting
-> a few dozen more times and see if I can confirm your observation.
->
+> --
+> Justin
 
-Please do test it. I think you'll find the problem is still very much
-present.
+--
+foo!
 
 
-Cheers
-
-Simon Garner
 

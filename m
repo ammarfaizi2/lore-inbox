@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUGMCZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUGMCb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUGMCZz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 22:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUGMCZz
+	id S262085AbUGMCb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 22:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUGMCb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 22:25:55 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:22657 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S261451AbUGMCZx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 22:25:53 -0400
-Date: Tue, 13 Jul 2004 04:25:51 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
-To: linux-kernel@vger.kernel.org
-Subject: SATA disk device naming ?
-Message-ID: <Pine.LNX.4.44.0407130415430.15806-100000@hubble.stokkie.net>
+	Mon, 12 Jul 2004 22:31:27 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:51815 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262085AbUGMCbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 22:31:25 -0400
+Message-ID: <40F34978.60709@yahoo.com.au>
+Date: Tue, 13 Jul 2004 12:31:20 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
+To: Daniel Phillips <phillips@istop.com>
+CC: Andrew Morton <akpm@osdl.org>, lmb@suse.de, arjanv@redhat.com,
+       sdake@mvista.com, teigland@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+References: <1089501890.19787.33.camel@persist.az.mvista.com> <40F294D2.3010203@yahoo.com.au> <20040712135432.57d0133c.akpm@osdl.org> <200407122219.17582.phillips@istop.com>
+In-Reply-To: <200407122219.17582.phillips@istop.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> Hi Andrew,
+> 
+> On Monday 12 July 2004 16:54, Andrew Morton wrote:
+> 
+>>Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>>
+>>>I don't see why it would be a problem to implement a "this task
+>>>facilitates page reclaim" flag for userspace tasks that would take
+>>>care of this as well as the kernel does.
+>>
+>>Yes, that has been done before, and it works - userspace "block drivers"
+>>which permanently mark themselves as PF_MEMALLOC to avoid the obvious
+>>deadlocks.
+>>
+>>Note that you can achieve a similar thing in current 2.6 by acquiring
+>>realtime scheduling policy, but that's an artifact of some brainwave which
+>>a VM hacker happened to have and isn't a thing which should be relied upon.
+> 
+> 
+> Do you have a pointer to the brainwave?
+> 
 
-Hi,
+Search for rt_task in mm/page_alloc.c
 
-After a rather tiresome nightly sit through, we discovered that when
-going from kernel 2.6.3 to kernel 2.6.7 the SATA disk device naming
-on at least the AMD64 platform changes from : /dev/hde and up 
-to /dev/sda and up. What a total disaster. 
+> 
+>>A privileged syscall which allows a task to mark itself as one which
+>>cleans memory would make sense.
+> 
+> 
+> For now we can do it with an ioctl, and we pretty much have to do it for 
+> pvmove.  But that's when user space drives the kernel by syscalls; there is 
+> also the nasty (and common) case where the kernel needs userspace to do 
+> something for it while it's in PF_MEMALLOC.  I'm playing with ideas there, 
+> but nothing I'm proud of yet.  For now I see the in-kernel approach as the 
+> conservative one, for anything that could possibly find itself on the VM 
+> writeout path.
+> 
 
-Effectively this means that your installed AMD64 platform based
-linux distro cannot mount its root filesystem anymore.
+You'd obviously want to make the PF_MEMALLOC task as tight as possible,
+and running mlocked: I don't particularly see why such a task would be
+any safer in-kernel.
 
-We installed mandrake 10.0 amd64 and had to go back todo a initial
-install on a UDMA IDE disk on /dev/hda.
-
-Is there in such cases a smart workaround available, maybe as an extra
-GRUB/LILO boot option ? And why was the device naming changed in 
-such a fatal way, effectively going from IDE to SCSI device names.
-
-Googling for "kernel init no init found" results in :
-
-Results 11 - 20 of about 323,000 for kernel init no init found. 
-ouch :(
-
-Regards,
-
-Robert
--- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
-
+PF_MEMALLOC tasks won't enter page reclaim at all. The only way they
+will reach the writeout path is if you are write(2)ing stuff (you may
+hit synch writeout).

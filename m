@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271734AbTHDNYM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 09:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271731AbTHDNYM
+	id S271739AbTHDNhh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 09:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271740AbTHDNhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 09:24:12 -0400
-Received: from main.gmane.org ([80.91.224.249]:65189 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S271734AbTHDNXX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 09:23:23 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: 2.6.0-test2, sensors and sysfs
-Date: Thu, 31 Jul 2003 20:52:22 +0400
-Message-ID: <20030731205222.0f1521f1.vsu@altlinux.ru>
-References: <1059669362.23100.12.camel@laurelin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-X-Newsreader: Sylpheed version 0.9.4cvs2 (GTK+ 1.2.10; i586-alt-linux-gnu)
+	Mon, 4 Aug 2003 09:37:36 -0400
+Received: from deepthought.resolution.de ([195.30.142.42]:37327 "EHLO
+	deepthought.resolution.de") by vger.kernel.org with ESMTP
+	id S271739AbTHDNhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 09:37:35 -0400
+Message-ID: <1060004221.3f2e617d72d4f@corporate.resolution.de>
+Date: Mon,  4 Aug 2003 15:37:01 +0200
+From: Christian Reichert <c.reichert@resolution.de>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: =?iso-8859-1?b?TeVucyA=?= =?iso-8859-1?b?UnVsbGflcmQ=?= 
+	<mru@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+References: <20030804141548.5060b9db.skraw@ithnet.com> <yw1xsmohioah.fsf@users.sourceforge.net> <20030804152226.60204b61.skraw@ithnet.com>
+In-Reply-To: <20030804152226.60204b61.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 192.147.51.120
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Jul 2003 18:36:02 +0200
-Flameeyes <daps_mls@libero.it> wrote:
+Hi !
 
-> I need to know the system temperature for check some stability problems,
-> under 2.4 I was using lm_sensors patches, using i2c-viapro as i2c bus
-> and via686a as chip driver (I'm using a via 686 southbridge, see the
-> lspci output attached), and I was able to use sensors for see the
-> temperatures.
-> With the 2.6.0-test2 (and all earlier kernels since 2.5.69), I'm not
-> able anymore to see the temperature, nor with sensor (or libsensor
-> library) nor with sysfs (that, AFAIK, should be the new method to access
-> sensors data).
-> The only i2c device that I can see in the sysfs is the tuner of my
-> bt-based tv card.
-> I tried either with i2c-viapro and via686a as modules, and built-in in
-> kernel. Nothing	changes. Also dmesg doesn't output anything.
-> I have missed something?
+the fundamental problem as i know it is that the FS design in unix is based on 
+a directory TREE structure - however if you implement hard links for 
+directories you are breaking this strict treeu structure and can end up with 
+loops/graphs.
 
-Currently (2.6.0-test2) i2c-viapro and via686a don't work together -
-you can use only one of them. This is because they want to work with
-the same PCI device - and having multiple drivers for one device is
-not allowed for obvious reasons.
+(What are the cases where a symlink wouldn't be enough ?)
 
-This issue is already known to the lm_sensors developers.
+Cheers,
 
-So you will need to remove i2c-viapro for now (but leave i2c-isa);
-then you will see the via686a sensors again.
+    Chris
+
+
+Zitat von Stephan von Krawczynski <skraw@ithnet.com>:
+
+> On Mon, 04 Aug 2003 14:45:58 +0200
+> mru@users.sourceforge.net (Måns Rullgård) wrote:
+> 
+> > Stephan von Krawczynski <skraw@ithnet.com> writes:
+> > 
+> > > although it is very likely I am entering (again :-) an ancient
+> > > discussion I would like to ask why hardlinks on directories are not
+> > > allowed/no supported fs action these days. I can't think of a good
+> > > reason for this, but can think of many good reasons why one would
+> > > like to have such a function, amongst those:
+> > 
+> > I don't know the exact reasons it isn't allowed, but you can always
+> > use "mount --bind" to get a similar effect.
+> 
+> I guess this is not really an option if talking about hundreds or thousands
+> of
+> "links", is it?
+> 
+> Regards,
+> Stephan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
 

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313524AbSC3S3u>; Sat, 30 Mar 2002 13:29:50 -0500
+	id <S313529AbSC3ScU>; Sat, 30 Mar 2002 13:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313529AbSC3S3k>; Sat, 30 Mar 2002 13:29:40 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51462 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313524AbSC3S32>;
-	Sat, 30 Mar 2002 13:29:28 -0500
-Message-ID: <3CA603B0.8B73FD4C@zip.com.au>
-Date: Sat, 30 Mar 2002 10:28:00 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [patch] block/IDE/interrupt lockup
-In-Reply-To: <001d01c1d7ce$34f830c0$010411ac@local>
+	id <S313530AbSC3ScK>; Sat, 30 Mar 2002 13:32:10 -0500
+Received: from [195.163.186.27] ([195.163.186.27]:38828 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S313529AbSC3Sb6>;
+	Sat, 30 Mar 2002 13:31:58 -0500
+Date: Sat, 30 Mar 2002 20:31:56 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: george anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Majordomo@vger.kernel.org down?
+Message-ID: <20020330203156.V17545@mea-ext.zmailer.org>
+In-Reply-To: <3CA5F6C6.6659D56F@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> 
-> > -     spin_unlock_irq(&io_request_lock);
-> > +     spin_unlock_irqrestore(&io_request_lock, flags);
-> >       rq = kmem_cache_alloc(request_cachep, SLAB_KERNEL);
-> 
-> Great patch.
-> kmem_cache_alloc with SLAB_KERNEL can sleep, i.e. you've just converted
-> an obvious bug into a rare, difficult to find bug. What about trying to
-> fix it?
+On Sat, Mar 30, 2002 at 09:32:54AM -0800, george anzinger wrote:
+> I seem to have been "pruned" from the list sometime Wed. and
+> Majordomo@verger.kernel.org is ignoring my attempts to re subscribe me. 
+> What gives?
 
-Gimme a break, Manfred.  The patch fixes the new bug. Which was
-hardly obvious.  The longstanding (as in years-old) bug was
-pointed out to the maintainer.  
+  For past 5+ days VGER has been unable to connect any MX server
+  of your domain.  Why ?  I have no idea.  Diagnostics says:
+  "connection timed out".
 
-It may not even be a bug.  Certainly I don't think it's
-worth my time to fiddle with it.  But you're at liberty to.
+  Somebody has tweaked a firewall there, and is now rejecting
+  connections with TCP/ECN ?
 
-> I agree that this won't happen during boot, but what about a hotplug PCI
-> ide controller?
+  Use  http://vger.kernel.org/mxverify.html  tool to see how things
+  are working.
 
-The kernel calls request_irq() inside cli() in lots of places.
-That's the same bug: "if you called cli(), how come you're
-allowing kmalloc to clear it?".
+> George Anzinger   george@mvista.com
 
-In 2.4, this is a design wart.  In 2.5, it will go BUG() if
-the page allocator performs I/O.
-
--
+/Matti Aarnio  -- co-postmaster of vger.kernel.org

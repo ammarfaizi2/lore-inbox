@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268701AbUJDWA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268533AbUJDVzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268701AbUJDWA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 18:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268699AbUJDV6G
+	id S268533AbUJDVzY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 17:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268685AbUJDVww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 17:58:06 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:56732 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S268529AbUJDV5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 17:57:19 -0400
-From: Pat Gefre <pfg@sgi.com>
-Message-Id: <200410042157.i94Lv7UC104750@fsgi900.americas.sgi.com>
-Subject: [PATCH] 2.6 SGI Altix I/O code reorganization
-To: tony.luck@intel.com
-Date: Mon, 4 Oct 2004 16:57:06 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	Mon, 4 Oct 2004 17:52:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:43997 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268533AbUJDVvn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 17:51:43 -0400
+Date: Mon, 4 Oct 2004 23:53:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, thewade <pdman@aproximation.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: [patch] voluntary-preempt-2.6.9-rc3-mm1-S9
+Message-ID: <20041004215315.GA17707@elte.hu>
+References: <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20041003210926.GA1267@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-We have redone the I/O layer in the Altix code.
+i've released the -S9 VP patch:
 
-We've broken the patch set down to 2 patches. One to remove the files,
-the other to add in the new code. Most of the changes from the last
-posting are in response to review comments.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm2-S9
 
-Signed-off-by: Patrick Gefre <pfg@sgi.com>
+Changes since -S8:
 
-The patches are :
-ftp://oss.sgi.com/projects/sn2/sn2-update/001-kill-files
-ftp://oss.sgi.com/projects/sn2/sn2-update/002-add-files
+ - merge to -mm2. mm2 includes another latency breaker: Hugh Dickins'
+   vmtruncate rework that should fix the bash-shared-mapping latency.
 
-They are based off http://lia64.bkbits.net/linux-ia64-release-2.6.9
+ - fix the x64 compilation bug reported by thewade
 
-The general differences between the new code and the old code are:
+ - fix the menuconfig duplicate entry bug noticed by Florian Schmidt
 
-I/O discovery and initialization was moved to prom to enable us to move
-towards EFI 1.10 and ACPI compliance.  EFI 1.10 and ACPI compliance
-will be the next 2 phases in our development.  Since prom is now
-performing all I/O discovery and initialization, we had to re-architect
-the Altix platform specific code in Linux - basically deleting all code
-related to discovery and initialization and leaving DMA mapping which
-was rewritten.
+ - (fix two preempt bugs in -mm2 - will be in -mm3)
 
-Until we can implement ACPI in our prom, we will use platform specific
-SAL calls to retrieve any PCI configuration that is needed during the
-PCI fixup phase.
+to build an -S9 tree from scratch the patching order is:
 
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc3.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/2.6.9-rc3-mm2.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm2-S9
 
-Note that this new code requires a new Altix prom. If you need one, you
-can email me and I can set you up with the proper people to get one.
-
-Also we did not break out the pci_dma.c code (as Christoph has
-suggested) - we are in the process of doing that and will submit that
-code change in the near future.
-
--- 
-
-Patrick Gefre
-Silicon Graphics, Inc.                     (E-Mail)  pfg@sgi.com
-2750 Blue Water Rd                         (Voice)   (651) 683-3127
-Eagan, MN 55121-1400                       (FAX)     (651) 683-3054
+	Ingo

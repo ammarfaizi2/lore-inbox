@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293060AbSC2TeU>; Fri, 29 Mar 2002 14:34:20 -0500
+	id <S310470AbSC2Tgv>; Fri, 29 Mar 2002 14:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293196AbSC2TeL>; Fri, 29 Mar 2002 14:34:11 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:13323 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293060AbSC2Td7>;
-	Fri, 29 Mar 2002 14:33:59 -0500
-Date: Fri, 29 Mar 2002 16:33:44 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Request for 2.4.20 to be a non-trivial-bugfixes-only version
-In-Reply-To: <5.1.0.14.0.20020329101556.0188aea8@mailhost.ivimey.org>
-Message-ID: <Pine.LNX.4.44L.0203291632550.18660-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S293461AbSC2Tgl>; Fri, 29 Mar 2002 14:36:41 -0500
+Received: from Ptrillia.EUnet.sk ([193.87.242.40]:13696 "EHLO meduna.org")
+	by vger.kernel.org with ESMTP id <S293196AbSC2Tgf>;
+	Fri, 29 Mar 2002 14:36:35 -0500
+From: Stanislav Meduna <stano@meduna.org>
+Message-Id: <200203291936.g2TJaWT02200@meduna.org>
+Subject: USB printing via ptal broke between 2.4.17 and .18
+To: linux-kernel@vger.kernel.org
+Date: Fri, 29 Mar 2002 20:36:31 +0100 (CET)
+Cc: linux-usb-users@lists.sourceforge.net
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Mar 2002, Ruth Ivimey-Cook wrote:
+Hello,
 
-> Can we celebrate getting to 2.4.20 with a really super-stable version of
-> the kernel, by only admitting patches that fix known and significant
-> bugs (that is, no new features, no more optimisations, no backports, no
-> "it's only a line" fixes)?
->
-> It would help 2.4 a lot, I think.
+somewhere between 2.4.17 and 2.4.18 the USB printing to the
+HP printer using PTAL library broke. I now get following
+in the log:
 
-Not correct, you cannot have bugfixes-only if there are still
-large structural things which need changes to work right on
-some machines, eg. the VM.
+ptal-init: Starting the HP OfficeJet Linux driver.
+ptal-mlcd: SYSLOG at ExMgr.cpp:660, dev=<usb:PSC_750>, pid=1183, errno=111
+        ptal-mlcd successfully initialized. 
+ptal-printd: ptal-printd(mlc:usb:PSC_750) successfully initialized. 
+rc: Starting ptal-init:  succeeded
+ptal-mlcd: ERROR at ExMgr.cpp:2445, dev=<usb:PSC_750>, pid=1183, errno=11
+        llioService: llioRead returns 3, expected=6! 
+ptal-mlcd: ERROR at ExMgr.cpp:853, dev=<usb:PSC_750>, pid=1183, errno=32
+        exClose(reason=0x0010) 
 
-regards,
+Any idea what I should try to further corner the bug?
 
-Rik
+Red Hat 7.2
+2.4.18 kernel
+hpoj 0.8
+hpijs 1.0
+HP PSC 750 multifunctional device
+alias usb-controller uhci
+no devfs
+
+
+Regards
 -- 
-Bravely reimplemented by the knights who say "NIH".
+                                      Stano
 
-http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129130AbQKBEkq>; Wed, 1 Nov 2000 23:40:46 -0500
+	id <S129874AbQKBEpG>; Wed, 1 Nov 2000 23:45:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129207AbQKBEk1>; Wed, 1 Nov 2000 23:40:27 -0500
-Received: from saw.sw.com.sg ([203.120.9.98]:43161 "HELO saw.sw.com.sg")
-	by vger.kernel.org with SMTP id <S129130AbQKBEkY>;
-	Wed, 1 Nov 2000 23:40:24 -0500
-Message-ID: <20001102124020.A19735@saw.sw.com.sg>
-Date: Thu, 2 Nov 2000 12:40:20 +0800
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: "Michael O'Donnell" <mod@mclinux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100: card reports no resources [was VM-global...]
-In-Reply-To: <20001031132306.A24147@stormix.com> <200010311932.OAA30422@odonnell.lowell.mclinux.com>
-Mime-Version: 1.0
+	id <S129726AbQKBEo4>; Wed, 1 Nov 2000 23:44:56 -0500
+Received: from kootenai.mcn.net ([204.212.170.6]:16138 "EHLO kootenai.mcn.net")
+	by vger.kernel.org with ESMTP id <S130021AbQKBEom>;
+	Wed, 1 Nov 2000 23:44:42 -0500
+Message-ID: <3A00F17B.1E7537FA@mcn.net>
+Date: Wed, 01 Nov 2000 21:45:47 -0700
+From: TimO <hairballmt@mcn.net>
+Organization: Don't you mean Disorganization!?
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-via@gtf.org
+Subject: Re: Announce: Via audio driver update
+In-Reply-To: <39E54117.37461BD1@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <200010311932.OAA30422@odonnell.lowell.mclinux.com>; from "Michael O'Donnell" on Tue, Oct 31, 2000 at 02:32:44PM
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Jeff Garzik wrote:
+> 
+> An update of the Via audio driver for Linux 2.4.x kernels has been
+> posted at
+> 
+>         http://gtf.org/garzik/drivers/via82cxxx/
+>
 
-On Tue, Oct 31, 2000 at 02:32:44PM -0500, Michael O'Donnell wrote:
-[snip]
-> Also, here's a possibly useless personal note WRT the
-> eepro100 resource msgs, FWIW: I was recently using remote
-> KGDB to work on an unrelated problem on an MP Pentium
-> box with integrated eepro100.  Whenever I'd leave one CPU
-> stopped in the kernel debugger for a very long time I'd
-> get those "no resource" messages from (I believe it was)
-> the Enet driver when I finally allowed that CPU to continue
-> running.  I never noticed any other ill effects though
-> I wasn't looking too hard for them at the time.  I don't
+Hi Jeff,
 
-It may be a legitimate case of "no resource" messages: the receive ring
-is full because interrupts aren't served for a long time.
-The problem is spurious "no resource" conditions, when there are plenty of
-ready buffers.
+Somewhere between v1.1.8 and 1.1.10 (I haven't tried 1.1.9), the output
+quality has degraded noticeably.  The first thing I noticed was a 
+horrendous squeal when starting X: ESD/Enlightenment w/sound enabled
+theme.  Possible feedback? May have to try with the mic unplugged.  Any-
+way, this theme uses audible clicks when moving between windows.  With
+versions .10 .12 .14; instead of click click click..., I get more of a
+click kheh heh heh heck click......  If I have pcm music playing all the
+time, the themed audio events all seem to work correctly.  Acts like
+it's
+not playing the buffers completely through otherwise.  Also, playing
+music with these versions indicates a tad more background noise, kinda
+like tape hiss.  Haven't had the time to see what changed in the source.
 
-Best regards
-		Andrey
+GCC:	2.95.2
+binutils:	2.9.5.0.46
+MB:	Aopen AK72 w/Athlon 750
+Host bridge: VIA Technologies, Inc. VT8371 [KX133] (rev 2).
+PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP]  (rev 0).
+ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev
+34).
+IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 16).
+Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 48).
+Multimedia audio controller: VIA Technologies, Inc. AC97 Audio
+Controller (rev 32).
+
+Thanks for the driver, by the way.
+===============
+-- TimO
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,124 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317539AbSFRSXx>; Tue, 18 Jun 2002 14:23:53 -0400
+	id <S317540AbSFRSaX>; Tue, 18 Jun 2002 14:30:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317540AbSFRSXw>; Tue, 18 Jun 2002 14:23:52 -0400
-Received: from web12308.mail.yahoo.com ([216.136.173.106]:12297 "HELO
-	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317539AbSFRSXu>; Tue, 18 Jun 2002 14:23:50 -0400
-Message-ID: <20020618182351.78368.qmail@web12308.mail.yahoo.com>
-Date: Tue, 18 Jun 2002 11:23:51 -0700 (PDT)
-From: Myrddin Ambrosius <imipak@yahoo.com>
-Subject: Re: Drivers, Hardware, and their relationship to Bagels.
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1024416087.1019.5.camel@nomade>
+	id <S317542AbSFRSaW>; Tue, 18 Jun 2002 14:30:22 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:59100 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S317540AbSFRSaW>;
+	Tue, 18 Jun 2002 14:30:22 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200206181829.WAA13590@sex.inr.ac.ru>
+Subject: Re: [PATCH] Replace timer_bh with tasklet
+To: george@mvista.com (george anzinger)
+Date: Tue, 18 Jun 2002 22:29:31 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D0F79CA.A0FAC230@mvista.com> from "george anzinger" at Jun 18, 2 11:19:54 am
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---- Xavier Bestel <xavier.bestel@free.fr> wrote:
-> Le mar 18/06/2002 à 17:06, Myrddin Ambrosius a écrit
-> :
-> > The issue is this. My understanding is that -all-
-> > hardware access should be through the kernel,
-> partly
-> > so that similar hardware can have a similar API,
-> but
-> > also so that kernel security code (eg:
-> capabilities)
-> > applies to ALL hardware and ALL lower-level
-> > operations.
+> > But this is impossible, timers must not race with another BHs,
+> > all the code using BHs depends on this. That's why they are BHs.
 > 
-> You want to forbid XFree86's DRI ?
+> If indeed they do "race" the old code had the timer_bh being first.
+> So does this patch.
 
-No, the kernel's DRM provides a nice kernel layer for
-XFree's DRI, which covers all the security issues.
-Well, provided the DRM code gets enough drivers.
+I do not understand what you mean here.
 
-Personally, I'd like to see more fine-control of
-graphics hardware end up in the kernel, partly to
-avoid some of the nastier security risks (such as
-having to run X servers as root! bleagh!) but also
-because the kernel has to have a whole lot of control
-anyway.
-
-The sheer number of possible displays you can put into
-any given one of the fantastically large number of
-virtual consoles makes for an interesting challange.
-(On older kernels, changing to and from virtual
-terminal when running an svgalib app could do some
-VERY interesting things to your display.)
-
-When you start looking at running X under multiple
-resolutions on the same machine, or even running
-multiple X servers (which I -think- is now possible),
-things don't get any better.
-
-If the kernel's various graphics components (DRM,
-framebuffers, etc) handled the low-level stuff, you
-don't get multiple pieces of software each trying to
-drive the screen at a different rate. You could even
-have two pieces of software access the same virtual
-terminal at different resolutions, because the kernel
-would eliminate the "conflict".
-
-I understand that, prior to framebuffers going in,
-there were a number of (cough!) lengthy discussions on
-the safety and stability of high-level code in the
-kernel. I honestly believe that this is the flip-side
-of that same debate. Whether it is safe and stable to
-have low-level code in userland.
-
-I honestly believe that too much low-level code or
-access in userland is just as destabilizing (and
-potentially far more dangerous) than high-level code
-in the kernel.
-
-Someone else mentioned all the wonderful stuff root
-can do. Root's a cool toy, but in the end, root is
-still a product of the kernel's imagination. There is
-no physical chunk of machinary in a computer that can
-be called "root". Unless your spider-plant has grown.
-
-Therefore, to argue that root can do anything is not
-entirely true. (In fact, Linux' Capabilities
-demonstrates this, nicely. It is possible to set the
-capabilities such that nothing root can do can
-re-enable any capabilities removed.)
-
-It would be too soon to "retire" root, because I don't
-think anyone's entirely happy with the alternatives
-that exist. (If they were, Linux would have lost root
-before version 1.0! I can remember patches almost the
-size of the kernel!) Maybe, someday, someone'll figure
-out a rootless system that is generally acceptable.
-
-On the other hand, if the small handful of actual
-instructions (not apps, not even functions, just the
-instructions) that -need- super-user privs were all
-encapsulated inside kernel system calls, then you
-don't risk running a root-kit-o-matic every time you
-boot X, or some other server that currently needs root
-privs.
-
-One reason for NOT doing this is that it takes time to
-switch between contexts. Deliberately adding a whole
-bunch of switches would seem to be remarkably stupid.
-Doubly so, when you're adding switches to maybe run
-half a dozen lines. For stuff that's used heavily,
-there's probably less time penalty in typing the code
-in by hand into the server, and running as root, than
-all the constant switching.
-
-I don't have to like it, but I can't find any solid
-argument against this. Good solutions are efficient,
-and efficient != slower than a snail on salt.
+I feel you misunderstand my comment. I said the patch is one pure big bug,
+because tasklets are not serialized wrt BHs. Timer MUST. If you are going
+to get rid of this must, start from editing all the code which makes this
+assumption.
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+> This is one of the most hard to control paths in the system as ALL it 
+> does is execute functions that are unknown as to size, duration, etc.
+> One would hope that they never run for long, but...
+
+Pardon, your code has an effect only after this "but..." happens
+and this effect is insane.
+
+
+> Not really.  One REALLY expects timers to expire in timed order :)  Using
+> a separate procedure to deliver a timer just because it is of a different
+> resolution opens one up to a world of pathology.
+
+Are you going to mix use of hires and lores timers for one task?
+
+Alexey

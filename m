@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265543AbTBYCa0>; Mon, 24 Feb 2003 21:30:26 -0500
+	id <S265174AbTBYC0a>; Mon, 24 Feb 2003 21:26:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265711AbTBYCaZ>; Mon, 24 Feb 2003 21:30:25 -0500
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:44162 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S265543AbTBYCaX>; Mon, 24 Feb 2003 21:30:23 -0500
-Date: Mon, 24 Feb 2003 18:40:31 -0800
-To: Larry McVoy <lm@work.bitmover.com>, yodaiken@fsmlabs.com,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@digeo.com>, lm@bitmover.com, mbligh@aracnet.com,
-       davidsen@tmr.com, greearb@candelatech.com, linux-kernel@vger.kernel.org
-Cc: "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225024031.GB4929@gnuppy.monkey.org>
-References: <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085031.GP10411@holomorphy.com> <20030224091758.A11805@hq.fsmlabs.com> <20030224231341.GQ10411@holomorphy.com> <20030224162754.A24766@hq.fsmlabs.com> <20030225021736.GB4507@gnuppy.monkey.org> <20030225023226.GE12146@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030225023226.GE12146@work.bitmover.com>
-User-Agent: Mutt/1.5.3i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+	id <S265177AbTBYC0a>; Mon, 24 Feb 2003 21:26:30 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49157 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265174AbTBYC01>; Mon, 24 Feb 2003 21:26:27 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Horrible L2 cache effects from kernel compile
+Date: Tue, 25 Feb 2003 02:31:49 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b3ekil$1cp$1@penguin.transmeta.com>
+References: <3E5ABBC1.8050203@us.ibm.com>
+X-Trace: palladium.transmeta.com 1046140575 10011 127.0.0.1 (25 Feb 2003 02:36:15 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 25 Feb 2003 02:36:15 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 06:32:26PM -0800, Larry McVoy wrote:
-> Hmm, maybe someone who is advertising their companies mistaken approach?
+In article <3E5ABBC1.8050203@us.ibm.com>,
+Dave Hansen  <haveblue@us.ibm.com> wrote:
+>I was testing Martin Bligh's kernbench (a kernel compile with
+>-j(2*NR_CPUS)) and using DCU_MISS_OUTSTANDING as the counter event.
+>
+>The surprising thing?  d_lookup() accounts for 8% of the time spent
+>waiting for an L2 miss.
+>
+>__copy_to_user_ll should be trashing a lot of cachelines, but d_lookup()
+>is strange.
 
-Or maybe your understanding of this is faded and you haven't keep up with
-your generational contemporaries, like our BSD/OS engineers about schedulers,
-preemption and priority inheritence.
+I wouldn't call it that strange. It _is_ one of the most critical areas
+of the FS code, and hashes (which it uses) are inherently bad for caches. 
 
-Again, assuming that you actually understand what this means read this:
-	http://linuxdevices.com/articles/AT5698775833.html
+The instruction you point to as being the most likely suspect:
 
-...because I don't think you really do understand it.
+	if (unlikely(dentry->d_bucket != head))
 
-bill
+is the first instruction that actually looks at the dentry chain
+information, so sure as hell, that's the one you'd expect to show up as
+the cache miss.
 
+There's no question that the dcache is very effective at caching, but I
+also think it's pretty clear that especially since we allow it to grow
+pretty much as big as we have memory, it _is_ going to cause cache misses.
+
+I don't know what to even suggest doing about it - it may be one of
+those things where we just have to live with it.  I don't see any
+alternate good data structures that would be more cache-friendly. 
+Unlike some of our other data structures (the page cache, for example)
+which have been converted to more cache-friendly RB-trees, the name
+lookup is fundamentally not very well-behaved.
+
+(Ie with the page cache there is a lot of locality within one file,
+while with name lookup the indexing is a string, which pretty much
+implies that we have to hash it and thus lose all locality)
+
+			Linus

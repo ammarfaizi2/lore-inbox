@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317586AbSHHOmF>; Thu, 8 Aug 2002 10:42:05 -0400
+	id <S317587AbSHHOpp>; Thu, 8 Aug 2002 10:45:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317587AbSHHOmF>; Thu, 8 Aug 2002 10:42:05 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:43792 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S317586AbSHHOmF>; Thu, 8 Aug 2002 10:42:05 -0400
-Date: Wed, 7 Aug 2002 20:43:32 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Anton Blanchard <anton@samba.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, riel@surriel.com
-Subject: Re: fix CONFIG_HIGHPTE
-Message-ID: <20020807204332.B5777@nightmaster.csn.tu-chemnitz.de>
-References: <20020806231522.GJ6256@holomorphy.com> <3D506D43.890EA215@zip.com.au> <20020807010752.GC6343@krispykreme> <3D508C83.3A78CC58@zip.com.au>
+	id <S317590AbSHHOpp>; Thu, 8 Aug 2002 10:45:45 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:47074 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317587AbSHHOpo>;
+	Thu, 8 Aug 2002 10:45:44 -0400
+Date: Thu, 08 Aug 2002 07:36:30 -0700 (PDT)
+Message-Id: <20020808.073630.37512884.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpumask_t
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020808074422.E414A4ADA@lists.samba.org>
+References: <20020808074422.E414A4ADA@lists.samba.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3D508C83.3A78CC58@zip.com.au>; from akpm@zip.com.au on Tue, Aug 06, 2002 at 07:57:07PM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Thu, 08 Aug 2002 17:39:18 +1000
 
-On Tue, Aug 06, 2002 at 07:57:07PM -0700, Andrew Morton wrote:
-> - We'll continue to suck for the University workload.
+   I've tested this now with making cpumask_t a struct, and it works fine
+   (at the moment it's unsigned long for every arch, no change).
 
-Hop that's not an 2.6 option, because our University alone is
-using Linux on 1000+ machines, on 500+ private machines and lots
-of mission critical servers.
+It worked because you cast the thing to (unsigned long *) in every
+bitops.  We either:
 
-If Linux becomes crap for the CPU-Server-Load, we would be VERY
-sorry here, since we are pushing it very hard[1].
+1) shouldn't need to do that, meaning cpumask_t must be a long
+   or array or longs
 
-Regards
+2) you need to abstract away bitops on cpumask_t so that one
+   _really_ could make cpumask_t a struct with things other
+   than the mask itself inside, so cpumask_test, cpumask_add,
+   cpumask_remove or however you'd like to name them
 
-Ingo Oeser
+Didn't we go through a lot of effort to sanitize bitops types
+and kill the ugly casts? :-))))
 
-[1] All interpretions of this sentence apply.
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

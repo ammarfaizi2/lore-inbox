@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTEMSGP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 14:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbTEMSEa
+	id S262357AbTEMS3T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 14:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTEMS3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 14:04:30 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34214 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263396AbTEMSC6 (ORCPT
+	Tue, 13 May 2003 14:29:19 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:18392 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262357AbTEMS3S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 14:02:58 -0400
-Date: Tue, 13 May 2003 20:11:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: bharata@in.ibm.com, Adrian Bunk <bunk@fs.tum.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-Subject: Re: 2.5.69-mjb1: undefined reference to `blk_queue_empty'
-Message-ID: <20030513181155.GL17033@suse.de>
-References: <9380000.1052624649@[10.10.2.4]> <20030512205139.GT1107@fs.tum.de> <20570000.1052797864@[10.10.2.4]> <20030513124807.A31823@in.ibm.com> <25840000.1052834304@[10.10.2.4]>
+	Tue, 13 May 2003 14:29:18 -0400
+Date: Tue, 13 May 2003 14:42:05 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       "Mudama, Eric" <eric_mudama@maxtor.com>,
+       Oleg Drokin <green@namesys.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
+       lkhelp@rekl.yi.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69, IDE TCQ can't be enabled
+Message-ID: <20030513184205.GC11073@gtf.org>
+References: <785F348679A4D5119A0C009027DE33C102E0D31D@mcoexc04.mlm.maxtor.com> <20030512193509.GB10089@gtf.org> <20030512194245.GG17033@suse.de> <20030512195331.GD10089@gtf.org> <20030513064059.GL17033@suse.de> <20030513180020.GB3309@suse.de> <20030513180334.GJ17033@suse.de> <20030513180459.GB11073@gtf.org> <20030513180651.GK17033@suse.de> <20030513181337.GM17033@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <25840000.1052834304@[10.10.2.4]>
+In-Reply-To: <20030513181337.GM17033@suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13 2003, Martin J. Bligh wrote:
-> > I have already sent you a fix for this. Anyway here it is again.
+On Tue, May 13, 2003 at 08:13:37PM +0200, Jens Axboe wrote:
+> btw, you may want to see the IDE_TCQ_FIDDLE_SI define in ide-tcq, here's
+> the comment I put there:
 > 
-> Oops, I must have dropped it - thanks, I'll stick it in the next release.
->  
-> > --- linux-2.5.69/drivers/dump/dump_blockdev.c.orig	Tue May 13 12:30:49 2003
-> > +++ linux-2.5.69/drivers/dump/dump_blockdev.c	Tue May 13 12:34:09 2003
-> > @@ -261,7 +261,7 @@
-> >  
-> >  	/* For now we assume we have the device to ourselves */
-> >  	/* Just a quick sanity check */
-> > -	if (!blk_queue_empty(bdev_get_queue(dump_bdev->bdev))) {
-> > +	if (elv_next_request(bdev_get_queue(dump_bdev->bdev))) {
-> >  		/* i/o in flight - safer to quit */
-> >  		return -EBUSY;
-> >  	}
+> /*
+>  * we are leaving the SERVICE interrupt alone, IBM drives have it
+>  * on per default and it can't be turned off. Doesn't matter, this
+>  * is the sane config.
+>  */
+> #undef IDE_TCQ_FIDDLE_SI
+> 
+> Are you sure this isn't what you are seeing?
 
-this looks horribly racy (of the io scheduler internals corrupting
-kind), I don't see you holding the queue lock here. some io schedulers
-do non-significant amount of work inside they next_request functions,
-moving from back-end lists to dispatch queue.
 
--- 
-Jens Axboe
+My information comes solely from IDENTIFY DEVICE...
+
+	Jeff
+
+
 

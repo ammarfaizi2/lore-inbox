@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315166AbSEHUuX>; Wed, 8 May 2002 16:50:23 -0400
+	id <S315174AbSEHVPV>; Wed, 8 May 2002 17:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315168AbSEHUuW>; Wed, 8 May 2002 16:50:22 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:24213 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315166AbSEHUuV>;
-	Wed, 8 May 2002 16:50:21 -0400
-Date: Wed, 8 May 2002 22:48:10 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Reading page from given block device
-Message-ID: <20020508204809.GA2300@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S315176AbSEHVPU>; Wed, 8 May 2002 17:15:20 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:7106 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S315174AbSEHVPU>;
+	Wed, 8 May 2002 17:15:20 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 8 May 2002 23:14:48 +0200 (MEST)
+Message-Id: <UTC200205082114.g48LEmw20256.aeb@smtp.cwi.nl>
+To: quintela@mandrakesoft.com, torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.14 IDE 56
+Cc: aia21@cantab.net, dalecki@evision-ventures.com,
+        linux-kernel@vger.kernel.org, padraig@antefacto.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+    I'm more worried about the issue of "I installed RH-x.x, and then I
+    upgraded the kernel, and now program xyz won't work any more", where "xyz"
+    is something perfectly reasonable and common.
 
-For swsusp, I kind of need to read 4K from given block device.
+    For example, let's say that some strange version of "mount" _requires_
+    /proc/ide to work (don't ask me why), and that Mandrake happened to ship
+    that version in their 8.2 release, and if you use the new 2.5.15 kernel on
+    that installation, it simply won't work. THAT would be a problem where
+    some backwards compatibility crud is probably worth it.
 
-Here's my attempt:
+First, beautiful things are happening to the IDE code. (*)
+Insertion of backwards compatibility crud can be delayed
+to just before 2.6 is released.
 
-static int bdev_read_page(kdev_t dev, long pos, void *buf)
-{
-        struct buffer_head *bh;
-        struct block_device *bdev;
+In the meantime, user space software can be fixed.
 
-        if (pos%PAGE_SIZE) panic("Sorry, dave, I can't let you do
-that!\n");
-        bdev = bdget(kdev_t_to_nr(dev));
-        if (!bdev) {
-                printk("No block device for %s\n", __bdevname(dev));
-                BUG();
-        }
-        printk("C");
-        bh = __bread(bdev, pos/PAGE_SIZE, PAGE_SIZE);
-        printk("D");
-        bdput(bdev);
-        if (!bh || (!bh->b_data)) {
-                return -1;
-        }
-        memcpy(buf, bh->b_data, PAGE_SIZE);
-        bforget(bh);                    /* FIXME: maybe bforget should
-be here */
-        return 0;
-}
+Second, no doubt some programs will be affected a little.
+[For example, fdisk reads /proc/ide/%s/media and if that says
+cdrom or tape it will skip the device. There are other similar,
+non-essential, uses.]
 
-It works *once*, second time it deadlocks in __bread(). I tried both
-bforget() and brelse(). Kernel is 2.5.13. What am I doing wrong/what's
-wrong?
+Andries
 
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+
+(*) Last time I reported (i) immediate death at boot, and
+(ii) HPT366 problems. Now that (i) has been fixed, let me
+mention that (ii) has not been fixed yet. Disks hanging off
+a HPT366 work well under 2.4.17 but kill the system
+(with an infinite stream of "lost interrupt"s or so)
+under 2.5.13. Maybe not immediately, but within a few hours.
+Bad disk corruption has also been observed.
+

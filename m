@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265728AbUBKXnu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 18:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265765AbUBKXnu
+	id S265765AbUBKXyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 18:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbUBKXyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 18:43:50 -0500
-Received: from prin.lo2.opole.pl ([213.77.100.98]:5391 "EHLO prin.lo2.opole.pl")
-	by vger.kernel.org with ESMTP id S265728AbUBKXnt (ORCPT
+	Wed, 11 Feb 2004 18:54:09 -0500
+Received: from hera.kernel.org ([63.209.29.2]:44984 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S265765AbUBKXyF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 18:43:49 -0500
-From: Mariusz Mazur <mmazur@kernel.pl>
+	Wed, 11 Feb 2004 18:54:05 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.2.0
-Date: Thu, 12 Feb 2004 00:40:41 +0100
-User-Agent: KMail/1.5
-References: <200402112339.55593.mmazur@kernel.pl> <20040211232829.GA15450@codepoet.org>
-In-Reply-To: <20040211232829.GA15450@codepoet.org>
-Cc: Erik Andersen <andersen@codepoet.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: printk and long long
+Date: Wed, 11 Feb 2004 23:53:57 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c0efal$qfp$1@terminus.zytor.com>
+References: <200402111604.49082.vda@port.imtp.ilyichevsk.odessa.ua> <yw1xvfmdwe4s.fsf@kth.se> <je8yj9cl27.fsf@sykes.suse.de> <yw1xn07pw6sy.fsf@kth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200402120040.41527.mmazur@kernel.pl>
+X-Trace: terminus.zytor.com 1076543637 27130 63.209.29.3 (11 Feb 2004 23:53:57 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 11 Feb 2004 23:53:57 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 of February 2004 00:28, Erik Andersen wrote:
-> Thoughts on adding sanitized include/scsi/ ?
+Followup to:  <yw1xn07pw6sy.fsf@kth.se>
+By author:    mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+In newsgroup: linux.dev.kernel
+>
+> Andreas Schwab <schwab@suse.de> writes:
+> 
+> > mru@kth.se (Måns Rullgård) writes:
+> >
+> >> What is the proper way to deal with printing an int64_t when int64_t
+> >> can be either long or long long depending on machine?
+> >
+> > PRId64 from <inttypes.h> (replace d with the desired format character).
+> > This is for user space, not sure whether that is acceptable for kernel
+> > code (<intttypes.h> is not one of the required headers for freestanding
+> > implementations).
+> 
+> That should work for userspace.  What standard specifies those?
+> What about kernel sources?
+> 
 
-Yes. 
-[mmazur@home mmazur]$ rpm -qf /usr/include/scsi
-glibc-devel-2.3.2-14
-:)
+C99 defines those.
 
-> linux/include/asm-mips/user.h includes asm/reg.h
-> but there is no linux/include/asm-mips/reg.h....
+Another (frequently easier) way is to cast to (intmax_t) and use the %j size modifier:
 
-Added to todo.
+	printf("foo = %jd\n", (intmax_t)foo);
 
-
+	-hpa
 -- 
-Ka¿dy cz³owiek, który naprawdê ¿yje, nie ma charakteru, nie mo¿e go mieæ.
-Charakter jest zawsze martwy, otacza ciê zgni³a struktura przeniesiona z 
-przesz³o¶ci. Je¿eli dzia³asz zgodnie z charakterem wtedy nie dzia³asz w ogóle
-- jedynie mechanicznie reagujesz.                 { Osho }
+PGP public key available - finger hpa@zytor.com
+Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
+"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
+Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!

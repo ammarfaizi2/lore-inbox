@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264149AbUDOOln (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 10:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264159AbUDOOln
+	id S264203AbUDOOp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 10:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbUDOOp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 10:41:43 -0400
-Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:4758 "EHLO
-	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S264149AbUDOOlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 10:41:42 -0400
-Date: Thu, 15 Apr 2004 10:41:28 -0400 (EDT)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@blue.engin.umich.edu
-To: Andrea Arcangeli <andrea@suse.de>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
-In-Reply-To: <20040415130028.GB2150@dualathlon.random>
-Message-ID: <Pine.GSO.4.58.0404151037420.6707@blue.engin.umich.edu>
-References: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain>
- <Pine.LNX.4.58.0404121531580.15512@red.engin.umich.edu> <69200000.1081804458@flay>
- <Pine.LNX.4.58.0404141616530.25848@rust.engin.umich.edu>
- <20040415000529.GX2150@dualathlon.random> <Pine.GSO.4.58.0404142323160.21462@sapphire.engin.umich.edu>
- <20040415130028.GB2150@dualathlon.random>
+	Thu, 15 Apr 2004 10:45:28 -0400
+Received: from smtp.rol.ru ([194.67.21.9]:28379 "EHLO smtp.rol.ru")
+	by vger.kernel.org with ESMTP id S264143AbUDOOpW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 10:45:22 -0400
+From: Konstantin Sobolev <kos@supportwizard.com>
+To: Justin Cormack <justin@street-vision.com>
+Subject: Re: poor sata performance on 2.6
+Date: Thu, 15 Apr 2004 18:48:05 +0400
+User-Agent: KMail/1.6.1
+Cc: Ryan Geoffrey Bourgeois <rgb005@latech.edu>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+References: <200404150236.05894.kos@supportwizard.com> <200404151826.54488.kos@supportwizard.com> <1082039593.19568.75.camel@lotte.street-vision.com>
+In-Reply-To: <1082039593.19568.75.camel@lotte.street-vision.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404151848.05857.kos@supportwizard.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > I don't know why bit_spin_lock with vma->vm_flags should be a problem
-> > if it is used without mmap_sem. Can you explain ?
+On Thursday 15 April 2004 18:33, Justin Cormack wrote:
+> On Thu, 2004-04-15 at 15:26, Konstantin Sobolev wrote:
+> > On Thursday 15 April 2004 18:00, Justin Cormack wrote:
+> > > hmm, odd. I get 50MB/s or so from normal (7200, 8MB cache) WD disks,
+> > > and Seagate from the same controller. Can you send lspci,
+> > > /proc/interrupts and dmesg...
+> >
+> > Attached are files for 2.6.5-mm5 with highmem, ACPI and APIC turned off.
 >
-> you seem not to know all rules about the atomic operations in smp, you
-> cannot just set_bit on one side and use non-atomic operations on the
-> other side, and expect the set_bit not to invalidate the non-atomic
-> operations.
->
-> The effect of the mprotect may be deleted by your new concurrent
-> set_bit and stuff like that.
+> ah. Make a filesystem on it and mount it and try again. I see you have
+> no partition table and so probably no filesystem. This means the block
+> size is set to default 512byte not 4k which makes disk operations slow.
+> Any filesystem should default to block size of 4k, eg ext2.
 
-Thank you very much for that. Stupid me. I didn't read the code in
-page->flags properly. Thanks again.
+Very interesting!
+created partition table,
+kos sata # mkfs.ext2 /dev/sda1
+[..skipped..]
+kos mnt # cd /
+kos / # mkdir wd
+kos / # mount /dev/sda1 /wd
+kos / # hdparm -t -a8192 /dev/sda
 
-Rajesh
+/dev/sda:
+ setting fs readahead to 8192
+ readahead    = 8192 (on)
+ Timing buffered disk reads:   82 MB in  3.03 seconds =  27.02 MB/sec
 
+kos / # mount | grep sda
+/dev/sda1 on /wd type ext2 (rw)
+kos / # hdparm -t -a8192 /dev/sda
 
+/dev/sda:
+ setting fs readahead to 8192
+ readahead    = 8192 (on)
+ Timing buffered disk reads:  206 MB in  3.02 seconds =  68.15 MB/sec
+kos / # hdparm -t -a8192 /dev/sda
+
+/dev/sda:
+ setting fs readahead to 8192
+ readahead    = 8192 (on)
+ Timing buffered disk reads:  206 MB in  3.02 seconds =  68.18 MB/sec
+
+So first time it gave the same loosy 27 MB/s and subsequent tests give pretty 
+good 68 MB/s! Why?
+
+/KoS
+* I haven't lost my mind...It's backed up somewhere!		      

@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131155AbQKVKJT>; Wed, 22 Nov 2000 05:09:19 -0500
+	id <S129793AbQKVKN3>; Wed, 22 Nov 2000 05:13:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131140AbQKVKJJ>; Wed, 22 Nov 2000 05:09:09 -0500
-Received: from smtp2.free.fr ([212.27.32.6]:50950 "EHLO smtp2.free.fr")
-	by vger.kernel.org with ESMTP id <S130912AbQKVKJF>;
-	Wed, 22 Nov 2000 05:09:05 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.2.1[78] : RTNETLINK lock not properly locking ?
-Message-ID: <974885943.3a1b9437847da@imp.free.fr>
-Date: Wed, 22 Nov 2000 10:39:03 +0100 (MET)
-From: Willy Tarreau <willy.lkml@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 195.6.58.78
+	id <S129996AbQKVKNT>; Wed, 22 Nov 2000 05:13:19 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:10759 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129793AbQKVKNE>;
+	Wed, 22 Nov 2000 05:13:04 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr>
+cc: cooker@linux-mandrake.com,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Cooker] Re: [CHRPM] modutils-2.3.20-1mdk 
+In-Reply-To: Your message of "Wed, 22 Nov 2000 09:57:02 BST."
+             <3A1B8A5D.1869C463@vz.cit.alcatel.fr> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 22 Nov 2000 20:42:54 +1100
+Message-ID: <1143.974886174@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+On Wed, 22 Nov 2000 09:57:02 +0100, 
+Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr> wrote:
+>The problem is in modules.conf
+>Most users do not use "depfile" and "path" commands
+>So they have not seen this problem.
+>
+>This was true for modutils-2.3.19, and older versions.
+>With modutils-2.3.20 the syntax have changed.
+>Anything in ChangeLog?
+>`uname -r` has to be changed in $(uname -r)
 
-while I was searching how to implement an rtnl_lock() in the bonding code,
-I discovered that the rtnl_shlock() function in 2.2.1[78] could misbehave if
-CONFIG_RTNETLINK is not set :
-   - it will nearly never allow concurrent accesses (seems to be what was
-     intented when it was written)
-   - it will not always prevent concurrent accesses, which is weird because
-     rtnl_lock() only relies on rtnl_shlock() (and exlock, which is empty) to
-     protect sensible areas
+Try this patch against modutils 2.3.20.  If it does not fix the problem
+then I will need a copy of your modules.conf.  `uname -r` should work
+even without this patch, it does for me.  You must have something
+unusual in your modules.conf.
 
-The first case is trivial : one at a time.
-(code taken from include/linux/rtnetlink.h, line 639)
+Index: 21.4/util/meta_expand.c
+--- 21.4/util/meta_expand.c Tue, 21 Nov 2000 19:38:04 +1100 kaos (modutils-2.3/10_meta_expan 1.4.1.3 644)
++++ 21.4(w)/util/meta_expand.c Wed, 22 Nov 2000 11:14:54 +1100 kaos (modutils-2.3/10_meta_expan 1.4.1.3 644)
+@@ -328,10 +328,10 @@ int meta_expand(char *pt, GLOB_LIST *g, 
+ 	pclose(fin);
+ 
+ 	if (line) {
+-		/* Ignore result if no expansion occurred */
+-		xstrcat(tmpline, "\n", sizeof(tmpline));
+-		if (strcmp(tmpline, line))
+-			split_line(g, line, 0);
++		/* shell used to strip one set of quotes.  Paranoia code in
++		 * 2.3.20 stops that strip so we do it ourselves.
++		 */
++		split_line(g, line, 1);
+ 		free(line);
+ 	}
+ 
 
-     while (atomic_read(&rtnl_rlockct))
-            sleep_on(&rtnl_wait);
-     atomic_inc(&rtnl_rlockct);
-
-The second case isn't trivial, so I will quote some points in the code :
-
-[rtnl_shlock]
-(1) ---------
-        while (atomic_read(&rtnl_rlockct))
-(2) ---------
-                sleep_on(&rtnl_wait);
-(3) ---------
-        atomic_inc(&rtnl_rlockct);
-(4) ---------
-
-[rtnl_shunlock]
-(5) ---------
-        if (atomic_dec_and_test(&rtnl_rlockct))
-(6) ---------
-                wake_up(&rtnl_wait);
-(7) ---------
-
-Consider 3 concurrent threads A, B and C.
-- First, A needs the lock. Noone has it. It enters (1), then (3), sets the
-  rtnl_rlockct to 1 and exits at (4).
-- now B comes in (1). The lock is already set by A, so B goes to (2) and
-  sleeps.
-- A unlocks. It goes to (5), then (6)
-- at this moment, C tries to lock in (1), an succeeds since A has just released
-  the lock. So it gets the lock and goes to (3), then (4).
-- A is at (6) and wakes B up and steps to (7) and exits.
-- B is woken up and goes to (3) then (4).
-
-=> B and C both have the lock.
-
-Perhaps I have missed something, but I don't find what. If I'm right, then why
-don't we simply keep the same code as for the CONFIG_RTNETLINK case ?
-
-Thanks in advance for any comment,
-
-Regards,
-Willy
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

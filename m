@@ -1,79 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284144AbSAILTD>; Wed, 9 Jan 2002 06:19:03 -0500
+	id <S283003AbSAILUn>; Wed, 9 Jan 2002 06:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284264AbSAILSx>; Wed, 9 Jan 2002 06:18:53 -0500
-Received: from mail12.speakeasy.net ([216.254.0.212]:8615 "EHLO
-	mail12.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S284144AbSAILSm>; Wed, 9 Jan 2002 06:18:42 -0500
-Message-ID: <3C3C2686.52491F7@u.washington.edu>
-Date: Wed, 09 Jan 2002 03:16:22 -0800
-From: "B. Wehrle" <bwehrle@u.washington.edu>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-34.1mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.8 fs corruption and subsequent fs problems with links
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S286161AbSAILUe>; Wed, 9 Jan 2002 06:20:34 -0500
+Received: from port-213-20-128-187.reverse.qdsl-home.de ([213.20.128.187]:62218
+	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
+	id <S284264AbSAILUV> convert rfc822-to-8bit; Wed, 9 Jan 2002 06:20:21 -0500
+Date: Wed, 09 Jan 2002 12:19:16 +0100 (CET)
+Message-Id: <20020109.121916.424252478.rene.rebe@gmx.net>
+To: mingo@elte.hu
+Cc: davidel@xmailserver.org, kravetz@us.ibm.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, george@mvista.com
+Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
+From: Rene Rebe <rene.rebe@gmx.net>
+In-Reply-To: <Pine.LNX.4.33.0201091154440.2276-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.40.0201082057560.936-100000@blue1.dev.mcafeelabs.com>
+	<Pine.LNX.4.33.0201091154440.2276-100000@localhost.localdomain>
+X-Mailer: Mew version 2.1 on XEmacs 21.4.6 (Common Lisp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello! I have scoured a bit and cannot find anyone with my similar
-problem. I have read the changelogs for 2.4.x and only found a somewhat
-similar
-problem cropping up in 2.4.16,17, which is similar only in the respect
-that the fs is
-marked dirty incorrectly.
+Hi.
 
-First, I am using:
-Mandrake 8.1 w/ 2.4.8 kernel on Intel P3 w/ SCSI disk drive.  Fsck
-reports no bad blocks on my fs's.
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
+Date: Wed, 9 Jan 2002 12:37:46 +0100 (CET)
 
-I have been seeing various problems with my / ext2 filesystem.  They
-occur after a fsck,
-and this fsck happens infrequenly.  I do not know how to make it happen
-again.
-  
-First, the system will cleanly halt and on reboot it will report
-that the filesystem is not clean.  Then it will fsck for a long time.
-Fsck will complain that things are really messy and asks if I want it to
-automatically clean the fs.  I always reply 'yes'.
-During this time it will spit out a huge long list of inode numbers. 
-This will continue for a _while_.
-The system will come up in runlevel 5, but X will not start.  Tracing
-this back, I find that symlinks will not work and hardlinks will not
-work either.
-If I do: touch foo; ln foo foobar, it will fail with error ENOENT. 
-touch foo; ln -s foo foobar
-will succeed, but (!) foobar will point to itself!
+[...]
 
-The reason X will not start is related to the fact that it makes several
-links.  Further digging reveals that a certain file is also being
-affected by fs
-problem, and it is /var/log/XFree86.0.log.  EIO is returned when the
-file is accessed. 
-Using debugfs I can see that the file thinks it holds inode 0!  
-The only way to fix the problem is to wipe out XFree86.0.log using the
-kill command in debugfs (using / mounted RO).
+> 2.5.2-pre10-vanilla running the test at the default priority level:
+> 
+>     # ./chat_s 127.0.0.1
+>     # ./chat_c 127.0.0.1 10 1000
+> 
+>     Average throughput : 124676 messages per second
+>     Average throughput : 102244 messages per second
+>     Average throughput : 115841 messages per second
+> 
+>     [ system is unresponsive at the start of the test, but
+>       once the 2.5.2-pre10 load-estimator establishes which task is
+>       interactive and which one is not, the system becomes usable.
+>       Load can be felt and there are frequent delays in commands. ]
+> 
+> 2.5.2-pre10-vanilla running at nice level 19:
+> 
+>     # nice -n 19 ./chat_s 127.0.0.1
+>     # nice -n 19 ./chat_c 127.0.0.1 10 1000
+> 
+>     Average throughput : 214626 messages per second
+>     Average throughput : 220876 messages per second
+>     Average throughput : 225529 messages per second
+> 
+>     [ system is usable from the beginning - nice levels are working as
+>       expected. Load can be felt while executing shell commands, but the
+>       system is usable. Load cannot be felt in truly interactive
+>       applications like editors.
+>
+> Summary of throughput results: 2.5.2-pre10-vanilla is equivalent
+> throughput-wise in the test with your patched kernel, but the vanilla
+> kernel is about 100% faster than your patched kernel when running reniced.
 
-Now This is the weird part: if you use this file (stat, cat, etc) the
-symlink problem will occur. Removing the file and restarting works just
-fine.  Hence, runlevel 1 is
-OK because X hasn't touched that nasty file. Once the file is removed, a
-debugfs "stat"
-command shows that it holds an expected inode close in value to its
-neighbors in the directory.  So, to repeat, if I boot in single user
-mode, and don't mess with this file, I can symlink and hardlink.  If I
-do touch
-the file, all hell breaks loose.
+Could someone tell a non-kernel-hacker why this benchmark is nearly
+twice as fast when running reniced??? Shouldn't it be slower when it
+runs with lower priority (And you execute / type some commands during
+it)?
 
-This did happen when my / fs was very full- I doubt that there was more
-than a few K of space on it due to a large RPM installation.  However,
-new files could still be
-made (using cat, etc). I ran this system with 2.2 for a year w/o a
-single(!) problem.
+[...]
+ 
+> 	Ingo
 
-I am not subscribed to this list, please respond to me privately.
-  Thank you,
-        Brian Wehrle
+k33p h4ck1n6
+  René
+
+-- 
+René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+
+eMail:    rene.rebe@gmx.net
+          rene@rocklinux.org
+
+Homepage: http://www.tfh-berlin.de/~s712059/index.html
+
+Anyone sending unwanted advertising e-mail to this address will be
+charged $25 for network traffic and computing time. By extracting my
+address from this message or its header, you agree to these terms.

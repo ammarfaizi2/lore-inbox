@@ -1,181 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135575AbRDXMtR>; Tue, 24 Apr 2001 08:49:17 -0400
+	id <S135580AbRDXMx1>; Tue, 24 Apr 2001 08:53:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135576AbRDXMtJ>; Tue, 24 Apr 2001 08:49:09 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:2574 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S135575AbRDXMtB>; Tue, 24 Apr 2001 08:49:01 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Tue, 24 Apr 2001 14:48:39 +0200
+	id <S135579AbRDXMxK>; Tue, 24 Apr 2001 08:53:10 -0400
+Received: from [24.70.141.118] ([24.70.141.118]:2546 "EHLO asdf.capslock.lan")
+	by vger.kernel.org with ESMTP id <S135578AbRDXMxB>;
+	Tue, 24 Apr 2001 08:53:01 -0400
+Date: Tue, 24 Apr 2001 08:52:51 -0400 (EDT)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: <imel96@trustix.co.id>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [OFFTOPIC] Re: [PATCH] Single user linux
+In-Reply-To: <Pine.LNX.4.33.0104241830020.11899-100000@tessy.trustix.co.id>
+Message-ID: <Pine.LNX.4.33.0104240846000.21785-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-type: Multipart/Mixed; boundary=Message-Boundary-28924
-Subject: patch-proposal: extended adjtime()
-Message-ID: <3AE59246.11659.172798A@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 24 Apr 2001 imel96@trustix.co.id wrote:
 
---Message-Boundary-28924
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+>a friend of my asked me on how to make linux easier to use
+>for personal/casual win user.
+>
+>i found out that one of the big problem with linux and most
+>other operating system is the multi-user thing.
+>
+>i think, no personal computer user should know about what's
+>an operating system idea of a user. they just want to use
+>the computer, that's it.
+>
+>by a personal computer i mean home pc, notebook, tablet,
+>pda, and communicator. only one user will use those devices,
+>or maybe his/her friend/family. do you think that user want
+>to know about user account?
+>
+>from that, i also found out that it is very awkward to type
+>username and password every time i use my computer.
+>so here's a patch. i also have removed the user_struct from
+>my kernel, but i don't think you'd like #ifdef's.
+>may be it'll be good for midori too.
 
-Hello,
+trustix.co.id?  hehehe.
 
-someone found out that in Linux adjtime()'s correction is limited to 
-something like 2000s (signed 32bit microseconds for i386). This is not 
-a true problem, but for those who desperately need/want it, I have a 
-patch proposal (incomplete, but essential) to implement the full range 
-(maybe even more). The patch tries to keep binary compatibility, too.
+If you don't want to login with user/password, then change your
+password to "".  Don't want to even do that?  Then just change
+/etc/inittab to invoke "login -f username" instead of mingetty or
+whatever.  No need at all to hack the kernel up.
 
-Opinions?
+Dunno why you sent the patch here or to Linus though..  The
+chance of it even being looked at are about 1/2^infinity  ;o)
 
-Regards,
-Ulrich
+I've got a hacked up version of mingetty that allows you to
+configure autologins on tty's if you like.  You're welcome to my
+packages if you like just email me privately. It is useful if you
+are in an environment where physical security is not a concern at
+all, but network security is still a concern.  I use it so I can
+boot up, login once, and it fires up tty's on all consoles for
+me.  It can also bypass any login if you like.
 
 
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
 
---Message-Boundary-28924
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Text from file 'newadjtime.diff'
-
---- kernel/243time.c	Mon Apr 16 20:14:27 2001
-+++ kernel/xxxtime.c	Mon Apr 16 20:41:15 2001
-@@ -100,7 +100,8 @@
- 	write_lock_irq(&xtime_lock);
- 	xtime.tv_sec = value;
- 	xtime.tv_usec = 0;
--	time_adjust = 0;	/* stop active adjtime() */
-+	time_adjust.tv_sec = time_adjust.tv_usec = 0;
-+	/* stop active adjtime() */
- 	time_status |= STA_UNSYNC;
- 	time_maxerror = NTP_PHASE_LIMIT;
- 	time_esterror = NTP_PHASE_LIMIT;
-@@ -225,7 +226,8 @@
-  */
- int do_adjtimex(struct timex *txc)
- {
--        long ltemp, mtemp, save_adjust;
-+        long ltemp, mtemp;
-+	struct timeval save_adjust;
- 	int result;
- 
- 	/* In order to modify anything, you gotta be super-user! */
-@@ -295,7 +297,31 @@
- 	    if (txc->modes & ADJ_OFFSET) {	/* values checked earlier */
- 		if (txc->modes == ADJ_OFFSET_SINGLESHOT) {
- 		    /* adjtime() is independent from ntp_adjtime() */
--		    time_adjust = txc->offset;
-+
-+		    /* Try to extend the range for plain old adjtime()
-+		     * to multiple seconds without breaking binary
-+		     * compatibility. A perfect solution is not
-+		     * possible, but this one has a high probability
-+		     * for success. The true solution is a syscall of
-+		     * its own.
-+		     * The offset for ADJ_OFFSET_SINGLESHOT is stored in
-+		     * txc->time (struct timeval) now. To avoid using
-+		     * garbage vaues, it's required to copy
-+		     * `txc->time.tv_usec' also into `txc->offset'. Just
-+		     * to be sure, we also require the magic word
-+		     * EXTENDED_ADJTIME_MAGIC to be written to `txc->status'
-+		     * (it's a value not possible before, and it's
-+		     * overwritten after each call).
-+		     */
-+#define EXTENDED_ADJTIME_MAGIC	(0x0000ffff + ('U' << 24) + ('W' << 16))
-+		    /* old compatible interface */
-+		    time_adjust.tv_usec = txc->offset;
-+
-+		    if (txc->offset == txc->time.tv_usec &&
-+			txc->status == EXTENDED_ADJTIME_MAGIC) {
-+			/* extended part */
-+			time_adjust.tv_sec = txc->time.tv_sec;
-+		    }
- 		}
- 		else if ( time_status & (STA_PLL | STA_PPSTIME) ) {
- 		    ltemp = (time_status & (STA_PPSTIME | STA_PPSSIGNAL)) ==
-@@ -375,9 +401,11 @@
- 	    /* p. 24, (d) */
- 		result = TIME_ERROR;
- 	
--	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
--	    txc->offset	   = save_adjust;
--	else {
-+	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT) {
-+	    txc->offset	   = save_adjust.tv_usec;
-+	    if (txc->status == EXTENDED_ADJTIME_MAGIC)
-+		txc->time = save_adjust;
-+	} else {
- 	    if (time_offset < 0)
- 		txc->offset = -(-time_offset >> SHIFT_UPDATE);
- 	    else
---- kernel/243timer.c	Mon Apr 16 20:34:29 2001
-+++ kernel/xxxtimer.c	Mon Apr 16 21:01:29 2001
-@@ -58,8 +58,7 @@
- long time_adj;				/* tick adjust (scaled 1 / HZ)	*/
- long time_reftime;			/* time at last adjustment (s)	*/
- 
--long time_adjust;
--long time_adjust_step;
-+struct timeval time_adjust;		/* remaining time adjustment */
- 
- unsigned long event;
- 
-@@ -461,8 +460,26 @@
- /* in the NTP reference this is called "hardclock()" */
- static void update_wall_time_one_tick(void)
- {
--	if ( (time_adjust_step = time_adjust) != 0 ) {
--	    /* We are doing an adjtime thing. 
-+	long time_adjust_step;
-+
-+	if ((time_adjust.tv_sec | time_adjust.tv_usec) != 0) {
-+	    time_adjust_step = time_adjust.tv_usec;
-+	    if (time_adjust_step > 0) {
-+		/* if we run out of microseconds, but have more seconds,
-+		 * borrow another second
-+		 */
-+		if (time_adjust_step < tickadj && time_adjust.tv_sec > 0) {
-+		    time_adjust_step = time_adjust.tv_usec += 1000000;
-+		    --time_adjust.tv_sec;
-+		}
-+	    } else {
-+		if (time_adjust_step > -tickadj && time_adjust.tv_sec < 0) {
-+		    time_adjust_step = time_adjust.tv_usec -= 1000000;
-+		    ++time_adjust.tv_sec;
-+		}
-+	    }
-+		    
-+	    /* We gave to complete the adjtime() thing. 
- 	     *
- 	     * Prepare time_adjust_step to be within bounds.
- 	     * Note that a positive time_adjust means we want the clock
-@@ -471,15 +488,16 @@
- 	     * Limit the amount of the step to be in the range
- 	     * -tickadj .. +tickadj
- 	     */
--	     if (time_adjust > tickadj)
-+	     if (time_adjust_step > tickadj)
- 		time_adjust_step = tickadj;
--	     else if (time_adjust < -tickadj)
-+	     else if (time_adjust_step < -tickadj)
- 		time_adjust_step = -tickadj;
- 	     
--	    /* Reduce by this step the amount of time left  */
--	    time_adjust -= time_adjust_step;
-+	    /* Reduce remaining correction by this step. Can't overflow */
-+	    time_adjust.tv_usec -= time_adjust_step;
-+	    xtime.tv_usec += time_adjust_step;
- 	}
--	xtime.tv_usec += tick + time_adjust_step;
-+	xtime.tv_usec += tick;
- 	/*
- 	 * Advance the phase, once it gets to one microsecond, then
- 	 * advance the tick more.
-
---Message-Boundary-28924--

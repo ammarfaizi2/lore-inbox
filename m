@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316623AbSHJHbH>; Sat, 10 Aug 2002 03:31:07 -0400
+	id <S316649AbSHJHyP>; Sat, 10 Aug 2002 03:54:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316629AbSHJHbG>; Sat, 10 Aug 2002 03:31:06 -0400
-Received: from webmail24.rediffmail.com ([203.199.83.146]:11650 "HELO
-	webmail24.rediffmail.com") by vger.kernel.org with SMTP
-	id <S316623AbSHJHbG>; Sat, 10 Aug 2002 03:31:06 -0400
-Date: 10 Aug 2002 07:34:40 -0000
-Message-ID: <20020810073440.2340.qmail@webmail24.rediffmail.com>
+	id <S316659AbSHJHyP>; Sat, 10 Aug 2002 03:54:15 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:36485 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316649AbSHJHyO> convert rfc822-to-8bit; Sat, 10 Aug 2002 03:54:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: HFS cleanup #1 - remove partition code
+Date: Sat, 10 Aug 2002 10:03:14 +0200
+User-Agent: KMail/1.4.1
+Cc: viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
+References: <200208092347.g79NlFF96768@saturn.cs.uml.edu>
+In-Reply-To: <200208092347.g79NlFF96768@saturn.cs.uml.edu>
 MIME-Version: 1.0
-From: "Karan  Misra" <k_i_d_o@rediffmail.com>
-Reply-To: "Karan  Misra" <k_i_d_o@rediffmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: More info !
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208101003.14158.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-About that disk problem,,
+Am Samstag, 10. August 2002 01:47 schrieb Albert D. Cahalan:
+> Oliver Neukum writes:
+> > this removes the independent partition code from hfs.
+> > This is the first patch taking an axe to hfs so it'll be in shape for
+> > 2.6. Does anybody object to it being sent to Linus ?
+>
+> I really hate to say it, but... yes. This is needed
+> for CD-ROMs.
 
-I more fact: I let it happen for about 8 mins... The thrasing 
-didnt stop( the HD was grinding, Seagate ATA100) and then the 
-Machine rebooted ... with some gibberish on the X screen... i run 
-RHL 7.3 (2.4.18)
+Oh shit. So it's either this, or pushing that into
+the CD layer. Are there plans to do that?
+Sessions properly done need it anyway.
 
-            Karan
-__________________________________________________________
-Give your Company an email address like
-ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
-Know more. http://www.rediffmailpro.com/signup/
+So for the time being I retract it.
+
+	Regards
+		Oliver
 

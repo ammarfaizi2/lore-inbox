@@ -1,31 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277970AbRJRSlv>; Thu, 18 Oct 2001 14:41:51 -0400
+	id <S277954AbRJRSlL>; Thu, 18 Oct 2001 14:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277966AbRJRSln>; Thu, 18 Oct 2001 14:41:43 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:31498 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S277957AbRJRSl2>; Thu, 18 Oct 2001 14:41:28 -0400
-Date: Thu, 18 Oct 2001 20:41:58 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: MIDN Sean Jones <eagle1701e@tfz.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: SMB compile problems
-In-Reply-To: <3BCCC13D.10404@tfz.net>
-Message-ID: <Pine.LNX.4.30.0110182036370.2004-100000@cola.teststation.com>
+	id <S277957AbRJRSlC>; Thu, 18 Oct 2001 14:41:02 -0400
+Received: from web20901.mail.yahoo.com ([216.136.226.223]:36747 "HELO
+	web20901.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277954AbRJRSkv>; Thu, 18 Oct 2001 14:40:51 -0400
+Message-ID: <20011018184124.57237.qmail@web20901.mail.yahoo.com>
+Date: Thu, 18 Oct 2001 11:41:24 -0700 (PDT)
+From: Ravi Chamarti <ravi_chamarti@yahoo.com>
+Subject: Re: Ref: zerocopy +netfilter performance problem.
+To: kuznet@ms2.inr.ac.ru, Ravi Chamarti <ravi_chamarti@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200110171818.WAA22378@ms2.inr.ac.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Oct 2001, MIDN Sean Jones wrote:
+Hi,
 
-> Starting around 2.4.10-ac10 I have been unable to compile the SMB 
-> filesystem. It drops out with an error in proc.c in the function 
-> smb_decode_long_dirent(). Thanks for the help.
+Thanks for your response Alexey. I appreciate it. 
 
-What's the error? It builds fine for me.
-(please include .config, compiler, distro, and any other relevant details)
+--- kuznet@ms2.inr.ac.ru wrote:
+> Hello!
+> 
+> > My question is that is this copy is required for
+> > netfilter to work? Do we somehow get around
+> > with netfilter to work such that the zerocopy path
+> > passes the packet without any copy?
+> 
+> Yes & yes.
+> 
+> Existing netfilter modules do not understand
+> fragmented skbs,
+> and as soon as netfilter folks are lazy even to move
+> the check
+> to relevant modules, even smart hooks has to be
+> harmed by this.
 
-/Urban
+How many netfilter modules exist which do not
+understand fragmented skbs and need to look at the
+skb data? 
 
+Will the following approach work? 
+
+if the somehow hook register shows interest only in
+header (by setting a flag, may be in nf_hooks_ops 
+struct), then we can avoid the copy of the fragmented
+skb's data and all other cases, we copy fragmented
+skb's data to a kernel buffer. The side effect is that
+a flag field is introduced into nf_hook_ops struct
+which makes netfilter modules to recompile. Are there
+any other side affects or better approaches?
+
+
+regards
+Ravi Chamarti
+
+
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

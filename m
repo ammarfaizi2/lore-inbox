@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129777AbRBEKkZ>; Mon, 5 Feb 2001 05:40:25 -0500
+	id <S130115AbRBEKoP>; Mon, 5 Feb 2001 05:44:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129504AbRBEKkP>; Mon, 5 Feb 2001 05:40:15 -0500
-Received: from deluge.umist.ac.uk ([130.88.120.66]:53004 "EHLO
-	deluge.umist.ac.uk") by vger.kernel.org with ESMTP
-	id <S130317AbRBEKj5>; Mon, 5 Feb 2001 05:39:57 -0500
-From: "Thomas Stewart" <T.Stewart@student.umist.ac.uk>
-To: Manfred Spraul <manfred@colorfullife.com>
-Date: Mon, 5 Feb 2001 10:41:23 -0000
+	id <S129504AbRBEKoG>; Mon, 5 Feb 2001 05:44:06 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:16097 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129912AbRBEKn5> convert rfc822-to-8bit; Mon, 5 Feb 2001 05:43:57 -0500
+Date: Mon, 5 Feb 2001 11:32:59 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Gérard Roudier <groudier@club-internet.fr>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrew Morton <andrewm@uow.edu.au>, Ingo Molnar <mingo@chiara.elte.hu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.0, 2.4.0-ac12: APIC lock-ups
+In-Reply-To: <Pine.LNX.4.10.10102031117430.893-100000@linux.local>
+Message-ID: <Pine.GSO.3.96.1010205112043.18067B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: d-link dfe-530 tx (bug-report)
-CC: Urban Widmark <urban@teststation.com>,
-        Jonathan Morton <chromi@cyberspace.org>, linux-kernel@vger.kernel.org,
-        ksa1 <ksa1@gmx.de>
-Message-ID: <3A7E8353.1100.2098EE7@localhost>
-In-Reply-To: <3A7E6670.4AD21D20@colorfullife.com>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Feb 2001, at 9:38, Manfred Spraul wrote:
+On Sat, 3 Feb 2001, [ISO-8859-1] Gérard Roudier wrote:
 
-> That's expected, my patch fixes another bug.
-> The NIC now recover from "Tx timeout" messages. ksa confirmed that,
-> but there is still a delay of a few seconds. I'll try to fix that.
-> 
-> > Then I applyed your patch and still changed nothing as you
-> > suspected. But there are regs that are different.
-> >
-> Did you run via-diag before or after loading the via-rhine module?
+> Note that tampering the IO/APIC after initializations looks extremally
+> ugly to me. In my opinion, only the local APIC was intended by Intel
+> designers to be accessed by CPU after initialization (I may be wrong
+> here).
 
-I compiled it into the kernel, I ran via-diag when it was working and 
-when it was not working.
+ In "82489DX Datasheet" Intel explicitly points to masking and unmasking
+an interrupt pin in an I/O APIC as one of three ways of controlling
+incoming interrupts (other two being the Task Priority Register in a local
+APIC and the IF flag in a CPU) at run time.  So far this is about the only
+exhaustive APIC architecture description (a few further hints are also
+present in "AP-388 82489DX User's Manual" but the datasheet is mostly a
+superset).  I haven't seen any other APIC architecture description -- all
+others are mostly register programming guidelines only.
 
-regards
-tom
+ Neither of these documents are available online, AFAIK.  Last year I
+asked Intel if providing electronic copies is possible, but they replied
+it's not. 
 
----------------------------------------------------------
- This message is ROT-13 encoded twice for extra security
- Thomas Stewart - t.stewart@student.umist.ac.uk
- This should contain no attachments
----------------------------------------------------------
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbTLSMzv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 07:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbTLSMyh
+	id S263402AbTLSM5R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 07:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTLSM4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 07:54:37 -0500
-Received: from mail.convergence.de ([212.84.236.4]:27322 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262762AbTLSM2k convert rfc822-to-8bit
+	Fri, 19 Dec 2003 07:56:17 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:42112 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263402AbTLSMrA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 07:28:40 -0500
-Subject: [PATCH 0/12] LinuxTV.org DVB+V4L fixes
-In-Reply-To: 
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Fri, 19 Dec 2003 13:28:38 +0100
-Message-Id: <10718369183635@convergence.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Michael Hunold <hunold@linuxtv.org>
+	Fri, 19 Dec 2003 07:47:00 -0500
+Message-ID: <3FE2F32E.3050202@cyberone.com.au>
+Date: Fri, 19 Dec 2003 23:46:38 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Xavier Bestel <xavier.bestel@free.fr>, Jonathan Corbet <corbet@lwn.net>,
+       Kendrick Hamilton <hamilton@sedsystems.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Device Drivers 3rd Edition
+References: <Pine.LNX.4.10.10312190344260.7879-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10312190344260.7879-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew, hello Linus,
 
-because of the "stable freeze" 2.6.0 release a bunch of patches
-for the DVB subsystem has piled up. 8-)
 
-These 12 patches try to sync the DVB drivers hosted by
-http://www.linuxtv.org with 2.6.0.
+Andre Hedrick wrote:
 
-As usual, detailed descriptions are at the beginning of each patch.
+>Well to be a little more prickly ...
+>
+>There are two other revisions I know of, Kernel Internals from the mid
+>90's and then the rare KHG by MKJ ?  The last KHG I recall was v0.[4,5,6] 
+>for a.out and the transition to elf.
+>
+>Cheers,
+>
+>Andre Hedrick
+>LAD Storage Consulting Group
+>
+>Point, the API is being documented, sometimes not as timely as desired.
+>
 
-Please note that patch "01-DVB-av7110-firmware-removal.diff" now
-finally removes the firmware blob for the dvb-ttpci driver, so the
-patch is quite large and has only been sent to you in a separate mail.
+Hi Andre
+Out of interest, does this have a legal (or other) significance?
 
-We're planning to remove the firmware files from other drivers as well.
+PS I don't want to start anything, just interested due to my (small)
+contributions to the code. Thanks.
 
-The firmware removal depends on the latest patch by Manuel Estrada Sainz
-<ranty@debian.org> which is currently only in the -mm
-tree.
-
-It fixes firmware_class to use a kernel_thread instead of scheduling
-a work queue which will freeze the system if you don't use the firmware
-hotplug systems. I hope it's ok if you apply this cross-subsystem patch
-this time, I'll write a separate mail to Manuel, too.
-
-Please apply.
-
-Thanks!
-Michael.
 

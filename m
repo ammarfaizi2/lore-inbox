@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289320AbSAIKYu>; Wed, 9 Jan 2002 05:24:50 -0500
+	id <S288662AbSAIKhA>; Wed, 9 Jan 2002 05:37:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289319AbSAIKYk>; Wed, 9 Jan 2002 05:24:40 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:4356 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S289318AbSAIKY2>; Wed, 9 Jan 2002 05:24:28 -0500
-Message-ID: <3C3C1A54.62DBF079@aitel.hist.no>
-Date: Wed, 09 Jan 2002 11:24:20 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-pre10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
-Subject: Re: fs corruption recovery?
-In-Reply-To: <3C3BB082.8020204@fit.edu>
-		<20020108200705.S769@lynx.adilger.int> <200201090326.g093QBF27608@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S289322AbSAIKgu>; Wed, 9 Jan 2002 05:36:50 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:37598 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S288662AbSAIKgf>; Wed, 9 Jan 2002 05:36:35 -0500
+Message-Id: <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 09 Jan 2002 10:38:56 +0000
+To: Greg KH <greg@kroah.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Cc: felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20020109043446.GB17655@kroah.com>
+In-Reply-To: <20020109042331.GB31644@codeblau.de>
+ <20020108192450.GA14734@kroah.com>
+ <20020109042331.GB31644@codeblau.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> 
-> Andreas Dilger writes:
-[...]
-> > Is the data really that valuable, and you don't have a backup?  It may
-> > cost you several thousand dollars to do a recovery from such a company.
-> > Yet, it isn't worth doing backups, it appears.
-> 
-> And these companies don't really do much that you can't do yourself. I
-> had a failing drive some years ago, where some sectors couldn't be
-> read. So I tried to dd the raw device to a file elsewhere. Of course,
-> dd will quit when it has an I/O error. So I wrote a recovery utility
-> that writes a zero sector if reading the input sector gives an I/O
-> error. Unfortunately, I couldn't mount the file (too much corruption),
-> but I was able to use debugfs on it. I got the most important data
-> back.
-> 
-> While I was waiting for 48 hours for the data to be pulled off (each
-> time a bad sector was encountered, the drive would retry several
-> times, with lots of clicking and rattling), I contacted one of these
-> recovery companies. I wanted to know if they could recover the bad
-> sectors. I was told no. After some probing, it turns out that all they
-> do is basically what I was doing. They just charge $2000 for it.
-> 
-> No doubt if you took your drive to your local CIA/KGB/MI6 offices,
-> they could recover some of those bad sectors. But I hear they charge
-> their customers quite a lot...
+At 04:34 09/01/02, Greg KH wrote:
+>On Wed, Jan 09, 2002 at 05:23:31AM +0100, Felix von Leitner wrote:
+> >
+> > How many programs are we talking about here?  And what should they do?
+>
+>Very good question that we should probably answer first (I'll follow up
+>to your other points in a separate message).
+>
+>Here's what I want to have in my initramfs:
+>         - /sbin/hotplug
+>         - /sbin/modprobe
+>         - modules.dep (needed for modprobe, but is a text file)
+>
+>What does everyone else need/want there?
 
-No need for CIA/KGB.  There are companies that do more than this.  
-If necessary, they disassemble the drive in a clean room and use 
-their own reading equipment.  This allows recovery
-from fried drive electronics and broken motors/heads.  And sometimes
-(partial) recovery from scratches and other bad sectors.
+It is planned to move partition discovery to userspace which would then 
+instruct the kernel of the positions of various partitions.
 
-If you really need this, consider
-http://www.ibasuk.com/technology/patan.htm
+The program(s) to do this will need to be in pretty much everyones initramfs...
 
-Helge Hafting
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

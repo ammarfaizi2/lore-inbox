@@ -1,92 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262371AbSI2CRf>; Sat, 28 Sep 2002 22:17:35 -0400
+	id <S262370AbSI2CRD>; Sat, 28 Sep 2002 22:17:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262372AbSI2CRf>; Sat, 28 Sep 2002 22:17:35 -0400
-Received: from [61.149.36.14] ([61.149.36.14]:62981 "HELO bj.soulinfo.com")
-	by vger.kernel.org with SMTP id <S262371AbSI2CRd>;
-	Sat, 28 Sep 2002 22:17:33 -0400
-Date: Sun, 29 Sep 2002 10:15:53 +0800
+	id <S262371AbSI2CRC>; Sat, 28 Sep 2002 22:17:02 -0400
+Received: from [61.149.36.14] ([61.149.36.14]:61957 "HELO bj.soulinfo.com")
+	by vger.kernel.org with SMTP id <S262370AbSI2CRC>;
+	Sat, 28 Sep 2002 22:17:02 -0400
+Date: Sun, 29 Sep 2002 10:15:23 +0800
 From: Hu Gang <hugang@soulinfo.com>
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: problem abort software suspend.
-Message-Id: <20020929101553.5ed77a54.hugang@soulinfo.com>
+Subject: a bug in 8250.c
+Message-Id: <20020929101523.2400f335.hugang@soulinfo.com>
 Organization: Beijing Soul
 X-Mailer: Sylpheed version 0.8.2claws28 (GTK+ 1.2.10; i386-linux-debian-i386-linux-gnu)
 Mime-Version: 1.0
 Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.5J1RqPy'M(DR:C"
+ micalg="pgp-sha1"; boundary="=.pceS+CCCdFk5'i"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.5J1RqPy'M(DR:C
+--=.pceS+CCCdFk5'i
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Hi Pavel Machek:
-  
-  I found result, That why my laptop without PM can do suspend/resume and with the PM can Not do suspend/resume. 
-  The problem is in 3c59x modules.
-  I write an mini script do suspend and resume. When stop the net interface and remove the 3c59x all is fine. But not remove the 3c59x modules, in resume will panic.
-  After it, I do the follow test. Change the 3c59x code. Now suspend and resume, the kernel not panic, and all is fine. But I see the "recall resume" from dmesg command, So that is the problem.
+Hi Russell King:
 
- Summarize: In resume progress have overlay device resume. 
+In serial8250_request_std_resource@825.c, if all is pass it return 0, or failed return -XX, But you use 
+        ret = serial8250_request_std_resource(up, &res_std);
+->      if (ret)
+                return;
+I'm guess it use as . 
+->      if (ret == 0) 
 
-I thinks add the check code in low level driver is not good idea. 
-----------------------------------------------------patch code-----------
- #ifdef CONFIG_PM
--
-+static int in_suspend = 0;
- static int vortex_suspend (struct pci_dev *pdev, u32 state)
- {
-        struct net_device *dev = pci_get_drvdata(pdev);
+After change code, 2.5.39 Can found my modem.
+Please check, If not proble, Please apply.
+--------------
+Here is the patch.
+--- 8250.c	Sat Sep 28 11:15:16 2002
++++ 8250.c~fix	Sat Sep 28 22:07:36 2002
+@@ -1564,7 +1564,7 @@
  
-+       if (in_suspend == 1) {
-+               printk("recall suspend\n");
-+               return 0;
-+       }
-+       printk("doing vortex suspend\n");
-+       in_suspend = 1;
-+
-        if (dev && dev->priv) {
-                if (netif_running(dev)) {
-                        netif_device_detach(dev);
-@@ -904,6 +911,13 @@
- static int vortex_resume (struct pci_dev *pdev)
- {
-        struct net_device *dev = pci_get_drvdata(pdev);
-+       
-+       if (in_suspend == 0) {
-+               printk("recall resume\n");
-+               return 0;
-+       }
-+       printk("doing vortex resume\n");
-+       in_suspend = 0;
+ 	if (up->port.type == PORT_RSA) {
+ 		ret = serial8250_request_rsa_resource(up, &res_rsa);
+-		if (ret)
++		if (ret == 0)
+ 			return ret;
+ 	}
  
-        if (dev && dev->priv) {
-                if (netif_running(dev)) {
+@@ -1611,11 +1611,11 @@
+ 	 * tells us whether we can probe for the type of port.
+ 	 */
+ 	ret = serial8250_request_std_resource(up, &res_std);
+-	if (ret)
++	if (ret == 0)
+ 		return;
+ 
+ 	ret = serial8250_request_rsa_resource(up, &res_rsa);
+-	if (ret)
++	if (ret == 0)
+ 		probeflags &= ~PROBE_RSA;
+ 
+ 	if (flags & UART_CONFIG_TYPE)
 
- 
-  
- 
-
-
- 
 
 -- 
 		- Hu Gang
 
 
 
---=.5J1RqPy'M(DR:C
+--=.pceS+CCCdFk5'i
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.0 (GNU/Linux)
 
-iD8DBQE9lmJZPM4uCy7bAJgRAomdAJsH/UnJ7ccU1KnV8CinQQFl8gAdxACggZ04
-Q7xNEPQLofyxTLO7BYrx9yE=
-=nAxQ
+iD8DBQE9lmI7PM4uCy7bAJgRAlVuAJ93cDWpJADxoD+U+qArzG7rBVb0HwCfeJ0u
+/gyFIgZuSc7ZGuRMIJ0lORw=
+=M2pp
 -----END PGP SIGNATURE-----
 
---=.5J1RqPy'M(DR:C--
+--=.pceS+CCCdFk5'i--

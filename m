@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263820AbUHJKEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUHJKHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263820AbUHJKEm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 06:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUHJKEm
+	id S263795AbUHJKHj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 06:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUHJKHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 06:04:42 -0400
-Received: from imap.gmx.net ([213.165.64.20]:28909 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263820AbUHJKD3 (ORCPT
+	Tue, 10 Aug 2004 06:07:39 -0400
+Received: from pop.gmx.de ([213.165.64.20]:65454 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263795AbUHJKHh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 06:03:29 -0400
+	Tue, 10 Aug 2004 06:07:37 -0400
 X-Authenticated: #4512188
-Message-ID: <41189D67.2090104@gmx.de>
-Date: Tue, 10 Aug 2004 12:03:19 +0200
+Message-ID: <41189E61.2000302@gmx.de>
+Date: Tue, 10 Aug 2004 12:07:29 +0200
 From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
 User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
 X-Accept-Language: en-us, en
@@ -43,20 +43,23 @@ Matthias Andree wrote:
 | of the reading drive not exporting such information and EFM and CIRC
 | usually correcting them, but it's still lower quality than a burn
 | process that hadn't needed burnfree at all.
-|
 
-Well shouldn't that broken pits just happen, wehn the buffer gets empty
-and the laser continues where it stopped after having data in buffer
-again? I guess this is better then a coaster.
-
-BTW, I don't have problems burning as a user while doing other things...
+Some addition: Even if your statement is correct, the data read is not
+different, as C1 error correction should mask it. Yes, the quality
+obviosly is lower, but most probably you won't notice it, unless the
+disk degrades with time/scratches and now more errors appear, so it
+isn't correctable anymore. But I think it is paranoic to rather have
+coasters than living with a bit less quality at some spots where buffer
+underruns occured.
 
 Prakash
+
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBGJ1nxU2n/+9+t5gRAjljAKCbjbxNX47d7//QDkQNP/e8OMB5aACfXFDa
-Z3CorT523TXskw4YEBMRaDk=
-=cpq7
+iD8DBQFBGJ5hxU2n/+9+t5gRAtDtAKCnOgqG+6PobYDcDuNxdA6zdjPQwACgxjxL
+Vy0KwpXHoMixCIvKeuxsZP0=
+=WEtE
 -----END PGP SIGNATURE-----

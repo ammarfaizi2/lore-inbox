@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290981AbSBGXbP>; Thu, 7 Feb 2002 18:31:15 -0500
+	id <S291038AbSBGXhP>; Thu, 7 Feb 2002 18:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291013AbSBGXbG>; Thu, 7 Feb 2002 18:31:06 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1799 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S290981AbSBGXa5>;
-	Thu, 7 Feb 2002 18:30:57 -0500
-Date: Thu, 7 Feb 2002 21:30:36 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Shawn Starr <shawn.starr@datawire.net>
-Cc: Linux <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with rmap-12c
-In-Reply-To: <1013121170.226.0.camel@unaropia>
-Message-ID: <Pine.LNX.4.33L.0202072129190.17850-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291068AbSBGXhG>; Thu, 7 Feb 2002 18:37:06 -0500
+Received: from ns.suse.de ([213.95.15.193]:12808 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S291038AbSBGXgy>;
+	Thu, 7 Feb 2002 18:36:54 -0500
+Date: Fri, 8 Feb 2002 00:36:53 +0100
+From: Dave Jones <davej@suse.de>
+To: Alex Riesen <fork0@users.sourceforge.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18-pre8-K2: Kernel panic: CPU context corrupt
+Message-ID: <20020208003653.A28235@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alex Riesen <fork0@users.sf.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020208001831.A200@steel>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020208001831.A200@steel>; from fork0@users.sf.net on Fri, Feb 08, 2002 at 12:18:31AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Feb 2002, Shawn Starr wrote:
-> On Thu, 2002-02-07 at 17:12, Rik van Riel wrote:
-> > On 7 Feb 2002, Louis Garcia wrote:
-> >
-> > > I tried rmap-12c and had lots of swap usage. I when back to 12a and
-> > > everything calmed down. Is their a known problem with 12c?
-> >
-> > Nope, but the RSS limit enforcing stuff is a possible
-> > suspect.
-> >
-> > It turns out I used a "struct pte_t" in over_rss_limit(),
-> > which turned into a compiler warning, for which I didn't
-> > spot the cause ;)
+On Fri, Feb 08, 2002 at 12:18:31AM +0100, Alex Riesen wrote:
+ 
+ > Feb  7 23:45:31 steel kernel: CPU 0: Machine Check Exception: 0000000000000004
+ > Feb  7 23:45:31 steel kernel: Bank 4: b200000000040151
+ > Feb  7 23:45:31 steel kernel: Kernel panic: CPU context corrupt
 
-> Please do :)
->
-> I've been noticing those same results.
+ Machine checks are indicative of hardware fault.
+ Overclocking, inadequate cooling and bad memory are the usual causes.
 
-OK, uploaded.  I'd love to hear if this stupid extra
-'struct' statement was causing the trouble or if there's
-a more fundamental problem with 12c.
+ > P.S. no nasty suspections about processor, please. No funds reserved
+ > for a new one :)
 
-cheers,
+ The truth hurts 8(
 
-Rik
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

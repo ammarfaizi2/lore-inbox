@@ -1,113 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUIETqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUIETxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267263AbUIETqi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 15:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUIETqC
+	id S267170AbUIETxO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 15:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267176AbUIETxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 15:46:02 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:40345 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S267186AbUIETpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 15:45:05 -0400
-From: Borislav Petkov <bbpetkov@yahoo.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: voluntary-preempt-2.6.7-vanilla-H4 function sleeps inside a spinlock, SOLVED?
-Date: Sun, 5 Sep 2004 21:15:40 +0200
-User-Agent: KMail/1.7
-References: <200409051653.02355.bbpetkov@yahoo.de>
-In-Reply-To: <200409051653.02355.bbpetkov@yahoo.de>
+	Sun, 5 Sep 2004 15:53:14 -0400
+Received: from web51105.mail.yahoo.com ([206.190.38.147]:41328 "HELO
+	web51105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267170AbUIETxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 15:53:11 -0400
+Message-ID: <20040905195310.60256.qmail@web51105.mail.yahoo.com>
+Date: Mon, 6 Sep 2004 05:53:10 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: nbd questions and problems
+To: Paul Clements <paul.clements@steeleye.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <413B40B3.1040009@steeleye.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1794317.mIN1tSaY3f";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409052115.44361.bbpetkov@yahoo.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1794317.mIN1tSaY3f
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+ --- Paul Clements <paul.clements@steeleye.com> wrote:
 
-On Sunday 05 September 2004 16:52, you wrote:
-> Hi,
->
-> I've applied the patch in the subject line and everything was running fine
-> for several  but today day, during heavy hd activity, i got the following:
->
-> Sep  5 16:34:13 gollum kernel: Debug: sleeping function called from inval=
-id
-> context pdflush(41) at fs/inode.c:245
-> Sep  5 16:34:13 gollum kernel: in_atomic():1, irqs_disabled():0
-> Sep  5 16:34:13 gollum kernel:  [dump_stack+30/48] dump_stack+0x1e/0x30
-> Sep  5 16:34:13 gollum kernel:  [__might_sleep+205/256]
-> __might_sleep+0xcd/0x100
-> Sep  5 16:34:13 gollum kernel:  [clear_inode+31/240] clear_inode+0x1f/0xf0
-> Sep  5 16:34:13 gollum kernel:  [generic_delete_inode+206/768]
-> generic_delete_inode+0xce/0x300
-> Sep  5 16:34:13 gollum kernel:  [iput+100/144] iput+0x64/0x90
-> Sep  5 16:34:13 gollum kernel:  [dput+554/1840] dput+0x22a/0x730
-> Sep  5 16:34:13 gollum kernel:  [release_task+548/880]
-> release_task+0x224/0x370
-> Sep  5 16:34:13 gollum kernel:  [do_exit+1369/2528] do_exit+0x559/0x9e0
-> Sep  5 16:34:13 gollum kernel:  [kernel_thread_helper+11/16]
-> kernel_thread_helper+0xb/0x10
-> Sep  5 16:34:13 gollum kernel:
-> Sep  5 16:34:50 gollum kernel: Debug: sleeping function called from inval=
-id
-> context pdflush(42) at fs/inode.c:245
-> Sep  5 16:34:50 gollum kernel: in_atomic():1, irqs_disabled():0
-> Sep  5 16:34:50 gollum kernel:  [dump_stack+30/48] dump_stack+0x1e/0x30
-> Sep  5 16:34:50 gollum kernel:  [__might_sleep+205/256]
-> __might_sleep+0xcd/0x100
-> Sep  5 16:34:50 gollum kernel:  [clear_inode+31/240] clear_inode+0x1f/0xf0
-> Sep  5 16:34:50 gollum kernel:  [generic_delete_inode+206/768]
-> generic_delete_inode+0xce/0x300
-> Sep  5 16:34:50 gollum kernel:  [iput+100/144] iput+0x64/0x90
-> Sep  5 16:34:50 gollum kernel:  [dput+554/1840] dput+0x22a/0x730
-> Sep  5 16:34:50 gollum kernel:  [release_task+548/880]
-> release_task+0x224/0x370
-> Sep  5 16:34:50 gollum kernel:  [do_exit+1369/2528] do_exit+0x559/0x9e0
-> Sep  5 16:34:50 gollum kernel:  [kernel_thread_helper+11/16]
-> kernel_thread_helper+0xb/0x10
-> Sep  5 16:34:50 gollum kernel:
->
-> I have also several ACPI patches applied but I think this is
-> unrelated. .config attached.
->
-> Regards,
-> Boris.
+>  > It seems fine, but when the system touch swap
+> there are error in the
+>  > kernel log
+>  >
+>  > nbd0 Receive control failed result -104
+>  >
+>  > and the server exited .
+> 
+> Well, -104 is Connection reset by peer. Nothing in
+> nbd would cause that 
+> directly. Without seeing the error messages from the
+> nbd-server it's 
+> hard to tell, but I suspect that either nbd-server
+> is dying at startup 
 
-Ok, since I'm no expert I went for the obvious solution and removed the=20
-preemption point in fs/inode.c,245:
+Nope, when I start the server it is running (waiting
+for communication. When the client connect it is still
+running (it print some thing like begin loop
+request..). It only exited to the bash prompt without
+any message. The syslog has a message (just found it)
 
-void clear_inode(struct inode *inode)
-{
-    /* might_sleep(); */
-    invalidate_inode_buffers(inode);
+nbd_server[16808]: Request too big!
 
-    if (inode->i_data.nrpages)
+probably is the reason why the server exited.
 
-However, maybe a more elegant solution would be preferrable. In addition, I=
-=20
-don't see the same preemption point in the latest patch - =20
-voluntary-preempt-2.6.9-rc1-bk4-R4.patch.
+> (check the syslog on the server, a common cause is
+> failure to open the 
+> file/partition) or you have some sort of networking
+> issue. Can you 
+> otherwise communicate between the two systems over a
+> TCP connection ?
 
-Regards,
-Boris.
+I am sure the file is ok ; the communication is ok. As
+later I succesfully ran enbd reliably (only with
+2.4.27 in client, the 2.6.7 OOPs) so we can confirm
+the TCP is good AFAIK enbd uses the same protocol. Can
+ssh between the two machine, can http (run web browser
+in client and access a page served by the server box
+vise versa).
 
---nextPart1794317.mIN1tSaY3f
-Content-Type: application/pgp-signature
+I will do more testing today. I need 2.6.8 kernel in
+the client.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Kind regards,
 
-iD8DBQBBO2XgQ6NBq1iMuxERAiVdAKCkXQ8129PpgC6GpsvhopWOC/gsXgCfVX0m
-LCEABNUNm+2D+tUYTJOeX5Q=
-=Sp10
------END PGP SIGNATURE-----
 
---nextPart1794317.mIN1tSaY3f--
+
+=====
+S.KIEU
+
+Find local movie times and trailers on Yahoo! Movies.
+http://au.movies.yahoo.com

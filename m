@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129153AbQKXDX5>; Thu, 23 Nov 2000 22:23:57 -0500
+        id <S129153AbQKXEGo>; Thu, 23 Nov 2000 23:06:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129219AbQKXDXr>; Thu, 23 Nov 2000 22:23:47 -0500
-Received: from [209.249.10.20] ([209.249.10.20]:65244 "EHLO
-        freya.yggdrasil.com") by vger.kernel.org with ESMTP
-        id <S129153AbQKXDXa>; Thu, 23 Nov 2000 22:23:30 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 23 Nov 2000 18:53:07 -0800
-Message-Id: <200011240253.SAA07442@baldur.yggdrasil.com>
-To: jsk@mojave.stanford.edu, ran@krazynet.com
-Subject: imsttfb.c PCI ID's?
-Cc: linux-kernel@vger.kernel.org
+        id <S129219AbQKXEGe>; Thu, 23 Nov 2000 23:06:34 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:40458 "EHLO
+        wire.cadcamlab.org") by vger.kernel.org with ESMTP
+        id <S129153AbQKXEG1>; Thu, 23 Nov 2000 23:06:27 -0500
+Date: Thu, 23 Nov 2000 21:36:22 -0600
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: beware of dead string constants
+Message-ID: <20001123213622.A8881@wire.cadcamlab.org>
+In-Reply-To: <E13z5nt-0007ig-00@calista.inka.de> <3A1DAAAD.28786302@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A1DAAAD.28786302@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Nov 23, 2000 at 06:39:25PM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	In writing a pci_device_id table for
-linux-2.4.0-test11/drivers/video/imsttfb.c, I see that that driver
-theoretically attepts to bind to any PCI video display with
-a vendor ID set to PCI_VENDOR_ID_IMS, although the code does
-mention device ID's 0x9128 and 0x9135.  Does anybody know if
-there are other device ID's besides 0x9128 and 0x9135 that
-imsttfb.c is interested in, or is it OK to write the
-pci_device_id table to just specify those two rather than all
-PCI video cards made by IMS?
+[Jeff Garzik]
+> If you mean preferring 'if ()' over 'ifdef'... Linus.  :) And I agree
+> with him: code looks -much- more clean without ifdefs.  And the
+> compiler should be smart enough to completely eliminate code inside
+> an 'if (0)' code block.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+Plus the advantage/disadvantage of making the compiler parse almost
+everything, which should eliminate syntax errors, variable name
+misspellings, etc in little-used config options.  The disadvantage is
+that compilation speed goes down.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,91 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbTIQPg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 11:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbTIQPg0
+	id S261893AbTIQQQx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 12:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbTIQQQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 11:36:26 -0400
-Received: from shockwave.systems.pipex.net ([62.241.160.9]:20414 "EHLO
-	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S262782AbTIQPgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 11:36:22 -0400
-From: Angus Sawyer <angus.sawyer@dsl.pipex.com>
-Reply-To: angus.sawyer@dsl.pipex.com
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] loop driver kernel thread module reference fix
-Date: Wed, 17 Sep 2003 16:28:53 +0100
-User-Agent: KMail/1.5.3
+	Wed, 17 Sep 2003 12:16:53 -0400
+Received: from magic-mail.adaptec.com ([216.52.22.10]:51131 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S261175AbTIQQQv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 12:16:51 -0400
+Date: Wed, 17 Sep 2003 10:20:02 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Olivier Galibert <olivier.galibert@limsi.fr>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: AIC7xxx LUN enumeration failure and DV config failure
+Message-ID: <2589900000.1063815602@aslan.btc.adaptec.com>
+In-Reply-To: <20030917130656.GA2948@m23.limsi.fr>
+References: <20030917130656.GA2948@m23.limsi.fr>
+X-Mailer: Mulberry/3.1.0b6 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200309171628.55240.angus.sawyer@dsl.pipex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> We have two transtec 5016 IDE disks/SCSI interface raid arrays
+> connected to a motherboard Adaptec AIC7902 Ultra320 SCSI adapter on
+> scsi1.  Each is split in two LUNs, 2x1.4Tb for the first and 2x2Tb for
+> the second.
 
-the loop driver does not hold module references for the kernel_thread, and 
-does not appear to wait for thread termination at any point.  
+...
 
-This patch associates the ref counting with the kernel thread which covers
-the existing set/clear fd interval.
+> Sep 17 14:41:42 m61 kernel: scsi1:A:0:0: DV failed to configure device.  Please file a bug report against this driver.
+> Sep 17 14:41:42 m61 kernel: scsi1:A:1:0: DV failed to configure device.  Please file a bug report against this driver.
 
-Hope this is OK.
+In the case of SCSI-IDE RAID arrays, many of which are of questionable
+quality, this typically means that the device is not providing a valid
+echo buffer size for performing domain validation.  In this case, the
+driver defaults to running at the maximum speed supported by the device,
+but also prints out a diagnostic.  I plan to remove the diagnostic for
+the echo buffer issue since there seem to be lots of broken devices
+out there.
 
- drivers/block/loop.c |   10 +++-------
- 1 files changed, 3 insertions(+), 7 deletions(-)
+Your RAID array only supports U160, so it only runs at that speed.
+This has everything to do with the device, and nothing to do with the
+aic79xx controller/driver.
 
-diff -puN drivers/block/loop.c~loop drivers/block/loop.c
---- linux-2.6.0-test5/drivers/block/loop.c~loop	2003-09-17 16:16:19.447291752 
-+0100
-+++ linux-2.6.0-test5-angus/drivers/block/loop.c	2003-09-17 16:25:55.103778664 
-+0100
-@@ -651,7 +651,7 @@ static int loop_thread(void *data)
- 	}
- 
- 	up(&lo->lo_sem);
--	return 0;
-+	module_put_and_exit(0);
- }
- 
- static int loop_set_fd(struct loop_device *lo, struct file *lo_file,
-@@ -664,9 +664,6 @@ static int loop_set_fd(struct loop_devic
- 	int		lo_flags = 0;
- 	int		error;
- 
--	/* This is safe, since we have a reference from open(). */
--	__module_get(THIS_MODULE);
--
- 	error = -EBUSY;
- 	if (lo->lo_state != Lo_unbound)
- 		goto out;
-@@ -757,6 +754,8 @@ static int loop_set_fd(struct loop_devic
- 		blk_queue_merge_bvec(lo->lo_queue, q->merge_bvec_fn);
- 	}
- 
-+	/* This is safe, since we have a reference from open(). */
-+	__module_get(THIS_MODULE);
- 	kernel_thread(loop_thread, lo, CLONE_FS | CLONE_FILES | CLONE_SIGHAND);
- 	down(&lo->lo_sem);
- 
-@@ -767,7 +766,6 @@ static int loop_set_fd(struct loop_devic
- 	fput(file);
-  out:
- 	/* This is safe: open() is still holding a reference. */
--	module_put(THIS_MODULE);
- 	return error;
- }
- 
-@@ -849,8 +847,6 @@ static int loop_clr_fd(struct loop_devic
- 	mapping_set_gfp_mask(filp->f_dentry->d_inode->i_mapping, gfp);
- 	lo->lo_state = Lo_unbound;
- 	fput(filp);
--	/* This is safe: open() is still holding a reference. */
--	module_put(THIS_MODULE);
- 	return 0;
- }
- 
+As to the LUN issues, as already pointed out by others, it looks like
+the report luns support in this device is broken.  Perhaps the vendor
+has a firmware update available.
 
-_
+--
+Justin
 

@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbVAQL4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262778AbVAQL7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262777AbVAQL4a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 06:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbVAQL4a
+	id S262778AbVAQL7a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 06:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbVAQL7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 06:56:30 -0500
-Received: from sommereik.ii.uib.no ([129.177.16.236]:38814 "EHLO
-	sommereik.ii.uib.no") by vger.kernel.org with ESMTP id S262777AbVAQL4Z
+	Mon, 17 Jan 2005 06:59:30 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:34738 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S262778AbVAQL70
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 06:56:25 -0500
-Date: Mon, 17 Jan 2005 12:55:42 +0100
-From: Jan-Frode Myklebust <Jan-Frode.Myklebust@bccs.uib.no>
-To: Jakob Oestergaard <jakob@unthought.net>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
-       linux-kernel@vger.kernel.org, kruty@fi.muni.cz
-Subject: Re: XFS: inode with st_mode == 0
-Message-ID: <20050117115542.GA28901@ii.uib.no>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Christoph Hellwig <hch@infradead.org>,
-	David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
-	linux-kernel@vger.kernel.org, kruty@fi.muni.cz
-References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org> <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net> <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com> <20050114182308.GE347@unthought.net> <20050116135112.GA24814@infradead.org> <20050117100746.GI347@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050117100746.GI347@unthought.net>
+	Mon, 17 Jan 2005 06:59:26 -0500
+Message-ID: <41EBA8AD.3060302@drzeus.cx>
+Date: Mon, 17 Jan 2005 12:59:41 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Richard Purdie <rpurdie@rpsys.net>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: MMC Driver RFC
+References: <021901c4f8eb$1e9cc4d0$0f01a8c0@max> <20050112214345.D17131@flint.arm.linux.org.uk> <023c01c4f8f3$1d497030$0f01a8c0@max> <20050112221753.F17131@flint.arm.linux.org.uk> <41E5B177.4060307@f2s.com> <41E7AF11.6030005@drzeus.cx> <41E7DD5E.5070901@f2s.com> <41EA5C8D.8070407@drzeus.cx> <41EA69F0.5060500@f2s.com> <41EAC3FD.1070001@drzeus.cx> <047701c4fc21$a1579b50$0f01a8c0@max> <41EB5610.1080708@drzeus.cx> <00d501c4fc7a$76ef9940$0f01a8c0@max>
+In-Reply-To: <00d501c4fc7a$76ef9940$0f01a8c0@max>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 11:07:46AM +0100, Jakob Oestergaard wrote:
-> 
-> Where should I begin?  ;)
+Richard Purdie wrote:
 
-Guess we've been struggeling with much of the same problems..
+> Pierre Ossman:
+>
+>> I, personally, would really like to see SD support included in the 
+>> main kernel. But I can also fully understand if that's not currently 
+>> possible.
+>
+> I think the way forward is for someone to propose a patch. Your code 
+> sounds the most advanced but Ian or myself may be prepared to propose 
+> something if you don't want to. A decision can then be made about 
+> whether it can be accepted. There have been no objections raised so 
+> far - just words of caution.
 
-> -------
-> Scenario 2: Mailservers:
->   Running XFS on mailqueue:
+I have no problem with proposing my patch. The reason I've been waiting 
+is that I got information from Jim Getttys (of HP) that the SD spec. 
+would be made public very soon. So I was waiting for it to be released 
+so that we could avoid the legal discussion completely. This was in 
+october though and I haven't been able to reach him for an update. So 
+perhaps it's time to try a submission notetheless.
 
-The 2.6.10-1.737_FC3 + 's/posix_lock_file/posix_lock_file_wait/' on
-fs/nfs/file.c seems stable on our mailserver running XFS on
-mail queue and spool (mbox). 4 days of uptime! 
+What is Russell's position on this issue? After all the MMC layer is his 
+baby ;)
 
-> 
-> =======
-> Resolution to the storage server problem:
->  2.6.8.1 UP is stable (but oopses regularly after memory allocation
->  failures)
+Rgds
+Pierre
 
-My XFS-fileserver ran 2.6.9-rc3 stable since october 25. Got lots of
-"possible deadlock in kmem_alloc (mode:0xd0)" this weekend, so I
-upgraded to plain 2.6.10. Seems OK so far. 
-
-> 
-> Hardware on all servers: IBM x335 and x345.
-
-Mail servers: Dell 2650, IBM ServeRAID 6M, EXP400.
-File servers: IBM x330, qla2300, infortrend eonstor.
-
-All running Whitebox/centos RHEL clone.
-
-
-  -jf

@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVANKrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVANKut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbVANKrm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 05:47:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVANKrl
+	id S261948AbVANKut (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 05:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVANKut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 05:47:41 -0500
-Received: from colin2.muc.de ([193.149.48.15]:36103 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261948AbVANKre (ORCPT
+	Fri, 14 Jan 2005 05:50:49 -0500
+Received: from tornado.reub.net ([60.234.136.108]:19600 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S261948AbVANKun (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 05:47:34 -0500
-Date: 14 Jan 2005 11:47:32 +0100
-Date: Fri, 14 Jan 2005 11:47:32 +0100
-From: Andi Kleen <ak@muc.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: clameter@sgi.com, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview II
-Message-ID: <20050114104732.GB72915@muc.de>
-References: <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com> <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com> <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com> <20050114043944.GB41559@muc.de> <m14qhkr4sd.fsf_-_@muc.de> <1105678742.5402.109.camel@npiggin-nld.site>
+	Fri, 14 Jan 2005 05:50:43 -0500
+Message-Id: <6.2.0.14.2.20050114233439.01cbb8d8@tornado.reub.net>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.0.14
+Date: Fri, 14 Jan 2005 23:50:39 +1300
+To: linux-kernel@vger.kernel.org
+From: Reuben Farrelly <reuben-lkml@reub.net>
+Subject: Breakage with raid in 2.6.11-rc1-mm1 [Regression in mm]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105678742.5402.109.camel@npiggin-nld.site>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a question for the x86 gurus. We're currently using the lock
-> prefix for set_64bit. This will lock the bus for the RMW cycle, but
-> is it a prerequisite for the atomic 64-bit store? Even on UP?
+Something seems to have broken with 2.6.11-rc1-mm1, which worked ok with 
+2.6.10-mm3.
 
-An atomic 64bit store doesn't need a lock prefix. A cmpxchg will
-need to though. Note that UP kernels define LOCK to nothing.
+NET: Registered protocol family 17
+Starting balanced_irq
+BIOS EDD facility v0.16 2004-Jun-25, 2 devices found
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+VFS: Waiting 19sec for root device...
+VFS: Waiting 18sec for root device...
+VFS: Waiting 17sec for root device...
+VFS: Waiting 16sec for root device...
+VFS: Waiting 15sec for root device...
+VFS: Waiting 14sec for root device...
+VFS: Waiting 13sec for root device...
+VFS: Waiting 12sec for root device...
+VFS: Waiting 11sec for root device...
+VFS: Waiting 10sec for root device...
+VFS: Waiting 9sec for root device...
+VFS: Waiting 8sec for root device...
+VFS: Waiting 7sec for root device...
+VFS: Waiting 6sec for root device...
+VFS: Waiting 5sec for root device...
+VFS: Waiting 4sec for root device...
+VFS: Waiting 3sec for root device...
+VFS: Waiting 2sec for root device...
+VFS: Waiting 1sec for root device...
+VFS: Cannot open root device "md2" or unknown-block(0,0)
+Please append a correct "root=" boot option
+Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
 
--Andi
+The system is running 5 RAID-1 partitions, and md2 is the root as per 
+grub.conf.  Problem seems to be that raid autodetection finds no raid 
+partitions :(
+
+The two ST380013AS SATA drives are detected earlier in the boot, so I don't 
+think that's the problem..
+
+Reuben
+

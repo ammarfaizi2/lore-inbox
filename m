@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269233AbUINVim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUINVgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269233AbUINVim (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 17:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269231AbUINVgy
+	id S266186AbUINVgb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 17:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUINVer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 17:36:54 -0400
-Received: from mail.kroah.org ([69.55.234.183]:52378 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269247AbUINVfy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 17:35:54 -0400
-Date: Tue, 14 Sep 2004 14:35:06 -0700
-From: Greg KH <greg@kroah.com>
-To: "Giacomo A. Catenazzi" <cate@pixelized.ch>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Giacomo A. Catenazzi" <cate@debian.org>, linux-kernel@vger.kernel.org,
-       Tigran Aivazian <tigran@veritas.com>, md@Linux.IT
-Subject: Re: udev is too slow creating devices
-Message-ID: <20040914213506.GA22637@kroah.com>
-References: <41473972.8010104@debian.org> <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch>
+	Tue, 14 Sep 2004 17:34:47 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:48620 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S266186AbUINV3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 17:29:49 -0400
+Subject: Re: [ACPI Debug] String: Length 0x0F, "Entering RTMP()"
+From: Len Brown <len.brown@intel.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <20040914061641.GD2336@suse.de>
+References: <20040914061641.GD2336@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095197368.5430.8.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <414757FD.5050209@pixelized.ch>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 14 Sep 2004 17:29:29 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 10:43:41PM +0200, Giacomo A. Catenazzi wrote:
-> The "bug" appear only in two places: at udev start and after
-> a modprobe, so IMHO we should correct these two place, so that:
-> - from a user side perspective it is the right thing!
->   (after a successful modprobe, I expect module and devices
->    are created sussesfully)
+On Tue, 2004-09-14 at 02:16, Jens Axboe wrote:
+> Hi,
+> 
+> 2.6.9-rc2 is throwing a lot of these errors on my system:
+> 
+> [ACPI Debug] String: Length 0x0F, "Entering RTMP()"
+> [ACPI Debug] String: Length 0x0F, "Entering TIN2()"
+> [ACPI Debug] String: Length 0x0F, "Existing RTMP()"
+> 
+> About 450 of these three lines repeated so far, seem to get one every
+> 5
+> seconds or so. Box is an Athlon64 solo, let me know if you want more
+> info (and what).
+> 
+> --
+> Jens Axboe
 
-That "expectation" is incorrect.  The device node will show up any time
-after modprobe has started, just because modprobe returns does not mean
-the device node is present.
+These are due to debug statements in your BIOS AML code.
+The Linux AML interpreter recognizes them and sends
+them to the console.
 
-> - there are not many special case:
->   with udev use dev.d, else do actions now!
+Start by checking that you're running a production BIOS.
 
-I don't understand what you are proposing.
+echo 0 >/proc/acpi/debug_level should make them go away.
 
-> Else every distribution should create a script for
-> every init.d script that would eventually use (also
-> indirectly) a kernel module.
+cheers,
+-Len
 
-What's wrong with the /etc/dev.d/ location for any type of script that
-you want to run after a device node has appeared?  This is an
-application specific issue, not a kernel issue.
 
-thanks,
-
-greg k-h

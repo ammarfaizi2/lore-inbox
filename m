@@ -1,80 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265855AbTGACcr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 22:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbTGACcq
+	id S264731AbTGACsA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 22:48:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTGACsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 22:32:46 -0400
-Received: from holomorphy.com ([66.224.33.161]:53931 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265855AbTGACcp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 22:32:45 -0400
-Date: Mon, 30 Jun 2003 19:46:59 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.73-mm2
-Message-ID: <20030701024659.GD26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030627202130.066c183b.akpm@digeo.com> <20030701003958.GB20413@holomorphy.com> <20030630191456.1aef22e0.akpm@digeo.com>
+	Mon, 30 Jun 2003 22:48:00 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:4478 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264731AbTGACr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 22:47:58 -0400
+Date: Mon, 30 Jun 2003 20:02:37 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: mel@csn.ul.ie, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: What to expect with the 2.6 VM
+Message-Id: <20030630200237.473d5f82.akpm@digeo.com>
+In-Reply-To: <20030701022516.GL3040@dualathlon.random>
+References: <Pine.LNX.4.53.0307010238210.22576@skynet>
+	<20030701022516.GL3040@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030630191456.1aef22e0.akpm@digeo.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Jul 2003 03:02:20.0199 (UTC) FILETIME=[2FCDE370:01C33F7D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->>  @@ -217,9 +217,9 @@ void out_of_memory(void)
->>   	unsigned long now, since;
->>   
->>   	/*
->>  -	 * Enough swap space left?  Not OOM.
->>  +	 * Enough swap space and ZONE_NORMAL left?  Not OOM.
->>   	 */
->>  -	if (nr_swap_pages > 0)
->>  +	if (nr_swap_pages > 0 && nr_free_buffer_pages() + nr_used_low_pages() > 0)
->>   		return;
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> On Tue, Jul 01, 2003 at 02:39:47AM +0100, Mel Gorman wrote:
+> >    Reverse Page Table Mapping
+> >    ==========================
+> ...
+> 
+> you mention only the positive things, and never the fact that's the most
+> hurting piece of kernel code in terms of performance and smp scalability
+> until you actually have to swapout or pageout.
 
-On Mon, Jun 30, 2003 at 07:14:56PM -0700, Andrew Morton wrote:
-> a) if someone is trying to allocate some ZONE_DMA pages and there are
->    still swappable or free ZONE_NORMAL pages, nobody gets killed.
-
-This is yet another problem for the method above. =(
+It has no SMP scalability cost, and not really much CPU cost (it's less
+costly than HZ=1000, for example).  Its main problem is space consumption.
 
 
-On Mon, Jun 30, 2003 at 07:14:56PM -0700, Andrew Morton wrote:
-> b) If there are free ZONE_NORMAL pages then why on earth did we call
->    out_of_memory()?  Does nr_free_buffer_pages() ever return non-zero in
->    here?  It will do so for a ZONE_DMA allocation, but you're not doing
->    them...
+> >    Non-Linear Populating of Virtual Areas
+> >    ======================================
+> ...
+> 
+> and it was used to break truncate,
 
-Allocations will enter this path if free memory is below the minimum
-page thresholds, since the allocation will be sort of artificially
-failed. Basically, with this in place it's more likely to livelock than
-to go on killing sprees. There's a small amount of empirical evidence
-suggesting this avoids livelocking in some common scenarios, though
-that really isn't good enough for this kind of affair.
+Spose so.  Do we care though?  Unix standards do not specify truncate
+behaviour with nonlinear mappings anyway.
 
-
-On Mon, Jun 30, 2003 at 07:14:56PM -0700, Andrew Morton wrote:
-> Generally, I'm thinking that this test should just be removed.  It is
-> the responsibility of try_to_free_pages() to work out whether the
-> allocation can succeed.
-> If try_to_free_pages() calls out_of_memory() when there are still
-> swappable, reclaimable or free pages in the relevant zones then
-> try_to_free_pages() goofed, and needs mending.  out_of_memory()
-> shouldn't be cleaning up after try_to_free_pages()'s mistakes.
-> I have a bad feeling that it _will_ goof.  A long time ago I looked
-> at the amount of scanning we're doing in there and decided that it
-> was way overkill and reduced it by a lot.  I may have gone overboard.  
-> So how's about I and thy take that test out, see how things get along?
-
-I'm not particularly attached to the method, only the result, so I'm game.
+Our behaviour right now is "random crap".  If there's a reason why we want
+consistent semantics then yes, we'll need to do an rmap walk or something
+in there.  But is there a requirement?  What is it?
 
 
--- wli
+One thing which clearly _should_ have sane semantics with nonlinear
+mappings is mincore().  MAP_NONLINEAR broke that too.
+
+
+> >    the flags are implemented in many different parts of the kernel.
+> >    The
+> >    NOFAIL flag requires teh VM to constantly retry an allocation until it
+> 
+> described this way it sounds like NOFAIL imply a deadlock condition.
+
+NOFAIL is what 2.4 has always done, and has the deadlock opportunities
+which you mention.  The other modes allow the caller to say "don't try
+forever".
+
+It's mainly a cleanup - it allowed the removal of lots of "try forever"
+loops by consolidating that behaviour in the page allocator.  If all
+callers are fixed up to not require NOFAIL then we don't need it any more.
+
+> as for the per-zone lists, sure they increase scalability, but it loses
+> aging information, the worst case will be reproducible on a 1.6G box,
+
+Actually it improves aging information.  Think of a GFP_KERNEL allocation
+on an 8G 2.4.x box: an average of 10 or more highmem pages get bogusly
+rotated to the wrong end of the LRU for each scanned lowmem page.
+
+That's speculation btw.  I don't have any numbers or tests which indicate
+that it was a net win in this regard.
+
+

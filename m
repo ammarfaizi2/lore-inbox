@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314403AbSEBNVg>; Thu, 2 May 2002 09:21:36 -0400
+	id <S314409AbSEBNZF>; Thu, 2 May 2002 09:25:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314404AbSEBNVf>; Thu, 2 May 2002 09:21:35 -0400
-Received: from h24-68-93-250.vc.shawcable.net ([24.68.93.250]:57984 "EHLO
-	me.bcgreen.com") by vger.kernel.org with ESMTP id <S314403AbSEBNVe>;
-	Thu, 2 May 2002 09:21:34 -0400
-Message-ID: <3CD13D58.7020000@bcgreen.com>
-Date: Thu, 02 May 2002 06:21:28 -0700
-From: Stephen Samuel <samuel@bcgreen.com>
-Organization: Just Another Radical
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020427
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Userspace proglem [Fwd: Re: A CD with errors (scratches etc.) blocks
- the whole system while	reading damadged files]
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S314413AbSEBNZE>; Thu, 2 May 2002 09:25:04 -0400
+Received: from ns.suse.de ([213.95.15.193]:5138 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314409AbSEBNZD>;
+	Thu, 2 May 2002 09:25:03 -0400
+Date: Thu, 2 May 2002 15:25:02 +0200
+From: Dave Jones <davej@suse.de>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
+        cpufreq@www.linux.org.uk
+Subject: Re: AMD PowerNow booboo in 2.4.19-pre7-ac3
+Message-ID: <20020502152502.I16935@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Russell King <rmk@arm.linux.org.uk>, CaT <cat@zip.com.au>,
+	linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+In-Reply-To: <20020502085137.GP14678@zip.com.au> <20020502101723.B23709@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Xavier Bestel <xavier.bestel@free.fr>
-> 
-> Le jeu 02/05/2002 à 10:26, Stephen Samuel a écrit :
->> I ran a similar type of test on a 2.4.9.31 (redhat 7.1 ) kernel.
->> With the CD on HDD, I could read off of HDA just peachy while
->> the system was choking on a scratched (aol) cd.
-> 
-> The "system grinding to a halt" happens to me too, when *ripping*
-> scratched cds. Note that it's when using *userspace* access to the block
-> device, with e.g. cdparanoia or grip (or dvd ripping tools).
-> 
-> My DVD drive is on a VT82C693A/694x (ABit VP6).
+On Thu, May 02, 2002 at 10:17:23AM +0100, Russell King wrote:
+ > >  MODULE_LICENSE ("GPL");
+ > >  module_init(PowerNow_k6plus_init);
+ > >  module_exit(PowerNow_k6plus_exit);
+ > > -__initcall (PowerNOW_k6plus_init);
+ > > +__initcall (PowerNow_k6plus_init);
+ > > 
+ > Hmm, that looks really odd - module_init() should be identical to __initcall
+ > when built into the kernel.  Copied to the cpufreq list.
 
-A very important distinction. I'm not willing to sacrifice any of my
-music CDs to the experiment, but if userspace reads are what block the
-whole system, that explains why everybody claims that everybody else
-is crazy.  All of my tests have been pure kernel-space (fs) accesses,
-This is probably why I haven't seen any blockages.
-
-Moral of the story: don't rip scratched CDs on server boxes
-(at least -- nut until this is fixed, anyways).
+Odd, Alan must have merged an old version of the cvs tree, as the
+initcalls were nuked a long time ago there iirc. They're certainly not
+in my copy of the current tree
 
 -- 
-Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
-		   http://www.bcgreen.com/~samuel/
-Powerful committed communication, reaching through fear, uncertainty and
-doubt to touch the jewel within each person and bring it to life.
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

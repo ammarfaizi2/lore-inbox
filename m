@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbUL2T26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbUL2Tdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbUL2T26 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 14:28:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUL2T26
+	id S261400AbUL2Tdm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 14:33:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUL2Tdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 14:28:58 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:31755 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S261398AbUL2T24 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 14:28:56 -0500
-Date: Wed, 29 Dec 2004 20:28:52 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andries Brouwer <aebr@win.tue.nl>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: 2.6.10 - Still mishandles volumes without geometry data
-Message-ID: <20041229192852.GC2818@pclin040.win.tue.nl>
-References: <1104155840.20898.3.camel@localhost.localdomain> <58cb370e041228124878cb6e2a@mail.gmail.com> <1104271702.26131.11.camel@localhost.localdomain> <20041229025212.GA2818@pclin040.win.tue.nl> <1104330967.30080.12.camel@localhost.localdomain>
+	Wed, 29 Dec 2004 14:33:42 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:11173 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261400AbUL2Tdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 14:33:41 -0500
+Subject: Latency results with 2.6.10 - looks good
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 29 Dec 2004 14:33:40 -0500
+Message-Id: <1104348820.5218.42.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1104330967.30080.12.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: SINECTIS: pastinakel.tue.nl 1114; Body=1 Fuz1=1 Fuz2=1
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 29, 2004 at 02:36:11PM +0000, Alan Cox wrote:
+After testing JACK with vanilla 2.6.10, it appears that the scheduling
+latency of 2.6.10 is a vast improvement over previous kernel releases.
+JACK seems to be usable with a period of 32 and 64 frames, I cannot
+produce xruns by moving the mouse or any amount of display or disk
+activity.  Previous kernel releases were somewhat worse than Windows XP
+in this area, 2.6.10 is definitely better, maybe as good as OSX.
 
-> > > -	printk(", CHS=%d/%d/%d", 
-> > > -	       drive->bios_cyl, drive->bios_head, drive->bios_sect);
-> > > +	if(drive->bios_cyl)
-> > > +		printk(", CHS=%d/%d/%d", 
-> > > +			drive->bios_cyl, drive->bios_head, drive->bios_sect);
-> > 
-> > Reasonable. (But s/if(/if (/ .)
-> > On the other hand, I like the "CHS=0/0/0" - it makes very clear what is wrong
-> > in case lilo or so has geometry problems.
-> 
-> 0/0/0 is valid in these cases - would it be better if it printed
-> something else instead for that situation ("No physical geometry, ")
-> perhaps ?
+So, it appears that all of the latency fixes going upstream from Ingo
+and others have really made a difference.  More testing is needed but it
+looks like we may finally have a kernel that's usable (and in fact quite
+good) out of the box for low latency audio.  Good work!
 
-But it is not the "physical geometry" (whatever that may be) that is printed.
-Not drive->head but drive->bios_head. It is easiest just to leave it.
+Lee
 
-Andries

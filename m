@@ -1,58 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVCJVFC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVCJVF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbVCJVFC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 16:05:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbVCJVFB
+	id S261713AbVCJVF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 16:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbVCJVF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 16:05:01 -0500
-Received: from waste.org ([216.27.176.166]:8084 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261711AbVCJVCr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 16:02:47 -0500
-Date: Thu, 10 Mar 2005 13:02:18 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Alexander Nyberg <alexn@dsv.su.se>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: dm-crypt vs. cryptoloop reminder
-Message-ID: <20050310210218.GB3163@waste.org>
-References: <1110058524.13821.17.camel@boxen> <20050305224415.GA8837@pclin040.win.tue.nl> <20050309193212.GB632@openzaurus.ucw.cz>
+	Thu, 10 Mar 2005 16:05:56 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:21177 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261713AbVCJVFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 16:05:46 -0500
+Date: Thu, 10 Mar 2005 13:05:06 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: XScale 8250 patches cause malfunction on AMD-8111
+Message-ID: <20050310210506.GA13988@taniwha.stupidest.org>
+References: <20050307174506.GA9659@vana.vc.cvut.cz> <20050307195654.GA9394@vana.vc.cvut.cz> <20050307213148.B29948@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050309193212.GB632@openzaurus.ucw.cz>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050307213148.B29948@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 08:32:13PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > 2.6.3-mm1 'dm-crypt vs. cryptoloop' discussion was some time ago, it is
-> > > time to bring this up again:
-> > > http://kerneltrap.org/node/2433
-> > 
-> > Are you a troll?
-> > 
-> > This is not something to be quoted by anybody serious.
-> > 
-> > Andrew referred to "well-known weaknesses" in cryptoloop,
-> > and when I inquired it turned out that what he referred to
-> > were properties of cryptoloop and dm-crypt alike, so that
-> > his remarks that started that discussion were misguided.
-> > 
-> > Of course people may prefer dm-crypt or cryptoloop or loop-aes,
-> > just like people prefer ide-cd or ide-scsi.
-> > 
-> > I have not yet seen a valid reason to deprecate one of these three
-> > very soon.
-> 
-> I'd say that "no-maintainer" + "maintained code can do the same" is enough, but...
-> I thought that ide-scsi was deprecated, too?
+On Mon, Mar 07, 2005 at 09:31:48PM +0000, Russell King wrote:
 
-You can attach a file to loopback and then run dm-crypt on top of
-that, so I think it's completely duplicate functionality at this
-point.
+> Good catch, thanks.  I'd preferably like to see Chris Wedgwood test
+> this before applying it - I'm sure it'll fix his problem as well,
+> but I'd like to be sure.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Yes, this appears to work correctly for me.  I see it's merged so this
+is just an ACK that it works, nobody actually has to do anything :-)

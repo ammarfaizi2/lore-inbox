@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270444AbTHLPMX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 11:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTHLPLp
+	id S270426AbTHLPKe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 11:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270438AbTHLPKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 11:11:45 -0400
-Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:46093
-	"EHLO betawl.net") by vger.kernel.org with ESMTP id S270444AbTHLPLY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 11:11:24 -0400
-Date: Tue, 12 Aug 2003 17:11:19 +0200
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test3 problems on Acer TravelMate 260 (ALSA,ACPIvsSynaptics,yenta)
-Message-ID: <20030812151119.GA1639@man.beta.es>
-References: <20030811102236.GA731@man.beta.es> <s5hwudji5xf.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hwudji5xf.wl@alsa2.suse.de>
-User-Agent: Mutt/1.5.4i
+	Tue, 12 Aug 2003 11:10:34 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:19689 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S270426AbTHLPK3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 11:10:29 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [patch] move efivars to drivers/efi
+Date: Tue, 12 Aug 2003 08:10:23 -0700
+Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE5DC@fmsmsx406.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] move efivars to drivers/efi
+Thread-Index: AcNeMXwEo/YKYJpPQiq3CrYNdpdCQgCsh6NA
+From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+To: "Matt Domsch" <Matt_Domsch@Dell.com>, "Patrick Mochel" <mochel@osdl.org>
+Cc: "Matt Tolentino" <metolent@snoqualmie.dp.intel.com>,
+       <davidm@napali.hpl.hp.com>, <torvalds@osdl.org>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Aug 2003 15:10:24.0081 (UTC) FILETIME=[DAC6CC10:01C360E3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The ALSA problem is new, ALSA for 2.4 (0.9.4) is working perfectly, but the
-> > 2.6.0 driver doesn't allow me to hear the beeper sound, the pcm sounds seem
-> perhaps CONFIG_INPUT_PCSPKR is set off?
+> > Yes - have you considered doing a sysfs interface instead 
+> of procfs? :)
+> 
+> It's crossed my mind, but I haven't had much time to spend on 
+> IA-64 the
+> past year, and that isn't likely to change soon...  I think 
+> the only tool
+> that uses /proc/efi/vars is efibootmgr, which would also need 
+> to learn of
+> a move to /sys.  Your binary-blob interface for sysfs is 
+> exactly the right
+> thing to use for it though.
+> 
+> Anyone want to take a stab at switching it, or do you want to 
+> wait for me
+> to have time?
 
-Yes, sorry about this one, I didn't knew this option, which is also quite
-hidden under INPUT_MISC, and also I thought the beeper was an output device,
-not input :-??? Anyway, it was that and after activating it, it works ok.
+Sure, I'll see if I can cook this up in the next few days and send an updated patch...
 
-Thanks!
--- 
-Manty/BestiaTester -> http://manty.net
+matt

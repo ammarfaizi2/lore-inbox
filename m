@@ -1,76 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265704AbTGDCHX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 22:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbTGDB6V
+	id S265678AbTGDCIH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 22:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265676AbTGDB5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 21:58:21 -0400
-Received: from granite.he.net ([216.218.226.66]:26382 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S265661AbTGDByy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 21:54:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10572845542237@kroah.com>
-Subject: Re: [PATCH] PCI and sysfs fixes for 2.5.74
-In-Reply-To: <1057284554141@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 3 Jul 2003 19:09:14 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+	Thu, 3 Jul 2003 21:57:49 -0400
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:50131 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S265651AbTGDBz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 21:55:29 -0400
+Subject: Re: 2.5.74-mm1 and Con Kolivas' CPU scheduler work
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "ismail (cartman) donmez" <kde@myrealbox.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307040949.18588.kernel@kolivas.org>
+References: <200307031936.34458.kde@myrealbox.com>
+	 <200307040949.18588.kernel@kolivas.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057284551.1725.8.camel@iso-8590-lx.zeusinc.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 Jul 2003 22:09:12 -0400
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4, required 10, AWL,
+	EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, SPAM_PHRASE_01_02)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1373, 2003/07/03 16:39:18-07:00, johnstul@us.ibm.com
+On Thu, 2003-07-03 at 19:49, Con Kolivas wrote:
+> On Fri, 4 Jul 2003 02:36, ismail (cartman) donmez wrote:
+> > Hi,
+> >
+> > With Con Kolivas' cpu patch I got many slow downs. When I try to run
+> > CodeWeaver's CrossOver office box gets unresponsive at least for a one
+> > minute. While starting KDE ( when splash screen is running ) mouse gets too
+> > sluggish.
+> 
+> While your wm starting if your mouse is sluggish it is probably not a big 
+> problem, and it is part of something I'm already working on. The codeweavers 
+> problem is impressive though; I don't have codeweavers and have not seen 
+> anything like it. To get a full picture it would be helpful if you could run 
+> top as root say reniced to -13 just so it doesn't miss anything, and then 
+> start codeweavers, watch top and tell me what is spinning away hogging the 
+> cpu.
 
-[PATCH] jiffies include fix
-This patch fixes a bad declaration of jiffies in timer_tsc.c and
-timer_cyclone.c, replacing it with the proper usage of jiffies.h.
-Caught by gregkh.
+My guess is that he's seeing the same issue that I reported a few weeks
+ago with Crossover plugin.  That report generated a fairly long thread
+and a lot of patches and testing, but little actual progress.  Basically
+wine seems to have multiple threads and a client/server architecture and
+seems constantly spin on a pipe passing info back and forth to each
+other.  It seems one thread gets all the attention and starves the
+others although the others are critical for the main process to actually
+make progress.
 
+I've been wanting to do some testing with your patches so I'll give them
+a spin tonight and see how this acts.
 
- arch/i386/kernel/timers/timer_cyclone.c |    2 +-
- arch/i386/kernel/timers/timer_tsc.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Later,
+Tom
 
-
-diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
---- a/arch/i386/kernel/timers/timer_cyclone.c	Thu Jul  3 18:15:57 2003
-+++ b/arch/i386/kernel/timers/timer_cyclone.c	Thu Jul  3 18:15:57 2003
-@@ -11,6 +11,7 @@
- #include <linux/timex.h>
- #include <linux/errno.h>
- #include <linux/string.h>
-+#include <linux/jiffies.h>
- 
- #include <asm/timer.h>
- #include <asm/io.h>
-@@ -18,7 +19,6 @@
- #include <asm/fixmap.h>
- 
- extern spinlock_t i8253_lock;
--extern unsigned long jiffies;
- extern unsigned long calibrate_tsc(void);
- 
- /* Number of usecs that the last interrupt was delayed */
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Thu Jul  3 18:15:57 2003
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Thu Jul  3 18:15:57 2003
-@@ -9,6 +9,7 @@
- #include <linux/errno.h>
- #include <linux/cpufreq.h>
- #include <linux/string.h>
-+#include <linux/jiffies.h>
- 
- #include <asm/timer.h>
- #include <asm/io.h>
-@@ -21,7 +22,6 @@
- int tsc_disable __initdata = 0;
- 
- extern spinlock_t i8253_lock;
--extern unsigned long jiffies;
- 
- static int use_tsc;
- /* Number of usecs that the last interrupt was delayed */
 

@@ -1,110 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbUDULZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbUDULcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbUDULZM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 07:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbUDULZM
+	id S262916AbUDULcN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 07:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264548AbUDULcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 07:25:12 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:63423 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S262907AbUDULY7 convert rfc822-to-8bit (ORCPT
+	Wed, 21 Apr 2004 07:32:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26512 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262916AbUDULcG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 07:24:59 -0400
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: arjanv@redhat.com, Andrew Morton <akpm@osdl.org>,
-       Tuukka Toivonen <tuukkat@ee.oulu.fi>, b-gruber@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: /dev/psaux-Interface
-References: <Pine.GSO.4.58.0402271451420.11281@stekt37>
-	<Pine.GSO.4.58.0404191124220.21825@stekt37>
-	<20040419015221.07a214b8.akpm@osdl.org>
-	<xb77jwci86o.fsf@savona.informatik.uni-freiburg.de>
-	<1082372020.4691.9.camel@laptop.fenrus.com>
-	<16518.20890.380763.581386@cse.unsw.edu.au>
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 21 Apr 2004 13:24:56 +0200
-In-Reply-To: <16518.20890.380763.581386@cse.unsw.edu.au>
-Message-ID: <xb71xmhfu9j.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Wed, 21 Apr 2004 07:32:06 -0400
+Message-ID: <40865BA8.4030308@RedHat.com>
+Date: Wed, 21 Apr 2004 07:31:52 -0400
+From: Steve Dickson <SteveD@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Linux NFS Mailing List <nfs@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [NFS] [PATCH] Make V4 mounts return the correct errno to mount command
+Content-Type: multipart/mixed;
+ boundary="------------060503010902030608070808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Neil" == Neil Brown <neilb@cse.unsw.edu.au> writes:
+This is a multi-part message in MIME format.
+--------------060503010902030608070808
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-    Neil> I agree that it is good for the kernel to provide hardware
-    Neil> abstractions, and that "mouse" is an appropriate device to
-    Neil> provide an abstract interface for.
+Hey Trond,
 
-So, the next  step is to port efax or Hylafax  into kernel space.  Why
-leave the /dev/ttyS? hanging out there?  Why not encapsulated them and
-provide a /dev/fax that does what efax or Hylafax do?
+Attached is a patch that changes nfs_sb_init() to returned correct
+errno (when nfs_get_root() fails), instead of returning a static
+errno of -EINVAL.  By returning the correct errno, it allows
+the mount command to print the correct error message.
+For example,  currently when you try to mount a v4 fs that
+is not exported on the server you get:
 
-And then, it's time to port  Ghostscript and lpd into the kernel.  Why
-leave the raw /dev/lp0 there?   Why not move abstract them and provide
-a   /dev/postscript_printer  instead?   Why   lpd?   Have   a  virtual
-filesystem pqfs, so  that we can easily copy  postscript files to that
-fs  (instead of  lpr), use  ls to  inspect what  print jobs  are there
-(instead of lpq) and use rm to remove pending jobs (instead of lprm)?
+    Lucky# mount -v -t nfs4  harryp:/home /mnt/harryp
+    mount: wrong fs type, bad option, bad superblock on harryp:/home,
+           or too many mounted file systems
 
+With this patch, error message becomes:
 
-    Neil> It does not follow that all drivers below that abstraction
-    Neil> should live in the kernel.
+    Lucky# mount -v -t nfs4  harryp:/home /mnt/harryp
+    mount: special device harryp:/home does not exist
 
-Exactly!   Look at  autofs and  nfs.   The respective  daemons are  in
-userland (I know  there is knfsd -- as a OPTION).   Why?  Why not move
-them into the kernel altogether?  What's the advantage of implementing
-these daemons  in userland?  That's exactly the  advantage of handling
-mouse protocol using a gpm-like program.
+Now that the mount command correctly decipher the errror
+I also changed two hard coded printk into dprintks to cut
+down on the number of messages (from 4 to 2) that are logged
+for this type of error.
 
-
-
-    Neil> I have a userspace program that talks to my ALPS touchpad
-    Neil> (through a hacked /dev/psaux that talks direct to the psaux
-    Neil> port) and converts taps etc into "input layer" messages that
-    Neil> are passed back into /dev/input/uinput.
-
-That's  what I  have  in mind:  have  a userland  daemon that  bridges
-between the  raw port and  uinput.  This leaves great  flexibility for
-the daemon  to do  whatever the writer  feel appropriate.  I  hope you
-agree that it is easier to  develop and debug programs in userland and
-in  kernel space.   Providing  API  for such  a  daemon would  provide
-fertile soil for people to implement different useful things.
+SteveD.
 
 
-BTW, how did you hack the /dev/psaux?
+--------------060503010902030608070808
+Content-Type: text/plain;
+ name="linux-2.6.5-mounterrors.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.5-mounterrors.patch"
 
+--- linux-2.6.5/fs/nfs/inode.c.orig	2004-04-20 04:21:05.000000000 -0400
++++ linux-2.6.5/fs/nfs/inode.c	2004-04-20 21:37:34.599579224 -0400
+@@ -237,7 +237,7 @@ nfs_get_root(struct super_block *sb, str
+ 
+ 	error = server->rpc_ops->getroot(server, rootfh, fsinfo);
+ 	if (error < 0) {
+-		printk(KERN_NOTICE "nfs_get_root: getattr error = %d\n", -error);
++		dprintk("nfs_get_root: getattr error = %d\n", -error);
+ 		return ERR_PTR(error);
+ 	}
+ 
+@@ -262,6 +262,7 @@ nfs_sb_init(struct super_block *sb, rpc_
+ 	struct nfs_pathconf pathinfo = {
+ 			.fattr = &fattr,
+ 	};
++	int no_root_error = 0;
+ 
+ 	/* We probably want something more informative here */
+ 	snprintf(sb->s_id, sizeof(sb->s_id), "%x:%x", MAJOR(sb->s_dev), MINOR(sb->s_dev));
+@@ -272,12 +273,15 @@ nfs_sb_init(struct super_block *sb, rpc_
+ 
+ 	root_inode = nfs_get_root(sb, &server->fh, &fsinfo);
+ 	/* Did getting the root inode fail? */
+-	if (IS_ERR(root_inode))
++	if (IS_ERR(root_inode)) {
++		no_root_error = PTR_ERR(root_inode);
+ 		goto out_no_root;
++	}
+ 	sb->s_root = d_alloc_root(root_inode);
+-	if (!sb->s_root)
++	if (!sb->s_root) {
++		no_root_error = -ENOMEM;
+ 		goto out_no_root;
+-
++	}
+ 	sb->s_root->d_op = server->rpc_ops->dentry_ops;
+ 
+ 	/* Get some general file system info */
+@@ -337,10 +341,10 @@ nfs_sb_init(struct super_block *sb, rpc_
+ 	return 0;
+ 	/* Yargs. It didn't work out. */
+ out_no_root:
+-	printk("nfs_read_super: get root inode failed\n");
++	dprintk("nfs_sb_init: get root inode failed: errno %d\n", -no_root_error);
+ 	if (!IS_ERR(root_inode))
+ 		iput(root_inode);
+-	return -EINVAL;
++	return no_root_error;
+ }
+ 
+ /*
 
-    Neil> I did consider writing a kernel driver for the ALPS
-    Neil> touchpad, but due to the dearth of documentation and the
-    Neil> fact that it seemed very hard to automatically detect it, I
-    Neil> decided that such a driver would be too hard to support.
-
-So,  writing userland  programs are  generally easier  than  having to
-touch the kernel -- even when  you're just writing a module.  A daemon
-that seg-faults doesn't hurt.  A  daemon that runs into infinite loops
-can  be killed.  It's  much safer  and easier  to implement  the mouse
-protocol interpreter in userland.  And I guess 'gpm' and its dozens of
-drivers  can  be  more   easily  transformed  into  a  bridge  between
-/dev/psaux or /dev/ttyS? (or even a TCP/UDP socket!) and uinput.  I'll
-bet on gpm, given its maturity vs. the kernel 2.6 mouse drivers.
-
-
-
-    Neil> So here is my vote in favour of "Let's make /dev/psaux a
-    Neil> clean channel to the PS/AUX device" - at least
-    Neil> conditionally.
-
-I second!  Let's  free /dev/psaux.  We want the  /dev/psaux as in 2.4,
-2.2, 2.0, ...  We don't want a faked, censored one as in 2.6.0--5.
-
-
--- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
-
+--------------060503010902030608070808--

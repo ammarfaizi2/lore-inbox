@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317643AbSG2Swx>; Mon, 29 Jul 2002 14:52:53 -0400
+	id <S317642AbSG2SwD>; Mon, 29 Jul 2002 14:52:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317791AbSG2Swx>; Mon, 29 Jul 2002 14:52:53 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:56461 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S317643AbSG2Swv>;
-	Mon, 29 Jul 2002 14:52:51 -0400
-Date: Mon, 29 Jul 2002 11:56:10 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       <torvalds@transmeta.com>
-Subject: Re: [PATCH] automatic initcalls 
-In-Reply-To: <20020728033359.7B2A2444C@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0207291142120.22697-100000@cherise.pdx.osdl.net>
+	id <S317643AbSG2SwC>; Mon, 29 Jul 2002 14:52:02 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35929 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S317642AbSG2SwB>; Mon, 29 Jul 2002 14:52:01 -0400
+To: "Samium Gromoff" <_deepfire@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+References: <E17Z8Zn-00071t-00@f16.mail.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Jul 2002 12:43:13 -0600
+In-Reply-To: <E17Z8Zn-00071t-00@f16.mail.ru>
+Message-ID: <m1adoagyta.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Samium Gromoff" <_deepfire@mail.ru> writes:
 
-> > -__initcall(spawn_ksoftirqd);
-> > +fs_initcall(spawn_ksoftirqd);
+>      Most of you, people, didn`t ever thought about the fact that the money
+> scheme
+>   doesn`t simply work at all. That`s it.
 > 
-> See, this is exacly the kind of thing that makes me doubt that the
-> current "magic 7 initcall levels" are useful in the long term 8(
+>   It`s being a _very_ fundamental issue. Look at the history:
+>   Money were invented as a human work equivalent. What it
+>   became now - this exercise is for the reader.
 
-I agree that that is abusing the interface. WTF does spawn_ksoftirqd have 
-to do with filesystems? 
+Money is not a human work equivalent.  Money is a commodity that
+everyone will barter with.  Making bartering more efficient.
 
-The purpose of the initcall levels in the first place was to start 
-removing the ugly conditional calls in init/main.c I looked at what was 
-being called, and came up with names to describe what was being done at 
-each phase. There happened to be seven of them.
+With pure barter you have to do something like:
+work -> stuff1 -> stuff2 ->stuff3 -> stuff you want.
+With money this usually becomes
+work -> money -> stuff you want.
 
-I knew from the start that people would feel that they were more important 
-that others, and leapfrog their initcalls before everyone else. We're 
-egotistical; that's what we do. But remember, just because it's there, 
-doesn't mean you have to use it. 
+>   So the life shows that we cannot rely on the
+> money as a human work equivalent.
 
-That said, it's been a while since I've really looked at it. I favor a 
-mechanism for getting the ordering right. I don't really like having to 
-specify the dependencies in the definitions; I think it's kinda ugly and 
-wonder if there is an automatic way to resolve them. I don't have any 
-ideas, nor the time to play with it, so it remains still just a pipe 
-dream...
+This makes the assumption that all work is equally valuable.  But you
+already made the assertion that a manager sitting around is not as
+a miner.
 
-	-pat
-
+Eric

@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262657AbTIAHAm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 03:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbTIAHAm
+	id S262653AbTIAHK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 03:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbTIAHK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 03:00:42 -0400
-Received: from [202.107.117.26] ([202.107.117.26]:40116 "EHLO ldap")
-	by vger.kernel.org with ESMTP id S262657AbTIAHAl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 03:00:41 -0400
-Date: Mon, 01 Sep 2003 12:50:25 +0800
-From: "Bill J.Xu" <xujz@neusoft.com>
-Subject: Re: "ctrl+c" disabled!
-To: Edgar Toernig <froese@gmx.de>, root@chaos.analogic.com,
-       rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Message-id: <002101c37044$8f49eea0$2a01010a@avwindows>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-X-Mailer: Microsoft Outlook Express 6.00.3790.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <036601c367e0$01adabc0$2a01010a@avwindows>
- <3F457A19.8E8A1F65@gmx.de> <04b901c36852$dccc7660$2a01010a@avwindows>
- <3F45830A.5C0F5BCA@gmx.de> <053301c3685c$9ea6fe50$2a01010a@avwindows>
- <3F4618FF.BDC97C99@gmx.de>
+	Mon, 1 Sep 2003 03:10:27 -0400
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:25576 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S262653AbTIAHK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 03:10:26 -0400
+Subject: Re: [PATCH] s390 (5/8): common i/o layer.
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OF1FB5D4CF.BD211436-ONC1256D94.0026F8D1-C1256D94.00275806@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Mon, 1 Sep 2003 09:09:44 +0200
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 01/09/2003 09:10:15
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks all of you for helping me to resole the problem of "ctrl+c disable".
 
-and now, the problem has been resolved.At the very start,when the system start,it give the user a shell prompt directly,at this instance,the "ctrl+c" disable. Afterward,I change the file of "/etc/inittab" as this:"s1:12345:respawn:/sbin/agetty 9600 ttyS0 vt100",then the problem is resolved.Maybe this is a apish a mistake.
-:-)
+> > @@ -537,8 +537,7 @@
+< >          init_timer(&cdev->private->timer);
+> >
+> >          /* Set an initial name for the device. */
+> > -        snprintf (cdev->dev.name, DEVICE_NAME_SIZE,"ccw device");
+> > -        snprintf (cdev->dev.bus_id, DEVICE_ID_SIZE, "0:%04x",
+> > +        snprintf (cdev->dev.bus_id, DEVICE_ID_SIZE, "0.0.%04x",
+> >                        sch->schib.pmcw.dev);
+> >
+> >          /* Increase counter of devices currently in recognition. */
+>
+> Shouldn't the above use BUS_ID_SIZE instead of DEVICE_ID_SIZE?
 
-thanks
+Yes, indeed. DEVICE_NAME_SIZE is 32 and BUS_ID_SIZE is 20. Luckily the
+printed string is always shorter than 20 byte but nevertheless its wrong
+to use DEVICE_ID_SIZE. Thanks for the hint.
 
-Bill
-
------ Original Message ----- 
-From: "Edgar Toernig" <froese@gmx.de>
-To: "Bill J.Xu" <xujz@neusoft.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Friday, August 22, 2003 9:22 PM
-Subject: Re: "ctrl+c" disabled!
+blue skies,
+   Martin
 
 
-> "Bill J.Xu" wrote:
-> > 
-> > after run od -tx1, the following is the result
-> > ------------------------------------------------
-> > bash-2.05# ./od -tx1
-> > 0000000
-> > ------------------------------------------------
-> 
-> Either terminal sends nothing or line-discipline caught ^C correctly
-> but sent signal to wrong process or process ignores sigint.
-> 
-> > and I use "killall xxx_appname" to kill the progress after telnet the linux box.
-> 
-> Check whether "killall -INT xxx_appname" is able to kill the process.
-> 
-> Try killing the process via Ctrl-Z and then "kill %%".
-> 
-> Ciao, ET.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

@@ -1,99 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269021AbRG3RLg>; Mon, 30 Jul 2001 13:11:36 -0400
+	id <S269022AbRG3RP1>; Mon, 30 Jul 2001 13:15:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269018AbRG3RL1>; Mon, 30 Jul 2001 13:11:27 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62220 "EHLO
+	id <S269023AbRG3RPR>; Mon, 30 Jul 2001 13:15:17 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:1037 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S269019AbRG3RLU>; Mon, 30 Jul 2001 13:11:20 -0400
-Date: Mon, 30 Jul 2001 19:11:18 +0200
-From: Jan Kara <jack@ucw.cz>
-To: alan@lxorguk.ukuu.org.uk
+	id <S269020AbRG3RPG>; Mon, 30 Jul 2001 13:15:06 -0400
+Date: Mon, 30 Jul 2001 19:15:11 +0200
+From: Jan Kara <jack@suse.cz>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Fix FIOQSIZE in 2.4.7-ac1
-Message-ID: <20010730191118.A1550@atrey.karlin.mff.cuni.cz>
+Subject: s390x bugfix for quotactl()
+Message-ID: <20010730191511.A1751@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="uAKRQypu60I7Lcqm"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
   Hello,
 
-  recently I found out that there was a bad bug in implementation of ioctl() FIOQSIZE
-and so you dropped it from -ac patches (I wasn't probably at the time of bug discovery
-on email and so after I returned I just read e-mails from l-k too briefly :(). I'm sending
-you a patch against 2.7.1-ac1 which should again add support for FIOQSIZE and without
-that nasty bug (appropriate copy_to_user() added).
+  I found out that in 2.4.7 there's a bug in s390x wrapper around quotactl() call
+(part of patch from -ac kernel migrated to your kernel but this part alone makes
+call not even compile). Following patch should fix it.
 
-										Honza
+									Honza
 
+--------------------------------------------------------------------------------
+--- linux-2.4.7/arch/s390x/kernel/linux32.c	Fri Jul 27 20:57:13 2001
++++ linux-2.4.7/arch/s390x/kernel/linux32.c	Fri May 11 23:18:09 2001
+@@ -897,24 +897,24 @@
+ 	return sys32_fcntl(fd, cmd, arg);
+ }
+ 
+-struct mem_dqblk32 {
++struct dqblk32 {
++    __u32 dqb_bhardlimit;
++    __u32 dqb_bsoftlimit;
++    __u32 dqb_curblocks;
+     __u32 dqb_ihardlimit;
+     __u32 dqb_isoftlimit;
+     __u32 dqb_curinodes;
+-    __u32 dqb_bhardlimit;
+-    __u32 dqb_bsoftlimit;
+-    __u64 dqb_curspace;
+     __kernel_time_t32 dqb_btime;
+     __kernel_time_t32 dqb_itime;
+ };
+                                 
+-extern asmlinkage long sys_quotactl(int cmd, const char *special, int id, __kernel_caddr_t addr);
++extern asmlinkage int sys_quotactl(int cmd, const char *special, int id, caddr_t addr);
+ 
+ asmlinkage int sys32_quotactl(int cmd, const char *special, int id, unsigned long addr)
+ {
+ 	int cmds = cmd >> SUBCMDSHIFT;
+ 	int err;
+-	struct mem_dqblk d;
++	struct dqblk d;
+ 	mm_segment_t old_fs;
+ 	char *spec;
+ 	
+@@ -924,35 +924,33 @@
+ 	case Q_SETQUOTA:
+ 	case Q_SETUSE:
+ 	case Q_SETQLIM:
+-		if (copy_from_user (&d, (struct mem_dqblk32 *)addr,
+-				    sizeof (struct mem_dqblk32)))
++		if (copy_from_user (&d, (struct dqblk32 *)addr,
++				    sizeof (struct dqblk32)))
+ 			return -EFAULT;
+-		d.dqb_itime = ((struct mem_dqblk32 *)&d)->dqb_itime;
+-		d.dqb_btime = ((struct mem_dqblk32 *)&d)->dqb_btime;
++		d.dqb_itime = ((struct dqblk32 *)&d)->dqb_itime;
++		d.dqb_btime = ((struct dqblk32 *)&d)->dqb_btime;
+ 		break;
+ 	default:
+ 		return sys_quotactl(cmd, special,
+-				    id, (__kernel_caddr_t)addr);
++				    id, (caddr_t)addr);
+ 	}
+ 	spec = getname (special);
+ 	err = PTR_ERR(spec);
+ 	if (IS_ERR(spec)) return err;
+ 	old_fs = get_fs ();
+ 	set_fs (KERNEL_DS);
+-	err = sys_quotactl(cmd, (const char *)spec, id, (__kernel_caddr_t)&d);
++	err = sys_quotactl(cmd, (const char *)spec, id, (caddr_t)&d);
+ 	set_fs (old_fs);
+ 	putname (spec);
+-	if (err)
+-		return err;
+ 	if (cmds == Q_GETQUOTA) {
+ 		__kernel_time_t b = d.dqb_btime, i = d.dqb_itime;
+-		((struct mem_dqblk32 *)&d)->dqb_itime = i;
+-		((struct mem_dqblk32 *)&d)->dqb_btime = b;
+-		if (copy_to_user ((struct mem_dqblk32 *)addr, &d,
+-				  sizeof (struct mem_dqblk32)))
++		((struct dqblk32 *)&d)->dqb_itime = i;
++		((struct dqblk32 *)&d)->dqb_btime = b;
++		if (copy_to_user ((struct dqblk32 *)addr, &d,
++				  sizeof (struct dqblk32)))
+ 			return -EFAULT;
+ 	}
+-	return 0;
++	return err;
+ }
+ 
+ static inline int put_statfs (struct statfs32 *ubuf, struct statfs *kbuf)
 
---uAKRQypu60I7Lcqm
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="quota-acfix.diff.gz"
-Content-Transfer-Encoding: base64
-
-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
-
---uAKRQypu60I7Lcqm--

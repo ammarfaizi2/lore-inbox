@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbTILSfe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 14:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbTILSd5
+	id S261801AbTILSc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 14:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbTILSb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 14:33:57 -0400
-Received: from fed1mtao04.cox.net ([68.6.19.241]:33748 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S261809AbTILSdE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 14:33:04 -0400
-Message-ID: <3F621165.8040207@cox.net>
-Date: Fri, 12 Sep 2003 11:33:09 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test5 _IOR/_IOW changes are breaking userspace
-References: <3F620E7B.4090706@cox.net>
-In-Reply-To: <3F620E7B.4090706@cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 12 Sep 2003 14:31:58 -0400
+Received: from ns.suse.de ([195.135.220.2]:53131 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261821AbTILS2y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 14:28:54 -0400
+Date: Fri, 12 Sep 2003 20:28:51 +0200
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: jgarzik@pobox.com, ebiederm@xmission.com, akpm@osdl.org,
+       richard.brunner@amd.com, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-Id: <20030912202851.3529e7e7.ak@suse.de>
+In-Reply-To: <20030912182216.GK27368@fs.tum.de>
+References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
+	<20030911012708.GD3134@wotan.suse.de>
+	<20030910184414.7850be57.akpm@osdl.org>
+	<20030911014716.GG3134@wotan.suse.de>
+	<3F60837D.7000209@pobox.com>
+	<20030911162634.64438c7d.ak@suse.de>
+	<3F6087FC.7090508@pobox.com>
+	<m1vfrxlxol.fsf@ebiederm.dsl.xmission.com>
+	<20030912195606.24e73086.ak@suse.de>
+	<3F62098F.9030300@pobox.com>
+	<20030912182216.GK27368@fs.tum.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin P. Fleming wrote:
+On Fri, 12 Sep 2003 20:22:16 +0200
+Adrian Bunk <bunk@fs.tum.de> wrote:
 
-> The worst part is that the 
-> changes required to get the apps to compile are incompatible with all 
-> previous kernel headers.
+
 > 
+> But even CONFIG_X86_GENERIC doesn't do what you expect. A kernel 
+> compiled for Athlon wouldn't run on a Pentium 4 even with 
+> CONFIG_X86_GENERIC.
 
-It seems I overreacted here a bit, mea culpa...
+It does. Just try it.
 
-It may just be that the new headers are enforcing proper usage, and 
-that the applications that won't compile are actually broken. I did 
-not originally suspect this given the provenance of the applications I 
-was dealing with, but I guess everyone makes mistakes, myself included :-)
+> 
+> Quoting arch/i386/Kconfig in -test5:
+> 
+> <--  snip  -->
+> 
+> config X86_USE_3DNOW
+>         bool
+>         depends on MCYRIXIII || MK7
+>         default y
 
+That's obsolete and could be removed. All 3dnow! code is dynamically patched depending on the CPUID.
+
+-Andi

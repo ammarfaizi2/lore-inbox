@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264665AbSLGSpl>; Sat, 7 Dec 2002 13:45:41 -0500
+	id <S264666AbSLGSp7>; Sat, 7 Dec 2002 13:45:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264666AbSLGSpl>; Sat, 7 Dec 2002 13:45:41 -0500
-Received: from mnh-1-09.mv.com ([207.22.10.41]:39428 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S264665AbSLGSpk>;
-	Sat, 7 Dec 2002 13:45:40 -0500
-Message-Id: <200212071856.NAA02037@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML device configuration reporting 
+	id <S264673AbSLGSp6>; Sat, 7 Dec 2002 13:45:58 -0500
+Received: from r2w29.mistral.cz ([62.245.86.29]:4992 "EHLO ppc.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S264666AbSLGSp5>;
+	Sat, 7 Dec 2002 13:45:57 -0500
+Date: Sat, 7 Dec 2002 19:52:52 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>, jgarzik@pobox.com
+Subject: Re: /proc/pci deprecation?
+Message-ID: <20021207185252.GC1588@ppc.vc.cvut.cz>
+References: <997222131F7@vcnet.vc.cvut.cz> <20021207131424.GL32065@louise.pinerecords.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 07 Dec 2002 13:56:37 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+In-Reply-To: <20021207131424.GL32065@louise.pinerecords.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull either
-	http://uml.bkbits.net/mconfig-2.5
-or	http://jdike.stearns.org:5000/mconfig-2.5
+On Sat, Dec 07, 2002 at 02:14:24PM +0100, Tomas Szepe wrote:
+> > > IMO, yes, since those tools provide the summary, and exist almost purely in
+> > > userspace. I forgot to mention in the orginal email that we could also drop
+> > > the PCI names database, right? This would save a considerable amount in the
+> > > kernel image alone..
+> > 
+> > If you want, make it user configurable like it was during 2.2.x. But
+> > I personally prefer descriptive names and system overview I can parse 
+> > without having mounted /usr to get working lspci.
+> 
+> Actually I'm inclined to insist that lspci belong in /sbin.  Really.  :)
 
-This update allows the UML device drivers to report their configurations
-to the host.
-
-				Jeff
-
-
- arch/um/drivers/chan_kern.c     |   66 ++++++++++++++++++++++++++++-
- arch/um/drivers/fd.c            |    6 ++
- arch/um/drivers/line.c          |   91 +++++++++++++++++++++++++++++++++++-----
- arch/um/drivers/mconsole_kern.c |   62 +++++++++++++++++++++++++--
- arch/um/drivers/null.c          |    5 +-
- arch/um/drivers/port_user.c     |    9 +++
- arch/um/drivers/pty.c           |   17 ++++++-
- arch/um/drivers/ssl.c           |   32 +++++++++++++-
- arch/um/drivers/stdio_console.c |   30 ++++++++++++-
- arch/um/drivers/tty.c           |    8 ++-
- arch/um/drivers/ubd_kern.c      |   39 +++++++++++++++++
- arch/um/drivers/xterm.c         |    4 +
- arch/um/include/chan_kern.h     |    3 +
- arch/um/include/chan_user.h     |    3 -
- arch/um/include/line.h          |   11 +++-
- arch/um/include/mconsole_kern.h |   16 ++++++-
- 16 files changed, 371 insertions(+), 31 deletions(-)
-
-ChangeSet@1.842.6.1, 2002-11-18 15:57:40-05:00, jdike@uml.karaya.com
-  Merged the get_config changes from 2.4.
-
-
+Try it. At least on Debian it is useless without name database, which lives in
+/usr/share/misc/pci.ids...  I can read numbers directly from /proc/bus/pci, if
+I want numbers.
+							Petr Vandrovec
+							vandrove@vc.cvut.cz

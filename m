@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261716AbTCLCS0>; Tue, 11 Mar 2003 21:18:26 -0500
+	id <S262983AbTCLCqn>; Tue, 11 Mar 2003 21:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263004AbTCLCS0>; Tue, 11 Mar 2003 21:18:26 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:30220 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261716AbTCLCSZ>; Tue, 11 Mar 2003 21:18:25 -0500
-Date: Wed, 12 Mar 2003 03:28:38 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Patrick Mochel <mochel@osdl.org>
-cc: Greg KH <greg@kroah.com>, Oliver Neukum <oliver@neukum.name>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: PCI driver module unload race?
-In-Reply-To: <Pine.LNX.4.33.0303111314010.1015-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303120317240.5042-100000@serv>
-References: <Pine.LNX.4.33.0303111314010.1015-100000@localhost.localdomain>
+	id <S262987AbTCLCqn>; Tue, 11 Mar 2003 21:46:43 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:25274 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S262983AbTCLCqm>; Tue, 11 Mar 2003 21:46:42 -0500
+Message-ID: <3E6EA224.EA0C3925@attbi.com>
+Date: Tue, 11 Mar 2003 21:57:40 -0500
+From: Jim Houston <jim.houston@attbi.com>
+Reply-To: jim.houston@attbi.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.64bk4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: johnstul@us.ibm.com
+CC: george@mvista.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] linux-2.5.64_monotonic-clock_A1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi John,
 
-On Tue, 11 Mar 2003, Patrick Mochel wrote:
+I like the idea of making the monotonic clock use the same
+mechanism as the normal timeofday clock.
 
-> > > Greg, and Rusty, are right. Dealing with this is a PITA, and I think will 
-> > > always be. I'm willing to take the Nancy Reagan platform, too. 
-> > 
-> > Right with what? 
-> 
-> With the idea that unloading modules is a bad idea. 
+When I was doing my alternative Posix timers patch, I modified
+your get_offset() mechanism to return nanoseconds and added a
+"struct time_spec ytime" which was updated in the same place as
+xtime but was never set.
 
-With the current module refcount model I can only agree.
-OTOH I need a sufficiently complex example, which gets the module locking 
-right (file systems are just too simple), then I can actually produce a 
-patch, which shows the advantages of a different model and the driver 
-model/sysfs looks like an interesting victim. :)
+You might have a look at my patch archived here:
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=104006731324824&w=2
 
-> > What is the "Nancy Reagan platform"?
-> 
-> "Just say no". It was a big anti-drug campaign in the US targeted at
-> schoolchildren, spearheaded in the mid-80's by Nancy Reagan.
+Look for the function do_gettime_sinceboot_ns().  You don't have to 
+keep the monotonic time in cycles.  It
+would be nice if the timeofday clock was defined as the monotonic
+clock + an offset.
 
-Well, this always look simple, but it hardly ever solves the real problem.
+Also, if I had one of those cyclone counters, I would never look at
+the PIT again.
 
-bye, Roman
-
+Jim Houston - Concurrent Computer Corp.

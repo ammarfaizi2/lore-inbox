@@ -1,97 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbUKCByW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbUKCCF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbUKCByW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 20:54:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbUKCByW
+	id S261328AbUKCCF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 21:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbUKCCF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 20:54:22 -0500
-Received: from ctb-mesg2.saix.net ([196.25.240.74]:16825 "EHLO
-	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S261320AbUKCByE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 20:54:04 -0500
-Subject: Re: XMMS (or some other audio player) 'hang' issues with intel8x0
-	and dmix plugin [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Jan Knutar <jk-lkml@sci.fi>
-Cc: Christophe Saout <christophe@saout.de>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>, alsa-user@lists.sourceforge.net
-In-Reply-To: <200411021340.03164.jk-lkml@sci.fi>
-References: <1099284142.11924.17.camel@nosferatu.lan>
-	 <1099385872.21422.10.camel@leto.cs.pocnet.net>
-	 <200411021340.03164.jk-lkml@sci.fi>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LsE3kY+FVOYc1G1WrG0k"
-Date: Wed, 03 Nov 2004 03:53:54 +0200
-Message-Id: <1099446834.11924.34.camel@nosferatu.lan>
+	Tue, 2 Nov 2004 21:05:58 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:23274 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S261328AbUKCCFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 21:05:47 -0500
+Date: Wed, 3 Nov 2004 03:05:35 +0100
+From: Andrea Arcangeli <andrea@novell.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: PG_zero
+Message-ID: <20041103020535.GG3571@dualathlon.random>
+References: <418671AA.6020307@yahoo.com.au> <161650000.1099332236@flay> <20041101223419.GG3571@dualathlon.random> <20041102022122.GJ3571@dualathlon.random> <11900000.1099410137@[10.10.2.4]> <20041102130910.3e779d32.akpm@osdl.org> <20041102215651.GU3571@dualathlon.random> <235610000.1099435275@flay> <20041103010952.GA3571@dualathlon.random> <41883300.8060707@yahoo.com.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41883300.8060707@yahoo.com.au>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 03, 2004 at 12:23:12PM +1100, Nick Piggin wrote:
+> I see what you mean. You could be correct that it would model cache
+> behaviour better to just have the last N freed "hot" pages in LIFO
+> order on the list, and allocate cold pages from the other end of it.
 
---=-LsE3kY+FVOYc1G1WrG0k
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I believe this is the more efficient way to use the per-cpu resources to
+still provide hot/cold behaviour, we should verify it though.
 
-On Tue, 2004-11-02 at 13:40 +0200, Jan Knutar wrote:
-> On Tuesday 02 November 2004 10:57, Christophe Saout wrote:
->=20
-> > I've tracked this down to what seems to be a bug in the libalsa dmix
-> > code with mmap emulation. If the sound output was stopped for some
-> > reason (stream paused or underrun) the library will accept more data
-> > until the buffer is full but never restart the output.
->=20
-> Strangely, I've observed these kinds of "Hangs" with bmp and mplayer,
-> without mmap mode enabled in either. Also using dmix as in the other
-> reports here. Could of course be some third application using alsa in
-> mmap mode, I suppose.
->=20
-> Unfortunately, I have no strace to offer right now as the bug is happenin=
-g
-> randomly and I haven't been able to find any method by which to reproduce
-> it.
->=20
-> What's strange is that almost always when it happens, either mplayer or
-> beep-media-player will have an extra forked process. As bmp is threaded
-> and I shouldn't see more than one bmp in ps aux on NPTL, this seemed a
-> bit strange. Strace on the process that looked more recent makes it usual=
-ly
-> wake up from deep sleep, and then it promptly vanishes after only a few s=
-yscalls.
-> The strace itself seems to wake it up... After the 'extra' process is gon=
-e,
-> sound output usually resumes, but not always. Other times strace only rev=
-eals
-> the app doing nanosleep's and nothing else, and the only solution is to k=
-ill
-> all apps that might've touched sound.
->=20
+Plus I provide hot-cold info to the zerolist too the same way.
 
-I cannot say that I have seen this.  It always just resumes fine if I
-click on play again, and I cannot remember it having an extra process.
-But then I mostly tried it with mmap enabled (as without it also had
-this issue), so I will have a look without mmap, and report if similar
-issues happens this side.
+with the current model I'd need 4 per-cpu lists.
 
+> You still don't want cold freeing to pollute this list, *but* you do
+> want to still batch up cold freeing to amortise the buddy's lock
+> aquisition.
+> 
+> You could do that with just one list, if you gave cold pages a small
+> extra allowance to batch freeing if the list is full.
 
-Thanks,
+Once the list is full, I free a "batch" from the other end of it. And
+then I put the new page into the list.
 
---=20
-Martin Schlemmer
+I agree that if I've to fallback into the buddy allocator to free pages
+because the list is full, then if it's a __GFP_COLD freeing, I should
+put the cold page into the buddy first. While I'm putting the cold page
+into the list instead. So I'm basically off-by one potentially hot page.
 
+I doubt it makes any difference (this only matters when the list is
+completely full of only hot pages [unlikely since the list size is
+bigger than l2 size and cache isn't only allocated on the freed pages,
+but also on the still allocated pages]), but I think I can easily change
+it to put the page at the end first, and then to batch the freeing. This
+will fix this minor performance issue in my code (theoretically it's
+more efficient the way you suggested ;). It's more an implementation bug
+than anything I did intentionally ;).
 
---=-LsE3kY+FVOYc1G1WrG0k
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> I think you want to still take them off the cold end. Taking a
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+yes, there is no doubt I want to take cold pages from the other end. But
+if no improvement can be measured by picking always hot pages, then of
+course picking them from the cold end isn't going to payoff much... ;)
 
-iD8DBQBBiDoyqburzKaJYLYRAqOIAJ468tActiuIi+1qDpbQFwUUt/cxHgCfUdao
-qOgVsEWKPeIJlbTwViJHpOk=
-=yRdu
------END PGP SIGNATURE-----
+> really cache hot page and having it invalidated is worse than
+> having some cachelines out of your combined pool of hot pages
+> pushed out when you heat the cold page.
 
---=-LsE3kY+FVOYc1G1WrG0k--
+how much worse? I do understand the snooping has a cost, but that dma is
+pretty slow anyways.
 
+Or you mean it's because the hot pages won't be guaranteed to be
+completely cold but just a few cacheline cold? I prefer the next hot page to
+be guaranteed to be still hot even after dma completes than to avoid
+snooping and clobber the cache randomly.
+
+If you invalidate the cache of an hot page, you're guaranteed you won't
+affect the next hot page, the next hot page is guaranteed to be still
+hot even after dma has completed.
+
+I'm not sure what's more important but I don't feel reserving is right.
+
+With the PG_zero-2-no-zerolist-reserve-1 I went as far as un-reserving
+zero pages during non-zero allocations. despite they're in different
+lists ;). I need them in different lists to provide PG_zero efficiently
+and to track hot-cold info  into the zerolist too. But I stopped all
+reservations even if they're already zero. This way the 200% boost in
+the microbench isn't guaranteed anymore but it very often happens.

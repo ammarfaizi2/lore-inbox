@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289096AbSBMXO3>; Wed, 13 Feb 2002 18:14:29 -0500
+	id <S289116AbSBMXPt>; Wed, 13 Feb 2002 18:15:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289098AbSBMXOT>; Wed, 13 Feb 2002 18:14:19 -0500
-Received: from web10403.mail.yahoo.com ([216.136.130.95]:11179 "HELO
-	web10403.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S289096AbSBMXOG>; Wed, 13 Feb 2002 18:14:06 -0500
-Message-ID: <20020213231405.55694.qmail@web10403.mail.yahoo.com>
-Date: Thu, 14 Feb 2002 10:14:05 +1100 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: "Re: Kernel 2.2.20 RAM requirements"
-To: kernel <linux-kernel@vger.kernel.org>
+	id <S289098AbSBMXPd>; Wed, 13 Feb 2002 18:15:33 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:58887 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S288748AbSBMXPV>; Wed, 13 Feb 2002 18:15:21 -0500
+Date: Wed, 13 Feb 2002 18:13:51 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ben Greear <greearb@candelatech.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <3C6AE602.3080708@candelatech.com>
+Message-ID: <Pine.LNX.3.96.1020213180951.12448L-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Feb 2002, Ben Greear wrote:
 
+> Bill Davidsen wrote:
+> 
+> > On Wed, 13 Feb 2002, Richard B. Johnson wrote:
 
-> System halted".
+> >>The advantage, of course is that if you are executing the kernel,
+> >>it can give you all the information necessary to recreate a
+> >>new one from the sources because its .config is embeded into
+> >>itself. Once you have the ".config" file, you just do `make oldconfig`
+> >>and you are home free.
 
-I long time ago post about something wrong with the
-optimization in the kernel 2.2.20 but it seems that
-nobody got it. It is not the boot loader IMHO; You try
-to compile it with i386 cpu Or try to add march=i386
-in the kernel make file. 
+> > But it does no such thing! You not only need the config file, you need the
+> > source. So you now need to add to the kernel the entire source tree from
+> > which it was built, or perhaps just a diff file from a kernel.org source,
+> > which you will suitably compress, of course.
+> 
+> 
+> Heh, if you want to exactly copy your existing kernel, just use the
+> 'cp' command!  Saving the config is more useful for those of us who
+> want to build a new kernel with new source that is *similar* to some
+> existing kernel.  Also, when an interesting bug (ie panic) occurs,
+> we can extract the .config automagically and send it along with
+> the ksymoops decode to the maintainers.  It's always easier to reproduce
+> the bug if you have the .config to the kernel that produced it.
+> 
+> Remember, you do not have to enable the feature.
 
-I got the similar problem with 2.2.20 and I never be
-able to boot it under 486 machine if I compile it
-under 686 machine althought the 486 box has 32Mb RAM,
-Finnally I have to modify the make file use march=i386
-and choose cpu 386 type
+No, but there's no reason to have it part of the kernel image as the only
+solution. It works as a module, it works as a flat text data file in the
+modules directory (except for those who can't match kernel to modules),
+and ther's no reason why this can't exist somewhere which has no impact on
+the size of the kernel image.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-
-=====
-S.KIEU
-
-http://greetings.yahoo.com.au - Yahoo! Greetings
-- Send your Valentines love online.

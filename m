@@ -1,74 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263351AbTIGQDq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 12:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTIGQDq
+	id S263357AbTIGQIR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 12:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263362AbTIGQIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 12:03:46 -0400
-Received: from pat.uio.no ([129.240.130.16]:8350 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263351AbTIGQDo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 12:03:44 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16219.22236.521008.199583@charged.uio.no>
-Date: Sun, 7 Sep 2003 12:03:40 -0400
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: NFS client problems in 2.4.18 to 2.4.20
-In-Reply-To: <20030907154238.GK19977@mail.jlokier.co.uk>
-References: <16218.5318.401323.630346@charged.uio.no>
-	<20030906212250.64809.qmail@web40414.mail.yahoo.com>
-	<20030906231401.GB12392@mail.jlokier.co.uk>
-	<16218.37312.1855.652692@charged.uio.no>
-	<20030907142727.GG19977@mail.jlokier.co.uk>
-	<16219.19506.659542.990013@charged.uio.no>
-	<20030907154238.GK19977@mail.jlokier.co.uk>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Sun, 7 Sep 2003 12:08:17 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46866 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263357AbTIGQIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 12:08:13 -0400
+Date: Sun, 7 Sep 2003 17:08:09 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Breno <brenosp@brasilsec.com.br>
+Cc: Marcelo <marcelo@conectiva.com.br>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: mswap.patch - 2.4.20
+Message-ID: <20030907170809.C23176@flint.arm.linux.org.uk>
+Mail-Followup-To: Breno <brenosp@brasilsec.com.br>,
+	Marcelo <marcelo@conectiva.com.br>,
+	Kernel List <linux-kernel@vger.kernel.org>
+References: <000a01c38db1$76b4e400$f8e4a7c8@bsb.virtua.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <000a01c38db1$76b4e400$f8e4a7c8@bsb.virtua.com.br>; from brenosp@brasilsec.com.br on Wed, Oct 08, 2003 at 12:33:01PM -0300
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Jamie Lokier <jamie@shareable.org> writes:
+On Wed, Oct 08, 2003 at 12:33:01PM -0300, Breno wrote:
+> I dis this small patch , because i need to know information about swap´s
+> consume.
+> 
+> patch for kernel 2.4.20
 
-    >> This is not an issue for tapes, etc. NFS has an alternative
-    >> mechanisms for dealing with this in the form of the
-    >> NFSERR_JUKEBOX error.
+The "&&" operator can be useful sometimes.  I think this may be one of
+those times.
 
-     > Oh, cool.  Perhaps the server should send these automatically,
-     > when I/O operations are taking a little bit too long?
+> +
+> +int show_swap_usage(void)
+> +{
+> +    struct task_struct *p = NULL;
+> +    
+> +    for_each_task(p)
+> +    {
+> +	if(p != NULL)
+> +	{
+> +	    if(p->pid != 1)
+> +	    {
+> +		if(p->mm != NULL)
+> +		{
+> +		    if(p->nswap > 0)
+> +		    {
+> +			printk(KERN_CRIT"Process name: %s pid %d\n",p->comm,p->pid);
+> +			printk(KERN_CRIT"Nswap: %lu Totalvm %lu Cswap %lu\n",p->nswap,p->mm->total_vm,p->cnswap);
+> +			return 0;
+> +		    }
+> +		}
+> +	    }
+> +	}
+> +    }
+> +    return 0;
+> +}	
 
-Yes. Needs a patch to knfsd, but would be very useful for people that
-want to export tapes, CD exchangers, etc...
 
-    >> By setting 'retrans=6' (5 + 1 to compensate for the bug),
-    >> therefore, people can ensure that we retry for at least 6
-    >> seconds before timing out. The question is: is this an adequate
-    >> default?
-
-     > That would be a big improvement.  I take it you have
-     > effectively clamped the retransmit time at a minimum of 1/10
-     > second, then?  (I didn't understand what you meant earlier).
-
-Yes. When we calculate the timeout value, we add the estimated error*4
-to the estimated round trip time. I've set a floor on the former value
-so that the minumum timeout will be 1/10second.
-
-     > Last time I used a soft mount, I was seeing the first
-     > retransmit after some time smaller than a millisecond.  (I
-     > don't remember, but 0.1ms sounds about right).  If that is the
-     > retransmit time, then retrans=6 won't be enough - retrans=16
-     > would be needed.  I don't think a good correct retrans=xxx
-     > setting should depend on the network like that.  Setting a
-     > minimum retransmit time is one way to fix that.
-
-It is already in 2.6.0. I'm expecting to put it into 2.4.23 too, but I
-want to know that this (together with a patch to 'mount' to change the
-retrans default) really does solve the problem for people...
-
-Cheers,
-  Trond
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

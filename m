@@ -1,36 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269882AbRHJBa6>; Thu, 9 Aug 2001 21:30:58 -0400
+	id <S269885AbRHJBxL>; Thu, 9 Aug 2001 21:53:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269883AbRHJBat>; Thu, 9 Aug 2001 21:30:49 -0400
-Received: from zok.sgi.com ([204.94.215.101]:10915 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S269882AbRHJBaa>;
-	Thu, 9 Aug 2001 21:30:30 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Rolf Fokkens <FokkensR@vertis.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Total freeze of 2.4 kernel 
-In-Reply-To: Your message of "Thu, 09 Aug 2001 12:48:30 +0200."
-             <200108091048.MAA04335@linux06.vertis.nl> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 10 Aug 2001 11:30:21 +1000
-Message-ID: <18763.997407021@kao2.melbourne.sgi.com>
+	id <S269886AbRHJBxC>; Thu, 9 Aug 2001 21:53:02 -0400
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:2948 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S269885AbRHJBws>; Thu, 9 Aug 2001 21:52:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Rik van Riel <riel@conectiva.com.br>,
+        marc heckmann <heckmann@hbesoftware.com>
+Subject: Re: 2.4.8-pre7: still buffer cache problems
+Date: Thu, 9 Aug 2001 21:52:50 -0400
+X-Mailer: KMail [version 1.3]
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+In-Reply-To: <Pine.LNX.4.33L.0108091749580.1439-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108091749580.1439-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010810015251.7DBC193B8@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Aug 2001 12:48:30 +0200, 
-Rolf Fokkens <FokkensR@vertis.nl> wrote:
->We installed a 2.4.7 kernel on a Compaq Proliant server and it makes the
->machine freeze totally at various moments.
+Hi Rik,
 
-To gather more information, try adding the kernel debugger patch [1],
-booting with nmi watchdog [2] and a serial console [3].
+This has nice effects here.  With 320M memory starting a tob backup would put 
+about 120M in the buffer cache.  With this applied it peaks at about 60M - the
+system also remains more interactive.
 
-[1] ftp://oss.sgi.com/projects/kdb/download/ix86
-[2] For uni-processor, compile with CONFIG_X86_UP_IOAPIC=y,
-    CONFIG_UP_NMI_WATCHDOG=y.  For SMP, boot with option
-    nmi_watchdog=2.
-[3] Documentation/serial-console.txt
+If buffer_mem.borrow_percent is not used anywhere else suggest we reduce the
+default percentage a bit more and see if things get even better.
 
+Thoughts
+
+Ed Tomlinson
+
+On August 9, 2001 04:55 pm, Rik van Riel wrote:
+> On Thu, 9 Aug 2001, marc heckmann wrote:
+> > While 2.4.8-pre7 definitely fixes the "dd if=/dev/zero
+> > of=bigfile bs=1000k count=bignumber" case. The "dd if=/dev/hda
+> > of=/dev/null" is still quite broken for me.
+>
+> OK, there is no obvious way to do do drop-behind on
+> buffer cache pages, but I think we can use a quick
+> hack to make the system behave well under the presence
+> of large amounts of buffer cache pages.
+>
+> What we could do is, in refill_inactive_scan(), just
+> moving buffer cache pages to the inactive list regardless
+> of page aging when there are too many buffercache pages
+> around in the system.
+>
+> Does the patch below help you ?
+>
+> regards,
+>
+> Rik
+> --
+> IA64: a worthy successor to the i860.
+>
+> 		http://www.surriel.com/
+> http://www.conectiva.com/	http://distro.conectiva.com/
+>
+>
+> --- linux-2.4.7-ac7/mm/vmscan.c.buffer	Thu Aug  9 17:54:24 2001
+> +++ linux-2.4.7-ac7/mm/vmscan.c	Thu Aug  9 17:55:09 2001
+> @@ -708,6 +708,8 @@
+>   * This function will scan a portion of the active list to find
+>   * unused pages, those pages will then be moved to the inactive list.
+>   */
+> +#define too_many_buffers (atomic_read(&buffermem_pages) > \
+> +		(num_physpages * buffer_mem.borrow_percent / 100))
+>  int refill_inactive_scan(zone_t *zone, unsigned int priority, int target)
+>  {
+>  	struct list_head * page_lru;
+> @@ -770,6 +772,18 @@
+>  				page_active = 1;
+>  			}
+>  		}
+> +
+> +		/*
+> +		 * If the amount of buffer cache pages is too
+> +		 * high we just move every buffer cache page we
+> +		 * find to the inactive list. Eventually they'll
+> +		 * be reclaimed there...
+> +		 */
+> +		if (page->buffers && !page->mapping && too_many_buffers) {
+> +			deactivate_page_nolock(page);
+> +			page_active = 0;
+> +		}
+> +
+>  		/*
+>  		 * If the page is still on the active list, move it
+>  		 * to the other end of the list. Otherwise we exit if
+>
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280808AbRKYKY6>; Sun, 25 Nov 2001 05:24:58 -0500
+	id <S280804AbRKYKau>; Sun, 25 Nov 2001 05:30:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280809AbRKYKYt>; Sun, 25 Nov 2001 05:24:49 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:15623 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S280808AbRKYKYf>;
-	Sun, 25 Nov 2001 05:24:35 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Nathan Dabney <smurf@osdlab.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Releases 
-In-Reply-To: Your message of "Sun, 25 Nov 2001 01:25:07 -0800."
-             <20011125012507.C6414@osdlab.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 25 Nov 2001 21:24:21 +1100
-Message-ID: <12023.1006683861@ocs3.intra.ocs.com.au>
+	id <S280809AbRKYKaj>; Sun, 25 Nov 2001 05:30:39 -0500
+Received: from [195.207.52.190] ([195.207.52.190]:64784 "EHLO
+	perycles.unix.be.EU.org") by vger.kernel.org with ESMTP
+	id <S280804AbRKYKaW>; Sun, 25 Nov 2001 05:30:22 -0500
+Date: Sun, 25 Nov 2001 11:29:59 +0100 (CET)
+From: Alexandre Dulaunoy <alex@conostix.com>
+X-X-Sender: <adulau-conos@perycles.unix.be.EU.org>
+To: David Weinehall <tao@acc.umu.se>
+cc: <Sven.Riedel@tu-clausthal.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux and RS/6000 250
+In-Reply-To: <20011125105515.J5770@khan.acc.umu.se>
+Message-ID: <Pine.LNX.4.33.0111251127050.30732-100000@perycles.unix.be.EU.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Nov 2001 01:25:07 -0800, 
-Nathan Dabney <smurf@osdlab.org> wrote:
->We will be running all the available tests (until that list gets too large
->to be possible) on each kernel the morning after it's released.
 
-Have you been following the kbuild 2.5 developments[1]?  Linus has
-agreed that this change will go in early in the 2.5 cycle, that will
-impact on all automated testing for 2.5.  There will be both good and
-bad impacts, the bad is the initial changeover, the good is a much
-cleaner build process and the ability to build multiple configurations
-from a single source tree.
+On Sun, 25 Nov 2001, David Weinehall wrote:
 
-[1] http://sourceforge.net/projects/kbuild/
+> On Sun, Nov 25, 2001 at 02:46:52AM +0100, Sven.Riedel@tu-clausthal.de wrote:
+> > Hi,
+> > I've uh "inherited" an elderly RS/6000 250 and wanted to install linux
+> > on it. Googleing for this machine and linux turns up information that it
+> > is not possible. Yet, this information is a tad older (one to two years
+
+http://oss.software.ibm.com/developer/opensource/linux/projects/ppc/models.php
+
+hope this helps
+
+alx
+
+-- 
+Alexandre Dulaunoy			adulau@conostix.com
+					http://www.conostix.com/
 

@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133065AbRDRKFA>; Wed, 18 Apr 2001 06:05:00 -0400
+	id <S133071AbRDRKWZ>; Wed, 18 Apr 2001 06:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133068AbRDRKEu>; Wed, 18 Apr 2001 06:04:50 -0400
-Received: from smtp1.xs4all.nl ([194.109.127.131]:26889 "EHLO smtp1.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S133065AbRDRKEk>;
-	Wed, 18 Apr 2001 06:04:40 -0400
-Date: Wed, 18 Apr 2001 10:04:23 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: Byron Stanoszek <gandalf@winds.org>
-Cc: Jason Thomas <jason@topic.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3-ac9
-Message-ID: <20010418100423.A10006@grobbebol.xs4all.nl>
-In-Reply-To: <20010418120102.B29749@topic.com.au> <Pine.LNX.4.21.0104172224320.8771-100000@winds.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.21.0104172224320.8771-100000@winds.org>; from gandalf@winds.org on Tue, Apr 17, 2001 at 10:26:26PM -0400
-X-OS: Linux grobbebol 2.4.3 
+	id <S133072AbRDRKWQ>; Wed, 18 Apr 2001 06:22:16 -0400
+Received: from aeon.tvd.be ([195.162.196.20]:62676 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S133071AbRDRKV6>;
+	Wed, 18 Apr 2001 06:21:58 -0400
+Date: Wed, 18 Apr 2001 12:20:52 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fbdev init order violation
+Message-ID: <Pine.LNX.4.05.10104181219110.2647-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 10:26:26PM -0400, Byron Stanoszek wrote:
-> I've seen this on my Dell P3 700 machine several times. Seems to happen at odd
-> intervals after I use my CD burner, but that just might be coincidental. But
 
-I have seen this related to the cd burner as well. it's not a via board
-here, but is SMP.
+The Epson 1355 frame buffer device doesn't use resource management (yet), so it
+must be initialized later.
 
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+--- linux-2.4.4-pre4/drivers/video/fbmem.c.orig	Wed Apr 18 11:40:40 2001
++++ linux-2.4.4-pre4/drivers/video/fbmem.c	Wed Apr 18 12:17:57 2001
+@@ -202,9 +202,6 @@
+ #ifdef CONFIG_FB_SIS
+ 	{ "sisfb", sisfb_init, sisfb_setup },
+ #endif
+-#ifdef CONFIG_FB_E1355
+-	{ "e1355fb", e1355fb_init, e1355fb_setup },
+-#endif
+ 
+ 	/*
+ 	 * Generic drivers that are used as fallbacks
+@@ -269,6 +266,9 @@
+ #endif
+ #ifdef CONFIG_FB_HIT
+ 	{ "hitfb", hitfb_init, NULL },
++#endif
++#ifdef CONFIG_FB_E1355
++	{ "e1355fb", e1355fb_init, e1355fb_setup },
+ #endif
+ #ifdef CONFIG_FB_DC
+ 	{ "dcfb", dcfb_init, NULL },
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

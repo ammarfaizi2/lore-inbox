@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318275AbSIKBzk>; Tue, 10 Sep 2002 21:55:40 -0400
+	id <S318272AbSIKByJ>; Tue, 10 Sep 2002 21:54:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318277AbSIKBzk>; Tue, 10 Sep 2002 21:55:40 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:6784 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S318275AbSIKBzi>;
-	Tue, 10 Sep 2002 21:55:38 -0400
-Date: Tue, 10 Sep 2002 21:00:30 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
+	id <S318275AbSIKByJ>; Tue, 10 Sep 2002 21:54:09 -0400
+Received: from u212-239-150-44.dialup.planetinternet.be ([212.239.150.44]:58628
+	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP
+	id <S318272AbSIKByI>; Tue, 10 Sep 2002 21:54:08 -0400
+Message-Id: <200209110157.g8B1vapp006206@jebril.pi.be>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
 To: linux-kernel@vger.kernel.org
-Subject: 2.5 Problem Status Report
-Message-ID: <Pine.LNX.4.44.0209102057340.944-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: 2.5.34 randomly freezes under X (seems input related)
+Date: Wed, 11 Sep 2002 03:57:36 +0200
+From: "Michel Eyckmans (MCE)" <mce@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The most current version of this status report can be found at:
-http://members.cox.net/tmolina/kernprobs/status.html
+Greetz,
 
-   Notes:
-     * Several  people  have  requested  the  discussion be linked to LKML 
-archives. With this version I've switched from
-       locally edited discussion threads to archived links.
-     * Great  progress has been made in forward porting IDE driver code 
-from 2.4 to 2.5. Several people have tried 2.5.33
-       without disaster. Updates continue to be added to the -ac kernels 
-and the 2.5 bitkeeper kernels.
-     * Floppy  support  appears to have been fixed in 2.5.33-bitkeeper. It 
-has been tested, and the corruption previously
-       seen has not been duplicated.
-     * Support for __FUNCTION__ pasting is being phased out of gcc. This 
-has broken compiling in numerous places. Defines
-       of the form:
-       #define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " 
-__FUNCTION__ "\n")
-       need to be changed to the form:
-       #define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s\n", 
-__FUNCTION__)
+On 2.5.34, moving the mouse around (just moving, not clicking) under 
+an (almost) idle X "almost" reliably freezes my machine if I just do 
+it long enough. I write "almost" because:
 
-              2.5 Kernel Problem Reports as of 10 Sep
-   Problem Title                Status                Discussion
-   JFS oops                     open                  06 Sep 2002
-   qlogicisp oops               no further discussion 2.5.33
-   2.5.32 reboot oops           no further discussion 2.5.33
-   ext2 umount oops             no further discussion 2.5.33
-   DEBUG_SLAB oops              no further discussion 2.5.33
-   2.5.32-mm1 problems          no further discussion 2.5.33
-   soft suspend problem         no further discussion 2.5.33
-   PCI and/or starfire.c broken no further discussion 2.5.33
-   __write_lock_failed() oops   no further discussion 2.5.33
-   invalidate_inode_pages       open                  10 Sep 2002
-   Problem running on Athlons   open                  06 Sep 2002
-   dequeue_signal panic                               08 Sep 2002
-                                closed                09 Sep 2002
-   mouse/keyboard flakiness     open                  09 Sep 2002
-   process hang in do_IRQ       open                  09 Sep 2002
-   do_syslog lockup             open                  09 Sep 2002
-   BUG at kernel/sched.c        open                  10 Sep 2002
+ 1) It happened on 14 out of 15 sessions, sometimes immediately
+    after logging in. I gave up on the one exception after trying
+    for more than 5 minutes.
 
+ 2) It might be related to whether there is some background activity. 
+    I have a shell script that forks a lot of stuff in quick succession 
+    and it seems that a lockup is guaranteed if I move my mouse while 
+    that script is running. The script is not a requirement, though.
+
+Sadly, only the reset button helps and of course nothing useful shows 
+up in the logs. :-( I tried very hard to reproduce it on a virtual 
+console, but failed no matter how hard I stressed the box. So X "must" 
+be part of the problem somehow.
+
+This is 2.5.34 on a dual Pentium, gcc 2.95, no preempt, AT keyboard 
+& serial mouse. I never got 2.5.32 and 2.5.33 to compile/boot, so the 
+problem may not be all that new. 2.5.31 works OK (not fine, but OK).
+
+Any ideas? It looks a bit like some input layer problem to me.
+Feel free to ask for more configuration details if you're interested.
+
+   MCE
+
+PS: Thanks for the working floppies! 
+
+   MCE
+-- 
+========================================================================
+M. Eyckmans (MCE)          Code of the Geeks v3.1       mce-at-pi-dot-be
+GCS d+ s+:- a37 C+++$ UHLUASO+++$ P+ L+++ E--- W++ N+++ !o K w--- !O M--
+ V-- PS+ PE+ Y+ PGP- t--- !5 !X R- tv- b+ DI++ D-- G++ e+++ h+(*) !r y?
+========================================================================
 

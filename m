@@ -1,58 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbUKDBqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbUKDBzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbUKDBqw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 20:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUKDBqv
+	id S262039AbUKDBzL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 20:55:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUKDBzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 20:46:51 -0500
-Received: from ozlabs.org ([203.10.76.45]:46804 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262026AbUKDBqt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 20:46:49 -0500
-Date: Thu, 4 Nov 2004 11:36:42 +1100
-From: David Gibson <hermes@gibson.dropbear.id.au>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Pavel Roskin <proski@gnu.org>, orinoco-deve@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Another trivial orinoco update
-Message-ID: <20041104003642.GA10969@zax>
-Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
-	Francois Romieu <romieu@fr.zoreil.com>,
-	Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-	Pavel Roskin <proski@gnu.org>, orinoco-deve@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20041103034433.GB5441@zax> <20041103211738.GA14377@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041103211738.GA14377@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 3 Nov 2004 20:55:11 -0500
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:55955
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S262039AbUKDBzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 20:55:00 -0500
+Subject: [patch 02/20] Uml: add startup check for mmap(...PROT_EXEC...) from /tmp.
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, cw@f00f.org,
+       blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Thu, 04 Nov 2004 00:17:18 +0100
+Message-Id: <20041103231719.0CC3A36389@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 10:17:38PM +0100, Francois Romieu wrote:
-> David Gibson <hermes@gibson.dropbear.id.au> :
-> [...]
-> > This patch alters the convention with which orinoco_lock() is invoked
-> > in the orinoco driver.  This should cause no behavioural change, but
-> > reduces meaningless diffs between the mainline and CVS version of the
-> > driver.  Another small step towards a merge.
-> 
-> Afaics orinico_lock returns a nice status code. Let alone the merge
-> argument (which could be solved in the CVS tree as well), is there a
-> technical reason for this patch ?
 
-orinoco_lock() only ever returns either 0 or -EBUSY, so it's
-essentially boolean.  There's no reason to expect it would ever return
-anything else.  Using it in if statements directly removes a few lines
-of code, removes the need for a few extra 'err' variables, and makes
-things slightly neater in the case where just propagating the -EBUSY
-up isn't the right thing to do.  It's no big deal, but we did make
-this change in CVS for a reason.
+This adds a check that /tmp is not mounted noexec.  UML needs to be able
+to do PROT_EXEC mmaps of temp files.  Previously, a noexec /tmp would
+cause an early mysterious UML crash.
+(Actually, not /tmp but $TMP, which often is the same).
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
+
+ vanilla-linux-2.6.9-paolo/arch/um/include/mem_user.h |    1 
+ vanilla-linux-2.6.9-paolo/arch/um/kernel/mem_user.c  |   22 ++++++++++++++++++-
+ vanilla-linux-2.6.9-paolo/arch/um/kernel/um_arch.c   |    5 ++++
+ 3 files changed, 27 insertions(+), 1 deletion(-)
+
+diff -puN arch/um/include/mem_user.h~uml-tmp-exec arch/um/include/mem_user.h
+--- vanilla-linux-2.6.9/arch/um/include/mem_user.h~uml-tmp-exec	2004-11-03 23:44:37.382877056 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/include/mem_user.h	2004-11-03 23:44:37.387876296 +0100
+@@ -67,6 +67,7 @@ extern void map_memory(unsigned long vir
+ extern int protect_memory(unsigned long addr, unsigned long len, 
+ 			  int r, int w, int x, int must_succeed);
+ extern unsigned long get_kmem_end(void);
++extern void check_tmpexec(void);
+ 
+ #endif
+ 
+diff -puN arch/um/kernel/mem_user.c~uml-tmp-exec arch/um/kernel/mem_user.c
+--- vanilla-linux-2.6.9/arch/um/kernel/mem_user.c~uml-tmp-exec	2004-11-03 23:44:37.383876904 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/kernel/mem_user.c	2004-11-03 23:44:37.388876144 +0100
+@@ -83,6 +83,26 @@ static int create_tmp_file(unsigned long
+ 	return(fd);
+ }
+ 
++void check_tmpexec(void)
++{
++	void *addr;
++	int err, fd = create_tmp_file(UM_KERN_PAGE_SIZE);
++
++	addr = mmap(NULL, UM_KERN_PAGE_SIZE,
++		    PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE, fd, 0);
++	printf("Checking PROT_EXEC mmap in /tmp...");
++	fflush(stdout);
++	if(addr == MAP_FAILED){
++		err = errno;
++		perror("failed");
++		if(err == EPERM)
++			printf("/tmp must be not mounted noexec\n");
++		exit(1);
++	}
++	printf("OK\n");
++	munmap(addr, UM_KERN_PAGE_SIZE);
++}
++
+ static int have_devanon = 0;
+ 
+ void check_devanon(void)
+@@ -111,7 +131,7 @@ static int create_anon_file(unsigned lon
+ 		exit(1);
+ 	}
+ 
+-	addr = mmap(NULL, len, PROT_READ | PROT_WRITE , MAP_PRIVATE, fd, 0);
++	addr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+ 	if(addr == MAP_FAILED){
+ 		os_print_error((int) addr, "mapping physmem file");
+ 		exit(1);
+diff -puN arch/um/kernel/um_arch.c~uml-tmp-exec arch/um/kernel/um_arch.c
+--- vanilla-linux-2.6.9/arch/um/kernel/um_arch.c~uml-tmp-exec	2004-11-03 23:44:37.385876600 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/kernel/um_arch.c	2004-11-03 23:44:37.388876144 +0100
+@@ -321,6 +321,11 @@ int linux_main(int argc, char **argv)
+ 	uml_start = CHOOSE_MODE_PROC(set_task_sizes_tt, set_task_sizes_skas, 0,
+ 				     &host_task_size, &task_size);
+ 
++	/* Need to check this early because mmapping happens before the
++	 * kernel is running.
++	 */
++	check_tmpexec();
++
+ 	brk_start = (unsigned long) sbrk(0);
+ 	CHOOSE_MODE_PROC(before_mem_tt, before_mem_skas, brk_start);
+ 	/* Increase physical memory size for exec-shield users
+_

@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUEJT61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUEJT64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUEJT61 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 15:58:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUEJT60
+	id S261451AbUEJT64 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 15:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUEJT6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 15:58:26 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:39656 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261439AbUEJT6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 15:58:18 -0400
-From: celestar@t-online.de (Frank Victor Fischer)
-To: linux-raid@vger.kernel.org
-Subject: Re: RAID5 (along with RAID1) locks up
-Date: Mon, 10 May 2004 21:58:04 +0200
-User-Agent: KMail/1.6.2
-References: <200405101351.i4ADpYB03061@www.watkins-home.com>
-In-Reply-To: <200405101351.i4ADpYB03061@www.watkins-home.com>
+	Mon, 10 May 2004 15:58:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7596 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261451AbUEJT6j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 15:58:39 -0400
+Date: Mon, 10 May 2004 13:00:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@fs.tum.de>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: 2.6.6-mm1: a different CONFIG_STANDALONE approach
+Message-Id: <20040510130057.35b42027.akpm@osdl.org>
+In-Reply-To: <20040510124543.GI9028@fs.tum.de>
+References: <20040510024506.1a9023b6.akpm@osdl.org>
+	<20040510124543.GI9028@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405102158.04419.celestar@t-online.de>
-X-Seen: false
-X-ID: TJ+ROMZege6ReRKwST0vW8BpVyYaX69t+oOzgGhY2mA2mipAOyFKQJ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I see your RAID1 (md0) using sda1, sdb1 and sdc1.
-> Which disks/partitions is your RAID5 using?
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>
+> On Mon, May 10, 2004 at 02:45:06AM -0700, Andrew Morton wrote:
+> >...
+> > All 391 patches:
+> >...
+> > CONFIG_STANDALONE-default-to-n.patch
+> >   Make CONFIG_STANDALONE default to N
+> >...
+> 
+> I'd prefer to solve this issue with the following patch, that makes it 
+> still possible to select CONFIG_STANDALONE with EXPERIMENTAL=n:
 
-Whoops that log was created before I re-created the RAID5
+Well nobody seems to have complained about this in months, so I dropped it
+all.
 
-it was md1, using sda3, sdb3 and sdc3, each using up the rest of the drive.
-
-Victor

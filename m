@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262738AbREVTPi>; Tue, 22 May 2001 15:15:38 -0400
+	id <S262730AbREVTW7>; Tue, 22 May 2001 15:22:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262736AbREVTP2>; Tue, 22 May 2001 15:15:28 -0400
-Received: from teranet244-12-200.monarch.net ([24.244.12.200]:43012 "HELO
-	lustre.us.mvd") by vger.kernel.org with SMTP id <S262734AbREVTPS>;
-	Tue, 22 May 2001 15:15:18 -0400
-Date: Tue, 22 May 2001 13:16:42 -0600 (MDT)
-From: "Peter J. Braam" <braam@mountainviewdata.com>
-X-X-Sender: <braam@lustre.us.mvd>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andreas Dilger <adilger@turbolinux.com>,
-        Alexander Viro <viro@math.psu.edu>, Edgar Toernig <froese@gmx.de>,
-        Ben LaHaise <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
- w/info-PATCH]device arguments from lookup)
-In-Reply-To: <Pine.LNX.4.21.0105221204590.3906-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0105221311430.1296-100000@lustre.us.mvd>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262737AbREVTWu>; Tue, 22 May 2001 15:22:50 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:6981 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S262730AbREVTWk>;
+	Tue, 22 May 2001 15:22:40 -0400
+Message-ID: <20010522212238.A11203@win.tue.nl>
+Date: Tue, 22 May 2001 21:22:38 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Oliver Xymoron <oxymoron@waste.org>, Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <5.1.0.14.2.20010522153915.00ac1630@pop.cus.cam.ac.uk> <Pine.LNX.4.30.0105221104070.19818-100000@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.30.0105221104070.19818-100000@waste.org>; from Oliver Xymoron on Tue, May 22, 2001 at 11:08:16AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 22, 2001 at 11:08:16AM -0500, Oliver Xymoron wrote:
 
-On Tue, 22 May 2001, Linus Torvalds wrote:
->
+> > >+       struct list_head        hash;
 
+> > Why not name consistently with the struct block_device?
+> >          struct list_head        cd_hash;
 
-> On Tue, 22 May 2001, Andreas Dilger wrote:  Actually, the LVM snapshot
-> interface has (optional) hooks into the filesystem to ensure that it
-> is consistent at the time the snapshot is created.
+> Because foo_ is a throwback to the days when C compilers had a single
+> namespace for all structure elements, not a readability aid. If you need
+> foo_ to know what type of structure you're futzing with, you need to name
+> your variables better.
 
-But I think that LVM is implemented "the wrong way around".
+One often has to go through all occurrences of a variable or
+field of a struct. That is much easier with cd_hash and cd_dev
+than with hash and dev.
 
-File system journal recovery can corrupt a snapshot, because it copies
-data that needs to be preserved in a snapshot. During journal replay such
-data may be copied again, but the source can have new data already.
-
-Most LVM snapshot systems write the new data in the separate volume and
-don't copy the old data that eliminates this problem (and also eliminates
-the copy of data but introduces data copy when a snapshot is removed).
-
-- Peter -
-
+No, it is a good habit, these prefixes, even though it is no longer
+necessary because of the C compiler. 

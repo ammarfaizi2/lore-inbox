@@ -1,90 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVCHR7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVCHSAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbVCHR7m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 12:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVCHR7m
+	id S261455AbVCHSAS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 13:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVCHSAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 12:59:42 -0500
-Received: from alog0177.analogic.com ([208.224.220.192]:28032 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261457AbVCHR7c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 12:59:32 -0500
-Date: Tue, 8 Mar 2005 12:57:23 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Imanpreet Arora <imanpreet@gmail.com>
-cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
-Subject: Re: Question regarding thread_struct
-In-Reply-To: <c26b959205030809271b8a5886@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0503081244390.12076@chaos.analogic.com>
-References: <c26b959205030809044364b923@mail.gmail.com> 
- <1110302000.23923.14.camel@betsy.boston.ximian.com> <c26b959205030809271b8a5886@mail.gmail.com>
+	Tue, 8 Mar 2005 13:00:18 -0500
+Received: from mail.satronet.sk ([217.144.16.198]:56196 "EHLO mail.satronet.sk")
+	by vger.kernel.org with ESMTP id S261455AbVCHSAB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 13:00:01 -0500
+From: Michal Vanco <vanco@satro.sk>
+Organization: Satro, s.r.o.
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.11 on AMD64 traps
+Date: Tue, 8 Mar 2005 19:00:18 +0100
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1211657.sL8xc06FFV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503081900.18686.vanco@satro.sk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Mar 2005, Imanpreet Arora wrote:
+--nextPart1211657.sL8xc06FFV
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> On Tue, 08 Mar 2005 12:13:20 -0500, Robert Love <rml@novell.com> wrote:
->> On Tue, 2005-03-08 at 22:34 +0530, Imanpreet Arora wrote:
->>
->>>       I am wondering if someone could provide information as to how
->>> thread_struct is kept in memory. Robert Love mentions that it is kept
->>> at the "lowest"  kernel address in case of x86 based platform. Could
->>> anyone answer these questions.
->>
->> Kernel _stack_ address for the given process.
->>
->>> a)    When a stack is resized, is the thread_struct structure copied onto
->>> a new place?
->>
->> This is the kernel stack, not any potential user-space stack.  Kernel
->> stacks are not resized.
->
-> This has been a doubt for a couple of days, and I am wondering if this
-> one could also be cleared. When you say kernel stack, can't be resized
->
+Hello,
 
-Every task (process) has its own stack which can be as large as
-necessary. It grows down towards the user data.
+I see this problem running 2.6.11 on dual AMD64:
 
-When a user calls the kernel, the kernel code switches to
-a 'kernel stack' which is a separate stack and there is a
-different one for each and every task on the system. Since,
-with thousands of tasks, there will be thousands of kernel stacks,
-it is essential to make the kernel stack as small as possible.
-In the ix86, this has meant either 1 or two pages of PAGE_SIZE
-length (0x1000 currently).
+Running quagga routing daemon (ospf+bgp) and issuing "netstat -rn |wc -l" command
+while quagga tries to load more than 154000 routes from its bgp neighbours causes this trap:
 
->
-> a)       Does it mean that the _whole_ of the kernel is restricted to
-> that 8K or 16K of memory?
->
+Unable to handle kernel paging request at 00000000007f5c60 RIP:
+<ffffffff8041be35>{fib_get_next+181}
+PGD 3a112067 PUD 3a115067 PMD 0
+Oops: 0000 [1] SMP
+CPU 1
+Modules linked in:
+Pid: 2537, comm: netstat Not tainted 2.6.11-mv
+RIP: 0010:[<ffffffff8041be35>] <ffffffff8041be35>{fib_get_next+181}
+RSP: 0018:ffff81003a13fe90  EFLAGS: 00010206
+RAX: ffff81003a74c000 RBX: 0000000000000000 RCX: ffff81003a13ff50
+RDX: 00000000007f5c60 RSI: 0000000000000000 RDI: ffff81003a004d00
+RBP: ffff81003a13fed8 R08: ffff81003f3ff7c0 R09: 0000000000000800
+R10: 00007fffffffefe0 R11: 0000000000000246 R12: ffff810002231480
+R13: 00002aaaaab08000 R14: 0000000000000400 R15: ffff8100022314a8
+FS:  00002aaaaae00620(0000) GS:ffffffff806195c0(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00000000007f5c60 CR3: 000000003a12e000 CR4: 00000000000006e0
+Process netstat (pid: 2537, threadinfo ffff81003a13e000, task ffff81003a66a760)
+Stack: ffffffff8041bf0f ffff810002231480 ffff81003a67ac80 0000000000000000
+ffffffff8019576b 0000000000000000 ffff81003a13ff50 00002aaaaab08000
+00000000000006f7 00000000000006f8
+Call Trace:<ffffffff8041bf0f>{fib_seq_start+63} <ffffffff8019576b>{seq_read+219}
+<ffffffff8017497f>{vfs_read+191} <ffffffff80174c53>{sys_read+83}
+<ffffffff8010d1ba>{system_call+126}
 
-All code that executes in the kernel must use the stack that has
-already been allocated for it. If you have code that cares about
-the size of the kernel stack, the code is broken. If you have
-an array, allocated in the kernel, that's longer than a few
-hundred bytes, you use kmalloc() or other kernel allocators
-for that array.
+Code: 48 8b 0a 0f 18 09 48 8b 72 10 48 8b 06 0f 18 08 48 8d 42 10
+RIP <ffffffff8041be35>{fib_get_next+181} RSP <ffff81003a13fe90>
+CR2: 00000000007f5c60
 
-> b)        Or does it mean that a particular stack for a particular
-> process, can't be resized?
->
+I saw the same issue on 2.6.10 before. I'm not a kernel hacker but it sounds like
+locking problem. But may be I'm totally wrong in this.
 
-Stacks are never resized and, in fact, this isn't a Unix/Linux
-thing, it's just never done because it's stupid and, if necessary,
-is used to cover up something equally stupid, like excessive
-recursion.
+michal
 
-> c)         And for that matter how exactly do we define a kernel stack?
->
+--nextPart1211657.sL8xc06FFV
+Content-Type: application/pgp-signature
 
-You don't.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+iD8DBQBCLegySBxxqpMaGkMRAtVIAKCzk6w7F8oCSk2URpTyGZJUF6OjEACcCe8Q
+40Uq+TnaRG4VNI3ntJgSSFU=
+=4n7m
+-----END PGP SIGNATURE-----
+
+--nextPart1211657.sL8xc06FFV--

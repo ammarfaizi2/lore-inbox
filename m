@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265480AbSLIN2c>; Mon, 9 Dec 2002 08:28:32 -0500
+	id <S265457AbSLINbT>; Mon, 9 Dec 2002 08:31:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265506AbSLIN2c>; Mon, 9 Dec 2002 08:28:32 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:15367 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S265480AbSLIN2b>; Mon, 9 Dec 2002 08:28:31 -0500
-Date: Mon, 9 Dec 2002 16:35:11 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+	id <S265477AbSLINbT>; Mon, 9 Dec 2002 08:31:19 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:700 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265457AbSLINbS>; Mon, 9 Dec 2002 08:31:18 -0500
+Subject: Re: /proc/pci deprecation?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Richard Henderson <rth@twiddle.net>, Patrick Mochel <mochel@osdl.org>,
        Willy Tarreau <willy@w.ods.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: /proc/pci deprecation?
-Message-ID: <20021209163511.A1637@jurassic.park.msu.ru>
-References: <20021208125642.A22545@twiddle.net> <Pine.LNX.4.44.0212081747590.1209-100000@home.transmeta.com>
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+In-Reply-To: <Pine.LNX.4.44.0212081747590.1209-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0212081747590.1209-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Dec 2002 14:14:21 +0000
+Message-Id: <1039443261.10551.23.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0212081747590.1209-100000@home.transmeta.com>; from torvalds@transmeta.com on Sun, Dec 08, 2002 at 05:54:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 08, 2002 at 05:54:16PM -0800, Linus Torvalds wrote:
-> Writing it back is actively _bad_, since it will make it very hard to
-> re-boot the machine without the BIOS re-enumarating the PCI bus and
-> filling it in again (ie it would definitely screw up using things like
-> kexec() on PC's, if the kernel we boot _from_ is an APIC kernel, but the
-> kernel we boot _into_ is not).
+A PS to this btw reading over the code - currently it seems to write it
+with our IRQ data if we do a suspend/resume but not initially. If so we
+have an inconsistency to resolve
 
-True. This applies to alpha as well because of the way how modern consoles
-encode IRQs routed through the ISA bridge (actual IRQ + 0xe0).
-
-Probably we should eliminate pcibios_update_irq() call in
-drivers/pci/setup-irq.c and see what happens. Nothing bad, I guess.
-
-Ivan.

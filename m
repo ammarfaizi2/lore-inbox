@@ -1,64 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263395AbTIASTq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 14:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263418AbTIASTq
+	id S263442AbTIASUg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 14:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTIASUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 14:19:46 -0400
-Received: from main.gmane.org ([80.91.224.249]:43465 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263395AbTIASTm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 14:19:42 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Stephane LOEUILLET <news@leroutier.net>
-Subject: 70+ typos in 2.4.22 + script to generate diffs
-Date: Mon, 01 Sep 2003 20:15:30 +0200
-Message-ID: <pan.2003.09.01.18.15.22.368626@leroutier.net>
+	Mon, 1 Sep 2003 14:20:36 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:15785 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263442AbTIASUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 14:20:24 -0400
+Subject: Re: bitkeeper comments
+From: Albert Cahalan <albert@users.sf.net>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, ak@suse.de
+In-Reply-To: <20030901154646.GB1327@work.bitmover.com>
+References: <1062389729.314.31.camel@cube>
+	 <20030901140706.GG18458@work.bitmover.com> <1062430014.314.59.camel@cube>
+	 <20030901154646.GB1327@work.bitmover.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1062439679.845.111.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 01 Sep 2003 14:08:00 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+On Mon, 2003-09-01 at 11:46, Larry McVoy wrote:
+> On Mon, Sep 01, 2003 at 11:26:55AM -0400, Albert Cahalan wrote:
+> > I'm OK with whatever ensures that somebody looking back
+> > through the BitKeeper logs isn't going to come to the
+> > conclusion that I broke something.
+> > 
+> > Um, not everybody will grab updates from bkbits.net,
+> > right? Pardon me for being clueless about BitKeeper,
+> > but is there some command Andi or Linus could run?
+> 
+> Unfortunately the checkin comments themselves are not revision controlled.
+> You have to run a command on each repository that needs to be fixed,
+> if you send me the desired comments I'll post the command.  Then if
+> Linus or Marcelo says do it I'll do it on bkbits.net.  That should be good
+> enough, the logs there are what people tend to browse.
 
-i know, typos aren't really what real programers are looking to fix first
-but if those aren't fixed, they would be reported ever and ever and ever
-...
+============ as a patch =============
+--- old  2003-09-01 14:04:46.000000000 -0400
++++ new  2003-09-01 14:05:18.000000000 -0400
+@@ -2,13 +2,9 @@
+ 
+ Make everything compile and boot again.
+ 
+-The earlier third party ioport.c changes unfortunately didn't even
+-compile, fix that too.
+-
+  - Update defconfig
+  - Some minor cleanup
+  - Introduce physid_t for APIC masks (fixes UP kernels)
+- - Finish ioport.c merge and fix compilation
+  - Add bandaid for CardBus bridges and broken BIOS (Vojtech)
+  - Add bandaid for unsynchronized TSCs  (Vojtech)
+  - Fix ffs(0) return value (fixes XFS) 
 
-so, as i did not know what to do today, i started looking for a few common
-typos and found around  70 different ones over the 2.4.22 tree. (some only
-written once, others written several times)
+=========== old content ============
+[PATCH] x86-64 update
 
-as tracking typo is borring, i started to write a perl script that would :
+Make everything compile and boot again.
 
-- copy all files containing a know typo (from a separate file) from your
-local linux tree (parameter : $KERNEL_SOURCE_ROOT) to a local directory
-(parameter : $LOCAL_DIFF_DIR)
+The earlier third party ioport.c changes unfortunately didn't even
+compile, fix that too.
 
-- replace all typo by its correct spelling for all know world
+ - Update defconfig
+ - Some minor cleanup
+ - Introduce physid_t for APIC masks (fixes UP kernels)
+ - Finish ioport.c merge and fix compilation
+ - Add bandaid for CardBus bridges and broken BIOS (Vojtech)
+ - Add bandaid for unsynchronized TSCs  (Vojtech)
+ - Fix ffs(0) return value (fixes XFS) 
+ - Fix compilation with software suspend
 
-It's up to you to merge the diffs after the process is complete (around 1min
-for 74 different typos scanning complete 2.4.22 with a Athl2600+)
+=========== new content ============
+[PATCH] x86-64 update
 
-The script : http://www.leroutier.net/kernel-typo-diffmaker.pl.txt
-The typo list : http://www.leroutier.net/typos.base
+Make everything compile and boot again.
 
-(put them in the same dir)
-
-then, look at the script (to see it won't "rm -fR / ; kill -9 0")
-rename .pl.txt file to .pl then chmod 755 on it
-edit both $KERNEL_SOURCE_ROOT and $LOCAL_DIFF_DIR to match your needs
-then again, ./kernel-typo-diffmaker.pl
-
-$KERNEL_SOURCE_ROOT could be either your local kernel source dir or one of
-its sub-dirs (ex : /usr/src/linux-2.4.22/fs/ufs/)
-
-if you find it useful, use it. if not, sorry.
-
-Stephane LOEUILLET
+ - Update defconfig
+ - Some minor cleanup
+ - Introduce physid_t for APIC masks (fixes UP kernels)
+ - Add bandaid for CardBus bridges and broken BIOS (Vojtech)
+ - Add bandaid for unsynchronized TSCs  (Vojtech)
+ - Fix ffs(0) return value (fixes XFS) 
+ - Fix compilation with software suspend
 
 

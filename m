@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281069AbRKKVKh>; Sun, 11 Nov 2001 16:10:37 -0500
+	id <S281070AbRKKVOS>; Sun, 11 Nov 2001 16:14:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281070AbRKKVKS>; Sun, 11 Nov 2001 16:10:18 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:48132 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S281069AbRKKVKL>;
-	Sun, 11 Nov 2001 16:10:11 -0500
-Date: Sun, 11 Nov 2001 13:18:48 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Mike Fedyk <mfedyk@matchmail.com>, Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
-In-Reply-To: <Pine.LNX.4.33.0111090924400.2240-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.40.0111111308250.7269-100000@blue1.dev.mcafeelabs.com>
+	id <S281072AbRKKVN5>; Sun, 11 Nov 2001 16:13:57 -0500
+Received: from web10407.mail.yahoo.com ([216.136.130.99]:8203 "HELO
+	web10407.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281070AbRKKVNv>; Sun, 11 Nov 2001 16:13:51 -0500
+Message-ID: <20011111211350.40221.qmail@web10407.mail.yahoo.com>
+Date: Mon, 12 Nov 2001 08:13:50 +1100 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: Problem. 2.4.13-ac7 ; FIFO write timed  out
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Nov 2001, Ingo Molnar wrote:
-
+> ----------------------------
+>> > 
+> > So have you tried to set the parport to *either*
+> EPP
+> 
+> Yes, the first time I set ACP+EPP ; but I have also
+> tried ECP only, it still happened.
+> Now I have to set to SPP.
+> 
+> 
+> > or ECP in BIOS?
+> > 
+> > ECP+EPP has always been buggy to me (in Windows
+> > also).
+> > 
+> > <snip>
+> > 
+> >
 >
-> On Thu, 8 Nov 2001, Mike Fedyk wrote:
->
-> > It remains to be proven whether the coarser scheduling approach
-> > (Ingo's) will actually help when looking at cache properties.... [...]
->
-> have you seen the numbers/measurements i posted in my original email? 3%
-> kernel compile speedup on an 'idle' 8-way system, 7% compilation speedup
-> with HZ=1024 and background networking load on a 1-way system.
+_____________________________________________________
+> > |  Martin Eriksson <nitrax@giron.wox.org>
+> > |  MSc CSE student, department of Computing
+> Science
+> > |  Umeå University, Sweden
+> > 
+> > 
+> 
+> =====
+> S.KIEU
+> 
+> http://briefcase.yahoo.com.au - Yahoo! Briefcase
+> - Manage your files online.
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Ingo, i'm giving the timer_ticks patch a try in my proposed scheduler coz
-i like the idea of skipping the if inside goodness(), and i can do this
-safely because inside the proposed scheduler i don't have any cross CPU
-goodnesses ( no "if (p->processor != this_cpu) weight -= p->timer_ticks;" ).
-I made a change to it anyway, that is adding a water-mark in the decay
-behavior ( timer.c ).
-When counter is above this watermark ( currently 20 ) the counter decay as
-usual while if counter <= watermark, ticks accumulates in timer_ticks.
-This solution keeps the same good behavior for CPU bound tasks while it
-gives a "human"/current decay to tasks that has got a lot of counter
-accumulation inside the recalc loop ( I/O bound ).
+=====
+S.KIEU
 
-
-
-
-- Davide
-
-
+http://briefcase.yahoo.com.au - Yahoo! Briefcase
+- Manage your files online.

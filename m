@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271002AbTHKFU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 01:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271118AbTHKFU7
+	id S270984AbTHKFSH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 01:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270997AbTHKFSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 01:20:59 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:37253 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S271002AbTHKFU6
+	Mon, 11 Aug 2003 01:18:07 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:35461 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270984AbTHKFSE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 01:20:58 -0400
-Date: Mon, 11 Aug 2003 06:20:35 +0100
+	Mon, 11 Aug 2003 01:18:04 -0400
+Date: Mon, 11 Aug 2003 06:17:48 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: James Morris <jmorris@intercode.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, davem@redhat.com, tytso@mit.edu
+To: "David S. Miller" <davem@redhat.com>
+Cc: mpm@selenic.com, linux-kernel@vger.kernel.org, jmorris@intercode.com.au
 Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030811052035.GK10446@mail.jlokier.co.uk>
-References: <20030809173329.GU31810@waste.org> <Mutt.LNX.4.44.0308102317470.7218-100000@excalibur.intercode.com.au> <20030810174528.GZ31810@waste.org> <20030811020919.GD10446@mail.jlokier.co.uk> <20030811023553.GC31810@waste.org> <20030811045947.GI10446@mail.jlokier.co.uk> <20030811050414.GE31810@waste.org>
+Message-ID: <20030811051748.GJ10446@mail.jlokier.co.uk>
+References: <20030809074459.GQ31810@waste.org> <20030809010418.3b01b2eb.davem@redhat.com> <20030809140542.GR31810@waste.org> <20030809103910.7e02037b.davem@redhat.com> <20030809194627.GV31810@waste.org> <20030809131715.17a5be2e.davem@redhat.com> <20030810081529.GX31810@waste.org> <20030811021512.GF10446@mail.jlokier.co.uk> <20030810215422.0db6192a.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030811050414.GE31810@waste.org>
+In-Reply-To: <20030810215422.0db6192a.davem@redhat.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Mon, Aug 11, 2003 at 05:59:47AM +0100, Jamie Lokier wrote:
-> > Matt Mackall wrote:
-> > > And we're safe here. The default pool size is 1024 bits, of which we
-> > > hash 512. I could hash even fewer, say, 480 (and this would deal with the
-> > > cryptoapi padding stuff nicely).
-> > 
-> > Where is the pool size set to 1024 bits?  I'm reading 2.5.75, and it
-> > looks to me like the hash is over the whole pool, of 512 bits for the
-> > primary and 128 bits for the secondary pool:
-> > 
-> > 	for (i = 0, x = 0; i < r->poolinfo.poolwords; i += 16, x+=2) {
->                                                ^^^^
+David S. Miller wrote:
+> > Why so complicated?  Just move the "sha1_transform" function to its
+> > own file in lib, and call it from both drivers/char/random.c and
+> > crypto/sha1.c.
 > 
-> Unfortunately, there's an ugly mix of words, bytes, and bits here (and it
-> was actually broken for years because of it). The input pool is 4kbits
-> and the output pools are 1k.
+> This is also broken.
 
-You're right about the sizes.  But you said it hashes only half of the
-pool.  Where is that?
+Not wanted, perhaps, but there is nothing broken about it.
+
+> The whole point of the 'tfm' the Crypto API makes you allocate is
+> that it provides all of the state and configuration information
+> needed to do the transforms.
+
+That'll be the array of 5 u32s, then.
+
+> There is no reason why random.c's usage of the crypto-API cannot be
+> done cleanly and efficiently such that it is both faster and resulting
+> in smaller code size than what random.c uses now.
+
+I don't disagree that Crypto API is flexible, possibly desirable for
+being able to change which algorithm random.c uses, and using it will
+certainly remove a lot of lines from random.c.
+
+But the registration and lookup part just so random.c can ultimately
+call sha1_transform with its well known 5-word state and 16-word data
+input can't possibly be as small as calling sha1_transform directly.
+
+> All of this _WITHOUT_ bypassing and compromising the well designed
+> crypto API interfaces to these transformations.
+
+I don't believe you'll get "all of this", i.e. the smaller code size.
+
+The state for sha1_transform is an array of 5 u32s, that's all.  Going
+via Crypto API is just a complicated way to call it in this case.
+
+random.c does not use it in the conventional way, as a hash over an
+arbitrary number of bytes, so that part of CryptoAPI is not relevant.
+random.c also uses the intermediate states of the hash, to feed them
+back into the pool.
+
+I shall be very surprised if the supposed hardware acceleration can
+make random.c faster with its current algorithm, because it operates
+on such small chunks or data (16 bytes at a time - more I/O overhead
+than crypto time, with hardware).  A change of algorithm might do it though.
+
+I shall be even more surprised if calling sha1_transform through
+CryptoAPI results in a smaller kernel than what is done now (without
+CryptoAPI linked in).
 
 -- Jamie
-

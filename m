@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271748AbTG2PaO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 11:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271811AbTG2PaN
+	id S271844AbTG2P3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 11:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271845AbTG2P3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 11:30:13 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:25105 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S271748AbTG2PaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 11:30:08 -0400
-Message-ID: <3F26957E.7040204@techsource.com>
-Date: Tue, 29 Jul 2003 11:40:46 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Andrew Morton <akpm@osdl.org>, ed.sweetman@wmich.edu,
-       eugene.teo@eugeneteo.net, linux-kernel@vger.kernel.org,
-       kernel@kolivas.org
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271517.55549.phillips@arcor.de> <3F267CF9.40500@techsource.com> <200307300946.41674.phillips@arcor.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 29 Jul 2003 11:29:04 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:22912 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S271844AbTG2P3B (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 11:29:01 -0400
+Message-Id: <200307291528.h6TFSo3o004775@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Timothy Miller <miller@techsource.com>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] O10int for interactivity 
+In-Reply-To: Your message of "Tue, 29 Jul 2003 10:21:35 EDT."
+             <3F2682EF.2040702@techsource.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200307280112.16043.kernel@kolivas.org> <200307281808.h6SI8C5k004439@turing-police.cc.vt.edu>
+            <3F2682EF.2040702@techsource.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1449650900P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 29 Jul 2003 11:28:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1449650900P
+Content-Type: text/plain; charset=us-ascii
 
+On Tue, 29 Jul 2003 10:21:35 EDT, Timothy Miller said:
 
-Daniel Phillips wrote:
+> > I'm guessing that the anticipatory scheduler is the culprit here.  Soon as 
+I figure
+> > out the incantations to use the deadline scheduler, I'll report back....
 
-> 
-> In the meantime, the SCHED_SOFTRR proposal provides a way of closely 
-> approximating the above behaviour without being intrusive or 
-> application-specific.
-> 
+> It would be unfortunate if AS and the interactivity scheduler were to 
+> conflict.  Is there a way we can have them talk to each other and have 
+> AS boost some I/O requests for tasks which are marked as interactive?
 
+Well.,.. it turns out I was half right, sort of.  My remaining glitches *were*
+I/O related rather than the CPU scheduler.  However, they weren't directly
+related to the /sys/block/hda/queue/iosched/* values.
 
-And there are obvious benefits to keeping things application-general.
+Turns out that at least on this laptop, 256M is just a bit tight on memory under
+some conditions (well... OK... having X and xmms running, and then doing a
+'tar xjvf linux-2.6.0-test1.tar.bz2' and launching OpenOffice 1.1rc1 all at once
+is probably a stress test and a half ;).
 
-IF it's possible to intelligently determine interactivity and other such 
-things, and lots of impressive progress is being made in that area, then 
-that is definately preferable.  But there may be some circumstances 
-where we simply cannot determine need from application behavior.
+Watching /proc/vmstat, it became obvious that audio skips were happening *only*
+when 'pswpout' was going up - which means somebody's waiting on a page *IN*
+that won't happen till another page goes *out* to swap first.....
 
-It might help to have an API for real-time processes that is accessible 
-by non-root tasks.  If a task sets itself to real-time, its scheduling 
-is more predictable, but it gets a shorter timeslice (perhaps) so that 
-being real-time doesn't adversely impact the system when abused.
+Time for more pondering.. ;)
 
-The nice thing about the smart schedulers is that (a) no one has to 
-change their apps (although they can tweak to cooperate better), and (b) 
-future apps will behave well without us having to anticipate anything.
+--==_Exmh_1449650900P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/JpKycC3lWbTT17ARAr/hAKCl4mSmWnR3kWSFC5mDZfDpIpQ60ACfZx67
+i2XeNG9Q99lleYnA6e4SSv4=
+=yMy0
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1449650900P--

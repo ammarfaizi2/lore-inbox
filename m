@@ -1,97 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261625AbSI0EhU>; Fri, 27 Sep 2002 00:37:20 -0400
+	id <S261628AbSI0Ewr>; Fri, 27 Sep 2002 00:52:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261626AbSI0EhU>; Fri, 27 Sep 2002 00:37:20 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:17164 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261625AbSI0EhT>;
-	Fri, 27 Sep 2002 00:37:19 -0400
-Date: Thu, 26 Sep 2002 21:41:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Matt_Domsch@Dell.com
-Cc: mdharm-usb@one-eyed-alien.net, mochel@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: devicefs requests
-Message-ID: <20020927044104.GA8728@kroah.com>
-References: <20BF5713E14D5B48AA289F72BD372D68C1E8C5@AUSXMPC122.aus.amer.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68C1E8C5@AUSXMPC122.aus.amer.dell.com>
-User-Agent: Mutt/1.4i
+	id <S261629AbSI0Ewr>; Fri, 27 Sep 2002 00:52:47 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49164 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261628AbSI0Ewr>; Fri, 27 Sep 2002 00:52:47 -0400
+Date: Thu, 26 Sep 2002 21:45:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Larry Kessler <kessler@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Richard J Moore <richardj_moore@uk.ibm.com>
+Subject: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAIDdevice
+  driver
+In-Reply-To: <3D93C22F.9070006@pobox.com>
+Message-ID: <Pine.LNX.4.44.0209262140380.1655-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 11:13:37AM -0500, Matt_Domsch@Dell.com wrote:
+
+On Thu, 26 Sep 2002, Jeff Garzik wrote:
+>
+> Linus Torvalds wrote:
+> > For 2.6.x I care about getting the drivers _working_.
 > 
-> What I'm picturing is something like this (feedback welcome!):
+> Tangent question, is it definitely to be named 2.6?
 
-<nice picture snipped>
+I see no real reason to call it 3.0.
 
-Yes, I think this is a nice goal, and that driverfs is the right way to
-do this.  But you might want to walk the bus lists of the different
-devices a bit differently.  Here's a small example of how to walk all of
-the USB devices in a system, and see if they match a specific vendor_id
-and product_id:
+The order-of-magnitude threading improvements might just come closest to
+being a "new thing", but yeah, I still consider it 2.6.x. We don't have 
+new architectures or other really fundamental stuff. In many ways the jump 
+from 2.2 -> 2.4 was bigger than the 2.4 -> 2.6 thing will be, I suspect.
 
+But hey, it's just a number.  I don't feel that strongly either way. I 
+think version number inflation (can anybody say "distribution makers"?) is 
+a bit silly, and the way the kernel numbering works there is no reason to 
+bump the major number for regular releases.
 
-static int match_device (struct usb_device *dev)
-{
-	int retval = -ENODEV;
-	int child;
+			Linus
 
-	dbg ("looking at vendor %d, product %d\n",
-	dev->descriptor.idVendor,
-	dev->descriptor.idProduct);
-
-	/* see if this device matches */
-	if ((dev->descriptor.idVendor == vendor_id) &&
-	    (dev->descriptor.idProduct == product_id)) {
-		dbg ("found the device!\n");
-		retval = 0;
-		goto exit;
-	}
-
-	/* look through all of the children of this device */
-	for (child = 0; child < dev->maxchild; ++child) {
-		if (dev->children[child]) {
-			retval = match_device (dev->children[child]);
-			if (retval == 0)
-				goto exit;
-		}
-	}
-exit:
-	return retval;
-}
-
-static int find_usb_device (void)
-{
-	struct list_head *buslist;
-	struct usb_bus *bus;
-	int retval = -ENODEV;
-
-	down (&usb_bus_list_lock);
-	for (buslist = usb_bus_list.next;
-		buslist != &usb_bus_list; 
-		buslist = buslist->next) {
-		bus = container_of (buslist, struct usb_bus, bus_list);
-		retval = match_device(bus->root_hub);
-		if (retval == 0)
-			goto exit;
-		}
-exit:
-	up (&usb_bus_list_lock);
-	return retval;
-}
-
-I think usb_bus_list_lock and usb_bus_list needs to be exported for
-these functions to work outside of the USB core, but if you need them,
-I'd don't have a problem with exporting them.
-
-Doing something like this might be easier than trying to get the driver
-core to let you walk all of its devices.  But Pat could answer that
-better than I could.
-
-Good luck,
-
-greg k-h

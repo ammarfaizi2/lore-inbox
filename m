@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278633AbRKMTkQ>; Tue, 13 Nov 2001 14:40:16 -0500
+	id <S278625AbRKMTnG>; Tue, 13 Nov 2001 14:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278615AbRKMTkG>; Tue, 13 Nov 2001 14:40:06 -0500
-Received: from ppp01.ts1-1.NewportNews.visi.net ([209.8.196.1]:24817 "EHLO
-	blimpo.internal.net") by vger.kernel.org with ESMTP
-	id <S278604AbRKMTju>; Tue, 13 Nov 2001 14:39:50 -0500
-Date: Tue, 13 Nov 2001 14:39:48 -0500
-From: Ben Collins <bcollins@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Differences between 2.2.x and 2.4.x initrd
-Message-ID: <20011113143947.F329@visi.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S278639AbRKMTm4>; Tue, 13 Nov 2001 14:42:56 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:1504 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S278625AbRKMTmo>; Tue, 13 Nov 2001 14:42:44 -0500
+Date: Tue, 13 Nov 2001 20:42:25 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: fdutils.
+In-Reply-To: <9sronj$pna$1@cesium.transmeta.com>
+Message-ID: <Pine.GSO.3.96.1011113201300.11222A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've come across a difference in how initrd is handled in 2.2.x and
-2.4.x. This related directly to TILO (sparc TFTP image with ramdisk).
+On 13 Nov 2001, H. Peter Anvin wrote:
 
-Basically what we have is a kernel image with ramdisk and initrd
-enabled, and a root disk image slapped on the end that is loaded via
-initrd.
+> Thankfully, the LS-120/LS-240 hardware is actually sane.
 
-On 2.2.x, this works without problems; the ramdisk is loaded, and
-/sbin/init is executed. However, with 2.4.x, it's quite different.
+ Do you mean there is a SCSI version available or merely the ATAPI
+implementation is within the spec?
 
-It loads the initial ramdisk, mounts it fine, tries to execute /linuxrc
-(same as in 2.2.x, but it isn't there, so it continues), and then
-complains with this:
+> Unfortunately the zip drive probably kept it from displacing legacy
+> floppies, at least in the short term.
 
-VFS: Mounted root (ext2 filesystem).
-VFS: Cannot open root device "" or 02:00
-
-For some reason it is trying to mount /dev/fd, and totally forgets
-about /dev/ram. If I pass root=/dev/ram to the command line, it works
-fine, but I don't want to have to do this :)
-
-I can't seem to find the relevant place where this broke. Any ideas?
+ Unfortunately at the time I was interested in a removeable storage
+replacement technology, there was only SCSI Zip available -- no SCSI
+LS-120 drives.  I might have not been the only one, so they got what they
+asked for. 
 
 -- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/                   Ben Collins    --    Debian GNU/Linux                  \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

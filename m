@@ -1,85 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUG1VTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUG1VUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUG1VTo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 17:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbUG1VTo
+	id S264260AbUG1VUs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 17:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUG1VUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 17:19:44 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:18121 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264113AbUG1VTj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 17:19:39 -0400
-Subject: [PATCH] Create cpu_sibling_map for PPC64
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LSE Tech <lse-tech@lists.sourceforge.net>
+	Wed, 28 Jul 2004 17:20:47 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:16844 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264260AbUG1VUg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 17:20:36 -0400
+Subject: Re: [PATCH] reduce swsusp casting
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0407281405090.31994-100000@monsoon.he.net>
+References: <1091043436.2871.320.camel@nighthawk>
+	 <Pine.LNX.4.50.0407281405090.31994-100000@monsoon.he.net>
 Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1091049554.19459.33.camel@arrakis>
+Message-Id: <1091049624.2871.464.camel@nighthawk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 28 Jul 2004 14:19:15 -0700
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 28 Jul 2004 14:20:24 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In light of some proposed changes in the sched_domains code, I coded up
-this little ditty that simply creates and populates a cpu_sibling_map
-for PPC64 machines.  The patch just checks the CPU flags to determine if
-the CPU supports SMT (aka Hyper-Threading aka Multi-Threading aka ...)
-and fills in a mask of the siblings for each CPU in the system.  This
-should allow us to build sched_domains for PPC64 with generic code in
-kernel/sched.c for the SMT systems.  SMT is becoming more popular and is
-turning up in more and more architectures.  I don't think it will be too
-long until this feature is supported by most arches...
+On Wed, 2004-07-28 at 14:07, Patrick Mochel wrote:
+> On Wed, 28 Jul 2004, Dave Hansen wrote:
+> 
+> > I noticed that swsusp uses quite a few interesting casts for __pa() and
+> > cousins.  This patch moves some types around to eliminate some of those
+> > casts in the normal code.  The casts that it adds are around alloc's and
+> > frees, which is a much more usual place to see them.
+> >
+> > Pavel also noticed that there's a superfluous PAGE_ALIGN() right before
+> > a >>PAGE_SHIFT in pfn_is_nosave(), so that's been removed as well.
+> 
+> What are these patches against? I released a bunch of patches to swsusp
+> and pmdisk two weeks ago. I'm not sure if Andrew has picked them up yet.
+> It would be nice if you would patch against those.
 
-[mcd@arrakis source]$ diffstat
-~/linux/patches/ppc64-cpu_sibling_map.patch
- arch/ppc64/kernel/smp.c |    7 +++++++
- include/asm-ppc64/smp.h |    1 +
- 2 files changed, 8 insertions(+)
+It was against 2.6.8-rc1-mm1, but I can patch against whatever.  Do you
+have those patches consolidated somewhere, or is it best that I look in
+the archives?
 
-Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
+> > I haven't had a chance to do anything but test it, because that would
+> > involve me setting up a swsusp rig, which I'm more prone to screw up
+> > than the patch itself :)  I'd appreciate if anyone with a stable setup
+> > could make sure I didn't do anything too stupid.
+> 
+> I don't understand - have you really tested it or just compile-tested it?
+> If not, please do try it out for real. There is no reason to be scared of
+> swsusp, and the more people that use it, the more stable it will get.
 
--Matt
+I'm not scared, just lazy :)  I'll give it a shot.
 
-
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.8-rc2-mm1/arch/ppc64/kernel/smp.c linux-2.6.8-rc2-mm1+ppc64-cpu_sibling_map/arch/ppc64/kernel/smp.c
---- linux-2.6.8-rc2-mm1/arch/ppc64/kernel/smp.c	2004-07-28 10:50:29.000000000 -0700
-+++ linux-2.6.8-rc2-mm1+ppc64-cpu_sibling_map/arch/ppc64/kernel/smp.c	2004-07-28 12:02:38.000000000 -0700
-@@ -64,6 +64,7 @@ cpumask_t cpu_possible_map = CPU_MASK_NO
- cpumask_t cpu_online_map = CPU_MASK_NONE;
- cpumask_t cpu_available_map = CPU_MASK_NONE;
- cpumask_t cpu_present_at_boot = CPU_MASK_NONE;
-+cpumask_t cpu_sibling_map[NR_CPUS] = { [0 .. NR_CPUS-1] = CPU_MASK_NONE };
- 
- EXPORT_SYMBOL(cpu_online_map);
- EXPORT_SYMBOL(cpu_possible_map);
-@@ -870,6 +871,12 @@ void __init smp_prepare_cpus(unsigned in
- 	for_each_cpu(cpu)
- 		if (cpu != boot_cpuid)
- 			smp_create_idle(cpu);
-+
-+	for_each_cpu(cpu) {
-+		cpu_set(cpu, cpu_sibling_map[cpu]);
-+		if (cur_cpu_spec->cpu_features & CPU_FTR_SMT)
-+			cpu_set(cpu ^ 0x1, cpu_sibling_map[cpu]);
-+	}
- }
- 
- void __devinit smp_prepare_boot_cpu(void)
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.8-rc2-mm1/include/asm-ppc64/smp.h linux-2.6.8-rc2-mm1+ppc64-cpu_sibling_map/include/asm-ppc64/smp.h
---- linux-2.6.8-rc2-mm1/include/asm-ppc64/smp.h	2004-07-28 10:50:50.000000000 -0700
-+++ linux-2.6.8-rc2-mm1+ppc64-cpu_sibling_map/include/asm-ppc64/smp.h	2004-07-28 12:02:38.000000000 -0700
-@@ -49,6 +49,7 @@ extern cpumask_t cpu_present_at_boot;
- extern cpumask_t cpu_online_map;
- extern cpumask_t cpu_possible_map;
- extern cpumask_t cpu_available_map;
-+extern cpumask_t cpu_sibling_map[NR_CPUS];
- 
- #define cpu_present_at_boot(cpu) cpu_isset(cpu, cpu_present_at_boot)
- #define cpu_available(cpu)       cpu_isset(cpu, cpu_available_map) 
-
+-- Dave
 

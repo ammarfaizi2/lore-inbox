@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132711AbRBENAa>; Mon, 5 Feb 2001 08:00:30 -0500
+	id <S132464AbRBENFv>; Mon, 5 Feb 2001 08:05:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132815AbRBENAW>; Mon, 5 Feb 2001 08:00:22 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:60033 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132711AbRBENAI>; Mon, 5 Feb 2001 08:00:08 -0500
-Date: Mon, 5 Feb 2001 07:59:59 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Mathieu Dube <mathieu_dube@videotron.ca>
-cc: linux-kernel@vger.kernel.org, davids@webmaster.com
-Subject: RE: accept
-In-Reply-To: <01020411401700.00110@grndctrl>
-Message-ID: <Pine.LNX.3.95.1010205075503.27621A-100000@chaos.analogic.com>
+	id <S132883AbRBENFl>; Mon, 5 Feb 2001 08:05:41 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:23302 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S132675AbRBENFd>; Mon, 5 Feb 2001 08:05:33 -0500
+Message-ID: <3A7E9D90.3E694A7A@namesys.com>
+Date: Mon, 05 Feb 2001 15:33:20 +0300
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Brian Wolfe <ahzz@terrabox.com>,
+        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        Jan Kasprzak <kas@informatics.muni.cz>
+Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink
+In-Reply-To: <E14Pl8Z-0003Hj-00@the-village.bc.nu>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Feb 2001, Mathieu Dube wrote:
-
-> Ok, but fd 0 cant be a valid socket since its the stdin
+Alan Cox wrote:
 > 
-Sure it can:
+> > > I was thinking boot time.
+> > and if reiserfs is the root partition?  You really want to make them reboot to
+> > the old kernel and recompile rather than making them just recompile?
+> 
+> I want to make sure they get a sane clear message telling them where to
+> find the correct compiler and that they didnt read the docs
+> 
+> > Stop trying to blame something other than the compiler, it is ridiculous.
+> 
+> WTF does it have to dow with blaming something other than the compiler ?
+> 
+> Its going to print something like
+> 
+> Linux 2.4.2-ac3 blah blah
+> Error: This kernel was built with a buggy gcc. Please go to
+>         http://.... and upgrade
 
-	close(0);
-	close(1);
-	close(2);
-	fd = socket(....);
-	dup....etc, for stdout and stderr.
+Sorry, thought you were going to make it only reiserfs disabling, ok, if we do
+both this and make the compile fail, that is pretty thorough, effective, useful,
+etc.
 
-That said, never, never, ever, check the value of the errno global
-unless a function call returned an error. Many/most/all C runtime
-procedures don't touch that variable unless an error occurred.
-So, reading its value will show the results of something that
-happened hours ago (line an interrupted system call).
-
-
-> I posted that on this mailing list coz I thought that this might be a scaling
-> problem since it happens when theres already several clients connected to the
-> server
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264563AbUDTWqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263750AbUDTWqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264563AbUDTWqz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 18:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbUDTWqx
+	id S263750AbUDTWqq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 18:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbUDTWqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 18:46:53 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:9928 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264518AbUDTWVq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 18:21:46 -0400
-Subject: Re: kernel/softirq.c issues under 2.6.5
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: aivils@unibanka.lv
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200404201058.12830.aivils@unibanka.lv>
-References: <200404201058.12830.aivils@unibanka.lv>
-Content-Type: text/plain
-Message-Id: <1082499674.16618.3.camel@bach>
+	Tue, 20 Apr 2004 18:46:37 -0400
+Received: from waste.org ([209.173.204.2]:17843 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263750AbUDTWFw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 18:05:52 -0400
+Date: Tue, 20 Apr 2004 17:05:34 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Alex Tomas <alex@clusterfs.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] Re: [RFC] extents,delayed allocation,mballoc for ext3
+Message-ID: <20040420220534.GD28459@waste.org>
+References: <m365c3pthi.fsf@bzzz.home.net> <20040414040101.GO1175@waste.org> <m3llkyojcx.fsf@bzzz.home.net> <1082404030.2237.72.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 21 Apr 2004 08:21:18 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1082404030.2237.72.camel@sisko.scot.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-20 at 17:58, Aivils wrote:
-> Hi all!
+On Mon, Apr 19, 2004 at 08:47:10PM +0100, Stephen C. Tweedie wrote:
+> Hi,
 > 
-> 	My 2.6.5 will not start until i applay patch bellow:
-> --- linux-2.6.5/kernel/softirq.c        2004-04-04 06:36:47.000000000 +0300
-> +++ linux-2.6.5/kernel/softirq.chg.c    2004-04-20 10:48:28.000000000 +0300
-> @@ -409,8 +409,8 @@ static int __devinit cpu_callback(struct
+> On Wed, 2004-04-14 at 13:05, Alex Tomas wrote:
 > 
->         switch (action) {
->         case CPU_UP_PREPARE:
-> -               BUG_ON(per_cpu(tasklet_vec, hotcpu).list);
-> -               BUG_ON(per_cpu(tasklet_hi_vec, hotcpu).list);
-> +               per_cpu(tasklet_vec, cpu).list = NULL;
-> +               per_cpu(tasklet_hi_vec, cpu).list = NULL;
->                 p = kthread_create(ksoftirqd, hcpu, "ksoftirqd/%d", hotcpu);
->                 if (IS_ERR(p)) {
->                         printk("ksoftirqd for %i failed\n", hotcpu);
+> >  MM> I'm going to assume that there's no way for ext3 without extents
+> >  MM> support to mount such a filesystem, so I think this means changing the
+> >  MM> FS name. Is there a simple migration path to extents for existing filesystems?
+> > 
+> > yeah. you're right. I see no way to make it backward-compatible. in fact,
+> > I haven't think much about name. probably you're right again and this
+> > "ext3 on steroids" should have another name.
+> 
+> We've already got feature compatibility bits that can deal with this
+> sort of thing.  There are various other proposed incompatible features,
+> such as large inodes and dynamically placed metadata (eg. placing inode
+> tables into an inode "file"), too.  Rather than invent new names for
+> each combination of incompatible feature set, we're probably better off
+> just using the feature masks.
 
-This patch should be completely unnecessary.
+I'm aware of the existence of such features, I just think it's yet to
+be demonstrated that they're actually a good idea for real deployment
+by themselves. ext3+{btree,extents} is not backwards compatible in any
+useful sense, unlike features such as journalling, directory hashing,
+sparse superblocks, wandering journals, etc. Given that you can't
+mount the new filesystem with an old kernel, not changing the name can
+only result in confusion.
 
-One possibility is that your compiler isn't obeying the section
-attribute for some reason.  Please send .config and output of "gcc -v".
+But I see your point about dealing with a cartesian product of
+features. So if and when this stuff approaches beta, we should
+probably use the feature flags _and_ change the name to something like
+ext3+be (btrees, extents) or ext3+i (inode in file) to indicate the
+presence of experimental, incompatible features, and when the feature
+set is actually pinned down, rename it simply ext3+ or ext4 or whatever.
 
-Thanks!
-Rusty.
+It might be possible to have ext4 actually be a family of filesystems
+where extents or large inodes are optional, but I suspect the value of
+that would be minimal and again, all such features would have to be
+available in every kernel tree that claimed to support ext4.
+
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+Matt Mackall : http://www.selenic.com : Linux development and consulting

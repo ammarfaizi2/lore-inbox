@@ -1,215 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263103AbTFJPPb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 11:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTFJPPa
+	id S263023AbTFJPQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 11:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTFJPQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 11:15:30 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:55271 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S263103AbTFJPPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 11:15:05 -0400
-Date: Tue, 10 Jun 2003 16:31:08 +0100 (BST)
+	Tue, 10 Jun 2003 11:16:16 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:50682 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S263023AbTFJPPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 11:15:55 -0400
+Date: Tue, 10 Jun 2003 16:31:58 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@digeo.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] loop 2/9 absorb bio_copy
+Subject: [PATCH] loop 3/9 loop bio renaming
 In-Reply-To: <Pine.LNX.4.44.0306101606080.2285-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0306101630210.2285-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0306101631170.2285-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bio_copy is used only by the loop driver, which already has to walk the
-bio segments itself: so it makes sense to change it from bio.c export
-to loop.c static, as prelude to working upon it there.
+Now it's in loop not bio, better rename bio_copy to loop_copy_bio: loop
+prefers names that way; and bio_transfer better named loop_transfer_bio.
+Rename bio,b to rbh,bio to follow call from loop_get_buffer more easily.
 
-bio_copy itself is unchanged by this patch, with one exception.  On oom
-failure it must use bio_put, instead of mempool_free to static bio_pool:
-which it should have been doing all along - it was leaking the veclist.
-
---- loop1/drivers/block/loop.c	Mon Jun  9 10:29:01 2003
-+++ loop2/drivers/block/loop.c	Mon Jun  9 10:32:06 2003
-@@ -439,6 +439,74 @@
+--- loop2/drivers/block/loop.c	Mon Jun  9 10:32:06 2003
++++ loop3/drivers/block/loop.c	Mon Jun  9 10:39:45 2003
+@@ -439,21 +439,22 @@
  	return 0;
  }
  
-+static struct bio *bio_copy(struct bio *bio, int gfp_mask, int copy)
-+{
-+	struct bio *b = bio_alloc(gfp_mask, bio->bi_vcnt);
-+	unsigned long flags = 0; /* gcc silly */
-+	struct bio_vec *bv;
-+	int i;
-+
-+	if (unlikely(!b))
-+		return NULL;
-+
-+	/*
-+	 * iterate iovec list and alloc pages + copy data
-+	 */
-+	__bio_for_each_segment(bv, bio, i, 0) {
-+		struct bio_vec *bbv = &b->bi_io_vec[i];
-+		char *vfrom, *vto;
-+
-+		bbv->bv_page = alloc_page(gfp_mask);
-+		if (bbv->bv_page == NULL)
-+			goto oom;
-+
-+		bbv->bv_len = bv->bv_len;
-+		bbv->bv_offset = bv->bv_offset;
-+
-+		/*
-+		 * if doing a copy for a READ request, no need
-+		 * to memcpy page data
-+		 */
-+		if (!copy)
-+			continue;
-+
-+		if (gfp_mask & __GFP_WAIT) {
-+			vfrom = kmap(bv->bv_page);
-+			vto = kmap(bbv->bv_page);
-+		} else {
-+			local_irq_save(flags);
-+			vfrom = kmap_atomic(bv->bv_page, KM_BIO_SRC_IRQ);
-+			vto = kmap_atomic(bbv->bv_page, KM_BIO_DST_IRQ);
-+		}
-+
-+		memcpy(vto + bbv->bv_offset, vfrom + bv->bv_offset, bv->bv_len);
-+		if (gfp_mask & __GFP_WAIT) {
-+			kunmap(bbv->bv_page);
-+			kunmap(bv->bv_page);
-+		} else {
-+			kunmap_atomic(vto, KM_BIO_DST_IRQ);
-+			kunmap_atomic(vfrom, KM_BIO_SRC_IRQ);
-+			local_irq_restore(flags);
-+		}
-+	}
-+
-+	b->bi_sector = bio->bi_sector;
-+	b->bi_bdev = bio->bi_bdev;
-+	b->bi_rw = bio->bi_rw;
-+
-+	b->bi_vcnt = bio->bi_vcnt;
-+	b->bi_size = bio->bi_size;
-+
-+	return b;
-+
-+oom:
-+	while (--i >= 0)
-+		__free_page(b->bi_io_vec[i].bv_page);
-+
-+	bio_put(bio);
-+	return NULL;
-+}
-+
- static struct bio *loop_get_buffer(struct loop_device *lo, struct bio *rbh)
+-static struct bio *bio_copy(struct bio *bio, int gfp_mask, int copy)
++static struct bio *loop_copy_bio(struct bio *rbh, int gfp_mask, int copy)
  {
- 	struct bio *bio;
---- loop1/fs/bio.c	Mon Jun  9 10:14:59 2003
-+++ loop2/fs/bio.c	Mon Jun  9 10:32:06 2003
-@@ -261,84 +261,6 @@
- }
- 
- /**
-- *	bio_copy	-	create copy of a bio
-- *	@bio: bio to copy
-- *	@gfp_mask: allocation priority
-- *	@copy: copy data to allocated bio
-- *
-- *	Create a copy of a &bio. Caller will own the returned bio and
-- *	the actual data it points to. Reference count of returned
-- * 	bio will be one.
-- */
--struct bio *bio_copy(struct bio *bio, int gfp_mask, int copy)
--{
 -	struct bio *b = bio_alloc(gfp_mask, bio->bi_vcnt);
--	unsigned long flags = 0; /* gcc silly */
--	struct bio_vec *bv;
--	int i;
--
++	struct bio *bio;
+ 	unsigned long flags = 0; /* gcc silly */
+ 	struct bio_vec *bv;
+ 	int i;
+ 
 -	if (unlikely(!b))
--		return NULL;
--
--	/*
--	 * iterate iovec list and alloc pages + copy data
--	 */
++	bio = bio_alloc(gfp_mask, rbh->bi_vcnt);
++	if (!bio)
+ 		return NULL;
+ 
+ 	/*
+ 	 * iterate iovec list and alloc pages + copy data
+ 	 */
 -	__bio_for_each_segment(bv, bio, i, 0) {
 -		struct bio_vec *bbv = &b->bi_io_vec[i];
--		char *vfrom, *vto;
--
--		bbv->bv_page = alloc_page(gfp_mask);
--		if (bbv->bv_page == NULL)
--			goto oom;
--
--		bbv->bv_len = bv->bv_len;
--		bbv->bv_offset = bv->bv_offset;
--
--		/*
--		 * if doing a copy for a READ request, no need
--		 * to memcpy page data
--		 */
--		if (!copy)
--			continue;
--
--		if (gfp_mask & __GFP_WAIT) {
--			vfrom = kmap(bv->bv_page);
--			vto = kmap(bbv->bv_page);
--		} else {
--			local_irq_save(flags);
--			vfrom = kmap_atomic(bv->bv_page, KM_BIO_SRC_IRQ);
--			vto = kmap_atomic(bbv->bv_page, KM_BIO_DST_IRQ);
--		}
--
--		memcpy(vto + bbv->bv_offset, vfrom + bv->bv_offset, bv->bv_len);
--		if (gfp_mask & __GFP_WAIT) {
--			kunmap(bbv->bv_page);
--			kunmap(bv->bv_page);
--		} else {
--			kunmap_atomic(vto, KM_BIO_DST_IRQ);
--			kunmap_atomic(vfrom, KM_BIO_SRC_IRQ);
--			local_irq_restore(flags);
--		}
--	}
--
++	__bio_for_each_segment(bv, rbh, i, 0) {
++		struct bio_vec *bbv = &bio->bi_io_vec[i];
+ 		char *vfrom, *vto;
+ 
+ 		bbv->bv_page = alloc_page(gfp_mask);
+@@ -490,18 +491,18 @@
+ 		}
+ 	}
+ 
 -	b->bi_sector = bio->bi_sector;
 -	b->bi_bdev = bio->bi_bdev;
 -	b->bi_rw = bio->bi_rw;
--
++	bio->bi_sector = rbh->bi_sector;
++	bio->bi_bdev = rbh->bi_bdev;
++	bio->bi_rw = rbh->bi_rw;
+ 
 -	b->bi_vcnt = bio->bi_vcnt;
 -	b->bi_size = bio->bi_size;
--
++	bio->bi_vcnt = rbh->bi_vcnt;
++	bio->bi_size = rbh->bi_size;
+ 
 -	return b;
--
--oom:
--	while (--i >= 0)
++	return bio;
+ 
+ oom:
+ 	while (--i >= 0)
 -		__free_page(b->bi_io_vec[i].bv_page);
--
--	mempool_free(b, bio_pool);
--	return NULL;
--}
--
--/**
-  *	bio_get_nr_vecs		- return approx number of vecs
-  *	@bdev:  I/O target
-  *
-@@ -907,7 +829,6 @@
- EXPORT_SYMBOL(bio_put);
- EXPORT_SYMBOL(bio_endio);
- EXPORT_SYMBOL(bio_init);
--EXPORT_SYMBOL(bio_copy);
- EXPORT_SYMBOL(__bio_clone);
- EXPORT_SYMBOL(bio_clone);
- EXPORT_SYMBOL(bio_phys_segments);
---- loop1/include/linux/bio.h	Mon Jun  9 10:15:00 2003
-+++ loop2/include/linux/bio.h	Mon Jun  9 10:32:06 2003
-@@ -235,7 +235,6 @@
++		__free_page(bio->bi_io_vec[i].bv_page);
  
- extern inline void __bio_clone(struct bio *, struct bio *);
- extern struct bio *bio_clone(struct bio *, int);
--extern struct bio *bio_copy(struct bio *, int, int);
+ 	bio_put(bio);
+ 	return NULL;
+@@ -529,7 +530,8 @@
+ 		int flags = current->flags;
  
- extern inline void bio_init(struct bio *);
+ 		current->flags &= ~PF_MEMALLOC;
+-		bio = bio_copy(rbh, (GFP_ATOMIC & ~__GFP_HIGH) | __GFP_NOWARN,
++		bio = loop_copy_bio(rbh,
++				    (GFP_ATOMIC & ~__GFP_HIGH) | __GFP_NOWARN,
+ 					rbh->bi_rw & WRITE);
+ 		current->flags = flags;
+ 		if (bio == NULL)
+@@ -547,9 +549,8 @@
+ 	return bio;
+ }
  
+-static int
+-bio_transfer(struct loop_device *lo, struct bio *to_bio,
+-			      struct bio *from_bio)
++static int loop_transfer_bio(struct loop_device *lo,
++			     struct bio *to_bio, struct bio *from_bio)
+ {
+ 	unsigned long IV = loop_get_iv(lo, from_bio->bi_sector);
+ 	struct bio_vec *from_bvec, *to_bvec;
+@@ -614,7 +615,7 @@
+ 	new_bio = loop_get_buffer(lo, old_bio);
+ 	IV = loop_get_iv(lo, old_bio->bi_sector);
+ 	if (rw == WRITE) {
+-		if (bio_transfer(lo, new_bio, old_bio))
++		if (loop_transfer_bio(lo, new_bio, old_bio))
+ 			goto err;
+ 	}
+ 
+@@ -646,7 +647,7 @@
+ 	} else {
+ 		struct bio *rbh = bio->bi_private;
+ 
+-		ret = bio_transfer(lo, bio, rbh);
++		ret = loop_transfer_bio(lo, bio, rbh);
+ 
+ 		bio_endio(rbh, rbh->bi_size, ret);
+ 		loop_put_buffer(bio);
 

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270671AbTGNONI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 10:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270675AbTGNOLd
+	id S270615AbTGNOLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 10:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270617AbTGNOI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 10:11:33 -0400
-Received: from www5.mail.lycos.com ([209.202.220.85]:54432 "HELO lycos.com")
-	by vger.kernel.org with SMTP id S270636AbTGNOJ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 10:09:59 -0400
-To: linux-kernel@vger.kernel.org
-Date: Mon, 14 Jul 2003 10:24:39 -0400
-From: "Joe Pranevich" <jpranevich@lycos.com>
-Message-ID: <GCCBBPJABOOLMBAA@mailcity.com>
+	Mon, 14 Jul 2003 10:08:26 -0400
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:30166 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S270615AbTGNOHO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 10:07:14 -0400
+Date: Mon, 14 Jul 2003 16:21:52 +0200
+To: Dave Jones <davej@codemonkey.org.uk>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] XBox Gaming System subarchitecture.
+Message-ID: <20030714142152.GC20708@h55p111.delphi.afb.lu.se>
+References: <20030714124933.GB20708@h55p111.delphi.afb.lu.se> <20030714135948.GA27930@suse.de>
 Mime-Version: 1.0
-Cc: jpranevich@kniggit.net, lwn@lwn.net
-X-Sent-Mail: on
-Reply-To: jpranevich@lycos.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Wonderful World of Linux 2.6 - Linux 2.6 features document (first revision)
-X-Sender-Ip: 209.202.205.1
 Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030714135948.GA27930@suse.de>
+User-Agent: Mutt/1.5.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *19c4DA-0007Kw-00*RjlYV1IMYyM*0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Jul 14, 2003 at 02:59:48PM +0100, Dave Jones wrote:
+> First you should read (and preferably act upon) the comments
+> sent the last time you posted this.
+> 
+> Notably the gcc 'workaround' and the HZ ifdef maze.
 
-I've recently put together the first draft of a features document describing the changes in Linux 2.6. (I did similar documents for both Linux 2.2 and Linux 2.4.) It's based almost entirely on BitKeeper changelogs (with clarifying information pulled from the lists and the web), so there is a chance that I misunderstood something or that I missed something else entirely. Please give it a look over and if you see anything that needs a look-over, please let me know. As it stands now, I feel pretty good about how it turned out so I'm finally comfortable mailing what I have around. (There are still a couple areas that need expanding on, I think...)
+Ooops, wrong patch. I have a labyrinth of bitkeeper-trees here, all looking
+almost the same.
 
-As of right now, you can find the latest versions of the document available online.
+The real patch contains cleaned up HZ-ifdefs.
 
-Text version: http://www.kniggit.net/wwol26.txt
+Regarding the gcc "workaround" I said:
 
-Tersely formatted HTML: http://www.kniggit.net/wwol26.html
+"I don't really know how to make clear it's not a gcc problem. But if it was,
+ why doesn't it crash on pc and 1.0 xboxen? And why does it crash on kernels
+ compiled with 2.95, with or without optimization? I really wish I had the
+ explaination to this problem."
+ 
+Or as Christoph answered: "Oh well, stupid crappy hardware..."
 
-Please let me know what you think. 
-
-Thanks,
-
-Joe Pranevich
-jpranevich<at>kniggit.net
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

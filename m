@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135200AbRAYAbI>; Wed, 24 Jan 2001 19:31:08 -0500
+	id <S129441AbRAYAnl>; Wed, 24 Jan 2001 19:43:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135272AbRAYAa6>; Wed, 24 Jan 2001 19:30:58 -0500
-Received: from tech1.nameservers.com ([216.46.160.19]:17416 "EHLO
-	tech1.nameservers.com") by vger.kernel.org with ESMTP
-	id <S135200AbRAYAat>; Wed, 24 Jan 2001 19:30:49 -0500
-Message-Id: <200101250030.QAA24585@tech1.nameservers.com>
-To: linux-kernel@vger.kernel.org
-Cc: Julian Anastasov <ja@ssi.bg>
-Subject: Re: Turning off ARP in linux-2.4.0 
-In-Reply-To: Your message of "Wed, 24 Jan 2001 09:21:02 GMT."
-             <Pine.LNX.4.30.0101240857420.1024-100000@u.domain.uli> 
-Date: Wed, 24 Jan 2001 16:30:49 -0800
-From: Pete Elton <elton@iqs.net>
+	id <S129444AbRAYAnc>; Wed, 24 Jan 2001 19:43:32 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:57096
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129441AbRAYAnU>; Wed, 24 Jan 2001 19:43:20 -0500
+Date: Wed, 24 Jan 2001 16:42:57 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: dmeyer@dmeyer.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: when is overriding idebus safe?
+In-Reply-To: <20010124172038.A1431@jhereg.dmeyer.net>
+Message-ID: <Pine.LNX.4.10.10101241637550.15294-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > In the 2.2 kernel, I could do the following:
-> > echo 1 > /proc/sys/net/ipv4/conf/all/hidden
-> > echo 1 > /proc/sys/net/ipv4/conf/lo/hidden
-> >
-> > The 2.4 kernel does not have these sysctl files any more.  Why was
-> > this functionality taken out?  or was it simply moved to another place
-> > in the proc filesystem?  How can I accomplish the same thing I was
-> > doing in the 2.2 kernel in the 2.4 kernel?
+On Wed, 24 Jan 2001 dmeyer@dmeyer.net wrote:
+
+> The kernel always says:
 > 
-> 	You can use this temporary solution (the same patch ported to
-> 2.3.41+):
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
 > 
-> http://www.linuxvirtualserver.org/arp.html
-> http://www.linuxvirtualserver.org/hidden-2.3.41-1.diff
+> at boot time.  How would I know if it's safe to say idebus=66?  The
+> documentation is fairly vague on this.
 
-Thanks for the link to the patch.  I was able to get it patched
-into the 2.4.0 kernel and it worked great.
+When the manual for your mainboard states that clock settings for setting
+up your CPU creates a change in the normal idebus=33MHz of any other
+value, then you are probablely safe.  Since all 32-bit PCI busses run at
+33MHz, as last thought and reported, it should not be needed to change.
+If I recall the idebus=XX primary use was for VLB/ISA/EISA systems, but I
+have been wrong before.
 
-Thanks.
+Chers,
 
-Pete
+Andre Hedrick
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288442AbSADJoc>; Fri, 4 Jan 2002 04:44:32 -0500
+	id <S288571AbSADJrw>; Fri, 4 Jan 2002 04:47:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288571AbSADJoX>; Fri, 4 Jan 2002 04:44:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:56324 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S288442AbSADJoS>;
-	Fri, 4 Jan 2002 04:44:18 -0500
-Date: Fri, 4 Jan 2002 10:43:39 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.17 crashes on SCSI-errors
-Message-ID: <20020104104339.U8673@suse.de>
-In-Reply-To: <XFMail.20020103130541.R.Oehler@GDImbH.com> <E16M7De-0008Dx-00@the-village.bc.nu> <3C34CD08.FC7BEBEF@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C34CD08.FC7BEBEF@zip.com.au>
+	id <S288572AbSADJrm>; Fri, 4 Jan 2002 04:47:42 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:18567 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288571AbSADJre>;
+	Fri, 4 Jan 2002 04:47:34 -0500
+Date: Fri, 4 Jan 2002 12:44:57 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
+In-Reply-To: <Pine.LNX.4.40.0201040000070.18636-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.33.0201041242500.2247-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03 2002, Andrew Morton wrote:
-> Alan Cox wrote:
-> > 
-> > 
-> > BUG trap. Turn on verbose bug reporting,
-> 
-> Boy, was that ever a dumb idea.  Rod.  Back.  Pain.
 
-Couldn't agree more...
+On Fri, 4 Jan 2002, David Lang wrote:
 
--- 
-Jens Axboe
+> Ingo,
+> back in the 2.4.4-2.4.5 days when we experimented with the
+> child-runs-first scheduling patch we ran into quite a few programs that
+> died or locked up due to this. (I had a couple myself and heard of others)
+
+hm, Andrea said that the only serious issue was in the sysvinit code,
+which should be fixed in any recent distro. Andrea?
+
+> try switching this back to the current behaviour and see if the
+> lockups still happen.
+
+there must be some other bug as well, the child-runs-first scheduling can
+cause lockups, but it shouldnt cause oopes.
+
+	Ingo
 

@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316968AbSFAAP3>; Fri, 31 May 2002 20:15:29 -0400
+	id <S316969AbSFAAR1>; Fri, 31 May 2002 20:17:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316969AbSFAAP3>; Fri, 31 May 2002 20:15:29 -0400
-Received: from netlx009.civ.utwente.nl ([130.89.1.91]:55758 "EHLO
-	netlx009.civ.utwente.nl") by vger.kernel.org with ESMTP
-	id <S316968AbSFAAP1>; Fri, 31 May 2002 20:15:27 -0400
-Date: Sat, 1 Jun 2002 02:15:32 +0200
-From: Arjan Opmeer <a.d.opmeer@student.utwente.nl>
+	id <S316970AbSFAAR0>; Fri, 31 May 2002 20:17:26 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:5135 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S316969AbSFAARZ>; Fri, 31 May 2002 20:17:25 -0400
+Date: Sat, 1 Jun 2002 01:17:23 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
 To: linux-kernel@vger.kernel.org
-Subject: Anybody maintaining/improving floppy driver?
-Message-ID: <20020601001532.GA18671@Ado.student.utwente.nl>
+Subject: Re: [PATCH] sys_sysinfo overhaul
+Message-ID: <20020601001723.GB91199@compsoc.man.ac.uk>
+In-Reply-To: <1022879767.958.194.camel@sinai>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Bendik Singers - Afrotid
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 31, 2002 at 02:16:07PM -0700, Robert Love wrote:
 
-Hi,
+> 	- move sys_sysinfo to kernel/timer.c from kernel/info.c:
+> 	  why one small syscall got its own file is beyond me.
 
-Is anybody actively maintaining the Linux floppy driver? I tried to mail
-Alain Knaff a question but he does not seem to respond.
+Huh ? What on earth is wrong with that ? Including a load of crap
+in timer.c just increases false dependencies.
 
-In a momentary lapse of reason I decided to improve the floppy support of
-the Linux adfs driver for which I have to use Alain's zeroBased.patch to be
-able to read sector 0 of a floppy.
+On the contrary, I wish the kernel had more file-level barriers.
 
-I was wondering whether this patch (or similar functionality) will be
-included in the official kernel tree. This would mean I could send my
-modifications to the adfs driver to its maintainer (Russell King) for
-inclusion in the official source.
-
-
-Arjan
+john

@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262247AbSJJJ46>; Thu, 10 Oct 2002 05:56:58 -0400
+	id <S263330AbSJJKAk>; Thu, 10 Oct 2002 06:00:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262276AbSJJJ46>; Thu, 10 Oct 2002 05:56:58 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:36870 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262247AbSJJJ45>; Thu, 10 Oct 2002 05:56:57 -0400
-Message-Id: <200210100957.g9A9vop02409@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Giuliano Pochini <pochini@denise.shiny.it>
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Date: Thu, 10 Oct 2002 12:51:17 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <1034104637.29468.1483.camel@phantasy> <20021009170517.GA5608@mark.mielke.cc> <3DA4852B.7CC89C09@denise.shiny.it>
-In-Reply-To: <3DA4852B.7CC89C09@denise.shiny.it>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S263331AbSJJKAj>; Thu, 10 Oct 2002 06:00:39 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:27886 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S263330AbSJJKAi>; Thu, 10 Oct 2002 06:00:38 -0400
+Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
+From: Arjan van de Ven <arjanv@fenrus.demon.nl>
+To: colpatch@us.ibm.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       LSE <lse-tech@lists.sourceforge.net>, Andrew Morton <akpm@zip.com.au>,
+       Martin Bligh <mjbligh@us.ibm.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+In-Reply-To: <3DA4D3E4.6080401@us.ibm.com>
+References: <3DA4D3E4.6080401@us.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-19rqhP/Q/f+lZURfxF80"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Oct 2002 12:06:20 +0200
+Message-Id: <1034244381.3629.8.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 October 2002 17:36, Giuliano Pochini wrote:
-> > > Does it drop pages unconditionally ?  What happens if I do a
-> > > streaming_cat largedatabase > /dev/null while other processes
-> > > are working on it ?  It's not a good thing to remove the whole
-> > > cached data other apps are working on.
-> >
-> > Anybody could make the cache thrash. I don't see this as an
-> > argument against O_STREAMING (whether explicitly activated, or
-> > dynamically activated).
->
-> In fact it isn't. But I don't undestand why we unconditionally
-> discard a page after it has been read. Yes, I told the kernel I will
-> not need it anymore, but someone else could need it. I'm not a kernel
-> hacker and I don't know if this is possible: when a page is read from
-> disk by a O_STR file flag it "kill me first when needed, otherwise
-> leave me in memory", and if a page is already cache, just use it and
-> change nothing. This will preserve data used by other processes, and
-> the data I've just read if there is room. Free memory is wasted
 
-There is almost never room. Linux fills all memory with cache
-pretty soon unless you have several gigs of RAM. This is good.
-The question is, what to cache and what to drop.
+--=-19rqhP/Q/f+lZURfxF80
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Come on, do you really want to find all your caches washed out
-after dinner if you left your box playing MP3s? Or after you
-watched MPEG?
---
-vda
+
+> +/**
+> + * sys_mem_setbinding - set the memory binding of a process
+> + * @pid: pid of the process
+> + * @memblks: new bitmask of memory blocks
+> + * @behavior: new behavior
+> + */
+> +asmlinkage long sys_mem_setbinding(pid_t pid, unsigned long memblks,=20
+> +				    unsigned int behavior)
+> +{
+
+Do you really think exposing low level internals as memory layout / zone
+split up to userspace is a good idea ? (and worth it given that the VM
+already has a cpu locality preference?)
+
+I'd much rather see the VM have an arch-specified "cost" for getting
+memory from not-the-prefered zones than exposing all this stuff to
+userspace and depending on userspace to do the right thing.... it's the
+kernel's task to abstract the low level details of the hardware after
+all.
+
+Greetings,
+   Arjan van de Ven
+
+--=-19rqhP/Q/f+lZURfxF80
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9pVEcxULwo51rQBIRAmrVAJ9S6Lnim15NFzH+yAlCL5AqB3ryTwCgqcKv
+K20p6pLkDRxiXswtnAguUYQ=
+=cEkw
+-----END PGP SIGNATURE-----
+
+--=-19rqhP/Q/f+lZURfxF80--
+

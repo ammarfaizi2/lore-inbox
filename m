@@ -1,87 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271063AbRHTGoN>; Mon, 20 Aug 2001 02:44:13 -0400
+	id <S271093AbRHTHUJ>; Mon, 20 Aug 2001 03:20:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271092AbRHTGnx>; Mon, 20 Aug 2001 02:43:53 -0400
-Received: from mail.spylog.com ([194.67.35.220]:24196 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S271063AbRHTGnl>;
-	Mon, 20 Aug 2001 02:43:41 -0400
-Date: Mon, 20 Aug 2001 10:43:50 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.8/2.4.9 problem + 2.4.8-ac7
-Message-ID: <20010820104350.A8278@spylog.ru>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-Organization: SpyLOG ltd.
+	id <S271098AbRHTHUA>; Mon, 20 Aug 2001 03:20:00 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:7949 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S271093AbRHTHTt>; Mon, 20 Aug 2001 03:19:49 -0400
+Message-ID: <3B80B9D0.139E4567@idb.hist.no>
+Date: Mon, 20 Aug 2001 09:18:40 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Jeff Meininger <jeffm@boxybutgood.com>, linux-kernel@vger.kernel.org
+Subject: Re: 'detect' floppy hardware from userland?  ioctl?
+In-Reply-To: <Pine.LNX.4.33.0108171628470.550-100000@mangonel.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Jeff Meininger wrote:
+> 
+> I'm writing an app that needs to know what floppy drives are connected to
+> the system.  Right now, I'm parsing the output of 'dmesg', but 'dmesg' can
+> fill up so that the part where floppy drives are listed is no longer
+> available.  Is there an ioctl or some other interface for discovering fd0,
+> fd1, etc?
+>
 
- Why linux-kernel 2.4.8-ac7 has not next problems???
+You have got some replies already.  Another way of detection is
+to run devfs, you may do a "ls /dev/floppy" and get
+0, 1, 2, ...
+devfs report exactly the devices you have, not the devices
+you _may_ have.  Note that you don't have to convert
+your system to use devfs if you don't want to - you can
+mount devfs some other place than /dev if all you want
+is detection.
 
-
-Once you wrote about "Re: 2.4.8/2.4.9 problem":
-> Hello.
-> 
-> I am have problem with "kernel: __alloc_pages: 0-order allocation failed."
-> 
-> 1. syslog kern.*
-> 
->    ...
-> 	 Aug 19 12:28:16 sol kernel: __alloc_pages: 0-order allocation failed.
-> 	 Aug 19 12:28:37 sol last message repeated 364 times
-> 	 Aug 19 12:29:17 sol last message repeated 47 times
-> 	 Aug 19 12:29:25 sol kernel: s: 0-order allocation failed.
-> 	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
-> 	 Aug 19 12:29:25 sol last message repeated 291 times
-> 	 Aug 19 12:29:25 sol kernel: eth0: can't fill rx buffer (force 0)!
-> 	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
-> 	 Aug 19 12:29:25 sol kernel: eth0: Tx ring dump,  Tx queue 2928321 /
-> 	 2928321:
-> 	 Aug 19 12:29:25 sol kernel: eth0:     0 600ca000.
-> 	 Aug 19 12:29:25 sol kernel: eth0:  *= 1 000ca000.
-> 	 Aug 19 12:29:25 sol kernel: eth0:     2 000ca000.
->    ...
->    Aug 19 12:29:25 sol kernel: eth0:     8 200ca000.
-> 	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
-> 	 Aug 19 12:29:25 sol kernel: eth0:     9 000ca000.
->    ...
-> 	 Aug 19 12:29:25 sol kernel: eth0:  * 31 00000000.
-> 	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
-> 	 Aug 19 12:29:59 sol last message repeated 75 times
-> 	 Aug 19 12:31:10 sol last message repeated 32 times
-> 	 Aug 19 12:32:07 sol last message repeated 153 times
-> 	 Aug 19 12:32:35 sol last message repeated 131 times
-> 
-> 2. my configuration:
-> 
-> 	2CPU/1.5Gb RAM/Mylex Acceleraid 250/Intel PRO100/ Linux kernel 2.4.8/9-xfs /file system   is  xfs or ext2.
-> 
-> 3. NFS/NFSD kernel v3, and use nfs-root file system.
-> 
-> 4. Test 1: simple copy from/to another nfs-computer. _big_ file - up-to 4Gb
-> 
->    Test 2: tiobench-0.3.1  on _local_ disk (Mylex RAID5) with support
-> 	         "LARGEFILES" (>2Gb).
-> 
-> 
-> Can your help me? 
-> 
-> 
-> -- 
-> bye.
-> Andrey Nekrasov, SpyLOG.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-bye.
-Andrey Nekrasov, SpyLOG.
+Helge Hafting

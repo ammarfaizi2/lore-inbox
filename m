@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271941AbRH2KoS>; Wed, 29 Aug 2001 06:44:18 -0400
+	id <S271945AbRH2LOa>; Wed, 29 Aug 2001 07:14:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271943AbRH2KoJ>; Wed, 29 Aug 2001 06:44:09 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:36356 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S271941AbRH2KoD>; Wed, 29 Aug 2001 06:44:03 -0400
-Date: Wed, 29 Aug 2001 12:44:03 +0200
-From: Tobias Diedrich <ranma@gmx.at>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] vga16fb.c, length should be 65536
-Message-ID: <20010829124403.A25494@router.ranmachan.dyndns.org>
-Mail-Followup-To: Tobias Diedrich <ranma@gmx.at>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
+	id <S271946AbRH2LOL>; Wed, 29 Aug 2001 07:14:11 -0400
+Received: from thunderchild.ikk.sztaki.hu ([193.225.87.24]:54277 "HELO
+	thunderchild.ikk.sztaki.hu") by vger.kernel.org with SMTP
+	id <S271945AbRH2LOC>; Wed, 29 Aug 2001 07:14:02 -0400
+Date: Wed, 29 Aug 2001 13:14:19 +0200
+From: Gergely Madarasz <gorgo@thunderchild.debian.net>
+To: linux-kernel@vger.kernel.org
+Subject: vm problems
+Message-ID: <20010829131419.Z6202@thunderchild.ikk.sztaki.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares agreed too, so I'm forwarding this :-)
-Please apply
+Hello,
 
------ Forwarded message from Tobias Diedrich <ranma@gmx.at> -----
+I get hundreds of this error message:
 
-Message-ID: <20010829011707.A1984@router.ranmachan.dyndns.org>
-User-Agent: Mutt/1.3.20i
-Date: Wed, 29 Aug 2001 01:17:07 +0200
-From: Tobias Diedrich <ranma@gmx.at>
-To: Martin Mares <mj@suse.cz>
-Cc: linux-video@atrey.karlin.mff.cuni.cz
-Subject: [PATCH] vga16fb.c, length should be 65536
-Content-Type: text/plain; charset=us-ascii
+__alloc_pages: 0-order allocation failed.
 
-I noticed that the vga16 framebuffer driver returns a smem_len of
-65535. Shouldn't that be 65536 ? (Realmode Segment A000-AFFF)
+The machine is an IBM x250 with 4G ram, the kernel is vanilla 2.4.9 and
+2.4.9-ac3, no swap, running bonnie++. When the memory fills up with cache,
+I start receiving the error message. 
 
-I already wrote about this to Ben Pfaff <pfaffen@msu.edu>, who is listed
-at the top of this file, some time ago, to which he ansered
-"I think you're right.". 
+             total       used       free     shared    buffers     cached
+Mem:       3863628    3854532       9096          0       5160    3734832
+-/+ buffers/cache:     114540    3749088
+Swap:            0          0          0
 
-I recently looked at the source of a newer tree again to check wether he
-did forward it, but appearently he did not. After looking at the
-MAINTAINERS File again I found you being listed for "SVGA HANDLING",
-so I'm sending this to you.
-
-Should I forward this to Linus & linux-kernel ?
-
---- linux-2.4.8-ac11/drivers/video/vga16fb.c.orig	Wed Aug 29 01:04:04 2001
-+++ linux-2.4.8-ac11/drivers/video/vga16fb.c	Wed Aug 29 01:04:12 2001
-@@ -33,7 +33,7 @@
- #define dac_val	(0x3c9)
- 
- #define VGA_FB_PHYS 0xA0000
--#define VGA_FB_PHYS_LEN 65535
-+#define VGA_FB_PHYS_LEN 65536
- 
- /* --------------------------------------------------------------------- */
- 
 -- 
-Tobias							     PGP-Key: 0x9AC7E0BC
+Madarasz Gergely   gorgo@thunderchild.debian.net   gorgo@linux.rulez.org
+    It's practically impossible to look at a penguin and feel angry.
+        Egy pingvinre gyakorlatilag lehetetlen haragosan nezni.
+                  HuLUG: http://mlf.linux.rulez.org/

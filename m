@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268846AbUHZLml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268723AbUHZL2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268846AbUHZLml (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 07:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268765AbUHZLjy
+	id S268723AbUHZL2L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 07:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268766AbUHZLSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 07:39:54 -0400
-Received: from levante.wiggy.net ([195.85.225.139]:17311 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S268794AbUHZL3o (ORCPT
+	Thu, 26 Aug 2004 07:18:53 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:3498 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S268727AbUHZLPu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 07:29:44 -0400
-Date: Thu, 26 Aug 2004 13:29:38 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Spam <spam@tnonline.net>, jra@samba.org, torvalds@osdl.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826112938.GK2612@wiggy.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
-	jra@samba.org, torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	flx@namesys.com, reiserfs-list@namesys.com
-References: <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net> <20040826024956.08b66b46.akpm@osdl.org> <839984491.20040826122025@tnonline.net> <20040826032457.21377e94.akpm@osdl.org> <742303812.20040826125114@tnonline.net> <20040826035500.00b5df56.akpm@osdl.org> <1453776111.20040826131547@tnonline.net> <20040826042043.15978b0a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 Aug 2004 07:15:50 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Tuukka Toivonen <tuukkat@ee.oulu.fi>
+Subject: Re: [linux-usb-devel] Re: kernel 2.6.8 pwc patches and counterpatches
+Date: Thu, 26 Aug 2004 13:17:18 +0200
+User-Agent: KMail/1.6.2
+Cc: Simon Oosthoek <simon@ti-wmc.nl>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, "Nemosoft Unv." <nemosoft@smcc.demon.nl>
+References: <1092793392.17286.75.camel@localhost> <cgi65a$s76$1@sea.gmane.org> <Pine.GSO.4.61.0408261201490.16780@stekt37>
+In-Reply-To: <Pine.GSO.4.61.0408261201490.16780@stekt37>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040826042043.15978b0a.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040523i
-X-SA-Exim-Connect-IP: <locally generated>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408261317.18781.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Andrew Morton wrote:
-> But I'll grant that one cannot go adding new metadata to, say, C files this
-> way.  I don't know how useful such a thing is though.
+Am Donnerstag, 26. August 2004 11:22 schrieb Tuukka Toivonen:
+> Besides, format conversions _are not allowed_ in the kernel. They belong 
+> into userspace.
 
-That is actually one of the few places where a bit of metadata would be
-very useful. Right now there is no way to indicate in what encoding a
-source is written: ascii, utf-8, ucs16, etc. are all possible. But a
-compiler or interpreter has no good way to figure that out.
+Well, there's no need to be dogmatic about it. In a basic sense any driver
+is performing a format conversion.
 
-Wichert.
+> Nemosoft: you should not have the power to demand removing the GPL'd code
+> from the kernel (I don't know about the law, but whatever it says, GPL'd 
+> license should not be revocable). You can ask, of course, but wouldn't it 
+> be simpler to just stop maintaining the in-kernel driver, if it already 
+> works?
 
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+Legally of course the license has been given and cannot unilaterally be
+revoked. But his name is on the driver and he gets the mails about it.
+So unless somebody takes over full maintenance, he should be allowed
+to shoot his own dog and Greg has announced that he would take such a
+patch.
+
+	Regards
+		Oliver

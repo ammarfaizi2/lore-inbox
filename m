@@ -1,57 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVAZXxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVAZXxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbVAZXxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVAZXud
+	id S262167AbVAZXxP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbVAZXwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:50:33 -0500
-Received: from news.suse.de ([195.135.220.2]:9139 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262167AbVAZTin (ORCPT
+	Wed, 26 Jan 2005 18:52:43 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:8171 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S262223AbVAZT6Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:38:43 -0500
-Date: Wed, 26 Jan 2005 20:38:39 +0100
-From: Olaf Hering <olh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jesse Pollard <jesse@cats-chateau.net>, linux-os <linux-os@analogic.com>,
-       John Richard Moser <nigelenki@comcast.net>, dtor_core@ameritech.net,
-       Bill Davidsen <davidsen@tmr.com>, Valdis.Kletnieks@vt.edu,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050126193839.GA29324@suse.de>
-References: <1106157152.6310.171.camel@laptopd505.fenrus.org> <41F6A45D.1000804@comcast.net> <Pine.LNX.4.61.0501251542290.8986@chaos.analogic.com> <05012609151500.16556@tabby> <Pine.LNX.4.58.0501260803360.2362@ppc970.osdl.org> <20050126191501.GA26920@suse.de> <Pine.LNX.4.58.0501261127280.2362@ppc970.osdl.org>
+	Wed, 26 Jan 2005 14:58:16 -0500
+Date: Wed, 26 Jan 2005 23:21:05 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050126232105.77781a17@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050126202027.3b56a14f.khali@linux-fr.org>
+References: <waZNwjBp.1106750054.2006670.khali@localhost>
+	<1106755819.5257.207.camel@uganda>
+	<20050126202027.3b56a14f.khali@linux-fr.org>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501261127280.2362@ppc970.osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Jan 26, Linus Torvalds wrote:
+On Wed, 26 Jan 2005 20:20:27 +0100
+Jean Delvare <khali@linux-fr.org> wrote:
 
+> [Voluntarily skipping a large part of the discussion so as to stop
+> wasting everyone's time and focus on the one technical point I am
+> interested in.]
 > 
+> Hi Evgeniy,
 > 
-> On Wed, 26 Jan 2005, Olaf Hering wrote:
+> > As I saw from different documentation - logical devices itself are the
+> > same.
 > > 
-> > And, did that nice interface help at all? No, it did not.
-> > Noone made seqfile mandatory in 2.6.
+> > And it is the same for superio standard.
+> > 
+> > For example sc1100 and pc87366 superio chips have the same logical
+> > inside, although different logical device set.
+> > 
+> > (...)
+> > 
+> > Not only access.
+> > Logic inside superio chip is submitted to superio standard.
+> > I designed(at least tried to) superio subsistem
+> > that it can handle all differencies using per device callbacks.
 > 
-> Sure it helped. We didn't make it mandatory, but new stuff ends up being 
-> written with it, and old stuff _does_ end up being converted to it.
-
-2.5 was the right time to enforce it.
-
-> > Now we have a few nice big patches to carry around because every driver
-> > author had its own proc implementation. Well done...
+> I would like to ensure that we agree on what is common to all Super-I/O
+> chips (as per Intel's LPC specification).
 > 
-> Details, please?
+> 1* Super-I/O are accessed at I/O addresses 0x2e+0x2f or alternate
+> addresses 0x4e+0x4f.
+> 
+> 2* These addresses give access to a 256 byte addressing space.
+> 
+> 3* Super-I/O chips are divided in logical devices, which can be selected
+> by writing its id to 0x07. What each logical device does is not
+> standardized (depends of the chip).
+> 
+> 4* Range 0x00-0x2f is common to all logical devices, while range
+> 0x30-0xff is logical-device specific.
+> 
+> 5* Range 0x20-0x2f contains chip-wide identification and configuration
+> registers. Definition of these registers is not standardized.
+> 
+> 6* 0x31 controls the activation of each logical device, 0x60-0x63 its
+> base address, 0x70-0x73 its interrupts. Definition of these registers is
+> standardized.
+> 
+> 7* Range 0xf0-0xff contains logical device-specific configuration
+> registers. Definition of these registers is not standardized.
+> 
+> And that's about it. The way each logical device works (how registers
+> are mapped from the base address) is completely chip-specific.
+> 
+> Do we agree on all this, or did I miss somthing? I would like to make
+> sure that, when you refer to sharing as much code as possible between
+> the various Super-I/O chips, you really mean the organization of logical
+> devices within the Super-I/O (selection, retrieval of base address and
+> interrupt configuration) and not the logical devices themselves.
 
-You did it this way:
-http://linux.bkbits.net:8080/linux-2.5/cset@4115cba3UCrZo9SnkQp0apTO3SghJQ
+You are absolutely right, I just want to add following note:
+
+Most of the logical devices inside superio chips has standardized access methods.
+One just need base address and index, that is all.
+For such devices all infrastructure already exists in the provided superio core.
+One just need to provide one logical device driver for it(like sc_gpio.c).
+
+But, sometimes it really can be the situation, when logical device is not
+obeyed to rules in the existing logical device driver(like GPIO in sc1100, which is
+not superio logical device but is fitted design quite well), for such
+cases there is also infrastructure in superio driver. For example scx.c -
+it has it's own private GPIO logical device, which is "cloned" from the
+"standard"(described in sc_gpio.c) logical device(clones actully have 
+almost nothing in common).
+
+Situation with device cloning is very unlikely according to various superio
+chips I saw and read datasheets.
+ 
+> Thanks,
+> -- 
+> Jean Delvare
+> http://khali.linux-fr.org/
+
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

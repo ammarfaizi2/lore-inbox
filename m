@@ -1,58 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311829AbSDDWq6>; Thu, 4 Apr 2002 17:46:58 -0500
+	id <S311782AbSDDWpy>; Thu, 4 Apr 2002 17:45:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311834AbSDDWqp>; Thu, 4 Apr 2002 17:46:45 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:32780 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S311829AbSDDWqc>; Thu, 4 Apr 2002 17:46:32 -0500
-Date: Thu, 4 Apr 2002 18:41:51 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Adrian Bunk <bunk@fs.tum.de>, Andre Hedrick <andre@linux-ide.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre5
-In-Reply-To: <Pine.NEB.4.44.0204042146520.7845-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.21.0204041840370.10636-100000@freak.distro.conectiva>
+	id <S311829AbSDDWpo>; Thu, 4 Apr 2002 17:45:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55568 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311782AbSDDWpb>; Thu, 4 Apr 2002 17:45:31 -0500
+Subject: Re: Linux 2.4.19-pre5-ac2
+To: akpm@zip.com.au (Andrew Morton)
+Date: Fri, 5 Apr 2002 00:01:48 +0100 (BST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org,
+        arjanv@redhat.com (Arjan Van de Ven)
+In-Reply-To: <3CACD3FE.1323F721@zip.com.au> from "Andrew Morton" at Apr 04, 2002 02:30:22 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16tGEm-0006z9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Not singling out Arjan; certainly this is not the most egregious
+> case lately.  But.  Will people please stop sending kernel
+> patches straight to tree owners without copying the appropriate
+> mailing list?
 
-
-Andre? 
-
-On Thu, 4 Apr 2002, Adrian Bunk wrote:
-
-> Hi Marcelo,
-> 
-> Configure.help contains the help text below that sounds more like a
-> comment to a patch than a helpful help message for a user of a stable
-> kernel:
-> 
-> +CONFIG_IDE_TASKFILE_IO
-> +  This is the "Jewel" of the patch.  It will go away and become the new
-> +  driver core.  Since all the chipsets/host side hardware deal w/ their
-> +  exceptions in "their local code" currently, adoption of a
-> +  standardized data-transport is the only logical solution.
-> +  Additionally we packetize the requests and gain rapid performance and
-> +  a reduction in system latency.  Additionally by using a memory struct
-> +  for the commands we can redirect to a MMIO host hardware in the next
-> +  generation of controllers, specifically second generation Ultra133
-> +  and Serial ATA.
-> +
-> +  Since this is a major transition, it was deemed necessary to make the
-> +  driver paths buildable in separtate models.  Therefore if using this
-> +  option fails for your arch then we need to address the needs for that
-> +  arch.
-> +
-> +  If you want to test this functionality, say Y here.
-> 
-> Could anyone provide a more useful help text?
-> 
-> TIA
-> Adrian
-> 
-> 
-
-
+So long as its going into the -ac tree not the base one is this a bad 
+thing. Its nicely started discussion on the matter.

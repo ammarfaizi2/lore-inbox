@@ -1,137 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276675AbRJPVbx>; Tue, 16 Oct 2001 17:31:53 -0400
+	id <S276736AbRJPVem>; Tue, 16 Oct 2001 17:34:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276736AbRJPVbm>; Tue, 16 Oct 2001 17:31:42 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:2825 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S276675AbRJPVbh>; Tue, 16 Oct 2001 17:31:37 -0400
-Date: Tue, 16 Oct 2001 15:36:40 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: SCSI tape load problem with Exabyte Drive
-Message-ID: <20011016153623.A21324@vger.timpanogas.org>
+	id <S276737AbRJPVec>; Tue, 16 Oct 2001 17:34:32 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:4617 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S276736AbRJPVeX>; Tue, 16 Oct 2001 17:34:23 -0400
+Subject: Re: [PATCH] various minor cleanups against 2.4.13-pre3 - comments
+	requested
+From: Robert Love <rml@tech9.net>
+To: Jesper Juhl <juhl@eisenstein.dk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BCC8C88.58BBCC39@eisenstein.dk>
+In-Reply-To: <3BCC8C88.58BBCC39@eisenstein.dk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.12.08.08 (Preview Release)
+Date: 16 Oct 2001 17:34:34 -0400
+Message-Id: <1003268078.868.26.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2001-10-16 at 15:37, Jesper Juhl wrote:
+> init/main.c : parse_options()
+>         The check that adds "line" to either "envp_init" or "argv_init"
+> checks to see if the buffers are full and break;s the while() loop
+> if _either_ buffer is full - it should use continue; so both buffers can
+> get a chance to fill up. Robert M. Love should get credit for finding
+> this one, I found it by looking at an old patch of his, and I just checked
+> to see if it was still there and read the code to see if it was correct.
 
+Thanks for running with this.
 
-On 2.4.6 with st and AICXXXX driver, issuance of an MTLOAD command
-via st ioctl() calls results in a unit attention and failure of 
-the drive while loading a tape from an EXB-480 robotics tape
-library.
+Now, for the love of all things holy, can _someone_ either tell me what
+is wrong with this patch or merge it already?  I originally wrote this
+for 2.2!
 
-Code which generates this error is attached.  The error will not 
-clear unless the code first closes the open handle to the device,
-then reopens the handle and retries the load command.  The failure
-scenario is always the same.  The first MTLOAD command triggers 
-the tape drive to load the tape, then all subsequent commands
-fail until the handle is closed and the device is reopened and
-a second MTLOAD command gets issued, then the drive starts 
-working.
+It seems clear to me that we lose either the environment vars or
+command-line args when the other one fills up...
 
-I have written a tape robotics library for the Exabyte EXB-80
-robotic tape library on Linux for a customer of Canopy.  The
-offending code is from this library.
- 
-Code attached.  This error is persistent and 100% reproducable on 
-this hardware.  The error does not involve the robot in the 
-library, as the robot has a unique SCSI id, and commands being
-sent to the robot via the SCSI generic interface work flawlessly.
-The tape drives in the robotics library appear to Linux as 
-tape devices on the SCSI bus, and the problems are apparent
-on the SCSI tape drives via st.o.  
-
-There are no other problems at present with any of the remaining
-tape code, and it is working perfectly, with the exception of 
-this load command. 
-
-Jeff
-
-//
-// function used to call the st ioctl() interface.  handles are opened
-// in kernel space via filp_open()
-//
-
-int trx_tape_command(int tape_id, int cmd, int count, int count_bits)
-{
-    struct file *filp;
-    register int ccode;
-    struct mtop mt_com;
-
-    if (tape_id >= MAX_TAPES)
-       return -EINVAL;
-
-    if ((!SystemTape[tape_id]) || (!SystemTape[tape_id]->filp))
-       return -EINVAL;
-
-    filp = SystemTape[tape_id]->filp;
-
-    mt_com.mt_op = cmd;
-    mt_com.mt_count = count;
-    mt_com.mt_count |= count_bits;
-
-    if (mt_com.mt_count < 0)
-    {
-       TRXDRVPrint("mt: negative repeat count\n");
-       return -EIO;
-    }
-
-    ccode = tape_ioctl(filp, MTIOCTOP, (char *)&mt_com);
-    if (ccode)
-       return ccode;
-
-    return 0;
-}
-
-//
-//
-//   This code segment is what I am doing to get around this problem
-//   however, we still see a unit attention error periodically, and
-//   it does not reliably work every time.
-//
-//
-
-reload:;
-       err = trx_tape_open(device);   // this is a filp_open() call
-       if (err)
-          goto done;
-
-       err = trx_tape_status(device);  
-       if (err)                       
-          goto done;
-
-       // load command
-       err = trx_tape_command(device, MTLOAD, 0, 0);
-       TRXDRVPrint("loading tape %d ret-%d\n", (int)device, (int)err);
-       if (err)
-          goto done;
-
-       err = trx_tape_command(device, MTSETBLK, 4096, 0);
-       TRXDRVPrint("set tape blksize %d ret-%d\n", (int)device, (int)err);
-       if (err)
-       {
-          if (rcount++ < 3)
-          {
-             trx_tape_close(device);
-             goto reload;
-          }
-          else
-             goto done;
-       }
-
-       err = trx_tape_command(device, MTREW, 0, 0);
-       TRXDRVPrint("rewinding tape %d ret-%d\n", (int)device, (int)err);
-       if (err)
-          goto done;
-
-       //
-       //  redacted code.
-       //
-
-done:;
+	Robert Love
 

@@ -1,80 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266736AbRGFPTp>; Fri, 6 Jul 2001 11:19:45 -0400
+	id <S266726AbRGFPd6>; Fri, 6 Jul 2001 11:33:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266734AbRGFPTg>; Fri, 6 Jul 2001 11:19:36 -0400
-Received: from elin.scali.no ([195.139.250.10]:26130 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S266731AbRGFPT0>;
-	Fri, 6 Jul 2001 11:19:26 -0400
-Message-ID: <3B45D656.440A34A9@scali.no>
-Date: Fri, 06 Jul 2001 17:16:38 +0200
-From: Steffen Persvold <sp@scali.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Helge Hafting <helgehaf@idb.hist.no>,
-        Vasu Varma P V <pvvvarma@techmas.hcltech.com>,
+	id <S266734AbRGFPdj>; Fri, 6 Jul 2001 11:33:39 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:7552 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266726AbRGFPdd>; Fri, 6 Jul 2001 11:33:33 -0400
+Date: Fri, 6 Jul 2001 11:32:58 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: "Friesen, Christopher [CAR:VS16:EXCH]" <cfriesen@americasm01.nt.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: DMA memory limitation?
-In-Reply-To: <E15ITTf-0004Dz-00@the-village.bc.nu> <3B45A08D.408D56@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: are ioctl calls supposed to take this long?
+In-Reply-To: <3B45D5DF.17D2B3F8@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1010706112457.1472A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > GFP_DMA is ISA dma reachable, Forget the IA64, their setup is weird and 
-> > should best be ignored until 2.5 as and when they sort it out.
+On Fri, 6 Jul 2001, Chris Friesen wrote:
 
-Really ? I don't think I can ignore IA64, there are people who ask for it....
-
-> > > bounce buffers are needed. On Alpha GFP_DMA is not limited at all (I think). Correct me if
-> >
-> > Alpha has various IOMMU facilities
-> >
-> > > I'm wrong, but I really think there should be a general way of allocating memory that is
-> > > 32bit addressable (something like GFP_32BIT?) so you don't need a lot of #ifdef's in your
-> > > code.
-> > No ifdefs are needed
-> >
-> >         GFP_DMA - ISA dma reachable
-> >         pci_alloc_* and friends - PCI usable memory
+> "Richard B. Johnson" wrote:
+> > 
+> > On Fri, 6 Jul 2001, Chris Friesen wrote:
+> > 
+> > > I am using the following snippet of code to find out some information about the
+> > > MII PHY interface of my ethernet device (which uses the tulip driver).  When I
+> > > did some timing measurements with gettimeofday() I found that the ioctl call
+> > > takes a bit over a millisecond to complete.  This seems to me to be an awfully
+> > > long time for what should be (as far as I can see) a very simple operation.
 > 
-> pci_alloc_* is designed to support ISA.
+> > It's not ioctl() overhead, it's what has to be done in the driver to
+> > get the information you request.
+> > 
+> > (1)     Stop the chip
+> > (2)     Read the media interface using an awful SERIAL protocol in which
+> >         you manipulate 3 bits using multiple instructions, to send
+> >         or receive a single BIT (not BYTE) of data. You do the 8 times
+> >         per byte.
+> > (3)     Restart the chip.
 > 
-> Pass pci_dev==NULL to pci_alloc_* for ISA devices, and it allocs GFP_DMA
-> for you.
+> Are you sure about this?  In the tulip.c driver the following appears to be the
+> salient code:
 > 
+> static int private_ioctl(struct device *dev, struct ifreq *rq, int cmd)
+> {
+> 	struct tulip_private *tp = (struct tulip_private *)dev->priv;
+> 	long ioaddr = dev->base_addr;
+> 	u16 *data = (u16 *)&rq->ifr_data;
+> 	int phy = tp->phys[0] & 0x1f;
+> 	long flags;
+> 
+> 	switch(cmd) {
+> 	case SIOCDEVPRIVATE:		/* Get the address of the PHY in use. */
+> 		if (tp->mii_cnt)
+> 			data[0] = phy;
+> 		else if (tp->flags & HAS_NWAY143)
+> 			data[0] = 32;
+> 		else if (tp->chip_id == COMET)
+> 			data[0] = 1;
+> 		else
+> 			return -ENODEV;
+>
+               ..... This falls through to 
+	SIOCDEVPRIVATE+1
+ 
+> 
+> I don't see any device stopping or reading of the media interface here.  Now
+> there may be something very subtle hidden somewhere that I'm not seeing, but
+> this looks like some relatively straightforward comparisons.
 
-Sure, but the IA64 platforms that are out now doesn't have an IOMMU, so bounce buffers are
-used if you don't specify GFP_DMA in your get_free_page.
-
-Now lets say you have a driver with a page allocator. Eventually you want to make some if
-the allocated pages available to a 32bit PCI device. These pages has to be consistent (i.e
-the driver doesn't have to wait for a PCI flush for the data to be valid, sort of like a
-ethernet ring buffer). I could use the pci_alloc_consistent() function
-(pci_alloc_consistent() allocates a buffer with GFP_DMA on IA64), but since I already have
-the pages, I have to use pci_map_single (or pci_map_sg). Inside pci_map_single on IA64
-something called swiotlb buffers (bounce buffers) are used if the device can't support
-64bit addressing and the address of the memory to map is above the 4G limit. The swiotlb
-buffers are below the 4G limit and therefore reachable by any PCI device. The problem
-about these buffers are that the content are not copied to the original location before
-you do a pci_sync_* or a pci_unmap_* (they are not consistent) and they are a limited
-resource (allocated at boot time). My solution for now was to use :
-
-#if defined(__ia64__)
-  int flag = GFP_DMA;
-#else
-  int flag = 0;
-#endif
-
-Maybe IA64 could implement GFP_HIGHMEM (as on i386) so that if no flags were used you were
-guaranteed to get 32bit memory ???
+Look at tulip_mdio_read() and the zillions of times it's called.
+It's called in SIOCDEVPRIVATE+1 when SIOCDEVPRIVATE falls through.
+It falls through always, unless there is the -ENODEV error.
+tulip_mdio_read() does the bit-banging junk.
 
 
-Regards
--- 
-  Steffen Persvold               Systems Engineer
-  Email : mailto:sp@scali.no     Scali AS (http://www.scali.com)
-  Tlf   : (+47) 22 62 89 50      Olaf Helsets vei 6
-  Fax   : (+47) 22 62 89 51      N-0621 Oslo, Norway
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVCIAJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVCIAeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbVCIAJk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262414AbVCIAE5
+	id S262312AbVCIAeX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 19:34:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVCHXqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:04:57 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63121 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262415AbVCIACN (ORCPT
+	Tue, 8 Mar 2005 18:46:18 -0500
+Received: from mail.kroah.org ([69.55.234.183]:36741 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262238AbVCHXh7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 19:02:13 -0500
-Date: Tue, 8 Mar 2005 16:02:02 -0800
+	Tue, 8 Mar 2005 18:37:59 -0500
+Date: Tue, 8 Mar 2005 15:37:43 -0800
 From: Greg KH <greg@kroah.com>
-To: "Kilau, Scott" <Scott_Kilau@digi.com>
-Cc: linux-kernel@vger.kernel.org, Wen Xiong <wenxiong@us.ibm.com>
-Subject: Re: [ patch 4/7] drivers/serial/jsm: new serial device driver
-Message-ID: <20050309000202.GB11807@kroah.com>
-References: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D9E2@minimail.digi.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       khali@linux-fr.org
+Subject: Re: [PATCH] PCI: One more Asus SMBus quirk
+Message-ID: <20050308233743.GB11454@kroah.com>
+References: <11099696383203@kroah.com> <11099696391236@kroah.com> <422E24A8.4070504@tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D9E2@minimail.digi.com>
+In-Reply-To: <422E24A8.4070504@tmr.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 03:47:45PM -0600, Kilau, Scott wrote:
-> > Who needs to know if a port is open or not?
+On Tue, Mar 08, 2005 at 05:18:16PM -0500, Bill Davidsen wrote:
+> Greg KH wrote:
+> >ChangeSet 1.1998.11.27, 2005/02/25 15:48:28-08:00, khali@linux-fr.org
 > >
-> <snipped some code> 
+> >[PATCH] PCI: One more Asus SMBus quirk
 > >
-> > +static ssize_t jsm_tty_baud_show(struct class_device *class_dev, char *buf)
+> >One more Asus laptop requiring the SMBus quirk (W1N model).
+> >
+> >Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> >Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 > 
-> > No, please delete these, and the other sysfs files that duplicate the
-> > same info that you can get by using the standard Linux termios calls.
-> > There is no need for them here.
-> 
-> Our serial port monitoring tools need to know these things, and to
-> find them out *without* opening up the serial port to do an ioctl().
-> 
-> For example, lets say a customer has a modem connected to a serial port.
-> 
-> If you were to open up the port with an "stty -a" to get the current 
-> settings and signals, you would unintentionally raise RTS and DTR.
+> Hopefully this and the double-free patch will be included in 2.6.11.n+1? 
 
-Why not fix the driver to not change the current line settings if it is
-not being opened for the first time?  That seems like a much simpler way
-to solve this, and probably the saner way, as you don't want any user to
-be able to mess up your modem...
+what double-free patch?
 
 thanks,
 

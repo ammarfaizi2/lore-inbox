@@ -1,91 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319317AbSHVKoQ>; Thu, 22 Aug 2002 06:44:16 -0400
+	id <S319319AbSHVLAJ>; Thu, 22 Aug 2002 07:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319318AbSHVKoQ>; Thu, 22 Aug 2002 06:44:16 -0400
-Received: from gra-lx1.iram.es ([150.214.224.41]:53515 "EHLO gra-lx1.iram.es")
-	by vger.kernel.org with ESMTP id <S319317AbSHVKoO>;
-	Thu, 22 Aug 2002 06:44:14 -0400
-Message-ID: <3D64BB45.4020907@iram.es>
-Date: Thu, 22 Aug 2002 10:21:57 +0000
-From: Gabriel Paubert <paubert@iram.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S319320AbSHVLAJ>; Thu, 22 Aug 2002 07:00:09 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:1255 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S319319AbSHVLAI>;
+	Thu, 22 Aug 2002 07:00:08 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Gabriel Paubert <paubert@iram.es>,
+       Yoann Vandoorselaere <yoann@prelude-ids.org>
+Cc: <cpufreq@lists.arm.linux.org.uk>, <cpufreq@www.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy
+ calculation
+Date: Thu, 22 Aug 2002 15:02:00 +0200
+Message-Id: <20020822130200.31767@192.168.4.1>
+X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Yoann Vandoorselaere <yoann@prelude-ids.org>
-CC: cpufreq@lists.arm.linux.org, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org,
-       "benh@kernel.crashing.org" <benh@kernel.crashing.org>
-Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy calculation
-References: <1030009840.15429.109.camel@alph>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yoann Vandoorselaere wrote:
-> Hi,
-> 
-> The "low_part * mult" multiplication of the old function may overflow a
-> 32bits integer...
-> 
-> This patch both fix the overflow issue (tested with frequencies up to
-> 20Ghz), and make the result of the function lose less precision.
-> 
-> Please apply, 
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --- linux-benh/kernel/cpufreq.c	2002-08-21 17:27:52.000000000 +0200
-> +++ linux-yoann/kernel/cpufreq.c	2002-08-22 11:27:09.000000000 +0200
-> @@ -78,14 +78,16 @@ static unsigned int             cpufreq_
->   */
->  static unsigned long scale(unsigned long old, u_int div, u_int mult)
->  {
-> -	unsigned long low_part, high_part;
-> -
-> -	high_part  = old / div;
-> -	low_part   = (old % div) / 100;
-> -	high_part *= mult;
-> -	low_part   = low_part * mult / div;
-> -
-> -	return high_part + low_part * 100;
-> +        unsigned long val, carry = 0;
-> +        
-> +        mult /= 100;
-> +        div  /= 100;
+Hi Gabriel !
 
-if(abs(div)<100) div=0;
+>if(abs(div)<100) div=0;
+>
+>> +        val = old / div * mult;
+>
+>Now happily divide by zero.
+>
+>> +
+>> +        carry = old % div;
+>
+>Again.
+>
+>> +        carry = carry * mult / div;
+>
+>Again.
+>
+>> +                
+>> +        return val + carry;
+>>  }
 
-> +        val = old / div * mult;
+None of the above can happen in the domain of application of this
+function. It's used to scale up/down the loops_per_jiffy value when
+scaling the CPU frequency. Anyway, the above isn't worse than the
+original function. Ideally, we would want 64 bits arithmetics, but
+we decided long ago not to bring the libcc support routines for that
+in the kernel.
+>
+>And I can't see how it can be more precise, you divide the numerator and
+>denominator of the fraction by 100 and then proceed forgetting 
+>everything about the rest. Basically this looses about 7 bits of precision.
 
-Now happily divide by zero.
+Which is mostly ok for what we need. I think Yoann didn't mean it's
+more precise that what it replace, but rather more precise than his
+original implementation that divided by 1000 ;) Anyway, it's not
+significantly worse than what we had and won't overflow as easily
+which is all we want for this routine now.
 
-> +
-> +        carry = old % div;
+>Now altogether I believe that such a function pertains to a per arch 
+>optimized routine.
 
-Again.
+Maybe... though in the context of cpufreq, it may not make that much
+sense.
 
-> +        carry = carry * mult / div;
-
-Again.
-
-> +                
-> +        return val + carry;
->  }
->  
-
-And I can't see how it can be more precise, you divide the numerator and
-denominator of the fraction by 100 and then proceed forgetting 
-everything about the rest. Basically this looses about 7 bits of precision.
-
-Now altogether I believe that such a function pertains to a per arch 
-optimized routine.
-
-
-
-
+Ben.
 
 

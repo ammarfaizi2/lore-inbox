@@ -1,103 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbTAICIE>; Wed, 8 Jan 2003 21:08:04 -0500
+	id <S261368AbTAICMr>; Wed, 8 Jan 2003 21:12:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261370AbTAICIE>; Wed, 8 Jan 2003 21:08:04 -0500
-Received: from rrcs-midsouth-24-172-39-28.biz.rr.com ([24.172.39.28]:26894
-	"EHLO maunzelectronics.com") by vger.kernel.org with ESMTP
-	id <S261364AbTAICH7>; Wed, 8 Jan 2003 21:07:59 -0500
-Message-ID: <3E1CDB81.77B6CA99@justirc.net>
-Date: Wed, 08 Jan 2003 21:16:33 -0500
-From: Mark Rutherford <mark@justirc.net>
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S261370AbTAICMr>; Wed, 8 Jan 2003 21:12:47 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:27541 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261368AbTAICMo> convert rfc822-to-8bit; Wed, 8 Jan 2003 21:12:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: Chris Wood <cwood@xmission.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20, .text.lock.swap cpu usage? (ibm x440)
+Date: Wed, 8 Jan 2003 18:20:44 -0800
+User-Agent: KMail/1.4.3
+References: <3E1A12B5.4020505@xmission.com>
+In-Reply-To: <3E1A12B5.4020505@xmission.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>
 MIME-Version: 1.0
-To: Billy Rose <passive_induction@sbcglobal.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: free software [OT]
-References: <5.2.0.9.0.20030108181618.00b28100@pop.sbcglobal.yahoo.com>
-	 <5.2.0.9.0.20030108181618.00b28100@pop.sbcglobal.yahoo.com> <5.2.0.9.0.20030108200715.020a23c0@pop.sbcglobal.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301081820.44930.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Billy Rose wrote:
-
-> At 02:00 AM 1/9/2003 +0000, Paulo Andre' wrote:
-> >On Thu, 2003-01-09 at 01:52, Billy Rose wrote:
-> > > after growing tired of trying to sift through the emails for tidbits of
-> > > useful code, i have come to the conclusion that this thread should be
-> > > geared towards something more constructive, otherwise i fear people will
-> > > begin to find `open source' and `free software' distasteful.
-> >
-> ><snip>
-> >
-> >You're not RMS in disguise are you? I'm sorry but after all that Nvidia
-> >noise I can believe in nearly anything.
-> >
-> >--
-> >         Paulo Andre'
+On Monday 06 January 2003 03:35 pm, Chris Wood wrote:
+> Due to kswapd problems in Redhat's 2.4.9 kernel, I have had to upgrade
+> to the 2.4.20 kernel with the IBM Summit Patches for our IBM x440.  It
+> has run very well with one exception, between 8:00am and 9:00am our
+> server will see a cpu usage hit under the system resources (in top) and
+> start to drag the server to a very slow situation where people can't
+> access the server.
 >
-> `this thread' as stated above is in regards to the nvidia noise. no im not
-> mr stallman, i happen to think linus is brilliant, as well as everyone else
-> on this list.
+> See the following jpg of top as an example of the system usage.  It
+> doesn't seem to be any one program.
 >
-> br
-
-<sarcasm>
-what if I thought he was god? :D
-then I wouldnt think he is brilliant :D
-</sarcasm>
-
-all in good fun :-)
-
+> http://www.wencor.com/slow2.4.20.jpg
 >
+> When we start to have users log off the server (we have 300 telnet users
+> that login) the system usually bounces right back to normal.  We have
+> had to reboot once or twice to get it fully working again (lpd went into
+> limbo and wouldn't come back).  After the server bounces back to normal,
+> we can run the rest of the day without any trouble and under full heavy
+> load.  I have never seen it happen at any other time of day and it
+> doesn't happen every day.
 >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> With some tips from James Cleverdon (IBM), I turned on some kernel
+> debugging and got the following from readprofile when the server was
+> having problems (truncated to the first 22 lines):
+> 16480 total                                      0.0138
+>    6383 .text.lock.swap                          110.0517
+>    4689 .text.lock.vmscan                         28.2470
+>    4486 shrink_cache                               4.6729
+>     168 rw_swap_page_base                          0.6176
+>     124 prune_icache                               0.5167
+>      81 statm_pgd_range                            0.1534
+>      51 .text.lock.inode                           0.0966
+>      38 system_call                                0.6786
+>      31 .text.lock.tty_io                          0.0951
+>      31 .text.lock.locks                           0.1435
+>      18 .text.lock.sched                           0.0373
+>      16 _stext                                     0.2000
+>      15 fput                                       0.0586
+>      11 .text.lock.read_write                      0.0924
+>       9 strnicmp                                   0.0703
+>       9 do_wp_page                                 0.0110
+>       9 do_page_fault                              0.0066
+>       9 .text.lock.namei                           0.0073
+>       9 .text.lock.fcntl                           0.0714
+>       8 sys_read                                   0.0294
+>
+> Here is a snapshot when the server is fine, no problems (truncated):
+> 1715833 total                                      1.4317
+> 1677712 default_idle                             26214.2500
+>    4355 system_call                               77.7679
+>    2654 file_read_actor                           11.0583
+>    2159 bounce_end_io_read                         5.8668
+>    1752 put_filp                                  18.2500
+>    1664 do_page_fault                              1.2137
+>    1294 fget                                      20.2188
+>    1246 do_wp_page                                 1.5270
+>    1233 fput                                       4.8164
+>    1138 posix_lock_file                            0.7903
+>    1120 kmem_cache_alloc                           3.6842
+>    1098 do_softirq                                 4.9018
+>    1042 statm_pgd_range                            1.9735
+>     882 kfree                                      6.1250
+>     732 __loop_delay                              15.2500
+>     673 flush_tlb_mm                               6.0089
+>     610 fcntl_setlk64                              1.3616
+>     554 __kill_fasync                              4.9464
+>     498 zap_page_range                             0.4716
+>     414 do_generic_file_read                       0.3696
+>     409 __free_pages                               8.5208
+>     401 sys_semop                                  0.3530
+>
+> I have to admit that most of this doesn't make a lot of sense to me and
+> I don't know what the .text.lock.* processes are doing.  Any ideas?
+> Anything I can try?
+>
+> Chris Wood
+> Wencor West, Inc.
 
---
-Regards,
-Mark Rutherford
-mark@justirc.net
+Chris,
+
+You're showing all the signs of the "kswapd" bug present in v2.4 kernels.  
+Well, kswapd gets blamed for the problem.  It is actually caused by using up 
+nearly all of low memory with the buffer header and/or inode slab caches.  
+(Cat /proc/slabinfo when kswapd is running >= 99% and see if those two caches 
+have grown extra large.)  Anyway, kswapd gets triggered because a zone has 
+hit its low memory threshold.  But kswapd can't swap buffer headers or 
+inodes.  The situation is hopeless, yet kswapd presses on anyway, scouring 
+every memory zone for pages to free, all the while holding important memory 
+locks.
+
+Meanwhile, every program that wants more memory will spin on those locks.  
+That's what the .text.lock.* entries are:  the out-of-line spin code for each 
+lock; it is used when the lock is already owned by some other CPU.
+
+Net result:  a computer that runs like molasses in January.
+
+Of the several proposed patches for this bug, Andrea Archangeli's and Andrew 
+Morton's worked best in our tests.  I believe that Andrea was going to add in 
+some of Andrew's code for the final fix.  The kernel that is on the SLES 8 / 
+UL 1.0 gold CDs works fine so I assume the Vulcan Mind Meld on the patches 
+went well.
+
+Unfortunately, I don't have any references to the final patch set.
+
+> -----------------------------------
+> System Info From Here Down:
+> IBM x440 - Dual Xeon 1.4ghz MP, with Hyperthreading turned on
+> 6 gig RAM
+> 2 internal 36gig drives mirrored
+> 1 additional intel e1000 network card
+> 2 IBM fibre adapters (QLA2300s) connected to a FastT700 SAN
+> RedHat Advanced Server 2.1
+> 2.4.20 kernel built using the RH 2.4.9e8summit .config file as template
+>
+[ Snip! ]
+
+Our customers have seen this on large Dell boxes too.  I strongly suspect that 
+any v2.4 system with lots of physical memory and high I/O bandwidth can cause 
+this bug.
 
 
-File: Mark Rutherford.ASC
------BEGIN PGP PUBLIC KEY BLOCK-----
-Version: PGPfreeware 7.0.3 for non-commercial use <http://www.pgp.com>
-
-mQGiBDqwRnsRBADTpKKSKAcphYdcVTvBpEFFNK1eL4dQ/pBwK4NimeoAA9ISD04L
-Mv/CqH5g9D1wzXEhRBhbFZnmfoTPFEWH4Gjr4KIPdsXkTEfoJ2j55qksHWMkE10A
-K8gZlI3Ovuf8BbIabfXmjf+XtId3F4+7+og4mc7EAkatYbbl/5pR0Niy3wCg/+I/
-LUQPYGloF829jXaOW7C+tG8D/RZt8lAL/Z1NfGsQYZlE1X+Gcqf0J6HaMosnVuah
-1zAbgUHCIvNq+TOC+0KydEvbs7tAq6m+Q4zQZaqEsMwufTCWxzh+v3thRBLIuT5E
-jsTi4djkrdG3TTeAszymO/YEXQMg4Tq2hMiyeWlyTmH4C6enMu0zJMIu4OEef7+W
-KpYhBACYnukDVI8Vnw1J5KaiCZYvERhj4cr3BTk7oeYxIRH1x5S6NXK0+uVcpusa
-a8ZU4zcxvHh0k3iR8HIZcNh30eXbMF/J5pW9gorJuPwCC5Q7b+gUVaeec+1X+Wmt
-2k8RAq9RtriUdrmVN5QcPBLFd4hOHQcWDcuyhmiFp68LFvxLSLQrTWFyayBSdXRo
-ZXJmb3JkIDxNYXJrMjAwMEBiZWxsYXRsYW50aWMubmV0PokAWAQQEQIAGAUCOrBG
-ewgLAwkIBwIBCgIZAQUbAwAAAAAKCRAudCWX7QO6ULcaAJwIsYHeAp6FC5OVWSOo
-qc8O87kvBgCgz1cLgVXYcSlDWEeE32PFYb6akuy5Ag0EOrBGexAIAPZCV7cIfwgX
-cqK61qlC8wXo+VMROU+28W65Szgg2gGnVqMU6Y9AVfPQB8bLQ6mUrfdMZIZJ+AyD
-vWXpF9Sh01D49Vlf3HZSTz09jdvOmeFXklnN/biudE/F/Ha8g8VHMGHOfMlm/xX5
-u/2RXscBqtNbno2gpXI61Brwv0YAWCvl9Ij9WE5J280gtJ3kkQc2azNsOA1FHQ98
-iLMcfFstjvbzySPAQ/ClWxiNjrtVjLhdONM0/XwXV0OjHRhs3jMhLLUq/zzhsSlA
-GBGNfISnCnLWhsQDGcgHKXrKlQzZlp+r0ApQmwJG0wg9ZqRdQZ+cfL2JSyIZJrqr
-ol7DVekyCzsAAgIIAO5Bt3XOgo2GPNOCuLv6A6mRxPxwwVsYEMmVAIp/c5nluBMi
-Tu4iQU5f3U9UqZMcFKyLr1Vh0bpO6RB6L/5tXWSRY2Yly9Ofg/e0Npgebkdd8GXE
-+IuEDI4lr1kbO70hlxFUPKSOQRjSmmVKNhUAiXEFQ7OtB9k5GECsHrD6qxR6r/ny
-XMBK2g2UUSh17Gx/pqH+XwXJ67DEQmF8hcnyiN9E3WQ5w3bIbKwFCaHF+tJbVnUd
-XxszxQYrsb6Feo0FVdCD+VVPQGesv34CrnKuED/mF/WoI8a3eYCMiY03IQgW514X
-JX+Jnmk9RFbTg75NdXIKDqKpB3wq39n3JmWRZG+JAEwEGBECAAwFAjqwRnsFGwwA
-AAAACgkQLnQll+0DulAfjgCfbVxiUtJbpXPn6gVJlnlIzur1yvgAnjh/9bdLsSrd
-cUaN07NL7N9NjgG1
-=hpbN
------END PGP PUBLIC KEY BLOCK-----
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 
 

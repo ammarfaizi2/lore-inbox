@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbULNLoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbULNMNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbULNLoL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 06:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbULNLoL
+	id S261485AbULNMNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 07:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbULNMNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 06:44:11 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:7077
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S261488AbULNLoJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 06:44:09 -0500
-Date: Tue, 14 Dec 2004 06:51:02 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Adrian von Bidder <avbidder@fortytwo.ch>, linux-kernel@vger.kernel.org
-Subject: Re: cdrecording status
-Message-ID: <20041214115102.GB23031@animx.eu.org>
-Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Adrian von Bidder <avbidder@fortytwo.ch>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0412132255060.7005@yvahk01.tjqt.qr> <200412141049.39499@fortytwo.ch> <Pine.LNX.4.61.0412141117240.18625@yvahk01.tjqt.qr>
-Mime-Version: 1.0
+	Tue, 14 Dec 2004 07:13:24 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:21465 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261485AbULNMNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 07:13:21 -0500
+To: ram mohan <madhaviram123@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux - open design??
+References: <20041214040125.70151.qmail@web90010.mail.scd.yahoo.com>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Tue, 14 Dec 2004 13:13:09 +0100
+Message-ID: <87u0qpgjsa.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412141117240.18625@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.6+20040907i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Honestly I do not know, but I hope they can at least sustain as much as CD-RW 
-> can (usually 1000x). Plus, it's for DVD+RW, it always uses packet mode, and as 
-> such I damn hope that DVD+RW manufacturers keep in mind that a byte position 
-> might be overwritten more than 1000 times.
+ram mohan <madhaviram123@yahoo.com> writes:
 
-Isn't that what DVD-RAM is for?  IIRC, it's overwrite count is 100,000.
+> When we say Linux is open source and we have the sites
+> where we can download the source from, why is not
+> linux design (High Level and Low Level) not that well
+> publicised? (Or is it that I am not aware of - in
+> which case I would like to know where it is.)
+> I am looking for a traceability matrix- where I start
+> with requirements of Linux, dig into the
+> design(HLD/LLD) and then the source.
 
+There's no high level overview, AFAIK. But there are many documents
+out there, describing various parts of Linux. Many of them are
+outdated, but you can get an idea, how Linux works.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Linux Kernel 2.4 Internals <http://www.tldp.org/LDP/lki/>
+Linux Kernel Hackers' Guide <http://www.tldp.org/LDP/khg/>
+Linux Memory Management: <http://www.linux-mm.org/>
+The Linux Kernel API <http://kernelnewbies.org/documents/kdoc/kernel-api/linuxkernelapi.html>
+The Linux Kernel (based on 2.0.33) <http://www.tldp.org/LDP/tlk/>
+
+and all below linux/Documentation, of course. However, if you want to
+learn about the current state of Linux, you won't get around reading
+the source.
+
+Regards, Olaf.

@@ -1,170 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263027AbUB0WOW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 17:14:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbUB0WOV
+	id S263134AbUB0WVv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 17:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbUB0WVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 17:14:21 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:26872 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263171AbUB0WMD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 17:12:03 -0500
-Message-ID: <403FC0AA.6040205@mvista.com>
-Date: Fri, 27 Feb 2004 14:11:54 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect /
- detach
-References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <20040225215309.GI1052@smtp.west.cox.net> <200402261344.49261.amitkale@emsyssoft.com> <403E8180.1060008@mvista.com> <20040226235915.GV1052@smtp.west.cox.net> <403EA407.1010405@mvista.com> <20040227154920.GX1052@smtp.west.cox.net>
-In-Reply-To: <20040227154920.GX1052@smtp.west.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 27 Feb 2004 17:21:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44948 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263134AbUB0WVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 17:21:47 -0500
+Date: Fri, 27 Feb 2004 14:23:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: andrea@suse.de, riel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+ end)
+Message-Id: <20040227142330.4e72d9f4.akpm@osdl.org>
+In-Reply-To: <162060000.1077919387@flay>
+References: <20040227173250.GC8834@dualathlon.random>
+	<Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com>
+	<20040227122936.4c1be1fd.akpm@osdl.org>
+	<20040227211548.GI8834@dualathlon.random>
+	<162060000.1077919387@flay>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> On Thu, Feb 26, 2004 at 05:57:27PM -0800, George Anzinger wrote:
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> > We can write a testcase ourself, it's pretty easy, just create a 2.7G
+> > file in /dev/shm, and mmap(MAP_SHARED) it from 1k processes and fault in
+> > all the pagetables from all tasks touching the shm vma. Then run a
+> > second copy until the machine starts swapping and see how thing goes. To
+> > do this you need probably 8G, this is why I didn't write the testcase
+> > myself yet ;).  maybe I can simulate with less shm and less tasks on 1G
+> > boxes too, but the extreme lru effects of point 3 won't be visibile
+> > there, the very same software configuration works fine on 1/2G boxes on
+> > stock 2.4. problems showsup when the lru grows due the algorithm not
+> > contemplating million of dirty swapcache in a row at the end of the lru
+> > and some gigs of free cache ad the head of the lru. the rmap-only issues
+> > can also be tested with math, no testcase is needed for that.
 > 
-> 
->>Tom Rini wrote:
->>
->>>On Thu, Feb 26, 2004 at 03:30:08PM -0800, George Anzinger wrote:
->>>
->>>
->>>>Amit S. Kale wrote:
->>>>
->>>>
->>>>>On Thursday 26 Feb 2004 3:23 am, Tom Rini wrote:
->>>>>
->>>>>
->>>>>
->>>>>>The following patch fixes a number of little issues here and there, and
->>>>>>ends up making things more robust.
->>>>>>- We don't need kgdb_might_be_resumed or kgdb_killed_or_detached.
->>>>>>GDB attaching is GDB attaching, we haven't preserved any of the
->>>>>>previous context anyhow.
->>>>>
->>>>>
->>>>>If gdb is restarted, kgdb has to remove all breakpoints. Present kgdb 
->>>>>does that in the code this patch removes:
->>>>>
->>>>>-		if (remcom_in_buffer[0] == 'H' && remcom_in_buffer[1] == 
->>>>>'c') {
->>>>>-			remove_all_break();
->>>>>-			atomic_set(&kgdb_killed_or_detached, 0);
->>>>>-			ok_packet(remcom_out_buffer);
->>>>>
->>>>>If we don't remove breakpoints, they stay in kgdb without gdb not 
->>>>>knowing it and causes consistency problems.
->>>>
->>>>I wonder if this is worth the trouble.  Does kgdb need to know about 
->>>>breakpoints at all?  Is there some other reason it needs to track them?
->>>
->>>
->>>I don't know if it's strictly needed, but it's not the hard part of this
->>>particular issue (as I suggested in another thread, remove_all_break()
->>>on a ? packet works).
->>>
->>>
->>>
->>>>>>- Don't try and look for a connection in put_packet, after we've tried
->>>>>>to put a packet.  Instead, when we receive a packet, GDB has
->>>>>>connected.
->>>>>
->>>>>
->>>>>We have to check for gdb connection in putpacket or else following 
->>>>>problem occurs.
->>>>>
->>>>>1. kgdb console messages are to be put.
->>>>>2. gdb dies
->>>>>3. putpacket writes the packet and waits for a '+'
->>>>
->>>>Oops!  Tom, this '+' will be sent under interrupt and while kgdb is not 
->>>>connected.  Looks like it needs to be passed through without causing a 
->>>>breakpoint.  Possible salvation if we disable interrupts while waiting 
->>>>for the '+' but I don't think that is a good idea.
->>>
->>>
->>>I don't think this is that hard of a problem anymore.  I haven't enabled
->>>console messages, but I've got the following being happy now:
->>
->>console pass through is the hard one as it is done outside of kgdb under 
->>interrupt control.  Thus the '+' will come to the interrupt handler.
->>
->>There is a bit of a problem here WRT hiting a breakpoint while waiting for 
->>this '+'.  Should only happen on SMP systems, but still....
-> 
-> 
-> Here's why I don't think it's a problem (I'll post the new patch
-> shortly, getting from quilt to a patch against previous is still a
-> pain).  What happens is:
-> 1. kgdb console tried to send a packet.
-> 2. before ACK'ing the above, gdb dies.
+> I don't have time at the moment to go write it at the moment, but I can certainly run it on large end hardware if that helps.
 
-What I am describing does not have anything to do with gdb going away.  It is 
-that in "normal" operation the console output is done with the interrupts on 
-(i.e. we are not in kgdb as a result of a breakpoint, but only to do console 
-output).  This means that the interrupt that is generated by the '+' from gdb 
-may well happen and the kgdb interrupt handler will see the '+' and, with the 
-interrupt handler changes, generate a breakpoint.  All we really want to do is 
-to pass the '+' through to putpacket.  In a UP machine, I think the wait for the 
-'+' is done with the interrupt system off, however, in an SMP machine, other 
-cpus may see it and interrupt...  At the very least, the interrupt code needs to 
-be able to determine that no character came in and ignore the interrupt.
+I think just
 
--g
-> 3. kgdb loops on sending a packet and reading in a char.
-> 4. gdb tries to reconnect and sends $somePacket#cs
-> 5. put_packet sends out the console message again, and reads in a char.
-> 6. put_packet sees a $ (or in the case of your .gdbinit, ^C$, which is
-> still fine).
-> 7. put_packet sees a packet coming in, which preempts sending this
-> packet, and will call kgdb_schedule_breakpoint() and then return, giving
-> up on the console message.
-> 8. do_IRQ() calls kgdb_process_breakpoint(), which calls breakpoint()
-> and gdb gets back in the game.
-> 
-> 
->>>- Connect to a waiting kernel, continue/^C/disconnect/reconnect.
->>>- Connect to a running kernel, continue/^C/disconnect/reconnect.
->>>- Once connected and running, ^C/hit breakpoint and
->>> disconnect/reconnect.
->>>- Once connected, set a breakpoint, kill gdb and hit the breakpoint and
->>> reconnect.
->>>- Once connected and running, kill gdb and reconnect.
->>>
->>>The last two aren't as "fast" as I might like, but they're the "gdb went
->>>away in an ungraceful manner" situations, so I think it's OK.  In the
->>>first (breakpoint hit, no gdb) I end up having to issue a few continues
->>>to get moving again, but it's a one-time event.  
->>
->>What are you referring to as "continues".  How is this different from 
->>connect to a waiting kernel?
-> 
-> 
-> The 'continue' command in gdb.
-> 
-> 
->>Usually this would be the end of the 
->>session.  If you are going to continue from here something needs to be done 
->>with the breakpoint that gdb does not know about.  If kgdb can remove them, 
->>well fine, except your stopped on one.  If you remove it, there could be 
->>some confusion as to why you are in the debugger.
-> 
-> 
-> Hmm.  I think I need to test things a bit more, before I comment on
-> this.
-> 
+	usemem -m 2700 -f test-file -r 10 -n 1000
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+will do it.  I need to verify that.
 
+http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz

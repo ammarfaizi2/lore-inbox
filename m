@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274032AbRIXQxG>; Mon, 24 Sep 2001 12:53:06 -0400
+	id <S274037AbRIXQzS>; Mon, 24 Sep 2001 12:55:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274031AbRIXQwq>; Mon, 24 Sep 2001 12:52:46 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:42759 "HELO
+	id <S274031AbRIXQx7>; Mon, 24 Sep 2001 12:53:59 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:49415 "HELO
 	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S274029AbRIXQwl>; Mon, 24 Sep 2001 12:52:41 -0400
-Date: Mon, 24 Sep 2001 18:53:03 +0200
+	id <S274035AbRIXQxt>; Mon, 24 Sep 2001 12:53:49 -0400
+Date: Mon, 24 Sep 2001 18:54:13 +0200
 From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
 Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-Message-ID: <20010924185303.B10117@emma1.emma.line.org>
+Message-ID: <20010924185413.C10117@emma1.emma.line.org>
 Mail-Followup-To: linux-kernel@vger.kernel.org,
 	reiserfs-list@namesys.com
-In-Reply-To: <B0005839269@gollum.logi.net.au> <20010924173210.A7630@emma1.emma.line.org> <20010924161518.KYHD11251.femail27.sdc1.sfba.home.com@there>
+In-Reply-To: <20010924174745.A8230@emma1.emma.line.org> <E15lYHC-0002zc-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20010924161518.KYHD11251.femail27.sdc1.sfba.home.com@there>
+In-Reply-To: <E15lYHC-0002zc-00@the-village.bc.nu>
 User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, Nicholas Knight wrote:
+On Mon, 24 Sep 2001, Alan Cox wrote:
 
-> > Turn it off (I have no idea of internals, but I presume it'll still
-> > be a write-through cache, so reading back will still be served from
-> > the buffer). Do hdparm -W0 /dev/hd[a-h].
+> > Those drives should be blacklisted and rejected as soon as someone tries
+> > to mount those pieces rw. Either the drive can make guarantees when a
+> > write to permanent storage has COMPLETED (either by switching off the
+> > cache or by a flush operation) or it belongs ripped out of the boxes and
+> > stuffed down the throat of the idiot who built it.
 > 
-> I'm sorry, but that's not acceptable.
-> Please note the dd timings at the bottom of this message.
+> In which case you can choose between ancient ST-506 drives and SCSI
 
-Well, of course, turning off the cache will cause performance penalties,
-but it at least gives you a chance to get away with a recoverable file
-system should the power fail or the box crash.
-
-> Yes, a typical desktop user isn't going to notice much, even a normal 
-> webserver or fileserver not dealing with constant updates may not, but 
-> certain workloads will. These workloads are real enough that telling 
-> people to disable write caching out of hand is a bad idea.
-
-I switched a box to ext3 with write caches off in expectance of multiple
-power outages during works, and NOTHING happened. I expect that box is
-now writing 4 times slower than before, I have no real figures, and it's
-still "smooth enough" in spite of 2.4.9.
-
-> Keep in mind also, that you may be putting your data and filesystems in 
-> more risk by not using a write cache as with using it.
-
-Utterly non-sense.
-
-Linear writing as dd mostly does is BTW something which should never be
-affected by write caches.
+Sorry, a disk drive which makes no guarantees even after a flush, does
+not belong in my boxen. I'd return it as broken the first day I figured
+it did lazy write-back caching. No file system can be safe on such
+disks.
 
 -- 
 Matthias Andree

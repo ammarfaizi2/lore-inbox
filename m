@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUI0J4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUI0KRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266603AbUI0J4z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 05:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUI0J4z
+	id S266613AbUI0KRm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 06:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUI0KRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 05:56:55 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:17839 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266603AbUI0J4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 05:56:53 -0400
-Message-ID: <4157CDFD.5030001@yahoo.com.au>
-Date: Mon, 27 Sep 2004 18:23:25 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Reuben Farrelly <reuben-lkml@reub.net>
-CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: Stack traces in 2.6.9-rc2-mm4
-References: <6.1.2.0.2.20040927184123.019b48b8@tornado.reub.net>
-In-Reply-To: <6.1.2.0.2.20040927184123.019b48b8@tornado.reub.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 27 Sep 2004 06:17:42 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:42432 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S266613AbUI0KRk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 06:17:40 -0400
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@suse.cz>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Kevin Fenzi <kevin@scrye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040926224338.GS28810@elf.ucw.cz>
+References: <20040924143714.GA826@openzaurus.ucw.cz>
+	 <20040924210958.A3C5AA2073@voldemort.scrye.com>
+	 <1096069216.3591.16.camel@desktop.cunninghams>
+	 <20040925014546.200828E71E@voldemort.scrye.com>
+	 <1096113235.5937.3.camel@desktop.cunninghams>
+	 <415562FE.3080709@yahoo.com.au> <20040925154527.GA8212@elf.ucw.cz>
+	 <1096149821.8359.1.camel@desktop.cunninghams>
+	 <20040926100442.GG10435@elf.ucw.cz>
+	 <1096235982.10015.1.camel@desktop.cunninghams>
+	 <20040926224338.GS28810@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1096279492.4222.8.camel@laptop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 27 Sep 2004 20:12:05 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly wrote:
-> Since upgrading from -mm3 to -mm4, I'm now getting messages like this 
-> logged every second or so:
-> 
-> Sep 27 18:28:06 tornado kernel: using smp_processor_id() in preemptible 
-> 
+Hi.
 
-snip
+On Mon, 2004-09-27 at 08:43, Pavel Machek wrote:
+> You have system where you write image in two parts, and there are some
+> pretty special rules what you may not touch when writing first part,
+> IIRC. That is what scares me...
 
-> 
-> Is there a fix to shut this all up or a suggested patch to revert?
-> 
-> Box is a P4 Intel 2.8Ghz single processor, SMP/HT with PREEMPT on..
-> 
+No special rules. It's just the LRU that shouldn't change, and it won't
+because all other activity is stopped and I'm using direct bio submits
+to do the reading and writing. I really should get around to finishing
+that 'how-it-works' document so I can clear up all the FUD. :>
 
-Looks like disk_stat_add in the sw-raid code. The proper fix is probably
-to disable preempt around those regions - but just doing it the dumb
-way (ie. in the driver code) looks like an unfortunate layering violation.
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-Maybe something like disk_stat_update_start / disk_stat_update_end that
-gives you the per-cpu stat pointer as a "token" to be used by
-disk_stat_inc/add/etc. Anyone?
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 
-Named slightly differently, so you keep backward compatibility, of course.

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbRDMNo3>; Fri, 13 Apr 2001 09:44:29 -0400
+	id <S131348AbRDMOC7>; Fri, 13 Apr 2001 10:02:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131308AbRDMNoT>; Fri, 13 Apr 2001 09:44:19 -0400
-Received: from tomts6.bellnexxia.net ([209.226.175.26]:37790 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S131305AbRDMNoM>; Fri, 13 Apr 2001 09:44:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 8139too 'too much work at interrupt'
-Date: Fri, 13 Apr 2001 09:44:09 -0400
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01041300501001.06447@oscar>
-In-Reply-To: <01041300501001.06447@oscar>
+	id <S131347AbRDMOCw>; Fri, 13 Apr 2001 10:02:52 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:1803 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S131348AbRDMOCl>; Fri, 13 Apr 2001 10:02:41 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: db@zigo.dhs.org (Dennis Bjorklund), linux-kernel@vger.kernel.org
+Subject: Re: Data-corruption bug in VIA chipsets
+In-Reply-To: <E14o3k7-0002tq-00@the-village.bc.nu>
+From: Doug McNaught <doug@wireboard.com>
+Date: 13 Apr 2001 10:02:30 -0400
+In-Reply-To: Alan Cox's message of "Fri, 13 Apr 2001 14:36:05 +0100 (BST)"
+Message-ID: <m3y9t4ew3t.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Message-Id: <01041309440900.00436@oscar>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgot to mention that reverting to the driver too
-the version in ac3 cures the problem I am seeing.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Ed
+> > Is this problem likely to affect 2.2.X?  I have a VIA-based board on
+> > order (Tyan Trinity) and I don't plan to run 2.4 on it anytime soon
+> > (it's upgrading a stock RH6.2 box).
+> > 
+> > Am I safe if I stay in PIO mode?
+> 
+> I have received exactly zero reports of 2.2 problems, and as the 2.2
+> maintainer I would have expected more (I delete 2.2 + ide-patch
+> reports). My suspicion is the problem requires UDMA to occur, or to
+> occur with any probability.
 
-On Friday 13 April 2001 00:50, Ed Tomlinson wrote:
-> Upgraded to ac5 tonight.  It stalled shortly after start a
-> program to suck news.  Looking at a serial console I see
-> hundreds of the above message with a status of
-> intrStatus = 0x0001
->
-> Sysrq was active on the serial console so I did a T and P
-> before syncing are rebooting...  If the translated traces
-> are of any use just ask.
->
-> Ed Tomlinson <tomlins@cam.org>
+This is good to know.  I'll stay away from UDMA and the ide-patches
+until things seem clearer then.
+
+> The real concern (as with all of these things) is going to be what the
+> workaround does to performance - as measured in frames/second for most folks ;)
+
+Well, this is a compile server (and will have a lot of RAM) so running 
+PIO for a while shouldn't have much impact.
+
+Thanks, Alan.
+
+-Doug

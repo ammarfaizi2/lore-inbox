@@ -1,63 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUGNWBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265947AbUGNWDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUGNWBx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 18:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUGNWBx
+	id S265947AbUGNWDu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 18:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265958AbUGNWDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 18:01:53 -0400
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:34520 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S264936AbUGNWBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 18:01:51 -0400
-Date: Wed, 14 Jul 2004 15:01:50 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Joseph Fannin <jhf@rivenstone.net>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: 2.6.7-mm7
-Message-ID: <20040714220150.GM21856@smtp.west.cox.net>
-References: <20040708235025.5f8436b7.akpm@osdl.org> <20040709203852.GA1997@samarkand.rivenstone.net> <20040709141103.592c4655.akpm@osdl.org>
+	Wed, 14 Jul 2004 18:03:50 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9197 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265947AbUGNWDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 18:03:33 -0400
+Date: Thu, 15 Jul 2004 00:03:25 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: sten_wang@davicom.com.tw
+Cc: jgarzik@pobox.com, tulip-users@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: [2.6 patch] net/tulip/dmfe.c: fix inline compile errors
+Message-ID: <20040714220325.GT7308@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040709141103.592c4655.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040523i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 02:11:03PM -0700, Andrew Morton wrote:
+Trying to compile drivers/net/tulip/dmfe.c in 2.6.8-rc1-mm1 using
+gcc 3.4 results in the following compile error:
 
-> 
-> jhf@rivenstone.net (Joseph Fannin) wrote:
-> >
-> > On Thu, Jul 08, 2004 at 11:50:25PM -0700, Andrew Morton wrote:
-> > >
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/
-> >
-> > > +detect-too-early-schedule-attempts.patch
-> > >
-> > >  Catch attempts to call the scheduler before it is ready to go.
-> >
-> >     With this patch, my Powermac (ppc32) spews 711 (I think)
-> > warning messages during bootup.
-> 
-> hm, OK.  It could be that the debug patch is a bit too aggressive, or that
-> ppc got lucky and happens to always be in state TASK_RUNNING when these
-> calls to schedule() occur.
-> 
-> Maybe this task incorrectly has _TIF_NEED_RESCHED set?
-> 
-> Anyway, ppc guys: please take a look at the results from
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/broken-out/detect-too-early-schedule-attempts.patch
-> and check that the kernel really should be calling schedule() at this time
-> and place, let us know?
+<--  snip  -->
 
-Now that kallsyms data is OK, I took a quick look.. and all of this
-comes from generic code, at least on the machine I tried.  So if the
-code shouldn't be calling schedule() then, it's a more generic problem..
+...
+  CC      drivers/net/tulip/dmfe.o
+drivers/net/tulip/dmfe.c: In function `dmfe_rx_packet':
+drivers/net/tulip/dmfe.c:323: sorry, unimplemented: inlining failed in 
+call to 'cal_CRC': function body not available
+drivers/net/tulip/dmfe.c:936: sorry, unimplemented: called from here
+make[3]: *** [drivers/net/tulip/dmfe.o] Error 1
 
-... or I'm not following.
+<--  snip  -->
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+
+The patch below moves an inlined function above the place where it is 
+called the first time.
+
+
+diffstat output:
+ drivers/net/tulip/dmfe.c |   30 +++++++++++++++---------------
+ 1 files changed, 15 insertions(+), 15 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.8-rc1-mm1-full-3.4/drivers/net/tulip/dmfe.c.old	2004-07-14 23:55:07.000000000 +0200
++++ linux-2.6.8-rc1-mm1-full-3.4/drivers/net/tulip/dmfe.c	2004-07-14 23:55:40.000000000 +0200
+@@ -314,13 +314,13 @@
+ static u8 dmfe_sense_speed(struct dmfe_board_info *);
+ static void dmfe_process_mode(struct dmfe_board_info *);
+ static void dmfe_timer(unsigned long);
++static inline u32 cal_CRC(unsigned char *, unsigned int, u8);
+ static void dmfe_rx_packet(struct DEVICE *, struct dmfe_board_info *);
+ static void dmfe_free_tx_pkt(struct DEVICE *, struct dmfe_board_info *);
+ static void dmfe_reuse_skb(struct dmfe_board_info *, struct sk_buff *);
+ static void dmfe_dynamic_reset(struct DEVICE *);
+ static void dmfe_free_rxbuffer(struct dmfe_board_info *);
+ static void dmfe_init_dm910x(struct DEVICE *);
+-static inline u32 cal_CRC(unsigned char *, unsigned int, u8);
+ static void dmfe_parse_srom(struct dmfe_board_info *);
+ static void dmfe_program_DM9801(struct dmfe_board_info *, int);
+ static void dmfe_program_DM9802(struct dmfe_board_info *);
+@@ -885,6 +885,20 @@
+ 
+ 
+ /*
++ *	Calculate the CRC valude of the Rx packet
++ *	flag = 	1 : return the reverse CRC (for the received packet CRC)
++ *		0 : return the normal CRC (for Hash Table index)
++ */
++
++static inline u32 cal_CRC(unsigned char * Data, unsigned int Len, u8 flag)
++{
++	u32 crc = crc32(~0, Data, Len);
++	if (flag) crc = ~crc;
++	return crc;
++}
++
++
++/*
+  *	Receive the come packet and pass to upper layer
+  */
+ 
+@@ -1774,20 +1788,6 @@
+ 
+ 
+ /*
+- *	Calculate the CRC valude of the Rx packet
+- *	flag = 	1 : return the reverse CRC (for the received packet CRC)
+- *		0 : return the normal CRC (for Hash Table index)
+- */
+-
+-static inline u32 cal_CRC(unsigned char * Data, unsigned int Len, u8 flag)
+-{
+-	u32 crc = crc32(~0, Data, Len);
+-	if (flag) crc = ~crc;
+-	return crc;
+-}
+-
+-
+-/*
+  *	Parser SROM and media mode
+  */
+ 
+

@@ -1,81 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268140AbUHXQ6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUHXRFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268140AbUHXQ6e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 12:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUHXQ6e
+	id S266680AbUHXRFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 13:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268125AbUHXRFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 12:58:34 -0400
-Received: from mail.dif.dk ([193.138.115.101]:42681 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S268140AbUHXQ6W (ORCPT
+	Tue, 24 Aug 2004 13:05:55 -0400
+Received: from holomorphy.com ([207.189.100.168]:34692 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266680AbUHXRFx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 12:58:22 -0400
-Date: Tue, 24 Aug 2004 19:03:55 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Shouldn't kconfig defaults match recommendations in help text?
-In-Reply-To: <16683.22576.781038.756277@alkaid.it.uu.se>
-Message-ID: <Pine.LNX.4.61.0408241859420.2770@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0408232347380.3767@dragon.hygekrogen.localhost>
- <16683.22576.781038.756277@alkaid.it.uu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Aug 2004 13:05:53 -0400
+Date: Tue, 24 Aug 2004 10:05:47 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: fix text reporting in O(1) proc_pid_statm()
+Message-ID: <20040824170547.GP2793@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040822013402.5917b991.akpm@osdl.org> <20040823202158.GJ4418@holomorphy.com> <20040823231454.62734afb.akpm@osdl.org> <20040824075539.GA2793@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040824075539.GA2793@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004, Mikael Pettersson wrote:
+On Tue, Aug 24, 2004 at 12:55:39AM -0700, William Lee Irwin III wrote:
+> Merely removing down_read(&mm->mmap_sem) from task_vsize() is too
+> half-assed to let stand. The following patch removes the vma iteration
+> as well as the down_read(&mm->mmap_sem) from both task_mem() and
+> task_statm() and callers for the CONFIG_MMU=y case in favor of
+> accounting the various stats reported at the times of vma creation,
+> destruction, and modification. Unlike the 2.4.x patches of the same
+> name, this has no per-pte-modification overhead whatsoever.
+> This patch quashes end user complaints of top(1) being slow as well as
+> kernel hacker complaints of per-pte accounting overhead simultaneously.
+> Incremental atop the task_vsize() de-mmap_sem-ification of 2.6.8.1-mm4:
 
-> Jesper Juhl writes:
->  > [quote]
->  > 
->  > The processor's performance-monitoring counters are special-purpose
->  > global registers. This option adds support for virtual per-process
->  > performance-monitoring counters which only run when the process
->  > to which they belong is executing. This improves the accuracy of
->  > performance measurements by reducing "noise" from other processes.
->  > 
->  > Say Y.
->  > 
->  >   Virtual performance counters support (PERFCTR_VIRTUAL) [N/y/?] (NEW)
->  > 
->  > [/quote]
->  > 
->  > 
->  > I just picked the above randomly, there are several other cases like it.
->  > 
->  > The comment clearly makes a recommendation that the user enables (in this 
->  > case) the option, yet the default is the exact opposite. What is the point 
->  > in that?
->  > I don't see anything but confusion amongst users as the result of such 
->  > inconsistency.
-> 
-> This particular mismatch occurs because the Kconfig entry
-> doesn't have a "default" line, so Kconfig defaults to "n".
-> 
-> It makes little sense to disable PERFCTR_VIRTUAL when
-> PERFCTR is enabled, so providing a "default y" for
-> PERFCTR_VIRTUAL is the right thing to do.
-> (It's an option because the design allows several
-> independent high-level services on top of the low-level
-> code. Currently there's only one high-level service in
-> 2.6-mm, but with several it's reasonable to allow users
-> to enable only those they actually want.)
-> 
-I had not investigated it in detail since it was simply one randomly 
-picked example out of several, but thank you for the detailed explanation.
+Some kind of brainfart happened here, though it's not visible on the
+default display from top(1) etc. This patch fixes up the gibberish I
+mistakenly put down for text with the proper text size, and subtracts
+it from data as per the O(vmas) code beforehand.
 
 
->  > Would patches to change default configuration choices to match the 
->  > recommendation given in the help text (if any) be acceptable? If not I'd 
->  > be interrested in the reasons why not.
->  > 
->  > If such patches are acceptable/wanted I'll be happy to supply them.
-> 
-> Feel free to do so :-)
-> 
-I'll post such patches in a short while. Sepperate mails, one pr patch 
-changing one kconfig default pr patch.
-
-
---
-Jesper Juhl
+Index: mm4-2.6.8.1/fs/proc/task_mmu.c
+===================================================================
+--- mm4-2.6.8.1.orig/fs/proc/task_mmu.c	2004-08-23 18:29:33.000000000 -0700
++++ mm4-2.6.8.1/fs/proc/task_mmu.c	2004-08-24 10:00:21.530755896 -0700
+@@ -36,8 +36,8 @@
+ 	       int *data, int *resident)
+ {
+ 	*shared = mm->shared_vm;
+-	*text = mm->exec_vm - ((mm->end_code - mm->start_code) >> PAGE_SHIFT);
+-	*data = mm->total_vm - mm->shared_vm;
++	*text = (mm->end_code - mm->start_code) >> PAGE_SHIFT;
++	*data = mm->total_vm - mm->shared_vm - *text;
+ 	*resident = mm->rss;
+ 	return mm->total_vm;
+ }

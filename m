@@ -1,56 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268028AbUI1Sj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUI1TQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268028AbUI1Sj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 14:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUI1Sj3
+	id S268036AbUI1TQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 15:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUI1TQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 14:39:29 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:7340 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S268028AbUI1Sj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 14:39:27 -0400
-To: akpm@osdl.org, benh@kernel.crashing.org
-Cc: linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 28 Sep 2004 11:39:25 -0700
-Message-ID: <52is9yb5lu.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 28 Sep 2004 15:16:25 -0400
+Received: from mail.dif.dk ([193.138.115.101]:54468 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S268036AbUI1TQV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 15:16:21 -0400
+Date: Tue, 28 Sep 2004 21:23:25 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Nico Schottelius <nico-kernel@schottelius.org>,
+       Paulo Marques <pmarques@grupopie.com>,
+       Martin Waitz <tali@admingilde.org>
+Subject: [PATCH] add sysfs attribute 'carrier' for net devices - try 2.
+In-Reply-To: <Pine.LNX.4.61.0409281316191.22088@jjulnx.backbone.dif.dk>
+Message-ID: <Pine.LNX.4.61.0409282118340.2729@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0409270041460.2886@dragon.hygekrogen.localhost>
+ <1096306153.1729.2.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0409281316191.22088@jjulnx.backbone.dif.dk>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH] Fix ppc64 cross-compilation
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 28 Sep 2004 18:39:26.0494 (UTC) FILETIME=[7B3DE3E0:01C4A58A]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After the "ppc64 monster cleanup," I get
+On Tue, 28 Sep 2004, Jesper Juhl wrote:
 
-    powerpc-750-linux-gnu-strip: vmlinux: File format not recognized
+> On Mon, 27 Sep 2004, Stephen Hemminger wrote:
+> 
+> > Date: Mon, 27 Sep 2004 10:29:13 -0700
+> > From: Stephen Hemminger <shemminger@osdl.org>
+> > To: Jesper Juhl <juhl-lkml@dif.dk>
+> > Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+> >     Nico Schottelius <nico-kernel@schottelius.org>
+> > Subject: Re: [PATCH] add sysfs attribute 'carrier' for net devices
+> > 
+> > On Mon, 2004-09-27 at 00:51 +0200, Jesper Juhl wrote:
+> > >  
+> > > +static ssize_t show_carrier(struct class_device *dev, char *buf)
+> > > +{
+> > > +	struct net_device *net = to_net_dev(dev);
+> > > +	if (netif_running(net)) {
+> > > +		if (netif_carrier_ok(net))
+> > > +			return snprintf(buf, 3, "%d\n", 1);
+> > > +		else
+> > > +			return snprintf(buf, 3, "%d\n", 0);
+> > 
+> > Using snprintf in this way is kind of silly. since buffer is PAGESIZE.
+> > The most concise format of this would be:
+> > 	return sprintf(buf, dec_fmt, !!netif_carrier_ok(dev));
+> > 
+> 
+> I see your point and I'll create a new patch this evening when I get home 
+> from work.
+> Thank you for your feedback.
+> 
 
-from my ppc32 strip command when cross-compiling a ppc64 kernel, since
-vmlinux is a 64-bit ELF file.  This patch fixes my build (and the
-resulting kernel boots fine).
+Here's a second try at a patch to properly implement a 'carrier' sysfs 
+attribute for net devices.
 
-Thanks,
-  Roland
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
-
-Index: linux-bk/arch/ppc64/boot/Makefile
-===================================================================
---- linux-bk.orig/arch/ppc64/boot/Makefile	2004-09-28 11:22:48.000000000 -0700
-+++ linux-bk/arch/ppc64/boot/Makefile	2004-09-28 11:23:07.000000000 -0700
-@@ -31,7 +31,7 @@
- BOOTLD		:= $(CROSS32_COMPILE)ld
- BOOTLFLAGS	:= -Ttext 0x00400000 -e _start -T $(srctree)/$(src)/zImage.lds
- BOOTOBJCOPY	:= $(CROSS32_COMPILE)objcopy
--BOOTSTRIP	:= $(CROSS32_COMPILE)strip
-+BOOTSTRIP	:= $(CROSS_COMPILE)strip
- OBJCOPYFLAGS    := contents,alloc,load,readonly,data
+diff -u linux-2.6.9-rc2-bk14-orig/net/core/net-sysfs.c linux-2.6.9-rc2-bk14/net/core/net-sysfs.c
+--- linux-2.6.9-rc2-bk14-orig/net/core/net-sysfs.c	2004-09-14 23:19:53.000000000 +0200
++++ linux-2.6.9-rc2-bk14/net/core/net-sysfs.c	2004-09-28 19:37:45.000000000 +0200
+@@ -126,8 +126,18 @@
+ 	return -EINVAL;
+ }
  
- src-boot := crt0.S string.S prom.c main.c zlib.c imagesize.c div64.S
++static ssize_t show_carrier(struct class_device *dev, char *buf)
++{
++	struct net_device *netdev = to_net_dev(dev);
++	if (netif_running(netdev)) {
++		return sprintf(buf, fmt_dec, !!netif_carrier_ok(netdev));
++	}
++	return -EINVAL;
++}
++
+ static CLASS_DEVICE_ATTR(address, S_IRUGO, show_address, NULL);
+ static CLASS_DEVICE_ATTR(broadcast, S_IRUGO, show_broadcast, NULL);
++static CLASS_DEVICE_ATTR(carrier, S_IRUGO, show_carrier, NULL);
+ 
+ /* read-write attributes */
+ NETDEVICE_SHOW(mtu, fmt_dec);
+@@ -186,6 +196,7 @@
+ 	&class_device_attr_type,
+ 	&class_device_attr_address,
+ 	&class_device_attr_broadcast,
++	&class_device_attr_carrier,
+ 	NULL
+ };
+ 
+

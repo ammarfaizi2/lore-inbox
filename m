@@ -1,54 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266750AbRG3Nbl>; Mon, 30 Jul 2001 09:31:41 -0400
+	id <S268441AbRG3Nck>; Mon, 30 Jul 2001 09:32:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268441AbRG3NbU>; Mon, 30 Jul 2001 09:31:20 -0400
-Received: from ns.suse.de ([213.95.15.193]:56836 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S266750AbRG3NbO>;
-	Mon, 30 Jul 2001 09:31:14 -0400
-Date: Mon, 30 Jul 2001 15:31:17 +0200
-From: Olaf Hering <olh@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: new scsi hardware detection in 2.4.7(pre)
-Message-ID: <20010730153117.A2142@suse.de>
-In-Reply-To: <20010723171019.A18135@suse.de> <22072.995939994@kao2.melbourne.sgi.com>
+	id <S268589AbRG3Nca>; Mon, 30 Jul 2001 09:32:30 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:19729 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S268441AbRG3NcP>;
+	Mon, 30 Jul 2001 09:32:15 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Default log level 
+In-Reply-To: Your message of "Mon, 30 Jul 2001 16:05:27 +0300."
+             <10993682989.20010730160527@port.imtp.ilyichevsk.odessa.ua> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <22072.995939994@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, Jul 24, 2001 at 11:59:54AM +1000
+Date: Mon, 30 Jul 2001 23:32:18 +1000
+Message-ID: <24638.996499938@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 24, Keith Owens wrote:
+On Mon, 30 Jul 2001 16:05:27 +0300, 
+VDA <VDA@port.imtp.ilyichevsk.odessa.ua> wrote:
+>What about switching default log level to KERN_NOTICE?
 
-> On Mon, 23 Jul 2001 17:10:19 +0200, 
-> Olaf Hering <olh@suse.de> wrote:
-> >I get this on non-scsi systems with scsi compiled into the kernel:
-> >
-> >SCSI subsystem driver Revision: 1.00
-> >request_module[scsi_hostadapter]: Root fs not mounted
-> >request_module[scsi_hostadapter]: Root fs not mounted
-> >request_module[scsi_hostadapter]: Root fs not mounted
-> 
-> The SCSI midlayer is trying to load the SCSI host adapter, that is an
-> unavoidable side effect of including SCSI support.  Because no adapter
-> is found, kmod tries to automatically load a module that can find a
-> host adapter.  The "Root fs not mounted" message occurs when you try to
-> load any module before / is mounted.
+Documentation/filesystems/proc.txt, find printk, read.
 
-Does that make any sense? I mean, there are some scsi drivers, none of
-them found a valid device, why do we look for more drivers? It would
-make sense if there are no low level device drivers in the kernel
-binary.
-
-
-Gruss Olaf
-
--- 
- $ man clone
-
-BUGS
-       Main feature not yet implemented...

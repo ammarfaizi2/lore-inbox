@@ -1,99 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269113AbUJFHwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268890AbUJFIGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269113AbUJFHwB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 03:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269119AbUJFHwB
+	id S268890AbUJFIGp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 04:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUJFIGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 03:52:01 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:44299 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S269113AbUJFHvc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 03:51:32 -0400
-Message-ID: <4163A3E2.2060609@stud.feec.vutbr.cz>
-Date: Wed, 06 Oct 2004 09:50:58 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041005)
-X-Accept-Language: en-us, en
+	Wed, 6 Oct 2004 04:06:45 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:33724 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S268890AbUJFIGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 04:06:38 -0400
+Date: Wed, 6 Oct 2004 10:02:58 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
+       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
+       sylvain.jeaugey@bull.net, djh@sgi.com,
+       LKML <linux-kernel@vger.kernel.org>, Simon.Derr@bull.net,
+       Andi Kleen <ak@suse.de>, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+In-Reply-To: <1097014749.4065.48.camel@arrakis>
+Message-ID: <Pine.LNX.4.61.0410060952540.19964@openx3.frec.bull.fr>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> 
+ <20040805190500.3c8fb361.pj@sgi.com><247790000.1091762644@[10.10.2.4]> 
+ <200408061730.06175.efocht@hpce.nec.com> <20040806231013.2b6c44df.pj@sgi.com>
+ <411685D6.5040405@watson.ibm.com> <20041001164118.45b75e17.akpm@osdl.org>
+ <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com>
+ <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au>
+ <821020000.1096814205@[10.10.2.4]>  <20041003083936.7c844ec3.pj@sgi.com>
+ <834330000.1096847619@[10.10.2.4]> <1097014749.4065.48.camel@arrakis>
 MIME-Version: 1.0
-To: Nuno Silva <nuno.silva@vgertech.com>
-CC: Patryk Jakubowski <patrics@interia.pl>, linux-kernel@vger.kernel.org
-Subject: Re: Invisible threads in 2.6.9
-References: <S268296AbUJDTjb/20041004193948Z+2396@vger.kernel.org> <41630B2C.5020709@interia.pl> <4163619C.4070600@vgertech.com>
-In-Reply-To: <4163619C.4070600@vgertech.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  identified this incoming email as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0002]
-  ____
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nuno Silva wrote:
-> Yes, that's the new method trojans are using to hide tasks... No need to 
-> install complicated kernel modules anymore :-)
+On Tue, 5 Oct 2004, Matthew Dobson wrote:
+
+> On Sun, 2004-10-03 at 16:53, Martin J. Bligh wrote:
+> > > Martin wrote:
+> > >> Matt had proposed having a separate sched_domain tree for each cpuset, which
+> > >> made a lot of sense, but seemed harder to do in practice because "exclusive"
+> > >> in cpusets doesn't really mean exclusive at all.
+> > > 
+> > > See my comments on this from yesterday on this thread.
+> > > 
+> > > I suspect we don't want a distinct sched_domain for each cpuset, but
+> > > rather a sched_domain for each of several entire subtrees of the cpuset
+> > > hierarchy, such that every CPU is in exactly one such sched domain, even
+> > > though it be in several cpusets in that sched_domain.
+> > 
+> > Mmmm. The fundamental problem I think we ran across (just whilst pondering,
+> > not in code) was that some things (eg ... init) are bound to ALL cpus (or
+> > no cpus, depending how you word it); i.e. they're created before the cpusets
+> > are, and are a member of the grand-top-level-uber-master-thingummy.
+> > 
+> > How do you service such processes? That's what I meant by the exclusive
+> > domains aren't really exclusive. 
+> > 
+> > Perhaps Matt can recall the problems better. I really liked his idea, aside
+> > from the small problem that it didn't seem to work ;-)
 > 
-> More seriously: That's a problem with current procps utils... They just 
-> don't show them. I can't complain too much because I'm not doing any 
-> code, but it would be nice to have a working top...
+> Well that doesn't seem like a fair statement.  It's potentially true,
+> but it's really hard to say without an implementation! ;)
 > 
-> As a workaround, to at least see the threads without inspecting /proc 
-> directly, you can use the 'm' and 'H' flags to ps, i.e.
-> 
-> $ ps auwxH
-> 
+> I think that the idea behind cpusets is really good, essentially
+> creating isolated areas of CPUs and memory for tasks to run
+> undisturbed.  I feel that the actual implementation, however, is taking
+> a wrong approach, because it attempts to use the cpus_allowed mask to
+> override the scheduler in the general case.  cpus_allowed, in my
+> estimation, is meant to be used as the exception, not the rule.  If we
+> wish to change that, we need to make the scheduler more aware of it, so
+> it can do the right thing(tm) in the presence of numerous tasks with
+> varying cpus_allowed masks.  The other option is to implement cpusets in
+> a way that doesn't use cpus_allowed.  That is the option that I am
+> pursuing.  
 
-It doesn't work for me:
+I like this idea. 
 
-# ps aux | grep [t]hread
-michich   7447  0.0  0.0     0    0 pts/1    Zl+  09:43   0:00 [threadbug] <defunct>
-# ps auwxH | grep [t]hread
-#
+The current implementation uses cpus_allowed because it is non-intrusive, 
+as it does not touch the scheduler at all, and also maybe because it was 
+easy to do this way since the cpuset development team seems to lack 
+scheduler gurus.
 
-And I can't inspect /proc directly:
-# cd /proc/7447
-# ls -l
-ls: cannot read symbolic link cwd: No such file or directory
-ls: cannot read symbolic link root: No such file or directory
-ls: cannot read symbolic link exe: No such file or directory
-total 0
-dr-xr-xr-x  2 root root 0 Oct  6 09:48 attr
--r--------  1 root root 0 Oct  6 09:48 auxv
--r--r--r--  1 root root 0 Oct  6 09:44 cmdline
-lrwxrwxrwx  1 root root 0 Oct  6 09:48 cwd
--r--------  1 root root 0 Oct  6 09:48 environ
-lrwxrwxrwx  1 root root 0 Oct  6 09:48 exe
-dr-x------  2 root root 0 Oct  6 09:44 fd
--r--r--r--  1 root root 0 Oct  6 09:48 maps
--rw-------  1 root root 0 Oct  6 09:48 mem
--r--r--r--  1 root root 0 Oct  6 09:48 mounts
-lrwxrwxrwx  1 root root 0 Oct  6 09:48 root
--r--r--r--  1 root root 0 Oct  6 09:44 stat
--r--r--r--  1 root root 0 Oct  6 09:48 statm
--r--r--r--  1 root root 0 Oct  6 09:44 status
-dr-xr-xr-x  3 root root 0 Oct  6 09:45 task
--r--r--r--  1 root root 0 Oct  6 09:48 wchan
-# cd task
-bash: cd: task: No such file or directory
-# ls -l task
-ls: task: No such file or directory
-# ls -l | grep task
-ls: cannot read symbolic link cwd: No such file or directory
-ls: cannot read symbolic link root: No such file or directory
-ls: cannot read symbolic link exe: No such file or directory
-dr-xr-xr-x  3 root root 0 Oct  6 09:45 task
+The 'non intrusive' part was also important as long as the cpusets were 
+mostly 'on their own', but if now it appears that more cooperation with 
+other functions such as CKRM is needed, I suppose a deeper impact on the 
+scheduler code might be OK. Especially if we intend to enforce 'real 
+exclusive' cpusets or things like that.
 
-Isn't it strange?
+So I'm really interested in any design/bits of code that would go in that 
+direction.
 
-Michal Schmidt
+	Simon.
+

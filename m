@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267485AbUHPJGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267480AbUHPJOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267485AbUHPJGb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 05:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267486AbUHPJGb
+	id S267480AbUHPJOg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 05:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUHPJOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 05:06:31 -0400
-Received: from ozlabs.org ([203.10.76.45]:34011 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267485AbUHPJG3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 05:06:29 -0400
+	Mon, 16 Aug 2004 05:14:36 -0400
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:23950 "HELO
+	qinetiq-tim.net") by vger.kernel.org with SMTP id S267480AbUHPJOe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 05:14:34 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: High CPU usage (up to server hang) under heavy I/O load
+Date: Mon, 16 Aug 2004 10:13:13 +0100
+User-Agent: KMail/1.6.1
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20040813140229.4F48B2FC2C@illicom.com> <1092435364.24960.35.camel@localhost.localdomain>
+In-Reply-To: <1092435364.24960.35.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16672.30991.27709.349218@cargo.ozlabs.ibm.com>
-Date: Mon, 16 Aug 2004 19:06:23 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Adrian Cox <adrian@humboldt.co.uk>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH][2.4.27] PowerPC 745x data corruption bug fix
-In-Reply-To: <1092642051.959.56.camel@localhost>
-References: <200408160254.i7G2ss3S000656@harpo.it.uu.se>
-	<1092642051.959.56.camel@localhost>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200408161013.13829.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.4; VDF: 6.27.0.11; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Cox writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Pages should be marked coherent for the MPC106 as well as the MPC107,
 
-The MPC106 has an internal cache?  I had a quick look in the 106 and
-107 manuals and I couldn't see in either one where it talks about a
-cache.  Do you know where I should be looking?
+> Is your raid controller 64bit capable ? If you can I'd also go to a 2.6
+> kernel for anything > 1Gb, and definitely > 4Gb of RAM. The differences
+> are astounding although if your PCI I/O hardware cant do 64bit access
+> your box will suck whatever kernel 8)
 
-Paul.
+Would this also mean that if I stick a 64bit SATA raid card (a 3Ware 8506-4LP 
+in this case) into a 32bit pci slot, then I/O is always going to suck badly?
+
+... cos I do, and I/O sucks :)
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBIHqpBn4EFUVUIO0RAr4HAKCXDnm8YM2f7jY9awix/0KVyoUvYwCeJdmU
++gatlxR+IHurHnTPXDDITqk=
+=2Rrq
+-----END PGP SIGNATURE-----

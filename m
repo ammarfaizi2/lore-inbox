@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135968AbREGBtK>; Sun, 6 May 2001 21:49:10 -0400
+	id <S135971AbREGBma>; Sun, 6 May 2001 21:42:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135974AbREGBtA>; Sun, 6 May 2001 21:49:00 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:11530 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135968AbREGBso>; Sun, 6 May 2001 21:48:44 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] for iso8859-13
-Date: 6 May 2001 18:48:22 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9d4ut6$9b9$1@cesium.transmeta.com>
-In-Reply-To: <200105062104.XAA24831@green.mif.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S135973AbREGBmV>; Sun, 6 May 2001 21:42:21 -0400
+Received: from unthought.net ([212.97.129.24]:53381 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S135971AbREGBmK>;
+	Sun, 6 May 2001 21:42:10 -0400
+Date: Mon, 7 May 2001 03:42:08 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Ben Ford <ben@kalifornia.com>
+Cc: "Dwayne C. Litzenberger" <dlitz@dlitz.net>,
+        Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
+Message-ID: <20010507034208.A16593@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Ben Ford <ben@kalifornia.com>,
+	"Dwayne C. Litzenberger" <dlitz@dlitz.net>,
+	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010505063726.A32232@va.samba.org> <20010506011553.A11297@zed.dlitz.net> <3AF584A2.4050208@kalifornia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <3AF584A2.4050208@kalifornia.com>; from ben@kalifornia.com on Sun, May 06, 2001 at 10:06:42AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200105062104.XAA24831@green.mif.pg.gda.pl>
-By author:    Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-In newsgroup: linux.dev.kernel
->
-> Hi,
->    The following patch removed unused and broken conversion table from
-> nls_iso8859-13.c.
+On Sun, May 06, 2001 at 10:06:42AM -0700, Ben Ford wrote:
+> Dwayne C. Litzenberger wrote:
 > 
+> >Hey, this is cool.
+> >
+> >How far away is the capability to "teleport" processes from one machine to
+> >another over the network?  Think of the uptime!
+> >
+> 
+> It is here.  Look at Mosix.
 
-Wouldn't it make a heck of a lot more sense if we had a preprocessor
-which could produce these kinds of tables from a more sensible input
-format (preferrably one which is already in use somewhere.)
+No.  Not for uptime.
 
-	-hpa
+The "responsibility" for process completion does not get delegated. A process
+will always be bound to it's home-node (in mosix terms), no matter how far
+it's "teleported".   If the home-node fails, the process won't know what hit
+it.
+
+There are good reasons why mosix let's processes depend on their home nodes.
+
+This is not meant as backstabbing mosix, it's a great environment for a lot
+of things.
+
+But it's not the universal silver bullet.
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

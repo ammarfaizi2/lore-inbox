@@ -1,76 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269306AbRGaObD>; Tue, 31 Jul 2001 10:31:03 -0400
+	id <S269308AbRGaOcE>; Tue, 31 Jul 2001 10:32:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269308AbRGaOay>; Tue, 31 Jul 2001 10:30:54 -0400
-Received: from [64.7.140.42] ([64.7.140.42]:53699 "EHLO inet.connecttech.com")
-	by vger.kernel.org with ESMTP id <S269306AbRGaOaf>;
-	Tue, 31 Jul 2001 10:30:35 -0400
-Message-ID: <000701c119cd$ebf0c720$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Khalid Aziz" <khalid@fc.hp.com>
-Cc: "Linux kernel development list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200107302332.f6UNWbxg001791@webber.adilger.int> <3B65F1A2.30708CC1@fc.hp.com>
-Subject: Re: Support for serial console on legacy free machines
-Date: Tue, 31 Jul 2001 10:34:35 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S269320AbRGaOb4>; Tue, 31 Jul 2001 10:31:56 -0400
+Received: from web14508.mail.yahoo.com ([216.136.224.71]:37650 "HELO
+	web14508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269308AbRGaObt>; Tue, 31 Jul 2001 10:31:49 -0400
+Message-ID: <20010731143157.3518.qmail@web14508.mail.yahoo.com>
+Date: Tue, 31 Jul 2001 07:31:57 -0700 (PDT)
+From: Kent Hunt <kenthunt@yahoo.com>
+Subject: Re: Longstanding sudden reboots with 2.4 smp kernels
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+Cc: lk <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10107310512100.17362-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-From: "Khalid Aziz" <khalid@fc.hp.com>
-> AFAIK, you can not have console on a PCI serial port at this time. I
-> looked at it few months back and found out that PCI initialization
-> happens much too late for a serial console. It would take quite a bit of
+Mark,
 
-That's very odd. That implies that serial consoles don't use the serial
-driver at all then, as the pci serial port setup is done at the same
-time as the regular serial port setups.
+--- Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+wrote:
+> > click some action button in the gnomeicu program.
+> I am
+> > ruling out hardware problems since the box is rock
+> > solid except in the above mentioned situation. It
+> is
+> 
+> that is not a valid argument.
 
-If a serial console is using serial.c, the pci serial ports will also
-be available.
+Okay. I also don't take it as a strong evidence that
+it must be a hardware problem, however, if it were a
+hardware problem, then I would expect this happening
+in other similar situations as well (using GUI's in
+X). Now, I have more correlated data. I have tried to
+use a different instant message program: licq. It also
+does the same. Perhaps then the problem is using (GUI
+in X with networking)? 
 
-Hm, looking through the driver quick, I find some interesting things:
+I had other problems in that past that many people
+assured me that was a hardware problem. For example,
+under high network traffic in my ppp0 the box
+rebooted. There was one special condition though. The
+two cpu's had to be busy with a demanding process. The
+upgrade from kernel 2.2.16 to 2.4 solved completely
+the problem. You may argue than that is because 2.4
+might have introduced workarounds to fix buggy
+hardware. Perhaps, I don't know exactly what has been
+changed in the ppp code of the kernel. As a side note,
+I believe this problem has been solved in the later
+2.2 kernels.
 
-A) Serial console support is mutually exclusive with the serial driver
-being a module.
-B) The serial console will not share its irq. Other ports with the same
-irq are set to polled mode. This may impact performance. It also suggests
-that using the console on a pci board isn't a good idea, as pci will
-share the irq to other devices.
-C) serial.c contains a completely separate serial console driver,
-complete with its own init routine. Which meshes with the current
-suggestion that the "serial driver" isn't used, and pci init happens
-too late.
+For a long time I did a bunch of hardware tests to
+solve the above problem. CPU burn, Memory burn, 
+anything burn, watched CPU and box temperature (it was
+summer time and very hot) and all tests gave negative.
+This is why I also have some trust in the hardware. I
+only bought good parts and I'm doing no overclocking
+or other hardware tweaks that makes the box unstable. 
 
-> work to get serial console working on PCI cards. PA-Linux faced the same
-> problem but they were able to get around it by using the firmware calls
-> to do console I/O. If serial console were working on PCI serial cards,
-> you wouldn't need ACPI to use it.
+Each of the componets X, GUI and network I think they
+work properly, I never have crashes with X, all GUI's
+are working and I do a lot of heavy networking. Except
+of course the IM programs.
 
-It seems like pci consoles won't work, now that I think about it. The
-console driver gets an index, which I'm going to assume works thusly:
-lilo console=ttyS1 ends up passing 1 as the index. That index is used
-to pick a serial port out of the array of serial ports that the driver
-knows about. If console init happens early, and serial driver init happens
-late (it would be dependent on pci init) then only hard coded ports
-would work. Those are defined in asm/serial.h, and for i386 include the
-standard ports, and a number of isa ports from various board manufacturers.
+> > frustrating since no messages are left in the
+> kernel
+> > logs when these reboots happen. 
+> 
+> there are some fault scenarios that would cause
+> instant
+> reboots (maybe triple faults), but of course that
+> implies
+> a bug making it possible (in this case, probably the
+> X code).
 
-Using one of our pci ports would require knowledge of its io address,
-which wouldn't be available until the pci subsystem had inited. Perhaps
-that could be changed to allow pci based consoles?
+I'm not ruling out X problem (I would be then thankful
+that it is a software problem then, if someone is able
+to solve). 
 
-Elsethread someone mentions a stripped down usb console driver; that's
-analogous to the serial console driver contained in serial.c. And if
-serial can do it...
+> equally possible is a hardware fault - being
+> triggered by
+> some obscure sequence doesn't mean it's not
+> hardware.
 
-..Stu
+I was expecting if someone could point out if there is
+a clever way of isolating and detecting the problem.
+The problem is that the kernel reboots, no oops or
+logs. X also doesn't leave any logs. I have tried to
+disable hardware pointer in X but it also doesn't
+help.
+Perhaps I should try to recompile gnomeicu to only
+catch events and not do any networking. 
+
+Kent
 
 
-
-
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

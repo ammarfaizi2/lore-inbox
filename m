@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUHHTD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUHHTMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266186AbUHHTD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 15:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUHHTD0
+	id S262380AbUHHTMA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 15:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUHHTMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 15:03:26 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:31287 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266186AbUHHTDP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 15:03:15 -0400
-Date: Sun, 8 Aug 2004 21:05:08 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, sam@ravnborg.org,
-       zippel@linux-m68k.org
-Subject: Re: [PATCH] save kernel version in .config file
-Message-ID: <20040808190508.GD22610@mars.ravnborg.org>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>, sam@ravnborg.org,
-	zippel@linux-m68k.org
-References: <20040803225753.15220897.rddunlap@osdl.org>
+	Sun, 8 Aug 2004 15:12:00 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:64751 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262380AbUHHTL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 15:11:58 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: skraw@ithnet.com, vojtech@suse.cz, hpa@zytor.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1091983220.5759.159.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040803225753.15220897.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 08 Aug 2004 12:40:20 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 10:57:53PM -0700, Randy.Dunlap wrote:
-> 
-> (from June/2004 email thread:
-> http://marc.theaimsgroup.com/?t=108753573200001&r=1&w=2
-> )
-> 
-> Several people found this useful, none opposed (afaik).
-> 
-> Saves kernel version in .config file, e.g.:
-> 
-> #
-> # Automatically generated make config: don't edit
-> # Linux kernel version: 2.6.8-rc3
-> # Tue Aug  3 22:55:57 2004
-> #
-> 
-> Please merge.
+Stephan von Krawczynski writes:
 
-Applied - thanks.
+> Maybe you should not overestimate cdrecord as a tool
+> (like its author obviously does sometimes). At least
+> for DVD there are well-working alternatives.
 
-	Sam
+Unfortunately there is quite a bit of knowledge embedded
+in cdrecord. There are _lots_ of weird formats and burners
+to take care of. Testing costs real money. Mistakes will
+cost real money for many other people.
+
+Sorry. **ahem** This would be an easy project...
+
+> If Joerg feels a better home on Solaris, so be it. 
+> It's his right to decide for solaris, just as it is
+> a users' right to decide against cdrecord.
+
+True.
+
+Oddly, he did admit that Solaris will support direct usage
+of the device names. Here's his list of good systems:
+
+Linux
+AIX
+BSD-OS (eh, meaning BSDI maybe?)
+OpenBSD 
+HP-UX   
+SGI IRIX
+Solaris
+
+Here are the bad systems:
+
+obsolete releases of Linux and Solaris
+dead OSes like DOS, DomainOS, AmigaOS, BeOS, NeXT, SunOS 4
+nearly dead: VMS, OS/2, Tru64 
+SCO crap: OpenServer, UnixWare
+Windows
+MacOS X
+QNX
+FreeBSD (Maybe it's dying? It's a BSD.)
+
+If support for the bad systems were discontinued, FreeBSD and
+MacOS X would most likely be fixed up soon. Maybe QNX too.
+The others can sink. Supporting SCO is just plain wrong.
+
+So you certainly could fork this, drop the silly naming, and
+still support the OSes worth caring about.
+
+

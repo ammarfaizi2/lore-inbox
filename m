@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130348AbQLBU7y>; Sat, 2 Dec 2000 15:59:54 -0500
+	id <S130375AbQLBVLi>; Sat, 2 Dec 2000 16:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130440AbQLBU7o>; Sat, 2 Dec 2000 15:59:44 -0500
-Received: from colorfullife.com ([216.156.138.34]:26378 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S130348AbQLBU71>;
-	Sat, 2 Dec 2000 15:59:27 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-Subject: Re: 2.4.0-test11: hangs while "Probing PCI hardware" for Sony Vaio C1VE (Crusoe)
-Message-ID: <975789131.3a295c4be5dee@ssl.local>
-Date: Sat, 02 Dec 2000 21:32:11 +0100 (CET)
-From: Wolfgang Spraul <wspraul@q-ag.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1001202132310.1450D-100000@mandrakesoft.mandrakesoft.com>
-In-Reply-To: <Pine.LNX.3.96.1001202132310.1450D-100000@mandrakesoft.mandrakesoft.com>
+	id <S130392AbQLBVL2>; Sat, 2 Dec 2000 16:11:28 -0500
+Received: from weather.weather.fi ([193.94.59.30]:27438 "EHLO
+	weather.weather.fi") by vger.kernel.org with ESMTP
+	id <S130375AbQLBVLO>; Sat, 2 Dec 2000 16:11:14 -0500
+Date: Sat, 2 Dec 2000 22:40:36 +0200
+From: Jaakko Hyvätti <Jaakko.Hyvatti@weather.fi>
+To: Adam <adam@cfar.umd.edu>
+cc: linux-kernel@vger.kernel.org, Marc@Mutz.com
+Subject: Re: 'holey files' not holey enough.
+In-Reply-To: <Pine.GSO.4.21.0012020517290.20770-100000@chia.umiacs.umd.edu>
+Message-ID: <Pine.SGI.4.10.10012022226530.26849308-100000@weather.weather.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 172.26.20.10
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, the C1VE has a Crusoe processor (5600 stepping 03).
-I didn't find the "Transmeta" thread, though.
-test12-pre still has the problem. And to change the PCI access from <Any> to
-<BIOS> or <Direct> doesn't help either.
-In the thread you mentioned, did they post any patches?
-Wolfgang
+  Hi!
 
-Quoting Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>:
+On Sat, 2 Dec 2000, Adam wrote:
+> It seems you are right. If I remove the file first, then it will show
+> correct amount.
 
-> On Sat, 2 Dec 2000, Wolfgang Spraul wrote:
-> > PhoenixBIOS, Sony Vaio C1VE
-> > 
-> > I did some printk() debugging, but the kernel hangs at various places
-> in
-> > pci_setup_device(), mostly in pci_read_bases().
-> 
-> This is a Transmeta laptop, right?
-> 
-> See the recent thread with "Transmeta" in the subject.  The problem
-> seems to have been identified, and hopefully the fix will appear in
-> test12-pre4, when released...
-> 
-> 	Jeff
-> 
-> 
-> 
+  (For the list: In private mail it was discovered that this behaviour was
+caused by the file 'holed.file' not being empty before the dd command.)
+
+  dd behaves here correctly.  It does not append to file, but it just
+opens the file for writing.  It does not remove or truncate it first.
+
+  If you have executed this command:
+
+dd if=/dev/zero of=holed.file bs=1000 count=1000
+
+You have a simple file with zeroes, like this:
+
+'000000000'
+
+Then with this command dd opens the file for write but does not destroy
+its contents - it is not supposed to do that.  (You can alter files with
+dd, you can overwrite single bytes if you like.)
+
+ dd if=/dev/zero of=holed.file bs=1000 seek=5000 count=1000
+
+After opening the file dd seeks to what you specify, and at the same time
+extends the file by seeking and Linux converts this to holes:
+
+'000000000-----------------------------------------'
+
+  And after seeking it writes the new block of zeroes:
+
+'000000000-----------------------------------------000000000'
+
+..and you have 2MB of stuff there instead of 1M!
+
+Yours,
+Jaakko
+
+-- 
+Weather Service Finland Ltd                          Jaakko.Hyvatti@weather.fi
+Pursimiehenkatu 29-31 B, FIN-00150 Helsinki, Finland     http://www.weather.fi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

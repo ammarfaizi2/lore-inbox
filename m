@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbULaRBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbULaRPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbULaRBq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 12:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbULaRBp
+	id S262118AbULaRPF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 12:15:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbULaRPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 12:01:45 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35343 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261695AbULaRBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 12:01:43 -0500
-Date: Fri, 31 Dec 2004 17:01:39 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] esp: Make driver SMP-correct
-Message-ID: <20041231170139.B10216@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
-References: <20041231014403.3309.58245.96163@localhost.localdomain> <20041231014611.003281e5.akpm@osdl.org> <20041231100037.A29868@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041231100037.A29868@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Fri, Dec 31, 2004 at 10:00:37AM +0000
+	Fri, 31 Dec 2004 12:15:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31148 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262118AbULaRPA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 12:15:00 -0500
+Date: Fri, 31 Dec 2004 09:14:23 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@muc.de>
+cc: Davide Libenzi <davidel@xmailserver.org>, Mike Hearn <mh@codeweavers.com>,
+       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
+       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <20041231123538.GA18209@muc.de>
+Message-ID: <Pine.LNX.4.58.0412310912310.2280@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
+ <53046857041230112742acccbe@mail.gmail.com> <Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org> <m1mzvvjs3k.fsf@muc.de>
+ <Pine.LNX.4.58.0412301628580.2280@ppc970.osdl.org> <20041231123538.GA18209@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 31, 2004 at 10:00:37AM +0000, Russell King wrote:
-> On Fri, Dec 31, 2004 at 01:46:11AM -0800, Andrew Morton wrote:
-> > James Nelson <james4765@verizon.net> wrote:
-> > >
-> > > This is an attempt to make the esp serial driver SMP-correct.  It also removes
-> > >  some cruft left over from the serial_write() conversion.
-> > 
-> > >From a quick scan:
-> > 
-> > - startup() does multiple sleeping allocations and request_irq() under
-> >   spin_lock_irqsave().  Maybe fixed by this:
+
+
+On Fri, 31 Dec 2004, Andi Kleen wrote:
 > 
-> However, can you guarantee that two threads won't enter startup() at
-> the same time?  (that's what ASYNC_INITIALIZED is protecting the
-> function against, and the corresponding shutdown() as well.)
+> >  - you couldn't even debug signal handlers, because they were _really_ 
+> >    hard to get into unless you knew where they were and put a breakpoint 
+> >    on them.
 > 
-> It's probably better to port ESP to the serial_core structure where
-> this type of thing is already taken care of.
+> Ok I see this as being a problem. But I bet it could be fixed
+> much simpler without doing all this complicated and likely-to-be-buggy
+> popf parsing you added.
 
-For the record, Verizon appear to have adopted silly policies.
+And that is _exactly_ what we did.
 
->From now on, I will be removing the CC: line containing any verizon
-email address until further notice, or just plain ignoring mails
-containing such addresses.  Why?  To prevent the inevitable bounce
-caused by their misconfigured systems.  None of the servers I have
-access to on several different ISPs can connect to Verizon's incoming
-mail server.
+Guess what broke Wine?
 
-See:
- http://www.broadbandreports.com/forum/remark,12116645~mode=flat~days=9999
+Uhhuh. 
 
-particularly the last post by techie68, who claims to be a Verizon
-tech support person.
-
-I encourage James Nelson to find another provider without silly policies
-in the mean time.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+		Linus

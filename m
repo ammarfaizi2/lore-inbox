@@ -1,679 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265713AbSLJULY>; Tue, 10 Dec 2002 15:11:24 -0500
+	id <S265727AbSLJUMW>; Tue, 10 Dec 2002 15:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265727AbSLJULX>; Tue, 10 Dec 2002 15:11:23 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:45323 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265713AbSLJUKv>; Tue, 10 Dec 2002 15:10:51 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1B15@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'Milan Roubal'" <roubm9am@barbora.ms.mff.cuni.cz>,
-       Petr Sebor <petr@scssoft.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: IDE feature request & problem
-Date: Tue, 10 Dec 2002 11:50:29 -0800
+	id <S266199AbSLJUMW>; Tue, 10 Dec 2002 15:12:22 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:32265 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S265727AbSLJUMR> convert rfc822-to-8bit;
+	Tue, 10 Dec 2002 15:12:17 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.51, APM, USB] APM not sleeping
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Tue, 10 Dec 2002 20:54:31 +0100
+Message-ID: <8765u1vedk.fsf@gswi1164.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you also send the SMART data of the drive using smartctl?
 
-Thanks
-Manish
+Running "apm -s" I get:
 
------Original Message-----
-From: Milan Roubal [mailto:roubm9am@barbora.ms.mff.cuni.cz]
-Sent: Tuesday, December 10, 2002 7:08 AM
-To: Petr Sebor; Alan Cox
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE feature request & problem
+bad: scheduling while atomic!
+Call Trace: [<c0119e81>]  [<c012379e>]  [<c0123714>]  [<c6a6d043>]  [<c6a6d3cb>]  [<c6a6f3b7>]  [<c6a5cfca>]  [<c0147491>]  [<c018391d>]  [<c0173a6a>]  [<c01233e0>]  [<c024c7b5>]  [<c01234f9>]  [<c024c790>]  [<c018391d>]  [<c017f063>]  [<c017f7ce>]  [<c01720bb>]  [<c011a1f0>]  [<c017fc7c>]  [<c0173054>]  [<c017b5ed>]  [<c0159e0b>]  [<c015ac10>]  [<c015ad36>]  [<c015adac>]  [<c0159536>]  [<c015853f>]  [<c01523fc>]  [<c01bd7a5>]  [<c015463f>]  [<c0108cd7>]
+apm: suspend: Unable to enter requested state
 
+Decoded:
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-Wow, GREAT!, its really working :)) Thanx a lot.
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0x3020-0x3027,0x3016 on irq 48
-ide3 at 0x3018-0x301f,0x3012 on irq 48
-ide4 at 0x5040-0x5047,0x5036 on irq 96
-ide7 at 0x5050-0x5057,0x504a on irq 100
-ide8 at 0x5070-0x5077,0x5066 on irq 104
-ide9 at 0x5068-0x506f,0x5062 on irq 104
-idea at 0x6020-0x6027,0x6016 on irq 72
-ideb at 0x6018-0x601f,0x6012 on irq 72
+Trace; c0119e81 <schedule+3d/2c8>
+Trace; c012379e <schedule_timeout+7a/a0>
+Trace; c0123714 <process_timeout+0/10>
+Trace; c6a6d043 <END_OF_CODE+66768c3/????>
+Trace; c6a6d3cb <END_OF_CODE+6676c4b/????>
+Trace; c6a6f3b7 <END_OF_CODE+6678c37/????>
+Trace; c6a5cfca <END_OF_CODE+666684a/????>
+Trace; c0147491 <bh_lru_install+d9/e4>
+Trace; c018391d <journal_cancel_revoke+101/178>
+Trace; c0173a6a <ext3_get_block_handle+be/310>
+Trace; c01233e0 <update_process_times+2c/38>
+Trace; c024c7b5 <cursor_timer_handler+25/2c>
+Trace; c01234f9 <run_timer_softirq+f1/144>
+Trace; c024c790 <cursor_timer_handler+0/2c>
+Trace; c018391d <journal_cancel_revoke+101/178>
+Trace; c017f063 <do_get_write_access+50f/530>
+Trace; c017f7ce <journal_dirty_metadata+1ba/1f0>
+Trace; c01720bb <ext3_free_inode+397/3c8>
+Trace; c011a1f0 <__wake_up+20/40>
+Trace; c017fc7c <journal_stop+258/268>
+Trace; c0173054 <ext3_delete_inode+0/194>
+Trace; c017b5ed <ext3_destroy_inode+15/1c>
+Trace; c0159e0b <destroy_inode+3f/58>
+Trace; c015ac10 <generic_delete_inode+c4/d0>
+Trace; c015ad36 <generic_drop_inode+12/20>
+Trace; c015adac <iput+68/70>
+Trace; c0159536 <d_delete+6a/c4>
+Trace; c015853f <dput+1b/158>
+Trace; c01523fc <sys_unlink+dc/11c>
+Trace; c01bd7a5 <capable+1d/38>
+Trace; c015463f <sys_ioctl+21f/270>
+Trace; c0108cd7 <syscall_call+7/b>
 
-I have got another problem. In my log I have got this messages.
-My disks are WDC WD1200JB-00DUA0, ATA DISK drive
-The problem is that utility from Western Digital marks this fault disks
-ok - so where should I look for problem? Thanx a lot. Milan
-Nov 28 17:54:04 fileserver kernel: hdn: dma_intr: status=0x11 { SeekComplete
-Error }
-Nov 28 17:54:04 fileserver kernel: hdn: dma_intr: error=0x04 {
-DriveStatusError }
-Nov 28 17:54:04 fileserver kernel: hdn: status error: status=0x11 {
-SeekComplete Error }
-Nov 28 17:54:04 fileserver kernel: hdn: status error: error=0x04 {
-DriveStatusError }
-Nov 28 17:54:04 fileserver kernel: hdn: drive not ready for command
-Nov 28 17:54:04 fileserver kernel: hdn: status error: status=0x11 {
-SeekComplete Error }
-Nov 28 17:54:04 fileserver kernel: hdn: status error: error=0x04 {
-DriveStatusError }
-Nov 28 17:54:04 fileserver kernel: hdn: drive not ready for command
-Nov 28 17:54:04 fileserver kernel: hdn: status error: status=0x11 {
-SeekComplete Error }
-Nov 28 17:54:04 fileserver kernel: hdn: status error: error=0x04 {
-DriveStatusError }
-Nov 28 17:54:04 fileserver kernel: hdn: DMA disabled
-Nov 28 17:54:04 fileserver kernel: PDC202XX: Primary channel reset.
-Nov 28 17:54:04 fileserver kernel: hdn: drive not ready for command
-Nov 28 17:54:04 fileserver kernel: klogd 1.4.1, ---------- state
-change ----------
-Nov 28 17:54:04 fileserver kernel: Inspecting /boot/System.map
-Nov 28 17:54:04 fileserver kernel: Symbol table has incorrect version
-number.
-Nov 28 17:54:04 fileserver kernel: Cannot find map file.
-Nov 28 17:54:04 fileserver kernel: Loaded 489 symbols from 13 modules.
-Nov 28 17:54:04 fileserver kernel: ide6: reset: master: error (0x7f?)
-Nov 28 17:54:14 fileserver kernel: hdn: lost interrupt
-Nov 28 17:54:14 fileserver kernel: hdn: set_multmode: status=0x7f {
-DriveReady DeviceFault SeekComplete DataRequest CorrectedError Index Error }
-Nov 28 17:54:14 fileserver kernel: hdn: set_multmode: error=0x7f {
-DriveStatusError UncorrectableError SectorIdNotFound TrackZeroNotFound
-AddrMarkNotFound }, LBAsect=8830595334015, high=526344, low=8355711,
-sector=196817664
-Nov 28 17:54:24 fileserver kernel: hdn: lost interrupt
-Nov 28 17:54:24 fileserver kernel: hdn: recal_intr: status=0x7f { DriveReady
-DeviceFault SeekComplete DataRequest CorrectedError Index Error }
-Nov 28 17:54:24 fileserver kernel: hdn: recal_intr: error=0x7f {
-DriveStatusError UncorrectableError SectorIdNotFound TrackZeroNotFound
-AddrMarkNotFound }, LBAsect=8830595334015, high=526344, low=8355711,
-sector=196817664
-Nov 28 17:54:24 fileserver kernel: PDC202XX: Primary channel reset.
-Nov 28 17:54:24 fileserver kernel: ide6: reset: master: error (0x7f?)
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817664
-Nov 28 17:54:24 fileserver kernel: raid5: Disk failure on hdn1, disabling
-device. Operation continuing on 8 devices
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817672
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817680
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817688
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817696
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817704
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817712
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817720
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817728
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817736
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817744
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817752
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817760
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817768
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817776
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817784
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817792
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817800
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817808
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817816
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817824
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817832
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817840
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817848
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817856
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817864
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817872
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817880
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817888
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817896
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817904
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817912
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817920
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817928
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817936
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817944
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817952
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817960
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817968
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817976
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817984
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196817992
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818000
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818008
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818016
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818024
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818032
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818040
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818048
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818056
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818064
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818072
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818080
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818088
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818096
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818104
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818112
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818120
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818128
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818136
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818144
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818152
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818160
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818168
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818176
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818184
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818192
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818200
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818208
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818216
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818224
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818232
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818240
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818248
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818256
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818264
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818272
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818280
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818288
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818296
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818304
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818312
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818320
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818328
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818336
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818344
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818352
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818360
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818368
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818376
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818384
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818392
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818400
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818408
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818416
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818424
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818432
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818440
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818448
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818456
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818464
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818472
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818480
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818488
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818496
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818504
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818512
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818520
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818528
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818536
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818544
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818552
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818560
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818568
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818576
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818584
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818592
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818600
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818608
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818616
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818624
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818632
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818640
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818648
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818656
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818664
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818672
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818680
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818688
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818696
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818704
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818712
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818720
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818728
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818736
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818744
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818752
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818760
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818768
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818776
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818784
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818792
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818800
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818808
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818816
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818824
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818832
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818840
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818848
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818856
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818864
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818872
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818880
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818888
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818896
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818904
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818912
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818920
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818928
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818936
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818944
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818952
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818960
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818968
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818976
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818984
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196818992
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819000
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819008
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819016
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819024
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819032
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819040
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819048
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819056
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819064
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819072
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819080
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819088
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819096
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819104
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819112
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819120
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819128
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819136
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819144
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819152
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819160
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819168
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819176
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819184
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819192
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819200
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819208
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819216
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819224
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819232
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819240
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819248
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819256
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819264
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819272
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819280
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819288
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819296
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819304
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819312
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819320
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819328
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819336
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819344
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819352
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819360
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819368
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819376
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819384
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819392
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819400
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819408
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819416
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819424
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819432
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819440
-Nov 28 17:54:24 fileserver kernel: end_request: I/O error, dev 58:41 (hdn),
-sector 196819448
+Loaded modules are:
 
-Nov 29 11:01:22 fileserver kernel: hdg: dma_intr: status=0x61 { DriveReady
-DeviceFault Error }
-Nov 29 11:01:22 fileserver kernel: hdg: dma_intr: error=0x04 {
-DriveStatusError }
-Nov 29 11:01:22 fileserver kernel: hdg: DMA disabled
-Nov 29 11:01:22 fileserver kernel: PDC202XX: Secondary channel reset.
-Nov 29 11:01:22 fileserver kernel: ide3: reset: success
-Nov 29 11:01:32 fileserver kernel: hdg: irq timeout: status=0xd0 { Busy }
-Nov 29 11:01:32 fileserver kernel: PDC202XX: Secondary channel reset.
-Nov 29 11:01:33 fileserver kernel: ide3: reset: success
-Nov 29 11:01:48 fileserver kernel: hdg: irq timeout: status=0xd0 { Busy }
-Nov 29 11:01:48 fileserver kernel: end_request: I/O error, dev 22:01 (hdg),
-sector 0
-Nov 29 11:01:48 fileserver kernel: raid5: Disk failure on hdg1, disabling
-device. Operation continuing on 8 devices
-Nov 29 11:01:48 fileserver kernel: hdg: status timeout: status=0xd0 { Busy }
-Nov 29 11:01:48 fileserver kernel: PDC202XX: Secondary channel reset.
-Nov 29 11:01:48 fileserver kernel: hdg: drive not ready for command
-Nov 29 11:01:48 fileserver kernel: md: updating md0 RAID superblock on
-device
-Nov 29 11:01:48 fileserver kernel: md: hdc1 [events: 00000036]<6>(write)
-hdc1's sb offset: 117220672
-Nov 29 11:01:48 fileserver kernel: md: (skipping faulty hdg1 )
-Nov 29 11:01:48 fileserver kernel: md: hdb1 [events: 00000036]<6>(write)
-hdb1's sb offset: 117218176
-Nov 29 11:01:48 fileserver kernel: md: hdb1 [events: 00000036]<6>(write)
-hdb1's sb offset: 117218176
-Nov 29 11:01:48 fileserver kernel: md: hdt1 [events: 00000036]<6>(write)
-hdt1's sb offset: 117218176
-Nov 29 11:01:48 fileserver kernel: md: hdr1 [events: 00000036]<6>(write)
-hdr1's sb offset: 117218176
-Nov 29 11:01:48 fileserver kernel: md: hdp1 [events: 00000036]<6>(write)
-hdp1's sb offset: 117218176
-Nov 29 11:01:48 fileserver kernel: md: (skipping faulty hdn1 )
-Nov 29 11:01:48 fileserver kernel: md: hdj1 [events: 00000036]<6>(write)
-hdj1's sb offset: 117220672
-Nov 29 11:01:48 fileserver kernel: md: hdf1 [events: 00000036]<6>(write)
-hdf1's sb offset: 117218176
-Nov 29 11:01:48 fileserver kernel: md: recovery thread got woken up ...
-Nov 29 11:01:48 fileserver kernel: md0: no spare disk to reconstruct
-array! -- continuing in degraded mode
-Nov 29 11:01:48 fileserver kernel: md: recovery thread finished ...
-Nov 29 11:01:48 fileserver kernel: ide3: reset: success
-Nov 29 11:01:58 fileserver kernel: hdg: irq timeout: status=0xd0 { Busy }
-Nov 29 11:01:58 fileserver kernel: PDC202XX: Secondary channel reset.
-Nov 29 11:02:02 fileserver kernel: ide3: reset: success
-Nov 29 11:02:12 fileserver kernel: hdg: irq timeout: status=0xd0 { Busy }
-Nov 29 11:02:12 fileserver kernel: end_request: I/O error, dev 22:01 (hdg),
-sector 165669889
+root@gswi1164:/var/log# lsmod
+Module                  Size  Used by
+neofb                  10861  0
+pcnet_cs               11048  1 [unsafe]
+8390                    6272  1 pcnet_cs
+ds                      6460  3 pcnet_cs
+yenta_socket           10301  2 [unsafe]
+pcmcia_core            37598  3 pcnet_cs ds yenta_socket
+ppp_async               6573  0
+ppp_generic            18147  1 ppp_async
+slhc                    4896  1 ppp_generic
+rxrpc                  51733  0
+vfat                    8945  0
+fat                    33837  1 vfat
 
-Part of dmesg:
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev f9
-PCI: Enabling device 00:1f.1 (0005 -> 0007)
-PCI: No IRQ known for interrupt pin A of device 00:1f.1. Probably buggy MP
-table.
-PIIX4: chipset revision 2
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x2060-0x2067, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0x2068-0x206f, BIOS settings: hdc:pio, hdd:pio
-PDC20269: IDE controller on PCI bus 02 dev 08
-PDC20269: chipset revision 2
-PDC20269: not 100% native mode: will probe irqs later
-    ide2: BM-DMA at 0x3000-0x3007, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0x3008-0x300f, BIOS settings: hdg:pio, hdh:pio
-PDC20269: IDE controller on PCI bus 05 dev 08
-PDC20269: chipset revision 2
-PDC20269: not 100% native mode: will probe irqs later
-    ide4: BM-DMA at 0x5000-0x5007, BIOS settings: hdi:pio, hdj:pio
-    ide5: BM-DMA at 0x5008-0x500f, BIOS settings: hdk:pio, hdl:pio
-PDC20269: IDE controller on PCI bus 05 dev 10
-PDC20269: chipset revision 2
-PDC20269: not 100% native mode: will probe irqs later
-    ide6: BM-DMA at 0x5010-0x5017, BIOS settings: hdm:pio, hdn:pio
-    ide7: BM-DMA at 0x5018-0x501f, BIOS settings: hdo:pio, hdp:pio
-PDC20269: IDE controller on PCI bus 05 dev 18
-PDC20269: chipset revision 2
-PDC20269: not 100% native mode: will probe irqs later
-    ide8: BM-DMA at 0x5020-0x5027, BIOS settings: hdq:pio, hdr:pio
-    ide9: BM-DMA at 0x5028-0x502f, BIOS settings: hds:pio, hdt:pio
-PDC20269: IDE controller on PCI bus 06 dev 08
-PDC20269: chipset revision 2
-PDC20269: not 100% native mode: will probe irqs later
-    idea: BM-DMA at 0x6000-0x6007, BIOS settings: hdu:pio, hdv:pio
-    ideb: BM-DMA at 0x6008-0x600f, BIOS settings: hdw:pio, hdx:pio
-hda: ST340016A, ATA DISK drive
-keyboard: Timeout - AT keyboard not present?(ed)
-hdc: WDC WD1200JB-75CRA0, ATA DISK drive
-keyboard: Timeout - AT keyboard not present?(f4)
-hdf: WDC WD1200JB-00DUA0, ATA DISK drive
-hdg: WDC WD1200JB-00DUA0, ATA DISK drive
-hdj: WDC WD1200JB-00DUA0, ATA DISK drive
-hdp: WDC WD1200JB-00DUA0, ATA DISK drive
-hdr: WDC WD1200JB-00DUA0, ATA DISK drive
-hdt: WDC WD1200JB-00DUA0, ATA DISK drive
-hdv: WDC WD1200JB-00DUA0, ATA DISK drive
-hdx: WDC WD1200JB-00DUA0, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0x3020-0x3027,0x3016 on irq 48
-ide3 at 0x3018-0x301f,0x3012 on irq 48
-ide4 at 0x5040-0x5047,0x5036 on irq 96
-ide7 at 0x5050-0x5057,0x504a on irq 100
-ide8 at 0x5070-0x5077,0x5066 on irq 104
-ide9 at 0x5068-0x506f,0x5062 on irq 104
-idea at 0x6020-0x6027,0x6016 on irq 72
-ideb at 0x6018-0x601f,0x6012 on irq 72
+I suspect pcnet_cs or yenta_socket, because:
+Module yenta_socket cannot be unloaded due to unsafe usage in drivers/pcmcia/yenta.c:940
+Module pcnet_cs cannot be unloaded due to unsafe usage in drivers/net/pcmcia/pcnet_cs.c:1033
 
+On a related note, I removed the USB driver uhci-hcd for
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+because going to sleep stopped with 
 
+Dec  9 00:33:52 gswi1164 kernel: drivers/usb/core/hcd-pci.c: suspend 00:07.2 to state 3
+Dec  9 00:33:52 gswi1164 kernel: drivers/usb/host/uhci-hcd.c: 8400: suspend_hc
+Dec  9 00:33:52 gswi1164 kernel: atkbd.c: Unknown key (set 2, scancode 0x9c, on isa0060/serio0) pressed.
+Dec  9 00:33:52 gswi1164 kernel: apm: suspend: Unable to enter requested state
+Dec  9 00:33:52 gswi1164 kernel: drivers/usb/core/hcd-pci.c: resume 00:07.2
 
------ Original Message -----
-From: "Petr Sebor" <petr@scssoft.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>; <roubm9am@barbora.ms.mff.cuni.cz>
-Sent: Monday, December 09, 2002 12:41 AM
-Subject: Re: IDE feature request
+Any ideas?
 
+Jochen
 
-> On Sun, Dec 08, 2002 at 01:09:34AM +0000, Alan Cox wrote:
-> > Fix ide.c to generate a b c d e f and you should be able to get 16.
->
-> Like this?
->
-> -Petr
->
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.

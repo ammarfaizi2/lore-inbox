@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbTIJKO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 06:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbTIJKO6
+	id S261458AbTIJKPN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 06:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbTIJKPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 06:14:58 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:54850 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261449AbTIJKO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 06:14:57 -0400
-Date: Wed, 10 Sep 2003 12:14:53 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Luca Veraldi <luca.veraldi@katamail.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
+	Wed, 10 Sep 2003 06:15:13 -0400
+Received: from hal-4.inet.it ([213.92.5.23]:45732 "EHLO hal-4.inet.it")
+	by vger.kernel.org with ESMTP id S261458AbTIJKPI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 06:15:08 -0400
+Message-ID: <022e01c37785$02690aa0$5aaf7450@wssupremo>
+Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
+From: "Luca Veraldi" <luca.veraldi@katamail.com>
+To: "Arjan van de Ven" <arjanv@redhat.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com> <20030910095255.GA21313@mail.jlokier.co.uk> <20030910120729.C14352@devserv.devel.redhat.com>
 Subject: Re: Efficient IPC mechanism on Linux
-Message-ID: <20030910121453.B9878@devserv.devel.redhat.com>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com> <01c601c3777f$97c92680$5aaf7450@wssupremo> <20030910114414.B14352@devserv.devel.redhat.com> <01f801c37783$9ead8960$5aaf7450@wssupremo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <01f801c37783$9ead8960$5aaf7450@wssupremo>; from luca.veraldi@katamail.com on Wed, Sep 10, 2003 at 12:09:21PM +0200
+Date: Wed, 10 Sep 2003 12:17:13 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 12:09:21PM +0200, Luca Veraldi wrote:
-> > For fun do the measurement on a pIV cpu. You'll be surprised.
-> > The microcode "mark dirty" (which is NOT a btsl, it gets done when you do
-> a write
-> > memory access to the page content) result will be in the 2000 to 4000
-> range I
-> > predict.
-> 
-> I'm not responsible for microarchitecture designer stupidity.
-> If a simple STORE assembler instruction will eat up 4000 clock cycles,
-> as you say here, well, I think all we Computer Scientists can go home and
-> give it up now.
+> This test is sort of the worst case against my argument:
+> 1) It's a cpu with low memory bandwidth
+> 2) It's a 1 CPU system
+> 3) It's a pII not pIV; the pII is way more efficient cycle wise
+>    for pagetable operations
 
-I'm saying it can. I don't want to go too deep into an arguement about
-microarchitectural details, but my point was that a memory copy of a page
-is NOT super expensive relative to several other effects that have to do
-with pagetable manipulations. 
+I'm a Compuer Science graduate. And at least one single thing I've learned
+in my studies.
+More efficient Firmware support
+(such as an extremely wide memory bandwith
+or tens of CPUs in an SMP/NUMA
+or efficient cache line transfer support)
 
-> > if you change a page table, you need to flush the TLB on all other cpus
-> > that have that same page table mapped, like a thread app running
-> > on all cpu's at once with the same pagetables.
-> 
-> Ok. Simply, this is not the case in my experiment.
-> This does not apply.
-> We have no threads. But only detached process address spaces.
-> Threads are a bit different from processes.
+DOES NOT ALLOW YOU TO WASTE CYCLES IN DOING USELESS THINGS,
+such as TWO physical copies of a message if a process want to cooperate with
+another one.
 
-but the pipe code cannot know this so it has to do a cross cpu invalidate.
+We are not engineer that simply have to let the things work.
 
-> > why would you need a global lock for copying memory ?
-> 
-> System call sys_write() calls
-> locks_verify_area() which calls
-> locks_mandatory_area() which calls
-> lock_kernel()
-
-and... which is also releasing it before the copy
+That's all.
+Luca.
 

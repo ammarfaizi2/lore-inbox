@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVBOBQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVBOBTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVBOBQW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 20:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVBOBQQ
+	id S261570AbVBOBTd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 20:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVBOBQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 20:16:16 -0500
-Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:48613 "EHLO
-	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
-	id S261596AbVBOBNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 20:13:52 -0500
-Date: Tue, 15 Feb 2005 09:13:26 +0800
-From: Bernard Blackham <bernard@blackham.com.au>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Address lots of pending pm_message_t changes
-Message-ID: <20050215011326.GP10786@blackham.com.au>
-References: <1108359808.12611.37.camel@desktop.cunningham.myip.net.au> <20050214213400.GF12235@elf.ucw.cz> <20050214134658.324076c9.akpm@osdl.org> <1108418226.12611.75.camel@desktop.cunningham.myip.net.au> <20050214220459.GM12235@elf.ucw.cz> <1108418990.12611.86.camel@desktop.cunningham.myip.net.au> <20050214234151.GA2134@elf.ucw.cz> <1108426556.3666.1.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108426556.3666.1.camel@desktop.cunningham.myip.net.au>
-Organization: Dagobah Systems
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 14 Feb 2005 20:16:49 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:33014 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261584AbVBOBCw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 20:02:52 -0500
+Message-ID: <42114A1F.5070202@mvista.com>
+Date: Mon, 14 Feb 2005 17:02:23 -0800
+From: Steve Longerbeam <stevel@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Robin Holt <holt@sgi.com>, Ray Bryant <raybry@sgi.com>,
+       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de> <20050212121228.GA15340@lnx-holt.americas.sgi.com> <20050214191840.GA57423@muc.de>
+In-Reply-To: <20050214191840.GA57423@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Trimmed Cc]
+Andi Kleen wrote:
 
-On Tue, Feb 15, 2005 at 11:15:56AM +1100, Nigel Cunningham wrote:
-> > Well, yes, if you switch pm_message_t into struct. But we are not yet
-> > ready to do that... it is going to be typedefed to u32 for 2.6.11...
-> 
-> Ah. So I haven't realised that Bernard took your patches wholesale,
-> which is why we're fixing the compile errors too :>
-> 
-> Okay then, I guess the whole thing isn't urgent then?
+>>For our use, the batch scheduler will give an intermediary program a
+>>list of processes and a series of from-to node pairs.  That process would
+>>then ensure all the processes are stopped, scan their VMAs to determine
+>>what regions are mapped by more than one process, which are mapped
+>>by additional processes not in the job, and make this system call for
+>>each of the unique ranges in the job to migrate their pages from one
+>>node to the next.  I believe Ray is working on a library and a standalone
+>>program to do this from a command line.
+>>    
+>>
+>
+>Sounds quite ugly. 
+>
+>Do you have evidence that this is a common use case? (jobs having stuff
+>mapped from programs not in the job). If not I think it's better
+>to go with a simple interface, not one that is unusable without
+>a complex user space library.
+>
+>If you mean glibc etc. only then the best solution for that would be probably
+>to use the (currently unmerged) arbitary file mempolicy code for this and set
+> a suitable attribute that prevents moving.
+>  
+>
 
-I was taking the whole shebang in order to differentiate between
-PMSG_FREEZE and PMSG_SUSPEND - they're currently typedef'd to the
-same thing (3), so drivers such as ide-disk can't decide whether or
-not they need to spin down for the atomic copy or for powering off.
-(Otherwise you'll find the HDD spinning down and up mid-suspend).
+Hi Andi, Ray, et.al.,
 
-I believe vanilla swsusp passed "3" as the power state hence the HDD
-spun down and up anyway, so there were no regressions there, just
-bugs. Software Suspend 2 passed "4" as the power state which
-ide-disk.c treated as "flush caches, but don't spin down". This is
-what broke when the new typedefs went in, but would be fixed when
-they're complete (whole shebang).
+Just want to let you know that I'm still planning to push
+my patches to NUMA mempolicy for filemap support and
+page migration. I've been swamped with another task at work,
+but later this week I will post the latest patches for review.
+I haven't been following Ray's manual page migration thread
+but will get up-to-speed also, and see how it impacts my patchset
+to mempolicy.
 
-Bernard.
-
--- 
- Bernard Blackham <bernard at blackham dot com dot au>
+Steve

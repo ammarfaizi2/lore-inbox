@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbUBYB3T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 20:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbUBYB3T
+	id S262560AbUBYBda (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 20:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbUBYBda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 20:29:19 -0500
-Received: from mail.kroah.org ([65.200.24.183]:4003 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262360AbUBYB2s (ORCPT
+	Tue, 24 Feb 2004 20:33:30 -0500
+Received: from gate.crashing.org ([63.228.1.57]:61364 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262560AbUBYBdU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 20:28:48 -0500
-Date: Tue, 24 Feb 2004 17:28:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Ryan Arnold <rsa@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, boutcher@us.ibm.com,
-       Hollis Blanchard <hollisb@us.ibm.com>
-Subject: Re: new driver (hvcs) review request and sysfs questions
-Message-ID: <20040225012845.GA3909@kroah.com>
-References: <1077667227.21201.73.camel@SigurRos.rchland.ibm.com>
+	Tue, 24 Feb 2004 20:33:20 -0500
+Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Otto Solares <solca@guug.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0402250118210.24952-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0402250118210.24952-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Message-Id: <1077672403.1084.45.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1077667227.21201.73.camel@SigurRos.rchland.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 25 Feb 2004 12:26:43 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 06:00:26PM -0600, Ryan Arnold wrote:
-> An example of the vio bus's "devices" sysfs directory is shown below.
+
+> > We have now with 2.6 a good input and sound layers.  Just by fixing
+> > the graphics layer many interesting userland projects could be born.
 > 
-> Pow5:/sys/bus/vio/devices # ls
-> .               l-lan@3000000c  l-lan@30000010       vty-server@30000004
-> ..              l-lan@3000000d  rtc@4001             vty@30000000
-> IBM,sp@4000     l-lan@3000000e  v-scsi@30000002
-> l-lan@3000000b  l-lan@3000000f  vty-server@30000003
+> I agree. The graphics layer is the last frontier.
 
-At first glance, why are you using text strings as part of your bus ids?
-Bus ids must be unique, so it looks like you can do this by just using
-the number after the '@' character, right?
+It is. What we really need right now is a proper way to get the mode
+lists. but more than that. We need to expose per-output detection data,
+mapping of CRTCs to outputs, and a way to change that mapping & trigger
+a re-probe. All of that can probably not be done in a completely card
+neutral way.  
 
-Then, within each device on the bus, you can give it a "name" or "type"
-if you want.  You can put the "l-lan", "rtc", "vty*" stuff there, and
-not encode it in the bus id (which is not where it belongs.)
+I've started working on a userland library taking care of managing
+the "environment", that is the various screens & heads, their modes,
+the geometry (relative screen positions), and such. I haven't gone
+very far yet, but the idea is ultimately to have the entire mode
+setting go through this library. That include proper interface to
+the kernel drivers (whatever they become, fbdev is what we have to
+day but that may change) and that also probably means moving some
+of the monitor management down to userland.
 
-> P.S. who is maintainer of the char device tree?
+This library will also be responsible to broadcast, possibly via
+D-BUS, events like screen hotplug and mode changes. We are thinking
+about interfacing the fd.o xserver on this among others. It will
+not do anything about rendering though.
 
-Do you mean /drivers/char?  Not really anyone directly.  Do you have
-some char drivers that need to get added there?  What type of drivers
-are they?
+That leads to another issue which is arbitration at the low level
+driver between rendering & mode switching. That should be done by
+the kernel driver at some point, we need to merge the mode setting
+driver (fbdev) and the command queue diver (DRI). Probably moving 
+some of the higher level mode management out of the kernel driver
+down to this userland library.
 
-thanks,
+Anyway, it's all mostly ideas at this point. I'm trying to get an
+API out with a test implementation on top of fbdev. At which point
+we'll be able to move further.
 
-greg k-h
+Ben.
+
+

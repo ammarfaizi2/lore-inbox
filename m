@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319080AbSIDHAU>; Wed, 4 Sep 2002 03:00:20 -0400
+	id <S319087AbSIDHCZ>; Wed, 4 Sep 2002 03:02:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319081AbSIDHAU>; Wed, 4 Sep 2002 03:00:20 -0400
-Received: from w-jens.oc.chemie.tu-darmstadt.de ([130.83.233.195]:13696 "HELO
-	sonne.weltall") by vger.kernel.org with SMTP id <S319080AbSIDHAT>;
-	Wed, 4 Sep 2002 03:00:19 -0400
-Message-ID: <3D75B0A1.3070707@hrzpub.tu-darmstadt.de>
-Date: Wed, 04 Sep 2002 09:05:05 +0200
-From: Jens Wiesecke <j_wiese@hrzpub.tu-darmstadt.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: de, de-de, en-us
+	id <S319088AbSIDHCY>; Wed, 4 Sep 2002 03:02:24 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41610 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S319087AbSIDHCX>;
+	Wed, 4 Sep 2002 03:02:23 -0400
+Date: Wed, 4 Sep 2002 03:06:53 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+cc: Xavier Bestel <xavier.bestel@free.fr>,
+       Anton Altaparmakov <aia21@cantab.net>, david.lang@digitalinsight.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+In-Reply-To: <200209032344.g83NiEc29471@oboe.it.uc3m.es>
+Message-ID: <Pine.GSO.4.21.0209040258480.7852-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Justin Heesemann <jh@ionium.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       tspinillo@yahoo.com
-Subject: Re: P4 with i845E not booting with 2.4.19 / 3.5.31
-References: <200209030153.47433.jh@ionium.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Heesemann wrote:
->>I tested:
->>2.4.19-pre6 -> boots with mem=512M parameter
->>2.4.19-pre7 -> didn't boot at all
->>2.4.19-pre7 with arch/i386/kernel/setup.c from 2.4.19-pre6 -> boots with
->>mem=512M parameter
+
+
+On Wed, 4 Sep 2002, Peter T. Breuer wrote:
+
+> "A month of sundays ago Xavier Bestel wrote:"
+> [Charset ISO-8859-15 unsupported, filtering to ASCII...]
+> > Le mer 04/09/2002 _ 00:42, Peter T. Breuer a _crit :
+> > 
+> > > Let's maintain a single bit in the superblock that says whether  any
+> > > directory structure or whatever else we're worried about has been
+> > > altered (ecch, well, it has to be a timestamp, never mind ..). Before
+> > > every read we check this "bit" ondisk. If it's not set, we happily dive
+> > > for our data where we expect to find it. Otherwise we go through the
+> > > rigmarole you describe.
+> > 
+> > Won't work. You would need an atomic read-and-write operation for that
 > 
-> 
-> I have another update:
-> some might know the memtest86 utility.
-> 
-> it has three ways of detecting the memory size "BIOS - Std", "BIOS - All" and 
-> "Probe"
-> 
-> on my Athlon Mainboard (which has no Problems with 2.4.19 or later kernels) 
-> all methods show the same (or nearly same) ammount of memory.
-> 
-> on my Epox 4G4A+ i845g Mainboard, which has all the Problems Jens Wiesecke 
-> has, it's different:
-> BIOS - Std : 640k (!!)
-> BIOS - All : 4091M (!!!!)
-> Probe: 511M (which seems correct as I have 512 MB Ram and 1 MB is shared 
-> graphics ram)
+> I'm proposing (elsewhere) that I be allowed to generate special block-layer
+> requests from VFS, which act as "tags" to impose order on other requests
+> at the shared disk resource. But ...
 
-ok. I tested my Chaintech 9EJL i845E mainboard the same way and I have 
-exactly the same output with memtest86
+Get.  Real.
 
-BIOS - Std : 640k
-BIOS - All : 4091M (memtest stops working afterwards)
-Probe: 512M (since I have no shared graphics ram)
+VFS has no sodding idea of notion of blocks, let alone ordering needed for
+a particular filesystem.
 
-so the problem seems to be BIOS related. But what I don't understand is 
-that since I tell the kernel to use 512 MByte of RAM (mem=512M) and 
-kernels up to 2.4.19pre6 can handle this:
+As soon as you are starting to talk about "superblocks" (on-disk ones, that
+is) - you can forget about generic layers.
 
-What changed and is there a workaround for kernels newer than 2.4.19pre6 
-(for example telling the kernel not to rely on the memory information of 
-the BIOS e820 procedure) ?
+As far as I'm concerned, the feature in question is fairly pointless for
+the things it can be used for and hopeless for the things you want to
+get.  Ergo, it's vetoed.
 
-I tried to compile 2.4.20pre5-(ac) with the arch/i386/kernel/setup.c 
-from 2.4.19pre6 but that didn't work.
-
-Best regards
--- 
-Jens Wiesecke
-Institute for Macromolecular Chemistry
-Darmstadt - Germany
-e-mail: j_wiese@hrzpub.tu-darmstadt.de
+There is more to coherency and preserving fs structure than "don't cache
+<something>".  And issues involved here clearly belong to filesystem -
+generic code simply has not enough information _and_ the nature of the
+solution deeply depends on fs in question.  IOW, your grand idea is
+hopeless.  End of discussion.
 

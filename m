@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263272AbTDRWQD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 18:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTDRWQD
+	id S263245AbTDRWSC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 18:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTDRWSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 18:16:03 -0400
-Received: from 216-99-218-173.dsl.aracnet.com ([216.99.218.173]:28660 "EHLO
-	dyn9-47-17-132.beaverton.ibm.com") by vger.kernel.org with ESMTP
-	id S263272AbTDRWQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 18:16:02 -0400
-Date: Fri, 18 Apr 2003 15:24:17 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Christian Staudenmayer <eggdropfan@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic with 2.5.67-ac1
-Message-ID: <20030418152417.A5553@beaverton.ibm.com>
-References: <20030418103031.A9260@beaverton.ibm.com> <20030418221552.34708.qmail@web41807.mail.yahoo.com>
+	Fri, 18 Apr 2003 18:18:02 -0400
+Received: from ool-4352eb9e.dyn.optonline.net ([67.82.235.158]:3468 "EHLO
+	nikolas.hn.org") by vger.kernel.org with ESMTP id S263245AbTDRWSB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 18:18:01 -0400
+Date: Fri, 18 Apr 2003 18:29:07 -0400
+From: Nick Orlov <bugfixer@list.ru>
+To: Christoph Hellwig <hch@infradead.org>,
+       Andrei Ivanov <andrei.ivanov@ines.ro>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm4
+Message-ID: <20030418222907.GA4127@nikolas>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrei Ivanov <andrei.ivanov@ines.ro>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50L0.0304182236480.1931-100000@webdev.ines.ro> <20030418205403.GA3366@nikolas> <20030418225447.A8626@infradead.org> <20030418221029.GA3956@nikolas> <20030418231204.A8747@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030418221552.34708.qmail@web41807.mail.yahoo.com>; from eggdropfan@yahoo.com on Fri, Apr 18, 2003 at 03:15:52PM -0700
+In-Reply-To: <20030418231204.A8747@infradead.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 18, 2003 at 03:15:52PM -0700, Christian Staudenmayer wrote:
-> Hello,
+On Fri, Apr 18, 2003 at 11:12:04PM +0100, Christoph Hellwig wrote:
+> On Fri, Apr 18, 2003 at 06:10:29PM -0400, Nick Orlov wrote:
+> > No, I don't.
 > 
-> as i mentioned, the panic also appears in 2.5.67-ac2, just in a slightly different
-> variant. However, the fix from bk8 you mentioned _is_ in 2.5.67-ac2 (or at least
-> the snippit of code that you posted).
-> So this probably isn't the problem here, is it?
+> Please mount it.  The code duplication has been removed from devfs
+> as stated in the changelog.
+> 
 
-No you're right it isn't, I should have looked closer.
+Sure, I'll try it as soon as I get home.
+Will provide you results in 2 hours approx.
+Hopefully it'll work :)
 
--- Patrick Mansfield
+Thanks,
+	Nick.
+
+-- 
+With best wishes,
+	Nick Orlov.
+

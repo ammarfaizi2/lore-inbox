@@ -1,48 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbUKENSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbUKENWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbUKENSM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 08:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbUKENRW
+	id S262687AbUKENWj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 08:22:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUKENTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 08:17:22 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:60630 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262683AbUKENQI (ORCPT
+	Fri, 5 Nov 2004 08:19:04 -0500
+Received: from cantor.suse.de ([195.135.220.2]:62095 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262684AbUKENQb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 08:16:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=tF1V75SbegjXUn8KLstNj77oz+sAvpNItyyoeoVZUxc6aQIxfs+PiNkeboIQFiiv8ufJZX/FqBPVs09NHjzRR74h4edwlOE3ebkjXdIvUnuUnLSbYzFs1UiWiSTHEhUBMWEBs6Q03xrSB1ROsdlMAAVACtzd5KiMOpK4gpdxZTo=
-Message-ID: <58cb370e041105051635c15281@mail.gmail.com>
-Date: Fri, 5 Nov 2004 14:16:05 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] IDE remove some cruft from ide.h
-Cc: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <418AE8C0.3040205@pobox.com>
+	Fri, 5 Nov 2004 08:16:31 -0500
+Date: Fri, 5 Nov 2004 14:12:32 +0100
+From: Andi Kleen <ak@suse.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] Fix for vmalloc problem was Re: 2.6.10-rc1-mm3
+Message-ID: <20041105131232.GA1030@wotan.suse.de>
+References: <20041105001328.3ba97e08.akpm@osdl.org.suse.lists.linux.kernel> <418B5C70.7090206@kolivas.org.suse.lists.linux.kernel> <p73sm7o7br3.fsf@verdi.suse.de> <418B6F18.9090404@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041103091101.GC22469@taniwha.stupidest.org>
-	 <418AE8C0.3040205@pobox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <418B6F18.9090404@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Nov 2004 21:43:12 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Bart, Chris's two patches are OK with me.  If you agree, then please
-> merge them up into your ide-2.6 queue.
+On Fri, Nov 05, 2004 at 11:16:24PM +1100, Con Kolivas wrote:
+> Andi Kleen wrote:
+> >Con Kolivas <kernel@kolivas.org> writes:
+> >
+> >
+> >>It's life Jim but not as we know it...
+> >>
+> >>
+> >>This happened during modprobe of alsa modules. Keyboard still alive,
+> >>everything else dead; not even sysrq would do anything, netconsole had
+> >>no output, luckily this made it to syslog:
+> >
+> >
+> >I just tested modprobing of alsa (snd_intel8x0) and it works for me.
+> >Also vmalloc must work at least to some point.
+> >
+> >Can you confirm it's really caused by 4level by reverting all the 
+> >4level-* patches from broken out? 
+> 
+> I dont recall blaming 4level. When I get a chance I'll try.
 
-OK (but I will leave SECTOR_[SIZE, WORDS] for
-now as this change depends on the other patch).
+This patch should fix it. Can you please test? Thanks.
 
-> Chris, a useful follow-up patch (if Bart agrees) is a global
-> search-n-replace of WIN_xxx constants with ATA_CMD_xxx constants.
-> Depending on the size of the patch, it might even need to be split up
-> across several patches.
+-Andi
 
-One ceveat here: hdreg.h and WIN_xxx are (ab)used by user-space
-so for sure there will be complaints (not that we should care :)...
+Fix silly typo in mm/vmalloc.c and some minor cleanups.
 
-Bartlomiej
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+
+diff -up linux-2.6.10rc1-mm3/mm/vmalloc.c-o linux-2.6.10rc1-mm3/mm/vmalloc.c
+--- linux-2.6.10rc1-mm3/mm/vmalloc.c-o	2004-11-05 11:42:00.000000000 +0100
++++ linux-2.6.10rc1-mm3/mm/vmalloc.c	2004-11-05 14:10:04.000000000 +0100
+@@ -98,7 +98,6 @@ static void unmap_area_pgd(pml4_t *pml4,
+ 	}
+ 
+ 	pgd = pml4_pgd_offset_k(pml4, address);
+-	address &= ~PML4_MASK;
+ 	end = address + size;
+ 
+ 	do {
+@@ -114,8 +113,8 @@ static int map_area_pte(pte_t *pte, unsi
+ {
+ 	unsigned long end;
+ 
+-	address &= ~PMD_MASK;
+ 	end = address + size;
++	address &= ~PMD_MASK;
+ 	if (end > PMD_SIZE)
+ 		end = PMD_SIZE;
+ 
+@@ -187,7 +186,7 @@ void unmap_vm_area(struct vm_struct *are
+ 	flush_cache_vunmap(address, end);
+ 	for (i = pml4_index(address); i <= pml4_index(end-1); i++) {
+ 		next = (address + PML4_SIZE) & PML4_MASK;
+-		if (next <= address || next > end)
++		if (next < address || next > end)
+ 			next = end;
+ 		unmap_area_pgd(pml4, address, next - address);
+ 		address = next;
+@@ -213,7 +212,7 @@ int map_vm_area(struct vm_struct *area, 
+ 			err = -ENOMEM;
+ 			break;
+ 		}
+-		next = (address + PGDIR_SIZE) & PGDIR_MASK;
++		next = (address + PML4_SIZE) & PML4_MASK;
+ 		if (next < address || next > end)
+ 			next = end;
+ 		if (map_area_pgd(pgd, address, next, prot, pages)) {

@@ -1,28 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283091AbRK2IQi>; Thu, 29 Nov 2001 03:16:38 -0500
+	id <S283101AbRK2I6h>; Thu, 29 Nov 2001 03:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283096AbRK2IQ2>; Thu, 29 Nov 2001 03:16:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:47112 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283091AbRK2IQU>;
-	Thu, 29 Nov 2001 03:16:20 -0500
-Date: Thu, 29 Nov 2001 09:15:54 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: 2.5.1-pre3 DON'T USE
-Message-ID: <20011129091554.E5788@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S283102AbRK2I61>; Thu, 29 Nov 2001 03:58:27 -0500
+Received: from hkiteeri11.kemira.com ([137.33.254.111]:36478 "EHLO
+	esmikko.fin.kemira.com") by vger.kernel.org with ESMTP
+	id <S283101AbRK2I6R> convert rfc822-to-8bit; Thu, 29 Nov 2001 03:58:17 -0500
+Message-ID: <001901c178b3$faa6d080$5c172189@fin.kemira.com>
+From: "Jarmo" <oh1mrr@nic.fi>
+To: <linux-kernel@vger.kernel.org>
+Subject: iwlib.h
+Date: Thu, 29 Nov 2001 10:58:13 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I don't know if this is kernel issue,but like to ask whos mintaining iwlib.
+I tried to compile progs called wireless-tools and couldn't...Wrote
+to program maintainer and got reponse:
 
-Please don't use this kernel unless you can afford to loose your data.
-I'm looking at the problem right now.
+"****Argh ! Again some header problem. Until someone fix the
+include directives in iwlib.h, I don't know (because it works on my
+distribution).****"
 
--- 
-Jens Axboe
+So if somebody could point me place where I could send my "make.out"
+file for checking.
+
+I'm using Mandrake 8.1 distro with kernel 2.4.16-pre1 and would like
+to test wireless-lan and those wireless-tools are needed to get my orinoco
+working properly.
+
+Pse kind information....
+
+Jarmo
+oh1mrr@nic.fi
+
+
 

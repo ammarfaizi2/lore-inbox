@@ -1,44 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264959AbSKERNO>; Tue, 5 Nov 2002 12:13:14 -0500
+	id <S265052AbSKER3Z>; Tue, 5 Nov 2002 12:29:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264955AbSKERNO>; Tue, 5 Nov 2002 12:13:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28689 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264959AbSKERNL>;
-	Tue, 5 Nov 2002 12:13:11 -0500
-Message-ID: <3DC7FD95.5000903@pobox.com>
-Date: Tue, 05 Nov 2002 12:19:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S265063AbSKER3Z>; Tue, 5 Nov 2002 12:29:25 -0500
+Received: from web13102.mail.yahoo.com ([216.136.174.147]:31849 "HELO
+	web13102.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265052AbSKER3T>; Tue, 5 Nov 2002 12:29:19 -0500
+Message-ID: <20021105173555.88591.qmail@web13102.mail.yahoo.com>
+Date: Tue, 5 Nov 2002 17:35:55 +0000 (GMT)
+From: =?iso-8859-1?q?will=20fitzgerald?= <linux_learning@yahoo.co.uk>
+Subject: important how to stop interrupts and start them again after finishing what you wanted to do??
+To: linux-kernel@vger.kernel.org
+Cc: linux-c-programming@vger.kernel.org
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 vi .config ; make oldconfig not working
-References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com> <20021105171409.GA1137@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+Hi all,
 
->  
->
->Hmmm:
->
->axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
->641:CONFIG_NFSD_V4=y
->axboe@burns:[.]linux-2.5-deadline-rbtree $ vi .config
->axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
->641:CONFIG_NFSD_V4=n
->
+does any know how i can stop and start interrupts.
 
-'=n' is wrong, that should be "# CONFIG_NFSD_V4 is not set" still...
+i have added a probe function to the kernel to measure
+network mechanisms times in cycles, called 
+probe_point().
 
-or, just delete it.  that's what I do :)  the configurator will 
-re-prompt for it, and I hit 'n'
+probe_point(int probeid){
 
-yeah, nfsd build is still broken here too :)
+get rdtsc time and put id and time into buffer
+when full use printk to write buffer to disk.
+
+}
+
+then in mechanisms of interest i place a call to the
+probe_point()for example,
+
+vortex_interrupt(){
+
+probe_point(10);// entry of function
+.
+.function stuff
+.
+.probe_point(11);// exit of function
+}
+
+the problem is some times my buffer does not record
+some id's or times. i think this is because another
+interrupt took place and so the probe_point() exits
+before it gets a chance to store the id and time.
+
+how do i go about setting an non interrupt in the
+probe_point function to make sure it finishes what its
+supposed to do?
+
+for example:
+
+probe_point(int probeid){
+
+do not interrupt me until i do:
+
+get rdtsc time and put id and time into buffer
+when full use printk to write buffer to disk.
+
+now i have finshed puting an id and time into a buffer
+so you can interrpt now.
+
+}
 
 
+__________________________________________________
+Do You Yahoo!?
+Everything you'll ever need on one web page
+from News and Sport to Email and Music Charts
+http://uk.my.yahoo.com

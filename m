@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbUK3PQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbUK3PSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbUK3PQd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 10:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbUK3PQc
+	id S262127AbUK3PSO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 10:18:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbUK3PSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 10:16:32 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:43234 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262117AbUK3PJ7
+	Tue, 30 Nov 2004 10:18:01 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:57058 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262120AbUK3PKO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 10:09:59 -0500
-Date: Tue, 30 Nov 2004 16:09:58 +0100
+	Tue, 30 Nov 2004 10:10:14 -0500
+Date: Tue, 30 Nov 2004 16:10:13 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 5/6] s390: z/VM monitor stream.
-Message-ID: <20041130150958.GF4758@mschwid3.boeblingen.de.ibm.com>
+Subject: [patch 6/6] s390: qeth network driver.
+Message-ID: <20041130151013.GG4758@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,190 +21,215 @@ User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 5/6] s390: z/VM monitor stream.
+[patch 6/6] s390: qeth network driver.
 
-From: Gerald Schaefer <geraldsc@de.ibm.com>
+From: Thomas Spatzier <tspat@de.ibm.com>
 
-z/VM monitor stream changes:
- - Add monitor control element to deal with end-of-frame records.
+network driver changes:
+ - qeth: Handle both VLAN_FRAME and INCLUDES_VLAN_TAG in qdio header.
+ - qeth: Always save IP addresses registered on a card when going offline.
+ - qeth: Check size of printk buffer to 4K for ipa_takeover, vipa & rxip.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- Documentation/s390/monreader.txt |   56 +++++++++++++++++++++++++++------------
- drivers/s390/char/monreader.c    |   31 ++++++++++++++++++---
- 2 files changed, 65 insertions(+), 22 deletions(-)
+ drivers/s390/net/qeth.h      |   16 +++++++---------
+ drivers/s390/net/qeth_main.c |   21 +++++++++++----------
+ drivers/s390/net/qeth_sys.c  |   31 +++++++++++++++++++++++++++++--
+ 3 files changed, 47 insertions(+), 21 deletions(-)
 
-diff -urN linux-2.6/Documentation/s390/monreader.txt linux-2.6-patched/Documentation/s390/monreader.txt
---- linux-2.6/Documentation/s390/monreader.txt	2004-11-30 14:02:59.000000000 +0100
-+++ linux-2.6-patched/Documentation/s390/monreader.txt	2004-11-30 14:03:22.000000000 +0100
-@@ -1,5 +1,5 @@
+diff -urN linux-2.6/drivers/s390/net/qeth.h linux-2.6-patched/drivers/s390/net/qeth.h
+--- linux-2.6/drivers/s390/net/qeth.h	2004-11-30 14:03:18.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth.h	2004-11-30 14:03:21.000000000 +0100
+@@ -24,7 +24,7 @@
  
--Date  : 2004-Nov-04
-+Date  : 2004-Nov-26
- Author: Gerald Schaefer (geraldsc@de.ibm.com)
+ #include "qeth_mpc.h"
  
+-#define VERSION_QETH_H 		"$Revision: 1.123 $"
++#define VERSION_QETH_H 		"$Revision: 1.124 $"
  
-@@ -72,7 +72,8 @@
- of the monitor DCSS, if already defined, and the users connected to the
- *MONITOR service.
- Refer to the "z/VM Performance" book (SC24-6109-00) on how to create a monitor
--DCSS, you need Class E privileges to define and save a DCSS.
-+DCSS if your z/VM doesn't have one already, you need Class E privileges to
-+define and save a DCSS.
+ #ifdef CONFIG_QETH_IPV6
+ #define QETH_VERSION_IPV6 	":IPv6"
+@@ -330,10 +330,6 @@
+ #define QETH_WATERMARK_PACK_FUZZ 1
  
- Example:
- --------
-@@ -121,20 +122,41 @@
+ #define QETH_IP_HEADER_SIZE 40
+-/* VLAN defines */
+-#define QETH_EXT_HDR_VLAN_FRAME        0x01
+-#define QETH_EXT_HDR_TOKEN_ID          0x02
+-#define QETH_EXT_HDR_INCLUDE_VLAN_TAG  0x04
  
- Read:
- -----
--Reading from the device provides a set of one or more contiguous monitor
--records, there is no control data (unlike the CMS MONWRITE utility output).
--The monitor record layout can be found here (z/VM 5.1):
--http://www.vm.ibm.com/pubs/mon510/index.html
--
--Each set of records is exclusively composed of either event records or sample
--records. The end of such a set of records is indicated by a successful read
--with a return value of 0 (0-Byte read).
--Any received data must be considered invalid until a complete record set was
--read successfully, including the closing 0-Byte read. Therefore you should
-+Reading from the device provides a 12 Byte monitor control element (MCE),
-+followed by a set of one or more contiguous monitor records (similar to the
-+output of the CMS utility MONWRITE without the 4K control blocks). The MCE
-+contains information on the type of the following record set (sample/event
-+data), the monitor domains contained within it and the start and end address
-+of the record set in the monitor DCSS. The start and end address can be used
-+to determine the size of the record set, the end address is the address of the
-+last byte of data. The start address is needed to handle "end-of-frame" records
-+correctly (domain 1, record 13), i.e. it can be used to determine the record
-+start offset relative to a 4K page (frame) boundary.
-+
-+See "Appendix A: *MONITOR" in the "z/VM Performance" document for a description
-+of the monitor control element layout. The layout of the monitor records can
-+be found here (z/VM 5.1): http://www.vm.ibm.com/pubs/mon510/index.html
-+
-+The layout of the data stream provided by the monreader device is as follows:
-+...
-+<0 byte read>
-+<first MCE>              \
-+<first set of records>    |
-+...                       |- data set
-+<last MCE>                |
-+<last set of records>    /
-+<0 byte read>
-+...
-+
-+There may be more than one combination of MCE and corresponding record set
-+within one data set and the end of each data set is indicated by a successful
-+read with a return value of 0 (0 byte read).
-+Any received data must be considered invalid until a complete set was
-+read successfully, including the closing 0 byte read. Therefore you should
- always read the complete set into a buffer before processing the data.
+ struct qeth_hdr_layer3 {
+ 	__u8  id;
+@@ -392,10 +388,12 @@
+ 	QETH_HEADER_TYPE_LAYER2 = 0x02,
+ };
+ /* flags for qeth_hdr.ext_flags */
+-#define QETH_HDR_EXT_VLAN_FRAME      0x01
+-#define QETH_HDR_EXT_CSUM_HDR_REQ    0x10
+-#define QETH_HDR_EXT_CSUM_TRANSP_REQ 0x20
+-#define QETH_HDR_EXT_SRC_MAC_ADDR    0x08
++#define QETH_HDR_EXT_VLAN_FRAME       0x01
++#define QETH_HDR_EXT_TOKEN_ID         0x02
++#define QETH_HDR_EXT_INCLUDE_VLAN_TAG 0x04
++#define QETH_HDR_EXT_SRC_MAC_ADDR     0x08
++#define QETH_HDR_EXT_CSUM_HDR_REQ     0x10
++#define QETH_HDR_EXT_CSUM_TRANSP_REQ  0x20
  
--The maximum size of a set of records can be as large as the size of the
--monitor DCSS, so design the buffer adequately or use dynamic memory allocation
-+The maximum size of a data set can be as large as the size of the
-+monitor DCSS, so design the buffer adequately or use dynamic memory allocation.
- The size of the monitor DCSS will be printed into syslog after loading the
- module. You can also use the (Class E privileged) CP command Q NSS MAP to
- list all available segments and information about them.
-@@ -155,7 +177,7 @@
+ static inline int
+ qeth_is_last_sbale(struct qdio_buffer_element *sbale)
+diff -urN linux-2.6/drivers/s390/net/qeth_main.c linux-2.6-patched/drivers/s390/net/qeth_main.c
+--- linux-2.6/drivers/s390/net/qeth_main.c	2004-11-30 14:03:18.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_main.c	2004-11-30 14:03:21.000000000 +0100
+@@ -1,6 +1,6 @@
+ /*
+  *
+- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.168 $)
++ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.170 $)
+  *
+  * Linux on zSeries OSA Express and HiperSockets support
+  *
+@@ -12,7 +12,7 @@
+  *			  Frank Pavlic (pavlic@de.ibm.com) and
+  *		 	  Thomas Spatzier <tspat@de.ibm.com>
+  *
+- *    $Revision: 1.168 $	 $Date: 2004/11/08 15:55:12 $
++ *    $Revision: 1.170 $	 $Date: 2004/11/17 09:54:06 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -78,7 +78,7 @@
+ #include "qeth_mpc.h"
+ #include "qeth_fs.h"
  
- In the last case (EOVERFLOW) there may be missing data, in the first two cases
- (EIO, EFAULT) there will be missing data. It's up to the application if it will
--continue reading subsequent records or rather exit.
-+continue reading subsequent data or rather exit.
+-#define VERSION_QETH_C "$Revision: 1.168 $"
++#define VERSION_QETH_C "$Revision: 1.170 $"
+ static const char *version = "qeth S/390 OSA-Express driver";
  
- Open:
- -----
-@@ -163,8 +185,8 @@
- open function will fail (return a negative value) and set errno to EBUSY.
- The open function may also fail if an IUCV connection to the *MONITOR service
- cannot be established. In this case errno will be set to EIO and an error
--message with an IPUSER SEVER code will be printed into syslog.
--The IPUSER SEVER codes are described in the "z/VM Performance" book.
-+message with an IPUSER SEVER code will be printed into syslog. The IPUSER SEVER
-+codes are described in the "z/VM Performance" book, Appendix A.
+ /**
+@@ -2236,9 +2236,11 @@
+ #ifdef CONFIG_QETH_VLAN
+ 	u16 *vlan_tag;
  
- NOTE:
- -----
-diff -urN linux-2.6/drivers/s390/char/monreader.c linux-2.6-patched/drivers/s390/char/monreader.c
---- linux-2.6/drivers/s390/char/monreader.c	2004-11-30 14:03:20.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/char/monreader.c	2004-11-30 14:03:22.000000000 +0100
-@@ -238,6 +238,7 @@
- 	atomic_dec(&monpriv->msglim_count);
- 	if (likely(!monmsg->msglim_reached)) {
- 		monmsg->pos = 0;
-+		monmsg->mca_offset = 0;
- 		monpriv->read_index = (monpriv->read_index + 1) %
- 				      MON_MSGLIM;
- 		atomic_dec(&monpriv->read_ready);
-@@ -329,6 +330,7 @@
- 		monmsg->replied_msglim = 0;
- 		monmsg->msglim_reached = 0;
- 		monmsg->pos = 0;
-+		monmsg->mca_offset = 0;
- 		P_WARNING("read, message limit reached\n");
- 		monpriv->read_index = (monpriv->read_index + 1) %
- 				      MON_MSGLIM;
-@@ -501,6 +503,7 @@
- 	struct mon_private *monpriv = filp->private_data;
- 	struct mon_msg *monmsg;
- 	int ret;
-+	u32 mce_start;
- 
- 	monmsg = mon_next_message(monpriv);
- 	if (IS_ERR(monmsg))
-@@ -520,13 +523,28 @@
+-	if (hdr->hdr.l3.ext_flags & QETH_HDR_EXT_VLAN_FRAME) {
++	if (hdr->hdr.l3.ext_flags &
++	    (QETH_HDR_EXT_VLAN_FRAME | QETH_HDR_EXT_INCLUDE_VLAN_TAG)) {
+ 		vlan_tag = (u16 *) skb_push(skb, VLAN_HLEN);
+-		*vlan_tag = hdr->hdr.l3.vlan_id;
++		*vlan_tag = (hdr->hdr.l3.ext_flags & QETH_HDR_EXT_VLAN_FRAME)?
++			hdr->hdr.l3.vlan_id : *((u16 *)&hdr->hdr.l3.dest_addr[12]);
+ 		*(vlan_tag + 1) = skb->protocol;
+ 		skb->protocol = __constant_htons(ETH_P_8021Q);
  	}
- 
- 	if (!monmsg->pos) {
--		monmsg->pos = mon_rec_start(monmsg);
-+		monmsg->pos = mon_mca_start(monmsg) + monmsg->mca_offset;
- 		mon_read_debug(monmsg, monpriv);
+@@ -3789,8 +3791,8 @@
+ 	 */
+ 	if (card->vlangrp && vlan_tx_tag_present(skb)) {
+ 		hdr->hdr.l3.ext_flags = (ipv == 4) ?
+-			QETH_EXT_HDR_VLAN_FRAME :
+-			QETH_EXT_HDR_INCLUDE_VLAN_TAG;
++			QETH_HDR_EXT_VLAN_FRAME :
++			QETH_HDR_EXT_INCLUDE_VLAN_TAG;
+ 		hdr->hdr.l3.vlan_id = vlan_tx_tag_get(skb);
  	}
- 	if (mon_check_mca(monmsg))
- 		goto reply;
+ #endif /* CONFIG_QETH_VLAN */
+@@ -6702,7 +6704,6 @@
+ static int
+ qeth_stop_card(struct qeth_card *card)
+ {
+-	int recover_flag = 0;
+ 	int rc = 0;
  
--	if (mon_rec_end(monmsg) > monmsg->pos) {
-+	/* read monitor control element (12 bytes) first */
-+	mce_start = mon_mca_start(monmsg) + monmsg->mca_offset;
-+	if ((monmsg->pos >= mce_start) && (monmsg->pos < mce_start + 12)) {
-+		count = min(count, (size_t) mce_start + 12 - monmsg->pos);
-+		ret = copy_to_user(data, (void *) (unsigned long) monmsg->pos,
-+				   count);
-+		if (ret)
-+			return -EFAULT;
-+		monmsg->pos += count;
-+		if (monmsg->pos == mce_start + 12)
-+			monmsg->pos = mon_rec_start(monmsg);
-+		goto out_copy;
-+	}
-+
-+	/* read records */
-+	if (monmsg->pos <= mon_rec_end(monmsg)) {
- 		count = min(count, (size_t) mon_rec_end(monmsg) - monmsg->pos
- 					    + 1);
- 		ret = copy_to_user(data, (void *) (unsigned long) monmsg->pos,
-@@ -534,14 +552,17 @@
- 		if (ret)
- 			return -EFAULT;
- 		monmsg->pos += count;
--		*ppos += count;
--		if (mon_rec_end(monmsg) == monmsg->pos)
-+		if (monmsg->pos > mon_rec_end(monmsg))
- 			mon_next_mca(monmsg);
--		return count;
-+		goto out_copy;
+ 	QETH_DBF_TEXT(setup ,2,"stopcard");
+@@ -6714,7 +6715,6 @@
+ 	if (card->read.state == CH_STATE_UP &&
+ 	    card->write.state == CH_STATE_UP &&
+ 	    (card->state == CARD_STATE_UP)) {
+-		recover_flag = 1;
+ 		rtnl_lock();
+ 		dev_close(card->dev);
+ 		rtnl_unlock();
+@@ -6733,7 +6733,7 @@
+ 		if (card->options.layer2)
+ 			qeth_layer2_process_vlans(card, 1);
+ #endif
+-		qeth_clear_ip_list(card, !card->use_hard_stop, recover_flag);
++		qeth_clear_ip_list(card, !card->use_hard_stop, 1);
+ 		qeth_clear_ipacmd_list(card);
+ 		card->state = CARD_STATE_HARDSETUP;
  	}
- reply:
- 	ret = mon_send_reply(monmsg, monpriv);
- 	return ret;
-+
-+out_copy:
-+	*ppos += count;
-+	return count;
+@@ -6901,6 +6901,7 @@
+ 	rtnl_lock();
+ 	dev_open(card->dev);
+ 	rtnl_unlock();
++	/* this also sets saved unicast addresses */
+ 	qeth_set_multicast_list(card->dev);
  }
  
- static unsigned int
+diff -urN linux-2.6/drivers/s390/net/qeth_sys.c linux-2.6-patched/drivers/s390/net/qeth_sys.c
+--- linux-2.6/drivers/s390/net/qeth_sys.c	2004-11-30 14:03:04.000000000 +0100
++++ linux-2.6-patched/drivers/s390/net/qeth_sys.c	2004-11-30 14:03:21.000000000 +0100
+@@ -1,6 +1,6 @@
+ /*
+  *
+- * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.35 $)
++ * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.38 $)
+  *
+  * Linux on zSeries OSA Express and HiperSockets support
+  * This file contains code related to sysfs.
+@@ -20,7 +20,7 @@
+ #include "qeth_mpc.h"
+ #include "qeth_fs.h"
+ 
+-const char *VERSION_QETH_SYS_C = "$Revision: 1.35 $";
++const char *VERSION_QETH_SYS_C = "$Revision: 1.38 $";
+ 
+ /*****************************************************************************/
+ /*                                                                           */
+@@ -886,6 +886,15 @@
+ 	list_for_each_entry(ipatoe, &card->ipato.entries, entry){
+ 		if (ipatoe->proto != proto)
+ 			continue;
++		/* String must not be longer than PAGE_SIZE. So we check for
++		 * length >= 3900 here. Then we can savely display the next
++		 * IPv6 address and our info message below */
++		if (i >= 3900) {
++			i += sprintf(buf + i,
++				     "... Too many entries to be displayed. "
++				     "Skipping remaining entries.\n");
++			break;
++		}
+ 		qeth_ipaddr_to_string(proto, ipatoe->addr, addr_str);
+ 		i += sprintf(buf + i, "%s/%i\n", addr_str, ipatoe->mask_bits);
+ 	}
+@@ -1135,6 +1144,15 @@
+ 			continue;
+ 		if (ipaddr->type != QETH_IP_TYPE_VIPA)
+ 			continue;
++		/* String must not be longer than PAGE_SIZE. So we check for
++		 * length >= 3900 here. Then we can savely display the next
++		 * IPv6 address and our info message below */
++		if (i >= 3900) {
++			i += sprintf(buf + i,
++				     "... Too many entries to be displayed. "
++				     "Skipping remaining entries.\n");
++			break;
++		}
+ 		qeth_ipaddr_to_string(proto, (const u8 *)&ipaddr->u, addr_str);
+ 		i += sprintf(buf + i, "%s\n", addr_str);
+ 	}
+@@ -1308,6 +1326,15 @@
+ 			continue;
+ 		if (ipaddr->type != QETH_IP_TYPE_RXIP)
+ 			continue;
++		/* String must not be longer than PAGE_SIZE. So we check for
++		 * length >= 3900 here. Then we can savely display the next
++		 * IPv6 address and our info message below */
++		if (i >= 3900) {
++			i += sprintf(buf + i,
++				     "... Too many entries to be displayed. "
++				     "Skipping remaining entries.\n");
++			break;
++		}
+ 		qeth_ipaddr_to_string(proto, (const u8 *)&ipaddr->u, addr_str);
+ 		i += sprintf(buf + i, "%s\n", addr_str);
+ 	}

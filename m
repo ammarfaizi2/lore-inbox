@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285178AbRLRVRy>; Tue, 18 Dec 2001 16:17:54 -0500
+	id <S285193AbRLRVT0>; Tue, 18 Dec 2001 16:19:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285179AbRLRVQW>; Tue, 18 Dec 2001 16:16:22 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30469 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S285180AbRLRVPf>; Tue, 18 Dec 2001 16:15:35 -0500
-Date: Tue, 18 Dec 2001 21:14:50 +0000
-From: Russell King <rmk@arm.linux.org.uk>
+	id <S285183AbRLRVSF>; Tue, 18 Dec 2001 16:18:05 -0500
+Received: from bitmover.com ([192.132.92.2]:30102 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S285184AbRLRVRO>;
+	Tue, 18 Dec 2001 16:17:14 -0500
+Date: Tue, 18 Dec 2001 13:17:13 -0800
+From: Larry McVoy <lm@bitmover.com>
 To: "David S. Miller" <davem@redhat.com>
-Cc: kuznet@ms2.inr.ac.ru, Mika.Liljeberg@welho.com, Mika.Liljeberg@nokia.com,
-        linux-kernel@vger.kernel.org, sarolaht@cs.helsinki.fi
-Subject: Re: ARM: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
-Message-ID: <20011218211450.E13126@flint.arm.linux.org.uk>
-In-Reply-To: <3C1FA558.E889A00D@welho.com> <200112182029.XAA11287@ms2.inr.ac.ru> <20011218210332.D13126@flint.arm.linux.org.uk> <20011218.131155.91757544.davem@redhat.com>
+Cc: lm@bitmover.com, alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
+        riel@conectiva.com.br, bcrl@redhat.com, davidel@xmailserver.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Scheduler ( was: Just a second ) ...
+Message-ID: <20011218131713.O26374@work.bitmover.com>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>, lm@bitmover.com,
+	alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
+	riel@conectiva.com.br, bcrl@redhat.com, davidel@xmailserver.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0112180917050.2867-100000@penguin.transmeta.com> <E16GPXv-0008LJ-00@the-village.bc.nu> <20011218130228.N26374@work.bitmover.com> <20011218.131420.67881975.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011218.131155.91757544.davem@redhat.com>; from davem@redhat.com on Tue, Dec 18, 2001 at 01:11:55PM -0800
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011218.131420.67881975.davem@redhat.com>; from davem@redhat.com on Tue, Dec 18, 2001 at 01:14:20PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 01:11:55PM -0800, David S. Miller wrote:
->    On Tue, Dec 18, 2001 at 11:29:06PM +0300, kuznet@ms2.inr.ac.ru wrote:
->    > No doubts it still has broken misaligned access.
->    
->    You're way out of line with that comment.
+On Tue, Dec 18, 2001 at 01:14:20PM -0800, David S. Miller wrote:
+>    From: Larry McVoy <lm@bitmover.com>
+>    Date: Tue, 18 Dec 2001 13:02:28 -0800
 > 
-> Not necessarily Russell.  You have even told us on several occaisions
-> that the older ARMs simply cannot fix up unaligned loads/stores in
-> fact.
+>    Maybe I'm an old stick in the mud, but IRC seems like a big waste of
+>    time to me.
+> 
+> It's like being at a Linux conference all the time. :-)
+> 
+> It does kind of make sense given that people are so scattered across
+> the planet.  Sometimes I want to just grill someone on something, and
+> email would be too much back and forth, IRC is one way to accomplish
+> that.
 
-It read as "Oh, it's ARM, that's your problem then".
+Let me introduce you to this neat invention called a telephone.  It's
+the black thing next to your desk, it rings, has buttons.  If you push
+the right buttons, well, it's magic...
 
-> Look, we're analyzing a problem and trying to explore every avenue
-> for possible problems.  If this were sparc64 I'd be checking my
-> unaligned handler for bugs :-)
+:-)
 
-Well, as its already been established, its not running Linux, so it's not
-my problem. 8)
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,91 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262953AbVDBANG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbVDBARF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbVDBANG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 19:13:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbVDBAMe
+	id S262961AbVDBARF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 19:17:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262958AbVDBAQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 19:12:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:44252 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262953AbVDAXsU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:48:20 -0500
-Cc: kimball.murray@stratus.com
-Subject: [PATCH] PCI: Patch for Serverworks chips in hotplug environment
-In-Reply-To: <11123992704154@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Apr 2005 15:47:50 -0800
-Message-Id: <11123992702166@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+	Fri, 1 Apr 2005 19:16:15 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:3307 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262961AbVDAX4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 18:56:54 -0500
+Message-Id: <200504012356.j31Nuig04242@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Grecko OSCP'" <grecko.lists@gmail.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux Kernel Performance Testing
+Date: Fri, 1 Apr 2005 15:56:44 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcU26KV3yozqTxG9SzODljVkCc7ZcQAJUHEA
+In-Reply-To: <1c55c94505040110224ea1ebb6@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2181.16.6, 2005/03/17 10:23:26-08:00, kimball.murray@stratus.com
+Grecko OSCP wrote on Friday, April 01, 2005 10:22 AM
+> I noticed yesterday a news article on Linux.org about more kernel
+> performance testing being called for, and I decided it would be a nice
+> project to try. I have 10 completely identical systems that can be
+> used for this, and would like to get started while I know I have them
+> for a while.
+>
+> However, I wanted to make sure I didn't waste time. My plan was to do
+> all testing, prerelease, and release kernels from the 2.4, 2.5, and
+> 2.6 trees, with both lmbench and the Linux Testing Project (LTP)
+> benchmark suite. Will this help out? Is there anything else a person
+> should do? With those two benchmarks, and all the kernels I mentioned,
+> I could be done in about 25 days, at one kernel a machine a day. I
+> assume it wouldn't matter what distribution was used, so long as its
+> the same for all tests?
 
-[PATCH] PCI: Patch for Serverworks chips in hotplug environment
+The 10 machines for running benchmarks is not a bad infrastructure to
+start with.  However, it may not be sufficient to identify performance
+regression.  The benchmarks that show regression in Linux kernel requires
+huge infrastructure - lots of memory, disks, network and clients.  The
+simple benchmarks sometime do not show regression and are usually well
+covered by the community and OSDL.
 
-From: Kimball Murray <kimball.murray@stratus.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+As mentioned in another thread, we (as Intel) will take on the challenge
+to do performance testing on a regular basis.  We have fairly extensive
+hardware mix and infrastructure (large smp/numa box with lots of memory,
+disk farm, network etc) to really stress the kernel, performance wise.
 
-
- drivers/ide/pci/serverworks.c |    8 ++++----
- drivers/pci/quirks.c          |    2 +-
- 2 files changed, 5 insertions(+), 5 deletions(-)
-
-
-diff -Nru a/drivers/ide/pci/serverworks.c b/drivers/ide/pci/serverworks.c
---- a/drivers/ide/pci/serverworks.c	2005-04-01 15:38:06 -08:00
-+++ b/drivers/ide/pci/serverworks.c	2005-04-01 15:38:06 -08:00
-@@ -341,7 +341,7 @@
- 	return __ide_dma_end(drive);
- }
- 
--static unsigned int __init init_chipset_svwks (struct pci_dev *dev, const char *name)
-+static unsigned int __devinit init_chipset_svwks (struct pci_dev *dev, const char *name)
- {
- 	unsigned int reg;
- 	u8 btr;
-@@ -508,7 +508,7 @@
- }
- 
- #undef CAN_SW_DMA
--static void __init init_hwif_svwks (ide_hwif_t *hwif)
-+static void __devinit init_hwif_svwks (ide_hwif_t *hwif)
- {
- 	u8 dma_stat = 0;
- 
-@@ -556,7 +556,7 @@
- /*
-  * We allow the BM-DMA driver to only work on enabled interfaces.
-  */
--static void __init init_dma_svwks (ide_hwif_t *hwif, unsigned long dmabase)
-+static void __devinit init_dma_svwks (ide_hwif_t *hwif, unsigned long dmabase)
- {
- 	struct pci_dev *dev = hwif->pci_dev;
- 
-@@ -568,7 +568,7 @@
- 	ide_setup_dma(hwif, dmabase, 8);
- }
- 
--static int __init init_setup_svwks (struct pci_dev *dev, ide_pci_device_t *d)
-+static int __devinit init_setup_svwks (struct pci_dev *dev, ide_pci_device_t *d)
- {
- 	return ide_setup_pci_device(dev, d);
- }
-diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
---- a/drivers/pci/quirks.c	2005-04-01 15:38:06 -08:00
-+++ b/drivers/pci/quirks.c	2005-04-01 15:38:06 -08:00
-@@ -700,7 +700,7 @@
- /*
-  *	Serverworks CSB5 IDE does not fully support native mode
-  */
--static void __init quirk_svwks_csb5ide(struct pci_dev *pdev)
-+static void __devinit quirk_svwks_csb5ide(struct pci_dev *pdev)
- {
- 	u8 prog;
- 	pci_read_config_byte(pdev, PCI_CLASS_PROG, &prog);
 

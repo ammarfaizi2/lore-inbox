@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287103AbRL2DVy>; Fri, 28 Dec 2001 22:21:54 -0500
+	id <S287106AbRL2DVy>; Fri, 28 Dec 2001 22:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287106AbRL2DVp>; Fri, 28 Dec 2001 22:21:45 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:60176 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S287103AbRL2DVb>;
-	Fri, 28 Dec 2001 22:21:31 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>,
-        Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: State of the new config & build system 
-In-Reply-To: Your message of "Fri, 28 Dec 2001 14:27:37 -0800."
-             <Pine.LNX.4.33.0112281417410.23445-100000@penguin.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 29 Dec 2001 14:21:13 +1100
-Message-ID: <8822.1009596073@ocs3.intra.ocs.com.au>
+	id <S287108AbRL2DVo>; Fri, 28 Dec 2001 22:21:44 -0500
+Received: from svr3.applink.net ([206.50.88.3]:23570 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S287106AbRL2DV0>;
+	Fri, 28 Dec 2001 22:21:26 -0500
+Message-Id: <200112290321.fBT3GCSs007627@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: Hard Lockup on 2.4.16 with Via ieee1394 (sbp2 mode)
+Date: Fri, 28 Dec 2001 21:13:23 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, support@redhat.com,
+        timothy.covell@ashavan.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Dec 2001 14:27:37 -0800 (PST), 
-Linus Torvalds <torvalds@transmeta.com> wrote:
->Note that I do _not_ want to mess up source files with magic comments. I
->absolutely detest those. They only detract from the real job of coding,
->and do not make anybody happier.
->
->We have a hierarchical filesystem. Most drivers already have
->
->	driver.c
->	driver.h
->
->(in fact _very_ few drivers are single-file) and some have a subdirectory
->of their own. So why not just have
->
->	driver.conf
->
->and be done with it. No point in messing up the C file with stuff that
->doesn't add any information to either the programmer _or_ the compiler.
 
-I would love to do that, with each driver/filesystem/... having an
-associated control file that defined its config options, its help and
-who to make it.  That is, an "Insert New Facility" file, we could call
-them driver.inf (ducks and runs ;).
+Alan et al,
 
-There is one big problem in the way, makefile order controls link order
-which controls init order.  I have no problem with the link order
-controlling init order, that is far better than the old Space.c code.
-I intensely dislike makefile order controlling link order, it results
-in loss of information, we have makefiles in a specific order with no
-idea about whether that order is required or is just accidental.
+I've got a hard lockup on 2.4.16 when I insmod sbp2 for my external
+FW disk drive (ADS enclosure kit).  I'm not using the official RH 2.4.9-13
+RPM because the SRPM didn't build an SMP kernel and I had been
+having no problems with 2.4.16ctx-4  (that's with Jacques Gelinas'
+vserver patch).  Anyhow, when I built  a new kernel to support my
+new Via Firewire Card (SB-FW6306-3l),  I built it with the nesc.
+ieee1394 support in modules.  However:
 
-IMHO the link order should be divorced from makefile order and made
-explicit.  Then you could have makefile fragments associated with each
-driver.  But the last time I tried to break the dependency between make
-and link order, Linus shot me down in flames[1], so I have no intention
-of going there again.  As long as you have monolithic makefiles,
-drivers.conf is going to be problematic.
+cd /lib/modules/2.4.16-ctx4/kernel/drivers/ieee1394
+insmod ieee1394
+insmod ohci1394
+insmod raw1394
+insmod sbp2    (HARD LOCKUP)
 
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=97301359812683&w=2
 
+I can rebuild again with SysRq patch if you think that'll help.  I
+can also forward my kernel build ".config" file and my sysreport
+to Alan if he likes. (I've already sent a ticket to support@redhat.com.
+about the SMP kernel problems.)
+
+TIA
+
+timothy.covell@ashavan.org.

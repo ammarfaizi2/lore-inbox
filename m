@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314284AbSEBIvO>; Thu, 2 May 2002 04:51:14 -0400
+	id <S314288AbSEBIxq>; Thu, 2 May 2002 04:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314285AbSEBIvN>; Thu, 2 May 2002 04:51:13 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:10762 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S314284AbSEBIvL>; Thu, 2 May 2002 04:51:11 -0400
-Date: Thu, 2 May 2002 10:50:55 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Ralf Baechle <ralf@uni-koblenz.de>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: discontiguous memory platforms
-In-Reply-To: <20020502032725.S11414@dualathlon.random>
-Message-ID: <Pine.LNX.4.21.0205021041570.23113-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314287AbSEBIxp>; Thu, 2 May 2002 04:53:45 -0400
+Received: from theirongiant.weebeastie.net ([203.62.148.50]:21159 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S314285AbSEBIxo>; Thu, 2 May 2002 04:53:44 -0400
+Date: Thu, 2 May 2002 18:51:37 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: AMD PowerNow booboo in 2.4.19-pre7-ac3
+Message-ID: <20020502085137.GP14678@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--- arch/i386/kernel/amdk6plus.c.old    Thu May  2 18:51:13 2002
++++ arch/i386/kernel/amdk6plus.c        Thu May  2 18:51:17 2002
+@@ -117,4 +117,4 @@
+ MODULE_LICENSE ("GPL");
+ module_init(PowerNow_k6plus_init);
+ module_exit(PowerNow_k6plus_exit);
+-__initcall (PowerNOW_k6plus_init);
++__initcall (PowerNow_k6plus_init);
 
-On Thu, 2 May 2002, Andrea Arcangeli wrote:
-
-> What I
-> care about is not to clobber the common code with additional overlapping
-> common code abstractions.
-
-Just to throw in an alternative: On m68k we map currently everything
-together into a single virtual area. This means the virtual<->physical
-conversion is a bit more expensive and mem_map is simply indexed by the
-the virtual address.
-It works nicely, it just needs two small patches in the initializition
-code, which aren't integrated yet. I think it's very close to what Daniel
-wants, only that the logical and virtual address are identical.
-
-bye, Roman
-
+-- 
+CORUSCANT-Presiding over a memorial service commemorating the victims
+of the attack on the Death Star, the Emperor declared that while recent
+victories over the Rebel Alliance were "encouraging, the War on Terror
+is not over yet."
+	- http://www.zip.com.au/~cat/misc/txt/waronterror.txt

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbUJ0OTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbUJ0OSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262455AbUJ0OTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 10:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUJ0OTZ
+	id S262452AbUJ0OSi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 10:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUJ0OSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 10:19:25 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65298 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262459AbUJ0OTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 10:19:14 -0400
-Date: Wed, 27 Oct 2004 16:18:41 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Mathieu Segaud <matt@minas-morgul.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1-mm1
-Message-ID: <20041027141841.GG2550@stusta.de>
-References: <20041026213156.682f35ca.akpm@osdl.org> <87breos8f4.fsf@barad-dur.crans.org>
+	Wed, 27 Oct 2004 10:18:38 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:14174 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262452AbUJ0OSc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 10:18:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=L/+1otPjVc2yN1lzV/u0iJ4SBOzJVQCwbow2CS/Zvf1s4bBFxsxXfn0emLuogH2myAmzzlcuHZgd4qnStCd4rYOERnb7An4maDa25YBs8S1IrHXYgjgtegToXN3s3FOzCIvs1l8YvbzU5ZyPblFnrfJQtR89Iji3z8PranildQA=
+Message-ID: <6cb735e904102707181e58d208@mail.gmail.com>
+Date: Wed, 27 Oct 2004 17:18:31 +0300
+From: Guven Demir <guven.demir@gmail.com>
+Reply-To: Guven Demir <guven.demir@gmail.com>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Question: how to invalidate read cache
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-Content-Disposition: inline
-In-Reply-To: <87breos8f4.fsf@barad-dur.crans.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+hi all,
 
-On Wed, Oct 27, 2004 at 01:32:47PM +0200, Mathieu Segaud wrote:
-> 
-> It fails to build if CONFIG_FS_REISER4=y and issues a depmod error if reiser4
-> is built modular, as delete_from_page_cache has been ripped out
+i hope this is the right place to ask question... anyway, it goes like this:
 
-Revert reiser4-delete_from_page_cache.patch .
+how can i invalidate the read cache for a file system?
 
-> Best regards,
-> 
-> Mathieu
+the reason i'm asking this question is:
 
-cu
-Adrian
+i'm mounting this ntfs partition to my linux box r/o, which i also
+used by "another os" running under vmware r/w.
 
-- -- 
+so when this partition gets updated under vmware, linux does not get
+the changes until i umount / mount the partition again.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+the problem is, i cant do this when the partiton is busy so i'm stuck
+with invalid directory entries etc...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+so, is there a way to disable or invalidate the read cache for this partition?
 
-iD8DBQFBf65BmfzqmE8StAARAt5rAKCXVqVoaFT+n08H7Fl+bTzVz9pjPwCfbLKi
-K62m2ycCA0sxDEeVkWwetIg=
-=qWyx
------END PGP SIGNATURE-----
+thanks in advance.

@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVCOSj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVCOSj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVCOSj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 13:39:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVCOSiC
+	id S261760AbVCOSj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 13:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVCOSiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 13:38:02 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:56492
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261752AbVCOSbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 13:31:42 -0500
-Date: Tue, 15 Mar 2005 10:26:52 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] net/802/fc.c: remove fc_type_trans
-Message-Id: <20050315102652.2d122c2f.davem@davemloft.net>
-In-Reply-To: <20050315122017.GF3189@stusta.de>
-References: <20050306205754.GO5070@stusta.de>
-	<20050314214940.4947ccd9.davem@davemloft.net>
-	<20050315122017.GF3189@stusta.de>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 13:38:10 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:62374 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261756AbVCOSd5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 13:33:57 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 5/6] PCI Express Advanced Error Reporting Driver
+Date: Tue, 15 Mar 2005 10:33:47 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024080A4C09@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 5/6] PCI Express Advanced Error Reporting Driver
+Thread-Index: AcUm2jO13EN9rEGZSJKT6yTdG/nW9QCsq14g
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Greg KH" <greg@kroah.com>, "long" <tlnguyen@snoqualmie.dp.intel.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-pci@atrey.karlin.mff.cuni.cz>
+X-OriginalArrivalTime: 15 Mar 2005 18:33:49.0228 (UTC) FILETIME=[879D2EC0:01C5298D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005 13:20:17 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
+Friday, March 11, 2005 11:30 PM Greg KH wrote:
+>> +
+>> +LIST_HEAD(rc_list);			/* Define Root Complex List */
+>>
+>Static?
 
-> On Mon, Mar 14, 2005 at 09:49:40PM -0800, David S. Miller wrote:
-> > On Sun, 6 Mar 2005 21:57:54 +0100
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > 
-> > > The only user of fc_type_trans (drivers/net/fc/iph5526.c) is BROKEN in 
-> > > 2.6 and removed in -mm.
-> > > 
-> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > 
-> > That driver isn't in Linus's tree any longer either.  Just delete
-> > the thing altogether instead of #if 0'ing it.
-> >...
-> 
-> Updated patch:
+The rc_list is not static. Thanks for pointing it out. Will make it
+static. 
 
-Applied, thanks a lot Adrian.
+Thanks,
+Long

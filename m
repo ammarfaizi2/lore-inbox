@@ -1,50 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317664AbSGPAX1>; Mon, 15 Jul 2002 20:23:27 -0400
+	id <S317701AbSGPBkm>; Mon, 15 Jul 2002 21:40:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317715AbSGPAX0>; Mon, 15 Jul 2002 20:23:26 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:20239 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317664AbSGPAX0>;
-	Mon, 15 Jul 2002 20:23:26 -0400
-Date: Mon, 15 Jul 2002 17:25:30 -0700
-From: Greg KH <greg@kroah.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Removal of pci_find_* in 2.5
-Message-ID: <20020716002530.GA32431@kroah.com>
-References: <20020713003601.GA12118@kroah.com> <m1znwuoyze.fsf@frodo.biederman.org>
-Mime-Version: 1.0
+	id <S317704AbSGPBkl>; Mon, 15 Jul 2002 21:40:41 -0400
+Received: from lockupnat.curl.com ([216.230.83.254]:15351 "EHLO
+	egghead.curl.com") by vger.kernel.org with ESMTP id <S317701AbSGPBkj>;
+	Mon, 15 Jul 2002 21:40:39 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+References: <20020712162306$aa7d@traf.lcs.mit.edu> <s5gsn2lt3ro.fsf@egghead.curl.com> <20020715173337$acad@traf.lcs.mit.edu> <s5gsn2kst2j.fsf@egghead.curl.com> <1026767676.4751.499.camel@tiny> <s5gy9ccr84k.fsf@egghead.curl.com> <200207160102.g6G12BiH022986@lin2.andrew.cmu.edu>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 15 Jul 2002 21:43:34 -0400
+In-Reply-To: <mit.lcs.mail.linux-kernel/200207160102.g6G12BiH022986@lin2.andrew.cmu.edu>
+Message-ID: <s5g8z4cphvd.fsf@egghead.curl.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1znwuoyze.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 17 Jun 2002 23:22:35 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 14, 2002 at 02:07:01PM -0600, Eric W. Biederman wrote:
-> 
-> The driver is a mtd map driver.  It knows there is a rom chip behind 
-> a pci->isa bridge.  And it needs to find the pci->isa bridge to
-> properly set it up to access the rom chip (enable writes and the
-> like).  
-> 
-> It isn't a driver for the pci->isa bridge, (I'm not even certain we
-> have a good model for that).  So it does not use pci_register_driver.
-> 
-> If you can give me a good proposal for how to accomplish that kind of
-> functionality I would be happy to use the appropriate
-> xxx_register_driver.
+Lawrence Greenfield <leg+@andrew.cmu.edu> writes:
 
-I don't think there is a good way for you to convert over to
-_register_driver(), that's the main reason I'm keeping the pci_find_*
-functions around, they are quite useful for lots of situations.
+> Actually, it's not all that simple (you have to find the enclosing
+> directories of any files you're modifying, which might require string
+> manipulation)
 
-It doesn't sound like you are worrying about your device working in a
-pci hotplug system, and you would probably be willing do any pci device
-conversion work to the new driver model yourself, right?  :)
+No, you have to find the directories you are modifying.  And the
+application knows darn well which directories it is modifying.
 
-thanks,
+Don't speculate.  Show some sample code, and let's see how hard it
+would be to use the "Linux way".  I am betting on "not hard at all".
 
-greg k-h
+> or necessarily all that fast (you're doubling the number of system
+> calls and now the application is imposing an ordering on the
+> filesystem that didn't exist before).
+
+No, you are not doubling the number of system calls.  As I have tried
+to point out repeatedly, doing this stuff reliably and portably
+already requires a sequence like this:
+
+   write data
+   flush data
+   write "validity" indicator (e.g., rename() or fchmod())
+   flush validity indicator
+
+On Linux, flushing a rename() means calling fsync() on the directory
+instead of the file.  That's it.  Doing that instead of fsync'ing the
+file adds at most two system calls (to open and close the directory),
+and those can be amortized over many operations on that directory
+(think "mail spool").  So the system call overhead is non-existent.
+
+As for "imposing an ordering on the filesystem that didn't exist
+before", that is complete nonsense.  This is imposing *precisely* the
+ordering required for reliable operation; no more, no less.  Relying
+on mount options, "chattr +S", or journaling artifacts for your
+ordering is the inefficient approach; since they impose extra
+ordering, they can never be faster and will usually be slower.
+
+> It's only necessary for ext2. Modern Linux filesystems (such as ext3
+> or reiserfs) don't require it.
+
+Only because they take the performance hit of flushing the whole log
+to disk on every fsync().  Combine that with "data=ordered" and see
+what happens to your performance.  (Perhaps "data=ordered" should be
+called "fsync=sync".)  I would rather get back the performance and
+convince application authors to understand what they are doing.
+
+> Finally: ext2 isn't safe even if you do call fsync() on the directory!
+
+Wrong.
+
+   write temp file
+   fsync() temp file
+   rename() temp file to actual file
+   fsync() directory
+
+No matter where this crashes, it is perfectly safe on ext2.  (If not,
+ext2 is badly broken.)  The worst that can happen after a crash is
+that the file might exist with both the old name and the new name.
+But an application can detect this case on startup and clean it up.
+
+ - Pat

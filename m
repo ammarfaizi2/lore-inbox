@@ -1,102 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263142AbTC1UmL>; Fri, 28 Mar 2003 15:42:11 -0500
+	id <S263135AbTC1Uv7>; Fri, 28 Mar 2003 15:51:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263140AbTC1UlM>; Fri, 28 Mar 2003 15:41:12 -0500
-Received: from mnh-1-18.mv.com ([207.22.10.50]:50949 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S263135AbTC1UlG>;
-	Fri, 28 Mar 2003 15:41:06 -0500
-Message-Id: <200303282050.PAA03200@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML fixes
+	id <S263140AbTC1Uv7>; Fri, 28 Mar 2003 15:51:59 -0500
+Received: from cs78149057.pp.htv.fi ([62.78.149.57]:50304 "EHLO
+	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S263135AbTC1Uv5>;
+	Fri, 28 Mar 2003 15:51:57 -0500
+Subject: RE: [2.5.66] Enormous interrupt load with ACPI
+From: Mika Liljeberg <mika.liljeberg@welho.com>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A239@orsmsx401.jf.intel.com>
+References: <F760B14C9561B941B89469F59BA3A84725A239@orsmsx401.jf.intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048885449.701.8.camel@devil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Mar 2003 15:50:42 -0500
-From: Jeff Dike <jdike@karaya.com>
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 28 Mar 2003 23:04:10 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull
-	http://jdike.stearns.org:5000/fixes-2.5
+Hi Andy,
 
-This fixes a number of UML bugs:
-	updated the ubd driver to the new block and devfs APIs
-	fixed calls to schedule_tail
-	fixed a few SMP deadlocks
-	the ubd driver locks its device files
-	flush stdout before entering the kernel
-	fix a uaccess fencepost bug
-	fix a 'tracing myself' bug
-	code cleanup
-	error message fixes
+> Can you look at /proc/interrupts and tell me if irq 9 is shared with
+> anyone else, especially PCI devices?
 
-				Jeff
+Doesn't seem that way.
 
- arch/um/drivers/line.c                |    6 
- arch/um/drivers/ubd_kern.c            |  224 +++++++++++++++++++---------------
- arch/um/drivers/ubd_user.c            |   44 ++++--
- arch/um/include/os.h                  |    2 
- arch/um/kernel/mem.c                  |    2 
- arch/um/kernel/process.c              |    3 
- arch/um/kernel/skas/include/uaccess.h |    2 
- arch/um/kernel/skas/process_kern.c    |   10 -
- arch/um/kernel/time_kern.c            |    2 
- arch/um/kernel/tt/process_kern.c      |   26 +--
- arch/um/kernel/um_arch.c              |    1 
- arch/um/os-Linux/file.c               |   31 ++++
- include/asm-um/common.lds.S           |   12 +
- 13 files changed, 230 insertions(+), 135 deletions(-)
+	MikaL
+--
+           CPU0       CPU1
+  0:     722746     889567    IO-APIC-edge  timer
+  1:       2929          1    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  5:       2625          1    IO-APIC-edge  soundblaster
+  8:          4          0    IO-APIC-edge  rtc
+  9:   69687588   62077091   IO-APIC-level  acpi
+ 12:      49989          1    IO-APIC-edge  i8042
+ 14:      28147          1    IO-APIC-edge  ide0
+ 15:         95          1    IO-APIC-edge  ide1
+ 18:       8663          0   IO-APIC-level  eth0
+NMI:    1612256    1612116
+LOC:    1612201    1612200
+ERR:          0
+MIS:          0
 
-ChangeSet@1.1080, 2003-03-27 23:13:21-05:00, jdike@uml.karaya.com
-  Fixed a call to devfs_mk_dir.
 
-ChangeSet@1.1079, 2003-03-27 21:40:19-05:00, jdike@uml.karaya.com
-  Fixed the ubd driver call to devfs_mk_symlink.
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 02)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 64
+	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: [a0] AGP version 1.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
 
-ChangeSet@1.1078, 2003-03-27 15:29:35-05:00, jdike@uml.karaya.com
-  .66 conflict fixes.
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 02) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	I/O behind bridge: 0000d000-0000dfff
+	Memory behind bridge: e4000000-e7ffffff
+	Prefetchable memory behind bridge: e8000000-e8ffffff
+	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B+
 
-ChangeSet@1.889.363.2, 2003-03-27 13:44:02-05:00, jdike@uml.karaya.com
-  Fixed a register_blkdev call.
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
 
-ChangeSet@1.889.363.1, 2003-03-22 15:37:52-05:00, jdike@uml.karaya.com
-  Merged the 2.5.65 conflicts.
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Region 4: I/O ports at f000 [size=16]
 
-ChangeSet@1.889.247.2, 2003-02-25 00:44:11-05:00, jdike@uml.karaya.com
-  Fixed the calls to schedule_tail to not be conditional on CONFIG_SMP,
-  to be conditional on current->thread.prev_sched being non-NULL,
-  and to pass current->thread.prev_sched in to schedule_tail.
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin D routed to IRQ 19
+	Region 4: I/O ports at e000 [size=32]
 
-ChangeSet@1.889.203.4, 2003-02-24 21:59:25-05:00, jdike@uml.karaya.com
-  Fixed a bug with the initialization of the mode that a device file
-  is opened with.
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
 
-ChangeSet@1.889.203.3, 2003-02-24 01:48:30-05:00, jdike@uml.karaya.com
-  Fixed a deadlock caused by not disabling interrupts around a call
-  to update_process_times.
+00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+	Subsystem: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 18
+	Region 0: I/O ports at e400 [size=32]
 
-ChangeSet@1.889.203.2, 2003-02-23 14:50:33-05:00, jdike@uml.karaya.com
-  Made some minor fixes to get rid of some unneeded code, improve
-  a panic message, and fix a signal blocking bug.
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01) (prog-if 00 [VGA])
+	Subsystem: Matrox Graphics, Inc. Millennium G200 AGP
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (4000ns min, 8000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 16
+	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=16M]
+	Region 1: Memory at e4000000 (32-bit, non-prefetchable) [size=16K]
+	Region 2: Memory at e5000000 (32-bit, non-prefetchable) [size=8M]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [f0] AGP version 1.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=32 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x2
 
-ChangeSet@1.889.203.1, 2003-02-19 11:05:33-05:00, jdike@uml.karaya.com
-  Merge uml.karaya.com:/home/jdike/linux/2.5/linus-2.5
-  into uml.karaya.com:/home/jdike/linux/2.5/fixes-2.5
 
-ChangeSet@1.889.124.2, 2003-02-19 09:55:14-05:00, jdike@uml.karaya.com
-  Fixed signal blocking and cleaned up the code a bit.
-
-ChangeSet@1.889.99.32, 2003-02-07 13:48:13-05:00, jdike@uml.karaya.com
-  Fixed a few compilation bugs in the ubd changes.
-
-ChangeSet@1.889.99.31, 2003-02-07 12:52:23-05:00, jdike@uml.karaya.com
-  Merged in changes from 2.4 up to 2.4.19-50.
-  The ubd driver locks its files.
-  Merged a bunch of ubd fixes from James McMechan.
-  stdout is now flushed before entering the kernel.
-  Fixed a uaccess fencepost bug.
-  Fixed a 'tracing myself' bug.
-  Various other cleanups and error message fixes.
 

@@ -1,57 +1,963 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262767AbTKYTgO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 14:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbTKYTgO
+	id S262888AbTKYTwi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 14:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbTKYTwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 14:36:14 -0500
-Received: from dslb138.fsr.net ([12.7.7.138]:7097 "EHLO sandall.us")
-	by vger.kernel.org with ESMTP id S262767AbTKYTgN (ORCPT
+	Tue, 25 Nov 2003 14:52:38 -0500
+Received: from smtpq1.home.nl ([213.51.128.196]:29827 "EHLO smtpq1.home.nl")
+	by vger.kernel.org with ESMTP id S262888AbTKYTwB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 14:36:13 -0500
-Message-ID: <1069788972.3fc3af2c16b8f@horde.sandall.us>
-Date: Tue, 25 Nov 2003 11:36:12 -0800
-From: Eric Sandall <eric@sandall.us>
+	Tue, 25 Nov 2003 14:52:01 -0500
+From: Gertjan van Wingerde <gwingerde@home.nl>
+Reply-To: gwingerde@home.nl
 To: linux-kernel@vger.kernel.org
-Subject: Re: off: nvidia binary driver with 2.6-test10
-References: <1069741003.3493.2.camel@zeus.city.tvnet.hu>
-In-Reply-To: <1069741003.3493.2.camel@zeus.city.tvnet.hu>
+Subject: EXT-3 bug with 2.6.0-test9
+Date: Tue, 25 Nov 2003 20:51:15 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 134.121.40.89
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311252051.15501.gwingerde@home.nl>
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Sipos Ferenc <sferi@mail.tvnet.hu>:
-> Hi!
-> 
-> Something has changed between 2.6-test9 and 2.6-test10, the nvidia
-> driver for test3-mm3 won't run automatically, I have to reinstall each
-> system restart. Does anybody have a patch? Thx.
-> 
-> Paco
+Hi,
 
-Have you tried compiling the driver against -test10?
+(Please CC me in any replies, as I'm not subscribed to the list)
 
--sandalle
+I've just experienced the strange behaviour that my /usr mount auto-magically 
+got mounted read-only, where it was mounted read-write (obviously). 
+Investigating the cause of this I've found the following EXT-3 related BUG in 
+my log-files:
 
--- 
-PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
-http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
+	kernel BUG at fs/jbd/journal.c:1733!
+	invalid operand: 0000 [#1]
+	CPU:    0
+	EIP:    0060:[<c01b9bc8>]    Tainted: P  
+	EFLAGS: 00010282
+	EIP is at __journal_remove_journal_head+0xf8/0x1c0
+	eax: 0000006a   ebx: f56a855c   ecx: c02df014   edx: 00000286
+	esi: df2f2ab0   edi: f7c04800   ebp: df2f2ab0   esp: f3525d80
+	ds: 007b   es: 007b   ss: 0068
+	Process kjournald (pid: 49, threadinfo=f3524000 task=f1f1b940)
+	Stack: c02b1b40 c029fad7 c02b04ff 000006c5 c02b02ff f56a855c f3524000 
+c01b9ccd 
+       f56a855c f56a855c c01b3669 f56a855c cce38180 df2f2ab0 00000000 df2f2db0 
+       c01b4967 f7c04800 df2f2ab0 00000003 00000edf 00000000 f7c04878 00000000 
+	Call Trace:
+	 [<c01b9ccd>] journal_remove_journal_head+0x3d/0x80
+	 [<c01b3669>] journal_refile_buffer+0x89/0xd3
+	 [<c01b4967>] journal_commit_transaction+0x1167/0x1580
+	 [<c0121f80>] autoremove_wake_function+0x0/0x50
+	 [<c0121f80>] autoremove_wake_function+0x0/0x50
+	 [<c011f72d>] schedule+0x33d/0x6a0
+	 [<c012ca66>] del_timer_sync+0x26/0x90
+	 [<c01b75c9>] kjournald+0xe9/0x2d0
+	 [<c0121f80>] autoremove_wake_function+0x0/0x50
+	 [<c0121f80>] autoremove_wake_function+0x0/0x50
+	 [<c0109472>] ret_from_fork+0x6/0x14
+	 [<c01b74c0>] commit_timeout+0x0/0x10
+	 [<c01b74e0>] kjournald+0x0/0x2d0
+	 [<c01072a9>] kernel_thread_helper+0x5/0xc
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
-K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
-tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
-------END GEEK CODE BLOCK------
+	Code: 0f 0b c5 06 ff 04 2b c0 eb 9c c7 44 24 10 15 03 2b c0 c7 44 
+	 <6>note: kjournald[49] exited with preempt_count 2
 
-Eric Sandall                     |  Source Mage GNU/Linux Developer
-eric@sandall.us                  |  http://www.sourcemage.org/
-http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
-http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+Also, it looks like the BUG is the result of a large series of events on this 
+EXT-3 file-system. See the following logging generated by the kernel just 
+prior to the BUG.
 
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+Please note that this EXT-3 file-system has been running perfectly for many
+months before.
+
+Nov 25 20:24:20 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (230991), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (230990), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (346096), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99815), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99814), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99816), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99821), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99826), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99818), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99827), 0
+Nov 25 20:24:21 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99825), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99819), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99820), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (67132), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (346095), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (361544), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (230988), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (230989), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99831), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99833), 0
+Nov 25 20:24:22 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99832), 0
+Nov 25 20:24:23 localhost vmunix: EXT3-fs warning (device md1): ext3_unlink: 
+Deleting nonexistent file (99828), 0
+Nov 25 20:24:23 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 860399662, count = 
+1
+Nov 25 20:24:23 localhost vmunix: Aborting journal on device md1.
+Nov 25 20:24:23 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2957330785, count 
+= 1
+Nov 25 20:24:23 localhost vmunix: EXT3-fs erroext3_free_blocks: Freeing blocks 
+not in datazone - block = 1749834544, count = 1
+Nov 25 20:24:23 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2334617097, count 
+= 1
+Nov 25 20:24:23 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2134781879, count 
+= 1
+Nov 25 20:24:24 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1011515511, count 
+= 1
+Nov 25 20:24:24 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 273826348, count = 
+1
+Nov 25 20:24:24 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2532124444, count 
+= 1
+Nov 25 20:24:24 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3921537221, count 
+= 1
+Nov 25 20:24:24 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 650965928, count = 
+1
+Nov 25 20:24:24 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2251335220, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 983764003, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 682463184, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 756280461, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1394983243, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3086419413, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1506572299, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 233223441, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 246019804, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2020977310, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2265425522, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 99125143, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2132590775, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3465273598, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3731886518, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1877598070, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 952773299, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 956258416, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 709351692, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1032143977, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 749976843, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1659190039, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 611924932, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 523699582, count = 
+1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3086532127, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1172868709, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1274290746, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3678640000, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1882760473, count 
+= 1
+Nov 25 20:24:25 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 712246741, count = 
+1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3638729447, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1890726766, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3801677313, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1498998894, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2770469920, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3661051097, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 913564713, count = 
+1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3026219188, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1967600084, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1325221072, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3631138447, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1616928742, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4236230637, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: ext3_abort called.
+Nov 25 20:24:26 localhost vmunix: EXT3-fs abort (device md1): 
+ext3_journal_start: Detected aborted journal
+Nov 25 20:24:26 localhost vmunix: Remounting filesystem read-only
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2610539888, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2146454655, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4066696166, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3197664887, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 86343479, count = 
+1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3025137050, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4016958009, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1316076957, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1393137362, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3170358976, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3050079866, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 484043764, count = 
+1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3024068954, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4163576633, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2828682956, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3187654731, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3006448829, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2697666920, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3609026717, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 921079375, count = 
+1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2515458858, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 580661110, count = 
+1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1325376719, count 
+= 1
+Nov 25 20:24:26 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 227382463, count = 
+1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1231679910, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2951140793, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 775673396, count = 
+1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1621575304, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3806328428, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1792248739, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 612775628, count = 
+1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2148947034, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4113954266, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1736416095, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2291771831, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3292958061, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3053874603, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2451630183, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 714098034, count = 
+1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3461462712, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1407707061, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4238728130, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1735148126, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2095994006, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 120539937, count = 
+1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2556282880, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1556516604, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 475652087, count = 
+1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2494192504, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2371252814, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1684169708, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2112514188, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 158394777, count = 
+1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1156041019, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4171911882, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2920671088, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 438966637, count = 
+1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3704098521, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1368043845, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 843247696, count = 
+1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1637867182, count 
+= 1
+Nov 25 20:24:27 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3826050150, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4112005240, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1148506867, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1814139895, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 752405763, count = 
+1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3417811281, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 191863121, count = 
+1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 725612231, count = 
+1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 752575394, count = 
+1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2158056636, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1517115264, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1247060929, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3463052827, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2224698307, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3974681652, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2363192859, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4118495067, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4111061501, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2389342960, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4006788384, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1514736620, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2098454761, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1509225206, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3809548509, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4098731236, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 166784046, count = 
+1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 986445850, count = 
+1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1710554876, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1735726011, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3551375806, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2944911115, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3290656006, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3487420479, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2633738216, count 
+= 1
+Nov 25 20:24:28 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3166681726, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4201897631, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2129853929, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2817118202, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3477029119, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4219167692, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 942415330, count = 
+1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1341164171, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2133929697, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 228325999, count = 
+1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3480701854, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4264670448, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4098590879, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 451745180, count = 
+1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4077066055, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1221918157, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3200435565, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2038611713, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3121339751, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2346185073, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 676845759, count = 
+1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3166431426, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2441062948, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2334841445, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 88919289, count = 
+1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3905912247, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1061234952, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2994686763, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2773901471, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1784921301, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3368275531, count 
+= 1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 689039197, count = 
+1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 613798146, count = 
+1
+Nov 25 20:24:29 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2338320691, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1597732384, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1990382866, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1118510183, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1953922349, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1733097528, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 455607691, count = 
+1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2814978728, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3730458019, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1383473688, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2461673809, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2318715629, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 516593427, count = 
+1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 205531376, count = 
+1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 21938793, count = 
+1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2815018254, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2674877623, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1782960940, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1200415140, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3510259969, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1879888871, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 781758699, count = 
+1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3237862119, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2892083085, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 334916966, count = 
+1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2953641469, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1238058808, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1854701737, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 51448308, count = 
+1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 99221850, count = 
+1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4140971230, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2232324585, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3492293485, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2958172436, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2871085233, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1646146379, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4002986016, count 
+= 1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 842504286, count = 
+1
+Nov 25 20:24:30 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1985413442, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3242616244, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 577027079, count = 
+1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1951414087, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2161429213, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 781863978, count = 
+1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2922162975, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1250743339, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2906332116, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1008289170, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1852974190, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3196226070, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1370764725, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1002483951, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3236410459, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4015739060, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4634147, count = 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3814650365, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1401800369, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 899308242, count = 
+1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1280263700, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1023247200, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2605352481, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3746444452, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3225413559, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2862089652, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3452951965, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4018431615, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2063411851, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2688963990, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2838688332, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3858490826, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2446478640, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 401936337, count = 
+1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4277878143, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 483455724, count = 
+1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3729868257, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3429720036, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3872365394, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1047329203, count 
+= 1
+Nov 25 20:24:31 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3018248091, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2604559609, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4189316815, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3483057772, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1828303846, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3872365374, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 1047329203, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3018248091, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2604559609, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 4189316815, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 3483057772, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 2146695791, count 
+= 1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 461918842, count = 
+1
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1): 
+ext3_free_blocks: Freeing blocks not in datazone - block = 165826560, count = 
+1
+Nov 25 20:24:32 localhost vmunix: ext3_reserve_inode_write: aborting 
+transaction: Journal has aborted in __ext3_journal_get_write_access<2>EXT3-fs 
+error (device md1) in ext3_reserve_inode_write: Journal has aborted
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1) in ext3_truncate: 
+Journal has aborted
+Nov 25 20:24:32 localhost vmunix: ext3_reserve_inode_write: aborting 
+transaction: Journal has aborted in __ext3_journal_get_write_access<2>EXT3-fs 
+error (device md1) in ext3_reserve_inode_write: Journal has aborted
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1) in 
+ext3_orphan_del: Journal has aborted
+Nov 25 20:24:32 localhost vmunix: ext3_reserve_inode_write: aborting 
+transaction: Journal has aborted in __ext3_journal_get_write_access<2>EXT3-fs 
+error (device md1) in ext3_reserve_inode_write: Journal has aborted
+Nov 25 20:24:32 localhost vmunix: EXT3-fs error (device md1) in 
+ext3_delete_inode: Journal has aborted
+Nov 25 20:24:32 localhost vmunix: Assertion failure in 
+__journal_remove_journal_head() at fs/jbd/journal.c:1733: 
+"!jh->b_committed_data"
+
+

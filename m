@@ -1,96 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUH1MMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUH1MSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266473AbUH1MMh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 08:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266490AbUH1MMh
+	id S266490AbUH1MSK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 08:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUH1MSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 08:12:37 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:50633 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266473AbUH1MMd (ORCPT
+	Sat, 28 Aug 2004 08:18:10 -0400
+Received: from alias.nmd.msu.ru ([193.232.127.67]:48904 "EHLO alias.nmd.msu.ru")
+	by vger.kernel.org with ESMTP id S266490AbUH1MSE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 08:12:33 -0400
-Date: Sat, 28 Aug 2004 14:14:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Scott Wood <scott@timesys.com>, manas.saksena@timesys.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P9
-Message-ID: <20040828121413.GB17908@elte.hu>
-References: <20040823221816.GA31671@yoda.timesys> <20040824061459.GA29630@elte.hu> <1093556379.5678.109.camel@krustophenia.net>
+	Sat, 28 Aug 2004 08:18:04 -0400
+Date: Sat, 28 Aug 2004 16:18:01 +0400
+From: Alexander Lyamin <flx@msu.ru>
+To: Christoph Hellwig <hch@lst.de>, flx@msu.ru,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs-list@namesys.com
+Subject: Re:  reiser4 plugins (was: silent semantic changes with reiser4)
+Message-ID: <20040828121801.GG6746@alias>
+Reply-To: flx@msu.ru
+Mail-Followup-To: flx@msu.ru, Christoph Hellwig <hch@lst.de>,
+	Christophe Saout <christophe@saout.de>,
+	Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+References: <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <1093527307.11694.23.camel@leto.cs.pocnet.net> <20040828111807.GC6746@alias> <20040828112255.GA11569@lst.de> <20040828114628.GD6746@alias> <20040828115104.GA11874@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1093556379.5678.109.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040828115104.GA11874@lst.de>
+X-Operating-System: Linux 2.6.5-7.104-smp
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
+Sat, Aug 28, 2004 at 01:51:04PM +0200, Christoph Hellwig wrote:
+> On Sat, Aug 28, 2004 at 03:46:28PM +0400, Alexander Lyamin wrote:
+> > Its work for me couple of months. there were few hiccups, but they got fixed
+> > quickly by zam@namesys.com. only ext2 partition is /boot cause of BIOS
+> > limitations. Yes, i use it with LVM2 and stuff...
 > 
-> Hmm, it seems that those strange ~1ms latencies are back.  This was
-> triggered by mounting an NTFS volume:
+> See the mails from Christophe in this thread.
+
+seen. noted. 
+
+> > > breaks guaranteed fs semantics, it's not going in in either reiser4 or
+> > > the vfs.
+> > A
+> > > 
+> > > Al has started a thread to hash out working semantics, but there's not been
+> > > a single namesys person involved.  Similar all of you have absolutely ignore
+> > Al message had a reply.
+> > "namesys persons" is Hans Reiser.  Sufficient ?
 > 
-> http://krustophenia.net/testresults.php?dataset=2.6.8.1-P9#/var/www/2.6.8.1-P9/trace5.txt
+> http://marc.theaimsgroup.com/?t=109355582600002&r=1&w=2
+> 
+> I can't see Hans anywhere.  And honestly Hans has been so out of touch
+> with VFS internals that some person actually understanding the issue
+> might be helpfull.  That would probably whoever has taken over Nikita's
+> position.
 
-this is genuine NTFS overhead.
+I assume Vladimir Saveliev could play this out...
 
-the 1 msec events you get because the timer fires once every 1 msec, but
-this is not irregular. There is a single NTFS function running, which is
-profiled nicely by the timer IRQ:
 
- 00010001 0.372ms (+0.372ms): do_IRQ (load_and_init_upcase)
- ...
- 00010001 1.374ms (+0.981ms): do_IRQ (load_and_init_upcase)
- ...
- 00010001 2.376ms (+0.978ms): do_IRQ (load_and_init_upcase)
- ...
- 00000001 2.615ms (+0.216ms): vfree (load_and_init_upcase)
-
-to be able to debug such latencies is one reason why i changed the
-do_IRQ() trace-entry to show the interrupted function's name. (it
-wouldnt normally, mcount() doesnt reach across IRQ frames.)
-
-load_and_init_upcase() is called by ntfs_fill_super() which is called by
-the mount code, which runs under lock_kernel(). It seems NTFS does not
-rely on the BKL - could you try the patch below, does it solve the
-latency?
-
-	Ingo
-
---- linux/fs/ntfs/super.c.orig
-+++ linux/fs/ntfs/super.c
-@@ -2288,6 +2288,8 @@ static int ntfs_fill_super(struct super_
- 	vol->fmask = 0177;
- 	vol->dmask = 0077;
- 
-+	unlock_kernel();
-+
- 	/* Important to get the mount options dealt with now. */
- 	if (!parse_options(vol, (char*)opt))
- 		goto err_out_now;
-@@ -2424,6 +2426,7 @@ static int ntfs_fill_super(struct super_
- 		}
- 		up(&ntfs_lock);
- 		sb->s_export_op = &ntfs_export_ops;
-+		lock_kernel();
- 		return 0;
- 	}
- 	ntfs_error(sb, "Failed to allocate root directory.");
-@@ -2527,6 +2530,7 @@ iput_tmp_ino_err_out_now:
- 	}
- 	/* Errors at this stage are irrelevant. */
- err_out_now:
-+	lock_kernel();
- 	sb->s_fs_info = NULL;
- 	kfree(vol);
- 	ntfs_debug("Failed, returning -EINVAL.");
+-- 
+"the liberation loophole will make it clear.."
+lex lyamin

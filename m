@@ -1,118 +1,267 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318210AbSIJW6v>; Tue, 10 Sep 2002 18:58:51 -0400
+	id <S318209AbSIJXEc>; Tue, 10 Sep 2002 19:04:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318209AbSIJW6v>; Tue, 10 Sep 2002 18:58:51 -0400
-Received: from CPE-203-51-30-83.nsw.bigpond.net.au ([203.51.30.83]:12534 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S318215AbSIJW6u>; Tue, 10 Sep 2002 18:58:50 -0400
-Message-ID: <3D7E7A37.ADDD2293@eyal.emu.id.au>
-Date: Wed, 11 Sep 2002 09:03:19 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       "list, linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre6: compile fixes
-References: <Pine.LNX.4.44.0209101501200.16518-100000@freak.distro.conectiva>
-Content-Type: multipart/mixed;
- boundary="------------D5E9F1C63B0BCA296FEA0E61"
+	id <S318211AbSIJXEb>; Tue, 10 Sep 2002 19:04:31 -0400
+Received: from cats-mx1.ucsc.edu ([128.114.129.36]:27532 "EHLO cats.ucsc.edu")
+	by vger.kernel.org with ESMTP id <S318209AbSIJXE3>;
+	Tue, 10 Sep 2002 19:04:29 -0400
+Subject: Re: 3 ultra100 controllers
+From: "T. Ryan Halwachs" <halwachs@cats.ucsc.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       kernel mailing list <linux-kernel@vger.kernel.org>,
+       ataraid mailing list <ataraid-list@redhat.com>,
+       Jeff Nguyen <jeff@aslab.com>
+In-Reply-To: <1031182589.2796.141.camel@irongate.swansea.linux.org.uk>
+References: <Pine.LNX.4.10.10209041245300.3440-100000@master.linux-ide.org>
+	 <1031182589.2796.141.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 10 Sep 2002 16:05:41 -0700
+Message-Id: <1031699162.1213.52.camel@m700-wireless>
+Mime-Version: 1.0
+X-UCSC-CATS-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------D5E9F1C63B0BCA296FEA0E61
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+kernel: 2.4.29-ac4
+mobo: intel WS440BX (gateway OEM)
+bios: 4W4SB0X0.15A.0019.P14
+cpu: celeron 400
+mem: 288MB
+power: powmax LP6100 500W
 
-drivers/net/irda/irtty.c
-========================
-irtty.c: In function `irtty_set_dtr_rts':
-irtty.c:761: `TIOCM_MODEM_BITS' undeclared (first use in this function)
+controllers:
+PDC20267(ultra100 PCI)	 PCI slot 1 
+PDC20267(ultra100 PCI)   PCI slot 2
+CMD649(ultraATA 100 PCI) PCI slot 3
 
-A quick check shows that TIOCM_MODEM_BITS is defined only in
-	./include/asm-parisc/termios.h
-as
-	#define TIOCM_MODEM_BITS	(TIOCM_OUT2 | TIOCM_OUT1)
-Now, TIOCM_OUT1/2 are defined for all archs, with identical values,
-in the low level asm-*/termios.h. One wonders why it is repeated
-in this way.
+drives:
+1 WD1200AB 120G drive on card 1 primary channel
+1 IC35L120AVVA07-0 120G drive on card 1 secondary channel
+2 WD1200AB 120G drives on card 2 (each on a separate channel)
+2 WD1200AB 120G drives on card 3 (each on a separate channel)
 
-I am not sure how people want to fix this - I just added a #define
-to irtty.c as a quick compile fix.
+problem:
+I cannot get these drives to work reliably in a software raid5 array. I
+was able to partition, mkraid, mke2fs, fsck, mount, and unmount.
 
-
-drivers/net/pcmcia/wavelan_cs.c
-===============================
-Still does not compile, same as in -pre5 (include issue).
-
-
-drivers/usb/brlvger.c
-=====================
-Still does not compile, same as in -pre5 (old gcc issue).
+I mounted the array locally on machine#0, then via nfs onto machine#1. I
+started copying files from machine#1's local drive(s) to the array on
+machine#0 via nfs.
 
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
---------------D5E9F1C63B0BCA296FEA0E61
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.20-pre6-irtty.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.20-pre6-irtty.patch"
+I got these errors:
 
---- linux/drivers/net/irda/irtty.c.orig	Wed Sep 11 08:33:21 2002
-+++ linux/drivers/net/irda/irtty.c	Wed Sep 11 08:33:59 2002
-@@ -758,6 +758,7 @@
- 	struct irtty_cb *self;
- 	struct tty_struct *tty;
- 	mm_segment_t fs;
-+#define TIOCM_MODEM_BITS	(TIOCM_OUT2 | TIOCM_OUT1)
- 	int arg = TIOCM_MODEM_BITS;
- 
- 	self = (struct irtty_cb *) dev->priv;
+Sep  9 17:41:45 array kernel: hdi: dma_intr: status=0x51 { DriveReady
+SeekComplete Error }
+Sep  9 17:41:45 array kernel: hdi: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Sep  9 17:42:12 array kernel: hdi: dma_intr: status=0x51 { DriveReady
+SeekComplete Error }
+Sep  9 17:42:12 array kernel: hdi: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Sep  9 17:42:12 array kernel: hdi: dma_intr: status=0x51 { DriveReady
+SeekComplete Error }
+Sep  9 17:42:12 array kernel: hdi: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Sep  9 17:42:16 array kernel: hdi: dma_intr: status=0x51 { DriveReady
+SeekComplete Error }
+Sep  9 17:42:16 array kernel: hdi: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Sep  9 17:42:16 array kernel: hdi: dma_intr: status=0x51 { DriveReady
+SeekComplete Error }
+Sep  9 17:42:16 array kernel: hdi: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Sep  9 17:42:16 array kernel: hdi: dma_intr: status=0x51 { DriveReady
+SeekComplete Error }
+Sep  9 17:42:16 array kernel: hdi: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Sep  9 17:42:16 array kernel: hdi: dma_intr: status=0x51 { DriveReady
+SeekComplete Error }
+Sep  9 17:42:16 array kernel: hdi: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Sep  9 17:42:16 array kernel: PDC202XX: Primary channel reset.
+Sep  9 17:42:16 array kernel: ide4: reset: success
+Sep  9 17:42:36 array kernel: hdk: timeout waiting for DMA
+Sep  9 17:42:36 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 17:42:36 array kernel: hdk: ide_dma_timeout: Lets do it
+again!stat = 0x50, dma_stat = 0x20
+Sep  9 17:42:36 array kernel: hdk: DMA disabled
+Sep  9 17:42:36 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 17:42:36 array kernel: hdk: ide_set_handler: handler not null;
+old=c01c0840, new=c01bdf30
+Sep  9 17:42:36 array kernel: bug: kernel timer added twice at c01c06a8.
+Sep  9 17:42:36 array kernel: hdk: ide_set_handler: handler not null;
+old=c01bdf30, new=c01bdfa0
+Sep  9 17:42:36 array kernel: bug: kernel timer added twice at c01c06a8.
+Sep  9 17:42:36 array kernel: hdi: timeout waiting for DMA
+Sep  9 17:42:36 array kernel: PDC202XX: Primary channel reset.
+Sep  9 17:42:36 array kernel: hdi: ide_dma_timeout: Lets do it
+again!stat = 0x50, dma_stat = 0x20
+Sep  9 17:42:36 array kernel: hdi: DMA disabled
+Sep  9 17:42:36 array kernel: PDC202XX: Primary channel reset.
+Sep  9 17:42:36 array kernel: hdi: ide_set_handler: handler not null;
+old=c01c0840, new=c01bdf30
+Sep  9 17:42:36 array kernel: bug: kernel timer added twice at c01c06a8.
+Sep  9 17:42:36 array kernel: hdi: ide_set_handler: handler not null;
+old=c01bdf30, new=c01bdfa0
+Sep  9 17:42:36 array kernel: bug: kernel timer added twice at c01c06a8.
+Sep  9 17:43:06 array kernel: hdk: dma_intr: status=0x58 { DriveReady
+SeekComplete DataRequest }
+Sep  9 17:43:06 array kernel: 
+Sep  9 17:43:06 array kernel: hdk: status timeout: status=0xd0 { Busy }
+Sep  9 17:43:06 array kernel: 
+Sep  9 17:43:06 array kernel: hdk: DMA disabled
+Sep  9 17:43:06 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 17:43:06 array kernel: hdk: drive not ready for command
+Sep  9 17:43:06 array kernel: ide5: reset: success
+Sep  9 17:43:26 array kernel: hdi: dma_intr: status=0x58 { DriveReady
+SeekComplete DataRequest }
+Sep  9 17:43:26 array kernel: 
+Sep  9 17:43:26 array kernel: hdi: status timeout: status=0xd0 { Busy }
+Sep  9 17:43:26 array kernel: 
+Sep  9 17:43:26 array kernel: hdi: DMA disabled
+Sep  9 17:43:26 array kernel: PDC202XX: Primary channel reset.
+Sep  9 17:43:26 array kernel: hdi: drive not ready for command
+Sep  9 17:43:26 array kernel: ide4: reset: success
+Sep  9 18:07:17 array kernel: hdk: status timeout: status=0xd0 { Busy }
+Sep  9 18:07:17 array kernel: 
+Sep  9 18:07:17 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 18:07:17 array kernel: hdk: no DRQ after issuing WRITE
+Sep  9 18:07:17 array kernel: ide5: reset: success
+Sep  9 19:29:16 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:29:16 array kernel: 
+Sep  9 19:29:16 array kernel: hdi: drive not ready for command
+Sep  9 19:36:37 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:36:37 array kernel: 
+Sep  9 19:36:37 array kernel: hdi: drive not ready for command
+Sep  9 19:39:18 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:39:18 array kernel: 
+Sep  9 19:39:18 array kernel: hdi: drive not ready for command
+Sep  9 19:42:41 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:42:41 array kernel: 
+Sep  9 19:42:41 array kernel: hdi: drive not ready for command
+Sep  9 19:42:46 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:42:46 array kernel: 
+Sep  9 19:42:46 array kernel: hdi: drive not ready for command
+Sep  9 19:43:09 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:43:09 array kernel: 
+Sep  9 19:43:09 array kernel: hdi: drive not ready for command
+Sep  9 19:43:09 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:43:09 array kernel: 
+Sep  9 19:43:09 array kernel: hdi: drive not ready for command
+Sep  9 19:44:37 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:44:37 array kernel: 
+Sep  9 19:44:37 array kernel: hdi: drive not ready for command
+Sep  9 19:45:01 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:45:01 array kernel: 
+Sep  9 19:45:01 array kernel: hdi: drive not ready for command
+Sep  9 19:48:29 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:48:29 array kernel: 
+Sep  9 19:48:29 array kernel: hdi: drive not ready for command
+Sep  9 19:48:34 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:48:34 array kernel: 
+Sep  9 19:48:34 array kernel: hdi: drive not ready for command
+Sep  9 19:48:39 array kernel: hdk: status timeout: status=0xd0 { Busy }
+Sep  9 19:48:39 array kernel: 
+Sep  9 19:48:39 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 19:48:39 array kernel: hdk: no DRQ after issuing WRITE
+Sep  9 19:48:39 array kernel: ide5: reset: success
+Sep  9 19:55:05 array kernel: hdk: status timeout: status=0xd0 { Busy }
+Sep  9 19:55:05 array kernel: 
+Sep  9 19:55:05 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 19:55:05 array kernel: hdk: no DRQ after issuing WRITE
+Sep  9 19:55:05 array kernel: ide5: reset: success
+Sep  9 19:55:47 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 19:55:47 array kernel: 
+Sep  9 19:55:47 array kernel: hdi: drive not ready for command
+Sep  9 20:04:01 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:04:01 array kernel: 
+Sep  9 20:04:01 array kernel: hdi: drive not ready for command
+Sep  9 20:04:08 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:04:08 array kernel: 
+Sep  9 20:04:08 array kernel: hdi: drive not ready for command
+Sep  9 20:04:13 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:04:13 array kernel: 
+Sep  9 20:04:13 array kernel: hdi: drive not ready for command
+Sep  9 20:04:24 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:04:24 array kernel: 
+Sep  9 20:04:24 array kernel: hdi: drive not ready for command
+Sep  9 20:04:42 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:04:42 array kernel: 
+Sep  9 20:04:42 array kernel: hdi: drive not ready for command
+Sep  9 20:04:53 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:04:53 array kernel: 
+Sep  9 20:04:53 array kernel: hdi: drive not ready for command
+Sep  9 20:05:11 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:05:11 array kernel: 
+Sep  9 20:05:11 array kernel: hdi: drive not ready for command
+Sep  9 20:05:39 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:05:39 array kernel: 
+Sep  9 20:05:39 array kernel: hdi: drive not ready for command
+Sep  9 20:05:46 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:05:46 array kernel: 
+Sep  9 20:05:46 array kernel: hdi: drive not ready for command
+Sep  9 20:06:38 array kernel: hdi: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Sep  9 20:06:38 array kernel: 
+Sep  9 20:06:38 array kernel: hdi: drive not ready for command
+Sep  9 20:24:13 array kernel: hdk: status timeout: status=0xd0 { Busy }
+Sep  9 20:24:13 array kernel: 
+Sep  9 20:24:13 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 20:24:13 array kernel: hdk: no DRQ after issuing WRITE
+Sep  9 20:24:14 array kernel: ide5: reset: success
+Sep  9 20:26:28 array kernel: hdk: status timeout: status=0xd0 { Busy }
+Sep  9 20:26:28 array kernel: 
+Sep  9 20:26:28 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 20:26:28 array kernel: hdk: no DRQ after issuing WRITE
+Sep  9 20:26:28 array kernel: ide5: reset: success
+Sep  9 21:02:28 array kernel: hdk: status timeout: status=0xd0 { Busy }
+Sep  9 21:02:28 array kernel: 
+Sep  9 21:02:28 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 21:02:28 array kernel: hdk: no DRQ after issuing WRITE
+Sep  9 21:02:28 array kernel: ide5: reset: success
+Sep  9 21:04:58 array kernel: hdk: status timeout: status=0xd0 { Busy }
+Sep  9 21:04:58 array kernel: 
+Sep  9 21:04:58 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 21:04:58 array kernel: hdk: no DRQ after issuing WRITE
+Sep  9 21:04:58 array kernel: ide5: reset: success
+Sep  9 21:55:05 array kernel: hdk: status timeout: status=0xd0 { Busy }
+Sep  9 21:55:05 array kernel: 
+Sep  9 21:55:05 array kernel: PDC202XX: Secondary channel reset.
+Sep  9 21:55:05 array kernel: hdk: no DRQ after issuing WRITE
+Sep  9 21:55:05 array kernel: ide5: reset: success
 
---------------D5E9F1C63B0BCA296FEA0E61
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.20-pre6-wavelan_cs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.20-pre6-wavelan_cs.patch"
+now machine#0 hangs at various places during boot.
+I had tried other -ac kernels as well as some 2.5.xx. No joy.
+Is there any work done lately that may address this(these) problems?
 
---- linux/drivers/net/pcmcia/wavelan_cs.c.orig	Thu Aug 29 10:10:15 2002
-+++ linux/drivers/net/pcmcia/wavelan_cs.c	Thu Aug 29 10:21:39 2002
-@@ -63,9 +63,9 @@
-  *
-  */
- 
-+#include "wavelan_cs.h"		/* Private header */
- #include <linux/ethtool.h>
- #include <asm/uaccess.h>
--#include "wavelan_cs.h"		/* Private header */
- 
- /************************* MISC SUBROUTINES **************************/
- /*
+thanks a whole lot,
+ryan
 
---------------D5E9F1C63B0BCA296FEA0E61
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.20-pre6-brlvger.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.20-pre6-brlvger.patch"
 
---- linux/drivers/usb/brlvger.c.orig	Thu Aug 29 10:30:50 2002
-+++ linux/drivers/usb/brlvger.c	Thu Aug 29 10:31:02 2002
-@@ -209,7 +209,7 @@
-     ({ printk(KERN_ERR "Voyager: " args); \
-        printk("\n"); })
- #define dbgprint(fmt, args...) \
--    ({ printk(KERN_DEBUG "Voyager: %s: " fmt, __FUNCTION__, ##args); \
-+    ({ printk(KERN_DEBUG "Voyager: %s: " fmt, __FUNCTION__ , ##args); \
-        printk("\n"); })
- #define dbg(args...) \
-     ({ if(debug >= 1) dbgprint(args); })
-
---------------D5E9F1C63B0BCA296FEA0E61--
 

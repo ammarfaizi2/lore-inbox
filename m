@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbTFJNhk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 09:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTFJNhj
+	id S261876AbTFJNm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 09:42:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbTFJNm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 09:37:39 -0400
-Received: from kempelen.iit.bme.hu ([152.66.241.120]:16014 "EHLO
-	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S261798AbTFJNhe
+	Tue, 10 Jun 2003 09:42:26 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:61824 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261876AbTFJNmV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 09:37:34 -0400
-Date: Tue, 10 Jun 2003 15:51:09 +0200 (MET DST)
-From: =?ISO-8859-2?Q?P=E1sztor_Szil=E1rd?= <silicon@inf.bme.hu>
-To: Christoph Hellwig <hch@infradead.org>
-cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: [2.5 patch] let COMX depend on PROC_FS
-In-Reply-To: <20030610142614.A25666@infradead.org>
-Message-ID: <Pine.GSO.4.00.10306101549360.13214-100000@kempelen.iit.bme.hu>
+	Tue, 10 Jun 2003 09:42:21 -0400
+Date: Tue, 10 Jun 2003 09:57:57 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Large files
+Message-ID: <Pine.LNX.4.53.0306100952560.4080@chaos>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig:
-> So what about fixing it instead?  The usage of proc_get_inode is broken
-> and so is the whole profs mess in the comx driver.  If you want to keep
-> the API you need to add a ramfs-style filesystem instead of abusing
-> procfs.
 
-Is the case the same with the SCSI drivers, IDE drivers, network core,
-filesystems and everything that creates directories and file entries in
-procfs?
+With 32 bit return values, ix86 Linux has a file-size limitation
+which is currently about 0x7fffffff. Unfortunately, instead of
+returning from a write() with a -1 and errno being set, so that
+a program can do something about it, write() executes a signal(25)
+which kills the task even if trapped. Is this one of those <expletive
+deleted> POSIX requirements or is somebody going to fix it?
 
-              ---------------------------------------------------
-              |  Widows '95 - The Micro$oft Solution Preventer  |
-              ---------------------------------------------------
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

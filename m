@@ -1,38 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272245AbRH3UEU>; Thu, 30 Aug 2001 16:04:20 -0400
+	id <S268899AbRH3ULL>; Thu, 30 Aug 2001 16:11:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272424AbRH3UEL>; Thu, 30 Aug 2001 16:04:11 -0400
-Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:41484 "EHLO
-	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id <S272245AbRH3UDz>; Thu, 30 Aug 2001 16:03:55 -0400
-From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
-Message-Id: <200108302003.f7UK3V919881@wildsau.idv-edu.uni-linz.ac.at>
-Subject: Re: arp.c duplicate assignment of skb->dev ("cosmetic")
-In-Reply-To: <3B8E8264.8090700@ixiacom.com> from Bryan Rittmeyer at "Aug 30, 1 11:13:56 am"
-To: bryan@ixiacom.com (Bryan Rittmeyer)
-Date: Thu, 30 Aug 2001 22:03:31 +0200 (MET DST)
-Cc: herp@wildsau.idv-edu.uni-linz.ac.at, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S272426AbRH3UKw>; Thu, 30 Aug 2001 16:10:52 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:11413 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S268899AbRH3UKs>;
+	Thu, 30 Aug 2001 16:10:48 -0400
+Date: Thu, 30 Aug 2001 21:10:52 +0100
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lcs ethernet driver source
+Message-ID: <20010830211052.A21173@fenrus.demon.nl>
+In-Reply-To: <OF598D8FCF.4FFE0C4C-ONC1256AB8.004CFE69@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF598D8FCF.4FFE0C4C-ONC1256AB8.004CFE69@de.ibm.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > this is rather cosmetical than functional, but in arp.c,
-> > in arp_send(), on line 489
-> > 
-> > 	skb->dev=dev;
-> > 
-> > is assigned. in line 563, still in the same routine, it is
-> > assigned again without skb or skb->dev being changed. so I guess
-> 
-> Hi Herbert,
-> 
-> I also noticed this dupe a couple days ago and pointed it out to
-> the lkml
+Ulrich Weigand <Ulrich.Weigand@de.ibm.com> wrote:
+> Sorry, at this point we are not allowed to publish the source code of the
+> lcs and qeth drivers (due to the use of confidential hardware interface
+> specifications).  We make those modules available only in binary form
+> on our developerWorks web site.
 
-eeks. I hope it does not look like I have been posting this only because
-I saw your email to lkml. In fact, I've found this a while ago, but was
-just too lazy to email it.
+I actually believed that IBM took Open Source and the community seriously.
+Not releasing key parts of the S/390 architecture port make me very 
+disappointed in IBM given the very massive and public claims of support.
+
+It makes all the fuss IBM is making about how great Linux is look, well, 
+fake. I know that large parts of IBM actually do take Open Source seriously 
+but it's regrettable that an influential part of the S/390 division doesn't.
+
+> Well, you're right that without network connection, there's not much
+> useful you can do.  However [.. snip ..] you can also use a CTC or IUCV
+> network interface. Especially in a virtual machine, you can simply define
+> a virtual CTC or IUCV connection and access your network via those
+> devices.
+
+The drivers you mention suffer a severe performance hit and are also, as I
+understand them, nothing more than a sort of pipe to a proprietary driver on
+the other side of the VM barrier; this is actually worse as the VM for S/390
+is rather expensive. So I have the choice between not being able to
+recompile the kernel while using the binary only module, and paying a lot of
+money for a piece of software that isn't as fast as the direct drivers. 
+
+This makes dwmw2@infradead.org's assertion -- that the S/390 code in the
+current kernel is actually useless -- be a very valid point. Imagine Linux
+for the x86 architecture had PPP as it's only open source network driver.
+Wouldn't that limit its acceptance and utility ? IBM customers for S/390
+might feel the same way; it will help IBM and the customers a lot if such
+essential drivers were Open Source. Creative ideas by users might leverage
+the S/390 platform into areas IBM didn't think of before; having all basic
+parts open sourced is essential for that.
+
+Now it's not all bad. I'm not trying to paint IBM as the corporate bad guy.
+Most of IBM is doing a lot of great work for Linux and I hope that the small
+part of IBM that seems to be blocking these drivers sees the light soon. If
+there is anything I can do to help expedite that, just let me know.
+
+Greetings,
+   Arjan van de Ven
+
+

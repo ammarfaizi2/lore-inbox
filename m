@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319414AbSILCgq>; Wed, 11 Sep 2002 22:36:46 -0400
+	id <S319417AbSILCpp>; Wed, 11 Sep 2002 22:45:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319415AbSILCgq>; Wed, 11 Sep 2002 22:36:46 -0400
-Received: from [64.6.248.2] ([64.6.248.2]:62881 "EHLO greenie.frogspace.net")
-	by vger.kernel.org with ESMTP id <S319414AbSILCgq>;
-	Wed, 11 Sep 2002 22:36:46 -0400
-Date: Wed, 11 Sep 2002 19:41:25 -0700 (PDT)
-From: cogwepeter@greenie.frogspace.net
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-ac4 Out of Memory
-In-Reply-To: <Pine.LNX.4.44.0209042038490.13193-100000@greenie.frogspace.net>
-Message-ID: <Pine.LNX.4.44.0209111934280.11402-100000@greenie.frogspace.net>
+	id <S319418AbSILCpp>; Wed, 11 Sep 2002 22:45:45 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:62952 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319417AbSILCpo>; Wed, 11 Sep 2002 22:45:44 -0400
+Date: Wed, 11 Sep 2002 23:50:19 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Rick Lindsley <ricklind@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] sard changes for 2.5.34
+In-Reply-To: <3D7FFF12.24B0FDAA@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0209112350000.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 11 Sep 2002, Andrew Morton wrote:
 
-Greetings --
+> My vote: remove the disk accounting from kernel_stat and use this.
 
-I was using mplayer on an i686 2.4.19-ac4 just now, and it suddenly froze.  
-That is to say, it wasn't entirely frozen -- if you moved the mouse and
-waited ten seconds, the cursor would move. Accessing it from another
-terminal (one that was already logged in), I could type at the rate of a
-letter a minute. After a few minutes it resolved itself and came back to
-normal.
+Whatever you decide on, I'll fix up procps to support it.
 
-/var/log/messages showed this:
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-kernel: Out of Memory: Killed process 9702 (gmplayer).
+http://www.surriel.com/		http://distro.conectiva.com/
 
-I've not encountered this in 2.4.16.
-
-Cheers,
-Peter
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

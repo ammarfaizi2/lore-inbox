@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbUKPOjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbUKPOhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbUKPOjy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 09:39:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUKPOhf
+	id S261992AbUKPOhR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 09:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbUKPOes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 09:37:35 -0500
-Received: from users.linvision.com ([62.58.92.114]:129 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S261967AbUKPOfs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 09:35:48 -0500
-Date: Tue, 16 Nov 2004 15:35:46 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Fruhwirth Clemens <clemens@endorphin.org>
-Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
+	Tue, 16 Nov 2004 09:34:48 -0500
+Received: from S010600c0f014b14a.ss.shawcable.net ([70.64.60.7]:2317 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP id S261974AbUKPOdk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 09:33:40 -0500
+Date: Tue, 16 Nov 2004 08:40:29 -0600
+From: Charles Cazabon <linux@discworld.dyndns.org>
+To: linux-kernel@vger.kernel.org
 Subject: Re: GPL version, "at your option"?
-Message-ID: <20041116143546.GA4398@harddisk-recovery.com>
+Message-ID: <20041116144029.GA6740@discworld.dyndns.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 References: <1100614115.16127.16.camel@ghanima>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <1100614115.16127.16.camel@ghanima>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 03:08:35PM +0100, Fruhwirth Clemens wrote:
-> I'm about to submit a patch for a new cipher mode called LRW, adding new
-> code/files to the crypto tree. My question is, especially to the
-> maintainers: Are you going to accept code covered by the terms:
+Fruhwirth Clemens <clemens@endorphin.org> wrote:
+> Standard template for GPL licensing:
 > 
->  * This program is free software; you can redistribute it and/or modify
->  * it under the terms of the GNU General Public License as published by
->  * the Free Software Foundation, version 2 of the License.
+> "This program is free software; you can redistribute it and/or modify it
+> under the terms of the GNU General Public License as published by the
+> Free Software Foundation; either version 2 of the License, or (at your
+> option) any later version."
+[snip]
 
-There's already quite some code that's only licensed with GPLv2. Look
-for example at arch/arm/common/dmabounce.c which does the same as you
-want but with slightly different words:
+That's only a recommendation by the FSF; many GPL-covered projects (including
+the kernel and my own) do not use it.
 
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  version 2 as published by the Free Software Foundation.
+The file COPYING in the kernel source says:
 
-If you are the author, you can choose the license you like.
-
-
-Erik (IANAL, etc.)
-
+  Also note that the only valid version of the GPL as far as the kernel
+  is concerned is _this_ particular version of the license (ie v2, not
+  v2.2 or v3.x or whatever), unless explicitly otherwise stated.
+  
+Charles
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
+-----------------------------------------------------------------------

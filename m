@@ -1,58 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261299AbSJUKHt>; Mon, 21 Oct 2002 06:07:49 -0400
+	id <S261301AbSJUKHt>; Mon, 21 Oct 2002 06:07:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261301AbSJUKH0>; Mon, 21 Oct 2002 06:07:26 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:32839 "EHLO
+	id <S261300AbSJUKHW>; Mon, 21 Oct 2002 06:07:22 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:65351 "EHLO
 	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S261299AbSJUKBc>; Mon, 21 Oct 2002 06:01:32 -0400
-Date: Mon, 21 Oct 2002 03:15:57 -0700
+	id <S261301AbSJUKBa>; Mon, 21 Oct 2002 06:01:30 -0400
+Date: Mon, 21 Oct 2002 03:15:55 -0700
 From: "Matt D. Robinson" <yakker@aparity.com>
-Message-Id: <200210211015.g9LAFvl21186@nakedeye.aparity.com>
+Message-Id: <200210211015.g9LAFtT21179@nakedeye.aparity.com>
 To: linux-kernel@vger.kernel.org, yakker@aparity.com
-Subject: [PATCH] 2.5.44: lkcd (5/9): sysrq changes for dump
+Subject: [PATCH] 2.5.44: lkcd (4/9): add in use for page alloc/free
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add sysrq hooks for dump crash dump handling.
+This adds in-use tag for dump ordering capabilities (so that pages
+in use are dumped first).
 
- sysrq.c |   13 ++++++++++++-
- 1 files changed, 12 insertions(+), 1 deletion(-)
+ include/linux/page-flags.h |    5 +++++
+ mm/page_alloc.c            |   22 +++++++++++++++++++---
+ 2 files changed, 24 insertions(+), 3 deletions(-)
 
-diff -Naur linux-2.5.44.orig/drivers/char/sysrq.c linux-2.5.44.lkcd/drivers/char/sysrq.c
---- linux-2.5.44.orig/drivers/char/sysrq.c	Fri Oct 18 21:02:29 2002
-+++ linux-2.5.44.lkcd/drivers/char/sysrq.c	Sat Oct 19 12:39:15 2002
-@@ -32,6 +32,7 @@
- #include <linux/buffer_head.h>		/* for fsync_bdev() */
+diff -Naur linux-2.5.44.orig/include/linux/page-flags.h linux-2.5.44.lkcd/include/linux/page-flags.h
+--- linux-2.5.44.orig/include/linux/page-flags.h	Fri Oct 18 21:02:26 2002
++++ linux-2.5.44.lkcd/include/linux/page-flags.h	Sat Oct 19 12:39:15 2002
+@@ -68,6 +68,7 @@
+ #define PG_chainlock		15	/* lock bit for ->pte_chain */
  
- #include <linux/spinlock.h>
-+#include <linux/dump.h>
+ #define PG_direct		16	/* ->pte_chain points directly at pte */
++#define PG_inuse		17
  
- #include <asm/ptrace.h>
+ /*
+  * Global page accounting.  One instance per CPU.  Only unsigned longs are
+@@ -228,6 +229,10 @@
+ #define ClearPageDirect(page)		clear_bit(PG_direct, &(page)->flags)
+ #define TestClearPageDirect(page)	test_and_clear_bit(PG_direct, &(page)->flags)
  
-@@ -307,6 +308,16 @@
- 	}
- }
- 
-+static void sysrq_handle_crashdump(int key, struct pt_regs *pt_regs,
-+		struct tty_struct *tty) {
-+	dump("sysrq", pt_regs);
-+}
-+static struct sysrq_key_op sysrq_crashdump_op = {
-+	handler:	sysrq_handle_crashdump,
-+	help_msg:	"Crash",
-+	action_msg:	"Start a Crash Dump (If Configured)",
-+};
++#define PageInuse(page)		test_bit(PG_inuse, &(page)->flags)
++#define SetPageInuse(page)	__set_bit(PG_inuse, &(page)->flags)
++#define ClearPageInuse(page)	__clear_bit(PG_inuse, &(page)->flags)
 +
- static void sysrq_handle_term(int key, struct pt_regs *pt_regs,
- 			      struct tty_struct *tty) 
+ /*
+  * The PageSwapCache predicate doesn't use a PG_flag at this time,
+  * but it may again do so one day.
+diff -Naur linux-2.5.44.orig/mm/page_alloc.c linux-2.5.44.lkcd/mm/page_alloc.c
+--- linux-2.5.44.orig/mm/page_alloc.c	Fri Oct 18 21:01:09 2002
++++ linux-2.5.44.lkcd/mm/page_alloc.c	Sat Oct 19 12:39:15 2002
+@@ -88,6 +88,14 @@
+ 	struct free_area *area;
+ 	struct page *base;
+ 	struct zone *zone;
++ 	unsigned int i;
++ 
++ 	i = 1UL << order;
++ 	page += i;
++ 	do {
++ 		page--;
++ 		ClearPageInuse(page);
++ 	} while (--i);
+ 
+ 	mod_page_state(pgfree, 1<<order);
+ 
+@@ -179,8 +187,16 @@
+ /*
+  * This page is about to be returned from the page allocator
+  */
+-static inline void prep_new_page(struct page *page)
++static inline void prep_new_page(struct page *page, unsigned int order)
  {
-@@ -352,7 +363,7 @@
- 		 it is handled specially on the sparc
- 		 and will never arrive */
- /* b */	&sysrq_reboot_op,
--/* c */	NULL,
-+/* c */	&sysrq_crashdump_op,
- /* d */	NULL,
- /* e */	&sysrq_term_op,
- /* f */	NULL,
++	unsigned int i;
++
++	i = 1UL << order;
++	page += i;
++	do {
++		page--;
++		SetPageInuse(page);
++	} while (--i);
+ 	BUG_ON(page->mapping);
+ 	BUG_ON(PagePrivate(page));
+ 	BUG_ON(PageLocked(page));
+@@ -224,7 +240,7 @@
+ 
+ 			if (bad_range(zone, page))
+ 				BUG();
+-			prep_new_page(page);
++			prep_new_page(page, order);
+ 			return page;	
+ 		}
+ 		curr_order++;
+@@ -291,7 +307,7 @@
+ 					list_del(entry);
+ 					page = tmp;
+ 					current->nr_local_pages--;
+-					prep_new_page(page);
++					prep_new_page(page, order);
+ 					break;
+ 				}
+ 			} while ((entry = entry->next) != local_pages);

@@ -1,88 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317471AbSHZTLE>; Mon, 26 Aug 2002 15:11:04 -0400
+	id <S318215AbSHZTAy>; Mon, 26 Aug 2002 15:00:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317603AbSHZTLE>; Mon, 26 Aug 2002 15:11:04 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:58407 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S317471AbSHZTLC>;
-	Mon, 26 Aug 2002 15:11:02 -0400
-From: <Hell.Surfers@cwctv.net>
-To: phillips@arcor.de, frederic.roussel@efi.com, linux-kernel@vger.kernel.org
-Date: Mon, 26 Aug 2002 20:14:34 +0100
-Subject: RE:Re: TUX2 filesystem
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1030389274680"
-Message-ID: <0cba94213191a82DTVMAIL7@smtp.cwctv.net>
+	id <S318221AbSHZTAy>; Mon, 26 Aug 2002 15:00:54 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:5630 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318215AbSHZTAv>; Mon, 26 Aug 2002 15:00:51 -0400
+Subject: Re: [PATCH] tsc-disable_B9
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Pavel Machek <pavel@elf.ucw.cz>, Andrea Arcangeli <andrea@suse.de>,
+       Mikael Pettersson <mikpe@csd.uu.se>, john stultz <johnstul@us.ibm.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
+       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
+In-Reply-To: <159220000.1030387536@flay>
+References: <1028812663.28883.32.camel@irongate.swansea.linux.org.uk>
+	<1028860246.1117.34.camel@cog> <20020815165617.GE14394@dualathlon.random>
+	<1029496559.31487.48.camel@irongate.swansea.linux.org.uk>
+	<15708.64483.439939.850493@kim.it.uu.se>
+	<20020821131223.GB1117@dualathlon.random>
+	<1029939024.26425.49.camel@irongate.swansea.linux.org.uk>
+	<20020821143323.GF1117@dualathlon.random>
+	<1029942115.26411.81.camel@irongate.swansea.linux.org.uk>
+	<20020821161317.GI1117@dualathlon.random> <20020826161031.GA479@elf.ucw.cz>
+	 <159220000.1030387536@flay>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 26 Aug 2002 20:05:13 +0100
+Message-Id: <1030388713.2776.11.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---1030389274680
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-what patent issues.???
-
-
-
-On 	Mon, 26 Aug 2002 20:08:09 +0200 	Daniel Phillips <phillips@arcor.de> wrote:
-
---1030389274680
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Mon, 26 Aug 2002 19:05:50 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318173AbSHZSB3>; Mon, 26 Aug 2002 14:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318175AbSHZSB3>; Mon, 26 Aug 2002 14:01:29 -0400
-Received: from dsl-213-023-020-192.arcor-ip.net ([213.23.20.192]:2490 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318173AbSHZSB3>;
-	Mon, 26 Aug 2002 14:01:29 -0400
-Received: from daniel by starship with local (Exim 3.35 #1 (Debian))
-	id 17jOHa-0002Xd-00; Mon, 26 Aug 2002 20:08:10 +0200
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Frederic Roussel <frederic.roussel@efi.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: TUX2 fiulesystem
-Date: Mon, 26 Aug 2002 20:08:09 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <D9F6B9DABA4CAE4B92850252C52383AB062C7A21@ex-eng-corp>
-In-Reply-To: <D9F6B9DABA4CAE4B92850252C52383AB062C7A21@ex-eng-corp>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17jOHa-0002Xd-00@starship>
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
-
-On Monday 26 August 2002 19:40, Frederic Roussel wrote:
-> Mr Daniel Phillips started the TUX2 filesystem project some time ago.
-> The links to `tux2' are either dead or quite old.
+On Mon, 2002-08-26 at 19:45, Martin J. Bligh wrote:
+> It's not correlating it to real time that's the problem. It's getting resceduled
+> inbetween calls that hurts. Take your example.
 > 
-> Does any kernel developer know about the status of that project ?
+> rdtsc
+> mov %eax,%ebx
+> 			<- get rescheduled here
+> rdtsc
 > 
-> Maybe yourself, Daniel, care to comment ?
+> Broken. May even take negative "time".
 
-It's well down my list of priorities because of uncertainties due to
-the U.S. patent system.
-
-Does anybody want to know if patent chill exists, and is it hurting
-open source?  The answer is yes.
-
--- 
-Daniel
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1030389274680--
+Statistically irrelevant. When you have 100,000 samples all the
+pre-emption ones drop into the dud sample filter with IRQ disturbance
+and so on.
 
 

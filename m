@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266814AbUFRUUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbUFRUYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266814AbUFRUUz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUFRUUH
+	id S262902AbUFRUYy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266605AbUFRUVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:20:07 -0400
-Received: from gate.crashing.org ([63.228.1.57]:41864 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266826AbUFRUSM (ORCPT
+	Fri, 18 Jun 2004 16:21:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54720 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266799AbUFRUUl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:18:12 -0400
-Subject: Re: DMA API issues
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jamey Hicks <jamey.hicks@hp.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, Ian Molton <spyro@f2s.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, tony@atomide.com,
-       David Brownell <david-b@pacbell.net>, joshua@joshuawise.com
-In-Reply-To: <40D340FB.3080309@hp.com>
-References: <1087582845.1752.107.camel@mulgrave>
-	 <20040618193544.48b88771.spyro@f2s.com>
-	 <1087584769.2134.119.camel@mulgrave>  <40D340FB.3080309@hp.com>
-Content-Type: text/plain
-Message-Id: <1087589651.8210.288.camel@gaston>
+	Fri, 18 Jun 2004 16:20:41 -0400
+Date: Fri, 18 Jun 2004 13:19:49 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: zwane@fsmlabs.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH][2.6] fix bridge sysfs improperly initialised knobject
+Message-Id: <20040618131949.1ea95d68.davem@redhat.com>
+In-Reply-To: <20040617144522.04ae5de7@dell_ss3.pdx.osdl.net>
+References: <Pine.LNX.4.58.0406161247140.1944@montezuma.fsmlabs.com>
+	<20040617144522.04ae5de7@dell_ss3.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 15:14:11 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 Jun 2004 14:45:22 -0700
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-> I really think this is a DMA API implementation issue.  The problem 
-> touches more than the USB drivers.  I say implementation because the DMA 
-> API already takes struct device, so the public interface would not have 
-> to change or would not have to change much.  However, we would like to 
-> be able to provide device-specific implementations of the dma 
-> operations.  One way to implement this would be a pointer to 
-> dma_operations from struct device.
+> The whole effort to avoid hotplug was misguided.  If it is really a problem
+> (which it doesn't appear to be) then it can more easily be addressed by smarter
+> hotplug scripts in user space.
+> 
+> This patch gets rid of the whole subsystem hack for bridge kobjects.
 
-I wanted to do just that a while ago, and ended up doing things a bit
-differently, but still, I agree that would help. The thing is, you
-can do that in your platform code. just use the platform data pointer
-in struct device to stuff a ptr to the structure with your "ops"
-
-Ben.
-
-
+Applied.

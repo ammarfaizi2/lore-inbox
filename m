@@ -1,72 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbUCUWTz (ORCPT <rfc822;willy@w.ods.org>);
+	id S261366AbUCUWTz (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 21 Mar 2004 17:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUCUWS1
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUCUWSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 17:18:27 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1959 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261422AbUCUWRy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 17:17:54 -0500
-Message-ID: <405E1483.5060001@pobox.com>
-Date: Sun, 21 Mar 2004 17:17:39 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sun, 21 Mar 2004 17:18:13 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:57232 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261366AbUCUWQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 17:16:42 -0500
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: "Acker, Dave" <dacker@infiniconsys.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+References: <08628CA53C6CBA4ABAFB9E808A5214CB01EE9AD7@mercury.infiniconsys.com>
+	<405C85A0.7010403@redhat.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 21 Mar 2004 14:16:36 -0800
+In-Reply-To: <405C85A0.7010403@redhat.com>
+Message-ID: <52fzc13kxn.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: David Woodhouse <dwmw2@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       William Lee Irwin III <wli@holomorphy.com>, rmk@arm.linux.org.uk,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-References: <20040320133025.GH9009@dualathlon.random>  <20040320144022.GC2045@holomorphy.com>  <20040320150621.GO9009@dualathlon.random>  <20040320121345.2a80e6a0.akpm@osdl.org>  <20040320205053.GJ2045@holomorphy.com>  <20040320222639.K6726@flint.arm.linux.org.uk>  <20040320224500.GP2045@holomorphy.com>  <1079901914.17681.317.camel@imladris.demon.co.uk>  <20040321204931.A11519@infradead.org> <1079902670.17681.324.camel@imladris.demon.co.uk> <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 21 Mar 2004 22:16:36.0787 (UTC) FILETIME=[2D009030:01C40F92]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder if we could jump back a step...
+    Ulrich> The only acceptable order in which things can happen is:
 
-Years ago, I wanted to avoid remap_page_range() when I was writing 
-via82cxxx_audio.c, and so Linus suggested the ->nopage approach (which I 
-liked, and which is still present today in the sound/oss dir).
+    Ulrich> 1. develop API
+    Ulrich> 2. propose API to be accepted by "community"/distributions
+    Ulrich> 3. change API if necessary, and go back to 2.
+    Ulrich> 4. write applications using new API
 
-AFAICS device drivers have three needs that keep getting reinvented over 
-and over again, WRT mmap(2):
-1) letting userspace directly address a region allocated by the kernel 
-DMA APIs
-2) ditto, for MMIO (ioremap)
-3) ditto, for PIO (inl/outl)
+I don't think this is reasonable, since nothing is settled enough for
+this to work.  On the one hand, InfiniBand and other "fibers" (eg RDMA
+over ethernet) are quite experimental.  No one is sure of the right
+semantics or the best way to use the interconnect.  On the other hand,
+there are people who want to use this stuff right now (eg
+high-performance computing people building clusters, database cluster
+people, etc).
 
-Alas, #3 must be faked on x86[-64], but this is done anyway for e.g. 
-mmap'd PCI config access.  Many platforms implement in[bwl] essentially 
-as read[bwl], so for them mmap'd PIO is easy.
+There are users who want to use InfiniBand now, and making them wait
+through your whole process above is simply untenable.  You can't
+expect a company selling InfiniBand equipment to say, "Sorry, our
+software isn't perfect (although it would work for you now).  Come
+back in a year or two."
 
-#1-3 above are really what device drivers want to do.  My 
-suggestion/request to the VM wizards would be to directly provide mmap 
-helpers for dma/mmio/pio, that Does The Right Thing.  And require their 
-use in every driver.  Don't give driver writers the opportunity to think 
-about this stuff and/or screw it up.
+With that in mind, I think the only order things can happen is:
 
-If there are special DMA requirements of a particular bus or platform, 
-hide that in there.  If some methods of DMA or MMIO or PIO do not lend 
-themselves to directly mapping to a struct page, the MM guys may dicker 
-about the interface, but the device driver guys just want #1-3 and don't 
-really care :)  Either it's directly addressible [via some page table 
-magic] from userland, or it isn't.
+    1. develop API
+    2. implement API
+    2a.learn from mistakes and go back to 1.
+    3. write applications using API
+    4. learn from mistakes and go back to 1.
 
-So please forgive the tangent, but this thread is IMO talking more about 
-implementation than the real problem :)  pci_dma_mmap() helper or 
-something like it should be the only thing the driver should care about. 
-  I'm tired of the same platform bugs and issues, in mmap handlers, 
-reappearing over and over again...  Tired of platform-specific ifdefs in 
-mmap-capable drivers, too.
+It's certainly unfortunate that so much InfiniBand software has been
+developed behind closed doors, but the industry has finally woken up
+and come together around the OpenIB idea to develop Linux support
+completely in the open.
 
-	Jeff
+When does this software make it into distributions?  Obviously that's
+up to the distribution.  Certainly a commercial distribution has
+customers of its own to listen to, and I would assume that the
+decision would be made based on the appropriate combination of
+technical merit and customer demand.
 
-
-
+ - Roland

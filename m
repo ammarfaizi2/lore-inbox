@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263426AbRFAJAC>; Fri, 1 Jun 2001 05:00:02 -0400
+	id <S263016AbRFAJFd>; Fri, 1 Jun 2001 05:05:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263427AbRFAI7w>; Fri, 1 Jun 2001 04:59:52 -0400
-Received: from [199.183.24.200] ([199.183.24.200]:10639 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263426AbRFAI7n>; Fri, 1 Jun 2001 04:59:43 -0400
-Date: Fri, 1 Jun 2001 04:58:04 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200106010858.f518w4c18391@devserv.devel.redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for real  this time)
-In-Reply-To: <mailman.991383180.28261.linux-kernel2news@redhat.com>
-In-Reply-To: <3B17025B.E5E23095@sun.com> <mailman.991383180.28261.linux-kernel2news@redhat.com>
+	id <S263429AbRFAJFX>; Fri, 1 Jun 2001 05:05:23 -0400
+Received: from smtp8.xs4all.nl ([194.109.127.134]:16112 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S263016AbRFAJFS>;
+	Fri, 1 Jun 2001 05:05:18 -0400
+From: thunder7@xs4all.nl
+Date: Fri, 1 Jun 2001 10:51:17 +0200
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: interrupt problem with MPS 1.4 / not with MPS 1.1 ?
+Message-ID: <20010601105117.A2114@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+In-Reply-To: <20010531203908.A23936@middle.of.nowhere> <20010531110642.A12797@kroah.com> <20010531214835.A3590@middle.of.nowhere> <20010531115644.B12797@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010531115644.B12797@kroah.com>; from greg@kroah.com on Thu, May 31, 2001 at 11:56:44AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But, each time a user cats this proc file, the user is banging the
-> hardware.  What happens when a malicious user forks off 100 processes to
-> continually cat this file?  :)
+On Thu, May 31, 2001 at 11:56:44AM -0700, Greg KH wrote:
+> Is the BIOS set to "Plug and Play supported OS" somewhere?  If not, try
+> enabling it.
+> 
+It wasn't set, but with it set there is no difference.
 
-Nothing good, probably. Same story as /proc/apm, which only
-hits BIOS instead (and it's debateable what is better).
-
-> Security: don't you want CAP_RAW_IO or something before executing any of
-> these ioctls?
-
-Perhaps it's mode 600 in their distro...
-
-> bug: you can't hold a spinlock while you are sleeping in copy_from_user
-
-Yep... I meant to check for it but forgot.
-
--- Pete
+Greetings,
+Jurriaan
+-- 
+IF MICROSOFT BUILT CARS......
+New seats would force everyone to have the same size butt.
+GNU/Linux 2.4.5-ac5 SMP/ReiserFS 2x1402 bogomips load av: 0.87 0.42 0.16

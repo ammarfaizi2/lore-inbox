@@ -1,52 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbTEILPp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 07:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTEILPp
+	id S262451AbTEILWn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 07:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTEILWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 07:15:45 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:27636 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262444AbTEILPo (ORCPT
+	Fri, 9 May 2003 07:22:43 -0400
+Received: from [218.5.171.206] ([218.5.171.206]:15981 "ehlo senwer.com")
+	by vger.kernel.org with ESMTP id S262451AbTEILWk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 07:15:44 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16059.37067.925423.998433@gargle.gargle.HOWL>
-Date: Fri, 9 May 2003 13:28:11 +0200
-From: mikpe@csd.uu.se
-To: Andi Kleen <ak@muc.de>
-Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: hammer: MAP_32BIT
-In-Reply-To: <20030509092026.GA11012@averell>
-References: <3EBB5A44.7070704@redhat.com>
-	<20030509092026.GA11012@averell>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+	Fri, 9 May 2003 07:22:40 -0400
+From: "Rachel" <jason@senwer.com>
+Subject: manufacturer of garments and bags in China
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed;charset="ISO-8859-1"
+Reply-To: jason@senwer.com
+Date: Fri, 9 May 2003 19:35:13 +0800
+X-Priority: 2
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+Message-Id: <S262451AbTEILWk/20030509112240Z+6567@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > On Fri, May 09, 2003 at 09:35:32AM +0200, Ulrich Drepper wrote:
- > > It would be much better if there would also be a MAP_32PREFER flag with
- > > the appropriate semantics.  The failing mmap() calls seems to be quite
- > > expensive so programs with many threads are really punished a lot.
- > 
- > That's just an inadequate data structure. It does an linear search of the
- > VMAs and you probably have a lot of them. Before you add kludges like this 
- > better fix the data structure for fast free space lookup.
- > 
- > MAP_32BIT currently limits to the first 2GB only. That's needed because
- > most programs use it to allocate modules for the small code model and that
- > only supports 2GB (poster child for that is the X server) But for your 
- > application 4GB would be better. But adding another MAP_32BIT_4GB or so
- > would be quite ugly. I considered making the address where mmap starts searching
- > (TASK_UNMAPPED_BASE) settable using a prctl.
 
-I have a potential use for mmap()ing in the low 4GB on x86_64.
-Sounds like your MAP_32BIT really is MAP_31BIT :-( which is too limiting.
-What about a more generic way of indicating which parts of the address
-space one wants? The simplest that would work for me is a single byte
-'nrbits' specifying the target address space as [0 .. 2^nrbits-1].
-This could be specified on a per-mmap() basis or as a settable process attribute.
+Dear Sir,  
 
-/Mikael
+I have the pleasure to know your esteemed corp. 
+
+We are a manufacturer & exporter of garments and bags in Quanzhou, China.
+
+I think we can cooperate and supply you with garments as you need.  
+
+The following is some introductions about our company.
+
+       Set up: 1988
+
+       Type: manufacturer & exporter
+
+       Product: knitted garments and bags
+
+       Employees: 1300 persons ( garments factory: 500      bags factory: 800)
+
+       Product data:       
+
+                                  product (main items)                      capacity(/year)
+
+                                  brief                                    2,000,000dzs    
+
+                                  baby body                                1,800,000dzs
+
+                                  boxer short                                200,000dzs
+
+                                  pajama                                      50,000dzs
+
+                                  soft bag                                 1,500,000pcs
+
+                                  hard bag                                   500,000pcs
+
+Mimn order:  300dzs for garments
+
+Payment:  irrevocable L/C at sight
+
+Bank: BANK OF CHINA
+
+
+Our garment factory mainly specialize in Lady's and men's underwear,
+
+children's wear, baby's wear, pajama, boxer shorts, T-shirt, etc. 
+
+The materials we often use are cotton, T/C, Polyester, Polyamide, 
+
+Elasthan, and Polyamide. Our products are design with PAD system, 
+
+produced with advanced equipment, processed in highly quality control 
+
+system with seasoned workmanship and high efficiency. Our main market 
+
+is Europe, Australia, Japan and America. We also accept the orders designed 
+
+and required by costumers. You can see some pictures of our samples through 
+
+our web http://www.senwer.com. (For more pictures in your interesting, 
+
+pls kindly contact us directly). 
+ 
+
+Our bag factory was founded in 1988, too. We produce all kinds of bags, 
+
+including rucksacks, travel bags, school bags, PC bags, waist bags, etc. 
+
+And the goods have met a great favor in the Europe countries, Australia 
+
+and America because of their good quality, beautiful design and competitive price.
+
+
+Thank you very much. Hope you will give us an opportunity to do 
+
+business together and we will try our level best to fulfill your present 
+
+requirement. Should you therefore need any more details for your 
+
+clarification, pls do not hesitate to contact us. And you are welcome 
+
+to visit our factories.
+
+
+With best regards
+
+
+Rachel Wang
+
+0086-13960286700
+
+rachel@senwer.com
+
+
+Jason Chen
+
+MOB:0086-13959893400
+
+jasonchen@senwer.com
+
+
+Vicki Wang
+
+0086-13960228599
+
+vicki@senwer.com
+
+
+-----------------------------------------------------------------------------
+
+SENWER GARMENTS CO., LTD.
+
+ADD: Room F202, Fugui Renjia Building, Liuguan Road, Quanzhou, Fujian, China.
+
+Tel: 0086-595-2506700    Fax: 0086-595-2563400    P.C.:362000
+
+Http://www.senwer.com    E-mail: senwer@public.qz.fj.cn
+
+-----------------------------------------------------------------------------
+

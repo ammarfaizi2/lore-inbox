@@ -1,15 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132152AbRDFRr5>; Fri, 6 Apr 2001 13:47:57 -0400
+	id <S132167AbRDFRtJ>; Fri, 6 Apr 2001 13:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132186AbRDFRrr>; Fri, 6 Apr 2001 13:47:47 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:48366 "EHLO
+	id <S132186AbRDFRs6>; Fri, 6 Apr 2001 13:48:58 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:53230 "EHLO
 	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132152AbRDFRrf>; Fri, 6 Apr 2001 13:47:35 -0400
-Date: Fri, 6 Apr 2001 19:13:21 +0200 (MET DST)
+	id <S132167AbRDFRsi>; Fri, 6 Apr 2001 13:48:38 -0400
+Date: Fri, 6 Apr 2001 19:27:24 +0200 (MET DST)
 From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
         James Simmons <jsimmons@linux-fbdev.org>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
@@ -17,31 +18,24 @@ cc: "Eric W. Biederman" <ebiederm@xmission.com>,
 	<linux-fbdev-devel@lists.sourceforge.net>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
-In-Reply-To: <20010406140920.A4866@jurassic.park.msu.ru>
-Message-ID: <Pine.GSO.3.96.1010406190813.15958H-100000@delta.ds2.pg.gda.pl>
+In-Reply-To: <m13dbmw4he.fsf@frodo.biederman.org>
+Message-ID: <Pine.GSO.3.96.1010406191454.15958I-100000@delta.ds2.pg.gda.pl>
 Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Apr 2001, Ivan Kokshaysky wrote:
+On 6 Apr 2001, Eric W. Biederman wrote:
 
-> >  Memory barriers are a separate issue.  On the alpha the
-> > natural way to implement it would be in the page table fill code.
-> > Memory barriers are o.k. but the really don't help the case when what
-> > you want to do is read the latest value out of a pci register.  
-> 
-> You don't need memory barrier for that. "Write memory barriers" are
-> used to ensure correct write order, and "memory barriers" are used
-> to ensure that all pending reads/writes will complete before next read
-> or write.
+> I recall on the ev6 all memory accesses to locations with bit 40 set 
+> are always to IO space are never cached and are never write buffered.
 
- You do.  PCI-space registers are volatile and they may change depending
-on what was written (or read) previously.  A memory barrier before a PCI
-read will ensure you get a value that is relevant to previous code
-actions.  Without a barrier you may get pretty anything, depending on
-which of previous writes managed to complete before. 
+ If that is the case then EV6 is seriously flawed.  You normally have
+non-cached locations buffered (since you don't always need peripheral
+device accesses to be posted immediately) and can force a writeback with a
+memory barrier.  I don't have my 21264 handbook handy, so I can't check
+EV6 details at the moment, especially why it is different.
 
 -- 
 +  Maciej W. Rozycki, Technical University of Gdansk, Poland   +

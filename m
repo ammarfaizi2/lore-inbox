@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267612AbUBRQAW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 11:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267609AbUBRQAW
+	id S267500AbUBRPY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 10:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267510AbUBRPY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 11:00:22 -0500
-Received: from ktown.kde.org ([131.246.103.200]:51160 "EHLO dot.kde.org")
-	by vger.kernel.org with ESMTP id S267612AbUBRQAS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 11:00:18 -0500
-Date: Wed, 18 Feb 2004 16:57:10 +0100 (CET)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.25-pac1
-Message-ID: <Pine.LNX.4.58.0402181655210.19729@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+	Wed, 18 Feb 2004 10:24:26 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:57985 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S267500AbUBRPYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 10:24:25 -0500
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: EISA & sysfs.
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+References: <20040217235431.GF6242@redhat.com>
+	<wrpfzd87mg6.fsf@panther.wild-wind.fr.eu.org>
+	<20040218111612.GM6242@redhat.com>
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: Wed, 18 Feb 2004 16:24:15 +0100
+Message-ID: <wrp1xos5s2o.fsf@panther.wild-wind.fr.eu.org>
+In-Reply-To: <20040218111612.GM6242@redhat.com> (Dave Jones's message of
+ "Wed, 18 Feb 2004 11:16:12 +0000")
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-$SUBJECT is released, and can be found at
-ftp://ftp.kernel.org/pub/linux/kernel/people/bero/2.4/2.4.25/
+>>>>> "Dave" == Dave Jones <davej@redhat.com> writes:
 
-Changes since 2.4.25-rc1-pac1:
-- Port to current code
-- Fix ACPI poweroff on some systems (Willy Tarreau)
+Dave> This problem is not just cosmetic btw, it kills boxes.
+Dave> For example, hp100 is a net driver that supports multiple busses.
+Dave> Trying to modprobe it on a kernel that supports EISA on a box that
+Dave> doesn't gets a hung modprobe. Backtrace shows..
 
-LLaP
-bero
+[...]
 
+It looks like hp100 is at least broken wrt probing, since it lacks a
+EISA-ID table terminator. What about changing it to :
+
+static struct eisa_device_id hp100_eisa_tbl[] = {
+        { "HWPF180" }, /* HP J2577 rev A */
+        { "HWP1920" }, /* HP 27248B */
+        { "HWP1940" }, /* HP J2577 */
+        { "HWP1990" }, /* HP J2577 */
+        { "CPX0301" }, /* ReadyLink ENET100-VG4 */
+        { "CPX0401" }, /* FreedomLine 100/VG */
+        { "" },        /* THIS ENTRY IS MANDATORY !!! */
+};
+
+Dave> I've seen same exactly the same behaviour with quite a few other
+Dave> modules.  For my 'modprobe/rmmod script-o-death', I just ended
+Dave> up disabling EISA in that test tree, as it was too painful to
+Dave> hit this issue over and over, but its a real situation that
+Dave> could bite users of for eg, vendor kernels.
+
+What are the other modules ? I'd like to reproduce the problem (I have
+no PCI hp100 to check if the above fixes the problem).
+
+Regards,
+
+	M.
 -- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
-
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
+Places change, faces change. Life is so very strange.

@@ -1,78 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbTHYKDk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 06:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbTHYKDk
+	id S261504AbTHYKIA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 06:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbTHYKIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 06:03:40 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:41892 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S261586AbTHYKDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 06:03:36 -0400
-To: <akpm@osdl.org>
-Subject: [PATCH 2.6.0-test2] security fixes
-From: <ffrederick@prov-liege.be>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Mon, 25 Aug 2003 12:28:30 CEST
-Reply-To: <ffrederick@prov-liege.be>
-X-Priority: 3 (Normal)
-X-Originating-Ip: [10.10.0.30]
-X-Mailer: NOCC v0.9.5
+	Mon, 25 Aug 2003 06:08:00 -0400
+Received: from hireright-gw.online.ee ([194.106.125.50]:48321 "EHLO
+	mail.hireright.ee") by vger.kernel.org with ESMTP id S261504AbTHYKH6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 06:07:58 -0400
+From: "Anton Keks" <anton@hireright.ee>
+To: <linux-kernel@vger.kernel.org>
+Subject: CardBus card is not recognized (PCI vendor 0xffff, ...)   
+Date: Mon, 25 Aug 2003 13:07:56 +0300
+Message-ID: <003501c36af0$c1a0c4e0$7118b4d5@hireright.ee>
+MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <S261586AbTHYKDg/20030825100336Z+189147@vger.kernel.org>
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-             Here's a patch against 2.6.0-test2 security :
-Summary:
- 	-Adding some doc to enough_memory proc
-	-Reordering checks (overcommit_memory is _rare_ case)
+I'm stuck with my Trendnet TEW-221PCI wireless lan card (Cardbus) not
+working in Linux... (it works in Windoze 2k). 
+Card insertion is detected, but the card itself is not recognized.
 
-	Could you apply ?
+I have searched everywhere and I am not able to find any solutution.
 
-Regards,
-Fabian
+Here is what I get in dmesg:
+cs: cb_alloc(bus 2): vendor 0xffff, device 0xffff
+PCI: device 02:00.0 has unknown header type 7f, ignoring.
+PCI: No IRQ known for interrupt pin ? of device 02:00.0
 
-diff -Naur orig/security/capability.c edited/security/capability.c
---- orig/security/capability.c	2003-07-27 17:00:30.000000000 +0000
-+++ edited/security/capability.c	2003-08-16 10:31:33.000000000 +0000
-@@ -295,12 +295,7 @@
- 
- 	vm_acct_memory(pages);
- 
--        /*
--	 * Sometimes we want to use more memory than we have
--	 */
--	if (sysctl_overcommit_memory == 1)
--		return 0;
--
-+	/* We estimate memory ourselves (major cases)*/
- 	if (sysctl_overcommit_memory == 0) {
- 		free = get_page_cache_size();
- 		free += nr_free_pages();
-@@ -322,10 +317,16 @@
- 
- 		if (free > pages)
- 			return 0;
-+
- 		vm_unacct_memory(pages);
- 		return -ENOMEM;
- 	}
- 
-+	/* Kernel assumes allocation */
-+	if (sysctl_overcommit_memory == 1)
-+		return 0;
-+	
-+	/* sysctl_overcommit_memory must be 2 which means strict_overcommit*/
- 	allowed = totalram_pages * sysctl_overcommit_ratio / 100;
- 	allowed += total_swap_pages;
- 
+lspci says that the card's vendor is unknown.
 
+cardctl status:
+Socket 0:
+3.3V CardBus card
+function 0: [ready]
 
-___________________________________
+cardctl ident:
+Socket 0:
+no product info available
 
+I have several kernels (RH 9.0 one as well as 2.4.21 and 2.4.22-rc1). 
+PCMCIA utilities are pcmcia-cs-3.2.4.
 
+My cardbus controller is detected prefectly (it is made by ENE), machine
+is ECS Green 550.
+
+The card uses ADMtek 8211 chipset (if that matters). 
+Unfortunately I don't have other cards to test, but this one works in
+Windows on the same machine...
+
+I don't know if this a bug or something, but I'm really stuck, so any
+advice is appreciated. 
+Please CC me when replying if possible.
 

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267103AbTBTW66>; Thu, 20 Feb 2003 17:58:58 -0500
+	id <S264817AbTBTWzH>; Thu, 20 Feb 2003 17:55:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267106AbTBTW66>; Thu, 20 Feb 2003 17:58:58 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:47761 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S267103AbTBTW65>;
-	Thu, 20 Feb 2003 17:58:57 -0500
-Date: Thu, 20 Feb 2003 15:09:03 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Zwane Mwaikambo <zwane@holomorphy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous reboots)
-Message-ID: <20030220230903.GA29018@f00f.org>
-References: <Pine.LNX.4.44.0302200717230.2142-100000@home.transmeta.com> <39710000.1045757490@[10.10.2.4]>
+	id <S264811AbTBTWzH>; Thu, 20 Feb 2003 17:55:07 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:36739 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S264817AbTBTWzF>; Thu, 20 Feb 2003 17:55:05 -0500
+Date: Fri, 21 Feb 2003 00:05:07 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.62-ac1
+Message-ID: <20030220230507.GG1426@louise.pinerecords.com>
+References: <200302202233.h1KMX8408821@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <39710000.1045757490@[10.10.2.4]>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+In-Reply-To: <200302202233.h1KMX8408821@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 08:11:31AM -0800, Martin J. Bligh wrote:
+> [alan@redhat.com]
+> 
+> Linux 2.5.62-ac1
+> 
+> This has more IDE and PCI toys. Handle with care. This brings most of the
+> quirk handling from 2.4 into 2.5. The ALi Magick one requires the video4linux
+> stuff is fixed in 2.5 as well. I've not yet merged the 450NX patch to mtrr
+> (450NX mtrr write combining has errata)
 
-> There are patches in -mjb from Dave Hansen / Ben LaHaise to detect
-> stack overflow included with the stuff for the 4K stacks patch
-> (intended for scaling to large numbers of tasks). I've split them
-> out attatched, should apply to mainline reasonably easily.
+Alan, this doesn't boot in my vmware setup while 2.5.62 vanilla does
+(same config where applicable).  Never gets to do anything after
+'Uncompressing Linux... Ok, booting the kernel.'  Any off-hand suspects?
 
-I tried with these patches and also wli's sched deadlock fix to see if
-that helps.
-
-Sadly not,  I can still easily reproduce a reboot.
-
-
-  --cw
+-- 
+Tomas Szepe <szepe@pinerecords.com>

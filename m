@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267001AbTAFQBI>; Mon, 6 Jan 2003 11:01:08 -0500
+	id <S267007AbTAFQD0>; Mon, 6 Jan 2003 11:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267005AbTAFQBI>; Mon, 6 Jan 2003 11:01:08 -0500
-Received: from elin.scali.no ([62.70.89.10]:10506 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S267001AbTAFQBI>;
-	Mon, 6 Jan 2003 11:01:08 -0500
-Date: Mon, 6 Jan 2003 17:12:43 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NAPI and tg3
-In-Reply-To: <1041870960.17472.42.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0301061707200.15870-100000@sp-laptop.isdn.scali.no>
+	id <S267013AbTAFQD0>; Mon, 6 Jan 2003 11:03:26 -0500
+Received: from algx-tower-com-4173.z188-2-66.customer.algx.net ([66.2.188.62]:7582
+	"EHLO neon.limebrokerage.com") by vger.kernel.org with ESMTP
+	id <S267007AbTAFQDZ>; Mon, 6 Jan 2003 11:03:25 -0500
+Date: Mon, 6 Jan 2003 11:11:57 -0500 (EST)
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+X-X-Sender: ion@guppy.limebrokerage.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, Jeff Garzik <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: bogus change in cset 1.902
+Message-ID: <Pine.LNX.4.44.0301061106110.22375-100000@guppy.limebrokerage.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Jan 2003, Alan Cox wrote:
+>From cset-1.902.txt:
 
-> On Mon, 2003-01-06 at 15:00, Steffen Persvold wrote:
-> > I discovered that if I renice the ksoftirqd processes to level 0, the 
-> > performance was actually better with the NAPI enabled driver compared to 
-> > the one without (as was intended my NAPI IIRC). With the default nice 
-> > level (19) on the ksoftirqd processes, the performance on multithreaded 
-> > programs was pretty lousy with the NAPI enabled driver.
-> > 
-> > Any reason why the ksoftirqd shouldn't be nice level 0 by default ? Is 
-> > this already fixed in 2.4.21-pre series ?
-> 
-> Hack the code to only fall back to ksoftirqd when there are say 10 rather
-> than 1 pending event and it should perform even better but still handle
-> overload properly
-> 
+> # The following is the BitKeeper ChangeSet Log
+> # --------------------------------------------
+> # 03/01/05      akpm@digeo.com  1.902
+> # [PATCH] misc fixes
+> # 
+> #  - fix starfire.c printk compile warning (dma_addr_t can be 64 bit) (Martin
+> #    Bligh)
 
-Ok I can try that, but what about the nice level of ksoftirqd ? Any 
-specific reason for it beeing 19 (lowest priority) and not 0 (equally to 
-most other processes in the system) ?
+That may fix the compile warning, but it doesn't make the driver work with 
+a 64-bit dma_addr_t. It just shoves the warning under the carpet.
 
-Regards,
- -- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+I sent Jeff Garzik a newer version of the driver which adds proper support
+for 64-bit dma_addr_t, it's probably sitting in his to-merge queue. This 
+change should be backed out, however.
+
+Thanks,
+Ion
+[starfire driver maintainer]
 

@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270795AbRHNU1O>; Tue, 14 Aug 2001 16:27:14 -0400
+	id <S270812AbRHNU2x>; Tue, 14 Aug 2001 16:28:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270808AbRHNU1E>; Tue, 14 Aug 2001 16:27:04 -0400
-Received: from smtp1.one.net ([216.23.22.220]:59398 "HELO us.net")
-	by vger.kernel.org with SMTP id <S270795AbRHNU0x>;
-	Tue, 14 Aug 2001 16:26:53 -0400
-Message-ID: <054701c124ff$9311eb10$b214860a@amdmb>
-From: "Ryan Shrout" <rshrout@amdmb.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Slow SCSI Disk Access on AMI Elite 1600 controller
-Date: Tue, 14 Aug 2001 16:27:44 -0400
+	id <S270808AbRHNU2q>; Tue, 14 Aug 2001 16:28:46 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:12018 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S270820AbRHNU2S>; Tue, 14 Aug 2001 16:28:18 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108142025.f7EKPXKa027784@webber.adilger.int>
+Subject: Re: [PATCH] LVM snapshot support for reiserfs and others
+In-Reply-To: <992230000.997472946@tiny> "from Chris Mason at Aug 10, 2001 03:49:06
+ pm"
+To: Chris Mason <mason@suse.com>
+Date: Tue, 14 Aug 2001 14:25:33 -0600 (MDT)
+CC: Alexander Viro <viro@math.psu.edu>,
+        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, lvm-devel@sistina.com
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, I am fairly new to all this, so bear with me as I try to explain the
-problem fully.  :)
+Chris writes:
+> +static inline void write_super_lockfs(struct super_block *sb)
+> +{
+> +	lock_super(sb);
+> +	if (sb->s_root) {
+> +		if (sb->s_dirt && sb->s_op && sb->s_op->write_super)
+> +			sb->s_op->write_super(sb);
+> +		if (sb->s_op && sb->s_op->write_super_lockfs)
+> +			sb->s_op->write_super_lockfs(sb);
+> +	}
+> +	unlock_super(sb);
+> +}
 
-First, my problem was centered around Mysql.  I had a problem of processes
-spawning and spawning (sometimes over 100 of them at a time).  A simply
-mysqld restart would solve the matter for most of the day, but the problem
-always persisited.  One the people in the mysql list pointed me to check my
-disk performance.  I came up with this:
+Minor nit, could it be:
+	if (sb->s_root && sb->s_op) {
+		if (sb->s_dirt && sb->s_op->write_super)
+			sb->s_op->write_super(sb);
+		if (sb->s_op->write_super_lockfs)
+			sb->s_op->write_super_lockfs(sb);
+	}
 
+I'm just going to do some testing...
 
-
-Ryan Shrout
-Owner - Amdmb.com
-http://www.amdmb.com/
-rshrout@amdmb.com
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,29 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277363AbRJJSzC>; Wed, 10 Oct 2001 14:55:02 -0400
+	id <S277364AbRJJS5i>; Wed, 10 Oct 2001 14:57:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277364AbRJJSys>; Wed, 10 Oct 2001 14:54:48 -0400
-Received: from mail6.speakeasy.net ([216.254.0.206]:51726 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S277363AbRJJSyh>; Wed, 10 Oct 2001 14:54:37 -0400
-Date: Wed, 10 Oct 2001 11:51:29 -0700 (PDT)
-From: Mike Borrelli <mike@nerv-9.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.10-ac10 ppc fixes
-Message-ID: <Pine.LNX.4.21.0110101146220.10995-100000@asuka.nerv-9.net>
+	id <S277368AbRJJS52>; Wed, 10 Oct 2001 14:57:28 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:10251 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S277364AbRJJS5L>;
+	Wed, 10 Oct 2001 14:57:11 -0400
+Message-ID: <3BC49A1F.27A876B0@nyc.rr.com>
+Date: Wed, 10 Oct 2001 14:57:35 -0400
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: parport_pc no license?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the changes required to get the latest (ATM) version
-of Alan's tree to compile on the powerpc.
+I get a warning message when loading the parport_pc module that refers
+to "no license".  Can anyone explain what this means?
 
-The patch is located at: http://www.nerv-9.net/ as either
-patch-2.4.10-ac10mb.bz2 or patch-2.4.10-ac10mb.gz
-
-Hope this can be of help to someone.
-
-Cheers,
-Mike
-
+Warning: loading /lib/modules/2.4.11/kernel/drivers/parport/parport_pc.o
+will taint the kernel: no license

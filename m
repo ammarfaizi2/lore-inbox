@@ -1,89 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbTIMXLe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 19:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbTIMXLe
+	id S262244AbTIMXK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 19:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbTIMXK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 19:11:34 -0400
-Received: from email-out1.iomega.com ([147.178.1.82]:60124 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S262248AbTIMXLa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 19:11:30 -0400
-Subject: Re: console lost to Ctrl+Alt+F$n in 2.6.0-test5
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: mhf@linuxmail.org
-Cc: mpm@selenic.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200309132347.37831.mhf@linuxmail.org>
-References: <1063378664.5059.19.camel@patehci2>
-	 <1063460312.2905.13.camel@patehci2> <200309132249.40283.mhf@linuxmail.org>
-	 <200309132347.37831.mhf@linuxmail.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1063494749.2855.7.camel@patehci2>
+	Sat, 13 Sep 2003 19:10:27 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:31194
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262244AbTIMXKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 19:10:25 -0400
+Date: Sun, 14 Sep 2003 01:11:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: marcelo.tosatti@cyclades.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.4.23-pre4] page_alloc uninitialised variable bug
+Message-ID: <20030913231102.GH21086@dualathlon.random>
+References: <200309131939.h8DJdJpj001767@harpo.it.uu.se>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 13 Sep 2003 17:12:30 -0600
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Sep 2003 23:11:29.0816 (UTC) FILETIME=[5D506980:01C37A4C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309131939.h8DJdJpj001767@harpo.it.uu.se>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 13, 2003 at 09:39:19PM +0200, Mikael Pettersson wrote:
+> mm/page_alloc in 2.4.23-pre4 triggers this warning:
+> 
+> page_alloc.c: In function `balance_classzone':
+> page_alloc.c:259: warning: `__freed' might be used uninitialized in this function
+> 
+> There is a case where balance_classzone() returns NULL and an
+> uninitialised value in *freed, and the caller, __alloc_pages(),
+> also uses the uninitialised value.
+> 
+> Changing balance_classzone() to not do "*freed = __freed;" in
+> this case is inadequate since __alloc_pages() will still look
+> at the bogus value. Someone needs to initialise the damn thing;
+> the patch below makes balance_classzone() do it.
+> 
+> /Mikael
+> 
+> --- linux-2.4.23-pre4/mm/page_alloc.c.~1~	2003-09-13 19:11:48.000000000 +0200
+> +++ linux-2.4.23-pre4/mm/page_alloc.c	2003-09-13 20:58:56.000000000 +0200
+> @@ -256,7 +256,7 @@
+>  static struct page * balance_classzone(zone_t * classzone, unsigned int gfp_mask, unsigned int order, int * freed)
+>  {
+>  	struct page * page = NULL;
+> -	int __freed;
+> +	int __freed = 0;
+>  
+>  	if (!(gfp_mask & __GFP_WAIT))
+>  		goto out;
 
-> script ... switches every $wait (5) seconds between VT
-> $vt (1) and X @vt$x (7) ...
+this wasn't a bug, there is absolutely no need to initialize that, it's
+just that gcc is not smart enough to understand that automatically and
+it generated a false positive.
 
-Yes, logging in via ssh to run this script does reliably crash my
-2.6.0-test5, I think because of `chvt $x`, while I am not touching the
-console keyboard or mouse.
+the real cleanup is to nuke the !(gfp_mask & __GFP_WAIT) that can't ever
+happen if you follow the code. This is exactly what my tree does. Not
+sure how this part wasn't merged into mainline.
 
-Cycles required varies.  Counting cycles completed before crashing, I
-saw: 1 18 20 20 ... 4 16 ...
+See my tree:
 
-The script as was posted creates a small ./X and produces logs such as:
+static struct page * FASTCALL(balance_classzone(zone_t *, unsigned int,
+unsigned int, int *));
+static struct page * balance_classzone(zone_t * classzone, unsigned int
+gfp_mask, unsigned int order, int * freed)
+{
+	struct page * page = NULL;
+	int __freed;
 
-Cycle 1 switching to VT 1
-Cycle 1 switching to X
-...
-Cycle 20 switching to VT 1
-Cycle 20 switching to X
-Cycle 21 switching to VT 1
+	if (in_interrupt())
+		BUG();
 
-This log could have been produced by crashing in `chvt $vt`, but I think
-I saw it was produced by crashing in the `sleep $wait` that follows
-`chvt $x`.  That is, I think the $vt was the last non-blank display, not
-the $x.
+	if (current->local_page.page)
+		BUG();
+	current->local_page.classzone = classzone;
+	current->flags |= PF_MEMALLOC | (!order ? PF_FREE_PAGES : 0);
 
-To increase my confidence, I ran with every command echoed, and indeed
-via ssh I saw the last command echoed was `sleep 5`.
+	__freed = try_to_free_pages_zone(classzone, gfp_mask);
 
-I ended by running the third variant script quoted below.  Now my logs
-comfortingly end with 'switching to X'.  I presume I'm catching the
-crash in the last sleep $wait.
+no way that __freed is not initialized.
 
-Pat LaVarre
+this is the right cleanup for mainline to avoid the harmless compile
+time warning. Please test it so Marcelo can apply it. Sorry also for the
+delay in the watermark fixes, I finally sorted out a subtle x86-64 bug
+yesterday, so I should be able to port the watermark stuff to mainline
+early next week.
 
-#!/bin/bash
-cycle=1
-log=/tmp/_vt.log
-vt=1
-x=7
-wait=3
-rm -f $log
-echo 'Starting VT <> X test'
-while ((1)); do
-	echo Cycle $cycle switching to VT $vt | tee -a $log
-	sync
-	sleep $wait
-	chvt $vt
-	sleep $wait
-	echo Cycle $cycle switching to X | tee -a $log
-	sync
-	sleep $wait
-	chvt $x
-	sleep $wait
-	((cycle += 1))
-done
-;;
+--- 2.4.23pre4/mm/page_alloc.c.~1~	2003-09-13 00:08:04.000000000 +0200
++++ 2.4.23pre4/mm/page_alloc.c	2003-09-14 01:05:24.000000000 +0200
+@@ -258,8 +258,6 @@ static struct page * balance_classzone(z
+ 	struct page * page = NULL;
+ 	int __freed;
+ 
+-	if (!(gfp_mask & __GFP_WAIT))
+-		goto out;
+ 	if (in_interrupt())
+ 		BUG();
+ 
 
+Thanks,
 
+Andrea
 
+/*
+ * If you refuse to depend on closed software for a critical
+ * part of your business, these links may be useful:
+ *
+ * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
+ * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
+ * http://www.cobite.com/cvsps/
+ *
+ * svn://svn.kernel.org/linux-2.6/trunk
+ * svn://svn.kernel.org/linux-2.4/trunk
+ */

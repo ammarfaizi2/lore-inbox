@@ -1,84 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290428AbSAPL5U>; Wed, 16 Jan 2002 06:57:20 -0500
+	id <S289588AbSAPL7W>; Wed, 16 Jan 2002 06:59:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290425AbSAPL45>; Wed, 16 Jan 2002 06:56:57 -0500
-Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:25259
-	"EHLO server.home.at") by vger.kernel.org with ESMTP
-	id <S290424AbSAPL4t>; Wed, 16 Jan 2002 06:56:49 -0500
+	id <S289349AbSAPL66>; Wed, 16 Jan 2002 06:58:58 -0500
+Received: from ns.suse.de ([213.95.15.193]:32786 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289327AbSAPL6i>;
+	Wed, 16 Jan 2002 06:58:38 -0500
+Date: Wed, 16 Jan 2002 12:58:35 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Christian Thalinger <e9625286@student.tuwien.ac.at>
+Cc: Brian Gerst <bgerst@didntduck.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: floating point exception
-From: Christian Thalinger <e9625286@student.tuwien.ac.at>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.33.0201160743010.6146-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.33.0201160743010.6146-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 16 Jan 2002 12:55:55 +0100
-Message-Id: <1011182157.513.2.camel@sector17.home.at>
-Mime-Version: 1.0
+In-Reply-To: <1011181530.513.0.camel@sector17.home.at>
+Message-ID: <Pine.LNX.4.33.0201161257210.9083-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-01-16 at 06:45, Zwane Mwaikambo wrote:
-> On 15 Jan 2002, Christian Thalinger wrote:
-> 
-> > Yes, it did happen that the segfault reoccured and there is nothing in
-> > the dmesg. This was also my first thought, then checked
-> > /var/log/messages with a tail and it stucked. No ctrl-c.
-> 
-> ctrl-alt-sysrq k? I'd just like to know wether your box hung completely.
-> Could you also run the ver_linux script in linux_scripts so that we can
-> get a better idea of your operating environment.
-> 
-> Cheers,
-> 	Zwane Mwaikambo
-> 
-> 
+On 16 Jan 2002, Christian Thalinger wrote:
 
-What i got at my last exception (started the client in tty1):
+> I mentioned in my first mail the dual tyan, so athlon xp, no fpu
+> emulator ;-) and no oops messages.
 
-Listened to an mp3 with mpg123. After the exception the mp3 got in the
-_he_my_system_is_completely_locked loop. Couldn't kill the process.
-System was respondable, console switching was ok. Changed to console to
-tty2 where X was running - crtl-c - X went down -> console switching
-wasn't possible anymore.
+Dual Athlon XP problem. Thanks for playing.
 
-ctrl-alt-sysrq was responding but only with the line:
-
-SysRq : Enmergency sync
-SysRq : .... (tried also the other ones)
-
-but nothing happend. No syncing, no unmount and showtasks. Right now i
-noticed that showTasks, mem and pc do not give _any_ output, but syncing
-works.
-
-I'll do further testing when i'm back from work.
-
-Gnu C                  3.0.3
-Gnu make               3.79.1
-util-linux             2.11m
-mount                  2.11h
-modutils               2.4.11
-e2fsprogs              1.25
-reiserfsprogs          3.x.0b
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Linux C++ Library      3.0.2
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         NVdriver sym53c8xx scsi_mod pwcx-i386 pwc rio500
-usb-ohci
- usbcore w83781d eeprom i2c-proc i2c-amd756 i2c-isa binfmt_misc
-binfmt_aout ospm
-_processor ospm_system ospm_busmgr sercontrol lirc_i2c lirc_dev tuner
-tvaudio ms
-p3400 bttv videodev i2c-algo-bit i2c-core nfsd lockd sunrpc parport_pc
-lp parpor
-t via-rhine emu10k1 sound ac97_codec soundcore rtc
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269775AbRHIMAq>; Thu, 9 Aug 2001 08:00:46 -0400
+	id <S269777AbRHIMGH>; Thu, 9 Aug 2001 08:06:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269777AbRHIMAg>; Thu, 9 Aug 2001 08:00:36 -0400
-Received: from mons.uio.no ([129.240.130.14]:10190 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S269775AbRHIMAW>;
-	Thu, 9 Aug 2001 08:00:22 -0400
-To: "Alex Kerkhove" <alex.kerkhove@staff.zeelandnet.nl>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: x86 SMP and RPC/NFS problems
-In-Reply-To: <1C48875BDE7ED0469485A5FD49925C4AF01265@zmx.staff.zeelandnet.nl>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 09 Aug 2001 14:00:26 +0200
-In-Reply-To: "Alex Kerkhove"'s message of "Wed, 8 Aug 2001 23:09:21 +0200"
-Message-ID: <shs66bxigth.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S269778AbRHIMF5>; Thu, 9 Aug 2001 08:05:57 -0400
+Received: from razor.hemmet.chalmers.se ([193.11.251.99]:62090 "EHLO
+	razor.hemmet.chalmers.se") by vger.kernel.org with ESMTP
+	id <S269777AbRHIMFn>; Thu, 9 Aug 2001 08:05:43 -0400
+Message-ID: <3B712B23.5090700@kjellander.com>
+Date: Wed, 08 Aug 2001 14:05:55 +0200
+From: Carl-Johan Kjellander <carljohan@kjellander.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 386 boot problems with 2.4.7 and 2.4.7-ac9
+In-Reply-To: <Pine.LNX.4.33.0108091228380.6063-100000@druid.if.uj.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Alex Kerkhove <alex.kerkhove@staff.zeelandnet.nl> writes:
+Maciej Zenczykowski wrote:
+>>The system is a 386DX with an Award 3.15c BIOS. The distribution
+>>is smalllinux i think, but I've modified it a lot.
+>>
+> 
+> 99% sure that your problem is binaries for 486 and up, had this problem
+> installing RedHat 7.1 on a 486 with no CDROM drive - did the installation
+> on a Pentium 3, then it would not boot, compiled a new kernel for 486,
+> installed that on the P 3, now it booted on the 486 but would not run
+> init.  The binaries were for 686 and refused to run...
 
-     > So my (blunt?) conclusion is that there must be some serious
-     > problems with RPC/NFS (I guess RPC) and 2.4 SMP kernels! (and
-     > lots of processes doing NFS stuff)
+As I said in my post, the distribution is not Red Hat, but smalllinux,
+a very tiny floppydistribution that runs on a 386 with as low as 2MB RAM
+(Mine has 4MB).
 
+I only compile new kernels on my Red Hat machine and yes I do compile
+it for the 386:
 
-     > Anyone any thoughts on this?  My kernel hacking knowledge is
-     > limited, but I'm willing to test patches :)
+# Processor type and features
+#
+CONFIG_M386=y
 
-Could you try out the patch
+My 386 boots stock 2.4.3 fine but not 2.4.7.
 
-  http://www.fys.uio.no/~trondmy/src/2.4.3/linux-2.4.3-rpc_smpfixes.dif
+> PS. There should be a choich when installing RedHat in advanced mode what
+> processor you want to install for - often enough the computer you are
+> installing on is not quite the same as the one it will be running on.
+> 
 
-and see if it changes things?
-The latter straightens out a number of iffy locking issues in the
-net/sunrpc/xprt.c
-Most of it will only hit you if you're doing NFS over TCP though...
+You can do always try to install from the harddrive or via NFS, ftp or
+http from your other machines. Red Hat does a lot of smart things during
+the install and you have to make sure that for instance glibc is not
+the i686 rpm.
 
-Cheers,
-  Trond
+/Carl-Johan Kjellander
+
+-- 
+begin 644 carljohan_at_kjellander_dot_com.gif
+Y1TE&.#=A(0`F`(```````/___RP`````(0`F```"@XR/!\N<#U.;+MI`<[U(>\!UGQ9BGT%>'D2I
+Y*=NX,2@OUF2&<827ILW;^822C>\7!!Z1,!K'B5(6H<SH-"E*TJ3%*/>QI6:7"A>Y?):D2^*U@NCV
+R<MOQ=]V(B6>LZYD-_T1U<@3W]A4(^$-W4]A#V")W6#.R"$;IR'@).46BN7$9>5D``#L`
+

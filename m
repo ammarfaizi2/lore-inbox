@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289738AbSA2RzI>; Tue, 29 Jan 2002 12:55:08 -0500
+	id <S289794AbSA2SBS>; Tue, 29 Jan 2002 13:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289793AbSA2Ryw>; Tue, 29 Jan 2002 12:54:52 -0500
-Received: from relay1.pair.com ([209.68.1.20]:17939 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S289738AbSA2Ryd>;
-	Tue, 29 Jan 2002 12:54:33 -0500
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3C56E327.69F8B70F@kegel.com>
-Date: Tue, 29 Jan 2002 10:00:07 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vincent Sweeney <v.sweeney@barrysworld.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: high system usage / poor SMP network performance
+	id <S289793AbSA2SBI>; Tue, 29 Jan 2002 13:01:08 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:64399
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289795AbSA2SBB>; Tue, 29 Jan 2002 13:01:01 -0500
+Date: Tue, 29 Jan 2002 13:00:57 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020129130057.A15914@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-TReply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Vincent Sweeney" <v.sweeney@barrysworld.com> wrote:
-> > > >     CPU0 states: 27.2% user, 62.4% system,  0.0% nice,  9.2% idle
-> > > >     CPU1 states: 28.4% user, 62.3% system,  0.0% nice,  8.1% idle
-> > >
-> > > The important bit here is     ^^^^^^^^ that one. Something is causing
-> > > horrendous lock contention it appears.
-> ...
-> Right then, here is the results from today so far (snapshot taken with 2000
-> users per ircd). Kernel profiling enabled with the eepro100 driver compiled
-> statically.
->    readprofile -r ; sleep 60; readprofile | sort -n | tail -30
-> ...
->    170 sys_poll                                   0.1897
->    269 do_pollfd                                  1.4944
->    462 remove_wait_queue                         12.8333
->    474 add_wait_queue                             9.1154
->    782 fput                                       3.3707
->   1216 default_idle                              23.3846
->   1334 fget                                      16.6750
->   1347 sock_poll                                 33.6750
->   2408 tcp_poll                                   6.9195
->   9366 total                                      0.0094
-> ...
-> So with my little knowledge of what this means I would say this is purely
-> down to poll(), but surely even with 4000 connections to the box that
-> shouldn't stretch a dual P3-800 box as much as it does?
+Ingo Molnar:
+>If a patch gets ignored 33 times in a row then perhaps the person doing
+>the patch should first think really hard about the following 4 issues:
+>
+>  - cleanliness
+>  - concept
+>  - timing
+>  - testing
+>
+>a violation of any of these items can cause patch to be dropped *without
+>notice*. Face it, it's not Linus' task to teach people how to code or how
+>to write correct patches. Sure, he still does teach people most of the
+>time, but you cannot *expect* him to be able to do it 100% of the time.
 
-My oldish results,
-http://www.kegel.com/dkftpbench/Poller_bench.html#results
-show that yes, 4000 connections can really hurt a Linux program
-that uses poll().  It is very tempting to port ircd to use 
-the Poller library (http://www.kegel.com/dkftpbench/dkftpbench-0.38.tar.gz);
-that would let us compare poll(), realtimesignals, and /dev/epoll
-to see how well they do on your workload.
-- Dan
+Since the "33 times in a row" seems to refer to my bad experience with the
+Configure.help patches, I think I need to correct a misconception.
+
+The patches in question were *documentation*.  No concept issue, no
+timing issue, no testing issue (I don't know what a "cleanliness"
+issue would be in this context).  I know that Michael Elizabeth
+Chastain, the listed CML1 maintainer, has had similar frustrating
+exoeriences trying to get documentation patches folded in.
+
+We're not talking about obscure internals changes that could break the
+kernel, we're talking zero-risk patches submitted by official maintainers.  
+This is not a situation that ought to require a lot of judgment or
+attention on Linus's part.  
+
+The fact that Linus *does* have to pass on all such patches, and is
+dropping a lot of them them on the floor, is the clearest possible
+example of the weaknesses in the present system.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

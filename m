@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281063AbRKDR6B>; Sun, 4 Nov 2001 12:58:01 -0500
+	id <S281065AbRKDR7K>; Sun, 4 Nov 2001 12:59:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281064AbRKDR5x>; Sun, 4 Nov 2001 12:57:53 -0500
-Received: from postfix1-2.free.fr ([213.228.0.130]:54913 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S281063AbRKDR5g> convert rfc822-to-8bit; Sun, 4 Nov 2001 12:57:36 -0500
-Date: Sun, 4 Nov 2001 16:12:01 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Subject: Re: SYM-2 patches against latest kernels available
-In-Reply-To: <3BE564A4.D88D1951@mandrakesoft.com>
-Message-ID: <20011104160540.X1663-100000@gerard>
+	id <S281057AbRKDR7C>; Sun, 4 Nov 2001 12:59:02 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1029 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281056AbRKDR6n>; Sun, 4 Nov 2001 12:58:43 -0500
+Date: Sun, 4 Nov 2001 09:55:46 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] ramfs/tmpfs readdir()
+In-Reply-To: <Pine.GSO.4.21.0111041046040.21449-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0111040943160.6919-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Sun, 4 Nov 2001, Jeff Garzik wrote:
-
-> Gérard Roudier wrote:
-> > The patch against linux-2.4.13 has been sent to Alan Cox for inclusion in
-> > newer stable kernels. Alan wants to test it on his machines which is a
-> > good thing. Anyway, those patches just add the new driver version to
-> > kernel tree and leave stock sym53c8xx and ncr53c8xx in place.
+On Sun, 4 Nov 2001, Alexander Viro wrote:
 >
-> Are the older sym/ncr drivers going away in 2.5?
->
->
-> > Any report, especially on large memory machines using 64 bit DMA (2.4
-> > kernels + PCI DAC capable controllers only), is welcome. I can't test 64
-> > bit DMA, since my fatest machine has only 512 MB of memory.
-> >
-> > To configure the driver, you must select "SYM53C8XX version 2 driver" from
-> > kernel config. For large memory machines, a new "DMA addressing mode"
-> > option is to be configured as follows (help texts have been added to
-> > Configure.help):
-> >
-> > Value 0: 32 bit DMA addressing
-> > Value 1: 40 bit DMA addressing (upper 24 bytes set to zero)
-> > Value 2: 64 bit DMA addressing limited to 16 segments of 4 GB (64 GB) max.
->
-> Are you using the new pci64 API under 2.4.x?
+> Please, help with review and testing.  Linus, if you have problems with
+> that approach - please, tell.
 
-Didn't see any. Only the dma_addr_t thing can be 32 bit or 64 bit
-depending on some magic. Apart this, the driver is asking for the
-appropriate dma mask given the configured dma adressing mode.
+The approach looks solid, although the fact that telldir/seekdir will
+still be random is a bummer. And means that it _still_ won't be POSIX-
+compatible..
 
-  Gérard.
+(POSIX specifies that you can seek to any previously reported telldir
+location - but not any random location).
 
-PS: There is some pci64* API on some arch., but nobody will want to
-ever use it, in my opinion.
+This is better than what we have, though, so I wouldn't object to the
+patch. I wonder why you export the internal dcache functions, though? The
+only thing that _should_ need exporting is "dcache_dir_ops", no? We don't
+want other filesystems mucking with the internals of this, as far as I can
+tell.
+
+As to telldir/seekdir - the approach will never fix them. The only thing
+that will fix those would be to add a "d_offset" to the "struct dentry"
+itself, and have the start of "filldir()" walk the chain until it finds
+the first offset larger than the current one.
+
+Then, dcache file creation would be something like
+
+	new_dentry->d_offset = 0;
+	if (!list_entry(parent->d_child))
+		new_dentry->d_offset = list_dentry(parent->d_child.prev)->d_offset + 1;
+
+(or something similar), and we'd have to make sure that "d_add()" always
+adds to the end - which it doesn't seem to do right now. Lots of small
+details, and not as clean as your patch, but I don't see any better ways
+to _really_ fix this.
+
+Note that other filesystems would already enjoy having a d_offset in the
+dentry: it allows for various other optimizations (ie making "unlink()" a
+O(1) operation, by not having to search the directory).
+
+So quite frankly I'd prefer the d_offset approach, and fix the directory
+behaviour once and for all, not just the "linear traversal" case.
+
+Admittedly linear traversal is the _common_ case, and arguably the much
+more important of the two. However, right is right, and a true quality
+implementation gets seekdir/telldir right too.
+
+Have you looked at how nasty the d_offset thing would be?
+
+		Linus
 

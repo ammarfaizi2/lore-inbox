@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbULOE67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbULOFFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbULOE67 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 23:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbULOE67
+	id S261883AbULOFFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 00:05:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbULOFFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 23:58:59 -0500
-Received: from mail.suse.de ([195.135.220.2]:47059 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261881AbULOE64 (ORCPT
+	Wed, 15 Dec 2004 00:05:09 -0500
+Received: from news.suse.de ([195.135.220.2]:39388 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261883AbULOFFF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 23:58:56 -0500
-Date: Wed, 15 Dec 2004 05:58:55 +0100
+	Wed, 15 Dec 2004 00:05:05 -0500
+Date: Wed, 15 Dec 2004 06:04:49 +0100
 From: Andi Kleen <ak@suse.de>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Brent Casavant <bcasavan@sgi.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
-Message-ID: <20041215045855.GH27225@wotan.suse.de>
-References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <50260000.1103061628@flay>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
+       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
+Message-ID: <20041215050449.GI27225@wotan.suse.de>
+References: <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com> <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random> <41BC1BF9.70701@colorfullife.com> <20041212121546.GM16322@dualathlon.random> <1103060437.14699.27.camel@krustophenia.net> <20041214222307.GB22043@elte.hu> <Pine.LNX.4.58.0412141450430.3279@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <50260000.1103061628@flay>
+In-Reply-To: <Pine.LNX.4.58.0412141450430.3279@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > And just to clarify, are you saying you want to see this before inclusion
-> > in mainline kernels, or that it would be nice to have but not necessary?
+> But something like
 > 
-> I'd say it's a nice to have, rather than necessary, as long as it's not
-> forced upon people. Maybe a config option that's on by default on ia64
-> or something. Causing yourself TLB problems is much more acceptable than
-> causing it for others ;-)
+> 	static inline int kernel_mode(struct pt_regs *regs)
+> 	{
+> 		return !((regs->eflags & VM_MASK) | (regs->xcs & 3));
+> 	}
+> 
+> should DTRT.
+> 
+> Can you pls double-check my thinking, and test?
 
-Given that Brent did lots of benchmarks which didn't show any slowdowns
-I don't think this is really needed (at least as long as nobody
-demonstrates a ireal slowdown from the patch). And having such special
-cases is always ugly, better not have them when not needed.
+Reasoning looks correct to me. 
 
 -Andi

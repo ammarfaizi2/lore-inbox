@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131196AbQKADws>; Tue, 31 Oct 2000 22:52:48 -0500
+	id <S131277AbQKADxi>; Tue, 31 Oct 2000 22:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131232AbQKADwj>; Tue, 31 Oct 2000 22:52:39 -0500
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:26103
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S131196AbQKADwa>; Tue, 31 Oct 2000 22:52:30 -0500
-From: Jesse Pollard <pollard@cats-chateau.net>
-Reply-To: pollard@cats-chateau.net
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Date: Tue, 31 Oct 2000 21:42:13 -0600
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200011010133.eA11Xtr11638@sleipnir.valparaiso.cl>
-In-Reply-To: <200011010133.eA11Xtr11638@sleipnir.valparaiso.cl>
-MIME-Version: 1.0
-Message-Id: <00103121504302.20791@tabby>
-Content-Transfer-Encoding: 7BIT
+	id <S131275AbQKADx3>; Tue, 31 Oct 2000 22:53:29 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:61712
+	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S131254AbQKADxU>;
+	Tue, 31 Oct 2000 22:53:20 -0500
+Date: Tue, 31 Oct 2000 19:53:16 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.0-test10
+Message-ID: <20001031195316.A1233@goop.org>
+Mail-Followup-To: Jeremy Fitzhardinge <jeremy@goop.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10010311237430.22165-100000@penguin.transmeta.com> <E13qiR9-0008FT-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E13qiR9-0008FT-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Oct 31, 2000 at 08:55:13PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2000, Horst von Brand wrote:
->Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> said:
->
->[...]
->
->> Also pay attention to the security aspects of a true "zero copy" TCP stack.
->> It means that SOMETIMES a user buffer will recieve data that is destined
->> for a different process.
->
->Why? AFAIKS, given proper handling of the issues involved, this can't
->happen (sure can get tricky, but can be done in principle. Or am I
->off-base?)
 
-As I understand the current implementation, this can't. One of the optimizations
-I had read about (for a linux test) used zero copy to/from user buffer as well
-as zero copy in the kernel. I believe the DMA went directly to the users memory.
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This causes a problem when/if there is a context switch before the data is
-actually transferred to the proper location. The buffer isn't ready for use,
-but could be examined by the user application (hence the security problem).
+On Tue, Oct 31, 2000 at 08:55:13PM +0000, Alan Cox wrote:
+> 	Does autofs4 work yet
 
-It was posed that this is not a problem IF the cluster (and it was a beowulf
-cluster under discussion) is operated in a single user, dedicated mode.
-In which case, to examine the buffer would either be a bug in the program,
-or a debugger looking at a buffer directly.
+Autofs4 was fixed in 2.4.0-test10-pre6 or so.  Autofs4 for 2.2.x has
+been working for some time, though I just updated the 2.2 patch so it
+doesn't stomp on autofs (v3).
 
-To my knowlege, zero copy is only done to/from device and kernel. Userspace
-has to go through a buffer copy (one into user space; one output from user
-space) for all IP handling. All checksums are either done by the device,
-or done without copying the data.
+	J
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@cats-chateau.net
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Any opinions expressed are solely my own.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjn/k6wACgkQf6p1nWJ6IgKYEwCfZRZIbG1XkZHX3VpsWDAL3VXK
+OUcAn2RV6ueg6PsjtkMDlluanExfRLBM
+=v/tU
+-----END PGP SIGNATURE-----
+
+--ibTvN161/egqYuK8--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262815AbVAFNnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbVAFNp4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262815AbVAFNnE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 08:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVAFNnE
+	id S262823AbVAFNp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 08:45:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262825AbVAFNp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 08:43:04 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:61363 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262815AbVAFNnB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 08:43:01 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: [PATCH] support for gzipped (ELF) core dumps
-Date: Thu, 6 Jan 2005 13:43:00 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <crjf94$a03$1@news.cistron.nl>
-References: <1105017578.28175.1.camel@borcx178>
+	Thu, 6 Jan 2005 08:45:56 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:55226 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262823AbVAFNpy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 08:45:54 -0500
+Subject: Re: 2.6.10-ac3 compile failure
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41DB3733.3060002@eyal.emu.id.au>
+References: <41DB3733.3060002@eyal.emu.id.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104940896.17176.188.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1105018980 10243 62.216.29.200 (6 Jan 2005 13:43:00 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 06 Jan 2005 12:41:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1105017578.28175.1.camel@borcx178>,
-Jan Frey  <jan.frey@nokia.com> wrote:
->I've written a patch for 2.4.28 kernel which enables writing of core
->dump files for ELF binaries in .gz format. This is interesting when
->using and debugging large binaries. In my case core files exceeded 1GB
->and got written via NFS...
->Anyhow, below patch is not really "beautiful", especially CRC looks
->quite annoying here.
+On Mer, 2005-01-05 at 00:39, Eyal Lebedinsky wrote:
+>    CC [M]  drivers/char/agp/intel-agp.o
+> drivers/char/agp/intel-agp.c: In function `intel_i915_configure':
+> drivers/char/agp/intel-agp.c:640: error: too many arguments to function `writel'
+> make[3]: *** [drivers/char/agp/intel-agp.o] Error 1
 
->+/* This table is needed for efficient CRC32 calculation */
->+static const unsigned long crc_table[8][256] = {
->+	{
->+		0x00000000UL, 0x77073096UL, 0xee0e612cUL, 0x990951baUL, 0x076dc419UL,
-
-You know, this looks exactly the same as lib/crc32table.h ...
-I'd consider using lib/crc32.c.
-
-Mike.
+Already fixed in -ac4. Its one reason -ac3 wasnt publically announced. I
+figured I'd get enough mail as it was with that error 
 

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263364AbUC3ISN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 03:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUC3ISM
+	id S263442AbUC3ISl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 03:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbUC3ISl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 03:18:12 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:44236 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263364AbUC3ISL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 03:18:11 -0500
-Date: Tue, 30 Mar 2004 10:18:40 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: nickpiggin@yahoo.com.au, jun.nakajima@intel.com, ricklind@us.ibm.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
-       mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Message-ID: <20040330081840.GA22733@elte.hu>
-References: <4068066C.507@yahoo.com.au> <20040329080150.4b8fd8ef.ak@suse.de> <20040329114635.GA30093@elte.hu> <20040329221434.4602e062.ak@suse.de> <4068B692.9020307@yahoo.com.au> <20040330083450.368eafc6.ak@suse.de> <20040330064015.GA19036@elte.hu> <20040330090716.67d2a493.ak@suse.de> <20040330071519.GA20227@elte.hu> <20040330094811.622af0f4.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Mar 2004 03:18:41 -0500
+Received: from [193.141.139.228] ([193.141.139.228]:18059 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S263375AbUC3ISi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 03:18:38 -0500
+From: Erich Focht <efocht@hpce.nec.com>
+To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+Subject: Re: Migrate pages from a ccNUMA node to another
+Date: Tue, 30 Mar 2004 01:16:01 +0200
+User-Agent: KMail/1.5.4
+References: <4063F188.66DB690A@nospam.org>
+In-Reply-To: <4063F188.66DB690A@nospam.org>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040330094811.622af0f4.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200403300116.01877.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Szia Zoltan,
 
-* Andi Kleen <ak@suse.de> wrote:
+I like the aproach very much and was hoping that someone will bring
+on-demand page migration to Linux. 
 
-> > ok, could you try min_interval,max_interval and busy_factor all with a
-> > value as 4, in sched.h's SD_NODE_INIT template? (again, only for testing
-> > purposes.)
-> 
-> I kept the old patch and made these changes. The results are much more
-> consistent now 3+x CPU. I still get varyations of ~2GB/s, but I had
-> this with older kernels too.
+> - Migrate pages identified by their physical addresses to another NUMA node
+You want this only for your "AI" keeping track of the hw counters in
+the chipset? I hope you can teach it to keep track of the bandwidth of
+all processes on the machine, otherwise it might disturb the processes
+more than it helps them... and waste the machine's bandwidth with
+migrating pages.
 
-great.
+> - Migrate pages of a virtual user address range to another NUMA node
+This is good. I'm thinking about the rss/node patches, they would tell
+you when you should think about migrating something for a process. My
+current usage model would be simpler: for a given mm migrate all pages
+currently on node A to node B. But the flexibility of your API will
+certainly not remain unused.
 
-now, could you try the following patch, against vanilla -mm5:
+...
 
-	redhat.com/~mingo/scheduler-patches/sched2.patch
+> BTW Has someone a machine with a chip set other than i82870 ?
+??? As far as I know SGI, HP, NEC and IBM have all their own NUMA
+chipsets for IA64. Was this the question? Are you looking for hardware
+counters?
 
-this includes 'context balancing' and doesnt touch the NUMA async
-balancing tunables. Do you get better performance than with stock -mm5?
+Regards,
+Erich
 
-	Ingo
+

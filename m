@@ -1,46 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbSK2PHI>; Fri, 29 Nov 2002 10:07:08 -0500
+	id <S267081AbSK2P0f>; Fri, 29 Nov 2002 10:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267081AbSK2PHH>; Fri, 29 Nov 2002 10:07:07 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:25990 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267079AbSK2PHH>;
-	Fri, 29 Nov 2002 10:07:07 -0500
-Date: Fri, 29 Nov 2002 15:11:45 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Daniel Nofftz <nofftz@castor.Uni-Trier.DE>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, alan@redhat.com
-Subject: Re: A new Athlon 'bug'.
-Message-ID: <20021129151145.GC20166@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Daniel Nofftz <nofftz@castor.Uni-Trier.DE>,
-	Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com, alan@redhat.com
-References: <20021126194129.GA24152@suse.de> <Pine.LNX.4.44.0211291554330.30552-100000@hades.uni-trier.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211291554330.30552-100000@hades.uni-trier.de>
-User-Agent: Mutt/1.4i
+	id <S267082AbSK2P0f>; Fri, 29 Nov 2002 10:26:35 -0500
+Received: from [213.38.169.194] ([213.38.169.194]:14351 "EHLO
+	proxy.herefordshire.gov.uk") by vger.kernel.org with ESMTP
+	id <S267081AbSK2P0e>; Fri, 29 Nov 2002 10:26:34 -0500
+Message-ID: <0EBC45FCABFC95428EBFC3A51B368C9501B02D@jessica.herefordshire.gov.uk>
+From: "Randal, Phil" <prandal@herefordshire.gov.uk>
+To: "'Javier Marcet'" <jmarcet@pobox.com>, linux-kernel@vger.kernel.org
+Subject: RE: Exaggerated swap usage
+Date: Fri, 29 Nov 2002 15:28:30 -0000
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 29, 2002 at 04:08:32PM +0100, Daniel Nofftz wrote:
+Same thing happens with RedHat 8.0's latest 2.4.18-18 kernel.
+Box has been up for almost 8 days.
 
- > maybe somone remembers that i hacked a little bit with the power saving
- > modes of the athlon processor. so far as i know, the clk_ctl register is
- > importand when the athlon processor comes back from acpi-c2 mode. in c2 he
- > is disconnected from the system bus and the internal clock is clocked
- > down. in some cases a false value in this register could prevent the
- > athlon processor to come back from c2 -> lockup of the machine or
- > something like it ...
+top:
 
-Correct. It contains values that indicate to the CPU how to ramp up
-the CPU clock during low-power modes.
+Mem:  1031036K av, 1021140K used,    9896K free,       0K shrd,   80560K
+buff
+Swap: 1052216K av,    5064K used, 1047152K free                  627808K
+cached
 
-		Dave
+vmstat:
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
+id
+ 0  0  0   5064  10192  80860 626932   0   0     2    21    3    56   0   0
+36
+
+Swapping in these circumstances shows a pathological reluctance to shed
+cached pages.
+
+Not critical, but hardly optimal behaviour.  Or is it?
+
+Phil
+---------------------------------------------
+Phil Randal
+Network Engineer
+Herefordshire Council
+Hereford, UK 
+
+> -----Original Message-----
+> From: Javier Marcet [mailto:jmarcet@pobox.com]
+> Sent: 29 November 2002 11:54
+> To: linux-kernel@vger.kernel.org
+> Subject: Exaggerated swap usage
+> 
+> 
+> 
+> Forgive me if I don't provide enough information just yet, or am not
+> clear enough. I simply don't know what setting to tweak.
+> 
+> I'll explain.
+> In recent 2.4.20 pre and rc kernels ( I tend to use the ac branch ), I
+> had notice my system, when using X mainly, got terribly slow 
+> after some
+> use. It surprised me that when I tried 2.5.47 this did not happen at
+> all, since I thought my problem was a lack of memory - the system has
+> 384MB -.
+> Hence I tried to find where the difference was. What I found is that
+> 2.4.20 kernels - 2.4.19 does the same -, was swapping just too much,
+> while there was a lot free memory on the system, cached but free.
+> I disabled all swap and it suddenly began to work smoothly again, yet
+> with the random kills when memory was a scarce resource on the system.
+> I've tried different sysctl's vm.overcommit settings but the result is
+> the same.
+> 
+> I also found a 2.4.x kernel which did not show this behavior, WOLK, in
+> any version I tried.
+> 
+> Could you please point me toward something I can try tweaking, or some
+> documentation to read which explains what I can change, 
+> unless it's some
+> kind of kernel problem?
+> 
+> BTW, aa kernels behaved somewhat better on this, only that 
+> the last one
+> I tried -rc2aa1- had some stability problems.
+> 
+> I can provide you with dmesg, /proc/meminfo or whatever might 
+> be useful.
+> 
+> Thanks in advance :)
+> 
+> 
+> -- 
+> Javier Marcet <jmarcet@pobox.com>
+> 

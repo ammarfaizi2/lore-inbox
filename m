@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267380AbUHVVtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUHVVuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267380AbUHVVtv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 17:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUHVVth
+	id S266775AbUHVVuW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 17:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266777AbUHVVuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 17:49:37 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:17552 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266775AbUHVVrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 17:47:39 -0400
-Subject: Re: Linux Incompatibility List
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David N. Welton" <davidw@dedasys.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <87vffaq4p1.fsf@dedasys.com>
-References: <87r7q0th2n.fsf@dedasys.com>
-	 <1093173291.24341.40.camel@localhost.localdomain>
-	 <87vffaq4p1.fsf@dedasys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093207525.25067.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 22 Aug 2004 21:45:27 +0100
+	Sun, 22 Aug 2004 17:50:12 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:64471 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S267354AbUHVVtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 17:49:18 -0400
+Date: Sun, 22 Aug 2004 17:53:29 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Keith Owens <kaos@sgi.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH][1/4] Completely out of line spinlocks / i386
+In-Reply-To: <Pine.LNX.4.58.0408221318060.17766@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0408221740090.27390@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0408211320520.27390@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0408221318060.17766@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-08-22 at 21:48, David N. Welton wrote:
-> A "compatibility list" is going to be pretty big, and hard to keep up
-> to date.  My thinking is that keeping track of a few notable things
-> that don't work is easier than running after all the stuff that does.
+On Sun, 22 Aug 2004, Linus Torvalds wrote:
 
-Its already been kicked around on the Fedora list to actually build such
-a database automatically. I've seen similar Debian proposals a long time
-ago. That means some time post install you'd let the user
-fire up a system report tool which would ask things like
+> On Sat, 21 Aug 2004, Zwane Mwaikambo wrote:
+> >
+> > Pulled from the -tiny tree, the focus of this patch is for reduced kernel
+> > image size but in the process we benefit from improved cache performance
+> > since it's possible for the common text to be present in cache. This is
+> > probably more of a win on shared cache multiprocessor systems like
+> > P4/Xeon HT. It's been benchmarked with bonnie++ on 2x and 4x PIII (my
+> > ideal target would be a 4x+ logical cpu Xeon).
+>
+> I _really_ think that if we're going to make spinlocks be out-of-line,
+> then we need to out-of-line the preemption code too.
 
-	"Does sound work"
+Good point, Bill saw a lot of extra saving by moving the preemption code
+out of line too.
 
-and then fire off PCI id/rating info to a central site. That would help
-deal with the data collection much as the Debian folks collect package
-popularity statistics.
+> And at that point I'm more than happy to just make it unconditional,
+> assuming the profiling thing (which was my only worry) has been verified.
 
-> I suppose some sort of vote system could be put in place so that the 1
-> guy who didn't get the hardware to work gets outvoted by the 10 who
-> did, but there is more incentive to hit the button when you are
-> irritated than when everything 'just worked'.
+With the readprofile and oprofile changes it's still not that easy to
+determine which locks are being contended as the samples generally are
+being charged to the function the lock is being contended in. So some
+investigation has to be done when looking at profiles. This could be
+remedied by making the valid PC range include data or, preferably, moving
+spinlock variables into a special section. That way we can simply
+report back the lock word during sampling.
 
-If you get enough data then the deviation tells you how varied and how
-reliable the opinions are likely to be, all this implies databases not
-WIki however
+> And I suspect that the all-C version is pretty much equivalent to the
+> assembler one, if you use FASTCALL() to make gcc at least use register
+> argument passing conventions. The advantage is much clearer code, I'd say.
 
+Yes i agree there and it would probably allow for better optimisation by
+gcc during call setup.
 
-Alan
-
+Thanks,
+	Zwane

@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273204AbRJ0QSK>; Sat, 27 Oct 2001 12:18:10 -0400
+	id <S274368AbRJ0QWk>; Sat, 27 Oct 2001 12:22:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273305AbRJ0QR7>; Sat, 27 Oct 2001 12:17:59 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:14776 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S273204AbRJ0QRx>; Sat, 27 Oct 2001 12:17:53 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Linux 2.2.20pre10
-Date: Sat, 27 Oct 2001 16:18:29 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9remol$194$1@forge.intermeta.de>
-In-Reply-To: <20011022122722.A369@top.worldcontrol.com> <Pine.LNX.3.95.1011022155135.4507A-100000@chaos.analogic.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1004199509 4897 212.34.181.4 (27 Oct 2001 16:18:29 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 27 Oct 2001 16:18:29 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S273831AbRJ0QWb>; Sat, 27 Oct 2001 12:22:31 -0400
+Received: from zero.tech9.net ([209.61.188.187]:2827 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S273305AbRJ0QWT>;
+	Sat, 27 Oct 2001 12:22:19 -0400
+Subject: Re: [PATCH] 2.4.13-ac2: Appletalk Config Screwed
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15xVd9-0003bg-00@the-village.bc.nu>
+In-Reply-To: <E15xVd9-0003bg-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.25.15.53 (Preview Release)
+Date: 27 Oct 2001 12:22:52 -0400
+Message-Id: <1004199773.3272.34.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+On Sat, 2001-10-27 at 11:44, Alan Cox wrote:
+> I can't duplicate the problem described
 
->I believe that we should have sent a tactical nuclear cruise
->missile to Ben Laden's last known address. We can always apologize
->later. This would put future terrorists on notice that if you
+Perhaps you need to have no reference to CONFIG_ATALK in your config? 
+At the very least, you should be able to go into Network Devices ->
+Appletalk and see that if CONFIG_ATALK=n then the suboptions for the
+devices are settable, and of course they should not be.  I don't know
+why you don't see the errors on exit from make xconfig or the repeated
+questions from oldconfig...
 
->From this day on I promise to always firmly side with Al Viro. You're
-a jerk. You just proved it one time too much.
+I also found another problem: there are two statements for CONFIG_ATALK,
+the second one should be removed as the resulting options are in an if
+block anyhow.  This results in double CONFIG_ATALK entries in your
+config now that the gross if's were reorganized.  Updated patch
+attached.
 
-I'm glad that I have the privilege of living in Europe and that people
-like you don't have power in the U.S.
+diff -u linux-2.4.13-ac2/drivers/net/appletalk/Config.in linux/drivers/net/appletalk/Config.in
+--- linux-2.4.13-ac2/drivers/net/appletalk/Config.in	Fri Oct 26 15:47:50 2001
++++ linux/drivers/net/appletalk/Config.in	Sat Oct 27 12:09:57 2001
+@@ -1,11 +1,8 @@
+ #
+ # Appletalk driver configuration
+ #
+-
+-if [ "$CONFIG_ATALK" != "n" ]; then
+-   mainmenu_option next_comment
++mainmenu_option next_comment
+    comment 'Appletalk devices'
+-   bool 'Appletalk interfaces support' CONFIG_ATALK
+    if [ "$CONFIG_ATALK" != "n" ]; then
+       dep_tristate '  Apple/Farallon LocalTalk PC support' CONFIG_LTPC $CONFIG_ATALK
+       dep_tristate '  COPS LocalTalk PC support' CONFIG_COPS $CONFIG_ATALK
+@@ -19,5 +16,4 @@
+ 	 bool '    Appletalk-IP to IP Decapsulation support' CONFIG_IPDDP_DECAP
+       fi
+    fi
+-   endmenu
+-fi
++endmenu
 
-And your company builds bomb scanners? Do they know about your ideas?
-Scary if you ask me.
+	Robert Love
 
-	Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

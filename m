@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130109AbQKVAiq>; Tue, 21 Nov 2000 19:38:46 -0500
+	id <S130417AbQKVAkF>; Tue, 21 Nov 2000 19:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130417AbQKVAif>; Tue, 21 Nov 2000 19:38:35 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38923 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130109AbQKVAiY>; Tue, 21 Nov 2000 19:38:24 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux 2.4.0test11-ac1
-Date: 21 Nov 2000 16:07:52 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vf2oo$338$1@cesium.transmeta.com>
-In-Reply-To: <Pine.GSO.3.96.1001121195742.28403E-100000@delta.ds2.pg.gda.pl> <E13yMsl-0005Lb-00@the-village.bc.nu>
+	id <S131942AbQKVAjz>; Tue, 21 Nov 2000 19:39:55 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:12051 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130417AbQKVAjm>;
+	Tue, 21 Nov 2000 19:39:42 -0500
+Message-ID: <3A1B0EA7.FC8BF073@mandrakesoft.com>
+Date: Tue, 21 Nov 2000 19:09:11 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+To: jamagallon@able.es
+CC: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
+In-Reply-To: <Pine.LNX.4.21.0011211438490.756-100000@tricky> <20001121235529.E925@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E13yMsl-0005Lb-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
+"J . A . Magallon" wrote:
+> On Tue, 21 Nov 2000 22:25:01 Bartlomiej Zolnierkiewicz wrote:
+> > -static int dataPort = 0;     /* port for register data */
+> > +static int dataPort; /* port for register data */
 > 
-> > > making any assumptions about APIC availability on a processor.
-> > 
-> >  OK, but how does it handle the 82489DX?  There are valid configurations
-> > using this kind of APIC, including Pentium P54C ones...
-> 
-> These processors don't report the APIC on the cpuid ? If so then I guess
-> the fix is something like this
-> 
-> 	if( cpuid says there is no local apic && vendor != intel)
-> 
-> Intel stuff appears to always be happy poking in APIC space. I don't know
-> if this is related to the chip internals on the non APIC capable chips.
-> 
+> That is not too much confidence on the ANSI-ness of the compiler ???
 
-Nononono... the 82489DX is an *external* APIC, which should be usable
-on any Socket 5/7 CPU...
+There is nothing wrong with that change.  Standard kernel style cleanup,
+which saves a few bytes in the output kernel image.
 
-	-hpa
+	Jeff
+
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVBGQkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVBGQnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVBGQkL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 11:40:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVBGQkL
+	id S261184AbVBGQnv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 11:43:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVBGQnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 11:40:11 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:34454 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261188AbVBGQkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 11:40:00 -0500
-Subject: Re: [RFC] Reliable video POSTing on resume
-From: Li-Ta Lo <ollie@lanl.gov>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Adam Sulmicki <adam@cfar.umd.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Machek <pavel@ucw.cz>, Jon Smirl <jonsmirl@gmail.com>,
-       ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <42077AC4.5030103@grupopie.com>
-References: <e796392205020221387d4d8562@mail.gmail.com>
-	 <420217DB.709@gmx.net> <4202A972.1070003@gmx.net>
-	 <20050203225410.GB1110@elf.ucw.cz>
-	 <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net>
-	 <1107485504.5727.35.camel@desktop.cunninghams>
-	 <9e4733910502032318460f2c0c@mail.gmail.com>
-	 <20050204074454.GB1086@elf.ucw.cz>
-	 <9e473391050204093837bc50d3@mail.gmail.com>
-	 <20050205093550.GC1158@elf.ucw.cz>
-	 <1107695583.14847.167.camel@localhost.localdomain>
-	 <Pine.BSF.4.62.0502062107000.26868@www.missl.cs.umd.edu>
-	 <42077AC4.5030103@grupopie.com>
-Content-Type: text/plain
-Organization: Los Alamos National Lab
-Message-Id: <1107794388.2930.38.camel@logarithm.lanl.gov>
+	Mon, 7 Feb 2005 11:43:51 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:40252 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261184AbVBGQns (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 11:43:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=SO1SrG3ZoGTQCNyiVJ1JCQR+AWftjLi4MSSN+ifzPUt6VwLhovuQbWbLjFrQMH7YTz+QU6HBggw6ur3TPMCyKmkGw/U9O16sXucpKTaEqL7pHZT7qrmsnKm/7B9rF86ae+fgqxgPrsoX1PtmiZMpOIIH9Xp3htxLwWSreJhdxMQ=
+Date: Mon, 7 Feb 2005 17:46:08 +0100
+From: Mikkel Krautz <krautz@gmail.com>
+To: rddunlap@osdl.org
+Cc: vojtech@ucw.cz, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
+Message-ID: <20050207164608.GA5663@omnipotens.localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 07 Feb 2005 09:39:48 -0700
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-07 at 07:27, Paulo Marques wrote:
-> I still don't have hard numbers from the work Li-Ta Lo is doing (I'm 
-> CC'ing him on this thread to see if he can shed some light here), but I 
-> guess that you could have the complete emulator for about 50kB of code.
+Randy.Dunlap wrote:
+> Why is it writable by root?  IOW, will writing a new value to it
+> change the operational value dynamically?
 
-The difference between the "uncompressed" romimage is 41376 bytes for
-Tyan S2885 mainboard. The difference of compressed romimage is 16943 
-bytes.
+Yes, sort of. It requires a re-plug of the mouse, though. :)
 
-Ollie
+> Also, from the kernel-parameters.txt patch:
+> (a) "which"
+> (b) drop one of the "at"s... either one.
+
+Oops, thanks!
+
+Here's an updated version of the kernel-parameters patch:
+
+Signed-off-by: Mikkel Krautz <krautz@gmail.com>
+---
+--- clean/Documentation/kernel-parameters.txt
++++ dirty/Documentation/kernel-parameters.txt
+@@ -73,6 +73,7 @@
+ 	SWSUSP	Software suspension is enabled.
+ 	TS	Appropriate touchscreen support is enabled.
+ 	USB	USB support is enabled.
++	USBHID	USB Human Interface Device support is enabled.
+ 	V4L	Video For Linux support is enabled.
+ 	VGA	The VGA console has been enabled.
+ 	VT	Virtual terminal support is enabled.
+@@ -1393,6 +1394,9 @@
+ 			Format: <io>,<irq>
+ 
+ 	usb-handoff	[HW] Enable early USB BIOS -> OS handoff
++
++	usbhid.mousepoll=
++			[USBHID] The interval which mice are to be polled at.
+  
+ 	video=		[FB] Frame buffer configuration
+ 			See Documentation/fb/modedb.txt.
 
 

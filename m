@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132444AbQLVXcH>; Fri, 22 Dec 2000 18:32:07 -0500
+	id <S132535AbQLVXjb>; Fri, 22 Dec 2000 18:39:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132486AbQLVXb5>; Fri, 22 Dec 2000 18:31:57 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:57350 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132444AbQLVXbs>; Fri, 22 Dec 2000 18:31:48 -0500
-Date: Fri, 22 Dec 2000 16:56:37 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
-Message-ID: <20001222165637.B2437@vger.timpanogas.org>
-In-Reply-To: <20001221154446.A10579@vger.timpanogas.org> <20001221155339.A10676@vger.timpanogas.org> <20001222093928.A30636@polyware.nl> <20001222111105.B14232@vger.timpanogas.org> <20001222113530.A14479@vger.timpanogas.org> <20001222202137.A27844@gruyere.muc.suse.de> <20001222132541.A1555@vger.timpanogas.org> <20001222205103.A9441@polyware.nl> <20001222145450.B2025@vger.timpanogas.org> <20001222223943.E25239@arthur.ubicom.tudelft.nl>
-Mime-Version: 1.0
+	id <S132500AbQLVXjV>; Fri, 22 Dec 2000 18:39:21 -0500
+Received: from DKBH-T-004-p-250-183.tmns.net.au ([203.54.250.183]:2570 "EHLO
+	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S132486AbQLVXjL>;
+	Fri, 22 Dec 2000 18:39:11 -0500
+Message-ID: <3A43DED8.5365FD49@eyal.emu.id.au>
+Date: Sat, 23 Dec 2000 10:08:08 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: test13-pre4
+In-Reply-To: <Pine.LNX.4.10.10012211726060.968-100000@penguin.transmeta.com> <3A43506B.6CEF84BB@eyal.emu.id.au> <20001222153145.A15733@athlon.random> <20001222160150.A28385@athlon.random>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001222223943.E25239@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Fri, Dec 22, 2000 at 10:39:43PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 10:39:43PM +0100, Erik Mouw wrote:
-> On Fri, Dec 22, 2000 at 02:54:50PM -0700, Jeff V. Merkey wrote:
-> > Having a 1 Gigabyte per second fat pipe that runs over a prallel bus 
-> > fabric with a standard PCI card that costs @ $ 500 and can run LVS 
-> > and TUX at high speeds would be for the common good, particularly since
-> > NT and W2K both have implementations of Dolphin SCI that allow them 
-> > to exploit this hardware.  
+Andrea Arcangeli wrote:
+> Ok, found it, you can workaround it with:
 > 
-> I'm just wondering how you are going to do 1 Gbyte per second when you
-> still have to get the data through a PCI bus to that card. In theory,
-> standard PCI can do 133 Mbyte/s, but only when you're very lucky to be
-> able to burst large chunks of data. OK, 64 bit PCI at 66 MHz should
-> quadruple the throughput, but that's still not enough for 1 Gbyte/s.
+> CONFIG_LVM_PROC_FS=y
 
-THe fabric supports this data rate.  PCI cards are limited to @ 130MB, 
-but multiple nodes all running at the same time could generate this much
-traffic.
+Yes, this fixed it. I do build with proc, and have no idea why
+this was off in my config. Anyway, why is there this private proc
+option in .config at all? most modules use the global setting for
+proc (CONFIG_PROC_FS), only very few have such private options.
 
-Jeff
-
-> 
-> 
-> Erik
-> 
-> -- 
-> J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-> of Electrical Engineering, Faculty of Information Technology and Systems,
-> Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-> Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-> WWW: http://www-ict.its.tudelft.nl/~erik/
+--
+Eyal Lebedinsky		(eyal@eyal.emu.id.au)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

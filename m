@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279837AbRJ3DNh>; Mon, 29 Oct 2001 22:13:37 -0500
+	id <S279833AbRJ3DbI>; Mon, 29 Oct 2001 22:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279835AbRJ3DN1>; Mon, 29 Oct 2001 22:13:27 -0500
-Received: from zero.tech9.net ([209.61.188.187]:268 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S279834AbRJ3DNQ>;
-	Mon, 29 Oct 2001 22:13:16 -0500
-Subject: Re: [PATCH] tty race on con_close and con_flush_chars
-From: Robert Love <rml@tech9.net>
-To: Robert Love <rml@tech9.net>
-Cc: linus@transmeta.com, laughing@shared-source.org,
-        linux-kernel@vger.kernel.org, tytso@thunk.org, andrewm@uow.edu.au
-In-Reply-To: <1004403868.809.147.camel@phantasy>
-In-Reply-To: <1004403868.809.147.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.28.13.59 (Preview Release)
-Date: 29 Oct 2001 22:13:55 -0500
-Message-Id: <1004411636.807.262.camel@phantasy>
+	id <S279834AbRJ3Da6>; Mon, 29 Oct 2001 22:30:58 -0500
+Received: from intranet.resilience.com ([209.245.157.33]:36251 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S279833AbRJ3Dao>; Mon, 29 Oct 2001 22:30:44 -0500
 Mime-Version: 1.0
+Message-Id: <p05100309b803cdfa4552@[10.128.7.49]>
+In-Reply-To: <9rl60r$g50$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0110291831160.9540-100000@anime.net>
+ <p05100304b803c6908755@[10.128.7.49]> <9rl60r$g50$1@cesium.transmeta.com>
+Date: Mon, 29 Oct 2001 19:30:52 -0800
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: Ethernet NIC dual homing
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Someone pointed out (via private email) that a race can still exist
-between checking that vt is non-zero and acquiring the semaphore,
-especially since we can sleep doing that.
+At 7:15 PM -0800 10/29/01, H. Peter Anvin wrote:
+>  > ARP isn't going to do much for you once the failure is beyond the
+>>  local segment, is it?
+>>
+>
+>ARP is broadcast to the layer 2 local segment; link detection refers
+>to the layer 1 local segment, which is not necessarily the same.
+>
+>On the other hand, doing link detection is extremely useful for a
+>portable computer: when I plug in my Ethernet cable in a portable
+>system I want it to try to start doing DHCP detection and anything
+>else that is normally associated with the interface being "up" at that
+>time.
 
-I agree; the following patch should alleviate that race.
+I'm not planning to use bonding on my notebook any time soon.
 
-diff -u linux-2.4.13-ac5/drivers/char/console.c
-linux/drivers/char/console.c
---- linux-2.4.13-ac5/drivers/char/console.c	Mon Oct 29 17:27:19 2001
-+++ linux/drivers/char/console.c	Mon Oct 29 22:11:27 2001
-@@ -2387,8 +2387,14 @@
- 		return;
- 
- 	pm_access(pm_con);
-+
-+	/*
-+	 * If we raced with con_close(), `vt' may be null. 
-+	 * Hence this bandaid.   - akpm
-+	 */
- 	acquire_console_sem();
--	set_cursor(vt->vc_num);
-+	if (vt)
-+		set_cursor(vt->vc_num);
- 	release_console_sem();
- }
- 
-
-	Robert Love
-
+But what I meant was bonding's use of ARP to determine whether the 
+connection is good (or rather, bad, even when the link is up), when 
+the connection is routed via level 3. Seems to me you'd need a level 
+3 protocol (say ICMP) rather than ARP.
+-- 
+/Jonathan Lundell.

@@ -1,30 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284387AbRLDOls>; Tue, 4 Dec 2001 09:41:48 -0500
+	id <S283071AbRLDMMT>; Tue, 4 Dec 2001 07:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283072AbRLDMM3>; Tue, 4 Dec 2001 07:12:29 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57105 "EHLO
+	id <S283064AbRLDMMJ>; Tue, 4 Dec 2001 07:12:09 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55313 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283054AbRLDMMU>; Tue, 4 Dec 2001 07:12:20 -0500
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Tue, 4 Dec 2001 12:19:31 +0000 (GMT)
-Cc: esr@thyrsus.com, kaos@ocs.com.au (Keith Owens),
-        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-In-Reply-To: <10297.1007463859@redhat.com> from "David Woodhouse" at Dec 04, 2001 11:04:19 AM
+	id <S283054AbRLDML6>; Tue, 4 Dec 2001 07:11:58 -0500
+Subject: Re: misc_cache_init
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Tue, 4 Dec 2001 12:20:15 +0000 (GMT)
+Cc: fcorneli@elis.rug.ac.be (Frank Cornelis),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing list)
+In-Reply-To: <20011204110435.C18147@flint.arm.linux.org.uk> from "Russell King" at Dec 04, 2001 11:04:35 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16BEXr-0001vG-00@the-village.bc.nu>
+Message-Id: <E16BEYZ-0001vX-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it not possible to write an automatic conversion tool that reads the 
-> existing CML1 files and outputs CML2 rules with identical behaviour?
+> We already have this under a slightly different name (Alan didn't merge it
+> into Linus' kernel though from what I remember): pgtable_cache_init.
 
-Bad ones - yes. Its also possible to do everything CML2 does with the CML1
-ruleset. All the information required is there. Howeve CML1 (all 4 dialects
-of it) is pretty ugly
+I started merging it then Linus said no more low priority bits
+
+> This was used in -ac to initialise the ARM PTE slab, as well as the x86
+> PAE slabs immediately after the call to kmem_cache_sizes_init.
+
+its in Marcelo's tree I believe.

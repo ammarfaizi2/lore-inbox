@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbTEYL0b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 07:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTEYL0b
+	id S261932AbTEYLcY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 07:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTEYLcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 07:26:31 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:57729
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261869AbTEYL03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 07:26:29 -0400
-Date: Sun, 25 May 2003 07:29:25 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [RFC][PATCH][2.5] Possible race in wait_task_zombie and
- finish_task_switch
-In-Reply-To: <3ED0A7CF.9040803@colorfullife.com>
-Message-ID: <Pine.LNX.4.50.0305250720440.19617-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0305251226170.25774-100000@localhost.localdomain>
- <Pine.LNX.4.50.0305250625050.19617-100000@montezuma.mastecende.com>
- <3ED0A248.10308@kolumbus.fi> <3ED0A7CF.9040803@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 May 2003 07:32:24 -0400
+Received: from mcmmta2.mediacapital.pt ([193.126.240.147]:21960 "EHLO
+	mcmmta2.mediacapital.pt") by vger.kernel.org with ESMTP
+	id S261932AbTEYLcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 07:32:23 -0400
+Date: Sun, 25 May 2003 12:46:25 +0100
+From: "Paulo Andre'" <l16083@alunos.uevora.pt>
+Subject: Question on verify_area() and friends wrt
+To: kernel-janitor-discuss@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Message-id: <20030525124625.4dedc758.l16083@alunos.uevora.pt>
+Organization: Universidade de Evora
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 May 2003, Manfred Spraul wrote:
+Hi,
 
-> - the reference for the stack itself, acquired by setting usage to 2, 
-> dropped by schedule_tail.
-> - the reference for wait4, acquired by setting usage to 2, dropped by 
-> wait_task_zombie.
-> - references for the pid structures, maintained by pid.c
-> - temporary references for looking at tsk->{fs,mm,files,tty}, used by 
-> /proc, ptrace, tty.
+I've been taking care of auditing some return values for instances of
+unchecked copy_*_user calls and I've come across one case that's
+marked as a bug at kbugs.org which however doesn't seem like one to me.
+The piece of code I'm referring can be found in
+net/bluetooth/hci_core.c:436
 
-it's the one dropped by wait_task_zombie, the task coming out from 
-schedule_tail is fine.
+if (!verify_area(VERIFY_WRITE, ptr, sizeof(ir) +
+		(sizeof(struct inquiry_info) * ir.num_rsp))) {
+    copy_to_user(ptr, &ir, sizeof(ir));
+    ptr += sizeof(ir);
+    copy_to_user(ptr, buf, sizeof(struct inquiry_info) * ir.num_rsp);	} else
+    err = -EFAULT;
 
-> 
-> >kernel BUG at kernel/sched.c:746!
-> >  
-> >
-> Hmm. What is schedule.c:746? There is no BUG in that area in the bk tree.
+I'm presuming verify_area() does its job fine returning 0 if the memory
+is valid and -EFAULT if not. Thus, given the exact check that's been
+done, there seems indeed to exist no need to check each call to
+copy_to_user() below. Or is there?
 
-It's in finish_arch_switch at the put_task_struct()
+Thanks in advance,
 
-> Zwane, is it easy to reproduce the crash? I could write a patch that 
-> adds 4 refcounters, then we could find out in which area we must look.
 
-I haven't found a direct way of triggering it, so far it's just been 
-cropping up ~6 times over a period of 2days with the box normally taking a 
-fatal one and dying completely.
-
-	Zwane
--- 
-function.linuxpower.ca
+		Paulo

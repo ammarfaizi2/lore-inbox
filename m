@@ -1,90 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263401AbTJKW5A (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 18:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263403AbTJKW5A
+	id S263420AbTJKXkr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 19:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263418AbTJKXkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 18:57:00 -0400
-Received: from mtaw4.prodigy.net ([64.164.98.52]:57776 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S263401AbTJKW46 (ORCPT
+	Sat, 11 Oct 2003 19:40:46 -0400
+Received: from findaloan-online.cc ([216.209.85.42]:21004 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S263415AbTJKXko (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 18:56:58 -0400
-Message-ID: <3F888C52.9050006@pacbell.net>
-Date: Sat, 11 Oct 2003 16:03:46 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-CC: mru@users.sourceforge.net, linux-kernel@vger.kernel.org,
-       Michal Jaegermann <michal@harddata.com>
-Subject: Re: USB and DMA on Alpha with 2.6.0-test7
-References: <3F86E9D7.9020104@pacbell.net> <3F870BDC.8090806@pacbell.net> <20031011172700.A16499@jurassic.park.msu.ru> <3F882F20.5090903@pacbell.net>
-In-Reply-To: <3F882F20.5090903@pacbell.net>
-Content-Type: multipart/mixed;
- boundary="------------040200020007080402010504"
+	Sat, 11 Oct 2003 19:40:44 -0400
+Date: Sat, 11 Oct 2003 19:39:03 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Stephen Satchell <list@fluent2.pyramid.net>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: Job Announcements (was Linux TCP/IP Stack Developer)
+Message-ID: <20031011233903.GA17267@mark.mielke.cc>
+References: <5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net> <1065826508.1612.27.camel@localhost.localdomain> <1065826508.1612.27.camel@localhost.localdomain> <5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net> <5.2.1.1.0.20031011150156.01127670@fluent2.pyramid.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.2.1.1.0.20031011150156.01127670@fluent2.pyramid.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040200020007080402010504
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, Oct 11, 2003 at 03:16:52PM -0700, Stephen Satchell wrote:
+> Bald prohibitions are easy and nasty.  Prohibitions with a steer in the 
+> right direction are just as easy, and comes across as more of a service to 
+> everyone.  How much better it would have been for David to have 
+> said  something with a positive twist:  "Don't do it here, do it at 
+> linux-jobs@vger.kernel.org" or some such.  (Assuming such a list exists -- 
+> and if there isn't such a list is it time to start one?)
 
-> Ivan Kokshaysky wrote:
->>
->> This doesn't work. You will always return success if mask = ~0ULL.
+David has already made it clear that he doesn't care to manage such a list.
 
-Whoops.  I didn't copy what I thought I was copying:
+Why don't you go start one, if you can see so much value to it? From the
+sounds of it, people would appreciate such an effort, on your part.
 
-            (mask & *dev->dma_mask) == mask  /* not "== dma_mask" */
+Please - not on any of these lists. Not for seeking employees, nor for
+seeking volunteers to create mailing lists of your preference. There
+are plenty of other forums available.
 
-Updated code is appended ... which also provides a BUG()-free
-version of dma_set_mask().  I think the only arch/platform hook
-needed would be for dma_supported().
+Thanks,
+mark
 
-- Dave
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
---------------040200020007080402010504
-Content-Type: text/plain;
- name="Diff.dma"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Diff.dma"
-
---- 1.4/include/asm-generic/dma-mapping.h	Mon Jan 13 14:37:47 2003
-+++ edited/include/asm-generic/dma-mapping.h	Sat Oct 11 15:33:56 2003
-@@ -13,20 +13,22 @@
- /* need struct page definitions */
- #include <linux/mm.h>
- 
-+/* FIXME use this everywhere there's no platform_dma_supported() */
- static inline int
- dma_supported(struct device *dev, u64 mask)
- {
--	BUG_ON(dev->bus != &pci_bus_type);
--
--	return pci_dma_supported(to_pci_dev(dev), mask);
-+	/* device can dma, using those address bits */
-+	return dev->dma_mask
-+		&& (mask & *dev->dma_mask) == mask;
- }
- 
- static inline int
--dma_set_mask(struct device *dev, u64 dma_mask)
-+dma_set_mask(struct device *dev, u64 mask)
- {
--	BUG_ON(dev->bus != &pci_bus_type);
--
--	return pci_set_dma_mask(to_pci_dev(dev), dma_mask);
-+	if (!dma_supported(dev, mask))
-+		return 0;
-+	*dev->dma_mask = mask;
-+	return 1;
- }
- 
- static inline void *
-
---------------040200020007080402010504--
+                           http://mark.mielke.cc/
 

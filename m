@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269441AbUHZTUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269448AbUHZTSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269441AbUHZTUE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269472AbUHZTTc
+	id S269448AbUHZTSR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUHZTKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:19:32 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61926 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S269441AbUHZTPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:15:09 -0400
-Date: Thu, 26 Aug 2004 21:15:02 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "O.Sezer" <sezeroz@ttnet.net.tr>
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Subject: Re: Linux 2.4.28-pre2
-Message-ID: <20040826191501.GA12772@fs.tum.de>
-References: <412E012F.4050503@ttnet.net.tr>
+	Thu, 26 Aug 2004 15:10:24 -0400
+Received: from main.gmane.org ([80.91.224.249]:60600 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269418AbUHZTHa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:07:30 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: silent semantic changes with reiser4
+Date: Thu, 26 Aug 2004 21:06:43 +0200
+Message-ID: <MPG.1b98216351280e1f9896d7@news.gmane.org>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826010355.GB24731@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <412E012F.4050503@ttnet.net.tr>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-103-141.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
+Cc: reiserfs-list@namesys.com, linux-fsdevel@vger.kernel.org
+Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 06:26:39PM +0300, O.Sezer wrote:
-
-> Hi Marcelo:
+Jamie Lokier wrote:
+> Nicholas Miell wrote:
+> > Anything that currently stores a file's metadata in another file really
+> > wants this right now. Things like image thumbnails, document summaries,
+> > digital signatures, etc.
 > 
-> > Also a bunch of gcc 3.4 fixes, hopefully we are done
-> > with that now.
-> 
-> Fairly close, but not complete. You need the two patches at:
->...
+> Additionally, all of those things you describe should be deleted if
+> the file is modified -- to indicate that they're no longer valid and
+> should be regenerated if needed.
 
-I've found six compile errors in -pre2 with gcc 3.4 I'll send patches 
-for.
+In principle, not all of them. For example, a document summary 
+for a text document or a long (textual) description of a video 
+clip might remain the same when the user is only working on the 
+finishing details.
 
-There are still tons of warnings for lvalues and a few other warnings, 
-but I don't see a pressing need to fix these:
-
-They are not a real problem with gcc 3.4, and whether gcc 3.5 will ever 
-be supported as compiler for kernel 2.4 is a question whose answer lies 
-far in the future.
-
-
-> Regards,
-> Ozkan.
-
-cu
-Adrian
+Maybe the metadata needs an attribute to determine how 
+'immutable' it should be wrt changes on the file? (Can you 
+spell meta-meta-data <g>)
 
 -- 
+Giuseppe "Oblomov" Bilotta
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 

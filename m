@@ -1,61 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263104AbTDRPeO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 11:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbTDRPeO
+	id S263113AbTDRPiu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 11:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbTDRPiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 11:34:14 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:62896 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S263104AbTDRPeN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 11:34:13 -0400
-Date: Fri, 18 Apr 2003 11:46:06 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: hch@lst.de
-cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL PATCH] devfs compile fix for 2.5.67-bk9
-Message-ID: <Pine.LNX.4.55.0304181142510.24360@marabou.research.att.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1877034064-1050680766=:24360"
+	Fri, 18 Apr 2003 11:38:50 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:39510 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263113AbTDRPis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 11:38:48 -0400
+Subject: Re: Deadlock fix for 2.4.20
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jan Kara <jack@suse.cz>
+Cc: "Marcelo W. Tosatti" <marcelo@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20030415151240.GA23547@atrey.karlin.mff.cuni.cz>
+References: <20030415151240.GA23547@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050681044.3203.87.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 18 Apr 2003 16:50:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi,
 
---8323328-1877034064-1050680766=:24360
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Tue, 2003-04-15 at 16:12, Jan Kara wrote:
 
-Hello!
+>   I'm sending you a patch which fixes the deadlock when quota is used on
+> ext3. The problem is that in sync_dquots() first dqio_sem is acquired
+> and then transaction is started while in the other paths the order is
+> inverse... The patch introduces needed framework into quota to allow
+> ext3 start transaction before the semaphore is acquired. Please apply.
 
-Attached patch fixes 2 trivial compile errors in fs/devfs/base.c in Linux
-2.5.67-bk9.
+Please don't, there is at least one major and one minor problem to be
+resolved.
 
--- 
-Regards,
-Pavel Roskin
---8323328-1877034064-1050680766=:24360
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="devfs.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.55.0304181146060.24360@marabou.research.att.com>
-Content-Description: 
-Content-Disposition: attachment; filename="devfs.diff"
 
-LS0tIGxpbnV4Lm9yaWcvZnMvZGV2ZnMvYmFzZS5jDQorKysgbGludXgvZnMv
-ZGV2ZnMvYmFzZS5jDQpAQCAtMTQyMyw3ICsxNDIzLDcgQEAgc3RhdGljIGlu
-dCBkZXZmc2Rfbm90aWZ5X2RlIChzdHJ1Y3QgZGV2Zg0KIHN0YXRpYyB2b2lk
-IGRldmZzZF9ub3RpZnkgKHN0cnVjdCBkZXZmc19lbnRyeSAqZGUsdW5zaWdu
-ZWQgc2hvcnQgdHlwZSkNCiB7DQogCWRldmZzZF9ub3RpZnlfZGUoZGUsIHR5
-cGUsIGRlLT5tb2RlLCBjdXJyZW50LT5ldWlkLA0KLQkJCSBjdXJyZW50LT5l
-Z2lkLCAmZnNfaW5mbywgMCk7DQorCQkJIGN1cnJlbnQtPmVnaWQsICZmc19p
-bmZvKTsNCiB9IA0KIA0KIA0KQEAgLTE0NTcsNyArMTQ1Nyw3IEBAIGRldmZz
-X2hhbmRsZV90IGRldmZzX3JlZ2lzdGVyIChkZXZmc19oYW4NCiAgICAgc3Ry
-dWN0IGRldmZzX2VudHJ5ICpkZTsNCiANCiAgICAgaWYgKGZsYWdzKQ0KLQlw
-cmludGsoS0VSTl9FUlIgIiVzIGNhbGxlZCB3aXRoIGZsYWdzICE9IDAsIHBs
-ZWFzZSBmaXghXG4iKTsNCisJcHJpbnRrKEtFUk5fRVJSICIlcyBjYWxsZWQg
-d2l0aCBmbGFncyAhPSAwLCBwbGVhc2UgZml4IVxuIiwgbmFtZSk7DQogDQog
-ICAgIGlmIChuYW1lID09IE5VTEwpDQogICAgIHsNCg==
+> +#define EXT3_OLD_QFMT_BLOCKS 2
+> +
+> +static int ext3_sync_dquot(struct dquot *dquot)
+> +{
+> +	int ret;
+> +	handle_t *handle;
+> +	struct inode *qinode;
+> +
+> +	lock_kernel();
+> +	qinode = dquot->dq_sb->s_dquot.files[dquot->dq_type]->f_dentry->d_inode;
+> +	handle = ext3_journal_start(qinode, EXT3_OLD_QFMT_BLOCKS);
+> +	if (IS_ERR(handle)) {
+> +		unlock_kernel();
+> +		return PTR_ERR(handle);
+> +	}
+> +	unlock_kernel();
+> +	ret = old_sync_dquot(dquot);
+> +	lock_kernel();
+> +	ret = ext3_journal_stop(handle, qinode);
+> +	unlock_kernel();
+> +	return ret;
+> +}
+> +#endif
 
---8323328-1877034064-1050680766=:24360--
+First of all, EXT3_OLD_QFMT_BLOCKS is wrong.  If you "chown" a file to a
+new user, you'll potentially allocate new space for a new quota file
+entry.  That requires a ton of preallocation.  At the minimum, you have
+the inode update; the superblock update for the free block counts; the
+group descriptor update, likewise; the bitmap update; possibly one or
+more indirect block updates; and (finally) the quota block itself.
+
+You _will_ get buffer-credit assert failures with this value.
+
+Secondly, you're now effectively calling generic_file_write with a
+transaction already open.  That's _another_ lock ranking violation. 
+generic_file_write() takes i_sem, and then opens a transaction.  With
+this new quota code, you can now open a transaction and then take
+i_sem.  Boom.  
+
+However, most users don't ever take i_sem on the quota inode in any
+other way.  Directly writing to, or truncating, the quota file is a
+highly non-recommended activity. :-)
+
+btw, I'm away all next week, so further responses will be slow...
+
+Cheers,
+ Stephen
+

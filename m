@@ -1,98 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289272AbSAOLu6>; Tue, 15 Jan 2002 06:50:58 -0500
+	id <S289317AbSAOLyS>; Tue, 15 Jan 2002 06:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289317AbSAOLuk>; Tue, 15 Jan 2002 06:50:40 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:17933 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S289272AbSAOLub>; Tue, 15 Jan 2002 06:50:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-Organization: LISA GmbH
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Subject: [BUG] symlink problem with knfsd and reiserfs 
-Date: Tue, 15 Jan 2002 12:50:08 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+	id <S289319AbSAOLyI>; Tue, 15 Jan 2002 06:54:08 -0500
+Received: from oe55.law9.hotmail.com ([64.4.8.63]:19981 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S289317AbSAOLyD>;
+	Tue, 15 Jan 2002 06:54:03 -0500
+X-Originating-IP: [24.29.113.54]
+From: "T. A." <tkhoadfdsaf@hotmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+        <esr@thyrsus.com>
+In-Reply-To: <20020114132618.G14747@thyrsus.com> <m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Date: Tue, 15 Jan 2002 06:53:35 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020115115019.89B55143B@shrek.lisa.de>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <OE553yz0UJqlG99TTOE0001578f@hotmail.com>
+X-OriginalArrivalTime: 15 Jan 2002 11:53:57.0656 (UTC) FILETIME=[50689180:01C19DBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Neil et al.,
 
-during the last days, Trond and me was able to hunt a problem down
-to $subject, which happens as follows:
+----- Original Message -----
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: <arjan@fenrus.demon.nl>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, January 14, 2002 2:50 PM
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
+the elegant solution)
 
-It occurs with all 2.4 kernels, I've tested so far, but for reference:
 
-Server: 2.4.18-pre3 on Dual P3/500 exports reiserfs partitions
-Client: Diskless 2.4.18-pre3 on Athlon 1.2 GHz
+> arjan@fenrus.demon.nl <arjan@fenrus.demon.nl>:
+> > Of course there are other settings that do have impact (CPU type mostly,
+> > maybe memory layout) but other than that... distros already ship several
+> > binary versions (last I counted Red Hat ships 11 or so with RHL72) to
+> > account for CPU type and amount etc.
+>
+> OK.  Scenario #2:
+>
+> Tillie's nephew Melvin is a junior-grade geek.  He's working his way
+> through college doing website administration for small businesses.  He
+> doesn't know C, but he can hack his way around Perl and a little PHP,
+> and he can type "configure; make".  He's been known to wear a penguin
+> T-shirt.
+>>> SNIP <<<
+> Autoconfigure saves the day.  Possibly it even helps Melvin get laid.
+> --
+> <a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+>
 
-When building lm_sensors-2.6.2 on the client, I could easily reproduce
-this:
+    I see!!!  I see the light now!!!  I see it all now!!!  I have been
+saved!!!  If your super doper kernel autoconfigurator goes into the kernel
+source tree then all of geekdom will have a possibility of getting laid.
+Marvelous.  Absolutely marvelous.  I always knew coding would be able to
+overcome any kind of obstacle for us, even this one.  Horrah.  8-D
 
-gcc -shared -Wl,-soname,libsensors.so.1 -o lib/libsensors.so.1.2.0 
-lib/data.lo lib/general.lo lib/error.lo lib/chips.lo lib/proc.lo 
-lib/access.lo lib/init.lo lib/conf-parse.lo lib/conf-lex.lo -lc
-rm -f lib/libsensors.so.1
-ln -sfn libsensors.so.1.2.0 lib/libsensors.so.1
-make: stat:lib/libsensors.so.1: Eingabe-/Ausgabefehler
-rm -f lib/libsensors.so 
-ln -sfn libsensors.so.1.2.0 lib/libsensors.so
+    8-D  Of course wantabe geek (if there is such a thing) Melvin could
+always do it the hard way.  The experience might come in handy for the next
+"internet" bubble to arise.  With the knowledge he gains he can make enough
+paper money to take care of the getting laid problem once and for all (or at
+least until the next crash).  Besides his current target seams way too easy
+if he has a chance at her just because he entered "configure".  8-D
 
-In syslog, this message appears:
-Jan 15 00:21:03 elfe kernel: nfs_refresh_inode: inode 50066 mode changed, 
-0100664 to 0120777
+    Well anyway seams CML2 is becoming a literal everything and the kitchen
+sink.  Wow.  8-D  So far my new kernel is going to require Python to
+configure it, will include an super doper hardware detector so that it can
+customize my spiffy new kernel specifically to my hardware, will include
+special kernel access for regular users to be able to read my hardware
+configuration because its so evil to configure my kernel as root even though
+I will have to be root to install it and probably be root to untar/ungzip it
+into /usr/src and not to mention removing the old /usr/src/linux, did I read
+new driver model for autoconfiguring kernel somewhere too?, and the kernel
+will even included a spiffy X Windows, KDE, or gnome (hey why skimp now)
+program that installs itself as an icon on the user desktop (no matter what
+the distribution, linux-kernel will support all) which the user can then
+click on to fire up the kernel self-configuration, self-compiler,
+self-installer, and auto boot loader configurator so that Aunt Tilly or the
+slutty girl El Geeko has his eyes on can see a "Click here to launch new
+kernel" button on their screen after their first reboot, oh and of course we
+can't forget that the kernel must know that its either succeeded or failed
+so that it could tell the user that and either restore the previous boot
+configuration or install itself as the user's new default kernel thus
+voiding the plebeian's support contract.  But no problem, I'm sure the new
+kernel can take care of that too.  Just give it time.  8-D
 
-In this case, ln managed to create an invalid link in the above sequence.
-Really bad is, you cannot get around this within the client. Within the
-server, the link is ok, but on the client, ls -l lib throws a 
-ls: lib/libsensors.so.1: Eingabe-/Ausgabefehler
+    Hilarities aside, I wouldn't mind having a program to automatically
+configure a kernel for a system via Windows-like hardware autoconfiguration.
+However do have a couple of quick points.
 
-A comment from Trond << EOC
-It is telling you that the server has a blatant bug: it is first
-telling the client that the inode 50066 is a regular file, then
-it changes it to a link.
+    1. Don't see any reason for the kernel hardware autoconfigurator to be
+included in the kernel.
 
-When this happens, the RFCs state that the server is supposed to
-change the NFS filehandle. The client *does* check the filehandle, so
-if the server had updated it correctly, you would not have had a
-problem.
-EOC
+    2. Don't see any reason the kernel hardware autoconfigurator cannot be
+run as root.  Actually see one very good reason why it shouldn't be able to
+be run as a regular user.  Probing certain hardware is inherently dangerous.
+Machine can hang.  Hardware could be probed to death.  Heck a clever coder
+could even make use of the user level access required to allow user hardware
+autoconfiguration.  Wiping disks, destroying flash roms, finding system
+backdoors, etc, etc.
 
-A least, Trond was able to get me around it with this patch, but
-I would be nice to fix the real problem instead (b/c the build 
-feels noticable slower with it):
-
---- linux-2.4.18-up/fs/nfs/dir.c.orig   Fri Jan 11 23:06:38 2002
-+++ linux-2.4.18-up/fs/nfs/dir.c        Mon Jan 14 23:52:17 2002
-@@ -619,6 +619,8 @@
-                nfs_complete_unlink(dentry);
-                unlock_kernel();
-        }
-+       if (is_bad_inode(inode))
-+               force_delete(inode);
-        iput(inode);
- }
- 
---- linux-2.4.18-up/fs/nfs/inode.c.orig Fri Jan 11 23:08:00 2002
-+++ linux-2.4.18-up/fs/nfs/inode.c      Mon Jan 14 23:53:10 2002
-@@ -699,6 +699,8 @@
-                return 0;
-        if (memcmp(&inode->u.nfs_i.fh, fh, sizeof(inode->u.nfs_i.fh)) != 0)
-                return 0;
-+       if (is_bad_inode(inode))
-+               return 0;
-        /* Force an attribute cache update if inode->i_count == 0 */
-        if (!atomic_read(&inode->i_count))
-                NFS_CACHEINV(inode);
-
-An noted, this is a longer standing problem here, but with libsensors build,
-I could easily reproduce this. Do yoou?
-
-Any chance to get this fixed soon?
-
-Cheers,
-  Hans-Peter
+    3. ISA is pretty much dead outside of certain standard PC equipment.
+And of the remaining ISA out there, most in any machine than can still run a
+Linux kernel effectively is most likely PNP ISA.  Plus there are a few
+fairly common ISA cards that can also be found easily.  It seams that the
+vast majority of Aunt Tillies will be served with just PCI autoconfiguration
+and maybe PNP ISA configuration.

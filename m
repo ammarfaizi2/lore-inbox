@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263946AbTJFCGm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 22:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263947AbTJFCGm
+	id S263883AbTJFCOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 22:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263947AbTJFCOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 22:06:42 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27917
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263946AbTJFCGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 22:06:41 -0400
-Date: Sun, 5 Oct 2003 19:06:43 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Justin Hibbits <jrh29@po.cwru.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG in 2.4.xx
-Message-ID: <20031006020643.GJ1205@matchmail.com>
-Mail-Followup-To: Justin Hibbits <jrh29@po.cwru.edu>,
-	linux-kernel@vger.kernel.org
-References: <83C51710-F764-11D7-BAB4-000A95841F44@po.cwru.edu> <20031006000426.GA26857@louise.pinerecords.com>
+	Sun, 5 Oct 2003 22:14:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29122 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263883AbTJFCOP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 22:14:15 -0400
+Date: Mon, 6 Oct 2003 03:14:14 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Erik Tews <erik@debian.franken.de>, Christian Kujau <evil@g-house.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs one user DoS?
+Message-ID: <20031006021414.GL7665@parcelfarce.linux.theplanet.co.uk>
+References: <20031004120625.GA41175@colocall.net> <3F7EF082.3020702@namesys.com> <3F804234.9070606@g-house.de> <20031005235149.GA3993@debian.franken.de> <20031006020342.GH1205@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031006000426.GA26857@louise.pinerecords.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031006020342.GH1205@matchmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 02:04:26AM +0200, Tomas Szepe wrote:
-> Preempt code is not officially part of the kernel.org 2.4 kernel
-> series, you need to take this up with the maintainer of the patchset
-> you're using.
+On Sun, Oct 05, 2003 at 07:03:42PM -0700, Mike Fedyk wrote:
+> On Mon, Oct 06, 2003 at 01:51:49AM +0200, Erik Tews wrote:
+> > On Sun, Oct 05, 2003 at 06:09:24PM +0200, Christian Kujau wrote:
+> > > Hans Reiser schrieb:
+> > > >>I have found such strange thing:
+> > > >>
+> > > >>pseudo@avalon at 14:04:00  ~> dd if=/dev/zero of=file bs=1 count=0 
+> > > >>seek=1000000000000
+> > > >>
+> > > >>After that my Intel Celeron 800 MHz/384M RAM 60G/Seagate U6 under
+> > > >>Linux-2.4.22-grsec on reiserfs was utilized 100% for more than 2 hours.
+> > > >>dd process can't be killed.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In this case it would be Con Kolivas and Robert Love...
+> > Really? If I got a process which is unkillable, how can the kernel kill
+> > this process if it runs out of cpu-time?
+> 
+> If it is unkillable, you're either talking about kernel bugs or NFS, and
+> root should be able to kill a user process that has run out of ulimit
+> resources.

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbTETV66 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 17:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbTETV66
+	id S261252AbTETV50 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 17:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbTETV50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 17:58:58 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:20098
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261275AbTETV65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 17:58:57 -0400
-Date: Tue, 20 May 2003 18:01:47 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-cc: alexander.riesen@synopsys.COM, Milton Miller <miltonm@bga.com>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "" <mikpe@csd.uu.se>
-Subject: Re: 2.5.69+bk: oops in apmd after waking up from suspend mode
-In-Reply-To: <1053461400.2055.7.camel@laptop-linux>
-Message-ID: <Pine.LNX.4.50.0305201800560.20429-100000@montezuma.mastecende.com>
-References: <3ECA05FA.6090008@gmx.net> <200305201634.h4KGY9VJ049544@sullivan.realtime.net>
- <20030520170054.GQ32559@Synopsys.COM> <20030520171759.GR32559@Synopsys.COM>
- <1053461400.2055.7.camel@laptop-linux>
+	Tue, 20 May 2003 17:57:26 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:65292 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261252AbTETV5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 17:57:25 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Recent changes to sysctl.h breaks glibc
+Date: 20 May 2003 15:10:08 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bae940$2m5$1@cesium.transmeta.com>
+References: <20030519165623.GA983@mars.ravnborg.org> <200305200024.h4K0OnPc025466@turing-police.cc.vt.edu> <m1y9121mdp.fsf@frodo.biederman.org> <200305200111.h4K1BJPc026622@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 May 2003, Nigel Cunningham wrote:
+Followup to:  <200305200111.h4K1BJPc026622@turing-police.cc.vt.edu>
+By author:    Valdis.Kletnieks@vt.edu
+In newsgroup: linux.dev.kernel
+> 
+> > For a lot of system calls it is actively dangerous to assume dev_t ==
+> > __kernel_dev_t.  As glibc does some cute things in there.
+> 
+> I thought that sort of fun and games was *WHY* userspace can't use the
+> kernel headers in the first place?
+> 
 
-> On Wed, 2003-05-21 at 05:17, Alex Riesen wrote:
-> > It is harder to trigger, but possible.
-> > I booted with init=/bin/bash. Than I started this
-> > find / -type f -fprint /dev/stderr -print | xargs cat > /dev/null
-> > and began going in suspend mode and back.
-> > 
-> > At some point it broke with oops above.
+Indeed.  Because they try to export dev_t, not __kernel_dev_t (unless
+you know exactly what you're doing, which most people don't.)
 
-Very nice, i'll try it and see what dies
+dev_t should be defined by the library ABI, not by the kernel ABI.
 
-	Zwane
+	-hpa
 -- 
-function.linuxpower.ca
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

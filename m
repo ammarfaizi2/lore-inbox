@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272551AbRIFUUI>; Thu, 6 Sep 2001 16:20:08 -0400
+	id <S272560AbRIFUXh>; Thu, 6 Sep 2001 16:23:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272552AbRIFUT6>; Thu, 6 Sep 2001 16:19:58 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25106 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272551AbRIFUTs>; Thu, 6 Sep 2001 16:19:48 -0400
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Thu, 6 Sep 2001 21:23:43 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), wietse@porcupine.org (Wietse Venema),
-        saw@saw.sw.com.sg (Andrey Savochkin),
-        matthias.andree@gmx.de (Matthias Andree), ak@suse.de (Andi Kleen),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010906221152.F13547@emma1.emma.line.org> from "Matthias Andree" at Sep 06, 2001 10:11:52 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272557AbRIFUX2>; Thu, 6 Sep 2001 16:23:28 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:50315 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S272568AbRIFUXP>;
+	Thu, 6 Sep 2001 16:23:15 -0400
+Date: Thu, 6 Sep 2001 16:20:39 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Wietse Venema <wietse@porcupine.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <kuznet@ms2.inr.ac.ru>,
+        Matthias Andree <matthias.andree@gmx.de>,
+        <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+In-Reply-To: <20010906195958.222DFBC06C@spike.porcupine.org>
+Message-ID: <Pine.GSO.4.30.0109061612450.14727-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15f5gd-0000Pu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 06 Sep 2001, Alan Cox wrote:
-> > If you accept 10.0.0.1 from the outside you are leaking information. It
-> 
-> No, if you accept 10.*.*.* from the outside, your routers are broken.
 
-Your router does not read mail RCPT headers.
 
-RCPT root@[10.0.0.1]
+On Thu, 6 Sep 2001, Wietse Venema wrote:
 
-can come from any ip address.
+> Alan Cox:
+> > > Soldiers are marching down the street. The mother of one of those
+> > > soldiers is ever so proud.  All the other guys are marching out of
+> > > step.  Her son is the only one who does it right.
+> > >
+> > > That's what it looks like for a person who writes Internet software
+> > > that aims to work on a wide variety of platforms.
+> >
+> > I think you have the metaphor wrong. The older API is a bit like the
+> > cavalry charging into battle at the start of world war one. It may have been
+> > how everyone did it but they guys with the "newfangled, really not how it
+> > should be done, definitely not cricket"  machine guns got the last laugh
+>
+> Keep your superiority complex out of my mailbox, thank you.
+>
 
-> Alan, SIOCGIFCONF is working sufficiently, it's SIOCGIFNETMASK that
-> we're talking about. SIOCGIFNETMASK works properly on any other system
-> or - as far as I can currently test - with my patch.
+Wietse,
 
-Then that is worth looking into.
+netlink, as a few people have pointed to you is the 'proper' way to do
+things. Sure, the BSDs did it the way you love it, but linux is a
+different operating system (cut the "if its not Scottish its crap
+mentality"). Netlink does improve on "the way its always been done for
+the last 80 years". Infact netlink has already been approved to be (at
+least informational) RFC. Look at a slightly dated draft at:
+http://search.ietf.org/internet-drafts/draft-salim-netlink-jhshk-00.txt
+Maybe you should preach to the BSDs about netlink?
 
-Alan
+cheers,
+jamal
+
+PS:- If you want help on writting netlink based code to achieve what you
+are trying to do, just yell. Look at the source for the ip utility which
+is within the iproute2 package.
+

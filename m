@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292239AbSBOWke>; Fri, 15 Feb 2002 17:40:34 -0500
+	id <S292244AbSBOWkd>; Fri, 15 Feb 2002 17:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292235AbSBOWj3>; Fri, 15 Feb 2002 17:39:29 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48401 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292241AbSBOWiF>; Fri, 15 Feb 2002 17:38:05 -0500
-Subject: Re: Disgusted with kbuild developers
-To: esr@thyrsus.com
-Date: Fri, 15 Feb 2002 22:52:00 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
-        arjan@pc1-camc5-0-cust78.cam.cable.ntl.com (Arjan van de Ven),
+	id <S292239AbSBOWjZ>; Fri, 15 Feb 2002 17:39:25 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:13587
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S292240AbSBOWh6>; Fri, 15 Feb 2002 17:37:58 -0500
+Date: Fri, 15 Feb 2002 17:11:30 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Dave Jones <davej@suse.de>, Robert Love <rml@tech9.net>,
+        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20020215170814.B15406@thyrsus.com> from "Eric S. Raymond" at Feb 15, 2002 05:08:14 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020215171130.C15406@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>, Robert Love <rml@tech9.net>,
+	Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020215135557.B10961@thyrsus.com> <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215141433.B11369@thyrsus.com> <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215213833.J27880@suse.de> <1013810923.807.1055.camel@phantasy> <20020215232832.N27880@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16brCy-0004XZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020215232832.N27880@suse.de>; from davej@suse.de on Fri, Feb 15, 2002 at 11:28:32PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > Since the information is there in CML1 to generate the list of constraints
-> > for any given option,
+Dave Jones <davej@suse.de>:
+>  Increased functionality I don't have a problem with, as long
+>  as other more important things are addressed.  And for that matter,
+>  Linus has said to Eric "I don't care, take this out of the
+>  kernel completely leaving just oldconfig'. 
 > 
-> False assumption...
+>  It might just be the sanest choice, and leave all this discussion
+>  in userland.
 
-Do you have anything more constructive that "doesnt" to say
-
-> If you want to refute me, build it yourself.  You'll get a valuable learning
-> experience.  At the end of it, I'll have earned your apology.  Not that I
-> expect to get it.
-
-Been there, done that, got the pretty graphs. Possibly the next step is to
-redo the work into mconfig which already does pretty much anything we need
-with the existing config files parsed using a real 100% genuine yacc grammar
+CML2 can live in userland.  It already does; three other projects use it.
+The kernel rulebase cannot.  The real issue here is whether the CML1 
+language carries sufficient information to support things like 
+side-effect deduction.  And the answer is "no".
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

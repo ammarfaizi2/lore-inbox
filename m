@@ -1,157 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266640AbSLJGUN>; Tue, 10 Dec 2002 01:20:13 -0500
+	id <S266660AbSLJGZ1>; Tue, 10 Dec 2002 01:25:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266643AbSLJGUN>; Tue, 10 Dec 2002 01:20:13 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:38540 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S266640AbSLJGUJ>; Tue, 10 Dec 2002 01:20:09 -0500
-Subject: sound/built-in.o: In function `snd_complete_urb': undefined
-	reference to `usb_submit_urb'
-From: Miles Lane <miles.lane@attbi.com>
-To: LKML <linux-kernel@vger.kernel.org>
+	id <S266665AbSLJGZ1>; Tue, 10 Dec 2002 01:25:27 -0500
+Received: from ilanz.monex.li ([164.128.93.104]:37547 "EHLO ilanz.monex.li")
+	by vger.kernel.org with ESMTP id <S266660AbSLJGZ0>;
+	Tue, 10 Dec 2002 01:25:26 -0500
+Subject: Problems using /proc/scsi/gdth/ with 2.4.20aa1
+From: Oliver Jehle <oliver.jehle@monex.li>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Organization: 
-Message-Id: <1039501666.7838.4.camel@bellybutton.attbi.com>
+Message-Id: <1039502939.1054.12.camel@vorab.monex.li>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.0 
-Date: 09 Dec 2002 22:27:47 -0800
+Date: 10 Dec 2002 07:49:00 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-# CONFIG_SND_SEQ_DUMMY is not set
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-# CONFIG_SND_RTCTIMER is not set
-CONFIG_SND_VERBOSE_PRINTK=y
-CONFIG_SND_DEBUG=y
-# CONFIG_SND_DEBUG_MEMORY is not set
-CONFIG_SND_DEBUG_DETECT=y
-CONFIG_SND_EMU10K1=y
+Running linux 2.4.20-aa1 and the gdth driver works ,but accessing
+/proc/scsi/gdth/0 for example with cat or the supplied icpcon utility
+don't work...
 
-CONFIG_SND_USB_AUDIO=y
+these messages are in system log when accessing /proc/scsi/gdth/0 with
+cat for example (works with 2.4.18)
+...
 
-#
-# USB support
-#
-CONFIG_USB=m
-CONFIG_USB_DEBUG=y
-
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_OHCI_HCD=m
-CONFIG_USB_UHCI_HCD=m
-
-#
-# USB Device Class drivers
-#
-CONFIG_USB_AUDIO=m
-CONFIG_USB_BLUETOOTH_TTY=m
-CONFIG_USB_MIDI=m
-CONFIG_USB_ACM=m
-
-
-ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o
---start-group  usr/built-in.o  arch/i386/kernel/built-in.o 
-arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o 
-kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o 
-security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
-drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o 
-net/built-in.o --end-group  -o .tmp_vmlinux1
-sound/built-in.o: In function `snd_complete_urb':
-sound/built-in.o(.text+0x55604): undefined reference to `usb_submit_urb'
-sound/built-in.o: In function `snd_complete_sync_urb':
-sound/built-in.o(.text+0x556d6): undefined reference to `usb_submit_urb'
-sound/built-in.o: In function `deactivate_urbs':
-sound/built-in.o(.text+0x557de): undefined reference to `usb_unlink_urb'
-sound/built-in.o(.text+0x557ea): undefined reference to `usb_unlink_urb'
-sound/built-in.o: In function `start_urbs':
-sound/built-in.o(.text+0x55895): undefined reference to `usb_submit_urb'
-sound/built-in.o(.text+0x558c7): undefined reference to `usb_submit_urb'
-sound/built-in.o: In function `release_urb_ctx':
-sound/built-in.o(.text+0x55b33): undefined reference to `usb_free_urb'
-sound/built-in.o: In function `init_substream_urbs':
-sound/built-in.o(.text+0x55d59): undefined reference to `usb_alloc_urb'
-sound/built-in.o(.text+0x55df2): undefined reference to `usb_alloc_urb'
-sound/built-in.o: In function `set_format':
-sound/built-in.o(.text+0x5608e): undefined reference to
-`usb_set_interface'
-sound/built-in.o(.text+0x560c6): undefined reference to
-`usb_set_interface'
-sound/built-in.o(.text+0x56217): undefined reference to
-`usb_control_msg'
-sound/built-in.o(.text+0x56270): undefined reference to
-`usb_control_msg'
-sound/built-in.o(.text+0x5639f): undefined reference to
-`usb_control_msg'
-sound/built-in.o: In function `snd_usb_pcm_close':
-sound/built-in.o(.text+0x567f5): undefined reference to
-`usb_set_interface'
-sound/built-in.o: In function `snd_usb_create_streams':
-sound/built-in.o(.text+0x57bdc): undefined reference to
-`usb_interface_claimed'
-sound/built-in.o(.text+0x57c6c): undefined reference to
-`usb_set_interface'
-sound/built-in.o(.text+0x57c84): undefined reference to
-`usb_driver_claim_interface'
-sound/built-in.o: In function `snd_usb_roland_ua100_hack_intf':
-sound/built-in.o(.text+0x57ddd): undefined reference to
-`usb_set_interface'
-sound/built-in.o: In function `snd_usb_roland_ua100_hack':
-sound/built-in.o(.text+0x57e8e): undefined reference to
-`usb_interface_claimed'
-sound/built-in.o(.text+0x57ebe): undefined reference to
-`usb_driver_claim_interface'
-sound/built-in.o(.text+0x57ecf): undefined reference to
-`usb_interface_claimed'
-sound/built-in.o(.text+0x57f0b): undefined reference to
-`usb_driver_claim_interface'
-sound/built-in.o: In function `snd_usb_audio_create':
-sound/built-in.o(.text+0x5816b): undefined reference to `usb_string'
-sound/built-in.o(.text+0x581e5): undefined reference to `usb_string'
-sound/built-in.o(.text+0x58274): undefined reference to `usb_string'
-sound/built-in.o: In function `alloc_desc_buffer':
-sound/built-in.o(.text+0x582cc): undefined reference to
-`usb_get_descriptor'
-sound/built-in.o(.text+0x58368): undefined reference to
-`usb_get_descriptor'
-sound/built-in.o: In function `snd_usb_audio_probe':
-sound/built-in.o(.text+0x58474): undefined reference to
-`usb_set_configuration'
-sound/built-in.o: In function `snd_usb_copy_string_desc':
-sound/built-in.o(.text+0x589eb): undefined reference to `usb_string'
-sound/built-in.o: In function `get_ctl_value':
-sound/built-in.o(.text+0x58b7a): undefined reference to
-`usb_control_msg'
-sound/built-in.o: In function `set_ctl_value':
-sound/built-in.o(.text+0x58ca2): undefined reference to
-`usb_control_msg'
-sound/built-in.o: In function `snd_usbmidi_submit_urb':
-sound/built-in.o(.text+0x5a997): undefined reference to `usb_submit_urb'
-sound/built-in.o: In function `snd_usbmidi_in_endpoint_delete':
-sound/built-in.o(.text+0x5b0ce): undefined reference to `usb_free_urb'
-sound/built-in.o(.text+0x5b0e2): undefined reference to `usb_unlink_urb'
-sound/built-in.o: In function `snd_usbmidi_get_int_epd':
-sound/built-in.o(.text+0x5b183): undefined reference to
-`usb_set_interface'
-sound/built-in.o: In function `snd_usbmidi_in_endpoint_create':
-sound/built-in.o(.text+0x5b21e): undefined reference to `usb_alloc_urb'
-sound/built-in.o: In function `snd_usbmidi_out_endpoint_delete':
-sound/built-in.o(.text+0x5b3a5): undefined reference to `usb_free_urb'
-sound/built-in.o(.text+0x5b3b9): undefined reference to `usb_unlink_urb'
-sound/built-in.o: In function `snd_usbmidi_out_endpoint_create':
-sound/built-in.o(.text+0x5b42a): undefined reference to `usb_alloc_urb'
-sound/built-in.o: In function `snd_usb_audio_init':
-sound/built-in.o(.init.text+0x172e): undefined reference to
-`usb_register'
-make: *** [.tmp_vmlinux1] Error 1
-
+Dec 10 06:37:47 arena1 kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 10 06:37:47 arena1 kernel:  printing eip:
+Dec 10 06:37:47 arena1 kernel: c024c879
+Dec 10 06:37:47 arena1 kernel: *pde = 00000000
+Dec 10 06:37:47 arena1 kernel: Oops: 0002 2.4.20aa1 #2 SMP Mon Dec 9
+16:55:18 CET 2002
+Dec 10 06:37:47 arena1 kernel: CPU:    0
+Dec 10 06:37:47 arena1 kernel: EIP:   
+0010:[scsi_release_commandblocks+17/92]    Not tainted
+Dec 10 06:37:47 arena1 kernel: EFLAGS: 00010046
+Dec 10 06:37:47 arena1 kernel: eax: 00000000   ebx: c283c000   ecx:
+00000000   edx: 000000bd
+Dec 10 06:37:47 arena1 kernel: esi: c283c000   edi: c283c018   ebp:
+00000246   esp: c96a1b24
+Dec 10 06:37:47 arena1 kernel: ds: 0018   es: 0018   ss: 0018
+Dec 10 06:37:47 arena1 kernel: Process cat (pid: 2573,
+stackpage=c96a1000)
+Dec 10 06:37:47 arena1 kernel: Stack: c283c000 c92ce600 c283c000
+c039f000 c024da34 c283c000 c283c018 00000c44
+Dec 10 06:37:47 arena1 kernel:        c0258cd8 c283c000 c92ce600
+00000c00 00000000 c96af000 00000c00 00000001
+Dec 10 06:37:47 arena1 kernel:        c96a1db4 00000a10 c044a0c4
+00000060 00000296 c96a1be8 c96a1bd8 c96a1db4
+Dec 10 06:37:47 arena1 kernel: Call Trace:    [scsi_free_host_dev+44/56]
+[gdth_get_info+4972/5048] [do_no_page+470/844] [handle_mm_fault+125/344]
+[do_page_fault+0/1445]
+Dec 10 06:37:47 arena1 kernel:   [rb_insert_color+81/196]
+[__vma_link+98/176] [error_code+52/60] [__vma_link+98/176]
+[error_code+52/60] [clear_user+46/60]
+Dec 10 06:37:47 arena1 kernel:   [padzero+28/32]
+[load_elf_binary+2381/2760] [load_elf_binary+0/2760]
+[__alloc_pages+122/708] [getblk+56/108] [getblk+99/108]
+Dec 10 06:37:47 arena1 kernel:   [gdth_proc_info+144/152]
+[proc_scsi_read+68/96] [proc_file_read+262/440] [sys_read+143/256]
+[system_call+51/56]
+Dec 10 06:37:47 arena1 kernel: Code: f0 fe 08 0f 88 68 14 00 00 8b 86 a8
+00 00 00 85 c0 74 1c 8d
 

@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbUKDAw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbUKDBPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbUKDAw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 19:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbUKDAus
+	id S261946AbUKDBPe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 20:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUKDBPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 19:50:48 -0500
-Received: from dialin-212-144-169-218.arcor-ip.net ([212.144.169.218]:52920
-	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S261925AbUKDAqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 19:46:24 -0500
-In-Reply-To: <wPc3Mf1E.1099495179.6511660.khali@gcu.info>
-References: <wPc3Mf1E.1099495179.6511660.khali@gcu.info>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-43-962870624"
-Message-Id: <E27340F4-2DFA-11D9-BF00-000A958E35DC@fhm.edu>
+	Wed, 3 Nov 2004 20:15:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8391 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262040AbUKDBNI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 20:13:08 -0500
+Message-ID: <41898215.4040809@pobox.com>
+Date: Wed, 03 Nov 2004 20:12:53 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] deprecate pci_module_init
+References: <20041103091039.GA22469@taniwha.stupidest.org> <41891980.6040009@pobox.com> <20041103190757.GA25451@taniwha.stupidest.org> <41892DE3.5040402@pobox.com> <20041104002138.GA32691@kroah.com> <20041104003734.GA17467@taniwha.stupidest.org> <20041104005107.GA15301@kroah.com>
+In-Reply-To: <20041104005107.GA15301@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-From: Daniel Egger <degger@fhm.edu>
-Subject: Re: dmi_scan on x86_64
-Date: Thu, 4 Nov 2004 01:45:54 +0100
-To: "Jean Delvare" <khali@linux-fr.org>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> In short, pci_module_init() on 2.4 would return the number of pci
+> devices bound to the device, on 2.6, it just always returns 0 if the
+> driver was successfully registered, no knowledge of how many devices
+> bound are ever returned.
 
---Apple-Mail-43-962870624
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-On 03.11.2004, at 16:19, Jean Delvare wrote:
+Incorrect.  pci_register_driver() is the inconsistent one, as I've 
+explained before (months ago).
 
-> Thanks Andi. Unfortunately, I don't own an x86_64 system myself, so I
-> won't be able to test your code. The system I have been working on had
-> been made temporarily remotely accessible to me by Tyan, but working on
-> kernel stuff remotely on a system you don't really control isn't
-> convenient, as you may easily imagine. I had them reboot it manually
-> several times (for some reason the box wouldn't reboot by itself when
-> asked to).
+pci_module_init() always returns 0 or an errno-based value, in 2.4 or 
+2.6.  Thus is it the portable alternative.
 
-Is this stuff any relevant to a Tyan Tiger K8W (S2875), i.e. is Tyan
-employing the multiplexing trick on several boards or just the one you
-tried to identify?
+Thus, changing drivers -away from- pci_module_init() makes them less 
+portable, for zero apparent gain.  It's just a #define symbol at this 
+point, leave it be.
 
-Servus,
-       Daniel
+The cost of "#define pci_module_init pci_register_driver" is zero, while 
+the cost and impact of changing tons of drivers to the non-portable 
+variant is non-zero.
 
---Apple-Mail-43-962870624
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
+	Jeff
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iQEVAwUBQYl7wjBkNMiD99JrAQLOKQf+OCWZTGooYQSlJhO/UjiPpKiFe3ycsb3L
-JxhfwYuo2VxkozZMnz7kLoQ+F8fiYUhk5AHHkqlL34JHgp+lHOOt9XZ3tRckDnXn
-KEMnmoNsr0OX/GtjTUNCz5dQEf38YXJeGOHvK4XjomsyrPWswid0V86Fi1kaSxvP
-NlE/OFpHabbIJs1SO62AH1P3QOQ89XLYNA1tB15SfytvZhw6CDkpLzSs9IJCmwY4
-xnF3XExzvNWxKOXZu+MnB6zzDG013iEQzGURuZMgE+oLV2FKkkLCbBiIJKVtU7pJ
-i9koBzTPmnaq+1++uPgzQINtcMrwKAPr11R1wZXEKjf5CzrsAj9H0g==
-=yJXE
------END PGP SIGNATURE-----
-
---Apple-Mail-43-962870624--
 

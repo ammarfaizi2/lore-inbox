@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318592AbSGSRBY>; Fri, 19 Jul 2002 13:01:24 -0400
+	id <S318611AbSGSRLo>; Fri, 19 Jul 2002 13:11:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318594AbSGSRBY>; Fri, 19 Jul 2002 13:01:24 -0400
-Received: from jalon.able.es ([212.97.163.2]:14841 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S318592AbSGSRBU>;
-	Fri, 19 Jul 2002 13:01:20 -0400
-Date: Fri, 19 Jul 2002 19:03:46 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc2aa1
-Message-ID: <20020719170346.GC1690@werewolf.able.es>
-References: <20020717225504.GA994@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020717225504.GA994@dualathlon.random>; from andrea@suse.de on Thu, Jul 18, 2002 at 00:55:04 +0200
-X-Mailer: Balsa 1.3.6
+	id <S318612AbSGSRLo>; Fri, 19 Jul 2002 13:11:44 -0400
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:46602 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S318611AbSGSRLn>; Fri, 19 Jul 2002 13:11:43 -0400
+Date: Fri, 19 Jul 2002 19:14:45 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch* 1/3] remove 287 unneeded #includes of sched.h (fwd)
+Message-ID: <Pine.LNX.4.33.0207191905470.23868-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch removes 287 occurences of '#include <linux/sched.h>', where 
+none of the definitions is actually referenced. In some cases #includes
+of files previously pulled in by sched.h are reintroduced to satisfy 
+indirect dependencies.
 
-On 2002.07.18 Andrea Arcangeli wrote:
->I would appreciate any feedback on the last patches for the i_size
->atomic accesses on 32bit archs. Thanks,
->
->URL:
->
->	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc2aa1.gz
->	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc2aa1/
->
->diff between 2.4.19rc1aa2 and 2.4.19rc1aa2:
->
->Only in 2.4.19rc1aa2: 000_e100-2.0.30-k1.gz
->Only in 2.4.19rc2aa1: 000_e100-2.1.6.gz
->Only in 2.4.19rc1aa2: 000_e1000-4.2.17-k1.gz
->Only in 2.4.19rc2aa1: 000_e1000-4.3.2.gz
->
+Since some files depend on sched.h being included indirectly anyways,
+two more patches are required to make the kernel compile again. 
 
-More on this.
+Tim
 
-We have two interfaces:
-04:04.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-03:01.0 Ethernet controller: Intel Corp. 82543GC Gigabit Ethernet Controller (rev 02)
 
-NetPipe (tcp) shows numbers like 80Mb/s for e100 and 500Mb/s for e1000. So
-efficiency is much much higher for e100 driver+card than e1000.
-I have to dig, perhaps e100 is doing zerocopy and e1000 is not ?
+The actual patch can be found here:
+Part 1/3:
+  http://www.physik3.uni-rostock.de/tim/kernel/2.5/sched.h-10a.patch.gz
+Part 2/3:
+  http://www.physik3.uni-rostock.de/tim/kernel/2.5/sched.h-10b.patch.gz
+Part 3/3:
+  http://www.physik3.uni-rostock.de/tim/kernel/2.5/task_struct.h-06.patch
+    
 
-Any ideas ?
-
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-rc2-jam1, Mandrake Linux 8.3 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.8mdk)

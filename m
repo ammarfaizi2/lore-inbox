@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261302AbSJDA0Z>; Thu, 3 Oct 2002 20:26:25 -0400
+	id <S261404AbSJDA1M>; Thu, 3 Oct 2002 20:27:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261391AbSJDA0Z>; Thu, 3 Oct 2002 20:26:25 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:25479 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261302AbSJDA0Y>;
-	Thu, 3 Oct 2002 20:26:24 -0400
-Subject: Re: export of sys_call_table
-From: Andy Pfiffer <andyp@osdl.org>
-To: Michal Jaegermann <michal@harddata.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021003171013.B22986@mail.harddata.com>
-References: <20021003153943.E22418@openss7.org>
-	<1033682560.28850.32.camel@irongate.swansea.linux.org.uk> 
-	<20021003171013.B22986@mail.harddata.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 03 Oct 2002 17:32:00 -0700
-Message-Id: <1033691520.28254.6.camel@andyp>
-Mime-Version: 1.0
+	id <S261405AbSJDA1H>; Thu, 3 Oct 2002 20:27:07 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:21165 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261404AbSJDA1E>; Thu, 3 Oct 2002 20:27:04 -0400
+Date: Thu, 3 Oct 2002 21:32:17 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Greg Ungerer <gerg@snapgear.com>
+cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.40-ac1
+In-Reply-To: <3D9CD647.7000806@snapgear.com>
+Message-ID: <Pine.LNX.4.44L.0210032129570.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-03 at 16:10, Michal Jaegermann wrote:
-> On Thu, Oct 03, 2002 at 11:02:40PM +0100, Alan Cox wrote:
-> > On Thu, 2002-10-03 at 22:39, Brian F. G. Bidulock wrote:
-> > 
-> > > Until now, loadable modules have been able to just overwrite
-> ...
-> > 
-> > Not actually safely implementable. The right way to do this is a
-> > relevant 2.5 question.
+On Fri, 4 Oct 2002, Greg Ungerer wrote:
+> Rik van Riel wrote:
 
-> Hm, IIRC bproc stuff (Beowulf support) also relies on this ability.
-> Or at least "kmonte" trick to load and switch to a new kernel.
+> Easy done. Would it bother anyone having a few files
+> named XYZ-nommu.c in there?
 
-The last kmonte that I worked with would preserve, then overwrite,
-sys_call_table[__NT_reboot] with a pointer to it's version of reboot()
-when the kmonte module was loaded.
+Excellent.
 
-If asked to unload, the original version of reboot() was restored prior
-to being unloaded.
+> Although the sticking point may be the common files that
+> still contain a lot of ifdefs.
 
-Andy
+That's ok initially. We can probably split up functions
+somewhat or do other tricks to reduce the number of
+ifdefs later on.
+
+Alternatively, we could do the splitting first and the
+nommu merge later. I don't really care about the order
+as long as things don't happen simultaneously in patch
+that's too big to check ;)
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

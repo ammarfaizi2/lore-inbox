@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVCJBKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVCJCkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVCJBKr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 20:10:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVCJBHw
+	id S261739AbVCJCkV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 21:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbVCJCVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:07:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:48031 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262615AbVCJAm0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:26 -0500
-Cc: ecashin@coraid.com
-Subject: [PATCH] aoe status.sh: handle sysfs not in /etc/mtab
-In-Reply-To: <11104139631637@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:19:23 -0800
-Message-Id: <11104139632443@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
+	Wed, 9 Mar 2005 21:21:21 -0500
+Received: from taco.zianet.com ([216.234.192.159]:23300 "HELO taco.zianet.com")
+	by vger.kernel.org with SMTP id S261666AbVCJCRJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 21:17:09 -0500
+From: Steven Cole <elenstev@mesatop.com>
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Subject: Re: Problem with PPPD on dialup with 2.6.11-bk1 and later; 2.6.11 is OK
+Date: Wed, 9 Mar 2005 19:14:24 -0700
+User-Agent: KMail/1.6.1
+Cc: Russell King <rmk+serial@arm.linux.org.uk>,
+       Stephen Hemminger <shemminger@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503091914.24612.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2039, 2005/03/09 10:21:52-08:00, ecashin@coraid.com
+Today at 04:57:37 pm, I wrote:
+>Earlier today, I reported "PPPD fails on recent 2.6.11-bk".  I've narrowed
+>the problem down to between 2.6.11 and 2.6.11-bk1.
+>
+>I get this with 2.6.11-bk1: (two attempts)
+>
+>Mar  9 16:34:32 spc pppd[1142]: pppd 2.4.1 started by steven, uid 501
+>Mar  9 16:34:32 spc pppd[1142]: Using interface ppp0
+>Mar  9 16:34:32 spc pppd[1142]: Connect: ppp0 <--> /dev/ttyS1
+>Mar  9 16:34:56 spc pppd[1142]: Hangup (SIGHUP)
+>Mar  9 16:34:56 spc pppd[1142]: Modem hangup
+>Mar  9 16:34:56 spc pppd[1142]: Connection terminated.
+>Mar  9 16:34:56 spc pppd[1142]: Exit.
 
-[PATCH] aoe status.sh: handle sysfs not in /etc/mtab
+Searching lkml archive, I found:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111031501416334&w=2
 
-Suse 9.1 Pro doesn't put /sys in /etc/mtab.  This patch makes the
-example aoe status.sh script work when sysfs is mounted but `mount`
-doesn't mention sysfs.
+I also found that reverting that patch made the problem go away for 2.6.11-bk1.
 
+The bookmarkable link for this changeset is here:
+http://linus.bkbits.net:8080/linux-2.5/cset@4228d0d83vitxwMSdjDcnjt90uXocg?nav=index.html|ChangeSet@-8w
 
-aoe status.sh: handle sysfs not in /etc/mtab
+Stephen Hemminger also wrote: (Someting's busted with serial in 2.6.11 latest)
+>Some checkin since 2.6.11 has caused the serial driver to
+>drop characters.  Console output is chopped and messages are garbled.
+>Even the shell prompt gets truncated.
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-
- Documentation/aoe/status.sh |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
-
-
-diff -Nru a/Documentation/aoe/status.sh b/Documentation/aoe/status.sh
---- a/Documentation/aoe/status.sh	2005-03-09 16:15:46 -08:00
-+++ b/Documentation/aoe/status.sh	2005-03-09 16:15:46 -08:00
-@@ -4,10 +4,13 @@
- set -e
- format="%8s\t%8s\t%8s\n"
- me=`basename $0`
-+sysd=${sysfs_dir:-/sys}
- 
- # printf "$format" device mac netif state
- 
--test -z "`mount | grep sysfs`" && {
-+# Suse 9.1 Pro doesn't put /sys in /etc/mtab
-+#test -z "`mount | grep sysfs`" && {
-+test ! -d "$sysd/block" && {
- 	echo "$me Error: sysfs is not mounted" 1>&2
- 	exit 1
- }
-@@ -16,7 +19,7 @@
- 	exit 1
- }
- 
--for d in `ls -d /sys/block/etherd* 2>/dev/null | grep -v p` end; do
-+for d in `ls -d $sysd/block/etherd* 2>/dev/null | grep -v p` end; do
- 	# maybe ls comes up empty, so we use "end"
- 	test $d = end && continue
- 
+Hope this helps,
+Steven
 

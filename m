@@ -1,91 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266687AbUJFCFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUJFCIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266687AbUJFCFp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 22:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266689AbUJFCFo
+	id S266758AbUJFCIF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 22:08:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUJFCIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 22:05:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61129 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266687AbUJFCFe (ORCPT
+	Tue, 5 Oct 2004 22:08:05 -0400
+Received: from havoc.gtf.org ([69.28.190.101]:45015 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S266758AbUJFCHx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 22:05:34 -0400
-Date: Tue, 5 Oct 2004 19:05:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Zachary Amsden <zach@vmware.com>
-cc: linux-kernel@vger.kernel.org, Riley@Williams.Name, davej@codemonkey.org.uk,
-       hpa@zytor.com, Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] i386/gcc bug with do_test_wp_bit 
-In-Reply-To: <41634E21.6020808@vmware.com>
-Message-ID: <Pine.LNX.4.58.0410051903090.8290@ppc970.osdl.org>
-References: <41634E21.6020808@vmware.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Oct 2004 22:07:53 -0400
+Date: Tue, 5 Oct 2004 22:07:34 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Robert Love <rml@novell.com>, Roland Dreier <roland@topspin.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata, VIA SATA))
+Message-ID: <20041006020734.GA29383@havoc.gtf.org>
+References: <4136E4660006E2F7@mail-7.tiscali.it> <41634236.1020602@pobox.com> <52is9or78f.fsf_-_@topspin.com> <4163465F.6070309@pobox.com> <41634A34.20500@yahoo.com.au> <41634CF3.5040807@pobox.com> <1097027575.5062.100.camel@localhost> <20041006015515.GA28536@havoc.gtf.org> <41635248.5090903@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41635248.5090903@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 5 Oct 2004, Zachary Amsden wrote:
+On Wed, Oct 06, 2004 at 12:02:48PM +1000, Nick Piggin wrote:
+> Jeff Garzik wrote:
+> >On Tue, Oct 05, 2004 at 09:52:55PM -0400, Robert Love wrote:
+> >
+> >>On Tue, 2004-10-05 at 21:40 -0400, Jeff Garzik wrote:
+> >>
+> >>
+> >>>And with preempt you're still hiding stuff that needs fixing.  And when 
+> >>>it gets fixed, you don't need preempt.
+> >>>
+> >>>Therefore, preempt is just a hack that hides stuff that wants fixing 
+> >>>anyway.
 > 
-> I've included a small trivial fix that is harmless for users not using 
-> gcc 3.3.3.  Testing: my 2.6 kernel now boots when compiled with gcc 
-> 3.3.3 compiler.
+> What is it hiding exactly?
 
-Thanks. However, it really should use the "noinline" define that we have 
-for this, and that doesn't upset older versions of gcc that don't 
-understand the "noinline" attribute. 
+Bugs and high latency code paths that should instead be fixed.
 
-Also, declaration and definition should match, even if gcc doesn't seem to 
-catch that.
 
-So here's the version I committed. It should be obviously ok, but it's 
-still a good idea to verify..
+> >>This actually sounds like the argument for preempt, and against
+> >
+> >
+> >As opposed to fixing drivers???  Please fix the drivers and code first.
+> >
+> 
+> I thought you just said preempt should be turned off because it
+> breaks things (ie. as opposed to fixing the things that it breaks).
+> 
+> But anyway, yeah obviously fixing drivers always == good. I don't
+> think anybody advocated otherwise.
 
-		Linus
+By _definition_, when you turn on preempt, you hide the stuff I just
+described above.
 
----
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/10/05 18:51:53-07:00 torvalds@evo.osdl.org 
-#   i386: mark do_test_wp_bit() noinline
-#   
-#   As reported by Zachary Amsden <zach@vmware.com>,
-#   some gcc versions will inline the function even when
-#   it is declared after the call-site. This particular
-#   function must not be inlined, since the exception
-#   recovery doesn't like __init sections (which the caller
-#   is in).
-# 
-# arch/i386/mm/init.c
-#   2004/10/05 18:51:43-07:00 torvalds@evo.osdl.org +2 -2
-#   i386: mark do_test_wp_bit() noinline
-#   
-#   As reported by Zachary Amsden <zach@vmware.com>,
-#   some gcc versions will inline the function even when
-#   it is declared after the call-site. This particular
-#   function must not be inlined, since the exception
-#   recovery doesn't like __init sections (which the caller
-#   is in).
-# 
-diff -Nru a/arch/i386/mm/init.c b/arch/i386/mm/init.c
---- a/arch/i386/mm/init.c	2004-10-05 19:04:53 -07:00
-+++ b/arch/i386/mm/init.c	2004-10-05 19:04:53 -07:00
-@@ -45,7 +45,7 @@
- DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
- unsigned long highstart_pfn, highend_pfn;
- 
--static int do_test_wp_bit(void);
-+static int noinline do_test_wp_bit(void);
- 
- /*
-  * Creates a middle page table and puts a pointer to it in the
-@@ -673,7 +673,7 @@
-  * This function cannot be __init, since exceptions don't work in that
-  * section.  Put this after the callers, so that it cannot be inlined.
-  */
--static int do_test_wp_bit(void)
-+static int noinline do_test_wp_bit(void)
- {
- 	char tmp_reg;
- 	int flag;
+Hiding that stuff means that users and developers won't see code paths
+that need fixing.  If users and developers aren't aware of code paths
+that need fixing, they don't get fixed.
+
+Therefore, by advocating preempt, you are advocating a solution _other
+than_ actually making the necessary fixes.
+
+	Jeff
+
+

@@ -1,80 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266417AbTAOOGj>; Wed, 15 Jan 2003 09:06:39 -0500
+	id <S266527AbTAOOOB>; Wed, 15 Jan 2003 09:14:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266425AbTAOOGj>; Wed, 15 Jan 2003 09:06:39 -0500
-Received: from [65.193.106.66] ([65.193.106.66]:65048 "EHLO
-	xchangeserver2.storigen.com") by vger.kernel.org with ESMTP
-	id <S266417AbTAOOGi> convert rfc822-to-8bit; Wed, 15 Jan 2003 09:06:38 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S266473AbTAOOMj>; Wed, 15 Jan 2003 09:12:39 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:26588 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S266453AbTAOOMb>;
+	Wed, 15 Jan 2003 09:12:31 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: VIA C3 and random SIGTRAP or segfault
-Date: Wed, 15 Jan 2003 09:15:29 -0500
-Message-ID: <7BFCE5F1EF28D64198522688F5449D5AC63352@xchangeserver2.storigen.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: VIA C3 and random SIGTRAP or segfault
-Thread-Index: AcK8kamBl5aKQjVHS96sjeIrnKt7hwADm9xA
-From: "Larry Sendlosky" <Larry.Sendlosky@storigen.com>
-To: "Dave Jones" <davej@codemonkey.org.uk>,
-       "Miklos Szeredi" <Miklos.Szeredi@eth.ericsson.se>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15909.28249.617353.381378@harpo.it.uu.se>
+Date: Wed, 15 Jan 2003 15:21:13 +0100
+To: Ross Biro <rossb@google.com>
+Cc: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: [2.4.21-pre3] Fix for Promise PIO Lockup
+In-Reply-To: <3E2368CF.6050608@google.com>
+References: <3E2368CF.6050608@google.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're seeing the same thing on a mini-ITX based system.
-init is segfaulting :(( .  We've never seen this on our
-other non-C3 systems running the same codebase. We've instrumented
-the kernel to help catch the initial problem, hopefully it will
-trigger soon.
-
-Dave, will the cmov generate a segfault or illegal instr trap (SIGILL?) ?
-
-thanks
-larry
-
-
-
------Original Message-----
-From: Dave Jones [mailto:davej@codemonkey.org.uk]
-Sent: Wednesday, January 15, 2003 7:23 AM
-To: Miklos Szeredi
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA C3 and random SIGTRAP or segfault
-
-
-On Wed, Jan 15, 2003 at 10:29:01AM +0100, Miklos Szeredi wrote:
+Ross Biro writes:
+ > Newer kernels will lock up when a drive command (SMART, hdparm -I, etc.) 
+ > is issued to a drive connected to a Promise 20265 or 20267 controller 
+ > while the controller is in DMA mode.  The problem appears to be that 
+ > tune_chipset incorrectly clears the high PIO bit thinking that it is a 
+ > "PIO force on" bit.  The documentation I have access to does not seem to 
+ > mention a PIO force bit.  Not changing that bit seems to fix the problem 
+ > with drive commands on a promise controller.
  > 
- > I just bought a VIA C3 866 processor, and under very special
- > circumstances some programs (e.g. mplayer, xmms) randomly crash with
- > trace/breakpoint trap or segmentation fault.  Otherwise the system
- > seems stable even under high load.
+ > The documentation I have also says the values for the TB and TC 
+ > variables should be the same for all UDMA modes and they are not. 
+ >  However the driver seems to work anyway, so I left them the way they are.
+ > 
+ > To reproduce this problem make sure your drive is set to a DMA mode, eg 
+ > hdparm -X 67 and then issue a drive command, e.g. hdparm -I.
 
-Be sure that those programs aren't compiled for 686. The C3 lacks
-cmov, so it'll segfault when it hits that opcode. You can confirm
-this by running it under gdb, and disassembling where it segv's to.
-This is still a common problem thats biting some people. The debian
-folks had a broken libssl for months up until recently.
+I have tried to reproduce this problem according to your description
+above, but neither my 20269 (with "new" driver) nor my 20267 (with
+"old" driver) hangs. I checked with kernels 2.5.58 and 2.4.21-pre3.
 
-Note to userspace developers: If you're compiling something as
-a 686 binary, you *NEED* to check the feature flags (in an i386
-compiled program) to see if the CPU has cmov before you load 686
-optimised parts of your app.  This is *NOT* a kernel problem,
-it is *NOT* a CPU bug. The cmov extension is optional.
-VIA chose to save silicon space by not implementing it. 
-Gcc unfortunatly always uses cmov when compiling for 686.
+Maybe something else is needed for the hang to occur?
 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+/Mikael

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129847AbRAPDVX>; Mon, 15 Jan 2001 22:21:23 -0500
+	id <S129641AbRAPD2H>; Mon, 15 Jan 2001 22:28:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129875AbRAPDVN>; Mon, 15 Jan 2001 22:21:13 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:31758 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129847AbRAPDVC>; Mon, 15 Jan 2001 22:21:02 -0500
+	id <S129747AbRAPD14>; Mon, 15 Jan 2001 22:27:56 -0500
+Received: from isunix.it.ilstu.edu ([138.87.124.103]:36614 "EHLO
+	isunix.it.ilstu.edu") by vger.kernel.org with ESMTP
+	id <S129641AbRAPD1v>; Mon, 15 Jan 2001 22:27:51 -0500
+From: Tim Hockin <thockin@isunix.it.ilstu.edu>
+Message-Id: <200101160258.UAA04062@isunix.it.ilstu.edu>
+Subject: IDE not fully found (2.4.0)
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: pre5 VM feedback..
-Date: 15 Jan 2001 19:20:51 -0800
-Organization: Transmeta Corporation
-Message-ID: <940emj$6re$1@penguin.transmeta.com>
-In-Reply-To: <3A63A9AE.345CBAF3@mandrakesoft.com> <940cq0$6fe$1@penguin.transmeta.com> <3A63B9E8.F7E850F@mandrakesoft.com>
+Date: Mon, 15 Jan 2001 20:58:06 -0600 (CST)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A63B9E8.F7E850F@mandrakesoft.com>,
-Jeff Garzik  <jgarzik@mandrakesoft.com> wrote:
->Linus Torvalds wrote:
->> In article <3A63A9AE.345CBAF3@mandrakesoft.com>,
->> Jeff Garzik  <jgarzik@mandrakesoft.com> wrote:
->> >$!@#@! pre6 is already out :)
->
->> Yes, and for heavens sake don't use it, [...]
->
->Too late...  First and foremost, a correction:  The VM data I posted was
->for pre1, not pre5.  Here is the VM data from a freshly rebooted pre6,
->if that's worth anything:  http://gtf.org/garzik/vm2/
->
->Hopefully pre6 will survive long enough to complete tulip testing :)
+Just built a new system with Linux-2.4.0.
 
-Careful, careful, careful.
+Motherboard (MSI 694D-AR) has Via Apollo Pro chipset, those IDE drives seem
+fine.  Board also has a promise PDC20265  RAID/ATA100 controller.  On each
+channel of this controller I have an IBM 45 GB ATA100 drive as master.
+(hde and hdg?).  BIOS sees these drives fine.  Linux only see hde and never
+hdg (ide[012] but not ide3).  I thought I'd post it here, in case anyone
+else knew the answer right away.  
 
-The problem is that pre6 survives quite nicely, but because of the silly
-typo in __mark_inode_dirty() it won't actually mark inodes dirty. 
-Unless you are actually using the newly integrated raiser-fs, in which
-case you should be just peachy ;)
+Second question:  Does the RAID functionality of this device work under
+linux?  If so, is it better than LVM or MD?
 
-Note that the bug is not even noticeable under many loads - especially
-if you have lots of memory.  The inodes just get happily cached for a
-long time.  Which is why I could release a pre6, not even noticing that
-it's strange and not writing out inode data to the disk. 
-
-With a gig of RAM, inodes tend to cache really well. 
-
-Now, I'm not saying your filesystem is toast.  I'm just saying that if
-you booted up in pre6, I'd suggest a quick reboot into a better kernel
-might be a good idea (be a jock, and do a sync and just push the reset
-button to force a proper fsck when it comes up - just in case).
-
-(And yes, I renamed the pre6's really quickly, so you had to be unlucky
-to see them.)
-
-			Linus
+boot snippet:
+---------------
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: chipset revision 16
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt82c686a IDE UDMA66 controller on pci0:7.1
+    ide0: BM-DMA at 0xc000-0xc007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xc008-0xc00f, BIOS settings: hdc:DMA, hdd:pio
+PDC20265: IDE controller on PCI bus 00 dev 60
+PDC20265: chipset revision 2
+PDC20265: not 100% native mode: will probe irqs later
+PDC20265: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER
+Mode.
+    ide2: BM-DMA at 0xdc00-0xdc07, BIOS settings: hde:pio, hdf:pio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289849AbSBKRCb>; Mon, 11 Feb 2002 12:02:31 -0500
+	id <S289854AbSBKRKx>; Mon, 11 Feb 2002 12:10:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289850AbSBKRCW>; Mon, 11 Feb 2002 12:02:22 -0500
-Received: from www.casdn.neu.edu ([155.33.251.101]:19983 "EHLO
-	www.casdn.neu.edu") by vger.kernel.org with ESMTP
-	id <S289849AbSBKRCK>; Mon, 11 Feb 2002 12:02:10 -0500
-From: "Andrew Scott" <A.J.Scott@casdn.neu.edu>
-Organization: Northeastern University
-To: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Date: Mon, 11 Feb 2002 12:01:20 -0500
-MIME-Version: 1.0
-Subject: Re: windows is more secure than linux!!
-Reply-to: A.J.Scott@casdn.neu.edu
-Message-ID: <3C67B28E.5199.18B551@localhost>
-In-Reply-To: <B0C77D98347F826499A03C1FE22DE33B@william.fitzgerald2.beer.com>
-In-Reply-To: <Pine.LNX.4.33L.0202051621590.12225-100000@duckman.distro.conectiva>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id <S289855AbSBKRKo>; Mon, 11 Feb 2002 12:10:44 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:20239 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S289854AbSBKRK1>;
+	Mon, 11 Feb 2002 12:10:27 -0500
+Date: Mon, 11 Feb 2002 18:10:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IDE cleanup for 2.5.4-pre3
+Message-ID: <20020211181013.K729@suse.de>
+In-Reply-To: <20020208231346.GA1209@elf.ucw.cz> <20020211094230.E1957@suse.de> <20020211134443.GC20854@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020211134443.GC20854@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Feb 2002 at 16:41, Rik van Riel wrote:
+On Mon, Feb 11 2002, Pavel Machek wrote:
+> Hi!
+> 
+> > > Here are first small ide cleanups. Jens, please apply,
+> > 
+> > Looks good to me.
+> 
+> Is it "Looks good to me, applied", or "Looks good to me, good luck
+> pushing it to Linus?" :-).
 
-> On Wed, 6 Feb 2002, william fitzgerald wrote:
-> 
-> > some of you might find this interesting others
-> > disheartening
-> 
-> Still others, like me, find it very encouraging
-> that Microsoft can't stop talking about Linux.
-> They must be enthusiastic about it, or something.
-> 
-> > www.shortnews.com/shownews.cfm?id=16886&u_id=623
-> 
-> Now add the security holes in ISS, Outlook, Exchange,
-> Access and all available pieces of Windows software
-> into the picture so Linux and Windows are measured on
-> an equal ground.
-> 
-> Lies, damn lies & statistics.
+As in I've applied it to my tree, it should find it's way upwards :-)
 
-Or as my dad used to say, "Figures don't lie, but liers can figure".
-
-
-                      _
-                     / \   / ascott@casdn.neu.edu
-                    / \ \ /
-                   /   \_/
+-- 
+Jens Axboe
 

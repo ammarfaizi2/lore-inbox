@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265139AbTA2INP>; Wed, 29 Jan 2003 03:13:15 -0500
+	id <S265369AbTA2IVX>; Wed, 29 Jan 2003 03:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265196AbTA2INP>; Wed, 29 Jan 2003 03:13:15 -0500
-Received: from postoffice.virtusa.com ([12.40.51.200]:62735 "EHLO
-	mailserver.virtusa.com") by vger.kernel.org with ESMTP
-	id <S265139AbTA2INO>; Wed, 29 Jan 2003 03:13:14 -0500
-Date: Wed, 29 Jan 2003 14:22:26 +0600
-From: Anuradha Ratnaweera <ARatnaweera@virtusa.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where are the matroxfb updates?
-Message-ID: <20030129082226.GA668@aratnaweera.virtusa.com>
-References: <20030129020639.GA10213@aratnaweera.virtusa.com> <20030129053159.GA5999@platan.vc.cvut.cz> <20030129073629.GA26091@aratnaweera.virtusa.com> <20030129080420.GB4950@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030129080420.GB4950@vana.vc.cvut.cz>
-User-Agent: Mutt/1.3.28i
+	id <S265373AbTA2IVX>; Wed, 29 Jan 2003 03:21:23 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:44717 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S265369AbTA2IVX>; Wed, 29 Jan 2003 03:21:23 -0500
+Message-Id: <200301290830.h0T8UKaE002508@eeyore.valparaiso.cl>
+To: Catalin BOIE <util@ns2.deuroconsult.ro>
+cc: Enlight <enlight@bentonrea.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Problem - See attached dmesg dump 
+In-Reply-To: Your message of "Tue, 28 Jan 2003 14:21:11 +0200."
+             <Pine.LNX.4.33.0301281419510.10512-100000@hosting.rdsbv.ro> 
+Date: Wed, 29 Jan 2003 09:30:20 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29, 2003 at 12:04:20AM -0800, Petr Vandrovec wrote:
->
-> On Wed, Jan 29, 2003 at 01:36:29PM +0600, Anuradha Ratnaweera wrote:
-> > 
-> > -pre3 and -pre4 don't build matroxfb_g450 and matroxfb_crtc2 as
-> > modules.  I have FB_MATROX_G450 set to "m", so these modules don't
-> > get added to obj-m.  The "ifeq"s in the Makefile now check only for
-> > the value "y" of this symbol, not for "m".
+Catalin BOIE <util@ns2.deuroconsult.ro> said:
+> > > While running make to build xfce3.8.18 I get an internal gcc error
+> > > segmentation fault.  Also got similar error running rpmdrake.  Needless to
+> > > say I can't finish the build.
 > 
-> You did not run 'make oldconfig', did you?
+> I get this error too. gcc 3.2.1 seg faults a lot when compiling a kernel.
+> Motherboard: gigabyte 7avx (I think) K400.
+> Under Windows 2000 (don't ask why, please...) no BSOD.
 
-I did.  (I use make-kpkg on Debian, so it does another superfluous make
-oldconfig, too).  But I tried many other variations before looking at
-the Makefile and Config.in itself.
-
-> By default people use secondary output on g550 and they were
-> complaining that they see nothing.
-
-Then isn't it then sane to make FB_MATROX_G450 to "bool" and not
-"tristate", because selecting "m" does _nothing_ !
-
-> So you do not have choice to screw up things now.
-
-Only for 550 owners, though :-(
-
-BTW, now I _have_ g450 built into the kernel (see signature below) and
-both monitors display the same screen.  /dev/fb1 gets registered, and
-ttys get moved to it with con2fb, but not to any of the monitors.  Both
-monitors still seem to act as /dev/fb0.  The moved tty no longer exist.
-
-Didn't have time to do more research on this.
-
-Thanks.
-
-	Anuradha
-
+Segfaults in gcc are usually caused by bad RAM (<http://www.memtest86.com>)
+or broken fans (CPU mostly). "Win* works fine" is of no consecuence, Linux
+works your machine to its limits, Win* doesn't come close; Linux does
+complain when something goes wrong, Win* just sweeps the error under the
+rug and hopes all goes well.
 -- 
-
-Debian GNU/Linux (kernel 2.4.21-pre4)
-
-It is amazing how complete is the delusion that beauty is goodness.
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

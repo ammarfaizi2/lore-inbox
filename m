@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262689AbTDUX1v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 19:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbTDUX1v
+	id S262694AbTDUXcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 19:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbTDUXcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 19:27:51 -0400
-Received: from CPE-203-51-32-18.nsw.bigpond.net.au ([203.51.32.18]:44536 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S262689AbTDUX1u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 19:27:50 -0400
-Message-ID: <3EA48145.70A5589@eyal.emu.id.au>
-Date: Tue, 22 Apr 2003 09:39:49 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-e3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc1 - unresolved
-References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+	Mon, 21 Apr 2003 19:32:08 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:50927 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id S262694AbTDUXcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 19:32:08 -0400
+Date: Mon, 21 Apr 2003 16:39:41 -0700
+From: Chris Wright <chris@wirex.com>
+To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Cc: Chris Wright <chris@wirex.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: grsecurity in 2.5?
+Message-ID: <20030421163941.E11886@figure1.int.wirex.com>
+Mail-Followup-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
+	Chris Wright <chris@wirex.com>, lkml <linux-kernel@vger.kernel.org>
+References: <20030421212501.GA30266@kroah.com> <Pine.LNX.4.44.0304212335520.25621-100000@server.piarista-kkt.sulinet.hu> <20030421143849.A11883@figure1.int.wirex.com> <1050968186.3065.16.camel@flat41>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1050968186.3065.16.camel@flat41>; from gj@pointblue.com.pl on Tue, Apr 22, 2003 at 12:36:26AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-> Here goes the first candidate for 2.4.21.
-> 
-> Please test it extensively.
+* Grzegorz Jaskiewicz (gj@pointblue.com.pl) wrote:
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.21-rc1/kernel/drivers/char/ipmi/ipmi_msghandler.o
-depmod:         panic_notifier_list
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.21-rc1/kernel/drivers/char/ipmi/ipmi_watchdog.o
-depmod:         panic_notifier_list
-depmod:         panic_timeout
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.21-rc1/kernel/drivers/net/fc/iph5526.o
-depmod:         fc_type_trans
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.21-rc1/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
+> Maybe we should start to bring them piece by piece, fe. PaX first and
+> others. 
 
-The ipmi ones are old, the fc is new, the comx is well known.
+PaX is an example of something that won't port to LSM.  The grsecurity
+MAC, RBAC, chroot restrictions, TPE are the types of things that would port
+nicely.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+> Question is not that will somebody do that, i am sure of that - grsec is
+> needed in 2.4 - and it will be needed in 2.6. Question is, if it will be
+> included in mainstream kernel release ?
+
+I don't expect to see it in 2.6 mainline at all.  The patch could be
+reduced if some of the core access control logic was placed in an LSM.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

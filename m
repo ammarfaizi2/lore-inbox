@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282329AbRLSSlZ>; Wed, 19 Dec 2001 13:41:25 -0500
+	id <S282481AbRLSSsH>; Wed, 19 Dec 2001 13:48:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282213AbRLSSlP>; Wed, 19 Dec 2001 13:41:15 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:47628 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S282329AbRLSSk7>; Wed, 19 Dec 2001 13:40:59 -0500
-Message-ID: <3C20DF31.1F862501@lexus.com>
-Date: Wed, 19 Dec 2001 10:40:49 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-rc2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-CC: Daniel Phillips <phillips@bonn-fries.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IRC (was: Scheduler)
-In-Reply-To: <Pine.LNX.4.33.0112191010170.27345-100000@shell1.aracnet.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S282489AbRLSSr4>; Wed, 19 Dec 2001 13:47:56 -0500
+Received: from adsl-64-109-202-217.dsl.milwwi.ameritech.net ([64.109.202.217]:43513
+	"EHLO alphaflight.d6.dnsalias.org") by vger.kernel.org with ESMTP
+	id <S282481AbRLSSrq>; Wed, 19 Dec 2001 13:47:46 -0500
+Date: Wed, 19 Dec 2001 12:47:45 -0600
+From: "M. R. Brown" <mrbrown@0xd6.org>
+To: nbecker@fred.net
+Cc: Benoit Poulot-Cazajous <poulot@ifrance.com>, linux-kernel@vger.kernel.org
+Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
+Message-ID: <20011219184745.GF19236@0xd6.org>
+In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org> <lnitb3drx6.fsf_-_@walhalla.agaha> <20011219175616.GD19236@0xd6.org> <x88itb3njfr.fsf@rpppc1.hns.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NklN7DEeGtkPCoo3"
+Content-Disposition: inline
+In-Reply-To: <x88itb3njfr.fsf@rpppc1.hns.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"M. Edward (Ed) Borasky" wrote:
 
->  mIRC 5.91 and I await with
-> bated breath. (Yes, I do use a Windows IRC client -- wanna make
-> something of it? :-)
+--NklN7DEeGtkPCoo3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-(shrug) whatever turns you on, I guess...
+* nbecker@fred.net <nbecker@fred.net> on Wed, Dec 19, 2001:
 
-I will mention that there is this cool OS
-called Linux, you might have heard of it -
+> >>>>> "M" =3D=3D M R Brown <mrbrown@0xd6.org> writes:
+>=20
+>=20
+>     M> Curious, what happens when you compile using gcc 3.0.1 against
+>     M> -march=3Dathlon?
+>=20
+> Is it safe to use gcc-3.0.2 to compile the kernel?
 
-There are a number of very nice irc clients
-available for it
+Absolutely not.  There was at least one reported ICE (internal compiler
+error) with drivers/net/8139too.c.  Stick to the 2.95.x series.
 
-;-)
+M. R.
 
-jjs
+--NklN7DEeGtkPCoo3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
+iD8DBQE8IODRaK6pP/GNw0URAuS0AJ9ytcR9oy3MqXqFSscYQhg58uhtYwCgrEiO
+U2kR7VWoIbqJvVRBGC3/iDc=
+=SIJz
+-----END PGP SIGNATURE-----
 
+--NklN7DEeGtkPCoo3--

@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269807AbTGKGnT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 02:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269805AbTGKGnT
+	id S269810AbTGKGys (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 02:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269811AbTGKGys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 02:43:19 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:24224 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S269807AbTGKGnM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 02:43:12 -0400
-Message-ID: <3F0E6072.7060105@i-one.at>
-Date: Fri, 11 Jul 2003 09:00:02 +0200
-From: Oliver Martin <oliver.martin@i-one.at>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; de-AT; rv:1.4) Gecko/20030624
-X-Accept-Language: de-at, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: HTree, Orlov for ext3 with 2.4.21
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 11 Jul 2003 02:54:48 -0400
+Received: from AMarseille-201-1-5-121.w217-128.abo.wanadoo.fr ([217.128.250.121]:62503
+	"EHLO gaston") by vger.kernel.org with ESMTP id S269810AbTGKGyq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 02:54:46 -0400
+Subject: Re: Linux 2.5.75
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1057907355.505.28.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 11 Jul 2003 09:09:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I want to use kernel 2.4.21 with the HTree and Orlov patches applied
-with an ext3 filesystem. Where can I get the newest versions thereof
-(for my desired kernel)? I've found
-http://thunk.org/tytso/linux/extfs-2.4-update/ and there is a 2.4.21
-version and I found both the strings Orlov and HTree in it, but I don't
-know if it's really the patch I want, if it's for ext3 and if it's the
-newest version. I've also read of a HTree NFS patch, where can I get it?
+On Thu, 2003-07-10 at 23:14, Linus Torvalds wrote:
+> Ok. This is it. We (Andrew and me) are going to start a "pre-2.6" series,
+> where getting patches in is going to be a lot harder. This is the last
+> 2.5.x kernel, so take note.
+> 
+> The probably most notable thing here is the anticipatory scheduler,
+> which has been in -mm for a long time, and was the major piece that
+> hadn't been merged. 
+> 
+> Some architecture updates: cris has been updated for 2.5, ia64 and arm26 
+> updates etc.  And various random (smallish) things.
 
-Thanks in advance,
-Oliver
+Hi Linus !
+
+I'm quite concerned about Power Management. Patrick haven't yet merged
+the new implementation which changes the driver-side semantics to
+something sane and your above mail seem to imply this is now too late.
+
+While I agree these should have been merged a lot earlier, I'm also
+annoyed by the fact that the existing save_state/suspend semantics
+are just plain broken...
+
+What do you plan on this regard ? Patrick, do you still need to hold
+your patch until OLS ? They should get in now, that won't prevent
+you from doing your paper ;)
+
+Ben.
 

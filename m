@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268163AbTCFR1k>; Thu, 6 Mar 2003 12:27:40 -0500
+	id <S268131AbTCFRdw>; Thu, 6 Mar 2003 12:33:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268168AbTCFR1k>; Thu, 6 Mar 2003 12:27:40 -0500
-Received: from ns.xdr.com ([209.48.37.1]:33410 "EHLO xdr.com")
-	by vger.kernel.org with ESMTP id <S268163AbTCFR1i>;
-	Thu, 6 Mar 2003 12:27:38 -0500
-Date: Thu, 6 Mar 2003 09:38:14 -0800
-From: David Ashley <dash@xdr.com>
-Message-Id: <200303061738.h26HcEF1021753@xdr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Possible socket problem?
+	id <S268140AbTCFRdw>; Thu, 6 Mar 2003 12:33:52 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64519 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268131AbTCFRdv>; Thu, 6 Mar 2003 12:33:51 -0500
+Date: Thu, 6 Mar 2003 09:42:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <Pine.LNX.4.44.0303061819160.14218-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0303060936301.7206-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm seeing some strange behaviour with sockets under 2.4.20, and the
-same thing on 2.4.18. I haven't tried any other kernel versions though or
-done any more investigation, but all signs seem to point to a socket problem
-in the kernel.
 
-My program is reading from a socket produced like this:
-        sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-I connect() the socket to an external server (an IMAP mail server). The server
-throws lots of data down the line. The indication is that if the socket's
-receive buffer fills up, I can no longer read from the socket, the read
-just blocks forever. Same if I select() on the socket, it never reports data
-is ready. I can tcpdump and see plenty of data having arrived after
-the point where the last read succeeded.
+On Thu, 6 Mar 2003, Ingo Molnar wrote:
+> 
+> another thing. What really happens in the 'recompile job' thing is not
+> that X gets non-interactive. Most of the time it _is_ interactive.
 
-The problem goes away if I do this:
-        i=4096;
-        j=setsockopt(sock,SOL_SOCKET,SO_RCVBUF,&i,sizeof(i));
+This is not what I've seen.
 
-It still occured when I set the RCVBUF size to 50000.
+When X is interactive, and is competing against other interactive jobs, 
+you don't get multi-second slowdowns. X still gets 10% of the CPU, it just 
+gets it in smaller chunks.
 
-When the freeze happens I can find the last data received from the socket
-in the tcpdump log, and it always is the last bytes in a single tcp packet.
-More tcp packets follow, but they don't cause the read() to return.
+The multi-second "freezes" are the thing that bothered me, and those were
+definitely due to the fact that X was competing as a _non_interactive
+member against other non-interactive members, causing it to still get 10%
+of the CPU, but only every few seconds. So you'd get a very bursty
+behaviour with very visible pauses.
 
-I'm not doing any ioctl's or weird stuff, and I only read() or write() to the
-socket.
+It's ok to slow X down. Nobody in their right mind would expect X to track 
+the mouse 100% when scrolling and the machine load is 15+. I certainly 
+don't.
 
--Dave
+But having X just _pause_ for several seconds gets to me. I can't easily 
+make it happen any more thanks to having ridiculous hardware, and I think 
+X itself has gotten better thanks to more optimizations in both clients 
+and X itself (ie if the CPU requirements of X go down from 5% to 3%, it 
+gets a _lot_ harder to trigger).
+
+But it was definitely there. 3-5 second _pauses_. Not slowdowns.
+
+		Linus
 

@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbULTP3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbULTPV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbULTP3M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 10:29:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbULTPZi
+	id S261536AbULTPV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 10:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbULTPTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 10:25:38 -0500
-Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:42731 "EHLO
-	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261546AbULTPXT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 10:23:19 -0500
-Subject: Re: arch/xen clue?
-From: Anton Altaparmakov <aia21@cam.ac.uk>
+	Mon, 20 Dec 2004 10:19:54 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:63375 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261539AbULTPPn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 10:15:43 -0500
 To: Dorn Hetzel <kernel@dorn.hetzel.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, Pavel Machek <pavel@suse.cz>,
+cc: Bill Davidsen <davidsen@tmr.com>, Pavel Machek <pavel@suse.cz>,
        Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Andi Kleen <ak@suse.de>,
-       Rik van Riel <riel@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
-In-Reply-To: <20041220150857.GA14839@lilah.hetzel.org>
-References: <20041215114916.GB1232@elf.ucw.cz> <41C20FFF.6000004@tmr.com>
-	 <20041220150857.GA14839@lilah.hetzel.org>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Date: Mon, 20 Dec 2004 15:23:09 +0000
-Message-Id: <1103556189.23986.20.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk
+Subject: Re: arch/xen clue? 
+In-reply-to: Your message of "Mon, 20 Dec 2004 10:08:57 EST."
+             <20041220150857.GA14839@lilah.hetzel.org> 
+Date: Mon, 20 Dec 2004 15:15:07 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CgPFc-0005NI-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-20 at 10:08 -0500, Dorn Hetzel wrote:
+> 
 > For those of us who are clueless as to even what arch/xen
 > is :)  Where would be a good place to read and become
 > informed?
 
-http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
+http://xen.sf.net
 
-Best regards,
+There's a bunch of papers and documentation etc.
 
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Ian
 

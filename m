@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262534AbTIUS7j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 14:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbTIUS7j
+	id S262553AbTIUTNb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 15:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbTIUTNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 14:59:39 -0400
-Received: from home.linuxhacker.ru ([194.67.236.68]:5044 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S262534AbTIUS7i (ORCPT
+	Sun, 21 Sep 2003 15:13:31 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:34466 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262547AbTIUTNa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 14:59:38 -0400
-Date: Sun, 21 Sep 2003 22:59:22 +0400
-From: Oleg Drokin <green@linuxhacker.ru>
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: [PATCH] [2.4] devio.c memleak on unexpected disconnect
-Message-ID: <20030921185922.GA1185@linuxhacker.ru>
+	Sun, 21 Sep 2003 15:13:30 -0400
+Date: Sun, 21 Sep 2003 21:13:25 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH 2/2] synaptics: Code cleanup
+Message-ID: <20030921191324.GA22315@ucw.cz>
+References: <m2k782t0w0.fsf@p4.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <m2k782t0w0.fsf@p4.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sun, Sep 21, 2003 at 09:08:47PM +0200, Peter Osterlund wrote:
 
-  There is a memleak in devio.c (User space communication with USB devices)
-  recently added, it forgets to free the buffer if device was disconnected.
+> Here is a patch containing some cleanups in synaptics.c. It doesn't change
+> any behavior. From Dmitry Torokhov. Please apply.
 
-  The patch is trivial, please apply.
-  Found with help of smatch.
+Done.
 
-
-===== drivers/usb/devio.c 1.17 vs edited =====
---- 1.17/drivers/usb/devio.c	Mon Aug 19 20:49:38 2002
-+++ edited/drivers/usb/devio.c	Sun Sep 21 22:51:15 2003
-@@ -1114,7 +1114,7 @@
-                        usb_driver_release_interface (driver, ifp);
-                        up (&driver->serialize);
-                } else
--                       return -ENODATA;
-+                       retval = -ENODATA;
-                break;
- 
-        /* let kernel drivers try to (re)bind to the interface */
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

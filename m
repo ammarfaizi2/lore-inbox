@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUFJOoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbUFJOqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUFJOoW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 10:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUFJOoW
+	id S261416AbUFJOqg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 10:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUFJOqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 10:44:22 -0400
-Received: from cantor.suse.de ([195.135.220.2]:4035 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261405AbUFJOoR (ORCPT
+	Thu, 10 Jun 2004 10:46:36 -0400
+Received: from cantor.suse.de ([195.135.220.2]:37316 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261416AbUFJOp0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 10:44:17 -0400
-Subject: [PATCH 1/2] add BH_Eopnotsupp for testing async barrier failures
+	Thu, 10 Jun 2004 10:45:26 -0400
+Subject: [PATCH 1/2 without line wrapping] add BH_Eopnotsupp for testing
+	async barrier failures
 From: Chris Mason <mason@suse.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1086878615.10973.313.camel@watt.suse.com>
+Message-Id: <1086878758.10973.317.camel@watt.suse.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 10 Jun 2004 10:43:35 -0400
+Date: Thu, 10 Jun 2004 10:45:58 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 In order for filesystems to detect asynchronous ordered write failures
 for buffers sent via submit_bh, they need a bit they can test for in
-the buffer head.  This adds BH_Eopnotsupp and the related buffer
-operations
+the buffer head.  This adds BH_Eopnotsupp and the related buffer operations
 
 end_buffer_write_sync is changed to avoid a printk for BH_Eoptnotsupp
 related failures, since the FS is responsible for a retry.
@@ -72,10 +72,8 @@ Index: linux.rc3/fs/buffer.c
  	} else {
 Index: linux.rc3/include/linux/buffer_head.h
 ===================================================================
---- linux.rc3.orig/include/linux/buffer_head.h	2004-06-10
-09:53:17.000000000 -0400
-+++ linux.rc3/include/linux/buffer_head.h	2004-06-10 09:56:39.000000000
--0400
+--- linux.rc3.orig/include/linux/buffer_head.h	2004-06-10 09:53:17.000000000 -0400
++++ linux.rc3/include/linux/buffer_head.h	2004-06-10 09:56:39.000000000 -0400
 @@ -27,6 +27,7 @@ enum bh_state_bits {
  	BH_Boundary,	/* Block is followed by a discontiguity */
  	BH_Write_EIO,	/* I/O error on write */

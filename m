@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbULPOce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbULPOce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbULPOce (ORCPT <rfc822;willy@w.ods.org>);
+	id S262678AbULPOce (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 16 Dec 2004 09:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbULPOam
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbULPOaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 09:30:42 -0500
-Received: from cantor.suse.de ([195.135.220.2]:23475 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262670AbULPO22 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 09:28:28 -0500
-Date: Thu, 16 Dec 2004 15:28:24 +0100
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
-       Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk
-Subject: Re: arch/xen is a bad idea
-Message-ID: <20041216142824.GC29761@wotan.suse.de>
-References: <p73acsg1za1.fsf@bragg.suse.de> <E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk> <20041215044927.GF27225@wotan.suse.de> <1103155782.3585.29.camel@localhost.localdomain> <20041216040136.GA30555@wotan.suse.de> <1103201656.3804.7.camel@localhost.localdomain> <20041216140954.GA29761@wotan.suse.de> <1103203145.3804.13.camel@localhost.localdomain>
+	Thu, 16 Dec 2004 09:30:20 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:31156 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S262678AbULPO2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 09:28:43 -0500
+Date: Thu, 16 Dec 2004 15:28:20 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Dave Airlie <airlied@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at mm/rmap.c:480 in 2.6.10-rc3-bk7
+Message-ID: <20041216142820.GN28286@dualathlon.random>
+References: <20041215234141.GA9268@kroah.com> <Pine.LNX.4.44.0412160455520.4496-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1103203145.3804.13.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0412160455520.4496-100000@localhost.localdomain>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 01:19:06PM +0000, Alan Cox wrote:
-> On Iau, 2004-12-16 at 14:09, Andi Kleen wrote:
-> > Also e.g. for non performance critical 
-> > things like changing MTRRs or debug registers it would be IMHO much 
-> > cleaner to just emulate the instructions (the ISA is very well 
-> > defined) and not change the kernel here.  From a look at Ian's list
-> > the majority of the changes needed for Xen actually fall into
-> > this category. 
-> 
-> There are so many problems in snooping and decoding instructions it
-> isn't funny. Aside from the mmap pci buffer half way through instruction
+On Thu, Dec 16, 2004 at 05:18:59AM +0000, Hugh Dickins wrote:
+> going on, such avoidance may be the right course of action; but not yet.
 
-Hmm? From what I remember reading the code of the Xen hypervisor
-they are already emulating a lot of instructions (e.g. take a look
-at xen/arch/x86/x86_32/seg_fixup.c) Emulating some more doesn't 
-seem like a big issue to me.
+Yes, the real reason of my changes are quite unrelated to this bug: i.e.
+we to keep mapcount zero for all pages with page->mapping = NULL so they
+don't even enter objrmap.c, and to enforce other nice bits like that
+page-reserved must have page->mapping = NULL and other VM_RESERVED
+related enforcements. It wasn't meant to hide bugs and infact we should
+remove anything that that hides real bugs if my changes are truly hiding
+them. I still don't excude they're a real fix though, the fact I can't
+tell the exact reason why they help doesn't mean they're not fixing the
+real bug (there's quite some code in objrmap.c that definitely should
+not be involved with non-pageable pages, and my patch enforces this,
+unlike mainline).
 
-> that will emulate type stuff there are a lot of awkward issues if you
-> want to emulate multiple mtrr sets (you need PAT).
+Infact if a page becomes suddenly unreserved, shouldn't the accounting
+break anyways at the page->count level? The page would be freed twice
+instead of once.
 
-No way different from doing it with a magic interface. MTRR is exposed
-to kernel subsystems (a lot of things in the service OS will want to
-play with it) and to user space (with also a lot of users). The magic
-interface will need to provide a full MTRR interface anyways.  The 
-only difference would be basically how you tell the hypervisor to
-change them.
+I wonder if the sg_cleanup explains why some mapped reserved page
+suddenly become unreserved. Can you track if the DRM_IOCTL_SG_FREE is
+being called in a mapped vma? I guess you could start by enabling
+DRM(flags) in drm_init.h.
 
-[Not saying that PAT is actually needed for this, but as a general 
-comment:]
-Also using PAT for that would be definitely a good idea, MTRRs just
-have so many problems that any step away from them is a good thing.
+#if 0
+int DRM(flags) = DRM_FLAG_DEBUG;
+#else
+int DRM(flags) = 0;
+#endif
 
-
--Andi
+(set to 1 and then it should print something)

@@ -1,89 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318308AbSIEXuI>; Thu, 5 Sep 2002 19:50:08 -0400
+	id <S318302AbSIEX5J>; Thu, 5 Sep 2002 19:57:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318310AbSIEXuH>; Thu, 5 Sep 2002 19:50:07 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:29740 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S318308AbSIEXuG>;
-	Thu, 5 Sep 2002 19:50:06 -0400
-From: <Hell.Surfers@cwctv.net>
-To: kirk@braille.uwo.ca, linux-kernel@vger.kernel.org
-Date: Fri, 6 Sep 2002 00:53:53 +0100
-Subject: Re: 2.5.xx kernels won't run on my Athlon boxes
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1031270033492"
-Message-ID: <0a0c35552230592DTVMAIL9@smtp.cwctv.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---1031270033492
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Try a new ac kernel from ALAN COX, I think he works on IDE code, btw are you using a IBM deskstar?
-
-
-
-On 	05 Sep 2002 19:12:41 -0400 	Kirk Reiser <kirk@braille.uwo.ca> wrote:
-
---1031270033492
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
+	id <S318510AbSIEX5H>; Thu, 5 Sep 2002 19:57:07 -0400
+Received: from stine.vestdata.no ([195.204.68.10]:10892 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S318302AbSIEX5E>; Thu, 5 Sep 2002 19:57:04 -0400
+Date: Fri, 6 Sep 2002 02:01:38 +0200
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
+Message-ID: <20020906020138.A23940@vestdata.no>
+References: <20020904.223651.79770866.davem@redhat.com> <20020905135442.A19682@namesys.com> <20020905174902.A32687@namesys.com> <1031234624.1726.224.camel@tiny> <20020905181721.D32687@namesys.com> <1031244334.1684.264.camel@tiny> <20020905212545.A5349@namesys.com> <20020905211849.GA3942@pegasys.ws> <20020906000249.A10844@vestdata.no> <20020905225706.GC3942@pegasys.ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Fri, 6 Sep 2002 00:41:04 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319307AbSIEXIn>; Thu, 5 Sep 2002 19:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319308AbSIEXI1>; Thu, 5 Sep 2002 19:08:27 -0400
-Received: from speech.linux-speakup.org ([129.100.109.30]:3781 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S319307AbSIEXII>; Thu, 5 Sep 2002 19:08:08 -0400
-Received: from kirk by speech.braille.uwo.ca with local (Exim 3.35 #1 (Debian))
-	id 17n5nl-0006kk-00; Thu, 05 Sep 2002 19:12:41 -0400
-To: <Hell.Surfers@cwctv.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.xx kernels won't run on my Athlon boxes
-References: <093d71655220592DTVMAIL10@smtp.cwctv.net>
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 05 Sep 2002 19:12:41 -0400
-In-Reply-To: <093d71655220592DTVMAIL10@smtp.cwctv.net>
-Message-ID: <x7ofbct4ie.fsf@speech.braille.uwo.ca>
-Lines: 17
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020905225706.GC3942@pegasys.ws>; from jw@pegasys.ws on Thu, Sep 05, 2002 at 03:57:06PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-<Hell.Surfers@cwctv.net> writes:
+On Thu, Sep 05, 2002 at 03:57:06PM -0700, jw schultz wrote:
+> > Now, I've just checked the source of GNU find (v4.1.7) and it does _not_
+> > recognize nlink=1 as a special value. (It works as long as there are
+> > less than 2^32 subdirectories though, because it is looking for -1
+> > subdirectories and it wraps)
+> 
+> So a value of 0 would have the same effect.
+> (0 - 2 == -2 vs 1 - 2 == -1) Yes?
 
+Yes, it will. For GNU find.
 
-> Suppose its either PIO/DMA IDE stuff or your kernel had a flea
-Any suggestion how to isolate a pio/dma problem?
+But the reasoning for using nlink==1 is that that's how "all non-unix
+filesystems" behaved, so applications out there could potentially check
+for it. 
 
-> problem, [irony] because it is itchy [/irony].
-It's certainly acting like a dog.
+> I know it is used for reporting purposes such as ls -l.  It
+> would also used by archiving tools like cpio, tar and rsync
+> to identify files that may be linked so that not every file
+> must be checked against every previous file.  A smart
+> archiving tool would track the link count and remove entries
+> that have all links found so any value that isn't recognized
+> as an overflow indicator would tend to break things.  I see
+> the value of 0 as indicating "link count unsupported".
 
-  Kirk
+Hmm, yes. Values of 1 or NLINK_MAX would definitively confuse such
+applications. But then again, so would a value of 0 unless they know
+it's meaning.
+
 
 
 -- 
-
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1031270033492--
-
-
+Ragnar Kjørstad

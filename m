@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVBWNP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVBWNWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVBWNP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 08:15:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVBWNP0
+	id S261487AbVBWNWm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 08:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVBWNWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 08:15:26 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:15829 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261485AbVBWNPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 08:15:21 -0500
-Message-ID: <421C8193.2050808@grupopie.com>
-Date: Wed, 23 Feb 2005 13:13:55 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+	Wed, 23 Feb 2005 08:22:39 -0500
+Received: from viefep13-int.chello.at ([213.46.255.15]:54608 "EHLO
+	viefep13-int.chello.at") by vger.kernel.org with ESMTP
+	id S261487AbVBWNWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 08:22:36 -0500
+Message-ID: <421C83A2.9040502@vollwerbung.at>
+Date: Wed, 23 Feb 2005 14:22:42 +0100
+From: Nils Kalchhauser <n.kalchhauser@vollwerbung.at>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050208)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: OT: Why is usb data many times the cpu hog that firewire is?
-References: <200502211216.35194.gene.heskett@verizon.net> <200502211325.55013.gene.heskett@verizon.net> <20050221182952.GF6722@wiggy.net> <200502211708.27211.gene.heskett@verizon.net> <20050222231000.GA3163@waste.org>
-In-Reply-To: <20050222231000.GA3163@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: mouse still losing sync and thus jumping around
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
->[...]
-> JPEG data is DCT of 8x8 pixel chunks. If you can get at that, you can
-> compare the DC terms of each chunk with minimal decoding. Various
-> thumbnailers do this for speed already.
+Hi!
 
-I really doubt that this would work. It seems to me that you can have 
-very different DC terms with very similar results. In other words, even 
-a little noise in the picture might produce very different DC terms.
 
-Instead of comparing the DC terms, you could compare just the luminance. 
-You would have to decompress just half the data for that and you 
-wouldn't need to make the YUV->RGB conversion. That would probably save 
-a few cycles.
+I still get the following messages and my mouse jumps around weirdly 
+making work rather difficult regardless of which 2.6 kernel I use (tried 
+2.6.8, 2.6.9, 2.6.10, 2.6.11-rc2 with patch-see below, 2.6.11-rc4):
 
--- 
-Paulo Marques - www.grupopie.com
+psmouse.c: Mouse at isa0060/serio4/input0 lost synchronization, throwing 
+2 bytes away.
+psmouse.c: Mouse at isa0060/serio4/input0 lost synchronization, throwing 
+2 bytes away.
+psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 4
+psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio2/input0 - driver resynched.
+psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+(using either the touchpad or the connected PS/2 mouse)
+
+I tried the patch Dmitry Torokhov supplied in the message with subject 
+"Re: Really annoying bug in the mouse driver" from Jan 27 which 
+supposedly fixes this problem. unfortunately it only got worse.
+
+the problem is really annoying with windows sometimes closing because of 
+sporadic mouse clicks etc. I would happily try patches and help in 
+debugging, so if anyone has an idea or if more info about my 
+setup/config is needed, just tell me.
+
+
+thanks a lot,
+Nils
+

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136186AbRDVPqi>; Sun, 22 Apr 2001 11:46:38 -0400
+	id <S136189AbRDVP7W>; Sun, 22 Apr 2001 11:59:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136187AbRDVPq2>; Sun, 22 Apr 2001 11:46:28 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:9223 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S136186AbRDVPqW>;
-	Sun, 22 Apr 2001 11:46:22 -0400
-Date: Sun, 22 Apr 2001 11:46:48 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Francois Romieu <romieu@cogenit.fr>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-Message-ID: <20010422114648.G28605@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alexander Viro <viro@math.psu.edu>,
-	Francois Romieu <romieu@cogenit.fr>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010422133947.A21908@se1.cogenit.fr> <Pine.GSO.4.21.0104220819490.28681-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S136190AbRDVP7M>; Sun, 22 Apr 2001 11:59:12 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:33034 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S136189AbRDVP64>;
+	Sun, 22 Apr 2001 11:58:56 -0400
+To: Daniel Dorau <woodst@cs.tu-berlin.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Inspiron 8000 does not resume after suspend
+In-Reply-To: <20010421145133.A419@woodstock.home.xxx>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 22 Apr 2001 17:58:48 +0200
+In-Reply-To: Daniel Dorau's message of "Sat, 21 Apr 2001 14:51:33 +0200"
+Message-ID: <d3elul0vuv.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0104220819490.28681-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Apr 22, 2001 at 08:33:44AM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu>:
-> Eric, it would save everyone a lot of time if you actually cared to
-> pull your head out of your... theoretical constructions and spent
-> some efforts figuring out how the things really work.
+>>>>> "Daniel" == Daniel Dorau <woodst@cs.tu-berlin.de> writes:
 
-I've had my nose rubbed in how things really work.  That's why I want to
-fix the things that are broken about how things really work.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Daniel> Hello, my Inspiron 8000 (BIOS A09) notebook running 2.4.3 does
+Daniel> not resume after suspending. I have APM compiled in with the
+Daniel> following options:
 
-"To disarm the people... was the best and most effectual way to enslave them."
-        -- George Mason, speech of June 14, 1788
+Daniel> - Enable PM at boot time - Make CPU Idle calls whe ide -
+Daniel> Enable console blanking using APM - RTC stores time in GMT
+
+This sounds a little like the problem I am seeing with my
+StinkPad 600E, you might want to try enabling CONFIG_APM_ALLOW_INTS
+and see if that makes a difference (thats the magic option required
+for the 600E).
+
+Jes

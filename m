@@ -1,90 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265811AbUALAZr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 19:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265841AbUALAZq
+	id S265841AbUALAlg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 19:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265842AbUALAlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 19:25:46 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:7352 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S265811AbUALAZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 19:25:44 -0500
-Date: Sun, 11 Jan 2004 16:25:34 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Oliver Neukum <oliver@neukum.org>, David Brownell <david-b@pacbell.net>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       USB Developers <linux-usb-devel@lists.sourceforge.net>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] Re: USB hangs
-Message-ID: <20040112002534.GC8082@one-eyed-alien.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Oliver Neukum <oliver@neukum.org>,
-	David Brownell <david-b@pacbell.net>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	USB Developers <linux-usb-devel@lists.sourceforge.net>,
-	Greg KH <greg@kroah.com>
-References: <1073779636.17720.3.camel@dhcp23.swansea.linux.org.uk> <1073788437.17793.0.camel@dhcp23.swansea.linux.org.uk> <4001DB52.7030908@pacbell.net> <200401120033.40230.oliver@neukum.org> <1073866181.26806.4.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yLVHuoLXiP9kZBkt"
-Content-Disposition: inline
-In-Reply-To: <1073866181.26806.4.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	Sun, 11 Jan 2004 19:41:36 -0500
+Received: from 66-95-121-230.client.dsl.net ([66.95.121.230]:61371 "EHLO
+	mail.lig.net") by vger.kernel.org with ESMTP id S265841AbUALAld
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 19:41:33 -0500
+Message-ID: <4001ECBE.1020009@lig.net>
+Date: Sun, 11 Jan 2004 19:39:26 -0500
+From: "Stephen D. Williams" <sdw@lig.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tabris <tabris@tabris.net>
+Cc: "Hunt, Adam" <ahunt@solvone.com>, linux-kernel@vger.kernel.org
+Subject: High Quality Random sources, was: Re: SecuriKey
+References: <5117BFF0551DD64884B32EE8CA57D3DB01548A3F@revere.nwpump.com> <200401111446.27403.tabris@tabris.net>
+In-Reply-To: <200401111446.27403.tabris@tabris.net>
+Content-Type: multipart/mixed;
+ boundary="------------040206000607010908050108"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040206000607010908050108
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---yLVHuoLXiP9kZBkt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Impossible?  I think not.  Some "mechanical" devices do exhibit true 
+random capability, especially when enhanced by algorithmic means.
+To wit:  http://www.lavarand.org/
 
-On Mon, Jan 12, 2004 at 12:09:41AM +0000, Alan Cox wrote:
-> On Sul, 2004-01-11 at 23:33, Oliver Neukum wrote:
-> > For users of a kernel thread it helps. But what affects storage
-> > also make affect anything else that has a filesystem running
-> > over it. Plus it forces us to keep the storage thread model, which
-> > might be a solution that needs to be revisited.
->=20
-> Its a larger hammer, for 2.6 I agree that moving the right code to
-> GFP_NOIO is far better a solution. For 2.4 I just want it working with
-> minimal risk of screwups.
+Let me know if you can prove their methods don't provide a true "high 
+quality" random source.
 
-Well, I have no objection to adding that to 2.4 -- either push to Marcelo
-yourself or send it to Greg K-H for inclusion in his 2.4 tree and eventual
-push upstream.
+I'd like to see their code as a module with an automatic test to make 
+sure that the random source is high quality.  In this case, that would 
+mean making sure that the cap was not off the camera.
 
-But we do need to do some sort of 2.6 audit for this sort of thing.
+sdw
 
-Matt
+tabris wrote:
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+>...
+>	I should also mention that the problem with 'generating' an OTP via any 
+>mechanical or algorithmic means is impossible as at best an OTP will only 
+>be pseudo-random, and therefore with identical inputs (assuming it is 
+>possible, which we can assume here for the sake of theory and security), 
+>the same OTP can be generated, thus breaking our assumption/necessity of 
+>non-deterministic output.
+>
+>	I'd say more but I'm on my way to work.
+>- --
+>tabris
+>- -
+>I do not know whether I was then a man dreaming I was a butterfly, or
+>whether I am now a butterfly dreaming I am a man.
+>		-- Chuang-tzu
+>-----BEGIN PGP SIGNATURE-----
+>Version: GnuPG v1.2.3 (GNU/Linux)
+>
+>iD8DBQFAAagR1U5ZaPMbKQcRAmo2AJ0Wc6xTLCd/swZYlEO6emktLhOtRgCfUUP5
+>OB4YFi6bh1yrVMzGIoN6XNs=
+>=O/uT
+>-----END PGP SIGNATURE-----
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
-G:   Baaap booop BAHHHP.
-Mir: 9600 Baud?
-Mik: No, no!  9600 goes baap booop, not booop bahhhp!
-					-- Greg, Miranda and Mike
-User Friendly, 12/31/1998
 
---yLVHuoLXiP9kZBkt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-- 
+swilliams@hpti.com http://www.hpti.com Personal: sdw@lig.net http://sdw.st
+Stephen D. Williams 703-724-0118W 703-995-0407Fax 20147-4622 AIM: sdw
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFAAel+IjReC7bSPZARAj+UAKDW9wQuiJD1VXD+inxeESENBFOpgACgntP/
-92/LPXR0jA12yJ0fHCPtNY0=
-=KfXJ
------END PGP SIGNATURE-----
+--------------040206000607010908050108
+Content-Type: text/x-vcard; charset=utf8;
+ name="sdw.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="sdw.vcf"
 
---yLVHuoLXiP9kZBkt--
+begin:vcard
+fn:Stephen Williams
+n:Williams;Stephen
+org:High Performance Technologies, Inc.
+adr:;;43392 Wayside Circle;Ashburn;VA;20147;US
+email;internet:sdw@lig.net
+title:Senior Technical Director
+tel;work:703-724-0118
+tel;fax:703-995-0407
+tel;pager:sdwpage@lig.net
+tel;home:703-729-5405
+tel;cell:703-371-9362
+x-mozilla-html:FALSE
+url:http://www.hpti.com
+version:2.1
+end:vcard
+
+
+--------------040206000607010908050108--

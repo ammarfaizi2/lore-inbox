@@ -1,136 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263186AbVCEANH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263277AbVCEAA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263186AbVCEANH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:13:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbVCEAJQ
+	id S263277AbVCEAA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbVCDXz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:09:16 -0500
-Received: from bender.bawue.de ([193.7.176.20]:57987 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S263290AbVCDWG2 (ORCPT
+	Fri, 4 Mar 2005 18:55:27 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28101 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263331AbVCDW5r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 17:06:28 -0500
-Date: Fri, 4 Mar 2005 23:06:23 +0100
-From: Joerg Sommrey <jo@sommrey.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>
-Subject: Re: [SATA] libata-dev queue updated
-Message-ID: <20050304220623.GA11867@sommrey.de>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>
-References: <200503022034.j22KYppm010967@bear.sommrey.de> <422641AF.8070309@pobox.com> <20050303193229.GA10265@sommrey.de> <4227DF76.3030401@pobox.com> <20050304063717.GA12203@sommrey.de> <422809D6.5090909@pobox.com> <20050304174956.GA10971@sommrey.de> <4228A3D4.8050906@pobox.com> <20050304203330.GA14557@sommrey.de> <4228C87A.8080205@pobox.com>
+	Fri, 4 Mar 2005 17:57:47 -0500
+Date: Fri, 4 Mar 2005 23:57:10 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, Linas Vepstas <linas@austin.ibm.com>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Message-ID: <20050304225710.GB2647@elf.ucw.cz>
+References: <422428EC.3090905@jp.fujitsu.com> <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org> <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk> <200503010910.29460.jbarnes@engr.sgi.com> <20050304135429.GC3485@openzaurus.ucw.cz> <1109975846.5680.305.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4228C87A.8080205@pobox.com>
+In-Reply-To: <1109975846.5680.305.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 03:43:38PM -0500, Jeff Garzik wrote:
-> Joerg Sommrey wrote:
-> >On Fri, Mar 04, 2005 at 01:07:16PM -0500, Jeff Garzik wrote:
-> >
-> >>Joerg Sommrey wrote:
-> >>
-> >>>On Fri, Mar 04, 2005 at 02:10:14AM -0500, Jeff Garzik wrote:
-> >>>
-> >>>
-> >>>>Joerg Sommrey wrote:
-> >>>>
-> >>>>
-> >>>>>On Thu, Mar 03, 2005 at 11:09:26PM -0500, Jeff Garzik wrote:
-> >>>>>
-> >>>>>
-> >>>>>
-> >>>>>>Joerg Sommrey wrote:
-> >>>>>>
-> >>>>>>
-> >>>>>>
-> >>>>>>>On Wed, Mar 02, 2005 at 05:43:59PM -0500, Jeff Garzik wrote:
-> >>>>>>>
-> >>>>>>>
-> >>>>>>>
-> >>>>>>>
-> >>>>>>>>Joerg Sommrey wrote:
-> >>>>>>>>
-> >>>>>>>>
-> >>>>>>>>
-> >>>>>>>>
-> >>>>>>>>>Jeff Garzik wrote:
-> >>>>>>>>>
-> >>>>>>>>>
-> >>>>>>>>>
-> >>>>>>>>>
-> >>>>>>>>>>Patch:
-> >>>>>>>>>>http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.11-rc5-bk4-libata-dev1.patch.bz2
-> >>>>>>>>>
-> >>>>>>>>>
-> >>>>>>>>>Still not usable here.  The same errors as before when backing up:
-> >>>>>>>>
-> >>>>>>>>Please try 2.6.11 without any patches.
-> >>>>>>>
-> >>>>>>>Plain 2.6.11 doesn't work either.  All of 2.6.10-ac11, 2.6.11-rc5,
-> >>>>>>>2.6.11-rc5 + 2.6.11-rc5-bk4-libata-dev1.patch and 2.6.11 fail with 
-> >>>>>>>the
-> >>>>>>>same symptoms. 
-> >>>>>>>
-> >>>>>>>Reverting to stable 2.6.10-ac8 :-)
-> >>>>>>
-> >>>>>>Does reverting the attached patch in 2.6.11 (apply with patch -R) fix 
-> >>>>>>things?
-> >>>>>>
-> >>>>>
-> >>>>>
-> >>>>>Still the same with this patch reverted.
-> >>>>
-> >>>>Does reverting the attached patch in 2.6.11 fix things?  (apply with 
-> >>>>patch -R)
-> >>>>
-> >>>>This patch reverts the entire libata back to 2.6.10.
-> >>>>
-> >>>
-> >>>I'm confused.  Still the same with everything reverted.  What shall I do
-> >>>now?
-> >>
-> >>Well, first, thanks for your patience in narrowing this down.
-> >>
-> >>This means we have eliminated libata as a problem source, but we still 
-> >>have the rest of the kernel go to through :)
-> >>
-> >>Try disabling ACPI with 'acpi=off' or 'pci=biosirq' to see if that fixes 
-> >>things.
-> >>
-> >
-> >I tried both settings with plain 2.6.11. Almost the same results, in my
-> >impression apci=off causes the failure to appear even faster.
-> 
-> Just to make sure I have things right, please tell me if this is correct:
-> 
-> * 2.6.10 vanilla works
-> 
-> * 2.6.11 vanilla does not work
-> 
-> * 2.6.11 vanilla + 2.6.10 libata does not work
->   [2.6.10 libata == reverting all libata changes]
-> 
-> Is that all correct?
+Hi!
 
-Thanks for asking these precise questions.  After double-checking
-everything I found a typo in my configuration that changes things a bit.
-I repeated some tests and the correct answers are now:
-* 2.6.10 vanilla		works
-* 2.6.10-ac8			works
-* 2.6.10-ac11			does not work
-* 2.6.11 vanilla		does not work
-* 2.6.11 w/o promise.patch	does not work
-* 2.6.11 + 2.6.10 libata	works!
+> > Hmm, before we go async way (nasty locking, no?) could driver simply
+> > ask "did something bad happen while I was sleeping?" at begining of each
+> > function?
+> > 
+> > For DMA problems, driver probably has its own, timer-based,
+> > "something is wrong" timer, anyway, no?
+> 
+> No, there is no nasty locking, when the callback happens, pretty much
+> all IOs have stopped anyway due to errors, and we aren't on a critical
+> code path.
 
-This looks much more consistent to me but brings the case back to
-libata.
+What prevents driver from being run on another CPU, maybe just doing
+mdelay() between hardware accesses? 
 
--jo
-
+								Pavel
 -- 
--rw-r--r--  1 jo users 63 2005-03-04 22:48 /home/jo/.signature
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

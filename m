@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268269AbUJGVlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268294AbUJGVn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268269AbUJGVlo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUJGVlP
+	id S268294AbUJGVn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268283AbUJGVmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:41:15 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:516 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S268170AbUJGVjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:39:21 -0400
-Date: Thu, 7 Oct 2004 22:39:13 +0100
-From: Dave Jones <davej@redhat.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
-Message-ID: <20041007213913.GA5302@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-References: <20041007142019.D2441@build.pdx.osdl.net>
-Mime-Version: 1.0
+	Thu, 7 Oct 2004 17:42:03 -0400
+Received: from zero.aec.at ([193.170.194.10]:33551 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268080AbUJGVlE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 17:41:04 -0400
+To: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: strange AMD x Intel Behaviour in 2.4.26
+References: <2MLlk-5MH-5@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 07 Oct 2004 23:40:57 +0200
+In-Reply-To: <2MLlk-5MH-5@gated-at.bofh.it> (Fabiano Ramos's message of
+ "Thu, 07 Oct 2004 20:40:06 +0200")
+Message-ID: <m31xga2oly.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041007142019.D2441@build.pdx.osdl.net>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 02:20:19PM -0700, Chris Wright wrote:
- > Is this known?  Just came back from lunch, so I've no clue what kicked it
- > off.  Profile below. (2.6.9-rc3-bk from yesterday, pending updates don't
- > appear to touch vmscan or mm/ in general).
- > 
- > CPU: AMD64 processors, speed 1994.35 MHz (estimated)
- > Counted CPU_CLK_UNHALTED events (Cycles outside of halt state) with a
- > unit mask
- > of 0x00 (No unit mask) count 100000
- > samples  %        symbol name
- > 2410135  53.4092  balance_pgdat
- > 1328186  29.4329  shrink_zone
- > 555121   12.3016  shrink_slab
- > 84942     1.8823  __read_page_state
- > 40770     0.9035  timer_interrupt
+Fabiano Ramos <ramos_fabiano@yahoo.com.br> writes:
 
-I saw the same thing yesterday, also on an amd64 box though that
-could be coincidence. The kswapd1 process was pegging the cpu at 99%
-kswapd0 was idle.  After a few minutes, the box became so unresponsive
-I had to reboot it.
+>   The code is producing correct results (same as ptrace, I mean)
+> but is RUNNING FASTER on a 500Mhz AMD K6-2 than on a 2.6Ghz HT
+> Pentium 4 !!!!  The monitored code runs faster on P4 if not being
 
-I had put this down to me fiddling with some patches, and it hasnt'
-reappeared today yet, but it sounds like we're seeing the same thing.
+The Pentium 4 is slow for anything that involves changing of the 
+ring or an exception. Well known problem, you can see it in other
+benchmarks too. Normally the penalty is not that drastic, probably
+it doesn't like single stepping very much.
 
-Sadly, I didn't get a profile of what was happening.
-A 'make allmodconfig' triggered it for me, on a box with 2GB of ram,
-and 2GB of swap. No swap was in use when things 'went wierd', and
-there was a bunch of RAM sitting free too (about half a gig if memory
-serves correctly)
+However a cheaper way to do this would be to use performance counters
+and save/restore them on each context switch. There is normally a
+perfctr for "retired instructions on ring 3", which is what you
+want. Mikael P's perfctr patchkit can do that per process.
 
-		Dave
+-Andi
 

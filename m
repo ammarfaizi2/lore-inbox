@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267834AbRGRPMz>; Wed, 18 Jul 2001 11:12:55 -0400
+	id <S267492AbRGRPnc>; Wed, 18 Jul 2001 11:43:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267854AbRGRPMp>; Wed, 18 Jul 2001 11:12:45 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:65289 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267839AbRGRPMi>; Wed, 18 Jul 2001 11:12:38 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Wed, 18 Jul 2001 08:10:22 -0700
-Message-Id: <200107181510.f6IFAMW03662@penguin.transmeta.com>
-To: ja@himel.com, linux-kernel@vger.kernel.org
-Subject: Re: cpuid_eax damages registers (2.4.7pre7)
-Newsgroups: linux.dev.kernel
-In-Reply-To: <Pine.LNX.4.10.10107181347030.16710-100000@l>
+	id <S267886AbRGRPnW>; Wed, 18 Jul 2001 11:43:22 -0400
+Received: from mail11.bigmailbox.com ([209.132.220.42]:46094 "EHLO
+	mail11.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S267493AbRGRPnT>; Wed, 18 Jul 2001 11:43:19 -0400
+Date: Wed, 18 Jul 2001 08:43:17 -0700
+Message-Id: <200107181543.IAA09976@mail11.bigmailbox.com>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [198.253.22.197]
+From: "Jonathan Day" <jd9812@my-deja.com>
+To: linux-kernel@vger.kernel.org
+Subject: Paging problem, own fault, need help digging out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.10.10107181347030.16710-100000@l> you write:
->
->	I don't know whether cpuid_eax (2.4.7pre) should preserve the
->registers changed from cpuid
+Hi,
 
-It should. It has the proper "this instruction assigned values to these
-registers" stuff, so gcc should know which ones change.
+   I've reached a sticking problem with the FOLK project. The 2.x series of patches include a variety of additional gunk. Somewhere in there, it's messing up the memory manager. Using everything from SGI's KDB to a large sledgehammer, I've managed to identify that the problem occurs in the kernel's init process.
 
->			 but I have an oops on boot with 2.4.7pre7 in
->squash_the_stupid_serial_number where cpuid_eax changes ebx and the
->parameter "c" is loaded with "Genu". The following change fixes the
->problem:
+   What's happening seems straight-forward enough. It runs through the initialization OK, then tries to execve the init process. The init process hits a page fault, and the kernel promptly explodes.
 
-Interesting. Can you do the following:
+   If people on this list had the spare time to clean up after every kernel I'd exploded, Linux would be on version 5, would run on a 7 teraflop processor, and form the backbone of the 4 terabit cable network that was a standard fitting to every house on the planet.
 
- - tell us your compiler version
+   On the other hand, I'm hoping that someone might have some ideas on what sorts of things I could check, which files might be worth adding debug statements to, etc. I really want to actually do the debugging myself, but I'm not too proud to say that I'm befuddled and need some help on getting started with this one.
 
- - do a "make arch/i386/kernel/setup.s" both ways, and show what
-   squash_the_stupid_serial_number() looks like.
+   Thanks in advance for -any- help anyone can give.
 
- - fix _all_ the "cpuid*()" functions to have
+Jonathan Day
 
-	:"0" (op)
 
-   instead of their current incorrect
 
-	:"a" (op)
 
-   (we're supposed to explicitly tell the compiler that the first input
-   is the same as the first output)
-
- - see if that makes any difference to the assembler output.
-
-In any case it does sound like a compiler bug, but it would be good to
-have a workaround. But it would also be good to have a more complete
-dump of the oops in question to see more about what is going on..
-
-		Thanks,
-			Linus
+------------------------------------------------------------
+--== Sent via Deja.com ==--
+http://www.deja.com/

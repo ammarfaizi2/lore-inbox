@@ -1,79 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282513AbRKZUvx>; Mon, 26 Nov 2001 15:51:53 -0500
+	id <S282515AbRKZU4b>; Mon, 26 Nov 2001 15:56:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282490AbRKZUur>; Mon, 26 Nov 2001 15:50:47 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53767 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S282503AbRKZUtE>; Mon, 26 Nov 2001 15:49:04 -0500
-Date: Mon, 26 Nov 2001 15:42:29 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: David Relson <relson@osagesoftware.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Releases
-In-Reply-To: <4.3.2.7.2.20011124231412.00b40c50@mail.osagesoftware.com>
-Message-ID: <Pine.LNX.3.96.1011126151758.27112G-100000@gatekeeper.tmr.com>
+	id <S282520AbRKZUyv>; Mon, 26 Nov 2001 15:54:51 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:42122 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S282515AbRKZUyY>; Mon, 26 Nov 2001 15:54:24 -0500
+Date: Mon, 26 Nov 2001 15:53:54 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Rob Landley <landley@trommello.org>
+cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+In-Reply-To: <0111261159080F.02001@localhost.localdomain>
+Message-ID: <Pine.LNX.3.95.1011126151922.29433A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Nov 2001, David Relson wrote:
+On Mon, 26 Nov 2001, Rob Landley wrote:
 
-I wish you luck. About 18 months ago I offered to set up a testing group
-to take kernel source before it with up for ftp and to compile it on
-various x86, SPARC{32,64}, and ALPHA machines to be sure it would at least
-compile. I was told with varying degrees of rudeness that it would delay
-the releases (that is a GOOD thing in stable kernels), and that I should
-avoid the 2.4 series and use the "stable" 2.2 kernsls (2.4 IS a stable
-kernel of course, although you would never gues it).
- 
-> Over the past few months, I've been listening in on LKML, with occasional, 
-> minor comments - mostly to help newbies.  Now, I think it's time for a 
-> suggestion ...
+> On Sunday 25 November 2001 04:14, Chris Wedgwood wrote:
 > 
-> As we all know, several of the recent releases have had defects that have 
-> __required__ patches before they could be built (or used safely).  Problems 
-> with symlinks, loopbacks, and unmount come to mind as being like 
-> this.  They are all show stoppers that required immediate fixes and the 
-> creation of a new release or of the next -pre1 version.
+> >
+> > P.S. Write-caching in hard-drives is insanely dangerous for
+> >      journalling filesystems and can result in all sorts of nasties.
+> >      I recommend people turn this off in their init scripts (perhaps I
+> >      will send a patch for the kernel to do this on boot, I just
+> >      wonder if it will eat some drives).
 > 
-> I have a tendency to tink that it's better to be running a released kernel, 
-> than a pre-release kernel.  I'd much rather be running a kernel named 2.4.x 
-> than a kernel named 2.4.y-pre?.  With the recent problems, the working 
-> versions tend to be the -pre1 or -pre2 releases, not the released 
-> one.  With a bit of QA, I think we can have 2.4.x releases be the stable 
-> releases.  Here's how...
+> Anybody remember back when hard drives didn't reliably park themselves when 
+> they cut power?  This isn't something drive makers seem to pay much attention 
+> to until customers scream at them for a while...
 > 
-> When the kernel maintainer, now Marcelo for 2.4, is ready to release the 
-> next kernel, for example 2.4.16, I suggest he switch from "pre?" to "-rc1" 
-> (as in release candidate).  A day or two with -rc1 will quickly show if it 
-> has a show stopper.  If so, then the minor fixes (and nothing else) go into 
-> -rc2.  A day or two ..., and either -rc3 appears or we have a stable 
-> release and 2.4.16 is ready to be released.
+> Having no write caching on the IDE side isn't a solution either.  The problem 
+> is the largest block of data you can send to an ATA drive in a single command 
+> is smaller than modern track sizes (let alone all the tracks under the heads 
+> on a multi-head drive), so without any sort of cacheing in the drive at all 
+> you add rotational latency between each write request for the point you left 
+> off writing to come back under the head again.  This will positively KILL 
+> write performance.  (I suspect the situation's more or less the same for read 
+> too, but nobody's objecting to read cacheing.)
+> 
+> The solution isn't to avoid write cacheing altogether (performance is 100% 
+> guaranteed to suck otherwise, for reasons unrelated to how well your hardware 
+> works but to legacy request size limits in the ATA specification), but to 
+> have a SMALL write buffer, the size of one or two tracks to allow linear ATA 
+> write requests to be assembled into single whole-track writes, and to make 
+> sure the disks' electronics has enough capacitance in it to flush this buffer 
+> to disk.  (How much do capacitors cost?  We're talking what, an extra 20 
+> miliseconds?  The buffer should be small enough you don't have to do that 
+> much seeking.)
+> 
+> Just add an off-the-shelf capacitor to your circuit.  The firmware already 
+> has to detect power failure in order to park the head sanely, so make it 
+> flush the buffers along the way.  This isn't brain surgery, it just wasn't a 
+> design criteria on IBM's checklist of features approved in the meeting.  
+> (Maybe they ran out of donuts and adjourned the meeting early?)
+> 
+> Rob
 
-I do agree, of course. There's no reason to avoid -pre releases, but
-having -rc versions would be really useful because people who are waiting
-for features would then be motivated to test, knowing that only fixes will
-be applied. NOTE: this might mean that 2.4.18-pre1 would be out before
-2.4.17 was actually released. That may bother some people.
+It isn't that easy!  Any kind of power storage within the drive would
+have to be isolated with diodes so that it doesn't try to run your
+motherboard as well as the drive. This means that +5 volt logic supply 
+would now be 5.0 - 0.6 =  4.4 volts at the drive, well below the design
+voltage. Use of a Schottky diode (0.34 volts) would help somewhat, but you
+have now narrowed the normal power design-margin by 90 percent, not good.
 
-A stable kernel should have only new drivers and not a whole new VM, at
-least until it is in a development series and has been tested. If it were
-up to me I would have opened 2.5 when 2.4.0 was released, and all the VM
-stuff would have happened there. That's just the way I would assure
-stability, knowing that there is no lack of people to test Linux kernels
-no matter how unstable and patched... But a little truth in labeling would
-be nice, recently the "really stable" kernels were -ac, and that's
-probably not desirable.
+There is supposed to be a "power good" line out of your power supply
+which is supposed to tell equipment when the main power has failed or
+is about to fail. There isn't a "power good" line in SCSI so that
+doesn't help. 
 
-Maybe the time is right to separate -pre and -rc and let people who who
-want to test choose which, if either, they want to try. Some stuff really
-MUST be tested on production machines (the recent VM versions, for
-instance) to see which performs better and provide useful feedback.
+Basically, when the power fails, all bets are off. A write in progress
+may not succeed any more than a seek in progress would. Seeks take a
+lot of power, usually from the +12 volt line. Typically, if a write
+is in progress, when low power is sensed by the drive, write current
+is terminated. At one time, there was a electromagnet that was
+released to move the heads to a landing zone. Now there is none.
+The center of radius of the head arm is slightly forward of the
+center of rotation of the disk so that when the heads "land", they
+skate to the inside of the platter, off the active media. The media
+is supposed to be able to take this abuse for quite some time.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+When a partially written sector is read with a bad CRC, the host
+(not the drive) can rewrite the sector. As long as the sector
+header, which is ahead of the write-splice, isn't destroyed
+the disk doesn't need to be re-formatted. In the remote case where
+the sector header is destroyed, the bad sector may be re-mapped by
+the drive if there are any spare sectors still available. The first
+error returned to the host is the bad CRC. Subsequent reads will
+not return a bad CRC if the sector was re-mapped. However, the data
+is invalid! Therefore, the drivers can't retry reads expecting that
+a bad CRC got fixed so the data is okay. The driver needs to read
+all the sense data and try to figure it out.
+
+The solution is an UPS. When the UPS power gets low, shut down
+the computer, preferably automatically.
+
+Also, if your computer is on all day long as is typical at a
+workplace, never shut it off. Just turn off the monitor when you
+go home. Your disk drives will last until you decide to replace
+then because they are too small or too slow.
+
+And beware when you finally do turn off the computer. The disks
+may not spin up the next time you start the computer. It's a good
+idea to back up everything before shutting down a computer that
+has been running for a year or two.
+
+Of course you can re-boot as much as you want. Just don't kill the power!
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

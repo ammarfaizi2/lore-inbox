@@ -1,90 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265677AbTF2OAi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 10:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbTF2OAi
+	id S262032AbTF2OGo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 10:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbTF2OGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 10:00:38 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:14084 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S265676AbTF2OAc
+	Sun, 29 Jun 2003 10:06:43 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:15108 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262032AbTF2OGm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 10:00:32 -0400
-Date: Sun, 29 Jun 2003 16:14:13 +0200
+	Sun, 29 Jun 2003 10:06:42 -0400
+Date: Sun, 29 Jun 2003 16:20:47 +0200
 From: Willy TARREAU <willy@w.ods.org>
-To: bonding-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Cc: marcelo@conectiva.com.br
-Subject: [PATCH-2.4][RESEND] Oops with bonding when enslaving IP-less interface
-Message-ID: <20030629141413.GA345@pcw.home.local>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Willy TARREAU <willy@w.ods.org>, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH-2.4] Prevent mounting on ".."
+Message-ID: <20030629142047.GA359@pcw.home.local>
+References: <20030629130952.GA246@pcw.home.local> <20030629141102.GE27348@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030629141102.GE27348@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sun, Jun 29, 2003 at 03:11:03PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Sun, Jun 29, 2003 at 03:09:52PM +0200, Willy TARREAU wrote:
+> > chroot("/var/empty") (read-only directory or file-system)
+> > chdir("/")
+> > listen(), accept(), fork(), whatever...
+> > -> external code injection from a cracker :
+> >    mount("none", "..", "ramfs")
+> >    mkdir("../mydir")
+> >    chdir("../mydir")
+> >    the cracker now installs whatever he wants here.
+> 
+> That's a BS.  Same effect would be achieved by replacing ".." with ".".
+> Or mounting on any existing subdirectory.
 
-I sent this patch a while ago, but I think it got lost. With the new bonding
-code now in 2.4.22-pre2, you get an oops if you enslave devices which have no
-IP address. This is because of a piece of code which follows slave_dev->ip_ptr
-to get an IP address to use in ARP requests. I think that eventhough usefull,
-the implementation is a bit broken because of a global my_ip variable assigned
-once for all, and common to all bonds handled by the same module instance.
+No, it works only with "..", and not with "." ! I don't know why, I believe
+it's because the process is still attached to the old FS when mounting on ".".
 
-Anyway, here is a simple fix. It simply checks that the pointers are valid
-before following them.
+> If attacker can mount of chroot - you've LOST.  Already.  End of story.
 
-Of course, a better fix would be to have a my_ip per bond device, and either
-use a user-supplied one or the bond device's primary address, but I don't have
-time to change this.
+To me, it seems this is the *only* remaining case in an *empty* read-only
+directory. The fact is that the attacker needs at least a mount point to mount
+something. Not providing him one is efficient, but here he can only exploit
+"..".
 
-Here is the patch, rediffed against 2.4.22-pre2.
+Please reconsider the question, Al, because I really think that with this, we
+can get reliable jails for network daemons which don't need file access at all.
 
 Cheers,
 Willy
 
-
-diff -ur linux-2.4.22-pre2/drivers/net/bonding/bond_main.c linux-2.4.22-pre2-bond-oops/drivers/net/bonding/bond_main.c
---- linux-2.4.22-pre2/drivers/net/bonding/bond_main.c	Sun Jun 29 11:52:38 2003
-+++ linux-2.4.22-pre2-bond-oops/drivers/net/bonding/bond_main.c	Sun Jun 29 15:55:26 2003
-@@ -385,6 +385,10 @@
-  *	- In conjunction with fix for ifenslave -c, in
-  *	  bond_change_active(), changing to the already active slave
-  *	  is no longer an error (it successfully does nothing).
-+ *
-+ * 2003/03/17 - Willy Tarreau <wtarreau at meta-x.org>
-+ *	- fix bond_enslave() which could oops when the slave had no
-+ *	  IP address.
-  */
- 
- #include <linux/config.h>
-@@ -521,7 +525,7 @@
- MODULE_PARM(miimon, "i");
- MODULE_PARM_DESC(miimon, "Link check interval in milliseconds");
- MODULE_PARM(use_carrier, "i");
--MODULE_PARM_DESC(use_carrier, "Use netif_carrier_ok (vs MII ioctls) in miimon; 09 for off, 1 for on (default)");
-+MODULE_PARM_DESC(use_carrier, "Use netif_carrier_ok (vs MII ioctls) in miimon; 0 for off, 1 for on (default)");
- MODULE_PARM(mode, "s");
- MODULE_PARM_DESC(mode, "Mode of operation : 0 for round robin, 1 for active-backup, 2 for xor");
- MODULE_PARM(arp_interval, "i");
-@@ -1591,11 +1595,14 @@
- #endif
- 			bond_set_slave_inactive_flags(new_slave);
- 		}
--		read_lock_irqsave(&(((struct in_device *)slave_dev->ip_ptr)->lock), rflags);
--		ifap= &(((struct in_device *)slave_dev->ip_ptr)->ifa_list);
--		ifa = *ifap;
--		my_ip = ifa->ifa_address;
--		read_unlock_irqrestore(&(((struct in_device *)slave_dev->ip_ptr)->lock), rflags);
-+		if (((struct in_device *)slave_dev->ip_ptr) != NULL) {
-+			read_lock_irqsave(&(((struct in_device *)slave_dev->ip_ptr)->lock), rflags);
-+			ifap= &(((struct in_device *)slave_dev->ip_ptr)->ifa_list);
-+			ifa = *ifap;
-+			if (ifa != NULL)
-+				my_ip = ifa->ifa_address;
-+			read_unlock_irqrestore(&(((struct in_device *)slave_dev->ip_ptr)->lock), rflags);
-+		}
- 
- 		/* if there is a primary slave, remember it */
- 		if (primary != NULL) {

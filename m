@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267430AbRGLFIq>; Thu, 12 Jul 2001 01:08:46 -0400
+	id <S267429AbRGLFFF>; Thu, 12 Jul 2001 01:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbRGLFIf>; Thu, 12 Jul 2001 01:08:35 -0400
-Received: from otter.mbay.net ([206.40.79.2]:45062 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S267430AbRGLFIZ> convert rfc822-to-8bit;
-	Thu, 12 Jul 2001 01:08:25 -0400
-From: jalvo@mbay.net (John Alvord)
-To: linux-kernel@vger.kernel.org
-Subject: Re: Switching Kernels without Rebooting?
-Date: Thu, 12 Jul 2001 05:08:25 GMT
-Message-ID: <3b512f43.30115420@mail.mbay.net>
-In-Reply-To: <Pine.GSO.4.21L-021.0107120031570.7765-100000@unix14.andrew.cmu.edu>
-In-Reply-To: <Pine.GSO.4.21L-021.0107120031570.7765-100000@unix14.andrew.cmu.edu>
-X-Mailer: Forte Agent 1.5/32.451
-MIME-Version: 1.0
+	id <S267430AbRGLFEy>; Thu, 12 Jul 2001 01:04:54 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:4287 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S267429AbRGLFEu>;
+	Thu, 12 Jul 2001 01:04:50 -0400
+Message-ID: <XFMail.20010711220804.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3B4CF1BB.138FB64B@kegel.com>
+Date: Wed, 11 Jul 2001 22:08:04 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Dan Kegel <dank@kegel.com>
+Subject: Re: Improving (network) IO performance ...
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jul 2001 00:48:15 -0400 (EDT), Frank Davis
-<fdavis@andrew.cmu.edu> wrote:
 
->Hello all,
->  I believe that if such a project is to be undertaken, it first
->needs to be designed, then coded. I agree that is a difficult problem...As
->for its feasiblity, I'm unsure. Maybe the reason this topic comes up
->here from time to time is because it hasn't been shown to be a bad
->idea. It might be be, but if we don't start somewhere, then we'll never
->really know, and the debate will continue. Just my .02 cents.
->Regards,
+On 12-Jul-2001 Dan Kegel wrote:
+> Very cool.  Thanks for doing a no-scan implementation of /dev/poll!
+> Two questions:
+> 
+> 1) have you compared its performance against Vitaly Luban's 
+> signal-per-fd patch?  Even though it's realtime-signal based,
+> there's some hope for it being quite efficient.  See
+> http://www.luban.org/GPL/gpl.html and
+> http://boudicca.tux.org/hypermail/linux-kernel/2001week20/1353.html
 
-This topic comes up once a twice a year.
+There's more than the event collapsing inside the patch.
+I saw the Luban's work but I decided to use the Lever-Provos /dev/poll as a
+performance meter ( and the old poll() obviously ).
+This coz I read papers where RT signals implementations resulted to have less
+performance when compared to /dev/poll.
 
-Usually this topic comes to a grinding halt when someone points out
-that drivers can be created modular. They can be loaded and unloaded
-without rebooting Linux. One project used that technique to
-load/unload different schedulers. While this satisfies only part of
-the need, it is usually enough to satisfy the tinker-er.
 
-A more recent development is UML - User Mode Linux - where you can run
-a nearly complete Linux image in user mode. That way you can fiddle
-with file systems to your hearts content without rebooting the main
-system. I suspect that will satisfy others.
+> 2) A little birdie told me that someone had gotten a freebsd
+> box to handle something like half a million connections.
+> I would like to see you extend the horizontal axis of your graph
+> by a couple orders of magnitude :-)
 
-john alvord
+Here You can find the new statistics with 16000 connections :
+
+http://www.xmailserver.org/linux-patches/nio-improve.html
+
+I cannot reach that number of connections of the test machine coz the socket
+buffer space will eat all my memory ( 128 Mb ).
+Anyway the graph speaks quite clear about the tendency to greater numbers of
+connections.
+
+
+> p.s. I have updated http://www.kegel.com/c10k.html#nb./dev/poll
+> with a link to your report.
+
+Thanks, the page is a work in progress anyway.
+
+
+
+
+- Davide
+

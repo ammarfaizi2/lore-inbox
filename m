@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290767AbSAaAPP>; Wed, 30 Jan 2002 19:15:15 -0500
+	id <S290772AbSAaARh>; Wed, 30 Jan 2002 19:17:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290763AbSAaAPG>; Wed, 30 Jan 2002 19:15:06 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62705 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S290765AbSAaAOx>;
-	Wed, 30 Jan 2002 19:14:53 -0500
-Date: Wed, 30 Jan 2002 19:14:52 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Kris Urquhart <kurquhart@littlefeet-inc.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: ext2/mount - multiple mounts corrupts inodes
-In-Reply-To: <20020130163730.N763@lynx.adilger.int>
-Message-ID: <Pine.GSO.4.21.0201301912290.13602-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290769AbSAaARX>; Wed, 30 Jan 2002 19:17:23 -0500
+Received: from jubjub.wizard.com ([209.170.216.9]:3590 "EHLO jubjub.wizard.com")
+	by vger.kernel.org with ESMTP id <S290768AbSAaAQM>;
+	Wed, 30 Jan 2002 19:16:12 -0500
+Date: Wed, 30 Jan 2002 16:16:09 -0800
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: make xconfig whinges about Configure.help
+Message-ID: <20020131001609.GA31911@wizard.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux/2.5.2 (i686)
+X-uptime: 4:07pm  up 11 days, 11:01,  2 users,  load average: 0.12, 0.09, 0.12
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+        Just an FYI.. when one runs 'make xconfig', and goes to request help 
+on a certain option given, a message comes up:
 
-On Wed, 30 Jan 2002, Andreas Dilger wrote:
+                                RTFM
 
-> On Jan 30, 2002  15:07 -0800, Kris Urquhart wrote:
-> > [1.] One line summary of the problem: 
-> > A mount of an already mounted ext2 partition corrupts inodes if there have
-> > been recent writes without an intervening sync.
-> 
-> This _should_ be handled OK by the kernel simply by not mounting the
-> filesystem the second time.  If you try and mount it a second time it
-> _should_ just do a "bind" mount instead of a real mount, I think.
+No Help available - unable to open file Documentation/Configure.help. This 
+file should have come with your kernel.
 
-Which is what actually happens.  I suspect that he ends up forgetting to
-umount it...
+        Vanilla 2.5.3 and the patch for it, removes the file. Is this being 
+worked on? make oldconfig will work for now, but just a heads up.
 
-Anyway, try to reproduce it on 2.4.16 or later and give the contents of
-/proc/mounts before and after your script.
+                                                        BL.
+-- 
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 

@@ -1,99 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263539AbUACP6q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 10:58:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263545AbUACP6q
+	id S263545AbUACQIh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 11:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUACQIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 10:58:46 -0500
-Received: from as1-6-4.ld.bonet.se ([194.236.130.199]:39808 "HELO
-	mail.nicke.nu") by vger.kernel.org with SMTP id S263539AbUACP6l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 10:58:41 -0500
-From: "Nicklas Bondesson" <nicke@nicke.nu>
-To: "'Andre Tomt'" <lkml@tomt.net>, <crg@purplefields.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
-Subject: RE: IDE-RAID Drive Performance
-Date: Sat, 3 Jan 2004 16:58:40 +0100
+	Sat, 3 Jan 2004 11:08:36 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:20748 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S263545AbUACQIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 11:08:35 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Olaf Hering <olh@suse.de>, Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Date: Sat, 3 Jan 2004 19:05:31 +0300
+User-Agent: KMail/1.5.3
+Cc: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <200401012333.04930.arvidjaar@mail.ru> <20040103133749.A3393@pclin040.win.tue.nl> <20040103124216.GA31006@suse.de>
+In-Reply-To: <20040103124216.GA31006@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <1073138426.8863.33.camel@slurv.pasop.tomt.net>
-Thread-Index: AcPSAZ0o3u73udG/R0KEJRvJES4KaQAEC5xA
-Message-Id: <S263539AbUACP6l/20040103155841Z+21583@vger.kernel.org>
+Content-Disposition: inline
+Message-Id: <200401031905.31806.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if you have read my latest post regarding this. anyway here it
-is :)
+On Saturday 03 January 2004 15:42, Olaf Hering wrote:
+>  On Sat, Jan 03, Andries Brouwer wrote:
+> > On Sat, Jan 03, 2004 at 11:51:33AM +0300, Andrey Borzenkov wrote:
+> > > yes. So what - how does it help? User needs /dev/sda4. User has
+> > > /dev/sda only. Any attempt to refer to /dev/sda4 simply returns "No
+> > > such file or directory"
+> >
+> > Things are far from perfect here, but "blockdev --rereadpt /dev/sda"
+> > helps.
+>
 
-It was the PCI latency value that was wrong. It was set to 0 in the BIOS so
-I have changed it now to 64. I now get the following figures! :) BTW I'm
-running two Western Digital WD800JB-00DUA3 (Special Edition 8 MB cache)
-disks connected to a Promise TX2000 (PDC20271) card (RAID1 using ataraid
-(pdcraid) drivers).
+sure. But that requires manual user intervention. And it has been working 
+without any manual user intervention before. That is why I called it 
+regression.
 
-hdparm:
+I just try to draw attention to simple (but very nasty for users) problem in 
+udev. This quotation removed too much from my original post to reduce the 
+problem to simple "how to reread partition table".
 
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  1.12 seconds =114.29 MB/sec
- Timing buffered disk reads:  64 MB in  1.53 seconds = 41.83 MB/sec
+> Is there really no way to get a media change notification from ZIP or
+> JAZ drives?
 
-bonnie:
+If anyone knows please tell me - I will put it into supermount ...
 
-Version 1.02b       ------Sequential Output------ --Sequential Input-
---Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block--
---Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec
-%CP
-gollum         800M  4681  98 37827  76 17590  30  4888  95 39400  26 310.4
-3
-                    ------Sequential Create------ --------Random
-Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read---
--Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec
-%CP
-                 16   310  99 +++++ +++ 21319 100   329  99 +++++ +++  1766
-96
-gollum,800M,4681,98,37827,76,17590,30,4888,95,39400,26,310.4,3,16,310,99,+++
-++,+++,21319,100,329,99,+++++,+++,1766,96 
+AFAIK in case of SCSI this is impossible simply by virtue of protocol - SCSI 
+device is not initiator. So you need something to poll device for status. 
+That is usually done on device open except in this case you can't open 
+because you do not yet have handle.
 
-Thanks for the help!
+thank you
 
-/Nicke 
-
------Original Message-----
-From: Andre Tomt [mailto:lkml@tomt.net] 
-Sent: den 3 januari 2004 15:00
-To: Nuno Alexandre
-Cc: linux-kernel@vger.kernel.org; Nicklas Bondesson
-Subject: Re: IDE-RAID Drive Performance
-
-On Tue, 2003-12-30 at 12:21, Nuno Alexandre wrote:
-> /dev/hda:
->  Timing buffer-cache reads:   1320 MB in  2.00 seconds = 659.44 MB/sec
->  Timing buffered disk reads:  140 MB in  3.02 seconds =  46.40 MB/sec
-> 
-> Using:
-> -d1 -u1 -m16 -c3 -W1 -A1 -k1 -X70 -a 8192
-
-Wow, slow down for a minute. Most IDE chipset drivers does a excellent job
-at autotuning the max *safe settings* for your drive/chipset combination.
-Mucking around with hdparm parameters blindfolded will only cause you grief
-in form of data loss and system instability sooner than later.
-
-Usually when one gets into performance problems with IDE in Linux, the
-chipset specific driver is not enabled, making the system fallback to the
-generic driver - OR the drive and controller combination is considered
-unsafe with faster settings.
-
-Without any user intervention at all, my Seagate 7200 120G's does 55MB/s in
-the infamious hdparm test, on a VIA KT266 based board, both in
-2.6.1-rc1 and 2.4.23.
-
-
+-andrey
 

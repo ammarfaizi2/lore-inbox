@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTEWBbv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 21:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTEWBbu
+	id S263587AbTEWB45 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 21:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263589AbTEWB45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 21:31:50 -0400
-Received: from dp.samba.org ([66.70.73.150]:16833 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263573AbTEWBbr (ORCPT
+	Thu, 22 May 2003 21:56:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:44513 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263587AbTEWB44 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 21:31:47 -0400
-Date: Fri, 23 May 2003 10:53:51 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: Displaying/modifying PCI device id tables via sysfs
-Message-Id: <20030523105351.2ba4f9b2.rusty@rustcorp.com.au>
-In-Reply-To: <20030303182553.GG16741@kroah.com>
-References: <20BF5713E14D5B48AA289F72BD372D680392F82C-100000@AUSXMPC122.aus.amer.dell.com>
-	<20030303182553.GG16741@kroah.com>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Thu, 22 May 2003 21:56:56 -0400
+Date: Thu, 22 May 2003 19:07:29 -0700 (PDT)
+Message-Id: <20030522.190729.55739270.davem@redhat.com>
+To: herbert@gondor.apana.org.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Zero the reserved bytes of sadb_prob in af_key.c
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030522223038.GA31759@gondor.apana.org.au>
+References: <20030522223038.GA31759@gondor.apana.org.au>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003 10:25:53 -0800
-Greg KH <greg@kroah.com> wrote:
+   From: Herbert Xu <herbert@gondor.apana.org.au>
+   Date: Fri, 23 May 2003 08:30:38 +1000
 
-> On Mon, Mar 03, 2003 at 11:57:05AM -0600, Matt Domsch wrote:
-> > A lot of PCI drivers today use the pci_device_id table model to specify 
-> > what IDs the driver supports.  I'd like to be able to do 2 things with 
-> > this information:
-> > 1) display it in sysfs
-> 
-> That info is already exported to userspace through the modules.pcimap
-> file.
+   According to RFC2367, all reserved bytes must be set to zero.  This
+   patch does just that for the sadb_prop messages.
 
-Matt's patch just went into Linus' tree, so I'll comment on this.
+I applied your fix except that I decided to use memset().
 
-More importantly, the modules now contain suitable aliases embedded within
-them: modules.pcimap et al will vanish before 2.6 whenever Greg (hint hint)
-updates the hotplug scripts to use them instead of modules.XXXmap.
+Please use netdev@oss.sgi.com and/or linux-net@vger.kernel.org
+in the future.  Most networking hackers don't read linux-kernel
+and thus wouldn't be able to review your fix.
 
-So the question is, how do you add PCI IDs to a module which isn't loaded?
-You can trivially add a new alias for it, which will cause modprobe to
-find it, but the module won't know it can handle the new PCI ID, and
-will fail to load.
-
-Obvious options include:
-	just update the damn module
-	inserting the new PCI entry in the module (simple, but icky)
-	adding a module param to say "add these IDs"
-
-I agree with Alan (and Jeff Garzik who pointed this out to me before)
-that it's neat to be able to update these tables on the fly, but that
-is probably even more important for modules which aren't loaded.
-
-Matt, do you have thoughts on this?
-
-Cheers,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Thanks.

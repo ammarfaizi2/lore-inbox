@@ -1,83 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbUCWBIN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 20:08:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUCWBIN
+	id S261793AbUCWBOb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 20:14:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUCWBOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 20:08:13 -0500
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:18771 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261772AbUCWBIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 20:08:10 -0500
-Message-ID: <405F8DFB.1010801@blueyonder.co.uk>
-Date: Tue, 23 Mar 2004 01:08:11 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm1
-Content-Type: multipart/mixed;
- boundary="------------060907060704040703050602"
-X-OriginalArrivalTime: 23 Mar 2004 01:08:10.0401 (UTC) FILETIME=[4EE32910:01C41073]
+	Mon, 22 Mar 2004 20:14:31 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:7460 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261793AbUCWBO3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 20:14:29 -0500
+Date: Mon, 22 Mar 2004 17:12:43 -0800
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org
+Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
+Message-Id: <20040322171243.070774e5.pj@sgi.com>
+In-Reply-To: <20040320111340.GA2045@holomorphy.com>
+References: <1079651064.8149.158.camel@arrakis>
+	<20040318165957.592e49d3.pj@sgi.com>
+	<1079659184.8149.355.camel@arrakis>
+	<20040318175654.435b1639.pj@sgi.com>
+	<1079737351.17841.51.camel@arrakis>
+	<20040319165928.45107621.pj@sgi.com>
+	<20040320031843.GY2045@holomorphy.com>
+	<20040320000235.5e72040a.pj@sgi.com>
+	<20040320111340.GA2045@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060907060704040703050602
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> > The current nested and ifdef'd complexity of the cpumask macro
+> > headers works against such efficient coding - it's non-trivial to see
+> > just what macros are available. The youngins reading this may not
+> > appreciate the value of reducing brain load; but the oldins might.
+> 
+> It was painful enough just to preserve semantics across such a far-
+> ranging set of changes. Ideally, yes, I would have done this in the
+> first place.
 
-No response so far to the following.
-Regards
-Sid.
+I'm not trying to get on your case, Bill, for not creating and applying
+more various cpumask functions.  Rather I am looking for ways to make
+that API easier for others to use and use well.  If the situations that
+passed about temporary cpumasks can be collapsed into single calls that
+are more efficient, then that is one way to make progress on this.
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
-
-
---------------060907060704040703050602
-Content-Type: message/rfc822;
- name="Re: 2.6.5-rc2-mm1 x86_64 entry.S errors"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Re: 2.6.5-rc2-mm1 x86_64 entry.S errors"
-
-Message-ID: <405DDDF3.5000609@blueyonder.co.uk>
-Date: Sun, 21 Mar 2004 18:24:51 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RE: 2.6.5-rc2-mm1 x86_64 entry.S errors
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-  AS      arch/x86_64/kernel/entry.o
-arch/x86_64/kernel/entry.S: Assembler messages:
-arch/x86_64/kernel/entry.S:184: Error: missing separator
-arch/x86_64/kernel/entry.S:434: Error: missing separator
-arch/x86_64/kernel/entry.S:551: Error: missing separator
-arch/x86_64/kernel/entry.S:554: Error: missing separator
-arch/x86_64/kernel/entry.S:557: Error: missing separator
-arch/x86_64/kernel/entry.S:719: Error: missing separator
-arch/x86_64/kernel/entry.S:778: Error: missing separator
-arch/x86_64/kernel/entry.S:806: Error: missing separator
-arch/x86_64/kernel/entry.S:819: Error: missing separator
-arch/x86_64/kernel/entry.S:872: Error: missing separator
-arch/x86_64/kernel/entry.S:888: Error: missing separator
-arch/x86_64/kernel/entry.S:912: Error: missing separator
-make[1]: *** [arch/x86_64/kernel/entry.o] Error 1
-make: *** [arch/x86_64/kernel] Error 2
-Regards
-Sid.
+Taking masks to be a struct of an array of unsigned longs seems to come
+pretty close.  The sparc64 arch would want to pass a pointer to this
+apparently, rather than the struct itself - faster for them. Some other
+smaller archs would _not_ want to pass a pointer, but rather the (one
+word, for them) value - avoids a dereference for them.  In arch specific
+code, each arch can choose which way works best for them.  I need to
+identify any generic code where these preferences collide.
 
 -- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
-
-
-
---------------060907060704040703050602--
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

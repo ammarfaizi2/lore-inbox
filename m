@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287860AbSATW4F>; Sun, 20 Jan 2002 17:56:05 -0500
+	id <S288781AbSATW5P>; Sun, 20 Jan 2002 17:57:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288781AbSATWzq>; Sun, 20 Jan 2002 17:55:46 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:34184 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S287860AbSATWzj>; Sun, 20 Jan 2002 17:55:39 -0500
-Date: Sun, 20 Jan 2002 15:55:34 -0700
-Message-Id: <200201202255.g0KMtYh15207@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Oliver Feiler <kiza@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Removing files in devfs
-In-Reply-To: <20020119094424.A239@gmxpro.net>
-In-Reply-To: <20020119094424.A239@gmxpro.net>
+	id <S288804AbSATW5G>; Sun, 20 Jan 2002 17:57:06 -0500
+Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:27661 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S288781AbSATW4v>;
+	Sun, 20 Jan 2002 17:56:51 -0500
+Date: Sun, 20 Jan 2002 17:45:04 -0500 (EST)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>
+Subject: 2.5.3-pre2 : drivers/media/video/i2c-parport.c
+Message-ID: <Pine.LNX.4.33.0201201741580.1332-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Feiler writes:
-> Hello,
-> 
-> 	Is this behaviour supposed to be?
-> 
-> 9:36 root@kiza /dev# l null 
-> crw-rw-rw-    1 root     root       1,   3 Jan  1  1970 null
-> 9:36 root@kiza /dev# rm null
-> removing `null'
-> 9:36 root@kiza /dev# l null
-> ls: null: No such file or directory
-> 9:36 root@kiza /dev#
-> 
-> 	I have kernel 2.4.16 with devfs and on every other system I
-> tried I only get "rm: cannot unlink `null': Operation not permitted"
-> when trying to delete something in devfs. And I cannot see any
-> differences as far as devfs is concerned on the systems I
-> tried. devfs compiled in, mounted on boot time, same version of
-> devfsd.
+Hello all,
+   While 'make modules', I received the following error:
+Regards,
+Frank
 
-What is "every other system"?
+i2c-parport.c:23:27: linux/i2c-old.h: No such file or directory
+i2c-parport.c:33: field `i2c' has incomplete type
+i2c-parport.c: In function `i2c_setlines':
+i2c-parport.c:45: dereferencing pointer to incomplete type
+i2c-parport.c: In function `i2c_getdataline':
+i2c-parport.c:52: dereferencing pointer to incomplete type
+i2c-parport.c: At top level:
+i2c-parport.c:56: variable `parport_i2c_bus_template' has initializer but incomplete type
+i2c-parport.c:58: warning: excess elements in struct initializer
+i2c-parport.c:58: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c:59: `I2C_BUSID_PARPORT' undeclared here (not in a function)
+i2c-parport.c:59: warning: excess elements in struct initializer
+i2c-parport.c:59: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c:60: warning: excess elements in struct initializer
+i2c-parport.c:60: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c:62: warning: excess elements in struct initializer
+i2c-parport.c:62: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c:64: warning: excess elements in struct initializer
+i2c-parport.c:64: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c:65: warning: excess elements in struct initializer
+i2c-parport.c:65: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c:67: warning: excess elements in struct initializer
+i2c-parport.c:67: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c:68: warning: excess elements in struct initializer
+i2c-parport.c:68: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c:69: warning: excess elements in struct initializer
+i2c-parport.c:69: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c:70: warning: excess elements in struct initializer
+i2c-parport.c:70: warning: (near initialization for `parport_i2c_bus_template')
+i2c-parport.c: In function `i2c_parport_attach':
+i2c-parport.c:88: warning: implicit declaration of function `i2c_register_bus'
+i2c-parport.c: In function `i2c_parport_detach':
+i2c-parport.c:106: warning: implicit declaration of function `i2c_unregister_bus'
+make[3]: *** [i2c-parport.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/media/video'
+make[2]: *** [_modsubdir_video] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/media'
+make[1]: *** [_modsubdir_media] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_mod_drivers] Error 2
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

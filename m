@@ -1,79 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314093AbSDQOlP>; Wed, 17 Apr 2002 10:41:15 -0400
+	id <S314094AbSDQOmY>; Wed, 17 Apr 2002 10:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314094AbSDQOlO>; Wed, 17 Apr 2002 10:41:14 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:54599 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S314093AbSDQOlO>; Wed, 17 Apr 2002 10:41:14 -0400
-Date: Wed, 17 Apr 2002 09:40:48 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200204171440.JAA76065@tomcat.admin.navo.hpc.mil>
-To: Nikita@Namesys.COM, Andrey Ulanov <drey@rt.mipt.ru>
-Subject: Re: FPU, i386
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S314095AbSDQOmX>; Wed, 17 Apr 2002 10:42:23 -0400
+Received: from mail.mtroyal.ab.ca ([142.109.10.24]:31749 "EHLO
+	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S314094AbSDQOmW>; Wed, 17 Apr 2002 10:42:22 -0400
+Date: Wed, 17 Apr 2002 08:41:41 -0600 (MDT)
+From: James Bourne <jbourne@MtRoyal.AB.CA>
+Subject: Re: SMP P4 APIC/interrupt balancing
+In-Reply-To: <Pine.LNX.4.44.0204162244420.9280-100000@skuld.mtroyal.ab.ca>
+To: linux-kernel@vger.kernel.org
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Jeff Nguyen <jeff@aslab.com>,
+        Ingo Molnar <mingo@elte.hu>
+Message-id: <Pine.LNX.4.44.0204170808160.17511-100000@skuld.mtroyal.ab.ca>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
+Ok,
+After Ingo forwarded me his original patch (I found his patch via a web
+based medium, which had converted all of the left shifts to compares, and
+now I'm very glad it didn't boot...) and the system is booted and is
+balancing most of the interrupts at least.  Here's the current output
+of /proc/interrupts
 
-> 
-> Andrey Ulanov writes:
->  > Look at this:
->  > 
->  > $ cat test.c
->  > #include <stdio.h>
->  > 
->  > main()
->  > {
->  > 	double h = 0.2;
->  > 	
->  > 	if(1/h == 5.0)
->  > 	    printf("1/h == 5.0\n");
->  > 
->  > 	if(1/h < 5.0)
->  > 	    printf("1/h < 5.0\n");
->  > 	return 0;
->  > }
->  > $ gcc test.c
-> 
-> $ gcc -O test.c
-> $ ./a.out
-> 1/h == 5.0
-> 
-> without -O, gcc initializes h to 0.2000000000000000111
-> 
->  > $ ./a.out
->  > 1/h < 5.0
->  > $ 
->  > 
->  > I also ran same a.out under FreeBSD. It says "1/h == 5.0".
->  > It seems there is difference somewhere in FPU 
->  > initialization code. And I think it should be fixed.
+brynhild:bash$ cat /proc/interrupts 
+           CPU0       CPU1       
+  0:     171414          0    IO-APIC-edge  timer
+  1:          3          2    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          1          0    IO-APIC-edge  rtc
+ 18:          8          7   IO-APIC-level  aic7xxx
+ 19:      13566      12799   IO-APIC-level  eth0
+ 20:          9          7   IO-APIC-level  aic7xxx
+ 21:          9          7   IO-APIC-level  aic7xxx
+ 27:       1572       5371   IO-APIC-level  megaraid
+NMI:          0          0 
+LOC:     171315     171251 
+ERR:          0
+MIS:          0
 
-Nope. -O2 implies constant folding, and h is a constant. What you are
-compairing is runtime vs compile time values. 5.0 is compile time.
-1/h where h is a constant is compile time (O2) and that would
-come out at 5.0 also
+So, the timer isn't being balanced still, others are (is there a
+specific case in your patch for irq 0 (< 1)?  I couldn't see it but
+it almost looks as though it's being missed..)
 
-Been there done that... My solution (based on the problem I was working
-in) was to multiply both sides by the 10^<number of siginificant digits
-of the problem set>. Taking the simplistic approach:
+Thanks to all that replied.
 
-if (int(1/h * 100) == int(5.0 * 100))
+Regards
+James 
 
-will give a "proper" result within two decimal places. This is still
-limited since there are irrational numbers within that range that COULD
-still come out with a wrong answer, but is much less likely to occur.
+-- 
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
 
-Exact match of floating point is not possible - 1/h is eleveated to a float.
+******************************************************************************
+This communication is intended for the use of the recipient to which it is
+addressed, and may contain confidential, personal, and or privileged
+information. Please contact the sender immediately if you are not the
+intended recipient of this communication, and do not copy, distribute, or
+take action relying on it. Any communication received in error, or
+subsequent reply, should be deleted or destroyed.
+******************************************************************************
 
-If your 1/h was actually num/h, and num computed by summing .01 100 times
-I suspect the result would also be "wrong".
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

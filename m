@@ -1,94 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263982AbTDWHvu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 03:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbTDWHvu
+	id S263983AbTDWHzV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 03:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTDWHzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 03:51:50 -0400
-Received: from [81.80.245.157] ([81.80.245.157]:36825 "EHLO smtp.alcove-fr")
-	by vger.kernel.org with ESMTP id S263982AbTDWHvs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 03:51:48 -0400
-Date: Wed, 23 Apr 2003 10:04:15 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4.21-rc1] sonypi fixes
-Message-ID: <20030423080415.GD820@hottah.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 23 Apr 2003 03:55:21 -0400
+Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:13 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S263983AbTDWHzT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 03:55:19 -0400
+Date: Wed, 23 Apr 2003 10:08:58 +0200
+From: Jerome Chantelauze <jchantelauze@free.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc1
+Message-ID: <20030423080858.GA5325@i486X33>
+References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Apr 21, 2003 at 03:47:32PM -0300, Marcelo Tosatti wrote:
+> 
+> Here goes the first candidate for 2.4.21.
+> 
+> Please test it extensively.
 
-I've already send this once or twice, but it hasn't been applied yet
-to the 2.4 tree.
+Hi
 
-I've attached below a smaller patch, containing only the obviously
-correct changes, so there is no risk involved in applying this.
+drivers/ide/Makefile seems broken on 2.4.21-rc1 (it was OK on 2.4.20,
+and not on 2.4.21-pre6 and 2.4.21-pre7).
 
-Original credit goes to Adrian Bunk for the .text.exit related
-changes and to Daniel K. for the battery #defines.
+I try to build a kernel with Old hard disk (MFM/RLL/IDE) support only 
+(and without Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support).
 
-Marcelo, please apply.
+Here is my .config:
 
-Stelian.
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
 
-===== drivers/char/sonypi.c 1.14 vs edited =====
---- 1.14/drivers/char/sonypi.c	Tue Feb 18 12:33:33 2003
-+++ edited/drivers/char/sonypi.c	Mon Mar 31 16:39:06 2003
-@@ -162,7 +162,7 @@
- }
- 
- /* Disables the device - this comes from the AML code in the ACPI bios */
--static void __devexit sonypi_type1_dis(void) {
-+static void sonypi_type1_dis(void) {
- 	u32 v;
- 
- 	pci_read_config_dword(sonypi_device.dev, SONYPI_G10A, &v);
-@@ -174,7 +174,7 @@
- 	outl(v, SONYPI_IRQ_PORT);
- }
- 
--static void __devexit sonypi_type2_dis(void) {
-+static void sonypi_type2_dis(void) {
- 	if (ec_write(SONYPI_SHIB, 0))
- 		printk(KERN_WARNING "ec_write failed\n");
- 	if (ec_write(SONYPI_SLOB, 0))
-@@ -531,7 +531,7 @@
- 			ret = -EFAULT;
- 		break;
- 	case SONYPI_IOCGBAT1REM:
--		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
-+		if (ec_read16(SONYPI_BAT1_LEFT, &val16)) {
- 			ret = -EIO;
- 			break;
- 		}
-@@ -539,7 +539,7 @@
- 			ret = -EFAULT;
- 		break;
- 	case SONYPI_IOCGBAT2CAP:
--		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
-+		if (ec_read16(SONYPI_BAT2_FULL, &val16)) {
- 			ret = -EIO;
- 			break;
- 		}
-@@ -547,7 +547,7 @@
- 			ret = -EFAULT;
- 		break;
- 	case SONYPI_IOCGBAT2REM:
--		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
-+		if (ec_read16(SONYPI_BAT2_LEFT, &val16)) {
- 			ret = -EIO;
- 			break;
- 		}
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+#
+# IDE, ATA and ATAPI Block devices
+#
+# CONFIG_BLK_DEV_IDE is not set
+CONFIG_BLK_DEV_HD_ONLY=y
+CONFIG_BLK_DEV_HD=y
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_PDC202XX=y
+CONFIG_BLK_DEV_IDE_MODES=y
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
+# CONFIG_BLK_DEV_ATARAID_SII is not set
+
+The resulting kernel has no support for ide hard disks:
+
+# ls -l drivers/ide/*.o
+-rw-r--r--    1 root     root            8 apr 23 08:56 drivers/ide/idedriver.o
+#
+
+The following patch fixes the problem for the x86 arch (sorry, I have no
+access to other archs).
+
+*** linux-2.4.21-rc1/drivers/ide/Makefile.orig  Wed Apr 23 08:45:48 2003
+--- linux-2.4.21-rc1/drivers/ide/Makefile       Wed Apr 23 09:20:14 2003
+***************
+*** 21,26 ****
+--- 21,28 ----
+  
+  subdir-$(CONFIG_BLK_DEV_IDE) += legacy ppc arm raid pci
+  
++ subdir-$(CONFIG_BLK_DEV_HD_ONLY) += legacy
++ 
+  # First come modules that register themselves with the core
+  
+  ifeq ($(CONFIG_BLK_DEV_IDE),y)
+***************
+*** 50,55 ****
+--- 52,60 ----
+    obj-y               += arm/idedriver-arm.o
+  endif
+  
++ ifeq ($(CONFIG_BLK_DEV_HD_ONLY),y)
++   obj-y               += legacy/idedriver-legacy.o
++ endif
+  
+  ifeq ($(CONFIG_BLK_DEV_IDE),y)
+  # RAID must be last of all
+
+
+The kernel was built on a x86 computer running a debian woody (gcc
+2.95.4 and glibc 2.2.5).
+
+Regards
+
+--
+Jerome Chantelauze

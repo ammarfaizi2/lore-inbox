@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbUKWKuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbUKWLEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262481AbUKWKuA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 05:50:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbUKWKuA
+	id S262464AbUKWLEu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 06:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUKWLEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 05:50:00 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:33429 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262481AbUKWKt6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 05:49:58 -0500
-Date: Tue, 23 Nov 2004 12:52:01 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Adam Heath <doogie@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-Message-ID: <20041123115201.GA26714@elte.hu>
-References: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com> <Pine.LNX.4.58.0411222237130.2287@gradall.private.brainfood.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 23 Nov 2004 06:04:50 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:25842 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262464AbUKWLEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 06:04:49 -0500
+From: Amon Ott <ao@rsbac.org>
+Organization: RSBAC
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: towards dynamic resource quotas
+Date: Tue, 23 Nov 2004 12:04:41 +0100
+User-Agent: KMail/1.6.2
+References: <Pine.LNX.4.53.0411230035350.28029@andrew.triumf.ca>
+In-Reply-To: <Pine.LNX.4.53.0411230035350.28029@andrew.triumf.ca>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411222237130.2287@gradall.private.brainfood.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411231204.43800.ao@rsbac.org>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Dienstag, 23. November 2004 10:25, Andrew Daviel wrote:
+> Is there any mechanism within Linux to limit the fraction of a 
+resource
+> (CPU, memory, network bandwidth) which may be allocated to a 
+particular
+> process or UID ? If not, perhaps there should be. The idea being to
+> ensure that critical tasks can always run, regardless of resource
+> depletion by other tasks
 
-* Adam Heath <doogie@debian.org> wrote:
+The Class-based Kernel Resource Management (CKRM) project at 
+http://ckrm.sourceforge.net/ works on this.
 
-> > >i have released the -V0.7.30-2 Real-Time Preemption patch, which can be
-> > >downloaded from the usual place:
-> > >
-> > >            http://redhat.com/~mingo/realtime-preempt/
-> 
-> I'm seeing something very odd.  It's against 29-0.  I also seem to
-> recall seeing something similiar reported earlier.
-> 
-> I'm seeing pauses on my system.  Not certain what is causing it. 
-> Hitting a key on the keyboard unsticks it.
-
-at first sight this looks like a scheduling/wakeup anomaly. Please
-re-report this if it happens with the current (30-4) kernel too. Also,
-could you test the vanilla -mm tree, it has a few scheduler updates too.
-
-	Ingo
+Amon.
+-- 
+http://www.rsbac.org - GnuPG: 2048g/5DEAAA30 2002-10-22

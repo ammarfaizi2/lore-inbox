@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315421AbSEQEtY>; Fri, 17 May 2002 00:49:24 -0400
+	id <S315420AbSEQEsG>; Fri, 17 May 2002 00:48:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315423AbSEQEtX>; Fri, 17 May 2002 00:49:23 -0400
-Received: from holomorphy.com ([66.224.33.161]:27561 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315421AbSEQEtV>;
-	Fri, 17 May 2002 00:49:21 -0400
-Date: Thu, 16 May 2002 21:47:48 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mel <mel@csn.ul.ie>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updated Commentry Patches
-Message-ID: <20020517044748.GP7076@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Mel <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205170429130.29254-100000@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S315421AbSEQEsD>; Fri, 17 May 2002 00:48:03 -0400
+Received: from [203.124.139.197] ([203.124.139.197]:33292 "EHLO
+	pcsmail.patni.com") by vger.kernel.org with ESMTP
+	id <S315420AbSEQErw>; Fri, 17 May 2002 00:47:52 -0400
+Reply-To: <chandrasekhar.nagaraj@patni.com>
+From: "Chandrasekhar" <chandrasekhar.nagaraj@patni.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Port for SH7729
+Date: Fri, 17 May 2002 10:24:48 +0530
+Message-ID: <NFBBJJFKOKJEMFAEIPPJIEALCCAA.chandrasekhar.nagaraj@patni.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.19pre8_page_alloc_commentry
-> http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.19pre8_page_alloc_commentry
->   This extends the documentation on page_alloc.c to describe how the buddy
->   allocator works
+Hi,
+We have a SH7729 based system(SH 7729 based hardware of V610/V612
+Intelligent terminal).I want to know whether the basic CPU porting for the
+SH7729 processor for Linux has been done.If so can you mention the details
+of the web site where the patch for this processor is present
 
-One way to describe the bit toggling behavior is saying that each page
-has a "virtual bit", the bit present in the bitmap is the xor of the
-"virtual bits" of the two buddies, and the buddy's bit is recovered by
-xor'ing with the bit of the page we're examining, which is known from
-the entry point.
+Thanks and Regards
 
+Chandrasekhar Nagaraj
 
-Cheers,
-Bill

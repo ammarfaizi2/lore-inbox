@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUHVVuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266465AbUHVVww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266775AbUHVVuW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 17:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266777AbUHVVuM
+	id S266465AbUHVVww (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 17:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266777AbUHVVuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 17:50:12 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:64471 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267354AbUHVVtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 17:49:18 -0400
-Date: Sun, 22 Aug 2004 17:53:29 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, Keith Owens <kaos@sgi.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH][1/4] Completely out of line spinlocks / i386
-In-Reply-To: <Pine.LNX.4.58.0408221318060.17766@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0408221740090.27390@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0408211320520.27390@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0408221318060.17766@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Aug 2004 17:50:25 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:18576 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267383AbUHVVtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 17:49:31 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christer Weinigel <christer@weinigel.se>
+Cc: Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+In-Reply-To: <m3pt5j2i79.fsf@zoo.weinigel.se>
+References: <2ptdY-42Y-55@gated-at.bofh.it> <2uPdM-380-11@gated-at.bofh.it>
+	 <2uUwL-6VP-11@gated-at.bofh.it> <2uWfh-8jo-29@gated-at.bofh.it>
+	 <2uXl0-Gt-27@gated-at.bofh.it> <2vge2-63k-15@gated-at.bofh.it>
+	 <2vgQF-6Ai-39@gated-at.bofh.it> <2vipq-7O8-15@gated-at.bofh.it>
+	 <2vj2b-8md-9@gated-at.bofh.it> <2vDtS-bq-19@gated-at.bofh.it>
+	 <E1ByXMd-00007M-4A@localhost> <412770EA.nail9DO11D18Y@burner>
+	 <412889FC.nail9MX1X3XW5@burner>
+	 <Pine.LNX.4.58.0408221450540.297@neptune.local>
+	 <m37jrr40zi.fsf@zoo.weinigel.se> <m33c2f3zg1.fsf@zoo.weinigel.se>
+	 <1093191541.24759.1.camel@localhost.localdomain>
+	 <m3pt5j2i79.fsf@zoo.weinigel.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1093207625.25039.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 22 Aug 2004 21:47:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Aug 2004, Linus Torvalds wrote:
+On Sul, 2004-08-22 at 18:31, Christer Weinigel wrote:
+> On the other hand a bug in my favourite cd burner application could
+> give away SYS_CAP_RAWIO instead, and I think that is even worse.
 
-> On Sat, 21 Aug 2004, Zwane Mwaikambo wrote:
-> >
-> > Pulled from the -tiny tree, the focus of this patch is for reduced kernel
-> > image size but in the process we benefit from improved cache performance
-> > since it's possible for the common text to be present in cache. This is
-> > probably more of a win on shared cache multiprocessor systems like
-> > P4/Xeon HT. It's been benchmarked with bonnie++ on 2x and 4x PIII (my
-> > ideal target would be a 4x+ logical cpu Xeon).
->
-> I _really_ think that if we're going to make spinlocks be out-of-line,
-> then we need to out-of-line the preemption code too.
+Its not an easy trade off- I don't know if there is a right answer.
+Despite the UI problems in both cdrecord and its author the internal
+code is actually quite rigorous so its something I'd be more comfortable
+giving limited rawio access than quite a few other apps that touch
+external public data.
 
-Good point, Bill saw a lot of extra saving by moving the preemption code
-out of line too.
+Alan
 
-> And at that point I'm more than happy to just make it unconditional,
-> assuming the profiling thing (which was my only worry) has been verified.
-
-With the readprofile and oprofile changes it's still not that easy to
-determine which locks are being contended as the samples generally are
-being charged to the function the lock is being contended in. So some
-investigation has to be done when looking at profiles. This could be
-remedied by making the valid PC range include data or, preferably, moving
-spinlock variables into a special section. That way we can simply
-report back the lock word during sampling.
-
-> And I suspect that the all-C version is pretty much equivalent to the
-> assembler one, if you use FASTCALL() to make gcc at least use register
-> argument passing conventions. The advantage is much clearer code, I'd say.
-
-Yes i agree there and it would probably allow for better optimisation by
-gcc during call setup.
-
-Thanks,
-	Zwane

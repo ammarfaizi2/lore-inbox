@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbQLaMPK>; Sun, 31 Dec 2000 07:15:10 -0500
+	id <S129324AbQLaMuo>; Sun, 31 Dec 2000 07:50:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbQLaMPB>; Sun, 31 Dec 2000 07:15:01 -0500
-Received: from www.wen-online.de ([212.223.88.39]:58130 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129324AbQLaMOs>;
-	Sun, 31 Dec 2000 07:14:48 -0500
-Date: Sun, 31 Dec 2000 12:44:22 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: scheduling problem test13-pre7
-In-Reply-To: <20001231132850.C28963@mea-ext.zmailer.org>
-Message-ID: <Pine.Linu.4.10.10012311237420.1563-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129370AbQLaMue>; Sun, 31 Dec 2000 07:50:34 -0500
+Received: from AGrenoble-101-1-1-84.abo.wanadoo.fr ([193.251.23.84]:51953 "EHLO
+	lyon.ram.loc") by vger.kernel.org with ESMTP id <S129324AbQLaMuV>;
+	Sun, 31 Dec 2000 07:50:21 -0500
+From: Raphael Manfredi <Raphael_Manfredi@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0 test13-pre7 still causes CDROM ioctl errors
+X-Mailer: MH [version 6.8]
+Organization: Home, Grenoble, France
+Date: Sun, 31 Dec 2000 13:19:47 +0100
+Message-ID: <1344.978265187@nice.ram.loc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Dec 2000, Matti Aarnio wrote:
+I had sent the following report a week ago:
 
-> On Sun, Dec 31, 2000 at 10:42:26AM +0100, Mike Galbraith wrote:
-> > Hi,
-> > 
-> > While running iozone, I notice severe stalls of vmstat output
-> > despite vmstat running SCHED_RR and mlockall().
-> 
->    Lets eliminate the obvious:
-> 
->    - Are you running with IDE disk ?
+--------------------------
+Since I've installed 2.4.0 test13-pre4, I see the following errors
+in my log:
 
-Yes.
+	sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
 
->    - Does   hdparm  /dev/hda(whatever)    report:
-> 
-> 	/dev/hda:
-> 	 unmaskirq    =  0 (off)
-> 	 using_dma    =  0 (off)
+and xmcd reports:
 
-No.
+	CD audio: ioctl error on /dev/scd0: cmd=CDROMVOLCTRL errno=95
 
-/dev/hda:
- multcount    =  0 (off)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  1 (on)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 2482/255/63, sectors = 39876480, start = 0
+This was working fine with 2.4.0 test12-pre5, which was the previous
+kernel I was using.
+-------------------------
 
-> 
->    The IKD uses local interrupts, so this isn't necessarily true...
+Well, I installed 2.4.0 test13-pre7 and I still have the same error.
 
-I just did a (mondo) trace covering 8 seconds of kernel time, and
-vmstat ran twice.  (Those two times were before I noticed the stall
-and started counting down toward 'poke the freeze-frame button')
+My CDROM driver is SCSI, connected to a Tekram DC390.  I use
+the am53c974 driver.
 
-	-Mike
+Something must have changed in this driver since 2.4.0 test12-pre5 which
+broke the ioctl() handling routine.
 
+Raphael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

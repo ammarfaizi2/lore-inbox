@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264855AbSKENPb>; Tue, 5 Nov 2002 08:15:31 -0500
+	id <S264850AbSKENK6>; Tue, 5 Nov 2002 08:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264856AbSKENPb>; Tue, 5 Nov 2002 08:15:31 -0500
-Received: from fe4.rdc-kc.rr.com ([24.94.163.51]:49158 "EHLO mail4.kc.rr.com")
-	by vger.kernel.org with ESMTP id <S264855AbSKENPa>;
-	Tue, 5 Nov 2002 08:15:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: dark side <ognen@kc.rr.com>
-To: Roger While <RogerWhile@sim-basis.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46 make modules fail
-Date: Tue, 5 Nov 2002 07:22:40 -0600
-X-Mailer: KMail [version 1.3.2]
-References: <4.3.2.7.2.20021105142212.00c611d0@192.168.6.2>
-In-Reply-To: <4.3.2.7.2.20021105142212.00c611d0@192.168.6.2>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <0873157171305b2FE4@mail4.kc.rr.com>
+	id <S264855AbSKENK6>; Tue, 5 Nov 2002 08:10:58 -0500
+Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:6638 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S264850AbSKENK4>; Tue, 5 Nov 2002 08:10:56 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 5 Nov 2002 05:17:10 -0800
+Message-Id: <200211051317.FAA26655@adam.yggdrasil.com>
+To: ink@jurassic.park.msu.ru
+Subject: Re: Patch: 2.5.45 PCI Fixups for PCI HotPlug
+Cc: alan@lxorguk.ukuu.org.uk, greg@kroah.com, jgarzik@pobox.com,
+       jung-ik.lee@intel.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There was a fix posted several times for this. It applied to 2.5.45 but it 
-should also apply to 2.5.46. Look in the archives.
+Ivan Kokshaysky wrote:
+>On Mon, Nov 04, 2002 at 12:29:37PM -0800, Adam J. Richter wrote:
+>You cannot mark individual quirk routines differently as long as they
+>belong in the same quirk list. If the list is __devinitdata and some
+>of routines in it are __init, you'll have an oops in the hotplug path.
 
-Cheers,
-Ognen
+	If pci_do_fixups determines that f->vendor and f->device do
+not match the device in question, it will not call the corresponding
+f->hook, so it is OK for that f->hook to point to the address of a
+discarded __init routine that now contains garbage as long as the
+ID's will not match any hot plugged device.
 
-On Tuesday 05 November 2002 07:22 am, Roger While wrote:
-> gcc -Wp,-MD,net/ipv4/netfilter/.ipt_TCPMSS.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
-> -DMODULE   -DKBUILD_BASENAME=ipt_TCPMSS   -c -o
-> net/ipv4/netfilter/ipt_TCPMSS.o net/ipv4/netfilter/ipt_TCPMSS.c
-> net/ipv4/netfilter/ipt_TCPMSS.c: In function `ipt_tcpmss_target':
-> net/ipv4/netfilter/ipt_TCPMSS.c:88: structure has no member named `pmtu'
-> net/ipv4/netfilter/ipt_TCPMSS.c:91: structure has no member named `pmtu'
-> net/ipv4/netfilter/ipt_TCPMSS.c:95: structure has no member named `pmtu'
-> make[3]: *** [net/ipv4/netfilter/ipt_TCPMSS.o] Error 1
-> make[2]: *** [net/ipv4/netfilter] Error 2
-> make[1]: *** [net/ipv4] Error 2
-> make: *** [net] Error 2
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+

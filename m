@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269430AbUINPGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269411AbUINPXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269430AbUINPGR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269414AbUINPDd
+	id S269411AbUINPXF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269409AbUINPXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:03:33 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:11498 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S269416AbUINPBY
+	Tue, 14 Sep 2004 11:23:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46294 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269405AbUINPSi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:01:24 -0400
-From: Alistair John Strachan <alistair@devzero.co.uk>
-Reply-To: alistair@devzero.co.uk
-To: Steve Lord <lord@xfs.org>
-Subject: Re: Copying huge amount of data on ReiserFS, XFS and Silicon Image 3112 cause oops.
-Date: Tue, 14 Sep 2004 16:01:33 +0100
-User-Agent: KMail/1.7
-References: <414622C9.1030701@post.pl> <200409141159.54889.alistair@devzero.co.uk> <4146FC39.40104@xfs.org>
-In-Reply-To: <4146FC39.40104@xfs.org>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 14 Sep 2004 11:18:38 -0400
+Message-ID: <41470BBD.7060700@pobox.com>
+Date: Tue, 14 Sep 2004 11:18:21 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jens Axboe <axboe@suse.de>, "C.Y.M." <syphir@syphir.sytes.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAjtLAU+gqyUq8AePOBiNtXQEAAAAA@syphir.sytes.net>	 <20040914060628.GC2336@suse.de> <1095156346.16572.2.camel@localhost.localdomain>
+In-Reply-To: <1095156346.16572.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409141601.33827.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 September 2004 15:12, you wrote:
-[snip]
->
-> You would need to be within the size of the physical memory of your
-> box to having a full filesystem - as a very rough approximation. So 1Gbyte
-> memory, 1 Gbyte disk free. There is a path when XFS is attempting to
-> free up pre-reserved disk space to make room for a new write, it
-> does this by flushing data out to disk. This means it has to work
-> out where it is physically going to go, which usually results in it
-> taking less metadata space to reference the data than the worst case
-> estimate it previously made. For lots of cases this probably still
-> does not overflow the stack, but if you add in drivers like lvm
-> and md and a complex scsi driver it probably pushes you over the
-> limit.
->
+Alan Cox wrote:
+> On Maw, 2004-09-14 at 07:06, Jens Axboe wrote:
+> 
+>>Alan, I bet there are a lot of these. Maybe we should consider letting
+>>the user manually flag support for FLUSH_CACHE, at least it is in their
+>>hands then.
+> 
+> 
+> You are assuming the drive supports "FLUSH_CACHE" just because it
+> doesn't error it. Thats a good way to have accidents. 
+> 
+> The patch I posted originally did turn wcache off for barrier if no
+> flush cache support was present but had a small bug so that bit got
+> dropped.
 
-Well, this is a good reference answer to the question. The machines are all 
-small systems with only 1GB memory, and plenty of remaining space on the two 
-partitions. I doubt I'd trigger the logic causing the problem.
 
-> In general though, I would rebuild without the 4K stacks and at least
-> have the kernel ready for a convenient reboot.
+FWIW the libata test for checking whether it is OK to issue a flush is
 
-Thanks, I'll do that.
+         return ata_id_wcache_enabled(dev) ||
+                ata_id_has_flush(dev) ||
+                ata_id_has_flush_ext(dev);
 
--- 
-Cheers,
-Alistair.
+and if it passes that test,
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/AI Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+         if ((tf->flags & ATA_TFLAG_LBA48) &&
+             (ata_id_has_flush_ext(qc->dev)))
+                 tf->command = ATA_CMD_FLUSH_EXT;
+         else
+                 tf->command = ATA_CMD_FLUSH;
+
+I wouldn't object to removing the "ata_id_wcache_enabled" test if people 
+feel that it is unsafe.
+
+	Jeff
+
+

@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264760AbUDWIgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264761AbUDWIhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264760AbUDWIgD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 04:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbUDWIgD
+	id S264761AbUDWIhY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 04:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUDWIhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 04:36:03 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16306 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264760AbUDWIgA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 04:36:00 -0400
-Date: Fri, 23 Apr 2004 01:34:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: apw@shadowen.org, agl@us.ibm.com, mbligh@us.ibm.com,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Re: put_page() tries to handle hugepages but fails
-Message-Id: <20040423013437.1f2b8fc6.akpm@osdl.org>
-In-Reply-To: <20040423081856.GJ9243@zax>
-References: <20040423081856.GJ9243@zax>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 23 Apr 2004 04:37:24 -0400
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:34826 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264761AbUDWIhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 04:37:22 -0400
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Organization: Linux-Systeme GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Re: nvidia binary driver broken with 2.6.6-rc{1,2}, reverting a -mm patch makes it work
+Date: Fri, 23 Apr 2004 10:37:09 +0200
+User-Agent: KMail/1.6.2
+Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
+       Rik van Ballegooijen <sleightofmind@xs4all.nl>
+References: <4088D1E3.1050901@xs4all.nl> <20040423083041.GK8599@charite.de>
+In-Reply-To: <20040423083041.GK8599@charite.de>
+X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404231037.09329@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson <david@gibson.dropbear.id.au> wrote:
->
-> Andrew, please apply.
-> 
-> The code of put_page() is misleading, in that it appears to have code
-> handling PageCompound pages (i.e. hugepages).  However it won't
-> actually handle them correctly - __page_cache_release() will not work
-> properly on a compound.  Instead, hugepages should be and are released
-> with huge_page_release() from mm/hugetlb.c.  This patch removes the
-> broken PageCompound path from put_page(), replacing it with a
-> BUG_ON().  This also removes the initialization of page[1].mapping
-> from compoound pages, which was only ever used in this broken code
-> path.
+On Friday 23 April 2004 10:30, Ralf Hildebrandt wrote:
 
-We could certainly remove the test for a null destructor in there and
-require that compound pages have a destructor installed.
+Hi Ralf,
 
-But the main reason why that code is in there is for transparently handling
-direct-io into hugepage regions.  That code does perform put_page against
-4k pageframes within the huge page and it does follow the pointer to the
-head page.
+> > Because of a patch from -mm merged in mainstream i cannot get the nvidia
+> > binary to work with the 2.6.6 release candidates. I get this message
+> > when doing `modprobe nvidia`:
 
-With your patch applied get_user_pages() and bio_release_pages() will
-manipulate the refcounts of the inner 4k pages rather than the head pages
-and things will explode.
+> $ uname -a
+> Linux hummus2 2.6.6-rc2-bk1 #1 Thu Apr 22 14:15:08 CEST 2004 i686
+> GNU/Linux
+> nvidia works like a charm here.
 
-We could change follow_hugetlb_page() to always take a ref against the head
-page and we could teach bio_release_pages() to perform appropriate pfn
-masking to locate the head page, and perform similar tricks for
-futexes-in-large-pages.  But with the code as-is the refcounting works
-transparently.
+that's the problem. It works for many people, for many others not. It always 
+worked fine for me too but I had to rip that out of my 2.6-WOLK tree to 
+satisfy all people using wolk and lack of knowledge to fix that by myself.
 
-
-If it's "broken" I wanna know why.
+ciao, Marc

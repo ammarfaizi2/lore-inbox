@@ -1,90 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268147AbTAKVjP>; Sat, 11 Jan 2003 16:39:15 -0500
+	id <S268146AbTAKVqq>; Sat, 11 Jan 2003 16:46:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268146AbTAKVjP>; Sat, 11 Jan 2003 16:39:15 -0500
-Received: from delphin.mathe.tu-freiberg.de ([139.20.24.12]:26790 "EHLO
-	delphin.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
-	id <S268147AbTAKVjO> convert rfc822-to-8bit; Sat, 11 Jan 2003 16:39:14 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Michael Dreher <dreher@math.tu-freiberg.de>
-To: linux-kernel@vger.kernel.org
-Subject: hda has changed heads
-Date: Sat, 11 Jan 2003 22:49:11 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200301112249.11624.dreher@math.tu-freiberg.de>
+	id <S268149AbTAKVqq>; Sat, 11 Jan 2003 16:46:46 -0500
+Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:43374 "EHLO
+	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S268146AbTAKVqp>; Sat, 11 Jan 2003 16:46:45 -0500
+Date: Sat, 11 Jan 2003 16:53:33 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+In-reply-to: <20030111214437.GD9153@nbkurt.casa-etp.nl>
+To: Kurt Garloff <kurt@garloff.de>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Reply-to: robw@optonline.net
+Message-id: <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
+ <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
+ <20030111020738.GC9373@work.bitmover.com>
+ <1042251202.1259.28.camel@RobsPC.RobertWilkens.com>
+ <20030111021741.GF9373@work.bitmover.com>
+ <1042252717.1259.51.camel@RobsPC.RobertWilkens.com>
+ <20030111214437.GD9153@nbkurt.casa-etp.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Sat, 2003-01-11 at 16:44, Kurt Garloff wrote:
+> You're new to Linux, aren't you?
+> Or terribly presumptous.
 
-under 2.5.50 I got the following (sorry for localization):
+A little of both, but not too much of either.
 
+I'd say "New to linux" but I've been using it on and off since 1995 or
+earlier.
 
-karpfen:/home/dreher # uname -a
-Linux karpfen 2.5.50 #1 Sun Dec 1 21:51:57 CET 2002 i686 unknown
+I'd say terribly presumptuous, but I don't think it is presumptuous to
+say that if there are many patches (bug fixes, mostly) coming in that
+the code that was originally there was of questionable quality.
 
-karpfen:/home/dreher # fdisk -l
-
-Festplatte /dev/hda: 255 Köpfe, 63 Sektoren, 4998 Zylinder
-Einheiten: Zylinder mit 16065 * 512 Bytes
-
-    Gerät boot.  Anfang      Ende    Blöcke   Id  Dateisystemtyp
-/dev/hda1             1        20    160618+  82  Linux Swap
-/dev/hda2   *        21       256   1895670    6  FAT16
-/dev/hda3           257      3912  29366820   83  Linux
-/dev/hda4          3913      4998   8723295    5  Erweiterte
-/dev/hda5          3913      4998   8723263+   b  Win95 FAT32
-karpfen:/home/dreher # exit
-
-
-On the other hand, under 2.5.54 (and 2.5.56) I get
-
-
-karpfen:/usr/src/linux # uname -a
-Linux karpfen 2.5.54 #2 Thu Jan 2 22:47:22 CET 2003 i686 unknown
-
-karpfen:/usr/src/linux # fdisk -l
-
-Festplatte /dev/hda: 16 Köpfe, 63 Sektoren, 79656 Zylinder
-Einheiten: Zylinder mit 1008 * 512 Bytes
-
-    Gerät boot.  Anfang      Ende    Blöcke   Id  Dateisystemtyp
-/dev/hda1             1       319    160618+  82  Linux Swap
-Partition 1 endet nicht an einer Zylindergrenze:
-     phys=(19, 254, 63) should be (19, 15, 63)
-/dev/hda2   *       319      4080   1895670    6  FAT16
-Partition 2 endet nicht an einer Zylindergrenze:
-     phys=(255, 254, 63) should be (255, 15, 63)
-/dev/hda3          4081     62348  29366820   83  Linux
-Partition 3 endet nicht an einer Zylindergrenze:
-     phys=(1023, 254, 63) should be (1023, 15, 63)
-/dev/hda4         62348     79656   8723295    5  Erweiterte
-Partition 4 endet nicht an einer Zylindergrenze:
-     phys=(1023, 254, 63) should be (1023, 15, 63)
-/dev/hda5         62348     79656   8723263+   b  Win95 FAT32
-
-
-Basically, I dont care about the new number of heads, but now lilo
-complains like this (it did not complain before):
-
-karpfen:/etc # lilo
-Added testing *
-Added linux
-Added failsafe
-Added linux-2.5.54
-Added linux-2.5.50
-Device 0x0300: Invalid partition table, 2nd entry
-  3D address:     1/0/20 (20160)
-  Linear address: 1/12/318 (321300)
-karpfen:/etc #
-
-
-
-
-Best wishes,
-Michael
+-Rob
 

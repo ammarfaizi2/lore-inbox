@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbRBACXe>; Wed, 31 Jan 2001 21:23:34 -0500
+	id <S129042AbRBACrb>; Wed, 31 Jan 2001 21:47:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129919AbRBACXX>; Wed, 31 Jan 2001 21:23:23 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:31243 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129460AbRBACXO>; Wed, 31 Jan 2001 21:23:14 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFC7@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Adam Schrotenboer'" <ajschrotenboer@lycosmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [BUG] 2.4.1 Detects 64 MB RAM, actual 192MB
-Date: Wed, 31 Jan 2001 18:22:47 -0800
+	id <S129915AbRBACrV>; Wed, 31 Jan 2001 21:47:21 -0500
+Received: from mail.inconnect.com ([209.140.64.7]:12691 "HELO
+	mail.inconnect.com") by vger.kernel.org with SMTP
+	id <S129042AbRBACrH>; Wed, 31 Jan 2001 21:47:07 -0500
+Date: Wed, 31 Jan 2001 19:47:02 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.1 FireWire compile problem
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFC7@orsmsx31.jf.intel.com>
+Message-ID: <Pine.SOL.4.30.0101311945581.28765-100000@ultra1.inconnect.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Adam Schrotenboer [mailto:ajschrotenboer@lycosmail.com]
-> 
-> > On Wed, 31 Jan 2001 10:01:08 -0500, Adam Schrotenboer wrote:
-> > 
-> >>> On Tue, 30 Jan 2001 23:25:22 -0500, Adam Schrotenboer wrote:
-> >>> 
-> >>>> ...
-> >>>> Linux version 2.4.1 (root@tabriel) (gcc version egcs-2.91.66 
-> >>> 
-> >> 19990314/Linux (egcs-1.1.2 release)) #9 Tue Jan 30 
-> 15:35:21 EST 2001
-> >> 
-> >>>> BIOS-provided physical RAM map:
-> >>>> BIOS-88: 000000000009f000 @ 0000000000000000 (usable)
-> >>>> BIOS-88: 0000000003ff0000 @ 0000000000100000 (usable)
-> >>>> On node 0 totalpages: 16624
-> >>> 
-> >> ...
-> >> Linux version 2.4.0 (root@tabriel) (gcc version 
-> pgcc-2.95.2 19991024 (release)) #2 Mon Jan 8 09:02:27 EST 2001
-> >> BIOS-provided physical RAM map:
-> >> BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
-> >> BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
-> >> BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
-> >> BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
-> >> BIOS-e820: 000000000bef0000 @ 0000000000100000 (usable)
-> >> BIOS-e820: 000000000000d000 @ 000000000bff3000 (ACPI data)
-> >> BIOS-e820: 0000000000003000 @ 000000000bff0000 (ACPI NVS)
-> >> On node 0 totalpages: 49136
-> 
-> It did it again. fresh tree, egcs 1.1.2, etc
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Different versions of gcc were used on 2.4.0 vs. 2.4.1.
-Were different versions of as also used?  (hint?)
 
-Or somehow in linux/arch/i386/boot/setup.S, your source
-file has
-#define STANDARD_MEMORY_BIOS_CALL
-?
+# IEEE 1394 (FireWire) support
+CONFIG_IEEE1394=y
+# CONFIG_IEEE1394_PCILYNX is not set
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_VIDEO1394=y
+CONFIG_IEEE1394_RAWIO=y
+# CONFIG_IEEE1394_VERBOSEDEBUG is not set
 
-~Randy  /  503-677-5408
-_______________________________________________
-|NOTE: Any views presented here are mine alone|
-|& may not represent the views of my employer.|
------------------------------------------------
+
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-f
+rame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
+-march=i686
+    -c -o ohci1394.o ohci1394.c
+ohci1394.c:152: warning: `ohci1394_pci_tbl' defined but not used
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-f
+rame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
+-march=i686
+    -c -o video1394.o video1394.c
+video1394.c:1229: warning: `video1394_fops' defined but not used
+video1394.c:1239: warning: `video1394_init' defined but not used
+video1394.c:1277: warning: `remove_card' defined but not used
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-f
+rame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
+-march=i686
+    -c -o raw1394.o raw1394.c
+rm -f ieee1394drv.o
+ld -m elf_i386  -r -o ieee1394drv.o ieee1394.o ohci1394.o video1394.o
+raw1394.o
+video1394.o(.data+0x0): multiple definition of `ohci_csr_rom'
+ohci1394.o(.data+0x0): first defined here
+make[3]: *** [ieee1394drv.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/ieee1394'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/ieee1394'
+make[1]: *** [_subdir_ieee1394] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
+[root@thud linux]#
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

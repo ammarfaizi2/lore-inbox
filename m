@@ -1,102 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262241AbSIZM3s>; Thu, 26 Sep 2002 08:29:48 -0400
+	id <S262508AbSIZMan>; Thu, 26 Sep 2002 08:30:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262508AbSIZM3s>; Thu, 26 Sep 2002 08:29:48 -0400
-Received: from hitpro.hitachi.co.jp ([133.145.224.7]:35060 "EHLO
-	hitpro.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id <S262241AbSIZM3q>; Thu, 26 Sep 2002 08:29:46 -0400
-Message-Id: <5.0.2.6.2.20020926182552.0506a898@sdl99c>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2-Jr1
-Date: Thu, 26 Sep 2002 21:36:52 +0900
-To: robert@schwebel.de, lkst-develop@lists.sourceforge.jp
-From: Yumiko Sugita <sugita@sdl.hitachi.co.jp>
-Subject: Re: [Lkst-develop] Re: Release of LKST 1.3
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020919055843.GC10773@pengutronix.de>
-References: <5.0.2.6.2.20020918210036.05287a40@sdl99c>
- <5.0.2.6.2.20020918210036.05287a40@sdl99c>
+	id <S262509AbSIZMan>; Thu, 26 Sep 2002 08:30:43 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:22414 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262508AbSIZMak>;
+	Thu, 26 Sep 2002 08:30:40 -0400
+Date: Thu, 26 Sep 2002 18:10:52 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+Message-ID: <20020926181052.C18906@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <3D92BE07.B6CDFE54@digeo.com> <20020926175445.B18906@in.ibm.com> <20020926122909.GN3530@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020926122909.GN3530@holomorphy.com>; from wli@holomorphy.com on Thu, Sep 26, 2002 at 05:29:09AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Robert
+On Thu, Sep 26, 2002 at 05:29:09AM -0700, William Lee Irwin III wrote:
+> On Thu, Sep 26, 2002 at 05:54:45PM +0530, Dipankar Sarma wrote:
+> > Updated 2.5.38 RCU core and dcache_rcu patches are now available
+> > at http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=112473
+> > The differences since earlier versions are -
+> > rcu_ltimer - call_rcu() fixed for preemption and the earlier fix I had sent
+> >              to you.
+> > read_barrier_depends - fixes list_for_each_rcu macro compilation error.
+> > dcache_rcu - uses list_add_rcu in d_rehash and list_for_each_rcu in d_lookup
+> >              making the read_barrier_depends() fix I had sent to you
+> >              earlier unnecessary.
+> 
+> Is there an update to the files_struct stuff too? I'm seeing large
+> overheads there also.
 
-   Thank you for your inquiry. I apologize for the delay in replying.
+files_struct_rcu is not in mm kernels, but I will upload the most
+recent version to the same download directory in LSE.
 
-   Let me first explain the background of our development work.
-   We began development of the Linux Kernel State Tracer (LKST)
-in response to a domestic need to improve Reliability, Availability,
-and Serviceability (RAS) with respect to enterprise systems.
-The following requirements were applied to LKST:
+I would be interested in fget() profile count change with that patch.
 
-   * Capable of handling a variety of information about system errors.
-   * Little trace overhead (or To control trace overhead)
-   * Short development time
-
-   As we had to achieve a short development time, we elected to
-develop LKST using our own methodology (based on know-how of
-tracer development that we carried out for other OS's) different
-from other known tools such as LTT.
-# This is not to say that we developed all functions on our own.
-#LKST at present connects with Kernel Hooks (GKHI) and LKCD.
-
-   Consequently, LKST, which is oriented to enterprise systems,
-has the following features different from those of LTT.
-# These LKST features are also being enhanced at this time.
-
-(1) Little overhead and good scalability when tracing on a large-scale
-    SMP system
-   * To make lock mechanism overhead as little as possible, we
-      designed that the buffers are not shared among CPUs.
-
-(2) Easy to extend/expand the function (User-based extendibility)
-   * Without recompiling kernel, user can change/add/modify the kind
-     of events and information to be recorded at anytime.
-      For example, LKST usually traces very few events for the purpose
-    of good performance.  Once the kernel get into the particular status
-    that user specified, LKST will trace and record more detail information.
-
-(3) Preservation of trace information
-   * Recovery of trace information collected at the time of a system crash
-     in connection with LKCD.
-   * Saving of specific event information during tracing.
-      For example, switching to another buffer after the occurrence of
-     a specific event enables the information on that event to be left
-     in the previous buffer.
-
-(4) Collection of even more kernel event information
-   * Information on more than 50 kernel events can be collected for
-     kernel debugging.
-
-  The demand for RAS functions in Linux should grow in the years to come.
-It is our hope that LKST becomes one means of implementing such functions.
-
-
-Best regards,
-----------------
-  Yumiko Sugita
-  Hitachi,Ltd., Systems Development Laboratory
-
-
-At 07:58 02/09/19 +0200, Robert Schwebel wrote:
->On Wed, Sep 18, 2002 at 09:20:55PM +0900, Yumiko Sugita wrote:
-> > I'd like to announce publication of Linux Kernel State Tracer (LKST)
-> > 1.3, which is a tracer for Linux kernel.
->
->Can you tell us what's the difference between this and the Linux Trace
->Toolkit (LTT)?
->
->Robert
->--
->  Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
->  Pengutronix - Linux Solutions for Science and Industry
->    Braunschweiger Str. 79,  31134 Hildesheim, Germany
->    Handelsregister:  Amtsgericht Hildesheim, HRA 2686
->     Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
->_______________________________________________
->Lkst-develop mailing list
->Lkst-develop@lists.sourceforge.jp
->http://lists.sourceforge.jp/cgi-bin/mailman/listinfo/lkst-develop
-
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

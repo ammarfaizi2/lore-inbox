@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271844AbRIVQaj>; Sat, 22 Sep 2001 12:30:39 -0400
+	id <S271832AbRIVQf3>; Sat, 22 Sep 2001 12:35:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271841AbRIVQaa>; Sat, 22 Sep 2001 12:30:30 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50700 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271818AbRIVQaQ>; Sat, 22 Sep 2001 12:30:16 -0400
-Subject: Re: Linux Kernel 2.2.20-pre10 Initial Impressions
-To: jlmales@softhome.net
-Date: Sat, 22 Sep 2001 17:35:44 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BA7D82D.21744.63CF95@localhost> from "John L. Males" at Sep 18, 2001 11:26:37 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S271841AbRIVQfT>; Sat, 22 Sep 2001 12:35:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:64527 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S271832AbRIVQfG>;
+	Sat, 22 Sep 2001 12:35:06 -0400
+Date: Sat, 22 Sep 2001 18:35:23 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [patch] block highmem zero bounce v14
+Message-ID: <20010922183523.A6976@suse.de>
+In-Reply-To: <20010922071839.A10727@devserv.devel.redhat.com> <E15kphr-0003dS-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15kpkm-0003dx-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E15kphr-0003dS-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.22i
+X-OS: Linux 2.2.20 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok, I finially had a chance to compile the 2.2.20-pre10 Kernel and
-> run it though some basic paces.  I need to do more specific A vs b
-> (against the 2.2.19 Kernel), but it seems there are some performance
-> issues.  It is seems especially obvious with Netscape 4.78.  I also
-> had a odd Xfree error, that may have had some relationship to the
-> performance issue.  I have to say at this point the issue seems
-> selective and not a general one, but I need to do a bit more
-> checking.  I cannot forsee this checking happening until this
-> weekend.
+On Sat, Sep 22 2001, Alan Cox wrote:
+> > Nope; without that it was still bust.
+> > Megaraid broke (and 3ware most likely as well) because  it had broken code
+> > for the "only 1 scatter gather element" case....
+> 
+> Yet more evidence that it belongs in 2.5 first. Auditing every scsi driver
+> for that error (and I bet someone had it first and it was copied..) is
+> a big job
 
-There are to all intents no VM changes of any kind between 2.2.19 and
-2.2.20pre10, so it would be interesting to compare configure options
-and see what else might be different
+Somehow I knew you would say that, Alan. 
+
+jens
+

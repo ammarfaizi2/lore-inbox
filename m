@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264096AbUESH1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUESHaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264096AbUESH1P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 03:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUESH1P
+	id S264098AbUESHaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 03:30:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264076AbUESHaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 03:27:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26860 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264096AbUESH1J (ORCPT
+	Wed, 19 May 2004 03:30:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9089 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264098AbUESHaR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 03:27:09 -0400
-Date: Wed, 19 May 2004 00:27:04 -0700
+	Wed, 19 May 2004 03:30:17 -0400
+Date: Wed, 19 May 2004 00:30:13 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: Andy Lutomirski <luto@myrealbox.com>
 Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
        Albert Cahalan <albert@users.sourceforge.net>,
        linux-kernel mailing list <linux-kernel@vger.kernel.org>,
        olaf+list.linux-kernel@olafdietsche.de, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] support cap inheritable (Re: [PATCH] scaled-back caps, take 4 (was Re: [PATCH] capabilites, take 2)
-Message-ID: <20040519002704.K21045@build.pdx.osdl.net>
-References: <fa.dt4cg55.jnqvr5@ifi.uio.no> <40A4F163.6090802@stanford.edu> <20040514110752.U21045@build.pdx.osdl.net> <200405141548.05106.luto@myrealbox.com> <20040517231912.H21045@build.pdx.osdl.net> <20040517235844.I21045@build.pdx.osdl.net> <40AAB9AA.8090508@myrealbox.com>
+Subject: Re: [PATCH] scaled-back caps, take 4
+Message-ID: <20040519003013.L21045@build.pdx.osdl.net>
+References: <fa.dt4cg55.jnqvr5@ifi.uio.no> <40A4F163.6090802@stanford.edu> <20040514110752.U21045@build.pdx.osdl.net> <200405141548.05106.luto@myrealbox.com> <20040517231912.H21045@build.pdx.osdl.net> <40A9D356.6060807@stanford.edu> <20040518182751.J21045@build.pdx.osdl.net> <40AABE49.1050401@myrealbox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <40AAB9AA.8090508@myrealbox.com>; from luto@myrealbox.com on Tue, May 18, 2004 at 06:34:34PM -0700
+In-Reply-To: <40AABE49.1050401@myrealbox.com>; from luto@myrealbox.com on Tue, May 18, 2004 at 06:54:17PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Andy Lutomirski (luto@myrealbox.com) wrote:
 > Chris Wright wrote:
+> > This does change the current notion of layering.  I see your point though, 
+> > likening it to say reading inode and finding S_ISUID bit.
 > 
-> > -#define CAP_INIT_INH_SET    to_cap_t(0)
-> > +#define CAP_INIT_INH_SET    to_cap_t(~0)
-> > +/* ~0 is legacy inheritable mode and can never be capset by user */
-> > +#define cap_orig_inh(_cap) (cap_t((_cap)) == ~0)
+> On the other hand, no one would put reading of a SELinux security label 
+> here.  But we already have fields in binprm specifically for commoncap.  I 
+> have no strong preference.
+
+Yes, I stopped short of that argument only because capabilities fall
+into a bit more of a gray zone than other modules.  But I do prefer
+leaving it in the module.
+
+> >>The reason I killed the old algorithm is because it's scary (in the sense 
+> >>of being complicated and subtle for no good reason) and because I don't see 
+> >>the point of inheritable caps.  I doubt anything uses them currently on a 
+> >>vanilla kernel because they don't _do_ anything.  So I killed them.
+> > 
+> > This does break all those caps aware apps (yeah, tongue-in-cheek ;-)
+> > that actually have the idea to widen the effective set, yet limit the
+> > inheriable set.  Seriously, I don't know how much this matters.
 > 
-> So how do you say "inherit all caps"?
+> Yah, they're broken anyway right now if that's what they're doing.
 
-Legacy mode requires effectively reserving a bit, which works in this case
-since all 32 aren't used.  So inherit all caps is all valid caps (which,
-btw,  still exludes CAP_SETPCAP).  Something like "=eip cap_setpcap-eip"
-would inherit all valid caps.
+On Linux they are.  On IRIX they aren't.  This is part of the issue as I
+see it.
 
-> > @@ -56,10 +59,13 @@
-> >  int cap_capset_check (struct task_struct *target, kernel_cap_t *effective,
-> >  		      kernel_cap_t *inheritable, kernel_cap_t *permitted)
-> >  {
-> > +	kernel_cap_t target_inheritable = target->cap_inheritable;
-> > +	if (cap_orig_inh(target_inheritable))
-> > +		target_inheritable = 0;
-> >  	/* Derived from kernel/capability.c:sys_capset. */
-> >  	/* verify restrictions on target's new Inheritable set */
-> >  	if (!cap_issubset (*inheritable,
-> > -			   cap_combine (target->cap_inheritable,
-> > +			   cap_combine (target_inheritable,
-> >  					current->cap_permitted))) {
-> >  		return -EPERM;
-> >  	}
-> 
-> What stops legacy mode from being reenabled?
+> The reason I didn't go for something like your approach (other than not 
+> thinking of it) was that, as long as we're changing the semantics, we might 
+> as well make them as clean as possible.  I also didn't mind ripping out 
+> lots of old code :).  If the inheritable mask stays, then programs need to 
+> be audited for what happens if they are run with different inheritable 
+> masks.  I'd rather just eliminate that complication and the corresponding 
+> blob of commoncap code.  Obviously my patch fails a lot of your tests as a 
+> result.
 
-I believe only a kernel thread could do this (and init) since they are the
-only ones that could get CAP_SETPCAP.  Same threat as it is currently.
+Actually the only glaring difference (aside from the uid/suid and non-root
+execs nonroot-yet-diff-id-setuid-app issue I mentioned earlier) is in
+something like "=ep cap_setpcap-ep cap_ipc_lock+i" IIRC.
 
-> I think you missed the case when root-but-no-caps execs setuid root -- I 
-> don't see anything that would enable secureexec.
+I have the feeling we both are after the same thing, which is introducing
+the ability to keep some caps through exec and still being able to sleep
+at night w/ confidence that there isn't some subtle new hole lurking.
+This is why I aimed to change as little code as possible.
 
-Yup you're right.  I liked how you did that in your patch and was just going
-to steal that bit ;-)
+> So do we arm-wrestle over whose implementation wins? :)  I'd say mine wins 
+> on readability (not your fault -- the old code was pretty bad to begin 
+> with) and some simplicity, but yours has the benefit of being less intrusive.
+
+Hehe, arm wrestling could be entertaining ;-)  I'm in favor of the most
+conservative change, which I feel is in my patch.  But I'm game to
+continue to pick on each.
 
 thanks,
 -chris

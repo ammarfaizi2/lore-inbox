@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266911AbSKLO0U>; Tue, 12 Nov 2002 09:26:20 -0500
+	id <S266767AbSKLOV6>; Tue, 12 Nov 2002 09:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266913AbSKLO0U>; Tue, 12 Nov 2002 09:26:20 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26118 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266911AbSKLO0T>; Tue, 12 Nov 2002 09:26:19 -0500
-Date: Tue, 12 Nov 2002 14:33:06 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44 serial driver bug with asus pr-dls m/b
-Message-ID: <20021112143306.A14369@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Walrond <andrew@walrond.org>,
-	linux-kernel@vger.kernel.org
-References: <3DB84EAB.5020608@walrond.org> <20021103135813.B5589@flint.arm.linux.org.uk> <3DD0E95D.3090801@walrond.org> <3DD0F03F.9000604@walrond.org> <3DD0F987.3050409@walrond.org> <3DD106FA.5060809@walrond.org>
+	id <S266780AbSKLOV6>; Tue, 12 Nov 2002 09:21:58 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:18854 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266767AbSKLOV5>; Tue, 12 Nov 2002 09:21:57 -0500
+Subject: Re: devfs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Ian Molton <spyro@f2s.com>, Alexander Viro <viro@math.psu.edu>,
+       xavier.bestel@free.fr,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021112104650.GA322@suse.de>
+References: <1037094221.16831.21.camel@bip>
+	<Pine.GSO.4.21.0211120445570.29617-100000@steklov.math.psu.edu>
+	<20021112102535.1f94f50d.spyro@f2s.com>  <20021112104650.GA322@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Nov 2002 14:53:38 +0000
+Message-Id: <1037112818.8313.32.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DD106FA.5060809@walrond.org>; from andrew@walrond.org on Tue, Nov 12, 2002 at 01:49:46PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 01:49:46PM +0000, Andrew Walrond wrote:
-> Further to the hanging serial output; disabling DEBUG_AUTOCONF in 8250.c 
-> removes this problem.
+On Tue, 2002-11-12 at 10:46, Dave Jones wrote:
+> On Tue, Nov 12, 2002 at 10:25:35AM +0000, Ian Molton wrote:
+>  > > 	Again, WE ARE IN FEATURE FREEZE.
+>  > And since when did feature freeze affect, as the guy said, *purely*
+>  > userspace implementations?
 > 
-> So the only remaining problem is when remote console=ENABLED, rather 
-> than post only, in the bios. If this is a problem at all ?
-> 
-> I assume that remote console=enabled redirects the interrupt 0x10 
-> “video” requests used to write to the screen and sends the characters to 
-> the serial port instead, rather than just the POST messages. Since the 
-> 16bit bios is chucked out when the 32bit linux kernel boots, I don't 
-> understand why this upsets anything?
+>  Since it would a *feature* to move it out of kernel space.
+>  To reiterate : _FEATURE_ _FREEZE_. Nothing[1] new[2]
+>  should be going into mainline at this point.
 
-Well, it looks like the serial port at 0x3f8 gets unmapped by the bios
-when you set remote console=ENABLED.  The debug output you've sent all
-points towards there being no physical port at 0x3f8.
+Who cares. You can do most of it already with hotplug and the remaining
+bits are very much "oops should tell hotplug" bug fixes nothing more.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Alan
 

@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265407AbUFDBbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265514AbUFDBvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265407AbUFDBbm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 21:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265514AbUFDBbm
+	id S265514AbUFDBvM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 21:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbUFDBvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 21:31:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44417 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265407AbUFDBbc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 21:31:32 -0400
-Date: Thu, 3 Jun 2004 18:30:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Jeremy Kerr <jk@ozlabs.org>
-Subject: Re: [PATCH] Fix signal race during process exit
-Message-Id: <20040603183044.40e4a95c.akpm@osdl.org>
-In-Reply-To: <200406040121.i541LGAI012332@magilla.sf.frob.com>
-References: <200406040121.i541LGAI012332@magilla.sf.frob.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 3 Jun 2004 21:51:12 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:48537 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S265514AbUFDBvH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 21:51:07 -0400
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
+	implementation
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Jackson <pj@sgi.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       Ashok Raj <ashok.raj@intel.com>, Christoph Hellwig <hch@infradead.org>,
+       Jesse Barnes <jbarnes@sgi.com>, Joe Korty <joe.korty@ccur.com>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Mikael Pettersson <mikpe@csd.uu.se>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Simon Derr <Simon.Derr@bull.net>,
+       William Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <20040603101010.4b15734a.pj@sgi.com>
+References: <20040603094339.03ddfd42.pj@sgi.com>
+	 <20040603101010.4b15734a.pj@sgi.com>
+Content-Type: text/plain
+Message-Id: <1086313667.29381.897.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 04 Jun 2004 11:47:47 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath <roland@redhat.com> wrote:
->
-> Is there a reproducer case around so we can test fixes for this problem?
-
-Jeremy would have the details.
-
-> It seems to me that signals sent to an already dying task might as well
-> just be discarded anyway.  All they ever do now (except for trip bugs) is
-> change what pending signals you see in the /proc/pid/status entry for a
-> zombie.  What's wrong with this:
+On Fri, 2004-06-04 at 03:10, Paul Jackson wrote:
+> cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
 > 
-> Index: linux-2.6/kernel/signal.c
-> ===================================================================
-> RCS file: /home/roland/redhat/bkcvs/linux-2.5/kernel/signal.c,v
-> retrieving revision 1.120
-> diff -u -b -p -r1.120 signal.c
-> --- linux-2.6/kernel/signal.c 10 May 2004 20:28:20 -0000 1.120
-> +++ linux-2.6/kernel/signal.c 4 Jun 2004 01:16:31 -0000
-> @@ -161,6 +161,9 @@ static int sig_ignored(struct task_struc
->  {
->  	void * handler;
->  
-> +	if (t->flags & PF_DEAD)
-> +		return 1;
-> +
+> 	Major rewrite of cpumask to use a single implementation,
+> 	as a struct-wrapped bitmap.
 
-I'm not sure about the locking here.  What happens if the task starts
-exitting immediately after the above test?
+Go Paul!
 
-Plus the above adds code to the delivery fastpath, rather than exit().
+> + * 1) The 'type-checked' form of cpu_isset() causes gcc (3.3.2, anyway)
+> + *    to generate slightly worse code.  Note for example the additional
+> + *    40 lines of assembly code compiling the "for each possible cpu"
+> + *    loops buried in the disk_stat_read() macros calls when compiling
+> + *    drivers/block/genhd.c (arch i386, CONFIG_SMP=y).  So use a simple
+> + *    one-line #define for cpu_isset(), instead of wrapping an inline
+> + *    inside a macro, the way we do the other calls.
 
-If we're going to do the above for other reasons (what are they?) then it
-would be neater to add a new PF_NO_SIGNALS rather than overloading PF_DEAD.
+Hmm... 
+
+> +/* No static inline type checking - see Subtlety (1) above. */
+> +#define cpu_isset(cpu, cpumask) test_bit((cpu), (cpumask).bits)
+
+How about something really grungy like:
+
+#define cpu_isset(cpu, cpumask)				\
+	({ __typeof__(cpumask) __cpumask;		\
+	   (void)(&__cpumask) == (cpumask_t *)0);	\
+	   test_bit((cpu), (cpumask).bits); })
+
+> +#define cpus_addr(src) ((src).bits)
+
+We've discussed this before when talking about whether it'd be easier to
+just make people use raw bitop functions directly, so I know we have
+philosophical differences here.
+
+So, opinion alert: if I were doing this, I'd probably live without this
+macro; in my mind it crosses the "too much abstraction" line.  I did
+momentarily wonder what this macro did when I saw it used in the
+succeeding patches.
+
+But it's a minor nit; thanks for doing these.
+
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

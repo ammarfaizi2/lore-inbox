@@ -1,90 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbQJ3Wd4>; Mon, 30 Oct 2000 17:33:56 -0500
+	id <S129170AbQJ3Wj3>; Mon, 30 Oct 2000 17:39:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129170AbQJ3Wdq>; Mon, 30 Oct 2000 17:33:46 -0500
-Received: from smtp2.Mountain.Net ([198.77.1.5]:49867 "EHLO
-	nabiki.mountain.net") by vger.kernel.org with ESMTP
-	id <S129026AbQJ3Wda>; Mon, 30 Oct 2000 17:33:30 -0500
-Message-ID: <39FDF518.A9F1204D@mountain.net>
-Date: Mon, 30 Oct 2000 17:24:24 -0500
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18pre13 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org, netdev <netdev@oss.sgi.com>
-Subject: [PATCH] ipv4 skbuff locking scope
-Content-Type: multipart/mixed;
- boundary="------------F7235E45F57BA24361EDD4C3"
+	id <S129475AbQJ3WjS>; Mon, 30 Oct 2000 17:39:18 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:31617 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129371AbQJ3WjJ>;
+	Mon, 30 Oct 2000 17:39:09 -0500
+Date: Mon, 30 Oct 2000 14:24:46 -0800
+Message-Id: <200010302224.OAA02266@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: tleete@mountain.net
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <39FDF518.A9F1204D@mountain.net> (message from Tom Leete on Mon,
+	30 Oct 2000 17:24:24 -0500)
+Subject: Re: [PATCH] ipv4 skbuff locking scope
+In-Reply-To: <39FDF518.A9F1204D@mountain.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------F7235E45F57BA24361EDD4C3
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+   Date: Mon, 30 Oct 2000 17:24:24 -0500
+   From: Tom Leete <tleete@mountain.net>
 
-Hello,
+   This fixes tests of a socket buffer done without holding the
+   lock. tcp_data_wait() and wait_for_tcp_memory() both had
+   unguarded refs in their sleep conditionals.
 
-This fixes tests of a socket buffer done without holding the
-lock. tcp_data_wait() and wait_for_tcp_memory() both had
-unguarded refs in their sleep conditionals.
+These are not buggy at all, see the discussion which took place here
+over the past few days.
 
-Tom
---------------F7235E45F57BA24361EDD4C3
-Content-Type: text/plain; charset=us-ascii;
- name="tcp.lock.scope.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="tcp.lock.scope.patch"
+Look, if the sleep condition test "races" due to not holding the lock,
+the schedule() just returns because if the sleep condidion test passes
+then by definition this means we were also woken up, see?
 
---- linux-2.4.0-test10-pre5/net/ipv4/tcp.c~	Sun Oct 29 01:21:09 2000
-+++ linux/net/ipv4/tcp.c	Mon Oct 30 16:53:19 2000
-@@ -204,6 +204,9 @@
-  *		Andi Kleen 	:	Make poll agree with SIGIO
-  *	Salvatore Sanfilippo	:	Support SO_LINGER with linger == 1 and
-  *					lingertime == 0 (RFC 793 ABORT Call)
-+ *              Tom Leete       :       Fix locking scope in
-+ *                                      wait_for_tcp_memory, tcp_data_wait
-+ *
-  *					
-  *		This program is free software; you can redistribute it and/or
-  *		modify it under the terms of the GNU General Public License
-@@ -871,10 +874,11 @@
- 			break;
- 		if (sk->err)
- 			break;
--		release_sock(sk);
--		if (!tcp_memory_free(sk) || vm_wait)
-+		if (!tcp_memory_free(sk) || vm_wait) {
-+			release_sock(sk);
- 			current_timeo = schedule_timeout(current_timeo);
--		lock_sock(sk);
-+			lock_sock(sk);
-+		}
- 		if (vm_wait) {
- 			if (timeo != MAX_SCHEDULE_TIMEOUT &&
- 			    (timeo -= vm_wait-current_timeo) < 0)
-@@ -1273,12 +1277,12 @@
- 	__set_current_state(TASK_INTERRUPTIBLE);
- 
- 	set_bit(SOCK_ASYNC_WAITDATA, &sk->socket->flags);
--	release_sock(sk);
- 
--	if (skb_queue_empty(&sk->receive_queue))
-+	if (skb_queue_empty(&sk->receive_queue)){
-+		release_sock(sk);
- 		timeo = schedule_timeout(timeo);
--
--	lock_sock(sk);
-+		lock_sock(sk);
-+	}
- 	clear_bit(SOCK_ASYNC_WAITDATA, &sk->socket->flags);
- 
- 	remove_wait_queue(sk->sleep, &wait);
+BTW, while we're on the topic of people not understanding the
+networking locking and proposing bogus patches, does anyone know who
+sent the bogon IP tunneling locking "fixes" to Linus behind my back?
 
---------------F7235E45F57BA24361EDD4C3--
+They were crap too, and I had to revert them in test10-pre7.  It's
+another case of people just not understanding how the code works and
+thus that it is correct without any changes.
+
+Please send such fixes to me, and I'll set you straight with a
+description as to why your change is unnecessary :-)
+
+Later,
+David S. Miller
+davem@redhat.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

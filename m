@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318261AbSHKJOp>; Sun, 11 Aug 2002 05:14:45 -0400
+	id <S318242AbSHKJTW>; Sun, 11 Aug 2002 05:19:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318262AbSHKJOp>; Sun, 11 Aug 2002 05:14:45 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:59354 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318261AbSHKJOo>;
-	Sun, 11 Aug 2002 05:14:44 -0400
-Date: Sun, 11 Aug 2002 05:18:30 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Leopold Gouverneur <lgouv@pi.be>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3[01] does not boot for me
-In-Reply-To: <20020811081929.GA693@gouv>
-Message-ID: <Pine.GSO.4.21.0208110510280.12398-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318244AbSHKJTW>; Sun, 11 Aug 2002 05:19:22 -0400
+Received: from ns.suse.de ([213.95.15.193]:34057 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318242AbSHKJTV>;
+	Sun, 11 Aug 2002 05:19:21 -0400
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 13/21] deferred and batched addition of faulted-in pages to the   LRU
+References: <3D5614B2.EFD25A8D@zip.com.au.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 11 Aug 2002 11:23:08 +0200
+In-Reply-To: Andrew Morton's message of "11 Aug 2002 09:42:00 +0200"
+Message-ID: <p73wuqxiwar.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@zip.com.au> writes:
+>   */
+> -void lru_cache_add(struct page * page)
+> +static struct pagevec lru_add_pvecs[NR_CPUS];
+> +
+> +void lru_cache_add(struct page *page)
+> +{
+> +	struct pagevec *pvec = &lru_add_pvecs[get_cpu()];
 
+This should probably use the linux/percpu.h macros. 
+This way it could be more efficient on some architectures and also avoid
+potential false sharing.
 
-On Sun, 11 Aug 2002, Leopold Gouverneur wrote:
-
-> 2.5.31 hangs during boot after:
-> 
-> hde 60036480 sectors w/1916 KiB cache CHS=59560/16/63, UDMA(44)
-> hde hde1 hde2 hde3 hde4 <
-> 
-> hde is a  IBM-DTLA-307030 on a HPT366 (Abit BP6) 2.5.29 boot OK
-> Sorry if it is a known problem!
-
-Hrrmm...  That definitely sounds like partition-parser getting
-screwed in the middle of IO - it _does_ read the first sector
-and apparently hangs in attempt to read another one.  Very
-interesting, since AFAICS all changes that could have affected
-that place happened between .28 and .29.
-
-Deadlocks in surrounding code are very unlikely, since it simply
-doesn't care about block number and would just as happily hang
-while reading the first sector.  Which it hadn't.
-
-Could you give the output of fdisk -lu /dev/hde? (after booting a working
-kernel, obviously ;-)
-
+-Andi

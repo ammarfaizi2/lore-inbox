@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267470AbTAGPGt>; Tue, 7 Jan 2003 10:06:49 -0500
+	id <S267345AbTAGPMy>; Tue, 7 Jan 2003 10:12:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267471AbTAGPGt>; Tue, 7 Jan 2003 10:06:49 -0500
-Received: from h80ad260b.async.vt.edu ([128.173.38.11]:17283 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267470AbTAGPGs>; Tue, 7 Jan 2003 10:06:48 -0500
-Message-Id: <200301071515.h07FFKCR008361@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers? 
-In-Reply-To: Your message of "Tue, 07 Jan 2003 10:08:00 +0100."
-             <3E1A98F0.271311CB@aitel.hist.no> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org> <1041596161.1157.34.camel@fly> <3E158738.4050003@walrond.org> <3E159336.F249C2A1@aitel.hist.no> <3E15A2C8.7060903@walrond.org> <3E195A4B.B160B1D2@aitel.hist.no> <3E196749.8080509@walrond.org>
-            <3E1A98F0.271311CB@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1303455072P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Jan 2003 10:15:20 -0500
+	id <S267398AbTAGPMy>; Tue, 7 Jan 2003 10:12:54 -0500
+Received: from elin.scali.no ([62.70.89.10]:4362 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S267345AbTAGPMx>;
+	Tue, 7 Jan 2003 10:12:53 -0500
+Date: Tue, 7 Jan 2003 16:24:36 +0100 (CET)
+From: Steffen Persvold <sp@scali.com>
+X-X-Sender: sp@sp-laptop.isdn.scali.no
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NAPI and tg3
+In-Reply-To: <1041875880.17472.47.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0301070015320.16633-100000@sp-laptop.isdn.scali.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1303455072P
-Content-Type: text/plain; charset=us-ascii
+On 6 Jan 2003, Alan Cox wrote:
 
-On Tue, 07 Jan 2003 10:08:00 +0100, Helge Hafting <helgehaf@aitel.hist.no>  said:
-> loss.  Giving away driver code (or at least programming specs)
-> wouldn't be a loss to nvidia though - because users would still
-> need to buy those cards.
+> > Ok I can try that, but what about the nice level of ksoftirqd ? Any 
+> > specific reason for it beeing 19 (lowest priority) and not 0 (equally to 
+> > most other processes in the system) ?
+> 
+> Its triggered (in theory but not practice) only when we are overloaded, in
+> which case we want to do other *useful* work first rather than using all
+> the cpu to process requests we can't fulfill
+> 
 
-It would be a major loss to nvidia *AND* its customers if it were bankrupted in
-a lawsuit because it open-sourced code or specs that contained intellectual
-property that belonged to somebody else.  Of course, if that happened, you'd
-still have the "freedom" to buy the other vendor's cards - maybe(*)
+I've also tried the NAPI patch for e1000 and it experience the same 
+performance problem with multithreaded apps. The "NAPI-HOWTO" doesn't 
+mention that this could be an issue at all. Does any of the NAPI authors 
+(Jeff ?) have any comments ?
 
-In the real world, ideology needs to be tempered with realism.
+Regards,
+-- 
+  Steffen Persvold   |       Scali AS      
+ mailto:sp@scali.com |  http://www.scali.com
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
 
-(*) there's a ripple effect here - if the otherwise-best laptop is only
-available with an nvidia card, you now have the "freedom" to choose a otherwise
-less-suitable model.  And so on....
 
---==_Exmh_-1303455072P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+Gu8IcC3lWbTT17ARAsIHAJ9y0q1hlZSwBeQDFm76/1aEGAeSJQCgkr42
-uj/uHmYxFH51KGB6ApEVOPU=
-=ygei
------END PGP SIGNATURE-----
-
---==_Exmh_-1303455072P--

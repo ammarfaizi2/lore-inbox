@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271007AbTHLRsP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 13:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271030AbTHLRsP
+	id S271037AbTHLR4x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 13:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271043AbTHLR4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 13:48:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42178 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271007AbTHLRsN
+	Tue, 12 Aug 2003 13:56:53 -0400
+Received: from newpeace.netnation.com ([204.174.223.7]:32719 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP id S271037AbTHLR4w
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 13:48:13 -0400
-Date: Tue, 12 Aug 2003 18:48:10 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Dave Jones <davej@redhat.com>, Matthew Wilcox <willy@debian.org>,
-       Robert Love <rml@tech9.net>, CaT <cat@zip.com.au>,
-       linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-Message-ID: <20030812174810.GD10015@parcelfarce.linux.theplanet.co.uk>
-References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost> <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk> <20030812173707.GB6919@redhat.com>
+	Tue, 12 Aug 2003 13:56:52 -0400
+Date: Tue, 12 Aug 2003 10:56:51 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]O14int
+Message-ID: <20030812175651.GA12036@netnation.com>
+References: <20030808220821.61cb7174.lista1@telia.com> <200308091036.18208.kernel@kolivas.org> <20030810084827.GA30869@netnation.com> <200308101906.34807.kernel@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030812173707.GB6919@redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200308101906.34807.kernel@kolivas.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 06:37:07PM +0100, Dave Jones wrote:
-> Depends. If it's a huuuge struct (see the device ID struct in 2.4's
-> agpgart for eg) it becomes much more readable. Whitespace good, clutter bad.
+On Sun, Aug 10, 2003 at 07:06:34PM +1000, Con Kolivas wrote:
 
-Yup, absolutely.  My point is that struct pci_device_id is really really
-common.  If you've ever looked at a Linux PCI driver, you've seen it.
-The agp_bridge_info example is specific to this one driver, so it's new
-every time you look at it.
+> Is this with or without my changes? The old scheduler was not very scalable; 
+> that's why we moved. The new one has other intrinsic issues that I (and 
+> others) have been trying to address, but is much much more scalable. It was 
+> not possible to make the old one more scalable, but it is possible to make 
+> this one more interactive.
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Without your changes.  Are you changing the design or just tuning certain
+cases?  I was talking more about the theory behind the scheduling
+decisions and not about particular cases.
+
+The O(1) scheduler changes definitely help scalability and I don't have
+any problem with that change (unless it introduced the behavior I'm
+talking about).
+
+Simon-

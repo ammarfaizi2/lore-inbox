@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262872AbVAKVb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262863AbVAKVdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbVAKVb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbVAKV3a
+	id S262863AbVAKVdc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262877AbVAKVcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:29:30 -0500
-Received: from gprs215-193.eurotel.cz ([160.218.215.193]:22915 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262872AbVAKV1m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:27:42 -0500
-Date: Tue, 11 Jan 2005 22:27:29 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-mm2: swsusp problem with resuming on batteries (AMD64)
-Message-ID: <20050111212729.GC1802@elf.ucw.cz>
-References: <200501112220.53011.rjw@sisk.pl>
+	Tue, 11 Jan 2005 16:32:12 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:58004 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262831AbVAKVad
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 16:30:33 -0500
+Subject: Re: [PATCH] Kprobes /proc entry
+From: Nathan Lynch <nathanl@austin.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Luca Falavigna <dktrkranz@gmail.com>, vamsi_krishna@in.ibm.com,
+       prasanna@in.ibm.com, suparna@in.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050110181445.GA31209@kroah.com>
+References: <41E2AC82.8020909@gmail.com>  <20050110181445.GA31209@kroah.com>
+Content-Type: text/plain
+Message-Id: <1105479077.17592.8.camel@pants.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501112220.53011.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 11 Jan 2005 15:31:17 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> On 2.6.10-mm2, if swsusp suspends my box on AC power and then it's resumed on 
-> batteries, the box reboots after (or while) suspending devices (ie before 
-> restoring the image).  This is 100% reproducible, it appears.
+On Mon, 2005-01-10 at 12:14, Greg KH wrote:
+> On Mon, Jan 10, 2005 at 05:25:38PM +0100, Luca Falavigna wrote:
+> > This simple patch adds a new file in /proc, listing every kprobe which
+> > is currently registered in the kernel. This patch is checked against
+> > kernel 2.6.10
 > 
-> The box is an Athlon 64 laptop on NForce 3.
+> No, please do not add extra /proc files to the kernel.  This belongs in
+> /sys, as it has _nothing_ to do with processes.
 
-Forcing machine to 800MHz before suspend may do the trick, too.
+Wouldn't this sort of thing be a good candidate for debugfs?  If you're
+messing with kprobes, then aren't you by definition doing kernel
+debugging? :)
 
-									Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+Nathan
+
+

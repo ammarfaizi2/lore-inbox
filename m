@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132719AbRC2Lny>; Thu, 29 Mar 2001 06:43:54 -0500
+	id <S132735AbRC2Lte>; Thu, 29 Mar 2001 06:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132718AbRC2Lnp>; Thu, 29 Mar 2001 06:43:45 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:224 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132720AbRC2Ln1>;
-	Thu, 29 Mar 2001 06:43:27 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: configuring net interfaces
-In-Reply-To: <m3itkuq6xt.fsf@intrepid.pm.waw.pl>
-	<20010328182729.A16067@se1.cogenit.fr>
-	<m34rwd8pj2.fsf@intrepid.pm.waw.pl>
-	<003101c0b7e5$0c53dbb0$0201a8c0@mojo>
-Content-Type: text/plain; charset=US-ASCII
-From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
-Date: 29 Mar 2001 12:34:39 +0200
-In-Reply-To: "Paul Fulghum"'s message of "Wed, 28 Mar 2001 18:13:10 -0600"
-Message-ID: <m37l187tj4.fsf@intrepid.pm.waw.pl>
-MIME-Version: 1.0
+	id <S132723AbRC2LtY>; Thu, 29 Mar 2001 06:49:24 -0500
+Received: from mail22.bigmailbox.com ([209.132.220.199]:5125 "EHLO
+	mail22.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S132714AbRC2LtH>; Thu, 29 Mar 2001 06:49:07 -0500
+Date: Thu, 29 Mar 2001 03:48:20 -0800
+Message-Id: <200103291148.DAA28629@mail22.bigmailbox.com>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [12.40.232.3]
+From: "Deja User" <amarnder@my-deja.com>
+To: linux-kernel@vger.kernel.org
+Subject: question on ip_masq_irc.c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul Fulghum" <paulkf@microgate.com> writes:
+Hi all,
+I am working on a NAT product and trying provide mIRC support in it. I am looking into ip_masq_irc.c file of Linux 2.2.12 for reference, and have some doubts.
+1. In 2.2.12 ip_masq_irc.c, DCC RESUME protocol is not supported. In which patch can I find it?
+2. I have pre-patch-2.2.18-5 linux.18p5/net/ipv4/ip_masq_irc.c, which has support for DCC RESUME. Is this the final patch? I have checked with documentation in mIRC help files about DCC RESUME command string. It says the command string in the pay load looks 
+   DCC RESUME filename port position
+   But, in the above file, the string hunted is 
+   "\1DCC RESUME chat AAAAAAAA P\1\n"
 
->  > +struct hdlc_physical /* 10 bytes */
-> > +{
-> > + unsigned int interface;
-> > + unsigned int clock_rate;
-> > + unsigned short clock_type;
-> > +};
-> 
-> What about encoding (NRZ/NRZI)?
-> 
-> Plus I think the CRC type would be a good idea for
-> raw HDLC mode. (CRC-16, CRC-32, no CRC)
+Can anybody please clarify, what exactly should be searched?
 
-Here - I think so. + good defaults.
--- 
-Krzysztof Halasa
-Network Administrator
+thanks in advance
+--Amar
+
+
+
+
+
+
+
+------------------------------------------------------------
+--== Sent via Deja.com ==--
+http://www.deja.com/
+
+

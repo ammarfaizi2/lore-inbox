@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbTFXJq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 05:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTFXJq6
+	id S261292AbTFXJwW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 05:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbTFXJwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 05:46:58 -0400
-Received: from [213.196.40.44] ([213.196.40.44]:6316 "EHLO blackstar.nl")
-	by vger.kernel.org with ESMTP id S261265AbTFXJq6 (ORCPT
+	Tue, 24 Jun 2003 05:52:22 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:5076 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S261292AbTFXJwV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 05:46:58 -0400
-Date: Tue, 24 Jun 2003 11:50:05 +0200 (CEST)
-From: Bas Vermeulen <bvermeul@blackstar.nl>
-To: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with PCMCIA/Orinoco
-In-Reply-To: <20030624005912.GA23266@butterfly.hjsoft.com>
-Message-ID: <Pine.LNX.4.33.0306241148450.14587-100000@devel.blackstar.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Jun 2003 05:52:21 -0400
+Date: Tue, 24 Jun 2003 12:06:10 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>
+Subject: Provide example copy_in_user implementation
+Message-ID: <20030624100610.GC159@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jun 2003, John M Flinchbaugh wrote:
+Hi!
 
-> On Mon, Jun 23, 2003 at 10:38:15AM +0100, Russell King wrote:
-> > > unregister_netdevice: waiting for eth1 to become free. Usage count 
-> = 1
-> > Is this still an outstanding problem in 2.5.73?
-> 
-> i still see it with both my 3c574_cs and my orinoco_cs in 2.5.73.
-> this one is elusive, isn't it?  if i were smarter, i'd try to track it
-> down.  maybe i'll look at it again, not that i know anything.
+This patch adds example copy_in_user implementation (copy_in_user is
+needed for new ioctl32 implementation, all 64bit archs will need
+it)... Please apply,
 
-Still see it here as well. I'll try to track it down tonight, when I've 
-got some free time on my hands.
+								Pavel
 
-Bas Vermeulen
+Index: linux/include/asm-generic/uaccess.h
+===================================================================
+--- linux.orig/include/asm-generic/uaccess.h	2003-06-17 17:10:44.000000000 +0200
++++ linux/include/asm-generic/uaccess.h	2003-06-16 16:09:52.000000000 +0200
+@@ -0,0 +1,13 @@
++static inline unsigned long copy_in_user(void *dst, const void *src, unsigned size) 
++{ 
++	unsigned i, ret;
++	unsigned char c;
++	for (i=0; i<size; i++) {
++		if (copy_from_user(&c, src+i, 1)) 
++			return size-i;
++		if (copy_to_user(dst+i, &c, 1))
++			return size-i;
++	}
++	return 0;
++}	
++
+
 
 -- 
-"God, root, what is difference?" 
-	-- Pitr, User Friendly
-
-"God is more forgiving." 
-	-- Dave Aronson
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

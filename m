@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQKKXbQ>; Sat, 11 Nov 2000 18:31:16 -0500
+	id <S129457AbQKLAOx>; Sat, 11 Nov 2000 19:14:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129457AbQKKXa5>; Sat, 11 Nov 2000 18:30:57 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:32780 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129391AbQKKXax>; Sat, 11 Nov 2000 18:30:53 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Where is it written?
-Date: 11 Nov 2000 15:30:43 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8ukkr3$f2h$1@cesium.transmeta.com>
-In-Reply-To: <20001110184031.A2704@munchkin.spectacle-pond.org> <20001110192751.A2766@munchkin.spectacle-pond.org> <20001111163204.B6367@inspiron.suse.de> <20001111171749.A32100@wire.cadcamlab.org>
+	id <S129460AbQKLAOn>; Sat, 11 Nov 2000 19:14:43 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:33545 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129457AbQKLAOc>;
+	Sat, 11 Nov 2000 19:14:32 -0500
+Message-ID: <3A0DE0C8.C700F33D@mandrakesoft.com>
+Date: Sat, 11 Nov 2000 19:14:00 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: sendfile(2) fails for devices?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001111171749.A32100@wire.cadcamlab.org>
-By author:    Peter Samuelson <peter@cadcamlab.org>
-In newsgroup: linux.dev.kernel
-> 
-> [Andrea Arcangeli]
-> > Can you think at one case where it's better to push the parameter on
-> > the stack instead of passing them through the callee clobbered
-> > ebx/eax/edx?
-> 
-> Well it's safer if you are lazy about prototyping varargs functions.
-> But of course by doing that you're treading on thin ice anyway, in
-> terms of type promotion and portability.  So I guess it's much better
-> to say "varargs functions MUST be prototyped" and use the registers.
-> 
+sendfile(2) fails with -EINVAL every time I try to read from a device
+file.
 
-It definitely is now.  At the time the original x86 ABI was created, a
-lot of C code was still K&R, and thus prototypes didn't exist...
+This sounds like a bug... is it?  (the man page doesn't mention such a
+restriction)
 
-> 
-> AIUI gcc can cope OK with multiple ABIs to be chosen at runtime, am I
-> right?  IRIX, HP-UX and AIX all have both 32-bit and 64-bit ABIs.
-> 
+I am using kernel 2.4.0-test11-pre2.  All other tests with sendfile(2)
+succeed:  file->file, file->STDOUT, STDIN->file...
 
-I don't think we want to introduce a new ABI in user space at this
-time.  If we ever have to major-rev the ABI (libc.so.7), then we
-should consider this.
-
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Jeff Garzik             |
+Building 1024           | Would you like a Twinkie?
+MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

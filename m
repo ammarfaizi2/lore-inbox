@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262896AbTCKLPn>; Tue, 11 Mar 2003 06:15:43 -0500
+	id <S262900AbTCKL0E>; Tue, 11 Mar 2003 06:26:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262898AbTCKLPn>; Tue, 11 Mar 2003 06:15:43 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:64712 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S262896AbTCKLPm>;
-	Tue, 11 Mar 2003 06:15:42 -0500
-Date: Tue, 11 Mar 2003 12:26:24 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [pointless] mrtg graphs of lkml available
-Message-ID: <20030311112624.GA23086@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S262901AbTCKL0E>; Tue, 11 Mar 2003 06:26:04 -0500
+Received: from [80.190.48.67] ([80.190.48.67]:30724 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id <S262900AbTCKL0E> convert rfc822-to-8bit; Tue, 11 Mar 2003 06:26:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Torsten Foertsch <torsten.foertsch@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vsscanf do not convert hex numbers starting with a non-digit
+Date: Tue, 11 Mar 2003 12:36:15 +0100
+User-Agent: KMail/1.4.3
+References: <200303111202.19984.torsten.foertsch@gmx.net>
+In-Reply-To: <200303111202.19984.torsten.foertsch@gmx.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303111236.15944.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On http://mrtg.ds9a.nl I now plot lkml, so finally nagging questions like
-"wow, I can't recall when it was this busy on lkml!" or "is it just me or is
-the list somewhat quiet right now" can be answered.
+On Tuesday 11 March 2003 12:02, Torsten Foertsch wrote:
 
-It plots messages/hour and kilobytes/hour, times are in CET.
+Hi Torsten,
 
-Regards,
 
-bert
+> I found the following little bug in 2.4.19. I did not try newer kernels.
+> vsscanf refuses to convert a hex number starting with a nondecimal digit
+> like:
+> char *buf="ff";
+> unsigned ff=0;
+> sscanf( buf, "%x", &ff );      /* fails: nothing is converted */
+>
+> Here is a patch that corrects that behaviour:
+>
+> --- linux/lib/vsprintf.c        2001-10-11 20:17:22.000000000 +0200
+> +++ linux.patched/lib/vsprintf.c        2003-03-11 11:52:08.000000000 +0100
+> @@ -637,7 +637,7 @@
+>                 while (isspace(*str))
+>                         str++;
+>
+> -               if (!*str || !isdigit(*str))
+> +               if (!*str || !(isdigit(*str) || (base==16 &&
+> isxdigit(*str)))) break;
+>
+>                 switch(qualifier) {
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-http://netherlabs.nl                         Consulting
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104687957102846&w=2
+
+This fix was first posted since early 2.4.18-pre stage.
+
+ciao, Marc
+
+

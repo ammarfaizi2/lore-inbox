@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262563AbTJJMzd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 08:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbTJJMzd
+	id S262395AbTJJMv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 08:51:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTJJMv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 08:55:33 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:37003 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262563AbTJJMz2
+	Fri, 10 Oct 2003 08:51:27 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:23566 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262115AbTJJMvO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 08:55:28 -0400
-Date: Fri, 10 Oct 2003 13:55:03 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Pascal Schmidt <der.eremit@email.de>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-Message-ID: <20031010125503.GB28224@mail.shareable.org>
-References: <DIre.Cy.15@gated-at.bofh.it> <DIre.Cy.17@gated-at.bofh.it> <DIre.Cy.19@gated-at.bofh.it> <DIre.Cy.13@gated-at.bofh.it> <DIAQ.2Hh.5@gated-at.bofh.it> <E1A6aWv-0000rJ-00@neptune.local> <Pine.LNX.4.53.0310061605001.733@chaos> <20031007104926.GA1659@openzaurus.ucw.cz>
+	Fri, 10 Oct 2003 08:51:14 -0400
+Date: Fri, 10 Oct 2003 14:50:52 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: SMS WebMaster <sms@4-sms.com>
+Cc: "list, linux-kernel" <linux-kernel@vger.kernel.org>,
+       linux-config@vger.kernel.org, linux-userfs@vger.kernel.org
+Subject: Re: mount: / mounted already or bad option
+Message-ID: <20031010125052.GB7202@alpha.home.local>
+References: <3F86C17A.8060209@4-sms.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031007104926.GA1659@openzaurus.ucw.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3F86C17A.8060209@4-sms.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> > A company makes a new device that could run under Linux.
-> > This device uses some standard gate-arrays. Because of
-> > this, some gate-array bits need to be loaded upon startup.
-> > 
-> > The company knows that if the competition learns that a
-> > gate-array was used, instead of an ASIC, the competition
-> > could clone the whole device in a few weeks, thereby
-> > stealing a few million dollars of development effort.
+On Fri, Oct 10, 2003 at 05:26:02PM +0300, SMS WebMaster wrote:
+>  Hi
+> I have Gentoo linux in my PC
+> I just installed the kernel 2.4.22 and compile it and install it (using 
+> genkernel command)
+> Right now if I reboot my PC with my new kernel I got :
+> mount: / mounted already or bad option
+> and the system stop and ask me to type the root password
+> and when I login with the root and type
+> mount -o remount,rw /
 > 
-> Since when is creating compatible hw called stealing?!
-> If this was such a big problem, nothing prevents you
-> from putting ROM with those magic bits... How much is
-> that? _5?
+> I got the same message
+> mount: / mounted already or bad option
+> 
+> but if I write
+> mount -o remount,rw /dev/hda4  /
+> then the root filesystem if remounted as read/write
 
-Large modern gate arrays use encrypted bitstreams, and even when not
-encrypted are very hard to reverse engineer, so that's not the
-problem.  It's possible, but very expensive.
+wouldn't your /etc/mtab be a link to /proc/self/mounts with /proc not mounted ?
 
-Small gate arrays use non-volatile programming anyway.
+Willy
 
-The problem is blatant copying of the bitstream.
-
-This is trivial whether it's in ROM or not, for anyone capable of
-making a device, so gate-array firmware is *no excuse* for keeping the
-driver code obscured, not even a _5 excuse.
-
--- Jamie

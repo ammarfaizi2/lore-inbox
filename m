@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280997AbRKOTD1>; Thu, 15 Nov 2001 14:03:27 -0500
+	id <S280998AbRKOTNI>; Thu, 15 Nov 2001 14:13:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280996AbRKOTDR>; Thu, 15 Nov 2001 14:03:17 -0500
-Received: from jackie.iddl.vt.edu ([128.173.53.192]:3246 "EHLO
-	jackie.iddl.vt.edu") by vger.kernel.org with ESMTP
-	id <S280997AbRKOTDG>; Thu, 15 Nov 2001 14:03:06 -0500
-Message-ID: <3BF41165.4090206@vt.edu>
-Date: Thu, 15 Nov 2001 14:03:01 -0500
-From: Jackie Meese <jackie.m@vt.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S280999AbRKOTM6>; Thu, 15 Nov 2001 14:12:58 -0500
+Received: from postfix2-1.free.fr ([213.228.0.9]:36754 "HELO
+	postfix2-1.free.fr") by vger.kernel.org with SMTP
+	id <S280998AbRKOTMt> convert rfc822-to-8bit; Thu, 15 Nov 2001 14:12:49 -0500
+Date: Thu, 15 Nov 2001 17:27:38 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Anton Blanchard <anton@samba.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] small sym-2 fix
+In-Reply-To: <20011115153654.E22552@krispykreme>
+Message-ID: <20011115172204.B1589-100000@gerard>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 32 Groups Maximum in 2.4
-In-Reply-To: <3BF3DF31.4010707@vt.edu> <20011115113953.H5739@lynx.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-
-> On Nov 15, 2001  10:28 -0500, Jackie Meese wrote:
-> 
->>I've been looking for some time on how to raise the maximum number of 
->>groups for the 2.4 kernel.  I've discovered how to do this kernel, with 
->>a discussion a few months ago on this 
->>list.http://www.cs.helsinki.fi/linux/linux-kernel/2001-13/0807.html
->>
-> 
-> Have you considered ACLs instead?  http://acl.bestbits.at/
-> Also available for ext3 (I think reiserfs may also support ACLs, not sure).
-> It might not suit your needs, but maybe it does, and it is a better long-term
-> solution.
 
 
-The current backup software used for our servers is one big reason for 
-writing off ACL fairly quickly.  Having to check for compatability on 
-other software we use is another reason this was ruled out.
+On Thu, 15 Nov 2001, Anton Blanchard wrote:
 
--- 
-Jackie Meese	Institute for Distance and Distributed Learning, Va Tech
-Phone: 231-3682	3027 Torgersen Hall MailCode:0445 http://www.iddl.vt.edu/
-Education is the change in behavior that occurs as the result of
-interaction with events in ones environment.
+>
+> Hi,
+>
+> I tested the sym-2 driver on ppc64 and found that hcb_p can be > 1 page
+> but __sym_malloc fails for allocations over 1 page. This means we
+> die in sym_attach.
+
+The driver should not need more than 4096 bytes for a single allocation.
+If the ppc64 page size is smaller, your patch is ok, otherwise something
+may have to be fixed, likely in the driver. I cannot access to kernel
+source immediately but I will check what kind of page size ppc64 is using
+asap.
+
+> With this patch the sym-2 works on ppc64. BTW so far it looks solid :)
+
+Great!
+
+Thanks for your report.
+
+Regards,
+  Gérard.
+>
+> Anton
+>
+> diff -urN 2.4.15-pre4/drivers/scsi/sym53c8xx_2/sym_glue.h linuxppc_2_4_devel_work/drivers/scsi/sym53c8xx_2/sym_glue.h
+> --- 2.4.15-pre4/drivers/scsi/sym53c8xx_2/sym_glue.h	Thu Nov 15 13:38:02 2001
+> +++ linuxppc_2_4_devel_work/drivers/scsi/sym53c8xx_2/sym_glue.h	Tue Nov 13 18:03:07 2001
+> @@ -526,7 +526,7 @@
+>   *  couple of things related to the memory allocator.
+>   */
+>  typedef u_long m_addr_t;	/* Enough bits to represent any address */
+> -#define SYM_MEM_PAGE_ORDER 0	/* 1 PAGE  maximum */
+> +#define SYM_MEM_PAGE_ORDER 1	/* 2 PAGE  maximum */
+>  #define SYM_MEM_CLUSTER_SHIFT	(PAGE_SHIFT+SYM_MEM_PAGE_ORDER)
+>  #ifdef	MODULE
+>  #define SYM_MEM_FREE_UNUSED	/* Free unused pages immediately */
+>
+>
 

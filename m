@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268182AbRHFM1Z>; Mon, 6 Aug 2001 08:27:25 -0400
+	id <S268217AbRHFM2f>; Mon, 6 Aug 2001 08:28:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268150AbRHFM1Q>; Mon, 6 Aug 2001 08:27:16 -0400
-Received: from lech.pse.pl ([194.92.3.7]:17543 "EHLO lech.pse.pl")
-	by vger.kernel.org with ESMTP id <S268137AbRHFM1I>;
-	Mon, 6 Aug 2001 08:27:08 -0400
-Date: Mon, 6 Aug 2001 14:27:04 +0200
-From: Lech Szychowski <lech.szychowski@pse.pl>
-To: linux-kernel@vger.kernel.org
-Subject: getty problems
-Message-ID: <20010806142703.A25428@lech.pse.pl>
-Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-Organization: Polskie Sieci Elektroenergetyczne S.A.
+	id <S268150AbRHFM2Z>; Mon, 6 Aug 2001 08:28:25 -0400
+Received: from 20dyn53.com21.casema.net ([213.17.90.53]:47115 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S268202AbRHFM2O>; Mon, 6 Aug 2001 08:28:14 -0400
+Message-Id: <200108061223.OAA28861@cave.bitwizard.nl>
+Subject: Re: rio_init, tty_io call confusion.  2.4.8-pre4
+In-Reply-To: <E15TjO9-0000rK-00@the-village.bc.nu> from Alan Cox at "Aug 6, 2001
+ 01:21:41 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 6 Aug 2001 14:23:51 +0200 (MEST)
+CC: Keith Owens <kaos@ocs.com.au>, R.E.Wolff@BitWizard.nl,
+        linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In short: on 2.4.7-ac[3-7] getty cannot open /dev/ttyX,
-while on 2.4.5 it can.
+Alan Cox wrote:
+> > drivers/char/tty_io calls rio_init and gets a link error when rio is
+> > linked into the kenrel because rio_init is declared as static.  However
+> > rio_init is also declared as module_init() so it gets called twice, one
+> > from tty_io and once from the kernel initcall code.  One of those calls
+> > has to go.  If you keep the tty_io call then rio_init cannot be static.
+> 
+> The tty_io call appears to be stale
 
-I've done "strace -o /tmp/GETTY-`uname -r` /sbin/getty tty9 vc linux"
-in both cases and compared otput files. The big difference is here:
+Agreed, thought so too, but haven't had the time to look into
+it. Alan, while you're at it, can you remove the call and we'll try to
+test "in kernel" and "as a module" ASAP. (which looks as if it's going
+to be months, as we're swamped with other stuff.....)
 
-2.4.5:
-open("/dev/tty9", O_RDWR|O_NONBLOCK)    = 0
-
-2.4.7-ac7:
-open("/dev/tty9", O_RDWR|O_NONBLOCK)    = -1 ENODEV (No such device)
-
-And yes, I believe I have terminal support compiled in:
-
-===
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-# CONFIG_SERIAL_EXTENDED is not set
-# CONFIG_SERIAL_NONSTANDARD is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-===
-
-$ gcc -v      
-Reading specs from /usr/lib/gcc-lib/i386-slackware-linux/2.95.3/specs
-gcc version 2.95.3 20010315 (release)
-
-This problem hit me when I compiled and installed new kernel
-(2.4.5 comes with the distribution) - I could not log in because
-all gettys got disabled:
-
-Aug  6 14:10:09 nnet /sbin/agetty[103]: /dev/tty6: cannot open as standard input: No such device
-Aug  6 14:10:09 nnet init: Id "c4" respawning too fast: disabled for 5 minutes
+			Roger. 
 
 -- 
-	Leszek.
-
--- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
--- speaking just for myself...
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

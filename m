@@ -1,66 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271973AbTHSPmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 11:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272011AbTHSPmQ
+	id S270806AbTHSPtr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 11:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270808AbTHSPtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 11:42:16 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:61422 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S271973AbTHSPmO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 11:42:14 -0400
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
+	Tue, 19 Aug 2003 11:49:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60323 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270806AbTHSPtp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 11:49:45 -0400
+Date: Tue, 19 Aug 2003 08:45:31 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: rob@landley.net
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: headers
+Message-Id: <20030819084531.768d5823.rddunlap@osdl.org>
+In-Reply-To: <200308190855.07181.rob@landley.net>
+References: <UTC200308181907.h7IJ7im12407.aeb@smtp.cwi.nl>
+	<bhrvfh$394$1@cesium.transmeta.com>
+	<200308190855.07181.rob@landley.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: Updated MSI Patches
-Date: Tue, 19 Aug 2003 08:42:10 -0700
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240154171D@orsmsx404.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Updated MSI Patches
-Thread-Index: AcNg/tHVGCz5f2AFQ5qZlQ6qwvUpLQFZjIjQ
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Zwane Mwaikambo" <zwane@linuxpower.ca>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "long" <tlnguyen@snoqualmie.dp.intel.com>
-X-OriginalArrivalTime: 19 Aug 2003 15:42:11.0283 (UTC) FILETIME=[7472FA30:01C36668]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tuesday, August 12, 2003, Zwane Mwaikambo wrote
->> +#ifdef CONFIG_PCI_MSI
->> +			/* Is this an active MSI? */
->> +			if (msi_desc[j])
->> +				continue;
->> +#endif
+On Tue, 19 Aug 2003 08:55:06 -0400 Rob Landley <rob@landley.net> wrote:
 
->> Since the code determinces whether this entry is NULL or not, I think any  
->> locking for msi_desc may not be required.
+| On Monday 18 August 2003 21:45, H. Peter Anvin wrote:
+| > Followup to:  <UTC200308181907.h7IJ7im12407.aeb@smtp.cwi.nl>
+| > By author:    Andries.Brouwer@cwi.nl
+| > In newsgroup: linux.dev.kernel
+| >
+| > >     From garzik@gtf.org  Mon Aug 18 20:14:47 2003
+| > >
+| > >     I support include/abi, or some other directory that segregates
+| > >     user<->kernel shared headers away from kernel-private headers.
+| > >
+| > >     I don't see how that would be auto-generated, though.  Only created
+| > >     through lots of hard work :)
+| > >
+| > > Yes, unfortunately. I started doing some of this a few times,
+| > > but it is an order of magnitude more work than one thinks at first.
+| > > Already the number of include files is very large.
+| > > And the fact that it is not just include/abi but involves the
+| > > architecture doesn't make life simpler.
+| > >
+| > > No doubt we must first discuss a little bit, but not too much,
+| > > the desired directory structure and naming.
+| > > Then we must do 5% of the work, and come back to these issues.
+| > >
+| > > In case people actually want to do this, I can coordinate.
+| > >
+| > > In case people want to try just one file, do signal.h.
+| >
+| > Oh yes, this is a whole lot of work.
+| 
+| But is it 2.6 work, or 2.8 work?
 
->Yes but there is other code which modifies msi_desc members. i think a per 
->msi_desc lock is needed. You could also use a kmem_cache to allocate them, 
->and perhaps utilise HWCACHE_ALIGN.
-We will have set_affinity support for MSI in our next update release. The above
-code will be deleted. Utilize HWCACHE_ALIGN to allocate msi_desc is a good
-suggestion. Thanks!
+I think that we are currently discussing it as 2.7 work.
 
-On Thu, 7 Aug 2003, Zwane Mwaikambo wrote:
->> - Change the interface name from msi_free_vectors to msix_free_vectors since 
->> this interface is used for MSI-X device drivers, which request for releasing 
->> the number of vector back to the PCI subsystem.
->> - Change the function name from remove_hotplug_vectors to 
->> msi_remove_pci_irq_vectors to have a close match with function name 
->> msi_get_pci_irq_vector.
-
->I think the vector allocator code can all be arch specific generic, 
->there is no particular reason as to why it has to be MSI specific.
-Some IHVs suggest changing the interface names from msi_alloc_vectors/
-msi_free_vectors to msix_alloc_vectors/msix_free_vectors. You have a good point 
-of keeping these generic. Agree.
-
-Thanks,
-Long
-
+--
+~Randy
+"Everything is relative."

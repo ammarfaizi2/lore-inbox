@@ -1,24 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267232AbUBMXqE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 18:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUBMXqD
+	id S264410AbUBNABn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 19:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267192AbUBNABn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 18:46:03 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:18445 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S267232AbUBMXp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 18:45:56 -0500
-Message-ID: <402D6354.3010801@techsource.com>
-Date: Fri, 13 Feb 2004 18:52:52 -0500
-From: Timothy Miller <miller@techsource.com>
+	Fri, 13 Feb 2004 19:01:43 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:18386 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264410AbUBNABm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 19:01:42 -0500
+Message-ID: <402D6544.2080300@cyberone.com.au>
+Date: Sat, 14 Feb 2004 11:01:08 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Adam Radford <aradford@3WARE.com>
-CC: Daniel Blueman <daniel.blueman@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: File system performance, hardware performance, ext3, 3ware RA
- ID1, etc.
-References: <A1964EDB64C8094DA12D2271C04B8126F8C92C@tabby>
-In-Reply-To: <A1964EDB64C8094DA12D2271C04B8126F8C92C@tabby>
+To: Martin Hicks <mort@wildopensource.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __alloc_pages - NUMA and lower zone protection
+References: <20040213183243.GH12142@localhost>
+In-Reply-To: <20040213183243.GH12142@localhost>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,31 +27,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Adam Radford wrote:
-> Perhaps you are issuing non purely sequential IO.  The card firmware does
-> some 
-> reodering, but at some point it will cause performance degradation.  Can you
-> try 
-> kernel 2.6 w/xfs? 
+Martin Hicks wrote:
 
-Not any time soon, but as I mentioned earlier, I measured 13.9 megs/sec 
-when I ran this command:
+>Hi,
+>
+>There is a problem with the current __alloc pages on a machine with many
+>nodes.  As we go down the zones[] list, we may move onto other nodes.
+>Each time we go to the next zone we protect these zones by doing
+>"min += local_low".
+>
+>This is quite appropriate on a machine with one node, but wrong on
+>machines with other nodes.  To illustrate, here is an example.  On a
+>256 node Altix machine, a request on node 0 for 2MB requires just over
+>600MB of free memory on the 256th node in order to fullfil the "min"
+>requirements if all other nodes are low on memory.  This could leave
+>73GB of memory unallocated across all nodes.
+>
+>This patch keeps the same semantics for lower_zone_protection, but only
+>provides protection for higher priority zones in the same node.
+>
+>The patch seems to do the right thing on my non-NUMA zx1 ia64 machine
+>(which has ZONE_DMA and ZONE_NORMAL) as well as the multi-node Altix.
+>
+>
 
-     time dd if=/dev/zero of=/dev/sda2 bs=1024k count=1024
-
-No file system was involved; I was simply writing zeros to the block 
-device (swap partition with swap off).  It took 73.522 seconds to do the 
-above operation.  Also, I was running in single-user mode while doing 
-the test.
-
-> 
-> Also, in my experience, the 'raw io' interface doesn't issue any
-> asynchronous IO.  The
-> card _definately_ needs asynchronous IO posted to it or you will not get
-> good results
-> because you won't get all the drives busy.
-
-With RAID1, both drives will be written with the same data.  There is no 
-need to be asynchronous, since it's all completely linear and sequential 
-with large data blocks.
+Could you add a comment or two, please?
 

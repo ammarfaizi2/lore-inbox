@@ -1,111 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270708AbVBEQzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271165AbVBERAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270708AbVBEQzF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 11:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVBEQzE
+	id S271165AbVBERAX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 12:00:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271245AbVBERAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 11:55:04 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:34434
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S273518AbVBEQyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 11:54:20 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-Subject: [patch] Make User Mode Linux compile in 2.6.11-rc3
-Date: Sat, 5 Feb 2005 10:51:45 -0500
-User-Agent: KMail/1.6.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       Jeff Dike <jdike@addtoit.com>
+	Sat, 5 Feb 2005 12:00:23 -0500
+Received: from 34.67-18-129.reverse.theplanet.com ([67.18.129.34]:60994 "EHLO
+	krish.dnshostnetwork.net") by vger.kernel.org with ESMTP
+	id S271165AbVBERAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 12:00:00 -0500
+Message-ID: <008501c50ba4$1ed1b890$8d00150a@dreammac>
+From: "Pankaj Agarwal" <pankaj@toughguy.net>
+To: <linux-kernel@vger.kernel.org>, "Linux Net" <linux-net@vger.kernel.org>
+Subject: Help - Getting an error when trying to add prio to tables....
+Date: Sat, 5 Feb 2005 22:29:48 +0530
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Message-Id: <200502051051.46242.rob@landley.net>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - krish.dnshostnetwork.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - toughguy.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As of yesterday afternoon, the UML build still breaks in sys_call_table.c, 
-here's the patch I submitted earlier (which got me past the break when I 
-tried it).  Last week, this produced what seemed like a working UML.
+Hi,
 
-Now there's a second break in mm/memory.c: the move to four level page
-tables conflicts with a stub in our headers.  Not quite sure how to fix that.
-Jeff?
+I am getting the errors given below, when I am trying to add the prio to any 
+table. What can be the problem and how can i resolve it.... I have also 
+tried adding the following parameters in /usr/src/.config but to no benefit
 
-(Yeah, I know Andrew's tree works.  But wouldn't it be nice if the kernel.org 
-tree to worked too, before 2.6.11 release.)
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_ROUTE_LARGE_TABLES=y
 
-Rob
+Kindly help
 
-----------  Forwarded Message  ----------
+[root /root]# ip rule
+RTNETLINK answers: Invalid argument
+Dump terminated
 
-Subject: [uml-devel] [patch] Make User Mode Linux compile in 2.6.11-rc2-bk6.
-Date: Saturday 29 January 2005 05:51 am
-From: Rob Landley <rob@landley.net>
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+[root /root]# ip rule list
+RTNETLINK answers: Invalid argument
+Dump terminated
 
-User Mode Linux doesn't compile in 2.6.11-rc2-bk6.  Here's the change I
-made to sys_call_table.c to make it compile.  (I ran the result and brought
-up a shell.)
+[root /root]# ip rule list table main
+"ip rule show" need not eny arguments.
 
-We're really close to finally having a usable UML kernel in mainline.
-2.6.9's ARCH=um built but was very unstable, 2.6.10 didn't even build
-for me, but 2.6.11-rc1-mm2 builds fine unmodified, and ran my tests
-correctly to completion.
+[root /root]# ip rule show
+RTNETLINK answers: Invalid argument
+Dump terminated
 
-Here's the patch.  Nothing fancy, it simply removes or stubs out all the
-syscalls the compiler complains about.
+[root /root]# ip rule add prio 50 table main
+RTNETLINK answers: Invalid argument
 
-Rob
+[root /root]# ip route
+192.168.2.5 dev eth1  scope link
+61.11.104.63 dev eth0  scope link
+220.227.153.48/28 dev eth2  proto kernel  scope link  src 220.227.153.61
+192.168.2.0/24 dev eth1  proto kernel  scope link  src 192.168.2.5
+61.11.104.0/24 dev eth0  proto kernel  scope link  src 61.11.104.63
+127.0.0.0/8 dev lo  scope link
+default via 61.11.104.1 dev eth0
 
-Signed-off-by: Rob Landley <rob@landley.net>
+[root /root]# ip
+Usage: ip [ OPTIONS ] OBJECT { COMMAND | help }
+where  OBJECT := { link | addr | route | rule | neigh | tunnel |
+                   maddr | mroute | monitor }
+       OPTIONS := { -V[ersion] | -s[tatistics] | -r[esolve] |
+                    -f[amily] { inet | inet6 | ipx | dnet | link }
+| -o[neline] }
 
---- linux-2.6.10/arch/um/kernel/sys_call_table.c	2005-01-28
- 21:20:38.000000000 -0600 +++
- linux-2.6.10-um/arch/um/kernel/sys_call_table.c	2005-01-28
- 21:40:30.735892144 -0600 @@ -20,7 +20,7 @@
- #define NFSSERVCTL sys_ni_syscall
- #endif
+Thanks and Regards,
 
--#define LAST_GENERIC_SYSCALL __NR_vperfctr_read
-+#define LAST_GENERIC_SYSCALL (NR_syscalls-1)
+Pankaj Agarwal
 
- #if LAST_GENERIC_SYSCALL > LAST_ARCH_SYSCALL
- #define LAST_SYSCALL LAST_GENERIC_SYSCALL
-@@ -52,13 +52,7 @@
- extern syscall_handler_t sys_mbind;
- extern syscall_handler_t sys_get_mempolicy;
- extern syscall_handler_t sys_set_mempolicy;
--extern syscall_handler_t sys_sys_kexec_load;
- extern syscall_handler_t sys_sys_setaltroot;
--extern syscall_handler_t sys_vperfctr_open;
--extern syscall_handler_t sys_vperfctr_control;
--extern syscall_handler_t sys_vperfctr_unlink;
--extern syscall_handler_t sys_vperfctr_iresume;
--extern syscall_handler_t sys_vperfctr_read;
-
- syscall_handler_t *sys_call_table[] = {
- 	[ __NR_restart_syscall ] = (syscall_handler_t *) sys_restart_syscall,
-@@ -273,7 +267,7 @@
- 	[ __NR_mq_timedreceive ] = (syscall_handler_t *) sys_mq_timedreceive,
- 	[ __NR_mq_notify ] = (syscall_handler_t *) sys_mq_notify,
- 	[ __NR_mq_getsetattr ] = (syscall_handler_t *) sys_mq_getsetattr,
--	[ __NR_sys_kexec_load ] = (syscall_handler_t *) sys_kexec_load,
-+	[ __NR_sys_kexec_load ] = (syscall_handler_t *) sys_ni_syscall,
- 	[ __NR_waitid ] = (syscall_handler_t *) sys_waitid,
- #if 0
- 	[ __NR_sys_setaltroot ] = (syscall_handler_t *) sys_sys_setaltroot,
-@@ -281,11 +275,6 @@
- 	[ __NR_add_key ] = (syscall_handler_t *) sys_add_key,
- 	[ __NR_request_key ] = (syscall_handler_t *) sys_request_key,
- 	[ __NR_keyctl ] = (syscall_handler_t *) sys_keyctl,
--	[ __NR_vperfctr_open ] = (syscall_handler_t *) sys_vperfctr_open,
--	[ __NR_vperfctr_control ] = (syscall_handler_t *) sys_vperfctr_control,
--	[ __NR_vperfctr_unlink ] = (syscall_handler_t *) sys_vperfctr_unlink,
--	[ __NR_vperfctr_iresume ] = (syscall_handler_t *) sys_vperfctr_iresume,
--	[ __NR_vperfctr_read ] = (syscall_handler_t *) sys_vperfctr_read,
-
- 	ARCH_SYSCALLS
- 	[ LAST_SYSCALL + 1 ... NR_syscalls ] =

@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129996AbQKUWkz>; Tue, 21 Nov 2000 17:40:55 -0500
+	id <S130540AbQKUWnP>; Tue, 21 Nov 2000 17:43:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130570AbQKUWkp>; Tue, 21 Nov 2000 17:40:45 -0500
-Received: from 213-120-136-183.btconnect.com ([213.120.136.183]:2564 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129996AbQKUWkh>;
-	Tue, 21 Nov 2000 17:40:37 -0500
-Date: Tue, 21 Nov 2000 22:12:27 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch-2.4.0-test11] show_mem() to dump free pages
-Message-ID: <Pine.LNX.4.21.0011212210270.780-100000@penguin.homenet>
+	id <S130887AbQKUWnF>; Tue, 21 Nov 2000 17:43:05 -0500
+Received: from anime.net ([63.172.78.150]:40722 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S130540AbQKUWnB>;
+	Tue, 21 Nov 2000 17:43:01 -0500
+Date: Tue, 21 Nov 2000 14:11:39 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+cc: David Riley <oscar@the-rileys.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Defective Red Hat Distribution poorly represents Linux 
+In-Reply-To: <200011212201.eALM1CZ02022@pincoya.inf.utfsm.cl>
+Message-ID: <Pine.LNX.4.30.0011211411070.10944-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, 21 Nov 2000, Horst von Brand wrote:
+> David Riley <oscar@the-rileys.net> said:
+> > This is true.  What I suppose would be the solution is that if faulty
+> > hardware is found, a reduction in performance should be made.
+> Finding out if you've got bad RAM might take a few hours running mem86. Not
+> exactly what I have in mind to do each boot...
 
-In arch/i386/mm/init.c:show_mem() we calculate the number of free pages
-but don't printk it out. Therefore, we must either a) remove the variable
-and the calculation or b) make use of it. I think b) is obviously better.
+ecc ram and ecc-capable northbridge isn't exactly expensive...
 
-The patch below was tested under 2.4.0-test11.
-
-Regards,
-Tigran
-
---- arch/i386/mm/init.c.0	Tue Nov 21 22:00:52 2000
-+++ arch/i386/mm/init.c	Tue Nov 21 22:00:36 2000
-@@ -221,6 +221,7 @@
- 	}
- 	printk("%d pages of RAM\n", total);
- 	printk("%d pages of HIGHMEM\n",highmem);
-+	printk("%d free pages\n",free);
- 	printk("%d reserved pages\n",reserved);
- 	printk("%d pages shared\n",shared);
- 	printk("%d pages swap cached\n",cached);
+-Dan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

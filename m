@@ -1,80 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUF0U1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264405AbUF0UeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbUF0U1c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 16:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264202AbUF0U1c
+	id S264405AbUF0UeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 16:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUF0UeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 16:27:32 -0400
-Received: from damned.travellingkiwi.com ([81.6.239.220]:47966 "EHLO
-	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
-	id S264183AbUF0U11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 16:27:27 -0400
-Message-ID: <40DF2D99.6030704@travellingkiwi.com>
-Date: Sun, 27 Jun 2004 21:27:05 +0100
-From: Hamie <hamish@travellingkiwi.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Cc: Alexander Gran <alex@zodiac.dnsalias.org>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] No APIC interrupts after ACPI suspend
-References: <1088160505.3702.4.camel@tyrosine> <40DDBA7A.6010404@travellingkiwi.com> <40DF0A98.9040604@travellingkiwi.com> <200406272052.43326@zodiac.zodiac.dnsalias.org> <40DF1D22.2010406@travellingkiwi.com>
-In-Reply-To: <40DF1D22.2010406@travellingkiwi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 27 Jun 2004 16:34:09 -0400
+Received: from mail-relay-4.tiscali.it ([212.123.84.94]:52120 "EHLO
+	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
+	id S264405AbUF0Udz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 16:33:55 -0400
+Date: Sun, 27 Jun 2004 22:33:44 +0200
+From: Kronos <kronos@kronoz.cjb.net>
+To: Martin MOKREJ? <mmokrejs@natur.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: radeonfb: cannot map FB
+Message-ID: <20040627203344.GA11474@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+References: <20040626224942.GA13345@dreamland.darkstar.lan> <Pine.OSF.4.51.0406272113190.111358@tao.natur.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.OSF.4.51.0406272113190.111358@tao.natur.cuni.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hamie wrote:
+Il Sun, Jun 27, 2004 at 09:16:34PM +0200, Martin MOKREJ? ha scritto: 
+> Hi,
+>   yes, I have one GB and SMP kernel. It's interresting that I don't
+> remember this bug with kernels around 2.4.23 or .24 - just a guess.
 
-> Alexander Gran wrote:
->
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Am Sonntag, 27. Juni 2004 19:57 schrieb Hamie:
->>  
->>
->>> FWIW the sound & networking appear to run fine for a while after
->>> resuming. But I just started a DVD. It ran fine for about 30 seconds 
->>> and
->>> then the sound went. About 30 seconds later the video froze and the app
->>> (xine) has frozen also. (kill -9 time...).
->>>   
->>
->> <>
->> I can confirm that here:
->> after resuming, network completely works (yeah!).
->> Sound doesn't.
->> unloading/reloading the sound driver does not help.
->> USB works jumpy (perhaps 5-10hz)
->> Reloading does the trick for usb.
->>
->
-> Since it sounds like a different bug to 2643, (Similiar but the patch 
-> that fixes the ethernet doesn't appear to doa  lot for the sound). 
-> I've opened a new one... #2965.
->
+Hum, I see a big DRM merge in .23 but it's unrelated to the fb driver.
+Nothing else. Maybe you added another PCI card that used part of the
+available address space?
 
-Seeing as sound was on IRQ5 and the patch for 2643 fixed the ethernet, I added a
-(big hack here :) call to 
+> If someone would be interrwested, and can check when did it appear for
+> the first time. Otherwise, will be happy to get your patch. 
 
-                acpi_pic_sci_set_trigger(5, acpi_sci_flags.trigger);
+Patch follows. Compile with DEBUG 1 if something goes wrong.
 
-in  acpi_pm_finish(u32 state); just after the call to set the IRQ trigger for
-the acpi irq... 
+> I think the printk() lines could print out more debug info. For
+> example the contents of some variables which were passed to preceeding
+> functions ... ;)
 
-Results in (kern.log) 
-
-Jun 27 21:15:28 ballbreaker kernel: ACPI: IRQ9 SCI: Edge set to Level Trigger.
-Jun 27 21:15:28 ballbreaker kernel: ACPI: IRQ5 SCI: Edge set to Level Trigger.
+The old driver (ie. the one in 2.4 and the "old" one in 2.6) is not
+developed anymore. The new reference point is the driver by BenH in 2.6.
 
 
-and then sound works after resume... Obviously not a very good fix as it won't
-fix anything that uses somethign other than IRQ5.
+--- linux-2.4/drivers/video/radeonfb.c.orig	2004-06-27 22:26:56.000000000 +0200
++++ linux-2.4/drivers/video/radeonfb.c	2004-06-27 22:29:49.000000000 +0200
+@@ -176,7 +176,8 @@
+ #define RTRACE		if(0) printk
+ #endif
+ 
+-
++#define MAX_MAPPED_VRAM (2048*2048*4)
++#define MIN_MAPPED_VRAM (1024*768*1)
+ 
+ enum radeon_chips {
+ 	RADEON_QD,
+@@ -499,7 +500,8 @@
+ 
+ 	short chipset;
+ 	unsigned char arch;
+-	int video_ram;
++	unsigned int video_ram;
++	unsigned int mapped_vram;
+ 	u8 rev;
+ 	int pitch, bpp, depth;
+ 	int xres, yres, pixclock;
+@@ -1823,8 +1825,20 @@
+ 		}
+ 	}
+ 
+-	rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
+-				  		  rinfo->video_ram);
++	if (rinfo->video_ram < rinfo->mapped_vram)
++		rinfo->mapped_vram = rinfo->video_ram;
++	else
++		rinfo->mapped_vram = MAX_MAPPED_VRAM;
++	do {
++		rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
++				  		  rinfo->mapped_vram);
++		if (rinfo->fb_base)
++			break;
++
++		RTRACE(KERN_INFO "radeonfb: cannot ioremap %dk of videoram\n", rinfo->mapped_vram);
++		rinfo->mapped_vram /= 2;
++	} while(rinfo->mapped_vram > MIN_MAPPED_VRAM);
++	
+ 	if (!rinfo->fb_base) {
+ 		printk ("radeonfb: cannot map FB\n");
+ 		iounmap ((void*)rinfo->mmio_base);
+@@ -1835,6 +1849,7 @@
+ 		kfree (rinfo);
+ 		return -ENODEV;
+ 	}
++	RTRACE(KERN_INFO "radeonfb: mapped %dk videoram\n", rinfo->mapped_vram/1024);
+ 
+ 	/* currcon not yet configured, will be set by first switch */
+ 	rinfo->currcon = -1;
+@@ -2261,7 +2276,7 @@
+ 	sprintf (fix->id, "ATI Radeon %s", rinfo->name);
+         
+         fix->smem_start = rinfo->fb_base_phys;
+-        fix->smem_len = rinfo->video_ram;
++        fix->smem_len = rinfo->mapped_vram;
+ 
+         fix->type = disp->type;
+         fix->type_aux = disp->type_aux;
+@@ -2429,6 +2444,9 @@
+                         return -EINVAL;
+         }
+ 
++	if (((v.xres_virtual * v.yres_virtual * nom) / den) > rinfo->mapped_vram)
++		return -EINVAL;
++
+         if (radeonfb_do_maximize(rinfo, var, &v, nom, den) < 0)
+                 return -EINVAL;  
+                 
 
-So... What should the correct fix be? Obviously some IRQ's triggers aren't
-surviving the resume... But why... The timer (IRQ 0) obviously does... 
 
-
+Luca
+-- 
+Home: http://kronoz.cjb.net
+Carpe diem, quam minimum credula postero. (Q. Horatius Flaccus)

@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271796AbRHRIvC>; Sat, 18 Aug 2001 04:51:02 -0400
+	id <S271799AbRHRIwC>; Sat, 18 Aug 2001 04:52:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271797AbRHRIux>; Sat, 18 Aug 2001 04:50:53 -0400
-Received: from hr1-cf9a48a7.dsl.impulse.net ([207.154.72.167]:38673 "HELO
-	madrabbit.org") by vger.kernel.org with SMTP id <S271796AbRHRIuq>;
-	Sat, 18 Aug 2001 04:50:46 -0400
-Subject: Re: [PATCH 2.4.8-ac6] (Yet) Another Sony Vaio laptop with a broken
-	APM...
-From: Ray Lee <ray-lk@madrabbit.org>
-To: Dave Zarzycki <dave@zarzycki.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108171005440.2165-100000@batman.zarzycki.org>
-In-Reply-To: <Pine.LNX.4.33.0108171005440.2165-100000@batman.zarzycki.org>
-Content-Type: text/plain
+	id <S271798AbRHRIvw>; Sat, 18 Aug 2001 04:51:52 -0400
+Received: from cmailg6.svr.pol.co.uk ([195.92.195.176]:26700 "EHLO
+	cmailg6.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S271797AbRHRIvl>; Sat, 18 Aug 2001 04:51:41 -0400
+Message-ID: <3B7E2CA5.50904@humboldt.co.uk>
+Date: Sat, 18 Aug 2001 09:51:49 +0100
+From: Adrian Cox <adrian@humboldt.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010801
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Nicholas Knight <tegeran@home.com>, linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <Pine.LNX.3.95.1010817152158.4584B-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12 (Preview Release)
-Date: 18 Aug 2001 01:50:59 -0700
-Message-Id: <998124659.440.15.camel@orca>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Aug 2001 10:08:25 -0700, Dave Zarzycki wrote:
-> On 17 Aug 2001, Ray Lee wrote:
-> > It's looking more and more likely that they're all backwards. Hey, at
-> > least they're consistent, right?
-> My old Sony PCG-505G does seem to get it right.
+Richard B. Johnson wrote:
+> We've established no such thing. In fact, you can't properly initialize
+> SDRAM memory without writing something to it. 
 
-Hmm. You may be taken care of by one of the exceptions already in
-dmi_scan.c, and it'd be interesting (and useful) to find out. If you've
-got a few minutes, could you open up arch/i386/kernel/dmi_scan.c and
-either uncomment or add the line:
-   #define dmi_printk(x) printk x
-after the existing "#define dmi_printk(x)".
+After all of this theory it was time to do some experiments. I modified 
+the BIOS on my current PowerPC system to compare memory against a test 
+pattern (I chose 0x31415926 incrementing by 0x27182817) over the address 
+range 0x0 to 0x100000. This pattern has approximately 50% 1s and 50% 0s.
 
-With that, upon boot the new kernel will show the BIOS version and date,
-which dmesg will show. If they are one of: 
+On pressing the reset button, I got 100% of bits holding the same value. 
+If I turn the power off for 20s, I get approximately 90% of bits holding 
+the same value. After a minute, it's dropped to the 50% level, which I 
+take as random.
 
-  R0203Z3  08/25/00
-  R0203D0  05/12/00
-  R0121Z1  05/11/00
-  R0208P1  11/09/00
+For added fun, I then tried turning off, pulling out the DIMM, plugging 
+it into the other slot, and turning back on. 97% of the bits had the 
+original value. So one attack we must consider is the attacker removing 
+power, ripping the DIMM out, and plugging it into a special DIMM reading 
+device.
 
-...then in fact your BIOS also gets it wrong, which would be
-aesthetically pleasing in a sort of perverted way.
-
---
-Ray Lee  /  Every truth has a context.
-
+Your descriptions on how memory is started look very machine specific. 
+On mine (Motorola MPC107) I write the number of row bits, column bits, 
+and internal banks to the memory controller, along with the CAS latency. 
+I then set MEMGO, and the memory controller precharges each bank.
+-- 
+Adrian Cox   http://www.humboldt.co.uk/
 

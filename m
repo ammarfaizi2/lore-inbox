@@ -1,41 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264456AbUEDSAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264543AbUEDSCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264456AbUEDSAN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 14:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbUEDSAN
+	id S264543AbUEDSCS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 14:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbUEDSCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 14:00:13 -0400
-Received: from imap.gmx.net ([213.165.64.20]:28633 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264456AbUEDSAJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 14:00:09 -0400
-X-Authenticated: #20450766
-Date: Tue, 4 May 2004 19:59:29 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Pavel Machek <pavel@suse.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: hda active and hdb sleep?
-In-Reply-To: <20040503135145.GE1188@openzaurus.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0405041958170.3598-100000@poirot.grange>
+	Tue, 4 May 2004 14:02:18 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:42680 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S264543AbUEDSCP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 14:02:15 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Alexander ZVYAGIN <Alexander.Zviagine@cern.ch>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problems with USB/Sound.
+Date: Tue, 4 May 2004 14:55:39 +0200
+User-Agent: KMail/1.5.4
+References: <200405041135.55950.Alexander.Zviagine@cern.ch>
+In-Reply-To: <200405041135.55950.Alexander.Zviagine@cern.ch>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405041455.39813.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 May 2004, Pavel Machek wrote:
+Maybe you should report this on the USB mailing lists.
 
-> > As soon as I issue hdparm -Y /dev/hdb I get errors on hda and it doesn't
-> > seem to be possible to have hdb in sleep and hfa active. I think, those
-> > power-states are purely per-device, aren't they. It's a VIA ProSavage
-> > KM133 chipset. 2.6.3 kernel at the moment.
->
-> Does -y work?
+Ciao,
 
-Yes!
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
-
-
+Duncan.

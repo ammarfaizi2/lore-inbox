@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264057AbTEGPoE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTEGPoE
+	id S264081AbTEGPwY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTEGPwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:44:04 -0400
-Received: from mail.convergence.de ([212.84.236.4]:63379 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S264057AbTEGPoA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:44:00 -0400
-Message-ID: <3EB92CB1.7050400@convergence.de>
-Date: Wed, 07 May 2003 17:56:33 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
-X-Accept-Language: de-at, de, en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH[[2.5][3-11] update dvb subsystem core
-References: <3EB7DCF0.2070207@convergence.de> <20030506214918.A18262@infradead.org> <3EB8CFA2.5090405@convergence.de> <20030507102857.C14040@infradead.org>
-In-Reply-To: <20030507102857.C14040@infradead.org>
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 7 May 2003 11:52:24 -0400
+Received: from rth.ninka.net ([216.101.162.244]:9645 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S264081AbTEGPwW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 11:52:22 -0400
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+From: "David S. Miller" <davem@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Christoph Hellwig <hch@infradead.org>, Arnd Bergmann <arnd@arndb.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030507152856.GF412@elf.ucw.cz>
+References: <20030507104008$12ba@gated-at.bofh.it>
+	 <200305071154.h47BsbsD027038@post.webmailer.de>
+	 <20030507124113.GA412@elf.ucw.cz> <20030507135600.A22642@infradead.org>
+	 <20030507152856.GF412@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052323484.9817.14.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 May 2003 09:04:44 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Christoph, Linus,
+On Wed, 2003-05-07 at 08:28, Pavel Machek wrote:
+> Not sure if we are not too close to stable release to do that? And I
+> see no incremental way how to get there. Moving compatibility stuff
+> closer to drivers can be done close to stable release...
 
->>The code does not behave differently. If DVB_DEVFS_ONLY is set, then the 
->>old chardev register interface is omitted.
+You can define it as follows:
 
-> Which is a different behaviour, now you can't create a device node
-> manually anymor.
+1) If entry exists in COMPAT or TRANSLATE table, invoke
+   fops->ioctl(), else
 
-I won't insist on keeping code that I haven't written. My only point is 
-that we use the code in set-top-boxes, where every byte is valuable. But 
-  I suspect that there are numerous other places where we could safe 
-bytes... 8-)
+2) If ->compat_ioctl() exists, invoke that, else
 
- >  Also note that the feature you rely on here (devfs
- > presetting file->private_data) will go away in the next round of
- > patches,
- > see Al Viro's patchit for a generic replacement that works with or
- > without devfs.
+3) Fail.
 
-Ok.
+The COMPAT tables are sort of valuable, in that it eliminates
+the need to duplicate code when all of a drivers ioctls need
+no translation.
 
->>There is a functional dependency between the dvb-core and the actual dvb 
->>driver. So there is no need to increase the module count of the dvb-core 
->>if a new adapter is registered IMHO, because you cannot unload the 
->>dvb-core before the driver anyway.
+BTW, need to extend this to netdev->do_ioctl as well for the
+handling of SIOCDEVPRIVATE based stuff.  Oh goody, we can finally
+fix up that crap :))))
 
-> Okay, you're right I should have read more of the code to get the global
-> picture.  You still wan't an owner field for at least struct dvb_device
-> device, though - but the try_module_get must go into dvb_generic_open
-> and maybe in more other places where you use the "backend" modules.
-
-I don't get that, sorry. The backend modules have functional 
-dependencies and register/deregister upon loading/unloading. There is 
-never a call from the dvb-core to the backend modules. Do I really need 
-an owner field then?
-
-CU
-Michael.
-
-
-
+-- 
+David S. Miller <davem@redhat.com>

@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbUJ3QSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbUJ3Q1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUJ3QSe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 12:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUJ3QR3
+	id S261229AbUJ3Q1J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 12:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUJ3Q1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 12:17:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11422 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261187AbUJ3QNw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 12:13:52 -0400
-Message-ID: <4183BDB3.8000302@pobox.com>
-Date: Sat, 30 Oct 2004 12:13:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Sat, 30 Oct 2004 12:27:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54220 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261216AbUJ3QZo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 12:25:44 -0400
+Message-ID: <4183BF5B.5000303@osdl.org>
+Date: Sat, 30 Oct 2004 09:20:43 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Malte_Schr=F6der?= <MalteSch@gmx.de>
-CC: linux-kernel@vger.kernel.org, Daniele Venzano <webvenza@libero.it>
-Subject: Re: [PATCH] WOL for sis900
-References: <4183B6B0.7010906@gmx.de>
-In-Reply-To: <4183B6B0.7010906@gmx.de>
+To: james4765@verizon.net
+CC: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [KJ] [PATCH] floppy: change MODULE_PARM to module_param in	drivers/block/floppy.c
+References: <20041030134246.23710.45693.84191@localhost.localdomain>
+In-Reply-To: <20041030134246.23710.45693.84191@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Malte Schröder wrote:
-> Hello,
-> I have applied the patch from http://lkml.org/lkml/2003/7/16/88 manually 
-> to 2.6.7 (also works on 2.6.{8,9}) and have been using it since then.
-> Attached is a diff against 2.6.9.
+james4765@verizon.net wrote:
+> Replace MODULE_PARM with module_param in drivers/block/floppy.c.  Compile tested.
+> 
+> Signed-off-by: James Nelson <james4765@gmail.com>
+> 
+> diff -urN --exclude='*~' linux-2.6.9-original/drivers/block/floppy.c linux-2.6.9/drivers/block/floppy.c
+> --- linux-2.6.9-original/drivers/block/floppy.c	2004-10-18 17:53:22.000000000 -0400
+> +++ linux-2.6.9/drivers/block/floppy.c	2004-10-30 09:16:04.856720081 -0400
+> @@ -180,6 +180,7 @@
+>  #include <linux/devfs_fs_kernel.h>
+>  #include <linux/device.h>
+>  #include <linux/buffer_head.h>	/* for invalidate_buffers() */
+> +#include <linux/moduleparam.h>
+>  
+>  /*
+>   * PS/2 floppies have much slower step rates than regular floppies.
+> @@ -4623,9 +4624,9 @@
+>  	wait_for_completion(&device_release);
+>  }
+>  
+> -MODULE_PARM(floppy, "s");
+> -MODULE_PARM(FLOPPY_IRQ, "i");
+> -MODULE_PARM(FLOPPY_DMA, "i");
+> +module_param(floppy, charp, 0);
+> +module_param(FLOPPY_IRQ, int, 0);
+> +module_param(FLOPPY_DMA, int, 0);
+>  MODULE_AUTHOR("Alain L. Knaff");
+>  MODULE_SUPPORTED_DEVICE("fd");
+>  MODULE_LICENSE("GPL");
 
-Two comments:
+Please check Andrew's 2.6.10-rc1-mm2 for a large MODULE_PARAM
+patch, and then convert drivers that are not yet converted...
 
-1) Please include a signed-off-by line, as per
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm2/broken-out/convert-module_parm-to-module_param-family.patch
 
-	http://linux.yyz.us/patch-format.html
-		and
-	http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
 
-2) Please use ethtool to enable/disable WOL.  No need for a module option.
-
+-- 
+~Randy

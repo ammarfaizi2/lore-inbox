@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261488AbTCGKxh>; Fri, 7 Mar 2003 05:53:37 -0500
+	id <S261510AbTCGK7A>; Fri, 7 Mar 2003 05:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbTCGKxh>; Fri, 7 Mar 2003 05:53:37 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:8175 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261488AbTCGKxg>;
-	Fri, 7 Mar 2003 05:53:36 -0500
-Date: Fri, 7 Mar 2003 12:03:36 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove spare cast
-In-Reply-To: <200303070214.h272Ehp22067@hera.kernel.org>
-Message-ID: <Pine.GSO.4.21.0303071201510.13981-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261504AbTCGK6p>; Fri, 7 Mar 2003 05:58:45 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:7428 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261510AbTCGK60>;
+	Fri, 7 Mar 2003 05:58:26 -0500
+Date: Thu, 6 Mar 2003 17:18:53 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030306161853.GD2781@zaurus.ucw.cz>
+References: <200303020011.QAA13450@adam.yggdrasil.com> <20030301202617.A18142@kerberos.ncsl.nist.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030301202617.A18142@kerberos.ncsl.nist.gov>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Mar 2003, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1068.10.40, 2003/03/06 17:44:05-08:00, alan@lxorguk.ukuu.org.uk
+Hi!
+
+> But anyway, what made[1] Bitkeeper suck less is the real DAG
+> structure.  Neither arch nor subversion seem to have understood that
+> and, as a result, don't and won't provide the same level of semantics.
+> Zero hope for Linus to use them, ever.  They're needed for any
+> decently distributed development process.
+
+Can you elaborate? I thought that this
+"real DAG" structure is more or less
+equivalent to each developer having
+his owm CVS repository...
+
+> Hell, arch is still at the update-before-commit level.  I'd have hoped
+> PRCS would have cured that particular sickness in SCM design ages ago.
 > 
-> 	[PATCH] remove spare cast
-> 
-> 
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.1068.10.39 -> 1.1068.10.40
-> #	drivers/ide/ide-lib.c	1.6     -> 1.7    
-> #
-> 
->  ide-lib.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> 
-> diff -Nru a/drivers/ide/ide-lib.c b/drivers/ide/ide-lib.c
-> --- a/drivers/ide/ide-lib.c	Thu Mar  6 18:14:45 2003
-> +++ b/drivers/ide/ide-lib.c	Thu Mar  6 18:14:45 2003
-> @@ -171,7 +171,7 @@
->  		BUG();
->  	return min(speed, speed_max[mode]);
->  #else /* !CONFIG_BLK_DEV_IDEDMA */
-> -	return min(speed, (u8)XFER_PIO_4);
-> +	return min(speed, XFER_PIO_4);
->  #endif /* CONFIG_BLK_DEV_IDEDMA */
+> Atomicity, symbolic links, file renames, splits (copy) and merges (the
+> different files suddendly ending up being the same one) are somewhat
+> important, but not the interesting part.  A good distributed DAG
+> structure and a quality 3-point version "merge" is what you actually
+> need to build bk-level SCMs.
 
-This reintroduces the following warning (with gcc-2.95.2 and gcc-3.2)
+If I fixed CVS renames, added atomic
+commits, splits and merges, and gave each
+developer his own CVS repository,
+would I be in same league as bk?
+Ie 10 times slower but equivalent
+functionality?
 
-| drivers/ide/ide-lib.c:174: warning: comparison of distinct pointer types
-| lacks a cast
-
-which the cast was supposed to kill.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+(3 point merge should be doable for CVS
+to and would be good thing anyway,
+right?)
+				Pavel
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129784AbQLIGD6>; Sat, 9 Dec 2000 01:03:58 -0500
+	id <S129801AbQLIGK3>; Sat, 9 Dec 2000 01:10:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129801AbQLIGDt>; Sat, 9 Dec 2000 01:03:49 -0500
-Received: from carbon.btinternet.com ([194.73.73.92]:50657 "EHLO
-	carbon.btinternet.com") by vger.kernel.org with ESMTP
-	id <S129784AbQLIGDj>; Sat, 9 Dec 2000 01:03:39 -0500
-Date: Sat, 9 Dec 2000 05:32:54 +0000 (GMT)
-From: davej@suse.de
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Signal 11
-Message-ID: <Pine.LNX.4.21.0012090527490.9650-100000@neo.local>
+	id <S130299AbQLIGKT>; Sat, 9 Dec 2000 01:10:19 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:29353 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129801AbQLIGKG>;
+	Sat, 9 Dec 2000 01:10:06 -0500
+Date: Sat, 9 Dec 2000 00:39:36 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+cc: Ben Ford <ben@kalifornia.com>, Chris Lattner <sabre@nondot.org>,
+        linux-kernel@vger.kernel.org, orbit-list@gnome.org,
+        korbit-cvs@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <3A31BC6D.1CFB5221@haque.net>
+Message-ID: <Pine.GSO.4.21.0012090028550.29053-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-David Woodhouse (dwmw2@infradead.org) wrote...
 
-> Can you reproduce it with bcrl's patch below: 
+On Sat, 9 Dec 2000, Mohammad A. Haque wrote:
 
-Did nothing for me. gcc still got a sig11 after a while.
-Took three runs of 'make bzImage' before it completed.
+> It was just an example. Basically, you'd be able to do in with just
+> about any language that has ORBit bindings.
 
-I wondered if I'd been unlucky enough to have been sent a
-replacement K6-2 which was also screwed, but as I mentioned
-earlier, this box runs fine under 2.2
-
-btw, I was unsubscribed from all lists at vger yesterday,
-for reasons currently unknown to me. Did this happen to anyone
-else, or did my mail setup break something?
-
-regards,
-
-Davej.
+Yeah... "Infinitely extendable API" and all such. Roughly translated
+as "we can't live without API bloat". Frankly, judging by the GNOME
+codebase people who designed the thing are culturally incompatible with
+UNIX.
 
 -- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
+"KISS is tough" -- programmer Barbie.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

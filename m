@@ -1,86 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265409AbTBCUiO>; Mon, 3 Feb 2003 15:38:14 -0500
+	id <S266081AbTBCUxi>; Mon, 3 Feb 2003 15:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265894AbTBCUiO>; Mon, 3 Feb 2003 15:38:14 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23315
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S265409AbTBCUiN>; Mon, 3 Feb 2003 15:38:13 -0500
-Subject: Re: [patch] HT scheduler, sched-2.5.59-E2
-From: Robert Love <rml@tech9.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Theurer <habanero@us.ibm.com>, Erich Focht <efocht@ess.nec.de>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Matthew Dobson <colpatch@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <Pine.LNX.4.44.0302031812500.12700-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0302031812500.12700-100000@localhost.localdomain>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044305265.802.60.camel@phantasy>
+	id <S266274AbTBCUxi>; Mon, 3 Feb 2003 15:53:38 -0500
+Received: from adsl-67-123-8-233.dsl.pltn13.pacbell.net ([67.123.8.233]:480
+	"EHLO influx.triplehelix.org") by vger.kernel.org with ESMTP
+	id <S266081AbTBCUxh>; Mon, 3 Feb 2003 15:53:37 -0500
+Date: Mon, 3 Feb 2003 13:02:58 -0800
+To: linux-kernel@vger.kernel.org
+Subject: acpi + synaptics trackpad in 2.5
+Message-ID: <20030203210258.GA17499@triplehelix.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 03 Feb 2003 15:47:45 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-03 at 13:23, Ingo Molnar wrote:
 
-> the attached patch (against 2.5.59 or BK-curr) has two HT-scheduler fixes
-> over the -D7 patch:
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi, Ingo.  I am running this now, with good results. Unfortunately I do
-not have an HT-capable processor, so I am only testing the interactivity
-improvements.  They are looking very good - a step in the right
-direction.  Very nice.
+Whenever I run a ACPI battery monitor in X, my mouse goes completely=20
+insane - goes around everywhere, and clicks randomly. the second i close=20
+it, everything returns to normal.
 
-A couple bits:
+Logs show no suspicious output when this happens.
+I used wmbattery that Joey Hess edited to work with 2.5 ACPI, I have=20
+posted it a website but I'm not sure whether it's GPL-compliant to post=20
+it there and give the URL in this message without the source diff....=20
+does anyone care at this point?
 
-> -		wake_up_interruptible(PIPE_WAIT(*inode));
-> +		wake_up_interruptible_sync(PIPE_WAIT(*inode));
-> ...
-> -		wake_up_interruptible(PIPE_WAIT(*inode));
-> +		wake_up_interruptible_sync(PIPE_WAIT(*inode));
->  ...
-> -		wake_up_interruptible(PIPE_WAIT(*inode));
-> +		wake_up_interruptible_sync(PIPE_WAIT(*inode));
+Regards
+Josh
 
-These are not correct, right?  I believe we want normal behavior here,
-no?
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> --- linux/kernel/sys.c.orig	
-> +++ linux/kernel/sys.c	
-> @@ -220,7 +220,7 @@
->  
->  	if (error == -ESRCH)
->  		error = 0;
-> -	if (niceval < task_nice(p) && !capable(CAP_SYS_NICE))
-> +	if (0 && niceval < task_nice(p) && !capable(CAP_SYS_NICE))
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-What is the point of this? Left in for debugging?
+iD8DBQE+PtkC6TRUxq22Mx4RAlywAKC800wzU0nC2FW63+fw6U2vY9NwEgCgtDWC
+/bAPeVv69JomWexqyEAqQBs=
+=k4Nl
+-----END PGP SIGNATURE-----
 
-> -#define MAX_SLEEP_AVG		(2*HZ)
-> -#define STARVATION_LIMIT	(2*HZ)
-> +#define MAX_SLEEP_AVG		(10*HZ)
-> +#define STARVATION_LIMIT	(30*HZ)
-
-Do you really want a 30 second starvation limit?  Ouch.
-
-> +	printk("rq_idx(smp_processor_id()): %ld.\n", rq_idx(smp_processor_id()));
-
-This gives a compiler warning on UP:
-
-        kernel/sched.c: In function `sched_init':
-        kernel/sched.c:2722: warning: long int format, int arg (arg 2)
-
-Since rq_idx(), on UP, merely returns its parameter which is an int.
-
-Otherwise, looking nice :)
-
-	Robert Love
-
+--ikeVEW9yuYc//A+q--

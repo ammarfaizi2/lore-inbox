@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290344AbSBKUlW>; Mon, 11 Feb 2002 15:41:22 -0500
+	id <S290389AbSBKUnB>; Mon, 11 Feb 2002 15:43:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290361AbSBKUlM>; Mon, 11 Feb 2002 15:41:12 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:54973 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S290344AbSBKUky>;
-	Mon, 11 Feb 2002 15:40:54 -0500
-Date: Mon, 11 Feb 2002 21:40:34 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jussi Laako <jussi.laako@kolumbus.fi>, linux-kernel@vger.kernel.org
-Subject: Re: A7M266-D works?
-In-Reply-To: <E16aMbQ-0007jI-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0202112132040.16582-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+	id <S290377AbSBKUmp>; Mon, 11 Feb 2002 15:42:45 -0500
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:31454 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S290361AbSBKUmU>; Mon, 11 Feb 2002 15:42:20 -0500
+Message-ID: <3C682CA2.5060407@nyc.rr.com>
+Date: Mon, 11 Feb 2002 15:42:10 -0500
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John Weber <weber@nyc.rr.com>
+CC: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.5.4 Sound Driver Problem
+In-Reply-To: <fa.c0t1afv.1f02hrj@ifi.uio.no> <fa.jvah72v.1h34cqd@ifi.uio.no> <3C682264.7060707@nyc.rr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Feb 2002, Alan Cox wrote:
-
-> The current status on the board I'm using
+John Weber wrote:
+>> Try to do this. Open drivers/sound/Config.in, and find YMFPCI
+>> tristate, then delete $CONFIG_SOUND_OSS from that line.
+>> Edit .config, and remove CONFIG_SOUND_OSS. Rerun make oldconfig,
+>> when prompted for CONFIG_SOUND_OSS, say N. This should work.
 > 
-> -	The BIOS appears to misconfigure the PCI setup badly, so badly I've
-> 	been sticking in PCI quirk fixups to make some drivers work
+> 
+> if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
+>    bool '      Verbose initialisation' CONFIG_SOUND_TRACEINIT
+>    bool '      Persistent DMA buffers' CONFIG_SOUND_DMAP
+> 
+> The YMFPCI option was in the body of the above if statement, so I had
+> to move it out of there to be able to enable it without enabling 
+> CONFIG_SOUND_OSS.  I hope this is what you meant.
+> 
 
-Could you give some examples of which drivers/cards you've seen problems
-with. We've been thinking of getting a few of these boards but if there's
-this much problems with the BIOS we might have to look at another board :(
-
-I just read on Asus site that this board actually has been approved by
-AMD.
-
-"The A7M266-D is the first 760MPX chipset based motherboard to pass all of
-AMD's validation requirements, ensuring superior reliability, performance
-and quality."
-
-It must have been running an unreleased BIOS at the time of the testing :)
-
-> -	MP 1.4 locks solid MP 1.1 is ok - that may be a Linux bug. I have a
-> 	patch to test there
-
-Please test that patch and let us now.
-
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
-
+This works, by the way.
 

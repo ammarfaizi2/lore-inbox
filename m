@@ -1,78 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262336AbTFFWqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 18:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbTFFWqQ
+	id S262352AbTFFWta (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 18:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTFFWta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 18:46:16 -0400
-Received: from daffy.hulpsystems.net ([64.246.21.252]:32162 "EHLO
-	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
-	id S262336AbTFFWqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 18:46:15 -0400
-Subject: Re: Linux and IBM : "unauthorized" mini-PCI : TCPA updates
-From: Martin List-Petersen <martin@list-petersen.dk>
-To: Derek Fawcus <dfawcus@cisco.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030604133920.B17680@edinburgh.cisco.com>
-References: <1054658974.2382.4279.camel@tori>
-	 <20030604133920.B17680@edinburgh.cisco.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-BxcTl092SKxqT6pGCHF7"
-Organization: 
-Message-Id: <1054940371.3044.40.camel@loke>
+	Fri, 6 Jun 2003 18:49:30 -0400
+Received: from s1.uscreditbank.com ([192.41.74.10]:38407 "EHLO
+	s1.uscreditbank.com") by vger.kernel.org with ESMTP id S262352AbTFFWt2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 18:49:28 -0400
+Date: Fri, 6 Jun 2003 17:03:10 -0600
+From: jmerkey@s1.uscreditbank.com
+To: "Lauro, John" <jlauro@umflint.edu>
+Cc: linux-kernel@vger.kernel.org, jmerkey@utah-nac.org
+Subject: Re: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
+Message-ID: <20030606170310.A20988@s1.uscreditbank.com>
+References: <37885B2630DF0C4CA95EFB47B30985FB020EC0D2@exchange-1.umflint.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 07 Jun 2003 00:59:32 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <37885B2630DF0C4CA95EFB47B30985FB020EC0D2@exchange-1.umflint.edu>; from jlauro@umflint.edu on Fri, Jun 06, 2003 at 06:04:41PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-BxcTl092SKxqT6pGCHF7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I am using 4.6.11 from their website, which is the version needed to run the 
+chipsets on the multi-port cards.  Is my modules.conf syntax correct?  I believe 
+it is which eads me to believe the driver is busted.  I reviewed their probe
+function and it looks correct.  
 
-On Wed, 2003-06-04 at 14:39, Derek Fawcus wrote:
-> I can't say I'm too suprised.
->=20
-> This is fuzy recall,  but I seem to remember reading that 802.11? mini-PC=
-I
-> cards are not type approved (radio licence) by themselves,  but only in
-> combination with the system they are to be fitted in.
->=20
-> Hence they're not supposed to be available retail (now someone'll go and
-> point out where they are :-)
+Any help is appreciated.
 
-Eerh, dumb question here: Is this MiniPCI Wlan cards in general or how ?
-I ask, because i've seen MiniPCI Wlan cards and i've seen cards that in
-fact are PC-Card Wlan cards and a PC-Card-to-PCI bridge put together on
-a MiniPCI card, just adding another PC-Card slot to your notebook and
-inserting a Wlan card there (Dell TrueMobile 1150).
-
-Regards,
-Martin List-Petersen
-martin at list-petersen dot dk
---
-Operating Systems Installed:
-  * Debian GNU/Linux 2.1 4 CD Set ($20 from www.chguy.net; price includes
-    taxes, shipping, and a $3 donation to FSF). 2 CDs are binaries, 2 CDs
-    complete source code;
-  * Windows 98 Second Edition Upgrade Version ($136 through Megadepot.com,
-    price does not include taxes/shipping). Surprisingly, no source code
-    is included.
-=20
-        -- Bill Stilwell, http://linuxtoday.com/stories/8794.html
+Jeff
 
 
---=-BxcTl092SKxqT6pGCHF7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+4RzTzAGaxP8W1ugRAo3lAKCz+uzK9tU1r0/+WSvidC4nTNjzKQCgibbC
-xgXqwGmAA7ugcbzOS5N9rfY=
-=8qnm
------END PGP SIGNATURE-----
-
---=-BxcTl092SKxqT6pGCHF7--
-
+On Fri, Jun 06, 2003 at 06:04:41PM -0400, Lauro, John wrote:
+> I assume you mean between keyboard and chair???
+> 
+> Anyways...
+> 
+> If I do anything semi-advanced with e1000 cards, I end up getting
+> Intel's drivers.  It's a minor pain when switching kernel versions
+> (especially to a different version number) as the default scripts
+> assume you are already booted (uname -r) in the kernel you are
+> building for and are not part of the kernel source tree...
+> 
+> I suggest you try e1000-5.0.43 from Intel, and also iANS-2.3.35 (or
+> higher if either of them have updates).
+> 
+> I don't know if you are doing any advanced features like vlan tagging
+> or not.  Anyways, it's one area that drivers from Intel's site does
+> work better then the native stock kernel drivers.  Specifically as an
+> example, virtual Ethernets over different vlan tags when combined with
+> vmware gsx server works with Intel's iANS, but not with the stock vlan
+> support.
+> 
+> I know, it doesn't answer your question...  but it gives you something
+> else to try...
+> 
+> > -----Original Message-----
+> > From: jmerkey@s1.uscreditbank.com
+> [mailto:jmerkey@s1.uscreditbank.com]
+> > Sent: Friday, June 06, 2003 5:40 PM
+> > To: linux-kernel@vger.kernel.org
+> > Cc: jmerkey@utah-nac.org
+> > Subject: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
+> > 
+> > 
+> > 
+> > In 2.4.20 if I attempt to use the Intel multiport e1000 drivers with
+> > modules.conf trying to hard set the eth0,eth1, etc. assignments
+> modprobe
+> > does
+> > not appear to be assigning the adapter aliases correctly.  I am
+> assuming
+> > this may be due to an interface issue between the Keyboard and
+> monitor. :-
+> > )
+> > 
+> > Modules.conf file attached.  Anyone got any ideas here?
+> > 
+> > Jeff
+> > 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

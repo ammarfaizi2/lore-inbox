@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281914AbRKZQlA>; Mon, 26 Nov 2001 11:41:00 -0500
+	id <S281915AbRKZQmK>; Mon, 26 Nov 2001 11:42:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281918AbRKZQkw>; Mon, 26 Nov 2001 11:40:52 -0500
-Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:54024 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S281914AbRKZQkg>; Mon, 26 Nov 2001 11:40:36 -0500
-Message-Id: <4.3.2.7.2.20011126113409.00bfaa70@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Mon, 26 Nov 2001 11:38:33 -0500
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-From: David Relson <relson@osagesoftware.com>
-Subject: Release Policy [was: Linux 2.4.16  ]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0111261003070.13400-100000@freak.distro.cone
- ctiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S281920AbRKZQlv>; Mon, 26 Nov 2001 11:41:51 -0500
+Received: from imo-m10.mx.aol.com ([64.12.136.165]:60128 "EHLO
+	imo-m10.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S281915AbRKZQls>; Mon, 26 Nov 2001 11:41:48 -0500
+Message-ID: <3C026FA2.CE27DEB9@cs.com>
+Date: Mon, 26 Nov 2001 09:36:50 -0700
+From: Charles Marslett <cmarslett9@cs.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,zh-TW,ja
+MIME-Version: 1.0
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16-pre1
+In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva> <01112615070600.00943@manta>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+vda wrote:
+> 
+> On Saturday 24 November 2001 16:39, Marcelo Tosatti wrote:
+> > Hi,
+> >
+> > So here it goes 2.4.16-pre1. Obviously the most important fix is the
+> > iput() one, which probably fixes the filesystem corruption problem people
+> > have been seeing.
+> 
+> This is quite annoying to have non-pre kernels with simple bugs like
+> recent loop device bug etc.
+> 
+> Maybe this can be prevented by adopting a rule that non-pre kernel is made
+> from last pre/ac/... which was good enough by changing version # _only_,
+> without even single buglet squashing?
+> 
+> This way we will not disappoint those people who download non-pres in hope
+> they are more stable.
+> 
+> Just my 2 cents.
+> --
+> vda
 
-Thank you for stepping forward to be the maintainer of the 2.4 tree.  This 
-is a very valuable and important service for use Linux users.
+I agree.
 
-Also, thank you for releasing 2.4.16.  I have it building on my linux box 
-as I write this message :-)
-
-Over the last few days, there have been lots of messages regarding "Kernel 
-Release" and "-preX vs. -rcX".  You, as the official maintainer of kernel 
-2.4 are the person who actually creates the release policy and makes it happen.
-
-Would you care to share your thoughts on this matter?
-
-David
-
-At 07:30 AM 11/26/01, Marcelo Tosatti wrote:
-
->Hi,
->
->Due to the corruption problems on 2.4.15, I'm releasing 2.4.16.
-
+--Charles 
+          /"\                           |
+          \ /     ASCII Ribbon Campaign |
+           X      Against HTML Mail     |--Charles Marslett
+          / \                           |  www.wordmark.org

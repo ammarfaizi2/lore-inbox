@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291771AbSBNQYX>; Thu, 14 Feb 2002 11:24:23 -0500
+	id <S291767AbSBNQ0x>; Thu, 14 Feb 2002 11:26:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291767AbSBNQYH>; Thu, 14 Feb 2002 11:24:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53771 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291752AbSBNQXx>; Thu, 14 Feb 2002 11:23:53 -0500
-Date: Thu, 14 Feb 2002 08:23:41 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: bert hubert <ahu@ds9a.nl>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.5-pre1
-In-Reply-To: <20020214090401.A8296@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.33.0202140816220.12749-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291773AbSBNQ0o>; Thu, 14 Feb 2002 11:26:44 -0500
+Received: from angband.namesys.com ([212.16.7.85]:39041 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S291767AbSBNQ0e>; Thu, 14 Feb 2002 11:26:34 -0500
+Date: Thu, 14 Feb 2002 19:26:33 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Sebastian =?koi8-r?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
+Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs Corruption with 2.5.5-pre1
+Message-ID: <20020214192633.A2311@namesys.com>
+In-Reply-To: <20020214155716.3b810a91.sebastian.droege@gmx.de> <20020214180501.A1755@namesys.com> <20020214162232.5e59193b.sebastian.droege@gmx.de> <20020214172421.5d8ae63c.sebastian.droege@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020214172421.5d8ae63c.sebastian.droege@gmx.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
+On Thu, Feb 14, 2002 at 05:24:21PM +0100, Sebastian Dröge wrote:
 
-On Thu, 14 Feb 2002, bert hubert wrote:
->
-> Did you always merge this many patches, or does it just look like more using
-> this very nice changelog format? Anyhow, I'm impressed about the amount of
-> work accepted in such a short time.
+> reiserfsck --check said I have to do --rebuild-tree because of critical corruption (many "bad_leaf: block xxxxx has wrong order of items")...
 
-It looks like more because of the changelog format.
+these are 2.5.3 signs.
 
-The old changelogs were one-liners, and didn't mention small patches at
-all (ie the entries like "Remove warning in /proc inode conversions" would
-not even have made it into the changelog before).
+> after that I booted into 2.4.17. Everything works okay.
+> Then I booted 2.5.5-pre1 and the mysterious files are there again after starting GNOME. I've copied one file to another location but when I reboot into 2.4.17 the files and the copy are gone again...
 
-Also, I used to combine entries from the same person, so the eight patches
-for reiserfs would have been one entry ("reiserfs update"), and the 20
-entries from Jeff would likewise have been just one entry ("update network
-drivers").
+But GNOME is working, right?
 
-That said, this week I've basically spent _only_ on making sure I work
-well with BitKeeper (so far so good), so I have spent more time than I
-normally do on merging. So yes, it's actually more merging too. That will
-calm down eventually.
+> If you need one or two file names or the content of them just ask (They begin with an "^")... then I'll handcopy them ;)
 
-(The happy news is that I expected to be slowed down by BK for a while,
-and that hasn't really happened. Some things take more effort now, but to
-offset that some other stuff is _much_ easier, so..)
+I have a better approach.
+Just recreate them (by running GNOME in 2.5.5-pre1?) and then tar them up ;)
+Send the ersulting tar file to me.
 
-		Linus
+> The format of the partition is 3.6 and another partition with 3.5 format had no errors... Maybe this helps
 
+So now problem only is that there are strange files after GNOME start, right?
+Do these files disa[[ear after you quit GNOME?
+
+> I could build 2.5.5-pre1 without your patch from the last mail but for this try I have build the kernel with it
+I just found this patch is only needed on SMP ;)
+
+Bye,
+    Oleg

@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268118AbTAIX6K>; Thu, 9 Jan 2003 18:58:10 -0500
+	id <S268065AbTAJAID>; Thu, 9 Jan 2003 19:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268119AbTAIX6J>; Thu, 9 Jan 2003 18:58:09 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:36524 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S268118AbTAIX6H>;
-	Thu, 9 Jan 2003 18:58:07 -0500
-Date: Thu, 9 Jan 2003 17:02:51 -0700
-From: yodaiken@fsmlabs.com
-To: Richard Stallman <rms@gnu.org>
-Cc: yodaiken@fsmlabs.com, billh@gnuppy.monkey.org, mark@mark.mielke.cc,
-       lm@bitmover.com, linux-kernel@vger.kernel.org, paul@clubi.ie,
-       riel@conectiva.com.br
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030109170251.A3584@hq.fsmlabs.com>
-References: <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8O-0004jy-00@fencepost.gnu.org> <20030108082615.A2271@hq.fsmlabs.com> <E18Wlrd-0000Po-00@fencepost.gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E18Wlrd-0000Po-00@fencepost.gnu.org>; from rms@gnu.org on Thu, Jan 09, 2003 at 06:13:29PM -0500
-Organization: FSM Labs
+	id <S268058AbTAJAID>; Thu, 9 Jan 2003 19:08:03 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:46032 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268066AbTAJAIB> convert rfc822-to-8bit; Thu, 9 Jan 2003 19:08:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: John Bradford <john@grabjohn.com>
+Subject: Re: detecting hyperthreading in linux 2.4.19
+Date: Thu, 9 Jan 2003 16:16:14 -0800
+User-Agent: KMail/1.4.3
+Cc: lunz@falooley.org, linux-kernel@vger.kernel.org
+References: <200301092154.h09Ls5SX005123@darkstar.example.net>
+In-Reply-To: <200301092154.h09Ls5SX005123@darkstar.example.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301091616.14195.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 06:13:29PM -0500, Richard Stallman wrote:
->     Just for the record, "operating system", and "kernel" are used as 
->     synonyms in the research literature.
-> 
-> The term "operating system" has been used in both ways for a long
-> time.  When people speak about the "Linux operating system," most of
-> them mean the larger GNU/Linux system--they are not using "operating
-> system" to mean "kernel".
+On Thursday 09 January 2003 01:54 pm, John Bradford wrote:
+> > > Is there a way for a userspace program running on linux 2.4.19 to tell
+> > > the difference between a single hyperthreaded xeon P4 with HT enabled
+> > > and a dual hyperthreaded xeon P4 with HT disabled? The /proc/cpuinfos
+> > > for the two cases are indistinguishable.
+> >
+> > I don't know of any way to do this in userland.  The whole point is that
+> > the sibling processors are supposed to look like real ones.
+> >
+> > You _could_ try running two processes simultaneously in tight spin loops
+> > for 100 million cycles and comparing the amount of real time consumed. 
+> > That would be rather unreliable and kludgey though.
+>
+> If /proc/interrupts shows a processor is handling interrupts then it
+> is definitely a 'real' one.  If it isn't handling interrupts, it may
+> or may not be a 'real' one.  That's another unreliable and kludgey way
+> to tell the difference :-).
+>
+> John.
+> -
 
-My point was just to note that people who look for information about emacs
-or gcc in the proceedings of the OSDI or SIGOPS Symposium are going to 
-be disappointed. 
+Not quite.  The "logical" or "sibling" processor has its own local APIC.  This 
+is necessary to send it the Startup IPI and soft IPIs while the system is 
+running.
 
-> If you use some other term instead of "operating system" for the
-> larger collection of software, it might remove one cause of confusion.
-
-Programming environment. I say "Gnu tools" .
-
-> That won't eliminate the question of what this collection's name
-> should properly be, or correct the misinformation about how it was
-> developed and by whom.
-
-
-The bad news is that many of our customers now ask us if we support
-"8.0" or "7.3".  For them "Red Hat" is the name of the system. Bob Young's
-ketchup vision has absorbed the world. 
-
-I'm sympathetic, but if there is anyone out there who has contributed 
-free software and gets full credit and no hate mail, I'd be very surprised.
-
-Envy is emulation adapted to the meanest capacity.
-	Ambrose Bierce
-
-
-
+However, it is a full function APIC and can receive I/O interrupts.  I have 
+seen this happen many times.
 
 -- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
-www.fsmlabs.com  www.rtlinux.com
-1+ 505 838 9109
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

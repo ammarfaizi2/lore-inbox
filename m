@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281857AbRK1CEW>; Tue, 27 Nov 2001 21:04:22 -0500
+	id <S283002AbRK1CMp>; Tue, 27 Nov 2001 21:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282999AbRK1CEN>; Tue, 27 Nov 2001 21:04:13 -0500
-Received: from holomorphy.com ([216.36.33.161]:19888 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S281857AbRK1CED>;
-	Tue, 27 Nov 2001 21:04:03 -0500
-Date: Tue, 27 Nov 2001 18:03:42 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] [PATCH] earlier printk output
-Message-ID: <20011127180342.A3921@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-Organization: The Domain of Holomorphy
+	id <S281832AbRK1CMe>; Tue, 27 Nov 2001 21:12:34 -0500
+Received: from waste.org ([209.173.204.2]:11191 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S281831AbRK1CMZ>;
+	Tue, 27 Nov 2001 21:12:25 -0500
+Date: Tue, 27 Nov 2001 20:12:21 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: J Sloan <jjs@pobox.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: heads-up: preempt kernel and tux NO-GO
+In-Reply-To: <3C043B11.2FA17A19@pobox.com>
+Message-ID: <Pine.LNX.4.40.0111272007070.9338-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch creates console devices specifically for use during early
-boot, and registers them so that printk() output may be seen prior
-to console_init().
+On Tue, 27 Nov 2001, J Sloan wrote:
 
-The patch is available from:
+> I have been looking into the tux2 webserver -
+> Man, what a thing of beauty. A web benchmark
+> that sends the load on the web server to 150
+> when running apache results in a load average
+> of  maybe 2 when running tux, and much faster
+> results to boot - anyway, I digress....
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/wli/early_printk/
+Loadavg isn't much of a measure here, it's a measure of the length of the
+runnable queue. If you've only got two processes because your server has a
+thread per processor, then yes, you'll see lower loadavg, but not lower
+load. A real measure would look at idle percentage and throughput.
 
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-Included are i386 config options, early VGA text output, and early i386
-serial output.
-
-
-Cheers,
-Bill

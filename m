@@ -1,87 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264073AbTEWNZy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 09:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbTEWNZy
+	id S264075AbTEWNhr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 09:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTEWNhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 09:25:54 -0400
-Received: from CPE-203-51-32-18.nsw.bigpond.net.au ([203.51.32.18]:28657 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S264073AbTEWNZw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 09:25:52 -0400
-Message-ID: <3ECE246D.E3B27BCB@eyal.emu.id.au>
-Date: Fri, 23 May 2003 23:38:53 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.21-rc2-e2 i686)
-X-Accept-Language: en
+	Fri, 23 May 2003 09:37:47 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:49024 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264082AbTEWNgo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 09:36:44 -0400
+Date: Fri, 23 May 2003 15:49:45 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] touchless dependencies for 2.4.x
+Message-ID: <Pine.GSO.4.21.0305231547400.26586-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc3 - ipmi unresolved
-References: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva>
-Content-Type: multipart/mixed;
- boundary="------------2F59CA615A8413B80914A7D8"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------2F59CA615A8413B80914A7D8
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Hi,
 
-Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> Here goes the third release candidate of 2.4.21.
-> 
-> Summary of changes from v2.4.21-rc2 to v2.4.21-rc3
-> ============================================
-[trim]
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
->   o fix ipmi screwup
+The 2.4.x dependency system depends on being able to `touch' include files in
+case of recursive dependencies.  This fails when using a revision control
+system (e.g. ClearCase) where non-checked out files are read-only and cannot be
+touch'ed.
 
-The exports in ksyms are still necessary, and missing:
+The patch below solves this by making object files depend on (recursive) lists,
+containing the list of dependencies for each header file.
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.21-rc3/kernel/drivers/char/ipmi/ipmi_msghandler.o
-depmod:         panic_notifier_list
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.21-rc3/kernel/drivers/char/ipmi/ipmi_watchdog.o
-depmod:         panic_notifier_list
-depmod:         panic_timeout
+Example:
+  - Dependencies:
+      o file.c includes header.h
+      o header.h includes header2.h
 
-The attached snippet was part of the earlier, larger patch.
+  - Old way:
+
+      o .depend:
+
+	    file.o:	file.c header.h
+
+      o .hdepend:
+
+	    header.h:	header2.h
+			touch header.h
+
+  - New way:
+
+      o .depend:
+
+	    file.o:	file.c header.h $(dep_header.h)
+
+      o .hdepend:
+
+	    dep_header.h += header2.h $(dep_header2.h)
+
+Is this OK? So far I didn't notice any regressions.
+    
+--- linux-2.4.x/scripts/mkdep.c.orig	Tue Apr  1 17:04:24 2003
++++ linux-2.4.x/scripts/mkdep.c	Wed Apr  2 17:39:59 2003
+@@ -45,8 +45,7 @@
+ 
+ 
+ 
+-char __depname[512] = "\n\t@touch ";
+-#define depname (__depname+9)
++char depname[512];
+ int hasdep;
+ 
+ struct path_struct {
+@@ -75,9 +74,14 @@
+ {
+ 	if (!hasdep) {
+ 		hasdep = 1;
+-		printf("%s:", depname);
+-		if (g_filename)
++		if (g_filename) {
++			/* Source file (*.[cS]) */
++			printf("%s:", depname);
+ 			printf(" %s", g_filename);
++		} else {
++			/* header file (*.h) */
++			printf("dep_%s +=", depname);
++		}
+ 	}
+ }
+ 
+@@ -203,7 +207,8 @@
+ 		path->buffer[path->len+len] = '\0';
+ 		if (access(path->buffer, F_OK) == 0) {
+ 			do_depname();
+-			printf(" \\\n   %s", path->buffer);
++			printf(" \\\n   %s $(dep_%s)", path->buffer,
++			       path->buffer);
+ 			return;
+ 		}
+ 	}
+@@ -520,7 +525,7 @@
+ /*
+  * Generate dependencies for one file.
+  */
+-void do_depend(const char * filename, const char * command)
++void do_depend(const char * filename)
+ {
+ 	int mapsize;
+ 	int pagesizem1 = getpagesize()-1;
+@@ -559,9 +564,7 @@
+ 	clear_config();
+ 	state_machine(map, map+st.st_size);
+ 	if (hasdep) {
+-		puts(command);
+-		if (*command)
+-			define_precious(filename);
++		puts("");
+ 	}
+ 
+ 	munmap(map, mapsize);
+@@ -607,7 +610,6 @@
+ 
+ 	while (--argc > 0) {
+ 		const char * filename = *++argv;
+-		const char * command  = __depname;
+ 		g_filename = 0;
+ 		len = strlen(filename);
+ 		memcpy(depname, filename, len+1);
+@@ -615,10 +617,9 @@
+ 			if (filename[len-1] == 'c' || filename[len-1] == 'S') {
+ 			    depname[len-1] = 'o';
+ 			    g_filename = filename;
+-			    command = "";
+ 			}
+ 		}
+-		do_depend(filename, command);
++		do_depend(filename);
+ 	}
+ 	if (len_precious) {
+ 		*(str_precious+len_precious) = '\0';
+
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
---------------2F59CA615A8413B80914A7D8
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.21-rc3-ipmi.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.21-rc3-ipmi.patch"
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---- linux/kernel/ksyms.c.orig	Fri May 23 22:17:07 2003
-+++ linux/kernel/ksyms.c	Fri May 23 22:16:38 2003
-@@ -65,6 +65,7 @@
- extern int request_dma(unsigned int dmanr, char * deviceID);
- extern void free_dma(unsigned int dmanr);
- extern spinlock_t dma_spin_lock;
-+extern int panic_timeout;
- 
- #ifdef CONFIG_MODVERSIONS
- const struct module_symbol __export_Using_Versions
-@@ -471,6 +472,8 @@
- 
- /* misc */
- EXPORT_SYMBOL(panic);
-+EXPORT_SYMBOL(panic_notifier_list);
-+EXPORT_SYMBOL(panic_timeout);
- EXPORT_SYMBOL(__out_of_line_bug);
- EXPORT_SYMBOL(sprintf);
- EXPORT_SYMBOL(snprintf);
-
---------------2F59CA615A8413B80914A7D8--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261584AbTCaLct>; Mon, 31 Mar 2003 06:32:49 -0500
+	id <S261608AbTCaLti>; Mon, 31 Mar 2003 06:49:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261605AbTCaLct>; Mon, 31 Mar 2003 06:32:49 -0500
-Received: from [81.2.110.254] ([81.2.110.254]:11256 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id <S261584AbTCaLcs>;
-	Mon, 31 Mar 2003 06:32:48 -0500
-Subject: Re: hdparm and removable IDE?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: house@uqd.edu.au, Andre Hedrick <andre@linux-ide.org>, davidsen@tmr.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200303311121.h2VBL63v020452@81-2-122-30.bradfords.org.uk>
-References: <200303311121.h2VBL63v020452@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049111033.16120.10.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 31 Mar 2003 12:43:54 +0100
+	id <S261609AbTCaLti>; Mon, 31 Mar 2003 06:49:38 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:6802 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP
+	id <S261608AbTCaLth>; Mon, 31 Mar 2003 06:49:37 -0500
+From: Erik Hensema <erik@hensema.net>
+Subject: Re: Delaying writes to disk when there's no need
+Date: Mon, 31 Mar 2003 12:00:57 +0000 (UTC)
+Message-ID: <slrnb8gbfp.1d6.erik@bender.home.hensema.net>
+References: <slrnb843gi.2tt.usenet@bender.home.hensema.net> <20030328231248.GH5147@zaurus.ucw.cz>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-31 at 12:21, John Bradford wrote:
-> > > Something that occurs to me - if a machine has non hot-swap capable
-> > > IDE hardware, but has suspend to RAM functionality, presumably it is
-> > > OK from an electronic viewpoint to swap disks?  What about PCI hot
-> > > swap?  Presumably we can remove a non hot-swap IDE controller
-> > > completely, and re-install it with different drives connected?
-> > 
-> > It is but Linux doesn't support it
+Pavel Machek (pavel@suse.cz) wrote:
+> Hi!
 > 
-> Not yet :-)
+>> In all kernels I've tested writes to disk are delayed a long time even when
+>> there's no need to do so.
+>> 
+>> A very simple test shows this: on an otherwise idle system, create a tar of
+>> a NFS-mounted filesystem to a local disk. The kernel starts writing out the
+>> data after 30 seconds, while a slow and steady stream would be much nicer
+>> to the system, I think.
+>> 
 > 
-> Seriously, I thought both were under active development - is this a
-> 2.7, or 2.9 timescale thing?
+> Well, doing writeback sooner when disks
+> are idle might be good idea; detecting
+> if disk is idle might not be too easy, through.
 
-Probably yes
+Helge Hafting already pointed out that writing out the data earlier isn't
+desirable. The problem isn't in the waiting: the problem is in the writing.
+I think the current kernel tries to write too much data too fast when
+there's absolutely no reason to do so. It should probably gently write out
+small amounts of data until there is a more pressing need for memory.
 
+-- 
+Erik Hensema <erik@hensema.net>

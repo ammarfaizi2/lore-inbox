@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130026AbQLPHCy>; Sat, 16 Dec 2000 02:02:54 -0500
+	id <S129183AbQLPH20>; Sat, 16 Dec 2000 02:28:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130773AbQLPHCo>; Sat, 16 Dec 2000 02:02:44 -0500
-Received: from icarus.com ([208.36.26.146]:55825 "EHLO icarus.com")
-	by vger.kernel.org with ESMTP id <S130026AbQLPHCh>;
-	Sat, 16 Dec 2000 02:02:37 -0500
-Message-Id: <200012160632.WAA26178@icarus.com>
+	id <S130026AbQLPH2R>; Sat, 16 Dec 2000 02:28:17 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:60935 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129183AbQLPH2D>;
+	Sat, 16 Dec 2000 02:28:03 -0500
 X-Mailer: exmh version 2.1.1 10/15/1999
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [paperboy@g2news.com: Client Server NEWS FLASH: Linus Savages Red Hat 7.0] 
-In-Reply-To: Message from "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> 
-   of "Fri, 15 Dec 2000 19:39:32 MST." <20001215193932.A5880@vger.timpanogas.org> 
+From: Keith Owens <kaos@ocs.com.au>
+To: ferret@phonewave.net
+cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Linus's include file strategy redux 
+In-Reply-To: Your message of "Fri, 15 Dec 2000 19:37:49 -0800."
+             <Pine.LNX.3.96.1001215193529.19208C-100000@tarot.mentasm.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 15 Dec 2000 22:32:07 -0800
-From: Stephen Williams <steve@icarus.com>
+Date: Sat, 16 Dec 2000 17:57:31 +1100
+Message-ID: <13385.976949851@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Dec 2000 19:37:49 -0800 (PST), 
+ferret@phonewave.net wrote:
+>Do you have an alternative reccomendation? I've shown where the symlink
+>method WILL fail. You disagree that having the configured headers copied
+>is a workable idea. What else is there?
 
-jmerkey@vger.timpanogas.org said:
-> FYI Guys, This just went over the wire from CSN.  Might need some
-> damage  control.
-
-... and I wonder about the press that MSVC 6.0 got before the first
-few service packs got released.  (Weren't there a few difficulties
-with MFC42.dll? Correct me if I'm wrong.)
-
-As a producer of free software myself (Icarus Verilog) I've come to
-the conclusion that the mass media is perfectly capable of turning away
-the idiots that you don't really want as customers anyhow:-)
--- 
-Steve Williams                "The woods are lovely, dark and deep.
-steve@icarus.com              But I have promises to keep,
-steve@picturel.com            and lines to code before I sleep,
-http://www.picturel.com       And lines to code before I sleep."
-
+Use the pcmcia-cs method.  Ask where the kernel headers with a sensible
+default if the user just presses <ENTER>.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

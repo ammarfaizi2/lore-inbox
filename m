@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270009AbTHCTkh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 15:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270032AbTHCTkh
+	id S269191AbTHCTtM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 15:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270007AbTHCTtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 15:40:37 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:6031 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S270009AbTHCTkg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 15:40:36 -0400
-Date: Sun, 3 Aug 2003 12:40:11 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Erik Andersen <andersen@codepoet.org>,
-       Werner Almesberger <werner@almesberger.net>,
-       Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, Nivedita Singhvi <niv@us.ibm.com>
-Subject: Re: TOE brain dump
-Message-ID: <20030803194011.GA8324@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Erik Andersen <andersen@codepoet.org>,
-	Werner Almesberger <werner@almesberger.net>,
-	Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
-	linux-kernel@vger.kernel.org, Nivedita Singhvi <niv@us.ibm.com>
-References: <20030802140444.E5798@almesberger.net> <3F2BF5C7.90400@us.ibm.com> <3F2C0C44.6020002@pobox.com> <20030802184901.G5798@almesberger.net> <3F2CAE61.7070401@pobox.com> <20030803145737.B10280@almesberger.net> <20030803182755.GA16770@codepoet.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030803182755.GA16770@codepoet.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Sun, 3 Aug 2003 15:49:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8875 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269191AbTHCTtL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 15:49:11 -0400
+Message-ID: <3F2D6727.8070203@pobox.com>
+Date: Sun, 03 Aug 2003 15:48:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Abraham van der Merwe <abz@frogfoot.net>
+CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Linux Kernel Discussions <linux-kernel@vger.kernel.org>
+Subject: Re: sleeping in dev->tx_timeout?
+References: <20030803183707.GA13728@oasis.frogfoot.net> <Pine.LNX.4.53.0308031505390.3473@montezuma.mastecende.com> <20030803193708.GA13992@oasis.frogfoot.net>
+In-Reply-To: <20030803193708.GA13992@oasis.frogfoot.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 12:27:55PM -0600, Erik Andersen wrote:
-> On Sun Aug 03, 2003 at 02:57:37PM -0300, Werner Almesberger wrote:
-> > > There is one interesting TOE solution, that I have yet to see created: 
-> > > run Linux on an embedded processor, on the NIC.
-> > 
-> > That's basically what I've been talking about all the
-> > while :-)
+Abraham van der Merwe wrote:
+> Hi Zwane                                         >@2003.08.03_21:10:56_+0200
 > 
-> http://www.snapgear.com/pci630.html
+> 
+>>>Is it safe to sleep in tx_timeout (in the networking code), i.e. to call
+>>>schedule_timeout and friends from that routine?
+>>
+>>No it's called from softirq context and with the dev->xmit_lock held in 
+>>places.
+> 
+> 
+> That's what I thought. How are you supposed to wait for long periods from
+> tx_timeout? My problem is that I have a chip reset which takes around 10ms
+> (i.e. too long to use mdelay())
 
-ipcop plus a new PC for $200 is way higher performance and does more.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Simple answer, don't wait in tx_timeout :)
+
+These days drivers often need quite a while for hardware reset.  I am 
+pushing to move this code, long term, into process context.  So, in 
+tx_timeout:
+* disable NIC and interrupts as best you can, quickly
+* schedule_task/schedule_work to schedule the full hardware reset
+
+	Jeff
+
+
+
+

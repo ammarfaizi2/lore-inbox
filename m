@@ -1,123 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVBKByf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVBKCKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVBKByf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 20:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVBKByf
+	id S262060AbVBKCKV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 21:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVBKCKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 20:54:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4526 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261165AbVBKBy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 20:54:28 -0500
-Date: Thu, 10 Feb 2005 20:05:10 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Todd Shetter <tshetter-lkml@earthlink.net>, jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: 2.4.x kernel BUG at filemap.c:81
-Message-ID: <20050210220510.GB21012@logos.cnet>
-References: <42099C57.9030306@earthlink.net> <20050209121011.GA13614@logos.cnet> <420A3A8D.9030705@earthlink.net> <20050209130319.GA13986@logos.cnet> <420A76E0.2030604@earthlink.net> <20050209174232.GC15888@logos.cnet> <420AE1CE.2070306@earthlink.net>
+	Thu, 10 Feb 2005 21:10:21 -0500
+Received: from waste.org ([216.27.176.166]:24232 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262060AbVBKCKP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 21:10:15 -0500
+Date: Thu, 10 Feb 2005 18:09:56 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: "Jack O'Quin" <jack.oquin@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.11-rc3-mm2
+Message-ID: <20050211020956.GC15058@waste.org>
+References: <a075431a050210125145d51e8c@mail.gmail.com> <20050211000425.GC2474@waste.org> <20050210164727.M24171@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <420AE1CE.2070306@earthlink.net>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050210164727.M24171@build.pdx.osdl.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 11:23:42PM -0500, Todd Shetter wrote:
-> Marcelo Tosatti wrote:
+On Thu, Feb 10, 2005 at 04:47:27PM -0800, Chris Wright wrote:
+> * Matt Mackall (mpm@selenic.com) wrote:
+> > What happened to the RT rlimit code from Chris?
 > 
-> >On Wed, Feb 09, 2005 at 03:47:28PM -0500, Todd Shetter wrote:
-> > 
-> >>>>>>Running slackware 10 and 10.1, with kernels 2.4.26, 2.4.27, 2.4.28, 
-> >>>>>>2.4.29 with highmem 4GB, and highmem i/o support enabled, I get a 
-> >>>>>>system lockup. This happens in both X and console. Happens with and 
-> >>>>>>without my Nvidia drivers loaded. I cannot determine what makes this 
-> >>>>>>bug present it self besides highmem and high i/o support enabled. Im 
-> >>>>>>guessing the system is fine until highmem is actually used to some 
-> >>>>>>point and then it borks, but I really have no idea and so im just 
-> >>>>>>making a random guess. I ran memtest86 for a few hours a while ago 
-> >>>>>>thinking that it may be bad memory, but that did not seem to be the 
-> >>>>>>problem.
-> >>>>>>
-> >>>>>>If you need anymore information, or have questions, or wish me to 
-> >>>>>>test anything, PLEASE feel free to contact me, I would really like to 
-> >>>>>>see this bug resolved. =)
-> >>>>>>
-> >>>>>>Todd Shetter
-> >>>>>>
-> >>>>>>Feb  8 19:49:31 quark kernel: kernel BUG at filemap.c:81!
-> >>>>>>Feb  8 19:49:31 quark kernel: invalid operand: 0000
-> >>>>>>Feb  8 19:49:31 quark kernel: CPU:    0
-> >>>>>>Feb  8 19:49:31 quark kernel: EIP:    0010:[<c01280d1>]    Tainted: P
-> >>>>>>           
-> >>>>>Hi Todd, 
-> >>>>>
-> >>>>>Why is your kernel tainted ?
-> >>>>>
-> >>>>I had the nvidia 1.0-6629 driver loaded when I got that error. I 
-> >>>>compiled the kernel using the slackware 10.1 config, enabled highmem 
-> >>>>4GB support, highmem i/o, and then some kernel hacking options 
-> >>>>including debugging for highmen related things.
-> >>>>
-> >>>>I booted, loaded X with KDE, opened firefox a few times, and then 
-> >>>>started running hdparm because some newer 2.4.x kernels dont play nice 
-> >>>>with my SATA, ICH5, and DMA. hdparm segfaulted while running the drive 
-> >>>>read access portion of its tests, and things locked up from there in 
-> >>>>about 30secs.
-> >>>>
-> >>>>I've gotten the same error with the nvidia driver not loaded, so I dont 
-> >>>>think that is part of the problem.
-> >>>>
-> >>>>As I said, if you want me to test or try anything feel free to ask.  =)
-> >>>>
-> >>>Todd,
-> >>>
-> >>>Would be interesting to have the oops output without the kernel nvidia 
-> >>>module. 
-> >>>Do you have that saved?
-> >>>
-> >>Sorry, it took me FOREVER to get this bug to appear again, and this time 
-> >>its a little different.
-> >>   
-> >>
-> >
-> >Hum, both BUGs are due to a page with alive ->buffers mapping.
-> >
-> >Did it crashed right after hdparm now too? 
-> >
-> >Can you boot your box without SATA drivers, configuring the interface to 
-> >IDE mode ?
-> >
-> >Which problems are you facing with newer v2.4.x kernels and SATA? 
-> > 
-> >
-> 
-> Im waiting for the system to crash, so I figured I might as well get on 
-> with the SATA problems....
-> 
-> Running 2.4.29 neither the CONFIG_BLK_DEV_IDE_SATA nor the 
-> CONFIG_SCSI_SATA are set currently and DMA is not enabled on either of 
-> my drives,  hda: ST380013AS,  hdb: WDC WD2500SD-01KCB0,  hdc: Maxtor 
-> 94610U6. Setting DMA manually on the hard drives yields a HDIO_SET_DMA 
-> failed: Operation not permitted error.
->
-> Using 2.4.26, DMA worked fine on the drives. Under 2.4.27, 2.4.28, and 
-> 2.4.29 using CONFIG_SCSI_SATA does not allow setting of DMA on the 
-> drives, yielding a HDIO_SET_DMA failed: Operation not permitted error, 
-> and the transfer speeds reported by hdparm are at about 3MB/s.
+> I still have it, but I had the impression Ingo didn't like it as a long
+> term solution/hack (albeit small) to the scheduler.  Whereas the rt-lsm
+> patch is wholly self-contained.
 
-I think thats expected. Jeff?
+I think it's important to recognize that we're trying to address an
+issue that has a much wider potential audience than pro audio users,
+and not very far off - what is high end audio performance today will be
+expected desktop performance next year.
 
-> Under 2.4.29 using CONFIG_BLK_DEV_IDE_SATA the DMA is set fine upon 
-> boot, and I get good transfers, hdparm reports 58MB/s on my Western 
-> Digital drive. I have not tested using CONFIG_BLK_DEV_IDE_SATA on any 
-> previous kernel versions.
-> 
-> Well, still no crash yet....Again, anything else you want me to try or 
-> do just let me know.
+So I think it's critical that we find solution that's appropriate for
+_every single box_, because realistically vendors are going to ship
+with this "wholly self-contained" feature turned on by default next
+year, at which point the "containment" will be nil and whatever warts
+it has will be with us forever.
 
-Lets wait - this nature of bug can be triggered by flaky hardware. 
+The rlimit stuff is not perfect, but it's a much better fit for the
+UNIX model generally, which is a fairly big win. Having it in the
+system unconditionally doesn't trigger the gag reflex in quite the
+same way as the LSM approach.
 
-If you can't get it to crash without SATA, re-enable it, and get another
-couple of oopses please.
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,73 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUJNUCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267514AbUJNUGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267466AbUJNUCk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 16:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267421AbUJNUBg
+	id S267514AbUJNUGo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 16:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267516AbUJNUDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 16:01:36 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:49652 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267474AbUJNTyY
+	Thu, 14 Oct 2004 16:03:25 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:33264 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S267505AbUJNUCb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 15:54:24 -0400
-Subject: Re: ACPI hangs at boot  w/ nForce motherboard
-From: john stultz <johnstul@us.ibm.com>
-To: Len Brown <len.brown@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097782870.29329.34.camel@d845pe>
-References: <1097777194.20778.8.camel@cog.beaverton.ibm.com>
-	 <1097782870.29329.34.camel@d845pe>
+	Thu, 14 Oct 2004 16:02:31 -0400
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20041014002433.GA19399@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
+	 <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
+	 <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+	 <20041013061518.GA1083@elte.hu>  <20041014002433.GA19399@elte.hu>
 Content-Type: text/plain
-Message-Id: <1097783664.20778.22.camel@cog.beaverton.ibm.com>
+Organization: MontaVista
+Message-Id: <1097784144.5310.13.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 14 Oct 2004 12:54:24 -0700
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 14 Oct 2004 13:02:24 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-14 at 12:41, Len Brown wrote:
-> On Thu, 2004-10-14 at 14:06, john stultz wrote:
-> > Hey Len,
-> >         Sorry for the lack of details here, but I figured I should at
-> > least let you know. On my box at home (nForce1 motherboard w/ voodoo3
-> > video) 2.6.9-rcX kernels hang on boot. Since its my personal system, I
-> > haven't had much time to debug or look into the issue, however I have
-> > found that acpi=off allows me to boot.
-> > 
-> > There are no strange error messages, the system just hangs (the
-> > framebuffer console looks to be locked at well - no blinking cursor).
-> > 
-> > Any suggestions?  I plan to try the standard acpi=noirq, and
-> > pci=noacpi, but I feel like I tried them awhile ago to no effect.
-> 
-> Did this break recently, or did a previous ACPI-mode kernel work
-> properly?
+I'm not sure about this one ..
 
-Previously it worked fine w/ ACPI, as recently as 2.6.8.1 (I don't
-recall exactly, but I don't think 2.6.9-rc1 worked).
 
-> With ACPI enabled, try "acpi_skip_timer_override"
-> With ACPI enabled, try "noapic"
-> With ACPI enabled, try "nolapic"
-
-I'll give those a shot.
-
-> If you can send me a serial console capture with "debug" for the failure
-> case, that would help.  With any successful boot, the dmesg might be
-> helpful, and the output from lspci -vv and acpidmp is also helpful.
-> acpidmp is in /usr/sbin or in pmtools here:
-> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
-
-I'll try for these as well however, its the only system in the house, so
-I probably won't be able to get you a serial dump.
-
-> You can send this to me, and/or attach them into a bug report here:
-> http://bugzilla.kernel.org/enter_bug.cgi?product=ACPI
-> and assign it to me.
-
-Will do.
-
-thanks!
--john
-
+------------[ cut here ]------------
+kernel BUG at fs/buffer.c:1360!
+invalid operand: 0000 [#1]
+PREEMPT SMP
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c01619c1>]    Not tainted VLI
+EFLAGS: 00010002   (2.6.9-rc4-mm1-VP-U1)
+EIP is at __find_get_block+0xe1/0x100
+eax: 00000001   ebx: cfd30c14   ecx: cffdc600   edx: 00000000
+esi: 0005709b   edi: 00000000   ebp: cfd30b70   esp: cfd30b54
+ds: 007b   es: 007b   ss: 0068   preempt: 00000001
+Process kjournald (pid: 786, threadinfo=cfd30000 task=cfd26040)
+Stack: 00000002 00000000 0005709b 00000000 cfd30c14 0005709b 00000000
+cfd30b94
+       c01619fe cffeab80 0005709b 00000000 00001000 cfd30c14 00000002
+cfd30c44
+       cfd30bac c0161a99 cffeab80 0005709b 00000000 00001000 cfd30bd4
+c019aff0
+Call Trace:
+ [<c01619fe>] __getblk+0x1e/0x60
+ [<c0161a99>] __bread+0x19/0x40
+ [<c019aff0>] ext3_get_branch+0x70/0x100
+ [<c019b61a>] ext3_get_block_handle+0x7a/0x2e0
+ [<c026b1ee>] as_choose_req+0xe/0x1e0
+ [<c026bc5f>] as_update_arq+0x1f/0x60
+ [<c019b8c3>] ext3_get_block+0x43/0x80
+ [<c0163735>] generic_block_bmap+0x35/0x40
+ [<c0134c73>] __mcount+0x13/0x20
+ [<c019c26d>] ext3_bmap+0xd/0xa0
+ [<c01797c5>] bmap+0x45/0x60
+ [<c019c2dc>] ext3_bmap+0x7c/0xa0
+ [<c019b880>] ext3_get_block+0x0/0x80
+ [<c01797c5>] bmap+0x45/0x60
+ [<c01af8c2>] journal_bmap+0x42/0xa0
+ [<c0134c73>] __mcount+0x13/0x20
+ [<c0134249>] _mutex_unlock+0x9/0x60
+ [<c01af827>] journal_next_log_block+0x47/0xa0
+ [<c0113d30>] mcount+0x14/0x18
+ [<c01af832>] journal_next_log_block+0x52/0xa0
+ [<c01af939>] journal_get_descriptor_buffer+0x19/0xc0
+ [<c01ac4ec>] journal_commit_transaction+0xf6c/0x13e0
+ [<c01aedee>] kjournald+0xce/0x260
+ [<c013555c>] sub_preempt_count+0x7c/0xa0
+ [<c0133d00>] autoremove_wake_function+0x0/0x60
+ [<c03b2a33>] _spin_unlock_irq+0x13/0x40
+ [<c0133d00>] autoremove_wake_function+0x0/0x60
+ [<c0119459>] schedule_tail+0x19/0x60
+ [<c01aece0>] commit_timeout+0x0/0x20
+ [<c01aed20>] kjournald+0x0/0x260
+ [<c0103339>] kernel_thread_helper+0x5/0xc
+Code: 45 14 39 43 10 75 a0 85 ff 74 17 8b 45 e4 89 f9 8d 14 b8 8b 42 fc
+89 02 83 ea 04
+                                                                                      
 

@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264031AbUCZM0v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 07:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264035AbUCZM0v
+	id S264026AbUCZM0d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 07:26:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264031AbUCZM0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 07:26:51 -0500
-Received: from holomorphy.com ([207.189.100.168]:14732 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264031AbUCZM0t (ORCPT
+	Fri, 26 Mar 2004 07:26:33 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:56284 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S264026AbUCZM0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 07:26:49 -0500
-Date: Fri, 26 Mar 2004 04:26:36 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>, akpm@osdl.org,
-       torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
-       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040326122636.GX791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Rajesh Venkatasubramanian <vrajesh@umich.edu>, akpm@osdl.org,
-	torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
-	riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain> <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu> <20040325225919.GL20019@dualathlon.random>
+	Fri, 26 Mar 2004 07:26:32 -0500
+Date: Fri, 26 Mar 2004 13:26:31 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Robert Schwebel <robert@schwebel.de>
+Cc: David Brownell <david-b@pacbell.net>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] RNDIS Gadget Driver
+Message-ID: <20040326122631.GA25665@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Robert Schwebel <robert@schwebel.de>,
+	David Brownell <david-b@pacbell.net>,
+	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20040325221145.GJ10711@pengutronix.de> <20040326115947.GA22185@outpost.ds9a.nl> <20040326121928.GC16461@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040325225919.GL20019@dualathlon.random>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040326121928.GC16461@pengutronix.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 11:59:19PM +0100, Andrea Arcangeli wrote:
-> btw, the truncate of hugetlbfs didn't serialize correctly against the
-> do_no_page page faults, that's fixed too.
+On Fri, Mar 26, 2004 at 01:19:28PM +0100, Robert Schwebel wrote:
 
-If a fault on hugetlb ever got as far as do_no_page() on ia32, the
-kernel would oops on the bogus struct page it gets out of the bogus
-pte.  I believe the way faults are handled in out-of-tree patches if by
-calling hugetlb-specific fault handling stacks instead of
-handle_mm_fault() if hugetlb vmas are found by arch code.
+> You need such an .inf file on the windows side; M$ has a template where
+> you simply need to insert your vendor/device ID and other stuff. I'm not
+> sure about the license for these files, so I don't know if it is allowed
+> to distribute them. 
 
+And that .inf describes 'Linux'? No matter what the license is, you can link
+to it and instruct people on how to change it. You could even show pieces of
+the .inf with the linux data filled in ('fair use').
 
--- wli
+I ask about this because I know that to get adequate testing coverage,
+experimenting with this code should be as easy as possible. Something like
+'visit this URL and paste in the following: (...) and now do such and such
+in windows and you should be set'. 
+
+I'll happily write this for you if you provide the pointers.
+
+Good luck!
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

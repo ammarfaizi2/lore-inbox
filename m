@@ -1,94 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263743AbUHWLrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUHWMM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263743AbUHWLrm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 07:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbUHWLrl
+	id S263770AbUHWMM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 08:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUHWMM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 07:47:41 -0400
-Received: from [213.188.213.77] ([213.188.213.77]:44755 "EHLO
-	server1.navynet.it") by vger.kernel.org with ESMTP id S263640AbUHWLql
+	Mon, 23 Aug 2004 08:12:28 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:23556 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263770AbUHWMMY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 07:46:41 -0400
-From: "Massimo Cetra" <mcetra@navynet.it>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Production comparison between 2.4.27 and 2.6.8.1
-Date: Mon, 23 Aug 2004 13:46:33 +0200
-Message-ID: <000001c48906$d70bf270$0600640a@guendalin>
+	Mon, 23 Aug 2004 08:12:24 -0400
+Date: Mon, 23 Aug 2004 14:12:21 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/14] kexec: apic-virtwire-on-shutdown.i386.patch
+In-Reply-To: <m1vffd667r.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.58L.0408231411480.19572@blysk.ds.pg.gda.pl>
+References: <m1vffd667r.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <4127F7FD.5060804@yahoo.com.au>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> > #**********************************************
-> > It is my first experience with 2.6 branch kernels, because 
-> i am trying 
-> > to figure out if the tree is performing well to switch 
-> everithing in 
-> > production, so my ideas may be wrong...
-> > 
-> > Raid tests may be faked because of the overhead caused by 
-> md sync (and 
-> > probably raid is better on 2.6). However it seems that libsata has 
-> > better performance on 2.4 (hdparm) xfs tests shows that 2.4 
-> has better 
-> > performance if compared to 2.6 and the difference, in my 
-> opinion, is 
-> > not linked on libsata better performance.
-> > 
-> > What is your opinion ?
-> > What can I try to improve performance ?
-> > 
-> 
-> I wouldn't worry too much about hdparm measurements. If you 
-> want to test the streaming throughput of the disk, run dd 
-> if=big-file of=/dev/null or a large write+sync.
-> 
-> Regarding your worse non-RAID XFS database results, try 
-> booting 2.6 with elevator=deadline and test again. If yes, 
-> are you using queueing (TCQ) on your disks?
+On Fri, 20 Aug 2004, Eric W. Biederman wrote:
 
+> Restore the local apic to virtual wire mode on reboot.
 
-Tried even with 2.6.8.1-mm and 2.6.8.1-ck
-No performance improvement.
+ Hmm, perhaps you should check for the through-I/O-APIC Virtual Wire mode.
+I've seen reports from such systems in the past.  They may not necessarily
+handle the through-Local-APIC mode correctly.
 
->From Documentation/block/as-iosched.txt i read:
-
-#--------------------------------------
-Attention! Database servers, especially those using "TCQ" disks should
-investigate performance with the 'deadline' IO scheduler. Any system
-with high
-disk performance requirements should do so, in fact.
-
-If you see unusual performance characteristics of your disk systems, or
-you
-see big performance regressions versus the deadline scheduler, please
-email
-me. Database users don't bother unless you're willing to test a lot of
-patches
-from me ;) its a known issue.
-#--------------------------------------
-
-So it's probably known that 2.6 performance with databases and heavy HD
-access is an issue.
-I don't believe that 2.6.x tree is performing as well as 2.4.x(-lck) on
-server tasks.
-
-Is this issue being analyzed ?
-Should we hope in an improvement sometime?
-Or I'll have to use 2.4 to have good performance ?
-
-Max
-
-
-
-
+  Maciej

@@ -1,148 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbUCPLXq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 06:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUCPLXq
+	id S261417AbUCPLgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 06:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUCPLgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 06:23:46 -0500
-Received: from alesia-4-82-66-59-64.fbx.proxad.net ([82.66.59.64]:40610 "HELO
-	rooter.tripnotik.fr") by vger.kernel.org with SMTP id S261171AbUCPLXm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 06:23:42 -0500
-X-Qmail-Scanner-Mail-From: jdidron@tripnotik.dyndns.org via rooter
-X-Qmail-Scanner: 1.20 (Clear:RC:1(192.168.0.249):. Processed in 0.04081 secs)
-Message-ID: <4056F093.5020909@tripnotik.dyndns.org>
-Date: Tue, 16 Mar 2004 13:18:27 +0100
-From: Julien Didron <jdidron@tripnotik.dyndns.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: joe.rutledge@oxtel.com
-Subject: Re : Kernel 2.6.1 - SiI 3112 & Asus MBoard & WD Raptor cause complete
- hang with DMA and heavy load
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Mar 2004 06:36:23 -0500
+Received: from ns.suse.de ([195.135.220.2]:6047 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261417AbUCPLgR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 06:36:17 -0500
+Date: Tue, 16 Mar 2004 12:36:15 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: dynamic sched timeslices
+Message-ID: <20040316113615.GK4452@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Andrew Morton <akpm@osdl.org>, hch@infradead.org,
+	linux-kernel@vger.kernel.org
+References: <20040315224201.GX4452@tpkurt.garloff.de> <20040315225939.A23686@infradead.org> <20040315230950.GB4452@tpkurt.garloff.de> <20040315154042.40c58c5b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+Y6HH/CKFMvGZLq9"
+Content-Disposition: inline
+In-Reply-To: <20040315154042.40c58c5b.akpm@osdl.org>
+X-Operating-System: Linux 2.6.4-1-KG i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: SUSE/Novell
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-    Joe rutledge (see message below) and I had the same problem with 
-what we thougth was the SiI3112 chipset (Box would hang under heavy disc 
-access load). It in fact was caused by the Nforce2 chipset. Resolution 
-of this thread is done by applying the patch below for 2.6.4 (should 
-work for -mm2 and -bk4 too : nforce2-no-disconnect-quirk.patch) :
-   
---- linux-2.6.4-orig/arch/i386/pci/fixup.c      2004-03-11 
-03:55:36.000000000 +0100
-+++ linux-2.6.4/arch/i386/pci/fixup.c   2004-03-16 13:12:25.706569480 +0100
-@@ -187,6 +187,22 @@
-                dev->transparent = 1;
- }
- 
-+/*
-+ * Halt Disconnect and Stop Grant Disconnect (bit 4 at offset 0x6F)
-+ * must be disabled when APIC is used (or lockups will happen).
-+ */
-+static void __devinit pci_fixup_nforce2_disconnect(struct pci_dev *d)
-+{
-+       u8 t;
-+
-+       pci_read_config_byte(d, 0x6F, &t);
-+       if (t & 0x10) {
-+               printk(KERN_INFO "PCI: disabling nForce2 Halt Disconnect"
-+                                " and Stop Grant Disconnect\n");
-+               pci_write_config_byte(d, 0x6F, (t & 0xef));
-+       }
-+}
-+
- struct pci_fixup pcibios_fixups[] = {
-        {
-                .pass           = PCI_FIXUP_HEADER,
-@@ -290,5 +306,11 @@
-                .device         = PCI_ANY_ID,
-                .hook           = pci_fixup_transparent_bridge
-        },
-+        {
-+               .pass           = PCI_FIXUP_HEADER,
-+               .vendor         = PCI_VENDOR_ID_NVIDIA,
-+               .device         = PCI_DEVICE_ID_NVIDIA_NFORCE2,
-+               .hook           = pci_fixup_nforce2_disconnect
-+        },
-        { .pass = 0 }
- };
+--+Y6HH/CKFMvGZLq9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks to the guys for this post on the forum : 
-http://forums.gentoo.org/viewtopic.php?t=140343&highlight=a7n8x
-Hope this helps someone ;o)
+Hi Andrew,
 
-PS : My configuration is now working flawlessly, using libata and 
-sata_sil, I haven't tested it with the siimage.c driver ...
+On Mon, Mar 15, 2004 at 03:40:42PM -0800, Andrew Morton wrote:
+> Kurt Garloff <garloff@suse.de> wrote:
+> Your patch didn't come with any subjective or measured testing results.=
+=20
 
-Julien
+We've done some measurements with 2.4 and O(1):
+* HZ=3D1000 cost about 1.5% perf. on a kernel compile (plus problems
+  with lost timer ticks)
+* Seting the scheduling timeslices from 1ms--30ms rather than 10ms thr
+  300ms cost another ~3% kernel compile performance
+* Depending on the workload the effect can be larger. Numbercrunching
+  would come to mind.
+* Some people are unhappy that nice is not nice enough.
 
->Hello everyone,
->
->Initially using a Seagate SATA drive I was experiencing random lockups, 
->no kernel
->panic just a complete hang. Having read about issues with DMA and some 
->Seagates
->I replaced the drive with a Western Digital Raptor. However I still see 
->the same
->lockups. I've tried a variety of options to hdparm (based around -X70 
->-d1) none
->of them making any difference to stability. I then swapped to the libata 
->driver
->expecting this to be more solid. It does appear to last a little longer 
->than the
->IDE driver but the same problems manifest themselves. I then found that 
->there
->were potentially some problems with the Asus board and shared interrupt 
->lines to
->the SiI3112 so I upgraded the BIOS to the most recent version (1007). 
->This has
->made no difference whatsoever. I also read that APIC and ACPI support could
->exascerbate this problem so I removed them from the kernel and disabled 
->them in
->the BIOS. This has given better stability but still not to the point of 
->a usable
->system. This is a desktop system and it will become locked if any heavy 
->disk
->access is done. At the moment I'm running in PIO mode as this is the 
->only stable
->way of handling the disk. I'm not doing any RAID and have no need to. 
->Merely a boot
->of my 2.6.1/2.6.0/2.4.24 system to runlevel 1 and then running bonnie++ 
->-u nobody
->will guarantee a hang before all the write checks have been completed.
->
->Asus A7N8X Deluxe (nforce2) BIOS V1007, AMD Athlon XP (Barton) 2800+, 
->1GB DDR
->RAM (2 x 512 as Dual Channel), WD Raptor 36G SATA HD, Asus GeForce FX 5600
->(256MB), Lite-On 52x CDRW, DVD-ROM. Fresh Gentoo build optimised for 
->Athlon-XP
->(GCC 3.2.3 -march athlon-xp).
->
->2.6.1 kernel patched for forcedeth and nvidia graphics card. APIC & ACPI 
->support
->removed from kernel and turned off in BIOS. Both the IDE and libata 
->drivers have
->been built into the kernel at separate times. It makes no difference 
->what other
->applications are running.
->
->I'm not on the list so a copy of anything posted would be much appreciated.
->
->Thanks in advance to everyone working on the kernel - excellent stuff, 
->it's been
->my working environment for years and a happy one at that!
->
->Joe
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> In
+> theory, the scheduler should magically tune itself to the current workloa=
+d.
 
+No, the computer can not take the decision whether a machine is sitting
+in a machine room and mainly doing batch processing or whether it's used
+by somebody sitting in front of it as workstation.
+
+You can add heuristics and look at the load and sleep_avg of processes,
+and scale timeslices dynamically, but these heuristics are IMVHO a very=20
+bad idea. They tend to break in subtle ways and disallow to reproduce
+benchmark numbers etc.
+
+I do know that the priorites do ensure that interactive processes have
+some bonus, so even with long timeslices a system should be usable.
+But heuristics fail and some situtaions with high load just can't be=20
+solved by such bonuses.
+
+> If your patch is indeed necessary then this may point at a bug in the
+> current CPU scheduler.
+
+No, why should it? How should the computer know what the user wants if
+he has no way to tell him?
+
+It's a classical throughput vs. latency tradeoff and the patch allows
+the user to set it. I'm sure some people are willing to have long
+timeslices in order to gain 5% and don't care about the sched latencies.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
+SUSE LINUX AG, Nuernberg, DE                          SUSE Labs (Head)
+
+--+Y6HH/CKFMvGZLq9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAVuavxmLh6hyYd04RAohyAJ91BrjIz+xy/z9JmOjKCUxCWYgNjwCgrXvX
+vdjQoQB5xpwNYq61/7128MQ=
+=KuB+
+-----END PGP SIGNATURE-----
+
+--+Y6HH/CKFMvGZLq9--

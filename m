@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271223AbTHLXYW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 19:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271224AbTHLXYW
+	id S271231AbTHLXfo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 19:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271233AbTHLXfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 19:24:22 -0400
-Received: from [202.20.92.128] ([202.20.92.128]:14992 "EHLO quattro.co.nz")
-	by vger.kernel.org with ESMTP id S271223AbTHLXYV (ORCPT
+	Tue, 12 Aug 2003 19:35:44 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:9600 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S271231AbTHLXfi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 19:24:21 -0400
-Message-ID: <012f01c36128$dfaaba80$0401a8c0@SIMON>
-From: "Simon Garner" <sgarner@expio.co.nz>
-To: "Andi Kleen" <ak@colin2.muc.de>
-Cc: <linux-kernel@vger.kernel.org>
-References: <gC1o.2gU.5@gated-at.bofh.it> <m3k79t7ykk.fsf@averell.firstfloor.org> <028101c35aea$d2753690$0401a8c0@SIMON> <20030805134241.GA63394@colin2.muc.de> <003e01c35f91$08227b40$0401a8c0@SIMON> <20030810225625.GA41619@colin2.muc.de>
-Subject: Re: MSI K8D-Master - GART error 3
-Date: Wed, 13 Aug 2003 11:22:38 +1200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Tue, 12 Aug 2003 19:35:38 -0400
+Date: Wed, 13 Aug 2003 01:35:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy ...
+Message-ID: <20030812233502.GC1417@elf.ucw.cz>
+References: <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net> <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com> <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net> <5.2.1.1.2.20030810084805.01a0dfa8@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.2.1.1.2.20030810084805.01a0dfa8@pop.gmx.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, August 11, 2003 10:56 AM [GMT+1200=NZT],
-Andi Kleen <ak@colin2.muc.de> wrote:
+Hi!
 
-> On Mon, Aug 11, 2003 at 10:43:57AM +1200, Simon Garner wrote:
->> These suggest it's just reporting ECC corrections. Why would it do
->> this
->
-> Yep. You have faulty DIMMs, consider replacing them.
->
+> >> 2.   It's not useful for video (I see no difference between realtime
+> >> component of video vs audio), and if the cpu restriction were opened up
+> >> enough to become useful, you'd end up with ~pure SCHED_RR, which you can 
+> >no
+> >> way allow Joe User access to.  As a SCHED_LOWLATENCY, it seems like it
+> >> might be useful, but I wonder how useful.
+> >
+> >Why shouldn't it be useful with video, is a frame processing burst longer 
+> >than
+> >a time slice? The rule for when to and how to revert a SCHED_SOFTRR can be
+> >changed.
+> 
+> Everything I've seen says "you need at least a 300Mhz cpu to decode".  My 
+> little cpu is 500Mhz, so I'd have to make more than half of my total 
+> computational power available for SCHED_SOFTRR tasks for video decode in 
+> realtime to work.  Even on my single user box, I wouldn't want to have to 
+> fight for cpu because some random developer decided to use 
+> SCHED_SOFTRR.  If I make that much cpu available, someone will try to use 
+> it.  Personally, I think you should need authorization for even tiny 
+> amounts of cpu at this priority.
 
-Well I found that a little hard to stomach (since there's four DIMMs -
-surely they couldn't all be faulty - and I had already been through a
-whole other complete set with the same results, when the supplier sent
-the wrong speed modules), but now that I knew the errors were
-memory-related I did some more experimenting.
-
-(Here is the memory population chart from the motherboard manual to help
-make sense of this:
-http://www.expio.co.nz/~sgarner/terra/msi9131memorypop.gif)
-
-First I found that if I disabled ECC in the BIOS then the system
-wouldn't even POST. But if I rearranged the modules so that they were in
-single channel operation (using only three DIMMs in slots 2,4,6) then
-the system would boot and I got no errors in SuSE (even after reenabling
-ECC).
-
-Then I tried using a different memory population layout, using all four
-DIMMs as dual channel w/ ECC in slots 3,4,5,6 where I had been using
-1,2,5,6. The system booted and again I got no errors in SuSE.
-
-"That's strange," thought I, so I tried putting the memory back as it
-was, in slots 1,2,5,6, with ECC enabled. Booted the system and still no
-errors in SuSE.
-
-So I'm not sure what I did exactly but the system is now running fine
-and the ECC errors are gone. I'm still using the same DIMMs - the only
-thing that may have changed is the DIMMs may be arranged differently
-among the slots. I have tried swapping them around though and I still
-can't get the ECC errors back. But that's fine because I didn't
-particularly want the errors anyway! :)
-
--Simon
-
-PS: Under the Northbridge/ECC configuration in the BIOS, the motherboard
-has options for DRAM, L2 and L1 cache "BG Scrub" which are selected as
-times from 40ns through to some microseconds. There are also options for
-"DRAM Scrub REDIRECT" and "ECC Chip Kill". The motherboard manual offers
-no advice as to the preferred values for these settings or what they do.
-Can anyone suggest good values for these? I currently have them
-disabled.
-
+What about only offering SCHED_SOFTRR to people logged in on console,
+similar to way cdrom and /dev/dsp is handled on newer boxes?
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbTLONXW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 08:23:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTLONXW
+	id S263544AbTLONfN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 08:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTLONfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 08:23:22 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:485 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263607AbTLONXV
+	Mon, 15 Dec 2003 08:35:12 -0500
+Received: from pf138.torun.sdi.tpnet.pl ([213.76.207.138]:38418 "EHLO
+	centaur.culm.net") by vger.kernel.org with ESMTP id S263544AbTLONfE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 08:23:21 -0500
-Date: Mon, 15 Dec 2003 14:23:17 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-In-Reply-To: <Pine.LNX.3.96.1031213001311.13795A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.55.0312151417350.26565@jurand.ds.pg.gda.pl>
-References: <Pine.LNX.3.96.1031213001311.13795A-100000@gatekeeper.tmr.com>
-Organization: Technical University of Gdansk
+	Mon, 15 Dec 2003 08:35:04 -0500
+From: Witold Krecicki <adasi@kernel.pl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: raid0 slower than devices it is assembled of?
+Date: Mon, 15 Dec 2003 14:34:54 +0100
+User-Agent: KMail/1.5.93
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200312151434.54886.adasi@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Dec 2003, Bill Davidsen wrote:
+I've got / on linux-raid0 on 2.6.0-t11-cset-20031209_2107:
+<cite>
+/dev/md/1:
+        Version : 00.90.01
+  Creation Time : Thu Sep 11 22:04:54 2003
+     Raid Level : raid0
+     Array Size : 232315776 (221.55 GiB 237.89 GB)
+   Raid Devices : 2
+  Total Devices : 2
+Preferred Minor : 1
+    Persistence : Superblock is persistent
 
-> >  Well, the NMI watchdog is a side-effect feature that works by chance
-> > rather than by design.  So you can't really complain it doesn't work
-> > somewhere, although I wouldn't mind if new hardware was designed such that
-> > it works.  You shouldn't have to use "acpi=force" for the watchdog to work
-> > though and for a PII system if "nmi_watchdog=1" doesn't work, then I
-> > suspect a BIOS bug (set APIC_DEBUG to 1 in asm-i386/apic.h and send me the
-> > bootstrap log and a dump from `mptable' for a diagnosis, if interested).
-> 
-> Has the check to see if the BIOS is old than very recent been removed? I
-> used to get a message that the BIOS was too old, I believe that's what
-> prompted the acpi to enable the local apic. Sorrt, I've been running that
-> feature since 2.5.3x or so and I just carried it forward.
+    Update Time : Mon Dec 15 12:55:48 2003
+          State : clean, no-errors
+ Active Devices : 2
+Working Devices : 2
+ Failed Devices : 0
+  Spare Devices : 0
 
- I don't know what check you refer to, sorry.  I don't think we do any
-version checks in the APIC code.  Perhaps ACPI does some, but having no
-use for it anywhere I'm not familiar with that area.
+     Chunk Size : 64K
 
- If the "nmi_watchdog=1" option doesn't work for a PII system, then its
-most likely a bug in BIOS IRQ routing tables -- either missing or broken
-entries for the 8254 timer and/or the 8259A ExtINTA source.
+    Number   Major   Minor   RaidDevice State
+       0       8        3        0      active sync   /dev/sda3
+       1       8       19        1      active sync   /dev/sdb3
+           UUID : b66633c2:ff11f60d:00119f8d:7bb9fc6c
+         Events : 0.357
+</cite>
+Disks are two ST3120026AS connected to sii3112a controller, driven by sata_sil 
+'patched' so no limit for block size is applied (it's not needed for it). 
 
+Those are results of hdparm -tT on drives:
+<cite>
+/dev/md/1:
+ Timing buffer-cache reads:   128 MB in  0.40 seconds =323.28 MB/sec
+ Timing buffered disk reads:  64 MB in  1.75 seconds = 36.47 MB/sec
+/dev/sda:
+ Timing buffer-cache reads:   128 MB in  0.41 seconds =309.23 MB/sec
+ Timing buffered disk reads:  64 MB in  1.46 seconds = 43.87 MB/sec
+/dev/sdb:
+ Timing buffer-cache reads:   128 MB in  0.41 seconds =315.32 MB/sec
+ Timing buffered disk reads:  64 MB in  1.23 seconds = 52.04 MB/sec
+</cite>
+What seems strange to me is that second drive is faster than first one 
+(devices are symmetrical, sd[a,b]2 is swapspace (not mounted at time of 
+test), sd[a,b]1 is /boot (raid1)).
+What is even stranger is that raid0 which should be faster than single drive, 
+is pretty much slower- what's the reason of that?
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Witold Krêcicki (adasi) adasi [at] culm.net
+GPG key: 7AE20871
+http://www.culm.net

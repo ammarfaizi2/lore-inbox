@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268606AbUHLQde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268607AbUHLQeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268606AbUHLQde (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 12:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268605AbUHLQdd
+	id S268607AbUHLQeK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 12:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268605AbUHLQeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 12:33:33 -0400
+	Thu, 12 Aug 2004 12:34:10 -0400
 Received: from 8.75.30.213.rev.vodafone.pt ([213.30.75.8]:26375 "EHLO
-	odie.graycell.biz") by vger.kernel.org with ESMTP id S268606AbUHLQbr
+	odie.graycell.biz") by vger.kernel.org with ESMTP id S268608AbUHLQbu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 12:31:47 -0400
+	Thu, 12 Aug 2004 12:31:50 -0400
 Subject: Re: Process hangs copying large file to cifs
 From: Nuno Ferreira <nuno.ferreira@graycell.biz>
 To: Steve French <smfltc@us.ibm.com>
@@ -19,12 +19,12 @@ References: <1088459930.5666.8.camel@stevef95.austin.ibm.com>
 	 <1088507544.2418.1.camel@taz.graycell.biz>
 Content-Type: text/plain
 Organization: Graycell
-Date: Thu, 12 Aug 2004 17:31:41 +0100
-Message-Id: <1092328302.4172.41.camel@taz.graycell.biz>
+Date: Thu, 12 Aug 2004 17:31:42 +0100
+Message-Id: <1092328302.4172.42.camel@taz.graycell.biz>
 Mime-Version: 1.0
 X-Mailer: Evolution 1.5.92.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Aug 2004 16:31:42.0492 (UTC) FILETIME=[D9B9BDC0:01C48089]
+X-OriginalArrivalTime: 12 Aug 2004 16:31:43.0173 (UTC) FILETIME=[DA21A750:01C48089]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

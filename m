@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVCAXiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVCAXk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbVCAXiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 18:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVCAXiQ
+	id S262132AbVCAXk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 18:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVCAXk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 18:38:16 -0500
-Received: from smtp06.auna.com ([62.81.186.16]:42644 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S262130AbVCAXhq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 18:37:46 -0500
-Date: Tue, 01 Mar 2005 23:37:27 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.11-rc5: Promise SATA150 TX4 failure
-To: Joerg Sommrey <jo@sommrey.de>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20050301014514.GA10653@sommrey.de>
-X-Mailer: Balsa 2.3.0
-Message-Id: <1109720247l.10975l.0l@werewolf.able.es>
-MIME-Version: 1.0
+	Tue, 1 Mar 2005 18:40:58 -0500
+Received: from gprs215-167.eurotel.cz ([160.218.215.167]:2708 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262133AbVCAXkH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 18:40:07 -0500
+Date: Wed, 2 Mar 2005 00:39:52 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
+Message-ID: <20050301233952.GG2062@elf.ucw.cz>
+References: <20050228231721.GA1326@elf.ucw.cz> <20050301020722.6faffb69.akpm@osdl.org> <20050301022116.2bbd55a0.akpm@osdl.org> <20050301105625.GH1345@elf.ucw.cz> <20050301123522.1bb8cfec.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20050301123522.1bb8cfec.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On 03.01, Joerg Sommrey wrote:
-> Hi all,
+> > > Relocating pagedir | 
+> > > Reading image data (8157 pages): 100% 8157 done.
+> > > Stopping tasks: ====|                           
+> > > Freeing memory... done (0 pages freed)
+> > > Freezing CPUs (at 1)...Sleeping in:   
+> > >  [<c0103c1d>] dump_stack+0x19/0x20 
+> > >  [<c0133c7f>] smp_pause+0x1f/0x54 
+> > >  [<c010ee27>] smp_call_function_interrupt+0x3b/0x60
+> > >  [<c01037d4>] call_function_interrupt+0x1c/0x24    
+> > >  [<c0101111>] cpu_idle+0x55/0x64               
+> > >  [<c05929ed>] start_secondary+0x71/0x78
+> > >  [<00000000>] 0x0                      
+> > >  [<cffa5fbc>] 0xcffa5fbc
+> > > ok                      
+> > > double fault, gdt at c1203260 [255 bytes]
+> > > NMI Watchdog detected LOCKUP on CPU1, eip c0133c96, registers:
 > 
-> a problem that was introduced between 2.6.10-ac9 and 2.6.10-ac11 made
-> it's way into 2.6.11-rc5.  While taking a backup onto a SCSI-streamer one
-> of my RAID1-arrays gets corrupted.  Afterwards the system hangs and
-> isn't even bootable.  Need to raidhotadd the failed partition in single
-> user mode to get the box working again. Error messages:
-> 
+> Note the double fault.
 
-Me too :(. Just a slightly different case.
-I have a server with 6x250Gb SATA drives, hanged on a pair of Promise
-PDC20319 (FastTrak S150 TX4) (rev 02) controlers (each has 4 ports).
-Main use for the box is as a smb/atalk/nfs server.
+Yes, I can see it, it scares me. SMP swsusp is not in good state
+because I do not have easy access to SMP or HT hardware. I guess I'll
+just have to get into suse at the night and steal some P4 ;-).
 
-With 2.6.20-rc3-mm2+libata-dev2, the box is stable, we can drop
-gigs of files throug samba amd it works. 
-Anything newer that that makes the box hang siliently, no messages,
-no oops. It also happened to me with just a local wget of a big
-file (oofice-2.0-beta), after download the box locked hard.
-
-I tried to apply libata-dev1 on top of newer kernels, but part of it
-is already there, and the rest drops too many rejects/offsets for
-me.
-
-I also have one other problem with flock, but thats subject for another
-post...
-
-Any ideas about what changed wrt sata ?
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-jam12 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
-
-
-
-
-
-
-
-
-
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

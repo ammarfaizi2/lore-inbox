@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRAZKmr>; Fri, 26 Jan 2001 05:42:47 -0500
+	id <S129143AbRAZKqi>; Fri, 26 Jan 2001 05:46:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129184AbRAZKm1>; Fri, 26 Jan 2001 05:42:27 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:29395 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129143AbRAZKmQ>;
-	Fri, 26 Jan 2001 05:42:16 -0500
-Date: Fri, 26 Jan 2001 10:39:31 +0000
+	id <S129172AbRAZKqS>; Fri, 26 Jan 2001 05:46:18 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:980 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129143AbRAZKqQ>;
+	Fri, 26 Jan 2001 05:46:16 -0500
+Date: Fri, 26 Jan 2001 10:43:46 +0000
 From: "Stephen C. Tweedie" <sct@redhat.com>
 To: Timur Tabi <ttabi@interactivesi.com>
-Cc: Roman Zippel <roman@augan.com>, linux-mm@kvack.org,
+Cc: Jeff Hartmann <jhartmann@valinux.com>, linux-mm@kvack.org,
         linux-kernel@vger.kernel.org
 Subject: Re: ioremap_nocache problem?
-Message-ID: <20010126103931.C11607@redhat.com>
-In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> <20010123165117Z131182-221+34@kanga.kvack.org> <20010125155345Z131181-221+38@kanga.kvack.org> <3A705802.5C4DD2F2@augan.com> <20010125164707Z131181-222+39@kanga.kvack.org>
+Message-ID: <20010126104346.D11607@redhat.com>
+In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> <20010123165117Z131182-221+34@kanga.kvack.org> <20010125155345Z131181-221+38@kanga.kvack.org> <20010125165001Z132264-460+11@vger.kernel.org> <E14LpvQ-0008Pw-00@mail.valinux.com> <3A7066A1.5030608@valinux.com> <20010125175027Z131219-222+40@kanga.kvack.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2i
-In-Reply-To: <20010125164707Z131181-222+39@kanga.kvack.org>; from ttabi@interactivesi.com on Thu, Jan 25, 2001 at 10:49:50AM -0600
+In-Reply-To: <20010125175027Z131219-222+40@kanga.kvack.org>; from ttabi@interactivesi.com on Thu, Jan 25, 2001 at 11:53:01AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Thu, Jan 25, 2001 at 10:49:50AM -0600, Timur Tabi wrote:
+On Thu, Jan 25, 2001 at 11:53:01AM -0600, Timur Tabi wrote:
 > 
-> > set_bit(PG_reserved, &page->flags);
-> > 	ioremap();
-> > 	...
-> > 	iounmap();
-> > 	clear_bit(PG_reserved, &page->flags);
+> > As in an MMIO aperture?  If its MMIO on the bus you should be able to 
+> > just call ioremap with the bus address.  By nature of it being outside 
+> > of real ram, it should automatically be uncached (unless you've set an 
+> > MTRR over that region saying otherwise).
 > 
-> The problem with this is that between the ioremap and iounmap, the page is
-> reserved.  What happens if that page belongs to some disk buffer or user
-> process, and some other process tries to free it.  Won't that cause a problem?
+> It's not outside of real RAM.  The device is inside real RAM (it sits on the
+> DIMM itself), but I need to poke through the entire 4GB range to see how it
+> responds.
 
-It depends on how it is being used, but yes, it is likely to --- page
-reference counts won't be updated properly on reserved pages, for
-example.  Why on earth do you want to do ioremap of something like a
-page cache page, though?  That is _not_ what ioremap is designed for!
+kmap() is designed for that, not ioremap().  Is it absolutely
+essential that your mapping is uncached?  If so, extending kmap() to
+support kmap_nocache() would seem to make a lot more sense than using
+ioremap(): kmap is there for temporarily poking around in high memory,
+whereas ioremap is really intended to be used for persistent maps.
 
 --Stephen
 -

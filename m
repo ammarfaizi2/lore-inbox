@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261628AbSIXJrZ>; Tue, 24 Sep 2002 05:47:25 -0400
+	id <S261629AbSIXJsE>; Tue, 24 Sep 2002 05:48:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261629AbSIXJrY>; Tue, 24 Sep 2002 05:47:24 -0400
-Received: from [80.120.128.82] ([80.120.128.82]:8708 "EHLO hofr.at")
-	by vger.kernel.org with ESMTP id <S261628AbSIXJrY>;
-	Tue, 24 Sep 2002 05:47:24 -0400
-From: Der Herr Hofrat <der.herr@mail.hofr.at>
-Message-Id: <200209240854.g8O8sr407036@hofr.at>
-Subject: Re: mmap question
-In-Reply-To: <200209240726.g8O7QNA06595@hofr.at> from Der Herr Hofrat at "Sep
- 24, 2002 09:26:23 am"
-Date: Tue, 24 Sep 2002 10:54:53 +0200 (CEST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	id <S261630AbSIXJsE>; Tue, 24 Sep 2002 05:48:04 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:28109 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S261629AbSIXJsD>; Tue, 24 Sep 2002 05:48:03 -0400
+Date: Tue, 24 Sep 2002 11:27:32 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: IDE janitoring comments
+Message-ID: <20020924112732.B1060@linux-m68k.org>
+References: <20020924000134.A210@linux-m68k.org> <Pine.LNX.4.10.10209231726580.2072-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10209231726580.2072-100000@master.linux-ide.org>; from andre@linux-ide.org on Mon, Sep 23, 2002 at 05:28:03PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 23, 2002 at 05:28:03PM -0700, Andre Hedrick wrote:
 > 
-> int
-> init_module(void){
-> 	...
-> 	kmalloc_area=kmalloc(LEN,GFP_USER);
-> 	strncpy(kmalloc_area,init_msg,sizeof(init_msg));
-> 	...
-> }
+> Poke in your own special ide-ops function pointers.
+> This should have been allowed on a per chipset/channel bases.
 
-found the problem (naturally after posting....) - forgot to mark 
-the page as reserved...
+I need different transfer functions depending on whether drive
+control data(like IDENT,SMART) or HD sectors are to be transfered. 
+Control data requires byteswapping to correct bus-byteorder
+whereas sector r/w has to be raw for compatibility.
 
-	struct page *page;
-	kmalloc_area=kmalloc(LEN,GFP_USER);
-	page = virt_to_page(kmalloc_area); 
-	mem_map_reserve(page);
-	memcpy(kmalloc_area,msg,sizeof(msg));
+So that will require 2 additional iops pointers and some change
+in ide_handler_parser or ide_cmd_type_parser to select the
+appropriate version depending on the drive command.
 
-hofrat
+Richard
+

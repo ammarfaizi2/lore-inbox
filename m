@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317025AbSGNShj>; Sun, 14 Jul 2002 14:37:39 -0400
+	id <S317024AbSGNShY>; Sun, 14 Jul 2002 14:37:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317026AbSGNShi>; Sun, 14 Jul 2002 14:37:38 -0400
-Received: from ns.suse.de ([213.95.15.193]:27154 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317025AbSGNShh>;
-	Sun, 14 Jul 2002 14:37:37 -0400
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: [BUG?] unwanted proxy arp in 2.4.19-pre10
-References: <20020713.205930.101495830.davem@redhat.com.suse.lists.linux.kernel> <Pine.LNX.4.44.0207141026440.4252-100000@twinlark.arctic.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 14 Jul 2002 20:40:23 +0200
-In-Reply-To: dean gaudet's message of "14 Jul 2002 19:33:04 +0200"
-Message-ID: <p73lm8eup9k.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S317025AbSGNShX>; Sun, 14 Jul 2002 14:37:23 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:59665 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S317024AbSGNShW>; Sun, 14 Jul 2002 14:37:22 -0400
+Date: Sun, 14 Jul 2002 20:40:06 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Joerg Schilling <schilling@fokus.gmd.de>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+Message-ID: <20020714184006.GA13867@louise.pinerecords.com>
+References: <200207141811.g6EIBXKc019318@burner.fokus.gmd.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207141811.g6EIBXKc019318@burner.fokus.gmd.de>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 40 days, 10:24
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet <dean-list-linux-kernel@arctic.org> writes:
-
-> On Sat, 13 Jul 2002, David S. Miller wrote:
+> A Pentium 1200 running Linux-2.5.25 (ext3) results in:
 > 
-> >
-> > You have to use specific source-routing settings in conjuntion with
-> > enabling arp_filter in order for arp_filter to have any effect.
-> >
-> > This is a FAQ.
+> # star -xp -time < rock.tar.bz2
+> star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
+> star: 10372 blocks + 1536 bytes (total of 106210816 bytes = 103721.50k).
+> star: Total time 3190.483sec (32 kBytes/sec)
+> 53:10.490r 12.299u 2970.099s 93% 0M 0+0k 0st 0+0io 4411pf+0w
 > 
-> a couple google queries yielded no answer to this faq... is there a posted
-> example somewhere?
+> You see, during the 53:20, the machine is only 7% idle!
 
-arpfilter normally needs no special routing entries, unless you want
-to do weird things (like filtering ARP based on source). The main use
-of arp filter is to prevent multiple arp answers on multiple devices
-when the host has more than one interface to the same network. The other
-use is to allow load balancing for incoming connections together 
-with multi path routing.
 
-It can be abused for more complex filtering scenaries:
+A Pentium 1200, eh?
+More like Pentium 120 or star just doesn't cut it.
 
-The arpfilter routing decision takes the reversed address tuple in account.
-When the routing decision yields the device that the ARP arrived on
-then the ARP is answered otherwise not.
-You can construct policy routing rules that match the ARP requests you
-want to prevent with some tricks, but do not match outgoing packets.
-Easy? It's not easy, but nobody said it was.
+--
 
-The main use of this seem to be certain HA failover setups.
-Some people use a patch that allows to disable ARP per interface for it
-("hidden") but for some reasons it was not integrated. 
+Athlon 1GHz:
 
-> 
-> is the default behaviour of use to anyone?  this question comes up like
-> every other month.
+kala@nibbler:/tmp/1$ time tar xjf rock.tar.bz2
+real    3m19.703s
+user    0m9.870s
+sys     0m24.840s
 
-It would be likely easier/more straightforward if there was a special
-ARP routing table that is only consulted by ARP filter (as an extension 
-to the current multi table routing). Then you could just put reject routes
-there to filter ARP Unfortunately nobody has stepped forward to implement it
-yet, so it remained a dream so far.
+According to top, the system was ~90% idle during the extraction.
+Linux 2.4.19-rc1-ac3, reiserfs 3.6.
 
-Another thing that was implemented is a netfilter chain for ARP, but
-afaik there are no filtering modules for it yet, so Joe User cannot
-use it. It likely just exists somewhere as a proprietary module in
-someone's firewall appliance and all they did was to contribute the
-hook. It probably would not be hard to rewrite a filter module for it,
-but again nobody did it yet.
+T.
 
-Hope this helps,
-
--Andi
-
+PS. Solaris is over 60% slower than Linux 2.2/2.4 in common fs
+operations on my SMP SPARCstation 10.

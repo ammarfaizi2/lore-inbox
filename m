@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbTISTr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 15:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbTISTr3
+	id S261686AbTISTrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 15:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTISTrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 15:47:29 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:33188 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261696AbTISTrY convert rfc822-to-8bit
+	Fri, 19 Sep 2003 15:47:25 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:32932 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261686AbTISTrY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 19 Sep 2003 15:47:24 -0400
-Subject: [PATCH 2/5] Fix a warning in input.c when CONFIG_PROC_FS is not set
-In-Reply-To: <10640008343413@twilight.ucw.cz>
+Subject: [PATCH 1/5] input: Fix Set3 keycode for right control in atkbd.c
+In-Reply-To: 
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Fri, 19 Sep 2003 21:47:15 +0200
-Message-Id: <10640008352019@twilight.ucw.cz>
+Date: Fri, 19 Sep 2003 21:47:14 +0200
+Message-Id: <10640008343413@twilight.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: torvalds@osdl.org, linux-kernel@vger.kernel.org
@@ -27,61 +27,25 @@ You can pull this changeset from:
 
 ===================================================================
 
-ChangeSet@1.1351, 2003-09-19 13:23:54+02:00, lcapitulino@prefeitura.sp.gov.br
-  input: Fix a warning in input.c when CONFIG_PROC_FS is not set.
+ChangeSet@1.1350, 2003-09-19 13:15:12+02:00, Andries.Brouwer@cwi.nl
+  input: Fix Set3 keycode for right control in atkbd.c
 
 
- input.c |   27 ++++++++++++++++-----------
- 1 files changed, 16 insertions(+), 11 deletions(-)
+ atkbd.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 ===================================================================
 
-diff -Nru a/drivers/input/input.c b/drivers/input/input.c
---- a/drivers/input/input.c	Fri Sep 19 14:12:57 2003
-+++ b/drivers/input/input.c	Fri Sep 19 14:12:57 2003
-@@ -678,20 +678,10 @@
- 	return (count > cnt) ? cnt : count;
- }
- 
--#endif
--
--struct class input_class = {
--	.name		= "input",
--};
--
--static int __init input_init(void)
-+static int __init input_proc_init(void)
- {
- 	struct proc_dir_entry *entry;
--	int retval = -ENOMEM;
--
--	class_register(&input_class);
- 
--#ifdef CONFIG_PROC_FS
- 	proc_bus_input_dir = proc_mkdir("input", proc_bus);
- 	if (proc_bus_input_dir == NULL)
- 		return -ENOMEM;
-@@ -710,7 +700,22 @@
- 		return -ENOMEM;
- 	}
- 	entry->owner = THIS_MODULE;
-+	return 0;
-+}
-+#else /* !CONFIG_PROC_FS */
-+static inline int input_proc_init(void) { return 0; }
- #endif
-+
-+struct class input_class = {
-+	.name		= "input",
-+};
-+
-+static int __init input_init(void)
-+{
-+	int retval = -ENOMEM;
-+
-+	class_register(&input_class);
-+	input_proc_init();
- 	retval = register_chrdev(INPUT_MAJOR, "input", &input_fops);
- 	if (retval) {
- 		printk(KERN_ERR "input: unable to register char major %d", INPUT_MAJOR);
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Fri Sep 19 14:13:04 2003
++++ b/drivers/input/keyboard/atkbd.c	Fri Sep 19 14:13:04 2003
+@@ -71,7 +71,7 @@
+ 	134, 46, 45, 32, 18,  5,  4, 63,135, 57, 47, 33, 20, 19,  6, 64,
+ 	136, 49, 48, 35, 34, 21,  7, 65,137,100, 50, 36, 22,  8,  9, 66,
+ 	125, 51, 37, 23, 24, 11, 10, 67,126, 52, 53, 38, 39, 25, 12, 68,
+-	113,114, 40, 84, 26, 13, 87, 99,100, 54, 28, 27, 43, 84, 88, 70,
++	113,114, 40, 84, 26, 13, 87, 99, 97, 54, 28, 27, 43, 84, 88, 70,
+ 	108,105,119,103,111,107, 14,110,  0, 79,106, 75, 71,109,102,104,
+ 	 82, 83, 80, 76, 77, 72, 69, 98,  0, 96, 81,  0, 78, 73, 55, 85,
+ 	 89, 90, 91, 92, 74,185,184,182,  0,  0,  0,125,126,127,112,  0,
 

@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270912AbUJVJxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270918AbUJVJ5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270912AbUJVJxp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 05:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270914AbUJVJxp
+	id S270918AbUJVJ5k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 05:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270930AbUJVJ5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 05:53:45 -0400
-Received: from imag.imag.fr ([129.88.30.1]:15771 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S270912AbUJVJxm (ORCPT
+	Fri, 22 Oct 2004 05:57:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28077 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270918AbUJVJyD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 05:53:42 -0400
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-From: Raphael Jacquot <Raphael.Jacquot@imag.fr>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.60.0410211011150.19286@dlang.diginsite.com>
-References: <4176E08B.2050706@techsource.com>
-	 <Pine.LNX.4.60.0410201521310.17443@dlang.diginsite.com>
-	 <4177CBD5.2030003@techsource.com>
-	 <Pine.LNX.4.60.0410211011150.19286@dlang.diginsite.com>
-Content-Type: text/plain
-Date: Fri, 22 Oct 2004 11:53:30 +0200
-Message-Id: <1098438810.7017.66.camel@raph.imag.fr>
+	Fri, 22 Oct 2004 05:54:03 -0400
+Date: Fri, 22 Oct 2004 02:51:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: xhejtman@mail.muni.cz, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 - e1000 - page allocation failed
+Message-Id: <20041022025158.7737182c.akpm@osdl.org>
+In-Reply-To: <20041021225825.GA10844@electric-eye.fr.zoreil.com>
+References: <20041021221622.GA11607@mail.muni.cz>
+	<20041021225825.GA10844@electric-eye.fr.zoreil.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 (2.0.1-4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Fri, 22 Oct 2004 11:53:36 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 10:25 -0700, David Lang wrote:
+Francois Romieu <romieu@fr.zoreil.com> wrote:
+>
+> Lukas Hejtmanek <xhejtman@mail.muni.cz> :
+> [page allocation failure with e1000]
+> 
+> If you are using TSO, try patch below by Herbert Xu (available
+> from http://marc.theaimsgroup.com/?l=linux-netdev&m=109799935603132&w=3)
+> 
+> --- 1.67/net/ipv4/tcp_output.c	2004-10-01 13:56:45 +10:00
+> +++ edited/net/ipv4/tcp_output.c	2004-10-17 18:58:47 +10:00
+> @@ -455,8 +455,12 @@
+>  {
+>  	struct tcp_opt *tp = tcp_sk(sk);
+>  	struct sk_buff *buff;
+> -	int nsize = skb->len - len;
+> +	int nsize;
+>  	u16 flags;
+> +
+> +	nsize = skb_headlen(skb) - len;
+> +	if (nsize < 0)
+> +		nsize = 0;
+>  
+>  	if (skb_cloned(skb) &&
+>  	    skb_is_nonlinear(skb) &&
 
-> 
-> Tim, in this case you are not just testing the openess idea, you are also 
-> testing the low-volume, high-cost, but flexible idea. and that idea has 
-> never had a large market
-> 
-> you are in something of a catch-22 here. due to the risk you can only do 
-> things with a relativly small initial investment, but with a larger 
-> initial investment you could make much cheaper (and therefor much more 
-> popular) cards. where's a billionare looking to Do Good Things (TM) when 
-> you need one ;-)
-> 
-> David Lang
-> 
+I'd be interested in knowing if this fixes it - I don't expect it will,
+because that's a zero-order allocation failure.  He's really out of memory.
 
-countering your argument, www.digium.com is doing just that, low volume
-telephony cards.
-granted, the economics is different, as their price-point is 10% of the
-big player's price points, but the concept is similar.
+The e1000 driver has a default rx ring size of 256 which seems a bit nutty:
+a back-to-back GFP_ATOMIC allocation of 256 skbs could easily exhaust the
+page allocator pools.
 
+Probably this machine needs to increase /proc/sys/vm/min_free_kbytes.

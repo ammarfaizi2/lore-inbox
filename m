@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUGFCFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUGFCGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbUGFCFd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 22:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUGFCFd
+	id S262605AbUGFCGr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 22:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUGFCGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 22:05:33 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:47000 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262547AbUGFCFc (ORCPT
+	Mon, 5 Jul 2004 22:06:47 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:26257 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262605AbUGFCGd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 22:05:32 -0400
-Date: Tue, 6 Jul 2004 03:05:31 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: linux-kernel@vger.kernel.org
-Subject: kernel image reproducibility...
-Message-ID: <Pine.LNX.4.58.0407060257550.17004@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jul 2004 22:06:33 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: jhf@rivenstone.net (Joseph Fannin)
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       paulus@samba.org, benh@kernel.crashing.org
+Subject: Re: 2.6.7-mm6 - ppc32 inconsistent kallsyms data 
+In-reply-to: Your message of "Mon, 05 Jul 2004 16:38:18 -0400."
+             <20040705203818.GA11625@samarkand.rivenstone.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 06 Jul 2004 12:06:08 +1000
+Message-ID: <2970.1089079568@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 5 Jul 2004 16:38:18 -0400, 
+jhf@rivenstone.net (Joseph Fannin) wrote:
+>On Mon, Jul 05, 2004 at 02:31:20AM -0700, Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm6/
+>
+>  I'm getting this while building for ppc32:
+>    Inconsistent kallsyms data, try setting CONFIG_KALLSYMS_EXTRA_PASS
+>
+>  This didn't happen with -mm5.
+>
+>  The help text for CONFIG_KALLSYMS_EXTRA_PASS says I should report a
+>bug, and reads like kallsyms is a utility or part of the toolchain;
+>I think it's talking about the kernel feature though, so I guess
+>I'll report it here.  I'll keep this tree around in case any more
+>information is needed.
 
-Hi,
-	I'm going to do this for myself anyway but I'm wondering if anyone
-here has either done this before or knows a nice way to do it..
+Run these commands on the tree that needed CONFIG_KALLSYMS_EXTRA_PASS=y
+(assumes Bourne shell)
 
-I've got a system for a regulated market based on a standard 2.6.6 kernel,
-now the problem I have is I have to be able to rebuild the exact same
-kernel image months or years from now on a different system, now I have my
-own toolchain so that isn't a major issue, the problem I have is the
-kernel's compile.h file ..
+for i in 1 2 3; do nm .tmp_kallsyms$i.o > .tmp_mapk$i; nm .tmp_vmlinux$i > .tmp_mapv$i; done
+tar cjvf /var/tmp/kallsyms.tar.bz2 .tmp_kallsyms* .tmp_vmlinux* .tmp_map*
 
-My plan at the moment is probably just to replace the script that creates
-that file with a hack to make the file the same always... anyone any nicer
-way to do this?
-
-Thanks,
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+Send the tarball to me, not the list.
 

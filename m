@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285842AbRLTCqJ>; Wed, 19 Dec 2001 21:46:09 -0500
+	id <S285850AbRLTCsJ>; Wed, 19 Dec 2001 21:48:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285845AbRLTCp7>; Wed, 19 Dec 2001 21:45:59 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:54913 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285842AbRLTCpr>;
-	Wed, 19 Dec 2001 21:45:47 -0500
-Date: Wed, 19 Dec 2001 18:45:27 -0800 (PST)
-Message-Id: <20011219.184527.31638196.davem@redhat.com>
-To: billh@tierra.ucsd.edu
-Cc: bcrl@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org
+	id <S285849AbRLTCr7>; Wed, 19 Dec 2001 21:47:59 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:57985 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285857AbRLTCrp>;
+	Wed, 19 Dec 2001 21:47:45 -0500
+Date: Wed, 19 Dec 2001 18:47:18 -0800 (PST)
+Message-Id: <20011219.184718.88473152.davem@redhat.com>
+To: cs@zip.com.au
+Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org
 Subject: Re: aio
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011219182628.A13280@burn.ucsd.edu>
+In-Reply-To: <20011220133705.A21648@zapff.research.canon.com.au>
 In-Reply-To: <20011219171631.A544@burn.ucsd.edu>
 	<20011219.172046.08320763.davem@redhat.com>
-	<20011219182628.A13280@burn.ucsd.edu>
+	<20011220133705.A21648@zapff.research.canon.com.au>
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -24,21 +24,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Bill Huey <billh@tierra.ucsd.edu>
-   Date: Wed, 19 Dec 2001 18:26:28 -0800
+   From: Cameron Simpson <cs@zip.com.au>
+   Date: Thu, 20 Dec 2001 13:37:05 +1100
    
-   The economic inertia of Java driven server applications should have
-   enough force that it is justifyable to RedHat and other commerical
-   organizations to support it regardless of what your current view is
-   on this topic.
+   (Though an attitude like yours is a core reason Java is
+   spreading as slowly as it is - much like Linux desktops...)
+   
+It's actually Sun's fault more than anyone else's.
 
-So they'll get paid to implement and support it, and that is precisely
-what is happening right now.  And the whole point I'm trying to make
-is that that is where it's realm is right now.
+   However, heavily threaded apps regardless of language are hardly likely
+   to disappear; threads are the natural way to write many many things. And
+   if the kernel implements threads as on Linux, then the scheduler will
+   become much more important to good performance.
 
-If AIO was so relevant+sexy we'd be having threads of discussion about
-the AIO implementation instead of threads about how relevant it is or
-is not for the general populace.  Wouldn't you concur?  :-)
-
-The people doing Java server applets are such a small fraction of the
-Linux user community.
+We are not talking about the scheduler, we are talking about
+AIO.

@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263313AbTJOOdK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 10:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTJOOdK
+	id S263316AbTJOOdb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 10:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTJOOdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 10:33:10 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:4255 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S263313AbTJOOdH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 10:33:07 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Wed, 15 Oct 2003 10:33:31 -0400
+Received: from mx01.netapp.com ([198.95.226.53]:44452 "EHLO mx01.netapp.com")
+	by vger.kernel.org with ESMTP id S263316AbTJOOd3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 10:33:29 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16269.23199.833564.163986@laputa.namesys.com>
-Date: Wed, 15 Oct 2003 18:33:03 +0400
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Josh Litherland <josh@temp123.org>, linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-In-Reply-To: <20031015142738.GG24799@bitwizard.nl>
-References: <1066163449.4286.4.camel@Borogove>
-	<20031015133305.GF24799@bitwizard.nl>
-	<16269.20654.201680.390284@laputa.namesys.com>
-	<20031015142738.GG24799@bitwizard.nl>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Subject: RE: [NFS] RE: [autofs] multiple servers per automount
+Date: Wed, 15 Oct 2003 07:31:47 -0700
+Message-ID: <482A3FA0050D21419C269D13989C6113020AC516@lavender-fe.eng.netapp.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [NFS] RE: [autofs] multiple servers per automount
+Thread-Index: AcOS7dCC96WKq66jTF2sWh22fC38lQAOq38A
+From: "Lever, Charles" <Charles.Lever@netapp.com>
+To: "Ian Kent" <raven@themaw.net>
+Cc: "Joseph V Moss" <jmoss@ichips.intel.com>,
+       "Ogden, Aaron A." <aogden@unocal.com>,
+       "Mike Waychison" <Michael.Waychison@Sun.COM>,
+       "autofs mailing list" <autofs@linux.kernel.org>,
+       <nfs@lists.sourceforge.net>,
+       "Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw writes:
- > On Wed, Oct 15, 2003 at 05:50:38PM +0400, Nikita Danilov wrote:
- > > Erik Mouw writes:
- > >  > Nowadays disks are so incredibly cheap, that transparent compression
- > >  > support is not realy worth it anymore (IMHO).
- > > 
- > > But disk bandwidth is so incredibly expensive that compression becoming
- > > more and more useful: on compressed file system bandwidth of user-data
- > > transfers can be larger than raw disk bandwidth. It is the same
- > > situation as with allocation of disk space for files: disks are cheap,
- > > but storing several files in the same block becomes more advantageous
- > > over time.
- > 
- > You have a point, but remember that modern IDE drives can do about
- > 50MB/s from medium. I don't think you'll find a CPU that is able to
- > handle transparent decompression on the fly at 50MB/s, even not with a
- > simple compression scheme as used in NTFS (see the NTFS docs on
- > SourceForge for details).
+Ian Kent said:
+> Do you think that the possible NFS port allocation problems
+> should hold up this work or should it drive updates to NFS?
 
-Trend is that CPU is getting faster and faster with respect to the
-disk. So, even if it were hard to find such a CPU to-day, it will be
-common place to-morrow.
+hi ian-
 
- > 
- > 
- > Erik
- > 
- > PS: let me guess: among other things, reiser4 comes with transparent
- >     compression? ;-)
+the port stuff has to be addressed at some point, but i don't
+think you should wait for it, because it is behind a long queue
+of other RPC work (like Kerberos for Linux NFS) that has a
+higher priority.  also, there are other patches that partially
+address this limitation, and certainly those will be used by
+the desparate few who need it now. :^)
 
-Yes, it will.
-
- > 
-
-Nikita.
-
+IMHO.

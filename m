@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbTKCErU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 23:47:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTKCErU
+	id S261916AbTKCEtu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 23:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTKCEtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 23:47:20 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:23475 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261916AbTKCErP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 23:47:15 -0500
-Message-ID: <3FA5DDCF.5030700@cyberone.com.au>
-Date: Mon, 03 Nov 2003 15:47:11 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rhino <rhino9@terra.com.br>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's scheduler v17a
-References: <3F913704.5040707@cyberone.com.au>	<3FA08853.5050402@cyberone.com.au> <20031031185740.7c152d8b.rhino9@terra.com.br>
-In-Reply-To: <20031031185740.7c152d8b.rhino9@terra.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Nov 2003 23:49:50 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:57288 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S261916AbTKCEtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 23:49:47 -0500
+Date: Mon, 3 Nov 2003 05:49:42 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] Linux-2.6.0-test9
+Message-Id: <20031103054942.4d6c985e.us15@os.inf.tu-dresden.de>
+In-Reply-To: <Pine.LNX.4.44.0311022042390.18647-100000@home.osdl.org>
+References: <20031103045637.7d2acb90.us15@os.inf.tu-dresden.de>
+	<Pine.LNX.4.44.0311022042390.18647-100000@home.osdl.org>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__3_Nov_2003_05_49_42_+0100_PRX8seGL5glvcPAW"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Mon__3_Nov_2003_05_49_42_+0100_PRX8seGL5glvcPAW
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
+On Sun, 2 Nov 2003 20:45:55 -0800 (PST) Linus Torvalds (LT) wrote:
 
-Rhino wrote:
+LT> Btw, what compiler version do you have? The UP+preempt bug is a real bug,
+LT> but as far as I've been able to find out it's almost impossible to get gcc
+LT> to actually generate code that might trigger it. So while it's entirely
+LT> possible that the bug you're seeing is due to the (now fixed) UP+preempt 
+LT> bug, it's also quite possible that there's something else going on too.
 
->On Thu, 30 Oct 2003 14:41:07 +1100
->Nick Piggin <piggin@cyberone.com.au> wrote:
->
->
->>http://www.kerneltrap.org/~npiggin/v17a/
->>
->>More balancing fixes. I also incorporated some of Andrew Theurer's
->>ideas. I'm generally getting good numbers now, but using fairly
->>synthetic benchmarks.
->>
->>Now would be a good time to test if anyone is interested. Thanks.
->>
->
->well i didn't have the time to make extensive tests yet, but the behaviour improved a lot since v16,
->and *looks* quite  better compared to test9 on a 2 way xeon p4 with hyperthreading enabled,
->seeing  4 cpu's.
->
->when i get back home, I'll try to make a few benchmarks.
->
+I'm using gcc 3.3.2.
 
-That would be nice. There still isn't a lot of work done in the HT
-department, but something simple and easy like the shared runqueues
-patch might be reasonable for 2.6.
+Reading specs from /usr/lib/gcc-lib/i486-slackware-linux/3.3.2/specs
+Configured with: ../gcc-3.3.2/configure --prefix=/usr --enable-shared
+--enable-threads=posix --enable-__cxa_atexit --disable-checking --with-gnu-ld
+--verbose --target=i486-slackware-linux --host=i486-slackware-linux
+Thread model: posix
+gcc version 3.3.2
 
+-Udo.
 
+--Signature=_Mon__3_Nov_2003_05_49_42_+0100_PRX8seGL5glvcPAW
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/pd5mnhRzXSM7nSkRAmL8AJ96JhGGfAG/MD3aX6t4jgOz19+X4wCfbYzL
+qwujQoOdF6zJk2Fw+IsG8l0=
+=75eK
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__3_Nov_2003_05_49_42_+0100_PRX8seGL5glvcPAW--

@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267799AbUIUQo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267808AbUIUQov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267799AbUIUQo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 12:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUIUQo3
+	id S267808AbUIUQov (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 12:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267826AbUIUQov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 12:44:29 -0400
-Received: from tarjoilu.luukku.com ([194.215.205.232]:44465 "EHLO
-	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S267799AbUIUQo2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 12:44:28 -0400
-Message-ID: <41505AA1.A51DEE50@users.sourceforge.net>
-Date: Tue, 21 Sep 2004 19:45:21 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Sep 2004 12:44:51 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:30427 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267808AbUIUQor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 12:44:47 -0400
+Subject: Re: Design for setting video modes, ownership of sysfs attributes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e473391040921085669c2dcd7@mail.gmail.com>
+References: <9e47339104091811431fb44254@mail.gmail.com>
+	 <20040921124507.GC2383@elf.ucw.cz>
+	 <9e473391040921085669c2dcd7@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1095781340.31269.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 21 Sep 2004 16:42:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> People have asked repeatedly for a way to mark lines in /etc/fstab
-> so as to make clear that such lines are managed by some GUI or other
-> external program. Labels like "kudzu".
-> In this release I added a comment convention for /etc/fstab: options
-> can have a part starting with \; - that part is ignored by mount
-> but can be used by other programs managing fstab.
+On Maw, 2004-09-21 at 16:56, Jon Smirl wrote:
+> > "Driver decides to either do it itself in kernel, or call userspace
+> > helper if that would be too complex".
 
-How about implementing /etc/fstab option parsing code that is compatible
-with existing libc /etc/fstab parsing code:
+It is
 
-defaults,noauto,comment=kudzu,rw
-                ^^^^^^^^^^^^^
+> The driver almost always needs to go to user space to get the file of
+> mode line overrides that the user can create. But there is nothing
+> stopping you from building everything in the kernel.
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+For random PC cards this is true. If you take something like the
+voodoo1 which essentially has two fixed modes, or vesafb its obviously 
+a bit different (ditto a lot of embedded devices)
+
+You also want one mode embedded in every driver so that if the user
+space fails, aliens eat your network connection, it panics while mode
+switch computing or the like you can get a mode to see what went bang.
+Thats probably "single console 640x480 vga timings" for the general case
+and also does for boot up until userspace on disk (or initrd) has the
+video initialized the way the user wants it in the end.
+
+We also mooted caching settings when it made sense (eg when the
+computation is hard and the mmio whacking trivial) to get better mode
+change performance on vt flip.
+ 
+Alan
+

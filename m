@@ -1,48 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbSJITm5>; Wed, 9 Oct 2002 15:42:57 -0400
+	id <S262074AbSJITvD>; Wed, 9 Oct 2002 15:51:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261920AbSJITm5>; Wed, 9 Oct 2002 15:42:57 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:16838 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261900AbSJITm4>;
-	Wed, 9 Oct 2002 15:42:56 -0400
-Date: Wed, 9 Oct 2002 12:47:14 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Peter Samuelson <peter@cadcamlab.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: linux kernel conf 0.8
-In-Reply-To: <20021009213937.A12901@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.33L2.0210091246320.1001-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262076AbSJITvD>; Wed, 9 Oct 2002 15:51:03 -0400
+Received: from gw.openss7.com ([142.179.199.224]:23563 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id <S262074AbSJITvB>;
+	Wed, 9 Oct 2002 15:51:01 -0400
+Date: Wed, 9 Oct 2002 13:54:42 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org, LiS <linux-streams@gsyc.escet.urjc.es>,
+       davem@redhat.com
+Subject: Re: [PATCH] Re: export of sys_call_table
+Message-ID: <20021009135442.E16773@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+	linux-kernel@vger.kernel.org,
+	LiS <linux-streams@gsyc.escet.urjc.es>, davem@redhat.com
+References: <41C1FEE0A55@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <41C1FEE0A55@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Wed, Oct 09, 2002 at 02:20:19PM +0200
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Oct 2002, Sam Ravnborg wrote:
+Petr,
 
-| On Wed, Oct 09, 2002 at 12:28:44PM -0700, Randy.Dunlap wrote:
-| >
-| > The kernel would still have the text-mode configurator.
-| The way I read the original post by Christoph Hellwig - nope.
-| If the kernel config library is outside the kernel then the
-| text-mode versions will fail as well.
-| Recall that the text-mode version are no longer shell scripts,
-| but based on a nice YACC grammar and coded in C.
+Thanks you for the constructive suggestions.  I'll see if we
+can add those in an test it up.
 
-OK, I missed that.  Sorry.
-In that case I might fall into the "ridiculous" camp.  :)
+--brian
 
-| I do not want to go somewhere for special tools just to configure
-| the kernel.
-| Basic stuff such as make and gcc is ok to locate elsewhere - in
-| specific versions as well. But not some basic kernel only configurator.
+On Wed, 09 Oct 2002, Petr Vandrovec wrote:
+
+> On  8 Oct 02 at 18:21, Brian F. G. Bidulock wrote:
+> > --- kernel/sys.c.orig   2002-08-02 19:39:46.000000000 -0500
+> > +++ kernel/sys.c    2002-10-08 16:46:55.000000000 -0500
+> ...
+> 
+> I believe that you should check that nobody else has registered its
+> own streams module. You can also allow for multiple streams modules
+> in parallel (and fall through when module returns on -ENOIOCTLCMD or -ENOTTY),
+> but I believe that usually only one module will be registered.
+> 
+> And I believe that export symbols should NOT be _GPL_ONLY: before
+> (non-GPL) export of syscall_table was available, non-GPL modules were
+> able to hook syscalls, and when _GPL_ONLY was introduced into kernel
+> it was promised that we'll never make currently provided functionality
+> GPL-only (as far as I remember).
+>                                                     Best regards,
+>                                                         Petr Vandrovec
+>                                                         
+> int register_streams_calls(...)
+> > +void register_streams_calls(int (*putpmsg) (int, void *, void *, int, int),
+> > +               int (*getpmsg) (int, void *, void *, int, int))
+> > +{
+> 
+> int err;
+> if (!putpmsg || !getpmsg) return -EINVAL;
+> 
+> > +   down_write(&streams_call_sem);
+> 
+> err = -EBUSY;
+> if (!do_putpmsg) {
+>   err = 0;
+> 
+> > +   do_putpmsg = putpmsg;
+> > +   do_getpmsg = getpmsg;
+> 
+> }
+> 
+> > +   up_write(&streams_call_sem);
+> 
+> return err;
+> 
+> > +}
+> > +
+> > +void unregister_streams_calls(void)
+> > +{
+> 
+>    down_write(&streams_call_sem);
+>    do_putpmsg = NULL;
+>    do_getpmsg = NULL;
+>    up_write(&streams_call_sem);
+> }
+>     
 
 -- 
-~Randy
-  "In general, avoiding problems is better than solving them."
-  -- from "#ifdef Considered Harmful", Spencer & Collyer, USENIX 1992.
-
+Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
+bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
+http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
+                        ¦ Therefore  all  progress  depends on the ¦
+                        ¦ unreasonable man. -- George Bernard Shaw ¦

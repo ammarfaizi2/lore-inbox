@@ -1,83 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbTKYQhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 11:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTKYQhE
+	id S262164AbTKYQeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 11:34:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTKYQeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 11:37:04 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:58533 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S262330AbTKYQe0
+	Tue, 25 Nov 2003 11:34:25 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28679 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262164AbTKYQeN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 11:34:26 -0500
-Message-ID: <3FC3848A.5010908@softhome.net>
-Date: Tue, 25 Nov 2003 17:34:18 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Tue, 25 Nov 2003 11:34:13 -0500
+Date: Tue, 25 Nov 2003 11:23:07 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generalise scheduling classes
+In-Reply-To: <3FC2B487.8080709@cyberone.com.au>
+Message-ID: <Pine.LNX.3.96.1031125111256.4037B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.23-rc5
-References: <VK1t.6TB.1@gated-at.bofh.it>
-In-Reply-To: <VK1t.6TB.1@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 25 Nov 2003, Nick Piggin wrote:
 
-   I was investigating memory allocation problems on my systems.
-   And I only figured out that I'm using quite up-to-date kernel - 2.4.22.
+> 
+> 
+> bill davidsen wrote:
+> 
+> >In article <3FC0A0C2.90800@cyberone.com.au>,
+> >Nick Piggin  <piggin@cyberone.com.au> wrote:
+> >
+> >| We still don't have an HT aware scheduler, which is unfortunate because
+> >| weird stuff like that looks like it will only become more common in future.
+> >
+> >The idea is hardly new, in the late 60's GE (still a mainframe vendor at
+> >that time) was looking at two execution units on a single memory path.
+> >They decided it would have problems with memory bandwidth, what else is
+> >new?
+> >
+> 
+> I don't think I said new, but I guess they (SMT, NUMA, CMP) are newish
+> for architectures supported by Linux Kernel. OK NUMA has been around for
+> a while, but the scheduler apparently doesn't work so well for atypical
+> new NUMAs like Opteron.
 
-   This is my post from another thread:
+You didn't say new, I wasn't correcting you, just thought that the
+historical perspective might be interesting. I would love to try the new
+scheduler, but my test computer is not pleased with Fedora.
 
->    Vanilla 2.4.22 (this is x86) (with HZ=1024, if it does matter).
-> 
->    after '# echo -1 >/proc/sys/vm/overcommit_memory'
->    1. test app with memory touch still gets killed by 
->       oom_killer. (so no malloc() == NULL)
->    2. test app w/o memory touch still can happily allocate 2.8GB 
->       of memory (x86 - looks like 3/1 memory split) and only then 
->       gets NULL pointer - oom_killer is silent.
-
-   "overcommit_memory < 0" supposed to not allow apps to overallocate 
-memory - but still it works not like it is said in 
-Documentation/filesystems/proc.txt.
-    So apps which try to be MM friendly can silently break due to 
-very-very lazy memory allocation in kernel. Not nice when malloc() says 
-"everything is fine!".
-
-   [ Just checked: with overcommit==-1, as soon app trying to touch 
-those magic 2.8GB of memory, it gets killed by oom_killer. This is 
-totally wrong... ]
-
-   Probably fix docs at least... :-(
-
-Marcelo Tosatti wrote:
-> 
-> Hi, 
-> 
-> Yet another thing showed up (possible data corruption on x86-64), so here 
-> goes -rc5.
-> 
-> 
-> Summary of changes from v2.4.23-rc4 to v2.4.23-rc5
-> ============================================
-> 
-> Andi Kleen:
->   o Fix 32bit truncate64 on x86-64
-> 
-> Marcelo Tosatti:
->   o Felix Radensky: Remove debugging printk from agpgart
->   o Changed EXTRAVERSION to -rc5
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

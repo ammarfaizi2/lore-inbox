@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261346AbTCOI3t>; Sat, 15 Mar 2003 03:29:49 -0500
+	id <S261366AbTCOIdU>; Sat, 15 Mar 2003 03:33:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261349AbTCOI3t>; Sat, 15 Mar 2003 03:29:49 -0500
-Received: from comtv.ru ([217.10.32.4]:62625 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S261346AbTCOI3p>;
-	Sat, 15 Mar 2003 03:29:45 -0500
-X-Comment-To: William Lee Irwin III
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>, Andrew Morton <akpm@digeo.com>,
-       adilger@clusterfs.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [PATCH] concurrent block allocation for ext2 against 2.5.64
-References: <20030313015840.1df1593c.akpm@digeo.com>
-	<m3of4fgjob.fsf@lexa.home.net>
-	<20030313165641.H12806@schatzie.adilger.int>
-	<m38yvixvlz.fsf@lexa.home.net> <20030315043744.GM1399@holomorphy.com>
-	<20030314205455.49f834c2.akpm@digeo.com>
-	<20030315054910.GN20188@holomorphy.com>
-	<20030315062025.GP20188@holomorphy.com>
-	<20030314224413.6a1fc39c.akpm@digeo.com>
-	<m3r899yrhx.fsf@lexa.home.net> <20030315082927.GR20188@holomorphy.com>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Date: 15 Mar 2003 11:32:28 +0300
-In-Reply-To: <20030315082927.GR20188@holomorphy.com>
-Message-ID: <m3wuj1xc6b.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S261364AbTCOIdU>; Sat, 15 Mar 2003 03:33:20 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:22277 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S261366AbTCOIdT>; Sat, 15 Mar 2003 03:33:19 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303150846.h2F8k6IX000895@81-2-122-30.bradfords.org.uk>
+Subject: Crash dumping
+To: linux-kernel@vger.kernel.org
+Date: Sat, 15 Mar 2003 08:46:06 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> William Lee Irwin (WLI) writes:
+Just wondering, we've had a lot of discussions in the past about
+various serial port/network/disk crash dumping ideas, and always had
+the problem of how do we know that the code we're about the execute
+hasn't been corrupted, etc, which is especially important in the case
+of the disk dumper.
 
- >> I simple use own pretty simple test. btw, you may disable
- >> preallocation to increase allocation rate
+Well, with the Linux BIOS project, couldn't we include some code in
+the BIOS that we can jump to after a kernel crash, I.E. just switch to
+real mode and start executing the BIOS-contained code to put the
+system in to a sane state, and accept commands over the network[1] via
+either UDP, or a custom protocol, to dump memory to disk, network, or
+whatever?
 
- WLI> This looks very interesting, but it may have to wait ca. 24
- WLI> hours for some benchmark time b/c of the long boot times and
- WLI> late hour in .us.
+Internet IMPs had loader/dumpers to do this kind of thing 30 years
+ago, and I don't see why we can't ressurect the idea today.
 
- WLI> This also looks like it would be a much better stress test, and
- WLI> the NUMA-Q is known for bringing out many rare races. There is
- WLI> are good reasons to run this test even aside from performance.
+[1] Obviously the code in the BIOS will be hard coded to work with
+whatever network card you have, I.E. you would need to program the
+right driver in to the BIOS for your particular card, and store the
+machine's I.P. there as well, (and a password, or a list of local
+I.P.s that were trusted - the idea being that you connect to the
+machine via another machine on the LAN, not directly the internet
+directly).
 
-fine. it's really interesting to see results for so big iron.
-
+John.

@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264128AbUCZUyj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 15:54:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbUCZUyj
+	id S261221AbUCZU6B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 15:58:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbUCZU6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 15:54:39 -0500
-Received: from mail.lmcg.wisc.edu ([144.92.101.145]:8338 "EHLO
-	mail.lmcg.wisc.edu") by vger.kernel.org with ESMTP id S264128AbUCZUyg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 15:54:36 -0500
-Date: Fri, 26 Mar 2004 14:54:31 -0600
-From: Daniel Forrest <forrest@lmcg.wisc.edu>
-Message-Id: <200403262054.i2QKsV223748@rda07.lmcg.wisc.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Somewhat OT: gcc, x86, -ffast-math, and Linux
-Reply-to: Daniel Forrest <forrest@lmcg.wisc.edu>
+	Fri, 26 Mar 2004 15:58:01 -0500
+Received: from amalthea.dnx.de ([193.108.181.146]:34256 "EHLO amalthea.dnx.de")
+	by vger.kernel.org with ESMTP id S261221AbUCZU56 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 15:57:58 -0500
+Date: Fri, 26 Mar 2004 21:57:44 +0100
+From: Robert Schwebel <robert@schwebel.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] RNDIS Gadget Driver
+Message-ID: <20040326205744.GH16461@pengutronix.de>
+References: <20040325221145.GJ10711@pengutronix.de> <20040326115947.GA22185@outpost.ds9a.nl> <20040326121928.GC16461@pengutronix.de> <4064530C.5030308@pacbell.net> <20040326163543.GD16461@pengutronix.de> <40646C2B.6020306@pacbell.net> <20040326184142.GF16461@pengutronix.de> <40648876.9050902@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40648876.9050902@pacbell.net>
+User-Agent: Mutt/1.4i
+X-Scan-Signature: 5003f175ed075e86e191ee2bc398b282
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried Googling for an answer on this, but have come up empty and
-I think it likely that someone here probably knows the answer...
+On Fri, Mar 26, 2004 at 11:45:58AM -0800, David Brownell wrote:
+> Well, what I merge is necessarily going to work on more hardware than
+> just PXA ... it'll work over net2280 (at high speed), goku, and surely
+> other hardware.  In most cases that'll just require sanity testing.
+> Maybe I can get Julian to test on SH3, and it sounds like Andrew is
+> getting close on the MediaQ.
 
-We are testing and breaking in 6 racks of compute nodes, each rack
-containing 30 1U boxes, each box containing 2 x 2.8GHz Xeon CPUs.
-Each rack contains identical hardware (single purchase) with the
-exception that one rack has double the memory per node.  The 6 racks
-are located in six different labs across our campus.  It is available
-to me only as a "black box" queueing system.
+A broader variety of controllers would indeed be helpful. When you have
+the stuff integrated the way you think it's right, just tell me and I'll
+test if it still works on our testbed. 
 
-I am running one of our applications that has been compiled using gcc
-with the -ffast-math option.  I am finding that the identical program
-using the same input data files is producing different results on
-different machines.  However, the differences are all less than the
-precision of a single-precision floating point number.  By this I mean
-that if the results (which are written to 15 digits of precision) are
-only compared to 7 digits then the results are the same.  Also, most
-of the time the 15 digit values are the same.
+> Once I can see it work, then it'll be ready for that more widespread
+> testing. (Do penguins actually cry?)
 
-My question is this: Why aren't the results always the same?  What is
-the -ffast-math option doing?  How are the excess bits of precision
-dealt with during context switches?  Shouldn't the same binary with
-the same inputs produce the same output on identical hardware?
+Only if they have to read Microsoft specifications :-) 
 
-I have run the same test with the program compiled without -ffast-math
-enabled and the results are always identical.
+> It's not as if the protocol actually _needs_ an interrupt endpoint,
+> though the MSFT spec says it does. It's actually simpler for the host
+> to poll for completion on the control endpoint; none of the requests
+> should take very long to finish anyway. An RNDIS host might not even
+> notice those "toggle broken" issues.
 
-Any insight would be appreciated.
+You probably underestimate the mental sensibility of Windows machines.
+We have seen cases where the Windows host just floods you with
+interrupts when it is not happy with things like these... 
 
+> Did you have any evidence that the MSFT host was actually using that
+> interrupt endpoint? Like CATC snooping showing it never tried to
+> collect responses until the interrupt packet arrived?
+
+We have seen the packets with the protocol analyzer. I think we agree
+that using an interrupt endpoint just to announce that the gadget has a
+message for the host available, but that's how M$ designed it... 
+
+> Also, which versions of MS-Windows did you test against? Some of the
+> MSFT docs suggest version-specific protocol quirks.
+
+Win 98, XP, 2000. Auerswald currently tests all available other
+variants, and the tests they invented are _really_ crazy ;)
+
+Robert
 -- 
-Daniel K. Forrest	Laboratory for Molecular and
-forrest@lmcg.wisc.edu	Computational Genomics
-			University of Wisconsin, Madison
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
+    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4

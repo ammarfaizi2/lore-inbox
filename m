@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUISV6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264648AbUISWAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbUISV6v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 17:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUISV6u
+	id S264648AbUISWAP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 18:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUISWAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 17:58:50 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:21422 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264443AbUISV6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 17:58:45 -0400
-Subject: Re: [PATCH] fix inlining trouble causing build failure in
-	drivers/scsi/qla2xxx/qla_os.c
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0409192346490.2758@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0409192346490.2758@dragon.hygekrogen.localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 19 Sep 2004 17:58:36 -0400
-Message-Id: <1095631123.1717.20.camel@mulgrave>
+	Sun, 19 Sep 2004 18:00:15 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:38058 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S264531AbUISWAD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 18:00:03 -0400
+Message-ID: <35fb2e5904091915007c02c4b8@mail.gmail.com>
+Date: Sun, 19 Sep 2004 23:00:00 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Sergei Haller <sergei.haller@math.uni-giessen.de>
+Subject: Re: lost memory on a 4GB amd64
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0409200737010.3644@fb07-calculator.math.uni-giessen.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
+	 <200409161528.19409.andrew@walrond.org>
+	 <Pine.LNX.4.58.0409170051200.26494@fb07-calculator.math.uni-giessen.de>
+	 <200409161619.28742.andrew@walrond.org>
+	 <Pine.LNX.4.58.0409170147320.26494@fb07-calculator.math.uni-giessen.de>
+	 <Pine.LNX.4.58.0409190007530.31971@fb07-calculator.math.uni-giessen.de>
+	 <35fb2e59040919130154966337@mail.gmail.com>
+	 <Pine.LNX.4.58.0409200737010.3644@fb07-calculator.math.uni-giessen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-19 at 17:58, Jesper Juhl wrote:
-> 
-> 2.6.9-rc2-bk5 allyesconfig fails to build for me with gcc 3.4.1 with the 
-> following error : 
+On Mon, 20 Sep 2004 07:47:20 +1000 (EST), Sergei Haller 
 
-Actually, Adrian Bunk got there ahead of you.  The fix is in both the
-scsi-misc-2.6 tree and 2.6.9-rc2-mm1
+> I guess I should write a simple C-program using malloc or something to
+> reproduce the crash in the simplest possible way, shouldn't I?
 
-James
+You've answered your own question Sergei. Thing is - you mentioned the
+AGP aperature settings in your original post and then got tied up
+thinking there's a bug in the kernel but we have to rule out stuff
+like X getting very unhappy trying to play in the wrong place or
+something. Try a simple test case and then see if you can give any
+other handy details on your situation.
 
-ChangeSet@1.2184, 2004-09-10 13:19:39-04:00, akpm@osdl.org
-  [PATCH] qla2xxx gcc-3.5 fixes
-  
-  From: Adrian Bunk <bunk@fs.tum.de>
-  
-    CC      drivers/scsi/qla2xxx/qla_os.o
-  drivers/scsi/qla2xxx/qla_os.c: In function `qla2x00_queuecommand':
-  drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining
-failed
-  in call to 'qla2x00_callback': function not considered for inlining
-  drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from
-here
-  drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining
-failed
-  in call to 'qla2x00_callback': function not considered for inlining
-  drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from
-here
-  make[3]: *** [drivers/scsi/qla2xxx/qla_os.o] Error 1
-  ...
-    CC      drivers/scsi/qla2xxx/qla_rscn.o
-  drivers/scsi/qla2xxx/qla_rscn.c: In function
-`qla2x00_cancel_io_descriptors':
-  drivers/scsi/qla2xxx/qla_rscn.c:320: sorry, unimplemented: inlining
-  failed in call to 'qla2x00_remove_iodesc_timer': function not
-considered for i
-nlining
-  drivers/scsi/qla2xxx/qla_rscn.c:257: sorry, unimplemented: called from
-here
-  make[3]: *** [drivers/scsi/qla2xxx/qla_rscn.o] Error 1
-  
-  Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-  Signed-off-by: Andrew Morton <akpm@osdl.org>
-  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-
-
-
+Jon.

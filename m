@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317569AbSFDLjx>; Tue, 4 Jun 2002 07:39:53 -0400
+	id <S316591AbSFDLiG>; Tue, 4 Jun 2002 07:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317497AbSFDLjw>; Tue, 4 Jun 2002 07:39:52 -0400
-Received: from pat.uio.no ([129.240.130.16]:55184 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S317569AbSFDLjv>;
-	Tue, 4 Jun 2002 07:39:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo, Norway
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [2.5.20-BUG] 3c59x + highmem + acpi + nfs -> kernel panic
-Date: Tue, 4 Jun 2002 13:39:32 +0200
-User-Agent: KMail/1.4.1
-Cc: Anton Altaparmakov <aia21@cantab.net>,
-        "David S. Miller" <davem@redhat.com>,
-        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1023096034.19717.62.camel@storm.christs.cam.ac.uk> <shshekkbnrr.fsf@charged.uio.no> <3CFC603E.A7DC1525@zip.com.au>
+	id <S317446AbSFDLiF>; Tue, 4 Jun 2002 07:38:05 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:42460 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S316591AbSFDLiF>; Tue, 4 Jun 2002 07:38:05 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andi Kleen <ak@suse.de>
+Date: Tue, 4 Jun 2002 21:37:47 +1000 (EST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206041339.32899.trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15612.42635.591842.153876@notabene.cse.unsw.edu.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Caching files in nfsd was Re: [patch 12/16] fix race between writeback and unlink
+In-Reply-To: message from Andi Kleen on  June 4
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 June 2002 08:37, Andrew Morton wrote:
+On  June 4, ak@suse.de wrote:
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> > I _think_ that right now nfsd doesn't cache file opens (only inodes), so
+> > this could be a performance issue for nfsd, but it might be possible to
+> > change how nfsd acts. And it would be a _lot_ cleaner to do it at the file
+> > level.
+> 
+> Yes.
+> 
+> Fixing this would also help XFS (which I hope will be merged in 2.5 as
+> it works very well for a lot of people). It manages its extent
+> preallocation per file and flushes extents on closes. Currently it has
+> to maintain an ugly private nfs reference cache to avoid flushing an
+> extent after every NFS write operation (and killing write performance
+> this way)
+> 
+> Also letting nfsd know about the filemap.c readahead window information in 
+> struct file (that is what it currently caches in the racache) is really ugly
+> and a kind of layering violation...
 
-> The problem was that pagecache data on the NFS client was showing
-> incorrect chunks of several k's of zeroes.  No particuar alignment,
-> either.  And it only happened when the machine is under page-replacement
-> pressure.  And only when the machine has highmem.
->
-> It'd be nice to understand _why_ it fixed it.  Do we know why NFS
-> was losing data when using KM_USER0?  As far as I can see the new
-> and old code look pretty darn similar.   Interested.
+I agree.  I would like to replace the racache with a "struct file"
+cache (though it isn't high on my priorities).
 
-Anton's Oops showed that kmap_atomic(page, KM_USER0) is sometimes failing to 
-return an address, something that we cannot accept in a networking bottom 
-half (performance and reliability would suck if we had to delay and retry). 
-That indicates that something is calling kmap_atomic() and then getting 
-interrupted before it can call kunmap_atomic().
+The only issue that I can see (except for simple coding) is that as
+NFS cannot be precise about closing at the *right* time we would be
+changing from closing too early (and so re-opening) to closing too
+late.
+Would this be an issue for any filesystem?  My feeling is not, but I'm
+open to opinions....
 
->From what I can see, the only other place where KM_USER0 is employed would be 
-in the *_highpage() helper routines in include/linux/highmem.h. These 
-routines are used in various places, but are usually not protected against 
-(soft and hard) interrupts or kernel pre-emption. Could it be that the latter 
-is what is causing trouble?
+This is an issue for the user-space NFS daemon.  It caches open
+filedescriptors and an open O_RDWR will imply an active
+get_write_access which, for example, stops the file being executed on
+the server.
+kNFSd won't suffer from this as it can drop write_access without
+closing the file.  Are there any other issues?
 
-Cheers,
-  Trond
+NeilBrown

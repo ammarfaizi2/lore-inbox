@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLOXfH>; Fri, 15 Dec 2000 18:35:07 -0500
+	id <S129319AbQLOXh5>; Fri, 15 Dec 2000 18:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129319AbQLOXe5>; Fri, 15 Dec 2000 18:34:57 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:44020 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S129183AbQLOXes>;
-	Fri, 15 Dec 2000 18:34:48 -0500
-Date: Fri, 15 Dec 2000 15:05:31 -0800
-From: Greg KH <greg@wirex.com>
-To: Philipp Schmid <ph.schmid@aon.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bluetooth and linux
-Message-ID: <20001215150531.D13897@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>,
-	Philipp Schmid <ph.schmid@aon.at>, linux-kernel@vger.kernel.org
-In-Reply-To: <20001215222524Z129982-439+4126@vger.kernel.org>
-Mime-Version: 1.0
+	id <S129597AbQLOXhr>; Fri, 15 Dec 2000 18:37:47 -0500
+Received: from sco.sco.COM ([132.147.128.9]:51464 "HELO sco.sco.COM")
+	by vger.kernel.org with SMTP id <S129319AbQLOXhb>;
+	Fri, 15 Dec 2000 18:37:31 -0500
+Message-ID: <3A3AA38E.A6A13759@cruzio.com>
+Date: Fri, 15 Dec 2000 15:04:46 -0800
+From: Bruce Korb <bkorb@cruzio.com>
+Reply-To: bkorb@cruzio.com
+Organization: Home
+X-Mailer: Mozilla 4.7 [en] (X11; U; SCO_SV 3.2 i386)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, tytso@valinux.com
+Subject: Re: [patch] 2.2.18 PCI_DEVICE_ID_OXSEMI_16PCI954
+In-Reply-To: <Pine.LNX.4.30.0012152140350.3740-100000@lt.wsisiz.edu.pl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001215222524Z129982-439+4126@vger.kernel.org>; from ph.schmid@aon.at on Fri, Dec 15, 2000 at 11:53:58PM +0100
-X-Operating-System: Linux 2.2.18-immunix (i686)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 11:53:58PM +0100, Philipp Schmid wrote:
+Lukasz Trabinski wrote:
+> include/linux/pci_ids.h:#define PCI_DEVICE_ID_OXSEMI_16PCI954   0x9501
 > 
-> i'm going to buy a notebook in the near future, which supports bluetooth.
-> so my question is: is anyone working on bluetooth drivers or do i have to 
-> forget about it ?
+> (IMHO that is correct), but in kernel 2.2.18 we have:
+> (include/kernel/pci.h)
+> #define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
+>                                      ^^
+> 
+> Please correct, if I'm wrong, but IMHO it shuld be:
+> (include/kernel/pci.h)
+> #define PCI_DEVICE_ID_OXSEMI_16PCI954  0x9513
 
-There's a bluetooth USB driver already in the kernel, and axis has a
-nice bluetooth stack for Linux that's under the GPL (see
-http://developer.axis.com/software/bluetooth/ for more info on it.)
+Please correct me if *I* am wrong, but shouldn't the names be
+different if the values are different?
 
-What kind of bluetooth device is in the notebook?
+Also, excuse me while I soap-box for a moment:  This and other
+inconsistencies
+would be easier to deal with if there were a single repository for PCI
+information from which all the PCI device tables and ID enumerations
+were derived.  I have posted the technology that can easily be adapted
+to emit both 2.2 and 2.4 flavors of tables, though only PCI-IDE stuff
+for 2.4 is currently implemented.
 
-Hope this helps,
+  See  ftp://autogen.linuxave.net/pub/PCIDEV.tgz
 
-greg k-h
+Tiny drawback:  you must download and use this to generate
+all the output tables:
 
--- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+  ftp://autogen.linuxave.net/pub/autogen-5.1.3.tar.gz
+
+Homepage (with broken download link due to SourceForge outage):
+
+  http://AutoGen.SourceForge.net/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

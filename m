@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317022AbSGCObS>; Wed, 3 Jul 2002 10:31:18 -0400
+	id <S317024AbSGCPIh>; Wed, 3 Jul 2002 11:08:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317023AbSGCObS>; Wed, 3 Jul 2002 10:31:18 -0400
-Received: from ftp.realnet.co.sz ([196.28.7.3]:28840 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317022AbSGCObR>; Wed, 3 Jul 2002 10:31:17 -0400
-Date: Wed, 3 Jul 2002 16:02:06 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Yaroslav Popovitch <yp@sot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: which device nodes used by  ips.o module?
-In-Reply-To: <Pine.LNX.4.44.0207031659420.2228-100000@ares.sot.com>
-Message-ID: <Pine.LNX.4.44.0207031601120.20478-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317025AbSGCPIg>; Wed, 3 Jul 2002 11:08:36 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:44163 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317024AbSGCPIf>; Wed, 3 Jul 2002 11:08:35 -0400
+Date: Wed, 3 Jul 2002 17:10:52 +0200
+From: Ulrich Wiederhold <U.Wiederhold@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-rc1 and devfs
+Message-ID: <20020703151052.GA10269@sky.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Debian GNU/Linux 3.0 (Kernel 2.4.17-rc2)
+Organization: Using Linux Only
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jul 2002, Yaroslav Popovitch wrote:
+Hello,
+I tryed to compile with devfs included and get this error during "make
+bzImage":
+[...]
+base.c:2293: redefinition of `devfs_unregister_blkdev'
+/usr/src/linux/include/linux/devfs_fs_kernel.h:259:
+`devfs_unregister_blkdev' previously defined here
+base.c: In function `devfsd_ioctl':
+base.c:3420: warning: unused variable `lock'
+base.c: At top level:
+base.c:3535: redefinition of `mount_devfs_fs'
+/usr/src/linux/include/linux/devfs_fs_kernel.h:311: `mount_devfs_fs'
+previously defined here
+make[3]: *** [base.o] Fehler 1
+make[3]: Leaving directory `/usr/src/linux/fs/devfs'
+make[2]: *** [first_rule] Fehler 2
+make[2]: Leaving directory `/usr/src/linux/fs/devfs'
+make[1]: *** [_subdir_devfs] Fehler 2
+make[1]: Leaving directory `/usr/src/linux/fs'
+make: *** [_dir_fs] Fehler 2
 
-> 
-> I could not find information about device nodes which are used by ips.o 
-> module(IBM ServeRAID 4Mx).
-> I don't have hardware, as result I cannot check in experiment.
-> Would you help me ...
+Any hints?
 
-By device nodes do you mean /dev/foo? In which case its just 
-/dev/sd[abc...]
-
-Cheers,
-	Zwane
+Uli
 
 -- 
-http://function.linuxpower.ca
-		
-
+'The box said, 'Requires Windows 95 or better', so i installed Linux - TKK 5

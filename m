@@ -1,81 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265276AbSKSASI>; Mon, 18 Nov 2002 19:18:08 -0500
+	id <S265266AbSKSAQG>; Mon, 18 Nov 2002 19:16:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbSKSASI>; Mon, 18 Nov 2002 19:18:08 -0500
-Received: from picante.ne.client2.attbi.com ([24.91.80.18]:9209 "EHLO
-	habanero.picante.com") by vger.kernel.org with ESMTP
-	id <S265276AbSKSASG>; Mon, 18 Nov 2002 19:18:06 -0500
-Message-Id: <200211190023.gAJ0NZmU001209@habanero.picante.com>
-From: Grant Taylor <gtaylor+lkml_abbje111802@picante.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [rfc] epoll interface change and glibc bits ... 
-In-reply-to: Your message of "Mon, 18 Nov 2002 17:31:25 EST."
-             <20021118223125.GB14649@mark.mielke.cc> 
-Date: Mon, 18 Nov 2002 19:23:35 -0500
+	id <S265276AbSKSAQG>; Mon, 18 Nov 2002 19:16:06 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265266AbSKSAQF>; Mon, 18 Nov 2002 19:16:05 -0500
+Date: Tue, 19 Nov 2002 00:23:05 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] More missing includes [1/4]
+Message-ID: <20021119002305.G21571@flint.arm.linux.org.uk>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.21.0211182314490.16079-100000@vervain.sonytel.be> <20021118231745.D21571@flint.arm.linux.org.uk> <20021118161947.B16391@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021118161947.B16391@twiddle.net>; from rth@twiddle.net on Mon, Nov 18, 2002 at 04:19:47PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Mark Mielke <mark@mark.mielke.cc> writes:
+On Mon, Nov 18, 2002 at 04:19:47PM -0800, Richard Henderson wrote:
+> On Mon, Nov 18, 2002 at 11:17:45PM +0000, Russell King wrote:
+> > The more obvious solution is to remove the __initdata from the
+> > declaration on line 545.  Such usage of __initdata (and __init)
+> > serves no purpose.
+> 
+> Yes it does.  If the variable is small, then the compiler may
+> expect the variable to be placed in the .sdata section, and so
+> be reachable by, say, a 16-bit gp-relative relocation.
+> 
+> Now, this variable in particular may not be small enough for
+> that, but the fact remains that the general rule should be that
+> variables should be declared with their section attributes.
 
->> OTOH, I really hate the "user pointer in struct epollfd" thing...
+Sigh, which is contary to what Christoph told me.  Fine, have it your
+own way.
 
-> Are you saying you see no way of using the 'user pointer in struct
-> epollfd' to accelerate event dispatching?
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-No, I'm saying that's it's a tricky and unusual thing, and I'm not
-convinced that eliminating an fd array will make a substantial
-difference, cache or no.
-
-> For a perfectly good example of a use for it that has nothing to do
-> with pointers, consider the possibility that the structure could
-> hold a priority number [...] to sort high priority events before low
-> priority events without having to dereference every single fd?
-
-Sure, but...
-
-> I would even tend to delay executing low priority events until
-> epoll_wait(0) stopped telling me about high priority events.
-
-...for this to work, you have to stow events over epoll calls.  The
-sensible place to store these is in your per-fd structure.  So you
-still don't save the access to your per-event structure, just the one
-array index lookup.
-
-If you do priorities, you *must* do this; otherwise you will be
-processing all events as they arrive in userspace.  Merely doing them
-in priority order will produce a slightly reduced but still O(n)
-latency for high priority events, rather than roughly bounded latency
-as is usually the intent.
-
-BTW it is also possible to implement event prioritization in
-kernelspace.  You just [e]poll several sets of epolled fd's and take
-the most interesting set of events each time.  Unless, that is, the
-new syscall interface broke this...
-
-> An opaque field gives me, the event loop designer, freedom. No
-> opaque field because a few event loop designers are convinced that
-> it will be used as a data pointer, and they believe this to be
-> wrong, is a limitation. 
-
-Bah.  Freedom causes holes in feet.
-
-Flexible interfaces are invariably a pain for the users or the
-developers or both.  Inflexible interfaces are less painful - they
-either work or they don't.  As long as you avoid the nonworking sort,
-life is wonderful.
-
-> epoll provides a very efficient alternative to poll.  Forcing epoll
-> to look like poll somewhat defeats the purpose. I don't mind having
-
-No argument here; it might even be handy for epoll to do other things,
-but this hinting feature just feels wrong.  (Even "other things" would
-probably be better implemented through standard poll or some other
-non-specialized mechanism).
-
-To the coder go the spoils; we'll see what Davide does.  And what
-Linus lets in...
-
---
-Grant Taylor - gtaylor<at>picante.com - http://www.picante.com/~gtaylor/
-  Linux Printing Website and HOWTO:  http://www.linuxprinting.org/

@@ -1,82 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266720AbSKHCsA>; Thu, 7 Nov 2002 21:48:00 -0500
+	id <S266738AbSKHDNf>; Thu, 7 Nov 2002 22:13:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266722AbSKHCsA>; Thu, 7 Nov 2002 21:48:00 -0500
-Received: from [192.58.209.91] ([192.58.209.91]:19874 "HELO handhelds.org")
-	by vger.kernel.org with SMTP id <S266720AbSKHCr7>;
-	Thu, 7 Nov 2002 21:47:59 -0500
-From: George France <france@handhelds.org>
-To: Richard Henderson <rth@twiddle.net>,
-       axp-list mailing list <axp-list@redhat.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] eliminate compile warnings
-Date: Thu, 7 Nov 2002 21:54:29 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-References: <20021106214705.A15525@Marvin.DL8BCU.ampr.org> <20021107202855.B17028@Marvin.DL8BCU.ampr.org> <20021107173349.A4017@twiddle.net>
-In-Reply-To: <20021107173349.A4017@twiddle.net>
-Cc: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+	id <S266740AbSKHDNf>; Thu, 7 Nov 2002 22:13:35 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:19922 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266738AbSKHDNe>;
+	Thu, 7 Nov 2002 22:13:34 -0500
+Date: Thu, 7 Nov 2002 19:15:31 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Module loader against 2.5.46: 8/9 
+In-Reply-To: <20021108003238.C3E872C103@lists.samba.org>
+Message-ID: <Pine.LNX.4.33L2.0211071913240.30691-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Message-Id: <02110721542901.28099@shadowfax.middleearth>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Richard,
+On Thu, 7 Nov 2002, Rusty Russell wrote:
 
-As I said earlier, I did not have time to look at the patch today, but
-I was going to save it with some other alpha kernel patches and
-was going to look at it next week.  From the snippet of code that
-you included in this e-mail, I agree 100% with your analysis of this
-patch and the correct way to proceed.  I would not want you to
-apply such a jumbo patch.
+| In message <Pine.LNX.3.96.1021106113408.24531B-100000@gatekeeper.tmr.com> you w
+| rite:
+| > On Tue, 5 Nov 2002, Rusty Russell wrote:
+| > > No.  I don't think that my original version wasn't clear, nor do I
+| > > have time to negate every suggestion, no matter how well meaning or
+| > > not, even if I had no better things to do, which does not seem likely,
+| > > does it not?
+| >
+| > Please don't take this personally, but you just used another double
+| > negative in your response.
+|
+| Did I?  Not that I'm not sorry, but I just didn't realize my lack of
+| clarity was causing confusion.  I shall take your words to heart.
 
-Today we were mostly absorbed in discussing where  or too whom
-should Thorsten send the patch instead of the patch itself, since
-there is no maintainer in the MAINTAINERS file.
+So you did it again, this time on purpose, right?  ;)
+("Not that I'm not sorry")
 
-Thank you very much for taking the time to review and consider
-this patch.
+| > Now you may think that way, and talk that way, but a lot of people
+| > who use Linux are not native speakers of English, and from
+| > experience I suggest that the complex gramatical constructs in all
+| > the help stuff should be avoided.
+|
+| I'd never have thought of that myself, but you're right.  Even among
+| our peers on this mailing list, for example, the nuances of English
+| sometimes go astray.
+|
+| I will try to ensure my writing is straigtforward and impossible to
+| misunderstand.
+|
+| But thankyou for your insight!
+| Rusty.
+| --
 
-Best Regards,
+-- 
+~Randy
+location: NPP-4E
 
-
---George
-
-
-On Thursday 07 November 2002 20:33, Richard Henderson wrote:
-> As for the patch itself, it's not correct.  At a glance,
->
-> > 	addr = arch_get_unmapped_area_1 (PAGE_ALIGN(addr), len, limit);
-> > -	if (addr != -ENOMEM)
-> > +	if (addr != (unsigned) -ENOMEM)
->
-> addr is unsigned long.  If you truncate -ENOMEM to 32-bits, it will
-> never match.  There appears to be much more int/long confusion later.
->
-> You have to be /exceedingly/ careful to fix these warnings without
-> introducing new bugs.  If you change the type of a variable, you
-> have to examine each and every use of the variable to determine if
-> the semantics are unchanged.  If you add a cast, you have to be sure
-> that you cast to a type of the correct width.  If you're adding lots
-> of casts, you should think about changing the type of one or more
-> variables.
->
-> It's enough to make me wish we had -Wno-sign-compare in CFLAGS by
-> default for the nonce.  Which, incidentally, is what I've been doing
-> for my own builds.
->
-> There's absolutely no way I'm going to apply a jumbo patch that
-> changes hundreds of these at once.  If you still want to fix these,
-> then you'll need to send them one at a time and include analysis of
-> why each change is correct.
->
->
-> r~
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

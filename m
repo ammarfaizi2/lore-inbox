@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316236AbSEQO0j>; Fri, 17 May 2002 10:26:39 -0400
+	id <S316238AbSEQO2A>; Fri, 17 May 2002 10:28:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316237AbSEQO0i>; Fri, 17 May 2002 10:26:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36873 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316236AbSEQO0g>;
-	Fri, 17 May 2002 10:26:36 -0400
-Message-ID: <3CE512A7.70202@mandrakesoft.com>
-Date: Fri, 17 May 2002 10:24:39 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-CC: "Grover, Andrew" <andrew.grover@intel.com>,
-        "Patrick Mochel (mochel@osdl.org)" <mochel@osdl.org>,
-        "'davem@redhat.com'" <davem@redhat.com>,
-        "'Greg@kroah.com'" <Greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: pci segments/domains
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7E45@orsmsx111.jf.intel.com> <3CE4098E.2070808@mandrakesoft.com> <20020517144755.A16767@jurassic.park.msu.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S316240AbSEQO17>; Fri, 17 May 2002 10:27:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15883 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id <S316238AbSEQO1q>;
+	Fri, 17 May 2002 10:27:46 -0400
+Date: Fri, 17 May 2002 09:27:40 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: "Ingo Oeser" <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can BUG() also be used "safely" in interrupts?
+Message-Id: <20020517092740.62b4d60b.reynolds@redhat.com>
+In-Reply-To: <20020517090139.G635@nightmaster.csn.tu-chemnitz.de>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.7.6cvs8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
+Uttered "Ingo Oeser" <ingo.oeser@informatik.tu-chemnitz.de>, spoke thus:
 
->On Thu, May 16, 2002 at 03:33:34PM -0400, Jeff Garzik wrote:
->
->>I wouldn't mind making the PCI domain support a bit more explicit, 
->>though.  I think it's fair to be able to obtain a pointer to "struct 
->>pci_domain", which would most likely be defined in asm/pci.h for each arch.
->>
->
->We already have it - void *sysdata. Host-to-PCI (domain) controllers might
->be totally different even inside any given architecture, so trying to
->make this more generic would be pointless - you will end up with a pointer
->to arch/device specific data anyway.
->
-I know -- that's what I mean by being more explicit.  sysdata would 
-become a pointer to struct pci_domain.
+>  I have a routine to be used in an ISR or BH, where I like to use
+>  BUG(), to flag real bugs the caller produces, if he uses it with
+>  wrong arguments (namely: check for asserted interrupts according
+>  to a mask and flag an BUG(), if the mask is bogus).
+> 
+>  So can BUG() be used in an ISR or BH?
 
->
->I can think of the only case where domain info might be interesting - if
->some device wants to know whether it can talk to another device directly.
->We have pci_controller_num(pdev) for this.
->
+BUG() is overkill here, since it breaks all existing spin locks trying to get
+the error message printed by the kernel.  Instead, why not just:
 
-Like gets mentioned later in the thread, you don't want to start 
-addressing based on number...
+	printk( KERN_WARN "spurious interrupt from my device\n" );
 
-    Jeff
-
-
-
-
+like everyone else does?  Keep in mind that if you are sharing an interrupt
+vector, each and every interrupt handler gets called for each and every
+interrupt, so having the device driver check that the device to which it is
+attached is really generating an interrupt is simple good form.

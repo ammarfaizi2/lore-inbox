@@ -1,29 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312517AbSCYTmx>; Mon, 25 Mar 2002 14:42:53 -0500
+	id <S312518AbSCYTpA>; Mon, 25 Mar 2002 14:45:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312518AbSCYTml>; Mon, 25 Mar 2002 14:42:41 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17931 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312517AbSCYTmf>; Mon, 25 Mar 2002 14:42:35 -0500
-Subject: Re: IDE and hot-swap disk caddies
-To: davidsen@tmr.com (Bill Davidsen)
-Date: Mon, 25 Mar 2002 19:55:58 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.3.96.1020325141655.4219A-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Mar 25, 2002 02:34:30 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312521AbSCYTov>; Mon, 25 Mar 2002 14:44:51 -0500
+Received: from sushi.toad.net ([162.33.130.105]:32137 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S312518AbSCYToi>;
+	Mon, 25 Mar 2002 14:44:38 -0500
+Subject: Re: proc_file_read() hack?
+From: Thomas Hood <jdthood@mail.com>
+To: Todd Inglett <tinglett@vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C9F69F4.3010908@vnet.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16paZT-0001Qe-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0.2 
+Date: 25 Mar 2002 14:45:55 -0500
+Message-Id: <1017085557.5263.335.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   The way you say that makes me think that it does support at some other
-> level... hot swap controller? Doesn't match MY hardware. Hot swap
+Unfortunately, your method #3 conflicts with methods #0 through #2,
+which exhaust the range of possible values that may be returned
+in *start.  Any value greater than buffer is regarded as being
+"within the buffer".
 
-Controller level hotswap works mostly (think about pcmcia ide for example)
+Introducing method #1 was a bad idea because this hack made it
+impossible cleanly to implement what you suggest.
 
-Alan
+--
+Thomas Hood
+
+On Mon, 2002-03-25 at 13:18, Todd Inglett wrote:
+> How about applying my trivial patch and then adding this to your nice 
+> comment?
+> 
+> 3) Set *start = an address outside the buffer.
+>     Put the data of the requested offset at *start.
+>     Return the number of bytes of data placed there.
+>     If this number is greater than zero and you
+>     didn't signal eof and the reader is prepared to
+>     take more data you will be called again with the
+>     requested offset advanced by the number ob tyes
+>     absorbed.
+> 
+> The code should still work with the other cases now that the hack is 
+> fixed.  Of course, rather than add 3), it would be better to re-word 2) 
+> (e.g. "Set *start = address of the buffer which may or may not be in the 
+> given buffer.).
+> 
+> There are cases where the data is available and need not be copied.  My 
+> code got simpler when I got rid of the need to copy my data around.
+
+

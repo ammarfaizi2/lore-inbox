@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264586AbTLWORP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 09:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbTLWORP
+	id S265150AbTLWOVR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 09:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbTLWOVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 09:17:15 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:2064 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S264586AbTLWORN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 09:17:13 -0500
-Date: Tue, 23 Dec 2003 15:13:30 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Chris Frey <cdfrey@netdirect.ca>
-cc: "Barry K. Nathan" <barryn@pobox.com>, Maciej Zenczykowski <maze@cela.pl>,
-       Arnaud Fontaine <arnaud@andesi.org>, Mike Fedyk <mfedyk@matchmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.4.23
-In-Reply-To: <20031222120557.A21530@netdirect.ca>
-Message-ID: <Pine.LNX.4.56.0312231510140.28119@jju_lnx.backbone.dif.dk>
-References: <20031219224402.GA1284@scrappy> <Pine.LNX.4.44.0312200034560.15516-100000@gaia.cela.pl>
- <20031222021659.GA4857@ip68-4-255-84.oc.oc.cox.net> <20031222120557.A21530@netdirect.ca>
+	Tue, 23 Dec 2003 09:21:17 -0500
+Received: from YahooBB219197212132.bbtec.net ([219.197.212.132]:52608 "EHLO
+	rai.sytes.net") by vger.kernel.org with ESMTP id S265150AbTLWOVP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 09:21:15 -0500
+Message-ID: <3FE84F59.8020606@yahoo.co.jp>
+Date: Tue, 23 Dec 2003 23:21:13 +0900
+From: Tetsuji Rai <badtrans666@yahoo.co.jp>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en, ja, zh-tw, zh-cn, zh-hk
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: kernel-2.6.0/esd/realplayer8 doesn't work
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, all
 
-On Mon, 22 Dec 2003, Chris Frey wrote:
+   I just installed kernel-2.6.0 release on debian-testing.   On my box esd
+works with xmms, mpg123 as with kernel-2.4.xx series, however, only
+Realplayer8 cannot use esd at all.  Realplayer says "cannot open audio
+device, Another application may be using it."  Sounds strange.   It works
+very fine with the very same configuration on kernel 2.4.23.
+   As a matter of course module-init-tools are installed for kernel-2.6.0.
+Strange thing is xmms, mpg123 works, but that realplayer doesn't work.  And
+when some weeks ago I tested kernel 2.6.0-test6/7, realplayer worked as
+expected.
+  Will anybody have any idea?   I once suspect it should be related to
+connection between realplayer and esd, but if so kernel version doesn't
+matter.   So there should be another reason;for eg. esound doesn't keep up
+with kernel development...just a guess.
 
-> On Sun, Dec 21, 2003 at 06:17:00PM -0800, Barry K. Nathan wrote:
-> > On Sat, Dec 20, 2003 at 12:35:24AM +0100, Maciej Zenczykowski wrote:
-> > > you did run memtest for a minimum dozen hours? sometimes it takes that
-> > > long to find errors...
-> >
-> > On one machine (with a bad power supply, as it turned out) it took
-> > memtest86 almost 18 hours to report an error. So 12 hours isn't enough
-> > either.
-> >
-> > (On a related note, one machine that I tested with mprime's Torture Test
-> > <http://www.mersenne.org/> took I think close to 43 hours to show a
-> > failure. In that case I don't know if the failure was the CPU or the
-> > motherboard, because in the end both failed on that system.)
->
-> At what point do people start suspecting the kernel?
->
-> I mean, I would hope the linux kernel is not so badly written as to stress
-> the machine 24/7.  So after 12 hours of running memtest86 with clean
-> results, does that not begin to point to a software error rather than
-> hardware?
->
-Personally I expect my hardware to be able to survive being stressed 24/7.
-I'm not saying the kernel does that, but if it did I would consider my
-hardware broken if it didn't survive.
+PS: I recompiled esound daemon 0.2.32 with kernel 2.6.0 for sure.
 
-/Jesper Juhl
+TIA
+-- 
+Tetsuji Rai (in Tokyo) aka AF-One (Athlete's Foot-One)
+Born to be the luckiest guy in the world!   May the Force be with me!
+http://www.geocities.com/tetsuji_rai
+http://setiathome.ssl.berkeley.edu/fcgi-bin/fcgi?cmd=view_feedback&id=1855
+fax: 1-516-706-0320
+
 

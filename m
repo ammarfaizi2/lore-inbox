@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVCWNlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbVCWNp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVCWNlf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 08:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbVCWNlf
+	id S262402AbVCWNp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 08:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbVCWNp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 08:41:35 -0500
-Received: from mailfe06.swip.net ([212.247.154.161]:63936 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261594AbVCWNl0 (ORCPT
+	Wed, 23 Mar 2005 08:45:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:6532 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262398AbVCWNne (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 08:41:26 -0500
-X-T2-Posting-ID: dB8bZLHXm6KAmbp1mi7F+A==
-Subject: Re: Strange memory leak in 2.6.x
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Tobias Hennerich <Tobias@Hennerich.de>
-Cc: Timo Hennerich <Timo@Hennerich.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Vladimir Saveliev <vs@namesys.com>
-In-Reply-To: <20050317133026.A4515@bart.hennerich.de>
-References: <20050308173811.0cd767c3.akpm@osdl.org>
-	 <20050309102740.D3382@bart.hennerich.de>
-	 <20050311183207.A22397@bart.hennerich.de> <1110565420.2501.12.camel@boxen>
-	 <20050312133241.A11469@bart.hennerich.de> <1110640085.2376.22.camel@boxen>
-	 <20050312214216.A24046@bart.hennerich.de> <1110661479.3360.11.camel@boxen>
-	 <026101c52891$2a618410$0404010a@hennerich.de>
-	 <1110812292.2492.21.camel@localhost.localdomain>
-	 <20050317133026.A4515@bart.hennerich.de>
-Content-Type: text/plain
-Date: Wed, 23 Mar 2005 14:41:15 +0100
-Message-Id: <1111585276.2441.1.camel@localhost.localdomain>
+	Wed, 23 Mar 2005 08:43:34 -0500
+Date: Wed, 23 Mar 2005 08:43:12 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: paul@linuxaudiosystems.com
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, Chris Morgan <cmorgan@alum.wpi.edu>,
+       seto.hidetoshi@jp.fujitsu.com
+Subject: Re: kernel bug: futex_wait hang
+Message-ID: <20050323134312.GZ32746@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <1111463950.3058.20.camel@mindpipe> <20050321202051.2796660e.akpm@osdl.org> <20050322044838.GB32432@mail.shareable.org> <20050321210802.14be70cc.akpm@osdl.org> <1111469453.3563.0.camel@mindpipe> <20050322063405.GN32746@devserv.devel.redhat.com> <1111535887.4691.26.camel@mindpipe> <3726.71.100.26.22.1111583579.spork@webmail.linuxaudiosystems.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3726.71.100.26.22.1111583579.spork@webmail.linuxaudiosystems.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > for one of the last results of /proc/page_owner. It seems to be
-> > > obvious that the memory-leak seems to be the first entry:
-> > > 
-> > >     $ less page_owner_sorted_20050314_0740.bz2
-> > >     881397 times:
-> > >     Page allocated via order 0
-> > >     [0xc013962b] find_or_create_page+91
-> > >     [0xf8aa9955] reiserfs_prepare_file_region_for_write+613
-> > >     [0xf8aaa606] reiserfs_file_write+1366
-> > >     [0xc015765c] vfs_write+172
-> > >     [0xc015776c] sys_write+60
-> > >     [0xc0103879] sysenter_past_esp+82
-> > 
-> > [resolved addresses => names]
-> > > 
-> > > The sorted table of /proc/kallsyms looks like this:
-> > > 
-> > >     f8aa96f0 t reiserfs_prepare_file_region_for_write       [reiserfs]
-> > >     f8aaa0b0 t reiserfs_file_write  [reiserfs]
-> > > 
-> > > So I guess that we have a problem with the reiser filesystem??
-> > > We are using reiserfs 3.6...
-> > 
-> > [added Vladimir Saveliev to CC]
-> > 
-> > The only thing that stands out is big page cache. However, looking at
-> > the previous OOM output it shows that it is zone normal that is
-> > completely out of memory and that highmem zone has lots of free memory.
-> > 
-> > Let's see if the big sharks know what is going on...
-> 
-> Hm, it seems like the big sharks are hunting other fishes at the moment...
-> 
-> I looked at the code myself - reiserfs_prepare_file_region_for_write
-> has more then 250 lines of code. I don't want to critize anyone, but
-> this function is a bit too long to be easily debugged.
-> 
-> Because we suspect the problem in reiserfs and we still have to reboot
-> the machine every other day, we will switch to ext3 now.
+On Wed, Mar 23, 2005 at 05:12:59AM -0800, paul@linuxaudiosystems.com wrote:
+> the hang occurs during an attempted thread cancel+join. we know from
+> strace that one thread calls tgkill() on the other. the other thread is
+> blocked in a poll call on a FIFO. after tgkill, the first thread enters a
+> futex wait, apparently waiting for the thread ID of the cancelled thread
+> to appear at some location (just a guess based on the info from strace).
+> the wait never returns, and so the first thread ends up hung in
+> pthread_join(). there are no user-defined mutexes or condvars involved.
 
-Just to follow up, did the problems go away when switching to ext3?
+If the thread that is to be cancelled is in async cancel state (it should
+be when waiting in a poll and if cancellation is not disabled in that thread),
+then pthread_cancel sends a SIGCANCEL signal to it via tgkill.
+If tgkill succeeds (and thus pthread_cancel succeeds too) and you call
+pthread_join on it, in the likely case the thread is still alive
+pthread_join will FUTEX_WAIT on pd->tid, waiting until the thread dies.
+NPTL threads are created with CLONE_CHILD_CLEARTID &self->tid, so this
+futex will be FUTEX_WAKEd by mm_release in kernel whenever the thread is
+exiting (or dying in some other way).
 
-Thanks
-Alexander
+So, if pthread_join waits for the thread forever, the thread must be
+around (otherwise pthread_join would not block on it; well, there could
+be memory corruption in the program and anything would be possible then).
+This would mean either that the poll has not been awaken by the SIGCANCEL
+signal, or e.g. that one of the registered cleanup handlers (or C++
+destructors) in the thread that is being cancelled get stuck for whatever
+reason (deadlock, etc.).
 
-
+	Jakub

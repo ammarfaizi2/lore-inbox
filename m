@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266999AbTBLK3g>; Wed, 12 Feb 2003 05:29:36 -0500
+	id <S266998AbTBLKfh>; Wed, 12 Feb 2003 05:35:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266995AbTBLK3g>; Wed, 12 Feb 2003 05:29:36 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:64423 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S266991AbTBLK3f>;
-	Wed, 12 Feb 2003 05:29:35 -0500
-Date: Wed, 12 Feb 2003 11:39:14 +0100 (CET)
-From: Stephan van Hienen <raid@a2000.nu>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       bernard@biesterbos.nl, ext2-devel@lists.sourceforge.net
-Subject: Re: raid5 2TB+ NO GO ?
-In-Reply-To: <15945.31516.492846.870265@wombat.chubb.wattle.id.au>
-Message-ID: <Pine.LNX.4.53.0302121129480.13462@ddx.a2000.nu>
-References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu>
- <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu> <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu>
- <15937.50001.367258.485512@wombat.chubb.wattle.id.au>
- <Pine.LNX.4.53.0302061915390.17629@ddx.a2000.nu>
- <15945.31516.492846.870265@wombat.chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267013AbTBLKfh>; Wed, 12 Feb 2003 05:35:37 -0500
+Received: from ns.suse.de ([213.95.15.193]:40463 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S266998AbTBLKfg>;
+	Wed, 12 Feb 2003 05:35:36 -0500
+Date: Wed, 12 Feb 2003 11:45:08 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andi Kleen <ak@suse.de>, Dave Jones <davej@codemonkey.org.uk>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
+Message-ID: <20030212104508.GA1273@wotan.suse.de>
+References: <629040000.1045013743@flay> <20030212025902.GA14092@codemonkey.org.uk> <20030212075048.GA9049@wotan.suse.de> <20030212102741.GC10422@bjl1.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030212102741.GC10422@bjl1.jlokier.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Feb 2003, Peter Chubb wrote:
+On Wed, Feb 12, 2003 at 10:27:41AM +0000, Jamie Lokier wrote:
+> Andi Kleen wrote:
+> > +	/* FIXME should disable preemption here but how can we reenable it? */
+> > +
+> > +	enable_sysenter();
+> > +
+> 
+> Try this:
 
-> >>>>> "Stephan" == Stephan van Hienen <raid@a2000.nu> writes:
->
-> Stephan,
-> 	Just noticed you're using raid5 --- I don't believe that level
-> 5 will work, as its data structures and  internal algorithms are
-> 32-bit only.  I've done no work on it to make it work (I've been
-> waiting for the rewrite in 2.5), and don't have time to do anything now.
->
-> You could try making sector in the struct stripe_head a sector_t, but
-> I'm pretty sure you'll run into other problems.
->
-> I only managed to get raid 0 and linear to work when I was testing.
+[...] I have no real interest in vm86 mode, perhaps one of the people
+interested in dosemu etc. could take care of it. I'm very glad it doesn't
+exist on my main architecture - x86-64 - given how many hacks it needs to be 
+supported.
 
-ok clear, so no raid5 for 2TB+ then :(
+I would like to have fast context switch on IA32 though so it would be nice 
+if someone deeply familiar with sys_vm86 could review my patch.
 
-looks like i have to remove some hd's then
+Avoiding the SYSCALL_CS MSR is independent from the issues Linus raised.
 
-what will be the limit ?
-
-13*180GB in raid5 ?
-or 12*180GB in raid5 ?
-
-    Device Size : 175823296 (167.68 GiB 180.09 GB)
-
-13* will give me 1,97TiB but will there be an internal raid5 problem ?
-(since it will be 13*180GB to be adressed)
-
-
+-Andi

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264527AbUD2Nom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264551AbUD2Nv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbUD2Nom (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 09:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUD2Nom
+	id S264551AbUD2Nv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 09:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbUD2Nv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 09:44:42 -0400
-Received: from hellhawk.shadowen.org ([212.13.208.175]:41997 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S264527AbUD2Noi convert rfc822-to-8bit (ORCPT
+	Thu, 29 Apr 2004 09:51:59 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:13203 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S264542AbUD2Nv5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 09:44:38 -0400
-Date: Thu, 29 Apr 2004 14:49:19 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-To: =?ISO-8859-1?Q?Mariusz_Koz=B3owski?= <sp3fxc@linuxfocus.org>,
-       john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: odd clock thing...
-Message-ID: <18827512.1083250159@42.150.104.212.access.eclipse.net.uk>
-In-Reply-To: <200404101526.10695.sp3fxc@linuxfocus.org>
-References: <200404062004.22292.sp3fxc@linuxfocus.org>
- <1081363155.5408.455.camel@cog.beaverton.ibm.com>
- <200404101526.10695.sp3fxc@linuxfocus.org>
-X-Mailer: Mulberry/3.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	Thu, 29 Apr 2004 09:51:57 -0400
+Message-Id: <200404291351.i3TDpoev003956@eeyore.valparaiso.cl>
+To: brettspamacct@fastclick.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell 
+In-Reply-To: Your message of "Wed, 28 Apr 2004 17:04:14 MST."
+             <4090467E.4070709@fastclick.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Thu, 29 Apr 2004 09:51:48 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On 10 April 2004 15:26 +0200 Mariusz Koz³owski <sp3fxc@linuxfocus.org>
-wrote:
+"Brett E." <brettspamacct@fastclick.com> said:
 
-> 	I did what you told me to do. I disabled ACPI PM time source. There is a 
-> significant change. The system clock is running still too fast but it is
-> a  very small difference. After 24 hours the difference is 2 minutes
-> ahead. I  don't know what to think about it. Is it precise enough or
-> should I do some  more tests. As far as I remember the system clock on
-> this machine was runnig  perfectly fine so that even after one week it
-> was still in sync with other  electronic clocks I have. I think I'll try
-> to disable CPUfreq and see if it  helps. 
+[...]
 
-I think if your system clock is as good as 2 minutes per day you are
-'normal'.  System clocks are generally very stable but not very accurate,
-ie. they will consistently gain or lose the same ammount per day, but not
-be that good.  That is one of the reasons NTP is very effective on a
-system, it can figure out how rubbish your clock is and correct for it
-because of that stability.
+> I created a hack which allocates memory causing cache to go down, then 
+> exits, freeing up the malloc'ed memory. This brings free memory up by 
+> 400 megs and brings the cache down to close to 0, of course the cache 
+> grows right afterwards. It would be nice to cap the cache datastructures 
+> in the kernel but I've been posting about this since September to no 
+> avail so my expectations are pretty low.
 
--apw
+Because it is complete nonsense. Keeping stuff around in RAM in case it
+is needed again, as long as RAM is not needed for anything else, is a mayor
+win. That is what cache is.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

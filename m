@@ -1,61 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263431AbSJGW42>; Mon, 7 Oct 2002 18:56:28 -0400
+	id <S262659AbSJGXB2>; Mon, 7 Oct 2002 19:01:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263328AbSJGWzU>; Mon, 7 Oct 2002 18:55:20 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:23728 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S263121AbSJGWyc>; Mon, 7 Oct 2002 18:54:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: GrandMasterLee <masterlee@digitalroadkill.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: EVMS breaking menuconfig in 2.5.40?
-Date: Mon, 7 Oct 2002 09:30:20 -0500
-X-Mailer: KMail [version 1.2]
-References: <1033968519.3948.7.camel@localhost>
-In-Reply-To: <1033968519.3948.7.camel@localhost>
+	id <S262649AbSJGXB1>; Mon, 7 Oct 2002 19:01:27 -0400
+Received: from marob.cust.panix.com ([166.84.191.66]:52866 "HELO
+	marob.cust.panix.com") by vger.kernel.org with SMTP
+	id <S262659AbSJGXAz>; Mon, 7 Oct 2002 19:00:55 -0400
+Message-ID: <20021007230634.21560.qmail@marob.cust.panix.com>
+Date: 7 Oct 2002 19:06:34 -0400
+Date: Mon, 7 Oct 2002 19:06:34 -0400 (EDT)
+From: rcliff@panix.com
+Reply-To: rcliff@panix.com
+Subject: Re: make modules fails with 2.5.41 in scsi/ppa
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <02100709302000.15613@boiler>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 October 2002 00:28, GrandMasterLee wrote:
-> I got EVMS from cvs, found the 2.5.40 patch, applied it, then attempted
-> to do make menuconfig.
+And if I remove #include <linux/tqueue.h> from ppa.h, I get the errors below:
+
+Regarding the error in ppa.c line 56
+routine was in (2.5.38) tqueue.h:
+struct tq_struct {
+        struct list_head list;          /* linked list of active bh's */
+        unsigned long sync;             /* must be initialized to zero */
+        void (*routine)(void *);        /* function to call */
+        void *data;                     /* argument to function */
+};
+
+-----------------
+
+make -f drivers/scsi/Makefile
+  gcc -Wp,-MD,drivers/scsi/.ppa.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=ppa   -c -o drivers/scsi/ppa.o drivers/scsi/ppa.c
+drivers/scsi/ppa.c:32: field `ppa_tq' has incomplete type
+drivers/scsi/ppa.c:56: warning: braces around scalar initializer
+drivers/scsi/ppa.c:56: warning: (near initialization for `ppa_hosts[0].ppa_tq')
+drivers/scsi/ppa.c:56: unknown field `routine' specified in initializer
+drivers/scsi/ppa.c:56: invalid initializer
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[0].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[0].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[0]')
+drivers/scsi/ppa.c:56: warning: braces around scalar initializer
+drivers/scsi/ppa.c:56: warning: (near initialization for `ppa_hosts[1].ppa_tq')
+drivers/scsi/ppa.c:56: unknown field `routine' specified in initializer
+drivers/scsi/ppa.c:56: invalid initializer
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[1].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[1].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[1]')
+drivers/scsi/ppa.c:56: warning: braces around scalar initializer
+drivers/scsi/ppa.c:56: warning: (near initialization for `ppa_hosts[2].ppa_tq')
+drivers/scsi/ppa.c:56: unknown field `routine' specified in initializer
+drivers/scsi/ppa.c:56: invalid initializer
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[2].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[2].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[2]')
+drivers/scsi/ppa.c:56: warning: braces around scalar initializer
+drivers/scsi/ppa.c:56: warning: (near initialization for `ppa_hosts[3].ppa_tq')
+drivers/scsi/ppa.c:56: unknown field `routine' specified in initializer
+drivers/scsi/ppa.c:56: invalid initializer
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[3].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[3].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[3]')
+drivers/scsi/ppa.c: In function `ppa_interrupt':
+drivers/scsi/ppa.c:804: warning: implicit declaration of function `schedule_delayed_work_Rd3dad18a'
+drivers/scsi/ppa.c: In function `ppa_queuecommand':
+drivers/scsi/ppa.c:989: warning: implicit declaration of function `schedule_work_Rf6a5a6c8'
+make[2]: *** [drivers/scsi/ppa.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
+
+
+
+
+rcliff@panix.com writes:
+
+> slackware-8.1: gcc 2.95.3; intel pentuum4
 >
-> All that happens is this:
+> Here is the error when I do "make modules" from a clean 2.5.41:
 >
-> [austin@UberGeek linux-2.5.40]$ make menuconfig
-> make[1]: Entering directory `/data/build/linux-2.5.40/scripts'
-> make -C lxdialog all
-> make[2]: Entering directory `/data/build/linux-2.5.40/scripts/lxdialog'
-> make[2]: Leaving directory `/data/build/linux-2.5.40/scripts/lxdialog'
-> make[1]: Leaving directory `/data/build/linux-2.5.40/scripts'
-> /bin/sh ./scripts/Menuconfig arch/i386/config.in
-> Using defaults found in .config
-> Preparing scripts: functions, parsing
-
-It sounds like you added the EVMS common-files patch but not the actual EVMS 
-code. This will cause the kernel config to break, since it can't find the 
-file drivers/evms/Config.in.
-
-If you want to build the latest EVMS kernel code from CVS, please see 
-http://evms.sf.net/install.html (last section).
-
-> and then my console becomes unuseable, I can't even ssh in from another
-> box, then X dies eventually.
 >
-> If I hit and hold ctrl-c for a few seconds after this begins, I can
-> usually break out, but if I miss it, then well, X blows up pretty good.
-
-This doesn't make much sense. When I reproduce the above situation, all I get 
-is an error from awk, and then make quits with an error. I can't imagine why 
-it would cause your X server to blow up.
+> 05:06pm{/usr/src/linux}# make modules
+> .....
+> make -f drivers/scsi/Makefile
+>   gcc -Wp,-MD,drivers/scsi/.ppa.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=ppa   -c -o drivers/scsi/ppa.o drivers/scsi/ppa.c
+> In file included from drivers/scsi/ppa.c:52:
+> drivers/scsi/ppa.h:81: linux/tqueue.h: No such file or directory
+....
+> make[1]: *** [drivers/scsi] Error 2
+> make: *** [drivers] Error 2
 
 -- 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+Robert Clifford, ESCC New York City                         rcliff@panix.com
+"I think I've got the hang of it now .... :w :q :wq :wq!  ^d  X  exit  X   Q 
+:quitbye CtrlAltDel  ~~q :~q logout save/quit :!QUIT ^[zz  ^[ZZ ZZZZ ^H ^@ ^L
+^[c ^# ^E ^X ^I ^T ? help helpquit ^D^d ^C ^c help exit ?Quit ?q" (Ed Wright)
+
+

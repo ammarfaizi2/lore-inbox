@@ -1,77 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289471AbSAVWKw>; Tue, 22 Jan 2002 17:10:52 -0500
+	id <S289482AbSAVWPB>; Tue, 22 Jan 2002 17:15:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289476AbSAVWKM>; Tue, 22 Jan 2002 17:10:12 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:60803 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S289471AbSAVWKB>; Tue, 22 Jan 2002 17:10:01 -0500
-Date: Tue, 22 Jan 2002 17:10:27 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Chris Mason <mason@suse.com>
-cc: Hans Reiser <reiser@namesys.com>, Rik van Riel <riel@conectiva.com.br>,
-        Andreas Dilger <adilger@turbolabs.com>, Shawn Starr <spstarr@sh0n.net>,
-        linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <2116720000.1011733708@tiny>
-Message-ID: <Pine.LNX.3.95.1020122164209.14535A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289484AbSAVWOn>; Tue, 22 Jan 2002 17:14:43 -0500
+Received: from gumby.it.wmich.edu ([141.218.23.21]:19638 "EHLO
+	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
+	id <S289482AbSAVWOg>; Tue, 22 Jan 2002 17:14:36 -0500
+Subject: Re: Athlon PSE/AGP Bug
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87k7uakutl.fsf@CERT.Uni-Stuttgart.DE>
+In-Reply-To: <1011610422.13864.24.camel@zeus>
+	<20020121.053724.124970557.davem@redhat.com>
+	<20020121.053724.124970557.davem@redhat.com>
+	<20020121175410.G8292@athlon.random> <3C4C5B26.3A8512EF@zip.com.au>
+	<o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
+	<hbep4uka8q6t1tfv6694sjtvfrulipg3a4@4ax.com> 
+	<87k7uakutl.fsf@CERT.Uni-Stuttgart.DE>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 22 Jan 2002 17:14:27 -0500
+Message-Id: <1011737673.10474.12.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On the same note.  Anyone trying to run their ram faster than it should
+go from the bios would eventually see these kind of things happen. I
+used to get errors from anything really memory intensive, games and such
+from having ram set at cas 2 instead of cas 3 and removing certain
+delays when i shouldn't.  People should really make sure their tuned up
+systems aren't just overtuned before forking up segfaults to the Athlon
+bug that apparently all the kernel guru's have decided doesn't affect
+linux just as it doesn't affect the bsd people.   
 
-What's wrong with having the file-system call a VM function
-to free some buffer once it's been written and hasn't been
-accessed recently? Isn't that what's being done already.
+It seems to me that the bug "could" be in your chip, it doesn't mean
+it's in every athlon...  otherwise we'd be seeing some commonalities and
+so far i've seen none.  
 
-That keeps FS in the FS and VM in VM.
+Since all the people having problems in linux with the athlon bug are
+heavy graphics/game users ...I'd suspect overtuning as the problem
+before anything else first and make sure they run memtest86,  even if
+disabling pentium ops fixes things. 
 
-The file-system is the only thing that "knows"  or should know about
-file-system activity.
-
-The only problem I see with the current implementation is that it
-"seems as though" the file-system keeps old data too long. Therefore,
-RAM gets short.
-
-The actual buffer(s) that get written and then released
-should be based upon "least-recently-used". Buffers should
-be written until some target of free memory is reached. Presently
-it doesn't seem as though we have such a target. Therefore, we
-eventually run out of RAM and try to find some magic algorithm
-to use. As a last resort, we kill processes. This is NotGood(tm).
-
-We need a free-RAM target, possibly based upon a percentage of
-available RAM. The lack of such a target is what causes the
-out-of-RAM condition we have been experiencing. Somebody thought
-that "free RAM is wasted RAM" and the VM has been based upon
-that theory. That theory has been proven incorrect. You need
-free RAM, just like you need "excess horsepower" to make
-automobiles drivable. That free RAM is the needed "rubber-band"
-to absorb the dynamics of real-world systems.
-
-That free-RAM target can be attacked both by the file-system(s)
-and the VM system. The file-system gives LRU buffers until
-it has obtained the free-RAM target, without regard for the
-fact that VM may immediately use those pages for process expansion.
-
-VM will also give up LRU pages until it has reached the same target.
-These targets occur at different times, which is the exact mechanism
-necessary to load-balance available RAM. VM can write to swap if
-it needs, to satisfy its free-RAM target but writing to swap
-has to go directly to the device or you will oscillate if the
-swap-write doesn't free its buffers. In other words, you don't
-free cache-RAM by writing to a cached file-system. You will
-eventually settle into the time-constant which causes oscillation.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+On Tue, 2002-01-22 at 15:13, Florian Weimer wrote:
+> Steve Brueggeman <brewgyman@mediaone.net> writes:
+> 
+> > Forgot to mention, I got the segfaults compiling kernels while running
+> > linux-2.4.17, I was in console, and did not have Frame Buffer, or drm drivers
+> > loaded.  I did have the SiS AGP compiled into the kernel though.
+> 
+> On my new system at home, I got similar segfaults.  Running memtest86
+> revealed that one of the RAM modules had a problem--and if I swapped
+> them, the BIOS startup code wouldn't even expand the actual BIOS code
+> every other system boot.  After removing the offending RAM module (and
+> later replacing it) the problems were completely gone and haven't
+> returned yet...
+> 
+> Fortunately, I didn't know of the PSE/AGP bug back then.  This made
+> debugging much, much easier. ;-)
+> 
+> -- 
+> Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+> University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+> RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 

@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbTFGJFw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 05:05:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTFGJFw
+	id S262883AbTFGJbN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 05:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTFGJbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 05:05:52 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22547 "EHLO
+	Sat, 7 Jun 2003 05:31:13 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7684 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262820AbTFGJFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 05:05:16 -0400
-Date: Sat, 7 Jun 2003 10:18:48 +0100
+	id S262883AbTFGJbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 05:31:07 -0400
+Date: Sat, 7 Jun 2003 10:44:34 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: irq consolidation
-Message-ID: <20030607101848.A22665@flint.arm.linux.org.uk>
-Mail-Followup-To: Anton Blanchard <anton@samba.org>,
+To: davidm@hpl.hp.com
+Cc: "David S. Miller" <davem@redhat.com>, manfred@colorfullife.com,
+       axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: problem with blk_queue_bounce_limit()
+Message-ID: <20030607104434.B22665@flint.arm.linux.org.uk>
+Mail-Followup-To: davidm@hpl.hp.com, "David S. Miller" <davem@redhat.com>,
+	manfred@colorfullife.com, axboe@suse.de,
 	linux-kernel@vger.kernel.org
-References: <20030607040515.GB28914@krispykreme> <20030607044803.GE28914@krispykreme>
+References: <16096.16492.286361.509747@napali.hpl.hp.com> <20030606.003230.15263591.davem@redhat.com> <200306062013.h56KDcLe026713@napali.hpl.hp.com> <20030606.234401.104035537.davem@redhat.com> <16097.37454.827982.278024@napali.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030607044803.GE28914@krispykreme>; from anton@samba.org on Sat, Jun 07, 2003 at 02:48:03PM +1000
+In-Reply-To: <16097.37454.827982.278024@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Sat, Jun 07, 2003 at 12:20:46AM -0700
 X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 02:48:03PM +1000, Anton Blanchard wrote:
-> We are hoping to kill irq_desc[NR_IRQS] completely and instead allocate
-> them on demand with some sort of hash to map an interrupt number to an
-> irq_desc.
+On Sat, Jun 07, 2003 at 12:20:46AM -0700, David Mosberger wrote:
+> ./include/asm-arm/pci.h:#define PCI_DMA_BUS_IS_PHYS     (0)
 
-The same thought has crossed my mind as well for ARM; the hardware
-interrupt controllers are becoming more inteligent, and there is
-the possibility that system designers will mix inteligent interrupt
-controllers with standard types.
+I suspect we probably set this incorrectly; we have some platforms where
+there is merely an offset between the phys address and the bus address.
+For these, I think we want to set this to 1.
 
-Also on ARM, we're currently defining NR_IRQS on a per-platform class
-and even a per-platform basis.
+Other platforms require the dma functions to allocate a new buffer
+and copy the data to work around buggy "wont fix" errata (eg, new buffer
+below 1MB) and for these I think we want to leave this at 0.
 
-I've been wondering whether we even need to think about passing some
-alternative identifier of an IRQ line around, instead of a number.
+It is rather unfortunate that this got called "PCI_xxx" since it has
+been used in a non pci-bus manner in (eg) the scsi layer.
 
-> Im working on top of Andrey Panin's irq consolidation patches
-> in the hope that it goes in first and other architectures can benefit 
-> from these changes (I think SGI's ia64 boxes have similar issues as
-> well as large x86)
-
-I believe Andrey's IRQ consolidation provides a single flat IRQ
-structure.  Unfortunately, this doesn't reflect the reality that we
-have on many ARM platforms - it remains the case that we need to
-decode IRQs on a multi-level basis.
-
-Given the rate which ARM has progressed and evolved during the existing
-2.4 lifespan, it doesn't make much difference to us whether these
-changes happen now or later.  If it happens later, it will be during
-the 2.6 series of kernels, so "now" is preferable.  Reality is such
-that ARM hardware moves a hell of a lot faster than x86 hardware.
+Also note that I have platforms where the dma_mask is a real mask not
+"a set of zeros followed by a set of ones from MSB to LSB."  I can
+see this breaking the block layer if PCI_DMA_BUS_IS_PHYS is defined
+to one. 8/
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

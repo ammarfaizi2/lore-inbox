@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282610AbRKZW3o>; Mon, 26 Nov 2001 17:29:44 -0500
+	id <S282620AbRKZW3y>; Mon, 26 Nov 2001 17:29:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282613AbRKZW3e>; Mon, 26 Nov 2001 17:29:34 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:7689 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S282610AbRKZW30>; Mon, 26 Nov 2001 17:29:26 -0500
-Message-Id: <200111262228.fAQMSrY52300@aslan.scsiguy.com>
-To: Cristian CONSTANTIN <constantin@fokus.gmd.de>
-cc: Pim Zandbergen <P.Zandbergen@macroscoop.nl>, linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx freezes with kernel 2.4.13 
-In-Reply-To: Your message of "Thu, 22 Nov 2001 12:10:36 +0100."
-             <20011122121036.V24162@terix.fokus.gmd.de> 
-Date: Mon, 26 Nov 2001 15:28:53 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S282613AbRKZW3p>; Mon, 26 Nov 2001 17:29:45 -0500
+Received: from [208.132.17.2] ([208.132.17.2]:5648 "HELO aegis.indstorage.com")
+	by vger.kernel.org with SMTP id <S282617AbRKZW3b> convert rfc822-to-8bit;
+	Mon, 26 Nov 2001 17:29:31 -0500
+From: n0ano@indstorage.com
+Date: Mon, 26 Nov 2001 15:28:03 -0700
+To: =?iso-8859-1?Q?Achim_Kr=FCmmel?= <akruemmel@dohle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel I860
+Message-ID: <20011126152803.A8684@tlaloc.indstorage.com>
+In-Reply-To: <3BFD0F19.86D23BEB@dohle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-Mailer: Mutt 1.0i
+In-Reply-To: <3BFD0F19.86D23BEB@dohle.com>; from akruemmel@dohle.com on Thu, Nov 22, 2001 at 03:43:37PM +0100
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by aegis.indstorage.com id fAQMRD714451
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Wed, Nov 07, 2001 at 04:20:17PM +0100, Pim Zandbergen wrote:
->> Hi,
->> 
->> I've got a Dell PowerEdge 1300 with dual PIII's and dual aic7xxx
->> controllers. One controller is onboard, the other is in a PCI slot.
->> 
->> The system is running Red Hat 7.1 with kernel 2.4.13.
->> 
->> Lately, this system is experiencing freezes that may last one or two
->> minutes. These usually occur during heavy Samba activity. After the
->> freeze, the system usually recovers, but by then, the Samba clients
->> have timed out their operations.
->> 
->> Syslog shows the freezes are related to the SCSI subsystem. I'm having
->> trouble interpreting this information. Is my hardware suspect or could
->> this be a driver bug?
->> 
->> Syslog entries (with aic7xxx=verbose) showing the boot process and a
->> system freeze can be found on
->> 
->> http://www.macroscoop.nl/~pim/aic7xxx/syslog.html (98.080 bytes) or
->> http://www.macroscoop.nl/~pim/aic7xxx/syslog.gz   (6.410 bytes)
+Achim-
 
-In the case of these traces, it appears that the bus is not up to
-snuff for the negotiated speed.  We're in data-out phase, our DMA
-engine is enabled, our FIFO is full of data to send, but the target
-has not requested any more data.  This means that either the controller
-missed a REQ or the target missed an ACK.  I would verify your cabling
-and termination.
+Uh, what exactly do you think you have here?  The I860 was a
+completely new architecture that Intel dropped over 5 years
+ago.  I've got one running Unix SVR4 in my basement but you
+can't buy an I860 motherboard today.
 
->cristian: same problem here. posted some time ago on linux-kernel and
->some days ago on linux-scsi. no solution so far...
->
->my config, in a very few words:
->- tyan SMP motherboard + 2xAthlon
->- adaptec aic7xxx (2 onboard 1 PCI - tried with all of them, same
->  result)
+(For the record the 860 was a great architecture for the time
+and I'm still bitter that Intel dropped it but that's a different
+story.)
 
-I'd need to see the logs to know for sure that what you are seeing
-is the same as Cristian.
+On Thu, Nov 22, 2001 at 03:43:37PM +0100, Achim Krümmel wrote:
+> Hi,
+> 
+> I have to setup a fast Linux Server for a database application.
+> I would like to use a Mainboard for 2 Pentium4 CPUs for this.
+> I found such a board with a Intel I860 chip. Is this chip
+> supported by the current Kernel v2.4.14 or will I get problems
+> with this board and Linux?
+> 
+> many thanks,
+> 
+>    Achim Kruemmel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---
-Justin
+-- 
+Don Dugger
+"Censeo Toto nos in Kansa esse decisse." - D. Gale
+n0ano@indstorage.com
+Ph: 303/652-0870x117

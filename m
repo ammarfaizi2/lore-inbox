@@ -1,60 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbTISPVa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 11:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTISPVa
+	id S261620AbTISPPO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 11:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbTISPPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 11:21:30 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:50088 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S261601AbTISPV3 (ORCPT
+	Fri, 19 Sep 2003 11:15:14 -0400
+Received: from infres.enst.fr ([137.194.192.1]:34458 "EHLO infres.enst.fr")
+	by vger.kernel.org with ESMTP id S261620AbTISPPD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 11:21:29 -0400
-Date: Fri, 19 Sep 2003 08:21:18 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, pfg@sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Altix console driver
-Message-ID: <20030919152118.GA2121@sgi.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Andrew Morton <akpm@osdl.org>, pfg@sgi.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030917222414.GA25931@sgi.com> <20030917152139.42a1ce20.akpm@osdl.org> <1063886970.15957.13.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1063886970.15957.13.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+	Fri, 19 Sep 2003 11:15:03 -0400
+Date: Fri, 19 Sep 2003 17:15:00 +0200 (CEST)
+From: Ramon Casellas <casellas@infres.enst.fr>
+X-X-Sender: casellas@gandalf.localdomain
+To: linux-kernel@vger.kernel.org
+Cc: acpi-devel@lists.sourceforge.net, shaohuha.li@intel.com
+Subject: ACPI Patch for 2.6.0-test5-mm3 (post 20030916) needs testing,
+ ref.count errors detecting battery/status
+Message-ID: <Pine.LNX.4.58.0309191704470.9325@gandalf.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, according to the FSF our extra clauses are compatible with the GPL
-and LGPL.  See http://oss.sgi.com/projects/GenInfo/NoticeExplan/.  If
-you still disagree then we'll have to try to find another solution.
 
-Thanks,
-Jesse
+Hi,
 
-On Thu, Sep 18, 2003 at 01:09:31PM +0100, Alan Cox wrote:
-> On Mer, 2003-09-17 at 23:21, Andrew Morton wrote:
-> 
-> > Would it be more appropriate to place this under arch/ia64?
-> 
-> Unless they clarify the GPL violating license clause I'd suggest
-> strongly it goes into /dev/null. The GPL states:
-> 
-> 
->   6. Each time you redistribute the Program (or any work based on the
-> Program), the recipient automatically receives a license from the
-> original licensor to copy, distribute or modify the Program subject to
-> these terms and conditions.  You may not impose any further
-> restrictions on the recipients' exercise of the rights granted herein.
-> You are not responsible for enforcing compliance by third parties to
-> this License.
-> 
-> I am perfectly permitted by the GPL to modify Linux and add other code
-> to it, or to create a new product based on it that is GPL licensed. 
-> 
-> 
-> SGI need to fix their boilerplate. I can kind of guess what they are
-> trying to say but it needs tweaking.
+Original patch from Li, Shaohua <shaohua@in...> for 2.4.22/23, ported to 
+2.6.0-test5-mm3 (with acpi 20030916), please test.
+
+
+[1] Bug Report 
+----------------------------------------------------------
+http://sourceforge.net/mailarchive/forum.php?thread_id=3144527&forum_id=6102
+
+[2] Answer
+-----------------------------------------------------------
+> From: Li, Shaohua <shaohua@in...> 
+> RE: Re: IBM Thinkpad and ACPI 20030916 for 2.4.23-pre4   
+2003-09-17 17:28 
+
+>Hi,
+> Patch for the battery error is available in OSDL bugzilla #1038. Pl. 
+try.
+> Thanks,
+> Shaohua
+-----------------------------------------------------------
+
+Note: Works for me.
+
+Regards,
+Ramon
+// Ramon Casellas 		GET/ENST/INFRES/RHD/C206  
+
+
+
+###############################################
+diff -ru linux-2.6.0-test5-mm3/drivers/acpi/utilities/utdelete.c linux-2.6.0-test5-mm3.acpi/drivers/acpi/utilities/utdelete.c
+--- linux-2.6.0-test5-mm3/drivers/acpi/utilities/utdelete.c	2003-09-08 21:50:04.000000000 +0200
++++ linux-2.6.0-test5-mm3.acpi/drivers/acpi/utilities/utdelete.c	2003-09-19 16:50:13.656199160 +0200
+@@ -417,6 +417,8 @@
+ 	union acpi_generic_state         *state_list = NULL;
+ 	union acpi_generic_state         *state;
+ 
++	union acpi_operand_object        *tmp;
++
+ 
+ 	ACPI_FUNCTION_TRACE_PTR ("ut_update_object_reference", object);
+ 
+@@ -447,9 +449,16 @@
+ 		 */
+ 		switch (ACPI_GET_OBJECT_TYPE (object)) {
+ 		case ACPI_TYPE_DEVICE:
+-
+-			acpi_ut_update_ref_count (object->device.system_notify, action);
+-			acpi_ut_update_ref_count (object->device.device_notify, action);
++			
++			tmp = object->device.system_notify;
++			if(tmp && tmp->common.reference_count<=1 && action == REF_DECREMENT)
++				object->device.system_notify = NULL;
++			acpi_ut_update_ref_count (tmp, action);
++
++			tmp = object->device.device_notify;
++			if(tmp && tmp->common.reference_count <=1 && action == REF_DECREMENT)
++				object->device.device_notify = NULL;
++			acpi_ut_update_ref_count (tmp, action);
+ 			break;
+ 
+ 
+@@ -467,6 +476,9 @@
+ 				 */
+ 				status = acpi_ut_create_update_state_and_push (
+ 						 object->package.elements[i], action, &state_list);
++				tmp = object->package.elements[i];
++				if(tmp && tmp->common.reference_count<=1  && action == REF_DECREMENT) /*reference count didn't refresh now*/
++					object->package.elements[i] = NULL;
+ 				if (ACPI_FAILURE (status)) {
+ 					goto error_exit;
+ 				}
+@@ -478,6 +490,9 @@
+ 
+ 			status = acpi_ut_create_update_state_and_push (
+ 					 object->buffer_field.buffer_obj, action, &state_list);
++			tmp = object->buffer_field.buffer_obj;
++			if( tmp && tmp->common.reference_count <=1  && action == REF_DECREMENT)/*reference count didn't refresh now*/
++				object->buffer_field.buffer_obj = NULL;
+ 			if (ACPI_FAILURE (status)) {
+ 				goto error_exit;
+ 			}
+@@ -491,6 +506,9 @@
+ 			if (ACPI_FAILURE (status)) {
+ 				goto error_exit;
+ 			}
++			tmp = object->field.region_obj;
++			if( tmp && tmp->common.reference_count <=1  && action == REF_DECREMENT)/*reference count didn't refresh now*/
++				object->field.region_obj = NULL;
+ 		   break;
+ 
+ 
+@@ -501,12 +519,18 @@
+ 			if (ACPI_FAILURE (status)) {
+ 				goto error_exit;
+ 			}
++			tmp = object->bank_field.bank_obj;
++			if( tmp && tmp->common.reference_count <=1  && action == REF_DECREMENT)/*reference count didn't refresh now*/
++				object->bank_field.bank_obj = NULL;
+ 
+ 			status = acpi_ut_create_update_state_and_push (
+ 					 object->bank_field.region_obj, action, &state_list);
+ 			if (ACPI_FAILURE (status)) {
+ 				goto error_exit;
+ 			}
++			tmp = object->bank_field.region_obj;
++			if( tmp && tmp->common.reference_count <=1  && action == REF_DECREMENT)/*reference count didn't refresh now*/
++				object->bank_field.region_obj = NULL;
+ 			break;
+ 
+ 
+@@ -517,12 +541,18 @@
+ 			if (ACPI_FAILURE (status)) {
+ 				goto error_exit;
+ 			}
++			tmp = object->index_field.index_obj;
++			if( tmp && tmp->common.reference_count <=1  && action == REF_DECREMENT)/*reference count didn't refresh now*/
++				object->index_field.index_obj = NULL;
+ 
+ 			status = acpi_ut_create_update_state_and_push (
+ 					 object->index_field.data_obj, action, &state_list);
+ 			if (ACPI_FAILURE (status)) {
+ 				goto error_exit;
+ 			}
++			tmp = object->index_field.data_obj;
++			if( tmp && tmp->common.reference_count <=1  && action == REF_DECREMENT)/*reference count didn't refresh now*/
++				object->index_field.data_obj = NULL;
+ 			break;
+ 

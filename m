@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318232AbSGQHYY>; Wed, 17 Jul 2002 03:24:24 -0400
+	id <S318235AbSGQHZN>; Wed, 17 Jul 2002 03:25:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318233AbSGQHYX>; Wed, 17 Jul 2002 03:24:23 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:19444 "EHLO
+	id <S318234AbSGQHZM>; Wed, 17 Jul 2002 03:25:12 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:21492 "EHLO
 	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S318232AbSGQHYW>; Wed, 17 Jul 2002 03:24:22 -0400
-Date: Wed, 17 Jul 2002 00:25:46 -0700
+	id <S318233AbSGQHZK>; Wed, 17 Jul 2002 03:25:10 -0400
+Date: Wed, 17 Jul 2002 00:26:35 -0700
 From: Chris Wright <chris@wirex.com>
 To: linux-security-module@wirex.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] 2.4.19-rc2-lsm1
-Message-ID: <20020717002546.A17441@figure1.int.wirex.com>
+Subject: [ANNOUNCE] 2.5.26-lsm1
+Message-ID: <20020717002635.A17451@figure1.int.wirex.com>
 Mail-Followup-To: linux-security-module@wirex.com,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -26,23 +26,27 @@ purpose framework for access control.  The LSM interface enables
 security policies to be developed as loadable kernel modules.
 See http://lsm.immunix.org for more information.
 
-2.4.19-rc2 lsm patch released.  This is a rebase to 2.4.19-rc2, as well
-as hook structure and SELinux updates.
+2.5.26-lsm1 patch released.  This is a rebase to 2.5.26 as well as the
+beginning of cleaning up for merging with mainline 2.5.
 
-Full lsm-2.4 patch (LSM + all modules) is available at:
-	http://lsm.immunix.org/patches/2.4/2.4.19/patch-2.4.19-rc2-lsm1.gz
+Full lsm-2.5 patch (LSM + all modules) is available at:
+	http://lsm.immunix.org/patches/2.5/2.5.26/patch-2.5.26-lsm1.gz
 
 The whole ChangeLog for this release is at:
-	http://lsm.immunix.org/patches/2.4/2.4.19/ChangeLog-2.4.19-rc2-lsm1
+	http://lsm.immunix.org/patches/2.5/2.5.26/ChangeLog-2.5.26-lsm1
 
-The LSM 2.4 development BK tree can be pulled from:
-        bk://lsm.bkbits.net/lsm-2.4-dev
+The LSM 2.5 BK tree can be pulled from:
+        bk://lsm.bkbits.net/lsm-2.5
 
-2.4.19-rc2-lsm1
- - merge with 2.4.19-rc2				(me)
+2.5.26-lsm1
+ - merge with 2.5.26					(me)
+ - merge with 2.5.25					(James Morris)
+ - LIDS cleanup						(me)
+ - remove cruft leftover from fcntl_*lk* cleanup	(Stephen Smalley)
+ - remove explicit Netfilter reliance			(James Morris)
  - reparent_to_init hook				(Stephen Smalley)
  - Flatten LSM hook structure				(James Morris)
- - SELinux updates					(Stephen Smalley)
+ - various SELinux updates				(Stephen Smalley)
 
 thanks,
 -chris

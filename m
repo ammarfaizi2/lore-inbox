@@ -1,114 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264795AbSLJV17>; Tue, 10 Dec 2002 16:27:59 -0500
+	id <S264946AbSLJVfA>; Tue, 10 Dec 2002 16:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbSLJV17>; Tue, 10 Dec 2002 16:27:59 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:56279 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264795AbSLJV15>;
-	Tue, 10 Dec 2002 16:27:57 -0500
-Message-ID: <3DF65DF8.1050601@us.ibm.com>
-Date: Tue, 10 Dec 2002 15:34:48 -0600
-From: Jeff Martin <ffej@us.ibm.com>
-Reply-To: ffej@us.ibm.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+	id <S266772AbSLJVfA>; Tue, 10 Dec 2002 16:35:00 -0500
+Received: from mailnw.centurytel.net ([209.206.160.237]:13035 "EHLO
+	mailnw.centurytel.net") by vger.kernel.org with ESMTP
+	id <S264946AbSLJVe6>; Tue, 10 Dec 2002 16:34:58 -0500
+Message-ID: <3DF6D088.5060308@centurytel.net>
+Date: Tue, 10 Dec 2002 22:43:36 -0700
+From: eric lin <fsshl@centurytel.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] ltp-20021210 released.
+To: Holger Waechtler <holger@convergence.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: how do you successful compile or install 2.5.50?
+References: <3DF5EC8E.9050603@centurytel.net> <3DF5C40B.5060002@convergence.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test Project test suite LTP-20021210.tgz has been released.
-Visit our website (http://ltp.sourceforge.net) to download the latest
-version of the testsuite, and for information on test results on
-pre-releases, release candidates & stable releases of the kernel. There
-is also a list of test cases that are expected to fail, please find
-the list at (http://ltp.sourceforge.net/expected-errors.php)
-
-The highlights of this release are:
-
-- Many new test from Wipro.
-
-- New SPIE tests ported. Special thanks to Gerrit Huizenga and Narasimha 
-Sharoff
-  for getting us the SPIE tests.
-
-We encourage the community to post results, patches, or new tests on our
-mailing list, and to use the CVS bug tracking facility to report problems
-that you might encounter. More details available at our web-site.
 
 
-Change Log
-----------
+Holger Waechtler wrote:
 
-- Added 5 new sched_setparam() tests              ( Saji Kumar )
-- Added new syslog() tests.                       ( David Barrera )
-- Fix compile errors with *_module tests          ( Paul Larson )
-- Added additional semctl tests, semctl06 and     ( David Barrera )
-  semctl07.
-- Added additional msgctl tests.                  ( David Barrera )
-- Added mkdir09.                                  ( David Barrera )
-- Added mem02.                                    ( David Barrera )
-- Added floating point tests, fptest01, fptest02, ( Jacky Malcles )
-  fptest03.
-- Added inode01 and inode02                       ( Robbie Williamson )
-- Added vmtests, data_space and stack_space.      ( Robbie Williamson )
-- Added page tests, page01 and page02.            ( Robbie Williamson )
-- Added sysconf() test.                           ( Robbie Williamson )
-- Added rename14                                  ( Robbie Williamson )
-- Added nftw() tests.                             ( Robbie Williamson )
-- Added confstr() test.                           ( Robbie Williamson )
-- Added acct() tests.                             ( Robbie Williamson )
-- Added flock03 to try relocking after unlocking. ( Paul Larson )
-  To reproduce bug #7 in osdl's bugzilla.
-- Corrected a typo in ar01.  A "=" was used,      ( Robbie Williamson )
-  instead of an "==" found by Airong Zhang.
-- Added 3 new sched_getparam tests                ( Saji Kumar )
-- Added query_module() tests                      ( T.L.Madhu )
-- Added 2 new flock() tests                       ( Vatsal Avasthi )
-- Added munlock() tests                           ( Nirmala Devi 
-Dhanasekar )
-- Added umount() tests                            ( Nirmala Devi 
-Dhanasekar )
-- Added mount tests                               ( Nirmala Devi 
-Dhanasekar )
-- Added 2 new tests for sched_get_priority_min    ( Saji Kumar )
-- Added 2 new tests for sched_get_priority_max    ( Saji Kumar )
-- patch for sched_setscheduler01 to add           ( Saji Kumar )
-  a test case for calling sched_setscheduler()
-  with an invalid priority
-- Added mlockall() tests                          ( Nirmala Devi 
-Dhanasekar )
-- Added delete_module tests                       ( T.L.Madhu )
-- fix to readlink04.c. was creating a             ( Robbie Williamson )
-  testfile called "testfile" in /, instead of the
-  temp dir created for the test.
-- Added getdomainame test                         ( Saji Kumar )
-- warning cleanup patches. removed additional     ( Saji Kumar )
-  warnings created when -Wall option used.
-  also fixed Makefiles to correctly locate
-  the libraries and header files necessary for
-  compilation.
-- Added 6 new clone() tests                       ( Saji Kumar )
-- PPC fixes to ar, semctl04, and read02           ( Anton Blanchard )
-- MULTIPLE cleanups and fixes                     ( Ihno Krumreich )
-- Increased the default setting for MAXIDS number ( Robbie Williamson )
-  to 2048 in semget05.
-- Test was running to /dev/tty3, which does not   ( Robbie Williamson )
-  exist on some Linux installations. changed it
-  to /dev/tty for better general use.
-- Added create_module tests                       ( T.L.Madhu )
-- patch to cleanup warnings in syscall tests      ( Saji Kumar )
-- Corrected typo in rusers01                      ( Robbie Williamson )
-- Replaced sigset() with sigaction() in write04.  ( Manoj Iyer )
+> eric lin wrote:
+>
+>> Dear Valdis:
+>>
+>>   I also download from kernel.org 2.5.50, it have error at make 
+>> modules or make install
+>
+>
+> Where exactly do you get the error? Please send post the last lines of 
+> your compile log to the appropriate mailing list.
+>
+> linux-dvb for DVB-related stuff and linux-kernel for the general stuff.
+>
+> Holger
+>
+>
+>
+ gcc -Wp,-MD,drivers/char/.mxser.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
+-Iarch/i386/mach-generic -Iarch/i386/mach-defaults -nostdinc 
+-iwithprefix include -DMODULE   -DKBUILD_BASENAME=mxser 
+-DKBUILD_MODNAME=mxser   -c -o drivers/char/mxser.o drivers/char/mxser.c
+drivers/char/mxser.c:378: redefinition of `__module_name'
+drivers/char/mxser.c:332: `__module_name' previously defined here
+make[2]: *** [drivers/char/mxser.o] Error 1
+make[1]: *** [drivers/char] Error 2
+make: *** [drivers] Error 2
+www:/home/fsshl/linux-2.5.50#
 
+that is 2.5.50 with .50-ac1 patch
+  /* I do not know  now where can get 2.5.50 since I got from kernel.org 
+the latest is 50 but now is 51 */
 
--Jeff
-
-Jeff Martin (ffej_AT_us.ibm.com)
-Linux Test Project
-IBM Linux Technology Center
-http://ltp.sourceforge.net
+sincere Eric
+www.linuxspice.com
+linux pc for sale
 

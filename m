@@ -1,41 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293672AbSCATum>; Fri, 1 Mar 2002 14:50:42 -0500
+	id <S293691AbSCATwC>; Fri, 1 Mar 2002 14:52:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293682AbSCATuc>; Fri, 1 Mar 2002 14:50:32 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:46064 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S293672AbSCATuR>;
-	Fri, 1 Mar 2002 14:50:17 -0500
-Date: Fri, 1 Mar 2002 12:50:08 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jerry Zhu <flylikewind@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The partition information lost
-Message-ID: <20020301125008.Y22608@lynx.adilger.int>
-Mail-Followup-To: Jerry Zhu <flylikewind@yahoo.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020301193813.59830.qmail@web11402.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020301193813.59830.qmail@web11402.mail.yahoo.com>; from flylikewind@yahoo.com on Fri, Mar 01, 2002 at 11:38:13AM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S293682AbSCATvr>; Fri, 1 Mar 2002 14:51:47 -0500
+Received: from PACIFIC-CARRIER-ANNEX.MIT.EDU ([18.7.21.83]:64988 "EHLO
+	pacific-carrier-annex.mit.edu") by vger.kernel.org with ESMTP
+	id <S293685AbSCATuz>; Fri, 1 Mar 2002 14:50:55 -0500
+Date: Fri, 1 Mar 2002 14:50:52 -0500 (EST)
+From: Bharath Krishnan <bharath@MIT.EDU>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Yet another disk transfer speed problem
+In-Reply-To: <3C7F43BE.B0D2EAE@aitel.hist.no>
+Message-ID: <Pine.GSO.4.30L.0203011448420.3706-100000@stymie.mit.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 01, 2002  11:38 -0800, Jerry Zhu wrote:
-> The partition information of a SCSI hard drive
-> is lost, is there anyone who can give me some
-> advices to recover the hard drive ?
+Hi,
 
-See "gpart".  This is not a kernel problem, please ask elsewhere in the
-future.
+I may have been overly simplistic/ignorant in my reasoning.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+But, in this case, the slow disk is rated pretty high in performance. It
+can supposedly do 40MB/sec. Maxtor sells it as D740X, their performance
+range.
+
+
+Thanks,
+
+
+-bharath
+
+ On Fri, 1 Mar 2002, Helge Hafting wrote:
+
+> Bharath Krishnan wrote:
+> >
+> > Hi,
+> >
+> > I would expect the disk which acts slower(maxtor) to be atleast as fast
+> > as the other one (ibm).
+> >
+> > reasons:
+> >
+> > 1. Both are 7200RPM
+> Not enough to get anywhere near equal performance.
+> This also depends on how densely data is packed onto a single track.
+> A 7200 RPM drive reads a whole track in 1/7200 minute, or 1/120 second.
+> That limits the maximum speed - but how much data is there
+> on a single track?  Slow 7200 RPM drives have many tracks and little
+> data on each track.  Fast drives have fewer tracks and more
+> data in each.  Note that this has nothing to do with disk geometry
+> reported by hdparm, that geometry is just a lie.
+> All new drives have a varying amount of data per track as the
+> outermost tracks are longer than the innermost.
+> That of course also means the speed varies a lot depending on
+> _what_ track is used for testing.
+>
+> My atlas IV scsi drive does 21MB/s on the outer tracks and 15MB/s
+> on the inner tracks according to specs.  Running bonnie tests
+> on partitions at either end of the drive confirms the difference.
+>
+> So, expect 7200 RPM drives from different manufacturers to
+> have very different transfer speeds.  Or even different sized
+> drives from the same.
+>
+> > 2. The slower one(maxtor hdg) is one of the newer ata133 disks while
+> > that faster one  is ata100(ibm hde). I would expect atleast equal
+> > performance from both.
+>
+>
+> 133 or 100 sets an upper limit of 133 or 100MB/s for sure, but that
+> doesn't matter _at all_ because the platters aren't that fast
+> anyway.  The best you'll ever get depends on how much data they fit
+> on the outermost track.  The 133 interface will be 33% faster when
+> transferring small amounts of data to or from the drive's internal
+> cache, but it won't impact transfers bigger than the cacee size
+> at all.  hdparms 64M test is bigger than the drive's internal cache
+> which probably is a few megs only.
+>
+> Helge Hafting
+>
+
+-bharath
+
+
+
+
 

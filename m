@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262517AbUC2Cic (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 21:38:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUC2Cic
+	id S262574AbUC2CrO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 21:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUC2CrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 21:38:32 -0500
-Received: from auemail1.lucent.com ([192.11.223.161]:43716 "EHLO
-	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S262517AbUC2Cib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 21:38:31 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16487.35872.160526.477780@gargle.gargle.HOWL>
-Date: Sun, 28 Mar 2004 21:38:24 -0500
-From: "John Stoffel" <stoffel@lucent.com>
+	Sun, 28 Mar 2004 21:47:14 -0500
+Received: from cobra.mywebworx.net ([69.61.24.4]:36544 "EHLO
+	cobra.mywebworx.net") by vger.kernel.org with ESMTP id S262574AbUC2CrN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 21:47:13 -0500
+Message-ID: <1080528430.40678e2e9eb3a@www.beonline.com.au>
+Date: Mon, 29 Mar 2004 12:47:10 +1000
+From: lml@beonline.com.au
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-rc2-mm1 - swapoff dies with OOM, why?
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Subject: Kernel / Userspace Data Transfer
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 203.103.132.2
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cobra.mywebworx.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32001 32001] / [47 12]
+X-AntiAbuse: Sender Address Domain - beonline.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Hi all,
+I have a set of counters in a Kernel module that i want to export to a
+userspace application. I originally decided to use a /proc entry and parse
+the output whenever the userspace application needed this data, however,
+i need more than the 4096 that is allowed in /proc and i'm not too keen
+on parsing large chunks of text anyway.
 
-I've run into a strange situation here.  I was having *terrible*
-performance while doing a complile of the 2.6.5-rc2-mm2 kernel on my
-system (Debian completely bleeding edge, plus udev and hotplug) along
-with dealing with a USB problem where if I removed my Cuzer USB
-device, it would never get de-allocated properly and the system load
-would start to hang.
+What i would like to do is copy these slabs of text from the kernel to my
+userspace application (whenever the application requests it). I've seen the
+'copy_to_user' function and it looks usefull, but have no idea where to start
+or how to use it :-/
 
-I've got 768mb of RAM, and 1gb of SWAP on the system, and I was using
-about 110mb of swap, and around 360mb of cache, with around 20-30mb of
-cache.  So using vmstat 1, I could see that the system was swapping in
-just all the time, and the compile was just dog slow.  So I figured I
-could get rid of some useless cache if I could just turn off swap.
+Can someone provide and example or point me in the right direction? Or is there
+a better place to ask this question?
 
-No go.  Every time I tried, it would drop the swap down a bit (say
-5-20mb), but then go OOM on me and die.  I thought this was completely
-bogus.  If I've got the physical RAM available, and more cache and/or
-buffer than is currently swapped to disk, why can't I kill swap?
-
-John
+Regards
+-J

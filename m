@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132811AbRAETBB>; Fri, 5 Jan 2001 14:01:01 -0500
+	id <S129593AbRAETFx>; Fri, 5 Jan 2001 14:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132812AbRAETAv>; Fri, 5 Jan 2001 14:00:51 -0500
-Received: from smtpgw.bnl.gov ([130.199.3.16]:27658 "EHLO smtpgw.sec.bnl.local")
-	by vger.kernel.org with ESMTP id <S132811AbRAETAs>;
-	Fri, 5 Jan 2001 14:00:48 -0500
-Date: Fri, 5 Jan 2001 14:00:21 -0500
-From: Tim Sailer <sailer@bnl.gov>
+	id <S129538AbRAETFn>; Fri, 5 Jan 2001 14:05:43 -0500
+Received: from ns.mmc.ro ([194.102.200.1]:51217 "EHLO ns.mmc.ro")
+	by vger.kernel.org with ESMTP id <S132799AbRAETFf>;
+	Fri, 5 Jan 2001 14:05:35 -0500
+Message-ID: <3A561B57.5EB6B7E@yahoo.com>
+Date: Fri, 05 Jan 2001 21:07:03 +0200
+From: Adrian <ady982@yahoo.com>
+Reply-To: ady982@yahoo.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Network Performance?
-Message-ID: <20010105140021.A2016@bnl.gov>
-In-Reply-To: <20010104013340.A20552@bnl.gov>
-Mime-Version: 1.0
+Subject: Re: 2.4 Kernel Lockup
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010104013340.A20552@bnl.gov>; from sailer@bnl.gov on Thu, Jan 04, 2001 at 01:33:40AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2001 at 01:33:40AM -0500, Tim Sailer wrote:
-> This may not be the right forum to ask this. If not, please let me know
-> where to ask.
-> 
-> I have a Debian box with 2 NICs. Both 100/full duplex. This machine is 
-> running as a ftp proxy (T.Rex suite). As part of the traffic going through the
-> box, some streams have 1000k window size for a certain reason. How do
-> I tune the NICs to handle the streams better? There are ways of doing this
-> on other OSs. Right now, the box only does about 1.8Mb when it should be doing
-> 80+Mb.
-> 
-> Thanks,
-> Tim
-> 
-> PS: This is really something to do with the window size and WAN latency.
-> The ultimate source and destination points are either Solaris or AIX
-> boxes. The files being sent are > 1GB in size.
-> The box does well when traffic goes in one NIC and out the other, as long
-> as the end point is local When it hits the WAN, it all dies. Traffic not
-> going through the box just flies right along, as long as both the end points
-> have the large tcp window size. Putting the Linux box in the middle is a 
-> severe choke point. :(
+I also have a problem: During booting my screen goes black but after I
+login and start X (with a black screen) X works perfectly but if I get out
+from X again (in console mode) again I can't see anything (sometimes I can
+see a blue or a green screen).
+I think is has something to do with the frame buffer options from the
+kernel (my previos kernel 2.2.17 worked perfectly with similar
+configurations).
+I KNOW this is NOT a kernel bug and only a misconfiguration and it is my
+fault for this error and I am really sorry if this is not a proper list
+for such a question (I just joined this list) but if someone can help me
+please do.
+I have my kernel configuration list but I can't send it on this list
+because is too big (it has 19 kb) but if someone wants to help me I can
+send it to his private e-mail address.
+Thank you,
+Adrian
 
-I have followed the suggestions in http://www.psc.edu/networking/perf_tune.html
-but I still can not get any kind of real throughput. 250kB is all I can
-get from the Linux box. Setting [r|w]mem_[default|max] larger than 16k
-makes no difference, smaller slows things down even more. Has anyone else
-ran across this and fixed it? I can't be the only one with a Linux box
-on a fat pipe looking for maximum throughput...
+PS: I have an "vga=791" option in my kernel so my console should be in
+1024x768 resolution.
+PS(2): I tried using the "voodoo 3" option from the frame buffer menu (I
+have a voodoo 3 3000) but then instead of having a black screen I have a
+black screen with blue dots that move around (they look like mangnified
+distorsioned chars).
 
-Tim
+Laramie Leavitt wrote:
+> 
+> I seem to be getting a rather odd kernel lockup on 2.4.
+> I am using XFree 3.3.6 ( I believe ).
+> 
+> Whenever I start X, my session starts up like normal,
+> but soon locks HARD.  Is this a known issue?  I
+> suspected the fb stuff, and so I removed it and the
+> problem remains.
+> 
+> Any ideas?  I can repeat it every single time.
+> 
+> Laramie
 
--- 
-Tim Sailer <sailer@bnl.gov> Cyber Security Operations
-Brookhaven National Laboratory  (631) 344-3001
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313413AbSDGVet>; Sun, 7 Apr 2002 17:34:49 -0400
+	id <S313416AbSDGVos>; Sun, 7 Apr 2002 17:44:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313416AbSDGVes>; Sun, 7 Apr 2002 17:34:48 -0400
-Received: from ns.suse.de ([213.95.15.193]:57873 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S313413AbSDGVer>;
-	Sun, 7 Apr 2002 17:34:47 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Two fixes for 2.4.19-pre5-ac3
-In-Reply-To: <20020407193245.GA21570@compsoc.man.ac.uk.suse.lists.linux.kernel> <E16uIoN-0006b3-00@the-village.bc.nu.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 07 Apr 2002 23:34:46 +0200
-Message-ID: <p73it73p4zt.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S313419AbSDGVor>; Sun, 7 Apr 2002 17:44:47 -0400
+Received: from pasky.ji.cz ([62.44.12.54]:34300 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S313416AbSDGVor>;
+	Sun, 7 Apr 2002 17:44:47 -0400
+Date: Sun, 7 Apr 2002 23:44:45 +0200
+From: Petr Baudis <pasky@pasky.ji.cz>
+To: Jiri Mencak <j.mencak@hud.ac.uk>
+Cc: gpm@lists.linux.it, linux-kernel@vger.kernel.org
+Subject: Re: gpmselection
+Message-ID: <20020407214445.GD3218@pasky.ji.cz>
+Mail-Followup-To: Jiri Mencak <j.mencak@hud.ac.uk>, gpm@lists.linux.it,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020407205703.GB30641@mencak.homeip.net> <20020407214024.GC3218@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Oops, this time with the correct Cc: stuff, sorry :).
 
-> > The system call tracking is only used to associate a particular EIP with
-> > a particular offset in some binary image. There's no other efficient
-> > method to capture the mmap() calls for these images, for everything
-> > running. ptrace() is only really useful for a small number of processes,
-> > and is slow. Offline post-analysis isn't possible. There is no
-> > API for getting access to this information.
+Dear diary, on Sun, Apr 07, 2002 at 10:57:03PM CEST, I got a letter,
+where Jiri Mencak <j.mencak@hud.ac.uk> told me, that...
+> Do you know any program or even better a gpm feature via which I could 
+> access GPM selection? Say I wanted to select text `Hello World!' on 
+> a text console using GPM and then this program (let's call it 
+> `gpmselection') would output to stdout:
 > 
-> Ok, so you have a real reason for dealing with it
+> % gpmselection
+> Hello World!
+> 
+> It would be nice to write to gpm selection as well. Say by writing:
+> % echo "Hello World!" | gpmselection
+> 
+> it would be possible to paste `Hello World!' on a console.
+> 
+> What I am aiming at is an echange of data between X and a console. I 
+> have a program `xsel' which does the same thing with X-Window selection.
 
-pice (another kernel debugger) needs it also, it's not only oprofile. 
+This is a problem. Been there, wanted to do that. However, you cry on the wrong
+grave. GPM doesn't itself handle this stuff, kernel does. Yes, it's
+fundamentally bad design, no, you can't directly access kernel's selection
+buffer. Yes, this change would be probably welcomed in 2.5.x. I wanted to do
+it, but I've too little time for that these days :(.
 
-I think it is a bad idea to remove it. It just means that these programs
-will access it via System.map instead of an exported symbol. It doesn't change
-anything, just makes life harder for some people. 
+The stuff you want to rewrite is at /usr/src/linux/drivers/char/selection.c,
+maybe random bits at /usr/src/linux/drivers/char/vt.c. And, obviously GPM, as
+you want to move this functionality there. You probably want to completely
+remove concept of selections from kernel, make GPM to read content of
+/dev/vcc/X when grabbing a selection and output proper escape sequences for
+inverting the appropriate stuff (this may be tricky; maybe you want to keep
+such mechanism in the kernel.. you'll see), add write handler for /dev/vcc/X to
+the kernel so that you can simulate keyboard input on the terminal and finally
+make some generic API inside GPM for manipulation with the selection buffer.
 
-> Lets see if we can sort out AFS and the like then come back to that one. I
-> think you may have a valid point. If 2.5 has EXPORT_SYMBOL_INTERNAL it 
-> gets a lot easier.
+Have fun ;),
 
-That doesn't help the oprofile users who want to use it in 2.4 now. 
-
--Andi
+-- 
+ 
+				Petr "Pasky" Baudis
+ 
+* ELinks maintainer                * IPv6 guy (XS26 co-coordinator)
+* IRCnet operator                  * FreeCiv AI hacker
+.
+Teamwork is essential -- it allows you to blame someone else.
+.
+Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/

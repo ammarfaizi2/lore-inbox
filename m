@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbUC2IqD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 03:46:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUC2IqD
+	id S262766AbUC2IwA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 03:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUC2IwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 03:46:03 -0500
-Received: from ns.suse.de ([195.135.220.2]:49362 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262758AbUC2IqA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 03:46:00 -0500
-Date: Mon, 29 Mar 2004 10:45:31 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, jun.nakajima@intel.com, ricklind@us.ibm.com,
-       piggin@cyberone.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       kernel@kolivas.org, rusty@rustcorp.com.au, anton@samba.org,
-       lse-tech@lists.sourceforge.net, mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Message-ID: <20040329084531.GB29458@wotan.suse.de>
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de> <20040325190944.GB12383@elte.hu> <20040325162121.5942df4f.ak@suse.de> <20040325193913.GA14024@elte.hu> <20040325203032.GA15663@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040325203032.GA15663@elte.hu>
+	Mon, 29 Mar 2004 03:52:00 -0500
+Received: from smtp-out.girce.epro.fr ([195.6.195.146]:22669 "EHLO
+	srvsec1.girce.epro.fr") by vger.kernel.org with ESMTP
+	id S262766AbUC2Iv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 03:51:57 -0500
+Message-ID: <156701c4156b$0be816a0$3cc8a8c0@epro.dom>
+From: "Colin Leroy" <colin@colino.net>
+To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix oops at pmac_zilog rmmod'ing
+Date: Mon, 29 Mar 2004 10:51:37 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_1564_01C4157B.CF51ECF0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 09:30:32PM +0100, Ingo Molnar wrote:
-> 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > That won't help for threaded programs that use clone(). OpenMP is such
-> > a case.
-> 
-> this patch:
-> 
->         redhat.com/~mingo/scheduler-patches/sched-2.6.5-rc2-mm3-A4
-> 
-> does balancing at wake_up_forked_process()-time.
-> 
-> but it's a hard issue. Especially after fork() we do have a fair amount
-> of cache context, and migrating at this point can be bad for
-> performance.
+This is a multi-part message in MIME format.
 
-I ported it by hand to the -mm4 scheduler now and tested it. While
-it works marginally better than the standard -mm scheduler 
-(you get 1 1/2 the bandwidth of one CPU instead of one) it's still
-still much worse than the optimum of nearly 4 CPUs archived by
-2.4 or the standard scheduler.
+------=_NextPart_000_1564_01C4157B.CF51ECF0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
--Andi
+Hi,
+
+rmmod'ing pmac_zilog currently oopses because uart_unregister_driver(),
+which nullifies drv->tty_driver, is called before uart_remove_one_port(),
+which uses said drv->tty_driver.
+
+The comment at top of uart_unregister_driver() specifically says we have
+to have removed all our ports
+via uart_remove_one_port() before.
+
+HTH,
+-- 
+Colin
+  This message represents the official view of the voices
+  in my head.
+
+------=_NextPart_000_1564_01C4157B.CF51ECF0
+Content-Type: application/octet-stream;
+	name="pmac_zilog_fix.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="pmac_zilog_fix.patch"
+
+--- drivers/serial/pmac_zilog.c.orig	2004-03-29 10:41:22.000000000 +0200=0A=
++++ drivers/serial/pmac_zilog.c	2004-03-29 10:42:07.000000000 +0200=0A=
+@@ -1875,9 +1875,6 @@=0A=
+ 	/* Get rid of macio-driver (detach from macio) */=0A=
+ 	macio_unregister_driver(&pmz_driver);=0A=
+ =0A=
+-	/* Unregister UART driver */=0A=
+-	uart_unregister_driver(&pmz_uart_reg);=0A=
+-=0A=
+ 	for (i =3D 0; i < pmz_ports_count; i++) {=0A=
+ 		struct uart_pmac_port *uport =3D &pmz_ports[i];=0A=
+ 		if (uport->node !=3D NULL) {=0A=
+@@ -1885,6 +1882,8 @@=0A=
+ 			pmz_dispose_port(uport);=0A=
+ 		}=0A=
+ 	}=0A=
++	/* Unregister UART driver */=0A=
++	uart_unregister_driver(&pmz_uart_reg);=0A=
+ }=0A=
+ =0A=
+ #ifdef CONFIG_SERIAL_PMACZILOG_CONSOLE=0A=
+
+------=_NextPart_000_1564_01C4157B.CF51ECF0--
+

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262284AbVCOGmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVCOGs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262284AbVCOGmp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 01:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVCOGmp
+	id S262285AbVCOGs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 01:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVCOGs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 01:42:45 -0500
-Received: from fire.osdl.org ([65.172.181.4]:731 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262284AbVCOGmg (ORCPT
+	Tue, 15 Mar 2005 01:48:28 -0500
+Received: from fire.osdl.org ([65.172.181.4]:37340 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262285AbVCOGsZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 01:42:36 -0500
-Date: Mon, 14 Mar 2005 22:42:21 -0800
+	Tue, 15 Mar 2005 01:48:25 -0500
+Date: Mon, 14 Mar 2005 22:48:03 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reduce __deprecated spew
-Message-Id: <20050314224221.442570a8.akpm@osdl.org>
-In-Reply-To: <20050315063436.GN32638@waste.org>
-References: <20050315063436.GN32638@waste.org>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: shai@scalex86.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Per cpu irq stat
+Message-Id: <20050314224803.37cd21fe.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503142230050.11651@server.graphe.net>
+References: <Pine.LNX.4.58.0503142230050.11651@server.graphe.net>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,20 +24,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> wrote:
+Christoph Lameter <christoph@lameter.com> wrote:
 >
->  This patch changes a couple of the noisier deprecations to only warn
->  on the primary entrypoint (in these cases, the _register functions).
->  This approach makes it obvious that an interface is going away while
->  only warning once per user. I suggest we adopt this approach for
->  future deprecation campaigns.
+> The definition of the irq_stat as an array means that the individual
+>  elements of the irq_stat array are located on one NUMA node requiring
+>  internode traffic to access irq_stat from other nodes. This patch makes
+>  irq_stat a per_cpu variable which allows most accesses to be local.
 
-But that's going to warn when the deprecated function itself is compiled,
-isn't it?
+OK...
 
-If so, that's backwards.  We want to warn when the deprecated function is
-_used_, so people go fix up their code, and we can then remove the
-deprecated function.
+The wordwrapping monster got at your patch, but I fixed it up.
 
-(The intermodule_register and pm_register stuff has been hanging around for
-so long that one wonders if we need sterner stimuli, not lesser).
+>  +DEFINE_PER_CPU(irq_cpustat_t, irq_stat)
+>  ____cacheline_maxaligned_in_smp;
+
+Why is this marked ____cacheline_maxaligned_in_smp?

@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289612AbSAOTwa>; Tue, 15 Jan 2002 14:52:30 -0500
+	id <S289621AbSAOTsd>; Tue, 15 Jan 2002 14:48:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289639AbSAOTwY>; Tue, 15 Jan 2002 14:52:24 -0500
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:16284
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S289612AbSAOTtZ>; Tue, 15 Jan 2002 14:49:25 -0500
-Date: Tue, 15 Jan 2002 14:49:09 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: <nico@xanadu.home>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Why not "attach" patches?
-In-Reply-To: <E16QZFv-0005wy-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201151448050.5892-100000@xanadu.home>
+	id <S289620AbSAOTrc>; Tue, 15 Jan 2002 14:47:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32516 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289612AbSAOTrC>; Tue, 15 Jan 2002 14:47:02 -0500
+Subject: Re: arpd not working in 2.4.17 or 2.5.1
+To: amit.gupta@amd.com (Amit Gupta)
+Date: Tue, 15 Jan 2002 19:58:46 +0000 (GMT)
+Cc: kernel@Expansa.sns.it (Luigi Genoni), linux-kernel@vger.kernel.org
+In-Reply-To: <3C447C15.A9673272@cmdmail.amd.com> from "Amit Gupta" at Jan 15, 2002 10:59:33 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16QZjK-00061Z-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2002, Alan Cox wrote:
-
-> BTW: If you are sending me anything DO use attachments. Especially if you
-> use any of the following, which seem to have some versions that mangle 
-> inline diffs
+> But arp>1024 is Very Important, else linux will never be able to talk to more
+> than 1024 clients !
 > 
-> 	Lotus Notes
-> 	Pine
-> 	Kmail
-> 	Mozilla
-> 	Netscape
-> 	MS Outlook
+> Linux is my favourite and I wonder if this limit will kill linux for the race
+> with Solaris/M$ server market. So pls save me :) and help neighour.c/network
+> layer in new kernel.
 
-Pine always worked fine when patches are imported with ^R.
-
-
-Nicolas
-
+ARP applies for local links only. So you need a network you are actively
+talking to 1024 different hosts directly on. Furthermore all the
+config items should now be soft anyway. Want more, enable more.

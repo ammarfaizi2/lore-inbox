@@ -1,120 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbUCDWSW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 17:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbUCDWSW
+	id S261987AbUCDWUo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 17:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUCDWUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 17:18:22 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:36091 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261983AbUCDWSR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 17:18:17 -0500
-Message-ID: <4047AB20.1080703@mvista.com>
-Date: Thu, 04 Mar 2004 14:18:08 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
-References: <20040302213901.GF20227@smtp.west.cox.net> <20040302230018.GL20227@smtp.west.cox.net> <40451CCA.4070907@mvista.com> <200403031113.02822.amitkale@emsyssoft.com> <20040303151628.GQ20227@smtp.west.cox.net> <4046780D.7020700@mvista.com> <20040304151705.GB26065@smtp.west.cox.net>
-In-Reply-To: <20040304151705.GB26065@smtp.west.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Mar 2004 17:20:44 -0500
+Received: from [193.108.190.253] ([193.108.190.253]:33459 "EHLO
+	pluto.linuxkonsulent.dk") by vger.kernel.org with ESMTP
+	id S261986AbUCDWUl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 17:20:41 -0500
+Subject: smbfs patch
+From: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1078438839.10042.6.camel@luke>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 04 Mar 2004 23:20:39 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> On Wed, Mar 03, 2004 at 04:27:57PM -0800, George Anzinger wrote:
-> 
->>Tom Rini wrote:
->>
->>>But that's not what you get with kgdb_serial.  You get the possibility
->>>of serial from point A to B and you will have eth from point B onward,
->>>if compiled in.  With an arch serial driver you get the possibility of
->>>serial (or arch serial or whatever) from point A to B and eth from point
->>>B onward, if compiled in.
->>
->>I don't think we want to switch.  Rather we want to say something like: If 
->>no eth (or other input) options are on the command line then its is serial. 
->>If eth (or other input) is there, that is what we use.
->>
->>This does leave open what happens when "eth" is given and we hit a 
->>breakpoint prior to looking at the command line, but now this just fails so 
->>we would be hard put to do worse.
-> 
-> 
-> This doesn't fail right now, or rather it shouldn't.  We would call
-> kgdb_arch_init() which would set it to 8250 (or arch serial) and go.  If
-> 8250||arch serial is compiled in.
+I noticed that smbfs no longer respects the "uid" and "gid" mount
+options passed to it by mount.(I think it stopped when the server was
+upgraded to Samba 3.0. Not sure though, since my client was upgraded to
+Linux 2.6.3 at around the same time). I've made this small patch that
+fixes it (bear with me, this is my first patch to the kernel :-)  ):
 
-But, if I understand this right, now you can have either eth or serial.  If you 
-have eth and hit a breakpoint prior to its int, you are dead.
-> 
-> 
->>>I think you missed the point.  The problem isn't with providing weak
->>>functions, the problem is trying to set the function pointer.  PPC
->>>becomes quite clean since the next step is to kill off
->>>PPC_SIMPLE_SERIAL and just have kgdb_read/write_debug_char in the
->>>relevant serial drivers.
->>
->>No, you just set the default at configure time.  It is just done in such 
->>away as to allow it to be overridden.
-> 
-> 
-> Which means you have to either c&p this into kgdb_arch_init for every
-> arch that provides it's own, or (and I've been thinking that this isn't
-> necessarily a bad idea) standardize on names for the arch serial driver,
-> and in kernel/kgdb.c::kgdb_entry() do:
-> #ifdef CONFIG_KGDB_8250
->   extern ... kgdb8250_serial;
->   kgdb_serial = &kgdb8250_serial;
-> #elif CONFIG_KGDB_ARCH_SERIAL
->   extern ... kgdbarch_serial;
->   kgdb_serial = &kgdbarch_serial;
-> #elif CONFIG_KGDB_ETH
->   extern ... kgdboe_serial;
->   kgdb_serial = &kgdboe_serial;
-> #endif
-> 
+======== Start patch ========
+--- kernel-source-2.6.3.orig/fs/smbfs/proc.c    2004-02-19
+08:55:44.000000000 +0 000
++++ kernel-source-2.6.3/fs/smbfs/proc.c         2004-03-04
+13:56:04.000000000 +0 000
+@@ -1834,7 +1834,13 @@
+ static void
+ smb_finish_dirent(struct smb_sb_info *server, struct smb_fattr *fattr)
+ {
+-       if (fattr->f_unix)
++
++       if (server->mnt->uid)
++               fattr->f_uid = server->mnt->uid;
++       if (server->mnt->gid)
++               fattr->f_gid = server->mnt->gid;
++
++       if (fattr->f_unix)
+                return;
+  
+        fattr->f_mode = server->mnt->file_mode;
+======= End patch ========
 
-I would rather standardize on the name of the INIT block.  How about something like:
-
-#include <linux/kdgb_io.h>
-:
-:
-struc kgdb_io_table kgdb_io_table[]=KGDB_IO_FUNCTIONS;
-
-then in linux/kgdb_io.h we have:
-
-#include <asm/kgdb_io.h>
-
-struc kgdb_io_table {
-	char (*kgdb_read_char);
-     	void  (*kgdb_write_char);
-         :
-	:
-}
-
-And in asm/kgdb_io.h we define:
-extern char my_read_char(void);
-:
-#define KGDB_IO_FUNCTIONS {{my_read_char, my_write_char,...},\
-                             {eth_read_char,...}}
-
-
-So it is completely up to the arch asm/kgdb_io.h to define the names and even 
-how many.  We then assume that the first one is the default.  An arch that wants 
-to mess with different things can do it all in this file, including having 
-several diffent serial drivers all with the same entry points, different default 
-as set at configure time and so on.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Søren Hansen
 

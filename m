@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267542AbTAGW7L>; Tue, 7 Jan 2003 17:59:11 -0500
+	id <S267574AbTAGXJT>; Tue, 7 Jan 2003 18:09:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267552AbTAGW7L>; Tue, 7 Jan 2003 17:59:11 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28143 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267542AbTAGW7K>; Tue, 7 Jan 2003 17:59:10 -0500
-Date: Wed, 8 Jan 2003 00:07:42 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Robert P. J. Day" <rpjday@mindspring.com>, rusty@rustcorp.com.au,
-       Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [2.5 patch] MODULE_FORCE_UNLOAD must depend on MODULE_UNLOAD
-Message-ID: <20030107230742.GO6626@fs.tum.de>
-References: <Pine.LNX.4.44.0301011435300.27623-100000@dell>
+	id <S267575AbTAGXJT>; Tue, 7 Jan 2003 18:09:19 -0500
+Received: from B5be6.pppool.de ([213.7.91.230]:61420 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S267574AbTAGXJS>; Tue, 7 Jan 2003 18:09:18 -0500
+Subject: Re: Honest does not pay here ...
+From: Daniel Egger <degger@fhm.edu>
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <ave8a5$tst$1@forge.intermeta.de>
+References: <200301041809.KAA06893@adam.yggdrasil.com>
+	 <1041900676.20298.15.camel@sbarn.net>  <ave8a5$tst$1@forge.intermeta.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c/m1o57Ml+CTFnAbOXQB"
+Organization: 
+Message-Id: <1041980678.1368.5.camel@sonja>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301011435300.27623-100000@dell>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 08 Jan 2003 00:04:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 02:55:01PM -0500, Robert P. J. Day wrote:
 
->...
-> Loadable module support
->     
->     Does "Module unloading" mean whether or not I can run "rmmod"?
->   And if I deselect this, why can I still select "Forced module
->   unloading"?  Either I can unload or I can't, no?
->...
+--=-c/m1o57Ml+CTFnAbOXQB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for spotting this, after reading kernel/module.c it seems obvious 
-to me that you are right. The following simple patch fixes it:
+Am Die, 2003-01-07 um 10.57 schrieb Henning P. Schmiedehausen:
 
---- linux-2.5.54/init/Kconfig.old	2003-01-08 00:05:12.000000000 +0100
-+++ linux-2.5.54/init/Kconfig	2003-01-08 00:05:38.000000000 +0100
-@@ -127,7 +127,7 @@
- 
- config MODULE_FORCE_UNLOAD
- 	bool "Forced module unloading"
--	depends on MODULES && EXPERIMENTAL
-+	depends on MODULE_UNLOAD && EXPERIMENTAL
- 	help
- 	  This option allows you to force a module to unload, even if the
- 	  kernel believes it is unsafe: the kernel will remove the module
+> Install Linux for your grandma, show her how to use it and then don't
+> answer her phone calls for about two weeks. Rinse. Repeat with
+> Windows. You will be surprised about the outcome. Rinse. Repeat with a
+> non-english speaker and a localized version of Linux / Windows. You
+> will be surprised even more. BTDTGTT.
 
+Interesting you mention it: I'm "supporting" several equally skilled=20
+family members' computers, half of them running Windows (XP Prof, ME,
+98SE - you pick the flavour) half of them running Debian testing, guess
+which call more often? Oh yes, and if they call: The Linux people call
+in advance *before* making decisions (like buying new hardware) while
+the Windows people only call me to clean up the messed system...
 
-> rday
+--=20
+Servus,
+       Daniel
 
-cu
-Adrian
+--=-c/m1o57Ml+CTFnAbOXQB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
--- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+iD8DBQA+G10Gchlzsq9KoIYRAu6mAJ42ZiT7cHB+Lg1pMHPVHHMDu0BosQCgztUr
+1TfeQQf09sUYKifTF8Rbhlw=
+=hogn
+-----END PGP SIGNATURE-----
+
+--=-c/m1o57Ml+CTFnAbOXQB--
 

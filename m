@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263822AbSJHUzr>; Tue, 8 Oct 2002 16:55:47 -0400
+	id <S263759AbSJHUm6>; Tue, 8 Oct 2002 16:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263816AbSJHUzq>; Tue, 8 Oct 2002 16:55:46 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:3740 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S263818AbSJHUz0>; Tue, 8 Oct 2002 16:55:26 -0400
-Message-ID: <20021008205955.4860.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
+	id <S262690AbSJHUmK>; Tue, 8 Oct 2002 16:42:10 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:55306 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S263291AbSJHUl7>; Tue, 8 Oct 2002 16:41:59 -0400
+Date: Tue, 8 Oct 2002 21:47:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] [RFC] [PATCH 3/4] Add extended attributes to ext2/3
+Message-ID: <20021008214736.A22169@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
+	ext2-devel@lists.sourceforge.net
+References: <E17yymK-00021n-00@think.thunk.org> <20021008195322.A14585@infradead.org> <200210082114.00576.agruen@suse.de> <20021008202038.A15692@infradead.org> <20021008214143.O2717@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 09 Oct 2002 04:59:55 +0800
-Subject: [Benchmark] Contest 0.50
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021008214143.O2717@redhat.com>; from sct@redhat.com on Tue, Oct 08, 2002 at 09:41:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-hw is a HP Omnibook600, PIII@800 256MiB of RAM.
-File system s ext3
+On Tue, Oct 08, 2002 at 09:41:43PM +0100, Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Tue, Oct 08, 2002 at 08:20:38PM +0100, Christoph Hellwig wrote:
+> > On Tue, Oct 08, 2002 at 09:14:00PM +0200, Andreas Gruenbacher wrote:
+> > > Users might just fill up all xattr space leaving no space for ACLs (or 
+> > > similar). If user xattrs are disabled this can no longer occur, so some 
+> > > administrators might be happy to have a choice.
+> > 
+> > Umm, that's why we have quota..
+> 
+> It's the per-inode extended attribute space that's at risk here,
+> quotas don't help.
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19-0.24pre4 [3]     127.4   98      0       0       0.99
-2.4.19 [3]              128.8   97      0       0       1.01
-2.5.40 [3]              134.4   96      0       0       1.05
-2.5.40-nopree [3]       133.7   96      0       0       1.04
-2.5.41 [3]              136.5   96      0       0       1.07
-
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19-0.24pre4 [3]     193.2   60      133     40      1.51
-2.4.19 [3]              194.1   60      134     40      1.52
-2.5.40 [3]              184.5   70      53      31      1.44
-2.5.40-nopree [3]       286.4   45      163     55      2.24
-2.5.41 [3]              192.6   68      59      32      1.50
-
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19-0.24pre4 [3]     235.4   55      26      10      1.84
-2.4.19 [3]              461.0   28      46      8       3.60
-2.5.40 [3]              293.6   45      25      8       2.29
-2.5.40-nopree [3]       269.4   50      20      7       2.10
-2.5.41 [3]              342.7   41      34      9       2.68
-
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19-0.24pre4 [3]     181.2   76      253     19      1.41
-2.4.19 [3]              161.1   80      38      2       1.26
-2.5.40 [3]              163.0   80      34      2       1.27
-2.5.40-nopree [3]       161.7   80      34      2       1.26
-2.5.41 [3]              161.0   83      33      2       1.26
-
-Ciao,
-           Paolo
--- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze
+Well, that's a more important problem.  But I doubt a hack to just turn off
+user xattrs is the right fix then.  A static reservation for ACLs or just
+totally separating them (like in XFS) seems more måture.

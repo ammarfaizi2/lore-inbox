@@ -1,104 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269939AbUJTK0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269913AbUJTKmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269939AbUJTK0u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 06:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269940AbUJSWT1
+	id S269913AbUJTKmX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 06:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269896AbUJTKhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 18:19:27 -0400
-Received: from neopsis.com ([213.239.204.14]:48590 "EHLO
-	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
-	id S269928AbUJSWLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:11:11 -0400
-Message-ID: <417590F3.1070807@dbservice.com>
-Date: Wed, 20 Oct 2004 00:10:59 +0200
-From: Tomas Carnecky <tom@dbservice.com>
-Organization: none
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en
+	Wed, 20 Oct 2004 06:37:05 -0400
+Received: from moutng.kundenserver.de ([212.227.126.190]:57068 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S269401AbUJTKfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 06:35:51 -0400
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: James Stevenson <james@stev.org>
+Subject: Re: ATA/133 Problems with multiple cards
+Date: Wed, 20 Oct 2004 12:35:37 +0200
+User-Agent: KMail/1.5.4
+Cc: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <kernelnewbies@nl.linux.org>
+References: <Pine.LNX.4.44.0410170347430.3660-100000@beast.stev.org>
+In-Reply-To: <Pine.LNX.4.44.0410170347430.3660-100000@beast.stev.org>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: my opinion about VGA devices
-X-Enigmail-Version: 0.84.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Please contact the ISP for more information
-X-Neopsis-MailScanner: Found to be clean
-X-MailScanner-From: tom@dbservice.com
+Content-Disposition: inline
+Message-Id: <200410201235.37423.hpj@urpla.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:18d01dd0a2a377f0376b761557b5e99a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+[Heavily stripped address lists]
 
-I've followed the discussion about the console code restructuring and 
-framebuffer devices (Generic VESA framebuffer driver and Video card 
-BOOT) and I'd like to present here my opinion.
+On Sunday 17 October 2004 04:51, James Stevenson wrote:
+>
+> then i can only turn the dma up to ATA/100 if i set it to ata/133
+> it will cause the errors. I assume this is something todo with the
+> promise bois not setting up the 3rd card at boot time. It only
+> shows drive listing for 2 of the 3 cards.
 
-That's how I think the device drivers should look like:
+As noted before, this effect was always related to different firmware 
+versions on the cards here. Please check boot messages of all cards 
+separately, and confirm, that this isn't your problem.
 
-A graphics device driver consists of two parts, a kernel module and a 
-user-space library which are together the 'driver'. Only the user-space 
-library knows how to operate the device so there is no access to the 
-graphics device from the kernel.
-The kernel module creates a character device which can be opened by any 
-application with the appropriate rights. The kernel module also 
-registeres the device to the kernel so the kernel knows which graphics 
-cards are present and their basic information (vendor, name etc.).
-Since the kernel has no access to the device, no messages or text can be 
-displayed from the kernel, which I think is quite bad during 
-startup/boot, that's why the kernel module also provides a function for 
-displaying text. However, you don't want the kernel to draw text 
-messages to the display while you play doom3 :) , that's why this 
-drawing can be disabled (by init or somewhere in the early userspace 
-initialization).
-An application which want's to use the device opens the character device 
-and gets the name of the user-space library (user-space driver part) and 
-loads it. The library has a set of functions (API) which can be used to 
-access the device. BTW, the user-space library API is OpenGL.
-How the kernel and user-space driver part communicate is up to them (or 
-the programmer). There are no restrictions what to put into user-space 
-or kernel-space, may the device driver writer decide this. And there are 
-only two interfaces: one in the kernel (text drawing) and one in the 
-user-space (OpenGL), nothing between. So the driver can be optimized for 
-each specific chip, because each chip is different and is meant to be 
-accessed differently.
+Thanks,
+Pete
 
-I don't like the framebuffer devices or even the DRI drivers because:
-most applications use a 'high-level' API for rendering (OpenGL). These 
-'high-level commands' are translated to 'intermediate commands' 
-(framebuffer/DRI ioctl calls etc.) before being send to the card as 
-'low-level commands'. Why this intermediate layer?
-Even if the high-level and intermediate commands are similar and you 
-don't loose much doing the translation (DRI), it is one too much. When 
-working with music you try to encode/decode your song as few times as 
-possible. because you loose quality each time (and it takes time). The 
-same applies to graphics commands, even if you might not loose quality 
-(I hope), but it is just unnecessary.
-
-Maybe you have noticed that I haven't used 'VGA' even once, that's 
-because I don't think in terms 'VGA device'. I think in terms 'graphics 
-device' that's a device which can be used to display 'stuff' on a screen 
-and I don't care about how it is done, whether using VGA or the card is 
-in 3D mode and is accessed differently (preferably VGA isn't used at all 
-for graphics access). The VGA specific problems should be solved on a 
-lower level, I have the impression that the VGA peoblems are among the 
-biggest in the world when reading this list. By lower level I mean that 
-if a driver uses VGA to access the device, it should coordinate with 
-other VGA devices using a small block in the kernel but it should not be 
-  any major part of the kernel.
-
-I think this would make the suspend/resume/access/switching etc problems 
-much easier to solve since the kernel module could tell the library to 
-stop drawing/accessing mmap'ed memory etc. (or if the OpenGL rendering 
-is done in the kernel module it could just discard the render commands).
-Since the user has no direct access to mmap'ed memory and other critical 
-sections of the device, the driver can implement proper power managment 
-for suspend/resume etc.
-
-Well... that's it.. any comments? I'm sure you have.. :)
-
--- 
-wereHamster a.k.a. Tom Carnecky   Emmen, Switzerland
-
-(GC 3.1) GIT d+ s+: a--- C++ UL++ P L++ E- W++ N++ !o !K  w ?O ?M
-           ?V PS PE ?Y PGP t ?5 X R- tv b+ ?DI D+ G++ e-- h! !r !y+

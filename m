@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261429AbSI2RuZ>; Sun, 29 Sep 2002 13:50:25 -0400
+	id <S261665AbSI2SAu>; Sun, 29 Sep 2002 14:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261438AbSI2RuZ>; Sun, 29 Sep 2002 13:50:25 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:50154 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261429AbSI2RuY>; Sun, 29 Sep 2002 13:50:24 -0400
-Date: Sun, 29 Sep 2002 14:54:59 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: james <jdickens@ameritech.net>, Ingo Molnar <mingo@elte.hu>,
-       Jeff Garzik <jgarzik@pobox.com>, Larry Kessler <kessler@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: v2.6 vs v3.0
-In-Reply-To: <Pine.LNX.4.44.0209291040420.2240-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0209291454280.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261676AbSI2SAu>; Sun, 29 Sep 2002 14:00:50 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:51796 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261665AbSI2SAt>;
+	Sun, 29 Sep 2002 14:00:49 -0400
+From: Felix Seeger <felix.seeger@gmx.de>
+To: Krzysztof Halasa <khc@pm.waw.pl>, <linux-kernel@vger.kernel.org>
+Subject: Re: System very unstable
+Date: Sun, 29 Sep 2002 20:06:01 +0200
+User-Agent: KMail/1.4.7
+References: <Pine.LNX.4.44.0209280348150.7827-100000@hawkeye.luckynet.adm> <200209281155.32668.felix.seeger@gmx.de> <m3fzvul1s3.fsf@defiant.pm.waw.pl>
+In-Reply-To: <m3fzvul1s3.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209292006.04938.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Sep 2002, Linus Torvalds wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> How the hell can I _guarantee_ anything like that?
+Am Samstag, 28. September 2002 14:46 schrieb Krzysztof Halasa:
+> Felix Seeger <felix.seeger@gmx.de> writes:
+>
+> [NVidia]
+>
+> > it. I has many bugs and is not closed source, I understand that no
+> > developer wants to work with that.
+>
+> No, while it really has many bugs, it _is_ closed source. No developer
+> is able to work with it. The *.[ch] files you see there are just stubs,
+> the real code is in binary-only library.
 
-"Quality IDE code, or your disk space back"
+Oh, hehe ;)
+Sorry, of course it is closed source.
 
-No wait, that didn't come out quite right...
+> > But I have a Desktop system. I play games. I can't remove that driver.
+> > I am running 2.4.19 since it is out and never had such problems with the
+> > NVDriver.
+>
+> I had many problems with their drivers. They have just forced me to
+> buy Radeon instead (and it works fine).
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+I will see how good Radeon is, thanks for all your answers btw.
 
-http://www.surriel.com/		http://distro.conectiva.com/
 
-Spamtraps of the month:  september@surriel.com trac@trac.org
+have fun
+Felix
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9l0EMS0DOrvdnsewRArpRAJ43iBBnlktbLWq60GkFIZt1FZHsYACeJQcQ
+YEsrVr8JX3Cw/KudZHAI79w=
+=3hRN
+-----END PGP SIGNATURE-----
 

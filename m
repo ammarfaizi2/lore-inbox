@@ -1,99 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262981AbUKYGVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262982AbUKYGbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262981AbUKYGVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Nov 2004 01:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbUKYGVx
+	id S262982AbUKYGbh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Nov 2004 01:31:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbUKYGbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Nov 2004 01:21:53 -0500
-Received: from ozlabs.org ([203.10.76.45]:5069 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262979AbUKYGVt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Nov 2004 01:21:49 -0500
+	Thu, 25 Nov 2004 01:31:37 -0500
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:19547 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262982AbUKYGbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Nov 2004 01:31:34 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i8k: fix 'power_status' sysfs permissions
+Date: Thu, 25 Nov 2004 01:31:28 -0500
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16805.31192.805328.538179@cargo.ozlabs.ibm.com>
-Date: Thu, 25 Nov 2004 17:21:12 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org, sfr@canb.auug.org.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix hang on legacy iSeries
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Message-Id: <200411250131.31624.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently we have uncovered a bug in the kernel exception exit path
-which can cause iSeries machines to hang with interrupts disabled,
-typically when unloading a module.  This patch fixes the bug and
-should go in 2.6.10.  Here is the detailed explanation:
+Well, that was a stupid mistake on my part.
 
-There are a couple of places in the exception exit path in entry.S
-where we disable interrupts and then later reenable them.  We
-hard-disable interrupts even on legacy iSeries (rather than
-soft-disabling them) because the final part of the exception exit path
-needs interrupts hard-disabled (even on legacy iSeries), because
-otherwise an incoming interrupt could trash SRR0 and SRR1 and cause us
-to lose state.
+-- 
+Dmitry
 
-The intention was that each path that hard-disabled interrupts would
-hard-enable them again, either explicitly or by executing an rfid
-instruction (return from interrupt, doubleword).  However there was
-one path where we didn't correctly hard-enable interrupts.  This meant
-we could end up calling schedule() with interrupts hard-disabled and
-then switch to the stopmachine thread (used in removing a module),
-which spins polling a variable until another cpu changes it.  Since
-local_irq_enable() etc. on legacy iSeries only soft-enable interrupts,
-we got into the stopmachine thread with interrupts hard-disabled, and
-the machine hung at that point.
 
-This patch fixes it by making sure that when we go to re-enable
-interrupts, the MSR value we are loading up actually does have the
-MSR.EE (external interrupt enable) bit set.  Stephen Rothwell has
-verified that this actually does fix the bug on iSeries.  The bug
-also potentially exists on pSeries (and this patch fixes it), but
-there it doesn't really matter, because schedule() will enable
-interrupts (and on pSeries that means hard-enabling them), and because
-the hypervisor doesn't mind you having interrupts hard-disabled for
-extended periods on pSeries.  Note that all these comments about
-pSeries also apply to POWER5 iSeries (i5) machines.
+===================================================================
 
-While I was there I noticed that we were jumping to ret_from_except
-after calling do_IRQ on iSeries, rather than ret_from_except_lite,
-meaning that we will restore registers 14-31 twice, unnecessarily.  I
-changed it to jump to ret_from_except_lite instead, and Stephen
-checked that this change doesn't cause any breakage.
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+ChangeSet@1.1967, 2004-11-25 00:30:50-05:00, dtor_core@ameritech.net
+  I8K: Fix power_status parameter sysfs permissions.
+  
+  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-diff -ruN linus-bk/arch/ppc64/kernel/entry.S linus-bk.fix.1/arch/ppc64/kernel/entry.S
---- linus-bk/arch/ppc64/kernel/entry.S	2004-10-09 15:46:33.000000000 +1000
-+++ linus-bk.fix.1/arch/ppc64/kernel/entry.S	2004-11-25 09:39:02.000000000 +1100
-@@ -497,10 +497,11 @@
+
+ i8k.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+===================================================================
+
+
+
+diff -Nru a/drivers/char/i8k.c b/drivers/char/i8k.c
+--- a/drivers/char/i8k.c	2004-11-25 01:26:46 -05:00
++++ b/drivers/char/i8k.c	2004-11-25 01:26:46 -05:00
+@@ -78,7 +78,7 @@
+ MODULE_PARM_DESC(restricted, "Allow fan control if SYS_ADMIN capability set");
  
- 	li	r3,0
- 	stb	r3,PACAPROCENABLED(r13)	/* ensure we are soft-disabled */
-+	ori	r10,r10,MSR_EE
- 	mtmsrd	r10			/* hard-enable again */
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	bl	.do_IRQ
--	b	.ret_from_except		/* loop back and handle more */
-+	b	.ret_from_except_lite		/* loop back and handle more */
+ static int power_status;
+-module_param(power_status, bool, 600);
++module_param(power_status, bool, 0600);
+ MODULE_PARM_DESC(power_status, "Report power status in /proc/i8k");
  
- 4:	stb	r5,PACAPROCENABLED(r13)
- #endif
-@@ -574,6 +575,7 @@
- 	li	r0,1
- 	stb	r0,PACAPROCENABLED(r13)
- #endif
-+	ori	r10,r10,MSR_EE
- 	mtmsrd	r10,1		/* reenable interrupts */
- 	bl	.schedule
- 	mfmsr	r10
-@@ -591,6 +593,7 @@
- user_work:
- #endif
- 	/* Enable interrupts */
-+	ori	r10,r10,MSR_EE
- 	mtmsrd	r10,1
- 
- 	andi.	r0,r4,_TIF_NEED_RESCHED
+ static ssize_t i8k_read(struct file *, char __user *, size_t, loff_t *);

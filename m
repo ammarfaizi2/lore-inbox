@@ -1,78 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292815AbSCIQrm>; Sat, 9 Mar 2002 11:47:42 -0500
+	id <S288557AbSCIRLk>; Sat, 9 Mar 2002 12:11:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292811AbSCIQrf>; Sat, 9 Mar 2002 11:47:35 -0500
-Received: from mg02.austin.ibm.com ([192.35.232.12]:36814 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S292815AbSCIQr2>; Sat, 9 Mar 2002 11:47:28 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: evms-devel@lists.sourceforge.net
-Subject: [ANNOUNCE] EVMS Release 0.9.2 (Beta)
-Date: Sat, 9 Mar 2002 10:38:56 -0600
-X-Mailer: KMail [version 1.2]
-Cc: evms-announce@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	id <S292835AbSCIRLa>; Sat, 9 Mar 2002 12:11:30 -0500
+Received: from proj2501.aiss.uic.edu ([131.193.164.90]:21002 "EHLO
+	proj2501.aiss.uic.edu") by vger.kernel.org with ESMTP
+	id <S288557AbSCIRLQ>; Sat, 9 Mar 2002 12:11:16 -0500
+Date: Sat, 9 Mar 2002 11:17:27 -0600 (CST)
+From: "Barton, Christopher" <cpbarton@uiuc.edu>
+X-X-Sender: cpbarton@proj2501.aiss.uic.edu
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: netconsole patch for 2.5?
+In-Reply-To: <Pine.LNX.4.33.0109280939090.1569-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0203091051060.27667-100000@proj2501.aiss.uic.edu>
 MIME-Version: 1.0
-Message-Id: <02030910385600.17120@boiler>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The EVMS team is announcing its third beta series release. Package 0.9.2 
-of the Enterprise Volume Management System is now available for download at 
-the project web site:
-http://www.sf.net/projects/evms
+Hello,
 
-Highlights for version 0.9.2:
+Is there a netconsole patch for Linux 2.5?  Is netconsole on anyone's
+radar for inclusion?
 
+Thanks a lot!
 
-v0.9.2 - 3/09/02
- - Core Engine/Kernel
-   - Fixed commit ordering bug.
-   - Added kernel config support for ia64 and s390.
-   - Export empty disks as compatibility volumes.
-   - Engine configuration change.
-     - Now requires --with-debug=basic to build with debugging symbols.
- - GUI
-   - Added Feature Objects panel back to the main window.
-   - Context pop-up menu items to jump to an object's parent,
-     consuming container, and/or producing container.
-   - Display detailed commit-time messages in GUI status bar.
-   - Option panels now only show active options (with a button
-     to optionally show all available options).
-   - Added EVMS FAQ to Help menu.
- - Text-mode UI
-   - Support for expand-container.
-   - Support for modify-object-properties.
-   - Support for FSIM operations (mkfs,unmkfs,fsck,defrag).
- - Command Line
-   - Multi-command mode is now the default. The "-m" option has been removed,
-     and a new "-s" option has been created to start in single command mode. 
-   - C style comments /* ... */ are now allowed in command files.
-   - Updated online help.
-   - New man page for command line.
- - BBR Plugin
-   - Now uses two kernel threads for performing I/O on replacement
-     sectors and updating the BBR mapping table.
- - Snapshot Plugin
-   - Changes to work with new commit-time ordering.
-   - Fixed kernel bug that was limiting the size of a snapshot object.
- - MD Plugin
-   - New ioctls supported in kernel.
-     - Add, Remove, Activate, Deactivate, Get_Array_Info.
-   - Added support for these ioctls to RAID-1 and RAID-4/5 personalities.
- - LVM Plugin
-   - Changes to snapshotting code to work with new commit-time ordering.
-   - Bug fixes in expand and shrink option handling.
- - AIX Plugin
-   - Kernel discovery and I/O path bug-fixes.
- - Utilities
-   - evms_devnode_fixup can now run in daemon mode.
+On Fri, 28 Sep 2001, Ingo Molnar wrote:
 
+> 
+> On Thu, 27 Sep 2001, Albert Cranford wrote:
+> 
+> > Great tool Ingo thanks.  Below is a tested tulip patch.
+> > Thanks Andrew for the the inspiration.
+> 
+> thanks Albert - i've added it to the patch, and the latest
+> netconsole-2.4.10-C2 version can be downloaded from:
+> 
+> 	http://redhat.com/~mingo/netconsole-patches/
+> 
+> NOTE: new client-side utilities are needed as well.
+> 
+> other changes:
+> 
+>  - netconsole-server fix from Andreas Dilger
+> 
+>  - introduced versioning and offsetting of output, to display messages in
+>    the correct order even if interim routers reorder packets. Future
+>    netconsole-clients should reliably detect the right protocol version.
+> 
+>  - small cleanups.
+> 
+> 	Ingo
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Kevin Corry
-corryk@us.ibm.com
-Enterprise Volume Management System
-http://www.sf.net/projects/evms

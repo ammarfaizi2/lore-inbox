@@ -1,200 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266580AbUGUSsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266597AbUGUSuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266580AbUGUSsS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 14:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266586AbUGUSsS
+	id S266597AbUGUSuk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 14:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266599AbUGUSuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 14:48:18 -0400
-Received: from w130.z209220038.sjc-ca.dsl.cnc.net ([209.220.38.130]:65009 "EHLO
-	mail.inostor.com") by vger.kernel.org with ESMTP id S266580AbUGUSsI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 14:48:08 -0400
-Message-ID: <40FEB9DE.5020209@inostor.com>
-Date: Wed, 21 Jul 2004 11:45:50 -0700
-From: Shesha Sreenivasamurthy <shesha@inostor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Wed, 21 Jul 2004 14:50:39 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32671 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S266597AbUGUSuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 14:50:37 -0400
+To: bruce@it.usyd.edu.au (Bruce Janson)
+Cc: rddunlap@osdl.org, <linux-kernel@vger.kernel.org>
+Subject: Re: kexec -l ... --ramdisk=<blah>
+References: <200407210653.i6L6rXsd022758@nlp0.cs.usyd.edu.au>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Jul 2004 12:49:39 -0600
+In-Reply-To: <200407210653.i6L6rXsd022758@nlp0.cs.usyd.edu.au>
+Message-ID: <m1llhd2o1o.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: O_DIRECT
-References: <40FD561D.1010404@inostor.com>	<20040721020520.4d171db7.robn@verdi.et.tudelft.nl>	<40FEA382.8050700@inostor.com>	<20040721192042.11f9c3f5.robn@verdi.et.tudelft.nl>	<40FEAF70.4070407@inostor.com> <20040721201532.7e6161ed.robn@verdi.et.tudelft.nl>
-In-Reply-To: <20040721201532.7e6161ed.robn@verdi.et.tudelft.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you very much ....
--Shesha
 
-Rob van Nieuwkerk wrote:
+bruce@it.usyd.edu.au (Bruce Janson) writes:
 
->On Wed, 21 Jul 2004 11:01:20 -0700
->Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
->
->Hi Shesha,
->
->  
->
->>ohhh OK, if the block size is 4096, then the read/write size must be 
->>integer multiple of 4096 ??? is it ???
->>In general should the read/write length be a multiple of block size?
->>    
->>
->
->Yes, see my previous emails.
->
->	greetings,
->	Rob van Nieuwkerk
->
->  
->
->>Rob van Nieuwkerk wrote:
->>
->>    
->>
->>>On Wed, 21 Jul 2004 10:10:26 -0700
->>>Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
->>>
->>>Hi Shesha,
->>>
->>>You don't mention what the *size* of your read()/write() is.
->>>Besides a requirement on the alignment of the read/write buffer
->>>the size of the read()/write() must also be OK.
->>>
->>>	greetings,
->>>	Rob van Nieuwkerk
->>>
->>> 
->>>
->>>      
->>>
->>>>This is what I found ....
->>>>
->>>>Our driver sets the block size to be 4096. so BLKBSZGET will return 
->>>>4096. So if I allin the memory at 4096 boundary, I cannot read using 
->>>>O_DIRECT. But, if I set the block size to 512.  I can read/write 
->>>>successfully. It also works with 1024, but no with 4096
->>>>
->>>>So the recepie what I am following is ...
->>>>
->>>>BLKBSZGET -> Get original block size
->>>>BLKBSZSET ->  Set the block size to 512
->>>>READ | WRITE Successfully ;)
->>>>BLKBSZSET ->  Set back to the original block size
->>>>
->>>>-Shesha
->>>>
->>>>Rob van Nieuwkerk wrote:
->>>>
->>>>   
->>>>
->>>>        
->>>>
->>>>>On Tue, 20 Jul 2004 10:27:57 -0700
->>>>>Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
->>>>>
->>>>>Hi Shesha,
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>>>I am having trouble with O_DIRECT. Trying to read or write from a block 
->>>>>>device partition.
->>>>>>
->>>>>>1. Can O_DIRECT be used on a plain block device partition say 
->>>>>>"/dev/sda11" without having a filesystem on it.
->>>>>>  
->>>>>>
->>>>>>       
->>>>>>
->>>>>>            
->>>>>>
->>>>>yes.
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>>>2. If no file system is created then what should be the softblock size. 
->>>>>>I am using the IOCTL "BLKBSZGET". Is this correct?
->>>>>>  
->>>>>>
->>>>>>       
->>>>>>
->>>>>>            
->>>>>>
->>>>>yes.
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>>>3. Can we use SEEK_END with O_DIRECT on a partition without filesystem.
->>>>>>  
->>>>>>
->>>>>>       
->>>>>>
->>>>>>            
->>>>>>
->>>>>yes.
->>>>>
->>>>>I'm using these exact things in an application.
->>>>>
->>>>>Note that with 2.4 kernels the "granularity" you can use for offset
->>>>>and r/w size is the softblock size (*).  For 2.6 the requirements are
->>>>>much more relaxed: it's the device blocksize (typically 512 byte).
->>>>>
->>>>>(*): actually one of offset or r/w size has a smaller minimum if
->>>>>I remember correctly.  Don't remember which one.  But if you assume
->>>>>the softblock size as a minimum for both you're allways safe.
->>>>>
->>>>>	greetings,
->>>>>	Rob van Nieuwkerk
->>>>>
->>>>>--
->>>>>Kernelnewbies: Help each other learn about the Linux kernel.
->>>>>Archive:       http://mail.nl.linux.org/kernelnewbies/
->>>>>FAQ:           http://kernelnewbies.org/faq/
->>>>>
->>>>>
->>>>>.
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>--
->>>Kernelnewbies: Help each other learn about the Linux kernel.
->>>Archive:       http://mail.nl.linux.org/kernelnewbies/
->>>FAQ:           http://kernelnewbies.org/faq/
->>>
->>>
->>>.
->>>
->>> 
->>>
->>>      
->>>
->
->--
->Kernelnewbies: Help each other learn about the Linux kernel.
->Archive:       http://mail.nl.linux.org/kernelnewbies/
->FAQ:           http://kernelnewbies.org/faq/
->
->
->.
->
->  
->
+> i Eric, Randy,
+>     Thanks for kexec.  It seems to mostly work well, and is an
+> improvement on the other contenders (2-kernel monte, bootimg and lobos).
 
+Thanks.  I am bouncing this to lkml since this at the moment does not
+appear to be a kexec issue.
+
+I just checked and initial ramdisks work.
+
+The kernel messages I see look like:
+> checking if image is initramfs...it isn't (no cpio magic); looks like an initrd
+> Freeing initrd memory: 1503k freed
+
+
+>     I am trying to use kexec's "--ramdisk=..." facility.  Both
+> loader and loadee kernels are Linux 2.6.7.  The new kernel loads and
+> runs successfully until it tries to mount its root file system.
+> Then it fails with this:
+> 
+>   RAMDISK: Couldn't find valid RAM disk image starting at 0.
+
+That message is because of your root=/dev/ram command line,
+and really has nothing to do with your initial ramdisk.
+ 
+>     I believe that the ramdisk image that I supply (to kexec)
+> is a well-formed ext2 file system image.  Just for grins I also tried
+> a copy of a RedHat 9.0 /boot/initrd* from one of our servers but it
+> produced the same failure and message.
+
+Perhaps you did not compile in initrd support?
+ 
+>     The failure message (from .../linux/init/do_mounts_rd.c:130)
+> suggests that the booted kernel has not found a valid ext2 superblock
+> at the expected ramdisk location.  As I trust the format of the
+> ramdisk image I now suspect that the ramdisk location may be wrong.
+
+Unless you have gotten quite creative I doubt it.  Looking at
+all of the kernel messages would have been more interesting.
+
+> Any suggestions that you can offer would be appreciated.
+
+See above.
+
+Eric

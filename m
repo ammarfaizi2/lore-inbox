@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUHMPqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266005AbUHMPrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUHMPqm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 11:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbUHMPql
+	id S266005AbUHMPrw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 11:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUHMPrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 11:46:41 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:5615 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S266034AbUHMPqg
+	Fri, 13 Aug 2004 11:47:51 -0400
+Received: from gw-oleane.hubxpress.net ([81.80.52.129]:53984 "EHLO
+	yoda.hubxpress.net") by vger.kernel.org with ESMTP id S266005AbUHMPrl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 11:46:36 -0400
-Date: Fri, 13 Aug 2004 17:45:22 +0200
-From: Cornelia Huck <kernel@cornelia-huck.de>
-To: johnpol@2ka.mipt.ru
-Cc: Adrian Bunk <bunk@fs.tum.de>, Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let W1 select NET
-Message-Id: <20040813174522.73221785@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <1092409800.12729.454.camel@uganda>
-References: <20040813101717.GS13377@fs.tum.de>
-	<Pine.LNX.4.58.0408131231480.20635@scrub.home>
-	<20040813105412.GW13377@fs.tum.de>
-	<20040813155233.04ccac4a@gondolin.boeblingen.de.ibm.com>
-	<1092409800.12729.454.camel@uganda>
-X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 13 Aug 2004 11:47:41 -0400
+From: "Sylvain COUTANT" <sylvain.coutant@illicom.com>
+To: "'Matt Domsch'" <Matt_Domsch@dell.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: High CPU usage (up to server hang) under heavy I/O load
+Date: Fri, 13 Aug 2004 17:46:43 +0200
+Organization: ILLICOM
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+In-Reply-To: <20040813153655.GB26340@lists.us.dell.com>
+Thread-Index: AcSBS2KZQcdvdStbTymTDNEU+MQNVQAAEbWA
+Message-Id: <20040813154737.7DCC12FC2C@illicom.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Aug 2004 19:10:00 +0400
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+Hello Matt,
 
-> It is just not a good example.
-> In other words - it is bad config dependencies.
-> You just caught error.
-> Not very good example with depends:
-> 
-> config A
-> 	depends on B
-> config B
-> 	depends on C
-> config C
-> 	depends on A
-> 
-> Just do not create wrong dependencies - although it sounds like "do 
-> not create deadlocks".
+> Which server please?
 
-Hm, none too easy with configurations spread over multiple files :) - however, should select really be able to activate an option with unmet dependencies?
+PE 2600 manufactured in June with latest PC BIOS and SCSI (PERC4/DI)
+BIOS/Firmware. We also tried downgrading to the previous release (as we have
+another PE2600 which runs fine with them) but it didn't do.
 
-(and iirc, you are warned about circular dependencies?)
+Add-ons are :
+- Adaptec SCSI controller
+- Total 3 Intel Pro 1000 Ethernet cards
+
+
+About the other PE2600, it has the same hardware configuration, but not
+exactly the same usage : more memory allocated to processes and far less I/O
+loads. Although I'm not always satisfied with its performances, we didn't
+notice something special on it so far.
+
 
 Regards,
-Cornelia
+Sylvain.
+

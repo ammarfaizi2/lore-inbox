@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278450AbRKOL5v>; Thu, 15 Nov 2001 06:57:51 -0500
+	id <S276249AbRKOL7v>; Thu, 15 Nov 2001 06:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276249AbRKOL5l>; Thu, 15 Nov 2001 06:57:41 -0500
-Received: from chamber.cco.caltech.edu ([131.215.48.55]:52156 "EHLO
-	chamber.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S278450AbRKOL5e>; Thu, 15 Nov 2001 06:57:34 -0500
-From: "Alex Adriaanse" <alex_a@caltech.edu>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: LFS stopped working
-Date: Thu, 15 Nov 2001 03:57:35 -0800
-Message-ID: <JIEIIHMANOCFHDAAHBHOOEOOCMAA.alex_a@caltech.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S280597AbRKOL7l>; Thu, 15 Nov 2001 06:59:41 -0500
+Received: from marao.utad.pt ([193.136.40.3]:53511 "EHLO marao.utad.pt")
+	by vger.kernel.org with ESMTP id <S276249AbRKOL7a>;
+	Thu, 15 Nov 2001 06:59:30 -0500
+Subject: Re: How to set speed for EEPro100 ?
+From: Alvaro Lopes <alvieboy@alvie.com>
+To: Marco Schwarz <mschwarz_contron@yahoo.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011115114301.51726.qmail@web10307.mail.yahoo.com>
+In-Reply-To: <20011115114301.51726.qmail@web10307.mail.yahoo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <howv0s48nx.fsf@gee.suse.de>
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 15 Nov 2001 11:57:23 +0000
+Message-Id: <1005825444.3016.0.camel@dwarf>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I'm running Debian 2.2 (with a few recompiled newer packages, as well
-as a recompiled glibc 2.1.3 obviously), which comes with bash 2.03.
-Compiling & installing bash 2.05, and commenting out that line in
-/etc/pam.d/ssh that was mentioned in the web page you provided unfortunately
-didn't change anything - the ulimit for file size was still unlimited, and I
-still couldn't write >2GB files.
+Hi
 
-Alex
+Use a simple tool called mii-diag
+Download it at http://www.scyld.com/diag/index.html
 
------Original Message-----
-From: aj@suse.de [mailto:aj@suse.de]
-Sent: Thursday, November 15, 2001 2:43 AM
-To: Alex Adriaanse
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LFS stopped working
+On Qui, 2001-11-15 at 11:43, Marco Schwarz wrote:
+> Hi,
+> 
+> I am having some problems with my EEPro 100 card.
+> Seems like my dual speed hub doesnt like it when some
+> of the cards are 10 MB and some others are 100 ....
+> 
+> How can I force the card to use 10 MB instead of 100MB
+> or auto detect ? I am using the driver included in
+> kernel 2.4.9, and I couldnt find any infos on how to
+> do this ... 
+> 
+> Thanks in advance
+> 
+> Marco Schwarz
+> 
+> 
+> __________________________________________________________________
+> 
+> Gesendet von Yahoo! Mail - http://mail.yahoo.de
+> Ihre E-Mail noch individueller? - http://domains.yahoo.de
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
-"Alex Adriaanse" <alex_a@caltech.edu> writes:
-
-> But ulimit shows that the file size is unlimited... would this be a bug?
-If
-> that's the case, then how/why would it work before?
-
-If you use an older distro, bash will not handle the changed getrlimit
-syscall in 2.4, for details check the Red Hat entry under:
-http://www.suse.de/~aj/linux_lfs.html
-
-Andreas
---
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
 

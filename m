@@ -1,90 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263497AbTH0Rgf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 13:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbTH0Rgf
+	id S263753AbTH0Rd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 13:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263759AbTH0Rd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 13:36:35 -0400
-Received: from mxrelay.osnanet.de ([212.95.97.103]:40406 "EHLO
-	mxrelay.osnanet.de") by vger.kernel.org with ESMTP id S263497AbTH0Rgb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 13:36:31 -0400
-Message-ID: <3F4CEB65.2080509@lilymarleen.de>
-Date: Wed, 27 Aug 2003 19:33:25 +0200
-From: LGW <large@lilymarleen.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030711 Thunderbird/0.1a
-X-Accept-Language: en-us, en
+	Wed, 27 Aug 2003 13:33:28 -0400
+Received: from hoemail2.lucent.com ([192.11.226.163]:7046 "EHLO
+	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S263753AbTH0RdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 13:33:25 -0400
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: porting driver to 2.6, still unknown relocs... :(
-References: <3F4CB452.2060207@lilymarleen.de> <20030827081312.7563d8f9.rddunlap@osdl.org> <3F4CCF85.1020502@lilymarleen.de> <1061999977.22825.71.camel@dhcp23.swansea.linux.org.uk> <20030827100745.0d944f33.shemminger@osdl.org> <Pine.LNX.4.53.0308271319350.2174@chaos>
-In-Reply-To: <Pine.LNX.4.53.0308271319350.2174@chaos>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16204.60256.756215.90139@gargle.gargle.HOWL>
+Date: Wed, 27 Aug 2003 13:33:20 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [TRIVIAL] Patch to for Cyclades ISA serial board under 2.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
 
->On Wed, 27 Aug 2003, Stephen Hemminger wrote:
->
->  
->
->>On 27 Aug 2003 16:59:38 +0100
->>Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->>
->>    
->>
->>>On Mer, 2003-08-27 at 16:34, LGW wrote:
->>>      
->>>
->>>>The driver is mostly a wrapper around a generic driver released by the
->>>>manufacturer, and that's written in C++. But it worked like this for the
->>>>2.4.x kernel series, so I think it has something todo with the new
->>>>module loader code. Possibly ld misses something when linking the object
->>>>specific stuff like constructors?
->>>>        
->>>>
->>>The new module loader is kernel side, it may well not know some of the
->>>C++ specific relocation types.
->>>      
->>>
->>You did something that was explicitly not supported on 2.4 and it worked,
->>it broke on 2.6.
->>
->>The fact that it worked it all on 2.4 was a fluke.
->>
->>It's time to breakdown, do the right thing and figure out how to rewrite/translate the
->>C++ code to C.
->>
->>    
->>
->
->  
->
->>You did something that was explicitly not supported on 2.4 and it worked,
->>    
->>
->                             ^^^^^^^^^^^^^^^^^^^^^^^^_______ Yes!
->
->There was lots of discussion/flames back-and-forth with newbies
->requiring that modules be written in C++.  This is what you get.
->Some of the C++ built-ins are not even global so the linker
->won't be able to find them if they are used. It's not just
->a matter of emulating 'new'. Parameter-passing 'by reference' also
->won't work so putting 'C' wrappers around stuff like they do
->in Dr. Jobbs and C/C++ Journal isn't going to work inside
->the kernel where there is no support.
->  
->
-I absolutly agree with your opinion here. But due to the fact that the 
-driver sources from the manufacturer where c++, a wrapper was easier 
-(and the license of the driver is... restrictive I'm afraid...). But a 
-rewrite in C is only a matter of time!
+Quick patch to get my 8 port Cyclades Cyclom-Y ISA card to work under
+2.6.0-test3 and higher:
 
-anyway, I have sound again, that's enough for the next few weeks I think.
-
-regards,
-  Lars
-
+--- linux-2.6.0-test3/drivers/char/cyclades.c   Sat Aug  9 00:33:22 2003
++++ linux-2.6.0-test1-mm2/drivers/char/cyclades.c       Tue Jul 22 23:19:19 2003
+@@ -867,6 +867,7 @@
+ static int cyz_issue_cmd(struct cyclades_card *, uclong, ucchar, uclong);
+ #ifdef CONFIG_ISA
+ static unsigned detect_isa_irq (volatile ucchar *);
++spinlock_t isa_card_lock = SPIN_LOCK_UNLOCKED;
+ #endif /* CONFIG_ISA */
+ 
+ static int cyclades_get_proc_info(char *, char **, off_t , int , int *, void *;
+@@ -1050,14 +1051,14 @@
+     udelay(5000L);
+ 
+     /* Enable the Tx interrupts on the CD1400 */
+-    save_flags(flags); cli();
++    spin_lock_irqsave(&isa_card_lock,flags);
+        cy_writeb((u_long)address + (CyCAR<<index), 0);
+        cyy_issue_cmd(address, CyCHAN_CTL|CyENB_XMTR, index);
+ 
+        cy_writeb((u_long)address + (CyCAR<<index), 0);
+        cy_writeb((u_long)address + (CySRER<<index), 
+                cy_readb(address + (CySRER<<index)) | CyTxRdy);
+-    restore_flags(flags);
++    spin_unlock_irqrestore(&isa_card_lock, flags);
+ 
+     /* Wait ... */
+     udelay(5000L);
+@@ -5665,7 +5666,7 @@
+ cy_cleanup_module(void)
+ {
+     int i;
+-    int e1;
++    int e1, e2;
+     unsigned long flags;
+ 
+ #ifndef CONFIG_CYZ_INTR
+@@ -5675,13 +5676,10 @@
+     }
+ #endif /* CONFIG_CYZ_INTR */
+ 
+-    save_flags(flags); cli();
+-
+     if ((e1 = tty_unregister_driver(cy_serial_driver)))
+             printk("cyc: failed to unregister Cyclades serial driver(%d)\n",
+                e1);
+ 
+-    restore_flags(flags);
+     put_tty_driver(cy_serial_driver);
+ 
+     for (i = 0; i < NR_CARDS; i++) {

@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269676AbTGJW5G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 18:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269677AbTGJW5F
+	id S269671AbTGJW6x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 18:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269677AbTGJW6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 18:57:05 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:65191 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269676AbTGJW46 (ORCPT
+	Thu, 10 Jul 2003 18:58:53 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:5820 "HELO
+	develer.com") by vger.kernel.org with SMTP id S269671AbTGJW63 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 18:56:58 -0400
-Date: Thu, 10 Jul 2003 16:11:38 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.75-osdl1
-Message-Id: <20030710161138.1a93d8f3.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Jul 2003 18:58:29 -0400
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Fix do_div() for all architectures
+Date: Fri, 11 Jul 2003 01:13:04 +0200
+User-Agent: KMail/1.5.9
+Cc: Richard Henderson <rth@twiddle.net>, Andrea Arcangeli <andrea@suse.de>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <200307060133.15312.bernie@develer.com> <200307082027.26233.bernie@develer.com> <20030710154019.GA18697@twiddle.net>
+In-Reply-To: <20030710154019.GA18697@twiddle.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200307110113.04982.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 10 July 2003 17:40, Richard Henderson wrote:
+ > On Tue, Jul 08, 2003 at 08:27:26PM +0200, Bernardo Innocenti wrote:
+ > > +extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor)
+ > > __attribute_pure__;
+ >
+ > ...
+ >
+ > > +		__rem = __div64_32(&(n), __base);	\
+ >
+ > The pure declaration is very incorrect.  You're writing to N.
 
-  http://developer.osdl.org/~shemminger/patches/patch-2.5.75-osdl1.bz2
+Here comes the obvious fix. Mea culpa, mea culpa, mea maxima culpa!
 
-No new content, just bugfixing and refreshing to keep up to date.
-
-The purpose of these patches is to get more testing and exposure on
-features that would be relevant to server systems running enterprise
-applications like database servers.
+NOTE: I've intentionally left the __attribute_pure__ definition in
+linux/compiler.h since it might apply to many other functions.
 
 
-Contents:
+Linus, please apply and forgive me for getting this simple patch wrong
+so many times in a row.
 
-o NUMA text replication			(Dave Hansen)
-o Kexec 				(Eric Biederman, Andy Pfiffer)
-  - bugfix for machines with lots of memory
-o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
-  includes relayfs
-o Lockmeter				(John Hawkes)
-o Atomic 64 bit i_size access		(Daniel McNeil)
-o Pentium Performance Counters		(Mikael Pettersson)
-o Kernel Config (ikconfig)		(Randy Dunlap)
-o RCU statistics               		(Dipankar Sarma)
-o Scheduler tunables            	(Robert Love)
+-------------------------------------------------------------------------
+
+ - remove incorrect __attribute_pure__ from __div64_32() since it obviously
+   clobbers memory through &(n);
+
+
+diff -Nru linux-2.5.74-bk4.orig/include/asm-generic/div64.h linux-2.5.74-bk4/include/asm-generic/div64.h
+--- linux-2.5.74-bk4.orig/include/asm-generic/div64.h   2003-07-11 01:00:44.000000000 +0200
++++ linux-2.5.74-bk4/include/asm-generic/div64.h        2003-07-11 00:59:52.000000000 +0200
+@@ -32,7 +32,7 @@
+
+ #elif BITS_PER_LONG == 32
+
+-extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor) __attribute_pure__;
++extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor);
+
+ # define do_div(n,base) ({                             \
+        uint32_t __base = (base);                       \
+
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+
 

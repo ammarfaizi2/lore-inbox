@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263271AbTFPDJr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 23:09:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTFPDJr
+	id S263275AbTFPDXf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 23:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTFPDXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 23:09:47 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:29188 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263271AbTFPDJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 23:09:46 -0400
-Date: Sun, 15 Jun 2003 23:12:19 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jeff <jeffpc@optonline.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 64-bit fields in struct net_device_stats
-In-Reply-To: <200306152253.36768.jeffpc@optonline.net>
-Message-ID: <Pine.LNX.4.50.0306152309220.32020-100000@montezuma.mastecende.com>
-References: <200306152131.09983.jeffpc@optonline.net> <200306152253.36768.jeffpc@optonline.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 15 Jun 2003 23:23:35 -0400
+Received: from smtp-out.comcast.net ([24.153.64.113]:26599 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S263275AbTFPDXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 23:23:34 -0400
+Date: Sun, 15 Jun 2003 23:34:45 -0400
+From: Chris Heath <chris@heathens.co.nz>
+Subject: [PATCH][2.5] fbcon.c complement_mask bug
+To: linux-kernel@vger.kernel.org
+Message-id: <20030615232235.D979.CHRIS@heathens.co.nz>
+MIME-version: 1.0
+X-Mailer: Becky! ver. 2.06.02
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+X-Antirelay: Good relay from local net1 127.0.0.1/32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Jun 2003, Jeff wrote:
+When using a frame buffer console with a 512-character font, the mouse
+pointer starts using the wrong complement_mask after a console reset.
 
-> I now realize, that locking is out of the question. Also, it has been
+This patch is against 2.5.71.  It fixes s_complement_mask so that it is
+always a valid default value for complement_mask.
 
-Well spinlocks in particular would be particularly ugly here and cause 
-horrid cache line ping pong. Other methods of synchronization would have 
-to be looked at.
+Chris
 
-> suggested to use per cpu stats and overflow into a global counter. (Thanks
-> Zwane) This might be a better idea - the problem is, the counter won't be
-> 100% accurate at all times. The degree of inaccuracy will vary with the
-> threshold value. On the other hand, if the threshold is relatively low, no
-> one will notice the difference these days.
 
-This would be one method of doing updates and for stats it would be fine, 
-however feel free to look into other ways...
+--- a/drivers/video/console/fbcon.c	2003-06-01 09:56:46.000000000 -0400
++++ b/drivers/video/console/fbcon.c	2003-06-15 22:54:47.000000000 -0400
+@@ -1826,8 +1826,10 @@
+ 	vc->vc_font.height = h;
+ 	if (vc->vc_hi_font_mask && cnt == 256) {
+ 		vc->vc_hi_font_mask = 0;
+-		if (vc->vc_can_do_color)
++		if (vc->vc_can_do_color) {
+ 			vc->vc_complement_mask >>= 1;
++			vc->vc_s_complement_mask >>= 1;
++		}
+ 
+ 		/* ++Edmund: reorder the attribute bits */
+ 		if (vc->vc_can_do_color) {
+@@ -1847,8 +1849,10 @@
+ 		}
+ 	} else if (!vc->vc_hi_font_mask && cnt == 512) {
+ 		vc->vc_hi_font_mask = 0x100;
+-		if (vc->vc_can_do_color)
++		if (vc->vc_can_do_color) {
+ 			vc->vc_complement_mask <<= 1;
++			vc->vc_s_complement_mask <<= 1;
++		}
+ 
+ 		/* ++Edmund: reorder the attribute bits */
+ 		{
 
-	Zwane
--- 
-function.linuxpower.ca

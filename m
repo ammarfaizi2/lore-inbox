@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272652AbTHELHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 07:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272653AbTHELHI
+	id S272638AbTHEK7X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 06:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272644AbTHEK7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 07:07:08 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:28318
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272652AbTHELHF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 07:07:05 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] O13int for interactivity
-Date: Tue, 5 Aug 2003 21:12:12 +1000
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-References: <200308050207.18096.kernel@kolivas.org> <200308052056.38861.kernel@kolivas.org> <3F2F8F0E.5060108@cyberone.com.au>
-In-Reply-To: <3F2F8F0E.5060108@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Aug 2003 06:59:23 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:43933 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S272638AbTHEK7W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 06:59:22 -0400
+Date: Tue, 5 Aug 2003 12:59:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.22-pre10] SAK: If a process is killed by SAK, give us an info about which one was killed
+Message-ID: <20030805105901.GA329@elf.ucw.cz>
+References: <200307312254.16964.m.c.p@wolk-project.de> <1059739764.18399.0.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308052112.12553.kernel@kolivas.org>
+In-Reply-To: <1059739764.18399.0.camel@dhcp22.swansea.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 21:03, Nick Piggin wrote:
-> Con Kolivas wrote:
-> >Then it takes longer to become interactive. Take 2.6.0-test2 vanilla -
-> > audio apps can take up to a minute to be seen as fully interactive;
-> > whether this is a problem for your hardware or not is another matter but
-> > clearly they are interactive using <1% cpu time on the whole.
->
-> I think this is a big problem, a minute is much too long. I guess its
-> taking this long to build up because X needs a great deal of inertia
-> so that it can stay in a highly interactive state right?
->
-> If so then it seems the interactivity estimator does not have enough
-> information to work properly for X. In which case maybe X needs to be
-> reniced, or backboosted, or have _something_ done to help out.
+Hi!
 
-Well we're in agreement there. That's what all this work I've done is about. 
-You'll see I've not been just tweaking numbers.
+> > $subject says it all.
+> > 
+> > Please apply for 2.4.22-pre10. Thank you :)
+> > 
+> > ciao, Marc
+> 
+> This is potentially private information. It shouldnt be reported
+> I disagree with the patch
 
-Con
-
+I agree it is not good enough for 2.4.X, but it looks good to me for
+2.6. That information can be get by ps, right? If we decide it is not
+okay to print process names to syslog, maybe oom killer should be
+fixed, too?
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268174AbTB1WTD>; Fri, 28 Feb 2003 17:19:03 -0500
+	id <S265567AbTB1W1a>; Fri, 28 Feb 2003 17:27:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268209AbTB1WTD>; Fri, 28 Feb 2003 17:19:03 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:43781 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S268174AbTB1WTC>; Fri, 28 Feb 2003 17:19:02 -0500
-Date: Fri, 28 Feb 2003 23:29:11 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 423] New: make -j X bzImage gives a warning
-In-Reply-To: <20030228212504.GA21843@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0302282326020.32518-100000@serv>
-References: <347860000.1046465385@flay> <20030228212504.GA21843@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268215AbTB1W13>; Fri, 28 Feb 2003 17:27:29 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:36356
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S265567AbTB1W13>; Fri, 28 Feb 2003 17:27:29 -0500
+Subject: Re: [Bug 420] New: Divide by zero 
+	(/proc/sys/net/ipv4/neigh/DEV/base_reachable_time)
+From: Robert Love <rml@tech9.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Abramo Bagnara <abramo.bagnara@libero.it>, ak@suse.de, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030228142625.1a53da75.rddunlap@osdl.org>
+References: <27440000.1046453828@[10.10.2.4].suse.lists.linux.kernel>
+	 <p733cm86yv0.fsf@amdsimf.suse.de> <3E5FE165.C8BABD4@libero.it>
+	 <20030228142625.1a53da75.rddunlap@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1046471866.1346.267.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
+Date: 28 Feb 2003 17:37:47 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2003-02-28 at 17:26, Randy.Dunlap wrote:
 
-On Fri, 28 Feb 2003, Sam Ravnborg wrote:
+> I agree with that.
 
-> >            Summary: make -j X bzImage gives a warning
-> >     Kernel Version: 2.5.63
-> >             Status: NEW
-> >           Severity: low	
-> >              Owner: zippel@linux-m68k.org
-> 
-> Feel free to bug me with kbuild related issues.
+I agree with that, too.
 
-A 'kernel build' component wouldn't be a bad idea. :)
+It is easy, too, because the sysctl mechanism has a built-in bounds
+checking function.
 
-> > Can we get rid of this one way or the other?
-> 
-> I have tried before - no luck.
-> This one happens due to a $(Q)$(MAKE) used as part of a $(if
-> construct in the top-level Makefile.
+For the seventh parameter (the parsing mechanism) you can specify
+something like proc_dointvec_minmax and then the last parameters can be
+&one and NULL.  This forces the minimum value to be one.
 
-If I add a '+' in front of the $(Q), the warning goes away?
+So its trivial and built-in.  While root should be able to wreck the
+system, he should at least have a chance in hell of knowing he is doing
+so.  Zero may seem to be a legitimate value here...
 
-bye, Roman
+	Robert Love
 

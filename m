@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbTKLPHl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 10:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTKLPHl
+	id S262104AbTKLPLV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 10:11:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTKLPKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 10:07:41 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:14527 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S262156AbTKLPHi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 10:07:38 -0500
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Some thoughts about stable kernel development
-References: <m3u15de669.fsf@defiant.pm.waw.pl>
-	<20031109192954.GB1094@alpha.home.local>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 12 Nov 2003 16:01:20 +0100
-In-Reply-To: <20031109192954.GB1094@alpha.home.local>
-Message-ID: <m3n0b18wcf.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Nov 2003 10:10:08 -0500
+Received: from oobleck.astro.cornell.edu ([132.236.6.230]:27607 "EHLO
+	oobleck.astro.cornell.edu") by vger.kernel.org with ESMTP
+	id S262202AbTKLPJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 10:09:26 -0500
+Date: Wed, 12 Nov 2003 10:09:17 -0500
+Message-Id: <200311121509.hACF9HG20967@oobleck.astro.cornell.edu>
+From: Joe Harrington <jh@oobleck.astro.cornell.edu>
+To: solt@dns.toxicfilms.tv
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <Pine.LNX.4.51.0311121016130.30003@dns.toxicfilms.tv> (message
+	from Maciej Soltysiak on Wed, 12 Nov 2003 10:19:49 +0100 (CET))
+Subject: Re: Via KT600 support?
+CC: jh@oobleck.astro.cornell.edu
+Reply-To: jh@oobleck.astro.cornell.edu
+References: <200311111921.hABJLur16428@oobleck.astro.cornell.edu> <Pine.LNX.4.51.0311121016130.30003@dns.toxicfilms.tv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau <willy@w.ods.org> writes:
+> > During install of Fedora Core 1, Fedora Core test3, Red Hat 9, and
+> > Debian 3.0r1, the install fails at a random point, generally during
+> > the non-interactive package loading phase.  The most recent kernel
+> > with the problem is kernel-2.4.22-1.2115.nptl in the Fedora Core 1
+> > release.  The problem is 100% reproducible.
 
->   - maintaining two trees is always more work than only one tree for the
->     same person, whatever the changes. This is obviously true, otherwise
->     none of us would ask for someone else to maintain the stable tree :-)
->     I believe this reason was given by both Alan and Marcelo at different
->     times.
+> Hmm, I have installed Mandrake 9.1 on some Gigabyte KT600 motherboard
+> with no problems. It had 2.4.21 kernel.
 
-Sure. However, with this scenario, the amount of additional work would be
-low, as the time-consuming things are done once for both trees.
+> Maybe you should check if there's a BIOS update for that MB?
 
->   - I think it was Linus who said that clueless people will only use distro's
->     kernels, therefore are not affected by how the kernel is developped. And
->     for other people like us, the "stable" kernel will never contain enough
->     features and we will have to patch anyway.
+Yes, thanks, I did that before I posted.  The problem exists with both
+the original BIOS (1004) and the latest (1005).
 
-Not sure about it - while I'm using 2.6.0test on my notebook (my personal
-news/mail server + less important things), I also use official kernels
-on some machines and patched trees on other ones.
-What I _don't_ use is distribution kernel - not because it's bad, but
-rather because i don't know it good enough.
+Is anyone aware of similar problems with other manufacturers' KT600
+boards that were fixed in recent BIOS updates?  Perhaps Asus has a
+BIOS bug they haven't fixed yet.
 
->   - someone else (alan ?) said that even most obvious fixes can break some
->     setups, so there are not many "obviously riskless" patches around, and
->     if there's a really critical one which needs to go mainstream very
-> quickly,
->     then the maintainer can always release a new version in a hurry and delay
->     -preX pending features for the next release.
+By the way, I also underclocked both the CPU and the memory as far
+down as they would go, just to check, and the problem persisted.
 
--post, yes. But it only solves this one problem.
--- 
-Krzysztof Halasa, B*FH
+--jh--

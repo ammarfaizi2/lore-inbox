@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUEKLsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUEKLt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUEKLsN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 07:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUEKLsN
+	id S263100AbUEKLt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 07:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUEKLt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 07:48:13 -0400
-Received: from ns.suse.de ([195.135.220.2]:15056 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262972AbUEKLsD (ORCPT
+	Tue, 11 May 2004 07:49:57 -0400
+Received: from ns.suse.de ([195.135.220.2]:59856 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263100AbUEKLtk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 07:48:03 -0400
-Date: Tue, 11 May 2004 13:47:59 +0200
+	Tue, 11 May 2004 07:49:40 -0400
+Date: Tue, 11 May 2004 13:49:36 +0200
 From: Kurt Garloff <garloff@suse.de>
 To: Linux SCSI list <linux-scsi@vger.kernel.org>
 Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: qlogicisp
-Message-ID: <20040511114759.GH4828@tpkurt.garloff.de>
+Subject: [PATCH] Format Unit can take many hours
+Message-ID: <20040511114936.GI4828@tpkurt.garloff.de>
 Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
 	Linux SCSI list <linux-scsi@vger.kernel.org>,
 	Linux kernel list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="D6z0c4W1rkZNF4Vu"
+	protocol="application/pgp-signature"; boundary="NqNl6FRZtoRUn5bW"
 Content-Disposition: inline
 X-Operating-System: Linux 2.6.5-9-KG i686
 X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
@@ -31,76 +31,66 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---D6z0c4W1rkZNF4Vu
-Content-Type: multipart/mixed; boundary="Yia77v5a8fyVHJSl"
+--NqNl6FRZtoRUn5bW
+Content-Type: multipart/mixed; boundary="dwWFXG4JqVa0wfCP"
 Content-Disposition: inline
 
 
---Yia77v5a8fyVHJSl
+--dwWFXG4JqVa0wfCP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-minimal fix for qlogicisp error handling ...
+the timeout for FORMAT_UNIT should be much longer; I've seen 8hrs
+already (75Gig). I've increased the timeout from 2hrs to 12hrs.
 
 Regards,
 --=20
 Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
 SUSE LINUX AG, Nuernberg, DE                          SUSE Labs (Head)
 
---Yia77v5a8fyVHJSl
+--dwWFXG4JqVa0wfCP
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="qlogicisp-eh.diff"
+Content-Disposition: attachment; filename="scsi-format-unit-timeout.diff"
 Content-Transfer-Encoding: quoted-printable
 
---- linux-2.6.5/drivers/scsi/qlogicisp.h.orig	2004-04-04 05:36:13.000000000=
- +0200
-+++ linux-2.6.5/drivers/scsi/qlogicisp.h	2004-05-11 08:49:17.339970940 +0200
-@@ -63,7 +63,7 @@ int isp1020_release(struct Scsi_Host *);
- const char * isp1020_info(struct Scsi_Host *);
- int isp1020_queuecommand(Scsi_Cmnd *, void (* done)(Scsi_Cmnd *));
- int isp1020_abort(Scsi_Cmnd *);
--int isp1020_reset(Scsi_Cmnd *, unsigned int);
-+int isp1020_reset(Scsi_Cmnd *);
- int isp1020_biosparam(struct scsi_device *, struct block_device *,
- 		sector_t, int[]);
- #endif /* _QLOGICISP_H */
---- linux-2.6.5/drivers/scsi/qlogicisp.c.orig	2004-04-04 05:38:22.000000000=
- +0200
-+++ linux-2.6.5/drivers/scsi/qlogicisp.c	2004-05-11 08:54:50.501143895 +0200
-@@ -1202,7 +1202,7 @@ int isp1020_abort(Scsi_Cmnd *Cmnd)
- }
+--- linux-2.6.5.orig/drivers/scsi/scsi_ioctl.c	2004-04-04 05:38:20.00000000=
+0 +0200
++++ linux-2.6.5/drivers/scsi/scsi_ioctl.c	2004-05-11 08:59:12.837421215 +02=
+00
+@@ -26,12 +26,12 @@
+ #include "scsi_logging.h"
 =20
+ #define NORMAL_RETRIES			5
+-#define IOCTL_NORMAL_TIMEOUT			(10 * HZ)
+-#define FORMAT_UNIT_TIMEOUT		(2 * 60 * 60 * HZ)
++#define IOCTL_NORMAL_TIMEOUT		(10 * HZ)
++#define FORMAT_UNIT_TIMEOUT		(12 * 60 * 60 * HZ)
+ #define START_STOP_TIMEOUT		(60 * HZ)
+ #define MOVE_MEDIUM_TIMEOUT		(5 * 60 * HZ)
+ #define READ_ELEMENT_STATUS_TIMEOUT	(5 * 60 * HZ)
+-#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ )  /* ZIP-250 on parallel port t=
+akes as long! */
++#define READ_DEFECT_DATA_TIMEOUT	(60 * HZ)  /* ZIP-250 on parallel port ta=
+kes as long! */
 =20
--int isp1020_reset(Scsi_Cmnd *Cmnd, unsigned int reset_flags)
-+int isp1020_reset(Scsi_Cmnd *Cmnd)
- {
- 	u_short param[6];
- 	struct Scsi_Host *host;
-@@ -1985,6 +1985,8 @@ static Scsi_Host_Template driver_templat
- 	.release		=3D isp1020_release,
- 	.info			=3D isp1020_info,=09
- 	.queuecommand		=3D isp1020_queuecommand,
-+	.eh_abort_handler	=3D isp1020_abort,
-+	.eh_bus_reset_handler	=3D isp1020_reset,
- 	.bios_param		=3D isp1020_biosparam,
- 	.can_queue		=3D QLOGICISP_REQ_QUEUE_LEN,
- 	.this_id		=3D -1,
+ #define MAX_BUF PAGE_SIZE
+=20
 
---Yia77v5a8fyVHJSl--
+--dwWFXG4JqVa0wfCP--
 
---D6z0c4W1rkZNF4Vu
+--NqNl6FRZtoRUn5bW
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAoL1vxmLh6hyYd04RAtZmAKDSWy2uQeLVKDJq2UzP9ddy5A6Q5QCfV+ky
-9yc6/V2jOXEIvXRwC3nCOco=
-=KUKp
+iD8DBQFAoL3QxmLh6hyYd04RAvzSAJ9YleDalzGxaK+gTw8ybXPBXbUZUwCgkncs
+LHGtlBtB28PKS5WBcFDIQo0=
+=AgjH
 -----END PGP SIGNATURE-----
 
---D6z0c4W1rkZNF4Vu--
+--NqNl6FRZtoRUn5bW--

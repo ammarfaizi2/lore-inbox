@@ -1,63 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVAZBBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVAZBO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbVAZBBW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 20:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVAYXkt
+	id S262076AbVAZBO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 20:14:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVAZBNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 18:40:49 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:51086 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262221AbVAYXSd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 18:18:33 -0500
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
-From: john stultz <johnstul@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, paulus@samba.org,
-       schwidefsky@de.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <amax@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>
-In-Reply-To: <20050125081704.GC27013@wotan.suse.de>
-References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
-	 <20050125081704.GC27013@wotan.suse.de>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 15:18:22 -0800
-Message-Id: <1106695102.30884.65.camel@cog.beaverton.ibm.com>
+	Tue, 25 Jan 2005 20:13:38 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:39110 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S262265AbVAZBLE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 20:11:04 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Nick Pollitt <npollitt@mvista.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure mangles hex values 
+In-reply-to: Your message of "Tue, 25 Jan 2005 09:25:57 -0800."
+             <200501250925.57693.npollitt@mvista.com> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 26 Jan 2005 12:10:46 +1100
+Message-ID: <4125.1106701846@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 09:17 +0100, Andi Kleen wrote:
-> On Mon, Jan 24, 2005 at 02:51:29PM -0800, john stultz wrote:
-> > All,
-> > 	Here is a new release of my time of day proposal, which include ppc64
-> > support as well as suspend/resume and cpufreq hooks. For basic summary
-> > of my ideas, you can follow this link: http://lwn.net/Articles/100665/
-> 
-> [...]
-> How do vsyscalls (running gettimeofday in user space) fit into your 
-> architecture? I don't see any provision for this.
+On Tue, 25 Jan 2005 09:25:57 -0800, 
+Nick Pollitt <npollitt@mvista.com> wrote:
+>Hello.  I'm thinking that the 0x was stripped for purely cosmetic reasons 
+>rather than anything functional.  I had originally thought that the readln 
+>function might need the formatting, but taking a closer look at it now I 
+>don't see any need.
 
-Yea, I had some earlier ideas for it, although they were misconceived.
-My plan at the moment is to do it similarly to how x86-64 and my i386
-patch did it, but still have it on an arch-per-arch basis.
-
-> Also on x86-64 we plan to keep the cycle time base per CPU, that 
-> will likely require some more changes to your architecture too.
-
-I like to hear more details, if you can discuss it. Its interesting,
-because I don't quite see how you'd be able to do this.
-
-thanks
--john
+Agreed.  Apply the patch.
 

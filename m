@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280785AbRKBSog>; Fri, 2 Nov 2001 13:44:36 -0500
+	id <S280778AbRKBSog>; Fri, 2 Nov 2001 13:44:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280783AbRKBSoc>; Fri, 2 Nov 2001 13:44:32 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:62342 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S280778AbRKBSoC>; Fri, 2 Nov 2001 13:44:02 -0500
-Date: Fri, 2 Nov 2001 10:42:11 -0800
-From: Russ Weight <rweight@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: bdevname(), cdevname(), kdevname() - static buffers
-Message-ID: <20011102104211.A1279@us.ibm.com>
-Mime-Version: 1.0
+	id <S280785AbRKBSoa>; Fri, 2 Nov 2001 13:44:30 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9224 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280781AbRKBSnp>; Fri, 2 Nov 2001 13:43:45 -0500
+Subject: Re: APM/ACPI
+To: smiddle@twp.ypsilanti.mi.us (Sean Middleditch)
+Date: Fri, 2 Nov 2001 18:50:42 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <1004726512.4921.41.camel@smiddle> from "Sean Middleditch" at Nov 02, 2001 01:41:52 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15zjOs-0003FH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> OK, so there's a good chance then that if I compile in ACPI I can have
+> things work OK.  Do I need something besides apmd to handle all that? 
+> Will stuff like the GNOME battery applet still work?
 
-I was looking at the usage of bdevname(), cdevname(), and kdevname(),
-and noticed that they each return a pointer to a static buffer.
-This buffer contains a formatted device name, which is typically
-printed immediately following the call. However, I don't see any
-explicit lock protection for these buffers.
-
-For SMP systems, is there something implicit in their use that
-prevents a race on these buffers? Has anyone seen garbled device
-names being printed (which might be attributed to a race)?
-
-- Russ
-
-     ----------------------------------------------------------------------
-
-Russ Weight  (rweight@us.ibm.com)
-IBM Technology Center
+If you compile in ACPI your box might work. You will need different 
+(development) tools and suspend wont work yet. ACPI is getting to the 
+useful point but not quite there - expect an adventure

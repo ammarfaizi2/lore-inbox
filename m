@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbTIKUQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 16:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTIKUQ5
+	id S261500AbTIKURO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 16:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbTIKURO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 16:16:57 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53510 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261494AbTIKUQ4
+	Thu, 11 Sep 2003 16:17:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30402 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261500AbTIKURK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 16:16:56 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Date: 11 Sep 2003 20:08:01 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bjqkn1$tbq$1@gatekeeper.tmr.com>
-References: <3F6087FC.7090508@pobox.com> <20030911165826.06f2fd16.ak@suse.de>
-X-Trace: gatekeeper.tmr.com 1063310881 30074 192.168.12.62 (11 Sep 2003 20:08:01 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Thu, 11 Sep 2003 16:17:10 -0400
+Message-ID: <3F60D83A.9060506@pobox.com>
+Date: Thu, 11 Sep 2003 16:16:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (6/7): network drivers.
+References: <20030911171747.GG5637@mschwid3.boeblingen.de.ibm.com>
+In-Reply-To: <20030911171747.GG5637@mschwid3.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030911165826.06f2fd16.ak@suse.de>,
-Andi Kleen  <ak@suse.de> wrote:
+Martin Schwidefsky wrote:
 
-| If you really want to save text space just use .bz2 compression 
-| or compile the kernel with -Os. There are also other subsystems
-| that would benefit much more (better effort/cost ratio) than adding
-| micro #ifdefs to core code.
+> -	spin_lock_init(&card->wait_q_lock);
+> +	/* setup net_device stuff */
+> +	card->dev->priv = card;
+> +
+> +	strncpy(card->dev->name, card->dev_name, IFNAMSIZ);
 
-Good idea, let's put stuff like this in hardware-dependent includes, and
-just have a single line in the core code  like
-  check_special_pfault_cases;
-and that documents what is happening as well as avoiding reading around
-it. It seems silly to leave a big hunk of code in when developers are
-making efforts to drop cruft and keep Linux practical for embedded
-systems.
+what's this about?  Why avoid the net stack's dev->name assignment?
 
-People were willing to drop the whole prefetch feature, I don't see that
-micro ifdefs are a bad thing, it's just that thought needs to go into
-making the code readable.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+
+> +	QETH_DBF_TEXT3(0, trace, "alloccrd");
+> +	card = (struct qeth_card *) vmalloc(sizeof (struct qeth_card));
+> +	if (!card)
+> +		return NULL;
+
+Is the card's private info really so large that you need vmalloc() ?
+
+Most of the patch looks ok to me, except for these minor niggles.
+
+	Jeff
+
+
+
+
+

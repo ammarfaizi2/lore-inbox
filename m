@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268967AbTBWUIZ>; Sun, 23 Feb 2003 15:08:25 -0500
+	id <S268543AbTBWUS6>; Sun, 23 Feb 2003 15:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268969AbTBWUIZ>; Sun, 23 Feb 2003 15:08:25 -0500
-Received: from 5-077.ctame701-1.telepar.net.br ([200.193.163.77]:33756 "EHLO
-	5-077.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S268967AbTBWUIX>; Sun, 23 Feb 2003 15:08:23 -0500
-Date: Sun, 23 Feb 2003 17:18:19 -0300 (BRT)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: Re: oom killer and its superior braindamage in 2.4
-In-Reply-To: <200302231833.05944.m.c.p@wolk-project.de>
-Message-ID: <Pine.LNX.4.50L.0302231715090.2206-100000@imladris.surriel.com>
-References: <200302222025.48129.m.c.p@wolk-project.de>
- <Pine.LNX.4.50L.0302221711100.2206-100000@imladris.surriel.com>
- <Pine.LNX.4.50L.0302221732010.2206-100000@imladris.surriel.com>
- <200302231833.05944.m.c.p@wolk-project.de>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268545AbTBWUS6>; Sun, 23 Feb 2003 15:18:58 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14720
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268543AbTBWUS5>; Sun, 23 Feb 2003 15:18:57 -0500
+Subject: Re: [PATCH] Make hot unplugging of PCI buses work
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+In-Reply-To: <20030223193229.F20405@flint.arm.linux.org.uk>
+References: <20030223173441.D20405@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.44.0302231054420.11584-100000@home.transmeta.com>
+	 <20030223193229.F20405@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046035789.1669.16.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 23 Feb 2003 21:29:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Feb 2003, Marc-Christian Petersen wrote:
+On Sun, 2003-02-23 at 19:32, Russell King wrote:
+> 1. discovering all devices
+> 2. apply any fixups needed
+> 3. initialise any resources that need initialising
+> 4. once all devices have been initialised, registering each
+>    device with sysfs and thereby letting the drivers know.
 
-> > Does the below patch fix your problem ?
+There is an additional catch with the resources to be careful of.
+Some environments require we register/unregister additional
+IRQ routing tables. Thats a minor problem but does affect things
+like IBM thinkpad 600 docking station. Thats a transparent
+bridge with devices that appear and vanish stuck behind it.
+Similar problems - it needs
 
-> With your patch, mystress.pl was marked to get killed, every PID only
-> once, no apache or similar (good). ... But the strange thing is, that it
-> seems none of the processes, which are marked to be killed, get killed.
-> So sysrq-t tells me.
+	pci_attach_behind_bridge()
+	pci_destroy_behind_bridge()
 
-It'd be interesting to know where these processes are spending
-their CPU time and why they're not catching their signals.
+functionality just like the cardbus toys
 
-> Sysrq-i gave me the chance to get out of the OOM killing process and
-> only kernel threads were left + getty's so I was able to log in again.
-
-Strange, so sysrq-i manages to kill the processes, but the OOM
-killer doesn't kill the processes ?
-
-This is very suspect because the OOM killer uses force_sig in
-the same way the sysrq-i handler does...
-
-regards,
-
-Rik
--- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/

@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312516AbSCUVzl>; Thu, 21 Mar 2002 16:55:41 -0500
+	id <S312521AbSCUWBV>; Thu, 21 Mar 2002 17:01:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312519AbSCUVzc>; Thu, 21 Mar 2002 16:55:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:528 "EHLO
+	id <S312524AbSCUWBL>; Thu, 21 Mar 2002 17:01:11 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12560 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312516AbSCUVzT>; Thu, 21 Mar 2002 16:55:19 -0500
-Subject: Re: 2.4.19-pre4: Compiler crash in i386/kernel/mpparse.c
-To: merlim@libero.it
-Date: Thu, 21 Mar 2002 22:11:37 +0000 (GMT)
+	id <S312521AbSCUWBE>; Thu, 21 Mar 2002 17:01:04 -0500
+Subject: Re: BUG: 2.4.18 & ALI15X3 DMA hang on boot
+To: jcl@cs.cmu.edu (John Langford)
+Date: Thu, 21 Mar 2002 22:17:17 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200203212233.07125.lk_ml@libero.it> from "petali grigi" at Mar 21, 2002 10:36:28 PM
+In-Reply-To: <200203212047.g2LKlrc28867@gs176.sp.cs.cmu.edu> from "John Langford" at Mar 21, 2002 03:47:53 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16oAmX-0006Qq-00@the-village.bc.nu>
+Message-Id: <E16oAs1-0006SJ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> gcc crashes compiling arch/i386/kernel/mpparse.c  line 41
+> There seems to be some fundamental incompatibility between the kernel
+> and the IDE chipset.  On several kernels in the 2.4 series including
+> 2.4.18, I observe a hang in the bootsequence at:
 > 
-> gcc version 3.0.2 20010905 (Red Hat Linux 7.1 3.0.1-3) 
-> (the one shipped with RH 7.2)
+> ALI15X3: IDE controller on PCI bus 00 dev 78
+> PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using pci=biosirq.
+> ALI15X3: chipset revision 195
+> ALI15X3: not 100% native mode: will probe irqs later
+> <hang>
 
-Use 2.96. gcc 3.0 isnt a good compiler choice for 2.4.x kernels - 3.0.4
-seems to be doing the right thing but not 3.0.x x<4. 3.1 snapshots are
-also looking very promising
+And does pci=bios help ?
+
+The kernel can't find out how the IDE IRQ routing is happening.

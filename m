@@ -1,77 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271025AbTHFTdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 15:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270967AbTHFTcN
+	id S270927AbTHFT3v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 15:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270967AbTHFT3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 15:32:13 -0400
-Received: from pwmail.portoweb.com.br ([200.248.222.108]:37780 "EHLO
-	portoweb.com.br") by vger.kernel.org with ESMTP id S270991AbTHFTbM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 15:31:12 -0400
-Date: Wed, 6 Aug 2003 16:33:52 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jason Baron <jbaron@redhat.com>
-Subject: Re: pivot_root solved by patch to 2.4.22-pre7
-In-Reply-To: <3F309FD8.8090105@gibraltar.at>
-Message-ID: <Pine.LNX.4.44.0308061633240.2722-100000@logos.cnet>
+	Wed, 6 Aug 2003 15:29:51 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:19473 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270927AbTHFT3p convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 15:29:45 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6] system is very slow during disk access
+Date: Wed, 6 Aug 2003 21:29:34 +0200
+User-Agent: KMail/1.5.3
+References: <200308062052.10752.fsdeveloper@yahoo.de>
+In-Reply-To: <200308062052.10752.fsdeveloper@yahoo.de>
+Cc: linux-ide@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200308062129.47113.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-What is your problem with pivot_root? 
+On Wednesday 06 August 2003 20:51, Michael Buesch wrote:
+> Hi.
+>
+> I have massive problems with linux-2.6.0-test2.
+> When some process writes something to disk, it's very hard
+> to go on working with the system.
+>
+> Some test-szenario:
+> $ dd if=/dev/zero of=./test.file
+>
+> While dd is running, xmms skips playing every now and then
+> and the mouse is near to be unusable. The Mouse-cursor
+> behaves some kind of very lazy and some times it jumps
+> from one point on the display to another.
+> When I stop disk-access, it works again quite fine.
+>
+> Would be cool, if you could give me some point to start
+> for tracking this down.
+>
+> Please CC me, as I'm not subscribed to linux-ide. Thanks.
 
-Sorry but I've searched the list archives and found nothing but this email 
-and this patch, which seems a bit hackish.
+I sould add some things:
 
-On Wed, 6 Aug 2003, Rene Mayrhofer wrote:
+I'm using ReiserFS.
 
-> Hi all,
-> 
-> The problem with pivot_root that appeared in 2.4.21-ac4 and the 
-> 2.4.22-pre kernels is now solved (at least for my case) by applying the 
-> trvial patch sent by Jason Baron.
-> 
-> Jason Baron wrote:
-> > right. so the semantics of how file tables are shared has changed a bit. I
-> > would think that for at least 'init', it'd be nice to preserve the
-> > original behavior, for situations such as you described. Something like
-> > the following would probably work, although i havent' tried the test
-> > script.
-> > 
-> > --- linux/kernel/fork.c.orig  2003-07-23 21:34:59.000000000 -0400
-> > +++ linux/kernel/fork.c       2003-07-23 21:35:45.000000000 -0400
-> > @@ -558,7 +558,7 @@ int unshare_files(void)
-> >  
-> >         /* This can race but the race causes us to copy when we don't
-> >            need to and drop the copy */
-> > -       if(atomic_read(&files->count) == 1)
-> > +       if(atomic_read(&files->count) == 1 || (current->pid == 1))
-> >         {
-> >                 atomic_inc(&files->count);
-> >                 return 0;
-> >    
-> 
-> 
-> 
-> I tried that on my system and it works as expected. The kernel processes
-> close their fds and the old root fs can thus be unmounted after
-> pivot_root. Thanks for the hint !
-> So the problem is solved for me and it would be wonderful to get it into
-> 2.4.22.
-> 
-> best regards,
-> Rene
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I've made a test-run without X in the console now.
+I started this program on tty0, to see if there are big skips or
+something like that:
+
+int main()
+{
+	while (1) {
+		printf("jkhdsjklhfkjfhsdjkhjbghghjghjjh");
+		printf("jsdlökflsm,dfowekcldfqw");
+		printf("JKjhdsjkfhsnsdjkhJhjkhjkbmnxbuihjknlk");
+		printf("kcjkld");
+	}
+	return 0;
+}
+
+When the machine isn't doing any disk-access, the "garbage-printing"
+to the console, produced by the program above is very smooth.
+But when I start dd on another tty, massive skips and breaks occur
+to the output of the nice program above.
+These are not small skips and breaks.
+The system is quite unusable during running dd, because it doesn't
+respond as it should.
+
+I just tried to run the test-scenario on my other Linux-installation
+on this machine with kernel 2.4.10 and there the output of the program
+was quite smooth, even it dd was running und the system was still usable.
+
+- -- 
+Regards Michael Buesch  [ http://www.8ung.at/tuxsoft ]
+Penguin on this machine:  Linux 2.6.0-test2 - i386
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/MVcnoxoigfggmSgRAsg/AJ0dsfySPGpiOXFhA67gi580G/XaswCeNd4u
+lVmXAvLHvcYIATgtuPHF4FU=
+=gh4Q
+-----END PGP SIGNATURE-----
 

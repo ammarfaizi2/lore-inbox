@@ -1,76 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbTJMSPj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 14:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbTJMSPj
+	id S261825AbTJMSKy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 14:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTJMSKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 14:15:39 -0400
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:6917 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S261875AbTJMSPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 14:15:37 -0400
-To: linux-kernel@vger.kernel.org
-Path: 127.0.0.1!nobody
-From: Peter Matthias <espi@epost.de>
-Newsgroups: linux.kernel
-Subject: Re: ACM USB modem on Kernel 2.6.0-test
-Date: Mon, 13 Oct 2003 18:28:27 +0200
-Organization: Tiscali Germany
-Message-ID: <brjemb.gd.ln@127.0.0.1>
-References: <FwYB.Z9.25@gated-at.bofh.it>
-NNTP-Posting-Host: p62.246.118.45.tisdip.tiscali.de
+	Mon, 13 Oct 2003 14:10:54 -0400
+Received: from smtp0.libero.it ([193.70.192.33]:34189 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S261825AbTJMSKx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 14:10:53 -0400
+Date: Mon, 13 Oct 2003 20:10:46 +0200
+From: Ludovico Gardenghi <garden@despammed.com>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [despammed] Re: vfat corruption in 2.6.0?
+Message-ID: <20031013181046.GA5832@ripieno.somiere.org>
+References: <20031012095720.GA21405@ripieno.somiere.org> <87llrqjrxx.fsf@devron.myhome.or.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: ulysses.news.tiscali.de 1066068811 88718 62.246.118.45 (13 Oct 2003 18:13:31 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Mon, 13 Oct 2003 18:13:31 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Content-Disposition: inline
+In-Reply-To: <87llrqjrxx.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell schrieb:
+On Mon, Oct 13, 2003 at 02:18:02AM +0900, OGAWA Hirofumi wrote:
 
->> usb 3-3: configuration #1 chosen from 2 choices
->> drivers/usb/class/cdc-acm.c: need inactive config #2
->> drivers/usb/class/cdc-acm.c: need inactive config #2
-> 
-> Until we get more intelligence somewhere, do this:
-> 
->     # cd /sys/bus/usb/devices/3-3
->     # echo '2' > bConfigurationValue
->     #
+> > He has a quite big vfat partition (60 GB) created with mkfs.vfat; he
+> > ran a program that had to write ~5000 files summing up to 18 GB but
+> Can I get your program or how can I make it reproduce? Any hint?
 
-It works, but I get lots of theses warnings.
+It's quite simple: given a program than echoes a list of lines like
 
-Peter
+EVENT:xxxxx:something:somethingelse:somethingelsemore
 
-Badness in local_bh_enable at kernel/softirq.c:121
-Call Trace:
- [<c011bf5d>] local_bh_enable+0x7d/0x80
- [<c0204984>] ppp_async_input+0x2f4/0x5a0
- [<c0203dcb>] ppp_asynctty_receive+0x4b/0x90
- [<c01def5f>] flush_to_ldisc+0x7f/0xd0
- [<df88d20f>] acm_read_bulk+0xbf/0x140 [cdc_acm]
- [<c023af59>] usb_hcd_giveback_urb+0x29/0x50
- [<c0248585>] dl_done_list+0xd5/0xe0
- [<c0248ea0>] ohci_irq+0xe0/0x150
- [<c023afb6>] usb_hcd_irq+0x36/0x60
- [<c010a9ca>] handle_IRQ_event+0x3a/0x70
- [<c010acb1>] do_IRQ+0x71/0xf0
- [<c010920c>] common_interrupt+0x18/0x20
+with xxxxx a number (you can think this as a random number between 00000
+and 05000)
 
-Badness in local_bh_enable at kernel/softirq.c:121
-Call Trace:
- [<c011bf5d>] local_bh_enable+0x7d/0x80
- [<c0203dd0>] ppp_asynctty_receive+0x50/0x90
- [<c01def5f>] flush_to_ldisc+0x7f/0xd0
- [<df88d20f>] acm_read_bulk+0xbf/0x140 [cdc_acm]
- [<c023af59>] usb_hcd_giveback_urb+0x29/0x50
- [<c0248585>] dl_done_list+0xd5/0xe0
- [<c0248ea0>] ohci_irq+0xe0/0x150
- [<c023afb6>] usb_hcd_irq+0x36/0x60
- [<c010a9ca>] handle_IRQ_event+0x3a/0x70
- [<c010acb1>] do_IRQ+0x71/0xf0
- [<c010920c>] common_interrupt+0x18/0x20
+I wrote a bash shell script that contains something like
 
+./myprogram | grep ^EVENT | while read; do
+	echo "$REPLY" >> "clientdata-${REPLY:6:5}"
+done
+
+That's all.
+
+It continues up to ~6GB and 5000 different files then starts reading
+the files back and so on. The problem *should* happen in the writing
+phase.
+
+> If it happen next time, please send the dmesg and .config.
+
+Ok. I'll also ask him if he has a copy somewhere else, I think he sends
+syslog messages to a remote machine too.
+
+Ludovico
+-- 
+<dunadan@despammed.com>          #acheronte (irc.freenode.net) ICQ: 64483080
+GPG ID: 07F89BB8              Jabber: garden@jabber.students.cs.unibo.it
+-- This is signature nr. 1252

@@ -1,76 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318339AbSHEIem>; Mon, 5 Aug 2002 04:34:42 -0400
+	id <S318341AbSHEIlf>; Mon, 5 Aug 2002 04:41:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318340AbSHEIem>; Mon, 5 Aug 2002 04:34:42 -0400
-Received: from ns.suse.de ([213.95.15.193]:32523 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318339AbSHEIel>;
-	Mon, 5 Aug 2002 04:34:41 -0400
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode linux]
-References: <1028294887.18635.71.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel> <Pine.LNX.4.44.0208031332120.7531-100000@localhost.localdomain.suse.lists.linux.kernel> <m3u1mb5df3.fsf@averell.firstfloor.org.suse.lists.linux.kernel> <ail2qh$bf0$1@penguin.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Aug 2002 10:38:16 +0200
-In-Reply-To: torvalds@transmeta.com's message of "5 Aug 2002 07:36:55 +0200"
-Message-ID: <p73ado1k8ef.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S318342AbSHEIle>; Mon, 5 Aug 2002 04:41:34 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21215 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318341AbSHEIle>; Mon, 5 Aug 2002 04:41:34 -0400
+Date: Mon, 5 Aug 2002 10:45:06 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: jbradford@dial.pipex.com
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] Re: 2.4.19 duplicate config entry
+In-Reply-To: <200208042057.g74KvS3X000703@darkstar.example.net>
+Message-ID: <Pine.NEB.4.44.0208051038140.27501-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds) writes:
+On Sun, 4 Aug 2002 jbradford@dial.pipex.com wrote:
 
+> Hi,
 
-> >This is because the signal save/restore does a lot of unnecessary stuff.
-> >One optimization I implemented at one time was adding a SA_NOFP signal
-> >bit that told the kernel that the signal handler did not intend 
-> >to modify floating point state (few signal handlers need FP) It would 
-> >not save the FPU state then and reached quite some speedup in signal
-> >latency. 
-> >
-> >Linux got a lot slower in signal delivery when the SSE2 support was
-> >added. That got this speed back.
-> 
-> This will break _horribly_ when (if) glibc starts using SSE2 for things
-> like memcpy() etc.
-> 
-> I agree that it is really sad that we have to save/restore FP on
-> signals, but I think it's unavoidable. Your hack may work for you, but
-> it just gets really dangerous in general. having signals randomly
-> subtly corrupt some SSE2 state just because the signal handler uses
-> something like memcpy (without even realizing that that could lead to
-> trouble) is bad, bad, bad.
+Hi John,
 
-I think the possibility at least for memcpy is rather remote. Any sane
-SSE memcpy would only kick in for really big arguments (for small
-memcpys it doesn't make any sense at all because of the context save/possible
-reformatting penalty overhead). So only people doing really
-big memcpys could be possibly hurt, and that is rather unlikely.
+> I've just noticed in 2.4.19, that:
+>
+> "Support for PCMCIA management for PC-style ports" appears twice in the configuration.
+>
+> I didn't notice it in 2.4.19-RC2, (the last version I compiled), but I might have missed it.
+>
+> By the way, I got a 2.4.18 tree, patched it to RC1, then used the incremental patches up to -final.
+>
+> The second instance is greyed-out in xconfig, and neither allows y, m or n to be selected.
 
-But your point stands, one definitely needs to be very careful with it.
+it's at no time possible that more than one choice is available which
+means it's harmless.
 
-Also for special things like UML who can ensure their environment is sane it 
-could be still an useful optimization. I did it originally for async IO 
-handling in some project. At least offering the choice does not hurt.
-If it wcould speed up UML I think it would be certainly worth it.
+But you are right, it doesn't look good. IMHO the following more simple
+(and semantically equivalent) solution should work and correct it:
 
-After all Linux should give you enough rope to shot yourself in the foot ;)
+--- drivers/parport/Config.in.old	Mon Aug  5 10:32:28 2002
++++ drivers/parport/Config.in	Mon Aug  5 10:40:03 2002
+@@ -24,12 +24,8 @@
+          bool '    Use FIFO/DMA if available (EXPERIMENTAL)' CONFIG_PARPORT_PC_FIFO
+          bool '    SuperIO chipset support (EXPERIMENTAL)' CONFIG_PARPORT_PC_SUPERIO
+       fi
+-      if [ "$CONFIG_HOTPLUG" = "y" -a "$CONFIG_PCMCIA" != "n" ]; then
+-         if [ "$CONFIG_PARPORT_PC" = "y" ]; then
+-            dep_tristate '    Support for PCMCIA management for PC-style ports' CONFIG_PARPORT_PC_PCMCIA $CONFIG_PCMCIA
+-         else
+-            dep_tristate '    Support for PCMCIA management for PC-style ports' CONFIG_PARPORT_PC_PCMCIA $CONFIG_PARPORT_PC
+-         fi
++      if [ "$CONFIG_HOTPLUG" = "y" ]; then
++         dep_tristate '    Support for PCMCIA management for PC-style ports' CONFIG_PARPORT_PC_PCMCIA $CONFIG_PCMCIA $CONFIG_PARPORT_PC
+       fi
+    fi
+    if [ "$CONFIG_ARM" = "y" ]; then
 
-> 
-> In other words, "not intending to" does not imply "will not".  It's just
-> potentially too easy to change SSE2 state by mistake. 
-> 
-> And yes, this signal handler thing is clearly visible on benchmarks. 
-> MUCH too clearly visible.  I just didn't see any safe alternatives
-> (and I still don't ;( )
+> John.
 
-In theory you could do a superhack: put the FP context into an unmapped
-page on the stack and only save with lazy FPU or access to the unmapped
-page. Unfortunately the details get too nasty
-(where to find the unmapped page? is the tlb manipulation worth it if the
-page was mapped? how to store the address of the unmapped page for nested 
-signal handlers for the page fault handler?) so I discarded this idea.
+cu
+Adrian
 
--Andi
+-- 
 
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

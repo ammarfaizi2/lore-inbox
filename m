@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbQKDUTv>; Sat, 4 Nov 2000 15:19:51 -0500
+	id <S129093AbQKDUUb>; Sat, 4 Nov 2000 15:20:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129103AbQKDUTm>; Sat, 4 Nov 2000 15:19:42 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:24590 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S129057AbQKDUT0>; Sat, 4 Nov 2000 15:19:26 -0500
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: modular kernel
-In-Reply-To: <m13s4Pi-000leyC@green.nl.gxn.net>
-	<3A047B17.EEF036A6@onetelnet.fr>
-From: Doug McNaught <doug@wireboard.com>
-Date: 04 Nov 2000 15:19:25 -0500
-In-Reply-To: FORT David's message of "Sat, 04 Nov 2000 22:09:43 +0100"
-Message-ID: <m37l6jpk1e.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
+	id <S129103AbQKDUUV>; Sat, 4 Nov 2000 15:20:21 -0500
+Received: from tetsuo.zabbo.net ([204.138.55.44]:18699 "HELO tetsuo.zabbo.net")
+	by vger.kernel.org with SMTP id <S129093AbQKDUUN>;
+	Sat, 4 Nov 2000 15:20:13 -0500
+Date: Sat, 4 Nov 2000 15:20:12 -0500
+From: Zach Brown <zab@zabbo.net>
+To: linux-kernel@vger.kernel.org
+Subject: maestro3 2.2 oss driver snapshot
+Message-ID: <20001104152012.G25712@tetsuo.zabbo.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FORT David <epopo@onetelnet.fr> writes:
+http://www.zabbo.net/maestro3/
 
-> Taco Witte wrote:
+contains a driver for the maestro3 and allegro chipsets that I'm fairly
+happy with.
 
-> > I think it's a very good idea, because it would make it easier to
-> > get more people work at the same moment, development would go
-> > faster. It would be possible to make groups for a certain part of
-> > the kernel (for example sound, or filesystems, or main) with own
-> > group pages with status info and todo's and own mailinglists (it
-> > would divide this enourmous flow of mail into smaller parts). It
-> > would decrease the download size. I believe it would make bug
-> > tracking easier as well. I'm sure I forgot to mention something..
+its 2.2 only for now, play with 2.4 at your own risk.  for now it
+includes its own ac97_codec.c that is backported from 2.2.
 
-> Looks like the beginning of a new flame war.
+I expect playback to work as well as ac97 mixing.  apm support works pretty
+darn well, you can suspend during pcm playback and it should start
+playing again on resume.  mmap() should work, but is untested.
 
-s/a new/an old and well-trodden/
+record does not work at all.
 
-HTH.
+if you test it, please let me know how it goes and tell me all about
+your hardware.  I'll have a polished version later that will be submitted
+into the kernel proper.
 
--Doug
+-- 
+ zach
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVCNVch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVCNVfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbVCNVch (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 16:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCNVcg
+	id S261405AbVCNVfL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 16:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCNVfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 16:32:36 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:55480 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261405AbVCNVbv (ORCPT
+	Mon, 14 Mar 2005 16:35:11 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:12491 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261405AbVCNVdC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 16:31:51 -0500
-Date: Mon, 14 Mar 2005 13:31:05 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kai@germaschewski.name
-Subject: Re: 2.6.11-bk10 build problems
-Message-ID: <2480000.1110835865@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Mar 2005 16:33:02 -0500
+Subject: Re: inode cache, dentry cache, buffer heads usage
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050310174751.522c5420.akpm@osdl.org>
+References: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050310174751.522c5420.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1110835692.24286.288.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Mar 2005 13:28:13 -0800
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > On popular request 'make install' no longer try to update vmlinux.
->> > This is to avoid errornous recompilation when installing the kernel
->> > as root especially when fetching kernel via nfs where path may have
->> > changed.
->> 
->> That's frigging annoying. It's worked that way for ages, and all our
->> scripts assume it works. 
+On Thu, 2005-03-10 at 17:47, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > So, why is these slab cache are not getting purged/shrinked even
+> >  under memory pressure ? (I have seen lowmem as low as 6MB). What
+> >  can I do to keep the machine healthy ?
 > 
-> The reason to put it in -mm is to check how things are used.
-
-Heh, good plan - except it got sent upstream rather quickly ;-)
-
-> I will change it back and add an:
-> make kernel_install
+> Tried increasing /proc/sys/vm/vfs_cache_pressure?  (That might not be in
+> 2.6.8 though).
 > 
-> kernel_install is then analogous to modules_install
+> 
 
-Splendid. thanks very much. Apologies for being in a pissy mood - is one
-of those days where NOTHING works ;-)
+Yep. This helped shrink the slabs, but we end up eating up lots of
+the lowmem in Buffers. Is there a way to shrink buffers ?
 
-M.
+$ cat /proc/meminfo
+MemTotal:     16377076 kB
+MemFree:       7495824 kB
+Buffers:       1081708 kB
+Cached:        4162492 kB
+SwapCached:          0 kB
+Active:        3660756 kB
+Inactive:      4473476 kB
+HighTotal:    14548952 kB
+HighFree:      7489600 kB
+LowTotal:      1828124 kB
+LowFree:          6224 kB
+
+
 

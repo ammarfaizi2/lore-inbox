@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVAGRGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVAGRJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVAGRGG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:06:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVAGRGG
+	id S261340AbVAGRJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVAGRJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:06:06 -0500
-Received: from albireo.ucw.cz ([81.27.203.89]:12676 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S261310AbVAGRGC (ORCPT
+	Fri, 7 Jan 2005 12:09:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52642 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261340AbVAGRJX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:06:02 -0500
-Date: Fri, 7 Jan 2005 18:06:03 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Jack O'Quin" <joq@io.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050107170603.GB7672@ucw.cz>
-References: <20050107162902.GA7097@ucw.cz> <200501071636.j07Gateu018841@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501071636.j07Gateu018841@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+	Fri, 7 Jan 2005 12:09:23 -0500
+Date: Fri, 7 Jan 2005 09:09:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Oleg Nesterov <oleg@tv-sign.ru>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Make pipe data structure be a circular list of pages, rather
+ than
+In-Reply-To: <Pine.LNX.4.58.0501070837410.17078@bigblue.dev.mdolabs.com>
+Message-ID: <Pine.LNX.4.58.0501070850310.2272@ppc970.osdl.org>
+References: <41DE9D10.B33ED5E4@tv-sign.ru> <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
+ <Pine.LNX.4.58.0501070837410.17078@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> They are present but disabled by default. You have to hack the initial
-> values of CAP_INIT_EFF_SET and CAP_INIT_IHN_SET.
 
-Oops. Does anybody know why this has been done?
+On Fri, 7 Jan 2005, Davide Libenzi wrote:
+> 
+> I don't know which kind of poison Larry put in your glass when you two 
+> met, but it clearly worked :=)
 
-Also, it seems that it has a relatively easy work-around: boot with
-init=/sbin/simple-wrapper and let the wrapper set the cap_bset and exec real
-init. (I agree that it's a hack, but a temporarily usable one.)
+Oh, Larry introduced the notion of "splice()" to me at least five years
+ago, so whatever he put in that glass was quite slow-acting. At the time I
+told him to forget it - I thought it intriguing, but couldn't see any
+reasonable way to do it.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"When I was a boy I was told that anybody could become President; I'm beginning to believe it." -- C. Darrow
+And to be honest, my pipes aren't really what Larry's "splice()" was: his 
+notion was more of a direct "fd->fd" thing, with nothing in between. That 
+was what I still consider unworkable. 
+
+The problem with splicing two file descriptors together is that it needs
+for them to agree on the interchange format, and these things tend to be
+very expensive from an interface angle (ie the format has to _exactly_
+match the "impedance" at both ends, since any conversion would make the
+whole exercise pointless - you'd be better off just doing a read and a
+write).
+
+And note that the "format" is not just the actual data transfer thing, but
+the rules about what to do with partial reads, partial writes, file
+offsets, streams _without_ file offsets etc etc). And that's really what
+the pipe generalization does: it decouples all the format things into an
+intermediate thing that is very unambiguous, and has none of those issues.
+
+The pipe approach also decouples things in another way: a true "splice()"  
+needs all entities to participate in the new world order for it to be
+useful. It shares that brokenness with "sendfile()", which to some degree
+exemplifies the problems with splice() (sendfile ends up being a very very
+specialized uni-directional form of Larry's splice()). But realizing that 
+pipes _are_ the conduit and that they already exist and work with very old 
+interfaces suddenly means that the new splice() can be incrementally 
+useful.
+
+So it took me five years to think about other things, until an actual
+approach that would work and make sense from an implementation standpoint
+worked.
+
+What made me think about this particular thing is that I really thought a
+lot of things want to just mmap the data, but do not actually want to go
+to the expense of finding virtual addresses, handling the virtual->
+physical translation at each stage. A lot of things just want to access
+the buffers, _without_ the user-visible mapping. User-visibility is not
+only expensive, it ends up being an impossible interface for many things
+(memory mapping has page granularity, something that simply isn't true for
+a lot of devices).
+
+So in many ways, think of the new pipes as a "buffer mapping". Nothing
+else. It's a way to carry arbitrary buffers along in a secure manner.
+
+			Linus

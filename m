@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264621AbRFUHTy>; Thu, 21 Jun 2001 03:19:54 -0400
+	id <S264883AbRFUHVy>; Thu, 21 Jun 2001 03:21:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264883AbRFUHTp>; Thu, 21 Jun 2001 03:19:45 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:34986 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S264621AbRFUHTh>;
-	Thu, 21 Jun 2001 03:19:37 -0400
-Date: Thu, 21 Jun 2001 02:44:13 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac15
-In-Reply-To: <Pine.LNX.4.33.0106210836340.1043-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0106210226330.14247-100000@freak.distro.conectiva>
+	id <S264923AbRFUHVo>; Thu, 21 Jun 2001 03:21:44 -0400
+Received: from typhoon.mail.pipex.net ([158.43.128.27]:5073 "HELO
+	typhoon.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S264883AbRFUHVf>; Thu, 21 Jun 2001 03:21:35 -0400
+To: linux-kernel@vger.kernel.org
+From: Trevor-Hemsley@no.spam.dial.pipex.com (Trevor Hemsley)
+Date: Thu, 21 Jun 2001 08:15:10
+Subject: Re: aic7xxx oops with 2.4.5-ac13
+X-Mailer: ProNews/2 V1.51.ib104
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010621072142Z264883-17720+6265@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Jun 2001 03:05:02, "Jeff V. Merkey" 
+<jmerkey@vger.timpanogas.org> wrote:
 
+> Ditto.  I am also seeing this oops calling the sg driver for a 
+> robotic tape library, and it also seems to happen on 2.4.4.
 
-On Thu, 21 Jun 2001, Mike Galbraith wrote:
+In my case it appears that it was the symptom of severe bus problems. 
+About 5 minutes after I posted the initial report I discovered that 
+the cable from the back of the Nikon to the MO drive had fallen off so
+the bus was running unterminated. Replugging it fixed teh bus error 
+and the oops. 
 
-> On Thu, 21 Jun 2001, Marcelo Tosatti wrote:
-> 
-> > >  2  4  2  77084   1524  18396  66904   0 1876   108  2220 2464 66079   198   1
->                                                                    ^^^^^
-> > Ok, I suspect that GFP_BUFFER allocations are fucking up here (they can't
-> > block on IO, so they loop insanely).
-> 
-> Why doesn't the VM hang the syncing of queued IO on these guys via
-> wait_event or such instead of trying to just let the allocation fail?
+Looks like error handling is all fscked up...
 
-Actually the VM should limit the amount of data being queued for _all_
-kind of allocations.
-
-The problem is the lack of a mechanism which allows us to account the
-approximated amount of queued IO by the VM. (except for swap pages)
-
-You can see it this way: To get free memory we're "polling" instead of
-waiting on the IO completion of pages.
-
-> (which seems to me will only cause the allocation to be resubmitted,
-> effectively changing nothing but adding overhead) 
-
-Yes.
-
-> Does failing the allocation in fact accomplish more than what I'm
-> (uhoh:) assuming?
-
-No.
-
-It sucks really badly.
+-- 
+Trevor Hemsley, Brighton, UK.
+Trevor-Hemsley@dial.pipex.com
 

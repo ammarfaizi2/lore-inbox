@@ -1,80 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUGHUxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264160AbUGHVEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbUGHUxA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 16:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265007AbUGHUxA
+	id S264160AbUGHVEI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 17:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbUGHVEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 16:53:00 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30403 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265042AbUGHUwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 16:52:34 -0400
-Date: Thu, 8 Jul 2004 22:52:25 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jakub Jelinek <jakub@redhat.com>, Arjan van de Ven <arjanv@redhat.com>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GCC 3.4 and broken inlining.
-Message-ID: <20040708205225.GI28324@fs.tum.de>
-References: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au> <20040708120719.GS21264@devserv.devel.redhat.com>
+	Thu, 8 Jul 2004 17:04:08 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:33185 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264160AbUGHVEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 17:04:07 -0400
+Date: Thu, 8 Jul 2004 22:04:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Erik Rigtorp <erik@rigtorp.com>, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz
+Subject: Re: [PATCH] swsusp bootsplash support
+Message-ID: <20040708210403.GA18049@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pavel Machek <pavel@suse.cz>, Erik Rigtorp <erik@rigtorp.com>,
+	linux-kernel@vger.kernel.org, pavel@ucw.cz
+References: <20040708110549.GB9919@linux.nu> <20040708133934.GA10997@infradead.org> <20040708204840.GB607@openzaurus.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040708120719.GS21264@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040708204840.GB607@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 08:07:19AM -0400, Jakub Jelinek wrote:
-> On Thu, Jul 08, 2004 at 09:46:39PM +1000, Nigel Cunningham wrote:
-> > In response to a user report that suspend2 was broken when compiled with
-> > gcc 3.4, I upgraded my compiler to 3.4.1-0.1mdk. I've found that the
-> > restore_processor_context, defined as follows:
-> > 
-> > static inline void restore_processor_context(void)
-> > 
-> > doesn't get inlined. GCC doesn't complain when compiling the file, and
-> > so far as I can see, there's no reason for it not to inline the routine.
-> 
-> Try passing -Winline, it will tell you when a function marked inline is not
-> actually inlined.
-> Presence of inline keyword is not a guarantee the function will not be
-> inlined, it is a hint to the compiler.
-> GCC 3.4 is much bettern than earlier 3.x GCCs in actually inlining functions
-> marked as inline, but there are still cases when it decides not to inline
-> for various reasons.  E.g. in C++ world, lots of things are inline, yet
-> honoring that everywhere would mean very inefficient huge programs.
-> If a function relies for correctness on being inlined, then it should use
-> inline __attribute__((always_inline)).
+> Perhaps CONFIG_BOOTSPLASH should be in mainline after all?
+> I really don't want to see 2 different incompatible sets
+> of hooks into swsusp....
 
-include/linux/compiler-gcc3.h says:
-
-<--  snip  -->
-
-#if __GNUC_MINOR__ >= 1  && __GNUC_MINOR__ < 4
-# define inline         __inline__ __attribute__((always_inline))
-# define __inline__     __inline__ __attribute__((always_inline))
-# define __inline       __inline__ __attribute__((always_inline))
-#endif
-
-<--  snip  -->
-
-
-@Arjan:
-This was added as part of your
-  [PATCH] ia32: 4Kb stacks (and irqstacks) patch
-What's the recommended solution for Nigel's problem?
-
-
-> 	Jakub
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+No.  This stuff has no business in the kernel, paint your fancy graphics
+ontop of fbdev.  And the SuSE bootsplash patch is utter crap, I mean what
+do you have to smoke to put a jpeg decoder into the kernel?

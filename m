@@ -1,59 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263766AbTLEHJl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 02:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTLEHJl
+	id S263898AbTLEHN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 02:13:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTLEHN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 02:09:41 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:46087 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S263766AbTLEHJk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 02:09:40 -0500
-Date: Fri, 5 Dec 2003 09:09:29 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-Message-ID: <20031205070929.GG1524@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-References: <200312041432.23907.rob@landley.net> <20031204172348.A14054@hexapodia.org> <Pine.LNX.4.58.0312050130130.2330@ua178d119.elisa.omakaista.fi> <20031205020312.GJ29119@mis-mike-wstn.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031205020312.GJ29119@mis-mike-wstn.matchmail.com>
-User-Agent: Mutt/1.4i
+	Fri, 5 Dec 2003 02:13:56 -0500
+Received: from ahriman.bucharest.roedu.net ([141.85.128.71]:6019 "EHLO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
+	id S263898AbTLEHNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 02:13:54 -0500
+Date: Fri, 5 Dec 2003 09:14:04 +0200 (EET)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: dizzy@ahriman.bucharest.roedu.net
+To: Nathan Scott <nathans@sgi.com>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: kernel BUG at mm/filemap.c:332!
+In-Reply-To: <20031204211611.GA567@frodo>
+Message-ID: <Pine.LNX.4.56L0.0312050907350.26770@ahriman.bucharest.roedu.net>
+References: <Pine.LNX.4.56L0.0312041645560.7551@ahriman.bucharest.roedu.net>
+ <Pine.LNX.4.58.0312040834480.2055@home.osdl.org>
+ <Pine.LNX.4.56L0.0312041849250.10045@ahriman.bucharest.roedu.net>
+ <20031204211611.GA567@frodo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 04, 2003 at 06:03:12PM -0800, you [Mike Fedyk] wrote:
->  
->  o per file compression
->  
->  Ext2/3 has a flag for it, but support hasn't been implemented.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It has (for 2.0, 2.2, 2.4 ext2) - it just was never merged into baseline.
+On Fri, 5 Dec 2003, Nathan Scott wrote:
 
-2.4:
-http://sourceforge.net/projects/e2compr/
-2.2:
-http://his.luky.org/ftp/mirrors/e2compr/www.netspace.net.au/%257Ereiter/e2compr/
+> Was your filesystem near full?  There was a 2.4 deadlock fixed
+> recently which could be what you hit there.
 
-FWIW, I have a 2.2 server keeping >20 workstations' daily backups on
-compressed ext2:
+No it wasnt. It has a ~50% usage.
 
-/dev/md2              441G  154G  287G  35% /backup-versioned
-/dev/md4              144G  141G  3.5G  98% /backup-versioned2
+> You'll want a more recent 2.4 XFS kernel I suspect - Steve made
+> several improvements in this area awhile back.
 
-and it's really solid.
-  
->  o make hole support
+Ok. I know about improvements since XFS 1.1 and I assumed that using a 
+recent (ie 2.6.0-test11) kernel the XFS bits with it whould be recent and 
+such have those improvements.
 
-According to Andreas Dilger, Peter Braam has implemented this (sys_punch):
-http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=linux.kernel.200106291838.f5TIcbAM015809%40webber.adilger.int&rnum=2&prev=/groups%3Fhl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26q%3Dhole%2Bpunch%2Bgroup%253Amlist.linux.kernel%26btnG%3DGoogle%2BSearch
-  
+> OK, looks like a default mkfs then (with an old-ish mkfs binary)?
+
+True. Its a general /var partition, there waasnt any interest in giving 
+mkfs paramteres for it.
+
+> Newer mkfs' will give you a better AG layout and unwritten extents
+> would be turned on - not relevent to this problem at all though.
+
+Ok, noted :)
+
+> An "ls -ld" and "xfs_bmap -v" on the directory would also provide
+> me a bit more info to work with -- thanks!
+
+$ ls -ld interfaces/
+drwxr-xr-x    2 root     root        16384 Dec  5 09:06 interfaces/
+
+$ /usr/sbin/xfs_bmap interfaces/
+interfaces/:
+        0: [0..7]: 25238288..25238295
+        1: [8..31]: 25238304..25238327
 
 
--- v --
+> I have a few ideas about what this might be, let me stew on those
+> for a bit and try a few things.
 
-v@iki.fi
+Thanks!
+
+> -- 
+> Nathan
+
+- -- 
+Mihai RUSU                                    Email: dizzy@roedu.net
+GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
+                       "Linux is obsolete" -- AST
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/0DA+PZzOzrZY/1QRAnRoAJ9/VKw3okVloX1gTdayWXf1zxeJqACg1h9S
+P9hQSHgK/K1CmlgT9/2L+H8=
+=8PPr
+-----END PGP SIGNATURE-----

@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315338AbSFTRxI>; Thu, 20 Jun 2002 13:53:08 -0400
+	id <S315337AbSFTRxE>; Thu, 20 Jun 2002 13:53:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315192AbSFTRxH>; Thu, 20 Jun 2002 13:53:07 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:45715 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315278AbSFTRxE>; Thu, 20 Jun 2002 13:53:04 -0400
-Date: Thu, 20 Jun 2002 10:52:33 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Martin Schwenke <martin@meltin.net>, Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] /proc/scsi/map
-Message-ID: <20020620105233.A5506@eng2.beaverton.ibm.com>
-References: <200206200711.RAA10165@thucydides.inspired.net.au> <Pine.LNX.4.44.0206200800260.8012-100000@home.transmeta.com> <20020620165553.GA16897@win.tue.nl>
+	id <S315192AbSFTRxD>; Thu, 20 Jun 2002 13:53:03 -0400
+Received: from holomorphy.com ([66.224.33.161]:36799 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315278AbSFTRxC>;
+	Thu, 20 Jun 2002 13:53:02 -0400
+Date: Thu, 20 Jun 2002 10:52:29 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] scheduler bits from 2.5.23-dj1
+Message-ID: <20020620175229.GX22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <20020620172059.GW22961@holomorphy.com> <Pine.LNX.4.44.0206201929310.9805-100000@e2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020620165553.GA16897@win.tue.nl>; from aebr@win.tue.nl on Thu, Jun 20, 2002 at 06:55:53PM +0200
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0206201929310.9805-100000@e2>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 06:55:53PM +0200, Andries Brouwer wrote:
-> Kurt's patch does not solve all problems, but what it provides
-> is a small translation table between different names for the same thing.
-> That information is not easily obtainable without his patch.
-> I do not see that driverfs provides such information.
-> 
-> Andries
+On Thu, Jun 20, 2002 at 07:31:18PM +0200, Ingo Molnar wrote:
+> looks good to me - what do you think about my other pidhash suggestion:
 
-With Mike Sullivan'a patch for SCSI driverfs support: 
+>> And i'm not quite sure whether it's needed to expose the pidhash to the
+>> rest of the kernel - it would be much simpler to have it in
+>> kernel/fork.c locally, and find_task_by_pid() would be a function
+>> instead of an inline. (it has a ~49 bytes footprint on x86, it's rather
+>> heavy i think.)
 
-http://marc.theaimsgroup.com/?l=linux-scsi&m=102434655912858&w=2
-
-You can see the relationship (not that it is simpile or easy to read),
-for example, on my system for the LUN at scsi3 channel 0 , id 3, lun 0
-I can see that the sd (disc) is at major/minor 4200 (66, 0), and sg
-(gen) is at 1521 (21, 33):
-
-[root@elm3a50 3:0:3:0]# pwd
-/devices/root/pci1/01:07.0/scsi3/3:0:3:0
-[root@elm3a50 3:0:3:0]# find .
-.
-./3:0:3:0:p2
-./3:0:3:0:p2/kdev
-./3:0:3:0:p2/type
-./3:0:3:0:p2/power
-./3:0:3:0:p2/name
-./3:0:3:0:p1
-./3:0:3:0:p1/kdev
-./3:0:3:0:p1/type
-./3:0:3:0:p1/power
-./3:0:3:0:p1/name
-./3:0:3:0:disc
-./3:0:3:0:disc/kdev
-./3:0:3:0:disc/type
-./3:0:3:0:disc/power
-./3:0:3:0:disc/name
-./3:0:3:0:gen
-./3:0:3:0:gen/kdev
-./3:0:3:0:gen/type
-./3:0:3:0:gen/power
-./3:0:3:0:gen/name
-./type
-./power
-./name
-[root@elm3a50 3:0:3:0]# cat 3\:0\:3\:0\:gen/kdev
-1521
-[root@elm3a50 3:0:3:0]# cat 3\:0\:3\:0\:disc/kdev
-4200
-[root@elm3a50 3:0:3:0]# ls -l /dev/sdag
-brw-rw----    1 root     disk      66,   0 Aug 30  2001 /dev/sdag
+It's an excellent idea, I think I only forgot that was in the queue of
+things to write. I'll follow up with that as well.
 
 
--- Patrick Mansfield
+Thanks,
+Bill

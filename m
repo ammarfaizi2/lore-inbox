@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263138AbUB0VcO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 16:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUB0VcO
+	id S263145AbUB0Vi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 16:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUB0Vh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 16:32:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13501 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263138AbUB0Vb2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 16:31:28 -0500
-Date: Fri, 27 Feb 2004 16:31:40 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: trond.myklebust@fys.uio.no
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [NFS SUNRPC] fix
-Message-ID: <Xine.LNX.4.44.0402271627190.13899-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Feb 2004 16:37:58 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33000
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263145AbUB0VhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 16:37:24 -0500
+Date: Fri, 27 Feb 2004 22:37:24 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
+Message-ID: <20040227213724.GK8834@dualathlon.random>
+References: <20040227122936.4c1be1fd.akpm@osdl.org> <Pine.LNX.4.44.0402271544520.1747-100000@chimarrao.boston.redhat.com> <20040227212844.GJ8834@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040227212844.GJ8834@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes a bug in the error handling code of 
-xprt_create_socket().  If sock_create() fails, we should not try and 
-release the non existent socket.
+On Fri, Feb 27, 2004 at 10:28:44PM +0100, Andrea Arcangeli wrote:
+> expect if compared to 4:4, I won't personally need to deal with the 4:4
 
-This fix is by James Carter <jwcart2@epoch.ncsc.mil>.
-
-Please apply.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
-diff -urN -X dontdiff linux-2.6.3-mm4.o/net/sunrpc/xprt.c linux-2.6.3-mm4.w/net/sunrpc/xprt.c
---- linux-2.6.3-mm4.o/net/sunrpc/xprt.c	2004-02-25 22:42:16.000000000 -0500
-+++ linux-2.6.3-mm4.w/net/sunrpc/xprt.c	2004-02-27 16:13:34.230834288 -0500
-@@ -1581,7 +1581,7 @@
- 
- 	if ((err = sock_create(PF_INET, type, proto, &sock)) < 0) {
- 		printk("RPC: can't create socket (%d).\n", -err);
--		goto failed;
-+		return NULL;
- 	}
- 
- 	/* If the caller has the capability, bind to a reserved port */
-
+<joke>
+and btw, if I will have the luck of not having to deal with the 4:4 2.0
+kernel slowdown, it's also because AMD is effectively saving the soul of
+the vm hackers ;)
+</joke>

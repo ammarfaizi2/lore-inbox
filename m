@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVBOCme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVBOCqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVBOCme (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 21:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVBOCmd
+	id S261515AbVBOCqT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 21:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVBOCqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 21:42:33 -0500
-Received: from main.gmane.org ([80.91.229.2]:9964 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261405AbVBOClp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 21:41:45 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 14 Feb 2005 21:46:18 -0500
+Received: from mail48-s.fg.online.no ([148.122.161.48]:29570 "EHLO
+	mail48-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S261515AbVBOCqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 21:46:14 -0500
 To: linux-kernel@vger.kernel.org
-From: Tristan Wibberley <maihem@maihem.org>
-Subject: Re: [BK] upgrade will be needed
-Date: Tue, 15 Feb 2005 02:46:04 +0000
-Message-ID: <pan.2005.02.15.02.46.04.22659@maihem.org>
-References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <87wttbq8fd.fsf@freitag.home.jstuber.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host81-158-66-156.range81-158.btcentralplus.com
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner-SpamScore: sss
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+Subject: Re: Logitech MX1000 Horizontal Scrolling
+References: <873bxfoq7g.fsf@quasar.esben-stien.name>
+	<87zmylaenr.fsf@quasar.esben-stien.name>
+	<20050204195410.GA5279@ucw.cz> <1108105875.5676.3.camel@localhost>
+From: Esben Stien <b0ef@esben-stien.name>
+X-Home-Page: http://www.esben-stien.name
+cc: Jeremy Nickurak <atrus@lkml.spam.rifetech.com>
+Date: Tue, 15 Feb 2005 03:45:17 +0100
+In-Reply-To: <1108105875.5676.3.camel@localhost> (Jeremy Nickurak's message
+ of "Fri, 11 Feb 2005 00:11:15 -0700")
+Message-ID: <87vf8uee2q.fsf@quasar.esben-stien.name>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Feb 2005 19:54:14 +0100, Juergen Stuber wrote:
+Jeremy Nickurak <atrus@lkml.spam.rifetech.com> writes:
 
-> g BK, I can immediately start working on another SCM
-> but I can't go back to BK immediately
+> Oddly, my horizontal scroll worked fine as extra buttons under 2.6.10.
+> 2.6.11-rc3 causes the scroll wheel to appear under X.org 6.8.1 with the
+> evdev driver as two seperate mouse buttons being pressed simultaneously.
 
-IMHO, it should be the other way around, and more like two years, then you
-can buy back time at something like 1/12th full BK license price per month
-that you want less than the two years. Two years would be more appropriate
-since you need to make sure that coders who've worked on the other SCM
-before are well and truly out of touch with the code when they go back.
-With that scheme, if you have a serious business case for writing a new
-SCM *today* you just have to factor an extra cost into your plans (double
-BK license), and if you want to work on an open source one, you just have
-to wait while BitMover gets another two years on their head-start. Now
-only people with determined plans can switch from using BK to working on
-an SCM, and BitMover can get new users benefiting from their kindness and
-lifting their market penetration as easily as possible.
+I'm a little unclear as to what you mean here. Could you elaborate?
 
 -- 
-Tristan Wibberley
-
+Esben Stien is b0ef@esben-stien.name
+http://www.esben-stien.name
+irc://irc.esben-stien.name/%23contact
+[sip|iax]:b0ef@esben-stien.name

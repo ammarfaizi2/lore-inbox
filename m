@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263461AbRFTWtL>; Wed, 20 Jun 2001 18:49:11 -0400
+	id <S264666AbRFTWxL>; Wed, 20 Jun 2001 18:53:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263557AbRFTWtB>; Wed, 20 Jun 2001 18:49:01 -0400
-Received: from va.cs.wm.edu ([128.239.2.31]:42254 "EHLO va.cs.wm.edu")
-	by vger.kernel.org with ESMTP id <S263461AbRFTWsv>;
-	Wed, 20 Jun 2001 18:48:51 -0400
-Date: Wed, 20 Jun 2001 18:48:52 -0400 (EDT)
-From: Bob Matthews <bob@CS.WM.EDU>
-To: <linux-kernel@vger.kernel.org>
-Subject: [QUESTION]: sk->data_ready/state_change callbacks in struct sock
-Message-ID: <Pine.LNX.4.33.0106201812040.11104-100000@me.cs.wm.edu>
+	id <S263123AbRFTWwv>; Wed, 20 Jun 2001 18:52:51 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38924 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263152AbRFTWwk>; Wed, 20 Jun 2001 18:52:40 -0400
+Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
+To: lm@bitmover.com (Larry McVoy)
+Date: Wed, 20 Jun 2001 23:51:13 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), miles@megapathdsl.net (Miles Lane),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010620153345.I3089@work.bitmover.com> from "Larry McVoy" at Jun 20, 2001 03:33:45 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Cqob-0000Hm-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a couple of questions about TCP code that I'm hoping someone
-could answer.  I have a kernel thread with a struct sock waiting for a
-state_change callback, but the callback is never getting, well, called
-back.
+> What would be wrong with Microsoft/Linux?  It would be:
+> 
+>     a) the Linux kernel
+>     b) the Microsoft API ported to X
+>     c) Microsoft apps
+>     d) Linux apps
 
-When I setup the socket, I do the following steps
+Providing they follow the standards, the GPL and work with the community I
+certainly have no problems with it. Its not really any different to using 
+Wine.
 
-sock_create (new_socket, ...)
-setup the sin structure
-new_socket->ops->bind (new_socket, (struct sockaddr_in *) sin, ...)
-new_socket->ops->listen (new_socket, ...)
+It is clearly possible for a company to reform over time. IBM were the 
+microsoft of a past age, and they seem to have somewhat improved since.
 
-I then setup the callbacks:
-
-new_socket->sk->state_change = foo;
-new_socket->sk->data_ready = bar;
-
-At this point, everything in new_socket and new_socket->sk looks OK to me.
-
-When I try and send data to the socket from the other end, however,
-neither of these callbacks is ever activated.
-
-So, here are my questions:
-
-- My understanding from the code is that sk->state_change is called when a
-struct sock transits from SYN_RCVD to ESTABLISHED and from ESTABLISHED to
-{CLOSE_WAIT,FIN_WAIT_1}.  Is this correct?
-
-- sk->data_ready is called whenever any new data is deposited in the
-associated sk_buff.  Is this correct?
-
-Bob
-
-
-
-
-
--- 
-
+Alan
 

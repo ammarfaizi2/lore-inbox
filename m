@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275790AbRJFWgX>; Sat, 6 Oct 2001 18:36:23 -0400
+	id <S275789AbRJFWiD>; Sat, 6 Oct 2001 18:38:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275789AbRJFWgO>; Sat, 6 Oct 2001 18:36:14 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:34565 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S275778AbRJFWfz>; Sat, 6 Oct 2001 18:35:55 -0400
-Date: Sun, 7 Oct 2001 00:36:23 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: arjan@fenrus.demon.nl
-cc: linux-kernel@vger.kernel.org
-Subject: Re: %u-order allocation failed
-In-Reply-To: <E15px1O-0000Ee-00@fenrus.demon.nl>
-Message-ID: <Pine.LNX.3.96.1011007003418.18004C-100000@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275816AbRJFWht>; Sat, 6 Oct 2001 18:37:49 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:10237 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S275789AbRJFWgx>;
+	Sat, 6 Oct 2001 18:36:53 -0400
+Date: Sun, 7 Oct 2001 00:36:43 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: chris@scary.beasts.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM: 2.4.10ac4 vs. 2.4.11pre2
+Message-ID: <20011007003643.K724@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0110061252450.17262-100000@sphinx.mythic-beasts.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110061252450.17262-100000@sphinx.mythic-beasts.com>; from chris@scary.beasts.org on Sat, Oct 06, 2001 at 01:20:23PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In article <Pine.LNX.3.96.1011006210743.7808D-100000@artax.karlin.mff.cuni.cz> you wrote:
+On Sat, Oct 06, 2001 at 01:20:23PM +0100, chris@scary.beasts.org wrote:
 > 
-> > NOTE: no allocations in IRQ are safe. Not only high-order ones. 
-> > Allocation in IRQ may fail any time and you must recover without lost of
-> > functionality (network can lose packets any time, if you are doing some
-> > general device driver, you must preallocate all buffers in process
-> > context).
-> 
-> how again do you deal with calling vfree() on the ones where you used
-> vmalloc instead of the buddy allocator ?
+> dbench 8             34Mbyte/sec       40Mbyte/sec
 
-It's in the patch: if someone calls get_free_pages on vmallocated memory,
-it will be freed with vfree instead of __get_free_pages.
+dbench wants a very unfair vm behaviour. We must penalize all tasks
+except one.  I measured a x2 slowdown after Linus introduced
+mark_page_accessed after 2.4.10pre11 (but still it was faster than
+pre10).
 
-Of course you can't allocate memory in process context and free it in
-interrupt context - which you could do without __GFP_VMALLOC.
+If you want patches to make dbench much faster I can provide them, just
+ask, at the moment I just think dbench is a very bad benchmark. I can
+implement a /proc/sys/vm/dbench if people wants to post nice numbers
+without having to apply patches :).
 
-Mikulas
+I'd also like to know what you get using -aa instead of mainline, there
+are a few changes that can make a difference in the numbers.
 
+Andrea

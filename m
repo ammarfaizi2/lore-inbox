@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265400AbTL2UfH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 15:35:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbTL2Uer
+	id S265385AbTL2Ucf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 15:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265390AbTL2Ucf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 15:34:47 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:29593 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265391AbTL2UdN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 15:33:13 -0500
-Date: Mon, 29 Dec 2003 21:33:07 +0100
-From: Jens Axboe <axboe@suse.de>
-To: xander vanwiggen <xander@alexandria.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: atapi cd reported twice in dmesg??
-Message-ID: <20031229203307.GP3086@suse.de>
-References: <20031226232652.40543.qmail@gawab.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031226232652.40543.qmail@gawab.com>
+	Mon, 29 Dec 2003 15:32:35 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49283 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265385AbTL2Uca
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 15:32:30 -0500
+Message-ID: <3FF08F48.4020506@pobox.com>
+Date: Mon, 29 Dec 2003 15:32:08 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Muli Ben-Yehuda <mulix@mulix.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [CFT/PATCH] give sound/oss/trident a holiday cleanup for 2.6
+References: <20031229183846.GI13481@actcom.co.il> <Pine.LNX.4.58.0312291049020.2113@home.osdl.org> <20031229185627.GJ13481@actcom.co.il> <3FF07BF3.2090500@pobox.com> <Pine.LNX.4.58.0312291137021.2113@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312291137021.2113@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 26 2003, xander vanwiggen wrote:
+Linus Torvalds wrote:
 > 
-> Hello,
-> I'm migrating to 2.6 after having used 2.0,2.2,2.4 for quite
-> some years now.
-> At a first glance, I read ide-scsi is dropped. Okay, no SCSI
-> support at all for me then. I have one CD writer, and now it
-> gets reported twice, which I don't understand. I have
-> CONFIG_IDE,CONFIG_BLK_DEV_IDE,CONFIG_BLK_DEV_IDEDSK,CONFIG_IDEDISK_MULTIMODE,CONFIG_BLK_DEV_IDECD
-> set. dmesg reports: "hdc: PCRW804, ATAPI CD/DVD-ROM drive" first
-> (ok), then "hdc: ATAPI 32X CDROM CD-R/RW drive, 2048kB Cache,
-> DMA". Prior to the second report, an error is generated:
+> On Mon, 29 Dec 2003, Jeff Garzik wrote:
+> 
+>>Thirty separate patches is OK.
+>>
+>>We have scripts to handle "patchbombs".
+> 
+> 
+> Yes and no.
+> 
+> Thirty separate patches make sense if they are independent and really do 
+> conceptually different things. Then it makes sense to have them as 
+> separate checkins, and be able to tell people "ok, try undoing that one, 
+> maybe that's the problem".
+> 
+> However, if they are all just "fix silly bugs in xxx", then I'd much 
+> rather see it as one big patch. Having it split up into "fix bug on line 
+> 50" and "fix bug on line 75" just doesn't make any sense - it only makes 
+> the patch history harder to follow.
 
-The first is the generic ide probe, the second is ide-cd registering the
-device. There is nothing wrong, that is how it's supposed to look.
 
--- 
-Jens Axboe
+There's certainly a middle ground.  For drivers I generally request that 
+bug fixes for separate bugs be split up, since inevitably one bug fix 
+out of twenty breaks for somebody on that somebody's weird hardware.
+
+	Jeff
+
+
 

@@ -1,134 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262324AbSKCSlP>; Sun, 3 Nov 2002 13:41:15 -0500
+	id <S262312AbSKCSqO>; Sun, 3 Nov 2002 13:46:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262325AbSKCSlP>; Sun, 3 Nov 2002 13:41:15 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:59909 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262324AbSKCSlM>;
-	Sun, 3 Nov 2002 13:41:12 -0500
-Date: Sun, 3 Nov 2002 19:46:54 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: kbuild: Compatible with old bash, fix help, make clean fix
-Message-ID: <20021103184654.GA1466@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-References: <20021103085147.GA3433@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021103085147.GA3433@mars.ravnborg.org>
-User-Agent: Mutt/1.4i
+	id <S262322AbSKCSqO>; Sun, 3 Nov 2002 13:46:14 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:5253 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262312AbSKCSqO> convert rfc822-to-8bit; Sun, 3 Nov 2002 13:46:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: Keith Owens <kaos@ocs.com.au>
+Subject: Re: [ANNOUNCE] [PATCH] Linux-2.5.45-mcp3
+Date: Sun, 3 Nov 2002 19:52:23 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <24861.1036348598@ocs3.intra.ocs.com.au>
+In-Reply-To: <24861.1036348598@ocs3.intra.ocs.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211031949.44565.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AWK exported now, as pointed out by Keith.
+On Sunday 03 November 2002 19:36, Keith Owens wrote:
 
-kbuild fixes:
-o Do not use "-" in exported symbols, bash does not support that (Matthew/Keith)
-o Sort ALL_SUBDIRS, to avoid warning about duplicate target
-	- Happens when the same directory are specified with drivers-y
-	  and drivers-n
-o Added AWK, a few architectures actually use awk for normal compilation
-o Removed distclean from make help, now that distclean and mrporper are merged
+Hi Keith,
 
-	Sam
+> Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
+> >point me to/send me the fixes/patches you want to see in here please!
+> >here we go, -mcp3 for 2.5.45 vanilla.
+> > -  KDB 2.3 (no 2.5.45 version available)
+>
+> -rw-r--r--    1 kaos     kaos        73713 Nov  2 04:34
+> kdb-v2.4-2.5.45-common-1.bz2 -rw-r--r--    1 kaos     kaos        67799 Nov
+>  2 04:34 kdb-v2.4-2.5.45-i386-1.bz2
+I thought I forgot something ... And it was to look in the kdb dir for an 
+update before -mcp3 ;( ...
 
-Touches these files:
+In for -mcp4. Thanks!
 
- Makefile               |   19 ++++++++++---------
- scripts/Makefile.build |    2 +-
- 2 files changed, 11 insertions(+), 10 deletions(-)
-
-===== Makefile 1.338 vs edited =====
---- 1.338/Makefile	Fri Nov  1 18:00:18 2002
-+++ edited/Makefile	Sun Nov  3 19:41:32 2002
-@@ -155,6 +155,7 @@
- STRIP		= $(CROSS_COMPILE)strip
- OBJCOPY		= $(CROSS_COMPILE)objcopy
- OBJDUMP		= $(CROSS_COMPILE)objdump
-+AWK		= awk
- GENKSYMS	= /sbin/genksyms
- DEPMOD		= /sbin/depmod
- KALLSYMS	= /sbin/kallsyms
-@@ -173,7 +174,7 @@
- 
- export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
- 	CONFIG_SHELL TOPDIR HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
--	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE GENKSYMS PERL UTS_MACHINE \
-+	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS PERL UTS_MACHINE \
- 	HOSTCXX HOSTCXXFLAGS
- 
- export CPPFLAGS NOSTDINC_FLAGS OBJCOPYFLAGS LDFLAGS
-@@ -214,7 +215,7 @@
- 
- ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
- 
--export include-config := 1
-+export include_config := 1
- 
- -include .config
- 
-@@ -228,9 +229,10 @@
- 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
- 		     $(net-y) $(net-m) $(libs-y) $(libs-m)))
- 
--ALL_SUBDIRS     := $(SUBDIRS) $(patsubst %/,%,$(filter %/, $(init-n) $(init-) \
-+ALL_SUBDIRS     := $(sort $(SUBDIRS) $(patsubst %/,%,$(filter %/, \
-+		     $(init-n) $(init-) \
- 		     $(core-n) $(core-) $(drivers-n) $(drivers-) \
--		     $(net-n) $(net-) $(libs-n) $(libs-)))
-+		     $(net-n)  $(net-)  $(libs-n)    $(libs-))))
- 
- init-y		:= $(patsubst %/, %/built-in.o, $(init-y))
- core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
-@@ -238,7 +240,7 @@
- net-y		:= $(patsubst %/, %/built-in.o, $(net-y))
- libs-y		:= $(patsubst %/, %/lib.a, $(libs-y))
- 
--ifdef include-config
-+ifdef include_config
- 
- # Here goes the main Makefile
- # ===========================================================================
-@@ -602,7 +604,7 @@
- 	rpm -ta $(TOPDIR)/../$(KERNELPATH).tar.gz ; \
- 	rm $(TOPDIR)/../$(KERNELPATH).tar.gz
- 
--else # ifdef include-config
-+else # ifdef include_config
- 
- ifeq ($(filter-out $(noconfig_targets),$(MAKECMDGOALS)),)
- 
-@@ -764,8 +766,7 @@
- help:
- 	@echo  'Cleaning targets:'
- 	@echo  '  clean		- remove most generated files but keep the config'
--	@echo  '  mrproper	- remove all generated files including the config'
--	@echo  '  distclean	- mrproper + remove files generated by editors and patch'
-+	@echo  '  mrproper	- remove all generated files + config + various backup files'
- 	@echo  ''
- 	@echo  'Configuration targets:'
- 	@echo  '  oldconfig	- Update current config utilising a line-oriented program'
-@@ -828,7 +829,7 @@
- 	$(MAKE) $@
- 
- endif # ifeq ($(filter-out $(noconfig_targets),$(MAKECMDGOALS)),)
--endif # ifdef include-config
-+endif # ifdef include_config
- 
- # FIXME Should go into a make.lib or something 
- # ===========================================================================
-===== scripts/Makefile.build 1.7 vs edited =====
---- 1.7/scripts/Makefile.build	Wed Oct 30 18:14:54 2002
-+++ edited/scripts/Makefile.build	Sun Nov  3 19:40:50 2002
-@@ -7,7 +7,7 @@
- .PHONY: __build
- __build:
- 
--ifdef include-config
-+ifdef include_config
- include .config
- endif
- 
+ciao, Marc

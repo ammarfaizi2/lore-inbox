@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbTEZWjp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 18:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbTEZWjE
+	id S262312AbTEZWi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 18:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTEZWZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 18:39:04 -0400
-Received: from mcmmta2.mediacapital.pt ([193.126.240.147]:956 "EHLO
-	mcmmta2.mediacapital.pt") by vger.kernel.org with ESMTP
-	id S262283AbTEZWZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 18:25:37 -0400
-Date: Mon, 26 May 2003 23:38:15 +0100
-From: "Paulo Andre'" <fscked@iol.pt>
-Subject: Re: [RFC] [PATCH] Add 'make' with no target as preferred build command
-In-reply-to: <20030526203443.GA1209@mars.ravnborg.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>
-Message-id: <20030526233815.42b44a61.fscked@iol.pt>
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20030526182907.108fd71e.fscked@iol.pt>
- <20030526203443.GA1209@mars.ravnborg.org>
+	Mon, 26 May 2003 18:25:19 -0400
+Received: from web41511.mail.yahoo.com ([66.218.93.94]:55164 "HELO
+	web41511.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262313AbTEZWOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 18:14:06 -0400
+Message-ID: <20030526222718.81229.qmail@web41511.mail.yahoo.com>
+Date: Mon, 26 May 2003 15:27:18 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: Re: 'fscope': a new debugging tool
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 May 2003 22:34:43 +0200
-Sam Ravnborg <sam@ravnborg.org> wrote:
+Sorted output from 'fscope -func=do_mmap_pgoff':
 
-> If we really want this boilerplate text then bzImage should not be
-> present. It is i386 centric.
-> Revised patch below. Also made it a bit more readable by wrapping
-> a long line.
+do_mmap_pgoff do_mmap2 old_mmap old_mmap_i386
+do_mmap_pgoff do_mmap2 sys_mmap2
+do_mmap_pgoff do_mmap aio_setup_ring ioctx_alloc sys_io_setup
+do_mmap_pgoff do_mmap elf_map load_elf_binary
+do_mmap_pgoff do_mmap elf_map load_elf_interp load_elf_binary
+do_mmap_pgoff do_mmap i810_map_buffer i810_dma_get_buffer i810_getbuf
+do_mmap_pgoff do_mmap i830_map_buffer i830_dma_get_buffer i830_getbuf
+do_mmap_pgoff do_mmap load_aout_binary
+do_mmap_pgoff do_mmap load_aout_library
+do_mmap_pgoff do_mmap load_elf_binary
+do_mmap_pgoff do_mmap load_elf_library
+do_mmap_pgoff do_mmap load_flat_binary
+do_mmap_pgoff do_mmap map_som_binary load_som_binary
+do_mmap_pgoff do_mmap qcntl_ioctl shmiq_qcntl_ioctl
+do_mmap_pgoff do_mmap sgi_graphics_ioctl
+do_mmap_pgoff do_mmap sys_shmat sys_ipc
 
-Agreed.
-
-> Roman Zippel cc:ed as he is the kconfig maintainer.
-
-I apologize for not having cc'ed Roman Zippel in the first place. It
-sounded like too simple a fix. My bad, and for that I'm sorry.
-
-		Paulo

@@ -1,68 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268516AbTBOBHo>; Fri, 14 Feb 2003 20:07:44 -0500
+	id <S268511AbTBOBF6>; Fri, 14 Feb 2003 20:05:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268521AbTBOBHn>; Fri, 14 Feb 2003 20:07:43 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:55173 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S268516AbTBOBGw>; Fri, 14 Feb 2003 20:06:52 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 14 Feb 2003 17:23:54 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S268514AbTBOBF6>; Fri, 14 Feb 2003 20:05:58 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:56760 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268511AbTBOBFe>;
+	Fri, 14 Feb 2003 20:05:34 -0500
+Date: Fri, 14 Feb 2003 17:12:27 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: davidel@xmailserver.org, linux-kernel@vger.kernel.org
 Subject: Re: Synchronous signal delivery..
-In-Reply-To: <20030215000628.GB1073@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.50.0302141712100.988-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com>
- <Pine.LNX.4.50.0302141553020.988-100000@blue1.dev.mcafeelabs.com>
- <20030215000628.GB1073@mea-ext.zmailer.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20030214171227.39c493d2.rddunlap@osdl.org>
+In-Reply-To: <20030215010153.GE4333@bjl1.jlokier.co.uk>
+References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com>
+	<20030214024046.GA18214@bjl1.jlokier.co.uk>
+	<Pine.LNX.4.50.0302141603220.988-100000@blue1.dev.mcafeelabs.com>
+	<20030215010153.GE4333@bjl1.jlokier.co.uk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Feb 2003, Matti Aarnio wrote:
+On Sat, 15 Feb 2003 01:01:53 +0000
+Jamie Lokier <jamie@shareable.org> wrote:
 
-> On Fri, Feb 14, 2003 at 04:00:03PM -0800, Davide Libenzi wrote:
-> > On Thu, 13 Feb 2003, Linus Torvalds wrote:
-> ....
-> > > > > One of the reasons for the "flags" field (which is not unused) was because
-> > > > > I thought it might have extensions for things like alarms etc.
-> > > > I was thinking more like :
-> > > >
-> > > > int timerfd(int timeout, int oneshot);
-> > >
-> > > It could be a separate system call, ...
-> >
-> > I would personally like it a lot to have timer events available on
-> > pollable fds. Am I alone in this ?
->
-> Somehow all this idea has a feeling of long established
-> Linux kernel facility called:  netlink
->
-> It can send varying messages to userspace via a file-handle, and is
-> pollable.  Originally that is for network codes, and therefore it
-> already has protocol capable to handle multiple different formats,
-> handle queue saturation, etc.
->
-> Do we need new syscall(s) ?  Could it all be done with netlink ?
+| Davide Libenzi wrote:
+...
+| > 
+| > Hmm ... using read() you'll lose the timeout capability, that IMHO is
+| > pretty nice.
+| 
+| Very good point.
+| 
+| Timeouts could be events too - probably a good idea as they can then
+| be absolute, relative, attached to different system clocks (monotonic
+| vs. timeofday).  I think the POSIX timer work is like that.
 
-The ( evntually ) new syscall do not have to implement anything special
-about queue and message delivery, the f_op->poll() support will be
-sufficent to have them working with select/poll/epoll. About netlink, I
-personally find it quite confusing with respect of simple syscalls like :
+Hi Davide, Jamie-
 
-int sigfd(...);
-int timerfd(...);
+Yep.  And there are people (plural :) who would still like to get
+that patch accepted into 2.5 too....
 
-Netlink is quite powerfull because of its generic message passing
-infrastructure, that is IMHO overkilling when you simply have to receive
-one timer/signal event. I personally do not like the idea of multiplexing
-APIs, expecially ones that did not born with that purposes.
+| It seems like a good idea to be able to attach one timeout event in
+| the same system call as the event_read call itself - because it is
+| _so_ common to vary the expiry time every time.
+| 
+| Then again, it is also extremely common to write this:
+| 
+| 	gettimeofday(...)
+| 	// calculate time until next application timer expires.
+| 	// Note also race condition here, if we're preempted.
+| 	read_events(..., next_app_time - timeofday)
+| 	// we need to know the current time.
+| 	gettimeofday(...)
+| 
+| So perhaps the current select/poll/epoll timeout method is not
+| particularly optimal as it is?
 
-
-
-- Davide
-
+--
+~Randy

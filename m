@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264006AbUDFUv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 16:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264007AbUDFUv5
+	id S264007AbUDFUxw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 16:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264009AbUDFUxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 16:51:57 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:5567 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S264006AbUDFUvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 16:51:25 -0400
-Date: Tue, 6 Apr 2004 21:48:43 +0100
-From: Dave Jones <davej@redhat.com>
-To: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-Cc: Bjoern Michaelsen <bmichaelsen@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
-Message-ID: <20040406204843.GC1100@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>,
-	Bjoern Michaelsen <bmichaelsen@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <20040406031949.GA8351@lord.sinclair> <200404062206.38731.volker.hemmann@heim10.tu-clausthal.de> <20040406203122.GB1100@redhat.com> <200404062237.02210.volker.hemmann@heim10.tu-clausthal.de>
+	Tue, 6 Apr 2004 16:53:52 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:24726 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264007AbUDFUxp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 16:53:45 -0400
+Date: Tue, 6 Apr 2004 22:50:45 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Adam Nielsen <a.nielsen@optushome.com.au>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix kernel lockup in RTL-8169 gigabit ethernet driver
+Message-ID: <20040406225045.A7916@electric-eye.fr.zoreil.com>
+References: <406EA054.2020401@colorfullife.com> <20040404105558.2bffd4f0.malvineous@optushome.com.au> <20040404111513.A3165@electric-eye.fr.zoreil.com> <20040406075142.147a0e4c.a.nielsen@optushome.com.au> <4072E4B8.2070102@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200404062237.02210.volker.hemmann@heim10.tu-clausthal.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4072E4B8.2070102@colorfullife.com>; from manfred@colorfullife.com on Tue, Apr 06, 2004 at 07:11:20PM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 10:37:02PM +0200, Hemmann, Volker Armin wrote:
+Manfred Spraul <manfred@colorfullife.com> :
+[...]
+> Thanks. The code reloads the tx ring value from memory, thus I don't 
+> understand why it deadlocks.
 
- >         Capabilities: [c0] AGP version 3.0
+Well...
+- rtl8169_interrupt() acks all events before rtl8169_tx_interrupt() is called
+- the count of descriptors handled in rtl8169_tx_interrupt() is only limited
+  by the number of packets submitted for TX at the time rtl8169_tx_interrupt()
+  is called
 
-Ok, so your system is fully AGP v3 compliant, (both host and gfx card).
-The missing check highlighted in your diff means that we only do
-AGPv3 stuff if we have an AGP 3.5 host bridge. You have a 3.0 bridge,
-so it was falling back to AGP v2.  My suspicion now is that the 648 and
-746 chipsets vary too much for them to both use the generic routines,
-so I'll reinstate the check.  It'll still report that it finds an
-AGP v3.0 device, but until someone comes forward with chipset docs,
-it looks like it'll be limited to AGP v2. (I'm amazed that it works
-at all, really).
+-> if there is a stream of Tx events, it is possible that Tx descriptors are
+   processed before the relevant event is notified to the host by the network
+   adapter.
 
-It survives a testgart run too ?
-
-		Dave
-
+--
+Ueimor

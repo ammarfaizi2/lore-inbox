@@ -1,74 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272289AbTHDXea (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 19:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272299AbTHDXea
+	id S272338AbTHDXam (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 19:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272339AbTHDXam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 19:34:30 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:37077 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S272289AbTHDXe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 19:34:28 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 5 Aug 2003 01:34:25 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: aia21@cam.ac.uk, aebr@win.tue.nl, linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030805013425.03fb9871.skraw@ithnet.com>
-In-Reply-To: <03080416163901.04444@tabby>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<Pine.SOL.4.56.0308041458500.22102@orange.csi.cam.ac.uk>
-	<20030804165002.791aae3d.skraw@ithnet.com>
-	<03080416163901.04444@tabby>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 4 Aug 2003 19:30:42 -0400
+Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:29342
+	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id S272338AbTHDXal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 19:30:41 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16174.60537.766825.122189@wombat.chubb.wattle.id.au>
+Date: Tue, 5 Aug 2003 09:30:01 +1000
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Werner Almesberger <werner@almesberger.net>,
+       "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TOE brain dump
+In-Reply-To: <Pine.LNX.4.44.0308041243500.7534-100000@dlang.diginsite.com>
+References: <20030804163256.M5798@almesberger.net>
+	<Pine.LNX.4.44.0308041243500.7534-100000@dlang.diginsite.com>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003 16:16:39 -0500
-Jesse Pollard <jesse@cats-chateau.net> wrote:
 
-> > > You ask for examples of applications?  There are millions!  Anything that
-> > > walks the directory tree for a start, e.g. ls -R, find, locatedb, medusa,
-> > > du, any type of search and/or indexing engine, chown -R, cp -R, scp
-> > > -R, chmod -R, etc...
-> >
-> > There is a flaw in this argument. If I am told that mount --bind does just
-> > about what I want to have as a feature then these applictions must have the
-> > same problems already (if I mount braindead). So an implementation in fs
-> > cannot do any _additional_ damage to these applications, or not?
-> 
-> Mount -bind only modifies the transient memory storage of a directory. It 
-> doesn't change the filesystem. Each bind occupies memory, and on a reboot, 
-> the bind is gone.
+One thing that you could do *if* you cared to go to a SYSVr4
+streams-like approach is just to push *some* of the TCP/IP stack onto
+the card, as one or more streams modules.
 
-What kind of an argument is this? What difference can you see between a
-transient loop and a permanent loop for the applications? Exactly zero I guess.
-In my environments nil boots ought to happen. 
-This is the reason why I would in fact be satisfied with mount -bind if only I
-could export it via nfs...
-
-> > My saying is not "I want to have hardlinks for creating a big mess of loops
-> > inside my filesystems". Your view simply drops the fact that there are more
-> > possibilities to create and use hardlinks without any loops...
-> 
-> been there done that, is is a "big mess of loops".
-> 
-> And you can't prevent the loops either, without scanning the entire graph, or
-> keeping a graph location reference embeded with the file.
-
-Or marking the links as type links somehow.
-
-> Which then breaks "mv" for renaming directories... It would then have to
-> scan the entire graph again to locate a possble creation of a loop, and 
-> regenerate the graph location for every file.
-
-There should be no difference if only a hardlink is simply marked as such by
-any kind of marker you possibly can think of.
-
-Regards,
-Stephan
+Peter C

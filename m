@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268239AbUIBLjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268249AbUIBLmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268239AbUIBLjO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 07:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUIBLjN
+	id S268249AbUIBLmK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 07:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUIBLmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 07:39:13 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:143 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S268239AbUIBLjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 07:39:03 -0400
-Subject: Re: [patch] update parport MAINTAINERS entry
-From: David Woodhouse <dwmw2@infradead.org>
-To: maximilian attems <janitor@sternwelten.at>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040902095527.GB6661@stro.at>
-References: <E1C2eGu-0002d6-B7@sputnik>
-	 <1094116774.18683.27.camel@localhost.localdomain>
-	 <20040902094831.GB1876@stro.at>  <20040902095527.GB6661@stro.at>
-Content-Type: text/plain
-Message-Id: <1094125138.14552.32737.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 02 Sep 2004 12:38:58 +0100
+	Thu, 2 Sep 2004 07:42:10 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:55953 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S268249AbUIBLmG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 07:42:06 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: external modules make clean doesn't do much
+Date: Thu, 2 Sep 2004 13:42:03 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200408311347.52754.baldrick@free.fr> <20040831170148.GB7310@mars.ravnborg.org>
+In-Reply-To: <20040831170148.GB7310@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200409021342.03508.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 11:55 +0200, maximilian attems wrote:
-> On Thu, 02 Sep 2004, maximilian attems wrote:
-> 
-> > On Thu, 02 Sep 2004, Tim Waugh wrote:
-> > 
-> > > Please re-send these to: linux-parport@infradead.org.
-> > > 
-> > > The torque.net address is no longer live.
-> > 
-> > update parport mailinglist, it's the most important.
->  
-> please forget previous patch its email doesn't work.
+Hi Sam, I found out what was triggering the problem: symbolic links.
+The setup was like this:
 
-It's linux-parport@lists.infradead.org
+directory A contains Makefile, source code etc.
+B is a symbolic link to A.
+If I change directory into A, then "make clean" works fine.
+If I change directory into B, then "make clean" only cleans .tmp_versions.
 
--- 
-dwmw2
+Strange but true...
 
+All the best,
+
+Duncan.

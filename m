@@ -1,87 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVAXDgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVAXDol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVAXDgC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 22:36:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVAXDgC
+	id S261432AbVAXDol (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 22:44:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVAXDol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 22:36:02 -0500
-Received: from fire.osdl.org ([65.172.181.4]:54481 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261431AbVAXDfv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 22:35:51 -0500
-Message-ID: <41F46B32.9070904@osdl.org>
-Date: Sun, 23 Jan 2005 19:27:46 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bryce Harrington <bryce@osdl.org>
-CC: Chris Wright <chrisw@osdl.org>, dev@osdl.org, linux-kernel@vger.kernel.org,
-       stp-devel@lists.sourceforge.net
-Subject: Re: Kernel 2.6.11-rc1/2 goes Postal on LTP
-References: <Pine.LNX.4.33.0501221125140.30167-100000@osdlab.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.33.0501221125140.30167-100000@osdlab.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 23 Jan 2005 22:44:41 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:427 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261432AbVAXDog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 22:44:36 -0500
+Subject: Re: [patch 1/13] Qsort
+From: Charles R Harris <charris208@comcast.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sun, 23 Jan 2005 20:44:33 -0700
+Message-Id: <1106538274.32342.13.camel@tethys>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryce Harrington wrote:
-> On Fri, 21 Jan 2005, Chris Wright wrote:
-> 
->>* Bryce Harrington (bryce@osdl.org) wrote:
->>
->>>Well, I'm not having much luck.  strace isn't installed on the system
->>>(and is giving errors when trying to compile it).  Also, the ssh session
->>>(and sshd) quits whenever I try running the following growfiles command
->>>manually, so I'm having trouble replicating the kernel panic manually.
->>
->>Sounds very much like oom killer gone nuts.
->>
->>
->>># growfiles -W gf14 -b -e 1 -u -i 0 -L 20 -w -l -C 1 -T 10 glseek19 glseek19.2
->>>
->>>Anyway, if anyone wants to investigate this further, I can provide
->>>access to the machine (email me).  Otherwise, I'm probably just going to
->>>wait for -rc2 and see if the problem's still there.
->>
->>Wait no longer, it's here ;-)
-> 
-> 
-> Hmm, still the kernel is going nutso.  LTP and everything else on the
-> system is getting killed, including the test manager process.
-> 
-> Below's a bit more info scraped from the console.  This is from a run on
-> RH 9.0.  It looks like LTP got through 722 of its 2270 tests before the
-> kernel goes postal on it.  This time it got through all the growfile
-> commands before it died (see bottom of this post), however it looks like
-> the same growfile cmd I reported earlier is the one causing the problem.
-> 
-> When I run:
-> 
-> mkfifo gffifo18;
-> strace growfiles -b -W gf13 -e 1 -u -i 0 -L 30 -I r -r 1-4096 gffifo18 &> /tmp/growfiles_strace_log.txt
-> 
-> The following happens:
-> 
-> * I get this strace log:  http://developer.osdl.org/bryce/growfiles_strace_log.txt
-> * The ssh session dies and returns to login prompt
-> * A bunch of stuff similar to below is spewed to console
+Here are semi-templated versions of quicksort and heapsort, just for
+completeness. The quicksort uses the median of three.
 
-Similar for me, easy to reproduce (3 times today).
-Here's a kernel messages log, with 32 processes killed,
-mostly hotplug, but also bash (2x), runltp, & some daemons.
+Chuck
 
-I could not login and do anything else, but I could/did
-SysRq-T, P, M, S, U, B to reboot.  These are also in the log.
+void  quicksort0<typename>(<typename> *pl, <typename> *pr)
+{
+	<typename> vp, SWAP_temp;
+	<typename> *stack[100], **sptr = stack, *pm, *pi, *pj, *pt;
+        
+	for(;;) {
+		while ((pr - pl) > 15) {
+			/* quicksort partition */
+			pm = pl + ((pr - pl) >> 1);
+			if (<lessthan>(*pm,*pl)) SWAP(*pm,*pl);
+			if (<lessthan>(*pr,*pm)) SWAP(*pr,*pm);
+			if (<lessthan>(*pm,*pl)) SWAP(*pm,*pl);
+			vp = *pm;
+			pi = pl;
+			pj = pr - 1;
+			SWAP(*pm,*pj);
+			for(;;) {
+				do ++pi; while (<lessthan>(*pi,vp));
+				do --pj; while (<lessthan>(vp,*pj));
+				if (pi >= pj)  break;
+				SWAP(*pi,*pj);
+			}
+			SWAP(*pi,*(pr-1));
+			/* push largest partition on stack */
+			if (pi - pl < pr - pi) {
+				*sptr++ = pi + 1;
+				*sptr++ = pr;
+				pr = pi - 1;
+			}else{
+				*sptr++ = pl;
+				*sptr++ = pi - 1;
+				pl = pi + 1;
+			}
+		}
+		/* insertion sort */
+		for(pi = pl + 1; pi <= pr; ++pi) {
+			vp = *pi;
+			for(pj = pi, pt = pi - 1; pj > pl && <lessthan>(vp, *pt);) {
+				*pj-- = *pt--;
+			}
+			*pj = vp;
+		}
+		if (sptr == stack) break;
+		pr = *(--sptr);
+		pl = *(--sptr);
+	}
+}
 
-log:
-http://developer.osdl.org/rddunlap/oom/oom_kill.txt
+void heapsort0<typename>(<typename> *a, long n)
+{
+	<typename> tmp;
+	long i,j,l;
 
-config:
-http://developer.osdl.org/rddunlap/oom/config-2611rc2
+	/* The array needs to be offset by one for heapsort indexing */
+        a -= 1;
+        
+	for (l = n>>1; l > 0; --l) {
+		tmp = a[l];
+		for (i = l, j = l<<1; j <= n;) {
+			if (j < n && <lessthan>(a[j], a[j+1])) 
+				j += 1;
+			if (<lessthan>(tmp, a[j])) {
+				a[i] = a[j];
+				i = j;
+				j += j;
+			}else
+				break;
+		}
+		a[i] = tmp;
+	} 
 
-on P4-UP, 1 GB RAM.
+	for (; n > 1;) {
+		tmp = a[n];
+		a[n] = a[1];
+		n -= 1;
+		for (i = 1, j = 2; j <= n;) {
+			if (j < n && <lessthan>(a[j], a[j+1]))
+				j++;
+			if (<lessthan>(tmp, a[j])) {
+				a[i] = a[j];
+				i = j;
+				j += j;
+			}else
+				break;
+		}
+		a[i] = tmp;
+	}
+}
 
--- 
-~Randy
+
+

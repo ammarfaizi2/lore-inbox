@@ -1,46 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262079AbTCRBfl>; Mon, 17 Mar 2003 20:35:41 -0500
+	id <S262092AbTCRBhc>; Mon, 17 Mar 2003 20:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262080AbTCRBfl>; Mon, 17 Mar 2003 20:35:41 -0500
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:18959 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S262079AbTCRBfk>;
-	Mon, 17 Mar 2003 20:35:40 -0500
-From: "Tim Pepper" <tpepper@vato.org>
-Date: Mon, 17 Mar 2003 17:46:29 -0800
-To: Javier Achirica <achirica@telefonica.net>
-Cc: Thomas Hood <jdthood0@yahoo.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Cisco Aironet 340 oops with 2.4.20
-Message-ID: <20030317174629.A29068@jose.vato.org>
-Mail-Followup-To: Tim Pepper <tpepper>,
-	Javier Achirica <achirica@telefonica.net>,
-	Thomas Hood <jdthood0@yahoo.co.uk>, linux-kernel@vger.kernel.org
-References: <20030316163358.A25887@jose.vato.org> <Pine.SOL.4.30.0303170227020.6371-100000@tudela.mad.ttd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.SOL.4.30.0303170227020.6371-100000@tudela.mad.ttd.net>; from achirica@telefonica.net on Mon, Mar 17, 2003 at 02:28:58AM +0100
-X-PGP-Key: http://vato.org/~tpepper/pubkey.asc
+	id <S262094AbTCRBhc>; Mon, 17 Mar 2003 20:37:32 -0500
+Received: from ns0.cobite.com ([208.222.80.10]:56582 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S262092AbTCRBh3>;
+	Mon, 17 Mar 2003 20:37:29 -0500
+Date: Mon, 17 Mar 2003 20:48:16 -0500 (EST)
+From: David Mansfield <lkml@dm.cobite.com>
+X-X-Sender: david@admin
+To: Larry McVoy <lm@bitmover.com>
+cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+In-Reply-To: <20030317233332.GC529@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0303172037530.6286-100000@admin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems like the following does it:
+On Mon, 17 Mar 2003, Larry McVoy wrote:
 
-- run for a while
-- suspend
-- wake..run for a while
-- maybe suspend and wake a few more times?
-- cause a heavish burst of net traffic
+> On Tue, Mar 18, 2003 at 12:25:44AM +0100, Andrea Arcangeli wrote:
+> > yes, this is very helpful thanks ;). I'd suggest you to also parse the
+> > logic tag and to print a warning if there's an error and not only to
+> > trust the timestamps. 
+> 
+> The time stamps we're talking about are *in* the revision history. 
+> We do all checkins to all files with the same timestamp in the same
+> changeset.  
 
-If it would matter I'm running wep.  It may happen more often when I've
-got an ipsec tunnel running over the connection as well (tunnel never
-left open during suspend nor ipsec module left loaded).  When it's
-happened cpu utilisation was pretty low.
+Ok.  A version of 'cvsps' which can correctly parse Larry's log format
+into patchsets is up on the website (www.cobite.com/cvsps).  It's version
+2.0b3.
 
-t.
+Larry's timestamps actually made this hack really easy.  All files 
+committed with the exact time are recreated into a patchset.  Here, for 
+example is 'patchset 8156':
+
+--------------------
+PatchSet 8156
+Date: 2003/03/05 03:11:19
+Author: torvalds
+Branch: HEAD
+Tag: v2_5_64
+Log:
+Linux 2.5.64
+
+BKrev: 3e656ad75XghvjRCVNEGWy20cX0qwg
+
+Members:
+        ChangeSet:1.8156->1.8157
+        Makefile:1.340->1.341
+
+
+(note, this is a pretty boring patchset, I just wanted to show it 
+basically works).
+
+The patchset id is in-sync with Larry's ChangeSet commits (but off by one
+from the beginning).
+
+You can do:  'cvsps -s 8156 -g' to generate a diff of this entire
+patchset, and even get the correct results.
+
+> 
+> If you thought that we were talking about on disk timestamps, that's 
+> way too fragile but these are fine.
+> 
+> > certain logic tag out of the tree. This logic tag will be the
+> > "changeset" number for us, but one that is also persistent and no only
+> > unique 
+> 
+> (Logical tag 1.XXXX) 
+> 
+
+The checkin (Logical Tag x.yyy) log messages are currently not validated, 
+and are discarded.  Only the 'main' message with the BKrev: is associated 
+with each patchset.
+
+> is in each file's checkin comments and the 1.XXXX is the ChangeSet file's
+> rev for that changeset.
+
+Seems to work.
+
+> > I also wonder if it wouldn't be better if Larry would simply tag the CVS
+> > with the logic tag number since the first place, rather than writing it
+
+Not necessary, each changeset is available via cvsps with 'cvsps -s 
+<logical change number>' as well as searching by file, by date, by tag, by 
+log message etc.
+
+> That means that *all* files get tags.  There would be 8300 x 15,000 files
+> times sizeof(tag).  That's too big.
+> 
+
+Uggh.
+
+David
+
 -- 
-*********************************************************
-*  tpepper@vato dot org             * Venimus, Vidimus, *
-*  http://www.vato.org/~tpepper     * Dolavimus         *
-*********************************************************
+/==============================\
+| David Mansfield              |
+| lkml@dm.cobite.com           |
+\==============================/
+

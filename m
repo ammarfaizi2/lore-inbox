@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267050AbSLKIGJ>; Wed, 11 Dec 2002 03:06:09 -0500
+	id <S267057AbSLKINd>; Wed, 11 Dec 2002 03:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267052AbSLKIGJ>; Wed, 11 Dec 2002 03:06:09 -0500
-Received: from math.ut.ee ([193.40.5.125]:26301 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id <S267050AbSLKIGI>;
-	Wed, 11 Dec 2002 03:06:08 -0500
-Date: Wed, 11 Dec 2002 10:13:52 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: IDE does not compile for PPC in 2.4.20+bk
-Message-ID: <Pine.GSO.4.44.0212111012400.24645-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267062AbSLKINd>; Wed, 11 Dec 2002 03:13:33 -0500
+Received: from rth.ninka.net ([216.101.162.244]:23274 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S267057AbSLKINc>;
+	Wed, 11 Dec 2002 03:13:32 -0500
+Subject: Re: [PATCH] make net/ipv4/route.c compile without CONFIG_PROC_FS
+From: "David S. Miller" <davem@redhat.com>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021210212149.GN26067@conectiva.com.br>
+References: <200212102208.31562.arnd@bergmann-dalldorf.de> 
+	<20021210212149.GN26067@conectiva.com.br>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Dec 2002 00:47:09 -0800
+Message-Id: <1039596429.24730.8.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make[1]: Entering directory `/home/mroos/compile/linux-2.4/arch/ppc/kernel'
-gcc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -I/home/mroos/compile/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring   -nostdinc -iwithprefix include -DKBUILD_BASENAME=setup  -c -o setup.o setup.c
-setup.c: In function `ppc_generic_ide_fix_driveid':
-setup.c:674: structure has no member named `word89'
-setup.c:674: structure has no member named `word89'
-setup.c:674: structure has no member named `word89'
-setup.c:674: structure has no member named `word89'
-setup.c:675: structure has no member named `word90'
-setup.c:675: structure has no member named `word90'
-setup.c:675: structure has no member named `word90'
-setup.c:675: structure has no member named `word90'
-setup.c:677: structure has no member named `word92'
-setup.c:677: structure has no member named `word92'
-setup.c:677: structure has no member named `word92'
-setup.c:677: structure has no member named `word92'
-setup.c:681: structure has no member named `words95_99'
-setup.c:681: structure has no member named `words95_99'
-setup.c:681: structure has no member named `words95_99'
-setup.c:681: structure has no member named `words95_99'
+On Tue, 2002-12-10 at 13:21, Arnaldo Carvalho de Melo wrote:
+> uups, sorry, but this will not be needed after I convert the rest
+> of net/ipv4/route.c to seq_file.
 
--- 
-Meelis Roos (mroos@linux.ee)
+So I'll just wait for that :-)
+
 

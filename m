@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262737AbTC0B0E>; Wed, 26 Mar 2003 20:26:04 -0500
+	id <S262741AbTC0B1z>; Wed, 26 Mar 2003 20:27:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262741AbTC0B0E>; Wed, 26 Mar 2003 20:26:04 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:46479 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262737AbTC0B0D>; Wed, 26 Mar 2003 20:26:03 -0500
-Date: Wed, 26 Mar 2003 20:41:02 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: henrique.gobbi@cyclades.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Interpretation of termios flags on a serial driver
-In-Reply-To: <3E81C846.6010901@cyclades.com>
-Message-ID: <Pine.LNX.4.53.0303262035230.3287@chaos>
-References: <1046909941.1028.1.camel@gandalf.ro0tsiege.org>
- <20030326092010.3EDA8124023@mx12.arcor-online.net> <3E81BE5C.400@cyclades.com>
- <Pine.LNX.4.53.0303261804020.2833@chaos> <3E81C846.6010901@cyclades.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262742AbTC0B1z>; Wed, 26 Mar 2003 20:27:55 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:39359 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S262741AbTC0B1x>; Wed, 26 Mar 2003 20:27:53 -0500
+Message-Id: <5.1.0.14.2.20030326173416.0efdc710@unixmail.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 26 Mar 2003 17:38:57 -0800
+To: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: Preferred way to load non-free firmware
+In-Reply-To: <Pine.LNX.4.50.0303252007420.6656-100000@marabou.research.a
+ tt.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Mar 2003, Henrique Gobbi wrote:
-
-> Thanks for the feedback.
+At 05:32 PM 3/25/2003, Pavel Roskin wrote:
+>Hello!
 >
-> > If PARENB is set you generate parity. It is ODD parity if PARODD
-> > is set, otherwise it's EVEN. There is no provision to generate
-> > "stick parity" even though most UARTS will do that. When you
-> > generate parity, you can also ignore parity on received data if
-> > you want.  This is the IGNPAR flag.
+>I'm writing a Linux device driver for a device that requires non-free
+>firmware in order to function.  The firmware can be easily extracted from
+>the Windows driver for that device.  The device is a PCMCIA wireless card.
 >
-> Ok. But, considering the 2 states of the flag IGNPAR, what should the
-> driver do with the chars that are receiveid with wrong parity, send this
-> data to the TTY with the flag TTY_PARITY or just discard this data ?
+>The firmware is about 60k in size, and it mostly consists of executable
+>code for ARM processor.  Reimplementing it is out of question for me.
 >
-> regards
-> Henrique
+>What would be the best approach to handle this situation:
 >
+>1) Register a file on procfs and use "cat" to load the firmware into the
+>kernel.
+>
+>2) Register a device for the same purpose.
+>
+>3) Register a device, but use ioctl().
+>
+>4) Open a network socket and use ioctl() on it (like ifconfig does).
+>
+>5) Use one of the the above ways to send the filename to the module and
+>let the module load the firmware from file using do_generic_file_read().
+>
+>6) Provide a script to wrap firmware into a module and load it using
+>modprobe.
+>
+>7) Encode the firmware into a header file, add it to the driver and
+>pretend that the copyright issue doesn't exist (like it's done in the
+>Keyspan USB driver).
+>
+>Better ideas?
+
+8) Have the driver call external user-space firmware loader that uses
+either iopl/outb/inb or mmap(/dev/mem) and loads firmware directly.
+
+Max
 
 
-If the IGNPAR flag is true, you keep the data. You pretend it's
-okay. Ignore parity means just that. Ignore it. You do not flag
-it in any way. This is essential. If you have a 7-bit link and
-somebody is sending you stick-parity, you can still use the data.
 
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 

@@ -1,152 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272419AbTGZE0T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 00:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272420AbTGZE0T
+	id S272421AbTGZFJK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 01:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272422AbTGZFJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 00:26:19 -0400
-Received: from CPE000625926cd6-CM014480115318.cpe.net.cable.rogers.com ([24.157.137.42]:9601
-	"EHLO daedalus.samhome.net") by vger.kernel.org with ESMTP
-	id S272419AbTGZE0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 00:26:16 -0400
-Subject: Re: Firewire (One fix worked, now getting oops)
-From: Sam Bromley <sbromley@cogeco.ca>
-Reply-To: sbromley@cogeco.ca
-To: Ben Collins <bcollins@debian.org>
-Cc: gaxt <gaxt@rogers.com>, Torrey Hoffman <thoffman@arnor.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>
-In-Reply-To: <20030725201128.GA535@phunnypharm.org>
-References: <20030725154009.GF1512@phunnypharm.org>
-	 <20030725160706.GK23196@ruvolo.net> <20030725161803.GJ1512@phunnypharm.org>
-	 <1059155483.2525.16.camel@torrey.et.myrio.com>
-	 <20030725181303.GO23196@ruvolo.net> <20030725181252.GA607@phunnypharm.org>
-	 <3F217A39.2020803@rogers.com> <20030725182642.GD607@phunnypharm.org>
-	 <20030725184506.GE607@phunnypharm.org> <20030725193515.GQ23196@ruvolo.net>
-	 <20030725201128.GA535@phunnypharm.org>
-Content-Type: text/plain
-Message-Id: <1059194478.655.49.camel@daedalus.samhome.net>
+	Sat, 26 Jul 2003 01:09:10 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:57290 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S272421AbTGZFJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 01:09:04 -0400
+Subject: Re: 2.6.0-test1 ext3 slab/fs corruption
+From: Nicholas Miell <nmiell@attbi.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8765ltlbj5.fsf@gw.home.net>
+References: <1058931916.1286.9.camel@entropy>  <8765ltlbj5.fsf@gw.home.net>
+Content-Type: multipart/mixed; boundary="=-pn7aZFw0YKEMHVpFRdMd"
+Message-Id: <1059197040.1627.4.camel@entropy>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.3 
-Date: 26 Jul 2003 00:41:18 -0400
-Content-Transfer-Encoding: 7bit
+Date: 25 Jul 2003 22:24:11 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-25 at 16:11, Ben Collins wrote:
-> On Fri, Jul 25, 2003 at 12:35:15PM -0700, Chris Ruvolo wrote:
-> > On Fri, Jul 25, 2003 at 02:45:06PM -0400, Ben Collins wrote:
-> > > Maybe it wont. Try reverting back to stock, and apply this patch. I am
-> > > pretty sure this will fix the problem for anyone having this issue.
-> > 
-> > Yes, I think this did it!  One change: needed to change HSBP_VERBOSE to
-> > HSBP_DEBUG in csr.c.  
-> > 
-> > I will try turning on my DV camera tonight (I'm remote now) and I'll let you
-> > know how that goes.
-> 
-> Kick ass. I've commited this change to the 1394 repo. Linus will get the
-> fix soon. I'll also send it to Marcelo for 2.4.22.
-> 
-> Please, if you are testing, use the code at www.linux1394.org's viewcvs
-> (trunk tarball will replace drivers/ieee1394 in 2.6, branches/linux-2.4
-> will do the same for 2.4).
-> 
-> 
-> Thanks for help in tracking this down.
 
-Hi,
-First, thank you all for being so diligent.
-The unsolicited packet problem seems to have
-been resolved. However, by running gscanbus,
-then unplugging a camera and replugging it in,
-I got the following oops:
+--=-pn7aZFw0YKEMHVpFRdMd
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Unable to handle kernel paging request at virtual address 08103a8c
- printing eip:
-402fd1de
-*pde = 07b1c067
-*pte = 00000000
-Oops: 0006 [#1]
-CPU:    0
-EIP:    0073:[<402fd1de>]    Not tainted
-EFLAGS: 00010202
-EIP is at 0x402fd1de
-eax: 00001579   ebx: 4039ff60   ecx: 00001009   edx: 08103a88
-esi: 00000004   edi: 00000000   ebp: bfffc788   esp: bfffc760
-ds: 007b   es: 007b   ss: 007b
-Process gscanbus (pid: 2525, threadinfo=c2314000 task=dc4af000)
- <6>note: gscanbus[2525] exited with preempt_count 1
+On Wed, 2003-07-23 at 04:37, Alex Tomas wrote:
+> hmm. it really looks like memory problem. have you tried
+> to test it? all the corruptions happened at the same address.
 
------------
-Ok, you'll have to forgive me here, as I've never used
-ksymoops before, but here is my attempt:
+10 hours of memtest86 found nothing, and my config is attached.
 
+--=-pn7aZFw0YKEMHVpFRdMd
+Content-Disposition: attachment; filename=config-2.6.0-test1.bz2
+Content-Type: application/x-bzip; name=config-2.6.0-test1.bz2
+Content-Transfer-Encoding: base64
 
-ksymoops 2.4.8 on i686 2.6.0-test1-ac1.  Options used
-     -v /boot/vmlinuz-2.6.0-test1-ac2 (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.0-test1-ac1/ (default)
-     -m /boot/System.map-2.6.0-test1-ac2 (specified)
+QlpoOTFBWSZTWcktG5gAB69fgEAQWOf/8j////C////gYB6cAAHLuAUHMwH2sGhMlVNvcgAtzDt3
+FPuyjewAq57lDggA6DqldGtmoyDrpRNunTXc+5rO22fd2953Ovp7shqYmgJk0AICTTQCajNNT1PS
+eQ0jIANNAgIETJiEnpQ0yDIDIDQAD1BiIRoU9J6m00RNqGT1PSaNNP1QZG0g00P1QaCTSSIRlE9N
+TR6T0TQABPUGRgmAABEpBKfkNCMjTQMo0aaAaAAAAAkRAgTJoEETTSNTR6QAAAAA5+j9T+j8LUqV
+KyNa8rMHEUi1i21GW1RBg0bbSGMqTgSoc8/aD9ef/1r9msNfn8LnXqcHJuQUOQSQTE0hoTN7Lg6z
+FcLUXlft4/rto3ar0kLHo1YViyoViltKlSs3ctkilyXG2mIsXGYzDy2ZqjGVLboTErY0HMaI0wuI
+jgXHJAqsUrKxRRZFDEmMxMRVUKJiEFkUWRtytuFIskmIQqYmZhklcVhFACjBYYxZRkBZFgLFBHMz
+DLaJFkWsBaltLasMRXLgSQSUuOSp67Vy6cEwwMRYNcVFRqpMtxLlxXGiuRtMvsNRzW7dIAunEqBi
+QMtCsjglxtyymWuOAlZcMcDIK5TMbmUhjjnjzQa0YuYUwxGlKOW2+bRrUTU8+rjRolt1bTC1qW5M
+XKtwMbUaYtcthWOUjoOgwY1Lfm5dZlsxbRz1jWkr0EhpXPk3JGTkAEgDhVW81Z97ZsmHqemjRFvv
+Nq4AZLdd2uDZiFerYEeS2TqdM0nivPtdV31t7nu7TiiJ6BqTsTizkoMFHuuCHIUUXoR8p169a4K0
+SSEwU9eFTB2KdY0un9ehj+/H0jpkUz5vmThri107FnjlSqIX0wWfs2lDwNHHOUN3O29Hjv9f6mPt
++viny35F/b0fr7ac+fz8+MW9qyDbvJdGvNr2/b7YOOBHnCCNlm34RoPepV/SYO2ZijdINg78KPGb
+vlwRIkWzM+kW7rtlOM1aQ50Drfbo4Fi5Gm7Em8y2K+WRo52+iIbhc0sD3zgf6QtAYYOK2HJplS4d
+d+MhsMo5lD5YU2h+iYV6bOIIaYVUVyyXAtJaJfg62h1NE4bze7Dh5OQ3ITnKcKwtXbbvsXPXI+Hp
+pCfEU4zMGpu/DJ1z3P6Ru7ta9SLTHOV0BjeXOVFxK1cefmbs1XZxuy53B8Fh0IUO7FN1iVcMefrT
+yzeh84d62vSfaJxBrPxe3v27LLcdPGuaW18PtZSFsoptSxFZoVOe65NuFDc2nVVIzMGj3T6cca5B
+2qc6T6Eqjv68oZvpvGNkKmdb/N02E1gGxqqdLmu1KGhRTQUwWGxdS4EVj3k6F+sWG7uOnxhfN1IZ
+FnfmS+Y6v80tV2hTOF6bBYt9kPT6/Aer3O/E2MYwMAH3Enw9/3+mDvOiicBNXsYxgYAF3ov8SOmX
+3p+RLT0ILUvNEs6Dep5ubDP8ShTs7u0AgEg/D5kAS13Nx2YbIqPM0uK6/PW9BcZ39maZybw4ZCY3
+ttfmT789d3KceJm9bDpztghJ5OfcJJqF0BBUCyfs+2n1lXAUyqpILvcsShBMVkO6SWFlZ/saIkHm
+ruPpaPqN/XOBWLIxedrQKH87xvO0y7u32xyf+0g8fs/x+MO2bvf+709nu+TNYZHhfZfl/A6EIPB2
+AuqootOTcQ30ZrJ3SCJpBUStwm1WB/IhxH3Pd8z7arv2JJTLHVzbsjMg2AOZE3hbKHX+P9Nncxas
+RHNo88LAbEt7VfNhesYqkwUQSkE2JqgPALXy4RmmDrxwMAJpngt8C28whoHyhx5LYhvzSKdSTCVC
+nE+V4Gy5jiJSm8FeY4D2CnLHkxLo3gRs0a2hfRssBBsVbnkKdoKmDmM4n2a0aiuHauy4b8Qd/LdU
+w0pnRM1s/E234Ib28yG5T5PfI4fK5CPraluFmqXWIQscD6DwUPzfxPbmxGWJh6YoaHg7XWDl9FZ7
+Y7O/kR7VpBv8l28dmE+quw3xhgkOGJtK6QNFhjYu++feDHiZN961dcazHPX2s2EnmNKO1xJsIG2X
+RylG8R2VRU2jtXgqrp6Xj8t+jKbSFX5ky5gZdm3dQB3MEwAA43K3v3AZdN/jKvTTeBIxo4tWxXdp
+5ZX3HS4RkERoQFHweh4Rgi9SzDwvWoDL68h794lcQ5dbx2vnLiPbLU/TN5BxeUXjxEBS58mtz00Q
+6QQ9z1gOluawreuLztjAU+l2zRTTq7LLFHwOW5njHXSKt60a06KOjctKUD1h0PEMavEVpacS8BxN
+Ys9nzMurxli7bJbc8aafU6v2p4fXL3c14U4DXed2K3k8nkHIDPOhuapeV1HG0HEtyylFrQoQvCGM
+9O3POubhKW9MAqilK3SnFxZeIvC6LO/VYyEMKPbdY9+IrLHPZqr3RL2jVuO9IOkmUsFdaDWkrjKZ
+tw71rVRV5lxKrTviI1wnB38cN3xfP0w+NdMw+2zzfk9nGm7XiysVRuuYv5QZp2JdZZT7oFB9yyah
+wTAg+2qeTJeKrVNHGiquSk0KF5F8P9H+3m9vnvmGY8I+Bv5rifVaOgzZhhrCzgqXpWXHxAkSgmqR
+CUeZ45WK5BTQ0uB471bwvVh0yLmDU6ydVTKAWR0LO3noUtC+fQccWtwrpTalPJ84D0DB2oTVRSg4
+IA7mDpfy24xNqXo0bZvUSz2jVEmYwGVjs0l73g64MUrocxvop578HiF/zMW3yiIlznQpsytUNp2T
+QLQECEhwoO9cw7PmvrtlOyZHbfSZtEujIe/ok7g0j0O19qU7jigTJyRMT0kRpsnP/S8Fe8UuLjDZ
+BAnVQpsDSEra9PhHFTiPj3zqsNQ1w792ghpawWBasOGiGBA+WNiR4F/D+CpbtfmW++8F2d9MFH5I
+E8Q60RFjlFHm6UdpOCRSbkQKaXEclqOMYQFUqx1gN6XPMDZY12FkOlnYOwoWDZkSx12pbxs3lHrm
+weTgbqrFEZIqqqziAdYbZlaXRPDW3SSOjUKBKGpYSjrnrkgphEJO4bx80M2JHfTGL6OxI+UL+pib
+SbQxptDcYggqqsZERYisigqjJFUVRjGCgMQWMgxiKoKoqwUFgioqqMBRYCCAKKCKjEgLJBFEVUQR
+SAqMUVRjBRQVgiwYICKkGKQUYxRFEIgqoqLICiJBEURRRRjBEVjFiwUiIixIhFICyEUVVUWCIsIC
+yIxGIkWApBYLCKopBYogxFFWKigKCqKDGRQBEEYIoLEYKLFGJEQsDzJ8mMp/TnqcWUlVm11lqkll
+g7SkKJSSUdH0s1Ke1uUUCD0kCw9BacF8EGxKi9YZCKlpfPzagXkwCq9idCb7TVOm3UF0kqmPJyR6
+JdhcfNwrI2EpEwFbRhkBZdlWbeJhXucNlOJ4A5oVPmvAkQJSN8TUcEEVrrnL13dCkBkyGRhAQy+u
+KJFENFRIiFazmR2v5++udly0hEMGMSxm9GtPtEV1iVZwVLXvnEDGrXxhUHWGk/BseL0Ye9CdHR5D
+RbEH46RdMNdVHzTOWlm13aS87Qks2kdEPGhHendzshwdoh4WAb6pE7qBjOwYFuGjSUshoozSmKwS
+7Vqvq3tNy3z2K66jNBZA2hXHH0On0XduNX0jbV+TkhtPNbSpUiOsgvjHi9duQs+EB6rE6FlPbScr
+H5PYL9Hq6ERnjfTAXskbYqU29yA2zwNh6MaUrvzNfeBZBwYHqY3sdvnmKhTK0bdYUtxae/g4NuoW
+FkdcGfJONk09SaENAkkuE0IdcPVJraC12+C8HTfzmuuGGzYu5yqDfAwkVFUIFp73+JoXw5qrb638
+HVBt7cK3B7OaljV93fYjJd+vZIesaMtwy088QkSNCYsQiBowkjWWYAQigFUmOl1OgsBuuHPeKZiJ
+jJAZSMPNECSsDhAwoLCMFZGCcAb+kqzppEaL9H+HeN/kjRn7GH2byi6QhCU+X9KHRv4jtWdAx8xW
+3uyq1LQ5KHvAfTBAgzZZqzA0ZDqzW0QJv79bc+k987U5VdrSr634QwapscYejGvBsxBNIPJGr62D
+2aOWkI7s7sS+Q+rUonto5LOjXE1M2Uqa9J893vkNBJl3v2ztU4anmgovSunRClJK3TNMU/TamatA
+0/pa/FbRBpeKDRAgFVoFDHARZBF1xVGRKQSRFWQAAYkgB2h4TzMXocyjKGcgqocPF1Zsj/Y1GAxM
+tYy80CRmObKW8MOV1vIFQaGBXOEAQ80e95d4biDk4Va19iFVt+qc4IpEZeKFMqGzbZXXE1fBRX2e
+uaXjyHIExrvBzJaMX4+X2VIo3tuZZkSJE04J0NFR0gjXQG+rHB9OxbSBpKDUhHRhOavN4vP16X+t
+Obk5QuL2j4sIQhLxds+eneqv1gVL02Bj0NLc5Up1De29aoN0/PHeu1T5ZUoakT1eGAdHue0BDKEX
+zxNB1bOapNgNzsFIRoPrG5RIPBpgp5rqxWdSsdog3YtGJCs123WcmcG5aj5UJhUiXKuXFKF9hxrt
+nTTP2ZEVSTgITo7+YqrFZnaDW9jIdQkWCgzdlgvJttTf1OmSGmk9xZnfiBJU/WfptrY6Z3+i3U70
+bacOvsamU2nGbG1sSb4lDPV7uFMDmPKyQlk4L4LCrBaQ2DrzAyqjWi+/SrDe8P3TpFqUCOMGnJL+
+gtCD57cjxkOALqCzownUmyDzE8MlHIwYFb5QkQgyLK12XBsMpT0FNy9x6Gw41xWj6IAiL3i+l+eK
+OQ5juT1ZDTpGGtvIRd8rGzz8VzNO7i0AKWJNJ6mwmgy6mDfh3zAhfZ7+HlfefdnQfemc9ekc9DP7
+2/BuyXZGPKo3xBm3iEqFchSQKkZmGSd8snUoAs8ObJRpIR2a5BoZmQuWK2QZcWqadFVdagQNXf5Y
+IOOuhtqVx2mdoekLm8KJIMmqTBV/eA+kpadoSKODZGJXLr2vJXnHSnVpdD6R92ekZrlkgo9MLkNa
+xBn4v0X4tBQ5Bsb8HNlVN2Lyy626lwd85z0kBpiJwnDYNtGdm9bm5x0YGrsUYxRRRRRYojBWJFBF
+EQRFYqoxQUjtaosRRRF2x4HflO3wPsHUTv6HJ4zi8aFSCMFhJoJCElhZCAhz67Y8RdiygMo4bGVQ
+IozxtW1SoVtHKIBDLEPBRWSiIL/Gk1bLMLgXXEqdy0ZUsS+PrWzfOWfFczsgp+O+0M9RC0y2ansh
+MPdXipV958CpPPd2oxsPDi7Paw2JDu0aXwWPWtWzxokau/r4M5M+G8pGlT8nGlt9WoIcI4BsCjXD
+On4dLNpCEJZGsFmKjyHWmU43LRTobZqzFllbG0JHrstVt145pTol+DSWa1ehHy+eKWRArFe2fjue
+y7Ymxn3QCxgF8GBdtPJ0Gaj6+gFqWZ665/elfEKC0Q0fKccP260mOvKicruJ7VlvrxCQUZXu84up
+kyl3t206PUZNzU/L8NpMCRlB2YGGL2Yim5vrtWveCM32JOvzTOPtVF2Ib6PA1caybZW4DumQW5i8
+Zs5qu03EIwwncYQXkFvqDgZjRhwTMuRYyJSypDRZkvvFjeH1cCYnVKz4dsUlBrMizVJaV2irrYgd
+4HwOcnh3DcAfpYONch59EggyRTU3nmaN81L0Lyrb4VbQkCh/W3dInnL9fb29tTTlYYphepRQnTEe
+GDarEAd3OqmJPqwyaLO8xO60iTbFVJ3n53uI+KdNYXs7OqXJp1xHkHSwoUFHUA4iEZGUW51RgKl4
+oa3mBvMIhCtKRk1ODo6UTB1iN2jIvjILc5dzKJPvmYi4yAdtVFpwRZU2IDD6ktUHeecuBTubasbQ
+eOheY6dptkMpExDRWkqSiSikiWk1HAA5n5TUDy9j+Dg4Zsz3csN8or568a6wR6uD6Kle64qMerWJ
+uQMAvzQCvktIsoZ3gWIEkMPSCR0opaY1MxhyNX8yZOtm7Yxv96W0D9iYdGHZJPVgqBI3qW9QhNd5
+3Ydx4e+zMSIW8wgzfS0GlDkoVWh6d0MHfb1IUyUAEbsOzJjSAqMUsr4SbMeaLBpBdDsJCxDsxsgL
+cuAfxC0GkgKoVGQehcaypaAR63L8wIFQRE4a/NVztXVxdUkGujqy3MQpgNqMNBItaasRCcNA2U3I
+iI3tC82hYYb59u5IWlEIc+2ZySTXk2zJLQpGJpnjAF+W/LK52wxLHdoV/eyBZzYNpabTbjpyX4/E
+DRdwwFHS2+nIaCdCCZwVFd9uq8CIJEj12ayWGrpVnynJl16UKShQyCH8TPa0ABKINzXcqNoeuTnl
+aA3IkAoCwu9iQsI/V8uVx3GfncdIfUDThJGpER4i4K7ClVPRJbKR8UxX3gvqb2k6mzH8/u33uxFw
+sJZeWzxySlsrcHXry6BL0CryjG2s/uXOlFEJnnvAdusG/A08Fs9Nmg96QExCzEvOXhasXUXWYVDb
+VYa1MyyyA5TBXQzXlhv17RlL5+vXZ6d6zqN5e2mu8Jj3sqE1tGnzGp8LbmmCqUHakQb3R+e2VuLM
+ATgGyYKUiOFFSp7BtTlI6tWOGJCrmlBEI8lpffBa9xjFeeQigBDMuxLqlREI69QcQ6hUKPFZoUq+
+Guz3KEGryYdrwqFVSVLJQoYAtV0jpi0WgZ78ya4gd9hjZXeyzv6sWkzydrIn3H4VHxK9nbOSQtj6
+msFO1yRL3zP2aZ++lEDABdIHuvtMh8sgeTCB1QmyNONoOOn3dYofTq84tYrqDdAwKoR44YnZmN76
+sx4PZ0B9TI9EsoX1IFMfQAzpRmBIZvrStq9DMP1YOivjumzj3jzr6nDWsEcfY7lEKjDf8r2fWO/R
+H4ySpcFvM7bTlNPN145ynuCmaVM9lEfCLDTjGnOAEojKLHKdsMHchViDZqsfnKBLi0dXG2JLvJ6Z
+x+mOZ75wH6uqDsaHy9u98hI6G717T2j89ue3i06m23lrqxLj00aOlLb+qd+3mfO3c3NbRO+L2j46
+AUk1vlWTOJagEF2AygJCLe1r7RnpNKUK9Kb2NIcLuo0IcRIZA7qgaqu1BOqiEIQ8KYhl7GHUKEH4
+ZHd3BXdhaz8DOFouxvpM/HVlCEyY8hUmbdb0GRdiysZEzIvCxOM4kiJxaOX5vGfvWUq+d3MlbwvE
+mzwFirTWJdtcohe3tmTxu5vvh0QeF4g7xFUURcan4jT31JAz20oY1sgNMog9cV3tYEblWEZdSNGI
+SikY9TJtSOQTkrAFU0Iq901I0WNcO6QRjAEsNZphwwpdtizqEsDYDVdthAlFRJUt0jVM52cavdo2
+ZA1XNUyop8RT6cSGLIhG7WuRMqCXDckbmXFUc2p1o0bxuUhaNJI9uuycZOaKKoIsVVVRiyCxRQI2
+YkNgFB46b0yrppC66QvmumO3Q4lXtC5mIaEa0cL3iZChADGfWxea9MMjxxlg2toLoooi3ogIoCRU
+uByHDLD8nHQgNnXQoLNmUAg4gLFov8KTY0zeOQhGAOfILUwR0j+1UtB7qPK24q6HO3FwI6qQ+pjO
+MKqIwsrkQ0XALCBJBvQN6fOLXmdGmtaX0uFGKxtnQpTDIz8ZesUdd2RSA8PNpIDVkDECoMqSONNe
+ml+gh+3GDNrK+ulOi6/SS7DtwgSo22xuznlxQ34IJiimqak7tGpWXoL9tum2uDZ5lo21gNzYi7MN
+IF3rTPMtDb7SouZwQVhU7PGF8RBTQuTi2MoEkVokYO5tsiRVPTTBygJ/E9eP8P19vT0LB/Dsyzza
+yNjCjvSlZRwLstA70j5KzUMI44+I8B+YepfGeFm2BAU4R5PGjP3Gy67fM2f4LQg8mAvRQBLGxd9v
+W+lCzKWmlGYDZw027uIqqyihupJ3IgwMhB3t1OAZ1VbXGhfZhNW8eiQ+kKO5M8qF8NT1VgMgUXjF
+yN8Je3f1facWxxwZrfrtoZWrG5mdw8fSBc+NX+dmdzqdjhPfpxq3MR93FiFg5kf7eqskV58zAi74
+Zqw1ekBokkICwP8TmIJaia2HSZ0JBIQueFuSPLiNVVcYlcuIn53bS2xnlJgGplybboQR4BCBZ7Ta
+eZDTDXgCC+z0jlwQGKIiBAd4s0J/lyTx8j6e1oXYZDMPA7EGBcTKnrwLKQAKBqb/1D+Oe/HrJBeC
+6jsJnzbeaywreCV0aFW+nt7fk/SvxtyU5Wa4JYD47aNSEax+sLxSGoKIJzjEf3CWBoQkfyZ5P+LT
+mYwsW6VmGKKolkjhg6uaw2NqK2lSFZXNbooCt5+9W0khAaKyDIA3hCBBOMWhNvr4V2LIch6MfQtF
+d/Prc71o77rAZghL3YqsWUKAR4ea/C8DV1TN4hpbUbUQ3+vNsgAoE0lWl2NWG7i59RX9za9F1VRT
+Pbo0CuqEIXiBnsuqJe/CUxYyUFlUg2IX3rzdfn/R15RcD8FECkYBPfqsAht7MJGRMBrkDl1nBDer
+siEVCY8dMzz+LXrM9T2WzFFTozDY0Z350dtXauNKilDjmgpMoAoF1N0zVuFD2xVEDjm9baZL4UyX
+Te5AKVXKuuqkUAzAuKggq0Lry5ldP/P5YNbJJCAgq8J3jI9760egHg5yssWzNJ/pVYKZuGAweQAj
+DWD0urYiYywUJ+q40HzdtZHy2JNP+4uryBydOjS5cp0wJBkSRHDMFbba7jZra6+1xHPo4chNkBsl
+QjisJkHj/H0pX9u3tv7HWgKacuG7mklub+VYHrPbuQCf/i7kinChIZJaNzA=
 
-/usr/bin/nm: /boot/vmlinuz-2.6.0-test1-ac2: File format not recognized
-Error (pclose_local): read_nm_symbols pclose failed 0x100
-Warning (read_vmlinux): no kernel symbols in vmlinux, is
-/boot/vmlinuz-2.6.0-test1-ac2 a valid vmlinux file?
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-ksymoops: No such file or directory
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Reading Oops report from the terminal
-402fd1de
-*pde = 07b1c067
-*pte = 00000000
-Oops: 0006 [#1]
-CPU:    0
-EIP:    0073:[<402fd1de>]    Not tainted
-EFLAGS: 00010202
-EIP is at 0x402fd1de
-eax: 00001579   ebx: 4039ff60   ecx: 00001009   edx: 08103a88
-esi: 00000004   edi: 00000000   ebp: bfffc788   esp: bfffc760
-ds: 007b   es: 007b   ss: 007b
-Process gscanbus (pid: 2525, threadinfo=c2314000 task=dc4af000)
- <6>note: gscanbus[2525] exited with preempt_count 1
-402fd1de
-*pde = 07b1c067
-Oops: 0006 [#1]
-CPU:    0
-EIP:    0073:[<402fd1de>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: 00001579   ebx: 4039ff60   ecx: 00001009   edx: 08103a88
-esi: 00000004   edi: 00000000   ebp: bfffc788   esp: bfffc760
-ds: 007b   es: 007b   ss: 007b
-
-Warning (Oops_read): Code line not seen, dumping what data is available
-
-
->>EIP; 402fd1de <__crc_param_set_short+2b6895/75bf8f>   <=====
-
->>ebx; 4039ff60 <__crc_param_set_short+359617/75bf8f>
->>edx; 08103a88 <__crc_ip_finish_output+23c39/133bb1>
->>ebp; bfffc788 <__crc_class_device_add+4dfb67/51fa16>
->>esp; bfffc760 <__crc_class_device_add+4dfb3f/51fa16>
-
-
-2 warnings and 2 errors issued.  Results may not be reliable.
-
---------
-Please point me to a quick reference to the proper
-usage of ksymoops if this info is at your finger tips.
-
-Since I see the preempt bit above, I'll try compiling
-without a preemtible kernel and will report the results
-tomorrow.
-
-Cheers,
-Sam.
-
-
-
+--=-pn7aZFw0YKEMHVpFRdMd--
 

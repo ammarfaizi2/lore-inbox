@@ -1,103 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265637AbSLXScz>; Tue, 24 Dec 2002 13:32:55 -0500
+	id <S265681AbSLXSmW>; Tue, 24 Dec 2002 13:42:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265681AbSLXScz>; Tue, 24 Dec 2002 13:32:55 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:28126 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S265637AbSLXScy>; Tue, 24 Dec 2002 13:32:54 -0500
-Date: Tue, 24 Dec 2002 13:41:03 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: vojtech@suse.cz
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Patch for initial CapsLock
-Message-ID: <20021224134103.A24181@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S265727AbSLXSmW>; Tue, 24 Dec 2002 13:42:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16402 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265681AbSLXSmV>; Tue, 24 Dec 2002 13:42:21 -0500
+Date: Tue, 24 Dec 2002 10:51:11 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: Stephen Rothwell <sfr@canb.auug.org.au>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>, <lk@tantalophile.demon.co.uk>,
+       Ingo Molnar <mingo@elte.hu>, <drepper@redhat.com>,
+       <bart@etpmod.phys.tue.nl>, <davej@codemonkey.org.uk>,
+       <hpa@transmeta.com>, <terje.eggestad@scali.com>,
+       <matti.aarnio@zmailer.org>, <hugh@veritas.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <20021224090520.A19829@bitwizard.nl>
+Message-ID: <Pine.LNX.4.44.0212241049100.1230-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Vojtech:
 
-In 2.4.21-pre2, if Caps Lock is on and a USB keyboard is connected,
-the LED will not be lit. It mostly affects KVM users like those
-of IBM BladeCenter, because they "connect" keyboards all day long.
-Would you be so kind to review the attached patch?
 
--- Pete
+On Tue, 24 Dec 2002, Rogier Wolff wrote:
+>
+> Ehmm, Linus,
+>
+> Why do you want to align the return point? Why are jump-targets aligned?
+> Because they are faster. But why are they faster? Because the
+> cache-line fill is more efficient: the CPU might execute those
+> instructions, while it has a smaller chance of hitting  the instructions
+> before the target.
 
-diff -ur -X dontdiff linux-2.4.21-pre2/drivers/char/keyboard.c linux-2.4.21-pre2-usb/drivers/char/keyboard.c
---- linux-2.4.21-pre2/drivers/char/keyboard.c	2002-08-02 17:39:43.000000000 -0700
-+++ linux-2.4.21-pre2-usb/drivers/char/keyboard.c	2002-12-24 10:40:48.000000000 -0800
-@@ -64,6 +64,7 @@
- void (*kbd_ledfunc)(unsigned int led);
- EXPORT_SYMBOL(handle_scancode);
- EXPORT_SYMBOL(kbd_ledfunc);
-+EXPORT_SYMBOL(kbd_refresh_leds);
- 
- extern void ctrl_alt_del(void);
- 
-@@ -899,9 +900,9 @@
-  * Aside from timing (which isn't really that important for
-  * keyboard interrupts as they happen often), using the software
-  * interrupt routines for this thing allows us to easily mask
-- * this when we don't want any of the above to happen. Not yet
-- * used, but this allows for easy and efficient race-condition
-- * prevention later on.
-+ * this when we don't want any of the above to happen.
-+ * This allows for easy and efficient race-condition prevention
-+ * for kbd_ledfunc => input_event(dev, EV_LED, ...) => ...
-  */
- static void kbd_bh(unsigned long dummy)
- {
-@@ -917,6 +918,18 @@
- EXPORT_SYMBOL(keyboard_tasklet);
- DECLARE_TASKLET_DISABLED(keyboard_tasklet, kbd_bh, 0);
- 
-+/*
-+ * This allows a newly plugged keyboard to pick the LED state.
-+ * We do it in this seemindly backwards fashion to ensure proper locking.
-+ * Built-in keyboard does refresh on its own.
-+ */
-+void kbd_refresh_leds(void)
-+{
-+	tasklet_disable(&keyboard_tasklet);
-+	if (ledstate != 0xff && kbd_ledfunc != NULL) kbd_ledfunc(ledstate);
-+	tasklet_enable(&keyboard_tasklet);
-+}
-+
- typedef void (pm_kbd_func) (void);
- 
- pm_callback pm_kbd_request_override = NULL;
-diff -ur -X dontdiff linux-2.4.21-pre2/drivers/input/keybdev.c linux-2.4.21-pre2-usb/drivers/input/keybdev.c
---- linux-2.4.21-pre2/drivers/input/keybdev.c	2001-10-11 09:14:32.000000000 -0700
-+++ linux-2.4.21-pre2-usb/drivers/input/keybdev.c	2002-12-23 23:43:53.000000000 -0800
-@@ -201,6 +201,7 @@
- 	input_open_device(handle);
- 
- //	printk(KERN_INFO "keybdev.c: Adding keyboard: input%d\n", dev->number);
-+	kbd_refresh_leds();
- 
- 	return handle;
- }
-@@ -222,6 +223,7 @@
- {
- 	input_register_handler(&keybdev_handler);
- 	kbd_ledfunc = keybdev_ledfunc;
-+	kbd_refresh_leds();
- 
- 	if (jp_kbd_109) {
- 		x86_keycodes[0xb5] = 0x73;	/* backslash, underscore */
-diff -ur -X dontdiff linux-2.4.21-pre2/include/linux/kbd_kern.h linux-2.4.21-pre2-usb/include/linux/kbd_kern.h
---- linux-2.4.21-pre2/include/linux/kbd_kern.h	2002-12-19 20:22:19.000000000 -0800
-+++ linux-2.4.21-pre2-usb/include/linux/kbd_kern.h	2002-12-23 23:43:31.000000000 -0800
-@@ -72,6 +72,7 @@
- extern int do_poke_blanked_console;
- 
- extern void (*kbd_ledfunc)(unsigned int led);
-+extern void kbd_refresh_leds(void);
- 
- extern void set_console(int nr);
- extern void schedule_console_callback(void);
+Actually, no. Many CPU's apparently also have issues with instruction
+decoding etc, where certain alignments (4 or 8-byte aligned) are better
+simply because they feed the decode logic more efficiently.
+
+Everything here fits in one cache-line, so clearly the cacheline issues
+don't matter.
+
+		Linus
+

@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267795AbUHERYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267812AbUHERWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267795AbUHERYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 13:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267796AbUHERYT
+	id S267812AbUHERWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 13:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267799AbUHERW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 13:24:19 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:58324 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S267795AbUHERYN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 13:24:13 -0400
-Date: Thu, 5 Aug 2004 19:21:59 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Hector Martin <hector@marcansoft.com>, Pasi Sjoholm <ptsjohol@cc.jyu.fi>,
-       Robert Olsson <Robert.Olsson@data.slu.se>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       netdev@oss.sgi.com, brad@brad-x.com, shemminger@osdl.org
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe RLT-8139 related)
-Message-ID: <20040805192159.A12203@electric-eye.fr.zoreil.com>
-References: <Pine.LNX.4.44.0408041915510.14609-100000@silmu.st.jyu.fi> <41120882.40302@marcansoft.com> <41121237.4050305@marcansoft.com> <20040805132233.A7430@electric-eye.fr.zoreil.com> <871xiltxhz.fsf@devron.myhome.or.jp>
+	Thu, 5 Aug 2004 13:22:27 -0400
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:47080 "EHLO
+	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S267803AbUHERUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 13:20:35 -0400
+Date: Thu, 5 Aug 2004 10:20:33 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Giuliano Pochini <pochini@shiny.it>, kumar.gala@freescale.com,
+       tnt@246tNt.com, linuxppc-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH][PPC32] Makefile cleanups and gcc-3.4+binutils-2.14 c
+Message-ID: <20040805172033.GB555@smtp.west.cox.net>
+References: <20040728220733.GA16468@smtp.west.cox.net> <XFMail.20040729100549.pochini@shiny.it> <20040729144347.GE16468@smtp.west.cox.net> <20040730205901.4d4181f4.pochini@shiny.it> <20040730190731.GQ16468@smtp.west.cox.net> <20040730224828.0f06e37a.pochini@shiny.it> <20040730210318.GS16468@smtp.west.cox.net> <20040805141257.GA14826@suse.de> <20040805165410.GA555@smtp.west.cox.net> <20040805170044.GA5388@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <871xiltxhz.fsf@devron.myhome.or.jp>; from hirofumi@mail.parknet.co.jp on Fri, Aug 06, 2004 at 12:28:40AM +0900
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <20040805170044.GA5388@suse.de>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> :
-[...]
-> On the final analysis, what was the cause of this problem?
+On Thu, Aug 05, 2004 at 07:00:44PM +0200, Olaf Hering wrote:
+>  On Thu, Aug 05, Tom Rini wrote:
+> 
+> > On Thu, Aug 05, 2004 at 04:12:57PM +0200, Olaf Hering wrote:
+> > >  On Fri, Jul 30, Tom Rini wrote:
+> > > 
+> > > > 
+> > > > +aflags-$(CONFIG_PPC64BRIDGE)	+= -mppc64bridge
+> > > 
+> > > this should be -Wa,-mppc64bridge for some reasons.
+> > 
+> > That, er, doesn't make sense.  The assembler needs -Wa,?
+> 
+> The cmdline was 'gcc .. -mppc64bridge ..'
+> But there is more breakage with g5 32bit, I'm looking at it right now.
 
-See answer 42
+Hmm.  Was cflags-... done correctly?
 
-> I found the following in progguide-8100(100).pdf. Does this help something?
-
-It makes sense. The previous code did not allow the ISR to be written under
-any circumstance.
-
---
-Ueimor
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

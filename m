@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264540AbUGRWLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264541AbUGRWN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbUGRWLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 18:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUGRWLQ
+	id S264541AbUGRWN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 18:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbUGRWN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 18:11:16 -0400
-Received: from mail.tpgi.com.au ([203.12.160.113]:8901 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S264540AbUGRWLG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 18:11:06 -0400
-Subject: Re: [0/25] Merge pmdisk and swsusp
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Patrick Mochel <mochel@digitalimplant.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <20040718220408.GA31958@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.50.0407171449200.28258-100000@monsoon.he.net>
-	 <20040718220408.GA31958@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Message-Id: <1090188253.5608.5.camel@nigel-laptop.wpcb.org.au>
+	Sun, 18 Jul 2004 18:13:26 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46509 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264542AbUGRWNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 18:13:04 -0400
+Date: Mon, 19 Jul 2004 00:13:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [6/25] Merge pmdisk and swsusp
+Message-ID: <20040718221302.GC31958@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.50.0407171528280.22290-100000@monsoon.he.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 19 Jul 2004 08:04:13 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0407171528280.22290-100000@monsoon.he.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi!
 
-I'll wait for you guys to complete your merge before I submit mine :>
-(I'll probably need to rework parts for compatibility anyway).
-
-Regards,
-
-Nigel
+> - Move helpers calc_order(), alloc_pagedir(), alloc_image_pages(),
+>   enough_free_mem(), and enough_swap() into swsusp.
 
 
+> +/**
+> + *	enough_free_mem - Make sure we enough free memory to snapshot.
+> + *
+> + *	Returns TRUE or FALSE after checking the number of available
+> + *	free pages.
+> + */
+> +
+> +static int enough_free_mem(void)
+> +{
+> +	if(nr_free_pages() < (nr_copy_pages + PAGES_FOR_IO)) {
+> +		pr_debug("pmdisk: Not enough free pages: Have %d\n",
+> +			 nr_free_pages());
+> +		return 0;
+> +	}
+> +	return 1;
+> +}
+
+> +	if (!enough_free_mem())
+> +		return -ENOMEM;
+> +
+> +	if (!enough_swap())
+> +		return -ENOSPC;
+> +
+> +	if ((error = alloc_pagedir())) {
+> +		pr_debug("suspend: Allocating pagedir failed.\n");
+> +		return error;
+> +	}
+
+Perhaps enough_free_* should return 0 / -ERROR to keep it consistent
+with rest of code, no need to explain TRUE/FALSE etc?
+
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

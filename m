@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263979AbTJ1LFv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 06:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbTJ1LFv
+	id S263934AbTJ1LKM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 06:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTJ1LKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 06:05:51 -0500
-Received: from gprs196-218.eurotel.cz ([160.218.196.218]:28547 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263979AbTJ1LFp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 06:05:45 -0500
-Date: Tue, 28 Oct 2003 12:04:45 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Autoregulate vm swappiness cleanup
-Message-ID: <20031028110443.GA1792@elf.ucw.cz>
-References: <200310232337.50538.kernel@kolivas.org> <8720000.1066920153@[10.10.2.4]> <200310240103.19336.kernel@kolivas.org> <200310251658.23070.kernel@kolivas.org>
+	Tue, 28 Oct 2003 06:10:12 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:31136 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S263934AbTJ1LKH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 06:10:07 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: status of ipchains in 2.6?
+Date: Tue, 28 Oct 2003 11:10:05 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bnliqd$sq6$1@news.cistron.nl>
+References: <200310280127.h9S1RM5d002140@napali.hpl.hp.com> <20031028015032.734caf21.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310251658.23070.kernel@kolivas.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1067339405 29510 62.216.29.200 (28 Oct 2003 11:10:05 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In article <20031028015032.734caf21.davem@redhat.com>,
+David S. Miller <davem@redhat.com> wrote:
+>linux-kernel is always the wrong place to report networking
+>problems, most networking developers do not read linux-kernel.
+>They do read netdev@oss.sgi.com so please post things there.
 
-> > > It seems that you don't need si_swapinfo here, do you? i.freeram,
-> > > i.bufferram, and i.totalram all come from meminfo, as far as I can
-> > > see? Maybe I'm missing a bit ...
-> >
-> > Well I did do it a while ago and it seems I got carried away adding and
-> > subtracting info indeed. :-) Here's a simpler patch that does the same
-> > thing.
-> 
-> The off-list enthusiasm has been rather strong so here is a patch done the 
-> right way (tm). There is no need for the check of totalram being zero (the 
-> original version of this patch modified the swappiness every tick which was 
-> wasteful and had a divide by zero on init). Adjusting vm_swappiness only when 
-> there is pressure to swap means totalram shouldn't be ever be zero. The 
-> sysctl is made read only since writing to it would be ignored now.
+netdev@oss.sgi.com doesn't have an official webpage anywhere
+to tell you that it even exists. No info on how to subscribe
+or what the rules of the list are.
 
-I believe swappiness == 100 was "I want max throughput, I don't care
-about latency going through roof", while swappiness == 0 was "I don't
-want you to swap too much, behave reasonably".
+On http://oss.sgi.com/ the netdev list is not mentioned at all.
 
-As you don't know if user cares about latency or not, I don't see how
-you can autotune this.
+I can't find a mailinglist archive of netdev.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I'd like to read netdev but I'm not sure to subscribe since
+as I said info on it is basically non-existing.
+
+Perhaps SGI could create a "netdev" page somewhere on
+oss.sgi.com, link to it from "projects lists" or "newsgroups
+and mailinglists", and resurrect the archive ? Please ?
+
+Mike.
+

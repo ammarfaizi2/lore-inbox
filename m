@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277400AbRJEO4e>; Fri, 5 Oct 2001 10:56:34 -0400
+	id <S277401AbRJEPAY>; Fri, 5 Oct 2001 11:00:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277401AbRJEO4Y>; Fri, 5 Oct 2001 10:56:24 -0400
-Received: from ns.suse.de ([213.95.15.193]:55051 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S277400AbRJEO4H>;
-	Fri, 5 Oct 2001 10:56:07 -0400
-Date: Fri, 5 Oct 2001 16:56:31 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Juha Siltala <juha.siltala@mail.suomi.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Re: Past CREDITS files
-In-Reply-To: <20011005103822.21d1f663.juha.siltala@mail.suomi.net>
-Message-ID: <Pine.LNX.4.30.0110051650340.25960-100000@Appserv.suse.de>
+	id <S277404AbRJEPAO>; Fri, 5 Oct 2001 11:00:14 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:12552 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S277401AbRJEPAB>;
+	Fri, 5 Oct 2001 11:00:01 -0400
+Message-ID: <3BBDCC4C.EF9F7C49@tsc.uc3m.es>
+Date: Fri, 05 Oct 2001 17:05:48 +0200
+From: noreply@tsc.uc3m.es
+X-Mailer: Mozilla 4.51 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Sound artifacts in Gravis Ultrasound
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, Juha Siltala wrote:
+> I have a Gravis Ultrasound sound card. I suspect kernel from
+> non-continuous feed of audio
+> data into the device.
+> 
+> When I feed directly a sine-wave data into /dev/dsp, 100Hz, 1KHz, 10kHz,
+> there is
+> a distortion that can be heard on 1kHz, is not heard on 100Hz and is
+> very strong at 10kHz.
+> It sounds like every several-per-second to several-ten-per-second, the
+> data in the sound
+> card are repeated (for several samples). The distortion occurs
+> permanently and generates
+> a regular sound, something like a car ignition system makes in board
+> radio.
+> 
+> When I play mp3 (mpg123) or Ogg Vorbis (ogg123), it can be heard also,
+> when suitable
+> pattern is present in the music to make the distortion audible.
+> 
+> It is not caused by my amplifier (audible also in earphones), not caused
+> by too
+> much volume (when playing on low volume, it is also there, it's a linear
+> phenomenon).
+> The sound of distortion is also not added to the signal, because can not
+> be heard
+> when certain sound patterns appear in the music.
+> 
+> Is there any kernel setting that improves continuity of data feed? The
+> card is
+> Gravis Ultrasound Plug'n'play, on ISA.
 
-> Now this is not too much but a couple of developments are emerging:
-> checking out the geographical distribution of kernel hackers
+I have the exact same problems using a Sound Blaster 128 PCI with the
+es1371.
 
-Two points to be aware of.
-- Kernel hackers move sometimes :)
-  Be sure to associate the two (or more) addresses of any hacker
-  with one person. Automating this may be quite difficult in some
-  cases.. My data from a year or so ago was completely different
-  to current. I think every field has changed since then.
-  On the other hand, it may be interesting to see the data tracking
-  hackers movements over the past few years :)
-
-- Tracking by snail mail address (where present) is more accurate
-  than by email address TLD.
-  (Mine states .de, but I'm actually in London, UK for example)
-
-> Thanks for taking the time to point out these weaknesses in my method!
-
-Happy to help.
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+It's a linux problem because it works with Windows 98.

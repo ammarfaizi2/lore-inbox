@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129613AbRCCR3A>; Sat, 3 Mar 2001 12:29:00 -0500
+	id <S129618AbRCCRfv>; Sat, 3 Mar 2001 12:35:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129618AbRCCR2u>; Sat, 3 Mar 2001 12:28:50 -0500
-Received: from smtp-rt-11.wanadoo.fr ([193.252.19.62]:30654 "EHLO
-	magnolia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S129613AbRCCR2h>; Sat, 3 Mar 2001 12:28:37 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: <linuxppc-dev@lists.linuxppc.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: The IO problem on multiple PCI busses
-Date: Sat, 3 Mar 2001 18:28:08 +0100
-Message-Id: <19350126105952.7554@smtp.wanadoo.fr>
-In-Reply-To: <3AA0CF0D.CB9D544C@mandrakesoft.com>
-In-Reply-To: <3AA0CF0D.CB9D544C@mandrakesoft.com>
-X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
+	id <S129619AbRCCRfm>; Sat, 3 Mar 2001 12:35:42 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6667 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129618AbRCCRfe>; Sat, 3 Mar 2001 12:35:34 -0500
+Subject: Re: i2o & Promise SuperTrak100
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Sat, 3 Mar 2001 17:37:34 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), david2@maincube.net (David Priban),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0103031710220.6520-100000@imladris.demon.co.uk> from "David Woodhouse" at Mar 03, 2001 05:14:01 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14ZFyK-0003p7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I/O is not supposed to be fast, that's what MMIO is for. :)  Just do
->
->void outb (u8 val, u16 addr)
->{
->	void *addr = ioremap (ISA_IO_BASE + addr);
->	if (addr) {
->		writeb (val, addr);
->		iounmap (addr);
->	}
->}
->
->You can map and unmap for each call :)  Ugly and slow, but hey, it's
->I/O...
+> On Wed, 28 Feb 2001, Alan Cox wrote:
+> 
+> > Umm that sounds like it might be timing. That could be a pain
+> Timing-related problems in code using sleep_on(). Film at 11. :)
 
-Well, that would really suck ;) And I don't think it would be necessary
-as we can probably limit each IO bus to 64k without much problem, and
-have them permanently ioremap'ed.
+No
 
-Ben.

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290762AbSAYS3m>; Fri, 25 Jan 2002 13:29:42 -0500
+	id <S290763AbSAYSad>; Fri, 25 Jan 2002 13:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290763AbSAYS3c>; Fri, 25 Jan 2002 13:29:32 -0500
-Received: from postal2.lbl.gov ([131.243.248.26]:19125 "EHLO postal2.lbl.gov")
-	by vger.kernel.org with ESMTP id <S290762AbSAYS3P>;
-	Fri, 25 Jan 2002 13:29:15 -0500
-Message-ID: <3C51A1D7.74539585@lbl.gov>
-Date: Fri, 25 Jan 2002 10:20:07 -0800
-From: Thomas Davis <tadavis@lbl.gov>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S290769AbSAYSa0>; Fri, 25 Jan 2002 13:30:26 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38416 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290763AbSAYSaH>; Fri, 25 Jan 2002 13:30:07 -0500
+Date: Fri, 25 Jan 2002 10:14:53 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Richard Gooch <rgooch@atnf.csiro.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH]: Fix MTRR handling on HT CPUs (improved)
+In-Reply-To: <E16UAxL-0003B6-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0201251009300.1632-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Brian Lavender <brian@brie.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VAIO IRQ assignment problem of USB controller
-In-Reply-To: <20020124173421.B8732@brie.com> <20020125003306.A9759@brie.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Lavender wrote:
-> 
-> On Thu, Jan 24, 2002 at 05:34:21PM -0800, Brian Lavender wrote:
-> > I have a Sony VAIO PCG-GR170K laptop with a memory stick which operates
-> > off of the USB controller with device ID 00:1d.2. The laptop has a total
-> > of three USB controllers.  The first two are getting IRQ's, but the third
-> > one is not. Under Win2k, it assigns all three USB controllers IRQ 9. I
-> > checked the bios for USB options, and the only option I could find is to
-> > set a "Non PNP" OS.  I found no other USB options. I am currently using
-> > kernel 2.4.9 from Redhat compiled from the source RPM.  I am guessing
-> > that this must be a problem somewhere in the PCI IRQ configuration.
-> > Any other suggestions aside from downloading 2.4.17?
-> 
-> I downloaded the 2.4.17-pre3 kernel from Redhat's site with their patches,
-> and I compiled it. Still having the same problem with the IRQ. Below is
-> what I get from lspci and dmesg. This time I did not pass the kernel
-> pci=biosirq which I had done in the past. Is this something that the
-> bios just isn't reporting or is there some sort of fix I can do?
-> 
 
-This is another device that Sony has decided to configure via ACPI.
+On Fri, 25 Jan 2002, Alan Cox wrote:
+>
+> > I strongly suspected somebody else must have hit this problem before, but
+> > intensive research did show up nothing. Also my first post on LK
+> > received no "hey, that's old stuff" answer. So here I go.
+>
+> A tiny patch was posted about 4-6 months ago
+>
+> The patch is total overkill. Just remove the error reporting if the right
+> firmware was already loaded. You've written a fixup wrapper around a
+> rather nonsensical erorr check for an existing non-error.
 
-You'll need to check out the Linux ACPI project, and see about getting
-the ACPI IRQ routing patch.
+You are making the same mistake I did when I saw the patch.
 
-No, I don't know where it's at exactly..  try using google.
+This is the _MTRR_ setting, not the microcode loading.
 
--- 
-------------------------+--------------------------------------------------
-Thomas Davis		| ASG Cluster guy
-tadavis@lbl.gov		| 
-(510) 486-4524		| "80 nodes and chugging Captain!"
+They both had the same issues with HT - and the microcode fix was indeed
+just to make sure that the microcode hadn't already been loaded (together
+with some locking).
+
+The Intel MTRR patch is similar - add some locking, and add some logic to
+just not do it on the right CPU (you're _not_ supposed to read to see if
+you are writing the same value: MTRR's can at least in theory have
+side-effects, so it's not the same check as for the microcode update).
+
+		Linus
+

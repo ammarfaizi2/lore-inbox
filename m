@@ -1,55 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267859AbTBRQan>; Tue, 18 Feb 2003 11:30:43 -0500
+	id <S267860AbTBRQgI>; Tue, 18 Feb 2003 11:36:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267860AbTBRQan>; Tue, 18 Feb 2003 11:30:43 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:20185 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S267859AbTBRQam>;
-	Tue, 18 Feb 2003 11:30:42 -0500
-Date: Tue, 18 Feb 2003 17:40:06 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: John Bradford <john@grabjohn.com>
-cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       kai@tp1.ruhr-uni-bochum.de
-Subject: Re: 2.5.62: Cross-building broken
-In-Reply-To: <200302181349.h1IDnX6w001233@darkstar.example.net>
-Message-ID: <Pine.GSO.4.21.0302181739490.25787-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267862AbTBRQgI>; Tue, 18 Feb 2003 11:36:08 -0500
+Received: from adsl-67-123-8-233.dsl.pltn13.pacbell.net ([67.123.8.233]:3552
+	"EHLO influx.triplehelix.org") by vger.kernel.org with ESMTP
+	id <S267860AbTBRQgH>; Tue, 18 Feb 2003 11:36:07 -0500
+Date: Tue, 18 Feb 2003 08:45:19 -0800
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.62 radeonfb soft cursor
+Message-ID: <20030218164519.GA8030@triplehelix.org>
+References: <3E5222D3.9060100@oracle.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+In-Reply-To: <3E5222D3.9060100@oracle.com>
+User-Agent: Mutt/1.5.3i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Feb 2003, John Bradford wrote:
-> > Cross-building ARM from HPPA:
-> > 
-> > $ make config CROSS_COMPILE=/home/rmk/bin/arm-linux- ARCH=arm
-> > make: Entering directory `/home/rmk/v2.5/linux-rpc'
-> > make -f scripts/Makefile.build obj=scripts
-> >   gcc -Wp,-MD,scripts/.empty.o.d -D__KERNEL__ -Iinclude -Wall
-> >  -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common
-> >  -mshort-load-bytes -msoft-float -Wa,-mno-fpu -Uarm -nostdinc -iwithprefix
-> >  include    -DKBUILD_BASENAME=empty -DKBUILD_MODNAME=empty -c -o
-> >  scripts/empty.o scripts/empty.c
-> > make: Leaving directory `/home/rmk/v2.5/linux-rpc'
-> > cc1: Invalid option `short-load-bytes'
-> > make[1]: *** [scripts/empty.o] Error 1
-> > make: *** [scripts] Error 2
-> > 
-> > We seem to be using the wrong compiler here, or the wrong CFLAGS.
-> 
-> Hmmm, cross compiling for Sparc works:
 
-And for m68k works, too.
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Gr{oetje,eeting}s,
+Me too. I used it as well, however I think James probably has a better=20
+solution than this? If not, I bet it would have been committed=20
+already..
 
-						Geert
+James what is the final word?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Regards
+Josh
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+On Tue, Feb 18, 2003 at 01:10:59PM +0100, Alessandro Suardi wrote:
+> Hi all,
+>=20
+>   it looks like this one has been forgotten - but it's needed
+>   to display a cursor on my Radeon Mobility 7500's framebuffer.
+>=20
+>  James posted it a while ago, and it always Worked For Me (TM).
+>=20
+>=20
+> Thanks & ciao,
+>=20
+> --alessandro
+>=20
+>  "Life is for the living, you've got to be willing
+>    A song ain't a song until someone starts singing"
+>       (Wallflowers, "Too Late To Quit")
 
+> --- linux/drivers/video/radeonfb.c-2.5.62	2003-01-03 01:31:42.000000000 +=
+0100
+> +++ linux/drivers/video/radeonfb.c	2003-02-18 12:13:07.000000000 +0100
+> @@ -2212,6 +2212,7 @@
+>  	.fb_copyarea	=3D cfb_copyarea,
+>  	.fb_imageblit	=3D cfb_imageblit,
+>  #endif
+> +	.fb_cursor	=3D soft_cursor,
+>  };
+> =20
+> =20
+
+
+--=20
+New PGP public key: 0x27AFC3EE
+
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+UmMfT2bz5yevw+4RAnggAJ48NinQANE6uiTmadJdc72Cvw2VxgCeLzHD
+gOkHGe5JxXnRTf/aOam2jp0=
+=biWN
+-----END PGP SIGNATURE-----
+
+--PEIAKu/WMn1b1Hv9--

@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262210AbSJ2Rb1>; Tue, 29 Oct 2002 12:31:27 -0500
+	id <S262033AbSJ2RSX>; Tue, 29 Oct 2002 12:18:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbSJ2Rb1>; Tue, 29 Oct 2002 12:31:27 -0500
-Received: from nat9.steeleye.com ([65.114.3.137]:47366 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id <S262210AbSJ2Rb0>; Tue, 29 Oct 2002 12:31:26 -0500
-Date: Tue, 29 Oct 2002 12:11:03 -0500 (EST)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: Khalid Aziz <khalid@fc.hp.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5] Retrieve configuration information from kernel
-In-Reply-To: <E186ZA8-00086R-00@lyra.fc.hp.com>
-Message-ID: <Pine.LNX.4.10.10210291204590.28595-100000@clements.sc.steeleye.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262083AbSJ2RSW>; Tue, 29 Oct 2002 12:18:22 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:6374 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262033AbSJ2RSV>;
+	Tue, 29 Oct 2002 12:18:21 -0500
+Date: Tue, 29 Oct 2002 09:24:40 -0800
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Pawel Kot <pkot@bezsensu.pl>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Dag Brattli <dag@brattli.net>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: [2.4 patch] remove obsolete IrDA list from MAINTAINERS
+Message-ID: <20021029172440.GD32449@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <Pine.LNX.4.33.0210201806170.637-100000@urtica.linuxnews.pl> <Pine.NEB.4.44.0210291611510.14144-100000@mimas.fachschaften.tu-muenchen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.NEB.4.44.0210291611510.14144-100000@mimas.fachschaften.tu-muenchen.de>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Oct 2002, Khalid Aziz wrote:
-
-> I am including a revised patch that allows a user to embed kernel
-> configuration in the kernel and retrieve it later either from a running
-> kernel or from the kernel image file. This is an enhancement to Randy's
-> patch that was discussed on LKML before and is part of -ac series
-> kernels.
+On Tue, Oct 29, 2002 at 04:18:09PM +0100, Adrian Bunk wrote:
+> On Sun, 20 Oct 2002, Pawel Kot wrote:
 > 
-> This patch provides three choices for embedding kernel configuration:
+> > On Sun, 20 Oct 2002, Adrian Bunk wrote:
+> >
+> > > Mail to the list that is in MAINTAINERS bounces and the new mailinglist
+> > > doesn't accept mail from non-subscribers. Since you can find this new
+> > > mailinglist at the IrDA web page it's IMHO the best to simply remove the
+> > > mailing list entry from MAINTAINERS:
+> >...
+> > The new mailing list for Linux-IrDA is: irda-users@lists.sourceforge.net
 > 
-> 1. Include configuration in running kernel image. This adds to the
-> footprint of the running kernel but allows configuration to be retrieved
-> using "cat /proc/ikconfig/config".
+> I wrote in my mail "and the new mailinglist doesn't accept mail from
+> non-subscribers". This makes a mailing list entry IMHO pretty useless
+> since I try to Cc a mailing list listed in MAINTAINERS if possible when
+> sending a patch / bug report in this area. With a mailing list that
+> accepts only postings from subscribers such a mail bounces back.
+> 
+> The information how to subscribe to this list is available at the web page
+> also in this MAINTAINER entry.
 
-Have you considered compressing the config info in order to reduce
-the space wastage in the loaded kernel image? Could easily be 10's of KB 
-(not that that's a lot these days). The info would then be retrieved via 
-"gunzip -c", et al. instead of a simple "cat".
+	Unfortunately, due to SPAM, this is nowadays pretty much
+customary. I deal on a regular basis with dozen of lists related to
+Linux-Wireless, and most of them are this way.
 
---
-Paul
+> > and the current mainainer is AFAIK Jean Tourrilhes
+> > (jt@bougret.hpl.hp.com).
+> 
+> I have no knowledge about who currently maintains IrDA. I did only notice
+> that an obsolete mailing list was listed in MAINTAINERS. If the
+> responsible person listed is wrong it should be corrected.
 
+	I'll correct that later on. I sent a patch earlier, but it was
+dropped, so I need to resend it. The situation is more complex because
+I don't maintain the *full* IrDA stack, and I'll probably add the
+driver entries.
+
+> cu
+> Adrian
+
+	Jean

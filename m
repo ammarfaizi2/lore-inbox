@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262759AbTCJIfk>; Mon, 10 Mar 2003 03:35:40 -0500
+	id <S262758AbTCJIgA>; Mon, 10 Mar 2003 03:36:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262756AbTCJIex>; Mon, 10 Mar 2003 03:34:53 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:3076 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262750AbTCJIdl>;
-	Mon, 10 Mar 2003 03:33:41 -0500
-Date: Sun, 9 Mar 2003 23:26:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: ioctl32 -- diffstat motivation
-Message-ID: <20030309222654.GA26572@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	id <S262761AbTCJIfs>; Mon, 10 Mar 2003 03:35:48 -0500
+Received: from h-64-105-35-31.SNVACAID.covad.net ([64.105.35.31]:22413 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S262758AbTCJIfb>; Mon, 10 Mar 2003 03:35:31 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 10 Mar 2003 00:46:05 -0800
+Message-Id: <200303100846.AAA09348@baldur.yggdrasil.com>
+To: mbligh@aracnet.com
+Subject: Re: 2.5.64bk5: X86_PC + HIGHMEM boot failure
+Cc: gone@us.ibm.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 09 Mar 2003, Martin J. Bligh wrote:
 
-This is what patches done. With this in, cleanups can proceed. Please
-take that,
-								Pavel
+>> 	Under linux-2.5.64bk5, CONFIG_X86_PC sets CONFIG_NUMA,
+>> which sets CONFIG_DISCONTIGMEM.  This causes the version of
+>> set_max_mapnr_init in arch/i386/mm/discontig.c to be compiled
+>> in (instead of the one from arch/i386/mm/init.c):
+>>
+>> Err, I meant 2.5.64bk4. 
 
- arch/ia64/ia32/ia32_entry.S         |    2 
- arch/ia64/ia32/ia32_ioctl.c         |  218 ----------------------------------
- arch/mips64/kernel/ioctl32.c        |   67 ----------
- arch/mips64/kernel/scall_o32.S      |    2 
- arch/parisc/kernel/ioctl32.c        |  143 ----------------------
- arch/ppc64/kernel/ioctl32.c         |  126 --------------------
- arch/ppc64/kernel/misc.S            |    2 
- arch/s390x/kernel/ioctl32.c         |  110 -----------------
- arch/s390x/kernel/wrapper32.S       |    2 
- arch/sparc64/kernel/ioctl32.c       |  150 +----------------------
- arch/sparc64/kernel/sparc64_ksyms.c |    4 
- arch/sparc64/kernel/sunos_ioctl32.c |   52 ++++----
- arch/sparc64/kernel/systbls.S       |    2 
- arch/sparc64/solaris/ioctl.c        |   47 +++----
- arch/sparc64/solaris/timod.c        |    2 
- arch/x86_64/ia32/ia32_ioctl.c       |  226 ------------------------------------
- arch/x86_64/ia32/ia32entry.S        |    2 
- fs/compat.c                         |  223 +++++++++++++++++++++++++++++++++++
- include/linux/ioctl32.h             |    5 
- 19 files changed, 297 insertions(+), 1088 deletions(-)
+>Hmmm ... well I don't see bk4 on ftp.kernel.org,
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+	I meant ftp://ftp.kernel.org/pub/liux/kernel/v2.5/linux-2.5.64.tar.gz
+patched with
+ftp://ftp.kernel.org/pub/liux/kernel/v2.5/snapshots/patch-2.5.64-bk4.gz.
+
+>but the same
+>changes are in my tree ...  I've just checked it, and it doesn't 
+>do that for me. It should *allow* you to turn on CONFIG_NUMA 
+>(and that might be broken for PCs still) but it shouldn't be on 
+>by default ... could you check that you can still disable it?
+>Works for me ...
+
+	Oops.  You're right it is possible to deactivate
+CONFIG_NUMA in this kernel under X86_PC, and that avoids
+the problem.  I guess there still is the minor issue that
+either CONFIG_NUMA should work with X86_PC + HIGHMEM (even
+on machines without high memory) or else CONFIG_NUMA
+should not be selectable in this case, but that's obviously
+a bug of much less importance.
+
+	Sorry for my misunderstanding of the CONFIG_NUMA configution
+options.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+

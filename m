@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbTIEINf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 04:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbTIEINf
+	id S262357AbTIEIKh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 04:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbTIEIKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 04:13:35 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:4749 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262321AbTIEINd (ORCPT
+	Fri, 5 Sep 2003 04:10:36 -0400
+Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:56843 "EHLO gw.enyo.de")
+	by vger.kernel.org with ESMTP id S262357AbTIEIKf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 04:13:33 -0400
-Subject: Re: Question: monolitic_clock, timer_{tsc,hpet} and CPUFREQ
-From: john stultz <johnstul@us.ibm.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200309042214.28179.dtor_core@ameritech.net>
-References: <200309042214.28179.dtor_core@ameritech.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062749594.5809.7.camel@laptop.cornchips.homelinux.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Sep 2003 01:13:14 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Sep 2003 04:10:35 -0400
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bandwidth for bkbits.net (good news)
+References: <20030830230701.GA25845@work.bitmover.com>
+	<87llt9bvtc.fsf@deneb.enyo.de> <bj1fhj$its$4@tangens.hometree.net>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: hps@intermeta.de, linux-kernel@vger.kernel.org
+Date: Fri, 05 Sep 2003 10:10:31 +0200
+In-Reply-To: <bj1fhj$its$4@tangens.hometree.net> (Henning P.
+ Schmiedehausen's message of "Tue, 2 Sep 2003 07:06:27 +0000 (UTC)")
+Message-ID: <874qzrsljc.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-04 at 20:14, Dmitry Torokhov wrote:
-> I noticed that although timer_tsc registers cpufreq notifier to detect
-> frequency changes and adjust cpu_khz it does not set cyc2ns_scale. Is
-> monotonic clocks supposed to be also accurate?
+"Henning P. Schmiedehausen" <hps@intermeta.de> writes:
 
-You are correct, without adjusting the cyc2ns_scale value
-monotonic_clock() will not be accurate on freq changing hardware.  
+> Florian Weimer <fw@deneb.enyo.de> writes:
+>
+>>do this for a T1 customer (typically, it requires "unusual"
+>>configuration of vital production routers with the fat pipes).
+>
+> You need a shaper connected to the ISP backbone which shapes the
+> outgoing traffic for you and a border router which talks to the T1
+> (C17xx or C26xx). Normally, if your ISP has some sort of clue, you
+> will also need a bastion router which can handle backbone <-> 100 MBit
+> traffic and does dynamic routing updates (EGP or OSPF) to the ISP
+> backbone (A C26xx or C37xx).
 
+C37xx can handle a maximum load of 225 kpps (data sheet number,
+i.e. this value cannot be exceeded even under most favorable
+conditions), the others handle even less.  Such routers are of no help
+during a DoS attack.
 
-> Will something like this suffice for timer_tsc (compiled, not yet booted):
-> 
-> --- 2.6.0-test4/arch/i386/kernel/timers/timer_tsc.c	2003-08-26 21:56:19.000000000 -0500
-> +++ linux-2.6.0-test4/arch/i386/kernel/timers/timer_tsc.c	2003-09-04 22:08:27.000000000 -0500
-> @@ -315,6 +315,7 @@
->  		if (use_tsc) {
->  			fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_ref, freq->new, ref_freq);
->  			cpu_khz = cpufreq_scale(cpu_khz_ref, ref_freq, freq->new);
-> +			set_cyc2ns_scale(cpu_khz/1000);
->  		}
->  #endif
->  	}
-
-Looks fine to me. Although I don't have any cpufreq enabled hardware, so
-I'm unable to test this (main cause I never added it myself). 
-
-thanks
--john
-
-
+Yes, I snipped the DoS context, and your approach would work in a
+benign environment. 8-)

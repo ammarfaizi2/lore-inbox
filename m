@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbUBVKNs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 05:13:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUBVKNs
+	id S261220AbUBVKao (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 05:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUBVKao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 05:13:48 -0500
-Received: from smtp.virgilio.it ([212.216.176.142]:34201 "EHLO vsmtp2.tin.it")
-	by vger.kernel.org with ESMTP id S261219AbUBVKNq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 05:13:46 -0500
-From: andreamrl <andreamrl@tiscali.it>
-Reply-To: andreamrl@tiscali.it
-To: linux-kernel@vger.kernel.org
-Subject: Bug in 2.6.3
-Date: Sun, 22 Feb 2004 11:14:49 +0100
-User-Agent: KMail/1.6
-MIME-Version: 1.0
+	Sun, 22 Feb 2004 05:30:44 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:63239 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261220AbUBVKan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 05:30:43 -0500
+Date: Sun, 22 Feb 2004 10:30:36 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Cc: Manish Lachwani <lachwani@pmc-sierra.com>, Greg KH <greg@kroah.com>
+Subject: Re: i2c-yosemite
+Message-ID: <20040222103036.A29210@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	LM Sensors <sensors@stimpy.netroedge.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Manish Lachwani <lachwani@pmc-sierra.com>, Greg KH <greg@kroah.com>
+References: <20040222104106.714de992.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402221114.49158.andreamrl@tiscali.it>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040222104106.714de992.khali@linux-fr.org>; from khali@linux-fr.org on Sun, Feb 22, 2004 at 10:41:06AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I have just updated from 2.6.2-rc1 to 2.6.3 and i noticed that system 
-mathematically crashes when i use xawtv in fullscreen mode, grabdisplay 
-capture, and input source from videocomposite1.
-The system just crash after less than a minute without logs anything. it's 
-stop to respond to keyboard and network. No message to be read on the console 
-since the problem happen only in fullscreen mode.
-My tv card is a Zoltrix TV Max. I pass the proper tuner and card ID as kernel 
-parameters.
-The MB is asus nforce2, and the graphics card is a radeon 9200 working with 
-radeon X driver (and a chipid override parameter in XConfig)
-All worked with 2.6.2-rc1 and 2.4 series. Most probably the problems happened 
-also in 2.6.2 or 2.6.1 (i don't remember exactly because when happened i was 
-thinking to a ACPI related problem).
-Any suggestion to how to debug kernel in such "no log & no info" cases? (i 
-have very little experience in kernel debugging, but i'd like at least to 
-try.. )
-Thanks,
+On Sun, Feb 22, 2004 at 10:41:06AM +0100, Jean Delvare wrote:
+> If everyone reimplements what already exists, the kernel is likely to go
+> bigger with no benefit. Also, you won't be able to use all user-space
+> tools that already exist, and will also have to write specific chip
+> drivers for the chips present on the yosemite bus, although these
+> drivers (Atmel 24C32 EEPROM and MAX 1619) already exist.
+> 
+> Please explain to us why you cannot/don't want to use the existing i2c
+> subsystem.
 
-Andrea Merello
+Yupp.  While we're at it what should we do with the i2c reimplementations
+in alsa and dvb?
+

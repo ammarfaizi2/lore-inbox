@@ -1,106 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135883AbREFWB5>; Sun, 6 May 2001 18:01:57 -0400
+	id <S135895AbREFWII>; Sun, 6 May 2001 18:08:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135888AbREFWBi>; Sun, 6 May 2001 18:01:38 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:41990 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135883AbREFWBY>;
-	Sun, 6 May 2001 18:01:24 -0400
-Date: Mon, 7 May 2001 00:01:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux-KERNEL <linux-kernel@vger.kernel.org>
-Cc: Phil Stracchino <alaric@babcom.com>
-Subject: Re: CDROM troubles
-Message-ID: <20010507000116.D506@suse.de>
-In-Reply-To: <20010506030500.A26278@babylon5.babcom.com> <20010506144228.B13711@babylon5.babcom.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="gatW/ieO32f1wygP"
-Content-Disposition: inline
-In-Reply-To: <20010506144228.B13711@babylon5.babcom.com>; from alaric@babcom.com on Sun, May 06, 2001 at 02:42:28PM -0700
+	id <S135892AbREFWH5>; Sun, 6 May 2001 18:07:57 -0400
+Received: from mail.inf.elte.hu ([157.181.161.6]:9896 "HELO mail.inf.elte.hu")
+	by vger.kernel.org with SMTP id <S135896AbREFWHu>;
+	Sun, 6 May 2001 18:07:50 -0400
+Date: Mon, 7 May 2001 00:07:49 +0200 (CEST)
+From: BERECZ Szabolcs <szabi@inf.elte.hu>
+To: Jonathan Morton <chromi@cyberspace.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: page_launder() bug
+In-Reply-To: <l03130303b71b795cab9b@[192.168.239.105]>
+Message-ID: <Pine.A41.4.31.0105070003210.59664-100000@pandora.inf.elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---gatW/ieO32f1wygP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Sun, 6 May 2001, Jonathan Morton wrote:
 
-On Sun, May 06 2001, Phil Stracchino wrote:
-> On Sun, May 06, 2001 at 03:05:00AM -0700, Phil Stracchino wrote:
-> > Hey folks,
-> > I'm seeing a problem with mounting CDs using a Toshiba XM-6401TA CDROM
-> > drive attached to an Adaptec AHA1542CF controller (scsi1) on kernel 2.4.3
-> > and 2.4.4.  The behavior seems to be fairly consistent as follows:
-> > 
-> > first mount and unmount works normally, no unusual events logged
-> > second mount and unmount works normally, no unusual events logged
-> > third mount locks up the machine.  looks like a kernel panic.
-> > 
-> > Any ideas?
-> 
-> 
-> Panic is confirmed.  This time, it lived long enough to log:
->  
-> May  6 14:05:05 babylon5 kernel: Kernel panic: scsi_free:Bad offset
-> 
-> Since it involves the CDROM, the aha1542 driver is implicated.  Why it's
-> getting a bad offset, I don't understand enough about the SCSI drivers to
-> know; all the scsi_free calls in aha1542.c look identical to me.
->  
-> Would any Linux SCSI gurus care to let me know any diagnostic procedures
-> recommended for nailing this one?
+> >-			 page_count(page) == (1 + !!page->buffers));
+>
+> Two inversions in a row?  I'd like to see that made more explicit,
+> otherwise it looks like a bug to me.  Of course, if it IS a bug...
+it's not a bug.
+if page->buffers is zero, than the page_count(page) is 1, and if
+page->buffers is other than zero, page_count(page) is 2.
+so it checks if page is really used by something.
+maybe this last line is not true, but the !!page->buffers is not a bug.
 
-The panic should be fixed with attached patch.
-
--- 
-Jens Axboe
+Bye,
+Szabi
 
 
---gatW/ieO32f1wygP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=sr-scatter-1
-
-diff -urN --exclude-from /home/axboe/cdrom/exclude /opt/kernel/linux-2.4.4-pre2/drivers/scsi/sr.c linux/drivers/scsi/sr.c
---- /opt/kernel/linux-2.4.4-pre2/drivers/scsi/sr.c	Mon Feb 19 19:25:17 2001
-+++ linux/drivers/scsi/sr.c	Mon Apr  9 09:18:46 2001
-@@ -262,7 +262,7 @@
- static int sr_scatter_pad(Scsi_Cmnd *SCpnt, int s_size)
- {
- 	struct scatterlist *sg, *old_sg = NULL;
--	int i, fsize, bsize, sg_ent;
-+	int i, fsize, bsize, sg_ent, sg_count;
- 	char *front, *back;
- 
- 	back = front = NULL;
-@@ -290,17 +290,24 @@
- 	/*
- 	 * extend or allocate new scatter-gather table
- 	 */
--	if (SCpnt->use_sg)
-+	sg_count = SCpnt->use_sg;
-+	if (sg_count)
- 		old_sg = (struct scatterlist *) SCpnt->request_buffer;
- 	else {
--		SCpnt->use_sg = 1;
-+		sg_count = 1;
- 		sg_ent++;
- 	}
- 
--	SCpnt->sglist_len = ((sg_ent * sizeof(struct scatterlist)) + 511) & ~511;
--	if ((sg = scsi_malloc(SCpnt->sglist_len)) == NULL)
-+	i = ((sg_ent * sizeof(struct scatterlist)) + 511) & ~511;
-+	if ((sg = scsi_malloc(i)) == NULL)
- 		goto no_mem;
- 
-+	/*
-+	 * no more failing memory allocs possible, we can safely assign
-+	 * SCpnt values now
-+	 */
-+	SCpnt->sglist_len = i;
-+	SCpnt->use_sg = sg_count;
- 	memset(sg, 0, SCpnt->sglist_len);
- 
- 	i = 0;
-
-
---gatW/ieO32f1wygP--

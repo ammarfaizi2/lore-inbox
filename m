@@ -1,66 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265433AbUFRX7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265792AbUFSADl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265433AbUFRX7U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265490AbUFRX7N
+	id S265792AbUFSADl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 20:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265746AbUFRXzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:59:13 -0400
-Received: from cantor.suse.de ([195.135.220.2]:55017 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265749AbUFRX4y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:56:54 -0400
-Date: Sat, 19 Jun 2004 01:56:52 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: bcasavan@sgi.com, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] Add kallsyms_lookup() result cache
-Message-Id: <20040619015652.232b3b55.ak@suse.de>
-In-Reply-To: <200406181926.39294.jbarnes@engr.sgi.com>
-References: <Pine.SGI.4.58.0406181435570.5029@kzerza.americas.sgi.com>
-	<20040619000326.067c3ff6.ak@suse.de>
-	<200406181926.39294.jbarnes@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 18 Jun 2004 19:55:00 -0400
+Received: from [81.187.239.184] ([81.187.239.184]:61893 "EHLO
+	mail.newtoncomputing.co.uk") by vger.kernel.org with ESMTP
+	id S265541AbUFRXwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 19:52:36 -0400
+Date: Sat, 19 Jun 2004 00:52:23 +0100
+From: matthew-lkml@newtoncomputing.co.uk
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Stop printk printing non-printable chars
+Message-ID: <20040618235223.GB5286@newtoncomputing.co.uk>
+References: <20040618205355.GA5286@newtoncomputing.co.uk> <Pine.LNX.4.58.0406181407330.6178@ppc970.osdl.org> <Pine.LNX.4.56.0406190032290.17899@jjulnx.backbone.dif.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0406190032290.17899@jjulnx.backbone.dif.dk>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004 19:26:39 -0400
-Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-
-> On Friday, June 18, 2004 6:03 pm, Andi Kleen wrote:
-> > On Fri, 18 Jun 2004 15:03:00 -0500
+On Sat, Jun 19, 2004 at 12:44:55AM +0200, Jesper Juhl wrote:
+> On Fri, 18 Jun 2004, Linus Torvalds wrote:
 > >
-> > Brent Casavant <bcasavan@sgi.com> wrote:
-> > > On 2.6 based systems, the top command utilizes /proc/[pid]/wchan to
-> > > determine WCHAN symbol name information.  This information is provided
-> > > by the kernel function kallsyms_lookup(), which expands a stem-compressed
-> >
-> > That sounds more like a bug in your top to me. /proc/*/wchan itself
-> > does not access kallsyms, it just outputs a number.undisclosed-recipients:;
+> > How about emitting them as \xxx, so that you see what they are. And using
+> > a case-statement to make it easy and clear when to do exceptions (I think
+> > we should accept \t too, no?).
 > 
-> No, it outputs a string:
-> jbarnes@mill:~$ cat /proc/1/wchan
-> do_select
+> Would there be any reason not to allow all the standard C escape sequences
+> - true, they are hardly used atm (I see a few \f uses with grep, but not
+> much else), but it's not unthinkable they could be useful somewhere in
 
-Indeed. I looked at /proc/self/wchan, but of course that is 0 because
-the process is running. 
+I must admit, I don't think I've even seen a tab before (not that you'd
+actually _see_ a tab). Oh, grep tells me that powernow uses it. By the
+time that gets through syslog it's changed into "^I", so it would
+probably be better to not actually use tabs, either (or fix syslog).
 
-But there is numerical wchan anyways - just get it from /proc/*/stat
-That is what all 2.4 based tops always used.  I bet they still
-have the fallback code for that around.The 2.6 change 
-will just be to read the symbol table from /proc/kallsyms instead
-of from the System.map file.
+New patch below outputs as \xxx if it's not a "nice" character.  "Nice"
+is now 32..126, \n and \t.
 
-> 
-> > Doing the cache in the kernel is the wrong place. This should be fixed
-> > in user space.
-> 
-> Sure, but that would be a change in behavior.  It's arguably the right thing 
-> to do though.
 
-Change what behaviour? I argue that doing it in the kernel is the wrong
-thing.
+--- linux-2.6.7/kernel/printk.c.orig	2004-06-18 20:44:28.000000000 +0100
++++ linux-2.6.7/kernel/printk.c	2004-06-19 00:11:30.000000000 +0100
+@@ -14,6 +14,8 @@
+  *     manfreds@colorfullife.com
+  * Rewrote bits to get rid of console_lock
+  *	01Mar01 Andrew Morton <andrewm@uow.edu.au>
++ * Stop emit_log_char from emitting non-ASCII chars.
++ *  Matthew Newton, 18 June 2004 <matthew-lkml@newtoncomputing.co.uk>
+  */
+ 
+ #include <linux/kernel.h>
+@@ -472,6 +474,17 @@
+ }
+ 
+ /*
++ * Emit character in numeric (octal) form
++ */
++static void emit_log_char_octal(char c)
++{
++	emit_log_char('\\');
++	emit_log_char(((c >> 6) & 3) + '0');
++	emit_log_char(((c >> 3) & 7) + '0');
++	emit_log_char((c & 7) + '0');
++}
++
++/*
+  * Zap console related locks when oopsing. Only zap at most once
+  * every 10 seconds, to leave time for slow consoles to print a
+  * full oops.
+@@ -538,7 +551,17 @@
+ 			}
+ 			log_level_unknown = 0;
+ 		}
+-		emit_log_char(*p);
++		switch (*p) {
++			case '\n':
++			case '\t':
++				emit_log_char(*p);
++				break;
++			default:
++				if (*p > 31 && *p < 127)
++					emit_log_char(*p);
++				else
++					emit_log_char_octal(*p);
++		}
+ 		if (*p == '\n')
+ 			log_level_unknown = 1;
+ 	}
 
--Andi
+
+
+-- 
+Matthew

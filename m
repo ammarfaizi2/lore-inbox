@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289020AbSA3JpG>; Wed, 30 Jan 2002 04:45:06 -0500
+	id <S289018AbSA3Js4>; Wed, 30 Jan 2002 04:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289021AbSA3Jo4>; Wed, 30 Jan 2002 04:44:56 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:58295 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S289020AbSA3Jok>; Wed, 30 Jan 2002 04:44:40 -0500
-Message-Id: <200201300944.g0U9iOeO002104@tigger.cs.uni-dortmund.de>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin 
-In-Reply-To: Message from Russell King <rmk@arm.linux.org.uk> 
-   of "Tue, 29 Jan 2002 14:43:07 GMT." <20020129144307.B6542@flint.arm.linux.org.uk> 
-Date: Wed, 30 Jan 2002 10:44:24 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S289026AbSA3Jsq>; Wed, 30 Jan 2002 04:48:46 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17935 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289018AbSA3Jsl>; Wed, 30 Jan 2002 04:48:41 -0500
+Subject: Re: A modest proposal -- We need a patch penguin
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Date: Wed, 30 Jan 2002 09:59:24 +0000 (GMT)
+Cc: davej@suse.de (Dave Jones), linux-kernel@vger.kernel.org
+In-Reply-To: <200201300757.g0U7v1t07728@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at Jan 30, 2002 09:57:02 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VrWW-0006sL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> said:
+> able to break _anything_, it's only documentation, right? I could understand 
+> this if these updates were sent by little known person, but Eric?!
 
-[...]
+Oh come on. In the kernel world Eric is a little known person.
 
-> If we're going to be doing this periodically, it might be an idea to
-> put "out of order since dd mmm yyyy" and a "last checked dd mmm yyyy"
-> at the top of the file.
-
-Perhaps add a "Last checked: field to each (too)?
-
-But then again, patches to MAINTAINERS are silently dropped. Perhaps this
-should be posted on kernel.org?
--- 
-Horst von Brand			     http://counter.li.org # 22616

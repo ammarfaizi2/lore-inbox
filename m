@@ -1,83 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129466AbRCWEcO>; Thu, 22 Mar 2001 23:32:14 -0500
+	id <S129511AbRCWEeE>; Thu, 22 Mar 2001 23:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbRCWEcF>; Thu, 22 Mar 2001 23:32:05 -0500
-Received: from ns1.samba.org ([203.17.0.92]:33368 "HELO au2.samba.org")
-	by vger.kernel.org with SMTP id <S129466AbRCWEbz>;
-	Thu, 22 Mar 2001 23:31:55 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S129524AbRCWEdy>; Thu, 22 Mar 2001 23:33:54 -0500
+Received: from mozart.stat.wisc.edu ([128.105.5.24]:22279 "EHLO
+	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
+	id <S129511AbRCWEdh> convert rfc822-to-8bit; Thu, 22 Mar 2001 23:33:37 -0500
+To: Jakob Østergaard <jakob@unthought.net>,
+        Linus Torvalds <torvalds@transmeta.com>
+Cc: Serge Orlov <sorlov@con.mcst.ru>, linux-kernel@vger.kernel.org,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
+In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com>
+	<vba1yrr7w9v.fsf@mozart.stat.wisc.edu>
+	<15032.1585.623431.370770@pizda.ninka.net>
+	<vbay9ty50zi.fsf@mozart.stat.wisc.edu>
+	<vbaelvp3bos.fsf@mozart.stat.wisc.edu>
+	<20010322193549.D6690@unthought.net>
+From: buhr@stat.wisc.edu (Kevin Buhr)
+In-Reply-To: Jakob Østergaard's message of "Thu, 22 Mar 2001 19:35:49 +0100"
+Date: 22 Mar 2001 22:32:51 -0600
+Message-ID: <vbawv9hyuj0.fsf@mozart.stat.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15034.53871.560040.366149@argo.linuxcare.com.au>
-Date: Fri, 23 Mar 2001 15:34:55 +1100 (EST)
-To: buhr@stat.wisc.edu (Kevin Buhr)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: PATCH against 2.4.2: TTY hangup on PPP channel corrupts kernel memory
-In-Reply-To: <vbasnkblsvd.fsf@mozart.stat.wisc.edu>
-In-Reply-To: <vbaofv1nyza.fsf@mozart.stat.wisc.edu>
-	<15027.20462.682109.679714@argo.linuxcare.com.au>
-	<vbasnkblsvd.fsf@mozart.stat.wisc.edu>
-X-Mailer: VM 6.75 under Emacs 20.4.1
-Reply-To: paulus@samba.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Buhr writes:
+Jakob Østergaard <jakob@unthought.net> writes:
+>
+> Try compiling something like Qt/KDE/gtk-- which are really heavy on
+> templates (with all the benefits and drawbacks of that).
 
-> I didn't realize my specific hang was a peculiarity of the older
-> attachment style.  The channel created by pushing the PPP line
+Okay, I just compiled gtk-- 1.0.3 (with CFLAGS = "-O2 -g") under three
+versions of GCC (Debian 2.95.3, RedHat 2.96, and a CVS pull of the
+"gcc-3_0-branch") on the same Debian machine running kernel 2.4.2.
 
-I didn't realize you were talking about linux 2.4.0 and pppd 2.3.11.
+In all cases, the "cc1plus" processes appeared to max out around 25M
+total size.  The "maps" pseudofiles for the 2.95.3 and and 3.0
+compiles never grew past 250 lines, but the "maps" pseudofiles for the
+RedHat 2.96 compile were gigantic, jumping to 3000 or 5000 lines at
+times.
 
-> discipline onto a TTY was connected to a unit with a PPPIOCATTACH
-> ioctl on the TTY---this didn't really "attach" the channel; it still
-> had a refcnt of only one.  Through the old compatibility interface, it
-> was possible to call ppp_asynctty_read -> ppp_channel_read -> ppp_read
-> on the channel's "struct ppp_file" and wait on the channel's "rwait".
-> If the modem hung up, "do_tty_hangup" would call "ppp_asynctty_close"
-> (with a reader still in "ppp_asynctty_read") and the "struct channel"
-> would be freed in "ppp_unregister_channel".
+The results speak for themselves:
 
-That's one of the main reasons why I removed the compatibility
-stuff. :)
+    CVS gcc 3.0:          Debian gcc 2.95.3:   RedHat gcc 2.96:
+                      
+    real    16m8.423s     real    8m2.417s     real    12m24.939s
+    user    15m23.710s    user    7m22.200s    user    10m14.420s
+    sys     0m48.730s     sys     0m41.040s    sys     2m13.910s 
+maps:    <250 lines           <250 lines          >3000 lines
 
-> I think your analysis of how things presently are with 2.4.2 and a
-> modern "pppd" is correct...
-> 
-> Since the new "pppd" uses an explicit PPPIOCATTCHAN / PPPIOCCONNECT
-> sequence, the refcnt gets bumped to 2 and stays there while the
-> channel is attached.  So, this specific hang isn't a problem anymore
-> for "ppp_async.c".  It's still a problem with "ppp_synctty.c", though
-> (when used with "pppd" 2.3.11, say).  Is the compatibility stuff in
-> there slated for removal, too?
+Obviously, the *real* problem is RedHat GCC 2.96.  If Linus bothers to
+write this patch (he probably already has), its only proven benefit so
+far is that it improves the performance of a RedHat-specific, orphaned
+G++ development snapshot that everyone (the people of RedHat most of
+all) will be glad to be rid of as soon as possible.
 
-Yep, and we should take out the stuff in ppp_generic.c that was called
-by the compatibility stuff in the channels, too.
+The numbers above suggest that the patch is unlikely to have a
+positive impact on the performance of either officially released GCC
+versions or the upcoming 3.0 release.
 
-> In particular, the comment above "ppp_asynctty_close" is misleading.
-> It's true that the TTY layer won't call any further line discipline
-> entries while the "close" is executing; however, there may be
-> processes already sleeping in line discipline functions called before
-> the hangup.  For example, "ppp_asynctty_close" could be called while
-> we sleep in the "get_user" in "ppp_channel_ioctl" (called from
-> "ppp_asynctty_ioctl").  Therefore, calling "PPPIOCATTACH" on an
-> unattached PPP-disciplined TTY could, in unlikely circumstances
-> (argument swapped out), lead to a crash.
+Drifting off topic...
 
-Yuck.  I don't see that we can protect against this without having
-some sort of lock in the tty structure, though.  We can't protect the
-existence of the channel structure with a lock inside that structure.
-Ideally the necessary protection would be provided at the tty level.
+> Mozilla uses C++ mainly as "extended C" - due to compatibility concerns.
 
-> I assume PPPIOCATTACH (on the TTY) is deprecated in favor of
-> PPPIOCATTCHAN / PPPIOCCONNECT (on the "/dev/ppp" handle).  Can we
-> eliminate "ppp_channel_ioctl" from "ppp_async.c" entirely, as in the
-> patch below?  We're requiring people to upgrade to "pppd" 2.4.0
-> anyway, and it has no need for these calls.  This would give me a warm,
-> fuzzy feeling.
+This statement is potentially misleading.
 
-Sure, that would be fine.  I'll make up a patch and send it to Linus.
+I think most people will believe you to mean "using C++ as a better C"
+in the sense of Stroustrup: using the small, conventional-language
+subset of C++ that looks like C but has stronger type checking,
+function and operator overloading, default arguments, "//" style
+comments, reference types, and other syntactic and semantic sugar.
 
-Paul.
+Mozilla does not use C++ as "extended C" in this sense.  While it does
+use a *subset* of C++ for compatibility reasons, the subset includes
+extensive use of class lattices and polymorphism as well as extensive
+(albeit simple and carefully constructed) uses of templates for its
+utility classes, including string and component-autoreferencing
+template classes and functions that are used throughout the source.
+The only major C++ facilities that are not used are the standard
+library, RTTI, namespaces, and exception handling, but other than that
+it's a good, real-world C++ test case.
+
+Kevin <buhr@stat.wisc.edu>

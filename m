@@ -1,74 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbUKPV1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbUKPV3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbUKPV1S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 16:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbUKPVZE
+	id S261823AbUKPV3x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 16:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUKPV3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 16:25:04 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:35597 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261821AbUKPVYm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 16:24:42 -0500
-Date: Tue, 16 Nov 2004 22:25:06 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "Thomas Leibold" <thomas@plx.com>
-Cc: greg@kroah.com, sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] i2c-nforce2.c add support for nForce3 Pro 150 MCP
-Message-Id: <20041116222506.7c64e122.khali@linux-fr.org>
-In-Reply-To: <36881.192.168.0.19.1100639614.squirrel@192.168.0.12>
-References: <36129.192.168.0.19.1100598647.squirrel@192.168.0.12>
-	<hKBrMfMm.1100605629.3776330.khali@gcu.info>
-	<36881.192.168.0.19.1100639614.squirrel@192.168.0.12>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 16 Nov 2004 16:29:53 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:62867 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261823AbUKPV3n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 16:29:43 -0500
+Date: Tue, 16 Nov 2004 23:31:35 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: "K.R. Foley" <kr@cybsft.com>, Mark_H_Johnson@raytheon.com,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Stefan Schweizer <sschweizer@gmail.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
+Message-ID: <20041116223135.GA27250@elte.hu>
+References: <OFE5FC77BB.DA8F1FAE-ON86256F4E.0058C5CF-86256F4E.0058C604@raytheon.com> <20041116184315.GA5492@elte.hu> <419A5A53.6050100@cybsft.com> <20041116212401.GA16845@elte.hu> <20041116222039.662f41ac@mango.fruits.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041116222039.662f41ac@mango.fruits.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(As a side note I applied your 2.4 patch to lm_sensors CVS.)
 
-> This patch applies to linux 2.6.10-RC1. I tried to follow the
-> procedures in Documentation/SubmittingPatches and I hope I got
-> everything right.
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-Looks good to me except:
+> I have not yet tried to get this kernel to lock up yet, but i made
+> another interesting observation:
+> 
+> irq 8 at prio 98 (only irq 1 with higher prio 99). running rtc_wakeup
+> in the console (it runs SCHED_FIFO allright). Switching consoles
+> (different text consoles - not swithcing to X, though this basically
+> produces similar results) produces large jitters (around 1 ms) and
+> occasional missed irq's and piggy messages. This is completely
+> reproducable here. The rtc histogram doesn't show any large wakeup
+> latencies.
 
-> @@ -53,6 +55,10 @@ MODULE_DESCRIPTION("nForce2 SMBus driver
->  #define PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS   0x0064
->  #endif
->  
-> +#ifndef PCI_DEVICE_ID_NVIDIA_NFORCE3_SMBUS
-> +#define PCI_DEVICE_ID_NVIDIA_NFORCE3_SMBUS   0x00D4
-> +#endif
-> +
-> (...)
-> --- linux-2.6.10-rc1/include/linux/pci_ids.h	2004-11-16 10:22:15.000000000 -0800
-> +++ patched/include/linux/pci_ids.h	2004-11-16 11:21:28.223690880 -0800
-> @@ -1081,6 +1081,7 @@
->  #define PCI_DEVICE_ID_NVIDIA_NVENET_8		0x0056
->  #define PCI_DEVICE_ID_NVIDIA_NVENET_9		0x0057
->  #define PCI_DEVICE_ID_NVIDIA_CK804_AUDIO	0x0059
-> +#define PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS	0x0064
->  #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
->  #define PCI_DEVICE_ID_NVIDIA_NVENET_2		0x0066
->  #define PCI_DEVICE_ID_NVIDIA_MCP2_AUDIO		0x006a
-> @@ -1092,6 +1093,7 @@
->  #define PCI_DEVICE_ID_NVIDIA_NFORCE3		0x00d1
->  #define PCI_DEVICE_ID_NVIDIA_MCP3_AUDIO		0x00da
->  #define PCI_DEVICE_ID_NVIDIA_NFORCE3S  		0x00e1
-> +#define PCI_DEVICE_ID_NVIDIA_NFORCE3_SMBUS	0x00d4
->  #define PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE	0x00d5
->  #define PCI_DEVICE_ID_NVIDIA_NVENET_3		0x00d6
->  #define PCI_DEVICE_ID_NVIDIA_MCP3_AUDIO		0x00da
+interesting, i'll try to reproduce this.
 
+btw., for best rtc_wakeup results you should chrt IRQ#0 to prio 99 too,
+because it uses rtc_lock, otherwise it's an extra PI pass to undo the
+lock inversion, which adds another 10 usecs or so to the worst-case
+path.
 
-You're correct that the IDs are better added to pci_ids.h, but then the
-ifndef blocks in the driver become useless and can be discarded.
+and i'd suggest to chrt irq 1 back to below prio 90, maybe this explains
+the console-switching latency? If you do a console-switch via the
+keyboard then its priority 99 can get inherited by events/0 which then
+does the quite expensive VGA console clearing/copying with priority 99,
+possibly delaying rtc_wakeup quite significantly, easily for a
+millisecond or so. So what you are seeing might be priority inheritance
+handling at work!
 
-Thanks.
+> I sometimes do get large values in /proc/latency_trace, but they seem
+> to be unrelated to the console switching.
 
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+could you post such a large latency trace? Are they like the bad traces
+Mark is occasionally seeing, with some ridiculously large latency and a
+ridiculously short execution trace?
+
+	Ingo

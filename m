@@ -1,581 +1,268 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbSLEQ1b>; Thu, 5 Dec 2002 11:27:31 -0500
+	id <S263544AbSLEQ3g>; Thu, 5 Dec 2002 11:29:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263544AbSLEQ1b>; Thu, 5 Dec 2002 11:27:31 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:14096 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262415AbSLEQ0o>;
-	Thu, 5 Dec 2002 11:26:44 -0500
-Date: Thu, 5 Dec 2002 08:34:07 -0800
+	id <S264638AbSLEQ3f>; Thu, 5 Dec 2002 11:29:35 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:14864 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263544AbSLEQ2U>;
+	Thu, 5 Dec 2002 11:28:20 -0500
+Date: Thu, 5 Dec 2002 08:35:42 -0800
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
 Subject: Re: [PATCH] LSM changes for 2.5.50
-Message-ID: <20021205163406.GE2865@kroah.com>
-References: <20021205163152.GA2865@kroah.com> <20021205163234.GB2865@kroah.com> <20021205163300.GC2865@kroah.com> <20021205163339.GD2865@kroah.com>
+Message-ID: <20021205163541.GF2865@kroah.com>
+References: <20021205163152.GA2865@kroah.com> <20021205163234.GB2865@kroah.com> <20021205163300.GC2865@kroah.com> <20021205163339.GD2865@kroah.com> <20021205163406.GE2865@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021205163339.GD2865@kroah.com>
+In-Reply-To: <20021205163406.GE2865@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.797.142.3, 2002/12/04 16:14:32-06:00, greg@kroah.com
+ChangeSet 1.797.142.4, 2002/12/04 16:56:51-06:00, greg@kroah.com
 
-LSM: remove "dummy" functions from the capability code, as they are no longer needed.
+LSM: add the example rootplug module
 
 
-diff -Nru a/security/capability.c b/security/capability.c
---- a/security/capability.c	Thu Dec  5 01:19:14 2002
-+++ b/security/capability.c	Thu Dec  5 01:19:14 2002
-@@ -279,550 +279,20 @@
+diff -Nru a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+--- a/drivers/usb/core/hcd.c	Thu Dec  5 01:19:10 2002
++++ b/drivers/usb/core/hcd.c	Thu Dec  5 01:19:10 2002
+@@ -80,6 +80,7 @@
  
- #ifdef CONFIG_SECURITY
+ /* host controllers we manage */
+ LIST_HEAD (usb_bus_list);
++EXPORT_SYMBOL (usb_bus_list);
  
--static int cap_quotactl (int cmds, int type, int id, struct super_block *sb)
--{
--	return 0;
--}
--
--static int cap_quota_on (struct file *f)
--{
--	return 0;
--}
--
--static int cap_acct (struct file *file)
--{
--	return 0;
--}
--
--static int cap_bprm_alloc_security (struct linux_binprm *bprm)
--{
--	return 0;
--}
--
--static int cap_bprm_check_security (struct linux_binprm *bprm)
--{
--	return 0;
--}
--
--static void cap_bprm_free_security (struct linux_binprm *bprm)
--{
--	return;
--}
--
--static int cap_sb_alloc_security (struct super_block *sb)
--{
--	return 0;
--}
--
--static void cap_sb_free_security (struct super_block *sb)
--{
--	return;
--}
--
--static int cap_sb_statfs (struct super_block *sb)
--{
--	return 0;
--}
--
--static int cap_mount (char *dev_name, struct nameidata *nd, char *type,
--		      unsigned long flags, void *data)
--{
--	return 0;
--}
--
--static int cap_check_sb (struct vfsmount *mnt, struct nameidata *nd)
--{
--	return 0;
--}
--
--static int cap_umount (struct vfsmount *mnt, int flags)
--{
--	return 0;
--}
--
--static void cap_umount_close (struct vfsmount *mnt)
--{
--	return;
--}
--
--static void cap_umount_busy (struct vfsmount *mnt)
--{
--	return;
--}
--
--static void cap_post_remount (struct vfsmount *mnt, unsigned long flags,
--			      void *data)
--{
--	return;
--}
--
--static void cap_post_mountroot (void)
--{
--	return;
--}
--
--static void cap_post_addmount (struct vfsmount *mnt, struct nameidata *nd)
--{
--	return;
--}
--
--static int cap_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
--{
--	return 0;
--}
--
--static void cap_post_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
--{
--	return;
--}
--
--static int cap_inode_alloc_security (struct inode *inode)
--{
--	return 0;
--}
--
--static void cap_inode_free_security (struct inode *inode)
--{
--	return;
--}
--
--static int cap_inode_create (struct inode *inode, struct dentry *dentry,
--			     int mask)
--{
--	return 0;
--}
--
--static void cap_inode_post_create (struct inode *inode, struct dentry *dentry,
--				   int mask)
--{
--	return;
--}
--
--static int cap_inode_link (struct dentry *old_dentry, struct inode *inode,
--			   struct dentry *new_dentry)
--{
--	return 0;
--}
--
--static void cap_inode_post_link (struct dentry *old_dentry, struct inode *inode,
--				 struct dentry *new_dentry)
--{
--	return;
--}
--
--static int cap_inode_unlink (struct inode *inode, struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_inode_symlink (struct inode *inode, struct dentry *dentry,
--			      const char *name)
--{
--	return 0;
--}
--
--static void cap_inode_post_symlink (struct inode *inode, struct dentry *dentry,
--				    const char *name)
--{
--	return;
--}
--
--static int cap_inode_mkdir (struct inode *inode, struct dentry *dentry,
--			    int mask)
--{
--	return 0;
--}
--
--static void cap_inode_post_mkdir (struct inode *inode, struct dentry *dentry,
--				  int mask)
--{
--	return;
--}
--
--static int cap_inode_rmdir (struct inode *inode, struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_inode_mknod (struct inode *inode, struct dentry *dentry,
--			    int mode, dev_t dev)
--{
--	return 0;
--}
--
--static void cap_inode_post_mknod (struct inode *inode, struct dentry *dentry,
--				  int mode, dev_t dev)
--{
--	return;
--}
--
--static int cap_inode_rename (struct inode *old_inode, struct dentry *old_dentry,
--			     struct inode *new_inode, struct dentry *new_dentry)
--{
--	return 0;
--}
--
--static void cap_inode_post_rename (struct inode *old_inode,
--				   struct dentry *old_dentry,
--				   struct inode *new_inode,
--				   struct dentry *new_dentry)
--{
--	return;
--}
--
--static int cap_inode_readlink (struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_inode_follow_link (struct dentry *dentry,
--				  struct nameidata *nameidata)
--{
--	return 0;
--}
--
--static int cap_inode_permission (struct inode *inode, int mask)
--{
--	return 0;
--}
--
--static int cap_inode_permission_lite (struct inode *inode, int mask)
--{
--	return 0;
--}
--
--static int cap_inode_setattr (struct dentry *dentry, struct iattr *iattr)
--{
--	return 0;
--}
--
--static int cap_inode_getattr (struct vfsmount *mnt, struct dentry *dentry)
--{
--	return 0;
--}
--
--static void cap_post_lookup (struct inode *ino, struct dentry *d)
--{
--	return;
--}
--
--static void cap_delete (struct inode *ino)
--{
--	return;
--}
--
--static int cap_inode_setxattr (struct dentry *dentry, char *name, void *value,
--				size_t size, int flags)
--{
--	return 0;
--}
--
--static int cap_inode_getxattr (struct dentry *dentry, char *name)
--{
--	return 0;
--}
--
--static int cap_inode_listxattr (struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_inode_removexattr (struct dentry *dentry, char *name)
--{
--	return 0;
--}
--
--static int cap_file_permission (struct file *file, int mask)
--{
--	return 0;
--}
--
--static int cap_file_alloc_security (struct file *file)
--{
--	return 0;
--}
--
--static void cap_file_free_security (struct file *file)
--{
--	return;
--}
--
--static int cap_file_ioctl (struct file *file, unsigned int command,
--			   unsigned long arg)
--{
--	return 0;
--}
--
--static int cap_file_mmap (struct file *file, unsigned long prot,
--			  unsigned long flags)
--{
--	return 0;
--}
--
--static int cap_file_mprotect (struct vm_area_struct *vma, unsigned long prot)
--{
--	return 0;
--}
--
--static int cap_file_lock (struct file *file, unsigned int cmd)
--{
--	return 0;
--}
--
--static int cap_file_fcntl (struct file *file, unsigned int cmd,
--			   unsigned long arg)
--{
--	return 0;
--}
--
--static int cap_file_set_fowner (struct file *file)
--{
--	return 0;
--}
--
--static int cap_file_send_sigiotask (struct task_struct *tsk,
--				    struct fown_struct *fown, int fd,
--				    int reason)
--{
--	return 0;
--}
--
--static int cap_file_receive (struct file *file)
--{
--	return 0;
--}
--
--static int cap_task_create (unsigned long clone_flags)
--{
--	return 0;
--}
--
--static int cap_task_alloc_security (struct task_struct *p)
--{
--	return 0;
--}
--
--static void cap_task_free_security (struct task_struct *p)
--{
--	return;
--}
--
--static int cap_task_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
--{
--	return 0;
--}
--
--static int cap_task_setgid (gid_t id0, gid_t id1, gid_t id2, int flags)
--{
--	return 0;
--}
--
--static int cap_task_setpgid (struct task_struct *p, pid_t pgid)
--{
--	return 0;
--}
--
--static int cap_task_getpgid (struct task_struct *p)
--{
--	return 0;
--}
--
--static int cap_task_getsid (struct task_struct *p)
--{
--	return 0;
--}
--
--static int cap_task_setgroups (int gidsetsize, gid_t * grouplist)
--{
--	return 0;
--}
--
--static int cap_task_setnice (struct task_struct *p, int nice)
--{
--	return 0;
--}
--
--static int cap_task_setrlimit (unsigned int resource, struct rlimit *new_rlim)
--{
--	return 0;
--}
--
--static int cap_task_setscheduler (struct task_struct *p, int policy,
--				  struct sched_param *lp)
--{
--	return 0;
--}
--
--static int cap_task_getscheduler (struct task_struct *p)
--{
--	return 0;
--}
--
--static int cap_task_wait (struct task_struct *p)
--{
--	return 0;
--}
--
--static int cap_task_kill (struct task_struct *p, struct siginfo *info, int sig)
--{
--	return 0;
--}
--
--static int cap_task_prctl (int option, unsigned long arg2, unsigned long arg3,
--			   unsigned long arg4, unsigned long arg5)
--{
--	return 0;
--}
--
--static int cap_ipc_permission (struct kern_ipc_perm *ipcp, short flag)
--{
--	return 0;
--}
--
--static int cap_msg_queue_alloc_security (struct msg_queue *msq)
--{
--	return 0;
--}
--
--static void cap_msg_queue_free_security (struct msg_queue *msq)
--{
--	return;
--}
--
--static int cap_shm_alloc_security (struct shmid_kernel *shp)
--{
--	return 0;
--}
--
--static void cap_shm_free_security (struct shmid_kernel *shp)
--{
--	return;
--}
--
--static int cap_sem_alloc_security (struct sem_array *sma)
--{
--	return 0;
--}
--
--static void cap_sem_free_security (struct sem_array *sma)
--{
--	return;
--}
--
--static int cap_register (const char *name, struct security_operations *ops)
--{
--	return -EINVAL;
--}
--
--static int cap_unregister (const char *name, struct security_operations *ops)
--{
--	return -EINVAL;
--}
+ /* used when allocating bus numbers */
+ #define USB_MAXBUS		64
+@@ -90,6 +91,7 @@
  
- static struct security_operations capability_ops = {
- 	.ptrace =			cap_ptrace,
- 	.capget =			cap_capget,
- 	.capset_check =			cap_capset_check,
- 	.capset_set =			cap_capset_set,
--	.acct =				cap_acct,
- 	.capable =			cap_capable,
--	.quotactl =			cap_quotactl,
--	.quota_on =			cap_quota_on,
+ /* used when updating list of hcds */
+ DECLARE_MUTEX (usb_bus_list_lock);	/* exported only for usbfs */
++EXPORT_SYMBOL (usb_bus_list_lock);
  
--	.bprm_alloc_security =		cap_bprm_alloc_security,
--	.bprm_free_security =		cap_bprm_free_security,
- 	.bprm_compute_creds =		cap_bprm_compute_creds,
- 	.bprm_set_security =		cap_bprm_set_security,
--	.bprm_check_security =		cap_bprm_check_security,
--
--	.sb_alloc_security =		cap_sb_alloc_security,
--	.sb_free_security =		cap_sb_free_security,
--	.sb_statfs =			cap_sb_statfs,
--	.sb_mount =			cap_mount,
--	.sb_check_sb =			cap_check_sb,
--	.sb_umount =			cap_umount,
--	.sb_umount_close =		cap_umount_close,
--	.sb_umount_busy =		cap_umount_busy,
--	.sb_post_remount =		cap_post_remount,
--	.sb_post_mountroot =		cap_post_mountroot,
--	.sb_post_addmount =		cap_post_addmount,
--	.sb_pivotroot =			cap_pivotroot,
--	.sb_post_pivotroot =		cap_post_pivotroot,
--	
--	.inode_alloc_security =		cap_inode_alloc_security,
--	.inode_free_security =		cap_inode_free_security,
--	.inode_create =			cap_inode_create,
--	.inode_post_create =		cap_inode_post_create,
--	.inode_link =			cap_inode_link,
--	.inode_post_link =		cap_inode_post_link,
--	.inode_unlink =			cap_inode_unlink,
--	.inode_symlink =		cap_inode_symlink,
--	.inode_post_symlink =		cap_inode_post_symlink,
--	.inode_mkdir =			cap_inode_mkdir,
--	.inode_post_mkdir =		cap_inode_post_mkdir,
--	.inode_rmdir =			cap_inode_rmdir,
--	.inode_mknod =			cap_inode_mknod,
--	.inode_post_mknod =		cap_inode_post_mknod,
--	.inode_rename =			cap_inode_rename,
--	.inode_post_rename =		cap_inode_post_rename,
--	.inode_readlink =		cap_inode_readlink,
--	.inode_follow_link =		cap_inode_follow_link,
--	.inode_permission =		cap_inode_permission,
--	.inode_permission_lite =	cap_inode_permission_lite,
--	.inode_setattr =		cap_inode_setattr,
--	.inode_getattr =		cap_inode_getattr,
--	.inode_post_lookup =		cap_post_lookup,
--	.inode_delete =			cap_delete,
--	.inode_setxattr =		cap_inode_setxattr,
--	.inode_getxattr =		cap_inode_getxattr,
--	.inode_listxattr =		cap_inode_listxattr,
--	.inode_removexattr =		cap_inode_removexattr,
--	
--	.file_permission =		cap_file_permission,
--	.file_alloc_security =		cap_file_alloc_security,
--	.file_free_security =		cap_file_free_security,
--	.file_ioctl =			cap_file_ioctl,
--	.file_mmap =			cap_file_mmap,
--	.file_mprotect =		cap_file_mprotect,
--	.file_lock =			cap_file_lock,
--	.file_fcntl =			cap_file_fcntl,
--	.file_set_fowner =		cap_file_set_fowner,
--	.file_send_sigiotask =		cap_file_send_sigiotask,
--	.file_receive =			cap_file_receive,
+ /* used when updating hcd data */
+ static spinlock_t hcd_data_lock = SPIN_LOCK_UNLOCKED;
+diff -Nru a/security/Kconfig b/security/Kconfig
+--- a/security/Kconfig	Thu Dec  5 01:19:10 2002
++++ b/security/Kconfig	Thu Dec  5 01:19:10 2002
+@@ -22,5 +22,15 @@
+ 	  This enables the "default" Linux capabilities functionality.
+ 	  If you are unsure how to answer this question, answer Y.
  
--	.task_create =			cap_task_create,
--	.task_alloc_security =		cap_task_alloc_security,
--	.task_free_security =		cap_task_free_security,
--	.task_setuid =			cap_task_setuid,
- 	.task_post_setuid =		cap_task_post_setuid,
--	.task_setgid =			cap_task_setgid,
--	.task_setpgid =			cap_task_setpgid,
--	.task_getpgid =			cap_task_getpgid,
--	.task_getsid =			cap_task_getsid,
--	.task_setgroups =		cap_task_setgroups,
--	.task_setnice =			cap_task_setnice,
--	.task_setrlimit =		cap_task_setrlimit,
--	.task_setscheduler =		cap_task_setscheduler,
--	.task_getscheduler =		cap_task_getscheduler,
--	.task_wait =			cap_task_wait,
--	.task_kill =			cap_task_kill,
--	.task_prctl =			cap_task_prctl,
- 	.task_kmod_set_label =		cap_task_kmod_set_label,
- 	.task_reparent_to_init =	cap_task_reparent_to_init,
--
--	.ipc_permission =		cap_ipc_permission,
--
--	.msg_queue_alloc_security =	cap_msg_queue_alloc_security,
--	.msg_queue_free_security =	cap_msg_queue_free_security,
--	
--	.shm_alloc_security =		cap_shm_alloc_security,
--	.shm_free_security =		cap_shm_free_security,
--	
--	.sem_alloc_security =		cap_sem_alloc_security,
--	.sem_free_security =		cap_sem_free_security,
--
--	.register_security =		cap_register,
--	.unregister_security =		cap_unregister,
- };
++config SECURITY_ROOTPLUG
++	tristate "Root Plug Support"
++	depends on SECURITY!=n
++	help
++	  This is a sample LSM module that should only be used as such.
++	  It enables control over processes being created by root users
++	  if a specific USB device is not present in the system.
++	  
++	  If you are unsure how to answer this question, answer N.
++
+ endmenu
  
- #if defined(CONFIG_SECURITY_CAPABILITIES_MODULE)
+diff -Nru a/security/Makefile b/security/Makefile
+--- a/security/Makefile	Thu Dec  5 01:19:10 2002
++++ b/security/Makefile	Thu Dec  5 01:19:10 2002
+@@ -13,5 +13,6 @@
+ # Object file lists
+ obj-$(CONFIG_SECURITY)			+= security.o dummy.o
+ obj-$(CONFIG_SECURITY_CAPABILITIES)	+= capability.o
++obj-$(CONFIG_SECURITY_ROOTPLUG)		+= root_plug.o
+ 
+ include $(TOPDIR)/Rules.make
+diff -Nru a/security/root_plug.c b/security/root_plug.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/security/root_plug.c	Thu Dec  5 01:19:10 2002
+@@ -0,0 +1,189 @@
++/*
++ * Root Plug sample LSM module
++ *
++ * Originally written for a Linux Journal.
++ *
++ * Copyright (C) 2002 Greg Kroah-Hartman <greg@kroah.com>
++ *
++ * Prevents any programs running with egid == 0 if a specific USB device
++ * is not present in the system.  Yes, it can be gotten around, but is a
++ * nice starting point for people to play with, and learn the LSM
++ * interface.
++ *
++ * If you want to turn this into something with a semblance of security,
++ * you need to hook the task_* functions also.
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License as
++ *	published by the Free Software Foundation, version 2 of the
++ *	License.
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/security.h>
++#include <linux/usb.h>
++
++/* flag to keep track of how we were registered */
++static int secondary;
++
++/* default is a generic type of usb to serial converter */
++static int vendor_id = 0x0557;
++static int product_id = 0x2008;
++
++MODULE_PARM(vendor_id, "h");
++MODULE_PARM_DESC(vendor_id, "USB Vendor ID of device to look for");
++
++MODULE_PARM(product_id, "h");
++MODULE_PARM_DESC(product_id, "USB Product ID of device to look for");
++
++/* should we print out debug messages */
++static int debug = 0;
++
++MODULE_PARM(debug, "i");
++MODULE_PARM_DESC(debug, "Debug enabled or not");
++
++#if defined(CONFIG_SECURITY_ROOTPLUG_MODULE)
++#define MY_NAME THIS_MODULE->name
++#else
++#define MY_NAME "root_plug"
++#endif
++
++#define dbg(fmt, arg...)					\
++	do {							\
++		if (debug)					\
++			printk(KERN_DEBUG "%s: %s: " fmt ,	\
++				MY_NAME , __FUNCTION__ , 	\
++				## arg);			\
++	} while (0)
++
++extern struct list_head usb_bus_list;
++extern struct semaphore usb_bus_list_lock;
++
++static int match_device (struct usb_device *dev)
++{
++	int retval = -ENODEV;
++	int child;
++
++	dbg ("looking at vendor %d, product %d\n",
++	     dev->descriptor.idVendor,
++	     dev->descriptor.idProduct);
++
++	/* see if this device matches */
++	if ((dev->descriptor.idVendor == vendor_id) &&
++	    (dev->descriptor.idProduct == product_id)) {
++		dbg ("found the device!\n");
++		retval = 0;
++		goto exit;
++	}
++
++	/* look through all of the children of this device */
++	for (child = 0; child < dev->maxchild; ++child) {
++		if (dev->children[child]) {
++			retval = match_device (dev->children[child]);
++			if (retval == 0)
++				goto exit;
++		}
++	}
++exit:
++	return retval;
++}
++
++static int find_usb_device (void)
++{
++	struct list_head *buslist;
++	struct usb_bus *bus;
++	int retval = -ENODEV;
++	
++	down (&usb_bus_list_lock);
++	for (buslist = usb_bus_list.next;
++	     buslist != &usb_bus_list; 
++	     buslist = buslist->next) {
++		bus = container_of (buslist, struct usb_bus, bus_list);
++		retval = match_device(bus->root_hub);
++		if (retval == 0)
++			goto exit;
++	}
++exit:
++	up (&usb_bus_list_lock);
++	return retval;
++}
++	
++
++static int rootplug_bprm_check_security (struct linux_binprm *bprm)
++{
++	dbg ("file %s, e_uid = %d, e_gid = %d\n",
++	     bprm->filename, bprm->e_uid, bprm->e_gid);
++
++	if (bprm->e_gid == 0) {
++		if (find_usb_device() != 0) {
++			dbg ("e_gid = 0, and device not found, "
++				"task not allowed to run...\n");
++			return -EPERM;
++		}
++	}
++
++	return 0;
++}
++
++static struct security_operations rootplug_security_ops = {
++	/* Use the capability functions for some of the hooks */
++	.ptrace =			cap_ptrace,
++	.capget =			cap_capget,
++	.capset_check =			cap_capset_check,
++	.capset_set =			cap_capset_set,
++	.capable =			cap_capable,
++
++	.bprm_compute_creds =		cap_bprm_compute_creds,
++	.bprm_set_security =		cap_bprm_set_security,
++
++	.task_post_setuid =		cap_task_post_setuid,
++	.task_kmod_set_label =		cap_task_kmod_set_label,
++	.task_reparent_to_init =	cap_task_reparent_to_init,
++
++	.bprm_check_security =		rootplug_bprm_check_security,
++};
++
++static int __init rootplug_init (void)
++{
++	/* register ourselves with the security framework */
++	if (register_security (&rootplug_security_ops)) {
++		printk (KERN_INFO 
++			"Failure registering Root Plug module with the kernel\n");
++		/* try registering with primary module */
++		if (mod_reg_security (MY_NAME, &rootplug_security_ops)) {
++			printk (KERN_INFO "Failure registering Root Plug "
++				" module with primary security module.\n");
++			return -EINVAL;
++		}
++		secondary = 1;
++	}
++	printk (KERN_INFO "Root Plug module initialized, "
++		"vendor_id = %4.4x, product id = %4.4x\n", vendor_id, product_id);
++	return 0;
++}
++
++static void __exit rootplug_exit (void)
++{
++	/* remove ourselves from the security framework */
++	if (secondary) {
++		if (mod_unreg_security (MY_NAME, &rootplug_security_ops))
++			printk (KERN_INFO "Failure unregistering Root Plug "
++				" module with primary module.\n");
++	} else { 
++		if (unregister_security (&rootplug_security_ops)) {
++			printk (KERN_INFO "Failure unregistering Root Plug "
++				"module with the kernel\n");
++		}
++	}
++	printk (KERN_INFO "Root Plug module removed\n");
++}
++
++module_init (rootplug_init);
++module_exit (rootplug_exit);
++
++MODULE_DESCRIPTION("Root Plug sample LSM module, written for Linux Journal article");
++MODULE_LICENSE("GPL");
++

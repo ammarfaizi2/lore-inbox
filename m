@@ -1,91 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132392AbRDJQMP>; Tue, 10 Apr 2001 12:12:15 -0400
+	id <S132395AbRDJQOg>; Tue, 10 Apr 2001 12:14:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132395AbRDJQL4>; Tue, 10 Apr 2001 12:11:56 -0400
-Received: from phoenix.datrix.co.za ([196.37.220.5]:34592 "EHLO
-	phoenix.datrix.co.za") by vger.kernel.org with ESMTP
-	id <S132392AbRDJQLv>; Tue, 10 Apr 2001 12:11:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marcin Kowalski <kowalski@datrix.co.za>
-Reply-To: kowalski@datrix.co.za
-Organization: Datrix Solutions
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.3 Crash - (Kernel BUG at highmem.c:155)
-Date: Tue, 10 Apr 2001 18:11:15 +0200
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <0104101811150C.25951@webman>
-Content-Transfer-Encoding: 7BIT
+	id <S132406AbRDJQO0>; Tue, 10 Apr 2001 12:14:26 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:33808 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132395AbRDJQOP>;
+	Tue, 10 Apr 2001 12:14:15 -0400
+Date: Tue, 10 Apr 2001 12:15:09 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+Cc: "'Eric S. Raymond'" <esr@snark.thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] CML2 1.0.0 release announcement
+Message-ID: <20010410121509.A31649@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	"Dunlap, Randy" <randy.dunlap@intel.com>,
+	"'Eric S. Raymond'" <esr@snark.thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE1BB@orsmsx31.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE1BB@orsmsx31.jf.intel.com>; from randy.dunlap@intel.com on Tue, Apr 10, 2001 at 08:45:56AM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All
+Dunlap, Randy <randy.dunlap@intel.com>:
+> I'd like to see one of the prominent web pages inform
+> people that Python version x.yy(?) is required to use CML2.
 
-This is quite a long email which I have split in two for those that are 
-interested problem and background...
-
----Problem---
-
-Kernel Panic Occured with Messages:
-Kernel BUG at highmem.c:155
-Invalid Operand ???? With sshd somewhere in the mix. 
-
-Unfortunately I did a task dump with SYSRQ before I could get the rest of the 
-info..  and syslogd had stopped logging to disk already. I then had to reboot.
-
-Looking at line 155 :
-/*
-         * A count must never go down to zero
-         * without a TLB flush!
-         */
-        switch (--pkmap_count[nr]) {
-        case 0:
-                BUG();
-        case 1:
-                wake_up(&pkmap_map_wait);
-        }
-        spin_unlock(&kmap_lock);
-
-WHat went wrong???? to make the count go to zero??
-
----Background----
-
-I am running Linux 2.4.3 on A HP netserver 2000r, it has 1.2gigs of RAM, at 
-dual 933mhz Xeon (Piii actually, but paid for Xeons??) and a Netraid 4m SCSI 
-Card with 6x 18.4gig HP Drives in a Raid 5 Configuration with No Hot Standby.
-The Root FS is on a 9.2 GIG HP Scsi Drive. Both root and home are reiserfs 
-(9.4 gig and 85gig respectively).
-The kernel is patch with the axboe-scsi-patch and the latest aacraid patch. 
-Running under SUse Linux 7.0 (new modutils).
-
-THe server is running samba, httpd, sendmail, mrtg, named and a number of 
-other porcesses but the loadaverage tends to stay below 1.0 mostly, although 
-it exhibits erratic behaviour with load climbing to 3-5-6 with top showing no 
-apparent candidate, with most of the time spent in SYStem calls. 
-Occassional lockups lasting 5-20 seconds were experienced when working on the 
-box under 2.4.2 but seem to be much better in 2.4.3.
-
-Today the server tends to "eat up" shared+used memory over time eventually 
-using +- 700mb of RAM with no process reflecting this in top.
-
-Running SWAPoff today, when 64mb of swap was being used, resulted in complete 
-machine lockup for about 30-40 seconds. 
-
-I strongly suspect the aacraid drivers but need further proof to convince the 
-powers that be to swap for a Mylex or something better supported....
-
-Any advice/answers would be very welcome.
-
-TIA
-MARCin
-
-
+It's in the README.  Is that good enough?
 -- 
------------------------------
-     Marcin Kowalski
-     Linux/Perl Developer
-     Datrix Solutions
-     Cel. 082-400-7603
-      ***Open Source Kicks Ass***
------------------------------
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"Boys who own legal firearms have much lower rates of delinquency and
+drug use and are even slightly less delinquent than nonowners of guns."
+	-- U.S. Department of Justice, National Institute of
+	   Justice, Office of Juvenile Justice and Delinquency Prevention,
+	   NCJ-143454, "Urban Delinquency and Substance Abuse," August 1995.

@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291720AbSBALpN>; Fri, 1 Feb 2002 06:45:13 -0500
+	id <S291717AbSBALvn>; Fri, 1 Feb 2002 06:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291719AbSBALpD>; Fri, 1 Feb 2002 06:45:03 -0500
-Received: from [210.0.172.57] ([210.0.172.57]:9744 "EHLO dog.ima.net")
-	by vger.kernel.org with ESMTP id <S291717AbSBALoy>;
-	Fri, 1 Feb 2002 06:44:54 -0500
-Date: Fri, 1 Feb 2002 19:42:12 +0800 (HKT)
-From: Joe Wong <joewong@tkodog.no-ip.com>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.4.16 cannot connect to www.sun.com
-In-Reply-To: <Pine.LNX.4.33L.0202010926080.17106-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.21.0202011939150.30567-100000@dog.ima.net>
+	id <S291719AbSBALvd>; Fri, 1 Feb 2002 06:51:33 -0500
+Received: from opal.biophys.uni-duesseldorf.de ([134.99.176.7]:10983 "EHLO
+	opal.biophys.uni-duesseldorf.de") by vger.kernel.org with ESMTP
+	id <S291717AbSBALvS>; Fri, 1 Feb 2002 06:51:18 -0500
+Date: Fri, 1 Feb 2002 12:50:56 +0100 (CET)
+From: Michael Schmitz <schmitz@opal.biophys.uni-duesseldorf.de>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>, Vojtech Pavlik <vojtech@ucw.cz>,
+        Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Atari keyboard?
+In-Reply-To: <Pine.LNX.4.10.10201311513040.23385-100000@www.transvirtual.com>
+Message-ID: <Pine.LNX.4.33.0202011247430.8976-100000@opal.biophys.uni-duesseldorf.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Also I need info on these keyboards as well to port them over.
 
-Hello all,
+I'd ask Andreas Schwab if there's any questions left after reading the
+docs Vojtech mentioned. I'll be happy to test as soon as you have a patch
+(and I've rebuilt my test system from the latest disaster),
 
-  For some reason after I upgraded to 2.4.16, I cannot connect to
-www.sun.com anymore. It also happens on some other sites. Anyone know what
-might be the problem? I have no problem using 2.4.7.
-
-TIA.
-
-- Joe
+	Michael
 

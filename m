@@ -1,70 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbUDLKtd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 06:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbUDLKtd
+	id S262815AbUDLK7e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 06:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbUDLK7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 06:49:33 -0400
-Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:6784 "EHLO
-	longlandclan.hopto.org") by vger.kernel.org with ESMTP
-	id S262810AbUDLKta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 06:49:30 -0400
-Message-ID: <407A7436.1040908@longlandclan.hopto.org>
-Date: Mon, 12 Apr 2004 20:49:26 +1000
-From: Stuart Longland <stuartl@longlandclan.hopto.org>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Who maintains the atp870u driver? (ACARD PCI SCSI)
-References: <40702B87.6080506@longlandclan.hopto.org> <20040407140254.GB10979@logos.cnet>
-In-Reply-To: <20040407140254.GB10979@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Apr 2004 06:59:34 -0400
+Received: from cm219.gamma177.maxonline.com.sg ([202.156.177.219]:13228 "EHLO
+	garfield.anomalistic.org") by vger.kernel.org with ESMTP
+	id S262815AbUDLK7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 06:59:32 -0400
+Date: Mon, 12 Apr 2004 18:59:33 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: John Que <qwejohn@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: printk redirection to a different file
+Message-ID: <20040412105933.GA13957@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <BAY14-F48FudQ3yeYsb0003ff1e@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BAY14-F48FudQ3yeYsb0003ff1e@hotmail.com>
+X-Operating-System: Linux 2.6.3-rc3
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+Wrong mailing list.
 
+Edit /etc/syslog.conf so that the messages will be forwarded to
+a different file.
+
+Eugene
+
+<quote sender="John Que">
+> Hello,
 > 
-> No one really maintains it officially.
+> I had added printk calls in a linux kernel module
+> for debug purposes.
+> Now , I want that this calls will be loggoed not to
+> /var/log/messages (this is where
+> the printk messages  are on RH9) but to a different file.
 > 
-> James Bottomley and Doug Ledford have done some fixes for it on v2.6, you might want 
-> trying to ask them directly.
+> I am thinking of one main alternative:
 > 
-> Sorry.
-
-	Ahh okay.  I might try Linux 2.6 on this box, however after testing 
-this card in an x86 machine I had, and watching it fail to complete 
-POST, I'm guessing my problem is that the card is in fact, dead.
-
-	I merely pulled it out of the Microserver, and plonked in my dedicated 
-games server (P4 1.4GHz, 256MB RDRAM, MSI Motherboard -- Gentoo Linux 
-1.4) and watched it boot.  I heard no beeps, saw nothing on screen, and 
-the whole system just sat there.
-
-	Near the sound card sockets, there's a set of 4 two-colour LEDs 
-arranged vertically, which indicate system status -- I don't know what 
-the meaning is.  (It'll probably be in the handbook I don't have -- the 
-board is second hand off Ebay).  Normally these are all glowing green 
-when the system is fully up.  Looking at it now, it halts with them 
-(going towards board), green, red, red, red.  On removing the card, the 
-machine comes up just fine.  I take it this means the card is dead.
-
-	Out of interest, the card itself is an "ACARD AEC-6710S" with an 
-ATP870IU-C chipset.
-
-	Odd that the Microserver should work with it though -- even if it gets 
-SCSI parity errors -- but I spose this explains the odd error messages. 
-  Hrmm, looks like I'm back on the search for another SCSI card that 
-fits... :-/ (Anyone managed to get a SCSI card working in a Cobalt Qube 
-or Gateway Microserver?)
+> create a debug_printk() method (by  copying the printk.c to debug_printk.c
+> , doing needed changes , and call debug_printk() method instead of
+> printk() methods where I want messages to a different log file).
+> 
+> Problem is that I do not see where in printk.c it
+> says that the messages will go to /var/log/messages.
+> 
+> (I assume that this is done with a logging system daemon).
+> 
+> 
+> any idea what to do ?
+> regards,
+> John
+> 
+> _________________________________________________________________
+> The new MSN 8: smart spam protection and 2 months FREE*  
+> http://join.msn.com/?page=features/junkmail
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-+-------------------------------------------------------------+
-| Stuart Longland           stuartl at longlandclan.hopto.org |
-| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
-| I haven't lost my mind - it's backed up on a tape somewhere |
-| Atomic Linux Project    <--->    http://atomicl.berlios.de/ |
-+-------------------------------------------------------------+
+Eugene TEO -  <eugeneteo%null!cc!uic!edu> <http://www.anomalistic.org/>
+1024D/14A0DDE5 print D851 4574 E357 469C D308  A01E 7321 A38A 14A0 DDE5
+main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
+

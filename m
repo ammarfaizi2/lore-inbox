@@ -1,76 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUIAI3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUIAIeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUIAI3m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 04:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUIAI3l
+	id S264265AbUIAIeo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 04:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUIAIen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 04:29:41 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:54926 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264246AbUIAI3S (ORCPT
+	Wed, 1 Sep 2004 04:34:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40372 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264265AbUIAIa2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 04:29:18 -0400
-Date: Wed, 1 Sep 2004 10:29:58 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Wed, 1 Sep 2004 04:30:28 -0400
+Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
 To: linux-kernel@vger.kernel.org
-Cc: "K.R. Foley" <kr@cybsft.com>, Mark_H_Johnson@raytheon.com,
-       Lee Revell <rlrevell@joe-job.com>
-Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q6
-Message-ID: <20040901082958.GA22920@elte.hu>
-References: <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu> <20040828203116.GA29686@elte.hu> <1093727453.8611.71.camel@krustophenia.net> <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu> <20040830090608.GA25443@elte.hu>
+Cc: discuss@x86-64.org
+In-Reply-To: <20040901072245.GF13749@mellanox.co.il>
+References: <20040901072245.GF13749@mellanox.co.il>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-82PY/ieQzQxAP/qKF+4A"
+Organization: Red Hat UK
+Message-Id: <1094027417.2947.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040830090608.GA25443@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 01 Sep 2004 10:30:18 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-i've released the -Q6 patch:
+--=-82PY/ieQzQxAP/qKF+4A
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q6
+On Wed, 2004-09-01 at 09:22, Michael S. Tsirkin wrote:
+> Hello!
+> Currently, on the x86_64 architecture, its quite tricky to make
+> a char device ioctl work for an x86 executables.
+> In particular,
+>    1. there is a requirement that ioctl number is unique -
+>       which is hard to guarantee especially for out of kernel modules
 
-ontop of:
+well... external modules thus should be really really careful with
+ioctls then and not embrace and extend too much but just use existing
+ones instead when reasonable
 
-  http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
+>    2. there's a performance huge overhead for each compat call - there's
+>       a hash lookup in a global hash inside a lock_kernel -
+>       and I think compat performance *is* important.
 
-this patch includes two changes that should shorten the networking
-latencies reported. There's a new 'RX granularity' sysctl now:
+such is life
 
-    /proc/sys/net/core/netdev_backlog_granularity
+>=20
+> Further, adding a command to the ioctl suddenly requires changing
+> two places - registration code and ioctl itself.
 
-It defaults to the most finegrained value, 1.
+adding ioctls SHOULD be painful. Really painful. It's similar to adding
+syscalls; you'll have to keep compatibility basically forever so adding
+should not be an easy thing.
 
-netdev_max_backlog has been moved back to the upstream value of 300.
 
-Also, the backlog processing is now sensitive to preemption requests and
-will break out early in that case.
+--=-82PY/ieQzQxAP/qKF+4A
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-(This should not result in TCP connection quality issues (all processing
-is restarted after such a breakout), but nevertheless i'd suggest
-everyone to keep an eye on lost packets and seemingly hung TCP
-connections.)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-other changes since -Q5:
+iD8DBQBBNYiZxULwo51rQBIRAkCuAJ9/sLhd3za+1ls6HEIIcFBmvSF3FwCgiVMl
+X1ok3gBsQ0jGTTYdHT/VPbs=
+=tR34
+-----END PGP SIGNATURE-----
 
- - mtrr simplifications and IRQ-disabling. (reported & tested by Lee
-   Revell) Still under discussion though.
+--=-82PY/ieQzQxAP/qKF+4A--
 
- - fix /dev/random driver latency (reported & tested by Lee Revell)
-
- - move vgacon_do_font_op out of the BKL (reported by P.O. Gaillard)
-
- - increase percpu space for tracing (by Mark H Johnson)
-
- - added user-triggerable generic kernel tracing enabled via
-   tracing_enabled=2 and turned on via gettimeofday(0,1) and turned off
-   via gettimeofday(0,0).
-
-	Ingo

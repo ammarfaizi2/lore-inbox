@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbUKWTUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbUKWTZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbUKWTUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUKWTSf
+	id S261532AbUKWTZK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:25:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbUKWTXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:18:35 -0500
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:23238 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S261478AbUKWTP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 14:15:58 -0500
-Message-ID: <41A38BF1.9060207@ammasso.com>
-Date: Tue, 23 Nov 2004 13:13:53 -0600
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Tue, 23 Nov 2004 14:23:14 -0500
+Received: from pop.gmx.net ([213.165.64.20]:31398 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261505AbUKWTV7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 14:21:59 -0500
+X-Authenticated: #4512188
+Message-ID: <41A38DF8.40907@gmx.de>
+Date: Tue, 23 Nov 2004 20:22:32 +0100
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041114)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove pointless <0 comparison for unsigned variable
- in fs/fcntl.c
-References: <Pine.LNX.4.61.0411212351210.3423@dragon.hygekrogen.localhost> <20041122010253.GE25636@parcelfarce.linux.theplanet.co.uk> <41A30612.2040700@dif.dk> <Pine.LNX.4.58.0411230958260.20993@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411230958260.20993@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Lee Revell <rlrevell@joe-job.com>
+CC: William Lee Irwin III <wli@holomorphy.com>, Jan De Luyck <lkml@kcore.org>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: [2.6.10-rc2] XFS filesystem corruption
+References: <200411221530.30325.lkml@kcore.org>	 <20041122155106.GG2714@holomorphy.com>  <41A30D3E.9090506@gmx.de> <1101237223.6358.10.camel@krustophenia.net>
+In-Reply-To: <1101237223.6358.10.camel@krustophenia.net>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigDD8C33BBD5079D789DF4012A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigDD8C33BBD5079D789DF4012A
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> The warning is sometimes useful, but when it comes to a construct like
+Lee Revell schrieb:
+> On Tue, 2004-11-23 at 11:13 +0100, Prakash K. Cheemplavam wrote:
 > 
-> 	if (a < 0 || a > X)
+>>Is xfs known to be broken while preempt is on? (Esp 
+>>using ck's preemp big kernel lock?)
 > 
-> the fact that "a" is unsigned does not make the construct silly. First 
-> off, it's (a) very readable and (b) the type of "a" may not be immediately 
-> obvious if it's a user typedef, for example. 
 > 
-> In fact, the type of "a" might depend on the architecture, or even 
-> compiler flags. Think about "char" - which may or may not be signed 
-> depending on ABI and things like -funsigned-char.
+> Minor nitpick:  Ingo wrote the preempt BKL code, not Con.
 
-If 'a' could be signed on some architectures and unsigned on others, 
-then I agree that "a < 0" is not silly.  But if it's always going to be 
-unsigned, then I can't see how it's not silly.
+Oh yes, I know, but it is in Con's kernel, and IIRC he merged nto all of 
+his patches, so I thought this would be more precise. ;-)
 
-> which might warn on an architecture where "pid_t" is just sixteen bits 
-> wide. Does that make the code wrong? Hell no.
+Prakash
 
-Wouldn't something like "sizeof(pid_t) > 2" be a better test?  It 
-certainly would be a lot easier to understand than comparing with 0xffff.
+--------------enigDD8C33BBD5079D789DF4012A
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBo434xU2n/+9+t5gRAua8AJ4u9qPkE47iOiWY7KYxjv7EvUVqFACgx5Yk
+ee1pA0+PNT1cdb0Hl38d1gw=
+=ygcz
+-----END PGP SIGNATURE-----
+
+--------------enigDD8C33BBD5079D789DF4012A--

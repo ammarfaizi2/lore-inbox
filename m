@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319625AbSIMTe2>; Fri, 13 Sep 2002 15:34:28 -0400
+	id <S319655AbSIMTjP>; Fri, 13 Sep 2002 15:39:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319655AbSIMTe2>; Fri, 13 Sep 2002 15:34:28 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:18171 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S319625AbSIMTe2>;
-	Fri, 13 Sep 2002 15:34:28 -0400
-Date: Fri, 13 Sep 2002 15:39:16 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
+	id <S319667AbSIMTjP>; Fri, 13 Sep 2002 15:39:15 -0400
+Received: from vti01.vertis.nl ([145.66.4.26]:57872 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S319655AbSIMTjO>;
+	Fri, 13 Sep 2002 15:39:14 -0400
+Date: Fri, 13 Sep 2002 21:42:57 +0200
+From: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
+Message-Id: <200209131942.g8DJgv005332@fokkensr.vertis.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Streaming DMA mapping question
-Message-ID: <20020913193916.GA5004@www.kroptech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Subject: [PATCH] USER_HZ & SG problem [timeouts]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on revamping the DMA mapping of a driver and have been reading
-Documentation/DMA-Mapping.txt and becoming one with it. On i386 I notice the
-following discrepency:
+Hi!
 
-According to the docs, you should either unmap or sync your DMA buffer before
-touching it from the host. The i386 implementation of pci_unmap is empty --no
-problem; there must not be any unmap work to do on this arch. But the 
-implementation of pci_dma_sync does contain a flush_write_buffers() call. This
-makes me think that perhaps if I'm going to modify the buffer before I submit it
-back to the controller I need to do:
+One of the places in the kernel where HZ is interfaced with userspace
+is in the SG driver. With HZ different from USER_HZ this may result
+in all kinds of unexpected timeouts when using SG.
 
-/* so I can read it; not necessary on i386 */
-pci_dma_sync_single(...);
+This patch is an attempt to fix this by transforming USER_HZ based timing to
+HZ based timing an v.v. A problem I know of is the fact that SG_GET_TIMEOUT
+may return a different value than the value that was passed on with
+SG_SET_TIMEOUT.  Depending on its impact this may need to be solved by
+adding a field "user_timeout" to Sg_fd which contains the USER_HZ based value.
 
-fiddle_with_buffer(...);
+Cheers,
 
-/* so adapter sees my changes; this is necessary on i386 */
-pci_dma_sync_single(...);
+Rolf
 
-Otherwise I don't see why it is safe to touch the buffer after pci_unmap.
-
-Someone lend me a clue?
-
---Adam
+--- linux-2.5.34.orig/drivers/scsi/sg.c	Sun Sep  8 09:00:32 2002
++++ linux-2.5.34/drivers/scsi/sg.c	Fri Sep 13 21:30:24 2002
+@@ -731,6 +731,17 @@
+ 	return 0;
+ }
  
++/*
++ * Suppose you want to calculate the formula muldiv(x,m,d)=int(x * m / d)
++ * Then when using 32 bit integers x * m may overflow during the calculation.
++ * Replacing muldiv(x) by muldiv(x)=((x % d) * m) / d + int(x / d) * m
++ * calculates the same, but prevents the overflow when both m and d
++ * are "small" numbers (like HZ and USER_HZ).
++ * Of course an overflow is inavoidable if the result of muldiv doesn't fit
++ * in 32 bits.
++ */
++#define MULDIV(X,MUL,DIV) ((((X % DIV) * MUL) / DIV) + ((X / DIV) * MUL))
++
+ static int
+ sg_ioctl(struct inode *inode, struct file *filp,
+ 	 unsigned int cmd_in, unsigned long arg)
+@@ -790,10 +801,15 @@
+ 			return result;
+ 		if (val < 0)
+ 			return -EIO;
+-		sfp->timeout = val;
++		if (val >= MULDIV (INT_MAX, USER_HZ, HZ))
++		    val = MULDIV (INT_MAX, USER_HZ, HZ);
++		sfp->timeout = MULDIV (val, HZ, USER_HZ);
++
+ 		return 0;
+ 	case SG_GET_TIMEOUT:	/* N.B. User receives timeout as return value */
+-		return sfp->timeout;	/* strange ..., for backward compatibility */
++		val = sfp->timeout;
++		val = MULDIV (val, USER_HZ, HZ);
++		return val;	/* strange ..., for backward compatibility */
+ 	case SG_SET_FORCE_LOW_DMA:
+ 		result = get_user(val, (int *) arg);
+ 		if (result)

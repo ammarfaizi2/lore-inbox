@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbUBYIkO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 03:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbUBYIkO
+	id S262491AbUBYI4P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 03:56:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbUBYI4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 03:40:14 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:23044 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S262475AbUBYIkL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 03:40:11 -0500
-Date: Wed, 25 Feb 2004 09:39:57 +0100
-To: Pavel Machek <pavel@suse.cz>
-Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Stefan Seyfried <seife@suse.de>, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] swsusp/s3: Assembly interactions need asmlinkage
-Message-ID: <20040225083957.GE2869@poupinou.org>
-References: <20040224130051.GA8964@elf.ucw.cz>
-Mime-Version: 1.0
+	Wed, 25 Feb 2004 03:56:15 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:41669 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S262491AbUBYI4I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 03:56:08 -0500
+To: Dinesh Ahuja <DineshA@niit.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Libraries required to work with NPTL.
+References: <4CD9B982506A4148BF3AD77B16585C990C9DAE5A@ho-kkj-msg1.in.niit.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 25 Feb 2004 03:56:02 -0500
+In-Reply-To: <4CD9B982506A4148BF3AD77B16585C990C9DAE5A@ho-kkj-msg1.in.niit.com>
+Message-ID: <yq0r7wjo7vh.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040224130051.GA8964@elf.ucw.cz>
-User-Agent: Mutt/1.5.4i
-From: Bruno Ducrot <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 02:00:51PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> swsusp/s3 assembly parts, and parts called from assembly are not
-> properly marked asmlinkage; that leads to double fault on resume when
-> someone compiles kernel with regparm. Thanks go to Stefan Seyfried for
-> discovering this. Please apply,
+>>>>> "Dinesh" == Dinesh Ahuja <DineshA@niit.com> writes:
 
-Does acpi_enter_sleep_state_s4bios() have the same issue ?
+Dinesh> Hi Everybody, I have to use POSIX Message Queues
+Dinesh> (mq_open),Semaphores and Shared Memory in Red Hat Linux 9.0
+Dinesh> which is having Linux Kernel 2.4.  I searched the net and
+Dinesh> looked out that I need to upgrade my Kernel [default 2.4.20
+Dinesh> with Linux 9.0] to 2.6 to work with these as it supports NPTL
+Dinesh> and compatible with POSIX1.b, whereas Linux 2.4 doesn't fully
+Dinesh> supports POSIX standards.
 
+Dinesh> Please guide me what other libraries and settings needs to be
+Dinesh> done in Kernel2.6 to compile and execute my C code to work
+Dinesh> with NPTL which is POSIX1.b Standards compliant.
 
--- 
-Bruno Ducrot
+Dear Dinesh,
 
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+The Red Hat 9.x kernels actually come with NPTL support builtin, as
+such it shouldn't be necessary for you to switch to a 2.6 kernel.
+
+However! Due to the obnoxious nature of you employer's email setup,
+see below, I am providing you the above information under the contract
+that you make sure to never post to linux-kernel again including the
+below brain dead disclaimer and that you make sure to have your IT
+department stop sending out such disclaimers. Disclaimers like these
+are pointless and do not apply anyway as well as being obnoxious and
+violates the spirit of public Internet email.
+
+Using the above provided information for any NIIT business constitutes
+acceptance of this contract between NIIT and the Linux community.
+
+If you want to ask further technical questions, you are encouraged to
+do so, but keep in mind that it must comply with this contract.
+
+Best regards,
+Jes
+
+Dinesh> -----------------------------------------------------------
+Dinesh> NOTICE
+Dinesh> ------------------------------------------------------------
+Dinesh> This email and any files transmitted with it are confidential
+Dinesh> and are solely for the use of the individual or entity to
+Dinesh> which it is addressed. Any use, distribution, copying or
+Dinesh> disclosure by any other person is strictly prohibited. If you
+Dinesh> receive this transmission in error, please notify the sender
+Dinesh> by reply email and then destroy the message. Opinions,
+Dinesh> conclusions and other information in this message that do not
+Dinesh> relate to official business of NIIT shall be understood to be
+Dinesh> neither given nor endorsed by NIIT. Any information contained
+Dinesh> in this email, when addressed to NIIT Clients is subject to
+Dinesh> the terms and conditions in governing client contract.

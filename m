@@ -1,154 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265957AbUFIX10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266023AbUFIXci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265957AbUFIX10 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 19:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266023AbUFIX10
+	id S266023AbUFIXci (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 19:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUFIXch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 19:27:26 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:5012 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265957AbUFIX1Q (ORCPT
+	Wed, 9 Jun 2004 19:32:37 -0400
+Received: from [82.147.40.124] ([82.147.40.124]:64414 "EHLO dodge.jordet.nu")
+	by vger.kernel.org with ESMTP id S266023AbUFIXcg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 19:27:16 -0400
-Date: Wed, 09 Jun 2004 16:23:11 -0700
-From: Hanna Linder <hannal@us.ibm.com>
+	Wed, 9 Jun 2004 19:32:36 -0400
+Subject: Fix warning in hisax/config.c
+From: Stian Jordet <liste@jordet.nu>
 To: linux-kernel@vger.kernel.org
-cc: hannal@us.ibm.com, greg@kroah.com, hpa@zytor.com
-Subject: [PATCH 2.6.7-rc3] Add's class support to msr.c
-Message-ID: <146320000.1086823391@dyn318071bld.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: kkeil@suse.de
+Content-Type: text/plain
+Date: Thu, 10 Jun 2004 01:32:18 +0200
+Message-Id: <1086823938.3242.5.camel@chevrolet.jordet>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.8 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-This patch enables class support in arch/i386/kernel/msr.c. Very simliar
-to cpuid (with the fixes Zwane/Greg made, thanks). 
+is this patch correct? It silences the warning, and everything seems to
+work fine for me.
 
-[root@w-hlinder2 root]# tree /sys/class/msr
-/sys/class/msr
-|-- msr0
-|   `-- dev
-`-- msr1
-    `-- dev
+Best regards,
+Stian
 
-2 directories, 2 files
+--- linux-2.6.6/drivers/isdn/hisax/config.c.old	2004-06-06
+01:43:01.000000000 +0200
++++ linux-2.6.6/drivers/isdn/hisax/config.c	2004-06-06
+01:43:24.000000000 +0200
+@@ -1886,6 +1886,8 @@
+ 
+ #include <linux/pci.h>
+ 
++#ifdef MODULE
++
+ static struct pci_device_id hisax_pci_tbl[] __initdata = {
+ #ifdef CONFIG_HISAX_FRITZPCI
+ 	{PCI_VENDOR_ID_AVM,      PCI_DEVICE_ID_AVM_A1,           PCI_ANY_ID,
+PCI_ANY_ID},
+@@ -1953,6 +1955,8 @@
+ 
+ MODULE_DEVICE_TABLE(pci, hisax_pci_tbl);
+ 
++#endif
++
+ module_init(HiSax_init);
+ module_exit(HiSax_exit);
+ 
 
-Please consider for testing/inclusion.
-
-Signed-off-by Hanna Linder <hannal@us.ibm.com>
-
-Thanks.
-
-Hanna Linder
-IBM Linux Technology Center
------------
-diff -Nrup linux-2.6.7-rc3/arch/i386/kernel/msr.c linux-2.6.7-rc3p/arch/i386/kernel/msr.c
---- linux-2.6.7-rc3/arch/i386/kernel/msr.c	2004-06-08 16:49:29.000000000 -0700
-+++ linux-2.6.7-rc3p/arch/i386/kernel/msr.c	2004-06-09 15:26:31.000000000 -0700
-@@ -35,12 +35,17 @@
- #include <linux/smp_lock.h>
- #include <linux/major.h>
- #include <linux/fs.h>
-+#include <linux/device.h>
-+#include <linux/cpu.h>
-+#include <linux/notifier.h>
- 
- #include <asm/processor.h>
- #include <asm/msr.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
- 
-+static struct class_simple *msr_class;
-+
- /* Note: "err" is handled in a funny way below.  Otherwise one version
-    of gcc or another breaks. */
- 
-@@ -255,20 +260,82 @@ static struct file_operations msr_fops =
- 	.open = msr_open,
- };
- 
-+static int msr_class_simple_device_add(int i)
-+{
-+	int err = 0;
-+	struct class_device *class_err;
-+
-+	class_err = class_simple_device_add(msr_class, MKDEV(MSR_MAJOR, i), NULL, "msr%d",i);
-+	if (IS_ERR(class_err)) 
-+		err = PTR_ERR(class_err);
-+	return err;
-+}
-+
-+static int __devinit msr_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
-+{
-+	unsigned int cpu = (unsigned long)hcpu;
-+
-+	switch (action) {
-+	case CPU_ONLINE:
-+		msr_class_simple_device_add(cpu);
-+		break;
-+	case CPU_DEAD:
-+		class_simple_device_remove(MKDEV(MSR_MAJOR, cpu));	
-+		break;
-+	}
-+	return NOTIFY_OK;
-+}
-+
-+static struct notifier_block msr_class_cpu_notifier =
-+{
-+	.notifier_call = msr_class_cpu_callback,
-+};
-+
- int __init msr_init(void)
- {
-+	int i, err = 0;
-+	i = 0;
-+
- 	if (register_chrdev(MSR_MAJOR, "cpu/msr", &msr_fops)) {
- 		printk(KERN_ERR "msr: unable to get major %d for msr\n",
- 		       MSR_MAJOR);
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto out;
-+	}
-+	msr_class = class_simple_create(THIS_MODULE, "msr");
-+	if (IS_ERR(msr_class)) {
-+		err = PTR_ERR(msr_class);
-+		goto out_chrdev;
-+	}
-+	for_each_online_cpu(i) {
-+		err = msr_class_simple_device_add(i);
-+		if (err != 0)
-+			goto out_class;
- 	}
-+	register_cpu_notifier(&msr_class_cpu_notifier);
- 
--	return 0;
-+	err = 0;
-+	goto out;
-+
-+	out_class:
-+		i = 0;
-+		for_each_online_cpu(i)
-+			class_simple_device_remove(MKDEV(MSR_MAJOR, i));
-+		class_simple_destroy(msr_class);
-+	out_chrdev:
-+		unregister_chrdev(MSR_MAJOR, "cpu/msr");
-+	out:
-+		return err;
- }
- 
- void __exit msr_exit(void)
- {
-+	int cpu = 0;
-+	for_each_online_cpu(cpu)
-+		class_simple_device_remove(MKDEV(MSR_MAJOR, cpu));
-+	class_simple_destroy(msr_class);
- 	unregister_chrdev(MSR_MAJOR, "cpu/msr");
-+	unregister_cpu_notifier(&msr_class_cpu_notifier);
- }
- 
- module_init(msr_init);
 

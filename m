@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbUKVOu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbUKVOk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbUKVOu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 09:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUKVOlS
+	id S261388AbUKVOk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 09:40:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbUKVOix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 09:41:18 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:27272 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261477AbUKVOhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 09:37:38 -0500
-Date: Mon, 22 Nov 2004 15:37:20 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Amit Gud <amitgud1@gmail.com>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: file as a directory
-Message-ID: <20041122143720.GL19738@admingilde.org>
-Mail-Followup-To: Amit Gud <amitgud1@gmail.com>,
-	linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-References: <2c59f00304112205546349e88e@mail.gmail.com>
+	Mon, 22 Nov 2004 09:38:53 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:64450 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262127AbUKVOWr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 09:22:47 -0500
+Date: Mon, 22 Nov 2004 16:24:52 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: john cooper <john.cooper@timesys.com>
+Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Esben Nielsen <simlo@phys.au.dk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Priority Inheritance Test (Real-Time Preemption)
+Message-ID: <20041122152452.GA2036@elte.hu>
+References: <Pine.OSF.4.05.10411212107240.29110-100000@da410.ifa.au.dk> <20041122092302.GA7210@nietzsche.lynx.com> <41A1F4B2.10401@timesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EdRE1UL8d3mMOE6m"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2c59f00304112205546349e88e@mail.gmail.com>
-User-Agent: Mutt/1.3.28i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+In-Reply-To: <41A1F4B2.10401@timesys.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---EdRE1UL8d3mMOE6m
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* john cooper <john.cooper@timesys.com> wrote:
 
-hoi :)
+> I'd hazard a guess the reason existing implementations do not do this
+> type of dependency-chain closure is the complexity of a general
+> approach. [...]
 
-On Mon, Nov 22, 2004 at 07:24:36PM +0530, Amit Gud wrote:
->  A straight forward question. Wouldn't adding a "file as a directory"
-> mechanism more logical in VFS itself, rather than having each fs (like
-> reiser4) to implement it seperately?
+please take a look at the latest patch, it is i believe handling all the
+cases correctly. It certainly appears to solve the cases uncovered by
+pi_test.
 
-wouldn't it be better if such things would be implemented in a library?
-use gnome-vfs, or try to get a vfs layer into libc.
-That way you can even support different and old kernels and all
-filesystems.
-
-The kernel already provides all methods that are neccessary to do that.
-So there is no need to implement it in the kernel.
-
---=20
-Martin Waitz
-
---EdRE1UL8d3mMOE6m
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBofmfj/Eaxd/oD7IRAi3aAJ0Vs5ghbKohVajl6rPy1vuv1EbjsQCfZHhC
-O5NQdXNXEf1Dxz9g7Zbo05c=
-=FdzT
------END PGP SIGNATURE-----
-
---EdRE1UL8d3mMOE6m--
+	Ingo

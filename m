@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbTEKM5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 08:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbTEKM5Y
+	id S261312AbTEKM4S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 08:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbTEKM4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 08:57:24 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:13233 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id S261338AbTEKM5D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 08:57:03 -0400
-Date: Sun, 11 May 2003 15:09:45 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: lilo and 2.5.69?
-Message-ID: <20030511130945.GA10607@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+	Sun, 11 May 2003 08:56:18 -0400
+Received: from pb148.mielec.sdi.tpnet.pl ([80.49.1.148]:14341 "EHLO
+	enigma.put.mielec.pl") by vger.kernel.org with ESMTP
+	id S261312AbTEKM4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 08:56:17 -0400
+Message-ID: <3EBE4B64.8070800@put.mielec.pl>
+Date: Sun, 11 May 2003 15:08:52 +0200
+From: Grzegorz Wilk <toulouse@put.mielec.pl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; PL; rv:1.3) Gecko/20030312
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SiS648 support for agpgart, kernel 2.4.21-rc2-ac1
+References: <Pine.SOL.4.30.0305111409470.1501-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0305111409470.1501-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Uzytkownik Bartlomiej Zolnierkiewicz napisal:
+> On Sun, 11 May 2003, Grzesiek Wilk wrote:
 
-Normally I have in my lili.conf:
+>>One thing i'm not sure is in which agp mode it is working. SiS648 as well as
+>>R9k supports agp 3.0 but I don't think that generic sis driver does.
+>>(correct me if i'm wrong).
+> 
+> 
+> You are wrong, R9k -> no AGP3.0 ;-).
+> --
+> Bartlomiej
 
-append = "root=/dev/scsi/host0/bus0/target15/lun0/part2 video=matrox:1600x1200-16@75"
+I'm quite certain, that R2k _is_ agp 3.0 compatible.
+Following the specification at
+http://mirror.ati.com/products/pc/radeon9000pro/specs.html:
+"...with AGP 2X (3.3v), 4X (1.5V), 8X (0.8v) or Universal AGP 3.0 bus
+configuration (2X/4X/8X)."
 
-But I got:
+So is ATI making a mickey of me or what?
 
-Fatal: open /dev/ide/host0/bus0/target0/lun0/par: No such file or
-directory
-Exit 1
-
-Same if I put:
-root=/dev/scsi/host0/bus0/target15/lun0/part2
-
-Or root=/dev/sdb2
-
-Is there something special to do with this new kernel?
-
-Thank you very much,
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315485AbSHFUDu>; Tue, 6 Aug 2002 16:03:50 -0400
+	id <S315458AbSHFUKi>; Tue, 6 Aug 2002 16:10:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315503AbSHFUDt>; Tue, 6 Aug 2002 16:03:49 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:34552 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S315485AbSHFUDs>; Tue, 6 Aug 2002 16:03:48 -0400
-Date: Tue, 6 Aug 2002 16:07:24 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Marc-Christian Petersen <mcp@linux-systeme.de>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: AIO together with SMPtimers-A0 oops and freezing
-Message-ID: <20020806160724.A19564@redhat.com>
-References: <200208051920.29018.mcp@linux-systeme.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208051920.29018.mcp@linux-systeme.de>; from mcp@linux-systeme.de on Mon, Aug 05, 2002 at 07:20:29PM +0200
+	id <S315463AbSHFUKi>; Tue, 6 Aug 2002 16:10:38 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:25012 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315458AbSHFUKi>;
+	Tue, 6 Aug 2002 16:10:38 -0400
+Subject: Re: Linux v2.4.19-rc5
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Cc: Jens Axboe <axboe@suse.de>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFF5AE5098.55777C06-ON85256C0D.006DEB93@pok.ibm.com>
+From: "Peter Wong" <wpeter@us.ibm.com>
+Date: Tue, 6 Aug 2002 15:12:51 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 SPR# MIAS5B3GZN |June
+ 28, 2002) at 08/06/2002 04:13:00 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05, 2002 at 07:20:29PM +0200, Marc-Christian Petersen wrote:
-> Hi Ben, Hi Ingo,
 
-> Ben, I am using your AIO 20020619 patch + relevant fixes from the AIO 
-> mailinglist together with your patch Ingo, SMPtimers-A0.
+>On Tue, Aug 06 2002, Adrian Bunk wrote:
+> > On Tue, 6 Aug 2002, Jens Axboe wrote:
+> >
+> > >...
+> > > try a work load that excercises the block i/o layer alone (O_DIRECT,
+> > > raw, whatnot) and then compare 2.4 and 2.5. ibm had some slides on
+this
+> > > from ols, unfortunately I don't know if they have then online.
+> >...
+> >
+> > Pages 390-406 in
+> >
+> > http://www.linux.org.uk/~ajh/ols2002_proceedings.pdf.gz
+> >
+> > or are you talking about something different?
 
-Hmmm, the only problem I can see in the aio code wrt timer usage is 
-the following.  Does this patch make a difference?  If not, I'm guessing 
-that the problem is something in SMPtimers-A0 that aio happens to 
-trigger.  The only timer aio uses is for the timeout when waiting for an 
-event, and the structure for that is put on the stack.
+> Right thanks, exactly those. Table 3 on page 395 is the one I noted.
+> Forget readv, as that hasn't been done in 2.5 yet. I'd say a 2.5.17
+> untweaked kernel beating 2.4 tweaked beyond recognition isn't too shabby
+> for a devel series kernel.
 
-		-ben
+The corresponding presentation in the sdd format is available at
+      http://www-124.ibm.com/developerworks/opensource/linuxperf/.
+
+Regards,
+Peter
+
+Peter Wai Yee Wong
+IBM Linux Technology Center, Performance Analysis
+email: wpeter@us.ibm.com
 
 
-Index: aio.c
-===================================================================
-RCS file: /bcrl/cvs/CVSROOT/net-aio/linux/fs/aio.c,v
-retrieving revision 1.13
-diff -u -u -r1.13 aio.c
---- aio.c	6 Aug 2002 20:02:23 -0000	1.13
-+++ aio.c	6 Aug 2002 20:04:40 -0000
-@@ -774,8 +774,10 @@
- 			goto out;
- 
- 		set_timeout(&to, &ts);
--		if (to.timed_out)
-+		if (to.timed_out) {
- 			timeout = 0;
-+			clear_timeout(&to);
-+		}
- 	}
- 
- 	while (likely(i < nr)) {

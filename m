@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313476AbSDJST7>; Wed, 10 Apr 2002 14:19:59 -0400
+	id <S313486AbSDJSU1>; Wed, 10 Apr 2002 14:20:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313409AbSDJST6>; Wed, 10 Apr 2002 14:19:58 -0400
-Received: from matav-4.matav.hu ([145.236.252.35]:22590 "EHLO
-	Forman.fw.matav.hu") by vger.kernel.org with ESMTP
-	id <S313476AbSDJST5>; Wed, 10 Apr 2002 14:19:57 -0400
-Date: Wed, 10 Apr 2002 20:16:57 +0200 (CEST)
-From: Narancs v1 <narancs@narancs.tii.matav.hu>
-X-X-Sender: narancs@helka
-To: linux-kernel@vger.kernel.org
-Subject: ide-scsi hanging on modprobe, 2.4.18-ac1
-Message-ID: <Pine.LNX.4.44.0204102015100.6563-100000@helka>
+	id <S313487AbSDJSU1>; Wed, 10 Apr 2002 14:20:27 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:63670 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S313486AbSDJSUZ>; Wed, 10 Apr 2002 14:20:25 -0400
+Message-ID: <3CB4824D.2030509@antefacto.com>
+Date: Wed, 10 Apr 2002 19:19:57 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: timk@advfn.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: R/W compressed fs support??
+In-Reply-To: <200204101306.g3AD67s01683@mail.advfn.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+e2compr for 2.4 is being implemented by alcatel (France).
+I've successfully used it with 2.4.16 (against filesystems
+created with the 2.2 version). although I haven't stressed
+it yet. "Denis Richard" <dri@sxb.bsf.alcatel.fr> should
+have more info (and the 769777 byte patch).
 
-everything is working fine with this kernel, but this
+Padraig.
 
-modprobe ide-scsi
-
-hdd: ATAPI reset complete
-ide-scsi: (IO,CoD) != (0,1) while issuing a packet command
-scsi : aborting command due to timeout : pid 221340, scsi1, channel 0, id
-0, lun 0 Inquiry 00 00 00 ff 00
-SCSI host 1 abort (pid 221340) timed out - resetting
-SCSI bus is being reset for host 1 channel 0.
-hdd: ATAPI reset complete
-ide-scsi: (IO,CoD) != (0,1) while issuing a packet command
-hdd: ATAPI reset complete
-
-forever it does.
-
-is it because of AC's stuff?
-
-which version is recommended for daily use?
-
-thanks
-
--------------------------
-Narancs v1
-IT Security Administrator
-Warning: This is a really short .sig! Vigyazat: ez egy nagyon rovid szig!
+Tim Kay wrote:
+> Hello,
+> 	Does anyone know of a Linux equivalent to DoubleSpace or whatever that 
+> allows you read and _write_ to a compressed partiton or filesystem (in a way 
+> that is transparent to the progs using the fs). I know there was e2compr but 
+> that doesn't seem to have been touched in nearly 2 years, and is 2.2 
+> specific, Infotec and the CBD patch seem to have died and zlibc seems to be a 
+> read only solution. I'd have thought this would have been a biggie for 
+> embedded device people but there doesn't seem to be anything out there. 
+> 
+> 	Any pointers greatfully received....
+> 
+> T.I.A.
+> 
+> Tim
 
 

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284729AbRLEVPq>; Wed, 5 Dec 2001 16:15:46 -0500
+	id <S284732AbRLEVQq>; Wed, 5 Dec 2001 16:16:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284732AbRLEVPg>; Wed, 5 Dec 2001 16:15:36 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:52104 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S284729AbRLEVPZ>; Wed, 5 Dec 2001 16:15:25 -0500
-Date: Wed, 05 Dec 2001 13:14:45 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Lars Brinkhoff <lars.spam@nocrew.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description [was Linux/Pro]
-Message-ID: <2535737837.1007558085@mbligh.des.sequent.com>
-In-Reply-To: <20011205130547.X11801@work.bitmover.com>
-X-Mailer: Mulberry/2.0.8 (Win32)
+	id <S284738AbRLEVQ1>; Wed, 5 Dec 2001 16:16:27 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:5900 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S284737AbRLEVQR>; Wed, 5 Dec 2001 16:16:17 -0500
+Date: Wed, 5 Dec 2001 13:27:16 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] task_struct + kernel stack colouring ( set size ) ...
+Message-ID: <Pine.LNX.4.40.0112051317350.1644-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We don't agree on any of these points.  Scaling to a 16 way SMP pretty much 
-> ruins the source base, even when it is done by very careful people.
 
-I'd say that the normal current limit on SMP machines is 8 way.
-But you're right, we don't agree.  Time will tell who was right.
-When I say I'm interested in 16 way scalability, I'm not talking about
-SMP, so perhaps we're talking at slightly cross purposes.
- 
-> Seriously, I went through this at SGI, that's exactly what they did, and it
-> was a huge mistake and it never worked.
+The previous patch picked up colour bits that already had an implicit
+colouring.
 
-You seem to make this odd logical deduction quite a bit - you (or company X)
-has tried concept X before. Their implementation didn't work. Therefore the
-concept is bad. It's not particularly convincing as an argument style to others.
-But I understand that it makes *you* want to try something else.
+http://www.xmailserver.org/linux-patches/misc.html#TskStackCol
+http://www.xmailserver.org/linux-patches/tsstackcol-2.5.0-0.5.diff
 
-Martin.
+
+
+[diffstat]
+arch/i386/kernel/entry.S     |    7 ++---
+arch/i386/kernel/head.S      |    2 -
+arch/i386/kernel/init_task.c |   14 +++++++---
+arch/i386/kernel/irq.c       |    2 -
+arch/i386/kernel/process.c   |   60 +++++++++++++++++++++++++++++++++++++++++--
+arch/i386/kernel/smpboot.c   |    2 -
+arch/i386/kernel/traps.c     |    2 -
+arch/i386/lib/getuser.S      |    3 ++
+include/asm-i386/current.h   |    6 ++--
+include/asm-i386/hw_irq.h    |    3 +-
+include/asm-i386/processor.h |   21 ++++++++++-----
+include/linux/sched.h        |   16 ++++++++++-
+init/main.c                  |    6 ++++
+kernel/ksyms.c               |    2 -
+14 files changed, 120 insertions, 26 deletions
+
+
+
+
+
+- Davide
+
+
+
 

@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264883AbUEKQ47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264893AbUEKRUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264883AbUEKQ47 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 12:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbUEKQya
+	id S264893AbUEKRUw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 13:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264891AbUEKRUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 12:54:30 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:17625 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264882AbUEKQs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 12:48:29 -0400
-Subject: [BKPATCH] ACPI for 2.6
-From: Len Brown <len.brown@intel.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1084294082.12353.104.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 11 May 2004 12:48:02 -0400
+	Tue, 11 May 2004 13:20:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20130 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264884AbUEKRUf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 13:20:35 -0400
+Message-ID: <40A10B53.7030006@pobox.com>
+Date: Tue, 11 May 2004 13:20:19 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gary Wong <gtw@cs.bu.edu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] Re: Segmentation fault in i810_audio.c:__i810_update_lvi
+References: <20040510123607.T9078@cs.bu.edu> <20040511002728.46e05e4c.akpm@osdl.org> <20040511130656.A28363@cs.bu.edu>
+In-Reply-To: <20040511130656.A28363@cs.bu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please do a 
+Gary Wong wrote:
+> OK, a patch is attached.  It seems to fix the problem on a 2.6.3 system
+> with Herbert Xu's patches from Jeff Garzik applied.
 
-	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.6
 
-	This handles the IRQ15 IDE issue we exposed just as
-	2.6.6 closed.  It also handles a similar mouse issue.
+Your patch looks OK to me.
 
-thanks,
--Len
+I'll commit it to my 2.4 and 2.6 i810-audio queues, and send upstream 
+after it gets some testing in Andrew's -mm (unless someone else objects 
+to your patch, of course).
 
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.6/acpi-20040326-2.6.6.diff.gz
-
-This will update the following files:
-
- drivers/acpi/pci_link.c |   16 +++++++++++-----
- 1 files changed, 11 insertions(+), 5 deletions(-)
-
-through these ChangeSets:
-
-<len.brown@intel.com> (04/05/10 1.1618)
-   [ACPI] handle _CRS outside _PRS -- even when non-zero
-   avoid sharing IRQ12
-   http://bugzilla.kernel.org/show_bug.cgi?id=2665
-
+	Jeff
 
 
 

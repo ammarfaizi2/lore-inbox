@@ -1,37 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbTHXNGM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 09:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbTHXNEt
+	id S263499AbTHXM7n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 08:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263514AbTHXM6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 09:04:49 -0400
-Received: from law15-f75.law15.hotmail.com ([64.4.23.75]:11019 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263566AbTHXNDu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 09:03:50 -0400
-X-Originating-IP: [212.152.91.92]
-X-Originating-Email: [ef057@hotmail.com]
-From: "Bryan K." <ef057@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: eric53@freemail.gr
-Subject: delayed permission checks in 2.6
-Date: Sun, 24 Aug 2003 13:03:49 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law15-F75VfbuhhhETA000031ba@hotmail.com>
-X-OriginalArrivalTime: 24 Aug 2003 13:03:49.0659 (UTC) FILETIME=[291AF6B0:01C36A40]
+	Sun, 24 Aug 2003 08:58:30 -0400
+Received: from amsfep11-int.chello.nl ([213.46.243.20]:63264 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S263455AbTHXM6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 08:58:20 -0400
+Date: Sun, 24 Aug 2003 14:58:51 +0200
+Message-Id: <200308241258.h7OCwpRh000979@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] Atari floppy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While exploring some of the source I found out that some permission checks 
-are made too late. For example the sys_mount function in 2.6-test1: It gets 
-4 pages to put the type, the path, the dev name and the options. It then 
-locks the kernel, check for magic numbers and other sanity checks, 
-interprets the flags, does the mount point dentry lookup(which might spend 
-some time sleeping) and after all that it checks for CAP_SYS_ADMIN. Is there 
-any serious reason for this delay at the permission checks?
+Atari floppy: Add missing includes and remove some unnecessary includes
 
-_________________________________________________________________
-Add photos to your messages with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
+--- linux-2.6.0-test2/drivers/block/ataflop.c	Tue Jul 29 18:18:44 2003
++++ linux-m68k-2.6.0-test2/drivers/block/ataflop.c	Wed Jul 30 22:49:57 2003
+@@ -63,35 +63,16 @@
+ 
+ #include <linux/module.h>
+ 
+-#include <linux/sched.h>
+-#include <linux/string.h>
+-#include <linux/fs.h>
+-#include <linux/fcntl.h>
+-#include <linux/kernel.h>
+-#include <linux/timer.h>
+ #include <linux/fd.h>
+-#include <linux/errno.h>
+-#include <linux/types.h>
+ #include <linux/delay.h>
+-#include <linux/mm.h>
+-#include <linux/slab.h>
+ #include <linux/init.h>
+-#include <linux/buffer_head.h>		/* for invalidate_buffers() */
+-
+-#include <asm/setup.h>
+-#include <asm/system.h>
+-#include <asm/bitops.h>
+-#include <asm/irq.h>
+-#include <asm/pgtable.h>
+-#include <asm/uaccess.h>
++#include <linux/blkdev.h>
+ 
+ #include <asm/atafd.h>
+ #include <asm/atafdreg.h>
+-#include <asm/atarihw.h>
+ #include <asm/atariints.h>
+ #include <asm/atari_stdma.h>
+ #include <asm/atari_stram.h>
+-#include <linux/blkpg.h>
+ 
+ #define	FD_MAX_UNITS 2
+ 
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

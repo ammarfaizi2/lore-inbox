@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129819AbQKILN6>; Thu, 9 Nov 2000 06:13:58 -0500
+	id <S130133AbQKILZK>; Thu, 9 Nov 2000 06:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130133AbQKILNs>; Thu, 9 Nov 2000 06:13:48 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:21258 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129819AbQKILNf>; Thu, 9 Nov 2000 06:13:35 -0500
-Date: Thu, 9 Nov 2000 12:13:21 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Michele Iacobellis <miacobellis@linuximpresa.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: No tcp connection establishment with 2.4
-Message-ID: <20001109121321.P20883@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20001109110354.872F0186@linuximpresa.it>
-Mime-Version: 1.0
+	id <S130254AbQKILZB>; Thu, 9 Nov 2000 06:25:01 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:46225 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S130133AbQKILYo>; Thu, 9 Nov 2000 06:24:44 -0500
+From: Christoph Rohland <cr@sap.com>
+To: richardj_moore@uk.ibm.com
+Cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+In-Reply-To: <80256992.002FE358.00@d06mta06.portsmouth.uk.ibm.com>
+Organisation: SAP LinuxLab
+Date: 09 Nov 2000 12:24:32 +0100
+In-Reply-To: richardj_moore@uk.ibm.com's message of "Thu, 9 Nov 2000 07:43:09 +0000"
+Message-ID: <qwwvgtxjslr.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001109110354.872F0186@linuximpresa.it>; from miacobellis@linuximpresa.it on Thu, Nov 09, 2000 at 12:08:32PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
-X-Loop: erik@arthur.ubicom.tudelft.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2000 at 12:08:32PM +0100, Michele Iacobellis wrote:
-> [Summary]
-> No tcp connection establishment with 2.4
-> 
+Hi Richard,
 
-[snip]
+On Thu, 9 Nov 2000, richardj moore wrote:
+> Let be clear about one thing: the GKHI make no statement about
+> enabling proprietary extensions and that's a common
+> misconception. GKHI is intended to make optional facilities easier
+> to co-install and change. We designed it for DProbes, and when
+> modularised will remain a GPL opensource offering.
 
-Disable "Explicit congestion notification support" in the networking
-options. It breaks with certain Cisco firewalls.
+Yes, I understand that.
 
+> The only motivation for providing GKHI is to make the kernel more
+> acceptable to the enterprise customer, but allowing, for example,
+> RAS capabilities to be brough in easily and dynmaically. This type
+> of customer will not readily succome to on-the-fly kernel rebuilds
+> to diagnose problems that occur only in complex production
+> environments.
 
-Erik
+I know this problem pretty well.
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+> If anything opens the door to proprietary extensions it's the
+> loadable kernel modules capability or perhaps the loose wording of
+> the GPL which doesn't catch loadable kernel modules, or
+> whatever... Bottom line GKHI really has no bearing on this.
+
+Yes, and that's why I am opposing here: Technically you are right, but
+proposing that enterprise Linux should go this way is inviting binary
+only modules due to the lax handling of modules.
+
+Please keep in mind: I did not react to your announcement but to the
+proposal that the companies should jump on it to do a special
+enterprise Linux. If we really need a special enterprise tree lets do
+it without module tricks.
+
+Greetings
+		Christoph
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310274AbSCBCTY>; Fri, 1 Mar 2002 21:19:24 -0500
+	id <S310279AbSCBCid>; Fri, 1 Mar 2002 21:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310275AbSCBCTO>; Fri, 1 Mar 2002 21:19:14 -0500
-Received: from ns1.system-techniques.com ([199.33.245.254]:930 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S310274AbSCBCTD>; Fri, 1 Mar 2002 21:19:03 -0500
-Date: Fri, 1 Mar 2002 21:18:15 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Ralf Baechle <ralf@conectiva.com.br>
-cc: Dax Kelson <dax@gurulabs.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre2 on Cobalt Qube 2?
-In-Reply-To: <20020301053238.A32004@dea.linux-mips.net>
-Message-ID: <Pine.LNX.4.44.0203012112130.32458-100000@filesrv1.baby-dragons.com>
+	id <S310281AbSCBCiX>; Fri, 1 Mar 2002 21:38:23 -0500
+Received: from gw.lowendale.com.au ([203.26.242.120]:55077 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S310279AbSCBCiO>; Fri, 1 Mar 2002 21:38:14 -0500
+Date: Sat, 2 Mar 2002 14:08:34 +1100 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Shawn Starr <spstarr@sh0n.net>, Xavier Bestel <xavier.bestel@free.fr>,
+        "Paul G. Allen" <pgallen@randomlogic.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SSSCA: We're in trouble now
+In-Reply-To: <E16gvN6-0005Dd-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.05.10203021402030.4035-100000@marina.lowendale.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 Mar 2002, Alan Cox wrote:
 
-	Hello Ralf ,  Where in the FAQ does it describe how to get from
-	CVS the necessary components for a MIPsel kernel from CVS or do
-	you just grab the whole kernel ?  Also the URL:
-	ftp://intel.cleveland.lug.net/pub/Mipsel
-	appears to not allow anon access anylonger .  Tia ,  JimL
+> > Linux doesnt use the BIOS if you tell it not to, if it can avoid using
+> > it. It will :)
+> 
+> It has no control over the BIOS and SMM code. Who knows what is going on
+> behind the scenes in the BIOS, be it for intentional or more dubious
+> purposes. 
 
-ie:
-$ ncftp ftp://intel.cleveland.lug.net/pub/Mipsel
-NcFTP 3.0.2 (October 19, 2000) by Mike Gleason (ncftp@ncftp.com).
-Connecting to 207.166.193.105...
-ProFTPD 1.2.1 Server (ProFTPD Default Installation) [cleveland.lug.net]
-Login incorrect.
+All too true.  However, given the quality of BIOS code we have seen over
+the years, the thought of your average BIOS programmer implementing
+cryptographic techniques does provide some amusement  ;-)
 
+Any chance of any manafacturers open-sourcing their BIOS?
 
-On Fri, 1 Mar 2002, Ralf Baechle wrote:
-> On Thu, Feb 28, 2002 at 09:18:30PM -0700, Dax Kelson wrote:
-> > > Here is 2.4.19-pre2: A very big patch (around 13MB uncompressed) due to
-> > > the architecture (MIPS and IA64 mainly) updates.
-> > Does this MIPS merge mean that the 2.4.19-pre2 kernel would work on a MIPS
-> > based Cobalt Qube 2? It that's the case, then I just need a working
-> > userland.
-> > The official Linux kernel from Cobalt is 2.0 vintage. I'm currently
-> > running NetBSD 1.5.2 to have something a little more modern, but I would
-> > like to come back to Linux if possible.
-> The MIPS merge still isn't complete, this was just the bulk part.  So such
-> I haven't even tried to build let alone test Marcelo's -pre2 kernel.  If
-> you want a 2.4.18 kernel for a Qube, get it via anonymous CVS.  See the
-> MIPS HOWTO at http://oss.sgi.com/mips/mips-howto.html.
->   Ralf
-
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Regards,
+Neale.
 

@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271269AbTHCS6P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 14:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271262AbTHCS6P
+	id S271231AbTHCStr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 14:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271233AbTHCSsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 14:58:15 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:31760 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S271269AbTHCS6M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 14:58:12 -0400
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.0-test2-mm3 and mysql
-Date: Sun, 3 Aug 2003 22:58:17 +0400
-User-Agent: KMail/1.5
-Cc: Shane Shrybman <shrybman@sympatico.ca>, linux-kernel@vger.kernel.org
-References: <1059871132.2302.33.camel@mars.goatskin.org> <20030802180410.265dfe40.akpm@osdl.org>
-In-Reply-To: <20030802180410.265dfe40.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 3 Aug 2003 14:48:39 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:43425 "EHLO
+	gatekeeper.slim") by vger.kernel.org with ESMTP id S271235AbTHCSsF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 14:48:05 -0400
+Subject: Re: 2.4.22pre10-ac1: ICH5 SATA missing in action
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3F2D53E8.7070700@pobox.com>
+References: <1059934705.2789.8.camel@paragon.slim>
+	 <3F2D53E8.7070700@pobox.com>
+Content-Type: text/plain
+Message-Id: <1059936398.2789.11.camel@paragon.slim>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-1) 
+Date: 03 Aug 2003 20:46:38 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308032258.17450.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
+On Sun, 2003-08-03 at 20:26, Jeff Garzik wrote:
 
-On Sunday 03 August 2003 05:04, Andrew Morton wrote:
-> Shane Shrybman <shrybman@sympatico.ca> wrote:
+> The -ac tree defaults to using CONFIG_SCSI_ATA and CONFIG_SCSI_ATA_PIIX 
+> for ICH5 SATA support.
+> 
+Forgot about that...fixed user..;-)
 
-<cut>
-
->
-> > One last thing, I have started seeing mysql database corruption
-> > recently. I am not sure it is a kernel problem. And I don't know the
-> > exact steps to reproduce it, but I think I started seeing it with
-> > -test2-mm2. I haven't ever seen db corruption in the 8-12 months I have
-> > being playing with mysql/php.
->
-> hm, that's a worry.  No additional info available?
->
-
-I also suffer from this problem (I'm speaking about heavy InnoDB corruption
-here), but with vanilla 2.6.0-test2. I can't blame MySQL/InnoDB because
-there are a lot of MySQL boxes around of me with the same (in fact the box
-wich failed is replication slave) or allmost the same database setup.
-All other boxes (2.4 kernel) works fine up to now.
-
-Sorry but I can't provide additional info. There was no messages in kernel log.
-All I have is mysql error logs. But I'm afraid they are not very helpfull
-for kernel developers.
-http://sysadminday.org.ru/linux-2.6.0-test2_InnoDB_crash
-
-System is x86 UP PIII 500, 1Gb RAM with software RAID1 over two scsi disks.
+Jurgen
 
 
-
--- 
-                   Best regards,
-                   Sergey S. Kostyliov <rathamahata@php4.ru>
-                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

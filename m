@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVAQWaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262945AbVAQWaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVAQWaH (ORCPT <rfc822;willy@w.ods.org>);
+	id S262945AbVAQWaH (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 17 Jan 2005 17:30:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbVAQWYv
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVAQWY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 17:24:51 -0500
-Received: from colin2.muc.de ([193.149.48.15]:19208 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261500AbVAQWJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 17:09:02 -0500
-Date: 17 Jan 2005 23:08:56 +0100
-Date: Mon, 17 Jan 2005 23:08:56 +0100
-From: Andi Kleen <ak@muc.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Jan Hubicka <jh@suse.cz>,
-       Jack F Vogel <jfv@bluesong.net>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
-Message-ID: <20050117220856.GA167@muc.de>
-References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet> <20050114205651.GE17263@kam.mff.cuni.cz> <Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com> <cs9v6f$3tj$1@terminus.zytor.com> <Pine.LNX.4.61.0501170909040.4593@ezer.homenet> <1105955608.6304.60.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0501171002190.4644@ezer.homenet> <41EBFF87.6080105@zytor.com> <m1wtubvm8y.fsf@muc.de> <41EC224D.5080204@zytor.com>
+	Mon, 17 Jan 2005 17:24:57 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:36790 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262945AbVAQWMT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 17:12:19 -0500
+Date: Mon, 17 Jan 2005 14:12:14 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [BK PATCH] I2C fixes for 2.6.11-rc1
+Message-ID: <20050117221214.GA29158@kroah.com>
+References: <20050117214543.GB28400@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41EC224D.5080204@zytor.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050117214543.GB28400@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Seems like the unwinder should be running client-side, like it does on 
-> kgdb.  Or does kdb not have a client at all?  (If so, I have no sympathy 
-> for it.)
+On Mon, Jan 17, 2005 at 01:45:43PM -0800, Greg KH wrote:
+> Hi,
+> 
+> Here are some i2c driver fixes and updates for 2.6.11-rc1.  There is a
+> new chip and a new bus driver, as well as a bunch of minor fixes.  All
+> of these patches have been in the past few -mm releases.
 
-kdb runs 100% in the kernel.
+Oops, no new chip and bus drivers here, just some bigger updates to a
+chip and a bus driver.  Sorry for misreading the diffstat.
 
--Andi
+But the patches are all still good :)
+
+thanks,
+
+greg k-h
+

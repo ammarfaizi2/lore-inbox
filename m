@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUJFBC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUJFBIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266561AbUJFBC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 21:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUJFBC7
+	id S266578AbUJFBIr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 21:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUJFBIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 21:02:59 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:6227 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266561AbUJFBC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 21:02:57 -0400
-Message-ID: <4163443B.8030103@yahoo.com.au>
-Date: Wed, 06 Oct 2004 11:02:51 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Tue, 5 Oct 2004 21:08:47 -0400
+Received: from o3.xlccorp.com ([66.37.197.101]:24705 "HELO o1.xlccorp.com")
+	by vger.kernel.org with SMTP id S266578AbUJFBIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 21:08:45 -0400
+Message-ID: <416345C0.4050500@allvantage.com>
+Date: Tue, 05 Oct 2004 21:09:20 -0400
+From: Kenny Bentley <crash77a@allvantage.com>
+Reply-To: crash77a@allvantage.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Ingo Molnar'" <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-       "'Andrew Morton'" <akpm@osdl.org>
-Subject: Re: Default cache_hot_time value back to 10ms
-References: <200410060042.i960gn631637@unix-os.sc.intel.com> <cone.1097023654.564251.26724.502@pc.kolivas.org>
-In-Reply-To: <cone.1097023654.564251.26724.502@pc.kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Converting kernel modules from 2.4 to 2.6/Suggested new driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+Hello.
 
-> Should it not be based on the cache flush time? We measure that and set 
-> the cache_decay_ticks and can base it on that. What is the 
-> cache_decay_ticks value reported in the dmesg of your hardware?
-> 
+Does anyone know if there is a detailed guide on how to convert kernel 
+modules for 2.4 kernels to modules for 2.6 kernels?  I know very little 
+about kernel module programming and haven't done any programming for a 
+long time, although I do have a programming background, and I have 
+drivers for HSF modems and Riptide sound cards that I want to convert 
+from 2.4 modules to 2.6 modules, which shouldn't be too hard.  But I'll 
+need a detailed guide to do it.
 
-It should be, but the cache_decay_ticks calculation is so crude that I
-preferred to use a fixed value to reduce the variation between different
-setups.
+Or since I've never done any kernel programming, I have a better idea.  
+I want to recommend the drivers for inclusion into the official kernel 
+tree.  The drivers were released open-source by Linuxant or the 
+manufacturer, I don't remember which one for sure.  But they're not 
+being developed any further, and the Riptide sound card driver only 
+supports OSS, and doesn't support ALSA.  Also, there are things in the 
+drivers that need fixing that surely a lot of you can do much better 
+than me.  I can help test the revised modules and I know how to put them 
+in the kernel tree, so I can do those parts.  But many of you can do the 
+programming better than I can.
 
-I once experimented with attempting to figure out memory bandwidth based
-on reading an uncached page. That might be the way to go.
+I can't afford new hardware right now, and I had to search the net for 
+hours and maybe even days just to find these drivers, and almost gave up 
+hope of being able to use GNU/Linux as my primary OS.  I wouldn't want 
+others to have to go through that or settle for mediocre drivers.  If 
+there are any takers out there, just send me an E-mail and I'll send you 
+the drivers so you can hack away.  But at the very least I'd like to 
+know where I can find a detailed guild on how to convert kernel modules 
+from 2.4 to 2.6.
+
+Thanks.
+
+

@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265865AbUA1Ls3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 06:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265913AbUA1Ls3
+	id S265928AbUA1MIN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 07:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUA1MIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 06:48:29 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:52917 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265865AbUA1Ls2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 06:48:28 -0500
-Date: Wed, 28 Jan 2004 09:42:30 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: marcelo.tosatti@cyclades.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [TRIVIAL PATCH] 2.4.25pre7 warning fix
-In-Reply-To: <m3u12hcc9f.fsf@defiant.pm.waw.pl>
-Message-ID: <Pine.LNX.4.58L.0401280939400.1311@logos.cnet>
-References: <m3u12hcc9f.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Jan 2004 07:08:13 -0500
+Received: from cable221a253.usuarios.retecal.es ([212.183.221.253]:55426 "EHLO
+	debian") by vger.kernel.org with ESMTP id S265928AbUA1MIL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 07:08:11 -0500
+Subject: Re: 2.6.2-rc2-mm1
+From: Ramon Rey Vicente <rrey@ranty.pantax.net>
+Reply-To: ramon.rey@hispalinux.es
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20040127233402.6f5d3497.akpm@osdl.org>
+References: <20040127233402.6f5d3497.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-i0nAB0QAu9vXSQBvTdQa"
+Message-Id: <1075291683.1028.8.camel@debian>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 28 Jan 2004 13:08:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-i0nAB0QAu9vXSQBvTdQa
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 27 Jan 2004, Krzysztof Halasa wrote:
+El mi=C3=A9, 28-01-2004 a las 08:34, Andrew Morton escribi=C3=B3:
 
-> Hi,
->
-> The attached patch fixes the following warning msg:
->
-> time.c:435: warning: `do_gettimeoffset_cyclone' defined but not used
->
-> There is no need to define functions which do just { return 0; } and
-> which aren't called by anything.
->
-> (In case CONFIG_X86_SUMMIT is defined, there is another (real)
-> do_gettimeoffset_cyclone() function, and it is referenced - but
-> it's simply not related to this empty function).
+> - From now on, -mm kernels will contain the latest contents of:
+>=20
+> 	Linus's tree:		linus.patch
+> 	The ACPI tree:		acpi.patch
+> 	Vojtech's tree:		input.patch
+> 	Jeff's tree:		netdev.patch
+> 	The ALSA tree:		alsa.patch
+>=20
+>   If anyone has any more external trees which need similar treatment,
+>   please let me know.
 
-Applied, thanks.
+DRI tree?
+--=20
+Ram=C3=B3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
 
-Btw, why do we need cyclone_setup() for !CONFIG_X86_SUMMIT ?
+--=-i0nAB0QAu9vXSQBvTdQa
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
 
-/* No-cyclone stubs */
-#ifndef CONFIG_X86_SUMMIT
-int __init cyclone_setup(char *str)
-{
-        printk(KERN_ERR "cyclone: Kernel not compiled with
-CONFIG_X86_SUMMIT, cannot use the cyclone-timer.\n");
-        return 1;
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQBAF6YiRGk68b69cdURAuo3AJ9fZ7O+52eexw+C5Hf1/Sbz7jF32QCfYz0g
+6e0FkPUYXQjXXlgsqiZAxfg=
+=qL49
+-----END PGP SIGNATURE-----
 
+--=-i0nAB0QAu9vXSQBvTdQa--

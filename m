@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267421AbTAQHiS>; Fri, 17 Jan 2003 02:38:18 -0500
+	id <S267418AbTAQHgU>; Fri, 17 Jan 2003 02:36:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267424AbTAQHiS>; Fri, 17 Jan 2003 02:38:18 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:27556 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id <S267421AbTAQHiQ>; Fri, 17 Jan 2003 02:38:16 -0500
-Date: Fri, 17 Jan 2003 08:47:13 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+	id <S267421AbTAQHgU>; Fri, 17 Jan 2003 02:36:20 -0500
+Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:32747 "EHLO
+	mailrelay.tugraz.at") by vger.kernel.org with ESMTP
+	id <S267418AbTAQHgT>; Fri, 17 Jan 2003 02:36:19 -0500
+Message-ID: <1042789515.3e27b48b4462d@webmail.tugraz.at>
+X-Priority: 3 (Normal)
+Date: Fri, 17 Jan 2003 08:45:15 +0100
+From: Maier Gerfried <moali@sbox.tugraz.at>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre3-ac4 oops in free_pages_ok
-Message-ID: <20030117074713.GF12788@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030116082851.A31643@ns1.theoesters.com> <3E27044C.4010308@tupshin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Clock does not keep time
+References: <1042716941.3e26990dc83b1@webmail.tugraz.at>
+In-Reply-To: <1042716941.3e26990dc83b1@webmail.tugraz.at>
+MIME-Version: 1.0
+Content-Type: text/plain
 Content-Disposition: inline
-In-Reply-To: <3E27044C.4010308@tupshin.com>
-User-Agent: Mutt/1.5.1i
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 195.49.27.71
+X-Oragnization: University of Technology Graz / Austria
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Tupshin Harper <tupshin@tupshin.com>:
-> There are multiple other threads about this problem recently. One 
-> started by me, as well as a few others.
-> The consensus is that it's a problem in the ac tree, and is not present 
-> in 2.4.21-pre3.
+Zitat von Maier Gerfried <moali@sbox.tugraz.at>:
 
-Yep.
+> Dear Kernel-List,
+> 
+> I'm using Linux (kernel 2.4.20 with acpi-20021212 and swsusp-beta16 patches)
+> on my Acer Travelmate 630 notebook.
+> 
+> Unfortunately I experience the problem, that under some [1] conditions the
+> RTC does not keep time.
 
-> Some people seem to avoid the problem by disabling highmem, but this 
-> doesn't work for me. Quota has been mentioned as a possible culprit, but 
-> disabling that also doesn't help me. 
+I've done some "research" on this during the night (trying out 2.4.21-pre3 with 
+acpi-20030109, but without swsusp), and it seems to me, that a kind of "time-
+corruption" occurs on boot. (Looking into the Bios-Setup before the time still 
+seems to be ok, but when booting and logging in a time-step has occured) But I 
+cannot make a general statement by now.
 
-Correct. I use neither himem nor quotas, still it crashes.
-
-> The ac changes to mm/shmem.c are 
-> still a possibility, though one reporter seems to have tried that 
-> without any success.
-
-Yup, I tried that. No go.
-
-> The remaining candidate that has been mentioned to 
-> me is the buffer cache changes in the ac tree, this seems moderately 
-> likely. I don't see any obvious way to break out those changes from 
-> Alan's large ac4 patch, so I emailed him hoping to get a patch free of 
-> those changes, but I haven't heard back yet(it's been 9 hours 
-> already...how dare he ignore me ;-).
-
+Any hints are very welcome
+Maier Gerfried
 -- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-"The report of my death was an exaggeration." 
- -Mark Twain, After reading his own obituary, June 2, 1897
 

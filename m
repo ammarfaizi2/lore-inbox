@@ -1,97 +1,99 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSE1HyC>; Tue, 28 May 2002 03:54:02 -0400
+	id <S312681AbSE1H5s>; Tue, 28 May 2002 03:57:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312681AbSE1HyC>; Tue, 28 May 2002 03:54:02 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:29329 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S312590AbSE1HyB>; Tue, 28 May 2002 03:54:01 -0400
-Subject: Re: business models [was patent stuff]
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020527152452.A24502@work.bitmover.com>
+	id <S313060AbSE1H5r>; Tue, 28 May 2002 03:57:47 -0400
+Received: from elin.scali.no ([62.70.89.10]:5380 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S312681AbSE1H5p>;
+	Tue, 28 May 2002 03:57:45 -0400
+Subject: Re: wait queue process state
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Joseph Cordina <joseph.cordina@um.edu.mt>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CF2A0FB.8090507@um.edu.mt>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.4 
-Date: 28 May 2002 10:53:06 +0300
-Message-Id: <1022572387.11827.55.camel@gby.benyossef.com>
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 28 May 2002 09:57:41 +0200
+Message-Id: <1022572663.12203.127.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-28 at 01:24, Larry McVoy wrote:
+Well, the only reason I'm aware of is that your have system calls that
+can't be interrupted, and sys calls that can (and when they do they
+return -1 and errno=EINTR). 
 
-> If the free software community is ever going to really compete with the
-> non-free software community, they simply have to come up with a better
-> business model than giving it away and trying to make money on support.
-> It's economics 101 - a free market will go to whomever can provide the
-> needed service most cheaply.  With no barrier to entry, that means as
-.........^^^^^^^^
-> soon as the price gets high enough, someone will resell the 
-> product for
-..^^^^^^^
-> less.  Which results in razor thin profits, if any at all.
+The number of syscall that actually can return EINTR is actually fairly
+small. And some like read()/write() may or may not depending on the type
+of file. If the file is a socket it usually can, but if it's a regular
+file it can't. 
 
-Software is not a "product" any more then a lawyer argument in a case is
-a "product" or an architect plan for a building is a "product".  That's
-the whole problem in a nut shell. If you continue to view software as a
-sellable object then the business model indeed doesn't make sense. Then
-again, if you try to look at a lawyers argument in a case as the
-"product" of the law firm then that same business plan doesn't make
-sense either. After all, in most countries I'm aware of, a lawyer
-argument cannot be effectivly copyrighted. Of course, this doesn't stop
-lawyers from make a living. Just ask anyone at Microsoft legal
-depratment... ;-)
+A regular file access is as you uninteruptable as you point out, and to
+top it of it can be made nonblocking. The reason is that a regular file
+IO is deterministic, it must succeed or fail ASAP, and if it fail it's
+either a full FS, or a corrupt FS or a HW failure. (The latter two req
+reboot/HW repair, the first is a "normal" case). Socket IO is
+nondeterministic and we need a way to interrupt it. 
 
-Most "Open Source service companies" that I'm aware off don't understand
-the implications. They're not built like a small law firm that may be
-large one day; they're built like a company that tries to be a 90 pound
-world class gorrila backed by Vulture Capital. Sorry, but it doesn't
-work like this: you have to walk before you can run.
+I guess deterministic/nondeterministic activities is one way to describe
+either a kernel task is interruptable or nor. Another rule of thumb is
+that you're noninteruptable if you're waiting for HW to complete a task.
+(If you don't want to wait, you should have done it async anyway). 
+You're interruptable if you wait for another program to do a task.
 
-So there's a business model and it works for years in other fields.
-Maybe the problem is that people this path is it isn't "sexy" - they
-will have to lose the dream of being High Tech millionares who built a
-megacorporation and start thinking  like a small time law firm, which
-might one day be big. Maybe they don't like to work in a consultant kind
-of way. I can understand that and it's OK, but there is a business
-model.
 
-The way Open Source (or Free) software works is to multiply the "use
-value" of software by killing the "sell value". But here is the
-interesting part: it increases the "use value" of the open/free software
-in a given niche, but kills the "sell value" of ALL software competing
-in that niche. This is why it's going to win, cold hard economic facts
-and no need for FSF like ideology (not that there's anything wrong with
-that... ;-))))
+Make sense?
 
-And BTW I'm OK with patents as long as their licensed for free to GPLed
-software (maybe add a clause that makes this irreversable?).
+TJ
+ 
 
-> How is Linux and open source ever going to be a leader, producing new
-> applications, new protocols, new languages, new markets when it doesn't
-> generate the incredible amounts of revenue needed to build all that?
-
-A. Who cares? We're having fun.
-B. It already is in many senses.
-
-I even think that A leads to B, but that's just me...
-
-> Ask yourself - how much open source is a reimplementation of what has
-> already been designed and implemented, and how much is fundamentally new?
-
-Ask yourself - how much science is a reimplmentation of what has 
-already been researched and implmented, and how much is fundamentally
-new?
-
-If I remember correctly Linus quoted some dead guy about this once,
-something about standing on the shoulders of giants...
-
-OK, I'll now go back to being a quiet little lurker... ;-)
-
+On Mon, 2002-05-27 at 23:11, Joseph Cordina wrote:
+> Hi,
+>    I am quite new to this list and thus does not know if this question 
+> has been answered many a times. I have looked in the archive but could 
+> not find it. Here goes anyway:
+>      I realised that when processes are placed in the wait queue, they 
+> are set at either INTERRUPTIBLE or NONINTERRUPTIBLE. I also noticed that 
+> something like file access is set as NONINTERRUPTIBLE. Could someone 
+> please tell me the reason for having these two states. I can understand 
+> that INTERRUPTIBLE can be made to be interrupted by a timer or a signal 
+> and vice versa for UNTERRUPTIBLE. Yet what makes blocking system calls 
+> as INTERRUPTIBLE or NONINTERRUPTIBLE. Also why is file access considered 
+> as NONINTERRUPTIBLE.
+> 
+> In addition, inside the kernel running, are these two different states 
+> treated differently (apart from the allowance to be interrupted or 
+> otherwise).
+> 
+> The reason I am asking is that I am working on scheduler activations 
+> which allow new kernel threads to be created when a kernel thread blocks 
+> inside the kernel. Yet this only works for INTERRUPTIBLE processes, I 
+> was thinking of making it work also for NONINTERRUPTIBLE processes. Just 
+> wondering if this would have any repurcusions. Also when a process 
+> generates a page fault which causes a page to be retreived from the 
+> filesystem, it such a process placed in the wait queue as 
+> NONINTERRUPTIBLE also ?
+> 
+> Cheers
+> 
+> Joseph Cordina
+> University of Malta
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-Gilad Ben-Yossef <gilad@benyossef.com>
-http://benyossef.com
-"Hail Eris! All Hail Discordia!"
+_________________________________________________________________________
+
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 

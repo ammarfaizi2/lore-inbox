@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLKTxO>; Mon, 11 Dec 2000 14:53:14 -0500
+	id <S129226AbQLKT7Z>; Mon, 11 Dec 2000 14:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129226AbQLKTwx>; Mon, 11 Dec 2000 14:52:53 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:46332 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S129183AbQLKTwo>; Mon, 11 Dec 2000 14:52:44 -0500
-Date: Mon, 11 Dec 2000 13:22:18 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <F394unQVK110xQGocT0000136aa@hotmail.com>
-Subject: Re: fatal lockup, BIOS/CMOS reset?
-X-Mailer: The Polarbar Mailer; version=1.18; build=55
-Message-Id: <20001211195253Z129183-439+2982@vger.kernel.org>
+	id <S129387AbQLKT7P>; Mon, 11 Dec 2000 14:59:15 -0500
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:3356 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S129226AbQLKT7B>; Mon, 11 Dec 2000 14:59:01 -0500
+Date: Mon, 11 Dec 2000 14:28:11 -0500 (EST)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: stewart@neuron.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kapm-idled : is this a bug?
+In-Reply-To: <Pine.LNX.4.10.10012111343570.2897-100000@localhost>
+Message-ID: <Pine.LNX.4.10.10012111426110.23417-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from "Jonathan Brugge" <jonathan_brugge@hotmail.com> on
-Sun, 10 Dec 2000 22:49:05 +0100
+> Technical merits and voter intent aside, this behavior is misleading and
+> inconsistent with previous kernels. Tools like top or a CPU dock applet show
 
+the goal of kernel revision is *not* to remain consistent with old stuff.
 
-> I got a message about a bad CMOS and when I looked in my 
-> BIOS-settings I saw they were totally reset... No HD's, date was 1/1/2000, 
-> etc.
+> a constantly loaded CPU. Hacking them to deduct the load from 'kapm-idled'
+> seems like the wrong answer.
 
-The BIOS will do this at boot time if it detects that the checksum bytes in the
-CMOS are incorrect.  That's probably what happened - somehow, one or more bytes
-in your CMOS got altered, and during the reboot the BIOS detected this and reset
-all CMOS bytes.
+so don't run APM already.
 
-The CMOS can be programmed using I/O ports 70h and 71h.  Just a couple of bad
-I/O operations to those ports, and your CMOS is toast.
-
-
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

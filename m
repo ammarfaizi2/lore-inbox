@@ -1,33 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315210AbSFXUA2>; Mon, 24 Jun 2002 16:00:28 -0400
+	id <S315218AbSFXUCw>; Mon, 24 Jun 2002 16:02:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315214AbSFXUA1>; Mon, 24 Jun 2002 16:00:27 -0400
-Received: from NODE1.HOSTING-NETWORK.COM ([66.186.193.1]:55051 "HELO
-	hosting-network.com") by vger.kernel.org with SMTP
-	id <S315210AbSFXUA1>; Mon, 24 Jun 2002 16:00:27 -0400
-Subject: 2.4.19-rc1 error in depmod with mtd
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 24 Jun 2002 12:54:03 -0700
-Message-Id: <1024948445.2225.127.camel@shire.arnor.net>
-Mime-Version: 1.0
+	id <S315214AbSFXUCv>; Mon, 24 Jun 2002 16:02:51 -0400
+Received: from [200.250.102.36] ([200.250.102.36]:48910 "HELO
+	sergioyamada.com.br") by vger.kernel.org with SMTP
+	id <S315218AbSFXUCv>; Mon, 24 Jun 2002 16:02:51 -0400
+Date: 24 Jun 2002 20:13:40 -0000
+Message-ID: <20020624201340.2254.qmail@sergioyamada.com.br>
+From: polo@sergioyamada.com.br
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Documentation/DocBook/Makefile - 2.4.19-rc1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When attempting to make modules_install,
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.19-rc1/kernel/drivers/mtd/maps/sc520cdp.o
-depmod: 	mtd_concat_create_R606fc87b
-depmod: 	mtd_concat_destroy_R9c645004
-make: *** [_modinst_post] Error 1
+Hi all,
 
-- - -
-Torrey Hoffman
-thoffman@arnor.net
-torrey.hoffman@myrio.com
+A little patch to fix somethings that I think it isn't correct.
 
+--- linux/Documentation/DocBook/Makefile.orig   Mon Jun 24 15:50:07 2002
++++ linux/Documentation/DocBook/Makefile        Mon Jun 24 15:53:36 2002
+@@ -26,9 +26,15 @@
+ man:   kernel-api-man
+
+ %.eps: %.fig
++       @(which fig2dev > /dev/null 2>&1) || \
++        (echo "*** You need to instal transfig ***"; \
++         exit 1)
+        fig2dev -Leps $< $@
+
+ %.png: %.fig
++       @(which fig2dev > /dev/null 2>&1) || \
++        (echo "*** You need to instal transfig ***"; \
++         exit 1)
+        fig2dev -Lpng $< $@
+
+ %.sgml: %.c
+@@ -160,19 +166,19 @@
+
+ %.ps : %.sgml
+        @(which db2ps > /dev/null 2>&1) || \
+-        (echo "*** You need to install DocBook stylesheets ***"; \
++        (echo "*** You need to install DocBook utils ***"; \
+          exit 1)
+        db2ps $<
+
+ %.pdf : %.sgml
+        @(which db2pdf > /dev/null 2>&1) || \
+-        (echo "*** You need to install DocBook stylesheets ***"; \
++        (echo "*** You need to install DocBook utils ***"; \
+          exit 1)
+        db2pdf $<
+
+ %:     %.sgml
+        @(which db2html > /dev/null 2>&1) || \
+-        (echo "*** You need to install DocBook stylesheets ***"; \
++        (echo "*** You need to install DocBook utils ***"; \
+          exit 1)
+        rm -rf $@
+        db2html $<

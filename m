@@ -1,64 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbUKEQln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbUKEQoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbUKEQln (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 11:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbUKEQln
+	id S262683AbUKEQoc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 11:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbUKEQob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 11:41:43 -0500
-Received: from fsmlabs.com ([168.103.115.128]:30340 "EHLO musoma.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262666AbUKEQlk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 11:41:40 -0500
-Date: Fri, 5 Nov 2004 09:41:36 -0700 (MST)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IO_APIC NMI Watchdog not handled by suspend/resume.
-In-Reply-To: <1099643612.3793.3.camel@desktop.cunninghams>
-Message-ID: <Pine.LNX.4.61.0411050825370.4441@musoma.fsmlabs.com>
-References: <1099643612.3793.3.camel@desktop.cunninghams>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Nov 2004 11:44:31 -0500
+Received: from fed1rmmtao05.cox.net ([68.230.241.34]:28840 "EHLO
+	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S262685AbUKEQoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 11:44:25 -0500
+Date: Fri, 5 Nov 2004 09:44:24 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: [PATCH 2.6.10-rc1] ppc32: Fixup <asm/time.h> includes
+Message-ID: <20041105164424.GN13456@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nigel
+include/asm-ppc/time.h has a slightly odd include list which means that
+some files include <asm/time.h> and also hope to get others that they
+really shouldn't be.  This makes <asm/time.h> use <linux/types.h>
+(time_t) and <linux/rtc.h> (struct rtc_time) instead of
+<linux/mc16818rtc.h>, and fixes up the fallout from the change.
 
-On Fri, 5 Nov 2004, Nigel Cunningham wrote:
+Compile-tested on lite5200, walnut and defconfig, along with by-hand'ing
+everything else that included <asm/time.h>.
 
-> Tracking down SMP problems, I've found that if you boot with
-> nmi_watchdog=1 (IO_APIC), the watchdog continues to run while suspend is
-> doing sensitive things like restoring the original kernel. I don't know
-> enough to provide a patch to disable it so thought I'd ask if someone
-> could volunteer to fix this?
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-Use enable/disable_lapic_nmi_watchdog but first  check to see whether 
-nmi_watchdog == NMI_IO_APIC in which case you'd then call 
-disable/enable_timer_nmi_watchdog. Something like;
+--- 1.1/arch/ppc/boot/simple/mpc52xx_tty.c	2004-07-29 06:08:45 -07:00
++++ edited/arch/ppc/boot/simple/mpc52xx_tty.c	2004-11-05 09:14:00 -07:00
+@@ -17,6 +17,7 @@
+ #include <asm/mpc52xx.h>
+ #include <asm/mpc52xx_psc.h>
+ #include <asm/serial.h>
++#include <asm/io.h>
+ #include <asm/time.h>
+ 
+ #if MPC52xx_PF_CONSOLE_PORT == 0
+--- 1.5/arch/ppc/syslib/mpc52xx_setup.c	2004-09-25 03:58:17 -07:00
++++ edited/arch/ppc/syslib/mpc52xx_setup.c	2004-11-05 09:14:00 -07:00
+@@ -19,6 +19,7 @@
+ 
+ #include <linux/config.h>
+ 
++#include <asm/io.h>
+ #include <asm/time.h>
+ #include <asm/mpc52xx.h>
+ #include <asm/mpc52xx_psc.h>
+--- 1.10/arch/ppc/syslib/todc_time.c	2004-10-05 23:05:22 -07:00
++++ edited/arch/ppc/syslib/todc_time.c	2004-11-05 09:14:00 -07:00
+@@ -18,6 +18,7 @@
+ #include <linux/time.h>
+ #include <linux/timex.h>
+ #include <linux/bcd.h>
++#include <linux/mc146818rtc.h>
+ 
+ #include <asm/machdep.h>
+ #include <asm/io.h>
+@@ -47,8 +48,6 @@
+  * 	 we set the 'R' bit before reading them, they basically stop counting.
+  * 	 					--MAG
+  */
+-
+-extern spinlock_t	rtc_lock;
+ 
+ /*
+  * 'todc_info' should be initialized in your *_setup.c file to
+--- 1.13/include/asm-ppc/time.h	2003-09-26 16:31:59 -07:00
++++ edited/include/asm-ppc/time.h	2004-11-05 09:14:00 -07:00
+@@ -10,7 +10,8 @@
+ #define __ASM_TIME_H__
+ 
+ #include <linux/config.h>
+-#include <linux/mc146818rtc.h>
++#include <linux/types.h>
++#include <linux/rtc.h>
+ #include <linux/threads.h>
+ 
+ #include <asm/reg.h>
 
-void swsuspend_disable_nmi_watchdog(void)
-{
-	if ((nmi_watchdog == NMI_IO_APIC) && (smp_processor_id() == 0)) {
-		disable_timer_nmi_watchdog();
-		return;
-	}
-
-	disable_lapic_nmi_watchdog();
-}
-
-void swsuspend_enable_nmi_watchdog(void)
-{
-	if ((nmi_watchdog == NMI_IO_APIC) && (smp_processor_id() == 0)) {
-		enable_timer_nmi_watchdog();
-		return;
-	}
-
-	enable_lapic_nmi_watchdog();
-}
-
-Do note that this has to be run on all processors, holla if there is 
-anything else.
-
-Thanks,
-	Zwane
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

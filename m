@@ -1,38 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262915AbUKYBbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262885AbUKYBkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262915AbUKYBbh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 20:31:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbUKYBbh
+	id S262885AbUKYBkU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 20:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbUKYBkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 20:31:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9889 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262886AbUKYBb1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 20:31:27 -0500
-Date: Wed, 24 Nov 2004 17:18:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: pawfen@wp.pl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MTRR vesafb and wrong X performance
-Message-Id: <20041124171805.0586a5a1.akpm@osdl.org>
-In-Reply-To: <1101338139.1780.9.camel@PC3.dom.pl>
-References: <1101338139.1780.9.camel@PC3.dom.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 24 Nov 2004 20:40:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20960 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262885AbUKYBkJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 20:40:09 -0500
+Date: Wed, 24 Nov 2004 18:04:25 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Manfred Schwarb <manfred99@gmx.ch>
+Cc: linux-kernel@vger.kernel.org, Tigran Aivazian <tigran@veritas.com>
+Subject: Re: [PATCH 2.4.28] backport sigmatch() issue in microcode.c
+Message-ID: <20041124200425.GA13347@logos.cnet>
+References: <20041119100403.32522.90565.83940@tp-meteodat6.cyberlink.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041119100403.32522.90565.83940@tp-meteodat6.cyberlink.ch>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pawel Fengler <pawfen@wp.pl> wrote:
->
-> When I use boot option "video=vesafb:nomtrr" with any 2.6.x kernel,
->  Xserver performance is nearly as good as under 2.4.x kernel
->  and warning (in xorg.log) does not appear.
+On Fri, Nov 19, 2004 at 05:04:04AM -0500, Manfred Schwarb wrote:
+> Hi,
 > 
->  It seems to be a problem with mtrr and vesafb described several times,
->  for example Jan 18, 2004 in thread "Overlapping MTRRs in 2.6.1"
->  but it was a long time ago.
+> some weeks ago, Tigran Aivazian sent this patch to Marcelo
+> in a private email, I am unaware of the reasons why it is not included.
 
-Please send the full dmesg output and the contents of /proc/mtrr for
-2.6.10-rc2.
+Badness on my part, applied now.
+
+Next time add me to CC when you resend.
+

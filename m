@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbUA3QVE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 11:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbUA3QVE
+	id S261262AbUA3QWk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 11:22:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUA3QWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 11:21:04 -0500
-Received: from wiley-161-27139.roadrunner.nf.net ([205.251.69.183]:47365 "HELO
-	wiley-161-27139.roadrunner.nf.net") by vger.kernel.org with SMTP
-	id S261812AbUA3QVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 11:21:01 -0500
-Message-ID: <2$$$w2$s3-r2p$e$y-07$-8j8s@gsim.mm2.6bkuv>
-From: "Emma Driessen" <emma351_driessen@yahoo.com>
-Reply-To: "Emma Driessen" <emma351_driessen@yahoo.com>
-To: webmaster@vger.kernel.org
-Subject: Weleens overwogen uw woonlasten te verlagen?
-Date: Fri, 30 Jan 2004 14:18:48 -0200
-X-Mailer: MIME-tools 5.503 (Entity 5.501)
+	Fri, 30 Jan 2004 11:22:40 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:62726 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S261262AbUA3QWi convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 11:22:38 -0500
+x-mimeole: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="69962_202EA"
-X-Priority: 3
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] cpqarray update
+Date: Fri, 30 Jan 2004 10:22:32 -0600
+Message-ID: <CBD6B29E2DA6954FABAC137771769D6504E15971@cceexc19.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] cpqarray update
+Thread-Index: AcPmp3CJ6/Z2CGCRSWCJjHnZpdBnbgApW9FA
+From: "Wiran, Francis" <francis.wiran@hp.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: "Greg KH" <greg@kroah.com>, "Hollis Blanchard" <hollisb@us.ibm.com>,
+       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Jan 2004 16:22:33.0677 (UTC) FILETIME=[440DF7D0:01C3E74D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok. I'll remember that when we update the 2.6 driver (currently the
+driver packaged in 2.6.1 is version 2.4.5 ... pretty old).
 
---69962_202EA
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
+Thanks
+-fw-
 
-Huiseigenaren weten het: woonlasten zijn een grote kostenpost. Als 
-u daarop kunt besparen scheelt dat al snel honderden euro's. Erg 
-belangrijk als u een nieuw huis heeft gekocht is dus de 
-hypotheek. Maar ook het oversluiten van een bestaande hypothekaire 
-lening, zonder dat u verhuist, kan interessant zijn.
-
-Wilt u snel een goed advies? Bezoek vandaag nog onze site en 
-vraag een offerte aan!
-
-http://www.2004web.net/h/?af=3D3
-
-
-
-
-
-
-
-
-geen berichten meer?
-http://www.2004web.net/unsub
-
---69962_202EA--
-
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@pobox.com] 
+> Sent: Thursday, January 29, 2004 2:15 PM
+> To: Wiran, Francis
+> Cc: Greg KH; Hollis Blanchard; Marcelo Tosatti; Linux Kernel 
+> Mailing List
+> Subject: Re: [PATCH] cpqarray update
+> 
+> 
+> Wiran, Francis wrote:
+> > Ok. I'll make a patch when the behaviour changes, as per Greg's:
+> > 
+> > 
+> >>Yeah, I don't really like it either, but figured it was a 
+> 2.7 task to
+> >>clean it up properly.
+> > 
+> > 
+> > At 2.6.1, it still returns count.
+> 
+> Look closer:
+> 2.4 behavior:  returns count.
+> 
+> 2.6 behavior:  returns negative value on error, or returns 1 when no
+> controllers found, or returns number of controllers found.
+> 
+> 	Jeff
+> 
+> 
+> 
+> 

@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266063AbUFPBRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265994AbUFPB14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266063AbUFPBRv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 21:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266058AbUFPBRu
+	id S265994AbUFPB14 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 21:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265995AbUFPB14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 21:17:50 -0400
-Received: from quechua.inka.de ([193.197.184.2]:5004 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S266055AbUFPBRq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 21:17:46 -0400
-Date: Wed, 16 Jun 2004 03:17:43 +0200
-From: Bernd Eckenfels <be-mail2004@lina.inka.de>
-To: Trent Lloyd <lathiat@bur.st>
-Cc: linux-net@vger.kernel.org
-Subject: How to turn off IPV6 (link local)
-Message-ID: <20040616011743.GA15385@lina.inka.de>
-References: <20040614233215.GA10547@lina.inka.de> <20040615023022.GB24269@thump.bur.st> <20040615194657.GA7474@lina.inka.de> <20040616001630.GB24753@thump.bur.st>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040616001630.GB24753@thump.bur.st>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 15 Jun 2004 21:27:56 -0400
+Received: from lakermmtao05.cox.net ([68.230.240.34]:34732 "EHLO
+	lakermmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S265994AbUFPB1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 21:27:54 -0400
+In-Reply-To: <200406151938.02613.eric@cisu.net>
+References: <20040615205753.GA24380@lst.de> <200406151938.02613.eric@cisu.net>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <63301070-BF34-11D8-95EB-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: more files with licenses that aren't GPL-compatible
+Date: Tue, 15 Jun 2004 21:27:53 -0400
+To: eric@cisu.net
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 08:16:31AM +0800, Trent Lloyd wrote:
-> Ahh, i see, however you would have to set autoconf to off then *remove*
-> the link-local addresses, because they are setup before that variable is
-> changed? [or is there an option for this in the kernel? afaik its just
-> in proc (sysctl)]
+On Jun 15, 2004, at 20:38, Eric wrote:
+> On Tuesday 15 June 2004 03:57 pm, Christoph Hellwig wrote:
+>> 	Permission is hereby granted for the distribution of this firmware
+>> 	image as part of a Linux or other Open Source operating system kernel
+>> 	in text or binary form as required.
 
-you can set net.ipv6.conf.defaul.autoconf=0 and then up the interface. This
-will prevent it from getting any  announced prefixes, but it wont prevent it
-from getting linklocal prefix.
+Permission is legally granted
 
-So my idea is, that autoconf=0 will prevent it from getting linklocal and
-advertised adddresses and accept_ra=0 will prevent it from getting announced
-prefixes.
+>> 	This firmware may not be modified and may only be used with
+>> 	Keyspan hardware.  Distribution and/or Modification of the
+>> 	keyspan.c driver which includes this firmware, in whole or in
+>> 	part, requires the inclusion of this statement."
 
-> That said, the link-local addresses are *NOT* the issue here, and having
-> them will not cause said problems, the problem here is the user has 4
-> real world IPv6 addresses configured by a router on his network + user
-> configuration (the 6to4 address).
+But we can't actually distribute this file under GPL because we are
+not allowed to modify it.  They own the copyright, so they can release 
+it
+under any terms that they want.  One of their terms is that we can make
+copies and give them to people.  The other term is that nobody but them
+can change it.  The two aren't incompatible, but the second is anti-GPL.
 
-Well, the user does not have them now anymore and Mozilla uses the
-link-local. However I agree with you, that it might not help to remove
-(prevent autoconfgration) because mozilla still might suceed in AF_INET6
-binding and try the connect w/o failback.
+> Unredistributable? Am I mistaken? It says permission is given to 
+> redistribute
+> this piece as part of the linux kernel. You just can't modify it. 
+> Although it
+> is unquestionably not a very permissive license, it's inclusion is not
+> detrimental to the kernel.
 
-> Check out http://www.sixlabs.org/talks/, in my IPv6 programming talk I
-> have code showing how to use getaddrinfo() and try each address until
-> one suceeds.
+Unfortunately the GPL requires that everybody has the right to *modify* 
+and
+distribute *modified* copies of any files released under it.  If a file 
+is to be
+distributed as a part of the GPLed Linux kernel must also follow GPL.
 
-There is btw an additional issue with sending AAAA requests on a host which
-is not fully configured for ipv6. In fact I think we should disable to
-compile ipv6 into the kernel, its so painfull to turn the AF off.
+The relevant portion of the GPL:
+> [...snip...]
+>
+> You may modify your copy or copies of the Program or any portion of 
+> it, thus
+> forming a work based on the Program, and copy and distribute such
+> modifications or work under the terms of Section 1 above, provided 
+> that you
+> also meet all of these conditions:
+>
+> [...snip...]
+>
+> b)	You must cause any work that you distribute or publish, that in 
+> whole or
+> 	in part contains or is derived from the Program or any part thereof, 
+> to be
+> 	licensed as a whole at no charge to all third parties under the terms 
+> of
+> 	this License.
+>
+> [...snip...]
 
-Greetings
-Bernd
--- 
-  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
- ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
-  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+Cheers,
+Kyle Moffett
+

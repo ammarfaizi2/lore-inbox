@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262685AbVAQEMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVAQEMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262685AbVAQEMV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 23:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbVAQEMV
+	id S262690AbVAQEMx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 23:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbVAQEMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 23:12:21 -0500
-Received: from fire.osdl.org ([65.172.181.4]:49358 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262685AbVAQEMQ (ORCPT
+	Sun, 16 Jan 2005 23:12:53 -0500
+Received: from mail.tmr.com ([216.238.38.203]:25298 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S262690AbVAQEMs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 23:12:16 -0500
-Message-ID: <41EB395F.50602@osdl.org>
-Date: Sun, 16 Jan 2005 20:04:47 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+	Sun, 16 Jan 2005 23:12:48 -0500
+Message-ID: <41EB3E7E.7070100@tmr.com>
+Date: Sun, 16 Jan 2005 23:26:38 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Post, Mark K" <mark.post@eds.com>
-CC: "'Linux390'" <linux-390@vm.marist.edu>,
-       "'BOEBLINGEN LINUX390'" <LINUX390@de.ibm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Discrepancy between ftp.kernel.org and linux.bkbits.net
-References: <5A14AF34CFF8AD44A44891F7C9FF41050157A123@usahm236.amer.corp.eds.com>
-In-Reply-To: <5A14AF34CFF8AD44A44891F7C9FF41050157A123@usahm236.amer.corp.eds.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+CC: linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: Announce loop-AES-v3.0b file/swap crypto package
+References: <41EAE36F.35354DDF@users.sourceforge.net>
+In-Reply-To: <41EAE36F.35354DDF@users.sourceforge.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Post, Mark K wrote:
-> I believe I've discovered an odd discrepancy between what is in the official
-> Linux BitKeeper repository, and what is on ftp.kernel.org.  According to
-> BitKeeper, the last time linux/arch/s390/config.in and
-> linux/arch/s390x/config.in were changed is 17 months ago.  What is in
-> ftp.kernel.org/pub/linux/kernel/v2.4/linux-2.4.28.tar.bz2 was last modified
-> on November 17, 2004.  The difference between the two versions is this:
-> @@ -57,7 +57,7 @@
->  bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
->  bool 'Sysctl support' CONFIG_SYSCTL
->  define_bool CONFIG_KCORE_ELF y
-> -tristate 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
-> +bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
->  tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
->  bool 'Show crashed user process info' CONFIG_PROCESS_DEBUG
->  bool 'Pseudo page fault support' CONFIG_PFAULT
+Jari Ruusu wrote:
+> loop-AES changes since previous release:
+> - Fixed externally compiled module version multi-key-v3 ioctl
+>   incompatibility with boxes running 64 bit kernel and 32 bit userland.
+>   Kernel patch versions were not affected (2.4 and 2.6 kernels).
+> - Fixed bug that made v3 on-disk format always use file backed code path on
+>   some 2.6 kernels that did not have LO_FLAGS_DO_BMAP defined. No data loss,
+>   but file backed code path is not journaled file system safe. Same bug also
+>   had cosmetic side effect of "losetup -a" status query always displaying
+>   file backed v2 on-disk format as v3 on-disk format.
 > 
+> bzip2 compressed tarball is here:
 > 
-> Admittedly, pretty small, but still disturbing to me, at least.  What's
-> interesting is that this change seems to have been made to a _lot_ of
-> architectures (14 in all) in patch-2.4.28-pre2.bz2, which is now in
-> ftp.kernel.org/pub/linux/kernel/v2.4/testing/old/  That file is dated August
-> 26, 2004.  This same change was included in -pre3, all the way through -rc4,
-> and then the final 2.4.28.  The entry in the patch-2.4.28.log looks like
-> this:
-> Adrian Bunk:
->   o 2.4.28-pre1: add two SATA Configure.help entries
->   o disallow modular BINFMT_ELF
+>     http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.0b.tar.bz2
+>     md5sum b295ff982cd4503603b38fdc54e604cc
 > 
-> Does anyone have any idea why this didn't make it into BitKeeper?  Should it
-> be in BitKeeper or not?  This looks like some sort of process failure (or
-> failure to follow the process), which is what concerns me the most.
+>     http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.0b.tar.bz2.sign
+> 
 
-Browsing bkbits.net shows that it is there:
-http://linux.bkbits.net:8080/linux-2.4/diffs/arch/s390/config.in@1.14?nav=index.html|src/|src/arch|src/arch/s390|hist/arch/s390/config.in
-
-so a 'bk pull' doesn't show it??  (I can't verify yes/no on that.)
-
+Is this eventually going in the mainline kernel? I'd like to use it, but 
+if I'm going to have to maintain my own crypto kernels indefinitely this 
+probably isn't the one for me.
 -- 
-~Randy
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272433AbTHEFEO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 01:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272435AbTHEFEO
+	id S272435AbTHEFKP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 01:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272437AbTHEFKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 01:04:14 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:2460
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272433AbTHEFEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 01:04:12 -0400
-Message-ID: <1060059844.3f2f3ac46e2f2@kolivas.org>
-Date: Tue,  5 Aug 2003 15:04:04 +1000
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PATCH] O13int for interactivity
-References: <200308050207.18096.kernel@kolivas.org> <200308051220.04779.kernel@kolivas.org> <3F2F149F.1020201@cyberone.com.au> <200308051318.47464.kernel@kolivas.org> <3F2F2517.7080507@cyberone.com.au>
-In-Reply-To: <3F2F2517.7080507@cyberone.com.au>
+	Tue, 5 Aug 2003 01:10:14 -0400
+Received: from www.erfrakon.de ([193.197.159.57]:62217 "EHLO www.erfrakon.de")
+	by vger.kernel.org with ESMTP id S272435AbTHEFKK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 01:10:10 -0400
+From: Martin Konold <martin.konold@erfrakon.de>
+Organization: erfrakon
+To: linux-kernel@vger.kernel.org
+Subject: Interactive Usage of 2.6.0.test1 worse than 2.4.21
+Date: Tue, 5 Aug 2003 07:04:22 +0200
+User-Agent: KMail/kroupware-1.0.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308050704.22684.martin.konold@erfrakon.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Nick Piggin <piggin@cyberone.com.au>:
 
-> 
-> 
-> Con Kolivas wrote:
-> 
-> >On Tue, 5 Aug 2003 12:21, Nick Piggin wrote:
-> >
-> >>No, this still special-cases the uninterruptible sleep. Why is this
-> >>needed? What is being worked around? There is probably a way to
-> >>attack the cause of the problem.
-> >>
-> >
-> >Footnote: I was thinking of using this to also _elevate_ the dynamic
-> priority 
-> >of tasks waking from interruptible sleep as well which may help throughput.
-> >
-> 
-> Con, an uninterruptible sleep is one which is not be woken by a signal,
-> an interruptible sleep is one which is. There is no other connotation.
-> What happens when read/write syscalls are changed to be interruptible?
-> I'm not saying this will happen... but come to think of it, NFS probably
-> has interruptible read/write.
-> 
-> In short: make the same policy for an interruptible and an uninterruptible
-> sleep.
+Hi,
 
-That's the policy that has always existed...
+when using  2.6.0.test1 on a high end laptop (P-IV 2.2 GHz, 1GB RAM) I notice 
+very significant slowdown in interactive usage compared to 2.4.21.
 
-Interesting that I have only seen the desired effect and haven't noticed any 
-side effect from this change so far. I'll keep experimenting as much as 
-possible (as if I wasn't going to) and see what the testers find as well.
+The difference is most easily seen when switching folders in kmail. While 
+2.4.21 is instantaneous 2.6.0.test1 shows the clock for about 2-3 seconds.
 
-Con
+I am using maildir folders on reiserfs.
+
+Can anyone verify this behaviour?
+
+What other information do you need?
+
+Regards,
+-- martin
+
+Dipl.-Phys. Martin Konold
+e r f r a k o n
+Erlewein, Frank, Konold & Partner - Beratende Ingenieure und Physiker
+Nobelstrasse 15, 70569 Stuttgart, Germany
+fon: 0711 67400963, fax: 0711 67400959
+email: martin.konold@erfrakon.de
+

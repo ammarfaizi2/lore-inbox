@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268458AbUI2OWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268464AbUI2OYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268458AbUI2OWz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 10:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268457AbUI2OTz
+	id S268464AbUI2OYS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 10:24:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268457AbUI2OXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 10:19:55 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:37892 "EHLO
+	Wed, 29 Sep 2004 10:23:11 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:38916 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268447AbUI2OQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 10:16:06 -0400
-Date: Wed, 29 Sep 2004 15:16:01 +0100
+	id S268464AbUI2OVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 10:21:16 -0400
+Date: Wed, 29 Sep 2004 15:21:09 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Keith Whitwell <keith@tungstengraphics.com>
-Cc: Discuss issues related to the xorg tree <xorg@freedesktop.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: New DRM driver model - gets rid of DRM() macros!
-Message-ID: <20040929151601.A13135@infradead.org>
+To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: "Leubner, Achim" <Achim_Leubner@adaptec.com>, arjanv@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] gdth update
+Message-ID: <20040929152109.A13189@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Keith Whitwell <keith@tungstengraphics.com>,
-	Discuss issues related to the xorg tree <xorg@freedesktop.org>,
-	dri-devel <dri-devel@lists.sourceforge.net>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910409280854651581e2@mail.gmail.com> <20040929133759.A11891@infradead.org> <415AB8B4.4090408@tungstengraphics.com> <20040929143129.A12651@infradead.org> <415ABA34.9080608@tungstengraphics.com> <415AC2B3.6070900@tungstengraphics.com>
+	=?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+	"Leubner, Achim" <Achim_Leubner@adaptec.com>, arjanv@redhat.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <B51CDBDEB98C094BB6E1985861F53AF302DE00@nkse2k01.adaptec.com> <20040929134301.GB17952@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <415AC2B3.6070900@tungstengraphics.com>; from keith@tungstengraphics.com on Wed, Sep 29, 2004 at 03:12:03PM +0100
+In-Reply-To: <20040929134301.GB17952@wohnheim.fh-wedel.de>; from joern@wohnheim.fh-wedel.de on Wed, Sep 29, 2004 at 03:43:01PM +0200
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 03:12:03PM +0100, Keith Whitwell wrote:
-> Thinking about it, it may not have been a problem of crashing, but rather that 
->   the behaviour visible from a program attempting to read (or poll) was 
-> different with noop versions of these functions to NULL versions, and that was 
-> causing problems.  This is 18 months ago, so yes, I'm being vague.
+On Wed, Sep 29, 2004 at 03:43:01PM +0200, Jörn Engel wrote:
+> On Wed, 29 September 2004 14:15:57 +0200, Leubner, Achim wrote:
+> >  
+> > > > +#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+> > > > +static irqreturn_t gdth_interrupt(int irq, void *dev_id, struct
+> > pt_regs *regs);
+> > > >  #else
+> > > > -static void gdth_interrupt(int irq,struct pt_regs *regs);
+> > > > +static void gdth_interrupt(int irq, void *dev_id, struct pt_regs
+> > *regs);
+> > > >  #endif
+> > > 
+> > > this really is the wrong way to do such irq prototype compatibility in
+> > > drivers. *really*
+> > > 
+> > So please tell me what the right way should be. It works without any
+> > problem.
 > 
-> The X server does look at this file descriptor, which is where the problem 
-> would have arisen, but only the gamma & maybe ffb drivers do anything with it.
+> #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
+> #define irqreturn_t void
+> #define IRQ_NONE
+> #define IRQ_HANDLED
+> #endif
 
-Indeed, for read you're returning 0 now instead of the -EINVAL from common
-code when no ->read is present.  I'd say the current drm behaviour is a bug,
-but if X drivers rely on it.
-
-Similar in poll your return 0 now while the generic code return
-(POLLIN | POLLOUT | POLLRDNORM | POLLWRNORM) for fds without ->poll, and
-again I'd say current drm behaviour could be considered a bug.
-
-for ->flush there's no behaviour change of not supplying it.
+Actually all these are in recent 2.4.x release.  So better check for
+#ifndef IRQ_HANDLED.
 

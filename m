@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265945AbSKBMBX>; Sat, 2 Nov 2002 07:01:23 -0500
+	id <S265947AbSKBMQc>; Sat, 2 Nov 2002 07:16:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265946AbSKBMBW>; Sat, 2 Nov 2002 07:01:22 -0500
-Received: from pop015pub.verizon.net ([206.46.170.172]:19408 "EHLO
-	pop015.verizon.net") by vger.kernel.org with ESMTP
-	id <S265945AbSKBMBV>; Sat, 2 Nov 2002 07:01:21 -0500
-Date: Sat, 02 Nov 2002 06:07:17 -0500
-From: Akira Tsukamoto <at541@columbia.edu>
-To: Andrew Morton <akpm@digeo.com>
+	id <S265948AbSKBMQc>; Sat, 2 Nov 2002 07:16:32 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:59406 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S265947AbSKBMQb>; Sat, 2 Nov 2002 07:16:31 -0500
+Message-Id: <200211021216.gA2CGEp24534@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Andi Kleen <ak@suse.de>
 Subject: Re: [PATCH] 2/2 2.5.45 cleanup & add original copy_ro/from_user
-Cc: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <3DC3A9C0.7979C276@digeo.com>
-References: <20021102025838.220E.AT541@columbia.edu> <3DC3A9C0.7979C276@digeo.com>
-Message-Id: <20021102060423.032A.AT541@columbia.edu>
+Date: Sat, 2 Nov 2002 15:08:16 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <20021102025838.220E.AT541@columbia.edu.suse.lists.linux.kernel> <200211021203.gA2C37p24480@Port.imtp.ilyichevsk.odessa.ua> <20021102130954.A30729@wotan.suse.de>
+In-Reply-To: <20021102130954.A30729@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.06
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop015.verizon.net from [138.89.32.225] at Sat, 2 Nov 2002 06:07:44 -0600
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 02 Nov 2002 02:32:32 -0800
-Andrew Morton <akpm@digeo.com> mentioned:
+On 2 November 2002 10:09, Andi Kleen wrote:
+> > That depends on size. If you do huge memcpy (say 1 mb) it still
+> > wins by wide margin. Not that we do such huge operations often,
+> > but code can check size and pick different routines for small
+> > and big blocks
+>
+> The kernel nevers does such huge memcpys. It rarely does handle any
+> buffer bigger than a page (4K)
 
-> Akira Tsukamoto wrote:
-> > 
-> But you've inlined them again.  Your patches increase my kernel
-> size by 17 kbytes, which is larger than my entire Layer 1 instruction
-> cache!
+Okay I take that.
 
-It is because I was working on this patch based on 2.5.44 :)
+How did you determined that movntXX stores are net loss?
+I thought about that and didn't came to a working solution.
 
-As Andi mentioned, how about selecting if OCNFIG_SAMLL is defined?
-
-
+It's easy to time memcpy() but harder to measure susequent
+cache misses when copied data gets accessed. We can read it
+back after memcpy and measure memcpy()+read, but is entire
+copy gets used immediately after memcpy() in real world usage?
+We're in benchmarking hell :(
+--
+vda

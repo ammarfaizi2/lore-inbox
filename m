@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263391AbRFAPNQ>; Fri, 1 Jun 2001 11:13:16 -0400
+	id <S263444AbRFAPT0>; Fri, 1 Jun 2001 11:19:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263292AbRFAPNG>; Fri, 1 Jun 2001 11:13:06 -0400
-Received: from mta01-svc.ntlworld.com ([62.253.162.41]:36487 "EHLO
-	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S263289AbRFAPMq>; Fri, 1 Jun 2001 11:12:46 -0400
-Date: Fri, 1 Jun 2001 16:12:26 +0100
-From: David Harris <linux@davidharris.org.uk>
+	id <S263557AbRFAPTQ>; Fri, 1 Jun 2001 11:19:16 -0400
+Received: from mail.intrex.net ([209.42.192.246]:33549 "EHLO intrex.net")
+	by vger.kernel.org with ESMTP id <S263444AbRFAPTC>;
+	Fri, 1 Jun 2001 11:19:02 -0400
+Date: Fri, 1 Jun 2001 11:21:27 -0400
+From: jlnance@intrex.net
 To: linux-kernel@vger.kernel.org
-Subject: Kernel oops
-Message-ID: <20010601161226.A18246@cam.ac.uk>
+Subject: Highmem Bigmem question
+Message-ID: <20010601112127.A5798@bessie.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running gnome netleds_applet version 0.9.1 and it is sporadically
-dieing, with a various kernel oops warnings in my syslogs. I caught
-the last one and ran it through ksymoops - I've attached the output of
-that. It happens every few days and doesn't seem to be caused by
-anything specific that I can see. Always the same program, and the
-overall stability of the system seems unaffected. If it makes any
-difference I have two copies of netleds running (they monitor eth0
-and ppp0 separately). The processor is a Cyric 6x86MX233. Any other
-information you'd find useful, please contact me!
+Hello All,
+    This is probably an FAQ, but I read the FAQ and its not in there.
+I have a machine with 2G of memory.  I compiled the kernel with the 4G memory
+option.  How much address space should each process be able to address?  Does
+this change if I use the 64G option?  I'm after 2.4 information.  Right now
+I am running on a 2.2 kernel and it looks like the user processes are limited
+to ~1G.
 
-yours
+Thanks,
 
-David Harris
-
--- 
-     David Harris, 10 Carlton Way,     |  My name is Inigo Montoya.
-  Cambridge CB4 2BZ Tel: 01223 524413  |    You killed my father.
-  Mob: 07977 226941 Fax: 07970 091596  |       Prepare to die.
-    http://www.srcf.ucam.org/~djh59/   |
+Jim

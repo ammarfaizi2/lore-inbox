@@ -1,94 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266147AbUHVUwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUHVUyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266147AbUHVUwA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 16:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUHVUwA
+	id S266175AbUHVUyP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 16:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUHVUyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 16:52:00 -0400
-Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:28053 "EHLO
-	dedasys.com") by vger.kernel.org with ESMTP id S266147AbUHVUvW
+	Sun, 22 Aug 2004 16:54:15 -0400
+Received: from zak.futurequest.net ([69.5.6.152]:54186 "HELO
+	zak.futurequest.net") by vger.kernel.org with SMTP id S266319AbUHVUxx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 16:51:22 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux Incompatibility List
-References: <87r7q0th2n.fsf@dedasys.com>
-	<1093173291.24341.40.camel@localhost.localdomain>
-From: davidw@dedasys.com (David N. Welton)
-Date: 22 Aug 2004 22:48:58 +0200
-Message-ID: <87vffaq4p1.fsf@dedasys.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 22 Aug 2004 16:53:53 -0400
+Date: Sun, 22 Aug 2004 14:53:46 -0600
+From: Bruce Guenter <bruceg@em.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Broadcom 4401 problem
+Message-ID: <20040822205346.GA17895@em.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> On Sad, 2004-08-21 at 20:41, David N. Welton wrote:
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I think the "compatibility list" side is the more important. Trying
-> to punish non helpful products/vendors isn't as productive as
-> helping stuff that is Linux friendly.
+Greetings.
 
-A "compatibility list" is going to be pretty big, and hard to keep up
-to date.  My thinking is that keeping track of a few notable things
-that don't work is easier than running after all the stuff that does.
+I have a Dell Inspiron 1150 laptop which has a built-in Broadcom 4401
+NIC.  I am using Gentoo's 2.6.8.1 kernel and the built-in b44 driver.
+It compiles, loads, and I can get basic network traffic through it just
+fine.  However, it (the NIC) locks up randomly when I try to do bulk
+data transfers (with rsync for example).  I can get it to reset itself
+by either taking the interface down and up, or by running "ethtool -A
+eth0 rx off tx off".  Both actions appear to cause the NIC to disconnect
+and renegotiate with the switch.
 
-Of course, if automation can be brought to bear, that might make
-either one much easier, but I'm dubious, because "it doesn't work" is
-a vague concept, and really ought to be researched some.
+What is unusual, to me, is that while the NIC is malfunctioning, it
+still can transmit packets.  I have run tcpdump on both the laptop and
+the destnation system, and the laptop still transmits the trailing TCP
+ACKs and ARPs, however it does not receive any responses.
 
-A third concept "look, these guys support Linux really well!" (not
-just "ok, it works") might also be easy to do.
+I have tried to reproduce this with Windows (which is also installed)
+but have been unable as of yet to do so.  I am not, however, ruling out
+a hardware problem, as the "activity" light on the NIC flickers
+constantly even when there is no traffic.
 
-By the way, the concept is not really about punishing vendors, and I
-don't want it to come off looking like that.  It's about "this piece
-of hardware does not work with Linux".  Who knows, maybe the fault is
-with the kernel maintainers:-)  It might be nice if that gave some
-incentive to the manufacturers to help bring the driver up to speed,
-though.
+Is this likely a hardware problem, or a problem in the driver?
+--=20
+Bruce Guenter <bruceg@em.ca> http://em.ca/~bruceg/ http://untroubled.org/
+OpenPGP key: 699980E8 / D0B7 C8DD 365D A395 29DA  2E2A E96F B2DC 6999 80E8
 
-> At what level is "Product" - do you need a category. How do you want
-> to classify devices. I think this matters because you want
-> eventually to be able to deal with things like tools that let users
-> rate their setup functionality and submit it automatically.
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I'd be worried about people who are just irritated that their system
-didn't work out of the box hitting a button to submit this
-information.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-I suppose some sort of vote system could be put in place so that the 1
-guy who didn't get the hardware to work gets outvoted by the 10 who
-did, but there is more incentive to hit the button when you are
-irritated than when everything 'just worked'.
+iD8DBQFBKQfa6W+y3GmZgOgRAtAjAJwKdXSJWzWqYkQ3hysMsQBs7bhbdQCZAWxg
+ni6Zso6AD6b8MKvW+SXnQxA=
+=BPjN
+-----END PGP SIGNATURE-----
 
-> > How bad it is (1 to 10, 9 being it almost works and has only minor
-> > bugs):
-
-> > Reason (no specs, driver still being worked on, ...):
-
-> > Url for more info:
-
-> > An email address of yours that we may publish (so that we can contact
-> > you if someone says "no, that works just fine!"):
-
-> Wikipedia has a discussion page tagged to each article/entry. This
-> works extremely well because it provides a public forum for
-> discussion of what does/doesn't work, why and when.
-
-It's a wiki, so for now I think placing comments on the bottom of the
-page would be sensible.  We'll see if and how it grows.
-
-> Could you add "Kernel.org bugzilla #" for not working ones, both to
-> help people track them and to encourage submissions ?
-
-Excellent idea.
-
-Thanks for your thoughts,
--- 
-David N. Welton
-     Personal: http://www.dedasys.com/davidw/
-Free Software: http://www.dedasys.com/freesoftware/
-   Apache Tcl: http://tcl.apache.org/
-       Photos: http://www.dedasys.com/photos/
+--uAKRQypu60I7Lcqm--

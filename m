@@ -1,150 +1,333 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264910AbTBYBPh>; Mon, 24 Feb 2003 20:15:37 -0500
+	id <S264877AbTBYBPf>; Mon, 24 Feb 2003 20:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264610AbTBYBOT>; Mon, 24 Feb 2003 20:14:19 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:54287 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264646AbTBYBNo>;
-	Mon, 24 Feb 2003 20:13:44 -0500
+	id <S264730AbTBYBO4>; Mon, 24 Feb 2003 20:14:56 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:58127 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264811AbTBYBNq>;
+	Mon, 24 Feb 2003 20:13:46 -0500
 Subject: Re: [PATCH] PCI hotplug changes for 2.5.63
-In-reply-to: <10461357562562@kroah.com>
+In-reply-to: <10461357624080@kroah.com>
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
 From: Greg KH <greg@kroah.com>
 Content-Type: text/plain; charset=US-ASCII
 Mime-version: 1.0
 Date: Mon, 24 Feb 2003 17:16 -0800
-Message-id: <1046135760965@kroah.com>
+Message-id: <10461357631881@kroah.com>
 X-mailer: gregkh_patchbomb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1022.1.3, 2003/02/24 16:25:54-08:00, greg@kroah.com
+ChangeSet 1.1022.1.6, 2003/02/24 16:27:32-08:00, greg@kroah.com
 
-[PATCH] IBM PCI Hotplug: get rid of unneeded ops structure and surrounding logic.
+[PATCH] Compaq PCI Hotplug: rename cpqphp_proc.c to cpqphp_sysfs.c
 
 
-diff -Nru a/drivers/hotplug/ibmphp.h b/drivers/hotplug/ibmphp.h
---- a/drivers/hotplug/ibmphp.h	Mon Feb 24 17:15:55 2003
-+++ b/drivers/hotplug/ibmphp.h	Mon Feb 24 17:15:55 2003
-@@ -683,11 +683,6 @@
- #define ENABLE		1
- #define DISABLE		0
+diff -Nru a/drivers/hotplug/Makefile b/drivers/hotplug/Makefile
+--- a/drivers/hotplug/Makefile	Mon Feb 24 17:15:41 2003
++++ b/drivers/hotplug/Makefile	Mon Feb 24 17:15:41 2003
+@@ -18,7 +18,7 @@
  
--#define ADD		0
--#define REMOVE		1
--#define DETAIL		2
+ cpqphp-objs		:=	cpqphp_core.o	\
+ 				cpqphp_ctrl.o	\
+-				cpqphp_proc.o	\
++				cpqphp_sysfs.o	\
+ 				cpqphp_pci.o
+ 
+ ibmphp-objs		:=	ibmphp_core.o	\
+diff -Nru a/drivers/hotplug/cpqphp_proc.c b/drivers/hotplug/cpqphp_proc.c
+--- a/drivers/hotplug/cpqphp_proc.c	Mon Feb 24 17:15:41 2003
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,143 +0,0 @@
+-/*
+- * Compaq Hot Plug Controller Driver
+- *
+- * Copyright (c) 1995,2001 Compaq Computer Corporation
+- * Copyright (c) 2001,2003 Greg Kroah-Hartman (greg@kroah.com)
+- * Copyright (c) 2001 IBM Corp.
+- *
+- * All rights reserved.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or (at
+- * your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+- * NON INFRINGEMENT.  See the GNU General Public License for more
+- * details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- *
+- * Send feedback to <greg@kroah.com>
+- *
+- */
 -
--#define MAX_OPS		3
- #define CARD_INFO	0x07
- #define PCIX133		0x07
- #define PCIX66		0x05
-diff -Nru a/drivers/hotplug/ibmphp_core.c b/drivers/hotplug/ibmphp_core.c
---- a/drivers/hotplug/ibmphp_core.c	Mon Feb 24 17:15:55 2003
-+++ b/drivers/hotplug/ibmphp_core.c	Mon Feb 24 17:15:55 2003
-@@ -55,7 +55,6 @@
- MODULE_LICENSE ("GPL");
- MODULE_DESCRIPTION (DRIVER_DESC);
- 
--static int *ops[MAX_OPS + 1];
- struct pci_bus *ibmphp_pci_bus;
- static int max_slots;
- 
-@@ -550,20 +549,6 @@
- 	struct list_head *tmp;
- 	int retval;
- 	int rc;
--	int j;
+-#include <linux/config.h>
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/types.h>
+-#include <linux/proc_fs.h>
+-#include <linux/workqueue.h>
+-#include <linux/pci.h>
+-#include "cpqphp.h"
 -
--	for (j = 0; j < MAX_OPS; j++) {
--		ops[j] = (int *) kmalloc ((max_slots + 1) * sizeof (int), GFP_KERNEL);
--		memset (ops[j], 0, (max_slots + 1) * sizeof (int));
--		if (!ops[j]) {
--			err ("out of system memory \n");
--			return -ENOMEM;
--		}
+-
+-/* A few routines that create sysfs entries for the hot plug controller */
+-
+-static int show_ctrl (struct device *dev, char *buf)
+-{
+-	struct pci_dev *pci_dev;
+-	struct controller *ctrl;
+-	char * out = buf;
+-	int index;
+-	struct pci_resource *res;
+-
+-	pci_dev = container_of (dev, struct pci_dev, dev);
+-	ctrl = pci_get_drvdata(pci_dev);
+-
+-	out += sprintf(buf, "Free resources: memory\n");
+-	index = 11;
+-	res = ctrl->mem_head;
+-	while (res && index--) {
+-		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
+-		res = res->next;
+-	}
+-	out += sprintf(out, "Free resources: prefetchable memory\n");
+-	index = 11;
+-	res = ctrl->p_mem_head;
+-	while (res && index--) {
+-		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
+-		res = res->next;
+-	}
+-	out += sprintf(out, "Free resources: IO\n");
+-	index = 11;
+-	res = ctrl->io_head;
+-	while (res && index--) {
+-		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
+-		res = res->next;
+-	}
+-	out += sprintf(out, "Free resources: bus numbers\n");
+-	index = 11;
+-	res = ctrl->bus_head;
+-	while (res && index--) {
+-		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
+-		res = res->next;
 -	}
 -
--	ops[ADD][0] = 0;
--	ops[REMOVE][0] = 0;
--	ops[DETAIL][0] = 0;
- 
- 	list_for_each (tmp, &ibmphp_slot_head) {
- 		slot_cur = list_entry (tmp, struct slot, ibm_slot_list);
-@@ -588,24 +573,15 @@
- 		if (retval)
- 			return retval;
- 
--		debug ("status = %x, ext_status = %x\n", slot_cur->status, slot_cur->ext_status);
--		debug ("SLOT_POWER = %x, SLOT_PRESENT = %x, SLOT_LATCH = %x\n", SLOT_POWER (slot_cur->status), SLOT_PRESENT (slot_cur->status), SLOT_LATCH (slot_cur->status));
+-	return out - buf;
+-}
+-static DEVICE_ATTR (ctrl, S_IRUGO, show_ctrl, NULL);
 -
--		if (!(SLOT_PWRGD (slot_cur->status)) && (SLOT_PRESENT (slot_cur->status)) && !(SLOT_LATCH (slot_cur->status)))
--			/* No power, adapter, and latch closed */
--			ops[ADD][slot_cur->number] = 1;
--		else
--			ops[ADD][slot_cur->number] = 0;
+-static int show_dev (struct device *dev, char *buf)
+-{
+-	struct pci_dev *pci_dev;
+-	struct controller *ctrl;
+-	char * out = buf;
+-	int index;
+-	struct pci_resource *res;
+-	struct pci_func *new_slot;
+-	struct slot *slot;
 -
--		ops[DETAIL][slot_cur->number] = 1;
+-	pci_dev = container_of (dev, struct pci_dev, dev);
+-	ctrl = pci_get_drvdata(pci_dev);
 -
--		if ((SLOT_PWRGD (slot_cur->status)) && (SLOT_PRESENT (slot_cur->status)) && !(SLOT_LATCH (slot_cur->status)))
--			/*Power,adapter,latch closed */
--			ops[REMOVE][slot_cur->number] = 1;
--		else
--			ops[REMOVE][slot_cur->number] = 0;
+-	slot=ctrl->slot;
 -
--		if ((SLOT_PWRGD (slot_cur->status)) && !(SLOT_PRESENT (slot_cur->status)) && !(SLOT_LATCH (slot_cur->status))) {
-+		debug ("status = %x\n", slot_cur->status);
-+		debug ("ext_status = %x\n", slot_cur->ext_status);
-+		debug ("SLOT_POWER = %x\n", SLOT_POWER (slot_cur->status));
-+		debug ("SLOT_PRESENT = %x\n", SLOT_PRESENT (slot_cur->status));
-+		debug ("SLOT_LATCH = %x\n", SLOT_LATCH (slot_cur->status));
-+
-+		if ((SLOT_PWRGD (slot_cur->status)) && 
-+		    !(SLOT_PRESENT (slot_cur->status)) && 
-+		    !(SLOT_LATCH (slot_cur->status))) {
- 			debug ("BEFORE POWER OFF COMMAND\n");
- 				rc = power_off (slot_cur);
- 				if (rc)
-@@ -643,35 +619,20 @@
- 	if (retval)
- 		return retval;
- 
--	if (!(SLOT_PWRGD (slot_cur->status)) && (SLOT_PRESENT (slot_cur->status))
--	    && !(SLOT_LATCH (slot_cur->status)))
--		ops[ADD][number] = 1;
--	else
--		ops[ADD][number] = 0;
--
--	ops[DETAIL][number] = 1;
--
--	if ((SLOT_PWRGD (slot_cur->status)) && (SLOT_PRESENT (slot_cur->status))
--	    && !(SLOT_LATCH (slot_cur->status)))
--		ops[REMOVE][number] = 1;
--	else
--		ops[REMOVE][number] = 0;
--
- 	switch (opn) {
- 		case ENABLE:
--			if (ops[ADD][number])
-+			if (!(SLOT_PWRGD (slot_cur->status)) && 
-+			     (SLOT_PRESENT (slot_cur->status)) && 
-+			     !(SLOT_LATCH (slot_cur->status)))
- 				return 0;
- 			break;
- 		case DISABLE:
--			if (ops[REMOVE][number])
--				return 0;
+-	while (slot) {
+-		new_slot = cpqhp_slot_find(slot->bus, slot->device, 0);
+-		if (!new_slot)
 -			break;
--		case DETAIL:
--			if (ops[DETAIL][number])
-+			if ((SLOT_PWRGD (slot_cur->status)) && 
-+			    (SLOT_PRESENT (slot_cur->status)) &&
-+			    !(SLOT_LATCH (slot_cur->status)))
- 				return 0;
- 			break;
- 		default:
--			return -EINVAL;
- 			break;
- 	}
- 	err ("validate failed....\n");
+-		out += sprintf(out, "assigned resources: memory\n");
+-		index = 11;
+-		res = new_slot->mem_head;
+-		while (res && index--) {
+-			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
+-			res = res->next;
+-		}
+-		out += sprintf(out, "assigned resources: prefetchable memory\n");
+-		index = 11;
+-		res = new_slot->p_mem_head;
+-		while (res && index--) {
+-			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
+-			res = res->next;
+-		}
+-		out += sprintf(out, "assigned resources: IO\n");
+-		index = 11;
+-		res = new_slot->io_head;
+-		while (res && index--) {
+-			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
+-			res = res->next;
+-		}
+-		out += sprintf(out, "assigned resources: bus numbers\n");
+-		index = 11;
+-		res = new_slot->bus_head;
+-		while (res && index--) {
+-			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
+-			res = res->next;
+-		}
+-		slot=slot->next;
+-	}
+-
+-	return out - buf;
+-}
+-static DEVICE_ATTR (dev, S_IRUGO, show_dev, NULL);
+-
+-void cpqhp_create_ctrl_files (struct controller *ctrl)
+-{
+-	device_create_file (&ctrl->pci_dev->dev, &dev_attr_ctrl);
+-	device_create_file (&ctrl->pci_dev->dev, &dev_attr_dev);
+-}
+diff -Nru a/drivers/hotplug/cpqphp_sysfs.c b/drivers/hotplug/cpqphp_sysfs.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/hotplug/cpqphp_sysfs.c	Mon Feb 24 17:15:41 2003
+@@ -0,0 +1,143 @@
++/*
++ * Compaq Hot Plug Controller Driver
++ *
++ * Copyright (c) 1995,2001 Compaq Computer Corporation
++ * Copyright (c) 2001,2003 Greg Kroah-Hartman (greg@kroah.com)
++ * Copyright (c) 2001 IBM Corp.
++ *
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <greg@kroah.com>
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/proc_fs.h>
++#include <linux/workqueue.h>
++#include <linux/pci.h>
++#include "cpqphp.h"
++
++
++/* A few routines that create sysfs entries for the hot plug controller */
++
++static int show_ctrl (struct device *dev, char *buf)
++{
++	struct pci_dev *pci_dev;
++	struct controller *ctrl;
++	char * out = buf;
++	int index;
++	struct pci_resource *res;
++
++	pci_dev = container_of (dev, struct pci_dev, dev);
++	ctrl = pci_get_drvdata(pci_dev);
++
++	out += sprintf(buf, "Free resources: memory\n");
++	index = 11;
++	res = ctrl->mem_head;
++	while (res && index--) {
++		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
++		res = res->next;
++	}
++	out += sprintf(out, "Free resources: prefetchable memory\n");
++	index = 11;
++	res = ctrl->p_mem_head;
++	while (res && index--) {
++		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
++		res = res->next;
++	}
++	out += sprintf(out, "Free resources: IO\n");
++	index = 11;
++	res = ctrl->io_head;
++	while (res && index--) {
++		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
++		res = res->next;
++	}
++	out += sprintf(out, "Free resources: bus numbers\n");
++	index = 11;
++	res = ctrl->bus_head;
++	while (res && index--) {
++		out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
++		res = res->next;
++	}
++
++	return out - buf;
++}
++static DEVICE_ATTR (ctrl, S_IRUGO, show_ctrl, NULL);
++
++static int show_dev (struct device *dev, char *buf)
++{
++	struct pci_dev *pci_dev;
++	struct controller *ctrl;
++	char * out = buf;
++	int index;
++	struct pci_resource *res;
++	struct pci_func *new_slot;
++	struct slot *slot;
++
++	pci_dev = container_of (dev, struct pci_dev, dev);
++	ctrl = pci_get_drvdata(pci_dev);
++
++	slot=ctrl->slot;
++
++	while (slot) {
++		new_slot = cpqhp_slot_find(slot->bus, slot->device, 0);
++		if (!new_slot)
++			break;
++		out += sprintf(out, "assigned resources: memory\n");
++		index = 11;
++		res = new_slot->mem_head;
++		while (res && index--) {
++			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
++			res = res->next;
++		}
++		out += sprintf(out, "assigned resources: prefetchable memory\n");
++		index = 11;
++		res = new_slot->p_mem_head;
++		while (res && index--) {
++			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
++			res = res->next;
++		}
++		out += sprintf(out, "assigned resources: IO\n");
++		index = 11;
++		res = new_slot->io_head;
++		while (res && index--) {
++			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
++			res = res->next;
++		}
++		out += sprintf(out, "assigned resources: bus numbers\n");
++		index = 11;
++		res = new_slot->bus_head;
++		while (res && index--) {
++			out += sprintf(out, "start = %8.8x, length = %8.8x\n", res->base, res->length);
++			res = res->next;
++		}
++		slot=slot->next;
++	}
++
++	return out - buf;
++}
++static DEVICE_ATTR (dev, S_IRUGO, show_dev, NULL);
++
++void cpqhp_create_ctrl_files (struct controller *ctrl)
++{
++	device_create_file (&ctrl->pci_dev->dev, &dev_attr_ctrl);
++	device_create_file (&ctrl->pci_dev->dev, &dev_attr_dev);
++}
 

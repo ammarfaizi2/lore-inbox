@@ -1,103 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbUBRDPF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 22:15:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbUBRDPF
+	id S262050AbUBRDSV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 22:18:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBRDSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 22:15:05 -0500
-Received: from main.gmane.org ([80.91.224.249]:52944 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262128AbUBRDO4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 22:14:56 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
-Date: Tue, 17 Feb 2004 11:14:34 -0800
-Message-ID: <m24qtpikmd.fsf@tnuctip.rychter.com>
-References: <402A4B52.1080800@centrum.cz> <402A7765.FD5A7F9E@users.sourceforge.net>
- <m265e9oyrs.fsf@tnuctip.rychter.com>
- <402F877C.C9B693C1@users.sourceforge.net>
- <m2k72n9pth.fsf@tnuctip.rychter.com>
- <40322094.83061A32@users.sourceforge.net>
+	Tue, 17 Feb 2004 22:18:21 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:61088 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S262050AbUBRDSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 22:18:16 -0500
+Date: Wed, 18 Feb 2004 03:15:44 +0000
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: greg@kroah.com
+Subject: 2.6.3rc4 ali1535 i2c driver rmmod oops.
+Message-ID: <20040218031544.GB26304@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 1053host186.starwoodbroadband.com
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Reasonable Discussion,
- linux)
-Cancel-Lock: sha1:FPBksRpGDb0HdEBXLairfXrZek8=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+Erk, whats going on here ?
 
->>>>> "Jari" =3D=3D Jari Ruusu <jariruusu@users.sourceforge.net> writes:
- Jari> Jan Rychter wrote:
- > "Jari" =3D=3D Jari Ruusu <jariruusu@users.sourceforge.net>:
- Jari> File backed loops have hard to fix re-entry problem: GFP_NOFS
- Jari> memory allocations that cause dirty pages to written out to file
- Jari> backed loop, will have to re-enter the file system anyway to
- Jari> complete the write. This causes deadlocks. Same deadlocks are
- Jari> there in mainline loop+cryptoloop combo.
- >>
- >> I have used cryptoapi (as modules) for the last 2 years (or so) now,
- >> without encountering any problems whatsoever. I therefore beg to
- >> differ: if the same deadlocks are there, then for some reason they
- >> are not triggered on my machine. Two years versus an hour, that's a
- >> rather significant difference in terms of reliability.
+		Dave
 
- Jari> Do you mind doing a a quick grep:
-
- Jari> cd /path/to/your/kernel/source grep "Jari Ruusu"
- Jari> drivers/block/loop.c
-
- Jari> If you see my name there, your kerneli.org cryptoapi enabled
- Jari> kernel is running same loop code I wrote years ago. Those
- Jari> loop-jari-something patches that you find on the net, are just
- Jari> copies of old loop-AES code.
-
-No, it is not running this code. The code that works well for me is the
-external cryptoapi (as modules) with last update in Feb 2002.
-
-Ok, now after spending some more time googling around and reading
-documentation, I'm confused. It also seems I'm not the only one (see
-http://www.linuxquestions.org/questions/archive/4/2004/01/3/136754).
-
-How do you get a file-backed encrypted filesystem to work under Linux
-2.4.24?
-
-From=20what I understand, there are three options:
-
-  1) cryptoapi-as-modules, which is what I'm using now and what has
-     worked reliably (although perhaps not too fast),
-  2) in-kernel cryptoapi, which seems to be missing cryptoloop support,
-     so how do you actually use it? And what about the i586-optimized
-     AES patches?
-  3) Jari Ruusu's loop-AES, which from what I understood won't work on
-     file-backed loops because of deadlock issues.
-
-Now, I would be all happy with option (1) which I have been using,
-except I started caring about speed a little. Also, it bothers me a
-little bit that the cryptoapi project seems to have died, as I wasn't
-able to find any up-to-date pages or documents about it.
-
-So, what is the preferred way?
-
-=2D-J.
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQBAMmggLth4/7/QhDoRAqjoAJ4/e6EZY1Qpv9fHfJCxTB7C7gmuKACg1HVn
-ZGoXQCeW5Td/NbW5YyjLfWU=
-=3Nk4
------END PGP SIGNATURE-----
---=-=-=--
+kfree_debugcheck: bad ptr c0317600h.
+------------[ cut here ]------------
+kernel BUG at mm/slab.c:1655!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c0146d69>]    Not tainted
+EFLAGS: 00010086
+EIP is at kfree+0x5c/0x298
+eax: c02dd380   ebx: 00007b98   ecx: 00000000   edx: c0317600
+esi: c0317600   edi: c031a7d8   ebp: 00000000   esp: c2587f54
+ds: 007b   es: 007b   ss: 0068
+Process rmmod (pid: 1349, threadinfo=c2586000 task=c22b7940)
+Stack: 00000000 00000286 c78a0980 00000000 c031a7d8 00000000 c013a805 5f633269
+       31696c61 00353335 c4e4c2d8 b8079000 c014ff4d c29bc104 b807a000 c01503f9
+       c4e4c314 c31fa318 c49e98f4 00000246 c4e4c2d8 00e4c300 00000000 bff32ff8
+Call Trace:
+ [<c013a805>] sys_delete_module+0x168/0x18a
+ [<c014ff4d>] unmap_vma_list+0xe/0x17
+ [<c01503f9>] do_munmap+0x17d/0x189
+ [<c010b697>] syscall_call+0x7/0xb
+ 
+Code: 0f 0b 77 06 1b c6 2d c0 a1 4c 81 3d c0 8b 5c 18 08 b8 00 e0
 

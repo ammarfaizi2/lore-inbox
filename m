@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbULLWlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbULLWxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbULLWlk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 17:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbULLWlj
+	id S262160AbULLWxN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 17:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbULLWxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 17:41:39 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:26061 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262159AbULLWlh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 17:41:37 -0500
-Message-ID: <41BCC8F8.3030102@colorfullife.com>
-Date: Sun, 12 Dec 2004 23:40:56 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: george@mvista.com
-CC: Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Lee Revell <rlrevell@joe-job.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: RCU question
-References: <41BA0ECF.1060203@mvista.com> <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com> <41BA59F6.5010309@mvista.com> <Pine.LNX.4.61.0412101943260.1101@montezuma.fsmlabs.com> <41BA698E.8000603@mvista.com> <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com> <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com> <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random> <41BC1BF9.70701@colorfullife.com> <41BC771D.6020506@mvista.com>
-In-Reply-To: <41BC771D.6020506@mvista.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Dec 2004 17:53:13 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:36362 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262160AbULLWxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 17:53:11 -0500
+Date: Sun, 12 Dec 2004 23:37:40 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: how to detect a 32 bit process on 64 bit kernel
+Message-ID: <20041212223740.GF17946@alpha.home.local>
+References: <20040901072245.GF13749@mellanox.co.il> <20040903080058.GB2402@wotan.suse.de> <20040907104017.GB10096@mellanox.co.il> <20040907121418.GC25051@wotan.suse.de> <20041212215110.GA11451@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041212215110.GA11451@mellanox.co.il>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
+On Sun, Dec 12, 2004 at 11:51:10PM +0200, Michael S. Tsirkin wrote:
+> Hello!
+> Is there a reliable way e.g. on x86-64 (or ia64, or any other
+> 64-bit system), from the char device driver,
+> to find out that I am running an operation in the context of a 32-bit
+> task?
 
->
-> The "normal" idle loop just looks at the need_resched flag and goes 
-> right back to the hlt,
+aren't there informations in /proc/$$/maps or other things which will
+change their format or contents in 32 or 64 bits addressing, which would
+help you detect the mode you're currently running ?
 
-That's the problem: If a the tasklet does a wakeup then the reschedule 
-is delayed until the next interrupt. Testing need_resched and executing 
-hlt must be atomic, but it isn't - NMIs break the atomicity.
-Not a big deal, except if someone implements a tickless kernel. I think 
-we can ignore it for now [or was the thread started by someone who 
-want's to disable the hardware timer when the system is really idle?]
+Willy
 
---
-    Manfred

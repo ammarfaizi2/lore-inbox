@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264335AbTDPMkX (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264336AbTDPMkX 
+	id S264344AbTDPMwp (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTDPMwo 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 08:40:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61572 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264335AbTDPMkW 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 08:40:22 -0400
-Date: Wed, 16 Apr 2003 05:45:21 -0700 (PDT)
-Message-Id: <20030416.054521.26525548.davem@redhat.com>
-To: ak@muc.de
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, anton@samba.org,
-       schwidefsky@de.ibm.com, davidm@hpl.hp.com, matthew@wil.cx,
-       ralf@linux-mips.org, rth@redhat.com
-Subject: Re: Reduce struct page by 8 bytes on 64bit
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030415112430.GA21072@averell>
-References: <20030415112430.GA21072@averell>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Apr 2003 08:52:44 -0400
+Received: from modemcable029.16-131-66.nowhere.mc.videotron.ca ([66.131.16.29]:41602
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264344AbTDPMwn (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 08:52:43 -0400
+Date: Wed, 16 Apr 2003 08:56:49 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Geller Sandor <wildy@petra.hos.u-szeged.hu>
+cc: Lukasz Trabinski <lukasz@wsisiz.edu.pl>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-pre7 - aic79xx
+In-Reply-To: <Pine.LNX.4.44.0304161234100.14881-100000@petra.hos.u-szeged.hu>
+Message-ID: <Pine.LNX.4.50.0304160856110.16588-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0304161234100.14881-100000@petra.hos.u-szeged.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@muc.de>
-   Date: Tue, 15 Apr 2003 13:24:30 +0200
-   
-   I worked around this by declaring a new data type atomic_bitmask32
-   with matching set_bit32/clear_bit32 etc. interfaces. Currently only 
-   on x86-64 aomitc_bitmask32 is defined to unsigned, everybody else
-   still uses unsigned long. The other 64bit architectures can define it to
-   unsigned too if they can confirm that it's ok to do.
+On Wed, 16 Apr 2003, Geller Sandor wrote:
 
-I have no problem with this.
+> On Wed, 16 Apr 2003, Lukasz Trabinski wrote:
+> 
+> > In article <Pine.LNX.4.53.0304161212390.5122@oceanic.wsisiz.edu.pl> you wrote:
+> > > Hello
+> > >
+> > > I have new machine with aic79xx scsi controler,
+> >
+> > exactly is Adaptec AIC7902 Ultra320
+> 
+> Try the latest aic7xxx drivers:
+> http://people.FreeBSD.org/~gibbs/linux/SRC/
 
-If you are clever, you can define a generic version even for the
-"unsigned long" 64-bit platforms.  It's left as an exercise to
-the reader :-)
+This is by no means a solution or even a workaround, but could you tell me 
+what happens if you boot with noapic?
+
+Thanks,
+	Zwane
+

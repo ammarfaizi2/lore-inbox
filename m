@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVDDJEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVDDJKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVDDJEU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 05:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVDDJEU
+	id S261163AbVDDJKp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 05:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVDDJKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 05:04:20 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:25801 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261161AbVDDJEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 05:04:15 -0400
-Date: Mon, 4 Apr 2005 11:04:14 +0200
-From: Jan Kara <jack@suse.cz>
-To: linux-kernel@vger.kernel.org
-Cc: sct@redhat.com, jeffm@suse.com
-Subject: Problem in log_do_checkpoint()?
-Message-ID: <20050404090414.GB20219@atrey.karlin.mff.cuni.cz>
+	Mon, 4 Apr 2005 05:10:45 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28301 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261163AbVDDJKk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 05:10:40 -0400
+Date: Mon, 4 Apr 2005 11:10:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: ncunningham@cyclades.com, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>
+Subject: Re: [ACPI] Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
+Message-ID: <20050404091027.GA14765@elf.ucw.cz>
+References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com> <20050403193750.40cdabb2.akpm@osdl.org> <1112582553.4194.349.camel@sli10-desk.sh.intel.com> <20050403194807.32fd761a.akpm@osdl.org> <1112582947.4194.352.camel@sli10-desk.sh.intel.com> <1112601670.3757.6.camel@desktop.cunningham.myip.net.au> <1112604263.4194.367.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1112604263.4194.367.camel@sli10-desk.sh.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+Hi!
 
-  I've been looking through the JBD code when trying to understand the
-assertion failure in log_do_checkpoint() (it was on old SUSE 2.6.5 kernel
-though the reporter claims to be able to get the failure even with the
-Stephen's patch fixing a race with journal_put_journal_head()) and I've
-spotted one place where I think could be a race (the code around there
-seems to be the same in latest kernels):
-  In log_do_checkpoint() we go through the t_checkpoint_list of a
-transaction and call __flush_buffer() on each buffer. Suppose there is
-just one buffer on the list and it is dirty. __flush_buffer() sees it and
-puts it to an array of buffers for flushing. Then the loop finishes,
-retry=0, drop_count=0, batch_count=1. So __flush_batch() is called - we
-drop all locks and sleep. While we are sleeping somebody else comes and
-makes the buffer dirty again (OK, that is not probable, but I think it
-could be possible). Now we wake up and call __cleanup_transaction().
-It's not able to do anything and returns 0. And we fail on the assertion
-J_ASSERT(drop_count != 0 || cleanup_ret != 0).
-  Am I missing something? In my opinion we should set retry=1 after we
-call __flush_batch() even if we call it outside of the "__flush_buffer-loop"...
+> > I'm switching suspend2 to use hotplug too. Li, I'll try adding your
+> > patches as well as Zwane's if you like 
+> Great!
+> 
+> > (suspend2 can enter S3, S4 or S5
+> > after writing the image). I'd love to try it on my HT desktop, and
+> > hotplug will get more testing too :>
+> Unfortunately, my patches break Pavel's swsusp SMP, as my patches break
+> current 'cpu_up' mechanism. S4 doesn't require to boot AP CPUs from real
+> mode.
 
-								Honza
+Uh, I don't like that one. Is it possible to put secondary CPUs back
+to the real mode so that cpu_up mechanism can handle them?
 
+								Pavel
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

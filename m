@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131560AbQLVBs5>; Thu, 21 Dec 2000 20:48:57 -0500
+	id <S131354AbQLVCA6>; Thu, 21 Dec 2000 21:00:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131583AbQLVBsh>; Thu, 21 Dec 2000 20:48:37 -0500
-Received: from mail.zikzak.de ([195.21.249.46]:61712 "EHLO mail.zikzak.de")
-	by vger.kernel.org with ESMTP id <S131560AbQLVBs1>;
-	Thu, 21 Dec 2000 20:48:27 -0500
-From: amk@krell.snafu.de (Andreas M. Kirchwitz)
-Subject: Re: [PATCH] fix emu10k1 init breakage in 2.2.18
-Date: 22 Dec 2000 01:17:58 GMT
-Organization: Touched By The Hand Of God.
-Message-ID: <slrn945au6.h1q.amk@krell.zikzak.de>
-In-Reply-To: <200012191201.NAA02004@harpo.it.uu.se> <slrn93vb44.enh.amk@krell.zikzak.de> <3A407F75.2A8F5188@innominate.com>
-To: linux-kernel@vger.kernel.org
+	id <S131503AbQLVCAt>; Thu, 21 Dec 2000 21:00:49 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:9482 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131354AbQLVCAd>; Thu, 21 Dec 2000 21:00:33 -0500
+Date: Thu, 21 Dec 2000 17:29:42 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: test13-pre4
+Message-ID: <Pine.LNX.4.10.10012211726060.968-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juri Haberland wrote:
 
- >>> 2.2.18 broke the emu10k1 driver when compiled into the kernel.
- >> 
- >> Is there also a fix available to make the bass and treble settings
- >> work again in mixer applications (for example, Gnome mix 1.2.0)?
- > 
- > Yes, put something like "EXTRA_CFLAGS += -DTONE_CONTROL" into the
- > Makefile in drivers/sound/emu10k1/
 
-Ah, TONE_CONTROL... yeah, that's it. Do you know the reason why
-bass/treble controls are disabled by default? Aren't they stable
-enough for production use?
+More Makefile cleanups, otherwise mainly noticeable are the netfilter fix
+and the LVM update.
 
-I'm just wondering why anybody wants to have this turned off. ;-)
+		Linus
 
-	Greetings from Berlin to Berlin ... Andreas
+-----
+ - pre4:
+   - Christoph Rohland: shmfs cleanup
+   - Nicolas Pitre: don't forget loop.c flags
+   - Geert Uytterhoeven: new-style m68k Makefiles
+   - Neil Brown: knfsd cleanups, raid5 re-org
+   - Andrea Arkangeli: update to LVM-0.9
+   - LC Chang: sis900 driver doc update
+   - David Miller: netfilter oops fix
+   - Andrew Grover: acpi update
+
+ - pre3:
+   - Christian Jullien: smc9194: proper dev_kfree_skb_irq
+   - Cort Dougan: new-style PowerPC Makefiles
+   - Andrew Morton, Petr Vandrovec: fix run_task_queue
+   - Christoph Rohland: shmfs for shared memory handling
+
+ - pre2:
+   - Kai Germaschewski: ISDN update (including Makefiles)
+   - Jens Axboe: cdrom updates
+   - Petr Vandrovec; Matrox G450 support
+   - Bill Nottingham: fix FAT32 filesystems on 64-bit platforms
+   - David Miller: sparc (and other) Makefile fixup
+   - Andrea Arkangeli: alpha SMP TLB context fix (and cleanups)
+   - Niels Kristian Bech Jensen: checkconfig, USB warnings
+   - Andrew Grover: large ACPI update
+
+ - pre1:
+   - me: drop support for old-style Makefiles entirely. Big.
+   - me: check b_end_io at the IO submission path
+   - me: fix "ptep_mkdirty()" (so that swapoff() works correctly)
+   - fix fault case in copy_from_user() with a constant size, where
+     ((size & 3) == 3)
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

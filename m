@@ -1,83 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264410AbUBHXtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 18:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbUBHXtQ
+	id S264411AbUBIAB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 19:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUBIAB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 18:49:16 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:59132 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S264410AbUBHXtO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 18:49:14 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Hefty, Sean" <sean.hefty@intel.com>
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Date: Mon, 9 Feb 2004 00:43:57 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, infiniband-general@lists.sourceforge.net
+	Sun, 8 Feb 2004 19:01:56 -0500
+Received: from brln-d9b80ed4.pool.mediaWays.net ([217.184.14.212]:6660 "EHLO
+	satellite.undata.org") by vger.kernel.org with ESMTP
+	id S264411AbUBIABy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 19:01:54 -0500
+Message-ID: <4026C668.7060905@undata.org>
+Date: Mon, 09 Feb 2004 00:29:44 +0100
+From: Thomas Charbonnel <thomas@undata.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr; rv:1.4) Gecko/20030915
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200402090044.14247.arnd@arndb.de>
+To: Tim Blechmann <TimBlechmann@gmx.net>
+CC: linux-kernel@vger.kernel.org, pcmcia-cs-devel@lists.sourceforge.net,
+       alsa-devel@lists.sourceforge.net
+Subject: Re: [Alsa-devel] 02 micro 6933 cardbus controller creates problem
+ with the hammerfall dsp driver
+References: <20040208191040.191bcd24@laptop>
+In-Reply-To: <20040208191040.191bcd24@laptop>
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Tim Blechmann wrote :
 
-On Fri, 6 Feb 2004, Hefty, Sean wrote:
+> i'm experiencing problems with the O2 micro 6933 card when trying to use
+> the hammerfall dsp sound device. i'm using the yenta socket driver (the
+> O2 micro 6933 should be 100% compatible to the yenta socket)
+> 
+> i met thomas charbonnel, who maintains the alsa driver of the hdsp, and
+> concerning him, it seems to be a problem of the dma mapping in the
+> cardbus-pci bridge ... the alsa driver is working fine, until it starts
+> dma (to output sounds) ... (thomas, please correct me if i'm saying
+> something completely stupid, i'm a musician, not a kernel hacker)
+> 
 
-> We want to continue to discuss specific details about what's needed to
-> add the code into the kernel.  Here's a list of modifications that I
-> think are needed so far:
->
-> * Update the code to make direct calls for atomic operations.
-> * Verify the use of spinlock calls.
-> * Reformat the code for tab spacing and curly brace usage.
-> * Elimination of typedefs.
+I believe a little more background information is needed. Tim's card is 
+a busmaster carbus audio card capable of hardware routing, that is any 
+audio stream arriving on the physical inputs of the card can be routed 
+to any physical output without involving the computer in any way (this 
+is done using an FPGA chip). The card can also do hardware peak and rms 
+computation on incoming and playback streams. On Tim's machine the card 
+is detected and initialized properly, and hardware routing works as 
+expected until audio interrupts are enabled. Then something strange 
+happens : parts of the incoming audio streams are found in the card's 
+playback buffer (rms and peak values are reported for those signals), 
+but the driver is not involved in this process. I got this piece of 
+information from Martin Bjoernsen at RME, the company manufacturing the 
+card :
 
-Some more hints:
-* Understand how to use ioctls: Your current code can't possibly
-  work in 32 bit emulation mode, e.g. when running i386 libs on ia64.
-  You are also completely ignoring the ioctl 'command' argument.
-* Try to reduce the number of necessary ioctls: 90 different commands
-  for a single device is just overkill.
-* Don't try to hide system calls behind a character device (/dev/cl_dev).
-  Someone will find it sooner or later.
-* Don't reimplement devfs (poorly), what your are trying to achieve is
-  far easier done with a misc device and udev. call_user_mode_helper
-  should only be used for running hotplug.
-* Get rid of IN and OUT in declarations. If a pointer is const, it's an
-  input.
-* Declare functions static when they are only used in the file they are
-  defined in. Put extern declarations into headers.
-* put EXPORT_SYMBOL statements right next to the symbol, not in a seperate
-  file.
-* Information about drivers/devices should go to sysfs instead of procfs.
-* Don't use vmalloc. 
-* aside from spinlocks and atomics, there are some more files in complib
-  that can easily be removed by using linux primitives directly (e.g.
-  kmalloc, list_head, semaphore, work_queue)
-* Use C99 named struct initializers instead of their deprecated gcc 
-  counterparts.
+"The HDSP cards use an internal double buffer per channel of 2*16 
+samples. Data is transferred in blocks of 16 samples. Every 16 samples 
+16 samples per channel are read and written to and from the main memory. 
+In the card the same buffer is used for inputs and outputs. Playback 
+data is overwritten from new recorded data. If the hardware is started 
+and an output dma channel is not enabled but the input is, you will hear 
+the input delayed by 32 samples or silence when there is no input signal."
 
-> And, yes, knowing some of these issues up front will save the trouble of
-> submitting code that will be immediately rejected.
+The driver does enable both input and output dma channels for all 
+possible streams, so my guess for now is that there is something wrong 
+in the underlying subsystem.
 
-Right, but that should not stop you from providing a BK tree or a diff
-file that lets you build ibal in a linux tree. As a starting point, just
-drop all of ibal and complib into some tree so people can look at it
-without having to figure out how you are building stuff.
+I hope this helps track the problem down.
 
-	Arnd <><
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Thomas
 
-iD8DBQFAJsm/5t5GS2LDRf4RArCIAJ9JEkinmx1yeSZQGS7X6rMaDYjuZwCgl9us
-+7w/ZNbFl1ZAiLaIrp/rsso=
-=repY
------END PGP SIGNATURE-----
 

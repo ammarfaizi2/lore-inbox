@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286261AbRL0Mtb>; Thu, 27 Dec 2001 07:49:31 -0500
+	id <S286267AbRL0NHk>; Thu, 27 Dec 2001 08:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286264AbRL0MtK>; Thu, 27 Dec 2001 07:49:10 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:54710 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S286261AbRL0MtA>; Thu, 27 Dec 2001 07:49:00 -0500
-Date: Thu, 27 Dec 2001 14:47:36 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: EEPro100 problems in SMP on 2.4.5 ?
-Message-ID: <Pine.LNX.4.33.0112271443100.8153-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286268AbRL0NHa>; Thu, 27 Dec 2001 08:07:30 -0500
+Received: from vega.ipal.net ([206.97.148.120]:14991 "HELO vega.ipal.net")
+	by vger.kernel.org with SMTP id <S286267AbRL0NHP>;
+	Thu, 27 Dec 2001 08:07:15 -0500
+Date: Thu, 27 Dec 2001 07:07:14 -0600
+From: Phil Howard <phil-linux-kernel@ipal.net>
+To: linux-kernel@vger.kernel.org
+Subject: what file to put a particular function in?
+Message-ID: <20011227070714.A23383@vega.ipal.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The oldest kernel i've tried is 2.4.10-ac11 on my SMP box and my
-mysterious "hangs" (10-20s at a time) disappeared when i switched to
-2.4.17-pre2. The box is dual P3 on Serverworks LE chipset. I tried
-switching cards from the onboard eepro100 to a seperate dual eepro100 card
-and that also exhibited the same problems, so there *might* be something
-with the driver. Currently i'm using 3c59x, but i can still test with the
-onboard eepro100, let me know if you need guinea pigs.
+In 2.4.17, the show_trace_task() function for sparc32 finally showed up.
+The problem was, it was moved from traps.c to process.c.  The confusion
+is that in other platforms it is in traps.c, not process.c.  DaveM
+mentions in past posting that this is arbitrary.  My question is, just
+what is the scope of such arbitrary decisions?  And is there even any
+need to keep traps.c and process.c separate if functions can be freely
+traded between them?
 
-Cheers,
-	Zwane Mwaikambo
+There is inconsistency.  At least show_trace_task() shows up in some
+platforms in one file, and in other platforms in another.  This differs
+even in related platforms like sparc32 (it's in process.c) and sparc64
+(it's in traps.c).  I believe there needs to be some kind of uniform
+consistency between platforms where possible.  Unless some special
+constraint exists in a platform, I believe any function should show up
+in the same place relative to the specific asm- tree.
 
+I'm sure such changes really would not be wise for the remaining 2.4
+sequence.  But what about 2.5?  Could this not be included as a goal in
+the 2.5 tree, to get functions located more consistently?
 
+-- 
+-----------------------------------------------------------------
+| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
+| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
+-----------------------------------------------------------------

@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVCUTrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVCUT52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261740AbVCUTrr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 14:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVCUTrq
+	id S261651AbVCUT52 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 14:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVCUT52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 14:47:46 -0500
-Received: from smtp-vbr5.xs4all.nl ([194.109.24.25]:13325 "EHLO
-	smtp-vbr5.xs4all.nl") by vger.kernel.org with ESMTP id S261740AbVCUTra
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 14:47:30 -0500
-Date: Mon, 21 Mar 2005 20:47:20 +0100
-From: Erik van Konijnenburg <ekonijn@xs4all.nl>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] yaird 0.0.5, a mkinitrd based on hotplug concepts
-Message-ID: <20050321204720.A10417@banaan.localdomain>
-Mail-Followup-To: linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Mar 2005 14:57:28 -0500
+Received: from smtp-4.llnl.gov ([128.115.41.84]:20924 "EHLO smtp-4.llnl.gov")
+	by vger.kernel.org with ESMTP id S261651AbVCUT5X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 14:57:23 -0500
+From: Dave Peterson <dsp@llnl.gov>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH] NMI handler message passing / work deferral API
+Date: Mon, 21 Mar 2005 11:51:31 -0800
+User-Agent: KMail/1.5.3
+Cc: oprofile-list@lists.sourceforge.net, bluesmoke-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, dave_peterson@pobox.com
+References: <200503202056.02429.dave_peterson@pobox.com> <200503211103.56930.dsp@llnl.gov> <20050321190741.GA98750@muc.de>
+In-Reply-To: <20050321190741.GA98750@muc.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Message-Id: <200503211151.31109.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 0.0.5 of yaird is now available at:
-	http://www.xs4all.nl/~ekonijn/yaird/yaird-0.0.5.tar.gz
+On Monday 21 March 2005 11:07 am, Andi Kleen wrote:
+> > Yes exactly.  That's one reason why I posted the patch.  Different
+> > sybsystems that need this type of functionality shouldn't have to
+> > individually reinvent the wheel.  With a single implementation, code
+> > is more compact and easier to understand and maintain.  I would argue
+>
+> More compact? Sorry, but even all existing implementations together
+> are still far less code than your really complicated subsystem which
+> seems quite overengineered for this simple task for me.
+>
+> Also lockless programming is tricky and I would feel quite uneasy
+> about auditing so much code.
+>
+> > that code maintenance is of particular concern to code such as NMI
+> > and machine check handlers because bugs in this type of code can be
+> > hard to track down.
+>
+> Yeah, that is why we use simple, not complex, code in there.
 
-Yaird is a proof of concept perl rewrite of mkinitrd.  It aims to
-reliably identify the necessary modules by using the same algorithms
-as hotplug, and comes with a template system to to tune the tool for
-different distributions and experiment with different image layouts.
-It requires a 2.6 kernel with hotplug.  There is a paper discussing it at:
+It's really not that much code.  When you strip out most of the comments
+(including the big 65-line copyright blurb required by my employer), the
+entire implementation is less than 300 lines of code.  A large part of
+the patch is just comments (which in this case I think should be there
+because as you say, lockless programming is tricky).
 
-	http://www.xs4all.nl/~ekonijn/yaird/yaird.html
+I do think there should be some sort of API that provides the same type
+of functionality as my patch.  It's much better than having lots of
+replicated code.  However I am not very attached to my particular
+implementation.  If you or someone else wants to post a patch that is
+simpler yet provides similar functionality, I think that would be great.
+Perhaps some code could be borrowed from oprofile or the machine check
+handling code or somewhere else.
 
-Summary of user visible changes for version 0.0.5
-     * adapt Debian template to use initramfs rather than initrd.
-       The old initrd template is available as Debian-initrd.
-     * allow template to see requested kernel version,
-       and to copy a complete tree to the image.  This makes it
-       possible to put /lib/modules/2.6.10-smp on the image and do hotplug.
-     * add command line option --root=/dev/hdb, to simplify testing.
-     * add run_init: executable to make the move to the real root
-       device in initramfs context.
-     * README: new section on (optional) use of klibc,
-       new section on replacing mkinitrd during kernel install.
-     * more reliable shared library detection: works with glibc and
-       klibc; if other C libraries use shared libraries, an error
-       message results.
-     * Documentation: writeup on initramfs, notes on shared libraries.
-     * change installation directory from /usr/local/share/yaird/
-       to /usr/local/lib/yaird/, since there are executables included now.
-
-On top of the todo list are now:
-     * support modprobe.conf
-     * support dm_crypt
-     * support loopback devices as root
-     * any patches you may wish to send :)
-
-Regards,
-Erik
+Dave

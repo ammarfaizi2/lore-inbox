@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269568AbRHQDkw>; Thu, 16 Aug 2001 23:40:52 -0400
+	id <S269651AbRHQDjb>; Thu, 16 Aug 2001 23:39:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269546AbRHQDkm>; Thu, 16 Aug 2001 23:40:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:46977 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S269569AbRHQDk0>;
-	Thu, 16 Aug 2001 23:40:26 -0400
-Date: Thu, 16 Aug 2001 20:37:32 -0700 (PDT)
-Message-Id: <20010816.203732.107941169.davem@redhat.com>
-To: zippel@linux-m68k.org
-Cc: aia21@cam.ac.uk, tpepper@vato.org, f5ibh@db0bm.ampr.org,
+	id <S269593AbRHQDjV>; Thu, 16 Aug 2001 23:39:21 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:27911 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S269651AbRHQDjK>;
+	Thu, 16 Aug 2001 23:39:10 -0400
+Message-ID: <3B7C91E1.8D87F916@linux-m68k.org>
+Date: Fri, 17 Aug 2001 05:39:13 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: aia21@cam.ac.uk, tpepper@vato.org, f5ibh@db0bm.ampr.org,
         linux-kernel@vger.kernel.org
 Subject: Re: 2.4.9 does not compile [PATCH]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3B7C8E15.3A0D9349@linux-m68k.org>
-In-Reply-To: <3B7C871E.1B37CA85@linux-m68k.org>
-	<20010816.195906.38712979.davem@redhat.com>
-	<3B7C8E15.3A0D9349@linux-m68k.org>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+In-Reply-To: <3B7C8196.10D1C867@linux-m68k.org>
+		<20010816.193841.98557608.davem@redhat.com>
+		<3B7C8AB8.19BF8425@linux-m68k.org> <20010816.201342.99205586.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roman Zippel <zippel@linux-m68k.org>
-   Date: Fri, 17 Aug 2001 05:23:01 +0200
+Hi,
 
-   Please show me a place in the kernel where such code is used and is
-   not dumb.
+"David S. Miller" wrote:
 
-Why don't you point out an example yourself?  You seem pretty
-confident that a comparsion between a signed and unsigned value cannot
-possible be legitimate.
+> The cast in the new version is not dumb, it's smart.
 
-Later,
-David S. Miller
-davem@redhat.com
+Yes, it's the smart version of "min((type)a, (type)b)"...
+
+> It's the programmer saying (to both the reader of the
+> code and the compiler) "I want this comparison to use
+> type X".  Period.
+
+Why? Why would anyone want this? Do you need this for any other ordinary
+compare? (For which the compiler will also generate "dumb" warnings.)
+
+> There is no ambiguity, there are no multiple-evaluation
+> issues, and no dumb warnings from the compiler.
+
+I'm all for fixing the multiple-evaluation, but I don't see why this
+warning should be dumb. If you don't like it, use "-Wno-sign-compare".
+
+bye, Roman

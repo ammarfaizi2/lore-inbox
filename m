@@ -1,66 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270585AbRHNLwc>; Tue, 14 Aug 2001 07:52:32 -0400
+	id <S270593AbRHNMBv>; Tue, 14 Aug 2001 08:01:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270582AbRHNLvu>; Tue, 14 Aug 2001 07:51:50 -0400
-Received: from mail.nep.net ([12.23.44.24]:55302 "HELO nep.net")
-	by vger.kernel.org with SMTP id <S270577AbRHNLvY>;
-	Tue, 14 Aug 2001 07:51:24 -0400
-Message-ID: <19AB8F9FA07FB0409732402B4817D75A038A61@FILESERVER.SRF.srfarms.com>
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
-To: "Paul G. Allen" <pgallen@randomlogic.com>,
-        Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Cc: "Alan Cox (E-mail)" <alan@lxorguk.ukuu.org.uk>
-Subject: RE: S2464 (K7 Thunder) hangs -- some lessons learned
-Date: Tue, 14 Aug 2001 07:55:47 -0400
+	id <S270607AbRHNMBm>; Tue, 14 Aug 2001 08:01:42 -0400
+Received: from fatbird.isisweb.nl ([212.204.202.107]:55046 "HELO
+	fatbird.isisweb.nl") by vger.kernel.org with SMTP
+	id <S269761AbRHNMBX>; Tue, 14 Aug 2001 08:01:23 -0400
+Date: Tue, 14 Aug 2001 14:01:31 +0200 (CEST)
+From: Ime Smits <ime@isisweb.nl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Camino 2 (82815/82820) v2.4.x eth/sound related lockups
+In-Reply-To: <E15WcZ9-0000zr-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108141351320.3880-100000@fatbird.isisweb.nl>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> -----Original Message-----
-> From: Paul G. Allen [mailto:pgallen@randomlogic.com]
-> Sent: Monday, August 13, 2001 10:06 PM
-> To: Mark Hahn; linux-kernel@vger.kernel.org
-> Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
-> 
-> 
-> Mark Hahn wrote:
-> > 
-> > > I don't find the errata. Can you hold my hand and point 
-> me to it? :)
-> > 
-> > hopefully, you looked, and noticed the several "revision guides"
-> > that AMD makes available.  they contain the errata.  Intel calls
-> > them "spec updates", I think.
-> 
-> I have the guide and unless it's been updated (the date on 
-> the site does not show it has) I have the latest revision of 
-> the chipset. (I also noted a DMA and an
-> AGP issue in a post about two weeks ago).
+INDIVIDVVS VOCATVR Alan Cox DIE 14/8/2001 12:40 VERE SCRIPSIT:
 
-The AGP issue, was resolved in the AC kernels, and i think the DMA was
-also... ALAN??
+| Those are not so good. I was having similar problems on an i810 box with
+| onboard eepro100 until I disabled the pm stuff in 2.4.8ac2, but you
+| seem to be running that one
 
+Already figured that out. Oh, and I forget to mention that the same lockups
+happen with all 2.4  versions I was able to find on my boxen, including
+2.4.0, -ac7, 2.4.2, 2.4.5, 2.4.5-ac3, -ac5, 2.4.6,  2.4.7, 2.4.8 and -ac2,
+so this is not something introduced in recent kernels. With
+2.4.8-ac2 I  played with enabling/disabling ACPI & PM stuff and also APIC
+irq stuff as mentioned in the eepro100 thread. No go.
 
-Ryan
-> 
-> PGA
-> 
-> -- 
-> Paul G. Allen
-> UNIX Admin II/Programmer
-> Akamai Technologies, Inc.
-> www.akamai.com
-> Work: (858)909-3630
-> Cell: (858)395-5043
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Ime
+

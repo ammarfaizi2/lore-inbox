@@ -1,76 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131023AbQL3Ej7>; Fri, 29 Dec 2000 23:39:59 -0500
+	id <S131629AbQL3Evy>; Fri, 29 Dec 2000 23:51:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131055AbQL3Ejt>; Fri, 29 Dec 2000 23:39:49 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:55237 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S131023AbQL3Ejo>; Fri, 29 Dec 2000 23:39:44 -0500
-Date: Fri, 29 Dec 2000 20:09:16 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: PATCH: test13-pre5/drivers/sound/via82cxxx_audio.c did not compile
-Message-ID: <20001229200916.A2645@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="IS0zKkzwUGydFO0o"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S131582AbQL3Evn>; Fri, 29 Dec 2000 23:51:43 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:37640 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S131055AbQL3Evj>; Fri, 29 Dec 2000 23:51:39 -0500
+Date: Fri, 29 Dec 2000 20:21:12 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Petru Paler <ppetru@ppetru.net>,
+        Jure Pecar <pegasus@telemach.net>, <linux-kernel@vger.kernel.org>,
+        <thttpd@bomb.acme.com>
+Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?)
+In-Reply-To: <20001229200657.B16261@athlon.random>
+Message-ID: <Pine.LNX.4.30.0012291958250.7406-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 29 Dec 2000, Andrea Arcangeli wrote:
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Fri, Dec 29, 2000 at 06:50:18PM +0000, Alan Cox wrote:
+> > Your cgi will keep the other CPU occupied, or run two of them. thttpd has
+> > superb scaling properties compared to say apache.
+>
+> I think with 8 CPUs and 8 NICs (usual benchmark setup) you want more than 1 cpu
+> serving static data and it should be more efficient if it's threaded and
+> sleeping in accept() instead of running eight of them (starting from sharing
+> tlb entries and avoiding flushes probably without the need of CPU binding).
 
-	linux-2.4.0-test13-pre5 eliminated vm_operations_struct->swapout,
-but this change was not reflected in drivers/sound/via82cxxx_audio.c,
-causing that file to fail to compile.  I have attached what I believe
-is the correct fix below.
+hey, nobody sane runs an 8 CPU box with 8 NICs for a production webserver.
+8 single CPU boxes, or 4 dual boxes behind a load balancer.  now that's
+more common, more scalable, more robust.  :)
 
-	via82cxxx_audio.c has Jeff Garzik's name on it, but I understand
-that he is taking a break for a few weeks to recover from typing strain.
-(Hope you recover soon, Jeff.)  Consequently, I am not sure whom I should
-ask to "bless" this change.  So, I'll just send this to linux-kernel
-and Linus and will leave it to linux-kernel readers to sound the alarm
-if I botched the patch.
+oh yeah they all run perl, java, or php too :)  i've seen sites with more
+than 100 dynamic front-ends and a pair of 350Mhz x86 boxes in the corner
+handling all the static needs (running apache even!).  a pair only 'cause
+of redundancy reasons, not because of load reasons.
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+100Mbits/s of *transit* internet bandwidth costs US$75000 per month in
+typical datacenters btw.  obviously there's cheaper bandwidth if you push
+out to the edges of the net, into the central offices.
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sound.diffs"
+this isn't to say that nobody will ever want phat bandwidth on a single
+webserver... but i'd say linux and most everyone else is at least 3 years
+ahead of the long-haul networks in terms of ability to pump data.  the
+true value of zero-copy TCP will be more apparent in the upcoming age of 1
+Mbit/s video thanks to MPEG4.  i'd expect to see the cable/dsl
+conglomerates start doing this in their central offices soon.
 
---- linux-2.4.0-test13-pre5/drivers/sound/via82cxxx_audio.c	Mon Oct 30 12:24:22 2000
-+++ linux/drivers/sound/via82cxxx_audio.c	Fri Dec 29 16:53:22 2000
-@@ -1727,20 +1727,8 @@
- }
- 
- 
--#ifndef VM_RESERVE
--static int via_mm_swapout (struct page *page, struct file *filp)
--{
--	return 0;
--}
--#endif /* VM_RESERVE */
--
--
- struct vm_operations_struct via_mm_ops = {
- 	nopage:		via_mm_nopage,
--
--#ifndef VM_RESERVE
--	swapout:	via_mm_swapout,
--#endif
- };
- 
- 
+the RAM and CPU hungry dynamic content languages tend to dictate the sheer
+quantity of machines required to handle even small web volumes -- folks
+quickly exceed the reasonably priced SMP systems available.  the cost per
+CPU, and per Mb RAM are the limiting factors (these go up quickly when you
+put all CPUs and RAM on the bus).  that plus the desire for reliability /
+lack of a single failure point mean that web development tools have grown
+up expecting to be on a distributed network of nodes rather than on a
+large SMP system.
 
---IS0zKkzwUGydFO0o--
+the 8 CPU monsters run stuff like NFS/filesystems and oracle.  some day
+someone will build a horizontally scalable database which works, with a
+reasonable licensing policy and then we'll see even more value in
+commodity hardware/networking.  this is an area i'm currently quite
+interested in, pointers to research / interesting projects appreciated.
+i know about globalfilesystem.org, veritas clustered fs, oracle parallel
+server, and IBM DB2 EEE already -- none are quite to the point where i'd
+use them to scale something across 100 nodes yet though.
+
+-dean
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

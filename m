@@ -1,131 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbUKUCiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUKUBuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261751AbUKUCiN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 21:38:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbUKUCg5
+	id S261724AbUKUBuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 20:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbUKUBuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 21:36:57 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:40845 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261751AbUKUCgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 21:36:32 -0500
-Message-ID: <419FFF35.1080401@namesys.com>
-Date: Sat, 20 Nov 2004 18:36:37 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tridge@samba.org, vs <vs@thebsh.namesys.com>
-CC: linux-kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: performance of filesystem xattrs with Samba4
-References: <16797.41728.984065.479474@samba.org>	<419E1297.4080400@namesys.com>	<16798.31565.306237.930372@samba.org>	<419ECAB5.10203@namesys.com>	<16798.59519.63931.494579@samba.org>	<419F6D1F.10001@namesys.com> <16799.53353.686239.419507@samba.org>
-In-Reply-To: <16799.53353.686239.419507@samba.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Nov 2004 20:50:25 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:15044 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S261724AbUKUBuS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 20:50:18 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: ksymoops 2.4.10 is available
+Date: Sun, 21 Nov 2004 12:50:07 +1100
+Message-ID: <32545.1101001807@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New benchmarks seem to be especially good at finding bugs.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-vs, please find the bug and fix it.
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
 
-Hans
+ksymoops-2.4.10.tar.gz           Source tarball, includes RPM spec file
+ksymoops-2.4.10-1.src.rpm        As above, in SRPM format
+ksymoops-2.4.10-1.i386.rpm       Compiled with gcc 3.4.2, glibc 2.3.3
+patch-ksymoops-2.4.10.gz         Patch from ksymoops 2.4.9 to 2.4.10.
 
-tridge@samba.org wrote:
+Changelog extract
 
->Hans,
->
-> > mkfs.reiser4 -o extent=extent40
->
->This lowered the performance by a small amount (from 52 MB/sec to 50
->MB/sec).
->
->It also revealed a bug. I have been doing my tests on a cleanly
->formatted filesystem each time, but this time I re-ran the test a few
->times in a row to determine just how consistent the results are. The
->results I got were:
->
->  mkfs.reiser4 -o extent=extent40    50 MB/sec
->                                     48
->                                     43
->                                     41
->                                     37 (stuck)
->
->the "stuck" result meant that smbd locked into a permanent D state at
->the end of the fifth run. Unfortunately ps showed the wait-channel as
->'-' so I don't have any more information about the bug. I needed to
->power cycle the machine to recover.
->
->To check if this is reproducable I tried it again and got the following:
->
->reboot, mkfs again                   50 MB/sec
->                                     48
->                                     44
->                                     42
->                                     40
->                                     (failed)
->
->the "failed" on the sixth run was smbd stuck in D state again, this
->time before the run completed so I didn't get a performance number.
->
->I should note that the test completely wipes the directory tree
->between runs, and the server processes restart, so the only way there
->can be any state remaining that explains the slowdown between runs is
->a filesystem bug. Do you think reiser4 could be "leaking" some on-disk
->structures? 
->
->To determine if this problem is specific to the extent=extent40
->option, I ran the same series of tests against reiser4 without the
->extent option:
->
->reboot, mkfs.reiser4 without options  52 MB/sec
->                                      52
->                                      45
->                                      41
->                                      (failed)
->
->The failure on the fifth run showed the same symptoms as above.
->
->To determine if the bug is specific to reiser4, I then ran the same
->series of tests against ext3, using the same kernel:
->
->  reboot, mke2fs -j                  70 MB/sec
->                                     70
->                                     69
->                                     70
->                                     71
->                                     70
->
->So it looks like the gradual slowdown and eventual lockup is specific
->to reiser4. What can I do to help you track this down? Would you like
->me to write a "howto" for running this test, or would you prefer to
->wait till I have an emulation of the test in dbench? 
->
->To give you an idea of the scales involved, each run lasts 100
->seconds, and does approximately 1 million filesystem operations (the
->exact number of operations completed in the 100 seconds is roughly
->proportional to the performance result).
->
->  
->
->>Ah, that explains a lot.  For that kind of workload, the simpler the fs 
->>the better, because really all you are doing is adding overhead to 
->>copy_to_user and copy_from_user.  All of reiser4's advanced features 
->>will add little or no value if you are staying in ram. 
->>    
->>
->
->I'll do some runs with larger numbers of simulated clients and send
->you those results shortly. Do you think a working set size of about
->double the total machine memory would be a good size to start showing
->the reiser4 features?
->
->Cheers, Tridge
->
->
->  
->
+        * Fix typo in man page.
+        * Unlike syslogd, syslog-ng does not prefix lines with ' kernel:'.
+          Handle both formats.  Reported by gentoo.
+        * Explictly pass --target on calls to nm and objdump.  Resolves
+          cases where objdump/nm complain 'File format is ambiguous'.
+          Robin Johnson.
+
+
+Some people have reported problems building ksymoops, with unresolved
+references in libbfd (htab_create, htab_find_slot_with_hash).  Try
+http://www.cs.helsinki.fi/linux/linux-kernel/2002-13/0196.html first,
+if that does not work, contact the binutils maintainers.  This is not a
+ksymoops problem, ksymoops only uses libbfd.  Any unresolved references
+from libbfd are a binutils problem.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQFBn/RPi4UHNye0ZOoRAj/FAJ46l4CPjHAcxx1aq2EeKl+eS83nrwCeLwq3
+0uSJypb6rMhqxctZOErRzqg=
+=uPT2
+-----END PGP SIGNATURE-----
 

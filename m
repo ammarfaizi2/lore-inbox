@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUD2C3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbUD2CbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbUD2C3q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 22:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUD2C3q
+	id S262370AbUD2CbM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 22:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUD2CbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 22:29:46 -0400
-Received: from florence.buici.com ([206.124.142.26]:29830 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S262389AbUD2C3p
+	Wed, 28 Apr 2004 22:31:11 -0400
+Received: from wirefire.bureaudepost.com ([66.38.187.209]:37603 "EHLO
+	oasis.linuxant.com") by vger.kernel.org with ESMTP id S262370AbUD2CbH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 22:29:45 -0400
-Date: Wed, 28 Apr 2004 19:29:44 -0700
-From: Marc Singer <elf@buici.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Rik van Riel <riel@redhat.com>, brettspamacct@fastclick.com,
-       jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-ID: <20040429022944.GA24000@buici.com>
-References: <20040428180038.73a38683.akpm@osdl.org> <Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com> <20040428185720.07a3da4d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040428185720.07a3da4d.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 28 Apr 2004 22:31:07 -0400
+In-Reply-To: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <4150E18A-9985-11D8-85DF-000A95BCAC26@linuxant.com>
+Content-Transfer-Encoding: 7bit
+Cc: Timothy Miller <miller@techsource.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       David Gibson <david@gibson.dropbear.id.au>
+From: Marc Boucher <marc@linuxant.com>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Date: Wed, 28 Apr 2004 22:31:01 -0400
+To: Rik van Riel <riel@redhat.com>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 06:57:20PM -0700, Andrew Morton wrote:
-> Rik van Riel <riel@redhat.com> wrote:
-> >
-> >  IMHO, the VM on a desktop system really should be optimised to
-> >  have the best interactive behaviour, meaning decent latency
-> >  when switching applications.
-> 
-> I'm gonna stick my fingers in my ears and sing "la la la" until people tell
-> me "I set swappiness to zero and it didn't do what I wanted it to do".
 
-It does, but it's a bit too coarse of a solution.  It just means that
-the page cache always loses.
+Hi Rik,
+
+Your new proposed message sounds much clearer to the ordinary mortal 
+and would imho be a significant improvement. Perhaps printing 
+repetitive warnings for identical $MODULE_VENDOR strings could also be 
+avoided, taking care of the redundancy/volume problem as well..
+
+Cheers
+Marc
+
+On Apr 28, 2004, at 8:02 PM, Rik van Riel wrote:
+
+>
+> I wouldn't be averse to changing the text the kernel prints
+> when loading a module with an incompatible license. If the
+> text "$MOD_FOO: module license '$BLAH' taints kernel." upsets
+> the users, it's easy enough to change it.
+>
+> How about the following?
+>
+> "Due to $MOD_FOO's license ($BLAH), the Linux kernel community
+> cannot resolve problems you may encounter. Please contact
+> $MODULE_VENDOR for support issues."
+>
+>
+>
+> -- 
+> "Debugging is twice as hard as writing the code in the first place.
+> Therefore, if you write the code as cleverly as possible, you are,
+> by definition, not smart enough to debug it." - Brian W. Kernighan
+>
 

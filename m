@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277008AbRJHRe7>; Mon, 8 Oct 2001 13:34:59 -0400
+	id <S277021AbRJHRhu>; Mon, 8 Oct 2001 13:37:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277013AbRJHReu>; Mon, 8 Oct 2001 13:34:50 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:32526 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S277008AbRJHRel> convert rfc822-to-8bit; Mon, 8 Oct 2001 13:34:41 -0400
-Date: Mon, 8 Oct 2001 14:12:39 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: OOM-Killer in 2.4.11pre4
-In-Reply-To: <20011006162617.A724@athlon.random>
-Message-ID: <Pine.LNX.4.21.0110081411220.4718-100000@freak.distro.conectiva>
+	id <S277016AbRJHRhb>; Mon, 8 Oct 2001 13:37:31 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:37870 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S277021AbRJHRhY>; Mon, 8 Oct 2001 13:37:24 -0400
+Message-ID: <3BC1E294.1A4FB12D@mvista.com>
+Date: Mon, 08 Oct 2001 10:29:56 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Pantelis Antoniou <panto@intracom.gr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Standard way of generating assembler offsets
+In-Reply-To: <28136.1002196028@ocs3.intra.ocs.com.au> <3BC1735F.41CBF5C1@intracom.gr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 6 Oct 2001, Andrea Arcangeli wrote:
-
-> On Sat, Oct 06, 2001 at 08:53:30AM +0200, Christian Bornträger wrote:
-> > I reported __alloc_pages: 0-order allocation failed errors in 2.4.10 with a 
-> > memory eating program. 
-> > 
-> > These errors are gone with 2.4.11pre4. The OOM-Killer works __correct__.  it 
-> > seems that Marcelos Patch works correct for me.
+Pantelis Antoniou wrote:
 > 
-> to test the oom killer you should try to run out of memory sometime.
-> It's not the oom killer that cured the oom faliures, it is the deadlock
-> prone infinite loop in the allocator that did.
+> Hi there.
 > 
-> Now I identified various issues that can explain the oom faliures on the
-> highmem boxes (I don't have any highmem box so it wasn't possible to
-> trigger them here, the higher memory ia32 machine that I own is my
-> UP desktop with 512mbyte of ram), and I will be able to verify my fixes
-> as soon as I can get a login on a 4/8G box. I created this project for
-> this purpose:
+> If anyone is interested I have already made a perl
+> script that produces assembler offsets from structure
+> members.
 > 
-> 	http://www.osdlab.org/cgi-bin/eidetic.cgi?command=display&modulename=projects&on=60
+> It doesn't need to run native since it reads the
+> header files, extract the structures and by using
+> objdump calculates the offsets automatically.
 > 
-> After I get the login and after verifying my fixes I'll release a new
-> -aa that will be meant primarly to fix the allocation faliures.
+> Maybe it needs some more work for what you describe,
+> but it's exactly what you describe.
+> 
+> If you're interested please email me directly for
+> more information.
+> 
+One of the problems with this sort of thing is that it has a hard time
+getting the CPP macros right.  The best way to do this sort of thing is
+to actually compile the header file with all the CONFIG defines and a
+set of tools (read macros) that produce the required offsets.  This way
+you get what you want and don't have to reinvent the CPP stuff.  It also
+allows production of #define constants and other constructs that folks
+push into CPP, in a very simple and straight forward manner.
 
-Andrea, 
+Been there, done that.
 
-I already have access to a 16GB box on OSDLabs exactly to test highmem
-related issues -- there is no need to create another similar project IMO.
-
-I can give you access to the machine if you want. 
-
+George

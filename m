@@ -1,87 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264824AbUEQCNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264878AbUEQCPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264824AbUEQCNd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 22:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbUEQCNd
+	id S264878AbUEQCPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 22:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUEQCPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 22:13:33 -0400
-Received: from taco.zianet.com ([216.234.192.159]:50188 "HELO taco.zianet.com")
-	by vger.kernel.org with SMTP id S264824AbUEQCN1 (ORCPT
+	Sun, 16 May 2004 22:15:33 -0400
+Received: from main.gmane.org ([80.91.224.249]:10683 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264878AbUEQCPR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 22:13:27 -0400
-From: Steven Cole <elenstev@mesatop.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
-Date: Sun, 16 May 2004 20:12:56 -0600
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, adi@bitmover.com,
-       scole@lanl.gov, support@bitmover.com, linux-kernel@vger.kernel.org
-References: <200405132232.01484.elenstev@mesatop.com> <200405161611.17688.elenstev@mesatop.com> <20040516235310.GZ3044@dualathlon.random>
-In-Reply-To: <20040516235310.GZ3044@dualathlon.random>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405162012.57066.elenstev@mesatop.com>
+	Sun, 16 May 2004 22:15:17 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Mike <Mike@kordik.net>
+Subject: HDIO_SET_DMA failed: with nforce2 board
+Date: Sun, 16 May 2004 22:15:02 -0400
+Message-ID: <pan.2004.05.17.02.15.01.317598@kordik.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: user-12l2mtd.cable.mindspring.com
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 May 2004 05:53 pm, Andrea Arcangeli wrote:
-> On Sun, May 16, 2004 at 04:11:16PM -0600, Steven Cole wrote:
-> > On Sunday 16 May 2004 03:29 pm, Andrew Morton wrote:
-> > > Steven Cole <elenstev@mesatop.com> wrote:
-> > > >
-> > > > Anyway, although the regression for my particular machine for this
-> > > >  particular load may be interesting, the good news is that I've seen
-> > > >  none of the failures which started this whole thread, which are relatively
-> > > >  easily reproduceable with PREEMPT set.  
-> > > 
-> > > So...  would it be correct to say that with CONFIG_PREEMPT, ppp or its
-> > > underlying driver stack
-> > > 
-> > > a) screws up the connection and hangs and
-> > > 
-> > > b) scribbles on pagecache?
-> > > 
-> > > Because if so, the same will probably happen on SMP.
-> > > 
-> > Perhaps someone has the hardware to test this.
-> > 
-> > To summarize my experience with the past 24 hours of testing:
-> > Without PREEMPT , everything is rock solid. 
-> 
-> so we've two separate problems: the first is the ppp instability with
-> preempt, the second is a regresion in the vm heuristics between 2.6.3
-> and 2.6.5.
-Yes, that is correct.
-The instability was first noticed about one month ago when doing
-a bk pull from linus' repository.  I've been updating my kernel via
-bk almost nightly, and around the time of 2.6.6-rc1 (IIRC), I got the
-Assertion `s && s->tree' failed message from bk.  At first it was thought
-to be related to using an older version (3.0.1) of bk, so that was updated.
-A few days later, the problem recurred.  Since it only happened about
-15% to 20% of the time, and was easy to recover from, I didn't scream
-too loudly or too often to bitmover.  But then, the problem started becoming
-more persistent about a week ago, so I began complaining again.  I managed
-to get a bitkeeper-generated file to bitmover, who discovered that a very
-odd (or even in this case) number of NUL bytes existed where they 
-should not exist.  Hence this thread.
+I have an nforce2 based board and I cannot enable dma.
 
-Then during the course of testing, I noticed the significant difference
-in time it took to run a test script supplied by bitkeeper for current kernels
-versus an older vendor kernel.  Hence your being cc'ed.
+# hdparm -i /dev/hda
+ 
+/dev/hda:
+ 
+ Model=Maxtor 6Y120L0, FwRev=YAR41BW0, SerialNo=Y411HHFE
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=240119615
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6
+ AdvancedPM=yes: disabled (255) WriteCache=enabled
+ Drive conforms to: (null):
 
+In my .config:
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
 
-> 
-> > and I (cringes at the thought) may repeat some bk pulls with
-> > PREEMPT set.
-> 
-> I've heard other reports of preempt being unstable with some sound
-> stuff, just in case are you using sound drivers at all during that
-> workload?
-> 
-> 
-Yes, mea culpa.  CONFIG_SND_ENS1371=y.  
+I am running kernel 2.6.4-rc1-mm1
 
-Steven
+What am I missing? 
+
+Thx
+

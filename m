@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264407AbTE0Wcc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 18:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264413AbTE0Wcc
+	id S264414AbTE0Wdv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 18:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTE0Wdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 18:32:32 -0400
-Received: from mxout1.netvision.net.il ([194.90.9.20]:16342 "EHLO
-	mxout1.netvision.net.il") by vger.kernel.org with ESMTP
-	id S264407AbTE0Wca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 18:32:30 -0400
-Date: Wed, 28 May 2003 02:00:06 +0200
-From: Nir Livni <nir_l3@netvision.net.il>
-Subject: fork() returns on parent but not returns on child
-To: linux-kernel@vger.kernel.org
-Cc: Nir Livni <nirl@cyber-ark.com>
-Reply-to: Nir Livni <nirl@cyber-ark.com>
-Message-id: <00f801c324ac$1904b6a0$30dfda51@pinguin>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
+	Tue, 27 May 2003 18:33:50 -0400
+Received: from static213-229-38-018.adsl.inode.at ([213.229.38.18]:64897 "HELO
+	home.winischhofer.net") by vger.kernel.org with SMTP
+	id S264414AbTE0Wdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 18:33:47 -0400
+Message-ID: <3ED3EB21.1090606@winischhofer.net>
+Date: Wed, 28 May 2003 00:48:01 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Davide Libenzi <davidel@xmailserver.org>, Martin Diehl <lists@mdiehl.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sis650 irq router fix for 2.4.x
+References: <3ED21CE3.9060400@winischhofer.net>	 <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com>	 <3ED32BA4.4040707@winischhofer.net>	 <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com>	 <1054053901.18814.0.camel@dhcp22.swansea.linux.org.uk>	 <3ED3CDA9.5090605@winischhofer.net> <1054068660.19108.15.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I am experiencing a problem, where fork() returns succesfully on parent, but
-does not return on child.
-The child process simply "disappears".
-I believe it might have got a SIGSEGV (if it makes any sence) before fork()
-has returned.
+Alan Cox wrote:
+> On Maw, 2003-05-27 at 21:42, Thomas Winischhofer wrote:
+> 
+>>Alan Cox wrote:
+>>
+>>>I'm keeping an eye on it. The correct answer appears to be 
+>>>"use ACPI" once it works on SiS
+>>
+>>It already does. No problem, except for idiotic OS string checks which 
+>>require using a custom DSDT.
+> 
+> 
+> It only works for setups that choose not to use the APIC in the ACPI
+> setup. I know how to fix it (indeed I fixed 2.5 ages ago with info from
+> Ollie)
 
-I would like to track down this problem.
-What I did so far is:
-1. I tried first to make sure there are no memory overruns using few tools.
-2. I tried to look at strace output, but the problem does not occur if I use
-strace
-3. I make a UserModeLinux machine
-and now I would like to breakpoint the created child before it crashes
-(assuming it really crashes)
+Granted. I have APIC disabled here.... (and never tried otherwise)
 
-How do I do that ?
+Thomas
 
-Thanks,
-Nir
+-- 
+Thomas Winischhofer
+Vienna/Austria
+mailto:thomas@winischhofer.net          *** http://www.winischhofer.net
+mailto:twini@xfree86.org
 

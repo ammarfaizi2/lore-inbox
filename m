@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbTETA2O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbTETA2O
+	id S263338AbTETAbC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:31:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTETAbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:28:14 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:20622
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263152AbTETA2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:28:12 -0400
-Message-ID: <3EC97996.1080800@redhat.com>
-Date: Mon, 19 May 2003 17:40:54 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030516
-X-Accept-Language: en-us, en
+	Mon, 19 May 2003 20:31:02 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56673 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S263338AbTETAa7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 20:30:59 -0400
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recent changes to sysctl.h breaks glibc
+References: <20030519165623.GA983@mars.ravnborg.org>
+	<Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>
+	<babhik$sbd$1@cesium.transmeta.com>
+	<m1d6ie37i8.fsf@frodo.biederman.org> <3EC95B58.7080807@zytor.com>
+	<m18yt235cf.fsf@frodo.biederman.org> <3EC9660D.2000203@zytor.com>
+	<m14r3q331h.fsf@frodo.biederman.org>
+	<200305200024.h4K0OnPc025466@turing-police.cc.vt.edu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 May 2003 18:40:18 -0600
+In-Reply-To: <200305200024.h4K0OnPc025466@turing-police.cc.vt.edu>
+Message-ID: <m1y9121mdp.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3
-References: <20030520001623.715822C08B@lists.samba.org>
-In-Reply-To: <20030520001623.715822C08B@lists.samba.org>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Valdis.Kletnieks@vt.edu writes:
 
-Rusty Russell wrote:
+> On Mon, 19 May 2003 17:55:06 MDT, Eric W. Biederman said:
+> > If things must be maintained in concert it is a bug.  
+> > 
+> > With a fixed ABI people take advantage of new features as they
+> > care for them.  And in general to use new features requires new code.
+> 
+> And if the kernel headers aren't maintained in concert with the kernel,
+> new userspace code can't reach the new features.
+> 
+> Therefor, by your definition, the current situation is a bug.
 
-> 1) Overload the last futex arg (change from timeval * to void *),
->    don't add YA arg at the end.
+Yes, glibc uses kernel headers.
 
-It wasn't Ingo's idea.  I suggested it.  Overloading parameter types is
-evil.  This isn't an issue anymore if the extension is implemented as a
-new syscall which certainly is better.
+> Try compiling code that uses futexes on a system that has a kernel that
+> supports them, but kernel-headers that haven't been upgraded to mention them.
+> The kernel has the new code, the userspace has the new code, but gcc will
+> turn around and whinge about the new code because there's a piece missing in
+> between.  So people *CANT* take advantage of the new features (unless they
+> do something silly like drag their own foo.h file around where it can get
+> out of sync with reality).
 
+Or the build against a library that does that.  There are not that
+many libraries.
 
-> 2) Use __alignof__(u32) not sizeof(u32).  Sure, they're the same, but
->    you really mean __alignof__ here.
+For a lot of system calls it is actively dangerous to assume dev_t ==
+__kernel_dev_t.  As glibc does some cute things in there.
 
-I would always use sizeof() in this situation.  alignof is a property
-the compiler can potentially relax.  On x86 it could easily be defined
-to 1 in case someone wants to save memory.  OK, not really useful for
-x86, but some embedded archs might be in such a situation.  Using
-sizeof() makes sure that the variable is always 4-byte aligned.  For
-atomic operations this certainly is a good minimal requirement.
-
-If you want to really correct you might have to introduce something like
-atomic_alignof().
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+yXmW2ijCOnn/RHQRAnXcAKCeYFvfkKIO/bbwqX1vUvbLkBvHKwCeN6zB
-99qZZOVLMckvh6lxieUfVpY=
-=LvwT
------END PGP SIGNATURE-----
-
+Eric

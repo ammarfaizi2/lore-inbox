@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285243AbRL0BEn>; Wed, 26 Dec 2001 20:04:43 -0500
+	id <S285402AbRL0Bxv>; Wed, 26 Dec 2001 20:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285227AbRL0BEe>; Wed, 26 Dec 2001 20:04:34 -0500
-Received: from [66.189.64.253] ([66.189.64.253]:27776 "HELO majere.epithna.com")
-	by vger.kernel.org with SMTP id <S285099AbRL0BE3>;
-	Wed, 26 Dec 2001 20:04:29 -0500
-Date: Wed, 26 Dec 2001 20:04:25 -0500 (EST)
-From: <listmail@majere.epithna.com>
-To: Shane Painter <shane@linuxbrew.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Preemptable kernel patches.. for 2.4.17?
-In-Reply-To: <33371.66.69.241.215.1009413581.squirrel@www.linuxbrew.com>
-Message-ID: <Pine.LNX.4.33.0112262004130.1245-100000@majere.epithna.com>
+	id <S285634AbRL0Bxm>; Wed, 26 Dec 2001 20:53:42 -0500
+Received: from pop.gmx.de ([213.165.64.20]:65524 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S285099AbRL0Bxa>;
+	Wed, 26 Dec 2001 20:53:30 -0500
+Message-ID: <3C2A7EEA.44EAE386@gmx.de>
+Date: Thu, 27 Dec 2001 02:52:42 +0100
+From: Edgar Toernig <froese@gmx.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Roskin <proski@gnu.org>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: readdir() loses entries on ramfs and tmpfs
+In-Reply-To: <Pine.LNX.4.43.0112261932350.26802-100000@marabou.research.att.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-www.tech9.net/rml
+Pavel Roskin wrote:
+> 
+>     while ((d = readdir(dir)) != NULL) {
+>         printf("%s\n", d->d_name);
+>         rmdir(d->d_name);
+>     }
+>[...]
+> Basically, removing a subdirectory in a directory open with opendir()
+> causes an entry (file or directory) 168 entries later to be skipped by
+> readdir().
+> 
+> I'm sorry, I cannot elaborate more, but the issue seems to be very
+> serious.
 
-On Wed, 26 Dec 2001, Shane Painter wrote:
+Not nice but not serious.  Modifying the directory you scan is
+never save and programs relying on this are broken.  You can
+build a list of items to work on but even then another process
+may add new entries or remove some and you have to handle that.
+One could "fix" your "bug" but the program will still be broken.
 
->
-> Where might one find patches for 2.4.17 to add preemptable kernel functionality.
->
-> I have looked around, but can only come up with patches for 2.4.6 from
-> sourceforge... is this the latest? Any direction would be greatly appreciated.
->
-> Thanks,
-> -Shane
->
-> ------------------------------------------------------------------------------
-> "Give a man a beer, and he will waste and hour;
->      Teach a man to brew, and he will waste a lifetime."
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Ciao, ET.

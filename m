@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266878AbUAXHA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 02:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUAXHA6
+	id S266880AbUAXHUW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 02:20:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266881AbUAXHUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 02:00:58 -0500
-Received: from mail.kroah.org ([65.200.24.183]:15513 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266878AbUAXHA5 (ORCPT
+	Sat, 24 Jan 2004 02:20:21 -0500
+Received: from gprs148-26.eurotel.cz ([160.218.148.26]:1152 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266880AbUAXHUT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 02:00:57 -0500
-Date: Fri, 23 Jan 2004 22:59:56 -0800
-From: Greg KH <greg@kroah.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc1-mm2
-Message-ID: <20040124065955.GA2601@kroah.com>
-References: <20040123013740.58a6c1f9.akpm@osdl.org> <20040123232906.GA4528@werewolf.able.es>
+	Sat, 24 Jan 2004 02:20:19 -0500
+Date: Sat, 24 Jan 2004 08:20:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Patrick Mochel <mochel@digitalimplant.org>,
+       Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Hugang <hugang@soulinfo.com>
+Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
+Message-ID: <20040124072007.GA233@elf.ucw.cz>
+References: <20040119105237.62a43f65@localhost> <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux> <1074490463.10595.16.camel@gaston> <1074534964.2505.6.camel@laptop-linux> <1074549790.10595.55.camel@gaston> <20040122211746.3ec1018c@localhost> <1074841973.974.217.camel@gaston> <20040123183030.02fd16d6@localhost> <1074919185.814.82.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040123232906.GA4528@werewolf.able.es>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1074919185.814.82.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 12:29:06AM +0100, J.A. Magallon wrote:
-> 
-> On 01.23, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc1/2.6.2-rc1-mm2/
-> > 
-> > 
-> 
-> Still have to try with -mm2, but with mm1, my i2c temp sensors are scaled by 10 !!
-> It is fun to read my processor runs at 400 ºC ;)
-> 
-> werewolf:/sys/bus/i2c/devices/1-0290# sensors -v
-> sensors version 2.8.2
-> werewolf:/sys/bus/i2c/devices/1-0290# cat temp_input1
-> 38000
-> werewolf:/sys/bus/i2c/devices/1-0290# cat temp_input2
-> 40000
-> 
-> ??
+Hi!
 
-Try using the latest version of lmsensors.  It should handle the proper
-scaling issues.  If not, please let the lmsensors developers know.
+> (RESENT, sorry if you got it already, something apparently went wrong
+> on the SMTP here)
+> 
+> Ok, I hammered that for a day and got pmdisk (patrick's version) suspending
+> and resuming on a pismo G3 (with XFree etc.. running). Lots of rough
+> edges
 
-thanks,
-
-greg k-h
+Congratulations!
+								Pavel
+[Now we'll have to do something with pmdisk vs. swsusp...]
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

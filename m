@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129105AbRBBVXc>; Fri, 2 Feb 2001 16:23:32 -0500
+	id <S129300AbRBBVeH>; Fri, 2 Feb 2001 16:34:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129598AbRBBVXL>; Fri, 2 Feb 2001 16:23:11 -0500
-Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:51465 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S129526AbRBBVXI>; Fri, 2 Feb 2001 16:23:08 -0500
-Date: Fri, 2 Feb 2001 13:22:38 -0800
-Message-Id: <200102022122.f12LMct11509@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), reiser@namesys.com (Hans Reiser),
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        kas@informatics.muni.cz (Jan Kasprzak)
-Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink related)
-X-Newsgroups: cs.lists.linux-kernel
-In-Reply-To: <cs.lists.linux-kernel/E14OjME-0006nU-00@the-village.bc.nu>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
+	id <S129162AbRBBVd5>; Fri, 2 Feb 2001 16:33:57 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:46019 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129242AbRBBVdo>; Fri, 2 Feb 2001 16:33:44 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200102022133.f12LXO319901@devserv.devel.redhat.com>
+Subject: Re: ReiserFS Oops (2.4.1, deterministic, symlink
+To: reiser@namesys.com (Hans Reiser)
+Date: Fri, 2 Feb 2001 16:33:24 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), mason@suse.com (Chris Mason),
+        kas@informatics.muni.cz (Jan Kasprzak), linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com,
+        yura@yura.polnet.botik.ru (Yury Yu. Rupasov)
+In-Reply-To: <3A7B1BFA.F7B4EAD@namesys.com> from "Hans Reiser" at Feb 02, 2001 11:43:38 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001 16:46:45 +0000 (GMT), Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> : 	It is the original one. I'll try with the -69:
->> : 
->> 	With 2.96-69 the reiserfs seems to work well.
->> Sorry for the confusion, I forgot to upgrade the gcc on my machine.
-> 
-> Excellent. Im just glad to know its a fixed bug.
+> Users cannot use gcc 2.96 as shipped in RedHat 7.0 if they want to use
+> reiserfs.  It is that simple.  How can you even consider defending allowing the
+> use of it without requiring a positive affirmation by the user that they don't
+> know what they are doing and want to do it anyway?:-)  I could understand
 
-Yes. But since Red Hat took upon themselves to define "gcc 2.96", they
-should have created a new patchlevel (2.96.1) for their fixed compiler.
+The kernel documentation explicitly says to use egcs-1.1.2 or 2.95 for x86.
+If you want to put in #ifdefs then let me assure you that you will then get
+a million emails that 'reiserfs doesnt build'. I went this way with older
+gcc's in 2.0 and the amount of mail more than doubled by doing the check
 
-As it stands, there is no way to determine programatically whether
-gcc-2.96 is broken or now. The only way to do it is to check the RPM
-version -- which, needless to say, is a bit difficult to do from the
-C code about to be compiled. So I can't really blame Hans if he decides
-to outlaw gcc-2.96[.0] for reiserfs compiles.
+If people use other compilers then certainly ignore the bug reports. For 2.2
+until recently that was policy with gcc 2.95 
 
-Ion
+Also remember to check for 2.96 but not 2.96-69 (the errata one) and remember
+to do specific architecture tests as there is no other compiler set available
+for IA64 for example.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+> to respond to their having them.  I look forward to gcc 3.00, and I encourage
+> the compiler guys to get over being (understandably) irked that somebody else
+
+Gcc 3.0 CVS branch wont build the kernel either right now - DAC960 fails.
+
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

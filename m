@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbUKIIQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbUKIIRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbUKIIQH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 03:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbUKIIQH
+	id S261438AbUKIIRw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 03:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUKIIRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 03:16:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11681 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261433AbUKIIQG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 03:16:06 -0500
-Date: Tue, 9 Nov 2004 00:15:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: tj@home-tj.org, mingo@elte.hu, diffie@gmail.com,
-       linux-kernel@vger.kernel.org, diffie@blazebox.homeip.net,
-       alan@lxorguk.ukuu.org.uk, Andries.Brouwer@cwi.nl
-Subject: Re: 2.6.10-rc1-mm3
-Message-Id: <20041109001552.4465c23f.akpm@osdl.org>
-In-Reply-To: <20041109080509.GA10724@kroah.com>
-References: <9dda349204110611043e093bca@mail.gmail.com>
-	<20041107024841.402c16ed.akpm@osdl.org>
-	<20041108075934.GA4602@elte.hu>
-	<20041107234225.02c2f9b6.akpm@osdl.org>
-	<20041108224259.GA14506@kroah.com>
-	<20041108212747.33b6e14a.akpm@osdl.org>
-	<20041109071455.GA11643@kroah.com>
-	<20041109080509.GA10724@kroah.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 9 Nov 2004 03:17:52 -0500
+Received: from fmr12.intel.com ([134.134.136.15]:58552 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261438AbUKIIRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 03:17:41 -0500
+Subject: [BKPATCH] ACPI for 2.4
+From: Len Brown <len.brown@intel.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1099986430.5517.55.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 09 Nov 2004 03:17:27 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> Andrew, does the patch below fix the issue for you?  It fixed my test
->  case.
+Hi Marcelo, please do a 
 
-Dunno - I can't configure 512 legacy ptys any more ;)
+	bk pull bk://linux-acpi.bkbits.net/24-latest-release
 
->   		if (parent)
->   			kobject_put(parent);
+thanks,
+-Len
 
-kobject_put(NULL) is legal...
+ps. a plain patch is also available here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/24-latest-release/acpi-20040326-24-latest-release.diff.gz
+
+This will update the following files:
+
+ drivers/acpi/dispatcher/dsopcode.c |    3 ---
+ drivers/acpi/hardware/hwsleep.c    |   20 ++++++++++----------
+ 2 files changed, 10 insertions(+), 13 deletions(-)
+
+through these ChangeSets:
+
+<len.brown@intel.com> (04/11/04 1.1458.1.6)
+   [ACPI] fix poweroff regression
+   backport from 2.6 and ACPICA 20040427
+   http://bugzilla.kernel.org/show_bug.cgi?id=2109
+   
+   Signed-off-by: Len Brown <len.brown@intel.com>
+
+<len.brown@intel.com> (04/11/04 1.1458.1.5)
+   [ACPI] fix ASUS boot crash
+   http://bugzilla.kernel.org/show_bug.cgi?id=2755
+   
+   backported from ACPICA 20040527 in linux-2.6.9
+   
+   Signed-off-by: Len Brown <len.brown@intel.com>
+
+
+
+

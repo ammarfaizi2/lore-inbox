@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316586AbSGLO7v>; Fri, 12 Jul 2002 10:59:51 -0400
+	id <S316585AbSGLO55>; Fri, 12 Jul 2002 10:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316587AbSGLO7u>; Fri, 12 Jul 2002 10:59:50 -0400
-Received: from fed1mtao02.cox.net ([68.6.19.243]:8688 "EHLO fed1mtao02.cox.net")
-	by vger.kernel.org with ESMTP id <S316586AbSGLO7t>;
-	Fri, 12 Jul 2002 10:59:49 -0400
-Message-ID: <3D2EEF88.2070609@cox.net>
-Date: Fri, 12 Jul 2002 08:02:32 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.1a) Gecko/20020611
-X-Accept-Language: en-us, en
+	id <S316586AbSGLO54>; Fri, 12 Jul 2002 10:57:56 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:65030 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316585AbSGLO5z> convert rfc822-to-8bit; Fri, 12 Jul 2002 10:57:55 -0400
+Message-ID: <3D2EEF17.8070408@evision-ventures.com>
+Date: Fri, 12 Jul 2002 17:00:39 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
+To: Jens Axboe <axboe@suse.de>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Thunder from the hill <thunder@ngforever.de>,
+       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
 Subject: Re: IDE/ATAPI in 2.5
-References: <agl7ov$p91$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+References: <Pine.SOL.4.30.0207121611170.14389-100000@mion.elka.pw.edu.pl> <3D2EE7BA.8080805@evision-ventures.com> <20020712144145.GH22858@suse.de>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have had plans for a while to add Media Status Notification to the 
-ide-floppy driver, so it can do more intelligent media change 
-management. To do so requires ATA (NOT ATAPI) commands to be issued to 
-the drive(s). How would this work if ide-scsi is being used to talk to 
-the drives? Would ide-scsi have to be taught about removable media and 
-Media Status Notification?
-
-H. Peter Anvin wrote:
-> Okay, I have suggested this before, and I haven't quite looked at this
-> in detail, but I would again like to consider the following,
-> especially given the changes in 2.5:
+U¿ytkownik Jens Axboe napisa³:
+> On Fri, Jul 12 2002, Martin Dalecki wrote:
 > 
-> Please consider deprecating or removing ide-floppy/ide-tape/ide-cdrom
-> and treat all ATAPI devices as what they really are -- SCSI over IDE.
-> It is a source of no ending confusion that a Linux system will not
-> write CDs to an IDE CD-writer out of the box, for the simple reason
-> that cdrecord needs access to the generic packet interface, which is
-> only available in the nonstandard ide-scsi configuration.
+>>Workarounds in ide-cd - none.
 > 
-> There really seems to be no decent reason to treat ATAPI devices as
-> anything else.  I understand the ide-* drivers contain some
-> workarounds for specific devices, but those really should be moved to
-> their respective SCSI drivers anyway -- after all, manufacturers
-> readily slap IDE or SCSI interfaces on the same devices anyway.
 > 
-> Note that this is specific to ATAPI devices.  ATA hard drives are
-> another matter entirely.
-> 
-> 	-hpa
+> you must be kidding?
 > 
 
+OK OK.
+
+
+	} else  if (ireason == 1) {
+		/* Some drives (ASUS) seem to tell us that status
+		 * info is available. just get it and ignore.
+		 */
+		ata_status(drive, 0, 0);
+		return 0;
+	} else {
+		/* Drive wants a command packet, or invalid ireason... */
+		printk ("%s: cdrom_read_intr: bad interrupt reason %d\n",
+			drive->name, ireason);
+	}
+
+Long time not enabled one:
+
+#if !STANDARD_ATAPI
+         /* the Sanyo 3 CD changer uses byte 7 of TEST_UNIT_READY to
+            switch CDs instead of supporting the LOAD_UNLOAD opcode   */
+
+         cmd[7] = cdi->sanyo_slot % 3;
+#endif
+
+But really nothing scary...
 

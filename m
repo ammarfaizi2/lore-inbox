@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUJUOLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUJUOLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUJUOLS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 10:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268733AbUJUOIF
+	id S266648AbUJUOLR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 10:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUJUOFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:08:05 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:15057 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S261375AbUJTOsU convert rfc822-to-8bit (ORCPT
+	Thu, 21 Oct 2004 10:05:10 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:46097 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S270723AbUJUOAI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 10:48:20 -0400
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Yu, Luming" <luming.yu@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
-References: <3ACA40606221794F80A5670F0AF15F8405D3BF5B@pdsmsx403>
-	<20041018114109.GC4400@openzaurus.ucw.cz>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
-Date: Wed, 20 Oct 2004 16:47:59 +0200
-In-Reply-To: <20041018114109.GC4400@openzaurus.ucw.cz> (Pavel Machek's
- message of "Mon, 18 Oct 2004 13:41:09 +0200")
-Message-ID: <yw1xekjt4fa8.fsf@mru.ath.cx>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 21 Oct 2004 10:00:08 -0400
+Date: Thu, 21 Oct 2004 08:55:09 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Arjan van de Ven <arjan@fenrus.demon.nl>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       davem@davemloft.net, john.ronciak@intel.com,
+       ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
+       ctindel@users.sourceforge.net, fubar@us.ibm.com,
+       greearb@candelatech.com
+Subject: Re: [patch 2.6.9 0/11] Add MODULE_VERSION to several network drivers
+Message-ID: <20041021085509.B29340@tuxdriver.com>
+Mail-Followup-To: Arjan van de Ven <arjan@fenrus.demon.nl>,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+	davem@davemloft.net, john.ronciak@intel.com,
+	ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
+	ctindel@users.sourceforge.net, fubar@us.ibm.com,
+	greearb@candelatech.com
+References: <20041020141146.C8775@tuxdriver.com> <1098350269.2810.17.camel@laptop.fenrus.com> <20041021082205.A29340@tuxdriver.com> <1098366370.2810.31.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1098366370.2810.31.camel@laptop.fenrus.com>; from arjan@fenrus.demon.nl on Thu, Oct 21, 2004 at 03:46:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+On Thu, Oct 21, 2004 at 03:46:11PM +0200, Arjan van de Ven wrote:
+> On Thu, 2004-10-21 at 14:22, John W. Linville wrote:
 
-> Hi!
->
->> >> ... and lose all the benefits of HZ=1000.  What would happen if one
->> >> were to set HZ to a higher value, like 10000?
->> 
->> There is a similar issue filed on :
->> http://bugzilla.kernel.org/show_bug.cgi?id=3406
->> 
->
-> He he, someone should write a driver to play music on
-> those capacitors....
+> > I would have to suspect that if a version string exists, that it has at
+> > least some meaning to the primary developers/maintainters.  It certainly
+ 
+> Since the skeleton driver includes a define for that, I suspect your
+> assumption is a bit overly optimistic. 
+ 
+Perhaps...still, at least the drivers I touched w/ these patches seem to
+have version numbers that are at least somewhat meaningful.
 
-Why not?  They used to have special files that played music on the
-printer when printed.
+> > Is this a political statement against the MODULE_VERSION macro and/or
+> > its purpose?  I'm not overly interested in debating that one...
+> 
+> Not really. I have absolutely no problem with a MODULE_VERSION macro
+> *IF* the version it advertises means something. However if the version
+> it advertises has no meaning whatsoever (eg the version number never
+> gets updated) then imo it's better to NOT advertise anything so that
+> other tools (like dkms) don't make assumptions and decisions based on
+> nothing-meaning data.
 
+Again, I think it would have to be the maintainer's responsibility
+to make the version numbers meaningful.
+
+John
 -- 
-Måns Rullgård
-mru@mru.ath.cx
+John W. Linville
+linville@tuxdriver.com

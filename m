@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbTLKToe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 14:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbTLKToe
+	id S265231AbTLKTzX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 14:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265236AbTLKTzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 14:44:34 -0500
-Received: from holomorphy.com ([199.26.172.102]:60134 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264922AbTLKTod (ORCPT
+	Thu, 11 Dec 2003 14:55:23 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:58010 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S265231AbTLKTzR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 14:44:33 -0500
-Date: Thu, 11 Dec 2003 11:44:30 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where did the ELF spec go?  (SCO website?)
-Message-ID: <20031211194430.GL8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
-References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <20031211094148.G28449@links.magenta.com> <20031211150011.GF8039@holomorphy.com> <200312111326.32483.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312111326.32483.rob@landley.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 11 Dec 2003 14:55:17 -0500
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "=?utf-8?Q?'J=E9=B0=8En_Engel'?=" <joern@wohnheim.fh-wedel.de>
+Cc: "'Andy Isaacson'" <adi@hexapodia.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Is there a "make hole" (truncate in middle) syscall?
+Date: Thu, 11 Dec 2003 11:55:13 -0800
+Organization: Cisco Systems
+Message-ID: <018201c3c020$b0bf7650$d43147ab@amer.cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <20031211194815.GA10029@wohnheim.fh-wedel.de>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 December 2003 09:00, William Lee Irwin III wrote:
->> You have it backward. The SVR4/i386 ELF ABI specification is requiring
->> userspace to be granted at least 3GB of address space.
+> > Understood. Two filesystems we are using: tmpfs and ext3. For the
+> > former, fragmentation doesn't matter.
+> > 
+> > Hey, I think when I get some cycles I can try to implement this for
+> > tmpfs (since it's simpler) myself, and post a patch. :-) But before
+> > that, I want to make sure it's doable.
+> 
+> If you really do it, please don't add a syscall for it.  Simply check
+> each written page if it is completely filled with zero.  (This will be
+> a very quick check for most pages, as they will contain something
+> nonzero in the first couple of words)
 
-On Thu, Dec 11, 2003 at 01:26:32PM -0600, Rob Landley wrote:
-> Where does one get a copy of the SVR4 spec these days?  The link I
-> could track down went to http://www.sco.com/developer/devspecs/ which
-> just ain't there no more.
-> And no, not because of a "DDOS".  There isn't one.  SCO's website IP moved 
-> from 216.250.128.13 to 216.250.128.20, and it's up at the new IP right now.  
-> They didn't get the new DNS record propogated on time.  Rookie mistake...
-> But looking at http.://216.250.128.20/developer/devspecs redirects
-> you to the /developer page.  The devspecs page went away...
-> Is this mirrored somewhere?
+You mean automatically punch it?
 
-I'm looking at a dead tree copy. I have no idea if it's online or not.
+I don't think this is desirable. As someone else pointed out, "punch" might be an expensive operation and cause fragmentation (since you return the block in the middle to the fs).
 
-Also, it's largely an ELF ABI spec; I'm not sure how/why SVR4 got into
-the picture, but its name is on there.
+I think this operation should be performed only when the application requires it.
+ 
+> Jörn
 
-
--- wli

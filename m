@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289887AbSBSUXz>; Tue, 19 Feb 2002 15:23:55 -0500
+	id <S289815AbSBSUZI>; Tue, 19 Feb 2002 15:25:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289820AbSBSUVp>; Tue, 19 Feb 2002 15:21:45 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:56330 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S289815AbSBSUVa>;
-	Tue, 19 Feb 2002 15:21:30 -0500
-Date: Tue, 19 Feb 2002 09:25:03 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Tyson D Sawyer <tyson@rwii.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Missed jiffies
-Message-ID: <20020219092502.A37@toy.ucw.cz>
-In-Reply-To: <3C6E77DE.70FE49DF@rwii.com>
+	id <S289829AbSBSUYG>; Tue, 19 Feb 2002 15:24:06 -0500
+Received: from zok.sgi.com ([204.94.215.101]:6310 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S289823AbSBSUXS>;
+	Tue, 19 Feb 2002 15:23:18 -0500
+Date: Tue, 19 Feb 2002 12:23:10 -0800
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Dan Maas <dmaas@dcine.com>
+Cc: David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Ben Collins <bcollins@debian.org>
+Subject: Re: readl/writel and memory barriers
+Message-ID: <20020219122310.A1510182@sgi.com>
+Mail-Followup-To: Dan Maas <dmaas@dcine.com>,
+	David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Ben Collins <bcollins@debian.org>
+In-Reply-To: <092401c1b8e7$1d190660$1a01a8c0@allyourbase> <15474.34580.625864.963930@napali.hpl.hp.com> <20020219103506.A1511175@sgi.com> <0a5301c1b981$a921f820$1a01a8c0@allyourbase>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3C6E77DE.70FE49DF@rwii.com>; from tyson@rwii.com on Sat, Feb 16, 2002 at 10:16:46AM -0500
+Content-Disposition: inline
+In-Reply-To: <0a5301c1b981$a921f820$1a01a8c0@allyourbase>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Feb 19, 2002 at 03:11:45PM -0500, Dan Maas wrote:
+> I have a hunch that many drivers will break if you change the semantics of
+> readX/writeX from in-order to out-of-order - lots of drivers are only
+> developed & tested on x86, which completely hides the issue...
 
-> My system looses about 8 seconds every 20 minutes.  This is reported
-> by ntp and verified by comparing 'date' to 'hwclock --show' and a wall
-> clock.
-> 
-> My system is a x86 Dell laptop with HZ=1024.
-...
-> Since I have defined HZ to be 1024, I miss lots of timer interrupts. 
-> However, since the the processor spends 18ms at a time in SMM (System
-> Mangement Mode), then even the stock 10ms timer tick will sometimes
-> miss a tick.  Thus the problem applies to non-hacked kernels also.
+Fortunately, I don't think things are quite that bad.  As David
+pointed out, on ia64 the readX/writeX stuff is ordered coming out of
+the CPU, so if you're in a spinlock protected region, for example, all
+the reads/writes you do will occur in order.  The problem that I'm
+trying to solve is that on some platforms, I/O space references won't
+necessarily occur in order if they come from different CPUs.  E.g.
+after you do some I/O and drop a spinlock, another CPU may pick it up
+and start doing some I/O that *may* get intermixed with the I/O from
+the previous holder of the spinlock unless you explicity barrier said
+I/O.
 
-Kernel cancompensate for one lost tick, AFAIR, so go back to HZ=100.
-									Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Any ideas on how to address this issue?  I was thinking of either
+introducing an I/O space barrier (currently called mmiob() in the 2.5
+ia64 patch) or taking the performance hit in mb, rmb, and wmb, as well
+as readX/writeX to ensure proper ordering.  Or, as I mentioned in
+another mail, we could have a special io_spin_unlock routine that does
+the barrier for you.  Comments?
 
+Thanks,
+Jesse

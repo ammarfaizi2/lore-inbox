@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263605AbUEKU04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263616AbUEKU20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263605AbUEKU04 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 16:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbUEKU0z
+	id S263616AbUEKU20 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 16:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbUEKU20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 16:26:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16786 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263605AbUEKU0u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 16:26:50 -0400
-Date: Tue, 11 May 2004 13:26:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: mingo@elte.hu, geoff@linux.jf.intel.com, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: Re: [RFC] [PATCH] Performance of del_timer_sync
-Message-Id: <20040511132619.7a4fb4cb.akpm@osdl.org>
-In-Reply-To: <20040511211950.A20071@infradead.org>
-References: <409FFF3B.3090506@linux.intel.com>
-	<20040511004551.7c7af44d.akpm@osdl.org>
-	<00c001c43786$f1805000$ff0da8c0@amr.corp.intel.com>
-	<20040511121126.73f5fdeb.akpm@osdl.org>
-	<20040511195856.GA4958@elte.hu>
-	<20040511131137.2390ffa8.akpm@osdl.org>
-	<20040511211950.A20071@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 16:28:26 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:57269 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263616AbUEKU1U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 16:27:20 -0400
+Message-Id: <200405112027.i4BKR5F18656@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, "Ingo Molnar" <mingo@elte.hu>
+Cc: <geoff@linux.jf.intel.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: [RFC] [PATCH] Performance of del_timer_sync
+Date: Tue, 11 May 2004 13:27:07 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQ3lEN7sH5Gd+8hTimOvuBOAbDBCQAAVxlA
+In-Reply-To: <20040511131137.2390ffa8.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
+>>>>> Andrew Morton wrote on Tuesday, May 11, 2004 1:12 PM
+> > > Ingo, why is this not sufficient?
+> >
+> > it's not sufficient because a timer might be running on another CPU even
+> > if it has not been deleted. We delete a timer prior running it (so that
+> > the timer fn can re-activate the timer). So del_timer_sync() has to
+> > synchronize independently of whether the timer was removed or not.
+> >
 >
-> On Tue, May 11, 2004 at 01:11:37PM -0700, Andrew Morton wrote:
-> > +int del_single_shot_timer(struct timer_struct *timer)
-> > +{
-> > +	if (del_timer(timer))
-> > +		del_timer_sync(timer);
-> > +}
-> 
-> it's probably better named del_timer_singleshot given the name we gave
-> to the other timer functions.
+> Ah, OK, the timer handler may re-add itself.  Really, that's a bug in the
+> caller: once they've decided to shoot down the timer the caller should have
+> made state changes which prevent the handler from re-adding the timer.
+>
+> Still, too late to change that.
+>
+> Neither AIO nor schedule_timeout() actually re-add the timer so they don't
+> need the full treatment, yes?
+>
+>
+> diff -puN kernel/timer.c~del-timer-speedup kernel/timer.c
+> --- 25/kernel/timer.c~del-timer-speedup	2004-05-11 13:05:41.997859088 -0700
+> +++ 25-akpm/kernel/timer.c	2004-05-11 13:07:32.493061264 -0700
+> @@ -348,8 +348,13 @@ del_again:
+>
+>  	return ret;
+>  }
+> -
+>  EXPORT_SYMBOL(del_timer_sync);
+> +
+> +int del_single_shot_timer(struct timer_struct *timer)
+> +{
+> +	if (del_timer(timer))
+> +		del_timer_sync(timer);
+> +}
+>  #endif
 
-Nah, that's ungrammatical.  del_timer_singleshot means "delete a timer in a
-single-shot manner".
+I'm confused, isn't the polarity of del_timer() need to be reversed?
+Also propagate the return value of del_timer_sync()?
 
-We have:
+- Ken
 
-"add a timer"
-"modify a timer"
-"delete a timer"
-"delete a timer synchronously"
-"delete a single-shot timer"
 

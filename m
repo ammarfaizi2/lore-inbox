@@ -1,41 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292557AbSBZSLL>; Tue, 26 Feb 2002 13:11:11 -0500
+	id <S292592AbSBZSNB>; Tue, 26 Feb 2002 13:13:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292612AbSBZSLB>; Tue, 26 Feb 2002 13:11:01 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:1968 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S292557AbSBZSKx>; Tue, 26 Feb 2002 13:10:53 -0500
-Date: Tue, 26 Feb 2002 19:10:51 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Daniel Shane <daniel.shane@eicon.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI driver in userspace
-Message-ID: <20020226181051.GA8007@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <D8E12241B029D411A3A300805FE6A2B9025761AB@montreal.eicon.com>
-Mime-Version: 1.0
+	id <S292633AbSBZSMx>; Tue, 26 Feb 2002 13:12:53 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31762 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292639AbSBZSMg>; Tue, 26 Feb 2002 13:12:36 -0500
+Subject: Re: IDE error on 2.4.17
+To: turveysp@ntlworld.com (Simon Turvey)
+Date: Tue, 26 Feb 2002 18:27:21 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <000901c1beec$6ac68940$030ba8c0@mistral> from "Simon Turvey" at Feb 26, 2002 05:38:35 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D8E12241B029D411A3A300805FE6A2B9025761AB@montreal.eicon.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16fmJt-0001Xi-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 12:42:26PM -0500, Daniel Shane wrote:
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=250746,
+> sector=250680
+> end_request: I/O error, dev 03:01 (hda), sector 250680
 
-> I think this is a good example to start with. It has all the
-> interresting features. I hope it also has interrupt handling
-> to userspace (by generating SIGIO's). 
+Uncorrectable error is a message from your disk, along the lines of "Hey
+pal I wonder if the warranty has expired yet"
 
-It hasn't, it just continually polls the I/O ports for 
-completition.
-
-> Although I dont know if this is a good idea in the first place.
-
-I think it depends on the interrupt frequency, and other things.
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130156AbRBZF3W>; Mon, 26 Feb 2001 00:29:22 -0500
+	id <S130154AbRBZF3X>; Mon, 26 Feb 2001 00:29:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130154AbRBZF3N>; Mon, 26 Feb 2001 00:29:13 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39177 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S130155AbRBZF24>; Mon, 26 Feb 2001 00:28:56 -0500
-Date: Mon, 26 Feb 2001 00:42:38 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>,
-        Linus Torvalds <torvalds@transmeta.com>
-Cc: Shawn Starr <spstarr@sh0n.net>, lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Patch failed
-In-Reply-To: <Pine.LNX.4.33.0102250848340.2015-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0102260029300.4659-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130155AbRBZF3O>; Mon, 26 Feb 2001 00:29:14 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:27454 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S130159AbRBZF27>; Mon, 26 Feb 2001 00:28:59 -0500
+Date: Mon, 26 Feb 2001 00:28:16 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: scott@spiteful.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] MODULE_DEVICE_TABLE support for opl3sa2 driver
+Message-ID: <20010226002816.A22386@nostromo.devel.redhat.com>
+Mail-Followup-To: scott@spiteful.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="vtzGhvizbBRQ85DL"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Sun, 25 Feb 2001, Mike Galbraith wrote:
+The attached adds MODULE_DEVICE_TABLE support to the ISAPnP support
+in the opl3sa2 driver, so it can get picked up by modutils and
+the like.
 
-> The way sg_low_malloc() tries to allocate, failure messages are
-> pretty much garanteed.  It tries high order allocations (which
-> are unreliable even when not stressed) and backs off until it
-> succeeds.
-> 
-> In other words, the messages are a red herring.
+Bill
 
-Yup. And they should not be printed. 
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.4.2-opl3sa2-isapnp.patch"
 
-We can add an allocation flag (__GFP_NO_CRITICAL?) which can be used by
-sg_low_malloc() (and other non critical allocations) to fail previously
-and not print the message. 
+--- linux/drivers/sound/opl3sa2.c.foo	Mon Feb 26 00:19:33 2001
++++ linux/drivers/sound/opl3sa2.c	Mon Feb 26 00:25:53 2001
+@@ -806,6 +806,16 @@
+ 
+ 
+ #if defined CONFIG_ISAPNP || defined CONFIG_ISAPNP_MODULE
++
++struct isapnp_device_id isapnp_opl3sa2_list[] __initdata = {
++	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
++		ISAPNP_VENDOR('Y','M','H'), ISAPNP_FUNCTION(0x0021),
++		NULL },
++	{0}
++};
++
++MODULE_DEVICE_TABLE(isapnp, isapnp_opl3sa2_list);
++
+ static int __init opl3sa2_isapnp_probe(struct address_info* hw_cfg,
+ 				       struct address_info* mss_cfg,
+ 				       struct address_info* mpu_cfg,
 
-Linus ? 
-
-
+--vtzGhvizbBRQ85DL--

@@ -1,78 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262218AbSJZQMV>; Sat, 26 Oct 2002 12:12:21 -0400
+	id <S261426AbSJZQh6>; Sat, 26 Oct 2002 12:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262224AbSJZQMU>; Sat, 26 Oct 2002 12:12:20 -0400
-Received: from mta06bw.bigpond.com ([139.134.6.96]:57822 "EHLO
-	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S262218AbSJZQMT>; Sat, 26 Oct 2002 12:12:19 -0400
-Message-ID: <3DBAC09A.4090104@snapgear.com>
-Date: Sun, 27 Oct 2002 02:19:38 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+	id <S261427AbSJZQh6>; Sat, 26 Oct 2002 12:37:58 -0400
+Received: from smtp3.texas.rr.com ([24.93.36.231]:37331 "EHLO
+	txsmtp03.texas.rr.com") by vger.kernel.org with ESMTP
+	id <S261426AbSJZQh5>; Sat, 26 Oct 2002 12:37:57 -0400
+Message-ID: <3DBAC65B.4050000@us.ibm.com>
+Date: Sat, 26 Oct 2002 11:44:11 -0500
+From: Jon Grimm <jgrimm2@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: linux-2.5.44uc1 (MMU-less support)
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.44: Still has KVM + Mouse issues
+References: <3DB9DA64.E48C8C5B@us.ibm.com.suse.lists.linux.kernel> <p738z0lu2dl.fsf@oldwotan.suse.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Thanks Andi,
+	The workaround sounds reasonable.
+-jon
+Andi Kleen wrote:
 
-An updated uClinux patch is available at:
-
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc1.patch.gz
-
-Changelog (alot :-)
-
-1. v850 updates               (Miles Bader)
-2. mm cleanups                (Christoph Hellwig)
-3. cleanup of arch/m68knommu  (me)
-    - common files moved to ~/arch/m68knomu/kernel
-    - arch Makefiles rewritten
-    - 68360 drivers moved to drivers directory
-    - lots of other miscelleneous changes
-
-Smaller specific patches:
-
-. FEC ColdFire 5272 and 68360 ethernet drivers
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc1-fec.patch.gz
-
-. m68k/ColdFire/v850 serial drivers
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc1-serial.patch.gz
-
-. 68328 frame buffer
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc1-fb.patch.gz
-
-. binfmt_flat loader
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc1-binflat.patch.gz
-
-. m68knommu architecture
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc1-m68knommu.patch.gz
-
-. v850 architecture
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc1-v850.patch.gz
-
-. mm (MMU-less) only patch
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc1-mm.patch.gz
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
+> Boot with psmouse_noext, that should fix it. It runs the intellimouse as a 
+> plain PS/2 mouse. You lose the additional mouse buttons and the scroll wheel, 
+> but they never worked through that KVM anyways.
+> 
+> -Andi
+> 
 

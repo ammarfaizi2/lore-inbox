@@ -1,52 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264497AbTDPSHc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 14:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264509AbTDPSHc
+	id S264536AbTDPSD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 14:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbTDPSD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 14:07:32 -0400
-Received: from mx02.cyberus.ca ([216.191.240.26]:26889 "EHLO mx02.cyberus.ca")
-	by vger.kernel.org with ESMTP id S264497AbTDPSHb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 14:07:31 -0400
-Date: Wed, 16 Apr 2003 14:18:10 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Tomas Szepe <szepe@pinerecords.com>,
-       Catalin BOIE <util@deuroconsult.ro>, "" <linux-kernel@vger.kernel.org>,
-       "" <netdev@oss.sgi.com>, "" <kuznet@ms2.inr.ac.ru>
-Subject: Re: [PATCH] qdisc oops fix
-In-Reply-To: <200304162003.06600.m.c.p@wolk-project.de>
-Message-ID: <20030416140440.O5912@shell.cyberus.ca>
-References: <20030415084706.O1131@shell.cyberus.ca>
- <20030416160606.GA32575@louise.pinerecords.com> <3E9D8A68.5050207@colorfullife.com>
- <200304162003.06600.m.c.p@wolk-project.de>
+	Wed, 16 Apr 2003 14:03:57 -0400
+Received: from h002.c000.snv.cp.net ([209.228.32.66]:18420 "HELO
+	c000.snv.cp.net") by vger.kernel.org with SMTP id S264536AbTDPSDy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 14:03:54 -0400
+X-Sent: 16 Apr 2003 18:15:45 GMT
+Message-ID: <001d01c30444$2fbd05b0$6901a8c0@athialsinp4oc1>
+From: "Brien" <admin@brien.com>
+To: "John Bradford" <john@grabjohn.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <200304161701.h3GH13Qv001204@81-2-122-30.bradfords.org.uk>
+Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
+Date: Wed, 16 Apr 2003 14:15:38 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've now tried running the following configurations
+-both, with dual channel enabled @ 400
+-both, with dual channel disabled @ 400
+-both, with dual channel enabled @ 356
+-both, with dual channel disabled @ 356
+-both, with dual channel enabled @ 333
+-both, with dual channel disabled @ 333
+-one 400 @ 333 (A), with another module at @ 333 with dual channel disabled
+-one 400 @ 333 (A), with another module at @ 333 with dual channel enabled
+-one 400 @ 333 (B), with another module at @ 333 with dual channel disabled
+-one 400 @ 333 (B), with another module at @ 333 with dual channel enabled
+-two complete different modules, both DDR 333 @ 333 with dual channel
+enabled
+-two complete different modules, both DDR 333 @ 333 with dual channel
+disabled
+:::all of which are 512 MB each, and that the motherboard was tested to
+support:::
+and all of them have the same problem: black screen after kernel loads
+they all do seem to test with errors when ran with another module, but they
+also DO NOT test as errors when they're alone
+
+I'm starting to think it's a problem with my motherboard rather than with
+the RAM, because I've tried so many different ways and with different RAM
+modules.. but I don't know for sure.. basically every time I try to run any
+linux distribution, even if I type (mem=XXXM), it just doesn't work... I can
+run some other operating systems without problems, but I know that e.g.
+windows is less stressful etc.
+
+hmm
+
+----- Original Message -----
+From: "John Bradford" <john@grabjohn.com>
+To: "Brien" <admin@brien.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, April 16, 2003 1:01 PM
+Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
 
 
-On Wed, 16 Apr 2003, Marc-Christian Petersen wrote:
-
-> On Wednesday 16 April 2003 18:52, Manfred Spraul wrote:
+> > The board supports up to 4 GB total (4 DIMM slots), DDR 400/333/266. I'm
+> > normally using 2 * 512 MB DDR 400 on Single 128 bit mode. And the
+board's
+> > been tested to support up to 4 of the modules that I have (
+> > KVR400X64C25/512 ) shown at :
+> >
+http://www.giga-byte.com/MotherBoard/Support/TechnologyGuide/TechnologyGuide
+> > _63.htm
+> >
+> > motherboard link:
+> >
+http://www.giga-byte.com/MotherBoard/Products/Products_GA-SINXP1394(GA-8SQ80
+> > 0%20Ultra2).htm
+> >
+> > I tested both modules seperately just minutes ago, AND GET NO ERRORS on
+> > either one. The errors occur when I have both in.
+> >
+> > I've tried running them different speeds (e.g. 333), and it made no
+> > difference in what Linux did (black screened after kernel load).
 >
-> Hi Manfred,
+> Do you get errors with Memtest86, with both DIMMs installed, and set
+> to run at 333?
 >
-> > >The original backtrace as provided by Martin Volf does not contain
-> > >any weird addresses such as 0xd081ecc7 above:
-> > >http://marc.theaimsgroup.com/?l=linux-kernel&m=105013596721774&w=2
-> > Thanks.
-> > The bug was caused by sch_tree_lock() in htb_change_class().
-> > 2.4.21-pre7 contains a fix.
-> am I just blind or isn't there a fix in -pre7|current-BK?
+> Also, try checking the power supply volatages are within spec.
+>
+> John.
+>
 >
 
-No you are not ;-> Yes, the fix for that specific problem is in
-2.4.21-pre7. I think Tomas might have missed that we moved on to the
-next problem.
 
-cheers,
-jamal

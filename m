@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266921AbTGKVtD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 17:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266919AbTGKVtD
+	id S266885AbTGKVvW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 17:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbTGKVvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 17:49:03 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57528
+	Fri, 11 Jul 2003 17:51:13 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:60344
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S266885AbTGKVqA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 17:46:00 -0400
-Subject: Re: PATCH: AC97 updates from 2.4
+	id S266899AbTGKVt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 17:49:29 -0400
+Subject: Re: 2.5 'what to expect'
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Liam Girdwood <liam@exize.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-In-Reply-To: <1057955207.3607.25.camel@odin>
-References: <200307111809.h6BI9Zd5017272@hraefn.swansea.linux.org.uk>
-	 <20030711184706.GD16037@gtf.org>  <1057955207.3607.25.camel@odin>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030711193316.GA28806@gtf.org>
+References: <20030711140219.GB16433@suse.de>
+	 <20030711181453.GA976@matchmail.com>  <20030711193316.GA28806@gtf.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1057960677.20636.56.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1057960893.20637.60.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jul 2003 22:57:58 +0100
+Date: 11 Jul 2003 23:01:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-11 at 21:26, Liam Girdwood wrote:
-> I would eventually like to see something similar to this in ALSA. 
-> 
-> I wrote the touchscreen driver plugin and an ALSA AC97 plugin API will
-> probably be needed before this time next year to keep Linux up to date
-> in the PDA/Tablet/Portable space. Eventually we may need an I2S and/or
-> Azalia (next gen audio) API layer for such devices.
-> 
-> I intend to speak to the ALSA guys as soon as the OSS plugin driver has
-> stabilised. 
+On Gwe, 2003-07-11 at 20:33, Jeff Garzik wrote:
+> IIRC Alan's comment was "this fixes 99% of it"
 
-It would be great if we can get the same plugin API for both, although that
-may be trickier since the mixer side is quite different
+I fixed the 2.4 one, but the 2.4 fix relies on old style scsi error
+handling which has (thankfully on the whole) gone away in 2.5
 

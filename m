@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267199AbTBRApT>; Mon, 17 Feb 2003 19:45:19 -0500
+	id <S267246AbTBRAuC>; Mon, 17 Feb 2003 19:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267224AbTBRApT>; Mon, 17 Feb 2003 19:45:19 -0500
-Received: from ns.cinet.co.jp ([61.197.228.218]:23304 "EHLO multi.cinet.co.jp")
-	by vger.kernel.org with ESMTP id <S267199AbTBRApT>;
-	Mon, 17 Feb 2003 19:45:19 -0500
-Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A337@ns.cinet.co.jp>
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: "'Jeff Garzik '" <jgarzik@pobox.com>, Osamu Tomita <tomita@cinet.co.jp>
-Cc: "'Linux Kernel Mailing List '" <linux-kernel@vger.kernel.org>,
-       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>,
-       "''Christoph Hellwig' '" <hch@infradead.org>
-Subject: RE: [PATCHSET] PC-9800 subarch. support for 2.5.61 (16/26) NIC
-Date: Tue, 18 Feb 2003 09:55:10 +0900
+	id <S267424AbTBRAuC>; Mon, 17 Feb 2003 19:50:02 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:59070 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267246AbTBRAt7>; Mon, 17 Feb 2003 19:49:59 -0500
+Date: Mon, 17 Feb 2003 18:58:52 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.62: Cross-building broken
+In-Reply-To: <20030218003410.A27937@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0302171854090.5217-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the comment. 
+On Tue, 18 Feb 2003, Russell King wrote:
 
------Original Message-----
-From: Jeff Garzik
-To: Osamu Tomita
-Cc: Linux Kernel Mailing List; Alan Cox; 'Christoph Hellwig'
-Sent: 2003/02/18 2:02
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (16/26) NIC
+> Cross-building ARM from HPPA:
+> 
+> $ make config CROSS_COMPILE=/home/rmk/bin/arm-linux- ARCH=arm
+> make: Entering directory `/home/rmk/v2.5/linux-rpc'
+> make -f scripts/Makefile.build obj=scripts
+>   gcc -Wp,-MD,scripts/.empty.o.d -D__KERNEL__ -Iinclude -Wall
+>  -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common
+>  -mshort-load-bytes -msoft-float -Wa,-mno-fpu -Uarm -nostdinc -iwithprefix
+>  include    -DKBUILD_BASENAME=empty -DKBUILD_MODNAME=empty -c -o
+>  scripts/empty.o scripts/empty.c
+> make: Leaving directory `/home/rmk/v2.5/linux-rpc'
+> cc1: Invalid option `short-load-bytes'
+> make[1]: *** [scripts/empty.o] Error 1
+> make: *** [scripts] Error 2
+> 
+> We seem to be using the wrong compiler here, or the wrong CFLAGS.
 
->> -#ifdef __ISAPNP__	
->> +#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
-> 
-> 
-> I am curious, does PC9800 support ISAPNP at all?
-> 
-> Perhaps a dumb question, but I wonder if the above ifdef can be 
-> simplified by turning off ISAPNP on PC9800?
-PC98 has other PNP cards. So I think this is best way.
-But most PNP cards for PC98 has hardware switch or jumper pin to
-disable PNP feature. We can use them without PNP support.
-Your idea is not bad.....
+That's indeed really weird, it's using the wrong compiler.
 
-Thanks,
-Osamu Tomita
+[kai@vaio linux-2.5.make]$ make config CROSS_COMPILE="ccache " arch=ARM
+make -f scripts/Makefile.build obj=scripts
+  ccache gcc -Wp,-MD,scripts/.empty.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2  -Iinclude/asm-i386/mach-default 
+-nostdinc -iwithprefix include
+   -DKBUILD_BASENAME=empty -DKBUILD_MODNAME=empty -c -o scripts/empty.o 
+scripts/empty.c
+  scripts/mk_elfconfig < scripts/empty.o > scripts/elfconfig.h
+  gcc -Wp,-MD,scripts/.file2alias.o.d -Wall -Wstrict-prototypes -O2 
+-fomit-frame-pointer   -c -o scripts/file2alias.o scripts/file2alias.c
+
+That's not a true cross compiler, but as you can see, it uses
+"ccache gcc" for empty.o, i.e. the target compiler, and 
+"gcc" for the host program file2alias.o, and the right flags, 
+respectively. So I'm lost - does it work if you explicitly set
+make CC=/home/rmk/bin/arm-linux-gcc ...?
+
+--Kai
+
+

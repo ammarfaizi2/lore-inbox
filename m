@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbUKVVFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbUKVVO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbUKVVFs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 16:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUKVVEG
+	id S262425AbUKVVO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 16:14:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUKVVNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 16:04:06 -0500
-Received: from admingilde.org ([213.95.21.5]:38354 "EHLO mail.admingilde.org")
-	by vger.kernel.org with ESMTP id S262403AbUKVU5j (ORCPT
+	Mon, 22 Nov 2004 16:13:25 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:23978 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262427AbUKVVKw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 15:57:39 -0500
-Date: Mon, 22 Nov 2004 21:56:20 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: janitor@sternwelten.at
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nacc@us.ibm.com
-Subject: Re: [patch 4/4]  char/snsc: reorder set_current_state() and 	add_wait_queue()
-Message-ID: <20041122205620.GA5806@admingilde.org>
-Mail-Followup-To: janitor@sternwelten.at, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, nacc@us.ibm.com
-References: <E1CVLHE-0002XB-AH@sputnik>
+	Mon, 22 Nov 2004 16:10:52 -0500
+Date: Mon, 22 Nov 2004 23:12:24 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+Message-ID: <20041122221224.GA13799@elte.hu>
+References: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1CVLHE-0002XB-AH@sputnik>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.6+20040907i
-X-Hashcash: 0:041122:akpm@osdl.org:fbfef5e844bb0bbe
-X-Hashcash: 0:041122:janitor@sternwelten.at:46615b0af6af5ee7
-X-Hashcash: 0:041122:nacc@us.ibm.com:05e89e11c1afa5eb
-X-Hashcash: 0:041122:linux-kernel@vger.kernel.org:188a09ace156365f
-X-Spam-Score: -9.1 (---------)
+In-Reply-To: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-hoi :)
+>  - echo 0 > /proc/sys/kernel/preempt_wakeup_timing [entered, but
+> display was frozen at this point and did not see newline nor any
+> further output]
 
-On Sat, Nov 20, 2004 at 03:47:03AM +0100, janitor@sternwelten.at wrote:
-> Description: Reorder add_wait_queue() and set_current_state() as a
-> signal could be lost in between the two functions.
+managed to reproduce this on an SMP box but not on an UP box, so i think
+this is SMP related. It definitely happens almost immediately after
+preempt_wakeup_timing is reset - or after preempt_max_timing is reset. 
+(Perhaps a dump_stack() from the wrong place, or something like that.)
 
-couldn't you loose a wake event that way?
-
-Perhaps you want to use prepare_to_wait()?
-
-
---=20
-Martin Waitz
-
---d6Gm4EdcadzBjdND
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBolJ0j/Eaxd/oD7IRAu+bAJ0dntGK8ViYA6oEOjyblgBhOlLKnACcCPcx
-zojRrwKMJnFsSDEz25GShDI=
-=+avD
------END PGP SIGNATURE-----
-
---d6Gm4EdcadzBjdND--
-
+	Ingo

@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTIGW0a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 18:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTIGW0a
+	id S261586AbTIGWeF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 18:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTIGWeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 18:26:30 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:48000 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261566AbTIGW03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 18:26:29 -0400
-Subject: Re: Mapping large framebuffers into kernel space
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, kronos@kronoz.cjb.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030907211850.41983.qmail@web14915.mail.yahoo.com>
-References: <20030907211850.41983.qmail@web14915.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062973512.19548.0.camel@dhcp23.swansea.linux.org.uk>
+	Sun, 7 Sep 2003 18:34:05 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:36642 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261586AbTIGWeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 18:34:03 -0400
+Date: Sun, 7 Sep 2003 23:32:58 +0100
+From: Dave Jones <davej@redhat.com>
+To: DervishD <raul@pleyades.net>
+Cc: Ch & Ph Drapela <pcdrap@bluewin.ch>, linux-kernel@vger.kernel.org
+Subject: Re: Hardware supported by the kernel
+Message-ID: <20030907223258.GE28927@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	DervishD <raul@pleyades.net>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
+	linux-kernel@vger.kernel.org
+References: <3F59DF81.8000407@bluewin.ch> <20030906134029.GE69@DervishD>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Sun, 07 Sep 2003 23:25:13 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030906134029.GE69@DervishD>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-09-07 at 22:18, Jon Smirl wrote:
-> Is there something preventing kernel framebuffers from being mapped to the high
-> end of the 4GB kernel address space? Or do they have to be mapped below 1GB?
-> Framebuffer access isn't that performance sensitive, after all it is on the PCI bus.
+On Sat, Sep 06, 2003 at 03:40:29PM +0200, DervishD wrote:
 
-The kernel has 4Gb of virtual address space. Because of the way x86
-works it really wants to keep the user map, the view of main memory and 
-io mappings visible at once. For larger objects you have to use kmap and
-map them through a window (anyone remember they joys of EMS). On 64bit
-this of course all goes away
+ > > - an ATI Gapiccard
+ >     I have an ATI card (128 LT Pro) and it's fully supported. IMHO
+ > all ATI cards are.
 
+Depends on your definition of 'supported'. Recent ATI cards[*] will
+only work in accelerated 3d using their binary only driver.
+
+		Dave
+
+[*] Except the 9200
+
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

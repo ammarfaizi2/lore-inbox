@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293235AbSBQRdz>; Sun, 17 Feb 2002 12:33:55 -0500
+	id <S292742AbSBQEcn>; Sat, 16 Feb 2002 23:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293240AbSBQRdo>; Sun, 17 Feb 2002 12:33:44 -0500
-Received: from verlaine.noos.net ([212.198.2.73]:7257 "EHLO smtp.noos.fr")
-	by vger.kernel.org with ESMTP id <S293235AbSBQRdh>;
-	Sun, 17 Feb 2002 12:33:37 -0500
-Message-Id: <5.1.0.14.0.20020217183152.00a130d0@pop.free.fr>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 17 Feb 2002 18:32:50 +0100
-To: linux-kernel@vger.kernel.org
-From: Lin Chi-Chen <questsocio@free.fr>
-Subject: Sociology survey on Linux/OpenSource development
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S292743AbSBQEcd>; Sat, 16 Feb 2002 23:32:33 -0500
+Received: from dsl-213-023-039-202.arcor-ip.net ([213.23.39.202]:10625 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S292742AbSBQEcW>;
+	Sat, 16 Feb 2002 23:32:22 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>,
+        "Larry McVoy" <lm@bitmover.com>
+Subject: Re: Disgusted with kbuild developers
+Date: Sun, 17 Feb 2002 05:36:55 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0202151803220.27197-100000@weyl.math.psu.edu> <20020215175948.F26554@work.bitmover.com> <OE25w8ONVJhuXbMxAnW000152d6@hotmail.com>
+In-Reply-To: <OE25w8ONVJhuXbMxAnW000152d6@hotmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16cJ4K-00008L-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear community member:
+On February 16, 2002 03:08 am, William Scott Lockwood III wrote:
+> again, if you all would spend 1/10th of your time helping as opposed to just
+> slaming it, I'd be impressed.  CML2 makes a WORLD of difference for me
+> personally.
 
-I am a student in Sociology of Organizations at the Paris 5 University in 
-France, studying the new model of organization created by the Internet, for 
-which the OpenSource is a prototype.
-If you are a Linux/OpenSource developer, I will be grateful if you can 
-spare a few minutes to fill in my questionnaire at the following address:
-http://isa.lin.free.fr/questionnaire
+Could you elaborate on that please?
 
-Some additional information is available there.
+> But hey, what do I know?  I'm just a network administrator, I'm
+> not a kernel wizard, so feel free to just totally disregard my opinions...
 
-Many thanks in advance for your help.
-
-Lin Chi-Chen 
-
+-- 
+Daniel

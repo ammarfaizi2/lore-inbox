@@ -1,26 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278042AbRKSLI6>; Mon, 19 Nov 2001 06:08:58 -0500
+	id <S277949AbRKSLHS>; Mon, 19 Nov 2001 06:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277942AbRKSLIt>; Mon, 19 Nov 2001 06:08:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9996 "EHLO
+	id <S277782AbRKSLHK>; Mon, 19 Nov 2001 06:07:10 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8716 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277798AbRKSLIk>; Mon, 19 Nov 2001 06:08:40 -0500
-Subject: Re: IPV4 socket layer,  was: nfs problem: aix-server --- linux 2.4.15pre5 client
-To: b.lammering@science-computing.de (Birger Lammering)
-Date: Mon, 19 Nov 2001 11:16:43 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15352.56551.709659.146271@stderr.science-computing.de> from "Birger Lammering" at Nov 19, 2001 11:20:23 AM
+	id <S277798AbRKSLGy>; Mon, 19 Nov 2001 06:06:54 -0500
+Subject: Re: Devlinks.  Code.  (Dcache abuse?)
+To: neilb@cse.unsw.edu.au (Neil Brown)
+Date: Mon, 19 Nov 2001 11:14:53 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <15352.57742.799052.405674@notabene.cse.unsw.edu.au> from "Neil Brown" at Nov 19, 2001 09:40:14 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E165mPr-0006F5-00@the-village.bc.nu>
+Message-Id: <E165mO5-0006En-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 13:47:28.337776317 truncated-ip - 18 bytes missing!capc25.muc.796 > caes04.muc.shilp: P 2059179904:2059180060(156) ack 4022052897 win 17520 (DF)
+> I think you missed part of my point.
+> There are lots of different name spaces in the kernel.
+> Filesystem names.  Driver names.  Module names.
+> 
+> But the namespace that is the current issue, the namespace of
+> currently available devices, is not a namespace where I would expect
+> trademarks to ever come up.  It is name space of interfaces and
+> instances.
 
-Right so someone is truncating frames. I'd start with the hub then work
-outwards. 
+You mean like adaptec/aic7xxx/0 for the first aic7xxx controller when you
+want to refer to an adaptec card ? And yes - you do need the ability to do
+that kind of thing, not just talk generically about "disks".
+
+So I still seek an answer. "Shrug, probably wont happen" isnt a good one
+
+Alan

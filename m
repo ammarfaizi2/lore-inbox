@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263148AbUJ2Cna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263242AbUJ2Cv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263148AbUJ2Cna (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 22:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbUJ2CdF
+	id S263242AbUJ2Cv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 22:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUJ2CoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 22:33:05 -0400
-Received: from colin2.muc.de ([193.149.48.15]:11026 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S263147AbUJ1XmS (ORCPT
+	Thu, 28 Oct 2004 22:44:08 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:6634 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263136AbUJ2Ck7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:42:18 -0400
-Date: 29 Oct 2004 01:42:17 +0200
-Date: Fri, 29 Oct 2004 01:42:17 +0200
-From: Andi Kleen <ak@muc.de>
-To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com,
-       dprobes@www-124.southbury.usf.ibm.com
-Subject: Re: [0/3] PATCH Kprobes for x86_64- 2.6.9-final
-Message-ID: <20041028234217.GC80511@muc.de>
-References: <20041028113208.GA11182@in.ibm.com> <20041028113744.GA82042@muc.de> <20041028155359.GB11182@in.ibm.com>
+	Thu, 28 Oct 2004 22:40:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:subject:mime-version:content-type:content-transfer-encoding;
+        b=OvWmR0SG0raPrlK6gbf4Cwx/OmrJ6lmg9MJXDhi/Ex+aTEZ8RtvYpwCPs8cQGUbYSVs5CRaZimZn9fHqv28gtNFyPrLMIImYpKjnhVgkkj2yd5Zj2/dDxlHB7Baz/mbCGvlDzHCntDFcPrNt6V1KYE8vuRXsE+aWnXp+kmKSgmM=
+Message-ID: <c855509804102819402e31f958@mail.gmail.com>
+Date: Thu, 28 Oct 2004 19:40:58 -0700
+From: Hitech Recruit <hitech.recruit@gmail.com>
+Reply-To: Hitech Recruit <hitech.recruit@gmail.com>
+Subject: [Job] Senior Software Engineer - Linux Kernel (Silicon Valley)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028155359.GB11182@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 09:23:59PM +0530, Prasanna S Panchamukhi wrote:
-> 
-> On Thu, Oct 28, 2004 at 01:37:44PM +0200, Andi Kleen wrote:
-> > 
-> > Like I still would like to have the page fault notifier
-> > completely moved out of the fast path into no_context 
-> > (that i386 has it there is also wrong). Adding kprobe_runn 
-> > doesn't make a difference.
-> 
->     The kprobes fault handler is called if an exception is 
-> generated for any instruction within the fault-handler or when 
-> Kprobes single-steps the probed instruction.
-> AFAIK kprobes does not handle page faults in the above case and just returns
-> immediately resuming the normal execution. 
+Hi all,
 
-Ok. It's ugly, but ok. Can you remove the bogus kprobes_running()
-then please, it's unnecessary?  
+We are currently working on an immediate opening for a Linux Kernel
+Engineer in Silicon Valley.  If interested, please reply to
+hitech.recruit@gmail.com .  If not, please pass the word around. Thx.
 
-With that change it would be ok to merge from my side.
+_________________________________
 
--Andi
+Senior Software Engineer - Linux Kernel
+
+Our client is developing best of breed remote office solutions that
+unify multiple services, such as routing, firewall, intrusion
+detection, virtual private networking, and directing and filtering
+content into a single, resilient, and highly manageable platform.
+
+Furthermore our client's solution meets customer needs for managing
+remote office networks rather than the remote device, while minimizing
+capital and operational expenses in providing high quality broadband
+services to remote sites.
+
+Role:
+
+Currently seeking an accomplished individual to take on a prominent
+role in the development of our embedded Linux platform. They are
+looking for someone with a deep understanding of the Linux kernel and
+internals, is actively involved in the open source development
+community, and can provide effective technical leadership.
+
+This role will suit candidates who enjoy a wide variety of challenges
+and technologies.  Key to success is your motivation, a dynamic
+approach, and desire to see results.
+
+Requirements:
+
+- BSCS 
+- + 8 yrs development experience with 3+ yrs Linux
+- Extensive Linux Kernel experience. Deep expertise in - design,
+implementation & ongoing dev roadmap of Linux Kernel.
+- Design, implement enhancements to kernel & OS features. Evaluate
+system performance on variety h/w platforms under various workloads.
+- Track, evaluate & integrate dev from open source community.

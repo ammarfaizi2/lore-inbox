@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262702AbREOJcc>; Tue, 15 May 2001 05:32:32 -0400
+	id <S262700AbREOJaw>; Tue, 15 May 2001 05:30:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262705AbREOJcW>; Tue, 15 May 2001 05:32:22 -0400
-Received: from cherry.napri.sk ([194.1.128.4]:9747 "HELO cherry.napri.sk")
-	by vger.kernel.org with SMTP id <S262702AbREOJcN>;
-	Tue, 15 May 2001 05:32:13 -0400
-Date: Tue, 15 May 2001 11:27:26 +0200
-From: Peter Kundrat <kundrat@kundrat.sk>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: MS_RDONLY patch (do_remount_sb and cramfs/inode.c)
-Message-ID: <20010515112726.A28961@napri.sk>
-Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S262702AbREOJam>; Tue, 15 May 2001 05:30:42 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37902 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262700AbREOJaa>; Tue, 15 May 2001 05:30:30 -0400
+Subject: Re: LANANA: To Pending Device Number Registrants
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 15 May 2001 10:26:32 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), neilb@cse.unsw.edu.au (Neil Brown),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        viro@math.psu.edu
+In-Reply-To: <Pine.LNX.4.21.0105150204020.1078-100000@penguin.transmeta.com> from "Linus Torvalds" at May 15, 2001 02:08:45 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14zb68-0002Fq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> But the fact remains that some users want to (a) avoid devfs and (b) have
+> static maintenance. And I'm ok with that too, but only if the static major
+> number is in the form of a _generic_ number that has absolutely nothing to
+> do with any specific drivers (which is why I'd be perfecly ok with still
+> adding a "disk" major number, but which is why I do NOT want to have Peter
+> give out "the random number of today" to various stupid device drivers).
+> So we seem to be in violent agreement here.
 
-This patch does:
-- set MS_RDONLY flag in cramfs superblock
-- doesnt allow -w remount in do_remount_sb 
-  if the filesystem has MS_RDONLY set.
+Ok.
 
-Without it, it is possible to remount r/o
-filesystem with -w and truncate files on it.
-I hope that doesnt fall into 'dont do that then'
-category.
-Please apply.
+Then we need to open the second discussion which is:
 
-	Regards,
+Given a file handle 'X' how do I find out what ioctl groups I should apply to
+it. So we can go from
 
-		pkx
+	if(MAJOR(st.st_rdev) == ST_MAJOR)
+		issue_scsi_ioctls
+	else if(MAJOR(st.st_rdev) == FTAPE_MAJOR)
+		issue_ftape_ioctls
+	else ..
+	else
+		error
 
-diff -ur -x *~ -x *.o -x .* Linux-2.4.3.orig/fs/cramfs/inode.c Linux-2.4.3.isdn.kgdb/fs/cramfs/inode.c
---- Linux-2.4.3.orig/fs/cramfs/inode.c	Fri Apr  6 08:09:07 2001
-+++ Linux-2.4.3.isdn.kgdb/fs/cramfs/inode.c	Mon May 14 18:51:08 2001
-@@ -192,6 +192,8 @@
- 		goto out;
- 	}
- 
-+	sb->s_flags |= MS_RDONLY;
-+
- 	/* Set it all up.. */
- 	sb->s_op	= &cramfs_ops;
- 	sb->s_root 	= d_alloc_root(get_cramfs_inode(sb, &super.root));
-diff -ur -x *~ -x *.o -x .* Linux-2.4.3.orig/fs/super.c Linux-2.4.3.isdn.kgdb/fs/super.c
---- Linux-2.4.3.orig/fs/super.c	Fri Apr  6 08:09:08 2001
-+++ Linux-2.4.3.isdn.kgdb/fs/super.c	Tue May 15 10:53:12 2001
-@@ -944,7 +944,7 @@
- {
- 	int retval;
- 	
--	if (!(flags & MS_RDONLY) && sb->s_dev && is_read_only(sb->s_dev))
-+	if (!(flags & MS_RDONLY) && ((sb->s_flags & MS_RDONLY) || sb->s_dev && is_read_only(sb->s_dev)))
- 		return -EACCES;
- 		/*flags |= MS_RDONLY;*/
- 	/* If we are remounting RDONLY, make sure there are no rw files open */
+to
 
--- 
-Peter Kundrat
-peter@kundrat.sk
+	/* Use scsi if possible [scsi, ide-scsi, usb-scsi, ...] */
+	if(HAS_FEATURE_SET(fd, "scsi-tape"))
+		...
+	else if(HAS_FEATURE_SET(fd, "floppy-tape"))
+		..
+
+Alan
+

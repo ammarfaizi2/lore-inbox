@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316578AbSIEG0l>; Thu, 5 Sep 2002 02:26:41 -0400
+	id <S317102AbSIEG3k>; Thu, 5 Sep 2002 02:29:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317096AbSIEG0l>; Thu, 5 Sep 2002 02:26:41 -0400
-Received: from holomorphy.com ([66.224.33.161]:30633 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316578AbSIEG0k>;
-	Thu, 5 Sep 2002 02:26:40 -0400
-Date: Wed, 4 Sep 2002 23:22:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, riel@surriel.com
-Subject: Re: statm_pgd_range() sucks!
-Message-ID: <20020905062228.GA888@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, riel@surriel.com
-References: <20020830015814.GN18114@holomorphy.com> <3D6EDDC0.F9ADC015@zip.com.au> <20020905032035.GY888@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020905032035.GY888@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S317107AbSIEG3k>; Thu, 5 Sep 2002 02:29:40 -0400
+Received: from dsl-213-023-038-092.arcor-ip.net ([213.23.38.92]:3493 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317102AbSIEG3j>;
+	Thu, 5 Sep 2002 02:29:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: Race in shrink_cache
+Date: Thu, 5 Sep 2002 08:36:16 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+References: <E17mooe-00064m-00@starship> <3D76FB64.7AAB215F@zip.com.au>
+In-Reply-To: <3D76FB64.7AAB215F@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17mqFV-00065Y-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 29, 2002 at 07:51:44PM -0700, Andrew Morton wrote:
->> BTW, Rohit's hugetlb patch touches proc_pid_statm(), so a diff on -mm3
->> would be appreciated.
+On Thursday 05 September 2002 08:36, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > 
+> > Hi Marcelo,
+> > 
+> > This looks really suspicious, vmscan.c#435:
+> > 
+> >         spin_unlock(&pagemap_lru_lock);
+> >                                                         if (put_page_testzero(page))
+> >                                                                 __free_pages_ok(page, 0);
+> >         /* avoid to free a locked page */
+> >         page_cache_get(page);
+> > 
+> >         /* whoops, double free coming */
+> > 
+> > I suggest you bump the page count before releasing the lru lock.  The race
+> > shown above may not in fact be possible, but the current code is fragile.
+> > 
+> 
+> That's OK.  The page has a ref because of nonzero ->buffers  And it
+> is locked, which pins page->buffers.
 
-On Wed, Sep 04, 2002 at 08:20:35PM -0700, William Lee Irwin III wrote:
-> I lost track of what the TODO's were but this is of relatively minor
-> import, and I lagged long enough this is against 2.5.33-mm2:
+Yes, true.  Calm down ladies and gentlemen, and move away from the exits,
+there is no fire.  While we're in here, do you have any idea what this is
+about:
 
-doh! I dropped a line merging by hand and broke VSZ
+/*
+ * We must not allow an anon page
+ * with no buffers to be visible on
+ * the LRU, so we unlock the page after
+ * taking the lru lock
+ */
 
-on top of the prior one:
+That is, what's scary about an anon page without buffers?
 
-
-diff -u linux-wli/fs/proc/array.c linux-wli/fs/proc/array.c
---- linux-wli/fs/proc/array.c		2002-09-02 23:37:17.000000000 -0700
-+++ linux-wli/fs/proc/array.c		2002-09-02 23:37:17.000000000 -0700
-@@ -409,6 +409,7 @@
- 	resident = mm->rss;
- 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
- 		int pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+		size += pages;
- 		if (is_vm_hugetlb_page(vma)) {
- 			if (!(vma->vm_flags & VM_DONTCOPY))
- 				shared += pages;
+-- 
+Daniel

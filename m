@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268170AbUJMBTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268180AbUJMBWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268170AbUJMBTa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 21:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268179AbUJMBTa
+	id S268180AbUJMBWP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 21:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268179AbUJMBWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 21:19:30 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:8874 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S268170AbUJMBTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 21:19:22 -0400
-Date: Wed, 13 Oct 2004 10:24:59 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: bug in 2.6.9-rc4-mm1 ia64/mm/init.c
-In-reply-to: <Pine.LNX.4.33.0410121705510.31839-100000@localhost.localdomain>
-To: akepner@sgi.com
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, akpm@osdl.org,
-       jbarnes@sgi.com
-Message-id: <416C83EB.1090608@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
- Gecko/20040113
-References: <Pine.LNX.4.33.0410121705510.31839-100000@localhost.localdomain>
+	Tue, 12 Oct 2004 21:22:15 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:47019 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268180AbUJMBWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 21:22:12 -0400
+Date: Tue, 12 Oct 2004 20:22:06 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/3] lsm: add bsdjail module
+Message-ID: <20041013012206.GA368@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <1097502444.31259.19.camel@localhost.localdomain> <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com> <416C5C26.9020403@redhat.com> <20041013005856.GA3364@IBM-BWN8ZTBWA01.austin.ibm.com> <416C8048.1000602@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <416C8048.1000602@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Oct 12, 2004 at 06:09:28PM -0700, Ulrich Drepper wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Serge E. Hallyn wrote:
+> 
+> >>  selinux: user_u:user_r:user_t
+> > 
+> > 
+> > This is exactly what my current stacker does, to the byte  :-)
+> 
+> This is all nice and good, but you have to bring this up with the
+> SELinux people _now_ since, as I said before, the current
+> SELinux-enabled userland code might not even start with this change of
+> the format even if SELinux is not enabled.  If it is decided that
+> /proc/*/attr/current does not belong to SELinux alone, then the guys
+> should be told about it now so that all the relevant code (libselinux,
+> kernel without your "stacker" stuff, ...) can be changed before the
+> current use spreads too far.
 
-akepner@sgi.com wrote:
-> Hi Folks; 
-> 
-> Tried a kernel built with akpm's 2.6.9-rc4-mm1 patch today (using 
-> a default sn2 .config file.) It crashes on boot with:
-> 
-> ....
-> SGI SAL version 3.40
-> Virtual mem_map starts at 0xa0007ffe85938000
-> Unable to handle kernel paging request at virtual address a0007ffeaf970000
-> swapper[0]: Oops 8813272891392 [1]
-> Modules linked in:
-<snip>
-> I traced this down to a recent patch (see 
-> http://marc.theaimsgroup.com/?l=linux-mm&m=109723728329408&w=2) 
-> which contains:
-> 
-> diff -puN arch/ia64/mm/init.c~ia64_fix arch/ia64/mm/init.c
-> --- test-kernel/arch/ia64/mm/init.c~ia64_fix    2004-10-08 
-> 18:29:20.510992392 +0900
-> +++ test-kernel-kamezawa/arch/ia64/mm/init.c    2004-10-08 
-> 18:29:20.515991632 +0900
-> @@ -410,7 +410,8 @@ virtual_memmap_init (u64 start, u64 end,
->         struct page *map_start, *map_end;
-> 
->         args = (struct memmap_init_callback_data *) arg;
-> -
-> +       start = GRANULEROUNDDOWN(start);
-> +       end = GRANULEROUNDUP(end);
->         map_start = vmem_map + (__pa(start) >> PAGE_SHIFT);
->         map_end   = vmem_map + (__pa(end) >> PAGE_SHIFT);
-> 
-> 
-> Merely commenting out the new lines containting GRANULEROUNDDOWN, and 
-> GRANULEROUNDUP allowed the system to boot and me to finish the testing 
-> I needed to do. 
-> 
-> Looks like the above patch needs to be revised. I could test it if 
-> necessary. Please email me directly as I'm not subscribed to lkml 
-> or linux-ia64.
-> 
-Hmm.. I added above 2 lines for making vmemmap to be aligned with ia64's GRANULE.
-But it looks troublesome here, revising it will be needed currently.
-I'd like to check my codes again and fix it.
+Then they would have to check for an optional "selinux: " at the front
+of each security_setprocattr entry read in the kernel, in order to handle
+an lsm infrastructure change which might never be accepted into the kernel
+anyway.  I suppose it's pretty trivial anyway, but then why would they
+bother...
 
-
-Kame <kamezawa.hiroyu@jp.fujitsu.com>
-
+-serge

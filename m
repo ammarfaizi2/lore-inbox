@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271667AbRIWPB2>; Sun, 23 Sep 2001 11:01:28 -0400
+	id <S270229AbRIWPWq>; Sun, 23 Sep 2001 11:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273644AbRIWPBS>; Sun, 23 Sep 2001 11:01:18 -0400
-Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:32810 "EHLO
-	trider-g7.int.fabbione.net") by vger.kernel.org with ESMTP
-	id <S271667AbRIWPBI>; Sun, 23 Sep 2001 11:01:08 -0400
-Message-ID: <3BADF928.3CF2ECFC@fabbione.net>
-Date: Sun, 23 Sep 2001 17:00:56 +0200
-From: Fabbione <fabbione@fabbione.net>
-Reply-To: fabbione@fabbione.net
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
+	id <S270774AbRIWPWg>; Sun, 23 Sep 2001 11:22:36 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:43016 "HELO
+	postfix2-1.free.fr") by vger.kernel.org with SMTP
+	id <S270229AbRIWPWW>; Sun, 23 Sep 2001 11:22:22 -0400
+From: Willy Tarreau <wtarreau@free.fr>
+Message-Id: <200109231522.f8NFMjZ01116@ns.home.local>
+Subject: Re: multiple ethernet load balancing
+To: linux-kernel@vger.kernel.org, kernel@ragnark.vestdata.no,
+        rojesh_p@rediffmail.com
+Date: Sun, 23 Sep 2001 17:22:45 +0200 (CEST)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.2.19 IDPROM invalid format type!
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-	right a question on the fly regarding the meaning of this message.
+> http://bonding.sourceforge.net/
 
-I've an old Sparc Station 2 with a broken EPROM but Solaris simply
-report
-a warning and then boot perfectly. I was tring to install Linux today
-and 
-I got this message.. is there any way to force linux to boot???
+well, more precisely :
 
-Changing the EPROM is not a solution at all.
+       http://sourceforge.net/projects/bonding/
 
-TIA
-Fabio
+because the first one returns an empty directory.
 
--- 
-Debian GNU/Linux Unstable Kernel 2.4.9
-fabbione on irc.atdot.it #coredump #kchat | fabbione@fabbione.net
+Cheers,
+Willy
+

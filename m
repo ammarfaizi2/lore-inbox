@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267263AbSLEKGG>; Thu, 5 Dec 2002 05:06:06 -0500
+	id <S267264AbSLEKYa>; Thu, 5 Dec 2002 05:24:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267266AbSLEKGG>; Thu, 5 Dec 2002 05:06:06 -0500
-Received: from turn6.biologie.uni-konstanz.de ([134.34.128.74]:4249 "EHLO
-	turn6.biologie.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id <S267263AbSLEKGF>; Thu, 5 Dec 2002 05:06:05 -0500
-Message-ID: <3DEF26D3.7A4236D7@uni-konstanz.de>
-Date: Thu, 05 Dec 2002 11:13:39 +0100
-From: Kay Diederichs <kay.diederichs@uni-konstanz.de>
-Organization: =?iso-8859-1?Q?Universit=E4t?= Konstanz
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-mosix i686)
-X-Accept-Language: en
+	id <S267266AbSLEKYa>; Thu, 5 Dec 2002 05:24:30 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:29584 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S267264AbSLEKYa>;
+	Thu, 5 Dec 2002 05:24:30 -0500
+Date: Thu, 5 Dec 2002 11:31:17 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Erlend Aasland <erlend-a@ux.his.no>
+cc: Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: [TRIVIAL PATCH 2.5] get rid of CONFIG_UDF_RW (m68knommu)
+In-Reply-To: <20021203130453.GE2417@johanna5.ux.his.no>
+Message-ID: <Pine.GSO.4.21.0212051130190.7346-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: stock 2.4.20: loading amd76x_pm makes time jiggle on A7M266-D
-References: <3DEDF543.51C80677@uni-konstanz.de> <1039009531.15353.13.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Tue, 3 Dec 2002, Erlend Aasland wrote:
+> Remove CONFIG_UDF_RW from defconfig, (it's not used anymore)
 > 
-> On Wed, 2002-12-04 at 12:29, Kay Diederichs wrote:
-> > the subject says it all:
-> >
-> > if I use the powersaving module amd76x_pm then the time is not kept. The
-> > hardware is Asus A7M266-D with 2 MP1900 processors, BIOS is 1004 (but I
-> > tried later BIOS versions as well).
+> Regards,
+> 	Erlend Aasland
 > 
-> Boot with "notsc". Unfortunately I dont think there is a way I can make
-> the module turn off tsc at runtime.
+> diff -urN linux-2.5.50/arch/m68knommu/defconfig linux-2.5.50-eaa/arch/m68knommu/defconfig
+> --- linux-2.5.50/arch/m68knommu/defconfig	Fri Nov 15 12:41:45 2002
+> +++ linux-2.5.50-eaa/arch/m68knommu/defconfig	Tue Dec  3 00:48:05 2002
+                            ^^^^^^^^^
+Sorry, we're not authoritive for m68knommu.
 
-To use "notsc" I had to set CONFIG_X86_TSC_DISABLE=y , but then init
-fails (booting stops after freeing some kernel memory). Configure.help
-says one has to install a TSC-checking glibc if that happens; I 
-installed the latest glibc-2.2.4-31 from redhat/7.2/updates but still
-init fails. Are there RH7.2 compatible versions of glibc which are
-TSC-checking?
+Gr{oetje,eeting}s,
 
-I also tried 
-echo 01 >/proc/irq/0/smp_affinity
-and it seems to improve the situation but I'm not sure if this is a good
-workaround.
+						Geert
 
-Kay
--- 
-Kay Diederichs         http://strucbio.biologie.uni-konstanz.de/~kay 
-email: Kay.Diederichs @ uni-konstanz.de  Tel +49 7531 88 4049 Fax 3183
-When replying to my email, please remove the blanks before and after the
-"@" !
-Fakultaet fuer Biologie, Universitaet Konstanz, Box M656, D-78457
-Konstanz
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

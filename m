@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262883AbTFGJbN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 05:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTFGJbN
+	id S262878AbTFGJaP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 05:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTFGJaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 05:31:13 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7684 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262883AbTFGJbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 05:31:07 -0400
-Date: Sat, 7 Jun 2003 10:44:34 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: davidm@hpl.hp.com
-Cc: "David S. Miller" <davem@redhat.com>, manfred@colorfullife.com,
-       axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: problem with blk_queue_bounce_limit()
-Message-ID: <20030607104434.B22665@flint.arm.linux.org.uk>
-Mail-Followup-To: davidm@hpl.hp.com, "David S. Miller" <davem@redhat.com>,
-	manfred@colorfullife.com, axboe@suse.de,
-	linux-kernel@vger.kernel.org
-References: <16096.16492.286361.509747@napali.hpl.hp.com> <20030606.003230.15263591.davem@redhat.com> <200306062013.h56KDcLe026713@napali.hpl.hp.com> <20030606.234401.104035537.davem@redhat.com> <16097.37454.827982.278024@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16097.37454.827982.278024@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Sat, Jun 07, 2003 at 12:20:46AM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Sat, 7 Jun 2003 05:30:15 -0400
+Received: from dp.samba.org ([66.70.73.150]:56542 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262878AbTFGJaM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 05:30:12 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <16097.45833.384548.319399@argo.ozlabs.ibm.com>
+Date: Sat, 7 Jun 2003 19:40:25 +1000
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] 2.5.70-bk11 zlib merge #4 pure magic
+In-Reply-To: <20030606201306.GJ10487@wohnheim.fh-wedel.de>
+References: <20030606183126.GA10487@wohnheim.fh-wedel.de>
+	<20030606183247.GB10487@wohnheim.fh-wedel.de>
+	<20030606183920.GC10487@wohnheim.fh-wedel.de>
+	<20030606185210.GE10487@wohnheim.fh-wedel.de>
+	<20030606192325.GG10487@wohnheim.fh-wedel.de>
+	<20030606192814.GH10487@wohnheim.fh-wedel.de>
+	<20030606200051.GI10487@wohnheim.fh-wedel.de>
+	<20030606201306.GJ10487@wohnheim.fh-wedel.de>
+X-Mailer: VM 7.16 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 12:20:46AM -0700, David Mosberger wrote:
-> ./include/asm-arm/pci.h:#define PCI_DMA_BUS_IS_PHYS     (0)
+Jörn Engel writes:
 
-I suspect we probably set this incorrectly; we have some platforms where
-there is merely an offset between the phys address and the bus address.
-For these, I think we want to set this to 1.
+> The only code that could be bitten by this change is ppp, so I changed
+> that as well.  Paulus, could you have a quick look at it?
 
-Other platforms require the dma functions to allocate a new buffer
-and copy the data to work around buggy "wont fix" errata (eg, new buffer
-below 1MB) and for these I think we want to leave this at 0.
+As Bart pointed out, there is a bug in zlib for window_size == 256.
+Here is James Carlson's description of the problem:
 
-It is rather unfortunate that this got called "PCI_xxx" since it has
-been used in a non pci-bus manner in (eg) the scsi layer.
+        The problem is that s->strstart gets set to a very large
+        positive integer when wsize (local copy of s->w_size) is
+        subtracted in deflate.c:fill_window().  This happens because
+        MAX_DIST(s) resolves as a negative number when the window size
+        is 8 -- MAX_DIST(s) is defined as s->w_size-MIN_LOOKAHEAD in
+        deflate.h.  MIN_LOOKAHEAD is MAX_MATCH+MIN_MATCH+1, and that
+        is 258+3+1 or 262.  Since a window size of 8 gives s->w_size
+        256, MAX_DIST(s) is 256-262 or -6.
 
-Also note that I have platforms where the dma_mask is a real mask not
-"a set of zeros followed by a set of ones from MSB to LSB."  I can
-see this breaking the block layer if PCI_DMA_BUS_IS_PHYS is defined
-to one. 8/
+        This results in read_buf() writing over memory outside of
+        s->window, and a crash.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Your change won't affect PPP, since pppd already refuses to use
+windowBits == 8 (as a workaround for this bug).
+
+Regards,
+Paul.
 

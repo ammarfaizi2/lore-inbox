@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTEEPy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 11:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTEEPy2
+	id S262444AbTEEP7I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 11:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTEEP7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 11:54:28 -0400
-Received: from lakemtao02.cox.net ([68.1.17.243]:21674 "EHLO
-	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S262439AbTEEPy0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 11:54:26 -0400
-Message-ID: <3EB68C13.9080000@cox.net>
-Date: Mon, 05 May 2003 11:06:43 -0500
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.69
-References: <Pine.LNX.4.44.0305050851080.18785-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0305050851080.18785-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 5 May 2003 11:59:08 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:10188 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262444AbTEEP7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 11:59:07 -0400
+Subject: 2.5.69-mm1 OOPS: modprobe usbcore
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1052151088.1052.0.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.2.99 (Preview Release)
+Date: 05 May 2003 18:11:28 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> [ Linux-kernel added to the cc, since I got several queries about what the 
->   crashes were.. ]
-> 
-> On Mon, 5 May 2003, David van Hoose wrote:
-> 
->>Can I get some details regarding the AGP problem? I had some really bad 
->>random crashes, panics, and hardlocks up through 2.5.68, and I'm 
->>wondering if this is the same issue. I first noticed them around 2.5.63. 
-> 
-> 
-> They actually started in 2.5.60 if it's the same bug.
-> 
-> And yes, you'd get random crashes, panics, lockups and even reboots. The 
-> problem was that the pmd/pgd's were put in the slab cache in between 
-> 2.5.59 and 2.5.60, and that was simply wrong because the AGP code changes 
-> the cacheability of the kernel pages when it maps stuff into the AGP 
-> aperture. That in turn will change the page tables but it won't update the 
-> cached entries in the pmd slab caches. 
-> 
-> So what happens is that once you exit X, and the page tables are put back
-> together without the cacheability changes, and you start a new program,
-> that program may get a page table with partly bogus kernel page table
-> entries.
-> 
-> That, in turn, when it happens will cause _major_ memory corruption, and
-> your machine is toast, often in very interesting ways because the internal
-> kernel data structures got corrupted. It can also cause random SIGSEGV's
-> etc.
-> 
-> But it only happens with AGP, and a lot of people either don't use it or 
-> run only one X session.
+*pde = 00102027
+*pte = 00324000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c0110a5d>]    Not tainted VLI
+EFLAGS: 00010202
+EIP is at apply_alternatives+0xc1/0xf4
+eax: 00000001   ebx: e084b5f4   ecx: 00000000   edx: 00000001
+esi: c0324b1f   edi: e0838606   ebp: df9f3ee4   esp: df9f3ed0
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 62, threadinfo=df9f2000 task=dfdb8e00)
+Stack: c02c3b40 00000003 e082b2d4 c029a861 e082b021 df9f3f04 c0118ab8
+e084b5f4
+       e084b68f e082af7d e0816000 e0851e80 00000500 df9f3f8c c013de18
+e0816000
+       e082b0a4 e0851e80 0000001b e0851e80 4001e004 c163619c 00000000
+00000528
+Call Trace:
+[<c0118ab8>] module_finalize+0x7f/0x8b
+[<c013de18>] load_module+0x61c/0x821
+[<c013e0b1>] sys_init_module+0x94/0x340
+[<c0109e01>] sysenter_past_esp+0x52/0x71
 
-Okay.. I kept having all of those problems. I guess the memory 
-corruption could also explain the buffer overflow in the panic 
-information I posted around the time of 2.5.65 then. I'll stick the beta 
-kernel back on my system and play with it again. If I find anything 
-else, I'll be sure to mention it. Don't want any nasty bugs like that 
-hiding in 2.6.x.
+Code: 85 d2 7e 31 83 fa 09 b8 08 00 00 00 8b 4d ec 0f 4c c2 8b 7d f0 8b
+34 81 03
+3b 89 c1 c1 e9 02 f3 a5 a8 02 74 02 66 a5 a8 01 74 01 <a4> a9 c2 01 45
+f0 85 d2
+7f cf 83 c3 0c 3b 5d 0c 72 82 83 c4 08
 
-Thanks!
-David
+This error is reproducble 100% of the time when trying to boot Red Hat
+Linux 9 with a 2.5.69-mm1 kernel. Config attached.
+
+-- 
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
 

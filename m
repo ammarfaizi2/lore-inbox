@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUJOAGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUJNSkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267263AbUJOAGV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 20:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUJOAC3
+	id S266884AbUJNSkR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 14:40:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUJNSbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 20:02:29 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:34705 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S268120AbUJNX60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 19:58:26 -0400
-Date: Fri, 15 Oct 2004 01:58:45 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: per-process shared information
-Message-ID: <20041014235845.GL17849@dualathlon.random>
-References: <20041013231042.GQ17849@dualathlon.random> <20041014214711.GF6899@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Oct 2004 14:31:07 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:64264 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S266879AbUJNRqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 13:46:15 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: root@chaos.analogic.com, Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: Linux-2.6.8 Hates DOS partitions
+Date: Thu, 14 Oct 2004 20:45:28 +0300
+User-Agent: KMail/1.5.4
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0410131329110.3818@chaos.analogic.com> <20041013213519.GA3379@pclin040.win.tue.nl> <Pine.LNX.4.61.0410131833370.12624@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0410131833370.12624@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041014214711.GF6899@logos.cnet>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Message-Id: <200410142045.28449.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 06:47:11PM -0300, Marcelo Tosatti wrote:
+> I just had to reinstall the "Fedora Linux 2" release from scratch the
+> second time. What it does is, even though I told it to leave my
+> SCSI disks alone, and even though I bought a new ATA Disk just for
+> it, and even though I carefully told the installation program to
+> use ONLY /dev/hda... Guess what? It installed a piece of GRUB
+> on my first SCSI, /dev/sda, where the LILO boot-loader for DOS
+> and linux-2.4.26 exists! It looks like it put it in a partition
+> table!
 > 
-> Hi Andrea!
-> 
-> No useful comments on the statm reporting issue.
-> 
-> > Ps. if somebody like Hugh volunteers implementing it, you're very
-> > welcome, just let me know (I'll eventually want to work on the oom
-> > handling too, which is pretty screwed right now, 
-> 
-> Yes, we've got reports of bad OOM killing behaviour (is that what you're
-> talking about?) 
-> 
-> One thing is the removal of "if (nr_swap_pages > 0) goto out" from oom_kill() 
-> causes problems (spurious oom kill). 
-> 
-> We need to throttle more, on page reclaiming progress I think.
-> 
-> Take a look at 
-> 
-> http://marc.theaimsgroup.com/?l=linux-mm&m=109587921204602&w=2
-> 
-> What else you're seeing?
-> 
-> > I've plenty of bugs
-> > open on that area and the lowmem zone protection needs a rewrite too to
-> > be set to a sane default value no matter the pages_lows etc..).
-> 
-> Nick has been working on that lately I think. What is the problem?
+> So, every time I install a new Linux version, GRUB writes something
+> else there. Eventually it probably gets big enough to make the DOS D: 
+> partition go away, and soon DOS drive C: becomes unbootable. I can't
+> find any other reason.
 
-things went worse with the switch from 2.6.8 to 2.6.9-rc, so that's not
-the nr_swap_pages > 0, likely the latest changes introduced regressions
-instead of fixing them.
+If you want to be sure that DOS boots, you may boot Linux by booting
+into DOS first and then use loadlin/linld. I do it all the time.
 
-I'm seeing both hard deadlocks and suprious oom kills, and that all
-makes sense, I can see the bugs, it's just I need to fix them, my plan
-is to forward port some code from 2.4 which works fine, objrmap will make
-it even better.
+> This is the second time I've had to reinstall everything from
+> scratch in the past two weeks and I can tell you that there is
+> nothing "free" about free software.
+
+Bullshit. Commercial software can mess things up too.
+
+Two weeks ago I personally witnessed how simple chkdsk
+(standard one from NT install CD, not a fancy utility)
+mangled NT4 domain controller's mirrored boot partition
+to the point of "inaccessible boot device" BSOD.
+
+It was not fun at all. Luckily I had a complete backup.
+--
+vda
+

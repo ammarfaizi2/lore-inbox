@@ -1,20 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267121AbTAKCjU>; Fri, 10 Jan 2003 21:39:20 -0500
+	id <S267129AbTAKCub>; Fri, 10 Jan 2003 21:50:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267129AbTAKCjU>; Fri, 10 Jan 2003 21:39:20 -0500
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:60355 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267121AbTAKCjT>; Fri, 10 Jan 2003 21:39:19 -0500
-Date: Fri, 10 Jan 2003 21:46:48 -0500
+	id <S267130AbTAKCub>; Fri, 10 Jan 2003 21:50:31 -0500
+Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:1759 "EHLO
+	mta11.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267129AbTAKCu3>; Fri, 10 Jan 2003 21:50:29 -0500
+Date: Fri, 10 Jan 2003 21:55:58 -0500
 From: Rob Wilkens <robw@optonline.net>
 Subject: Re: Nvidia and its choice to read the GPL "differently"
-In-reply-to: <20030111024146.GH9373@work.bitmover.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Larry Sendlosky <Larry.Sendlosky@storigen.com>,
-       Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
+In-reply-to: <1042255571.32431.43.camel@irongate.swansea.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Larry McVoy <lm@bitmover.com>,
+       Larry Sendlosky <Larry.Sendlosky@storigen.com>,
+       Richard Stallman <rms@gnu.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Reply-to: robw@optonline.net
-Message-id: <1042253208.1385.58.camel@RobsPC.RobertWilkens.com>
+Message-id: <1042253757.1259.66.camel@RobsPC.RobertWilkens.com>
 Organization: Robert Wilkens
 MIME-version: 1.0
 X-Mailer: Ximian Evolution 1.2.1
@@ -23,48 +25,42 @@ Content-transfer-encoding: 7BIT
 References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
  <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
  <20030111020738.GC9373@work.bitmover.com>
- <1042251202.1259.28.camel@RobsPC.RobertWilkens.com>
- <20030111021741.GF9373@work.bitmover.com>
- <1042252717.1259.51.camel@RobsPC.RobertWilkens.com>
- <20030111024146.GH9373@work.bitmover.com>
+ <1042255571.32431.43.camel@irongate.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 21:41, Larry McVoy wrote:
-> On Fri, Jan 10, 2003 at 09:38:38PM -0500, Rob Wilkens wrote:
-> > I'm not interested in getting into a pissing contest with linux
-> > torvalds, even he claims he doesn't have leadership skills 
+On Fri, 2003-01-10 at 22:26, Alan Cox wrote:
+> On Sat, 2003-01-11 at 02:07, Larry McVoy wrote:
+> > On Fri, Jan 10, 2003 at 08:58:44PM -0500, Rob Wilkens wrote:
+> > > If I had been familiar with UNIX
+> > > at the time I had those books, I might've written ROBIX ...
+> > 
+> > If I had ham, I could make ham and eggs, if I had some eggs.
 > 
-> Bob Young says he doesn't know anything about technology, so does 
-> Scott McNealy.  Lots of really smart and skilled people deny their 
-> own skills.  That doesn't mean you should believe them.  They are
-> making an effort to make you feel good.  Don't take it too literally.
+> Its not ham you need its utter arrogance and a complete lack of understanding
+> that writing an OS is a seriously hard problem. There is a whole world of
+> mysticism around the concept of a 'beginners mind' although to me
+> "Im sorry nobody told me it was impossible" sums it up far better.
 
-Bob Young and Scott McNealy are managers, they know marketting and
-business, not technology.  
+It depends what you're starting with, and what your goals are.
 
-Linux Torvalds knows "some" technology, and he's proud not to, for
-example, know anything about what goes on in user land.
+If your goal is to write an operating system that runs on all hardware
+and does everything for everyone, then, yes, impossible would seem to
+fit.
 
-He actually claimed in his biography that "apache" was a distribution of
-linux that is commonly used as a web server, apparently not knowing that
-apache is a cross platform web server that runs on multiple platforms.
+But what I was writing about specifically said that I've read the book
+dissecting dos in the distant past, as mentioned, and the slightly
+thicker book, writing your own 32-bit operating system, again in the
+distant past, and I've written dos-based interrupt handlers to use a
+mouse in a dos text app, and I've taken college courses in operating
+systems design and implementation, and even back in 1996 I've taken a
+course specifically on Linux implementation (a kernel hacking class).  
 
-Anyway... To back up his comment of no leadership skills, he readily
-points out in the book that he quickly was promoted then again demoted
-at transmeta when he became (briefly) a team leader.  He just didn't
-have what it took to be a leader, no leadership qualities or skills
-whatsoever.  He's proud of that.
-
-I'm glad to work with a guy like that, though, because it also means his
-ego ain't so high.  I'm more likely to contribute kernel code or
-suggestions freely back and forth with a person like that.  Whereas if
-he were on a high horse, I'd say "whoa, there, bud, why should I give my
-changes to you again?"...  That may be in part why he takes the attitude
-he has though..
-
-Of course, I don't 'really' know him.  I've only read about him.. I'm
-new to this list, if it's not obvious.  
+Had my goal at the time been as simple as Linus' goal was an been to
+just get a simple terminal emulator and grow it slowly, I don't think
+impossible would have described the task.  I think "a project that I do
+in my spare time and show to nobody" would more likely have described
+it.
 
 -Rob
 

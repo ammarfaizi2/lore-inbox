@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266535AbSKGNPU>; Thu, 7 Nov 2002 08:15:20 -0500
+	id <S266540AbSKGNSv>; Thu, 7 Nov 2002 08:18:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266536AbSKGNPU>; Thu, 7 Nov 2002 08:15:20 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:27032 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266535AbSKGNPU>;
-	Thu, 7 Nov 2002 08:15:20 -0500
-Date: Thu, 07 Nov 2002 05:21:14 -0800 (PST)
-Message-Id: <20021107.052114.123991710.davem@redhat.com>
-To: ahu@ds9a.nl
-Cc: linux-kernel@vger.kernel.org, lartc@mailman.ds9a.nl
-Subject: Re: IPSEC FIRST LIGHT! (by non-kernel developer :-))
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021107130244.GA25032@outpost.ds9a.nl>
-References: <20021107103905.GA22139@outpost.ds9a.nl>
-	<20021107.025250.35525477.davem@redhat.com>
-	<20021107130244.GA25032@outpost.ds9a.nl>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S266541AbSKGNSv>; Thu, 7 Nov 2002 08:18:51 -0500
+Received: from surf.cadcamlab.org ([156.26.20.182]:14745 "EHLO
+	surf.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S266540AbSKGNSu>; Thu, 7 Nov 2002 08:18:50 -0500
+Date: Thu, 7 Nov 2002 07:22:45 -0600
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [kbuild] Possibility to sanely link against off-directory .so
+Message-ID: <20021107132245.GO4182@cadcamlab.org>
+References: <20021106185230.GD5219@pasky.ji.cz> <20021106212952.GB1035@mars.ravnborg.org> <20021106220347.GE5219@pasky.ji.cz> <20021107100021.GL4182@cadcamlab.org> <Pine.LNX.4.44.0211071149200.13258-100000@serv> <20021107114747.GM4182@cadcamlab.org> <Pine.LNX.4.44.0211071258550.13258-100000@serv> <20021107123753.GN4182@cadcamlab.org> <Pine.LNX.4.44.0211071352270.13258-100000@serv>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211071352270.13258-100000@serv>
+User-Agent: Mutt/1.4i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: bert hubert <ahu@ds9a.nl>
-   Date: Thu, 7 Nov 2002 14:02:44 +0100
-   
-   Great work everybody! I'm very impressed.
 
-Thanks for testing :-)
+[Roman Zippel]
+> New features will be added and only the parser that comes with the kernel 
+> will understand them. It's less likley that the library API will change.
 
-As James said, pfkeyv2 just needs to be taught how to use
-the more recently added crypto algorithms.
+Even if this is true - I'll grant you that it may be - let the vendor
+package /usr/bin/qconf as a shell script that links /usr/lib/qconf.o
+with -lqt and $(LINUX)/scripts/kconfig/libkconfig.a .  It's a little
+unorthodox, but it removes the hackery of figuring out how HOSTCC is
+supposed to build a shared library and whether any magic is needed at
+runtime.  Removes the need for the horrible stuff libtool was invented
+for, in other words.
+
+Remember, the whole point of HOSTCC is to support a build environment
+different from the compile target - arbitrarily different, even.
+
+Peter

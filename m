@@ -1,64 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUENTwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUENTzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUENTwW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 15:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUENTwW
+	id S262406AbUENTzR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 15:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUENTzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 15:52:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50704 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262391AbUENTwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 15:52:15 -0400
-Date: Fri, 14 May 2004 20:52:12 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Marc Singer <elf@buici.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: arm-lh7a40x IDE support in 2.6.6
-Message-ID: <20040514205212.A19539@flint.arm.linux.org.uk>
-Mail-Followup-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Marc Singer <elf@buici.com>, linux-ide@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <200405141840.04401.bzolnier@elka.pw.edu.pl> <20040514172656.GA18884@buici.com> <200405142045.51875.bzolnier@elka.pw.edu.pl>
+	Fri, 14 May 2004 15:55:17 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:54734 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262406AbUENTyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 15:54:51 -0400
+Subject: Re: [PATCH] capabilites, take 2
+From: Albert Cahalan <albert@users.sf.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       luto@myrealbox.com, Chris Wright <chrisw@osdl.org>,
+       olaf+list.linux-kernel@olafdietsche.de, Valdis.Kletnieks@vt.edu
+In-Reply-To: <1084557969.18592.21.camel@moss-spartans.epoch.ncsc.mil>
+References: <1084536213.951.615.camel@cube>
+	 <1084548061.17741.119.camel@moss-spartans.epoch.ncsc.mil>
+	 <1084547976.952.644.camel@cube>
+	 <1084557969.18592.21.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1084555929.951.679.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200405142045.51875.bzolnier@elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Fri, May 14, 2004 at 08:45:51PM +0200
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 14 May 2004 13:32:09 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 14, 2004 at 08:45:51PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> On Friday 14 of May 2004 19:26, Marc Singer wrote:
-> > On Fri, May 14, 2004 at 06:40:04PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > I was just porting my patches killing <asm/arch/ide.h> for
-> > > ARM to 2.6.6 when noticed that more work is needed now. :-(
-> > >
-> > > arch/arm/mach-lh7a40x/ide-lpd7a40x.c
-> > > include/asm-arm/arch-lh7a40x/ide.h
-> > >
-> > > Why it couldn't be done in drivers/ide/arm
-> > > (as discussed on linux-ide)?
-> >
-> > Your response took look enough for me to switch to another job.  I
-> > haven't yet returned to dealing with this.
+On Fri, 2004-05-14 at 14:06, Stephen Smalley wrote:
+> On Fri, 2004-05-14 at 11:19, Albert Cahalan wrote:
+> > I just read that. It's a very unfair marketing document.
+> > Among other things, it suggests that a capability system
+> > is stuck with about 40 bits while their own version of
+> > capabilities (a duck is a duck...) has 80 bits. Lovely,
+> > but not exactly groundbreaking.
 > 
-> Yes, it took too long.
+> You missed the point.  Capability scheme maps far too
+> many operations to a single capability; CAP_SYS_ADMIN
+> in Linux is a good example.
+
+What I said: lovely, but not exactly groundbreaking.
+
+Suppose we break up CAP_SYS_ADMIN into 41 other bits.
+There you go. It's silly to argue that a system with
+more bits is some kind of major advance over one with
+just a few bits. There is a quality-of-implementation
+issue here, not some fundamental difference.
+
+> TE model
+> defers organization of operations into equivalence
+> classes to the policy writer.
+
+I don't see anything special here either. With a
+plain capability-bit system, you could allow for
+user-defined aliases that map to multiple bits.
+In some random /etc config file:
+
+define ADMIN := FOO | BAR | BAZ
+
+> >  There is the bit about
+> > a 3-argument security call, but a careful reading will
+> > reveal that one argument is unused (NULL?) when dealing
+> > with abilities like "can set the clock".
 > 
-> Anyway, pushing non-working code to mainline is a bad thing
-> (I can show some proofs for this statement).
+> But very useful when dealing with CAP_DAC_OVERRIDE and friends.
 
-It was a necessary step.  To get around this, we're going to ask people
-to submit new machine support on a file by file basis, and that's just
-not practical, and you can't expect me to be able to track _every_
-_single_ fscking change to the kernel, and pick up every one in a
-review.
+I suppose so, but that isn't the interesting case.
+We already have SELinux for that kind of thing.
 
-There will always be a delay between changes happening between two people
-and we have to live with it.  Not everyone works on Linus' latest kernel.
+> > About the only thing of interest is that capability
+> > transitions can be arbitrary. You're not limited to
+> > an obscure set of equations that nobody can agree on.
+> 
+> Because there is no one-size-fits-all equation for all transitions.
+> 
+> > The cost: complicated site-specific config files and
+> > the inability to support capability-aware apps that
+> > set+clear their own bits.
+> 
+> Complexity pushed to userspace, where it can be analyzed appropriately
+> via tools and tailored for the transition in question.  Central
+> management of the capabilities based on equivalence classes (types), as
+> opposed to having to manage a distributed nightmare of capability bits
+> on your filesystems.  Applications that can transition to other domains,
+> but only if so authorized by the policy.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Complexity is pushed to admins, most of which are less
+clueful than one might hope.
+
+> > Eh, why? That's mostly a search-and-replace on the name,
+> > since capable() makes a perfectly fine LSM hook.
+> 
+> It doesn't offer sufficient granularity, either for operation (which you
+> _could_ address by introducing new capabilities, but the hooks are more
+> easily extensible) or for object.
+
+SELinux does, I hope, already deal with anything that
+would involve an "object". So it is of little concern
+what CAP_DAC_OVERRIDE does. What about setting the clock,
+hogging memory, using the FIFO scheduler, and so on?
+
+Lack of granularity is an implementation detail.
+(Blame the SGI folks that wouldn't listen to me.)
+Lack of granularity is not a design flaw.
+
+> > So what about the old-Oracle problem? You have a
+> > server that needs the ability to hog and lock memory.
+> > Is there an almost-empty SELinux policy that would
+> > provide this while leaving the rest of the system
+> > acting as UNIX-like systems have always acted?
+> > If so, we have a winner.
+> 
+> See "relaxed policy" or "targeted policy" in recent discussions on the
+> Fedora mailing lists; coming soon to a rawhide near you.  Not exactly
+> the same thing (it is a policy where most processes run essentially
+> unconfined except for a targeted set that you define like apache, bind,
+> etc), but you could certainly tweak it to this end (i.e. you put oracle
+> into a domain that gives it the one capability you desire).
+
+What I'm looking for:
+
+1. configure the kernel by ...
+2. ensure that /bin/foo runs early in boot
+3. put "blah blah blah" in /etc/foo.conf
+
+That is, is there a small set of simple config files
+and binaries that I could just slap onto an existing
+system to ensure that a particular app is granted an
+extra capability bit?
+
+If yes, then the ugly old-Oracle hack is not needed.
+
+> > One still does need to provide apps with a way to
+> > answer "can I do FOO, BAR, and BAZ?" and "am I
+> > running with elevated privileges?". Some way to
+> > dispose of unneeded privileges would be good too.
+> > Hopefully extra libraries wouldn't be needed.
+> 
+> SELinux provides a policy API already, and a userspace library for
+> accessing it (and caching decisions from it).  It also provides (via the
+> AT_SECURE auxv entry) notification that a domain transition has
+> occurred, and this is already used by glibc secure mode.  Privileges are
+> dropped via domain transitions.
+
+I take that as a "no" then, at least from the viewpoint
+of a normal app author.
+
+

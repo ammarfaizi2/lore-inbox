@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270925AbTHFUSP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 16:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270926AbTHFUSP
+	id S270759AbTHFULk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 16:11:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270822AbTHFULk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 16:18:15 -0400
-Received: from smtpq1.home.nl ([213.51.128.196]:5552 "EHLO smtpq1.home.nl")
-	by vger.kernel.org with ESMTP id S270925AbTHFUSO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 16:18:14 -0400
-Date: Wed, 6 Aug 2003 22:18:06 +0200
-From: Frank van de Pol <fvdpol@home.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, dan@debian.org,
-       linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: md+ext3 badness in 2.6.0-test2
-Message-ID: <20030806201806.GA14124@obelix.fvdpol.dyndns.org>
-References: <20030804142245.GA1627@nevyn.them.org> <20030804132219.2e0c53b4.akpm@osdl.org> <16176.41431.279477.273718@gargle.gargle.HOWL> <20030805235735.4c180fa4.akpm@osdl.org>
+	Wed, 6 Aug 2003 16:11:40 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2780 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S270759AbTHFULi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 16:11:38 -0400
+Date: Wed, 6 Aug 2003 15:06:53 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Tomas Szepe <szepe@pinerecords.com>, Ducrot Bruno <poup@poupinou.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [TRIVIAL] sanitize power management config menus, take two
+Message-ID: <20030806130652.GA6914@openzaurus.ucw.cz>
+References: <20030805165117.GH18982@louise.pinerecords.com> <Pine.LNX.4.44.0308051006060.23977-100000@cherise>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030805235735.4c180fa4.akpm@osdl.org>
-X-Operating-System: Linux 2.4.21-pre2 i686
-User-Agent: Mutt/1.5.4i
-X-MailScanner-Information: Please contact support@home.nl for more information
-X-MailScanner: Found to be clean
+In-Reply-To: <Pine.LNX.4.44.0308051006060.23977-100000@cherise>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Tue, Aug 05, 2003 at 11:57:35PM -0700, Andrew Morton wrote:
+> > I think the correct x86 solution would be to introduce a real dummy
+> > option for the menus, and imply CONFIG_PM if APM or swsusp (the two
+> > options that seem to actually need CONFIG_PM code) is enabled.
 > 
-> > ...
-> > Aug  6 15:22:05 adams kernel: EXT3-fs error (device md1): ext3_add_entry: bad entry in directory #41
-> > 009295: rec_len is smaller than minimal - offset=0, inode=3265411686, rec_len=0, name_len=0
+> I can buy that. There are actually three levels of power management that 
+> we handle:
 > 
-> It looks like we had a block full of zeroes come back from the device
-> driver.  I find it distinctly fishy how this happens so much with
-> ext3-on-md, and so little with ext3-on-just-a-disk.
+> - System Power Management (swsusp, CONFIG_ACPI_SLEEP)
+> - Device Power Management (kernel/pm.c, future driver model support)
+> - CPU Power Management (cpufreq)
 > 
+> SPM implies that DPM will be enabled, but both DPM and CPM can exist 
+> without SPM, and independently of each other. All of them would 
+> essentially fall under CONFIG_PM.. 
+> 
+> Would you willing to whip up a patch for the Kconfig entries? 
 
-I'm seeing these kind of errors also on my box when running late 2.5.x /
-2.6.0-preX kernels. 2.4 is stable on this box. The affected filesystems are
-also ext3 on md (using raid5 volume). 
-
-I was suspecting that it had something to with memory corruption (memtest
-does not find any problems) triggered by the hashes introduced during 2.5 or
-some locking issue since my box is a dual P-II. 
-
-Interesting to see that others are experience these kind of problems as
-well, and even more interesting is the relation to md.
-
-Frank.
+We have enough trouble making sure *current* PM code runs with all possible
+config combinations; I do not think we want more PM options for now.
 
 -- 
-+---- --- -- -  -   -    -
-| Frank van de Pol                  -o)    A-L-S-A
-| FvdPol@home.nl                    /\\  Sounds good!
-| http://www.alsa-project.org      _\_v
-| Linux - Why use Windows if we have doors available?
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+

@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262013AbREVQHE>; Tue, 22 May 2001 12:07:04 -0400
+	id <S262017AbREVQHE>; Tue, 22 May 2001 12:07:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262017AbREVQGy>; Tue, 22 May 2001 12:06:54 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:1598 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262013AbREVQGp>; Tue, 22 May 2001 12:06:45 -0400
-Date: Tue, 22 May 2001 18:06:11 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org, rth@twiddle.net,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: alpha iommu fixes
-Message-ID: <20010522180611.I15155@athlon.random>
-In-Reply-To: <20010521125032.K30738@athlon.random> <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random> <20010521155151.A10403@jurassic.park.msu.ru> <20010521105339.A1907@twiddle.net> <20010522025658.A1116@athlon.random> <20010522162916.B15155@athlon.random> <20010522184409.A791@jurassic.park.msu.ru> <20010522171815.F15155@athlon.random> <20010522195518.A653@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010522195518.A653@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Tue, May 22, 2001 at 07:55:18PM +0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S261999AbREVQGy>; Tue, 22 May 2001 12:06:54 -0400
+Received: from waste.org ([209.173.204.2]:35697 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262017AbREVQGt>;
+	Tue, 22 May 2001 12:06:49 -0400
+Date: Tue, 22 May 2001 11:08:16 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <5.1.0.14.2.20010522153915.00ac1630@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.30.0105221104070.19818-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 07:55:18PM +0400, Ivan Kokshaysky wrote:
-> Yes. Though those races more likely would cause silent data
-> corruption, but not immediate crash.
+On Tue, 22 May 2001, Anton Altaparmakov wrote:
 
-Ok. I wasn't sure if it was crashing or not for you.
+> Hello,
+>
+> At 15:18 22/05/01, Alexander Viro wrote:
+> [snip cool stuff]
+> >+struct char_device {
+> >+       struct list_head        hash;
+> >+       atomic_t                count;
+> >+       dev_t                   dev;
+> >+       atomic_t                openers;
+> >+       struct semaphore        sem;
+>
+> Why not name consistently with the struct block_device?
+> I.e.:
+> struct char_device {
+>          struct list_head        cd_hash;
+>          atomic_t                cd_count;
+>          dev_t                   cd_dev;
+>          atomic_t                cd_openers;
+>          struct semaphore        cd_sem;
+> };
 
-Andrea
+Because foo_ is a throwback to the days when C compilers had a single
+namespace for all structure elements, not a readability aid. If you need
+foo_ to know what type of structure you're futzing with, you need to name
+your variables better.
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

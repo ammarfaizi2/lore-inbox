@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263335AbTDCJip>; Thu, 3 Apr 2003 04:38:45 -0500
+	id <S263338AbTDCJyR>; Thu, 3 Apr 2003 04:54:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263337AbTDCJip>; Thu, 3 Apr 2003 04:38:45 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:58594 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S263335AbTDCJio>; Thu, 3 Apr 2003 04:38:44 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 3 Apr 2003 10:57:57 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Greg KH <greg@kroah.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>, Frank Davis <fdavis@si.rr.com>
-Subject: Re: [patch] add i2c_clientname()
-Message-ID: <20030403085757.GA13683@bytesex.org>
-References: <20030402165116.GA24766@bytesex.org> <20030403010112.GA5407@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030403010112.GA5407@kroah.com>
-User-Agent: Mutt/1.5.3i
+	id <S263339AbTDCJyR>; Thu, 3 Apr 2003 04:54:17 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:50660 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S263338AbTDCJyQ>;
+	Thu, 3 Apr 2003 04:54:16 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Sven Luther <luther@dpt-info.u-strasbg.fr>
+Date: Thu, 3 Apr 2003 12:05:13 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [Linux-fbdev-devel] [PATCH]: EDID parser
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>, adaplas@pol.net
+X-mailer: Pegasus Mail v3.50
+Message-ID: <4A83DF6367@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This patch just adds a #define and a inline function to hide the
-> > "i2c_client->name" => "i2c_client->dev.name" move introduced by
-> > the recent i2c updates.  That makes it easier to build i2c drivers
-> > on both 2.4 and 2.5 kernels.
+On  3 Apr 03 at 9:40, Sven Luther wrote:
+> On Thu, Apr 03, 2003 at 03:07:33AM +0100, Petr Vandrovec wrote:
+> > On  2 Apr 03 at 22:55, James Simmons wrote:
+> > 
+> > > It doesn't need a struct pci_dev in this case. It is possible to get this 
+> > > info from the i2c bus but I never seen any drivers do this. What data would
+> > > we have to pass in get the EDID inforamtion? So the question is how 
+> > > generic will get_EDID end up being or will we have to have driver specfic 
+> > > hooks since I don't pitcure i2c approaches being the same for each video 
+> > > card. Petr didn't you attempt this with the matrox driver at one time?
+> > 
+> > Yes, matroxfb provides one i2c (DDC) bus for each output videocard has.
+> > I ended with only this support (and userspace EDID parser) as i2c was
+> > initialized loong after framebuffer at that time... Now when i2c is usable
+> > when fbdev initializes, it looks much better.
+> > 
+> > Only get_EDID interface I need is one which gets i2c bus as argument. But
+> > I have no idea how I should handle situation where you have connected
+> > two different monitors to both crtc1 outputs... Like 50Hz PAL TV &
+> > 60+Hz VGA monitor. Currently it is user responsibility to resolve such
+> > situation...
 > 
-> This is going to be a harder and harder problem as time goes on, and as
-> the i2c core changes over time.  I would just give up now :)
+> Is the EDID reading stuff not done per head ?
 
-I don't, interfacing with the i2c core is not that much code in most
-drivers.
+No. With matroxfb, you have two framebuffer devices, /dev/fb0 & /dev/fb1,
+which can be connected to any of three outputs: analog primary, analog
+secondary and DVI. Analog primary & DVI share same pair of DDC cables,
+and analog secondary has its own... And user can interconnect fb* with
+outputs in almost any way he wants, as long as hardware supports it.
+                                                        Petr Vandrovec
+                                                        
 
-> > +#define I2C_DEVNAME(str)   .dev = { .name = str }
-> 
-> Why this macro?  You don't use it in your driver, right?
-
-I use it in my current driver code (patches are at
-http://bytesex.org/patches/wip/).  Submitting those patches doesn't
-make sense before that patch is in because I would get flooded with
-"bttv doesn't compile any more" style mails ...
-
-  Gerd
-
--- 
-Michael Moore for president!

@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVCHOOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVCHOnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVCHOOV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 09:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVCHOOD
+	id S261362AbVCHOnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 09:43:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVCHOnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 09:14:03 -0500
-Received: from galileo.bork.org ([134.117.69.57]:23173 "HELO galileo.bork.org")
-	by vger.kernel.org with SMTP id S261340AbVCHONL (ORCPT
+	Tue, 8 Mar 2005 09:43:46 -0500
+Received: from mummy.ncsc.mil ([144.51.88.129]:10426 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261362AbVCHOnn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 09:13:11 -0500
-Date: Tue, 8 Mar 2005 09:13:12 -0500
-From: Martin Hicks <mort@wildopensource.com>
-To: luc@saillard.org
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, alan@redhat.com
-Subject: Re: [PATCH] Restore PWC driver
-Message-ID: <20050308141312.GC26705@localhost>
-References: <200503072216.j27MGLqR024373@hera.kernel.org> <20050308052643.GA16222@kroah.com> <20050308095938.GA30673@devserv.devel.redhat.com>
+	Tue, 8 Mar 2005 09:43:43 -0500
+Subject: [PATCH][SELINUX] Fix selinux_setprocattr
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Chris Wright <chrisw@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Tue, 08 Mar 2005 09:36:04 -0500
+Message-Id: <1110292564.5428.9.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050308095938.GA30673@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch against 2.6.11-mm2 changes the selinux_setprocattr hook function (which
+handles writes to nodes in the /proc/pid/attr directory) to ignore an
+optional terminating newline at the end of the value, and to handle a
+value beginning with a newline or a null in the same manner as a zero
+length value (clearing the attribute for the process and resetting it
+to using the default policy behavior).  This change is to address the
+divergence from POSIX in the existing API, as POSIX says that write(2)
+with a zero count will return zero with no other effect, as well as to
+simplify use of the API from scripts (although that isn't
+recommended).  Please apply.
 
-On Tue, Mar 08, 2005 at 04:59:38AM -0500, Alan Cox wrote:
-> On Mon, Mar 07, 2005 at 09:26:43PM -0800, Greg KH wrote:
-> 
-> > So, who's going to fix up:
-> > 	- the MAINTAINERS entry
-> > 	- the coding style
-> > 	- drop that unneeded changelog file
-> > 	- fix the module help text to point to the proper file (or put
-> > 	  the file in the proper place.)
-> > 	- get rid of the c++ crud in the header file
-> > 	- drop the "magic" nonsense
-> > 	- the ioctls to work on 64bit machines
-> > ?
-> 
-> Luc and I'm happy to help doing further work on it. However it's been like that
-> in kernel for years so it might also be a good one for the janitors to join in
-> on ?
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by:  James Morris <jmorris@redhat.com>
 
-I'd like to see this driver back in mainline too.  Luc, please contact
-me and we'll get this working correctly on a bunch of machines.
+ security/selinux/hooks.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
 
-mh
+diff -X /home/sds/dontdiff -ru linux-2.6.11-mm2/security/selinux/hooks.c linux-2.6.11-mm2-sel/security/selinux/hooks.c
+--- linux-2.6.11-mm2/security/selinux/hooks.c	2005-03-08 08:43:52.867139656 -0500
++++ linux-2.6.11-mm2-sel/security/selinux/hooks.c	2005-03-08 08:44:02.733639720 -0500
+@@ -4106,6 +4106,7 @@
+ 	struct task_security_struct *tsec;
+ 	u32 sid = 0;
+ 	int error;
++	char *str = value;
+ 
+ 	if (current != p) {
+ 		/* SELinux only allows a process to change its own
+@@ -4130,8 +4131,11 @@
+ 		return error;
+ 
+ 	/* Obtain a SID for the context, if one was specified. */
+-	if (size) {
+-		int error;
++	if (size && str[1] && str[1] != '\n') {
++		if (str[size-1] == '\n') {
++			str[size-1] = 0;
++			size--;
++		}
+ 		error = security_context_to_sid(value, size, &sid);
+ 		if (error)
+ 			return error;
 
 -- 
-Martin Hicks                Wild Open Source Inc.
-mort@wildopensource.com     613-266-2296
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
+

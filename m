@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUEJShk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUEJSmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbUEJShk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 14:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbUEJShk
+	id S261231AbUEJSmc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 14:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUEJSmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 14:37:40 -0400
-Received: from Kiwi.CS.UCLA.EDU ([131.179.128.19]:15799 "EHLO kiwi.cs.ucla.edu")
-	by vger.kernel.org with ESMTP id S261181AbUEJShj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 14:37:39 -0400
-To: Jon Oberheide <jon@focalhost.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, bug-patch@gnu.org,
-       bug-gnu-utils@gnu.org
-Subject: Re: [PATCH] [RFC] adding support for .patches and /proc/patches.gz
-References: <1084157289.7867.0.camel@latitude>
-From: Paul Eggert <eggert@CS.UCLA.EDU>
-Date: Mon, 10 May 2004 11:37:34 -0700
-In-Reply-To: <1084157289.7867.0.camel@latitude> (Jon Oberheide's message of
- "Sun, 09 May 2004 22:48:09 -0400")
-Message-ID: <87oeowb029.fsf@penguin.cs.ucla.edu>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 10 May 2004 14:42:32 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:38574 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261231AbUEJSmb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 14:42:31 -0400
+Date: Tue, 11 May 2004 00:09:25 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       davej@redhat.com, wli@holomorphy.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: dentry bloat.
+Message-ID: <20040510183925.GB4813@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20040508022304.17779635.akpm@osdl.org> <20040508031159.782d6a46.akpm@osdl.org> <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org> <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org> <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org> <20040508204239.GB6383@in.ibm.com> <409DDDAE.3090700@colorfullife.com> <20040509153316.GE4007@in.ibm.com> <20040509221712.GA17014@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040509221712.GA17014@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Oberheide <jon@focalhost.com> writes:
+On Sun, May 09, 2004 at 11:17:12PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Sun, May 09, 2004 at 09:03:16PM +0530, Dipankar Sarma wrote:
+>  
+> > Actually, what may happen is that since the dentries are added
+> > in the front, a double move like that would result in hash chain
+> > traversal looping. Timing dependent and unlikely, but d_move_count
+> > avoided that theoritical possibility. It is not about skipping
+> > dentries which is safe because a miss would result in a real_lookup()
+> 
+> Not really.  A miss could result in getting another dentry allocated
+> for the same e.g. directory, which is *NOT* harmless at all.
 
-> I'm CC'ing this to the GNU patch maintainers.  Hopefully they will have
-> some input.
+AFAICS, a miss in __d_lookup would result in a repeat lookup
+under dcache_lock in which case we are safe or real_lookup()
+which in turn does another lookup with dcache_lock. Is there
+a path that I am missing here ?
 
-As I understand it, Solution 4 is an incompatible change to 'patch'
-which would cause 'patch' to not conform to POSIX, the LSB, or to
-widespread existing practice.  That's a pretty serious step, and I'm
-not sure it's worth the aggravation.
-
-Solution 3 would be to add an option to 'patch' to cause it to log the
-patches into a file.  The basic idea seems like a worthwhile
-improvement to 'patch', though (as you mention) it's more of a hassle
-for users to remember the option.
-
-Perhaps there's a better way to address the problem in a way that
-maintains compatibility while still satisfying your needs.  For example,
-if the kernel patches all contained a line like this at the start:
-
-Patch-log: .patches
-
-then 'patch' could log all the changes into the named file.  This
-would conform to POSIX.
+Thanks
+Dipankar

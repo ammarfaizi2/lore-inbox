@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUHFChi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268027AbUHFClD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbUHFChi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 22:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268078AbUHFChi
+	id S268027AbUHFClD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 22:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUHFClC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 22:37:38 -0400
-Received: from c3-1d224.neo.rr.com ([24.93.233.224]:29570 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S264912AbUHFCgn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 22:36:43 -0400
-Date: Thu, 5 Aug 2004 22:28:20 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: rmk@arm.linux.org.uk
-Cc: linux@dominikbrodowski.de, akpm@osdl.org, rml@ximian.com,
-       linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-Subject: [PATCH] pcmcia driver model support [4/5]
-Message-ID: <20040805222820.GE11641@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, rmk@arm.linux.org.uk,
-	linux@dominikbrodowski.de, akpm@osdl.org, rml@ximian.com,
-	linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+	Thu, 5 Aug 2004 22:41:02 -0400
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:53083 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268071AbUHFCiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 22:38:09 -0400
+Subject: Re: Firewire hard drives
+From: "Raf D'Halleweyn (list)" <list@noduck.net>
+To: Erik Steffl <steffl@bigfoot.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41129B77.5040504@bigfoot.com>
+References: <200408051612.36445.caleb_gibbs@sbcglobal.net>
+	 <16658.38447.591862.21787@gargle.gargle.HOWL>
+	 <41129B77.5040504@bigfoot.com>
+Content-Type: text/plain
+Date: Thu, 05 Aug 2004 22:38:05 -0400
+Message-Id: <1091759885.4861.5.camel@alto.dhalleweyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 1.5.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PCMCIA] fix eject lockup
+On Thu, 2004-08-05 at 13:41 -0700, Erik Steffl wrote:
+> John Stoffel wrote:
+> > Caleb> Has anyone had any luck getting there external firewire hard
+> > Caleb> drive to mount?  my laptop is running suse9.0 and detects the
+> > Caleb> firewire hub and works great with my usb devices but when I
+> > Caleb> plug in the firewire hdd it boots the device but I can`t mount
+> > Caleb> it.
+> 
+>    (sorry, missed the original post)
+> 
+>    I am using iPod as firewire disk, works fairly OK except of: sometime 
+> it gets into state when system does not recognize the new SCSI disk (it 
+> looks like SCSI disk) and nothing helps (unloading modules, 
+> disconnecting the device etc.), didn't investigate enough to figure out 
+> why (firewire drivers recognize the device but rescanning scsi doesn't 
+> find the disk), only reboot helps (out of the options I tried). This is 
+> not a bug report, just FYI, I don't have enough details to actually ask 
+> for help...
 
-It is not safe to use the skt_sem in pcmcia_validate_mem.  This patch fixes a
-real world bug, and without it many systems will fail to shutdown properly. When
-pcmcia-cs calls DS_EJECT_CARD, it creates a CS_EVENT_EJECTION_REQUEST event.
-The event is then eventually reported to the ds.c client.  DS then informs
-userspace of the ejection request and waits for userspace to reply with whether
-the request was successful.  pcmcia-cs, in turn, calls DS_GET_FIRST_TUPLE while
-verifying the ejection request.  Unfortunately, at this point the skt_sem
-semaphore is already held by pcmcia_eject_card.  This results in the ds event
-code waiting forever for skt_sem to become available.
+When that happens, try to stop the iPod before you connect (i.e. press
+play/pause for 5 seconds) or reboot the iPod (press Menu and play/pause
+for 5 seconds).
 
---- a/drivers/pcmcia/rsrc_mgr.c	2004-08-05 13:05:45.000000000 +0000
-+++ b/drivers/pcmcia/rsrc_mgr.c	2004-08-05 21:31:32.000000000 +0000
-@@ -520,12 +520,8 @@
- 
- void pcmcia_validate_mem(struct pcmcia_socket *s)
- {
--	down(&s->skt_sem);
--
- 	if (probe_mem && s->state & SOCKET_PRESENT)
- 		validate_mem(s);
--
--	up(&s->skt_sem);
- }
- 
- EXPORT_SYMBOL(pcmcia_validate_mem);
+At least, that works for me most of the times (not always).
+
+Raf.
+

@@ -1,55 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVDERni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVDERpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVDERni (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 13:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVDERnh
+	id S261838AbVDERpu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 13:45:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVDERnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:43:37 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:63199 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261827AbVDERO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:14:27 -0400
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       mshefty@ichips.intel.com, halr@voltaire.com, openib-general@openib.org
-Subject: Re: [-mm patch] drivers/infiniband/hw/mthca/mthca_main.c: remove an
- unused label
-X-Message-Flag: Warning: May contain useful information
-References: <20050405000524.592fc125.akpm@osdl.org>
-	<20050405142449.GF6885@stusta.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 05 Apr 2005 09:53:21 -0700
-In-Reply-To: <20050405142449.GF6885@stusta.de> (Adrian Bunk's message of
- "Tue, 5 Apr 2005 16:24:49 +0200")
-Message-ID: <52psx9cghq.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 05 Apr 2005 16:53:21.0759 (UTC) FILETIME=[F9A326F0:01C539FF]
+	Tue, 5 Apr 2005 13:43:53 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:20115 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261833AbVDERTH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 13:19:07 -0400
+Subject: Re: [PATCH 2.6.12-rc1-mm3] [1/2]  kprobes += function-return
+From: Jim Keniston <jkenisto@us.ibm.com>
+To: prasanna@in.ibm.com
+Cc: Hien Nguyen <hien@us.ibm.com>, SystemTAP <systemtap@sources.redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050404081538.GF1715@in.ibm.com>
+References: <20050404081538.GF1715@in.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1112721545.2293.36.camel@dyn9047018078.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 05 Apr 2005 10:19:05 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    >   CC      drivers/infiniband/hw/mthca/mthca_main.o
-    > drivers/infiniband/hw/mthca/mthca_main.c: In function `mthca_init_icm':
-    > drivers/infiniband/hw/mthca/mthca_main.c:479: warning: label 
-    > `err_unmap_eqp' defined but not used
+On Mon, 2005-04-04 at 01:15, Prasanna S Panchamukhi wrote:
+> Hi Hien,
+> 
+> This patch looks good to me, but I have some comments on this patch.
+> 
+> >int register_kretprobe(struct kprobe *kp, struct rprobe *rp);
+...
+> >int register_jretprobe(struct jprobe *jp, struct rprobe *rp);
+...
+> 
+> Why two interfaces for the same feature?
+> You can provide a simple interface like
+...
+> int register_returnprobe(struct rprobe *rp) {
+...
 
-Thanks, good catch.  I screwed up the error path in that function a
-little while merging patches.  Here's the correct fix.
+> independent of kprobe and jprobe.
+> This routine should take care to register entry handler internally if not 
+> present. This routine can check if there are already entry point kprobe/jprobe
+> and use some flags internally to say if the entry jprobe/kprobe already exists.
+> 
+...
+> 
+> make unregister exitprobes independent of kprobe/jprobe.
+> 
+...
+> 
+> Please let me know if you need more information.
+> 
+> Thanks
+> Prasanna
 
+We thought about that.  It is a nicer interface.  But I'm concerned that
+if the user has to do
+	register_kprobe(&foo_entry_probe);
+	register_retprobe(&foo_return_probe);
+then he/she has to be prepared to handle calls to foo that happen
+between register_kprobe and register_retprobe -- i.e., calls where the
+entry probe fires but the return probe doesn't.  Similarly on
+unregistration.
 
-Correct unwinding in error path of mthca_init_icm().
+Here are a couple of things we could do to support registration and
+unregistration of retprobes that can be either dependent on or
+independent of the corresponding j/kprobes, as the user wants:
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+1. When you call register_j/kprobe(), if kprobe->rp is non-null, it is
+assumed to point to a retprobe that will be registered and unregistered
+along with the kprobe.  (But this may make trouble for existing kprobes
+applications that didn't need to initialize the (nonexistent) rp
+pointer.  Probably not a huge deal.)
 
---- linux-2.6.12-rc2-mm1.orig/drivers/infiniband/hw/mthca/mthca_main.c	2005-04-05 09:49:02.944473724 -0700
-+++ linux-2.6.12-rc2-mm1/drivers/infiniband/hw/mthca/mthca_main.c	2005-04-05 09:49:15.679708865 -0700
-@@ -437,7 +437,7 @@
- 	if (!mdev->qp_table.rdb_table) {
- 		mthca_err(mdev, "Failed to map RDB context memory, aborting\n");
- 		err = -ENOMEM;
--		goto err_unmap_rdb;
-+		goto err_unmap_eqp;
- 	}
- 
-        mdev->cq_table.table = mthca_alloc_icm_table(mdev, init_hca->cqc_base,
+OR
+
+2. Create the ability to (a) register kprobes, jprobes, and/or retprobes
+in a disabled state; and (b) enable a group of probes in an atomic
+operation.  Then you could register the entry and return probes
+independently, but enable them together.  We may need to do something
+like that for SystemTap anyway.
+
+Jim Keniston
+IBM Linux Technology Center
+

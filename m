@@ -1,107 +1,225 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbSLOQ0b>; Sun, 15 Dec 2002 11:26:31 -0500
+	id <S262190AbSLOQo0>; Sun, 15 Dec 2002 11:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262190AbSLOQ0b>; Sun, 15 Dec 2002 11:26:31 -0500
-Received: from secondary.dns.nitric.com ([64.81.197.162]:25754 "EHLO
-	primary.mx.nitric.com") by vger.kernel.org with ESMTP
-	id <S262038AbSLOQ0a>; Sun, 15 Dec 2002 11:26:30 -0500
-To: linux-kernel@vger.kernel.org
-From: merlin hughes <merlin@merlin.org>
-Subject: kernels 2.4.19--2.4.20-ac2 hang at boot
-Date: Sun, 15 Dec 2002 11:34:19 -0500
-Message-Id: <20021215163419.893D986749@primary.mx.nitric.com>
+	id <S262210AbSLOQo0>; Sun, 15 Dec 2002 11:44:26 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:27528 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262190AbSLOQoX>;
+	Sun, 15 Dec 2002 11:44:23 -0500
+Date: Sun, 15 Dec 2002 22:23:13 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] RCU statistics 2.5.51
+Message-ID: <20021215165313.GA1456@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
 
-Hi,
+This is a re-transmit of the patch that adds some basic statistics to
+RCU (/proc/rcu). The statistics made available by this patch are very generic 
+in nature - # of RCU requests and # of actual RCU updates for each
+CPU. This will allow us to monitor the health of the RCU
+subsystem and such things have been extremely useful for 
+investigating problems. For example, if a CPU looping in kernel
+stops RCU grace period from completing, we would be easily able
+to detect it by looking at these counters. Without these, that
+becomes very difficult.
 
-On a new machine, kernels 2.4.19-pre7 onwards hang immediately
-after 'Okay, booting the kernel.' Earlier 2.4 kernels boot fine if
-I supply mem=120M manually (installed memory minus shared memory).
-2.2 kernels boot fine with no command-line arguments.
+dipankar@llm04 dipankar]$ cat /proc/rcu
+CPU : 0
+RCU requests : 0
+RCU updates : 0
 
-Shuttle FX41 mobo; Via KM266 chipset; onboard video.
+CPU : 1
+RCU requests : 0
+RCU updates : 0
 
-This seems to be similar to Justin Heesemann's problem:
-  http://www.uwsg.iu.edu/hypermail/linux/kernel/0208.2/0772.html
+CPU : 2
+RCU requests : 0
+RCU updates : 0
 
-I assigned shared video to 0M in the BIOS but the system hung at
-the same place, would only boot 2.4.19-pre6 with mem=120M
-(I presume; no video to be sure that it was the same place). This
-suggests that maybe it's not shared video memory that's the problem,
-and mem=120M in some other way worked around the issue on earler
-2.4 kernels.
+CPU : 3
+RCU requests : 0
+RCU updates : 0
 
-Some 2.4.19-pre7 change to arch/i386/kernel/setup.c definitely
-seems to have rendered these systems unbootable.
+This patch has been in akpm's -mm tree for a long time now and would be nice
+to have in your tree.
 
-dmesg 2.4.19-pre6 / 8MB shared video RAM
-----
-Linux version 2.4.19-pre6-morigu (root@morigu.merlin.org) (gcc version 2.95.4 20011002 (Debian prerelease)) #2 Sat Dec 14 00:21:12 EST 2002
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
- BIOS-e820: 00000000000a0000 - 00000000077f0000 (reserved)
- BIOS-e820: 00000000077f0000 - 00000000077f3000 (ACPI NVS)
- BIOS-e820: 00000000077f3000 - 0000000007800000 (ACPI data)
-On node 0 totalpages: 30720
-zone(0): 4096 pages.
-zone(1): 26624 pages.
-zone(2): 0 pages.
-Kernel command line: auto BOOT_IMAGE=linux ro root=301 mem=120M
-Initializing CPU#0
-Detected 1100.070 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 2195.45 BogoMIPS
-Memory: 119784k/122880k available (762k kernel code, 2708k reserved, 225k data, 196k init, 0k highmem)
-...
-----
+Thanks
+Dipankar
 
-dmesg 2.2.20 / 8MB shared video RAM
-----
-Linux version 2.2.20 (herbert@gondolin) (gcc version 2.7.2.3) #1 Sat Apr 20 11:45:28 EST 2002
-BIOS-provided physical RAM map:
- BIOS-e820: 000a0000 @ 00000000 (usable)
- BIOS-e820: 076f0000 @ 00100000 (usable)
-Detected 1100070 kHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 2195.45 BogoMIPS
-Memory: 118916k/122816k available (1756k kernel code, 408k reserved, 1584k data, 152k init)
-...
-----
+ Documentation/filesystems/proc.txt |    4 +++
+ fs/proc/proc_misc.c                |   13 ++++++++++
+ include/linux/rcupdate.h           |    4 +++
+ kernel/rcupdate.c                  |   48 +++++++++++++++++++++++++++++++++++--
+ 4 files changed, 67 insertions(+), 2 deletions(-)
 
-dmesg 2.4.19-pre6 / 0MB shared video RAM (still needed mem=120M)
-----
-Linux version 2.4.19-pre6-morigu (root@morigu.merlin.org) (gcc version 2.95.4 20011002 (Debian prerelease)) #2 Sat Dec 14 00:21:12 EST 2002
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
- BIOS-e820: 00000000000a0000 - 0000000007ff0000 (reserved)
- BIOS-e820: 0000000007ff0000 - 0000000007ff3000 (ACPI NVS)
- BIOS-e820: 0000000007ff3000 - 0000000008000000 (ACPI data)
-On node 0 totalpages: 30720
-zone(0): 4096 pages.
-zone(1): 26624 pages.
-zone(2): 0 pages.
-Kernel command line: auto BOOT_IMAGE=linux ro root=301 mem=120M
-Initializing CPU#0
-Detected 1100.070 MHz processor.
-Calibrating delay loop... 2195.45 BogoMIPS
-Memory: 119788k/122880k available (762k kernel code, 2704k reserved, 225k data, 196k init, 0k highmem)
-...
-----
-
-dmesg 2.2.20 / 0MB shared video RAM
-----
-Linux version 2.2.20 (herbert@gondolin) (gcc version 2.7.2.3) #1 Sat Apr 20 11:45:28 EST 2002
-BIOS-provided physical RAM map:
- BIOS-e820: 000a0000 @ 00000000 (usable)
- BIOS-e820: 07ef0000 @ 00100000 (usable)
-Detected 1100070 kHz processor.
-Console: colour dummy device 80x25
-Calibrating delay loop... 2195.45 BogoMIPS
-Memory: 127028k/131008k available (1756k kernel code, 408k reserved, 1664k data, 152k init)
-...
-----
-
-merlin
+diff -urN linux-2.5.51-base/Documentation/filesystems/proc.txt linux-2.5.51-rcu_stats/Documentation/filesystems/proc.txt
+--- linux-2.5.51-base/Documentation/filesystems/proc.txt	2002-12-10 08:15:52.000000000 +0530
++++ linux-2.5.51-rcu_stats/Documentation/filesystems/proc.txt	2002-12-14 22:58:51.000000000 +0530
+@@ -222,6 +222,7 @@
+  partitions  Table of partitions known to the system           
+  pci	     Depreciated info of PCI bus (new way -> /proc/bus/pci/, 
+              decoupled by lspci					(2.4)
++ rcu	     Read-Copy Update information			(2.5)
+  rtc         Real time clock                                   
+  scsi        SCSI info (see text)                              
+  slabinfo    Slab pool info                                    
+@@ -346,6 +347,9 @@
+ ZONE_DMA, 4 chunks of 2^1*PAGE_SIZE in ZONE_DMA, 101 chunks of 2^4*PAGE_SIZE 
+ availble in ZONE_NORMAL, etc... 
+ 
++The rcu file gives information about Read-Copy Update synchronization
++primitive. It indicates the number for RCU requests and actual
++updates for every CPU.
+ 
+ 1.3 IDE devices in /proc/ide
+ ----------------------------
+diff -urN linux-2.5.51-base/fs/proc/proc_misc.c linux-2.5.51-rcu_stats/fs/proc/proc_misc.c
+--- linux-2.5.51-base/fs/proc/proc_misc.c	2002-12-10 08:15:44.000000000 +0530
++++ linux-2.5.51-rcu_stats/fs/proc/proc_misc.c	2002-12-14 22:58:51.000000000 +0530
+@@ -243,6 +243,18 @@
+ 	.release	= seq_release,
+ };
+ 
++extern struct seq_operations rcu_op;
++static int rcu_open(struct inode *inode, struct file *file)
++{
++	return seq_open(file, &rcu_op);
++}
++static struct file_operations proc_rcu_operations = {
++	.open		= rcu_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= seq_release,
++};
++
+ extern struct seq_operations vmstat_op;
+ static int vmstat_open(struct inode *inode, struct file *file)
+ {
+@@ -586,6 +598,7 @@
+ 	if (entry)
+ 		entry->proc_fops = &proc_kmsg_operations;
+ 	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
++	create_seq_entry("rcu", 0, &proc_rcu_operations);
+ 	create_seq_entry("partitions", 0, &proc_partitions_operations);
+ #if !defined(CONFIG_ARCH_S390)
+ 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
+diff -urN linux-2.5.51-base/include/linux/rcupdate.h linux-2.5.51-rcu_stats/include/linux/rcupdate.h
+--- linux-2.5.51-base/include/linux/rcupdate.h	2002-12-10 08:15:52.000000000 +0530
++++ linux-2.5.51-rcu_stats/include/linux/rcupdate.h	2002-12-14 22:58:51.000000000 +0530
+@@ -95,6 +95,8 @@
+         long  	       	batch;           /* Batch # for current RCU batch */
+         struct list_head  nxtlist;
+         struct list_head  curlist;
++ 	long		nr_rcureqs;
++ 	long		nr_rcupdates;
+ };
+ 
+ DECLARE_PER_CPU(struct rcu_data, rcu_data);
+@@ -105,6 +107,8 @@
+ #define RCU_batch(cpu) 		(per_cpu(rcu_data, (cpu)).batch)
+ #define RCU_nxtlist(cpu) 	(per_cpu(rcu_data, (cpu)).nxtlist)
+ #define RCU_curlist(cpu) 	(per_cpu(rcu_data, (cpu)).curlist)
++#define RCU_nr_rcureqs(cpu) 	(per_cpu(rcu_data, (cpu)).nr_rcureqs)
++#define RCU_nr_rcupdates(cpu) 	(per_cpu(rcu_data, (cpu)).nr_rcupdates)
+ 
+ #define RCU_QSCTR_INVALID	0
+ 
+diff -urN linux-2.5.51-base/kernel/rcupdate.c linux-2.5.51-rcu_stats/kernel/rcupdate.c
+--- linux-2.5.51-base/kernel/rcupdate.c	2002-12-10 08:15:40.000000000 +0530
++++ linux-2.5.51-rcu_stats/kernel/rcupdate.c	2002-12-14 22:58:51.000000000 +0530
+@@ -41,6 +41,7 @@
+ #include <linux/module.h>
+ #include <linux/completion.h>
+ #include <linux/percpu.h>
++#include <linux/seq_file.h>
+ #include <linux/notifier.h>
+ #include <linux/rcupdate.h>
+ 
+@@ -75,6 +76,7 @@
+ 	local_irq_save(flags);
+ 	cpu = smp_processor_id();
+ 	list_add_tail(&head->list, &RCU_nxtlist(cpu));
++	RCU_nr_rcureqs(cpu)++;
+ 	local_irq_restore(flags);
+ }
+ 
+@@ -82,7 +84,7 @@
+  * Invoke the completed RCU callbacks. They are expected to be in
+  * a per-cpu list.
+  */
+-static void rcu_do_batch(struct list_head *list)
++static void rcu_do_batch(int cpu, struct list_head *list)
+ {
+ 	struct list_head *entry;
+ 	struct rcu_head *head;
+@@ -92,6 +94,7 @@
+ 		list_del(entry);
+ 		head = list_entry(entry, struct rcu_head, list);
+ 		head->func(head->arg);
++		RCU_nr_rcupdates(cpu)++;
+ 	}
+ }
+ 
+@@ -187,7 +190,7 @@
+ 	}
+ 	rcu_check_quiescent_state();
+ 	if (!list_empty(&list))
+-		rcu_do_batch(&list);
++		rcu_do_batch(cpu, &list);
+ }
+ 
+ void rcu_check_callbacks(int cpu, int user)
+@@ -266,3 +269,44 @@
+ 
+ EXPORT_SYMBOL(call_rcu);
+ EXPORT_SYMBOL(synchronize_kernel);
++
++#ifdef	CONFIG_PROC_FS
++
++static void *rcu_start(struct seq_file *m, loff_t *pos)
++{
++	static int cpu;
++	cpu = *pos;
++	return *pos < NR_CPUS ? &cpu : NULL;
++}
++		
++static void *rcu_next(struct seq_file *m, void *v, loff_t *pos) 
++{
++	++*pos;
++	return rcu_start(m, pos);
++}
++
++static void rcu_stop(struct seq_file *m, void *v)
++{
++}
++
++static int show_rcu(struct seq_file *m, void *v)
++{
++	int cpu = *(int *)v;
++
++	if (!cpu_online(cpu))
++		return 0;
++	seq_printf(m, "CPU : %d\n", cpu);
++	seq_printf(m, "RCU requests : %ld\n", RCU_nr_rcureqs(cpu));
++	seq_printf(m, "RCU updates : %ld\n\n", RCU_nr_rcupdates(cpu));
++	return 0;
++}
++
++struct seq_operations rcu_op = {
++	.start	= rcu_start,
++	.next	= rcu_next,
++	.stop	= rcu_stop,
++	.show	= show_rcu,
++};
++
++#endif
++

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpNmABuemLKsSR/uBYWESK5VYXA==
+thread-index: AcQVpA5ODySidZ6ERCKkL0XlM4xuHw==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Mon, 05 Jan 2004 21:50:35 +0000
-Message-ID: <03c001c415a4$d98023d0$d100000a@sbs2003.local>
-X-Mailer: Microsoft CDO for Exchange 2000
+Delivery-date: Sat, 03 Jan 2004 05:57:25 +0000
+Message-ID: <00c001c415a4$0e4e0330$d100000a@sbs2003.local>
+Subject: Synaptics working great!
+From: "Dax Kelson" <dax@gurulabs.com>
+To: <Administrator@osdl.org>
+Cc: <akpm@osdl.org>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Date: Mon, 29 Mar 2004 16:45:24 +0100
-From: "Andrew Morgan" <morgan@transmeta.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: <Administrator@osdl.org>
-Cc: "Andrew Morton" <akpm@osdl.org>,
-        "Michael Kerrisk" <michael.kerrisk@gmx.net>,
-        "Norberto Bensa" <nbensa@gmx.net>,
-        "lkml" <linux-kernel@vger.kernel.org>,
-        "Linus Torvalds" <torvalds@transmeta.com>
-Subject: Re: chmod -x problem
-References: <200312251844.40654.nbensa@gmx.net>	 <20031225173649.0f6b4345.akpm@osdl.org> <1072535267.1936.9.camel@nb.suse.de>
-In-Reply-To: <1072535267.1936.9.camel@nb.suse.de>
-Content-Type: text/plain;
-	format=flowed;
-	charset="us-ascii"
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 29 Mar 2004 16:39:43 +0100
 Content-Transfer-Encoding: 7bit
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:45:25.0234 (UTC) FILETIME=[DA2BCD20:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:39:44.0953 (UTC) FILETIME=[0F590A90:01C415A4]
 
-Andreas Gruenbacher wrote:
-> that defines the base set of required capabilities. So it appears that
-> Andrew Morgan based the Linux Capabilities implementation on an earlier
-> draft.
+I'm using 2.6.1-rc1-mm1 on a Dell Inspiron 4150.
 
-FWIW it is definitely the case that I based this part of the port on a 
-slightly earlier version of the draft. (I think it was 15.)
+I after recompiled without ACPI PM timer and fixed up my XF86Config life
+is excellent. I don't need to pass any parameters either.
 
-Cheers
+The wacky jitter problems (fixed by patches in mm) is what kept me
+running back to 2.4.
 
-Andrew
+Dax Kelson
+
 

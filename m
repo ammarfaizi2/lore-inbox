@@ -1,92 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbTISVlG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 17:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTISVlG
+	id S261724AbTISVjz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 17:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbTISVjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 17:41:06 -0400
-Received: from mail.kroah.org ([65.200.24.183]:8930 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261739AbTISVlB (ORCPT
+	Fri, 19 Sep 2003 17:39:54 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:36240 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261724AbTISVjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 17:41:01 -0400
-Date: Fri, 19 Sep 2003 14:22:32 -0700
-From: Greg KH <greg@kroah.com>
-To: Jan Rychter <jan@rychter.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 USB problem (uhci)
-Message-ID: <20030919212232.GG7282@kroah.com>
-References: <m2znh1pj5z.fsf@tnuctip.rychter.com> <20030919190628.GI6624@kroah.com> <m2d6dwr3k8.fsf@tnuctip.rychter.com> <20030919201751.GA7101@kroah.com> <m28yokr070.fsf@tnuctip.rychter.com> <20030919204419.GB7282@kroah.com> <m2smmspjjq.fsf@tnuctip.rychter.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2smmspjjq.fsf@tnuctip.rychter.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Sep 2003 17:39:52 -0400
+Date: Fri, 19 Sep 2003 23:39:36 +0200 (MEST)
+Message-Id: <200309192139.h8JLdaXf012418@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: rob@landley.net
+Subject: Re: Make modules_install doesn't create /lib/modules/$version
+Cc: azarah@gentoo.org, linux-kernel@vger.kernel.org, rddunlap@osdl.org,
+       rusty@rustcorp.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 19, 2003 at 02:14:49PM -0700, Jan Rychter wrote:
-> >>>>> "Greg" == Greg KH <greg@kroah.com> writes:
->  Greg> On Fri, Sep 19, 2003 at 01:29:55PM -0700, Jan Rychter wrote: If
->  Greg> you want to suspend using 2.4, unload the usb drivers entirely.
->  Greg> That's the only safe way.
->  >>
->  >> I wasn't talking about suspending, but about processor
->  >> C-states. These are power states that the mobile processors enter
->  >> dynamically, many times a second. In my case:
-> 
->  Greg> Ah, sorry.  I'm getting D and C states mixed up here.
-> [...]
-> 
-> You probably mean S-states, which are for sleep.
 
-Ugh, ok, I give up :)
+On Fri, 19 Sep 2003 15:16:23 -0400, Rob Landley <rob@landley.net> wrote:
+>> > So how come it's never been a problem on my RH boxes?
+>> > (Currently RH9 + module-init-tools but none of Arjan's .rpms)
+>> >
+>> > I basically do
+>> > make bzImage modules |& tee /tmp/log
+>> > grep Warning /tmp/log
+>> > su
+>> > make modules_install
+>> > make install
+>> >
+>> > Creating the /lib/modules/<version> directory is the kernel's
+>> > job, not installkernel (it's never done that before).
+>>
+>> Yes, OK, so I have not checked =)  I just reacted on if
+>> installkernel form non RH misbehave or not.
+>
+>The kernel isn't doing it.  A script called from installkernel (in Red Hat 9) 
+>calls depmod, which has to be Rusty's new depmod or it doesn't create the 
+>directory.  This means depmod is running against the OLD modules.
 
->  >> As you can see, C3 (lowest power) is being used a lot. This makes my
->  >> laptop run cool. If I use usb-uhci, the processor is never able to
->  >> go into C3 because of DMA activity. uhci is better, because it at
->  >> least permits me to use C3 when there are no devices plugged in.
->  >>
->  >> And going back to the uhci problem... ?
-> 
->  Greg> UHCI by design sucks massive PCI bandwidth.  There is logic in
->  Greg> the uhci drivers that try to help this out by reducing
->  Greg> transactions when not much is going on, but there's only so much
->  Greg> we can do in software, sorry.  I'm guessing that you aren't going
->  Greg> to be able to change this.
-> 
->  Greg> Unless you go buy a ohci usb cardbus controller card :)
-> 
-> Now you've confused me.
-> 
-> Do your comments above apply to "uhci" or "usb-uhci"?
-> 
-> Please allow me to restate the original problem:
-> 
->   -- I usually use uhci instead of usb-uhci, because it is able to go
->      into "suspend mode" when no devices are plugged, which allows the
->      CPU to enter C3 states,
-> 
->   -- usb-uhci eats CPU power by keeping it in C2 constantly because of
->      busmastering DMA activity, therefore being much less useful,
-> 
->   -- uhci generally works for me just fine, but breaks in one particular
->      case, when removing the device causes a strange message to be
->      printed and the system being unable to use the C3 states again,
->      until uhci is unloaded and reloaded back again.
-> 
->      Just as a reminder, this message is:
-> 
->        uhci.c: efe0: host controller halted. very bad
-> 
-> I hope if the message says "very bad", then this is something that can
-> be fixed. I was therefore reporting a problem with "uhci" and kindly
-> asking for help.
+You're confusing make install with make modules_install. (And
+your initial report which spoke of modules_install was obviously
+a make install since it ran arch/i386/boot/install.sh)
 
-Ok, sorry for the confusion.  No I don't know of a fix for this problem,
-but one just went into the 2.6 kernel tree for the uhci-hcd driver that
-you might want to take a look at that fixed a problem almost exactly
-like this.
+make modules_install _does_ create and populate the modules directory.
+In the top-level Makefile we find:
 
-thanks,
+...
+MODLIB	:= $(INSTALL_MOD_PATH)/lib/modules/$(KERNELRELEASE)
+...
+modules_install: _modinst_ _modinst_post
 
-greg k-h
+.PHONY: _modinst_
+_modinst_:
+	@if [ -z "`$(DEPMOD) -V | grep module-init-tools`" ]; then \
+		echo "Warning: you may need to install module-init-tools"; \
+		echo "See http://www.codemonkey.org.uk/post-halloween-2.5.txt";\
+		sleep 1; \
+	fi
+	@rm -rf $(MODLIB)/kernel
+	@rm -f $(MODLIB)/build
+	@mkdir -p $(MODLIB)/kernel
+	@ln -s $(TOPDIR) $(MODLIB)/build
+	$(Q)$(MAKE) -rR -f scripts/Makefile.modinst
+
+In particular note the mkdir.
+
+make install does invoke /sbin/installkernel if your
+system has one, and that script may expect the /lib/modules/
+directory to exist, but that's not a kernel bug.
+
+In any event, make modules_install before make install works
+and has always worked for me on RH systems.
+
+>I've been bitten by this before, by the way.  I switched from an accidental 
+>SMP kernel to a UP kernel on my laptop, and the install complained about 
+
+rm -f /lib/modules/$KERNELVERSION; make modules_install
+
+>unresolved SMP symbols in the modules.  (This is how I got in the habit of 
+>doing make modules_install before make install, which I thought might also be 
+>responsible for the directory creation problem, but wasn't.  Neither creates 
+>the directory: depmod does).
+
+depmod does not create any directories, 'make modules_install' does.

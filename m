@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318711AbSHQTro>; Sat, 17 Aug 2002 15:47:44 -0400
+	id <S318714AbSHQTyb>; Sat, 17 Aug 2002 15:54:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318712AbSHQTrn>; Sat, 17 Aug 2002 15:47:43 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47322 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318711AbSHQTrn>; Sat, 17 Aug 2002 15:47:43 -0400
-Date: Sat, 17 Aug 2002 21:51:36 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, <ak@muc.de>
-cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@redhat.com>
-Subject: Re: Linux 2.4.20-pre1
-In-Reply-To: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
-Message-ID: <Pine.NEB.4.44.0208172130200.2879-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318717AbSHQTya>; Sat, 17 Aug 2002 15:54:30 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:27634 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318714AbSHQTya>; Sat, 17 Aug 2002 15:54:30 -0400
+Subject: Re: IDE?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Anton Altaparmakov <aia21@cantab.net>, alan@lxorguk.ukuu.org,
+       Andre Hedrick <andre@linux-ide.org>, axboe@suse.de, vojtech@suse.cz,
+       bkz@linux-ide.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 17 Aug 2002 20:56:39 +0100
+Message-Id: <1029614199.4634.32.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Aug 2002, Marcelo Tosatti wrote:
+On Sat, 2002-08-17 at 01:10, Linus Torvalds wrote:
+> I'd like Vojtech to be a bit involved too, he seemed to do some
+> much-needed cleanups for PIIX4 IDE (now gone, since we couldn't save just
+> those parts..)
 
->...
-> Summary of changes from v2.4.19 to v2.4.20-pre1
-> ============================================
->...
-> <ak@muc.de> (02/08/05 1.657)
-> 	[PATCH] Ftape 64bit/x86-64 fixes
->...
+If he does please co-ordinate with me. I've already done a chunk of
+cleanup there (and Andre has done a load too). 
 
-This broke the modular building of ftape. In -pre3:
+I want order to this. That means all the driver cleanup goes into 2.4-ac
+(or "2.4-ide" or some suitable branch) first where we can verify we
+aren't hitting 2.5 generic bugs and ide corruption is a meaningful
+problem report. It means someone (not me) is the appointed 2.5 person
+and handles stuff going to 2.5 (I'm happy to identify stuff that tests
+ok in 2.4 as candidates). It also means random patches not going past
+me.
 
-<--  snip  -->
+If we can do it that way I'll do the job. If Linus applies random IDE
+"cleanup" patches to his 2.5 tree that don't pass through Jens and me
+then I'll just stop listening to 2.5 stuff.
 
-...
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.20-pre3/kernel/drivers/char/ftape/lowlevel/ftape.o
-depmod:         i8253_lock
-...
+Volunteers willing to run Cerberus test sets on 2.4 boxes with IDE
+controllers would also be much appreciated. That way we can get good
+coverage tests and catch badness immediately
 
-<--  snip  -->
-
-
-Alan made the following patch to fix it (already in -ac):
-
-
---- linux.20pre2/arch/i386/kernel/time.c	2002-08-13 13:58:33.000000000 +0100
-+++ linux.20pre2-ac3/arch/i386/kernel/time.c	2002-08-12 15:17:04.000000000 +0100
-@@ -31,6 +31,7 @@
-  */
-
- #include <linux/errno.h>
-+#include <linux/module.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
- #include <linux/param.h>
-@@ -116,6 +117,8 @@
-
- spinlock_t i8253_lock = SPIN_LOCK_UNLOCKED;
-
-+EXPORT_SYMBOL(i8253_lock);
-+
- extern spinlock_t i8259A_lock;
-
- #ifndef CONFIG_X86_TSC
-
-
-
-cu
-Adrian
-
-
-
+Alan
 

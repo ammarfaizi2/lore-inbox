@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136145AbREGOm6>; Mon, 7 May 2001 10:42:58 -0400
+	id <S136165AbREGO6b>; Mon, 7 May 2001 10:58:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136148AbREGOms>; Mon, 7 May 2001 10:42:48 -0400
-Received: from www.sinfopragma.it ([213.26.181.2]:30728 "EHLO
-	sinfo-www-01.sinfopragma.it") by vger.kernel.org with ESMTP
-	id <S136145AbREGOmj>; Mon, 7 May 2001 10:42:39 -0400
-Date: Mon, 7 May 2001 16:46:46 +0200 (W. Europe Daylight Time)
-From: Lorenzo Marcantonio <lorenzo.marcantonio@sinfopragma.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: SCSI Tape corruption - update
-Message-ID: <Pine.WNT.4.31.0105071638470.346-100000@pc209.sinfopragma.it>
+	id <S136168AbREGO6W>; Mon, 7 May 2001 10:58:22 -0400
+Received: from [64.64.109.142] ([64.64.109.142]:30476 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S136165AbREGO6K>; Mon, 7 May 2001 10:58:10 -0400
+Message-ID: <3AF6B7D0.B63FD27C@didntduck.org>
+Date: Mon, 07 May 2001 10:57:20 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 page fault handler not interrupt safe
+In-Reply-To: <E14wiWH-0003KR-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> (The current -ac fix for the double vmalloc races is below. WP test makes it
+> more complex than is nice)
 
-As of my latest build [2.4.5-pre1] I've STILL got the tape corruption
-problem. Some new facts:
+WP test is easy to handle.  Just filter out protection violations and
+only take the vmalloc path if the page was not found.
 
-(1) It happens only writing the tape (tried exchanging tapes with a
-brand new Alpha Digital Tru64 box). I can read her tape, she can't read
-my tape. Tried with GNU tar and gzip.
+-       if (address >= TASK_SIZE && !(error_code & 4))
++       if (address >= TASK_SIZE && !(error_code & 5))
 
-(2) I suppose it isn't fault of AIC7xxx driver (tried both new and old)
+--
 
-(3) Playing with block size doesn't help (even tried variable block
-size)
-
-What can I do? Can I set some kind of trace to pinpoint the problem (in
-st.c, maybe?)
-
-				-- Lorenzo Marcantonio
-
-
+				Brian Gerst

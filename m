@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVC3LBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVC3LPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbVC3LBm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 06:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVC3LBm
+	id S261864AbVC3LPA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 06:15:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVC3LPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 06:01:42 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:5030 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261861AbVC3LBk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 06:01:40 -0500
-Subject: Re: [patch 1/2] fork_connector: add a fork connector
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Paul Jackson <pj@engr.sgi.com>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>, Jay Lan <jlan@engr.sgi.com>,
-       Erich Focht <efocht@hpce.nec.com>, Ram <linuxram@us.ibm.com>,
-       Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>
-In-Reply-To: <E1DGaOG-0002Md-00@gondolin.me.apana.org.au>
-References: <E1DGaOG-0002Md-00@gondolin.me.apana.org.au>
-Date: Wed, 30 Mar 2005 13:01:28 +0200
-Message-Id: <1112180488.8426.146.camel@frecb000711.frec.bull.fr>
+	Wed, 30 Mar 2005 06:15:00 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:44730 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261862AbVC3LO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 06:14:58 -0500
+Date: Wed, 30 Mar 2005 12:14:39 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org, shai@scalex86.org
+Subject: Re: [PATCH] Pageset Localization V2
+Message-ID: <20050330111439.GA13110@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Christoph Lameter <christoph@lameter.com>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-ia64@vger.kernel.org, linux-mm@kvack.org, shai@scalex86.org
+References: <Pine.LNX.4.58.0503292147200.32571@server.graphe.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/03/2005 13:11:14,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/03/2005 13:11:17,
-	Serialize complete at 30/03/2005 13:11:17
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503292147200.32571@server.graphe.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-30 at 20:25 +1000, Herbert Xu wrote:
-> Paul Jackson <pj@engr.sgi.com> wrote:
-> > 
-> > So I suppose if fork_connector were not used to collect <parent pid,
-> > child pid> information for accounting, then someone would have to make
-> > the case that there were enough other uses, of sufficient value, to add
-> > fork_connector.  We have to be a bit careful, in the kernel, to avoid
-> > adding mechanisms until we have the immediate use in hand.  If we don't
-> > do this, then the kernel ends up looking like the Gargoyles on a
-> > Renaissance church - burdened with overly ornate features serving no
-> > earthly purpose.
-> 
-> I agree completely.  In fact the whole drivers/connector directory
-> looks pretty suspect.  Are there any in-kernel users of it at all?
+> +#define MAKE_LIST(list, nlist)  \
+> +	do {    \
+> +		if(list_empty(&list))      \
+> +			INIT_LIST_HEAD(nlist);          \
+> +		else {  nlist->next->prev = nlist;      \
+> +			nlist->prev->next = nlist;      \
+> +		}                                       \
+> +	}while(0)
 
-There is the Enhanced Linux System Accounting project 
-http://elsa.sourceforge.net
-
-Guillaume
+This is horrible.  Where are the nlist pointers supposed to point to?
+What's so magic you need the INIT_LIST_HEAD only conditionally?
 

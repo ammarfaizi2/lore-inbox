@@ -1,97 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbTJNIgn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 04:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTJNIgn
+	id S262002AbTJNIbN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 04:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTJNIbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 04:36:43 -0400
-Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:30361
-	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S262056AbTJNIgj
+	Tue, 14 Oct 2003 04:31:13 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:11247 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262002AbTJNIbK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 04:36:39 -0400
-Subject: Re: Circular Convolution scheduler
-From: Piet Delaney <piet@www.piet.net>
-To: George Anzinger <george@mvista.com>
-Cc: Clayton Weaver <cgweav@email.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3F833C06.7000802@mvista.com>
-References: <20031006161733.24441.qmail@email.com> 
-	<3F833C06.7000802@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 14 Oct 2003 01:37:23 -0700
-Message-Id: <1066120643.25020.121.camel@www.piet.net>
+	Tue, 14 Oct 2003 04:31:10 -0400
+Subject: Re: gcc -msoft-float [Was: Linux 2.6.0-test7 - stability freeze]
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Olaf Hering <olh@suse.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031014081228.GA23257@suse.de>
+References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
+	 <20031013173446.GA13186@suse.de> <20031013205039.GA1638@mars.ravnborg.org>
+	 <20031014081228.GA23257@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-B91Y4SXULeyYPRscCiSN"
+Organization: Red Hat, Inc.
+Message-Id: <1066120260.5241.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
+Date: Tue, 14 Oct 2003 10:31:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-10-07 at 15:19, George Anzinger wrote:
-> Ok, I'll admit my ignorance.  What is circular convolution?  Where can 
-> I learn more?
 
-circular convolution is used with the Fast Fourier Transform.
-The frequency data goes from -N/2 ...0 ,,,, +N/2,
-multiplying in the frequency domain is the same as
-convolving in the time or space domain. The result of multiplying
-a time series by say a filter is the same as convolving it
-with the FFT of the filter. Both domains wrap around with the
-FFT, so the normal convolution associated with the Fourier
-transform is replace with the circular convolution.
+--=-B91Y4SXULeyYPRscCiSN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Many prediction algorithms are based on digital signal processing.
-The Kalman filter for example was used by Harvey for forecasting
-financial markets. The kernel likely has lots of time series that
-could be used for system identification for predicting how to best
-use system resources.
+On Tue, 2003-10-14 at 10:12, Olaf Hering wrote:
+>  On Mon, Oct 13, Sam Ravnborg wrote:
+>=20
+> > On Mon, Oct 13, 2003 at 07:34:46PM +0200, Olaf Hering wrote:
+> > > a longstanding bug, should probably go to the main Makefile. But I do=
+nt
+> > > know if all supported archs know about -msoft-float.
+> >=20
+> > Could you please elaborate about what this fixes.
+> > I'm very resistant to add new flags unconditionally to gcc at this stag=
+e.
+>=20
+> Is floating point in the kernel really allowed on i386? If so, please
+> please add a commet to this Makefile about this fact.=20
+>=20
+> test7bk3 results, allyesconfig:
+>=20
+>=20
+> drivers/built-in.o(.text+0x2ba129): In function `amd8111e_resume':
+> drivers/net/amd8111e.c:1700: undefined reference to `__floatsidf'
 
-I did a lot of work with them designing Reconstruction algorithms
-for Brain Scanners. 
+real bug:
+        if(lp->options & OPTION_DYN_IPG_ENABLE)
+                mod_timer(&lp->ipg_data.ipg_timer,
+                                jiffies + (IPG_CONVERGE_TIME * HZ));
+=20
+where=20
+#define      IPG_CONVERGE_TIME 0.5
 
--piet
-> 
-> -g
-> 
-> Clayton Weaver wrote:
-> > Though the mechanism is doubtless familiar
-> > to signal processing and graphics implementers,
-> > it's probably not thought of much in a
-> > process scheduling contex (although there was
-> > the Evolution Scheduler of a few years ago,
-> > whose implementer may have had something like
-> > circular convolution in mind). It just seems to me
-> > (intuition) that the concept of what circular convolution does is akin to what we've been
-> > feeling around for with these ad hoc heuristic
-> > tweaks to the scheduler to adjust for interactivity
-> > and batch behavior, searching for an incremental self-adjusting mechanism that favors interactivity
-> > on demand.
-> > 
-> > I've never implemented a circular convolver in
-> > any context, so I was wondering if anyone who
-> > has thinks scheduler prioritization would be
-> > simpler if implemented directly as a circular convolution.
-> > 
-> > (If nothing else, it seems to me that the abstract model of what the schedule prioritizer is doing
-> > would be more coherent than it is with ad hoc
-> > code. This perhaps reduces the risk of unexpected side-effects of incremental tweaks to the scheduler. The behavior of an optimizer that implements
-> > an integer approximation of a known mathematical transform when you change its inputs is fairly predictable.)
-> > 
-> > Regards,
-> > 
-> > Clayton Weaver
-> > <mailto: cgweav@email.com>
-> > 
-> > 
-> 
-> -- 
-> George Anzinger   george@mvista.com
-> High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-> Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-piet@www.piet.net
+> drivers/media/dvb/ttpci/av7110.c:2709: undefined reference to `__floatsid=
+f'
 
+worse:
+       if (freq < 16*168.25 )
+                config =3D 0xa0;
+        else if (freq < 16*447.25)
+                config =3D 0x90;
+        else
+                config =3D 0x30;
+
+> drivers/built-in.o(.text+0x5c24d0): In function `sisfb_do_set_var':
+> drivers/video/sis/sis_main.c:654: undefined reference to `__floatsidf'
+
+
+static int sisfb_do_set_var(struct fb_var_screeninfo *var, int isactive,
+                      struct fb_info *info)
+{
+        unsigned int htotal =3D
+                var->left_margin + var->xres + var->right_margin +
+                var->hsync_len;
+        unsigned int vtotal =3D 0;
+        double drate =3D 0, hrate =3D 0;
+=20
+ugh
+
+
+--=-B91Y4SXULeyYPRscCiSN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/i7RDxULwo51rQBIRAroVAJ0UtfgpTlqpwxIIjGewP5H0KfQnhgCfTLxo
+jOvaj/CzasV6r2rM8E+SJ7Q=
+=ke0s
+-----END PGP SIGNATURE-----
+
+--=-B91Y4SXULeyYPRscCiSN--

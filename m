@@ -1,66 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280154AbRKIVfP>; Fri, 9 Nov 2001 16:35:15 -0500
+	id <S280163AbRKIVn1>; Fri, 9 Nov 2001 16:43:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280162AbRKIVfF>; Fri, 9 Nov 2001 16:35:05 -0500
-Received: from omnis-mail.omnis.com ([216.239.128.28]:62482 "HELO omnis.com")
-	by vger.kernel.org with SMTP id <S280154AbRKIVet>;
-	Fri, 9 Nov 2001 16:34:49 -0500
-Message-ID: <3BEC4C5C.8070603@sh.nu>
-Date: Fri, 09 Nov 2001 13:36:28 -0800
-From: Daniel Ceregatti <vi@sh.nu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011010
-X-Accept-Language: en-us
+	id <S280186AbRKIVnW>; Fri, 9 Nov 2001 16:43:22 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:1033 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S280163AbRKIVnF>;
+	Fri, 9 Nov 2001 16:43:05 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Rick Gaudette <Richard.Gaudette@Colorado.EDU>
+Date: Fri, 9 Nov 2001 22:42:43 MET-1
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: vi@sh.nu
-Subject: Re: emu10k emits buzzing and crackling
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: X-Windows locks up under concurrent OpenGL (Mesa) and I
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <8B83CB50455@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
+On  9 Nov 01 at 14:11, Rick Gaudette wrote:
 
-  > Hey folks,
-  >
-  > One of the workstations I use really doesn't like the emu10k driver in
-  > 2.4.13-ac5. The box is a dual athlon running rh7.2. Playing mp3s seems
-  > to work well, but other samples from xfce on shutdown and window close
-  > result in buzzing and popping noises. If anyone wants details or patches
-  > tested, drop me a note.
-  >
-  >                 -ben
-  >
-  > es1371: version v0.30 time 17:42:30 Nov 1 2001
-  > Creative EMU10K1 PCI Audio Driver, version 0.16, 17:42:24 Nov 1 2001
-  > emu10k1: EMU10K1 rev 7 model 0x8040 found, IO at 0x2400-0x241f, IRQ 19
-  > ac97_codec: AC97 Audio codec, id: 0x8384:0x7609 (SigmaTel STAC9721/23)
-  > usb.c: registered new driver hub
+> within a couple of hours.  We can usually ssh into the hung machine from
+> another machine and kill the application to bring back X.  Top shows
 
-I have the same problem. It started when I applied Gerd Knorr's V4L2
-patches for bttv 0.8.x in 2.4.12. If I reverted back to the vanilla
-2.4.12 kernel, all was fine.
+Happy you.
 
-This then became a problem in vanilla 2.4.13. It doesn't happen with all
-apps, just apps that play small wav files (like "play"). Quake3 and xmms
-don't have any issues.
+> CPUs:
 
-I've tried the drivers on opensource.creative.com, but they haven't
-helped. I'm now using the V4L2 patches for 2.4.13, and the problem is
-still there.
+Dual PIII / 800MHz.
+ 
+> Motherboards:
 
-Here's my driver info:
+Gigabyte GA-6VXD7 (with VIA694X)
 
-Creative EMU10K1 PCI Audio Driver, version 0.16, 23:24:09 Nov  5 2001
-PCI: Found IRQ 7 for device 00:0c.0
-PCI: Sharing IRQ 7 with 00:07.2
-emu10k1: EMU10K1 rev 8 model 0x8027 found, IO at 0xe400-0xe41f, IRQ 7
-ac97_codec: AC97  codec, id: 0x5452:0x4123 (TriTech TR?????)
+> Video cards:
 
-Please CC any response to vi@sh.nu, as I'm not on the list.
+G450 with XF 4.1.0 drivers.
 
-Thanks,
+> OS Versions:
 
-Daniel Ceregatti
+Debian.
 
+> Typical system config:
+
+45GB IDE
+256MB RAM
+
+> A simple way to do persistent concurrent I/O:
+
+Watching fbtv on second G450 head. It stresses AGP as it generates
+30MBps stream from PCI -> AGP...
+
+> Any help with this problem would be greatly appreciated.
+
+... and machine is dead - poweroff button does not work. I always thought
+that it is specific to VIA chipsets, as almost same configuration (PII
+instead of PIII) worked fine on GA-6BXDS (i440BX), and it is new to me
+that AMD has same troubles. Help is simple - do not use VIA chipsets,
+at least I did not found any other way how to get it to work
+(except disabling mainmemory,PCI->AGP transfers (CPU->AGP are OK, 
+obviously...)).
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
+P.S.: If you have dualhead G400 on VIA and two bt848 grabbers, just run
+one fbtv -k on first head, and another fbtv -k on second head. It will
+die as soon as you hit enter on second fbtv (and of course they must be
+in <=16bpp, as 694X does not handle even one memory stream needed for 
+32bpp full PAL PCI->AGP transfer).
+                                                

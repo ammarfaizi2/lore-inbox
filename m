@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUBDPqS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 10:46:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263466AbUBDPqS
+	id S262228AbUBDQED (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 11:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUBDQED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 10:46:18 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:47876 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261779AbUBDPqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 10:46:17 -0500
-Date: Wed, 4 Feb 2004 15:46:08 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: James Morris <jmorris@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Alexander Viro <aviro@redhat.com>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org,
-       selinux@tycho.nsa.gov, Chris Wright <chrisw@osdl.org>,
-       trond.myklebust@fys.uio.no
-Subject: Re: [PATCH] (2/3) SELinux context mount support - NFS
-Message-ID: <20040204154608.A19702@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	Alexander Viro <aviro@redhat.com>,
-	Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org,
-	selinux@tycho.nsa.gov, Chris Wright <chrisw@osdl.org>,
-	trond.myklebust@fys.uio.no
-References: <Xine.LNX.4.44.0402040931480.4796@thoron.boston.redhat.com> <Xine.LNX.4.44.0402040949010.4796-100000@thoron.boston.redhat.com>
+	Wed, 4 Feb 2004 11:04:03 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:50327 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262228AbUBDQEB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 11:04:01 -0500
+Subject: Re: 2.6 probe.c "pcibus_class" Device Class, release function
+From: John Rose <johnrose@austin.ibm.com>
+To: colpatch@us.ibm.com
+Cc: greg KH <gregkh@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <40204B7E.6030408@us.ibm.com>
+References: <1075847619.28337.31.camel@verve>  <40204B7E.6030408@us.ibm.com>
+Content-Type: text/plain
+Message-Id: <1075910444.3026.0.camel@verve>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Xine.LNX.4.44.0402040949010.4796-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Wed, Feb 04, 2004 at 10:31:51AM -0500
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 04 Feb 2004 10:00:44 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 10:31:51AM -0500, James Morris wrote:
-> This patch modifies the kernel's NFS mount data structure to include 
-> SELinux context mount data.  It allows NFS fileystems to be labeled on a 
-> per-mountpoint basis, and should not affect existing versions of 
-> userspace mount.
+>  put() does need to be 
+> called twice because the bridge device is get()'d twice: once when the 
+> device is registered and once when it's bus device grabs a reference to it.
 
-Wouldn't it better to integrate the NFS xattr code that SGI released under
-the GPL  (it's IRIX, not linux code unfortunately)
+Looks great, thanks Matt.
+
+John
 

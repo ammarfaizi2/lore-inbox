@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264076AbUFBUUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264095AbUFBU2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264076AbUFBUUq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 16:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbUFBUTM
+	id S264095AbUFBU2x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 16:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUFBU2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 16:19:12 -0400
-Received: from cits-darla.robins.af.mil ([137.244.215.8]:48843 "EHLO
-	cits-darla.robins.af.mil") by vger.kernel.org with ESMTP
-	id S264085AbUFBURK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 16:17:10 -0400
-Message-ID: <200406022013.i52KDu1l025256@cits-darla.robins.af.mil>
-From: Garboua Nahil Y Contr WRALC/MASFE <Nahil.Garboua@robins.af.mil>
-To: Mathieu Segaud <matt@minas-morgul.org>, linux-kernel@vger.kernel.org
-Subject: RE: Context switch Tick
-Date: Wed, 2 Jun 2004 20:15:50 -0000 
+	Wed, 2 Jun 2004 16:28:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23220 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264095AbUFBUWw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 16:22:52 -0400
+Message-ID: <40BE370C.9010800@pobox.com>
+Date: Wed, 02 Jun 2004 16:22:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] use new msleep() in ADT746x driver
+References: <200405291908.i4TJ8Acm011281@hera.kernel.org>	 <40B8EA88.6030607@pobox.com> <1085873203.2140.21.camel@gaston>
+In-Reply-To: <1085873203.2140.21.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, vmstat show me the cs according to current load, what is the Maximum
-tick rate? 
-A process requests a 1 microseconds sleep, or even 500 nanoseconds, how long
-does it actually sleep, that is why I need to know max tick rate for context
-switch for a given CPU.
+Benjamin Herrenschmidt wrote:
+> On Sun, 2004-05-30 at 05:54, Jeff Garzik wrote:
+> 
+>>Linux Kernel Mailing List wrote:
+>>
+>>>diff -Nru a/drivers/macintosh/therm_adt746x.c b/drivers/macintosh/therm_adt746x.c
+>>>--- a/drivers/macintosh/therm_adt746x.c	2004-05-29 12:08:19 -07:00
+>>>+++ b/drivers/macintosh/therm_adt746x.c	2004-05-29 12:08:19 -07:00
+>>>@@ -246,8 +246,7 @@
+>>> 
+>>> 	while(monitor_running)
+>>> 	{
+>>>-		set_task_state(current, TASK_UNINTERRUPTIBLE);
+>>>-		schedule_timeout(2*HZ);
+>>>+		msleep(2000);
+>>
+>>
+>>IMO this is moving the code away from what the coder appeared to intend.
+>>
+>>A "sleep(2)" would be preferred, and more clear.
+> 
+> 
+> This patch was done by the original author of the driver
 
------Original Message-----
-From: Mathieu Segaud [mailto:matt@minas-morgul.org] 
-Sent: Wednesday, June 02, 2004 3:52 PM
-To: Garboua Nahil Y Contr WRALC/MASFE
-Subject: Re: Context switch Tick
 
-Garboua Nahil Y Contr WRALC/MASFE <Nahil.Garboua@robins.af.mil> writes:
+Well, I think the author is making his driver less readable...  "2 
+seconds" is more clear than "2000 msec", and I am willing to bet that 
+sleep() would have been used, had it existed.
 
-> How fast does the kernel switches contexts, and does it dependent on type
-> and speed of cpu?   
-> Where/how can I find current system tick rate for the Linux kernel 
-> context switch?
+	Jeff
 
-The context switch tick rate depends on many things:
-- any time an interrupt is triggered, there is a ctx switch,
-- schedule() performs a context switch if it finds a suitable process,
-- schedule() is called on every blocking io that a process calls for,
 
-so the rate is quite changing ;)
-if you want to know the current ctx switch rate, use vmstat
-
-vmstat 1 will gives a line per second on system info:
-process statistics, io stats, memory stats, and cpu stats
-
-the one you want is denoted "cs"
-
---
-Mathieu Segaud
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org 
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

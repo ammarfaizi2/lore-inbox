@@ -1,170 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264031AbTDOBbs (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 21:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264038AbTDOBbs (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 21:31:48 -0400
-Received: from teranet244-12-200.monarch.net ([24.244.12.200]:15626 "EHLO
-	teranet244-12-200.monarch.net") by vger.kernel.org with ESMTP
-	id S264031AbTDOBbn (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 21:31:43 -0400
-Date: Tue, 15 Apr 2003 09:38:49 -0600
-From: Peter Braam <braam@clusterfs.com>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       chyang@clusterfs.com
-Cc: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       InterMezzo Development List 
-	<intermezzo-devel@lists.sourceforge.net>
-Subject: Re: top stack (l)users for 2.5.67
-Message-ID: <20030415153849.GA1658@localhost.localdomain>
-References: <20030414173047.GJ10347@wohnheim.fh-wedel.de> <1050338275.25353.93.camel@dhcp22.swansea.linux.org.uk> <20030414174645.GK10347@wohnheim.fh-wedel.de> <20030414182544.GA6866@suse.de> <20030414190514.GB12740@wohnheim.fh-wedel.de> <20030414131852.I26054@schatzie.adilger.int> <20030414194024.GE12740@wohnheim.fh-wedel.de>
+	id S264073AbTDOBli (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 21:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264081AbTDOBli (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 21:41:38 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:28711 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264073AbTDOBlh (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 21:41:37 -0400
+Date: Mon, 14 Apr 2003 18:53:26 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: James Simmons <jsimmons@infradead.org>
+Subject: Re: [FBCON] Could be called outside of a process context. This
+ fixes that.
+Message-Id: <20030414185326.1fdf2e01.akpm@digeo.com>
+In-Reply-To: <200304141829.h3EITgZF028370@hera.kernel.org>
+References: <200304141829.h3EITgZF028370@hera.kernel.org>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030414194024.GE12740@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Apr 2003 01:53:22.0433 (UTC) FILETIME=[CBB22710:01C302F1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes please update the email/contact to intermezzo-devel@lists.sf.net.
-Chen Yang is maintaining the code and he can give nods of approval
-when required.
+Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
+>
+> ChangeSet 1.981, 2003/03/25 10:21:46-08:00, jsimmons@maxwell.earthlink.net
+> 
+> 	[FBCON] Could be called outside of a process context. This fixes that.
+> 
+> 
+> ...
+> diff -Nru a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+> --- a/drivers/video/console/fbcon.c	Mon Apr 14 11:29:45 2003
+> +++ b/drivers/video/console/fbcon.c	Mon Apr 14 11:29:45 2003
+> @@ -985,8 +985,8 @@
+>  
+>  	size = ((width + 7) >> 3) * height;
+>  
+> -	data = kmalloc(size, GFP_KERNEL);
+> -	mask = kmalloc(size, GFP_KERNEL);
+> +	data = kmalloc(size, GFP_ATOMIC);
+> +	mask = kmalloc(size, GFP_ATOMIC);
+>  	
+>  	if (cursor->set & FB_CUR_SETSIZE) {
+>  		memset(data, 0xff, size);
 
-- Peter -
-
-
-
-On Mon, Apr 14, 2003 at 09:40:24PM +0200, Jörn Engel wrote:
-> On Mon, 14 April 2003 13:18:52 -0600, Andreas Dilger wrote:
-> > 
-> > I've CC'd the InterMezzo mailing list (which is where the maintainers of
-> > this code live).  Could someone please post a copy of the original patch
-> > to the intermezzo-devel@lists.sourceforge.net mailing list?
-> 
-> Attached. (Yes, this is a duplicate for lkml, but it's not that big)
-> 
-> > Actually, my recollection is that there was previously a patch posted
-> > for fixing this large stack usage the last time this came up.
-> 
-> Yup, I already tried this once before and got some feedback. Just none
-> from braam@clusterfs.com, who is the contact according to MAINTAINERS.
-> Should I update that file to intermezzo-devel@lists.sourceforge.net?
-> 
-> Jörn
-> 
-> -- 
-> With a PC, I always felt limited by the software available. On Unix, 
-> I am limited only by my knowledge.
-> -- Peter J. Schoenster
-> 
-> --- linux-2.5.64/fs/intermezzo/journal.c	Mon Feb 24 20:05:05 2003
-> +++ linux-2.5.64-i2o/fs/intermezzo/journal.c	Fri Mar 14 17:37:18 2003
-> @@ -1239,12 +1239,15 @@
->          return izo_rcvd_write(fset, &rec);
->  }
->  
-> +/* FIXME: should the below go into some header file? */
-> +#define PRESTO_COPY_KML_TAIL_BUFSIZE 4096
->  struct file * presto_copy_kml_tail(struct presto_file_set *fset,
->                                     unsigned long int start)
->  {
->          struct file *f;
->          int len;
->          loff_t read_off, write_off, bytes;
-> +        char *buf;
->  
->          ENTRY;
->  
-> @@ -1255,15 +1258,18 @@
->                  return f;
->          }
->  
-> +        buf = kmalloc(PRESTO_COPY_KML_TAIL_BUFSIZE, GFP_KERNEL);
-> +        if (!buf)
-> +                return ERR_PTR(-ENOMEM);
-> +
->          write_off = 0;
->          read_off = start;
->          bytes = fset->fset_kml.fd_offset - start;
->          while (bytes > 0) {
-> -                char buf[4096];
->                  int toread;
->  
-> -                if (bytes > sizeof(buf))
-> -                        toread = sizeof(buf);
-> +                if (bytes > PRESTO_COPY_KML_TAIL_BUFSIZE)
-> +                        toread = PRESTO_COPY_KML_TAIL_BUFSIZE;
->                  else
->                          toread = bytes;
->  
-> @@ -1274,6 +1280,7 @@
->  
->                  if (presto_fwrite(f, buf, len, &write_off) != len) {
->                          filp_close(f, NULL);
-> +                        kfree(buf);
->                          EXIT;
->                          return ERR_PTR(-EIO);
->                  }
-> @@ -1281,6 +1288,7 @@
->                  bytes -= len;
->          }
->  
-> +        kfree(buf);
->          EXIT;
->          return f;
->  }
-> @@ -1584,12 +1592,14 @@
->          return error;
->  }
->  
-> +/* FIXME: should the below go into some header file? */
-> +#define PRESTO_GET_FILEID_BUFSIZE 4096
->  int presto_get_fileid(int minor, struct presto_file_set *fset,
->                        struct dentry *dentry)
->  {
->          int opcode = KML_OPCODE_GET_FILEID;
->          struct rec_info rec;
-> -        char *buffer, *path, *logrecord, record[4096]; /*include path*/
-> +        char *buffer, *path, *logrecord, *record; /*include path*/
->          struct dentry *root;
->          __u32 uid, gid, pathlen;
->          int error, size;
-> @@ -1597,6 +1607,10 @@
->  
->          ENTRY;
->  
-> +        record = kmalloc(PRESTO_GET_FILEID_BUFSIZE, GFP_KERNEL);
-> +        if (!record)
-> +                return -ENOMEM;
-> +
->          root = fset->fset_dentry;
->  
->          uid = cpu_to_le32(dentry->d_inode->i_uid);
-> @@ -1610,7 +1624,7 @@
->                  sizeof(struct kml_suffix);
->  
->          CDEBUG(D_FILE, "kml size: %d\n", size);
-> -        if ( size > sizeof(record) )
-> +        if ( size > PRESTO_GET_FILEID_BUFSIZE )
->                  CERROR("InterMezzo: BUFFER OVERFLOW in %s!\n", __FUNCTION__);
->  
->          memset(&rec, 0, sizeof(rec));
-> @@ -1633,6 +1647,7 @@
->                                     fset->fset_name);
->  
->          BUFF_FREE(buffer);
-> +        kfree(record);
->          EXIT;
->          return error;
->  }
-> 
-> 
-> -------------------------------------------------------
-> This sf.net email is sponsored by:ThinkGeek
-> Welcome to geek heaven.
-> http://thinkgeek.com/sf
-> _______________________________________________
-> intermezzo-devel mailing list
-> intermezzo-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/intermezzo-devel
-- Peter -
+GFP_ATOMIC memory allocations can and will return NULL when the system is
+under load.  The driver _has_ to check for this, and cope with it.

@@ -1,249 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267614AbSKSX6L>; Tue, 19 Nov 2002 18:58:11 -0500
+	id <S267182AbSKTABc>; Tue, 19 Nov 2002 19:01:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267619AbSKSX6L>; Tue, 19 Nov 2002 18:58:11 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:5872 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267614AbSKSX6E>;
-	Tue, 19 Nov 2002 18:58:04 -0500
-Subject: [RFC] [PATCH] subarch cleanup
-From: john stultz <johnstul@us.ibm.com>
-To: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Content-Type: multipart/mixed; boundary="=-+APjjbC467uelxPbBV98"
-Organization: 
-Message-Id: <1037750429.4463.71.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 19 Nov 2002 16:00:29 -0800
+	id <S267283AbSKTABc>; Tue, 19 Nov 2002 19:01:32 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:33035 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S267182AbSKTABa>; Tue, 19 Nov 2002 19:01:30 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1952@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'Steven Timm'" <timm@fnal.gov>, linux-kernel@vger.kernel.org
+Subject: RE: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
+Date: Tue, 19 Nov 2002 16:08:22 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have seen this errors on Seagate ST380021A 80 GB drive on a large scale in
+our storage systems that make use of 3ware controllers. Seagate claims the
+following reasons:
 
---=-+APjjbC467uelxPbBV98
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+1. Weak Power supply
+2. tempeature and heat
+3. vibration
 
-James, All,
+Although, the maxtor 160 GB drives do not show such problems at all. Such
+problems can be eliminated though. From the SMART data, get the bad sectors
+and remap them by writing to the raw device. Those pending sectors will get
+remapped. However, the problems will persist with these drives. In our
+boxes, the operating temperature is abt 55 C ...
 
-	This is a small patch to try to somewhat cleanup the subarch code.
-First it moves all the subarch .h files out of arch/i386/mach-xyz into
-include/asm-i386/mach-xyz, then it changes the include patch to include
-include/asm-i386/mach-xyz and include/asm-i386/mach-generic when
-compiling. This allows the compiler to use the arch specific .h files
-when needed, and then falls back to the generic .h files if no subarch
-specific changes are needed. 
-
-Obviously this doesn't work with .c files, so I've split up the Makefile
-MACHINE variable into MACHINE_H and MACHINE_C, so subarchs like summit
-which does not need any subarch specific .c files can just use the
-generic files. 
-
-The patch is bziped due to its size, but that is mainly due to moving
-all the .h files, the only file changed is arch/i386/Makefile and I've
-inlined that diff below.
-
-Please let me know if you have any comments, flames or suggestions.
-
-thanks
--john
-
-diff -Nru a/arch/i386/Makefile b/arch/i386/Makefile
---- a/arch/i386/Makefile	Mon Nov 18 18:12:25 2002
-+++ b/arch/i386/Makefile	Mon Nov 18 18:12:25 2002
-@@ -47,9 +47,11 @@
- CFLAGS += $(cflags-y)
- 
- ifdef CONFIG_VISWS
--MACHINE	:= mach-visws
-+MACHINE_C	:= mach-visws
-+MACHINE_H	:= mach-visws
- else
--MACHINE	:= mach-generic
-+MACHINE_C	:= mach-generic
-+MACHINE_H	:= mach-generic
- endif
- 
- HEAD := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
-@@ -57,14 +59,14 @@
- libs-y 					+= arch/i386/lib/
- core-y					+= arch/i386/kernel/ \
- 					   arch/i386/mm/ \
--					   arch/i386/$(MACHINE)/
-+					   arch/i386/$(MACHINE_C)/
- drivers-$(CONFIG_MATH_EMULATION)	+= arch/i386/math-emu/
- drivers-$(CONFIG_PCI)			+= arch/i386/pci/
- # FIXME: is drivers- right ?
- drivers-$(CONFIG_OPROFILE)		+= arch/i386/oprofile/
- 
--CFLAGS += -Iarch/i386/$(MACHINE)
--AFLAGS += -Iarch/i386/$(MACHINE)
-+CFLAGS += -Iinclude/asm-i386/$(MACHINE_H) -Iinclude/asm-i386/mach-generic
-+AFLAGS += -Iinclude/asm-i386/$(MACHINE_H) -Iinclude/asm-i386/mach-generic
- 
- makeboot = $(call descend,arch/i386/boot,$(1))
+-----Original Message-----
+From: Steven Timm [mailto:timm@fnal.gov]
+Sent: Tuesday, November 19, 2002 1:37 PM
+To: linux-kernel@vger.kernel.org
+Subject: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
 
 
 
---=-+APjjbC467uelxPbBV98
-Content-Disposition: attachment; filename=linux-2.5.48_subarch-cleanup_A0.patch.bz2
-Content-Type: application/x-bzip; name=linux-2.5.48_subarch-cleanup_A0.patch.bz2
-Content-Transfer-Encoding: base64
+I have recently observed a large frequency of this error on
+a bunch of compute servers with brand new disks.
 
-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
-woSEob86UO==
+Nov 15 01:42:52 fnd0172 kernel: hdb: dma_intr: status=0x51 { DriveReady
+SeekComplete Error }
+Nov 15 01:42:52 fnd0172 kernel: hdb: dma_intr: error=0x40 {
+UncorrectableError }, LBAsect=44763517, sector=11235856
+Nov 15 01:42:52 fnd0172 kernel: end_request: I/O error, dev 03:42 (hdb),
+sector 11235856
 
---=-+APjjbC467uelxPbBV98--
+Configuration is the following:
+Tyan 2466 motherboard which has AMD760MPX chipset, dual Athlon MP2000+
+processors  (supports UltraATA100)
 
+hda=Seagate ST340016A 40 GB drive, ext2 FS
+hdb=Seagate ST380021A 80 GB drive, ext2 FS.
+
+There are many entries in this mailing list saying that
+the above error is a sign of a bad disk.  Seagate diagnostics
+say so too.. It is just hard to believe that 30 hard drives could
+go bad in less than a month.
+
+I know errors of this type were common on machines with Serverworks
+OSB4 chipsets.  Has anyone else heard of this error happening on
+non-serverworks chipsets such as VIA or AMD?  And is the drive
+really bad or will a low level format clear the bad blocks
+and let the drive operate again?
+
+Steve Timm
+
+------------------------------------------------------------------
+
+SMART shows the following error structure:
+
+SMART Error Log:
+SMART Error Logging Version: 1
+Error Log Data Structure Pointer: 03
+ATA Error Count: 13
+Non-Fatal Count: 0
+
+Error Log Structure 1:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   08   57   09   ab    f2   c8     40315
+ 00   00   08   5f   09   ab    f2   c8     40315
+ 00   00   08   67   09   ab    f2   c8     40315
+ 00   00   08   6f   09   ab    f2   c8     40315
+ 00   00   08   77   09   ab    f2   c8     40315
+ 00   40   00   7d   09   ab    f2   51     922746
+Error condition:  33    Error State:       3
+Number of Hours in Drive Life: 1021 (life of the drive in hours)
+
+Error Log Structure 2:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   08   07   d5   55    f1   ca     40320
+ 00   00   08   3f   00   5c    f1   ca     40320
+ 00   00   08   97   33   5d    f1   ca     40320
+ 00   00   08   87   97   0f    f2   ca     40320
+ 00   00   08   77   09   ab    f2   c8     40320
+ 00   40   00   7d   09   ab    f2   51     922746
+Error condition:  33    Error State:       3
+Number of Hours in Drive Life: 1021 (life of the drive in hours)
+
+Error Log Structure 3:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   28   bf   8f   52    f1   c8     23662
+ 00   00   98   e7   8f   52    f1   c8     23662
+ 00   00   68   ff   9a   52    f1   c8     23662
+ 00   00   d8   67   9b   52    f1   c8     23662
+ 00   00   28   07   a3   52    f1   c8     23662
+ 00   40   00   25   a3   52    f1   51     1124073
+Error condition: 161    Error State:       3
+Number of Hours in Drive Life: 1040 (life of the drive in hours)
+
+Error Log Structure 4:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   e0   4f   09   ab    f2   c8     40280
+ 00   00   d8   57   09   ab    f2   c8     40285
+ 00   00   d0   5f   09   ab    f2   c8     40290
+ 00   00   c8   67   09   ab    f2   c8     40296
+ 00   00   c0   6f   09   ab    f2   c8     40301
+ 00   40   00   7d   09   ab    f2   51     922746
+Error condition:  33    Error State:       3
+Number of Hours in Drive Life: 1021 (life of the drive in hours)
+
+Error Log Structure 5:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   d8   57   09   ab    f2   c8     40285
+ 00   00   d0   5f   09   ab    f2   c8     40290
+ 00   00   c8   67   09   ab    f2   c8     40296
+ 00   00   c0   6f   09   ab    f2   c8     40301
+ 00   00   b8   77   09   ab    f2   c8     40306
+ 00   40   00   7d   09   ab    f2   51     922746
+Error condition:  33    Error State:       3
+Number of Hours in Drive Life: 1021 (life of the drive in hours)
+
+
+
+Steven C. Timm (630) 840-8525  timm@fnal.gov  http://home.fnal.gov/~timm/
+Fermilab Computing Division/Operating Systems Support
+Scientific Computing Support Group--Computing Farms Operations
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

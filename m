@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271938AbRIDK27>; Tue, 4 Sep 2001 06:28:59 -0400
+	id <S271939AbRIDK33>; Tue, 4 Sep 2001 06:29:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271936AbRIDK2t>; Tue, 4 Sep 2001 06:28:49 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:57268 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S271932AbRIDK2d>;
-	Tue, 4 Sep 2001 06:28:33 -0400
-Date: Tue, 4 Sep 2001 06:28:50 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Bryan Henderson <hbryan@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFD] readonly/read-write semantics
-In-Reply-To: <999598828.11178.8.camel@nomade>
-Message-ID: <Pine.GSO.4.21.0109040628070.26423-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271932AbRIDK3T>; Tue, 4 Sep 2001 06:29:19 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:60553 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271933AbRIDK3K>;
+	Tue, 4 Sep 2001 06:29:10 -0400
+Date: Tue, 04 Sep 2001 03:29:25 -0700 (PDT)
+Message-Id: <20010904.032925.74563055.davem@redhat.com>
+To: ak@suse.de
+Cc: jeffm@suse.com, linux-kernel@vger.kernel.org
+Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs
+ on parisc architecture
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010904122524.A26403@gruyere.muc.suse.de>
+In-Reply-To: <oupoforxpc1.fsf@pigdrop.muc.suse.de>
+	<20010904.030454.85412225.davem@redhat.com>
+	<20010904122524.A26403@gruyere.muc.suse.de>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Andi Kleen <ak@suse.de>
+   Date: Tue, 4 Sep 2001 12:25:24 +0200
 
+   On Tue, Sep 04, 2001 at 03:04:54AM -0700, David S. Miller wrote:
+   > I can also almost guarentee you that the x86 will sometimes not
+   > execute these bitops atomically on SMP.
+   
+   It's not needed when you have another lock to protect and don't have
+   interrupt threads.
 
-On 4 Sep 2001, Xavier Bestel wrote:
+I agree completely, so therefore if moving to non-atomic bitops
+is an option that would be a great way to fix this reiserfs bug.
 
-> > ??? Rollback is purely local thing, so NFS client doesn't matter at all.
-> > And nfsd is just an application running on server, whether it's a kernel
-> > thread or a normal process.
-> 
-> Sorry, I meant journal replaying ... AFAIK, this operation will write on
-> the media even if mounted r/o.
-
-Ditto - NFS client has no idea of that operation.
-
+Later,
+David S. Miller
+davem@redhat.com

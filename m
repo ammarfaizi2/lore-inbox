@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbTD3Cdw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 22:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbTD3Cdw
+	id S261939AbTD3Cp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 22:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTD3Cp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 22:33:52 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:1943 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S261786AbTD3Cdw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 22:33:52 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: rmoser <mlmoser@comcast.net>, John Bradford <john@grabjohn.com>
-Subject: Re: Swap Compression
-Date: Wed, 30 Apr 2003 12:48:07 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200304292114.h3TLEHBu003733@81-2-122-30.bradfords.org.uk> <200304292059150060.002E747A@smtp.comcast.net>
-In-Reply-To: <200304292059150060.002E747A@smtp.comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Apr 2003 22:45:27 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:30877 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S261939AbTD3Cp0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 22:45:26 -0400
+Date: Tue, 29 Apr 2003 22:57:46 -0400
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Per-Mount UID/GID Rewrite Vector
+Message-ID: <20030430025746.GA24281@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <PEEPIDHAKMCGHDBJLHKGEEFJCJAA.rwhite@casabyte.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304301248.07777.kernel@kolivas.org>
+In-Reply-To: <PEEPIDHAKMCGHDBJLHKGEEFJCJAA.rwhite@casabyte.com>
+User-Agent: Mutt/1.5.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Apr 2003 10:59, rmoser wrote:
-> *********** REPLY SEPARATOR  ***********
->
-> On 4/29/2003 at 10:14 PM John Bradford wrote:
-> >> I want to start from scratch because I am trying a different angle,
-> >> and I don't understand fully current projects on it.
-> >
-> >There is nothing wrong from having a separate, parallel project
-> >running - it's a good idea, and generally helps to spark interest in
-> >both projects.
->
-> THANK YOU!
->
-> You've saved me from having to defend meself.
+On Tue, Apr 29, 2003 at 02:42:57PM -0700, Robert White wrote:
+> Opinions?  Objections?  Reasons I'm an idiot?
 
-I don't think a parallel project is a bad idea either. I was just suggesting 
-adding the minilzo algorithm from the linuxcompressed project as one of the 
-compression algorithms available.
+Working with Coda, I've thought about these issues many times. I believe
+the user mapping is a many-many relationship, which is hard or even
+impossible to represent with such a simple mapping. Also the mapping
+would vary depending on which device/file hierarchy is inserted. For
+Coda it even depends on which subtree within the filesystem you traverse
+as those might access servers is different administrative organisations.
 
-Con
+Not doing anything tricky and allowing nosuid,noexec,nodev,uid=XX,gid=XX
+to apply to all filesystems (possibly within the VFS layer) is
+probably a more reliable solution. Otherwise it just becomes too complex
+to manage.
+
+For Coda we're pretty much punting the uid mapping. It is used for
+'presentation' purposes only as all security is based on the Coda token
+and directory ACLs. We do not really use the unix owner and permission
+bits. We also explicitly clear the SUID bit, and rely on a locally
+installed copy of sudo or super (preferably with a modification to check
+something like an SHA1 or MD5 checksum of the executable) to provide the
+priviledge escalation. This way running setuid applications becomes a
+local policy.
+
+For sandboxing purposes, perhaps you could think in the direction of
+mounting the device in an UML environment, or it's own namespace.
+
+Jan
+

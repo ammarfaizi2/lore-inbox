@@ -1,50 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265058AbSLMQJl>; Fri, 13 Dec 2002 11:09:41 -0500
+	id <S265063AbSLMQKq>; Fri, 13 Dec 2002 11:10:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265063AbSLMQJl>; Fri, 13 Dec 2002 11:09:41 -0500
-Received: from relay.muni.cz ([147.251.4.35]:38282 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S265058AbSLMQJk>;
-	Fri, 13 Dec 2002 11:09:40 -0500
-To: "Valdis.Kletnieks@vt.edu" <1039774224.1449.0.camel@laptop.fenrus.com>
-Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
-       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions)
-References: <200212131345.gBDDjw27002677@turing-police.cc.vt.edu>
-X-URL: http://www.fi.muni.cz/~pekon/
-From: Petr Konecny <pekon@informatics.muni.cz>
-Date: 13 Dec 2002 17:17:14 +0100
-In-Reply-To: <200212131345.gBDDjw27002677@turing-police.cc.vt.edu>
-Message-ID: <qww65tx3ncl.fsf@decibel.fi.muni.cz>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Military Intelligence)
+	id <S265085AbSLMQKq>; Fri, 13 Dec 2002 11:10:46 -0500
+Received: from dhcp-66-212-193-131.myeastern.com ([66.212.193.131]:19406 "EHLO
+	mail.and.org") by vger.kernel.org with ESMTP id <S265063AbSLMQKn>;
+	Fri, 13 Dec 2002 11:10:43 -0500
+To: root@chaos.analogic.com
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org, Andrew Walrond <andrew@walrond.org>
+Subject: Re: Symlink indirection
+References: <Pine.LNX.3.95.1021213102838.2190B-100000@chaos.analogic.com>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 13 Dec 2002 11:17:57 -0500
+In-Reply-To: <Pine.LNX.3.95.1021213102838.2190B-100000@chaos.analogic.com>
+Message-ID: <m3bs3pao5m.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Arjan> interesting. BUT aren't we writing to the device 3 lines before
- Arjan> where you add the pci_enable_device()? That sounds like a bad
- Arjan> plan to me ;(
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
- Valdis> I see why the if/continue was added - you don't want to be
- Valdis> calling device_register()/pci_insert_device() if
- Valdis> pci_enable_device() loses.  I don't see why 2.5.50 moved the
- Valdis> code up after pci_setup_device(). There's an outside chance
- Valdis> that the concept of moving the call was correct, but that it
- Valdis> should have been moved to between the calls to
- Valdis> pci_assign_resource() and pci_readb().  If that's the case,
- Valdis> then you're correct as well....
-I can confirm that this indeed works. I moved the two lines before
-pci_readb and the card works (every character you now read went through
-it). Who shall submit a patch to Linus ?
+> On Fri, 13 Dec 2002, Marc-Christian Petersen wrote:
+> 
+> > On Friday 13 December 2002 16:06, Andrew Walrond wrote:
+> > 
+> > Hi Andrew,
+> > 
+> > > Is the number of allowed levels of symlink indirection (if that is the
+> > > right phrase; I mean symlink -> symlink -> ... -> file) dependant on the
+> > > kernel, or libc ? Where is it defined, and can it be changed?
+> > 
+> > fs/namei.c
+> > 
+> >  if (current->link_count >= 5)
+> > 
+> > change to a higher value.
+> > 
+> > So, the answer is: Kernel :)
+> > 
+> > ciao, Marc
+> 
+> No, that thing (whetever it is) is different.
+> 
+> Script started on Fri Dec 13 10:26:30 2002
+> # file *
+> foo:        symbolic link to ../foo
 
-Now I have to figure out, how to make it load without manual modprobe
-xircom_cb. Oh the joys of new module loader.
+ *sigh*, you are following one symlink at a time ... what is this
+proving ?
 
-                                                Petr
+> You can do this until you run out of string-space. Your "link-count"
+> has something to do with something else.
+
+ The link count is for recursively following symlinks, as the original
+question wanted to know ... and has been discussed on lkml numerous
+times.
+
+ Andrew, one extra piece of information you might not know is that the
+above value doesn't come into play when the new symlink is the last
+element in the new path, then you get a higher value.
+ The full code...
+
+        if (current->link_count >= max_recursive_link)
+                goto loop;
+        if (current->total_link_count >= 40)
+                goto loop;
+[...]
+        current->link_count++;
+        current->total_link_count++;
+        UPDATE_ATIME(dentry->d_inode);
+        err = dentry->d_inode->i_op->follow_link(dentry, nd);
+        current->link_count--;
+
+...Ie. a link from /a -> /b/c where "b" is a symlink takes the
+"max_recursive_link" value (5 on vanilla kernels) but if "/b/c" was a
+symlink then you get to use the 40 value.
+
 -- 
-Computers are like air conditioners.  Both stop working, if you open
-windows.
-        -- Adam Heath
-
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUKBQI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbUKBQOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbUKBQI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 11:08:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbUKBQIz
+	id S261909AbUKBQOu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 11:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbUKBQJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 11:08:55 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:4086 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262745AbUKBQGq (ORCPT
+	Tue, 2 Nov 2004 11:09:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34484 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262619AbUKBQGJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 11:06:46 -0500
-Date: Tue, 2 Nov 2004 10:03:34 -0600
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Milton Miller <miltonm@bga.com>
-Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: sysfs backing store error path confusion
-Message-ID: <20041102160334.GB3191@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <200411020846.iA28kw3g051219@sullivan.realtime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411020846.iA28kw3g051219@sullivan.realtime.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 2 Nov 2004 11:06:09 -0500
+Date: Tue, 2 Nov 2004 08:06:01 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: linux-os@analogic.com
+cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Andreas Steinmetz <ast@domdv.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: Semaphore assembly-code bug
+In-Reply-To: <Pine.LNX.4.58.0411020759040.2187@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0411020804410.2187@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
+ <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
+  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
+ <1098245904.23628.84.camel@krustophenia.net> <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
+ <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org> <41826A7E.6020801@domdv.de>
+ <Pine.LNX.4.61.0410291255400.17270@chaos.analogic.com>
+ <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410291424180.4870@chaos.analogic.com>
+ <Pine.LNX.4.58.0410291209170.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410312024150.19538@chaos.analogic.com>
+ <Pine.LNX.4.61.0411011219200.8483@twinlark.arctic.org>
+ <Pine.LNX.4.61.0411011542430.24533@chaos.analogic.com>
+ <Pine.LNX.4.58.0411011327400.28839@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411011342090.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0411020935010.3495@chaos.analogic.com>
+ <Pine.LNX.4.58.0411020759040.2187@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 02:46:58AM -0600, Milton Miller wrote:
-> sysfs_new_dirent returns ERR_PTR(-ENOMEM) if kmalloc fails but the callers
-> were expecting NULL.  
+
+
+On Tue, 2 Nov 2004, Linus Torvalds wrote:
 > 
-> Compile & link tested.  (Yes, changing the callee would be a smaller change).
-> 
+> Just change the incorrect "3" in <asm-i386/linkage.h> (or whatever, this 
+> is from memory) back to a "0"
 
-Thanks for spotting this. But as you said, I will prefer to change the callee.
-How about this patch? 
+.. or just use the current -bk snapshot, actually. I may not have x86 as 
+my main desktop, but it's not like I had a really hard time finding one 
+(like the laptop laying there right on top of the desk ;), so the fixed 
+version got checked in already.
 
-Andrew, Greg, please include this if found ok.
-
-Thanks
-Maneesh
-
-
-
-o sysfs_new_dirent to retrun NULL if kmalloc fails. Thanks to Milton Miller 
-  for spotting this.
-
-Signed-off-by: <maneesh@in.ibm.com>
----
-
- linux-2.6.10-rc1-bk12-maneesh/fs/sysfs/dir.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN fs/sysfs/dir.c~fix-sysfs_new_dirent-return fs/sysfs/dir.c
---- linux-2.6.10-rc1-bk12/fs/sysfs/dir.c~fix-sysfs_new_dirent-return	2004-11-02 08:38:57.000000000 -0600
-+++ linux-2.6.10-rc1-bk12-maneesh/fs/sysfs/dir.c	2004-11-02 09:17:18.000000000 -0600
-@@ -38,7 +38,7 @@ static struct sysfs_dirent * sysfs_new_d
- 
- 	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
- 	if (!sd)
--		return -ENOMEM;
-+		return NULL;
- 
- 	memset(sd, 0, sizeof(*sd));
- 	atomic_set(&sd->s_count, 1);
-_
-
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Austin
-email: maneesh@in.ibm.com
-Phone: 1-512-838-1896 Fax: 
-T/L : 6781896
+		Linus

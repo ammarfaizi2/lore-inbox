@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVAGTtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVAGTkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVAGTtE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 14:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVAGTrz
+	id S261556AbVAGTkn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 14:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVAGTgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 14:47:55 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:48546 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261560AbVAGTpI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 14:45:08 -0500
-Subject: Re: /dev/random vs. /dev/urandom
-From: Robert Love <rml@novell.com>
-To: Ron Peterson <rpeterso@mtholyoke.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050107190536.GA14205@mtholyoke.edu>
-References: <20050107190536.GA14205@mtholyoke.edu>
-Content-Type: text/plain
-Date: Fri, 07 Jan 2005 14:40:43 -0500
-Message-Id: <1105126843.9311.41.camel@betsy.boston.ximian.com>
+	Fri, 7 Jan 2005 14:36:17 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:37827 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261566AbVAGTcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 14:32:47 -0500
+Date: Fri, 7 Jan 2005 19:32:40 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Vladimir Saveliev <vs@namesys.com>, linux-mm <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC] per thread page reservation patch
+Message-ID: <20050107193240.GA14465@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Paulo Marques <pmarques@grupopie.com>,
+	Vladimir Saveliev <vs@namesys.com>, linux-mm <linux-mm@kvack.org>,
+	Andrew Morton <akpm@osdl.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com> <1105019521.7074.79.camel@tribesman.namesys.com> <20050107144644.GA9606@infradead.org> <1105118217.3616.171.camel@tribesman.namesys.com> <41DEDF87.8080809@grupopie.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41DEDF87.8080809@grupopie.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 14:05 -0500, Ron Peterson wrote:
+On Fri, Jan 07, 2005 at 07:14:15PM +0000, Paulo Marques wrote:
+> This seems like a very asymmetrical behavior. If the code explicitly 
+> reserves pages, it should explicitly use them, or it will become 
+> impossible to track down who is using what (not to mention that this 
+> will slow down every regular user of __alloc_pages, even if it is just 
+> for a quick test).
+> 
+> Why are there specialized functions to reserve the pages, but then they 
+> are used through the standard __alloc_pages interface?
 
->     read( fd, dat, RAND_LEN );
->     for( i = 0; i < RAND_LEN; i++ ) {
->       dat[i] = (dat[i] & 0x07) + '0';
->     }
-
-Your problem is probably because read() need not actually read RAND_LEN
-bytes.  Particularly with /dev/random, since it will only return bytes
-up to the entropy estimate.  But you assume it read RAND_LEN, when those
-are unread.  And possibly zero.  So that is probably your bug.
-
-The AND makes zero sense, either.
-
-Just use dd(1).
-
-	Robert Love
-
+That seems to be the whole point of the patch, as that way it'll serve
+all sub-allocators or kernel function called by the user.  Without this
+behaviour the caller could have simply used a mempool.
 

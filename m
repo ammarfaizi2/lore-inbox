@@ -1,79 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266501AbUA3EBq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 23:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUA3EBq
+	id S266339AbUA3EXS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 23:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUA3EXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 23:01:46 -0500
-Received: from dp.samba.org ([66.70.73.150]:60348 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266501AbUA3EBn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 23:01:43 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: david.ronis@mcgill.ca
-Cc: linux-kernel@vger.kernel.org, fischer@norbit.de
-Subject: Re: Problem with module-init-tools-3.0-pre3 
-In-reply-to: Your message of "Thu, 29 Jan 2004 11:02:01 CDT."
-             <16409.11897.539398.14955@ronispc.chem.mcgill.ca> 
-Date: Fri, 30 Jan 2004 14:29:59 +1100
-Message-Id: <20040130040158.4785D2C002@lists.samba.org>
+	Thu, 29 Jan 2004 23:23:18 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:21205 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S266339AbUA3EXM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 23:23:12 -0500
+Date: Fri, 30 Jan 2004 17:24:25 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Software Suspend 2.0
+To: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1075436665.2086.3.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <16409.11897.539398.14955@ronispc.chem.mcgill.ca> you write:
-> Rusty Russell writes:
-> I triggered the bug again, although this time in a different order;
-> namely, I ran xsane as a regular user, removed the sg and aha152x
-> modules, and then reran xsane while still root.  
+Software Suspend 2.0 for Linux 2.4 and 2.6 kernels is now available from
+http://swsusp.sf.net. The 2.0 release is a major advance over previous
+versions and includes the following features:
 
-Right.  Sounds like root v. non-root is a red herring.
+- Support for HighMem[1], SMP[2] and preemptive kernels.
+- Support for any number of swap partitions and/or files.
+- Full asynchronous I/O and readahead for synchronous I/O for maximum
+throughput.
+- Image compression (LZF and GZIP - the former is very fast and highly
+recommended).
+- Support for saving a full image of your memory, resulting in a fast,
+responsive system after resuming.
+- Support for plugins: data transformers (compression, encryption) and
+new storage backends (NFS support is planned).
+- Nice user interface (Bootsplash (http://www.bootsplash.org)
+compatible;
+- The ability to specify a maximum image size;
+- The ability to cancel a suspend by pressing Escape (for security, this
+can be disabled). 
+- Speed and reliability. Software Suspend 2.0 has been extensively
+tested in a variety of configurations over many months. It is not
+guaranteed to be perfect, but bugs found will be hunted and fixed
+quickly.
+The Software Suspend website includes extensive documentation, including
+known issues (primarily DRI and USB support) and FAQS. A well-used
+mailing list is also available.
 
-BTW, you can just use "dmesg" in 2.6: ksymoops is not needed.
+Known issues with Suspend 2.0 are as follows:
+- DRI support is lacking power management support under 2.4 & 2.6.
+- AGP support under 2.6 is partially implemented.
+- USB support under 2.4 and 2.6 is lacking.
+- SMP support is currently 2.4 only.
+- Other drivers have varying degrees of power management support.
+- There is currently no support for discontig memory.
+- Suspend currently requires the PSE extension (check /proc/cpuinfo).
+- Highmem >4GB is currently not supported.
+- SMP currently suffers from lost interrupts during resuming
+- 2.6 does not currently flush caches properly before powering down.
 
-> CPU 1 IS NOW UP!
-> Unable to handle kernel NULL pointer dereference at virtual address 00000708
-> c0162800
-> *pde = 00000000
-> Oops: 0000 [#1]
-> CPU:    1
-> EIP:    0060:[<c0162800>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010202
-> eax: e5880000   ebx: 00000708   ecx: 00000015   edx: e5881f28
-> esi: f1452780   edi: 00000001   ebp: f1452780   esp: e5881ed8
-> ds: 007b   es: 007b   ss: 0068
-> Stack: 00000000 c1b64de0 e5880000 00000000 c01626ef f1452780 c01ebce9 01500000 
->        f1452780 00000006 c01626d0 00000000 e5880000 00000000 00000000 00000000 
->        c0162517 f7fe2c00 01500000 e5881f28 00000000 e5ed9080 e83a14d4 00000001 
->  [<c01626ef>] exact_lock+0xf/0x20
->  [<c01ebce9>] kobj_lookup+0x119/0x200
->  [<c01626d0>] exact_match+0x0/0x10
->  [<c0162517>] chrdev_open+0x1e7/0x290
->  [<c0157570>] dentry_open+0x160/0x230
->  [<c0157408>] filp_open+0x68/0x70
->  [<c015797b>] sys_open+0x5b/0x90
->  [<c01092ab>] syscall_call+0x7/0xb
-> Code: 83 3b 02 8b 40 10 74 7f c1 e0 05 8d 04 18 ff 80 a0 00 00 00 
-> 
-> >>EIP; c0162800 <cdev_get+20/b0>   <=====
-> Code;  c0162800 <cdev_get+20/b0>
-> 00000000 <_EIP>:
-> Code;  c0162800 <cdev_get+20/b0>   <=====
->    0:   83 3b 02                  cmpl   $0x2,(%ebx)   <=====
-> Code;  c0162803 <cdev_get+23/b0>
->    3:   8b 40 10                  mov    0x10(%eax),%eax
-> Code;  c0162806 <cdev_get+26/b0>
->    6:   74 7f                     je     87 <_EIP+0x87>
-> Code;  c0162808 <cdev_get+28/b0>
->    8:   c1 e0 05                  shl    $0x5,%eax
-> Code;  c016280b <cdev_get+2b/b0>
->    b:   8d 04 18                  lea    (%eax,%ebx,1),%eax
-> Code;  c016280e <cdev_get+2e/b0>
->    e:   ff 80 a0 00 00 00         incl   0xa0(%eax)
+Some of these issues have work-arounds available: check the FAQs for
+details.
 
-Looks like aha152x or sd is not cleaning up properly, and when
-reinserted, something screws up.
+Note that two patches are required to use suspend: one for the
+particular kernel version you are using (make sure you get the most
+recent for your kernel version), and a second (applied afterwards)
+contains the core files.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Special thanks go to Gabor Kuti, Pavel Machek and Florent Chabaud for
+their work, which I have built on; to Michael Frank for many months of
+extensive testing of the code, to Marc Lehmann for supplying the LZF
+compressor, to Bernard Blackham for maintaining the swsusp.sf.net
+website and especially to LinuxFund.org for their sponsorship of the
+project, which has allowed me to work full-time on Software Suspend over
+the last four months.
+
+Finally, heres a little ditty, to be sung to the tune of the 'The
+Pirates Who Don't Do Anything'
+(http://www.bassbios.com/bodclan/pirates.mp3) 
+
+I'm just a user who wanted to suspend,
+I didn't want to be a kernel hacker at all!
+I'm just a user who wanted to suspend,
+and now I'm happy because I can suspend.
+
+Well I've never been to LinuxConf
+and I've never written a device driver
+And I've never talked to Linus
+and I'm not an expert at BK
+And I don't normally get paid to do this
+and I don't own any hardware manuals
+And I've never been to Boston in the fall...
+
+
+[1] Up to 4GB.
+[2] SMP is currently only supported under 2.4; 2.6 support should not be
+far away. 
+-- 
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
+

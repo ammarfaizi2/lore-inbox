@@ -1,61 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264414AbTK0B2r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 20:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbTK0B2r
+	id S264423AbTK0B4C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 20:56:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTK0B4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 20:28:47 -0500
-Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:26334
-	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id S264414AbTK0B2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 20:28:45 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D1A34053@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'marcelo@conectiva.com.br'" <marcelo@conectiva.com.br>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] serial.c 2.4.23 uart_offset fix
-Date: Wed, 26 Nov 2003 17:28:57 -0800
+	Wed, 26 Nov 2003 20:56:02 -0500
+Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:51589
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S264423AbTK0Bz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 20:55:59 -0500
+Message-ID: <3FC559AB.7000806@sh0n.net>
+Date: Wed, 26 Nov 2003 20:55:55 -0500
+From: Shawn Starr <spstarr@sh0n.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031119 Thunderbird/0.4a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+CC: Linus Torvalds <torvalds@osdl.org>
+Subject: Random SIGSEGVs and 2.6.0-test10
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+It's funny you mention random userland SIGSEGV's.
 
-The serial driver has a default of 8 for the "board uart_offset" config that
-is implemented at about line 3954 in a ternary expression.  It is well and
-good for boards that use I/O port space, but fails in the ioremap call at
-about line 3965 for boards that use memory space. The bug is that when
-uart_offset is zero, it does not actually get changed to the default value,
-so the ioremap call is passed a zero length.
+I don't know if this some of the fallout wrt CONFIG_PREEMPT being 
+enabled or not but using vmware and running my ncurses mp3 player seems 
+to trigger an oddity:
 
-The following patch replaces the ternary expression with an explicit check
-for zero and assignment to the default value. This works for both I/O ports
-and memory space.  --And it actually compiles a little smaller than the
-existing code on x86! 
+Apon using vmware, it may sometimes crap out with a internal bug # and 
+in doing so, sometimes my mp3 player will segfault for no reason. This 
+randomly happens. I do have preempt enabled. Even more odd is the fact 
+that even if I have only say 4500K left out of 576MB, there is 0 swap 
+usage. The kernel malloc fails if there is no physical memory? If I have 
+a huge swap file/disk wouldn't it malloc some of that virtual memory? 
+There is no OOM kill either happening since there's no log of that from 
+the kernel saying it did an OOM kill.
 
-Please put this in at your convenience after the rc's are done. 
+I would certainly like to debug any weird oddities. My systems seem to 
+be good test grounds for such things :-)
 
 Thanks,
-Ed
 
-diff -urN -X dontdiff.txt linux-2.4.23-rc5/drivers/char/serial.c
-linux-2.4.23-rc5-ml/drivers/char/serial.c
---- linux-2.4.23-rc5/drivers/char/serial.c	Wed Nov 26 16:23:45 2003
-+++ linux-2.4.23-rc5-ml/drivers/char/serial.c	Wed Nov 26 16:38:13 2003
-@@ -3950,8 +3950,11 @@
- 
- 	port =  pci_resource_start(dev, base_idx) + offset;
- 
-+	if (board->uart_offset == 0)
-+		board->uart_offset = 8;
-+
- 	if ((board->flags & SPCI_FL_BASE_TABLE) == 0)
--		port += idx * (board->uart_offset ? board->uart_offset : 8);
-+		port += idx * board->uart_offset;
- 
- 	if (IS_PCI_REGION_IOPORT(dev, base_idx)) {
- 		req->port = port;
+> List:     linux-kernel
+> Subject:  Re: What exactly are the issues with 2.6.0-test10 preempt?
+> From:     Linus Torvalds <torvalds () osdl ! org>
+> Date:     2003-11-24 23:00:40
+> [Download message RAW]
+>
+> On Mon, 24 Nov 2003, Bradley Chapman wrote:
+> >
+> > Indeed. Do the same subsystems usually show the memory corruption 
+> issue with
+> > preempt active, or does it just pop up all over the place, 
+> unpredictably?
+>
+> There are a few reports of "predictable" memory corruption, in the sense
+> that the same people tend to see the same kinds of oopses _without_ any
+> other signs of memory corruption (ie no random SIGSEGV's in user space
+> etc).
+>
+> There's the magic slab corruption thing, there's a strange thread data
+> corruption (one person), and there's the sunrpc timer bug. All are
+> "impossible" bugs that would indicate a small amount of data corruption in
+> some core data structure.
+>
+> They are hard to trigger, which makes me personally suspect some
+> user-after-free thing, where the bug happens only when somebody else
+> allocates (and uses) the entry immediately afterwards (so that the old
+> user overwrites stuff that just got initialized for the new user).
+>
+> It's not likely to be a wild pointer: those tend to corrupt random memory,
+> and that in turn is a lot more likely to result in _user_ corruptions
+> (causing SIGSEGV's, corrupted files that magically become ok again when
+> re-read, etc), since 99% of all memory tends to be non-kernel data
+> structures.
+>
+> The PAGEFREE debug option works well for page allocations, but the slab
+> cache is not very amenable to it. For slab debugging, it would be
+> wonderful if somebody made a _truly_ debugging slab allocator that didn't
+> use the slab cache at all, but used the page allocator (and screw the fact
+> that you use too much memory ;) instead.
+>
+> (Sadly, some slab users actually use that stupid "initialize" crap. We
+> should rip it out: it's a disaster from a data cache standpoint too, since
+> it tends to do all the wrong things there, even though it's literally
+> meant to help).
+>
+>         Linus
 

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130842AbRAKRT3>; Thu, 11 Jan 2001 12:19:29 -0500
+	id <S130219AbRAKR0j>; Thu, 11 Jan 2001 12:26:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130792AbRAKRTT>; Thu, 11 Jan 2001 12:19:19 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:55169 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129990AbRAKRTE>;
-	Thu, 11 Jan 2001 12:19:04 -0500
-Date: Thu, 11 Jan 2001 09:18:44 -0800
-Message-Id: <200101111718.JAA03092@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: pwc@speakeasy.net
-CC: andrewm@uow.edu.au, ak@suse.de, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101111023090.716-100000@localhost> (message from
-	Paul Cassella on Thu, 11 Jan 2001 10:45:13 -0600 (CST))
-Subject: Re: 2.4.0-ac3 write() to tcp socket returning errno of -3 (ESRCH:
- "No such process")
-In-Reply-To: <Pine.LNX.4.21.0101111023090.716-100000@localhost>
+	id <S130392AbRAKR03>; Thu, 11 Jan 2001 12:26:29 -0500
+Received: from marine.sonic.net ([208.201.224.37]:30512 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S130387AbRAKR0W>;
+	Thu, 11 Jan 2001 12:26:22 -0500
+X-envelope-info: <dhinds@sonic.net>
+Message-ID: <20010111092601.B23489@sonic.net>
+Date: Thu, 11 Jan 2001 09:26:01 -0800
+From: David Hinds <dhinds@sonic.net>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Miles Lane <miles@megapathdsl.net>,
+        Aaron Eppert <eppertan@rose-hulman.edu>, dhinds@zen.stanford.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 Patch for 3c575
+In-Reply-To: <20010110204420.A7699@rose-hulman.edu> <3A5D20D6.6090906@megapathdsl.net>, <3A5D20D6.6090906@megapathdsl.net>; <20010110201537.F12593@sonic.net> <3A5D9F3A.FCC82709@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3A5D9F3A.FCC82709@uow.edu.au>; from Andrew Morton on Thu, Jan 11, 2001 at 10:55:38PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Thu, 11 Jan 2001 10:45:13 -0600 (CST)
-   From: Paul Cassella <pwc@speakeasy.net>
+On Thu, Jan 11, 2001 at 10:55:38PM +1100, Andrew Morton wrote:
+> 
+> The other problem is that in 2.4 cardmgr isn't told the
+> name of the interface which was bound to the newly-inserted NIC.
+> I don't know why more people aren't getting bitten by this
+> with pcmcia-cs+2.4.
 
-   I'm not familiar enough with the tcp code to know if this patch
-   (against -ac6) is a solution, band-aid, or, in fact, wrong, but
-   I've run with it (on -ac3) and haven't seen the errors for over
-   twelve hours, which is three times longer than it had been able to
-   go without it coming up.
+2.4 cardmgr should be fixed to not even look for a device name for the
+NIC, since now this is /sbin/hotplug's job (though I'm not sure it is
+ready for that responsibility at this point).
 
-See the fix I put in 2.4.1-pre2, which is:
-
-diff -u --recursive --new-file v2.4.0/linux/net/ipv4/tcp.c linux/net/ipv4/tcp.c
---- v2.4.0/linux/net/ipv4/tcp.c	Tue Nov 28 21:53:45 2000
-+++ linux/net/ipv4/tcp.c	Wed Jan 10 14:12:12 2001
-@@ -954,7 +954,7 @@
- 			 */
- 			skb = sk->write_queue.prev;
- 			if (tp->send_head &&
--			    (mss_now - skb->len) > 0) {
-+			    (mss_now > skb->len)) {
- 				copy = skb->len;
- 				if (skb_tailroom(skb) > 0) {
- 					int last_byte_was_odd = (copy % 4);
+-- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

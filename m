@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264637AbUEYLcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264748AbUEYLol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264637AbUEYLcf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 07:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUEYLcf
+	id S264748AbUEYLol (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 07:44:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbUEYLol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 07:32:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50333 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264637AbUEYLcd
+	Tue, 25 May 2004 07:44:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33699 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264668AbUEYLoj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 07:32:33 -0400
-Date: Tue, 25 May 2004 12:32:31 +0100
+	Tue, 25 May 2004 07:44:39 -0400
+Date: Tue, 25 May 2004 12:44:37 +0100
 From: Matthew Wilcox <willy@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
-Message-ID: <20040525113231.GB29154@parcelfarce.linux.theplanet.co.uk>
-References: <20040524210146.GA5532@kroah.com> <1085468008.2783.1.camel@laptop.fenrus.com> <20040525080006.GA1047@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@kvack.org>,
+       linux-mm@kvack.org, Architectures Group <linux-arch@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+Message-ID: <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
+References: <1085369393.15315.28.camel@gaston> <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org> <1085371988.15281.38.camel@gaston> <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org> <1085373839.14969.42.camel@gaston> <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org> <20040525034326.GT29378@dualathlon.random> <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040525080006.GA1047@kroah.com>
+In-Reply-To: <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 01:00:06AM -0700, Greg KH wrote:
-> > how does this mesh with the "2.4 is now feature frozen"?
+On Mon, May 24, 2004 at 09:00:02PM -0700, Linus Torvalds wrote:
+> I suspect we should just make a "ptep_set_bits()" inline function that 
+> _atomically_ does "set the dirty/accessed bits". On x86, it would be a 
+> simple
 > 
-> As the major chunk of ACPI support just got added to the tree, and the
-> only reason that went in was for this patch, I assumed that it was
-> acceptable.  Marcelo, feel free to tell me otherwise if you do not want
-> this in the 2.4 tree.
+> 		asm("lock ; orl %1,%0"
+> 			:"m" (*ptep)
+> 			:"r" (entry));
+> 
+> and similarly on most other architectures it should be quite easy to do 
+> the equivalent. You can always do it with a simple compare-and-exchange 
+> loop, something any SMP-capable architecture should have.
 
-I assume it was added because Len tries to keep ACPI in 2.4 and 2.6 as
-close to identical as possible.  It certainly doesn't hurt anyone to add
-the ACPI functionality without the MMConfig support.
+... but PA doesn't.  Just load-and-clear-word (and its 64-bit equivalent
+in 64-bit mode).  And that word has to be 16-byte aligned.  What race
+are we protecting against?  If it's like xchg() and we only need to
+protect against a racing xchg() and not a reader, we can just reuse the
+global array of hashed spinlocks we have for that.
+
+> Of course, arguably we can actually optimize this by "knowing" that it is
+> safe to set the dirty bit, so then we don't even need an atomic operation,
+> we just need one atomic write.  So we only actually need the atomic op for 
+> the accessed bit case, and if we make the write-case be totally separate..
+
+Ah, atomic writes we can do.  That's easy.  I think all Linux architectures
+support atomic writes to naturally aligned addresses, don't they?
+
+> Anybody willing to write up a patch for a few architectures? Is there any 
+> architecture out there that would have a problem with this?
+> 
+> 		Linus
 
 -- 
 "Next the statesmen will invent cheap lies, putting the blame upon 

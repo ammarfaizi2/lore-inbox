@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266711AbUBET6p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 14:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266720AbUBET6p
+	id S266719AbUBEUA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 15:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266720AbUBEUA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 14:58:45 -0500
-Received: from email-out1.iomega.com ([147.178.1.82]:31212 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S266711AbUBET6Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 14:58:25 -0500
-Subject: Re: [ANNOUNCE] Filesystem in Userspace (FUSE) 1.1 stable version
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: linux-fsdevel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200402051709.i15H9AF28042@kempelen.iit.bme.hu>
-References: <200402051258.i15Cw2E20493@kempelen.iit.bme.hu>
-	 <1075996629.6941.10.camel@patibmrh9>
-	 <200402051709.i15H9AF28042@kempelen.iit.bme.hu>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076011019.6941.12.camel@patibmrh9>
+	Thu, 5 Feb 2004 15:00:27 -0500
+Received: from waste.org ([209.173.204.2]:22232 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S266719AbUBEUAU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 15:00:20 -0500
+Date: Thu, 5 Feb 2004 13:59:24 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       "Martin J. Bligh" <mjbligh@us.ibm.com>,
+       Christian Borntraeger <CBORNTRA@de.ibm.com>
+Subject: Re: [RFC/T 0/6] sysfs backing store (with symlink)
+Message-ID: <20040205195923.GI31138@waste.org>
+References: <20040204113758.GA4234@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Feb 2004 12:57:00 -0700
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Feb 2004 19:58:24.0148 (UTC) FILETIME=[699D8540:01C3EC22]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040204113758.GA4234@in.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I ask because I've not found any reasonably quick way of making sense
-> > of:
-> > 
-> > http://lxr.linux.no/source/fs/udf/
+On Wed, Feb 04, 2004 at 05:07:58PM +0530, Maneesh Soni wrote:
+> Hi All,
 > 
-> Yeah, a working UDF implementation would be good.  It's very easy to
-> prototype such an FS in FUSE.  Any takers? ;)
+> Please find following patches for sysfs-backing store. This version has
+> support for putting symlinks also on backing store. Earlier it has support
+> for text/binary attribute files. 
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=107269078726254&w=2
+> 
+> Apart from a few bug fixes, the main change in this version is for symlinks. 
+> sysfs_create_link() now does not create dentry/inode for the link, but 
+> allocates a sysfs_dirent and adds it the parent sysfs_dirent's s_children 
+> list. dentry/inode for the link is created when the symlink is first looked up. 
+> 
+> I request Martin and Mackall to _replace_ the old patch set with the 
+> new one in their trees.
 
-Nothing begun already?
+I finally got around to testing this in tiny, and it works quite well.
+I actually got it working in my mem=2m test case, though it was a
+little tight.
 
-Pat LaVarre
+It's the philosophy of -tiny to make all new features optional, so I'm
+currently in the process of making it a config option and am going
+back through and adding CONFIG_SYSFS_BACK. Will post a new version
+as part of my next -tiny shortly.
 
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

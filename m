@@ -1,441 +1,557 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267569AbSLMAWl>; Thu, 12 Dec 2002 19:22:41 -0500
+	id <S267567AbSLMAVn>; Thu, 12 Dec 2002 19:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267570AbSLMAWl>; Thu, 12 Dec 2002 19:22:41 -0500
-Received: from s142-179-222-244.ab.hsia.telus.net ([142.179.222.244]:2775 "EHLO
-	bluetooth.WNI.AD") by vger.kernel.org with ESMTP id <S267569AbSLMAWZ>;
-	Thu, 12 Dec 2002 19:22:25 -0500
-Message-ID: <3DF92A5F.2000702@WirelessNetworksInc.com>
-Date: Thu, 12 Dec 2002 17:31:27 -0700
-From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: xizard@enib.fr
-CC: linux <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: sound is stutter, sizzle with lasts kernel releases
-References: <3DEA322B.40204@enib.fr>
-In-Reply-To: <3DEA322B.40204@enib.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Dec 2002 00:30:14.0330 (UTC) FILETIME=[CDBEC9A0:01C2A23E]
+	id <S267568AbSLMAVn>; Thu, 12 Dec 2002 19:21:43 -0500
+Received: from pluto-eth1-0.dnpca01.deltelco.com ([65.123.242.1]:28064 "EHLO
+	pluto.deltelco.com") by vger.kernel.org with ESMTP
+	id <S267567AbSLMAVT>; Thu, 12 Dec 2002 19:21:19 -0500
+Date: Thu, 12 Dec 2002 16:29:14 -0800
+From: Tolga Tarhan <ttarhan@deltelco.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dual Xeon w/ HT: Kernel can't find second CPU
+Message-ID: <20021212162914.E28629@deltelco.com>
+References: <233C89823A37714D95B1A891DE3BCE5202AB1AD5@xch-a.win.zambeel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1AD5@xch-a.win.zambeel.com>; from manish@Zambeel.com on Fri, Dec 06, 2002 at 07:06:19PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am experiencing the same problem, but it is intermittent.  Sound is 
-perfect for a while, until I run some large graphic intensive 
-application, eg. PCB design program.  The sound then starts to sizzle 
-and it doesn't stop until I restart X.  It doesn't help quitting the 
-program that caused the problem to occur.
 
-My system is a 1.8GHz Pentium IV with Matrox and nVidea video cards (2 
-headed) with two large CRT screens for circuit design using xinerama.
+Alright, I've got more information about this issue:
 
-All worked perfectly on kernel 2.4.18.
+    a) The BIOS does see two processors.
 
-Somebody mentioned looking at the X configuration.  I'll do that and 
-report back if I manage to find the cause.
+    b) The BIOS can report the technical details of both processors.
 
-Cheers,
--- 
+    c) If you turn-off HT in the BIOS, Linux does not find a second
+       processor at all (physical or virtual).  I've tried changing
+       other BIOS options (ACPI and friends) and have had no luck.
 
-------------------------------------------------------------------------
-Herman Oosthuysen
-B.Eng.(E), Member of IEEE
-Wireless Networks Inc.
-http://www.WirelessNetworksInc.com
-E-mail: Herman@WirelessNetworksInc.com
-Phone: 1.403.569-5687, Fax: 1.403.235-3965
-------------------------------------------------------------------------
+    d) If HT is turned-on in the BIOS, but Linux is started with the
+       'noht' option, a second processor is found.  As described in
+       previous emails, it's hard to tell if this is the second
+       physical processor or if Linux is using HT on the first
+       processor even when it's being told not to.
 
+    e) If HT is turned-on in the BIOS and Linux is NOT passed the
+       'noht' option, a second processor is found, but the a third and
+       fourth processor are not.  The first and second processors are
+       siblings on the same physical CPU.  In this case, we know for
+       sure that the second physical processor is not being used.
 
+    Any ideas?  Please CC me on any replies to the list, as I do not
+    subscribe to linux-kernel.
 
-XI wrote:
-> Hi,
-> [1] With kernel-2.4.19 and kernel-2.4.20 the sound stutter, sizzle
-> 
-> [2] The problem seems be correlated with my PCI graphic card (matrox
-> G200 PCI) and my sound card (sound blaster live 5.1).
-> In fact every time I listen music and that something appens on my screen
-> (moving a window, watching a movie) the sound stutter.
-> 
-> I think the first thing I should do is to try different kernel version
-> in order to find when this problem appeared first.
-> 
-> But before I spend time to do this, I would like to know if someone is
-> going to help me to find the problem.
-> 
-> If I get a positive response, I will do my best to help to find the bug.
-> But If you think this problem isn't really important, I don't want to
-> spend hours to find the problem ...
-> 
-> 
-> [3] Keywords:
-> ~ modules: OSS or ALSA (same problem with both)
-> ~ kernel: 2.4.20 (official), 2.4.19 at least. But it works fine with 2.4.8
-> 
-> 
-> [7.2] CPU:
-> processor       : 0
-> vendor_id       : AuthenticAMD
-> cpu family      : 6
-> model           : 6
-> model name      : AMD Athlon(tm) MP 2000+
-> stepping        : 2
-> cpu MHz         : 1666.754
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 1
-> wp              : yes
-> flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca
-> cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-> bogomips        : 3322.67
-> 
-> processor       : 1
-> vendor_id       : AuthenticAMD
-> cpu family      : 6
-> model           : 6
-> model name      : AMD Athlon(tm) Processor
-> stepping        : 2
-> cpu MHz         : 1666.754
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 1
-> wp              : yes
-> flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca
-> cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-> bogomips        : 3329.22
-> 
-> [7.3] modules
-> binfmt_misc             6176   1
-> lp                      7008   0
-> parport_pc             23368   1
-> parport                27424   1 [lp parport_pc]
-> emu10k1                70380   1
-> soundcore               4516   0 [emu10k1]
-> ac97_codec             10504   0 [emu10k1]
-> af_packet              14792   0 (autoclean)
-> 3c59x                  27792   1 (autoclean)
-> supermount             15716   4 (autoclean)
-> ide-cd                 30248   0
-> cdrom                  28800   0 [ide-cd]
-> ide-scsi                9044   0
-> scsi_mod               95684   1 [ide-scsi]
-> usb-ohci               19432   0 (unused)
-> usbcore                64512   1 [usb-ohci]
-> rtc                     7680   0 (autoclean)
-> ext3                   82292   2
-> jbd                    44736   2 [ext3]
-> 
-> [7.4] Loaded driver and hardware information
-> 0000-001f : dma1
-> 0020-003f : pic1
-> 0040-005f : timer
-> 0060-006f : keyboard
-> 0070-007f : rtc
-> 0080-008f : dma page reg
-> 00a0-00bf : pic2
-> 00c0-00df : dma2
-> 00f0-00ff : fpu
-> 0170-0177 : ide1
-> 01f0-01f7 : ide0
-> 02f8-02ff : serial(auto)
-> 0376-0376 : ide1
-> 0378-037a : parport0
-> 037b-037f : parport0
-> 03c0-03df : vga+
-> 03f6-03f6 : ide0
-> 03f8-03ff : serial(auto)
-> 0cf8-0cff : PCI conf1
-> 1010-1013 : Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System
-> Controller
-> 2000-2fff : PCI Bus #02
->      2000-207f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
->        2000-207f : 02:08.0
->      2080-209f : Creative Labs SB Live! EMU10k1
->        2080-209f : EMU10K1
->      20a0-20a7 : Creative Labs SB Live! MIDI/Game Port
-> f000-f00f : Advanced Micro Devices [AMD] AMD-768 [Opus] IDE
->      f000-f007 : ide0
->      f008-f00f : ide1
-> [root@xii root]# cat /proc/iomem
-> 00000000-0009f7ff : System RAM
-> 0009f800-0009ffff : reserved
-> 000a0000-000bffff : Video RAM area
-> 000c0000-000c7fff : Video ROM
-> 000c8000-000c87ff : Extension ROM
-> 000f0000-000fffff : System ROM
-> 00100000-1feeffff : System RAM
->      00100000-00267a41 : Kernel code
->      00267a42-002e0d7f : Kernel data
-> 1fef0000-1fefefff : ACPI Tables
-> 1feff000-1fefffff : ACPI Non-volatile Storage
-> 1ff00000-1ff7ffff : System RAM
-> 1ff80000-1fffffff : reserved
-> f4000000-f48fffff : PCI Bus #01
->      f4000000-f47fffff : Matrox Graphics, Inc. MGA G200 AGP
->      f4800000-f4803fff : Matrox Graphics, Inc. MGA G200 AGP
-> f4900000-f5ffffff : PCI Bus #02
->      f4900000-f4900fff : Advanced Micro Devices [AMD] AMD-768 [Opus] USB
->        f4900000-f4900fff : usb-ohci
->      f4901000-f490107f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
->      f4904000-f4907fff : Matrox Graphics, Inc. MGA G200
->      f4908000-f490bfff : Matrox Graphics, Inc. MGA G200 (#2)
->      f5000000-f57fffff : Matrox Graphics, Inc. MGA G200
->      f5800000-f5ffffff : Matrox Graphics, Inc. MGA G200 (#2)
-> f6200000-f6200fff : Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P]
-> System Controller
-> f8000000-f9ffffff : Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P]
-> System Controller
-> fa000000-faffffff : PCI Bus #01
->      fa000000-faffffff : Matrox Graphics, Inc. MGA G200 AGP
-> fb000000-fcffffff : PCI Bus #02
->      fb000000-fbffffff : Matrox Graphics, Inc. MGA G200
->      fc000000-fcffffff : Matrox Graphics, Inc. MGA G200 (#2)
-> fec00000-fec03fff : reserved
-> fee00000-fee00fff : reserved
-> fff80000-ffffffff : reserved
-> 
-> [7.5] PCI information
-> 00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P]
-> System Controller (rev 11)
->            Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
->            Latency: 64
->            Region 0: Memory at f8000000 (32-bit, prefetchable) [size=32M]
->            Region 1: Memory at f6200000 (32-bit, prefetchable) [size=4K]
->            Region 2: I/O ports at 1010 [disabled] [size=4]
->            Capabilities: [a0] AGP version 2.0
->                    Status: RQ=15 SBA+ 64bit- FW+ Rate=x1,x2
->                    Command: RQ=0 SBA+ AGP+ 64bit- FW- Rate=<none>
-> 
-> 00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P]
-> AGP Bridge (prog-if 00 [Normal decode])
->            Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->            Latency: 99
->            Bus: primary=00, secondary=01, subordinate=01, sec-latency=69
->            I/O behind bridge: 0000f000-00000fff
->            Memory behind bridge: f4000000-f48fffff
->            Prefetchable memory behind bridge: fa000000-faffffff
->            BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
-> 
-> 00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 
-> 05)
->            Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->            Latency: 0
-> 
-> 00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE
-> (rev 04) (prog-if 8a [Master SecP PriP])
->            Subsystem: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE
->            Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->            Latency: 0
->            Region 4: I/O ports at f000 [size=16]
-> 
-> 00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
->            Subsystem: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI
->            Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 
-> 00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev
-> 05) (prog-if 00 [Normal decode])
->            Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
->            Latency: 64
->            Bus: primary=00, secondary=02, subordinate=02, sec-latency=69
->            I/O behind bridge: 00002000-00002fff
->            Memory behind bridge: f4900000-f5ffffff
->            Prefetchable memory behind bridge: fb000000-fcffffff
->            BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
-> 
-> 01:05.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP
-> (rev 01) (prog-if 00 [VGA])
->            Subsystem: Matrox Graphics, Inc. MGA-G200 AGP
->            Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->            Latency: 128 (4000ns min, 8000ns max), cache line size 10
->            Interrupt: pin A routed to IRQ 5
->            Region 0: Memory at fa000000 (32-bit, prefetchable) [size=16M]
->            Region 1: Memory at f4800000 (32-bit, non-prefetchable)
-> [size=16K]
->            Region 2: Memory at f4000000 (32-bit, non-prefetchable) 
-> [size=8M]
->            Expansion ROM at <unassigned> [disabled] [size=64K]
->            Capabilities: [dc] Power Management version 1
->                    Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
-> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                    Status: D0 PME-Enable- DSel=0 DScale=0 PME-
->            Capabilities: [f0] AGP version 1.0
->                    Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
->                    Command: RQ=31 SBA+ AGP+ 64bit- FW- Rate=x2
-> 
-> 02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB
-> (rev 07) (prog-if 10 [OHCI])
->            Subsystem: Advanced Micro Devices [AMD] AMD-768 [Opus] USB
->            Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR+
->            Latency: 64 (20000ns max)
->            Interrupt: pin D routed to IRQ 10
->            Region 0: Memory at f4900000 (32-bit, non-prefetchable) 
-> [size=4K]
-> 
-> 02:04.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 (rev
-> 01) (prog-if 00 [VGA])
->            Subsystem: Matrox Graphics, Inc. Millennium G200 SD
->            Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->            Latency: 128 (4000ns min, 8000ns max), cache line size 10
->            Interrupt: pin A routed to IRQ 11
->            Region 0: Memory at fb000000 (32-bit, prefetchable) [size=16M]
->            Region 1: Memory at f4904000 (32-bit, non-prefetchable)
-> [size=16K]
->            Region 2: Memory at f5000000 (32-bit, non-prefetchable) 
-> [size=8M]
->            Expansion ROM at <unassigned> [disabled] [size=64K]
->            Capabilities: [dc] Power Management version 1
->                    Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
-> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                    Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 02:06.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 
-> 07)
->            Subsystem: Creative Labs: Unknown device 8064
->            Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->            Latency: 64 (500ns min, 5000ns max)
->            Interrupt: pin A routed to IRQ 5
->            Region 0: I/O ports at 2080 [size=32]
->            Capabilities: [dc] Power Management version 1
->                    Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
-> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                    Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 02:06.1 Input device controller: Creative Labs SB Live! MIDI/Game Port
-> (rev 07)
->            Subsystem: Creative Labs Gameport Joystick
->            Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->            Latency: 64
->            Region 0: I/O ports at 20a0 [size=8]
->            Capabilities: [dc] Power Management version 1
->                    Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
-> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                    Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 02:07.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 (rev
-> 01) (prog-if 00 [VGA])
->            Subsystem: Matrox Graphics, Inc. Millennium G200 SD
->            Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->            Latency: 128 (4000ns min, 8000ns max), cache line size 10
->            Interrupt: pin A routed to IRQ 10
->            Region 0: Memory at fc000000 (32-bit, prefetchable) [size=16M]
->            Region 1: Memory at f4908000 (32-bit, non-prefetchable)
-> [size=16K]
->            Region 2: Memory at f5800000 (32-bit, non-prefetchable) 
-> [size=8M]
->            Expansion ROM at <unassigned> [disabled] [size=64K]
->            Capabilities: [dc] Power Management version 1
->                    Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
-> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                    Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 02:08.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado]
-> (rev 78)
->            Subsystem: Tyan Computer: Unknown device 2466
->            Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->            Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium
->    >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->            Latency: 80 (2500ns min, 2500ns max), cache line size 10
->            Interrupt: pin A routed to IRQ 10
->            Region 0: I/O ports at 2000 [size=128]
->            Region 1: Memory at f4901000 (32-bit, non-prefetchable)
-> [size=128]
->            Expansion ROM at <unassigned> [disabled] [size=128K]
->            Capabilities: [dc] Power Management version 2
->                    Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
-> PME(D0+,D1+,D2+,D3hot+,D3cold+)
->                    Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-> 
-> 
-> [8] Some informations that may be usefull
-> *** Just down-grading to the kernel 2.4.8 solves the problem
-> *** I have several graphic cards in my P.C. (one AGP and 2 PCI), but
-> using only one PCI cause the problem to occur.
-> *** I have a SMP machine, but I have tried using only one processor,
-> same problem.
-> *** I have tried official kernel 2.4.20, with the same problem
-> *** I also tried to use OSS emu10k1-v0.20a drivers: always the same:
-> problem doesn't occurs with 2.4.8 but occurs with 2.4.19 and 2.4.20
-> *** I was thinking about some timings changed for PCI bus since kernel
-> 2.4.8 ?
-> 
-> *** As I said before, if I get a positive response, I will do my best to
-> help to find the bug. But If you think this problem isn't really
-> important, I don't want to spend hours to find it ...
-> 
-> 
-> Thanks,
->             Xavier
-> 
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
-
-------------------------------------------------------------------------
-Herman Oosthuysen
-B.Eng.(E), Member of IEEE
-Wireless Networks Inc.
-http://www.WirelessNetworksInc.com
-E-mail: Herman@WirelessNetworksInc.com
-Phone: 1.403.569-5687, Fax: 1.403.235-3965
-------------------------------------------------------------------------
+--
+Tolga
 
 
+On Fri, Dec 06, 2002, Manish Lachwani wrote:
+
+> The BIOS will have one of the following options to turn the Hyperthreading
+> OFF:
+> 
+> 1. Hyperthreading
+> 2. Jackson Technology that include hyperthreading, L3 cache, split
+> instructions etc.
+> 
+> In any case, they fall under Advanced Processor Options. Also, make sure
+> that the BIOS too detectes both CPUs. You can find that under the Server
+> Management option ...
+> 
+> Thanks
+> -Manish
+> 
+> -----Original Message-----
+> From: Tolga Tarhan [mailto:ttarhan@deltelco.com]
+> Sent: Friday, December 06, 2002 6:57 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: Dual Xeon w/ HT: Kernel can't find second CPU
+> 
+> 
+> Yes, SMP is enabled.  I'm not next to the machine, so I wont be able
+> to check BIOS settings until tomorrow.
+> 
+> What I did try is adding the "noht" kernel parameter and rebooting.
+> 
+> With "noht", you get:
+> 
+>     kernel: Processor #0 Pentium 4(tm) XEON(tm) APIC version 20
+>     kernel: Processor #1 Pentium 4(tm) XEON(tm) APIC version 20
+> 
+> It appears that both physical processors are being used.  It's hard to
+> tell because disabling HT turns off the Physical Processor
+> print-outs.  We have to go off the assumption that HT is actually
+> turned off and that the only way the kernel could report two
+> processors is if it found both physical CPUs.
+> 
+> If you're interested in the full bootlog with "noht" set, let me know.
+> 
+> I'll get back to you (and the list) about what the BIOS thinks.  I'm
+> also going to try disabling HT in the BIOS to be _really_ sure that
+> it's disabled and see if linux still finds two CPUs.
+> 
+> Again, please cc me on any replies to the list.
+> 
+> --
+> Tolga
+> 
+> 
+> On Fri, Dec 06, 2002, Manish Lachwani wrote:
+> 
+> > Assuming that CONFIG_SMP has been turned on in your .config, can you check
+> > in the BIOS if both the CPU's have been detected? Usually, it is under the
+> > Advanced option -> Advanced Processor Option
+> > 
+> > Also, try to set HT off and see if both physical processors are detected
+> ...
+> > 
+> > Thanks
+> > Manish
+> > 
+> > -----Original Message-----
+> > From: Tolga Tarhan [mailto:ttarhan@deltelco.com]
+> > Sent: Friday, December 06, 2002 6:12 PM
+> > To: linux-kernel@vger.kernel.org
+> > Subject: Dual Xeon w/ HT: Kernel can't find second CPU
+> > 
+> > 
+> > Hello all:
+> > 
+> >     I have a Dual PIV Xeon system.  It has two _physical_ Xeon's in
+> >     it.
+> > 
+> >     Kernel versions 2.4.19 and 2.4.20 can't find the second physical
+> >     CPU.  They find one physical processor and it's sibling, therefore
+> >     reporting two virtual processors, when in-fact, there should be
+> >     four virtual processors.
+> > 
+> >     How do I know that it's not finding the second physical processor
+> >     and just not using HT?  It's simple:
+> > 
+> > 	kernel: Initializing CPU#0
+> > 	<snip>
+> > 	kernel: CPU: Physical Processor ID: 0
+> > 	<snip>
+> > 	kernel: Initializing CPU#1
+> > 	<snip>
+> > 	kernel: CPU: Physical Processor ID: 0
+> > 
+> > 	... and ...
+> > 
+> > 	kernel: cpu_sibling_map[0] = 1
+> > 	kernel: cpu_sibling_map[1] = 0
+> > 
+> >     Also, /proc/cpuinfo reports the _exact_ same bogomips for both
+> >     processors -- not very likely if they were two physical CPUs.
+> > 
+> >     I've tried changing a few kernel settings (and two different
+> >     kernel versions) to no avail. 
+> > 
+> >     I'm not on the linux-kernel list, but I have searched the
+> >     archives.  The closest thing I could find was someone asking why
+> >     linux thought they had two processors when they had one -- quite
+> >     the opposite problem.  If you reply to the list, please CC me
+> >     as well.
+> > 
+> >     Any ideas?
+> > 
+> >     Here's the full bootlog (it's quite long, sorry):
+> > 
+> > kernel: klogd 1.4.1#11, log source = /proc/kmsg started.
+> > kernel: Inspecting /boot/System.map-2.4.20
+> > kernel: Loaded 18769 symbols from /boot/System.map-2.4.20.
+> > kernel: Symbols match kernel version 2.4.20.
+> > kernel: No module symbols loaded.
+> > kernel: Linux version 2.4.20 (root@speak) (gcc version 2.95.4 20011002
+> > (Debian prerelease)) #1 SMP Fri Dec 6 17:19:06 PST 2002
+> > kernel: BIOS-provided physical RAM map:
+> > kernel:  BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
+> > kernel:  BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
+> > kernel:  BIOS-e820: 00000000000d8000 - 00000000000e0000 (reserved)
+> > kernel:  BIOS-e820: 00000000000e4000 - 0000000000100000 (reserved)
+> > kernel:  BIOS-e820: 0000000000100000 - 00000000f7ef0000 (usable)
+> > kernel:  BIOS-e820: 00000000f7ef0000 - 00000000f7efc000 (ACPI data)
+> > kernel:  BIOS-e820: 00000000f7efc000 - 00000000f7f00000 (ACPI NVS)
+> > kernel:  BIOS-e820: 00000000f7f00000 - 00000000f7f80000 (usable)
+> > kernel:  BIOS-e820: 00000000f7f80000 - 00000000f8000000 (reserved)
+> > kernel:  BIOS-e820: 00000000fec00000 - 00000000fec10000 (reserved)
+> > kernel:  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+> > kernel:  BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved)
+> > kernel:  BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
+> > kernel: 3071MB HIGHMEM available.
+> > kernel: 896MB LOWMEM available.
+> > kernel: found SMP MP-table at 000f6760
+> > kernel: hm, page 000f6000 reserved twice.
+> > kernel: hm, page 000f7000 reserved twice.
+> > kernel: hm, page 0009f000 reserved twice.
+> > kernel: hm, page 000a0000 reserved twice.
+> > kernel: On node 0 totalpages: 1015680
+> > kernel: zone(0): 4096 pages.
+> > kernel: zone(1): 225280 pages.
+> > kernel: zone(2): 786304 pages.
+> > kernel: ACPI: Searched entire block, no RSDP was found.
+> > kernel: ACPI: RSDP located at physical address c00f67c0
+> > kernel: RSD PTR  v0 [PTLTD ]
+> > kernel: __va_range(0xf7ef82d7, 0x68): idx=8 mapped at ffff6000
+> > kernel: ACPI table found: RSDT v1 [PTLTD    RSDT   1540.0]
+> > kernel: __va_range(0xf7efbe94, 0x24): idx=8 mapped at ffff6000
+> > kernel: __va_range(0xf7efbe94, 0x74): idx=8 mapped at ffff6000
+> > kernel: ACPI table found: FACP v1 [INTEL  K_CANYON 1540.0]
+> > kernel: __va_range(0xf7efbf08, 0x24): idx=8 mapped at ffff6000
+> > kernel: __va_range(0xf7efbf08, 0x80): idx=8 mapped at ffff6000
+> > kernel: ACPI table found: APIC v1 [PTLTD  ^I APIC   1540.0]
+> > kernel: __va_range(0xf7efbf08, 0x80): idx=8 mapped at ffff6000
+> > kernel: LAPIC (acpi_id[0x0000] id[0x0] enabled[1])
+> > kernel: CPU 0 (0x0000) enabledProcessor #0 Pentium 4(tm) XEON(tm) APIC
+> > version 16
+> > kernel:
+> > kernel: LAPIC (acpi_id[0x0001] id[0x1] enabled[1])
+> > kernel: CPU 1 (0x0100) enabledProcessor #1 Pentium 4(tm) XEON(tm) APIC
+> > version 16
+> > kernel:
+> > kernel: IOAPIC (id[0x2] address[0xfec00000] global_irq_base[0x0])
+> > kernel: IOAPIC (id[0x3] address[0xfec80000] global_irq_base[0x18])
+> > kernel: IOAPIC (id[0x4] address[0xfec80400] global_irq_base[0x30])
+> > kernel: INT_SRC_OVR (bus[0] irq[0x0] global_irq[0x2] polarity[0x1]
+> > trigger[0x1])
+> > kernel: INT_SRC_OVR (bus[0] irq[0x9] global_irq[0x9] polarity[0x1]
+> > trigger[0x3])
+> > kernel: LAPIC_NMI (acpi_id[0x0000] polarity[0x1] trigger[0x1] lint[0x1])
+> > kernel: LAPIC_NMI (acpi_id[0x0001] polarity[0x1] trigger[0x1] lint[0x1])
+> > kernel: 2 CPUs total
+> > kernel: Local APIC address fee00000
+> > kernel: __va_range(0xf7efbf88, 0x24): idx=8 mapped at ffff6000
+> > kernel: __va_range(0xf7efbf88, 0x28): idx=8 mapped at ffff6000
+> > kernel: ACPI table found: BOOT v1 [PTLTD  $SBFTBL$ 1540.0]
+> > kernel: __va_range(0xf7efbfb0, 0x24): idx=8 mapped at ffff6000
+> > kernel: __va_range(0xf7efbfb0, 0x50): idx=8 mapped at ffff6000
+> > kernel: ACPI table found: SPCR v1 [PTLTD  $UCRTBL$ 1540.0]
+> > kernel: Enabling the CPU's according to the ACPI table
+> > kernel: Intel MultiProcessor Specification v1.4
+> > kernel:     Virtual Wire compatibility mode.
+> > kernel: OEM ID:   Product ID: Kings Canyon APIC at: 0xFEE00000
+> > kernel: I/O APIC #2 Version 32 at 0xFEC00000.
+> > kernel: I/O APIC #3 Version 32 at 0xFEC80000.
+> > kernel: I/O APIC #4 Version 32 at 0xFEC80400.
+> > kernel: Processors: 2
+> > kernel: Kernel command line: auto BOOT_IMAGE=Linux ro root=803 maxcpus=4
+> > kernel: Initializing CPU#0
+> > kernel: Detected 2395.953 MHz processor.
+> > kernel: Console: colour VGA+ 80x25
+> > kernel: Calibrating delay loop... 4784.12 BogoMIPS
+> > kernel: Memory: 4011668k/4062720k available (1503k kernel code, 50600k
+> > reserved, 654k data, 108k init, 3145152k highmem)
+> > kernel: Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+> > kernel: Inode cache hash table entries: 262144 (order: 9, 2097152 bytes)
+> > kernel: Mount-cache hash table entries: 65536 (order: 7, 524288 bytes)
+> > kernel: Buffer-cache hash table entries: 262144 (order: 8, 1048576 bytes)
+> > kernel: Page-cache hash table entries: 524288 (order: 9, 2097152 bytes)
+> > kernel: CPU: L1 I cache: 0K, L1 D cache: 8K
+> > kernel: CPU: L2 cache: 512K
+> > kernel: CPU: Physical Processor ID: 0
+> > kernel: Intel machine check architecture supported.
+> > kernel: Intel machine check reporting enabled on CPU#0.
+> > kernel: CPU:     After generic, caps: 3febfbff 00000000 00000000 00000000
+> > kernel: CPU:             Common caps: 3febfbff 00000000 00000000 00000000
+> > kernel: Enabling fast FPU save and restore... done.
+> > kernel: Enabling unmasked SIMD FPU exception support... done.
+> > kernel: Checking 'hlt' instruction... OK.
+> > kernel: POSIX conformance testing by UNIFIX
+> > kernel: CPU: L1 I cache: 0K, L1 D cache: 8K
+> > kernel: CPU: L2 cache: 512K
+> > kernel: CPU: Physical Processor ID: 0
+> > kernel: Intel machine check reporting enabled on CPU#0.
+> > kernel: CPU:     After generic, caps: 3febfbff 00000000 00000000 00000000
+> > kernel: CPU:             Common caps: 3febfbff 00000000 00000000 00000000
+> > kernel: CPU0: Intel(R) XEON(TM) CPU 2.40GHz stepping 04
+> > kernel: per-CPU timeslice cutoff: 1462.93 usecs.
+> > kernel: enabled ExtINT on CPU#0
+> > kernel: ESR value before enabling vector: 00000000
+> > kernel: ESR value after enabling vector: 00000000
+> > kernel: Booting processor 1/1 eip 2000
+> > kernel: Initializing CPU#1
+> > kernel: masked ExtINT on CPU#1
+> > kernel: ESR value before enabling vector: 00000000
+> > kernel: ESR value after enabling vector: 00000000
+> > kernel: Calibrating delay loop... 4784.12 BogoMIPS
+> > kernel: CPU: L1 I cache: 0K, L1 D cache: 8K
+> > kernel: CPU: L2 cache: 512K
+> > kernel: CPU: Physical Processor ID: 0
+> > kernel: Intel machine check reporting enabled on CPU#1.
+> > kernel: CPU:     After generic, caps: 3febfbff 00000000 00000000 00000000
+> > kernel: CPU:             Common caps: 3febfbff 00000000 00000000 00000000
+> > kernel: CPU1: Intel(R) XEON(TM) CPU 2.40GHz stepping 04
+> > kernel: Total of 2 processors activated (9568.25 BogoMIPS).
+> > kernel: cpu_sibling_map[0] = 1
+> > kernel: cpu_sibling_map[1] = 0
+> > kernel: ENABLING IO-APIC IRQs
+> > kernel: Setting 2 in the phys_id_present_map
+> > kernel: ...changing IO-APIC physical APIC ID to 2 ... ok.
+> > kernel: Setting 3 in the phys_id_present_map
+> > kernel: ...changing IO-APIC physical APIC ID to 3 ... ok.
+> > kernel: Setting 4 in the phys_id_present_map
+> > kernel: ...changing IO-APIC physical APIC ID to 4 ... ok.
+> > kernel: init IO_APIC IRQs
+> > kernel:  IO-APIC (apicid-pin) 2-0, 2-10, 2-11, 2-15, 2-20, 2-23, 3-1, 3-2,
+> > 3-3, 3-5, 3-6, 3-7, 3-10, 3-11, 3-12, 3-13, 3-14, 3-15, 3
+> > kernel: ..TIMER: vector=0x31 pin1=2 pin2=0
+> > kernel: number of MP IRQ sources: 28.
+> > kernel: number of IO-APIC #2 registers: 24.
+> > kernel: number of IO-APIC #3 registers: 24.
+> > kernel: number of IO-APIC #4 registers: 24.
+> > kernel: testing the IO APIC.......................
+> > kernel:
+> > kernel: IO APIC #2......
+> > kernel: .... register #00: 02008000
+> > kernel: .......    : physical APIC id: 02
+> > kernel:  WARNING: unexpected IO-APIC, please mail
+> > kernel:           to linux-smp@vger.kernel.org
+> > kernel: .... register #01: 00178020
+> > kernel: .......     : max redirection entries: 0017
+> > kernel: .......     : PRQ implemented: 1
+> > kernel: .......     : IO APIC version: 0020
+> > kernel: .... register #02: 00000000
+> > kernel: .......     : arbitration: 00
+> > kernel: .... IRQ redirection table:
+> > kernel:  NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
+> > kernel:  00 000 00  1    0    0   0   0    0    0    00
+> > kernel:  01 003 03  0    0    0   0   0    1    1    39
+> > kernel:  02 003 03  0    0    0   0   0    1    1    31
+> > kernel:  03 003 03  0    0    0   0   0    1    1    41
+> > kernel:  04 003 03  0    0    0   0   0    1    1    49
+> > kernel:  05 003 03  0    0    0   0   0    1    1    51
+> > kernel:  06 003 03  0    0    0   0   0    1    1    59
+> > kernel:  07 003 03  0    0    0   0   0    1    1    61
+> > kernel:  08 003 03  0    0    0   0   0    1    1    69
+> > kernel:  09 003 03  0    0    0   0   0    1    1    71
+> > kernel:  0a 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0b 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0c 003 03  0    0    0   0   0    1    1    79
+> > kernel:  0d 003 03  0    0    0   0   0    1    1    81
+> > kernel:  0e 003 03  0    0    0   0   0    1    1    89
+> > kernel:  0f 000 00  1    0    0   0   0    0    0    00
+> > kernel:  10 003 03  1    1    0   1   0    1    1    91
+> > kernel:  11 003 03  1    1    0   1   0    1    1    99
+> > kernel:  12 003 03  1    1    0   1   0    1    1    A1
+> > kernel:  13 003 03  1    1    0   1   0    1    1    A9
+> > kernel:  14 000 00  1    0    0   0   0    0    0    00
+> > kernel:  15 003 03  1    1    0   1   0    1    1    B1
+> > kernel:  16 003 03  1    1    0   1   0    1    1    B9
+> > kernel:  17 000 00  1    0    0   0   0    0    0    00
+> > kernel:
+> > kernel: IO APIC #3......
+> > kernel: .... register #00: 03000000
+> > kernel: .......    : physical APIC id: 03
+> > kernel: .... register #01: 00178020
+> > kernel: .......     : max redirection entries: 0017
+> > kernel: .......     : PRQ implemented: 1
+> > kernel: .......     : IO APIC version: 0020
+> > kernel: .... register #02: 03000000
+> > kernel: .......     : arbitration: 03
+> > kernel: .... IRQ redirection table:
+> > kernel:  NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
+> > kernel:  00 003 03  1    1    0   1   0    1    1    C1
+> > kernel:  01 000 00  1    0    0   0   0    0    0    00
+> > kernel:  02 000 00  1    0    0   0   0    0    0    00
+> > kernel:  03 000 00  1    0    0   0   0    0    0    00
+> > kernel:  04 003 03  1    1    0   1   0    1    1    C9
+> > kernel:  05 000 00  1    0    0   0   0    0    0    00
+> > kernel:  06 000 00  1    0    0   0   0    0    0    00
+> > kernel:  07 000 00  1    0    0   0   0    0    0    00
+> > kernel:  08 003 03  1    1    0   1   0    1    1    D1
+> > kernel:  09 003 03  1    1    0   1   0    1    1    D9
+> > kernel:  0a 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0b 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0c 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0d 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0e 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0f 000 00  1    0    0   0   0    0    0    00
+> > kernel:  10 000 00  1    0    0   0   0    0    0    00
+> > kernel:  11 000 00  1    0    0   0   0    0    0    00
+> > kernel:  12 000 00  1    0    0   0   0    0    0    00
+> > kernel:  13 000 00  1    0    0   0   0    0    0    00
+> > kernel:  14 000 00  1    0    0   0   0    0    0    00
+> > kernel:  15 000 00  1    0    0   0   0    0    0    00
+> > kernel:  16 000 00  1    0    0   0   0    0    0    00
+> > kernel:  17 000 00  1    0    0   0   0    0    0    00
+> > kernel:
+> > kernel: IO APIC #4......
+> > kernel: .... register #00: 04000000
+> > kernel: .......    : physical APIC id: 04
+> > kernel: .... register #01: 00178020
+> > kernel: .......     : max redirection entries: 0017
+> > kernel: .......     : PRQ implemented: 1
+> > kernel: .......     : IO APIC version: 0020
+> > kernel: .... register #02: 04000000
+> > kernel: .......     : arbitration: 04
+> > kernel: .... IRQ redirection table:
+> > kernel:  NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
+> > kernel:  00 003 03  1    1    0   1   0    1    1    E1
+> > kernel:  01 003 03  1    1    0   1   0    1    1    E9
+> > kernel:  02 000 00  1    0    0   0   0    0    0    00
+> > kernel:  03 000 00  1    0    0   0   0    0    0    00
+> > kernel:  04 000 00  1    0    0   0   0    0    0    00
+> > kernel:  05 000 00  1    0    0   0   0    0    0    00
+> > kernel:  06 003 03  1    1    0   1   0    1    1    32
+> > kernel:  07 000 00  1    0    0   0   0    0    0    00
+> > kernel:  08 000 00  1    0    0   0   0    0    0    00
+> > kernel:  09 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0a 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0b 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0c 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0d 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0e 000 00  1    0    0   0   0    0    0    00
+> > kernel:  0f 000 00  1    0    0   0   0    0    0    00
+> > kernel:  10 000 00  1    0    0   0   0    0    0    00
+> > kernel:  11 000 00  1    0    0   0   0    0    0    00
+> > kernel:  12 000 00  1    0    0   0   0    0    0    00
+> > kernel:  13 000 00  1    0    0   0   0    0    0    00
+> > kernel:  14 000 00  1    0    0   0   0    0    0    00
+> > kernel:  15 000 00  1    0    0   0   0    0    0    00
+> > kernel:  16 000 00  1    0    0   0   0    0    0    00
+> > kernel:  17 000 00  1    0    0   0   0    0    0    00
+> > kernel: IRQ to pin mappings:
+> > kernel: IRQ0 -> 0:2
+> > kernel: IRQ1 -> 0:1
+> > kernel: IRQ3 -> 0:3
+> > kernel: IRQ4 -> 0:4
+> > kernel: IRQ5 -> 0:5
+> > kernel: IRQ6 -> 0:6
+> > kernel: IRQ7 -> 0:7
+> > kernel: IRQ8 -> 0:8
+> > kernel: IRQ9 -> 0:9
+> > kernel: IRQ12 -> 0:12
+> > kernel: IRQ13 -> 0:13
+> > kernel: IRQ14 -> 0:14
+> > kernel: IRQ16 -> 0:16
+> > kernel: IRQ17 -> 0:17
+> > kernel: IRQ18 -> 0:18
+> > kernel: IRQ19 -> 0:19
+> > kernel: IRQ21 -> 0:21
+> > kernel: IRQ22 -> 0:22
+> > kernel: IRQ24 -> 1:0
+> > kernel: IRQ28 -> 1:4
+> > kernel: IRQ32 -> 1:8
+> > kernel: IRQ33 -> 1:9
+> > kernel: IRQ48 -> 2:0
+> > kernel: IRQ49 -> 2:1
+> > kernel: IRQ54 -> 2:6
+> > kernel: .................................... done.
+> > kernel: Using local APIC timer interrupts.
+> > kernel: calibrating APIC timer ...
+> > kernel: ..... CPU clock speed is 2395.8669 MHz.
+> > kernel: ..... host bus clock speed is 99.8276 MHz.
+> > kernel: cpu: 0, clocks: 998276, slice: 332758
+> > kernel: CPU0<T0:998272,T1:665504,D:10,S:332758,C:998276>
+> > kernel: cpu: 1, clocks: 998276, slice: 332758
+> > kernel: CPU1<T0:998272,T1:332752,D:4,S:332758,C:998276>
+> > kernel: checking TSC synchronization across CPUs: passed.
+> > kernel: Waiting on wait_init_idle (map = 0x2)
+> > kernel: All processors have done init_idle
+> > kernel: PCI: PCI BIOS revision 2.10 entry at 0xfd8b5, last bus=4
+> > kernel: PCI: Using configuration type 1
+> > kernel: PCI: Probing PCI hardware
+> > kernel: Transparent bridge - Intel Corp. 82801BA/CA/DB PCI Bridge
+> > kernel: PCI: Discovered primary peer bus 10 [IRQ]
+> > kernel: PCI: Discovered primary peer bus 11 [IRQ]
+> > kernel: PCI: Discovered primary peer bus 12 [IRQ]
+> > kernel: PCI: Using IRQ router PIIX [8086/2480] at 00:1f.0
+> > kernel: PCI->APIC IRQ transform: (B0,I29,P0) -> 16
+> > kernel: PCI->APIC IRQ transform: (B0,I29,P1) -> 19
+> > kernel: PCI->APIC IRQ transform: (B0,I29,P2) -> 18
+> > kernel: PCI->APIC IRQ transform: (B2,I1,P0) -> 48
+> > kernel: PCI->APIC IRQ transform: (B2,I1,P1) -> 49
+> > kernel: PCI->APIC IRQ transform: (B2,I3,P0) -> 54
+> > kernel: PCI->APIC IRQ transform: (B3,I1,P0) -> 24
+> > kernel: PCI->APIC IRQ transform: (B3,I2,P0) -> 32
+> > kernel: PCI->APIC IRQ transform: (B3,I2,P1) -> 33
+> > kernel: PCI->APIC IRQ transform: (B3,I3,P0) -> 28
+> > kernel: PCI->APIC IRQ transform: (B4,I1,P0) -> 16
+> > kernel: PCI->APIC IRQ transform: (B4,I2,P0) -> 17
+> > kernel: PCI->APIC IRQ transform: (B4,I3,P0) -> 18
+> > kernel: PCI->APIC IRQ transform: (B4,I4,P0) -> 21
+> > kernel: PCI->APIC IRQ transform: (B4,I5,P0) -> 22
+> > kernel: isapnp: Scanning for PnP cards...
+> > kernel: isapnp: No Plug & Play device found
+> > kernel: Linux NET4.0 for Linux 2.4
+> > kernel: Based upon Swansea University Computer Society NET3.039
+> > kernel: Initializing RT netlink socket
+> > kernel: Starting kswapd
+> > kernel: allocated 32 pages and 32 bhs reserved for the highmem bounces
+> > kernel: Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+> > kernel: ACPI: Core Subsystem version [20011018]
+> > kernel: ACPI: Subsystem enabled
+> > kernel: parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,EPP]
+> > kernel: parport0: irq 7 detected
+> > kernel: Detected PS/2 Mouse Port.
+> > kernel: pty: 256 Unix98 ptys configured
+> > kernel: Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
+> > SERIAL_PCI ISAPNP enabled
+> > kernel: ttyS00 at 0x03f8 (irq = 4) is a 16550A
+> > kernel: ttyS01 at 0x02f8 (irq = 3) is a 16550A
+> > kernel: lp0: using parport0 (polling).
+> > kernel: Real Time Clock Driver v1.10e
+> > kernel: i810_rng hardware driver 0.9.8 loaded
+> > kernel: Uniform Multi-Platform E-IDE driver Revision: 6.31
+> > kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with
+> > idebus=xx
+> > kernel: ICH3: IDE controller on PCI bus 00 dev f9
+> > kernel: PCI: Device 00:1f.1 not available because of resource collisions
+> > kernel: PCI: No IRQ known for interrupt pin A of device 00:1f.1. Probably
+> > buggy MP table.
+> > kernel: ICH3: BIOS setup was incomplete.
+> > kernel: ICH3: chipset revision 2
+> > kernel: ICH3: not 100%% native mode: will probe irqs later
+> > kernel:     ide0: BM-DMA at 0x2060-0x2067, BIOS settings: hda:pio, hdb:pio
+> > kernel: keyboard: Timeout - AT keyboard not present?(ed)
+> > kernel: keyboard: Timeout - AT keyboard not present?(f4)
+> > kernel: Floppy drive(s): fd0 is 1.44M
+> > kernel: FDC 0 is a post-1991 82077
+> > kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker
+> > http://www.scyld.com/network/eepro100.html
+> > kernel: eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V.
+> > Savochkin <saw@saw.sw.com.sg> and others
+> > kernel: eth0: OEM i82557/i82558 10/100 Ethernet, 00:30:48:24:49:8E, IRQ
+> 22.
+> > kernel:   Board assembly 000000-000, Physical connectors present: RJ45
+> > kernel:   Primary interface chip i82555 PHY #1.
+> > kernel:   General self-test: passed.
+> > kernel:   Serial sub-system self-test: passed.
+> > kernel:   Internal registers self-test: passed.
+> > kernel:   ROM checksum self-test: passed (0xb874c1d3).
+> > kernel: SCSI subsystem driver Revision: 1.00
+> > kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
+> > kernel:         <Adaptec aic7899 Ultra160 SCSI adapter>
+> > kernel:         aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+> > kernel:
+> > kernel: scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
+> > kernel:         <Adaptec aic7899 Ultra160 SCSI adapter>
+> > kernel:         aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
+> > kernel:
+> > kernel: Configuring GDT-PCI HA at 3/1 IRQ 24
+> > kernel: scsi2 : GDT8543RZ
+> > kernel:   Vendor: ICP       Model: Host Drive  #00   Rev:
+> > kernel:   Type:   Direct-Access                      ANSI SCSI revision:
+> 02
+> > kernel:   Vendor: JMR ELEC  Model: FORTRA SERIES.    Rev: 1.21
+> > kernel:   Type:   Processor                          ANSI SCSI revision:
+> 02
+> > kernel: Attached scsi disk sda at scsi2, channel 0, id 0, lun 0
+> > kernel: SCSI device sda: 286744185 512-byte hdwr sectors (146813 MB)
+> > kernel: Partition check:
+> > kernel:  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
+> > kernel: Attached scsi generic sg1 at scsi2, channel 1, id 5, lun 0,  type
+> 3
+> > kernel: NET4: Linux TCP/IP 1.0 for NET4.0
+> > kernel: IP Protocols: ICMP, UDP, TCP, IGMP
+> > kernel: IP: routing cache hash table of 32768 buckets, 256Kbytes
+> > kernel: TCP: Hash tables configured (established 262144 bind 65536)
+> > kernel: NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+> > kernel: VFS: Mounted root (ext2 filesystem) readonly.
+> > kernel: Freeing unused kernel memory: 108k freed
+> > kernel: Adding Swap: 2000084k swap-space (priority -1)

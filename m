@@ -1,69 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136066AbRD2Trs>; Sun, 29 Apr 2001 15:47:48 -0400
+	id <S136109AbRD2Tus>; Sun, 29 Apr 2001 15:50:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136109AbRD2Trh>; Sun, 29 Apr 2001 15:47:37 -0400
-Received: from [63.95.87.168] ([63.95.87.168]:47879 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S136066AbRD2TrW>;
-	Sun, 29 Apr 2001 15:47:22 -0400
-Date: Sun, 29 Apr 2001 15:47:20 -0400
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        "David S. Miller" <davem@redhat.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-Message-ID: <20010429154720.B17155@xi.linuxpower.cx>
-In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com> <3AEBF782.1911EDD2@mandrakesoft.com> <15083.64180.314190.500961@pizda.ninka.net> <20010429153229.L679@nightmaster.csn.tu-chemnitz.de> <200104291848.f3TIm6821037@vindaloo.ras.ucalgary.ca> <20010429145552.A17155@xi.linuxpower.cx> <200104291902.f3TJ2Dd21232@vindaloo.ras.ucalgary.ca>
+	id <S136122AbRD2Tu2>; Sun, 29 Apr 2001 15:50:28 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:60687 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S136109AbRD2TuU>; Sun, 29 Apr 2001 15:50:20 -0400
+Date: Sun, 29 Apr 2001 21:41:53 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Duncan Gauld <duncan@gauldd.freeserve.co.uk>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+        torvalds@transmeta.com
+Subject: Re: question regarding cpu selection
+Message-ID: <20010429214153.F24579@arthur.ubicom.tudelft.nl>
+In-Reply-To: <01042919075101.01335@pc-62-31-91-135-dn.blueyonder.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <200104291902.f3TJ2Dd21232@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Sun, Apr 29, 2001 at 01:02:13PM -0600
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01042919075101.01335@pc-62-31-91-135-dn.blueyonder.co.uk>; from duncan@gauldd.freeserve.co.uk on Sun, Apr 29, 2001 at 07:07:51PM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 01:02:13PM -0600, Richard Gooch wrote:
-> Gregory Maxwell writes:
-> > On Sun, Apr 29, 2001 at 12:48:06PM -0600, Richard Gooch wrote:
-> > > Ingo Oeser writes:
-> > > > On Sun, Apr 29, 2001 at 04:27:48AM -0700, David S. Miller wrote:
-> > > > > The idea is that the one thing one tends to optimize for new cpus
-> > > > > is the memcpy/memset implementation.  What better way to shield
-> > > > > libc from having to be updated for new cpus but to put it into
-> > > > > the kernel in this magic page?
-> > > > 
-> > > > Hehe, you have read this MXT patch on linux-mm, too? ;-)
-> > > > 
-> > > > There we have 10x faster memmove/memcpy/bzero for 1K blocks
-> > > > granularity (== alignment is 1K and size is multiple of 1K), that
-> > > > is done by the memory controller.
-> > > 
-> > > This sounds different to me. Using the memory controller is (should
-> > > be!) a privileged operation, thus it requires a system call. This is
-> > > quite different from code in a magic page, which is excuted entirely
-> > > in user-space. The point of the magic page is to avoid the syscall
-> > > overhead.
-> > 
-> > Too bad this is a performance hack, otherwise we could place the
-> > privlaged code in the read-only page, allow it to get execute from
-> > user space, catch the exception, notice the EIP and let it continue
-> > on.
-> 
-> No need for anything that complicated. We can merge David's user-space
-> memcpy code with the memory controller scheme. We need a new syscall
-> anyway to access the memory controller, so we may as well just make it
-> a simple interface. Then the user-space code may, on some machines,
-> contain a test (for alignment) and call to the new syscall.
-> 
-> The two schemes are independent, and should be treated as such. Just
-> as the magic page code can call the new syscall, so could libc.
+On Sun, Apr 29, 2001 at 07:07:51PM -0400, Duncan Gauld wrote:
+> This seems a silly question but - I have an intel celeron 800mhz CPU and thus 
+> it is of the Coppermine breed. But under cpu selection when configuring the 
+> kernel, should I select PIII or PII/Celeron? Just wondering, since Coppermine 
+> is basically a newish PIII with 128K less cache...
 
-Would it make sence to have libc use the magic page for all syscalls? Then
-on cpus with a fast syscall instruction, the magic page could contain the
-needed junk in userspace to use it.
+You should select PIII. Configure.help already says that, but here is a
+patch against linux-2.4.4 that reflects that change in
+arch/i386/config.in as well. Please apply.
 
-(i.e. that really should be in libc, but we don't want libc to contain all
-sorts of CPU specific cruft.. or is there a more general way to accomplish
-this?)
+
+Erik
+
+Index: arch/i386/config.in
+===================================================================
+RCS file: /home/erik/cvsroot/elinux/arch/i386/config.in,v
+retrieving revision 1.1.1.38
+diff -u -r1.1.1.38 config.in
+--- arch/i386/config.in	2001/04/26 12:31:41	1.1.1.38
++++ arch/i386/config.in	2001/04/29 19:28:12
+@@ -27,21 +27,21 @@
+ mainmenu_option next_comment
+ comment 'Processor type and features'
+ choice 'Processor family' \
+-	"386				CONFIG_M386 \
+-	 486				CONFIG_M486 \
+-	 586/K5/5x86/6x86/6x86MX	CONFIG_M586 \
+-	 Pentium-Classic		CONFIG_M586TSC \
+-	 Pentium-MMX			CONFIG_M586MMX \
+-	 Pentium-Pro/Celeron/Pentium-II	CONFIG_M686 \
+-	 Pentium-III			CONFIG_MPENTIUMIII \
+-	 Pentium-4			CONFIG_MPENTIUM4 \
+-	 K6/K6-II/K6-III		CONFIG_MK6 \
+-	 Athlon/Duron/K7		CONFIG_MK7 \
+-	 Crusoe				CONFIG_MCRUSOE \
+-	 Winchip-C6			CONFIG_MWINCHIPC6 \
+-	 Winchip-2			CONFIG_MWINCHIP2 \
+-	 Winchip-2A/Winchip-3		CONFIG_MWINCHIP3D \
+-	 CyrixIII/C3			CONFIG_MCYRIXIII" Pentium-Pro
++	"386					CONFIG_M386 \
++	 486					CONFIG_M486 \
++	 586/K5/5x86/6x86/6x86MX		CONFIG_M586 \
++	 Pentium-Classic			CONFIG_M586TSC \
++	 Pentium-MMX				CONFIG_M586MMX \
++	 Pentium-Pro/Celeron/Pentium-II		CONFIG_M686 \
++	 Pentium-III/Celeron(Coppermine)	CONFIG_MPENTIUMIII \
++	 Pentium-4				CONFIG_MPENTIUM4 \
++	 K6/K6-II/K6-III			CONFIG_MK6 \
++	 Athlon/Duron/K7			CONFIG_MK7 \
++	 Crusoe					CONFIG_MCRUSOE \
++	 Winchip-C6				CONFIG_MWINCHIPC6 \
++	 Winchip-2				CONFIG_MWINCHIP2 \
++	 Winchip-2A/Winchip-3			CONFIG_MWINCHIP3D \
++	 CyrixIII/C3				CONFIG_MCYRIXIII" Pentium-Pro
+ #
+ # Define implied options from the CPU selection here
+ #
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

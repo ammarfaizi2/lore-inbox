@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129419AbRB0Bf0>; Mon, 26 Feb 2001 20:35:26 -0500
+	id <S129428AbRB0Bg4>; Mon, 26 Feb 2001 20:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129417AbRB0BfR>; Mon, 26 Feb 2001 20:35:17 -0500
-Received: from sm10.texas.rr.com ([24.93.35.222]:13 "EHLO sm10.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S129409AbRB0BfB>;
-	Mon, 26 Feb 2001 20:35:01 -0500
-Message-ID: <001101c0a05c$825f4150$0201a8c0@mojo>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: "Ivan Passos" <lists@cyclades.com>,
-        "Linux Kernel List" <linux-kernel@vger.kernel.org>,
-        "Linux Serial List" <linux-serial@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10102261651000.15230-100000@main.cyclades.com>
-Subject: Re: CLOCAL and TIOCMIWAIT
-Date: Mon, 26 Feb 2001 19:27:54 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129408AbRB0Bgr>; Mon, 26 Feb 2001 20:36:47 -0500
+Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:63470 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129428AbRB0Bgi>; Mon, 26 Feb 2001 20:36:38 -0500
+Date: Mon, 26 Feb 2001 20:57:32 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jaroslav Kysela <perex@suse.cz>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] hp100.c: don't reference skb after passing it to netif_rx
+Message-ID: <20010226205732.J8692@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A customer has just brought to my attention that when you try to use the
-> TIOCMIWAIT ioctl with our boards and CLOCAL is enabled, you can't check
-> changes in the DCD signal. He also mentioned that that is possible with
-> the regular serial ports.
->
-> As I understood, CLOCAL meant disabling DCD sensitivity, so if CLOCAL is
-> disabled, no changes in DCD will be passed from hardware driver to the
-> kernel or userspace. The way the serial driver is implemented, this is not
-> true (i.e. even with CLOCAL enabled, you can still see DCD changes through
-> the TIOCMIWAIT command).
->
-> My question is: what's the correct interpretation of CLOCAL?? If the
-> serial driver's interpretation is the correct one, I'll be more than happy
-> to change the Cyclades' driver to comply with that, I just want to make
-> sure that this is the expected behavior before I patch the driver.
->
-> Thanks in advance for your comments.
->
-> Later,
-> Ivan
+hey, its a flood! 8)
 
-I believe CLOCAL only governs how DCD is used (or ignored) when opening
-a port (must be active to complete open) and maintaining a connection
-(negation signals hangup).
+Em Mon, Feb 26, 2001 at 08:33:59PM -0300, Arnaldo Carvalho de Melo escreveu:
+Hi,
 
-So CLOCAL controls the driver's 'interpretation' of DCD but
-TIOCMIWAIT monitors the signal transitions without regard to
-a predefined interpretation (let's the application decide what
-to do with DCD).
+	I've just read davem's post at netdev about the brokeness of
+referencing skbs after passing it to netif_rx, so please consider applying
+this patch. Ah, this was just added to the Janitor's TODO list at
+http://bazar.conectiva.com.br/~acme/TODO and I'm doing a quick audit in the
+net drivers searching for this, maybe some more patches will follow.
 
-Paul Fulghum
-paulkf@microgate.com
+- Arnaldo
 
-
+--- linux-2.4.2/drivers/net/hp100.c	Tue Feb 13 19:15:05 2001
++++ linux-2.4.2.acme/drivers/net/hp100.c	Mon Feb 26 22:30:32 2001
+@@ -1967,11 +1967,6 @@
+ 	    insl( ioaddr + HP100_REG_DATA32, ptr, pkt_len >> 2 );
+       
+ 	  skb->protocol = eth_type_trans( skb, dev );
+-
+-	  netif_rx( skb );
+-	  dev->last_rx = jiffies;
+-	  lp->stats.rx_packets++;
+-	  lp->stats.rx_bytes += pkt_len;
+       
+ #ifdef HP100_DEBUG_RX
+ 	  printk( "hp100: %s: rx: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+@@ -1979,6 +1974,10 @@
+ 		  ptr[ 0 ], ptr[ 1 ], ptr[ 2 ], ptr[ 3 ], ptr[ 4 ], ptr[ 5 ],
+ 		  ptr[ 6 ], ptr[ 7 ], ptr[ 8 ], ptr[ 9 ], ptr[ 10 ], ptr[ 11 ] );
+ #endif
++	  netif_rx( skb );
++	  dev->last_rx = jiffies;
++	  lp->stats.rx_packets++;
++	  lp->stats.rx_bytes += pkt_len;
+ 	}
+   
+       /* Indicate the card that we have got the packet */

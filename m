@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVBHVUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVBHVXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVBHVUm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 16:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVBHVUm
+	id S261641AbVBHVXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 16:23:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVBHVXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 16:20:42 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:54246 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261565AbVBHVUf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 16:20:35 -0500
-Date: Tue, 8 Feb 2005 22:20:23 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and UML? 
-In-Reply-To: <200502081855.j18ItFs0012685@ccure.user-mode-linux.org>
-Message-Id: <Pine.OSF.4.05.10502082009360.23457-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
+	Tue, 8 Feb 2005 16:23:25 -0500
+Received: from smtp08.auna.com ([62.81.186.18]:30701 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S261641AbVBHVXO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 16:23:14 -0500
+Date: Tue, 08 Feb 2005 21:23:12 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [PATCH] Makefiles are not built using a Fortran compiler
+To: linux-kernel@vger.kernel.org
+References: <20050208030228.GE20386@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.61.0502081322310.6118@scrub.home>
+	<20050208154417.GH20386@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050208154417.GH20386@parcelfarce.linux.theplanet.co.uk>
+	(from matthew@wil.cx on Tue Feb  8 16:44:17 2005)
+X-Mailer: Balsa 2.3.0
+Message-Id: <1107897792l.21373l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+	protocol="application/pgp-signature"; boundary="=-mnv4RWrVihr7u4j3dMZ6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Feb 2005, Jeff Dike wrote:
+--=-mnv4RWrVihr7u4j3dMZ6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> mingo@elte.hu said:
-> > Jeff, any objections against adding this change to UML at some point?
-> 
-> No, not at all.  I just need to understand what CONFIG_PREEMPT requires of
-> UML.
 
-Ingo can probably tell you in much more detail. My problem when I tried to
-compile with CONFIG_PREEMPT_RT (not CONFIG_PREEMPT!) was that
-__SEMAPHORE_INITIALIZER didn't exist since the architecture specific
-semaphore.h is not included in that configuration. The reason again is
-that locking (not completions) is changed a lot under CONFIG_PREEMPT_RT to
-introduce muteces instead of raw spinlocks and priority inheritance to
-make these lockings behave deterministicly.
+On 2005.02.08, Matthew Wilcox wrote:
+> On Tue, Feb 08, 2005 at 01:23:48PM +0100, Roman Zippel wrote:
+> > Enabling the following in the Makefile should have the same effect:
+> >=20
+> > # For maximum performance (+ possibly random breakage, uncomment
+> > # the following)
+> >=20
+> > #MAKEFLAGS +=3D -rR
+>=20
 
-> 
-> >From a quick read of Documentation/preempt-locking.txt, this looks like it's
-> implementing Rule #3 (unlock by the same task that locked), which looks fine.
->
+aic7xxx fails if you select to build firmware and use -R.
+-R suppress the variable definitions, so a rule for lex and yacc
+is missing and aicasm fails to build.
 
-Now I don't really know who I am responding to. But both up()s now changed
-to complete()s are in something looking very much like an interrupt
-handler. But again, as I said, I didn't analyze the code in detail, I just
-made it compile and checked that it worked in bare 2.6.11-rc2 UML  - which
-I am not too sure how to set up and use to begin with!
- 
-> 				Jeff
-> 
+A rule for lex and yacc could be added somewhere in kbuild...
 
-Esben
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-jam8 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
 
+
+--=-mnv4RWrVihr7u4j3dMZ6
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCCS3ARlIHNEGnKMMRAgSNAJ9O94kV5t2zldxv83QyIWL4JEnx6QCfcH5Q
++qH9zHQgq1jteoQRbQ90HZc=
+=KUU6
+-----END PGP SIGNATURE-----
+
+--=-mnv4RWrVihr7u4j3dMZ6--
 

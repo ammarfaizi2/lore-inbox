@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUHRMhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUHRMug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266200AbUHRMhR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 08:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUHRMgr
+	id S265055AbUHRMug (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 08:50:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbUHRMug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 08:36:47 -0400
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:54467 "EHLO
-	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S266200AbUHRMgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 08:36:13 -0400
-Message-ID: <41234D31.3010904@hispalinux.es>
-Date: Wed, 18 Aug 2004 14:36:01 +0200
-From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
-User-Agent: Mozilla Thunderbird 0.7.2 (X11/20040714)
-X-Accept-Language: en-us, en
+	Wed, 18 Aug 2004 08:50:36 -0400
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:44936 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265055AbUHRMue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 08:50:34 -0400
+Message-ID: <41235090.8090909@yahoo.com.au>
+Date: Wed, 18 Aug 2004 22:50:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-Subject: [PATCH] Update ACI MIXER DRIVER webpage
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig272D1163923363D2CF867931"
+To: Simon Derr <Simon.Derr@bull.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sched_setaffinity() and load balancing
+References: <Pine.A41.4.53.0408181338030.20680@isabelle.frec.bull.fr>
+In-Reply-To: <Pine.A41.4.53.0408181338030.20680@isabelle.frec.bull.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig272D1163923363D2CF867931
-Content-Type: multipart/mixed;
- boundary="------------030503050600010805040003"
+Simon Derr wrote:
+> Hello,
+> 
+> This is probably a known issue, or even maybe the expected behaviour, but
+> it seems that using sched_setaffinity() can severely disturb load
+> balancing on recent kernels. My tests are with 2.6.8-rc3 but I suppose
+> other kernel versions behave the same way.
+> 
 
-This is a multi-part message in MIME format.
---------------030503050600010805040003
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Yep, it shouldn't be anything new.
 
+You could justify the problem by saying that by using setaffinity, the
+user has asserted that they know best and so it is OK for the balancer
+to crap itself.
 
--- 
-Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
-jabber ID               <rreylinux at jabber dot org>
-Huella GPG - 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
----------------------------------------------------------------
-	http://augcyl.org/planet/
----------------------------------------------------------------
-
---------------030503050600010805040003
-Content-Type: text/plain;
- name="update_aci_mixer_driver_webpage.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="update_aci_mixer_driver_webpage.patch"
-
---- linux-2.6-rrey/MAINTAINERS.orig	2004-08-18 03:23:26.000000000 +0200
-+++ linux-2.6-rrey/MAINTAINERS	2004-08-18 14:32:08.644383250 +0200
-@@ -169,7 +169,7 @@
- P:	Robert Siemer
- M:	Robert.Siemer@gmx.de
- L:	linux-sound@vger.kernel.org
--W:	http://www.uni-karlsruhe.de/~Robert.Siemer/Private/
-+W:	http://www.stud.uni-karlsruhe.de/~uh1b/
- S:	Maintained
- 
- ACP/MWAVE MODEM
-
---------------030503050600010805040003--
-
---------------enig272D1163923363D2CF867931
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBI00xw4Wp058o43cRAgv9AKC4DxWcqHuneyXQZ1uHGpbyoHhhbACfTwKq
-v2m8l4lTkx204YeOy4FDYYE=
-=+Ide
------END PGP SIGNATURE-----
-
---------------enig272D1163923363D2CF867931--
+Ideally it would be handled nicely, but not a lot of people care at the
+moment.

@@ -1,79 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315250AbSDWPrK>; Tue, 23 Apr 2002 11:47:10 -0400
+	id <S315249AbSDWPrB>; Tue, 23 Apr 2002 11:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315251AbSDWPrJ>; Tue, 23 Apr 2002 11:47:09 -0400
-Received: from [62.245.135.174] ([62.245.135.174]:43689 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S315250AbSDWPrH>;
-	Tue, 23 Apr 2002 11:47:07 -0400
-Message-ID: <3CC581F5.2FBEA0C1@TeraPort.de>
-Date: Tue, 23 Apr 2002 17:47:01 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5-ac3 i686)
-X-Accept-Language: en, de
+	id <S315250AbSDWPrA>; Tue, 23 Apr 2002 11:47:00 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:24850 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S315249AbSDWPrA>; Tue, 23 Apr 2002 11:47:00 -0400
+Message-ID: <3CC581F6.6050103@loewe-komp.de>
+Date: Tue, 23 Apr 2002 17:47:02 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Stephen Lord <lord@sgi.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+CC: kernel@Expansa.sns.it,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: XFS in the main kernel
-In-Reply-To: <3CC56355.E5086E46@TeraPort.de> <3CC56FE9.1080303@sgi.com>
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/23/2002 05:47:01 PM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/23/2002 05:47:07 PM,
-	Serialize complete at 04/23/2002 05:47:07 PM
+In-Reply-To: <3CC56355.E5086E46@TeraPort.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Lord wrote:
+Martin Knoblauch wrote:
+>>Re: XFS in the main kernel
+>>
+>>From: Luigi Genoni (kernel@Expansa.sns.it)
+>>On Tue, 23 Apr 2002, Keith Owens wrote:
+>>
+>>
+>>>On 22 Apr 2002 18:55:20 +0200,
+>>>wichert@cistron.nl (Wichert Akkerman) wrote:
+>>>
+>>>>In article <3CC427F4.12C40426@fnal.gov>,
+>>>>Dan Yocum <yocum@fnal.gov> wrote:
+>>>>
+>>>>>I know it's been discussed to death, but I am making a formal request to you
+>>>>>to include XFS in the main kernel. We (The Sloan Digital Sky Survey) and
+>>>>>many, many other groups here at Fermilab would be very happy to have this in
+>>>>>the main tree.
+>>>>>
+>>>>Has XFS been proven to be completely stable
+>>>>
+>>>As much as any other filesystem. "There are no bugs in filesystem XYZ.
+>>>That just means that you have not looked hard enough." :) There is a
+>>>daily QA suite that XFS is run through.
+>>>
+>>In the reality the inclusion on XFS in the 2.5 tree would probably move
+>>more peole to use it, and so also to eventually trigger bugs, to report
+>>them, sometimes to fix them.
+>>This way XFS would improve faster, and of course that would be a
+>>good thing.
+>>
+>>
 > 
-> Martin Knoblauch wrote:
+>  definitely. Unless XFS is in the mainline kernel (marked as
+> experimantal if necessary) it will not get good exposure.
 > 
-> >
-> > definitely. Unless XFS is in the mainline kernel (marked as
-> >experimantal if necessary) it will not get good exposure.
-> >
-> > The most important (only) reason I do not use it (and recommend our
-> >customers against using it) is that at the moment it is impossible to
-> >track both the kernel and XFS at the same time. This is a shame, because
-> >I think that for some application XFS is superior to the other
-> >alternatives (can be said about the other alternatives to :-).
-> >
+>  The most important (only) reason I do not use it (and recommend our
+> customers against using it) is that at the moment it is impossible to
+> track both the kernel and XFS at the same time. This is a shame, because
+> I think that for some application XFS is superior to the other
+> alternatives (can be said about the other alternatives to :-).
+>  
 > 
-> You would be surprised about the level of exposure XFS is getting, a lot
-> more
-> than you might realize. It is in everything from settop boxes and fiber
-> channel
-> switches to NAS boxes, those folks in general do not want to advertise.
-> Here are
-> a few larger scale installations out there:
+>>That said, it is important to
+>>consider the technical reasons to include XFS in 2.5 or not; if this
+>>inclusion could cause some troubles, if XFS fits the requirements
+>>Linus asks for the inclusion and what impact the inclusion would have on
+>>the kernel (Think to JFS as a good example of an easy inclusion, with low
+>>impact).
+>>
+>>
 > 
-> http://oss.sgi.com/projects/xfs/xfs_users.html
+>  so, what were the main obstacles again? The VFS layer?
 > 
-> Steve
-Steve,
 
- no question that those are seriour users that give you serious
-feedback. And if you call that
-exposure, I am not going to argue. It is your project, it is your
-marketing. (And *I* am not going to argue about SGI marketing :-(
+The VFS and such features like "delayed block allocation". XFS tries
+to gather 64K or so before submitting to disk/block layer.
 
- From a mainline point of view XFS on Linux will only be successfull if
-it is "in the kernel". Fully maintained and "Linus approved". I am not
-sure when SGI started the port (could even go back to the time when I
-worked for them, late 1997). Definitely quite some time. By now it
-should be in the kernel. Maybe marked "experimental". As I see it now
-EXT3, ReiserFS and maybe JFS are just eating the XFS lunch away.
+FWIW, SuSE 8 ships with full (but experimental marked) XFS support.
 
- In any case, the Vanderbilt comment is right on.
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+

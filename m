@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269321AbUJFQBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269316AbUJFQDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269321AbUJFQBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 12:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269323AbUJFQBZ
+	id S269316AbUJFQDP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 12:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269206AbUJFQDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 12:01:25 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:43697 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269321AbUJFQBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 12:01:23 -0400
-Date: Wed, 6 Oct 2004 08:59:28 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: root@chaos.analogic.com, joris@eljakim.nl, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-Id: <20041006085928.63b44be6.pj@sgi.com>
-In-Reply-To: <20041006082145.7b765385.davem@davemloft.net>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
-	<20041006080104.76f862e6.davem@davemloft.net>
-	<Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
-	<20041006082145.7b765385.davem@davemloft.net>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 6 Oct 2004 12:03:15 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:11435 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269316AbUJFQDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 12:03:04 -0400
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
+	availlable
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Greg KH <greg@kroah.com>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041005221333.L6910@flint.arm.linux.org.uk>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de>
+	 <20041005212712.I6910@flint.arm.linux.org.uk>
+	 <20041005210659.GA5276@kroah.com>
+	 <20041005221333.L6910@flint.arm.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1097074822.29251.51.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 06 Oct 2004 16:00:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David wrote:
-> So like I said, there is no such guarentee.
+On Maw, 2004-10-05 at 22:13, Russell King wrote:
+> I'm redirecting them in the /sbin/hotplug script to something sane,
+> but I think the kernel itself should be directing these three fd's
+> to somewhere whenever it invokes any user program, even if it is
+> /dev/null.
 
-The select(2) man page states:
+Someone should yes. There are lots of fascinating things happen when
+hotplug opens a system file, it gets assigned fd 2 and then we write to
+stderr.
 
-  more precisely, to see if a read will not block
+> I think Alan disagrees with me, but I think the history that these
+> types of problems _keep_ cropping up over and over is proof enough
+> that it's necessary for sane userspace.
 
-It doesn't say _which_ read won't block.  Seems to me that the
-successful non-block read in the other thread qualifies as the
-promised non-blocking read.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Userspace to userspace execution is quite precisely defined. What
+happens for kernel->userspace isn't so I have no problem with the kernel
+attaching hotplug to the system console.

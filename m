@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTEKSGp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 14:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbTEKSGp
+	id S261835AbTEKSJN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 14:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbTEKSJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 14:06:45 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:64660
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261825AbTEKSGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 14:06:44 -0400
-Subject: Re: [bug 2.5.69] xirc2ps_cs, irq 3: nobody cared, shutdown hangs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Daniel Ritz <daniel.ritz@gmx.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@diego.com>
-In-Reply-To: <3EBE8768.4000007@pobox.com>
-References: <200305111647.32113.daniel.ritz@gmx.ch>
-	 <Pine.LNX.4.50.0305111202510.15337-100000@montezuma.mastecende.com>
-	 <3EBE8768.4000007@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052673649.29921.15.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 May 2003 18:20:50 +0100
+	Sun, 11 May 2003 14:09:12 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:51095 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261835AbTEKSJL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 14:09:11 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 11 May 2003 11:23:48 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use correct x86 reboot vector
+In-Reply-To: <m1fznl74f9.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.50.0305111119590.7563-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.LNX.4.44.0305102043320.28287-100000@home.transmeta.com>
+ <200305111137.29743.josh@stack.nl> <20030511140144.GA5602@mail.jlokier.co.uk>
+ <Pine.LNX.4.50.0305111033590.7563-100000@blue1.dev.mcafeelabs.com>
+ <m1fznl74f9.fsf@frodo.biederman.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-05-11 at 18:24, Jeff Garzik wrote:
-> If netif_device_present() returns false, we think the hardware has 
-> disappeared.  So that implies a bug in calling netif_device_detach() no 
-> a bug in the irq handler return value.
+On Sun, 11 May 2003, Eric W. Biederman wrote:
 
-Not really. The IRQ can be outstanding from the hardware unplug,
-especially on PCMCIA. Its an edge triggered IRQ so the unplug is very
-likely to latch an IRQ for delivery as the connector unplugs.
+> The remapping is quite common but it usually happens that after bootup:
+> 0xf0000-0xfffff is shadowed RAM.  While 0xffff0000-0xffffffff still points
+> to the rom chip.
+>
+> Now if someone could tell me how to do a jump to 0xffff0000:0xfff0 in real
+> mode I would find that very interesting.
 
->   If pcmcia hardware disappears on you, you _really_ don't want to be 
-> bitbanging its ports.
+Have you ever heard about unreal mode ? But I do not think that a reset
+has to start over there. I do not think that exist hw/sw that expect that
+reset address to be 0xfffffff0 instead of 0x000ffff0, since they map the
+same content.
 
-Its quite safe to do so. What we must do is ensure we don't reallocate
-the ports until they are truely freed. The current PCMCIA seems to get
-that right, (the current PCI locking for cardbus and hotplug is still
-terminally broken of course)
 
-Alan
+
+- Davide
 

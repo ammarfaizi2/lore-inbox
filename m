@@ -1,84 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268577AbTGOQZk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268586AbTGOQZj
+	id S268689AbTGOQ2c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268836AbTGOQ2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 12:25:39 -0400
-Received: from host81-136-144-97.in-addr.btopenworld.com ([81.136.144.97]:21376
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP id S268577AbTGOQZa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 12:25:30 -0400
-Subject: Re: [RFC][PATCH 0/5] relayfs
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, karim@opersys.com, bob@watson.ibm.com
-In-Reply-To: <16148.9560.602996.872584@gargle.gargle.HOWL>
-References: <16148.6807.578262.720332@gargle.gargle.HOWL>
-	 <1058282847.375.3.camel@sherbert>
-	 <16148.9560.602996.872584@gargle.gargle.HOWL>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CCqHi25c7n2OODcVekSF"
-Message-Id: <1058287227.377.17.camel@sherbert>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 15 Jul 2003 17:40:27 +0100
+	Tue, 15 Jul 2003 12:28:22 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:2056 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268689AbTGOQ0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 12:26:04 -0400
+Date: Tue, 15 Jul 2003 17:40:52 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: dank@reflexsecurity.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
+In-Reply-To: <bf19d5$d00$1@main.gmane.org>
+Message-ID: <Pine.LNX.4.44.0307151740040.7091-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-CCqHi25c7n2OODcVekSF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > drivers/built-in.o(.text+0x66e7a): In function `matroxfb_set_par':
+> >: undefined reference to `default_grn'
+> > drivers/built-in.o(.text+0x66e7f): In function `matroxfb_set_par':
+> >: undefined reference to `default_blu'
+> > drivers/built-in.o(.text+0x66e93): In function `matroxfb_set_par':
+> >: undefined reference to `color_table'
+> > drivers/built-in.o(.text+0x66e9b): In function `matroxfb_set_par':
+> >: undefined reference to `default_red'
+> > make: *** [.tmp_vmlinux1] Error 1
+> 
+> you'll need to build VT support.
 
-On Tue, 2003-07-15 at 17:01, Tom Zanussi wrote:
-> Gianni Tedesco writes:
->  > On Tue, 2003-07-15 at 16:15, Tom Zanussi wrote:
->  > > The following 5 patches implement relayfs, adding a dynamic channel
->  > > resizing capability to the previously posted version.
->  > >=20
->  > > relayfs is a filesystem designed to provide an efficient mechanism f=
-or
->  > > tools and facilities to relay large amounts of data from kernel spac=
-e
->  > > to user space.  Full details can be found in Documentation/filesyste=
-ms/
->  > > relayfs.txt.  The current version can always be found at
->  > > http://www.opersys.com/relayfs.
->  >=20
->  > Could this be used to replace mmap() packet socket, how does it compar=
-e?
->=20
-> I think so - you could send high volumes of packet traffic to a bulk
-> relayfs channel and read it from the mmap'ed relayfs file in user
-> space.  The Linux Trace Toolkit does the same thing with large volumes
-> of trace data - you could look at that code as an example
-> (http://www.opersys.com/relayfs/ltt-on-relayfs.html).
+Ug. That is wrong. Fbdev driver are independent of the console layer.
 
-What are the semantics of the mmap'ing the buffer? With mmaped packet
-socket the userspace (read-side) requires no sys-calls apart from when
-the buffer is empty, it then uses poll(2) to sleep until something new
-is put in the buffer. Can relayfs do a similar thing? poll is not
-mentioned in the docs...
-
-Thanks.
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
-
---=-CCqHi25c7n2OODcVekSF
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/FC57kbV2aYZGvn0RAlPZAJ4ubrqgHYwGHycpyQYy16mNH6dd0gCePcXm
-hPmi3faMe+ckTimEC/t1J1Y=
-=Cn0u
------END PGP SIGNATURE-----
-
---=-CCqHi25c7n2OODcVekSF--
 

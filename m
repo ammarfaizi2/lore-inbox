@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317448AbSFRP3Q>; Tue, 18 Jun 2002 11:29:16 -0400
+	id <S317450AbSFRP3j>; Tue, 18 Jun 2002 11:29:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317450AbSFRP3P>; Tue, 18 Jun 2002 11:29:15 -0400
-Received: from ns2.arlut.utexas.edu ([129.116.174.1]:36877 "EHLO
-	ns2.arlut.utexas.edu") by vger.kernel.org with ESMTP
-	id <S317448AbSFRP3O>; Tue, 18 Jun 2002 11:29:14 -0400
-Date: Tue, 18 Jun 2002 10:28:56 -0500
-From: Jonathan Abbey <jonabbey@arlut.utexas.edu>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Jonathan Abbey <jonabbey@arlut.utexas.edu>, linux-kernel@vger.kernel.org
-Subject: Re: oops in 2.4.18-3 kswapd?
-Message-ID: <20020618102856.A25439@arlut.utexas.edu>
-References: <20020618100046.A23353@arlut.utexas.edu> <Pine.LNX.4.44.0206181655530.1263-100000@netfinity.realnet.co.sz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.44.0206181655530.1263-100000@netfinity.realnet.co.sz>; from zwane@linux.realnet.co.sz on Tue, Jun 18, 2002 at 04:58:24PM +0200
+	id <S317451AbSFRP3i>; Tue, 18 Jun 2002 11:29:38 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:61389 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317450AbSFRP3h>; Tue, 18 Jun 2002 11:29:37 -0400
+Date: Tue, 18 Jun 2002 17:01:52 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Myrddin Ambrosius <imipak@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Drivers, Hardware, and their relationship to Bagels.
+In-Reply-To: <20020618150628.12694.qmail@web12305.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0206181659200.1263-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 18, 2002 at 04:58:24PM +0200, Zwane Mwaikambo wrote:
-| 
-| *sigh* this could become an FAQ, new nVidia driver seems to have worked 
-| its magic on that kernel (__free_pages_ok). Try running the 2314 drivers 
-| or perhaps the 2960.
+On Tue, 18 Jun 2002, Myrddin Ambrosius wrote:
 
-I'm running 2960.  Will investigate other options.
+> If you can blithely ignore restrictions placed by the
+> kernel on some piece of hardware, and access it
+> directly, then surely this would apply to any
+> hardware. Including disk drives, RAM, etc.
 
-Thanks for a surprisingly idiot-tolerant reply. ;-)
+iopl(2), chmod(1) and friends, hardware frobbing isn't a free for all. 
+Then again if you're root...
 
-| Cheers,
-| 	Zwane Mwaikambo
-| -- 
-| http://function.linuxpower.ca
+Regards,
+	Zwane Mwaikambo
 
 -- 
--------------------------------------------------------------------------------
-Jonathan Abbey 				              jonabbey@arlut.utexas.edu
-Applied Research Laboratories                 The University of Texas at Austin
-Ganymede, a GPL'ed metadirectory for UNIX     http://www.arlut.utexas.edu/gash2
+http://function.linuxpower.ca
+		
+

@@ -1,115 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbUEJUVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbUEJUWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbUEJUVD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 16:21:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUEJUVD
+	id S261498AbUEJUWj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 16:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUEJUWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 16:21:03 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25023 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261479AbUEJUU4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 16:20:56 -0400
-Date: Mon, 10 May 2004 13:21:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ram Pai <linuxram@us.ibm.com>
-Cc: alexeyk@mysql.com, nickpiggin@yahoo.com.au, peter@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Random file I/O regressions in 2.6
-Message-Id: <20040510132151.238b8d0c.akpm@osdl.org>
-In-Reply-To: <1084218659.6140.459.camel@localhost.localdomain>
-References: <200405022357.59415.alexeyk@mysql.com>
-	<200405050301.32355.alexeyk@mysql.com>
-	<20040504162037.6deccda4.akpm@osdl.org>
-	<200405060204.51591.alexeyk@mysql.com>
-	<20040506014307.1a97d23b.akpm@osdl.org>
-	<1084218659.6140.459.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 10 May 2004 16:22:39 -0400
+Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:4781 "HELO
+	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261498AbUEJUWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 16:22:34 -0400
+Subject: Re: ptrace in 2.6.5
+From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+To: Andi Kleen <ak@muc.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m365b4kth8.fsf@averell.firstfloor.org>
+References: <1UlcA-6lq-9@gated-at.bofh.it>
+	 <m365b4kth8.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Message-Id: <1084220684.1798.3.camel@slack.domain.invalid>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 10 May 2004 17:24:44 -0300
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram Pai <linuxram@us.ibm.com> wrote:
->
-> > Ram, can you take a look at fixing that up please?  Something clean, not
-> > more hacks ;) I'd also be interested in an explanation of what the extra
-> > page is for.  The little comment in there doesn't really help.
+On Mon, 2004-05-10 at 15:49, Andi Kleen wrote:
+> Fabiano Ramos <ramos_fabiano@yahoo.com.br> writes:
 > 
+> > Hi All.
+> >
+> >      Is ptrace(), in singlestep mode, required to stop after a int 0x80?
+> >     When tracing a sequence like
+> >
+> > 	mov ...
+> > 	int 0x80
+> > 	mov ....
+> >
+> >     ptrace would notify the tracer after the two movs, but not after the
+> > int 0x80. I want to know if it is a bug or the expected behaviour.
 > 
-> The reason for the extra page read is as follows:
+> What happens is that after the int 0x80 the CPU is in ring 0 (you
+> don't get an trace event in that mode unless you use a kernel debugger). 
+> Then when the kernel returns the last instruction executed before it is an 
+> IRET. But the IRET is also executed still in ring 0 and you should not get 
+> an event for it (you can not even access its code from user space).
 > 
-> Consider 16k random reads i/os. Reads are generated 4pages at a time.
+> So it's expected behaviour.
 > 
-> the readahead is triggered when the 4th page in the 'current-window' is
-> touched.
+> -Andi
 
-Right.  We've added two whole unsigned longs to the file_struct to track
-the access patterns.  That should be sufficient for us to detect when the
-access pattern is random, and to then not perform readahead due to a
-current-window miss *at all*.
+I got it. But I need it to stop after the instruction. I am a newbie,
+so is it trivial to patch the kernel so that it STOPS after the int
+0x80? Can  you give me some light on it?
 
-So that extra page can go away, and:
-
---- 25/mm/readahead.c~a	Mon May 10 13:16:59 2004
-+++ 25-akpm/mm/readahead.c	Mon May 10 13:17:22 2004
-@@ -492,21 +492,17 @@ do_io:
- 		 */
- 		if (ra->ahead_start == 0) {
- 			/*
--			 * if the average io-size is less than maximum
-+			 * If the average io-size is less than maximum
- 			 * readahead size of the file the io pattern is
- 			 * sequential. Hence  bring in the readahead window
- 			 * immediately.
--			 * Else the i/o pattern is random. Bring
--			 * in the readahead window only if the last page of
--			 * the current window is accessed (lazy readahead).
- 			 */
- 			unsigned long average = ra->average;
- 
- 			if (ra->serial_cnt > average)
- 				average = (ra->serial_cnt + ra->average) / 2;
- 
--			if ((average >= max) || (offset == (ra->start +
--							ra->size - 1))) {
-+			if (average >= max) {
- 				ra->ahead_start = ra->start + ra->size;
- 				ra->ahead_size = ra->next_size;
- 				actual = do_page_cache_readahead(mapping, filp,
-
-_
-
-
-That way, we read the correct amount of data, and we only start I/O when we
-know the application is going to actually use the data.
-
-This may cause problems when the application transitions from seeky-access
-to linear-access.
-
-Does it sound feasible?
-
->
-> Probably we may see marginal degradation of this optimization with 16k
-> i/o but the amount of wastage avoided by this optimization (hack) 
-> is great when random i/o is of larger size. I think it was 4% better
-> performance on DSS workload with 64k random reads.
-
-64k sounds unusually large.  We need top performance at 8k too.
-
-> Do you still think its a hack?
-
-yup ;)
-
-> Also I think  with sysbench workload and Andrew's ra-copy patch, we
-> might be loosing some benefits of some of the optimization because 
-> if two threads simulteously work with copies of the same ra structure
-> and update it, the optimization effect reflected in one of the
-> ra-structure is lost depending on which ra structure gets copied back
-> last.
-
-hm, maybe.  That only makes a difference if two threads are accessing the
-same fd at the same time, and it was really bad before the patch.  The IO
-patterns seemed OK to me with the patch.  Except it's reading one page too
-many.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

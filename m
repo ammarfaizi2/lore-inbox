@@ -1,171 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278709AbRJTBJK>; Fri, 19 Oct 2001 21:09:10 -0400
+	id <S278710AbRJTBPu>; Fri, 19 Oct 2001 21:15:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278710AbRJTBJG>; Fri, 19 Oct 2001 21:09:06 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:52954 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S278709AbRJTBI4>;
-	Fri, 19 Oct 2001 21:08:56 -0400
-Message-ID: <3BD0CDED.3850B31D@sun.com>
-Date: Fri, 19 Oct 2001 18:05:49 -0700
+	id <S278711AbRJTBPf>; Fri, 19 Oct 2001 21:15:35 -0400
+Received: from mercury.Sun.COM ([192.9.25.1]:5032 "EHLO mercury.Sun.COM")
+	by vger.kernel.org with ESMTP id <S278710AbRJTBPN>;
+	Fri, 19 Oct 2001 21:15:13 -0400
+Message-ID: <3BD0CF68.437ED9DC@sun.com>
+Date: Fri, 19 Oct 2001 18:12:08 -0700
 From: Tim Hockin <thockin@sun.com>
 Organization: Sun Microsystems, Inc.
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        jgarzik@mandrakesoft.com, manfred@colorfullife.com
-Subject: [PATCH] try #2 even bigger natsemi patch
+        jgarzik@mandrakesoft.com
+Subject: Re: [PATCH] try #2 even bigger natsemi patch
+In-Reply-To: <3BD0CDED.3850B31D@sun.com>
 Content-Type: multipart/mixed;
- boundary="------------B140C38C5B1CF59C0113CCD5"
+ boundary="------------36DF040F875C7828116796D4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------B140C38C5B1CF59C0113CCD5
+--------------36DF040F875C7828116796D4
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Jeff,
-
-I took your feedback, and cleaned up both the patch and more.  Attached are
-two seperate diffs - one for adding the natsemi to pci_ids.h, and one
-against natsemi.c
-
-I'll do my best to narrate the dif hunk by hunk.  I hope this is sufficient
-for you to send it on, now :)
-
-* comments
-
-* update release info
-* add strings for 83816
- 
-* formatting for 8-space tab disply
-
-* increase RX Queue to eliminate some Something Wicked messages
-* Define the timer frequency
-* formatting
-
-* formatting
-
-* strings for 83816
-* use new PCI ID (depends on pci_ids.h patch
-
-* formatting
-* add constants for magic register's values
-* rename an enum for consistancy
-* rename all 'bit' enums so they are named the same as their 
-  register, and are found in the same order
-* Add a comment about the default interrupt state
-* Add some missing but needed bits definitions (TXConfig...)
-
-* more bits
-* constants for Silicon Revisions
-
-* more bits for descriptor status
-
-* store SRR in private struct
-* formatting
-* add mdio_write function protoype
-
-* formatting
-
-* magic number removal
-
-* call eeprom reload during probe - BEFORE chip reset
-
-* use MII defines for mdio
-* magic number removal
-* save SRR
-
-* moved bits
-
-* cleanup mdio_read to look more like mdio_write
-* add mdio_write
-* add defines for bits to save across a reset
-* expand natsemi_reset() to save and restore state that would be 
-  nuked by a chip reset
-
-* add a natsemi_reload_eeprom() func
-
-* use a constant for netdev timer
-* formatting
-
-* magic number removal
-
-* use the stored SRR
-* poll for AnegDone for a bit during open()
-
-* use magic register constants
-* comments
-* cleanup for WoL
-* magic numbers
-* no need to blast mac-address, natsemi_reset should be doing it now
-
-* magic numbers
-
-* print if we got a WoL event
-
-* add the phy reset checker to catch spurious PHY resets
-* use mod_timer
-
-* formatting
-
-* magic numbers
-
-* increase a debug level (didn't check into netif_msg yet - later
-
-* magic numbers
-
-* use mdio_read where applicable
-
-* magic
-
-* get rid of "Something Wicked" and print what it actually is
-
-* fixup bit definitions
-
-* only do SOPASS for rev D or up
-
-* remove FIXME comment
-
-* More SOPASS for rev D
-
-* Magic numbers
-
-* use MII defines where appropriate
-
-* use mdio_read()/mdio_write()
-
-* WoL cleanup
-
-
-Detailed enough?  Please don't make me break it down further :)	
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
---------------B140C38C5B1CF59C0113CCD5
-Content-Type: text/plain; charset=us-ascii;
- name="include_linux_pci_ids.h.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="include_linux_pci_ids.h.diff"
-
-diff -ruN dist-2.4.12+patches/include/linux/pci_ids.h cvs-2.4.12+patches/include/linux/pci_ids.h
---- dist-2.4.12+patches/include/linux/pci_ids.h	Mon Oct 15 10:23:43 2001
-+++ cvs-2.4.12+patches/include/linux/pci_ids.h	Mon Oct 15 10:23:43 2001
-@@ -285,6 +285,7 @@
- #define PCI_DEVICE_ID_NS_87415		0x0002
- #define PCI_DEVICE_ID_NS_87560_LIO	0x000e
- #define PCI_DEVICE_ID_NS_87560_USB	0x0012
-+#define PCI_DEVICE_ID_NS_83815		0x0020
- #define PCI_DEVICE_ID_NS_87410		0xd001
- 
- #define PCI_VENDOR_ID_TSENG		0x100c
-
---------------B140C38C5B1CF59C0113CCD5
+AHHHH!  There is one spurious line in that diff - attched is the right one.
+--------------36DF040F875C7828116796D4
 Content-Type: text/plain; charset=us-ascii;
  name="drivers_net_natsemi.c.diff"
 Content-Transfer-Encoding: 7bit
@@ -719,11 +582,8 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		}
  		writel(np->tx_config, ioaddr + TxConfig);
  		writel(np->rx_config, ioaddr + RxConfig);
-@@ -845,9 +993,21 @@
- 	long ioaddr = dev->base_addr;
- 	int i;
+@@ -847,7 +995,18 @@
  
-+	/* save the silicon revision for later */
  	if (debug > 4)
  		printk(KERN_DEBUG "%s: found silicon revision %xh.\n",
 -				dev->name, readl(ioaddr + SiliconRev));
@@ -742,7 +602,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  
  	/* On page 78 of the spec, they recommend some settings for "optimum
  	   performance" to be done in sequence.  These settings optimize some
-@@ -856,26 +1016,26 @@
+@@ -856,26 +1015,26 @@
  	   Kennedy) recommends always setting them.  If you don't, you get 
  	   errors on some autonegotiations that make the device unusable.
  	*/
@@ -783,7 +643,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  
  	/* Initialize other registers.
  	 * Configure the PCI bus bursts and FIFO thresholds.
-@@ -891,12 +1051,13 @@
+@@ -891,12 +1050,13 @@
  	 * ECRETRY=1
  	 * ATP=1
  	 */
@@ -800,7 +660,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	writel(np->rx_config, ioaddr + RxConfig);
  
  	/* Disable PME:
-@@ -906,24 +1067,37 @@
+@@ -906,24 +1066,37 @@
  	 * With PME set the chip will scan incoming packets but
  	 * nothing will be written to memory. */
  	np->SavedClkRun = readl(ioaddr + ClkRun);
@@ -842,7 +702,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  
  	if (debug > 3) {
  		/* DO NOT read the IntrStatus register, 
-@@ -933,10 +1107,27 @@
+@@ -933,10 +1106,27 @@
  			   dev->name);
  	}
  	spin_lock_irq(&np->lock);
@@ -873,7 +733,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  }
  
  static void dump_ring(struct net_device *dev)
-@@ -946,15 +1137,18 @@
+@@ -946,15 +1136,18 @@
  	if (debug > 2) {
  		int i;
  		printk(KERN_DEBUG "  Tx ring at %p:\n", np->tx_ring);
@@ -895,7 +755,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		}
  	}
  }
-@@ -964,12 +1158,12 @@
+@@ -964,12 +1157,12 @@
  	struct netdev_private *np = dev->priv;
  	long ioaddr = dev->base_addr;
  
@@ -910,7 +770,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		dump_ring(dev);
  
  		natsemi_reset(dev);
-@@ -977,8 +1171,9 @@
+@@ -977,8 +1170,9 @@
  		init_ring(dev);
  		init_registers(dev);
  	} else {
@@ -922,7 +782,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	}
  	spin_unlock_irq(&np->lock);
  	enable_irq(dev->irq);
-@@ -1019,7 +1214,7 @@
+@@ -1019,7 +1213,7 @@
  	for (i = 0; i < RX_RING_SIZE; i++) {
  		np->rx_ring[i].next_desc = cpu_to_le32(np->ring_dma
  				+sizeof(struct netdev_desc)
@@ -931,7 +791,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		np->rx_ring[i].cmd_status = cpu_to_le32(DescOwn);
  		np->rx_skbuff[i] = NULL;
  	}
-@@ -1107,7 +1302,8 @@
+@@ -1107,7 +1301,8 @@
  	
  	if (netif_device_present(dev)) {
  		np->tx_ring[entry].cmd_status = cpu_to_le32(DescOwn | skb->len);
@@ -941,7 +801,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		wmb();
  		np->cur_tx++;
  		if (np->cur_tx - np->dirty_tx >= TX_QUEUE_LEN - 1) {
-@@ -1148,15 +1344,19 @@
+@@ -1148,15 +1343,19 @@
  			printk(KERN_DEBUG "%s: tx frame #%d finished with status %8.8xh.\n",
  					dev->name, np->dirty_tx,
  					le32_to_cpu(np->tx_ring[entry].cmd_status));
@@ -967,7 +827,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  			np->stats.tx_errors++;
  		}
  		pci_unmap_single(np->pci_dev,np->tx_dma[entry],
-@@ -1219,7 +1419,7 @@
+@@ -1219,7 +1418,7 @@
  		}
  	} while (1);
  
@@ -976,7 +836,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		printk(KERN_DEBUG "%s: exiting interrupt.\n",
  			   dev->name);
  }
-@@ -1240,7 +1440,7 @@
+@@ -1240,7 +1439,7 @@
  				   entry, desc_status);
  		if (--boguscnt < 0)
  			break;
@@ -985,7 +845,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  			if (desc_status & DescMore) {
  				printk(KERN_WARNING "%s: Oversized(?) Ethernet frame spanned "
  					   "multiple buffers, entry %#x status %x.\n",
-@@ -1252,14 +1452,19 @@
+@@ -1252,14 +1451,19 @@
  					printk(KERN_DEBUG "  netdev_rx() Rx error was %8.8x.\n",
  						   desc_status);
  				np->stats.rx_errors++;
@@ -1010,7 +870,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  			/* Check if the packet is long enough to accept without copying
  			   to a minimally-sized skbuff. */
  			if (pkt_len < rx_copybreak
-@@ -1324,10 +1529,11 @@
+@@ -1324,10 +1528,11 @@
  
  	spin_lock(&np->lock);
  	if (intr_status & LinkChange) {
@@ -1026,7 +886,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		/* read MII int status to clear the flag */
  		readw(ioaddr + MIntrStatus);
  		check_link(dev);
-@@ -1336,7 +1542,7 @@
+@@ -1336,7 +1541,7 @@
  		__get_stats(dev);
  	}
  	if (intr_status & IntrTxUnderrun) {
@@ -1035,7 +895,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  			np->tx_config += 2;
  		if (debug > 2)
  			printk(KERN_NOTICE "%s: increasing Tx theshold, new tx cfg %8.8xh.\n",
-@@ -1348,12 +1554,15 @@
+@@ -1348,12 +1553,15 @@
  		printk(KERN_NOTICE "%s: Link wake-up event %8.8x\n",
  			   dev->name, wol_status);
  	}
@@ -1055,7 +915,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		np->stats.tx_fifo_errors++;
  		np->stats.rx_fifo_errors++;
  	}
-@@ -1453,11 +1662,12 @@
+@@ -1453,11 +1661,12 @@
  	if (dev->flags & IFF_PROMISC) {			/* Set promiscuous. */
  		/* Unconditionally log net taps. */
  		printk(KERN_NOTICE "%s: Promiscuous mode enabled.\n", dev->name);
@@ -1071,7 +931,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	} else {
  		struct dev_mc_list *mclist;
  		int i;
-@@ -1467,10 +1677,12 @@
+@@ -1467,10 +1676,12 @@
  			set_bit_le(ether_crc_le(ETH_ALEN, mclist->dmi_addr) & 0x1ff,
  					mc_filter);
  		}
@@ -1086,7 +946,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		}
  	}
  	writel(rx_mode, ioaddr + RxFilterAddr);
-@@ -1550,6 +1762,7 @@
+@@ -1550,6 +1761,7 @@
  
  static int netdev_set_wol(struct net_device *dev, u32 newval)
  {
@@ -1094,7 +954,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	u32 data = readl(dev->base_addr + WOLCmd) & ~WakeOptsSummary;
  
  	/* translate to bitmasks this chip understands */
-@@ -1565,49 +1778,65 @@
+@@ -1565,49 +1777,65 @@
  		data |= WakeArp;
  	if (newval & WAKE_MAGIC)
  		data |= WakeMagic;
@@ -1174,7 +1034,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	writel(addr, dev->base_addr + RxFilterAddr);
  
  	/* write the three words to (undocumented) RFCR vals 0xa, 0xc, 0xe */
-@@ -1621,19 +1850,25 @@
+@@ -1621,19 +1849,25 @@
  	writew(sval[2], dev->base_addr + RxFilterData);
  	
  	/* re-enable the RX filter */
@@ -1204,7 +1064,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	writel(addr | 0xa, dev->base_addr + RxFilterAddr);
  	sval[0] = readw(dev->base_addr + RxFilterData);
  
-@@ -1643,6 +1878,8 @@
+@@ -1643,6 +1877,8 @@
  	writel(addr | 0xe, dev->base_addr + RxFilterAddr);
  	sval[2] = readw(dev->base_addr + RxFilterData);
  	
@@ -1213,7 +1073,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	return 0;
  }
  
-@@ -1662,17 +1899,17 @@
+@@ -1662,17 +1898,17 @@
  	ecmd->transceiver = XCVR_INTERNAL;
  
  	/* this isn't fully supported at higher layers */
@@ -1237,7 +1097,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		ecmd->advertising |= ADVERTISED_100baseT_Full;
  
  	tmp = readl(dev->base_addr + ChipConfig);
-@@ -1734,30 +1971,29 @@
+@@ -1734,30 +1970,29 @@
  		}
  		writel(tmp, dev->base_addr + ChipConfig);
  		/* turn on autonegotiation, and force a renegotiate */
@@ -1277,7 +1137,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	struct mii_ioctl_data *data = (struct mii_ioctl_data *)&rq->ifr_data;
  
  	switch(cmd) {
-@@ -1770,22 +2006,16 @@
+@@ -1770,22 +2005,16 @@
  
  	case SIOCGMIIREG:		/* Read MII PHY register. */
  	case SIOCDEVPRIVATE+1:		/* for binary compat, remove in 2.5 */
@@ -1304,7 +1164,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		return 0;
  	default:
  		return -EOPNOTSUPP;
-@@ -1795,16 +2025,24 @@
+@@ -1795,16 +2024,24 @@
  static void enable_wol_mode(struct net_device *dev, int enable_intr)
  {
  	long ioaddr = dev->base_addr;
@@ -1329,7 +1189,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	/* and restart the rx process */
  	writel(RxOn, ioaddr + ChipCmd);
  
-@@ -1822,9 +2060,10 @@
+@@ -1822,9 +2059,10 @@
  	struct netdev_private *np = dev->priv;
  
  	netif_stop_queue(dev);
@@ -1341,7 +1201,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  			   dev->name, (int)readl(ioaddr + ChipCmd));
  		printk(KERN_DEBUG "%s: Queue pointers were Tx %d / %d,  Rx %d / %d.\n",
  			   dev->name, np->cur_tx, np->dirty_tx, np->cur_rx, np->dirty_rx);
-@@ -1835,9 +2074,13 @@
+@@ -1835,9 +2073,13 @@
  	disable_irq(dev->irq);
  	spin_lock_irq(&np->lock);
  
@@ -1357,7 +1217,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	    
  	/* Stop the chip's Tx and Rx processes. */
  	natsemi_stop_rxtx(dev);
-@@ -1865,20 +2108,15 @@
+@@ -1865,20 +2107,15 @@
  
  	 {
  		u32 wol = readl(ioaddr + WOLCmd) & WakeOptsSummary;
@@ -1381,7 +1241,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  	}
  	return 0;
  }
-@@ -1913,8 +2151,8 @@
+@@ -1913,8 +2150,8 @@
   *	* intr_handler: doesn't acquire the spinlock. suspend calls
   *		disable_irq() to enforce synchronization.
   *
@@ -1392,7 +1252,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
   */
  
  static int natsemi_suspend (struct pci_dev *pdev, u32 state)
-@@ -1945,7 +2183,6 @@
+@@ -1945,7 +2182,6 @@
  		drain_ring(dev);
  		{
  			u32 wol = readl(ioaddr + WOLCmd) & WakeOptsSummary;
@@ -1400,7 +1260,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  			/* Restore PME enable bit */
  			if (wol) {
  				/* restart the NIC in WOL mode.
-@@ -1953,10 +2190,10 @@
+@@ -1953,10 +2189,10 @@
  				 * FIXME: use the WOL interupt 
  				 */
  				enable_wol_mode(dev, 0);
@@ -1414,7 +1274,7 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		}
  	} else {
  		netif_device_detach(dev);
-@@ -1985,8 +2222,7 @@
+@@ -1985,8 +2221,7 @@
  		netif_device_attach(dev);
  		spin_unlock_irq(&np->lock);
  
@@ -1425,5 +1285,24 @@ diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/n
  		netif_device_attach(dev);
  	}
 
---------------B140C38C5B1CF59C0113CCD5--
+--------------36DF040F875C7828116796D4
+Content-Type: text/plain; charset=us-ascii;
+ name="include_linux_pci_ids.h.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="include_linux_pci_ids.h.diff"
+
+diff -ruN dist-2.4.12+patches/include/linux/pci_ids.h cvs-2.4.12+patches/include/linux/pci_ids.h
+--- dist-2.4.12+patches/include/linux/pci_ids.h	Mon Oct 15 10:23:43 2001
++++ cvs-2.4.12+patches/include/linux/pci_ids.h	Mon Oct 15 10:23:43 2001
+@@ -285,6 +285,7 @@
+ #define PCI_DEVICE_ID_NS_87415		0x0002
+ #define PCI_DEVICE_ID_NS_87560_LIO	0x000e
+ #define PCI_DEVICE_ID_NS_87560_USB	0x0012
++#define PCI_DEVICE_ID_NS_83815		0x0020
+ #define PCI_DEVICE_ID_NS_87410		0xd001
+ 
+ #define PCI_VENDOR_ID_TSENG		0x100c
+
+--------------36DF040F875C7828116796D4--
 

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263080AbRFYJYL>; Mon, 25 Jun 2001 05:24:11 -0400
+	id <S262915AbRFYJXv>; Mon, 25 Jun 2001 05:23:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263070AbRFYJYB>; Mon, 25 Jun 2001 05:24:01 -0400
-Received: from pD951F7B2.dip.t-dialin.net ([217.81.247.178]:63748 "EHLO
-	emma1.emma.line.org") by vger.kernel.org with ESMTP
-	id <S263034AbRFYJXz>; Mon, 25 Jun 2001 05:23:55 -0400
-Date: Mon, 25 Jun 2001 11:23:53 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: The Joy of Forking
-Message-ID: <20010625112353.D13348@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200106240950.FAA07005@smarty.smart.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <200106240950.FAA07005@smarty.smart.net>
-User-Agent: Mutt/1.3.19i
+	id <S263034AbRFYJXl>; Mon, 25 Jun 2001 05:23:41 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:10805 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S262915AbRFYJX0>; Mon, 25 Jun 2001 05:23:26 -0400
+Message-ID: <3B370250.1050305@kalifornia.com>
+Date: Mon, 25 Jun 2001 02:20:16 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.1+) Gecko/20010623
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Marty Leisner <leisner@rochester.rr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: mounting a fs in two places at once?
+In-Reply-To: <200106250212.WAA05336@soyata.home>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Jun 2001, Rick Hohensee wrote:
+Marty Leisner wrote:
 
-> 2.4.5 is 26 meg now. It's time to consider forking the kernel. Alan has
-> already stuck his tippy-toe is that pool, and his toe is fine.
- 
-> For a client-use Linux kernel, I suggest, and will be and have been
-> persuing, features and non-features such as...
-> 
-> 	forget POSIX
+>
+>/dev/hda10 on /mnt type ext2 (rw)
+>/dev/hda10 on /home type ext2 (rw)
+>
+>
+>Is this a feature or a bug?
+>
 
-[junk]
+Feature.  It actually makes it quite nice when you want to allow 
+chrooted user(s) access to a common directory, you just mount a 
+partition in all the users home dirs.
 
-> In short, an open source OS for end-users should be very serious about
-> simplicity, and not just pay lip-service to it. There is evidence of the
-> value of this in the marketplace. What doesn't exist is an OS where
-> simplicity is systemic. This is why end-user issues pertain to the kernel
-> at all. This is how open source should be. Simple, or at least clear,
-> through and through. Linux has lost a lot of simplicity since I got into
-> it in '96, and that is a loss.
+-b
 
-Don't feed the trolls. The underlying kernel is nothing compared to an
-entire system. End-users don't mock with kernels but install their
-vendor's RPM, plus compiled Linux kernels are usually so much smaller on
-my machines than FreeBSD kernels. So just ignore this.
+-- 
+:    __o
+:   -\<,
+:   0/ 0
+-----------
+
+
+

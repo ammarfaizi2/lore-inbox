@@ -1,83 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135947AbREAOwH>; Tue, 1 May 2001 10:52:07 -0400
+	id <S136627AbREAOz5>; Tue, 1 May 2001 10:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136620AbREAOvs>; Tue, 1 May 2001 10:51:48 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:7180 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S135947AbREAOvl>;
-	Tue, 1 May 2001 10:51:41 -0400
-Date: Tue, 1 May 2001 16:51:38 +0200
-From: FAVRE Gregoire <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac2 Compilation error...
-Message-ID: <20010501165138.B5946@ulima.unil.ch>
-Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gatW/ieO32f1wygP"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+	id <S136622AbREAOzr>; Tue, 1 May 2001 10:55:47 -0400
+Received: from web5201.mail.yahoo.com ([216.115.106.95]:30214 "HELO
+	web5201.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S136619AbREAOze>; Tue, 1 May 2001 10:55:34 -0400
+Message-ID: <20010501145533.21382.qmail@web5201.mail.yahoo.com>
+Date: Tue, 1 May 2001 07:55:33 -0700 (PDT)
+From: Rob Landley <telomerase@yahoo.com>
+Subject: Re: New rtl8139 driver prevents ssh from exiting.
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AEEC189.5D953AC3@uow.edu.au>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-2119570063-988728933=:21059"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---gatW/ieO32f1wygP
+--0-2119570063-988728933=:21059
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Thus spake Alan Cox (alan@lxorguk.ukuu.org.uk):
+--- Andrew Morton <andrewm@uow.edu.au> wrote:
+> ack.  You never said 2.2.19 :(
+> 
+> It won't apply...
 
-> 2.4.4-ac2
+No, but this one did.  (Never underestimate the power
+of somebody with source code, a text editor, and the
+willingness to totally hose their system.)
 
-I got:
+And it fixed the problem.  Thank you.
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.4-ac2/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
-+-pipe -mpreferred-stack-boundary=2 -march=i686    -c -o pci-pc.o
-pci-pc.c
-{standard input}: Assembler messages:
-{standard input}:784: Warning: indirect lcall without `*'
-{standard input}:869: Warning: indirect lcall without `*'
-{standard input}:955: Warning: indirect lcall without `*'
-{standard input}:993: Warning: indirect lcall without `*'
-{standard input}:1025: Warning: indirect lcall without `*'
-{standard input}:1057: Warning: indirect lcall without `*'
-{standard input}:1088: Warning: indirect lcall without `*'
-{standard input}:1117: Warning: indirect lcall without `*'
-{standard input}:1146: Warning: indirect lcall without `*'
-{standard input}:1433: Warning: indirect lcall without `*'
-{standard input}:1529: Warning: indirect lcall without `*'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.4-ac2/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
-+-pipe -mpreferred-stack-boundary=2 -march=i686    -c -o pci-irq.o
-pci-irq.c
-In file included from pci-irq.c:19:
-/usr/src/linux-2.4.4-ac2/include/asm/io_apic.h:98: `MAX_IRQ_SOURCES'
-undeclared here (not in a function)
-make[1]: *** [pci-irq.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.4-ac2/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
-541.570u 48.620s 13:32.67 72.6% 0+0k 0+0io 609749pf+0w
-Exit 2
+Rob
 
-gcc version 2.96 20000731 (Linux-Mandrake 7.3)
 
-	Greg
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/
+--0-2119570063-988728933=:21059
+Content-Type: application/x-unknown; name="patch-2.2.19"
+Content-Transfer-Encoding: base64
+Content-Description: patch-2.2.19
+Content-Disposition: attachment; filename="patch-2.2.19"
 
---gatW/ieO32f1wygP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+LS0tIHNjaGVkLmJhawlNb24gQXByIDMwIDE2OjE0OjE2IDIwMDEKKysrIHNj
+aGVkLmMJTW9uIEFwciAzMCAxNjo0MTo0OCAyMDAxCkBAIC04Niw2ICs4Niw3
+IEBACiB1bnNpZ25lZCBsb25nIHByb2Zfc2hpZnQgPSAwOwogCiBleHRlcm4g
+dm9pZCBtZW1fdXNlKHZvaWQpOworZXh0ZXJuIHN0cnVjdCB0YXNrX3N0cnVj
+dCAqY2hpbGRfcmVhcGVyOwogCiB1bnNpZ25lZCBsb25nIHZvbGF0aWxlIGpp
+ZmZpZXM9MDsKIApAQCAtMjA1OCwzMSArMjA1OSw1NSBAQAogfQogCiAvKgot
+ICogICAgICBQdXQgYWxsIHRoZSBndW5nZSByZXF1aXJlZCB0byBiZWNvbWUg
+YSBrZXJuZWwgdGhyZWFkIHdpdGhvdXQKLSAqICAgICAgYXR0YWNoZWQgdXNl
+ciByZXNvdXJjZXMgaW4gb25lIHBsYWNlIHdoZXJlIGl0IGJlbG9uZ3MuCisg
+KglQdXQgYWxsIHRoZSBndW5nZSByZXF1aXJlZCB0byBiZWNvbWUgYSBrZXJu
+ZWwgdGhyZWFkIHdpdGhvdXQKKyAqCWF0dGFjaGVkIHVzZXIgcmVzb3VyY2Vz
+IGluIG9uZSBwbGFjZSB3aGVyZSBpdCBiZWxvbmdzLgorICoJCisgKglLZXJu
+ZWwgMi40LjQtcHJlMywgYW5kcmV3bSN1b3cuZWR1LmF1OiByZXBhcmVudCB0
+aGUgY2FsbGVyCisgKgl0byBpbml0IGFuZCBzZXQgdGhlIGV4aXQgc2lnbmFs
+IHRvIFNJR0NITEQgc28gdGhlIHRocmVhZAorICoJd2lsbCBiZSBwcm9wZXJs
+eSByZWFwZWQgaWYgaXQgZXhpc3QuCiAgKi8KLQorICAKIHZvaWQgZGFlbW9u
+aXplKHZvaWQpCiB7CiAJc3RydWN0IGZzX3N0cnVjdCAqZnM7CisJc3RydWN0
+IHRhc2tfc3RydWN0ICp0aGlzX3Rhc2sgPSBjdXJyZW50OwogCiAJLyoKLQkg
+KiBJZiB3ZSB3ZXJlIHN0YXJ0ZWQgYXMgcmVzdWx0IG9mIGxvYWRpbmcgYSBt
+b2R1bGUsIGNsb3NlIGFsbCBvZiB0aGUKLQkgKiB1c2VyIHNwYWNlIHBhZ2Vz
+LiAgV2UgZG9uJ3QgbmVlZCB0aGVtLCBhbmQgaWYgd2UgZGlkbid0IGNsb3Nl
+IHRoZW0KLQkgKiB0aGV5IHdvdWxkIGJlIGxvY2tlZCBpbnRvIG1lbW9yeS4K
+LQkgKi8KLQlleGl0X21tKGN1cnJlbnQpOworCSogSWYgd2Ugd2VyZSBzdGFy
+dGVkIGFzIHJlc3VsdCBvZiBsb2FkaW5nIGEgbW9kdWxlLCBjbG9zZSBhbGwg
+b2YgdGhlCisJKiB1c2VyIHNwYWNlIHBhZ2VzLiAgV2UgZG9uJ3QgbmVlZCB0
+aGVtLCBhbmQgaWYgd2UgZGlkbid0IGNsb3NlIHRoZW0KKwkqIHRoZXkgd291
+bGQgYmUgbG9ja2VkIGludG8gbWVtb3J5LgorCSovCisJZXhpdF9tbSh0aGlz
+X3Rhc2spOwogCi0JY3VycmVudC0+c2Vzc2lvbiA9IDE7Ci0JY3VycmVudC0+
+cGdycCA9IDE7CisJdGhpc190YXNrLT5zZXNzaW9uID0gMTsKKwl0aGlzX3Rh
+c2stPnBncnAgPSAxOwogCiAJLyogQmVjb21lIGFzIG9uZSB3aXRoIHRoZSBp
+bml0IHRhc2sgKi8KIAotCWV4aXRfZnMoY3VycmVudCk7CS8qIGN1cnJlbnQt
+PmZzLT5jb3VudC0tOyAqLworCWV4aXRfZnModGhpc190YXNrKTsJCS8qIHRo
+aXNfdGFzay0+ZnMtPmNvdW50LS07ICovCiAJZnMgPSBpbml0X3Rhc2suZnM7
+Ci0JY3VycmVudC0+ZnMgPSBmczsKKwl0aGlzX3Rhc2stPmZzID0gZnM7CiAJ
+YXRvbWljX2luYygmZnMtPmNvdW50KTsKKwlleGl0X2ZpbGVzKHRoaXNfdGFz
+ayk7CQkvKiB0aGlzX3Rhc2stPmZpbGVzLT5jb3VudC0tICovCisJdGhpc190
+YXNrLT5maWxlcyA9IGluaXRfdGFzay5maWxlczsKKwlhdG9taWNfaW5jKCZ0
+aGlzX3Rhc2stPmZpbGVzLT5jb3VudCk7CisKKwl3cml0ZV9sb2NrX2lycSgm
+dGFza2xpc3RfbG9jayk7CisKKwkvKiBSZXBhcmVudCB0byBpbml0ICovCisJ
+UkVNT1ZFX0xJTktTKHRoaXNfdGFzayk7CisJdGhpc190YXNrLT5wX3BwdHIg
+PSBjaGlsZF9yZWFwZXI7CisJdGhpc190YXNrLT5wX29wcHRyID0gY2hpbGRf
+cmVhcGVyOworCVNFVF9MSU5LUyh0aGlzX3Rhc2spOworCisJLyogU2V0IHRo
+ZSBleGl0IHNpZ25hbCB0byBTSUdDSExEIHNvIHdlIHNpZ25hbCBpbml0IG9u
+IGV4aXQgKi8KKwlpZiAodGhpc190YXNrLT5leGl0X3NpZ25hbCAhPSAwKSB7
+CisJCXByaW50ayhLRVJOX0VSUiAidGFzayBgJXMnIGV4aXRfc2lnbmFsICVk
+IGluIGRhZW1vbml6ZSgpXG4iLAorCQkJdGhpc190YXNrLT5jb21tLCB0aGlz
+X3Rhc2stPmV4aXRfc2lnbmFsKTsKKwl9CisJdGhpc190YXNrLT5leGl0X3Np
+Z25hbCA9IFNJR0NITEQ7CiAKKwl3cml0ZV91bmxvY2tfaXJxKCZ0YXNrbGlz
+dF9sb2NrKTsKIH0KIAogdm9pZCBfX2luaXQgaW5pdF9pZGxlKHZvaWQpCg==
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD4DBQE67s16FDWhsRXSKa0RAhhVAJidSyGwvfdpz+g/UfhAfcq36RoRAJ9MPOp2
-B2q6Kx6bO+Eso+GBOYoJuw==
-=Lpv1
------END PGP SIGNATURE-----
-
---gatW/ieO32f1wygP--
+--0-2119570063-988728933=:21059--

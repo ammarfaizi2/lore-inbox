@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290511AbSAQWqf>; Thu, 17 Jan 2002 17:46:35 -0500
+	id <S290512AbSAQWsO>; Thu, 17 Jan 2002 17:48:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290512AbSAQWqY>; Thu, 17 Jan 2002 17:46:24 -0500
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:40972 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S290511AbSAQWqQ>;
-	Thu, 17 Jan 2002 17:46:16 -0500
-From: "Tim Pepper" <tpepper@vato.org>
-Date: Thu, 17 Jan 2002 14:46:15 -0800
-To: Matt_Domsch@Dell.com
+	id <S290514AbSAQWsE>; Thu, 17 Jan 2002 17:48:04 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:35036 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S290512AbSAQWry>; Thu, 17 Jan 2002 17:47:54 -0500
+Date: Thu, 17 Jan 2002 17:47:53 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Matt Domsch <Matt_Domsch@Dell.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: BLKGETSIZE64 (bytes or sectors?)
-Message-ID: <20020117144615.D11402@vato.org>
-In-Reply-To: <71714C04806CD5119352009027289217022C4282@ausxmrr502.us.dell.com>
+Message-ID: <20020117174753.H18086@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0201171420100.2747-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <71714C04806CD5119352009027289217022C4282@ausxmrr502.us.dell.com>; from Matt_Domsch@Dell.com on Thu, Jan 17, 2002 at 04:34:50PM -0600
+In-Reply-To: <Pine.LNX.4.33.0201171420100.2747-100000@localhost.localdomain>; from Matt_Domsch@Dell.com on Thu, Jan 17, 2002 at 02:28:52PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 17 Jan at 16:34:50 -0600 Matt_Domsch@Dell.com done said:
+On Thu, Jan 17, 2002 at 02:28:52PM -0600, Matt Domsch wrote:
+> Is the BLKGETSIZE64 ioctl supposed to return the size of the device in 
+> bytes (as the comment says, and is implemented in all places *except* 
+> blkpg.c), or in sectors (as is implemented in blkpg.c since 2.4.15)?
 > 
-> Yes, I agree.
+> It would seem that blkpg.c gets it wrong, that it should be in bytes.  
+> Assuming that's the case, here's the patch to fix it against 2.4.18-pre4.
 
-Alright, I'll wait a bit to see if anybody else comments and then bounce it to
-Marcello.
+blkpg.c is wrong -- the size has to be in bytes in order to support weird 
+sector sizes.
 
-Tim
--- 
-*********************************************************
-*  tpepper@vato dot org             * Venimus, Vidimus, *
-*  http://www.vato.org/~tpepper     * Dolavimus         *
-*********************************************************
+		-ben

@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVC1MEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVC1MFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVC1MEo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 07:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVC1MEo
+	id S261475AbVC1MFR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 07:05:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVC1MFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 07:04:44 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:31452 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261422AbVC1MEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 07:04:39 -0500
-Message-ID: <4247F2AA.7070201@ens-lyon.org>
-Date: Mon, 28 Mar 2005 14:03:54 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] radeonfb: Fix mode setting on CRT monitors
-References: <1111969496.5409.40.camel@gaston>
-In-Reply-To: <1111969496.5409.40.camel@gaston>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: 
+	Mon, 28 Mar 2005 07:05:16 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:10447 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261475AbVC1MFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 07:05:09 -0500
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Aaron Gyes <floam@sh.nu>,
+       "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>
+References: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 28 Mar 2005 07:04:01 -0500
+Message-Id: <1112011441.27381.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt a écrit :
-> Hi !
+On Sun, 2005-03-27 at 21:54 -0400, Horst von Brand wrote:
+
+> Wrong. You are free to do whatever you like in the privacy of your home,
+> but not distribute the result. So you could very well distribute both
+> pieces, one under GPL, the other not, and leave the linking to the end
+> user.
 > 
-> Current radeonfb is a bit "anal" about accepting CRT modes, it basically only
-> accepts modes that have the exact resolution, which tends to break with fbcon
-> on console switches as it provides "approximate" modes. This patch fixes it
-> by having the driver chose the closest possible mode instead of looking for
-> an exact match.
+> Sure, /creating/ the piece to be linked with the GPLed code might make it
+> GPL also, but that is another story.
 
-Hi Benjamin,
+Actually this is an easy one. If you are the creator of the code, you
+can license it anyway you want. So you can make it both GPL and allow it
+to link with your code. Heck, put it under LGPL since GPL is allowed to
+link to that.
 
-I tried your patch because on recent -mm kernels I see dirty colored 
-columns during a few seconds when switching from X to radeon fbcon
-(looks like remaining colors of X).
-I don't know what visible effect your patch is supposed to have.
-I didn't see any difference, but I doesn't seem to break anything.
+Anyway, I don't think that the GPL is that powerful to affect things not
+linked directly with it. Just like the MS license can't make you do
+certain things that were stated in the license, the GPL can't take too
+much control over what you do.  If something in the license is
+reasonable, than it is easy to enforce (like taking the code from GPL
+source and using it in a binary) but if it starts to stretch (like
+controlling the code you write and how you can use it) then that will
+have to be fought in court, and will probably lose.
 
-Regards,
-Brice
+-- Stev
+
+

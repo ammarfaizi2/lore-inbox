@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275684AbRIZXIw>; Wed, 26 Sep 2001 19:08:52 -0400
+	id <S275690AbRIZXKc>; Wed, 26 Sep 2001 19:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275688AbRIZXIm>; Wed, 26 Sep 2001 19:08:42 -0400
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:896
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S275684AbRIZXIa>; Wed, 26 Sep 2001 19:08:30 -0400
-Date: Wed, 26 Sep 2001 16:08:47 -0700
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Message-Id: <200109262308.f8QN8ln01180@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: Mikael Pettersson <mikpe@csd.uu.se>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: spurious 8259A interrupt: IRQ7. AND VM: killing process ..
-In-Reply-To: <200109262027.WAA05553@harpo.it.uu.se>
-In-Reply-To: <200109262027.WAA05553@harpo.it.uu.se>
-Reply-To: whitney@math.berkeley.edu
+	id <S275691AbRIZXKX>; Wed, 26 Sep 2001 19:10:23 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49417 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275690AbRIZXKL>; Wed, 26 Sep 2001 19:10:11 -0400
+Subject: Re: Binary only module overview
+To: crispin@wirex.com (Crispin Cowan)
+Date: Thu, 27 Sep 2001 00:14:33 +0100 (BST)
+Cc: greg@kroah.com (Greg KH), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3BB25BA3.1060505@wirex.com> from "Crispin Cowan" at Sep 26, 2001 03:50:11 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15mNsv-0002Cv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, Mikael Pettersson wrote:
+> I'm really trying to be constructive here.  There is a real licensing 
+> problem over whether binary modules are legitimate at all, and the issue 
+> is not special to LSM. I'm trying to get LSM out of the way so that the 
+> advocates of either side can fight it out without smushing LSM in the 
+> middle :-)
 
-> Please try either 2.4.10 with CONFIG_X86_UP_IOAPIC=n (don't worry,
-> you don't need it and won't lose any performance) or 2.4.9-ac with
-> CONFIG_X86_UP_IOAPIC=n and CONFIG_X86_UP_APIC=y.
+Yes - I agree. The question is "can you be using the LSM module" not
+the headers - since LSM is GPL and your work relies on it 
 
-I have an ASUS A7V with BIOS 1008.  Once per boot I get the kernel
-message "spurious 8259A interrupt: IRQ7".  Also, the ERR field in
-/proc/interrupts does seem to slowly increase with uptime.  These
-symptoms occur with all three kernels I have checked: 2.4.10 with
-UP_IOAPIC=y, 2.4.9-ac15 with UP_IOAPIC=y and UP_APIC=y, and 2.4.9-ac15
-with UP_IOAPIC=n and UP_APIC=y.
-
-This situation seems harmless enough, but if anyone would like more
-data I'd be happy to try out stuff.
-
-Cheers, Wayne
-
+Alan

@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbUKQD0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbUKQD22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbUKQD0E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 22:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUKQDX5
+	id S262185AbUKQD22 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 22:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbUKQD21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 22:23:57 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:28274 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262185AbUKQDWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 22:22:20 -0500
-Message-ID: <419AC3E7.9010904@yahoo.com.au>
-Date: Wed, 17 Nov 2004 14:22:15 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Tue, 16 Nov 2004 22:28:27 -0500
+Received: from emulex.emulex.com ([138.239.112.1]:23036 "EHLO
+	emulex.emulex.com") by vger.kernel.org with ESMTP id S262185AbUKQD0U convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 22:26:20 -0500
+From: James.Smart@Emulex.Com
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       dhowells@redhat.com, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Making compound pages mandatory
-References: <2315.1100630906@redhat.com>	<Pine.LNX.4.58.0411161746110.2222@ppc970.osdl.org> <20041116182841.4ff7f2e5.akpm@osdl.org> <419AC1C6.4050403@yahoo.com.au>
-In-Reply-To: <419AC1C6.4050403@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: Potential issue with some implementations of pci_resource_start()
+Date: Tue, 16 Nov 2004 22:25:55 -0500
+Message-ID: <0B1E13B586976742A7599D71A6AC733C12E716@xbl3.ma.emulex.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Question on PCI
+Thread-Index: AcTIPISJxofeC/SASRu4QFgETVGlSgDyA7Mg
+To: <linux-kernel@vger.kernel.org>
+Cc: <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
 
-> 
-> Good idea. BTW, any reason why the following (very)micro optimisation
-> shouldn't go in?
-> 
-> It currently only picks up a couple of things under fs/, but might help
-> reduce other ifdefery around the place. For example mm.h: page_count and
-> get_page.
-> 
+According to Documentation/pci.txt: pci_resource_start() is to return the bus start address of the bar. It should essentially be a portable way to obtain the bar value without reading PCI config space directly.
 
-Like this, perhaps? It does actually introduce a change in the object
-code. Namely hugetlb's put_page will now also be done inline for non
-compound pages - maybe this change is unacceptable though, but it does
-cut down the ifdefs.
+We have encountered at least 2 platforms (HP Integrity (IA-64) Olympia rx8620 partition, and a dual-processor IBM eServer pSeries p615) - where the contents of pci_resource_start() vary from the contents of the BARs in config space. For example:
+on IA64 Olympia: pci_resource_start(pcidev,0) = 0x00000f0030040000; pci bar0 word 0xf0040004, bar1 word 0x0 
+On PPC eServer:  pci_resource_start(pcidev,0) = 0x000003fd80000000; pci bar0 word 0xc0000004, bar1 word 0x0 
+
+We have demonstrated this on both the 2.4.21 and 2.6.5 kernels.
+
+Are these platform bugs that need to be corrected ? or is it a change in the pci_resource_start() definition ?
+
+-- James

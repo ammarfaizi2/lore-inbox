@@ -1,57 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUIFBtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUIFBxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267385AbUIFBtc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 21:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUIFBtc
+	id S267388AbUIFBxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 21:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUIFBxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 21:49:32 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:45745 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267385AbUIFBta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 21:49:30 -0400
-Message-ID: <413BC227.2070006@yahoo.com.au>
-Date: Mon, 06 Sep 2004 11:49:27 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
-References: <413AA7B2.4000907@yahoo.com.au> <Pine.LNX.4.58.0409050911450.2331@ppc970.osdl.org> <413BB55B.9000106@yahoo.com.au>
-In-Reply-To: <413BB55B.9000106@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Sep 2004 21:53:19 -0400
+Received: from relay-4m.club-internet.fr ([194.158.104.43]:25846 "EHLO
+	relay-4m.club-internet.fr") by vger.kernel.org with ESMTP
+	id S267388AbUIFBxP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 21:53:15 -0400
+From: pinotj@club-internet.fr
+To: linux-kernel@vger.kernel.org
+Subject: Supported architectures for Linux 2.6
+Date: Mon,  6 Sep 2004 03:53:12 CEST
+Mime-Version: 1.0
+X-Mailer: Medianet/v2.0
+Message-Id: <mnet1.1094435592.18565.pinotj@club-internet.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+Hi,
 
->>
->> Notice how you may need to free 20% of memory to get a 2**3 
->> allocation, if you have totally depleted your pages. And it's much 
->> worse if you have very little memory to begin with.
->>
->> Anyway. I haven't debugged this program, so it may have serious bugs, 
->> and be off by an order of magnitude or two. Whatever. If I'm wrong, 
->> somebody can fix the program/script and see what the real numbers are.
->>
->>
->
-> No, Andrew just recently reported that order-1 allocations were 
-> needing to
-> free 20MB or more (on systems with not really huge memories IIRC). So I
-> think your program could be reasonably close to real life.
->
->
+I updated the documentation I wrote about architectures supported by the 2.6.X kernel. Here is the beginning for the curious:
 
-But yeah, that is when your memory is completely depleted. A small
-modification to your program to make it just keep scanning until we've
-freed a set amount of memory obviously shows that the more you've freed,
-the easier it becomes to free higher order areas... In this way, having
-kswapd batch up the freeing might possibly make it *more* efficient than
-only freeing the single higher order area when we've absolutely run out
-of areas (and simply failing !wait allocations altogether).
+----8<------
+August 2004		Supported architectures for Linux	v2.6.8
+			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+The following is a quite complete list of all the architectures supported
+by Linux. Of course, you will find here Alpha, ARM, ARM26, CRIS, H8300,
+i386, IA-64, M68000, MIPS, PA-RISC, PPC, S/390, SuperH, SPARC, v850 and
+x86-64. But you will find too a complete list of CPUs and board supported
+by the kernel. For each part, first list means "board" and second one
+means "CPU".
+
+
+ Content:
+ ~~~~~~~~
+	1. i386		7. IA-64		13. S/390 (32/64)
+	2. Alpha	8. M68K			14. SuperH (32/64)
+	3. ARM		9. MIPS (32/64, LE/BE)	15. SPARC
+	4. ARM26	10. PA-RISC (32/64)	16. UltraSPARC
+	5. CRIS		11. PPC			17. v850
+	6. H8300	12. PPC64		18. x86-64
+	
+  
+
+ 1. i386
+ ~~~~~~~
+	AMD Elan
+	NUMAQ (IBM/Sequent)
+	PC-compatible	(generic)
+	SGI 320/540 (Visual Workstation)
+	Summit/EXA (IBM x440)
+	Unisys ES7000 IA32
+	Voyager (NCR)
+	generic SMP (Summit, bigsmp, ES7000)
+	generic SMP with more than 8 CPUs
+		
+		AMD 386DX/DXL/SL/SLC/SX
+		AMD 486DX/DX2/DX4/SL/SLC/SLC2/SLC3/SX/SX2
+		AMD Elan
+		AMD K5
+		AMD K6/K6-II/K6-III
+		AMD K7/Athlon/Duron/Thunderbird
+		AMD K8/Athlon64/Hammer/Opteron
+		Cyrix 386DX/DXL/SL/SLC/SX
+		Cyrix 486DLC/DLC2/DX/DX2/DX4/SL/SLC/SLC2/SLC3/SX/SX2
+		Cyrix III
+		IBM 486DX/DX2/DX4/SL/SLC/SLC2/SLC3/SX/SX2
+		IDT Winchip
+		IDT Winchip 2
+		IDT Winchip 2A/3
+		Intel 386DX/DXL/SL/SLC/SX
+		Intel 486DX/DX2/DX4/SL/SLC/SLC2/SLC3/SX/SX2
+----8<------
+
+The complete file is available here :
+http://cercle-daejeon.homelinux.org/linux/kernel/arch.txt 
+
+If you have any comments/suggestions/modifications please put me in CC when you answer this mail.
+
+Regards,
+
+--
+Jerome Pinot
+http://cercle-daejeon.homelinux.org/linux
 

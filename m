@@ -1,79 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264198AbUFSQVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264526AbUFSQZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264198AbUFSQVG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 12:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUFSQSb
+	id S264526AbUFSQZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 12:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUFSQYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 12:18:31 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5028 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264305AbUFSQPp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 12:15:45 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org
-Subject: [PATCH] ide-taskfile.c fixups/cleanups [2/11]
-Date: Sat, 19 Jun 2004 18:08:27 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
+	Sat, 19 Jun 2004 12:24:07 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:53699 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S264213AbUFSQTO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 12:19:14 -0400
+Message-ID: <40D46758.10304@colorfullife.com>
+Date: Sat, 19 Jun 2004 18:18:32 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+CC: Brian Lazara <blazara@nvidia.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew de Quincey <adq@lidskialf.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new device support for forcedeth.c second try
+References: <40D43DC3.9000909@gmx.net>
+In-Reply-To: <40D43DC3.9000909@gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406191808.27138.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Carl-Daniel Hailfinger wrote:
 
-[PATCH] ide: end request fix for CONFIG_IDE_TASKFILE_IO=y PIO handlers
+>Hi,
+>
+>Brian, thank you very much for contributing to forcedeth.
+>
+I agree, thanks a lot.
 
-ide_end_drive_cmd() should only be called for "flagged" taskfiles
-which have separate PIO handlers so use driver->end_request() instead.
+> 	NvRegOffloadConfig = 0x90,
+> #define NVREG_OFFLOAD_HOMEPHY	0x601
+>-#define NVREG_OFFLOAD_NORMAL	0x5ee
+>+#define NVREG_OFFLOAD_NORMAL	RX_NIC_BUFSIZE
+>  
+>
+Interesting - does that explain why VLAN doesn't work properly? I have a 
+report that maximum sized packets are rejected.
 
-Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+>+		struct {
+>+			u32 Length:14;
+>+			u32 Flags:18;
+>+		} v2;
+>  
+>
+Bitfields for hw access are evil, it caused problems before. I'd prefer 
+a macro with explicit shifts.
 
- linux-2.6.7-bzolnier/drivers/ide/ide-taskfile.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+>+
+>+	//wait for 500ms
+>+	mdelay(500);
+>  
+>
+Waiting for phy reset is also evil - it should be done either in a 
+separate thread or asynchroneously. Not urgent, we can fix it later.
 
-diff -puN drivers/ide/ide-taskfile.c~ide_tf_end_fix drivers/ide/ide-taskfile.c
---- linux-2.6.7/drivers/ide/ide-taskfile.c~ide_tf_end_fix	2004-06-19 02:41:30.203064168 +0200
-+++ linux-2.6.7-bzolnier/drivers/ide/ide-taskfile.c	2004-06-19 02:41:30.207063560 +0200
-@@ -586,7 +586,7 @@ check_status:
- 			return ide_stopped;
- 	/* Complete rq->buffer based request (ioctls). */
- 	if (!rq->bio && !rq->nr_sectors) {
--		ide_end_drive_cmd(drive, stat, HWIF(drive)->INB(IDE_ERROR_REG));
-+		DRIVER(drive)->end_request(drive, 1, 0);
- 		return ide_stopped;
- 	}
- 
-@@ -637,7 +637,7 @@ check_status:
- 			return ide_stopped;
- 	/* Complete rq->buffer based request (ioctls). */
- 	if (!rq->bio && !rq->nr_sectors) {
--		ide_end_drive_cmd(drive, stat, HWIF(drive)->INB(IDE_ERROR_REG));
-+		DRIVER(drive)->end_request(drive, 1, 0);
- 		return ide_stopped;
- 	}
- 
-@@ -703,7 +703,7 @@ ide_startstop_t task_out_intr (ide_drive
- 			return ide_stopped;
- 	/* Complete rq->buffer based request (ioctls). */
- 	if (!rq->bio && !rq->nr_sectors) {
--		ide_end_drive_cmd(drive, stat, HWIF(drive)->INB(IDE_ERROR_REG));
-+		DRIVER(drive)->end_request(drive, 1, 0);
- 		return ide_stopped;
- 	}
- 
-@@ -772,7 +772,7 @@ ide_startstop_t task_mulout_intr (ide_dr
- 			return ide_stopped;
- 	/* Complete rq->buffer based request (ioctls). */
- 	if (!rq->bio && !rq->nr_sectors) {
--		ide_end_drive_cmd(drive, stat, HWIF(drive)->INB(IDE_ERROR_REG));
-+		DRIVER(drive)->end_request(drive, 1, 0);
- 		return ide_stopped;
- 	}
- 
+>+
+>+	// check auto negotiation is complete
+>+	mii_status = mii_rw(dev, np->phyaddr, MII_BMSR, MII_READ);
+>+	while (!(mii_status & BMSR_ANEGCOMPLETE)) {
+>+		udelay(NV_MIIBUSY_DELAY);
+>+		mii_status = mii_rw(dev, np->phyaddr, MII_BMSR, MII_READ);
+>+		microseconds++;
+>+		if (microseconds == 20) {
+>+			microseconds = 0;
+>+			milliseconds++;
+>+		}
+>+		if (milliseconds > 1200) {
+>+			printk(KERN_INFO "%s: phy init failed to autoneg.\n", dev->name);
+>+			return PHY_TIMEOUT;
+>+		}
+>  
+>
+Dito.
 
-_
+The phy code needs a big rewrite and support for ethtool anyway. I'd 
+propose to merge the patch after removing the bitfields - everything 
+else looks good. Perhaps there is a bit too much code duplication with 
+the v1/v2 functions, but that's also not fatal.
 
+--
+    Manfred

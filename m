@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261357AbTCOJXz>; Sat, 15 Mar 2003 04:23:55 -0500
+	id <S261368AbTCOJi1>; Sat, 15 Mar 2003 04:38:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261361AbTCOJXz>; Sat, 15 Mar 2003 04:23:55 -0500
-Received: from tag.witbe.net ([81.88.96.48]:25093 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S261357AbTCOJXy>;
-	Sat, 15 Mar 2003 04:23:54 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: <war@lucidpixels.com>, <adilger@clusterfs.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Broadcom BCM5702 Major Problems
-Date: Sat, 15 Mar 2003 10:34:30 +0100
-Message-ID: <003801c2ead6$1553f580$2101a8c0@witbe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <20030315054100.20199.qmail@lucidpixels.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S261369AbTCOJi1>; Sat, 15 Mar 2003 04:38:27 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:12693 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261368AbTCOJiZ>;
+	Sat, 15 Mar 2003 04:38:25 -0500
+Date: Sat, 15 Mar 2003 10:49:01 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] i2c driver changes for 2.5.64
+Message-ID: <20030315104901.A3923@ucw.cz>
+References: <10476033263399@kroah.com> <10476033262095@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <10476033262095@kroah.com>; from greg@kroah.com on Thu, Mar 13, 2003 at 04:55:00PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Mar 13, 2003 at 04:55:00PM -0800, Greg KH wrote:
 
-We have some BCM running pretty well with both IO-APIC and
-Local APIC with kernel 2.4.19...
+> diff -Nru a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+> --- a/drivers/i2c/busses/i2c-amd8111.c	Thu Mar 13 16:56:52 2003
+> +++ b/drivers/i2c/busses/i2c-amd8111.c	Thu Mar 13 16:56:52 2003
+ 		goto out_release_region;
+> @@ -389,7 +392,7 @@
+>  }
+>  
+>  static struct pci_driver amd8111_driver = {
+> -	.name		= "amd8111 smbus 2.0",
+> +	.name		= "amd8111 smbus",
+>  	.id_table	= amd8111_ids,
+>  	.probe		= amd8111_probe,
+>  	.remove		= __devexit_p(amd8111_remove),
 
-Which one are you talking about ?
+The 2.0 was quite intentional in the .name, because the 8111 has *two*
+SMBus busses, one SMBus 1.1 and one SMBus 2.0. This driver is only for
+the 2.0 SMBus controller.
 
-Regards,
-Paul
-
-> Found the bug.
-> Well, for me anyway.
-> When I have this configuration option turned on:
-> 
-> [*] IO-APIC support on uniprocessors
-> 
-> Everything goes to hell.
-> 
-> Even the 3COM I stuck in wants to get routed to IRQ 18 and 
-> you cannot even force it to use anotheR IRQ.
-> 
-> This option:
-> 
-> [*] Local APIC support on uniprocessors
-> 
-> Works fine.
-> 
-> It is the second option that royally screws over the system.
-
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbVDETU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVDEStv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbVDETU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 15:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVDETRy
+	id S261927AbVDEStv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVDEStT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 15:17:54 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:29593 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261898AbVDETPf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 15:15:35 -0400
-From: Juergen Kreileder <jk@blackdown.de>
-To: Esben Stien <b0ef@esben-stien.name>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-References: <873bxfoq7g.fsf@quasar.esben-stien.name>
-	<87zmylaenr.fsf@quasar.esben-stien.name>
-	<20050204195410.GA5279@ucw.cz>
-	<873bvyfsvs.fsf@quasar.esben-stien.name>
-	<87zmxil0g8.fsf@quasar.esben-stien.name>
-	<1110056942.16541.4.camel@localhost>
-	<87sm37vfre.fsf@quasar.esben-stien.name>
-	<87wtsjtii6.fsf@quasar.esben-stien.name>
-	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
-	<87psxcsq06.fsf@quasar.esben-stien.name> <87u0mn3l4e.fsf@blackdown.de>
-	<87acodvrw5.fsf@quasar.esben-stien.name>
-	<Pine.LNX.4.62.0504042347510.29842@angst.gnu-designs.com>
-	<877jjhtgmb.fsf@quasar.esben-stien.name>
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: Esben Stien <b0ef@esben-stien.name>,
-	linux-kernel@vger.kernel.org
-Date: Tue, 05 Apr 2005 20:52:56 +0200
-In-Reply-To: <877jjhtgmb.fsf@quasar.esben-stien.name> (Esben Stien's message
-	of "Tue, 05 Apr 2005 16:58:36 +0200")
-Message-ID: <87ll7x8393.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+	Tue, 5 Apr 2005 14:49:19 -0400
+Received: from fire.osdl.org ([65.172.181.4]:33203 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261909AbVDESrr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:47:47 -0400
+Message-ID: <4252DD15.5020605@osdl.org>
+Date: Tue, 05 Apr 2005 11:46:45 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: ioe-lkml@axxeo.de, matthew@wil.cx, lkml <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, hadi@cyberus.ca, cfriesen@nortel.com, tgraf@suug.ch
+Subject: Re: [PATCH] network configs: disconnect network options from drivers
+References: <20050330234709.1868eee5.randy.dunlap@verizon.net> <20050331185226.GA8146@mars.ravnborg.org> <424C5745.7020501@osdl.org> <20050331203010.GA8034@mars.ravnborg.org> <4250B4C5.2000200@osdl.org> <20050404195051.GA12364@mars.ravnborg.org> <4251A830.5030905@osdl.org> <20050404215554.GA29170@mars.ravnborg.org> <4251C9A5.3020704@osdl.org> <20050405154538.GA9130@mars.ravnborg.org>
+In-Reply-To: <20050405154538.GA9130@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Esben Stien <b0ef@esben-stien.name> writes:
+Sam Ravnborg wrote:
+> On Mon, Apr 04, 2005 at 04:11:33PM -0700, Randy.Dunlap wrote:
+> 
+>>- in Networking support, move Network testing and Netpoll
+>>support to the end of the menu (basically put the devel.
+>>tools toward the bottom of the menu)
+> 
+> Done
+> 
+> 
+>>- I would rather not "hide" Amateur Radio, IrDA, and
+>>Bluetooth in the Networking protocols area, but have them
+>>near 802.1x and ATM in the top-level Networking support
+>>menu.  How does that sound to you?
+> 
+> Done
+> 
+> I've made them with separate menu's that you have to enter to enable
+> them.
+> Also pushed out xfrm stuff to net/xfrm/Kconfig
+> Several other small adjustments.
+> In the Networking menu the submenu's are grouped in beginning and in the
+> end now.
+> 
+> I thought of creating a Kconfig.netfilter for the common netfilter
+> stuff. But in the end did not do it - felt there was plenty of new small
+> files being created already.
 
-> "David A. Desrosiers" <desrod@gnu-designs.com> writes:
->
->> Using these same instructions [..] doesn't work at all
->
-> This is too little information to work with. Please be more specific
-> as to what you've done.
+It would make sense to isolate the netfilter options, but that can
+be done later.
+But you are right about "plenty of new small files."
 
-I've looked at his configuration a bit, it's maybe an X bug.  I've
-only tried using the MX1000 standalone, there might be some issues
-when using multiple pointer devices with different button counts at
-the same time (e.g. normal 3 button mouse + 12 button MX1000).
+I would move Frame Diverter (NET_DIVERT) from the end of the
+net/core/Kconfig file to the top of the same file....
+and then ship it.  :)
 
 
-        Juergen
+> Comments welcome.
+
+Thanks for doing this.
 
 -- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/
+~Randy

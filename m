@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312608AbSDFRJ4>; Sat, 6 Apr 2002 12:09:56 -0500
+	id <S312612AbSDFRRz>; Sat, 6 Apr 2002 12:17:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312612AbSDFRJ4>; Sat, 6 Apr 2002 12:09:56 -0500
-Received: from winds.org ([209.115.81.9]:27914 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id <S312608AbSDFRJz>;
-	Sat, 6 Apr 2002 12:09:55 -0500
-Date: Sat, 6 Apr 2002 12:04:59 -0500 (EST)
-From: Byron Stanoszek <gandalf@winds.org>
-To: Jeremy Jackson <jerj@coplanar.net>
-cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        <linux-kernel@vger.kernel.org>, <ebiederm@xmission.com>
-Subject: Re: Faster reboots - calling _start?
-In-Reply-To: <003301c1dd16$855df1b0$7e0aa8c0@bridge>
-Message-ID: <Pine.LNX.4.44.0204061201281.7190-100000@winds.org>
+	id <S312616AbSDFRRy>; Sat, 6 Apr 2002 12:17:54 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:58520 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S312612AbSDFRRx>;
+	Sat, 6 Apr 2002 12:17:53 -0500
+Date: Sat, 6 Apr 2002 12:17:48 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [WTF] ->setattr() locking changes
+In-Reply-To: <Pine.GSO.4.21.0204061131040.632-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0204061213490.632-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Apr 2002, Jeremy Jackson wrote:
 
-> ----- Original Message -----
-> From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-> Sent: Friday, April 05, 2002 5:48 PM
+
+On Sat, 6 Apr 2002, Alexander Viro wrote:
+
+> 	Looking at that stuff, I'd suggest to
+> a) kill that branch in hpfs_unlink().
+> b) remove fh_lock()/fh_unlock() in nfsd/vfs.c::nfsd_setattr() (Trond?)
+> c) add ATTR_SXID that would do s[ug]id removal - under ->i_sem and switch
+>    the callers to it.
 > 
-> > I need to avoid going through the BIOS ... this is a
-> > multiquad NUMA machine, and it doesn't take kindly
-> > to the reboot through the BIOS for various reasons.
-> > It also takes about 4 minutes, which is a pain ;-)
-> >
-> > I have source code access to our BIOS if I really wanted,
-> > I just want to avoid modifying it if possible.
-> 
-> well keep in mind that the fastest LinuxBIOS boot is 3 seconds...
-> a large part of the boot time on most PCs is the BIOS setting up
-> DOS support and painting silly logos on the screen, all of which
-> can go away.  I'm guessing your NUMA system has a bit more
-> to do at this stage due to the hardware, but still...
+> Comments?  If you don't see any problems with this variant I'll do it.
 
-Wouldn't it be easier to just ljmp to the start address of the kernel in memory
-(the address after the bootloader has done its thing), effectively restarting
-the kernel from line 1? Or is tehre an issue with some hardware being in an
-invalid state when doing this?
+OTOH, we might be better off taking ->i_sem in all callers of notify_change().
+There's only 10 of them, so it's not too much work and that would have a
+benefit of allowing to do things like suid removal on write(2) in a right way.
 
-Maybe Eric Biederman can comment on this since he's adding new functionality to
-the boot loader..
-
- -Byron
-
--- 
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: byron@comtime.com
-
+Hmm...  While we are at it, why don't we remove suid/sgid on truncate(2)?
 

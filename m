@@ -1,156 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267251AbUHVOnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267291AbUHVOpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267251AbUHVOnS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 10:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267291AbUHVOnR
+	id S267291AbUHVOpb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 10:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUHVOpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 10:43:17 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:51704 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267251AbUHVOnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 10:43:12 -0400
-Date: Sun, 22 Aug 2004 10:47:25 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Nathan Lynch <nathanl@austin.ibm.com>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Subject: Re: [PATCH][2.6] Hotplug cpu: Fix APIC queued timer vector race
-In-Reply-To: <1093145533.4888.106.camel@bach>
-Message-ID: <Pine.LNX.4.58.0408221044180.27390@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0408210923570.27390@montezuma.fsmlabs.com>
- <1093145533.4888.106.camel@bach>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Aug 2004 10:45:31 -0400
+Received: from darwin.snarc.org ([81.56.210.228]:48319 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S267291AbUHVOpK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 10:45:10 -0400
+Date: Sun, 22 Aug 2004 16:45:01 +0200
+To: Albert Cahalan <albert@users.sf.net>
+Cc: benh@kernel.crashing.org,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ppc32 use simplified mmenonics
+Message-ID: <20040822144501.GA10017@snarc.org>
+References: <1093135526.5759.2513.camel@cube> <20040822094317.GA2589@snarc.org> <1093171291.5759.2544.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093171291.5759.2544.camel@cube>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.6+20040803i
+From: Vincent Hanquez <tab@snarc.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Aug 2004, Rusty Russell wrote:
+On Sun, Aug 22, 2004 at 06:41:32AM -0400, Albert Cahalan wrote:
+> The "or" is much easier, because it follows the
+> standard 3-register pattern. With "mr", which way
+> does it go? That's one more thing to remember.
+> In fact I don't know, but the "or" is obvious.
+> 
+> The 0 is your hint that the "or" isn't a plain "or".
 
-> On Sun, 2004-08-22 at 00:10, Zwane Mwaikambo wrote:
-> > Some timer interrupt vectors were queued on the Local APIC and were being
-> > serviced when we enabled interrupts again in fixup_irqs(), so we need to
-> > mask the APIC timer, enable interrupts so that any queued interrupts get
-> > processed whilst the processor is still on the online map and then clear
-> > ourselves from the online map. 1ms is a nice safe number even under heavy
-> > interrupt load with higher priority vectors queued. Andrew this is
-> > the patch i promised, Rusty, i'm not sure if you find
-> > __attribute__((weak)) offensive...
->
-> It's horrible.  Please move the unsetting of the cpu_online bit into the
-> arch-specific __cpu_disable() code for each arch, which is consistent
-> and also simplifies things.
+Sure, but this is about mmenonic. When I see 'or', my mind doesn't make
+any link with 'move register' but only with 'or'. I have to process
+another term of the line (the 0) to see that the program want to move a
+register.
 
-Alright this should do it then;
+> > bne target = bc 4,2,target
+> > 
+> > When I see first form, I know exactly what the program do, whereas on
+> > the second form : What the hell is 4,2 ?
+> 
+> This is a slightly better example, but still, it's
+> lots easier to look up "bc" to see the selection of
+> options that are available.
+> 
+> Plus, yeah, "what the hell is 4,2", but those numbers
+> replace a _lot_ of other things you'd need to remember.
+> There are 456 of these "simplified" branch instructions.
+> If you use those, you'll tend to restrict your code to
+> those few common ones you remember. There's bdnzltrl,
+> bdnzfla, bunla...  That's madness.
 
-Thanks
+So you writing assembly ppc code with your book on your side ?
+because I don't see any reason to associate easily '4,2' with 'not equal'
 
-Signed-off-by: Zwane Mwaikambo <zwane@linuxpower.ca>
+mmenonics is about associating instruction with what they do.
+'bc 4,2' doesn't make me associate that with 'branch not equal' but with
+'branch conditional something'. Without knowing the something, that won't
+help me figure what the program want to do.
 
- arch/i386/kernel/smpboot.c |   10 ++++++++--
- arch/ia64/kernel/smpboot.c |    1 +
- arch/ppc64/kernel/smp.c    |    4 +++-
- arch/s390/kernel/smp.c     |    4 +++-
- kernel/cpu.c               |    3 ---
- 5 files changed, 15 insertions(+), 7 deletions(-)
+if you're able to decode '4,2' in real time you're very strong, but
+you're probably a computer ;)
 
-Index: linux-2.6.8.1-mm2/kernel/cpu.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm2/kernel/cpu.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 cpu.c
---- linux-2.6.8.1-mm2/kernel/cpu.c	19 Aug 2004 20:52:08 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm2/kernel/cpu.c	22 Aug 2004 14:28:17 -0000
-@@ -89,9 +89,6 @@ static int take_cpu_down(void *unused)
- {
- 	int err;
+bdnzltrl kinds of mmenonics are actually not fair, they are not really used :).
+But even that I would prefer bdnztlrl which I would have to lookup,
+than bclr with cryptics numbers which I would had to lookup too.
 
--	/* Take offline: makes arch_cpu_down somewhat easier. */
--	cpu_clear(smp_processor_id(), cpu_online_map);
--
- 	/* Ensure this CPU doesn't handle any more interrupts. */
- 	err = __cpu_disable();
- 	if (err < 0)
-Index: linux-2.6.8.1-mm2/arch/i386/kernel/smpboot.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm2/arch/i386/kernel/smpboot.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smpboot.c
---- linux-2.6.8.1-mm2/arch/i386/kernel/smpboot.c	19 Aug 2004 20:51:36 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm2/arch/i386/kernel/smpboot.c	22 Aug 2004 14:30:04 -0000
-@@ -1172,10 +1172,16 @@ int __cpu_disable(void)
- 	if (smp_processor_id() == 0)
- 		return -EBUSY;
+> That's 114 opcodes to 1.
 
--	fixup_irqs();
--
- 	/* We enable the timer again on the exit path of the death loop */
- 	disable_APIC_timer();
-+	/* Allow any queued timer interrupts to get serviced */
-+	local_irq_enable();
-+	mdelay(1);
-+	local_irq_disable();
-+
-+	/* It's now safe to remove this processor from the online map */
-+	cpu_clear(smp_processor_id(), cpu_online_map);
-+	fixup_irqs();
- 	return 0;
- }
+There's not 1 opcode for conditional branching. There are more on ppc basis:
+	
+	bc, bca, bclr, bcctr, bcl, bcla, bclrl, bcctrl
 
-Index: linux-2.6.8.1-mm2/arch/ia64/kernel/smpboot.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm2/arch/ia64/kernel/smpboot.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smpboot.c
---- linux-2.6.8.1-mm2/arch/ia64/kernel/smpboot.c	19 Aug 2004 20:51:37 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm2/arch/ia64/kernel/smpboot.c	22 Aug 2004 14:32:22 -0000
-@@ -591,6 +591,7 @@ int __cpu_disable(void)
- 	if (cpu == 0)
- 		return -EBUSY;
+Thus if you count bnea, bnelr, bnectl, bnel, as new different instructions
+compared to bne, then maybe you need to understand why thoses are called
+mmenomics.
 
-+	cpu_clear(cpu, cpu_online_map);
- 	fixup_irqs();
- 	local_flush_tlb_all();
- 	printk ("Disabled cpu %u\n", smp_processor_id());
-Index: linux-2.6.8.1-mm2/arch/ppc64/kernel/smp.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm2/arch/ppc64/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smp.c
---- linux-2.6.8.1-mm2/arch/ppc64/kernel/smp.c	19 Aug 2004 20:51:50 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm2/arch/ppc64/kernel/smp.c	22 Aug 2004 14:39:31 -0000
-@@ -254,11 +254,13 @@ int __cpu_disable(void)
- {
- 	/* FIXME: go put this in a header somewhere */
- 	extern void xics_migrate_irqs_away(void);
-+	int cpu = smp_processor_id();
+So as soon as you know those 8 basis opcodes, thoses are actually very easy to
+understand. You just need to append the following (which all bourne
+script peoples use)
 
-+	cpu_clear(cpu, cpu_online_map);
- 	systemcfg->processorCount--;
+	ne = not equal
+	eq = equal
+	lt = less than
+	le = less equal
+	ge = greater equal
+	gt = greater than
+	....
 
- 	/*fix boot_cpuid here*/
--	if (smp_processor_id() == boot_cpuid)
-+	if (cpu == boot_cpuid)
- 		boot_cpuid = any_online_cpu(cpu_online_map);
+ex :
+bc = Branch Conditional
+bca = Branch Conditional Absolute
+bne = Branch Not Equal
+bnea = Branch Not Equal Absolute
 
- 	/* FIXME: abstract this to not be platform specific later on */
-Index: linux-2.6.8.1-mm2/arch/s390/kernel/smp.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm2/arch/s390/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smp.c
---- linux-2.6.8.1-mm2/arch/s390/kernel/smp.c	19 Aug 2004 20:51:50 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm2/arch/s390/kernel/smp.c	22 Aug 2004 14:39:13 -0000
-@@ -682,9 +682,11 @@ __cpu_disable(void)
- {
- 	unsigned long flags;
- 	ec_creg_mask_parms cr_parms;
-+	int cpu = smp_processor_id();
+thus from (8 basis mmenonics) + (12 kind of modifiers) I'm able to decode
+in real time those 8 * 12 = 96 simplified instructions.
 
-+	cpu_clear(cpu, cpu_online_map);
- 	spin_lock_irqsave(&smp_reserve_lock, flags);
--	if (smp_cpu_reserved[smp_processor_id()] != 0) {
-+	if (smp_cpu_reserved[cpu] != 0) {
- 		spin_unlock_irqrestore(&smp_reserve_lock, flags);
- 		return -EBUSY;
- 	}
+> > So I'ld rather go with simplified instruction, even if that index
+> > doesn't contain them (which I agree with you, is very bad).
+> > There are still in Appendix F of my pdf and you can search with the find
+> > utility include in your reader (xpdf does)
+> 
+> I have the physical book. Other than being unsearchable,
+> it's much nicer than the pdf. It's easy on the eyes,
+> doesn't occupy screen space, and I can read it on the can.
+
+You would better learn few of them and decode them the way it meant to
+be, than lookup them all in your book.
+
+That would save your time, your eyes and your desk space ;)
+
+-- 
+Tab

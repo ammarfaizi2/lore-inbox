@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVBXPlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVBXPjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262383AbVBXPlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 10:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVBXPjm
+	id S262413AbVBXPjd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 10:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVBXPha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 10:39:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:53723 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262421AbVBXPh5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 10:37:57 -0500
-Date: Thu, 24 Feb 2005 10:37:47 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ppc32 weirdness with gcc-4.0 in 2.6.11-rc4
-Message-ID: <20050224153747.GE853@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <16924.59237.581247.498382@alkaid.it.uu.se> <1109210688.15027.2.camel@gaston> <16925.60927.49095.758660@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16925.60927.49095.758660@alkaid.it.uu.se>
-User-Agent: Mutt/1.4.1i
+	Thu, 24 Feb 2005 10:37:30 -0500
+Received: from lx09-hrz.uni-duisburg.de ([134.91.4.50]:46555 "EHLO
+	lx09-hrz.uni-duisburg.de") by vger.kernel.org with ESMTP
+	id S262365AbVBXO47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 09:56:59 -0500
+Message-ID: <421DEB2F.2060209@uni-duisburg.de>
+Date: Thu, 24 Feb 2005 15:56:47 +0100
+From: =?ISO-8859-1?Q?J=F6rn_Nettingsmeier?= <pol-admin@uni-duisburg.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Olof Johansson <olof@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org, nettings@folkwang-hochschule.de
+Subject: Re: FUTEX deadlock in ping?
+References: <421DA915.7020209@uni-duisburg.de> <20050224144651.GA5702@austin.ibm.com>
+In-Reply-To: <20050224144651.GA5702@austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 24, 2005 at 04:08:47PM +0100, Mikael Pettersson wrote:
-> /* gcc4bug.c
->  * Written by Mikael Pettersson <mikpe@csd.uu.se>, 2005-02-24.
-...
-Reproduced, thanks for the testcase.  Looking into it...
+Olof Johansson wrote:
+> On Thu, Feb 24, 2005 at 11:14:45AM +0100, Jörn Nettingsmeier wrote:
+> 
+> 
+>>futex(0x401540f4, FUTEX_WAIT, 2, NULL
+>>^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>>
+>>is this one related to the FUTEX problem olof described?
+> 
+> 
+> As bert said, it's likely something else. Is the process killable, and
+> does "ps aux" complete? 
 
-	Jakub
+yes and yes.
+
+> If so, then this is a different problem.
+
+too bad. i thought i had finally found a clue.. sorry for the noise, and 
+many thanks for explaining!
+

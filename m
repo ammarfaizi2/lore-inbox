@@ -1,70 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbUDHQAe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 12:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUDHQAe
+	id S261943AbUDHQKr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 12:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUDHQKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 12:00:34 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25064 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261885AbUDHQAb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 12:00:31 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] obsolete asm/hdreg.h [3/5]
-Date: Thu, 8 Apr 2004 18:09:09 +0200
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-References: <200404080023.04460.bzolnier@elka.pw.edu.pl> <Pine.GSO.4.58.0404081048270.9729@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0404081048270.9729@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 8 Apr 2004 12:10:47 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:39299 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S261943AbUDHQKD (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 12:10:03 -0400
+Message-Id: <200404081558.i38Fw2SU014685@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Mathieu Giguere <Mathieu.Giguere@ericsson.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IPv4 and IPv6 stack multi-FIB, scalable in the million of entries. 
+In-Reply-To: Your message of "Thu, 08 Apr 2004 10:40:46 EDT."
+             <001a01c41d77$7a609440$0348858e@D4SF2B21> 
+From: Valdis.Kletnieks@vt.edu
+References: <001a01c41d77$7a609440$0348858e@D4SF2B21>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1676565424P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404081809.09937.bzolnier@elka.pw.edu.pl>
+Date: Thu, 08 Apr 2004 11:58:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 of April 2004 10:49, Geert Uytterhoeven wrote:
-> On Thu, 8 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
-> > [IDE] asm/ide.h: ide_ioreg_t cleanup
-> >
-> > ide_ioreg_t is deprecated and hasn't been used by IDE driver for some
-> > time. Use unsigned long directly on alpha, arm26, arm, mips, parisc,
-> > ppc64 and sh.
-> >
-> > asm-ia64/ide.h (ide_ioreg_t is unsigned short) and asm-m68knommu/ide.h
-> > (broken - ide_ioreg_t is not defined) are the only users of ide_ioreg_t
-> > left.
->
-> Why do you consider asm-m68knommu/ide.h broken?
->
-> It just includes <asm-m68k/hdreg.h>, which is definitely not broken since
-> it's happily (albeit very slowly) running apt-get upgrade right now ;-)
+--==_Exmh_1676565424P
+Content-Type: text/plain; charset=us-ascii
 
-Well...
+On Thu, 08 Apr 2004 10:40:46 EDT, Mathieu Giguere said:
+>     We currently looking for a multi-FIB, scalable routing table in the
+> million of entries, no routing cache for IPv4 and IPv6.  We want a IP stack
+> that can have a log(n) (or better) insertion/deletion and lookup
+> performance.  Predictable performance, even in the million of entries.
 
-In kernel 2.5.70 ide_ioreg_t typedef was removed from
-<asm-m68k/hdreg.h> and it is used all over <asm-m68knommu/ide.h>.
+Gaak.
 
-I see that this is fixed in linux-m68k-cvs but...
+The guys at http://www.cidr-report.org are only showing 130K or so prefixes in
+the global routing table (and estimate that it could be kicked down to 90K or
+so with better CIDR aggregation.
 
-<asm-m68knommu/ide.h> hasn't been updated since kernel 2.5.46
-and still depends on inlines which were removed from IDE code:
-- ide_request_irq() (special case for COLDFIRE)
-- ide_{request, release}_region(),
-  which are empty because M68K use memory IO
-- ide_fix_driveid() (special case for COLDFIRE),
-  conflicts with generic version in drivers/ide/ide-iops.c
-- maybe more
+I won't ask what sort of totally martian network design is leading to a routing
+table of millions of entries - even the "stick PMTU info into a host route" trick
+should expire routes to hosts you're not talking to, and you're probably going
+to be wanting a load balancer if you're talking to hundreds of thousands of
+machines at the same time.....
 
-This issues are not fixed in linux-m68k-cvs tree.
-[ Is there a separate m68knommu tree? ]
 
-I hope you now don't regret asking this question... ;-)
 
-Cheers,
-Bartlomiej
+--==_Exmh_1676565424P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAdXaKcC3lWbTT17ARAuIaAJ48P6xzXoSGnUR8l4mtT/d+H5Lm4wCfTq2x
+3UhKjZ07+jjqhgosXQLxMsA=
+=98kW
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1676565424P--

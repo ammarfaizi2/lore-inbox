@@ -1,75 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271555AbRHPLl7>; Thu, 16 Aug 2001 07:41:59 -0400
+	id <S271558AbRHPL4t>; Thu, 16 Aug 2001 07:56:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271556AbRHPLlu>; Thu, 16 Aug 2001 07:41:50 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:8454 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271555AbRHPLlg>; Thu, 16 Aug 2001 07:41:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Write drop behind logic with used-once patch
-Date: Thu, 16 Aug 2001 13:48:08 +0200
-X-Mailer: KMail [version 1.3]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0108160423440.27203-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0108160423440.27203-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010816114148Z16441-1231+1181@humbolt.nl.linux.org>
+	id <S271559AbRHPL4j>; Thu, 16 Aug 2001 07:56:39 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40074 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271558AbRHPL4c>;
+	Thu, 16 Aug 2001 07:56:32 -0400
+Date: Thu, 16 Aug 2001 04:56:42 -0700 (PDT)
+Message-Id: <20010816.045642.116348743.davem@redhat.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: [patch] zero-bounce highmem I/O
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010816135150.X4352@suse.de>
+In-Reply-To: <20010815.070204.39155321.davem@redhat.com>
+	<20010815.072548.48531893.davem@redhat.com>
+	<20010816135150.X4352@suse.de>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 16, 2001 09:43 am, Marcelo Tosatti wrote:
-> Hi Daniel,
-> 
-> As far as I can see, the write drop behind logic with the used-once patch
-> is partly "gone" now: "check_used_once()" at generic_file_write() will set
-> all "write()n" pages to have age == PAGE_AGE_START (in case those pages
-> were not in cache before), which means they will be moved to the active
-> list later by page_launder(), effectively causing excessive pressure on
-> the current "active" pages since we have exponential page aging.
-> 
-> I'm I overlooking some here or my thinking is correct ?
+   From: Jens Axboe <axboe@suse.de>
+   Date: Thu, 16 Aug 2001 13:51:50 +0200
 
-The initial page create sets age=0 which serves as a "new" flag when the
-page is on the inactive list.  When the page is actually touched the
-first time it transitions from age=0 to age=START, again the age is
-simply a state flag.  When the page is touched the second time it's
-immediately activated, doing whatever activate does.  I didn't touch
-activate.
+[ Hopefully this mail won't be encoded in Chinese-BIG5 :-)  sorry
+  about that ]
 
-So any generic_read/write[1] page that gets used twice never gets to the
-end of the inactive queue, was that your question?
+   The only difference between your and my tree now is the PCI_MAX_DMA32
+   flag. Would you consider this? I already use this flag in the block
+   stuff, I just updated the two references you had. Maybe
+   PCI_MAX_DMA32_MASK is a better name.
+   
+I didn't put it into my patch becuase there is no way you can
+use such a value in generic code.
 
-You're right on the other point, and Rik pointed it out before:
-failing to clear the Referenced bit when activating gives the page a
-double boost, and throws away information (we don't learn anything new
-when we hit the page next time around the active scan).  So yes, this
-part is subtly wrong.  To fix, move the ClearPageReferenced up 4 lines.
-I mistakenly assumed that activate_page did the clear (as it should, for
-the same reason as above) and over-optimized as a result.
+What if my scsi controller's pci DMA mask is 0x7fffffff or something
+like this?  You don't know at the generic layer, and you must provide
+some way for the block device to indicate stuff like this to you.
 
-I'd say: think about what activate_page should be doing before
-changing check_use_once.
+That is why PCI_MAX_DMA32, or whatever you would like to name it, does
+not make any sense.  It can be a shorthand for drivers themselves, but
+that is it and personally I'd rather they just put the bits there
+explicitly.
 
-[1] Pages other than generic_read/write pages can get to the end of
-the inactive queue with the Referenced bit set.  The only other place
-that sets the referenced bit is touch_buffer, and there we could do
-something smarter than just letting the page walk all the way down
-the inactive queue.  For loads with heavy buffer usage (like dd) we
-might see an artificially bloated inactive list as a result.  (I
-didn't do anything about this because I couldn't detect any harmful
-or beneficial effect on the test equipment I had available at the
-time.  I'll check it again on this nice new VA box though:-)  Note
-that if we also do unlazy activate on buffers we can lose another
-test in each of page_launder and reclaim_page because all the pages
-that make it to the end of the list will have their referenced bit
-clear.  As you pointed out way back, the swap cache code needs to
-do something more intelligent with age=0 pages.  Hmm.  Needs this
-badly.
+I am just finishing up the "death of alt_address" patch right now.
 
---
-Daniel
-
+Later,
+David S. Miller
+davem@redhat.com

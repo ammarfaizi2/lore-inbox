@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129256AbQJ0Sx1>; Fri, 27 Oct 2000 14:53:27 -0400
+	id <S129773AbQJ0SzA>; Fri, 27 Oct 2000 14:55:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129392AbQJ0SxR>; Fri, 27 Oct 2000 14:53:17 -0400
-Received: from shell.webmaster.com ([209.133.28.73]:40185 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S129256AbQJ0SxI>; Fri, 27 Oct 2000 14:53:08 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Jason Wohlgemuth" <jswkernel@triad.rr.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: GPL Question
-Date: Fri, 27 Oct 2000 11:53:06 -0700
-Message-ID: <NCBBLIEPOCNJOAEKBEAKMEJFLIAA.davids@webmaster.com>
+	id <S129591AbQJ0Syu>; Fri, 27 Oct 2000 14:54:50 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:57608 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129773AbQJ0Syj>; Fri, 27 Oct 2000 14:54:39 -0400
+Message-ID: <39F9CF6D.A42BBA7@holly-springs.nc.us>
+Date: Fri, 27 Oct 2000 14:54:37 -0400
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: linux-kernel@vger.kernel.org
+Subject: Re: Supporting extended attributes and named streams on Posix OSes
+In-Reply-To: <39F84B7E.F00A4E92@holly-springs.nc.us>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <39F9AF0E.70406@triad.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I saw that a number of people downloaded the document; did anyone read
+it?
 
-> Now, if a module is loaded that registers a set of functions that have
-> increased functionality compared to the original functions, if that
-> modules is not based off GPL'd code, must the source code of that module
-> be released under the GPL?
+-M
 
-	If the answer to this is "yes", then Microsoft should own some rights to
-every piece of software that uses the Windows API.
-
-	DS
-
+Michael Rothwell wrote:
+> 
+> I realize all of this is 2.5 material.
+> 
+> We had been talking about this earlier, until Viro and Cox told us to
+> quit until 2.5.
+> 
+> Alexander Viro wrote:
+> >
+> > It goes off-list.
+> 
+> But, in light of Andreas Gruenbacher's proposal
+> (http://lwn.net/2000/1026/a/extended-attributes.php3) and Stephen
+> Tweedie's proposal (http://lwn.net/2000/1026/a/sct-attributes.php3), I
+> thought I should re-send our proposal
+> (http://www.flyingbuttmonkeys.com/DraftStandard-MRR-4.pdf).
+> 
+> Please read and comment! :)
+> 
+> -M
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

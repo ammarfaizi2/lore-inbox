@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263572AbTEDJQa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 05:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTEDJQ2
+	id S263573AbTEDJTw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 05:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTEDJTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 05:16:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:15080 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263572AbTEDJQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 05:16:27 -0400
-Date: Sun, 4 May 2003 02:28:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>, root@vanheusden.com,
-       linux-kernel@vger.kernel.org, appel@vanheusden.com,
-       folkert@vanheusden.com
-Subject: Re: statistics for this mailinglist
-Message-ID: <20030504092840.GM8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	J?rn Engel <joern@wohnheim.fh-wedel.de>, root@vanheusden.com,
-	linux-kernel@vger.kernel.org, appel@vanheusden.com,
-	folkert@vanheusden.com
-References: <200305040201.h44211Lq017469@muur.intranet.vanheusden.com> <20030504074305.GJ8978@holomorphy.com> <20030504090639.GA30375@wohnheim.fh-wedel.de> <20030504091024.GL8978@holomorphy.com>
+	Sun, 4 May 2003 05:19:52 -0400
+Received: from dsl-62-3-122-162.zen.co.uk ([62.3.122.162]:7580 "EHLO
+	marx.trudheim.com") by vger.kernel.org with ESMTP id S263573AbTEDJTv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 05:19:51 -0400
+Subject: comparision between signed and unsigned
+From: Anders Karlsson <anders@trudheim.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QEBvGToj6addAT9UXmKC"
+Organization: Trudheim Technology Limited
+Message-Id: <1052040732.25950.4.camel@marx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030504091024.GL8978@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
+Date: 04 May 2003 10:32:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 May 2003 00:43:05 -0700, William Lee Irwin III wrote:
->>> You still haven't fixed the bug in your script. Please post the
->>> script so it can be fixed.
 
-On Sun, May 04, 2003 at 11:06:39AM +0200, J?rn Engel wrote:
->> Google is your friend:
->> http://www.vanheusden.com/mboxstats/
->> But I wonder if you really want to fix a text munching program written
->> in c++. What an interesting choice.
+--=-QEBvGToj6addAT9UXmKC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, May 04, 2003 at 02:10:24AM -0700, William Lee Irwin III wrote:
-> I don't. I do, however, have a vested interest in getting the affected
-> stats accurately reported again.
+Hi list,
 
-The "isemail" parameter to array::addstring() calls out to
-get_email_address() to get the string, which breaks the string on any
-' ' character (though, oddly, not other kinds of whitespace), while
-hunting for a run of consecutive characters between '<' and '>'.
+Sitting here watching the compile output from 2.4.21-rc1-ac4 and
+noticing there is a _lot_ of warnings about comparisions between signed
+and unsigned values. The question I have is the following. If all the
+signed values were modified to unsigned to fix the warnings, how likely
+are things to break? Is there any reason to use signed values unless a
+specific reason when negative values are required?
 
-Otherwise, a non-blank-breaking convention that performs its work on
-the raw string passed to it is used.
+/Anders
 
-i.e. the error is a one-liner where the get_email_address() convention
-is incorrectly specified by passing a 0 instead of a 1 as the second
-argument of array::addstring() when the header matches "Organization:".
+--=-QEBvGToj6addAT9UXmKC
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
 
--- wli
+iD8DBQA+tN4cLYywqksgYBoRAvvNAKCMdnOLllZjIjJu3ri15aSxKv/+ewCbBdUX
+RDx23WDufVV1iuWY4mhS7sQ=
+=X65q
+-----END PGP SIGNATURE-----
 
---- main.cpp.orig	2003-05-04 02:22:49.000000000 -0700
-+++ main.cpp	2003-05-04 02:23:02.000000000 -0700
-@@ -459,7 +459,7 @@
- 						}
- 						else if (strncmp(msg[loop], "Organization: ", 14) == 0)
- 						{
--							org.addstring(&msg[loop][14], 1);
-+							org.addstring(&msg[loop][14], 0);
- 						}
- 						else if (strncmp(msg[loop], "User-Agent: ", 12) == 0)
- 						{
+--=-QEBvGToj6addAT9UXmKC--
+

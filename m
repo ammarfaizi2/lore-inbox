@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130615AbRADJeA>; Thu, 4 Jan 2001 04:34:00 -0500
+	id <S131257AbRADJpp>; Thu, 4 Jan 2001 04:45:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131785AbRADJdu>; Thu, 4 Jan 2001 04:33:50 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:37904 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130615AbRADJdo>; Thu, 4 Jan 2001 04:33:44 -0500
-Date: Thu, 4 Jan 2001 01:31:54 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Tom Leete <tleete@mountain.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] testing/prerelease of 01/03 on startup
-In-Reply-To: <3A543D8E.9489F715@mountain.net>
-Message-ID: <Pine.LNX.4.10.10101040117370.15040-100000@penguin.transmeta.com>
+	id <S131550AbRADJpg>; Thu, 4 Jan 2001 04:45:36 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:61352 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S131257AbRADJp1>; Thu, 4 Jan 2001 04:45:27 -0500
+To: Chris Mason <mason@suse.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] filemap_fdatasync & related changes
+In-Reply-To: <428710000.978539866@tiny>
+From: Christoph Rohland <cr@sap.com>
+In-Reply-To: <428710000.978539866@tiny>
+Message-ID: <m3ae982yq5.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Date: 04 Jan 2001 10:48:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 4 Jan 2001, Tom Leete wrote:
+Chris Mason <mason@suse.com> writes:
+> Just noticed the filemap_fdatasync code doesn't check the return value from
+> writepage.  Linus, would you take a patch that redirtied the page, puts it
+> back onto the dirty list (at the tail), and unlocks the page when writepage
+> returns 1?
 > 
-> kernel is 2.4.0-prerelease with testing/prerelease patch of Jan. 3, i486.
-> Oops is repeatable.
+> That would loop forever if the writepage func kept returning 1 though...I
+> think that's what we want, unless someone like ramfs made a writepage func
+> that always returned 1.
 
-Looks like your mm->mmlist list is corrupted from the very start.
+shmem has such a writepage for locked shm segments. It also always
+return 1 if the swap space is exhausted. So everybody using shared
+anonymous, SYSV shared or POSIX shared memory can hit this.
 
-Can you humor me and make sure you do a "make clean" and re-check your
-prerelease patch? Is the initialization of mmlist there in linux/sched.h,
-for example?
+I invented the return code 1 exactly to be able to handle this.
 
-		Linus
-
+Greetings
+                Chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

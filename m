@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVCWXZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVCWX1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbVCWXZv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 18:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVCWXZu
+	id S262095AbVCWX1H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 18:27:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVCWX1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 18:25:50 -0500
-Received: from mail.signalz.com ([66.37.214.166]:63912 "EHLO mail.signalz.com")
-	by vger.kernel.org with ESMTP id S262095AbVCWXZZ (ORCPT
+	Wed, 23 Mar 2005 18:27:07 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:7172 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262095AbVCWX1B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 18:25:25 -0500
-Message-ID: <4241FAF9.1080702@signalz.com>
-Date: Wed, 23 Mar 2005 18:25:45 -0500
-From: Matthew Collins <matt@signalz.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Bernard Blackham <bernard@blackham.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Promise SX8 performance issues and CARM_MAX_Q
-References: <20050323175707.GA10481@blackham.com.au> <4241F8BA.6070108@pobox.com>
-In-Reply-To: <4241F8BA.6070108@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Mar 2005 18:27:01 -0500
+Date: Thu, 24 Mar 2005 00:26:56 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, cmm@us.ibm.com, andrea@suse.de,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
+Message-ID: <20050323232656.GA5704@pclin040.win.tue.nl>
+References: <20050315204413.GF20253@csail.mit.edu> <20050316003134.GY7699@opteron.random> <20050316040435.39533675.akpm@osdl.org> <20050316183701.GB21597@opteron.random> <1111607584.5786.55.camel@localhost.localdomain> <20050323144953.288a5baf.akpm@osdl.org> <17250000.1111619602@flay> <20050323152055.6fc8c198.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050323152055.6fc8c198.akpm@osdl.org>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Wed, Mar 23, 2005 at 03:20:55PM -0800, Andrew Morton wrote:
 
-> Bernard Blackham wrote:
->
->> Hi,
->>
->> Playing with a recently acquired Promise SX8 card, we've found
->> similar performance results to Matt's post to lkml a few months back
->> at http://marc.theaimsgroup.com/?l=linux-kernel&m=110175890323356&w=2
->>
->> It appears that the driver is only submitting one command at a time
->> per port, which is at least one cause of the slowdowns. By raising
->> CARM_MAX_Q from 1 to 3 in drivers/block/sx8.c (it was 3 in an
->> earlier pre-merge incarnation of carmel.c), we're getting very
->> notable speed improvements, with no side effects just yet.
->>
->> Knowing very little about what this change has actually done, I've a
->> few questions:
->>  - Should this be considered dangerous?
->>  - Why was it taken from 3 to 1?
->>  - Is CARM_MAX_Q a number defined (or limited) by the hardware?
->
->
-> In multi-port stress tests, we couldn't get SX8 to function reliably 
-> without locking up or corrupting data, with more than one outstanding 
-> command.
->
-> Maybe a new firmware has solved this by now.
->
->     Jeff
->
->
->
-Indeed there does seem to be new firmware out as of 2/23/05. I ran my 
-tests with the 9/10/04 firmware but I did not adjust the CARM_MAX_Q 
-value. Do either of you happen to know what firmware revisions you 
-tested under?
+> Nothing beats poking around in a dead machine's guts with kgdb though.
 
-I've put the machine with the SX8 controller into production despite the 
-performance issues so I'm not going to be of any use for testing 
-revisions to the driver :(
+Everyone his taste.
 
-Matt
+But I was surprised by
+
+> SwapTotal:     1052216 kB
+> SwapFree:      1045984 kB
+
+Strange that processes are killed while lots of swap is available.
+
+Andries

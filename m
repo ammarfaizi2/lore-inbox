@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264104AbTL2To4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 14:44:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTL2ToL
+	id S265136AbTL2T63 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 14:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265143AbTL2T62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 14:44:11 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:33421 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264104AbTL2TmM (ORCPT
+	Mon, 29 Dec 2003 14:58:28 -0500
+Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:62882
+	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S265136AbTL2T55 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 14:42:12 -0500
-Date: Mon, 29 Dec 2003 20:42:04 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+	Mon, 29 Dec 2003 14:57:57 -0500
+Date: Mon, 29 Dec 2003 14:57:57 -0500
+From: Omkhar Arasaratnam <omkhar@rogers.com>
+To: emoenke@gwdg.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD burn buffer underruns on 2.6
-Message-ID: <20031229194204.GN3086@suse.de>
-References: <16366.60194.935861.592797@nycap.rr.com> <20031228153941.GA851@gallifrey>
+Subject: [PATCH] drivers/cdrom/sjcd.c check_region() fix
+Message-ID: <20031229195757.GA26168@omkhar.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20031228153941.GA851@gallifrey>
+User-Agent: Mutt/1.5.4i
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.192.237.88] using ID <omkhar@rogers.com> at Mon, 29 Dec 2003 14:57:18 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28 2003, Dr. David Alan Gilbert wrote:
-> * craig duncan (duncan@nycap.rr.com) wrote:
-> > 
-> > Dec 24 08:24:44 cdw kernel: cdrom_newpc_intr: 110 residual after xfer
-> 
-> Hmm - I'm seeing those just playing an audio CD on 2.6.0:
-> 
-> cdrom_newpc_intr: 3 residual after xfer
+Here is another check_region fix, this time for sjcd.c
 
-It's a silly debug printk, I'll make sure it gets deleted. This can
-happen quite legitimately.
+--- /usr/src/linux-2.6.0/drivers/cdrom/sjcd.c	2003-12-17 21:59:05.000000000 -0500
++++ drivers/cdrom/sjcd.c	2003-12-29 14:52:05.000000000 -0500
+@@ -1700,12 +1700,13 @@
+ 	sprintf(sjcd_disk->disk_name, "sjcd");
+ 	sprintf(sjcd_disk->devfs_name, "sjcd");
+ 
+-	if (check_region(sjcd_base, 4)) {
++	if (!request_region(sjcd_base, 4,"sjcd")) {
+ 		printk
+ 		    ("SJCD: Init failed, I/O port (%X) is already in use\n",
+ 		     sjcd_base);
+ 		goto out2;
+ 	}
++	release_region(sjcd_base,4);
+ 
+ 	/*
+ 	 * Check for card. Since we are booting now, we can't use standard
 
--- 
-Jens Axboe
 

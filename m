@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317768AbSFLTWW>; Wed, 12 Jun 2002 15:22:22 -0400
+	id <S317769AbSFLTZR>; Wed, 12 Jun 2002 15:25:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317769AbSFLTWV>; Wed, 12 Jun 2002 15:22:21 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:16291 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317768AbSFLTWV>;
-	Wed, 12 Jun 2002 15:22:21 -0400
-Date: Wed, 12 Jun 2002 21:22:02 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Brad Hards <bhards@bigpond.net.au>,
-        Chris Faherty <rallymonkey@bellsouth.net>,
+	id <S317770AbSFLTZQ>; Wed, 12 Jun 2002 15:25:16 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:9226 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S317769AbSFLTZP>; Wed, 12 Jun 2002 15:25:15 -0400
+Date: Wed, 12 Jun 2002 20:37:03 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Robert Love <rml@tech9.net>, Helge Hafting <helgehaf@aitel.hist.no>,
         linux-kernel@vger.kernel.org
-Subject: Re: Logitech Mouseman Dual Optical defaults to 400cpi
-Message-ID: <20020612192202.GA120@elf.ucw.cz>
-In-Reply-To: <20020608165243Z317422-22020+923@vger.kernel.org> <200206091807.11524.bhards@bigpond.net.au> <20020609151922Z317623-22020+1197@vger.kernel.org> <200206101057.20259.bhards@bigpond.net.au> <20020610232637.A4589@ucw.cz>
+Subject: Re: [PATCH] scheduler hints
+Message-ID: <20020612203703.F22429@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <1023206034.912.89.camel@sinai> <3CFDC796.C05FC7E2@aitel.hist.no> <1023293838.917.283.camel@sinai> <20020607113231.GA133@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Feel free.  I wonder if MS Intellimouse 3.0 has the same resolution
-> > > problem. AFAIK they use the same sensor.
-> > Probably not, because only low end manufacturers use reference designs 
-> > directly. I have an intellimouse around here somewhere. Don't know anything 
-> > about it, because it wouldn't have occurred to me to read the manual or 
-> > install the windows drivers. Might have to check it out.
+On Fri, Jun 07, 2002 at 01:32:31PM +0200, Pavel Machek wrote:
+> > Boosting its priority will assure there is no priority inversion and
+> > that, eventually, the task will run - but it does nothing to avoid the
+> > nasty "grab resource, be preempted, reschedule a bunch, finally find
+> > yourself running again since everyone else blocked" issue.
+> > 
+> > And I don't think only root should be able to do this.  If we later
+> > punish the task (take back the timeslice we gave it) then this is
+> > fair.
 > 
-> Intellimouse 1.0 uses Agilent HDNS-2000, 2.0 uses ADNS-2001, and 3.0
-> uses a chip made by SGS Thompson, under a secret contract with Microsoft
-                                            ~~~~~~
-> that has only 400 dpi, but up to one meter per second maximal tracking
-> speed.
+> Another possibility might be to allow it to *steal* time from another
+> processes... Of course only processes of same UID ;-).
+> 									Pavel
 
-I guess they'll have to shoot us all, then ;-).
-									Pavel
+Good idea! 
+
+And I would say SID instead of UID and give up, if no task in the
+same SID is runnable. 
+
+One could provide different policies here, which the user can
+choose/combine.
+
+That way we aren't at least unfair to other users on our remote
+machine.
+
+Regards
+
+Ingo Oeser
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

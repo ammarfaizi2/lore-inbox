@@ -1,147 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272012AbRIOFXx>; Sat, 15 Sep 2001 01:23:53 -0400
+	id <S272074AbRIOFji>; Sat, 15 Sep 2001 01:39:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272061AbRIOFXn>; Sat, 15 Sep 2001 01:23:43 -0400
-Received: from [211.100.88.207] ([211.100.88.207]:260 "HELO linux.tcpip.cxm")
-	by vger.kernel.org with SMTP id <S272012AbRIOFXc>;
-	Sat, 15 Sep 2001 01:23:32 -0400
-Date: Sat, 15 Sep 2001 13:23:59 +0800
-From: hugang <linuxbest@soul.com.cn>
-To: "John D. Kim" <johnkim@aslab.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Patch]:New patch for dhcp and nfsroot.
-Message-Id: <20010915132359.38038071.linuxbest@soul.com.cn>
-In-Reply-To: <Pine.LNX.4.31.0109141503020.32576-100000@postbox.aslab.com>
-In-Reply-To: <20010914085103.493e30b1.linuxbest@soul.com.cn>
-	<Pine.LNX.4.31.0109141503020.32576-100000@postbox.aslab.com>
-Organization: soul
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Sat__15_Sep_2001_13:23:59_+0800_08bd1670"
+	id <S272072AbRIOFj2>; Sat, 15 Sep 2001 01:39:28 -0400
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:56042 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S272090AbRIOFjQ>; Sat, 15 Sep 2001 01:39:16 -0400
+Message-ID: <3BA2E99A.1134E382@kegel.com>
+Date: Fri, 14 Sep 2001 22:39:38 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-dan i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Vitaly Luban <vitaly@luban.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Signal-per-fd for RT signals
+In-Reply-To: <3BA2AFFF.C7B8C4DF@kegel.com> <3BA2E144.FB0E5D55@luban.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Vitaly Luban wrote:
+> Thanks Dan,
+> 
+> I'll modify the patch shortly according to your information.
+> In fact, 2.4.6 patch is modified already according to (1)
 
---Multipart_Sat__15_Sep_2001_13:23:59_+0800_08bd1670
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
+http://www.luban.org/GPL/one-sig-perfd-2.4.6.patch still has the bug.
+Perhaps you fixed a different problem?  (cf. my patch below.)
+ 
+> Though I myself have not seen this effects, despite of heavy
+> use of modified kernel, this seems logical.
 
-On Fri, 14 Sep 2001 15:06:55 -0700 (PDT)
-"John D. Kim" <johnkim@aslab.com> wrote:
->Hmmm...  I've tried the patch with 2.4.8, 2.4.8-ac12, and 2.4.9-ac8.  All
->three says "couldn't find the kernel version the module was compiled for"
->when insmod tries to load the ipconfig module.  I've also tried different
->versions of insmod(2.4.0, 2.4.2, and 2.4.8).  I have not yet tried your
->kernel yet since I'm working with pcmcia devices, but I'll give it a try
->as well, just to see if ipconfig would load or not.
+If you like, I can set up a test case.
+
+> For the case of lack queue space, just to prevent it, the
+> queue size should always be set equal to max file descriptors
+> number in system. Both parameters accessible via /proc, and all
+> my tests are done under this setting.
+
+I was aiming at optimizing the normal F_ASYNC, where it is
+normal and expected to receive a SIGIO, which is why I ran into
+it and you didn't.
+ 
+> Unfortunately, as we are close to release time, I do not have
+> enough time to complete long promised testing and patch refinement,
+> but, hopefully, this will happen in october.
+> 
+> I'll try to add changes to deal with cases (2) and (3) shortly.
 >
->Anyone else here have a clue?
->
+> Thanks again.
+> 
+> Vitaly.
 
-Sorry .I check the ipconfig.c .I loss some things. Try the 2.4.9nfsroot.patch
-1:Your must compile the nfs and nfsroot in kernel.
+Here's one possible oops traceback for case 3.  This happened when
+testing with about 4500 ftp sessions.  Might not correspond
+exactly to your code, since I was doing some Funky Stuff.
+(My patch is at http://www.kegel.com/linux/onefd-dank.patch 
+ It differs from yours in that I keep poll data, not pointers,
+ in struct file, overload an existing struct file field to
+ avoid the space penalty, and didn't bother protecting the old
+ interface used by phhttpd and x15.  Not for public consumption.)
 
--- 
-Best Regard!
-礼！
-----------------------------------------------------
-hugang : 胡刚 	GNU/Linux User
-email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
-Tel    : +861068425741/2/3/4
-Web    : http://www.soul.com.cn
+<send_signal+69/160>      <==== crash on wild pointer here
+<deliver_signal+17/80>
+<send_sig_info+86/b0>
+<send_sigio_to_task+c5/e0>
+<ip_queue_xmit+334/470>
+<tcp_rcv_established+79e/7e0>
+<tcp_v4_send_check+6e/b0>
+<send_sigio+58/b0>
+<__kill_fasync+59/70>
+<sock_wake_async+72/80>
+<sock_def_readable+5d/70>
+<tcp_rcv_established+399/7e0>
+<tcp_v4_do_rcv+3b/120>
+<tcp_v4_rcv+3e4/660>
+<ip_local_deliver+fa/170>
+<ip_rcv+304/380>
+<tulip_interrupt+618/7d0>
+<net_rx_action+17b/290>
+<net_tx_action+62/140>
+<do_softirq+7b/e0>
+<do_IRQ+dd/f0>
+<ret_from_intr+0/7>
+<vfs_rename_other+28/2b0>
+<expand_fd_array+d6/160>
+<get_unused_fd+f2/160>
+<sock_map_fd+c/1c0>
+<sock_create+f3/120>
+<sys_socket+2d/50>
+<sys_socketcall+62/200>
+<system_call+33/38>
 
-	Beijing Soul technology Co.Ltd.
-	   北京众志和达科技有限公司
-----------------------------------------------------
-
---Multipart_Sat__15_Sep_2001_13:23:59_+0800_08bd1670
-Content-Type: application/octet-stream;
- name="2.4.9.nfsroot.patch"
-Content-Disposition: attachment;
- filename="2.4.9.nfsroot.patch"
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtdSAtciBsaW51eC9mcy9Db25maWcuaW4gbGludXgtbmZzcm9vdC9mcy9Db25maWcuaW4K
-LS0tIGxpbnV4L2ZzL0NvbmZpZy5pbglUdWUgSnVsICAzIDA1OjAzOjA0IDIwMDEKKysrIGxpbnV4
-LW5mc3Jvb3QvZnMvQ29uZmlnLmluCVNhdCBTZXAgMTUgMTM6MDY6MjkgMjAwMQpAQCAtODAsNyAr
-ODAsNyBAQAogICAgZGVwX3RyaXN0YXRlICdDb2RhIGZpbGUgc3lzdGVtIHN1cHBvcnQgKGFkdmFu
-Y2VkIG5ldHdvcmsgZnMpJyBDT05GSUdfQ09EQV9GUyAkQ09ORklHX0lORVQKICAgIGRlcF90cmlz
-dGF0ZSAnTkZTIGZpbGUgc3lzdGVtIHN1cHBvcnQnIENPTkZJR19ORlNfRlMgJENPTkZJR19JTkVU
-CiAgICBkZXBfbWJvb2wgJyAgUHJvdmlkZSBORlN2MyBjbGllbnQgc3VwcG9ydCcgQ09ORklHX05G
-U19WMyAkQ09ORklHX05GU19GUwotICAgZGVwX2Jvb2wgJyAgUm9vdCBmaWxlIHN5c3RlbSBvbiBO
-RlMnIENPTkZJR19ST09UX05GUyAkQ09ORklHX05GU19GUyAkQ09ORklHX0lQX1BOUAorICAgZGVw
-X2Jvb2wgJyAgUm9vdCBmaWxlIHN5c3RlbSBvbiBORlMnIENPTkZJR19ST09UX05GUyAkQ09ORklH
-X05GU19GUwogCiAgICBkZXBfdHJpc3RhdGUgJ05GUyBzZXJ2ZXIgc3VwcG9ydCcgQ09ORklHX05G
-U0QgJENPTkZJR19JTkVUCiAgICBkZXBfbWJvb2wgJyAgUHJvdmlkZSBORlN2MyBzZXJ2ZXIgc3Vw
-cG9ydCcgQ09ORklHX05GU0RfVjMgJENPTkZJR19ORlNECmRpZmYgLXUgLXIgbGludXgvZnMvbmZz
-L25mc3Jvb3QuYyBsaW51eC1uZnNyb290L2ZzL25mcy9uZnNyb290LmMKLS0tIGxpbnV4L2ZzL25m
-cy9uZnNyb290LmMJRnJpIEF1ZyAxNyAwMDo1NTo1MiAyMDAxCisrKyBsaW51eC1uZnNyb290L2Zz
-L25mcy9uZnNyb290LmMJU2F0IFNlcCAxNSAxMzowNjoyOSAyMDAxCkBAIC04Miw2ICs4Miw3IEBA
-CiAjaW5jbHVkZSA8bGludXgvbWFqb3IuaD4KICNpbmNsdWRlIDxsaW51eC91dHNuYW1lLmg+CiAj
-aW5jbHVkZSA8bmV0L2lwY29uZmlnLmg+CisjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CiAKIC8q
-IERlZmluZSB0aGlzIHRvIGFsbG93IGRlYnVnZ2luZyBvdXRwdXQgKi8KICN1bmRlZiBORlNST09U
-X0RFQlVHCkBAIC0xMDQsNiArMTA1LDggQEAKIHN0YXRpYyBpbnQgbmZzX3BvcnQgX19pbml0ZGF0
-YSA9IDA7CQkvKiBQb3J0IHRvIGNvbm5lY3QgdG8gZm9yIE5GUyAqLwogc3RhdGljIGludCBtb3Vu
-dF9wb3J0IF9faW5pdGRhdGEgPSAwOwkJLyogTW91bnQgZGFlbW9uIHBvcnQgbnVtYmVyICovCiAK
-K3UzMiByb290X3NlcnZlcl9hZGRyIF9faW5pdGRhdGEgID0gSU5BRERSX05PTkU7ICAgICAvKiBB
-ZGRyZXNzIG9mIE5GUyBzZXJ2ZXIgKi8KK3U4IHJvb3Rfc2VydmVyX3BhdGhbMjU2XSBfX2luaXRk
-YXRhID0geyAwLCB9IDsgICAgICAvKiBQYXRoIHRvIG1vdW50IGFzIHJvb3QgKi8KIAogLyoqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKgogCkBAIC00NjQsMyArNDY3LDUgQEAKIAlzZXRfc29ja2FkZHIoKHN0cnVj
-dCBzb2NrYWRkcl9pbiAqKSAmbmZzX2RhdGEuYWRkciwgc2VydmFkZHIsIG5mc19wb3J0KTsKIAly
-ZXR1cm4gKHZvaWQqKSZuZnNfZGF0YTsKIH0KK0VYUE9SVF9TWU1CT0wocm9vdF9zZXJ2ZXJfYWRk
-cik7CitFWFBPUlRfU1lNQk9MKHJvb3Rfc2VydmVyX3BhdGgpOwpkaWZmIC11IC1yIGxpbnV4L2lu
-Y2x1ZGUvbmV0L2lwY29uZmlnLmggbGludXgtbmZzcm9vdC9pbmNsdWRlL25ldC9pcGNvbmZpZy5o
-Ci0tLSBsaW51eC9pbmNsdWRlL25ldC9pcGNvbmZpZy5oCVdlZCBNYXkgIDIgMTE6NTk6MjQgMjAw
-MQorKysgbGludXgtbmZzcm9vdC9pbmNsdWRlL25ldC9pcGNvbmZpZy5oCVNhdCBTZXAgMTUgMTM6
-MDY6MjkgMjAwMQpAQCAtMjEsNyArMjEsNyBAQAogZXh0ZXJuIHUzMiBpY19zZXJ2YWRkcjsJCS8q
-IEJvb3Qgc2VydmVyIElQIGFkZHJlc3MgKi8KIAogZXh0ZXJuIHUzMiByb290X3NlcnZlcl9hZGRy
-OwkvKiBBZGRyZXNzIG9mIE5GUyBzZXJ2ZXIgKi8KLWV4dGVybiB1OCByb290X3NlcnZlcl9wYXRo
-W107CS8qIFBhdGggdG8gbW91bnQgYXMgcm9vdCAqLworZXh0ZXJuIHU4IHJvb3Rfc2VydmVyX3Bh
-dGhbMjU2XTsJLyogUGF0aCB0byBtb3VudCBhcyByb290ICovCiAKIAogCkBAIC0zNiwzICszNiw0
-IEBACiAjZGVmaW5lIElDX0JPT1RQCTB4MDEJLyogICBCT09UUCAob3IgREhDUCwgc2VlIGJlbG93
-KSAqLwogI2RlZmluZSBJQ19SQVJQCQkweDAyCS8qICAgUkFSUCAqLwogI2RlZmluZSBJQ19VU0Vf
-REhDUCAgICAweDEwMAkvKiBJZiBvbiwgdXNlIERIQ1AgaW5zdGVhZCBvZiBCT09UUCAqLworCmRp
-ZmYgLXUgLXIgbGludXgvbmV0L2NvcmUvZGV2LmMgbGludXgtbmZzcm9vdC9uZXQvY29yZS9kZXYu
-YwotLS0gbGludXgvbmV0L2NvcmUvZGV2LmMJRnJpIEF1ZyAxNyAwMDo1NjoxMCAyMDAxCisrKyBs
-aW51eC1uZnNyb290L25ldC9jb3JlL2Rldi5jCVNhdCBTZXAgMTUgMTM6MDY6MjkgMjAwMQpAQCAt
-MjgxOCwzICsyODE4LDUgQEAKIAlyZXR1cm4gY2FsbF91c2VybW9kZWhlbHBlcihhcmd2IFswXSwg
-YXJndiwgZW52cCk7CiB9CiAjZW5kaWYKKworRVhQT1JUX1NZTUJPTChkZXZfY2hhbmdlX2ZsYWdz
-KTsKZGlmZiAtdSAtciBsaW51eC9uZXQvaXB2NC9Db25maWcuaW4gbGludXgtbmZzcm9vdC9uZXQv
-aXB2NC9Db25maWcuaW4KLS0tIGxpbnV4L25ldC9pcHY0L0NvbmZpZy5pbglXZWQgTWF5ICAyIDEx
-OjU5OjI0IDIwMDEKKysrIGxpbnV4LW5mc3Jvb3QvbmV0L2lwdjQvQ29uZmlnLmluCVNhdCBTZXAg
-MTUgMTM6MDY6MjkgMjAwMQpAQCAtMTgsOCArMTgsOCBAQAogICAgYm9vbCAnICAgIElQOiB2ZXJi
-b3NlIHJvdXRlIG1vbml0b3JpbmcnIENPTkZJR19JUF9ST1VURV9WRVJCT1NFCiAgICBib29sICcg
-ICAgSVA6IGxhcmdlIHJvdXRpbmcgdGFibGVzJyBDT05GSUdfSVBfUk9VVEVfTEFSR0VfVEFCTEVT
-CiBmaQotYm9vbCAnICBJUDoga2VybmVsIGxldmVsIGF1dG9jb25maWd1cmF0aW9uJyBDT05GSUdf
-SVBfUE5QCi1pZiBbICIkQ09ORklHX0lQX1BOUCIgPSAieSIgXTsgdGhlbgordHJpc3RhdGUgJyAg
-SVA6IGtlcm5lbCBsZXZlbCBhdXRvY29uZmlndXJhdGlvbicgQ09ORklHX0lQX1BOUAoraWYgWyAi
-JENPTkZJR19JUF9QTlAiICE9ICJuIiAgXTsgdGhlbgogICAgYm9vbCAnICAgIElQOiBESENQIHN1
-cHBvcnQnIENPTkZJR19JUF9QTlBfREhDUAogICAgYm9vbCAnICAgIElQOiBCT09UUCBzdXBwb3J0
-JyBDT05GSUdfSVBfUE5QX0JPT1RQCiAgICBib29sICcgICAgSVA6IFJBUlAgc3VwcG9ydCcgQ09O
-RklHX0lQX1BOUF9SQVJQCmRpZmYgLXUgLXIgbGludXgvbmV0L2lwdjQvaXBjb25maWcuYyBsaW51
-eC1uZnNyb290L25ldC9pcHY0L2lwY29uZmlnLmMKLS0tIGxpbnV4L25ldC9pcHY0L2lwY29uZmln
-LmMJV2VkIE1heSAgMiAxMTo1OToyNCAyMDAxCisrKyBsaW51eC1uZnNyb290L25ldC9pcHY0L2lw
-Y29uZmlnLmMJU2F0IFNlcCAxNSAxMzowNzo1MSAyMDAxCkBAIC0yOSw2ICsyOSw3IEBACiAgKi8K
-IAogI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPgorI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgog
-I2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CiAjaW5jbHVkZSA8bGludXgvc3RyaW5nLmg+CiAjaW5j
-bHVkZSA8bGludXgva2VybmVsLmg+CkBAIC0xMjMsOCArMTI0LDggQEAKIAogdTMyIGljX3NlcnZh
-ZGRyIF9faW5pdGRhdGEgPSBJTkFERFJfTk9ORTsJLyogQm9vdCBzZXJ2ZXIgSVAgYWRkcmVzcyAq
-LwogCi11MzIgcm9vdF9zZXJ2ZXJfYWRkciBfX2luaXRkYXRhID0gSU5BRERSX05PTkU7CS8qIEFk
-ZHJlc3Mgb2YgTkZTIHNlcnZlciAqLwotdTggcm9vdF9zZXJ2ZXJfcGF0aFsyNTZdIF9faW5pdGRh
-dGEgPSB7IDAsIH07CS8qIFBhdGggdG8gbW91bnQgYXMgcm9vdCAqLworLy91MzIgcm9vdF9zZXJ2
-ZXJfYWRkciBfX2luaXRkYXRhID0gSU5BRERSX05PTkU7CS8qIEFkZHJlc3Mgb2YgTkZTIHNlcnZl
-ciAqLworLy91OCByb290X3NlcnZlcl9wYXRoWzI1Nl0gX19pbml0ZGF0YSA9IHsgMCwgfTsJLyog
-UGF0aCB0byBtb3VudCBhcyByb290ICovCiAKIC8qIFBlcnNpc3RlbnQgZGF0YTogKi8KIApAQCAt
-MTIxMiw3ICsxMjEzLDcgQEAKIAlyZXR1cm4gMDsKIH0KIAotbW9kdWxlX2luaXQoaXBfYXV0b19j
-b25maWcpOworLy9tb2R1bGVfaW5pdChpcF9hdXRvX2NvbmZpZyk7CiAKIAogLyoKQEAgLTEzNDAs
-NSArMTM0MSwxMyBAQAogCXJldHVybiBpcF9hdXRvX2NvbmZpZ19zZXR1cChhZGRycyk7CiB9CiAK
-K2ludCBpbml0X21vZHVsZSh2b2lkKQoreworI2lmZGVmIE1PRFVMRQorICBpY19lbmFibGUgPSAx
-OworI2VuZGlmCisgIGlwX2F1dG9fY29uZmlnKCk7CisgIHJldHVybiAwOworfQogX19zZXR1cCgi
-aXA9IiwgaXBfYXV0b19jb25maWdfc2V0dXApOwogX19zZXR1cCgibmZzYWRkcnM9IiwgbmZzYWRk
-cnNfY29uZmlnX3NldHVwKTsK
-
---Multipart_Sat__15_Sep_2001_13:23:59_+0800_08bd1670--
+- Dan
+ 
+> Dan Kegel wrote:
+> 
+> > Vitaly Luban <vitaly@luban.org> wrote:
+> > > [ Patch lives at http://www.luban.org/GPL/gpl.html ]
+> >
+> > I have been using variations on this patch while trying
+> > to benchmark an FTP server at a load of 10000 simultaneous
+> > sessions (at 1 kilobyte/sec each), and noticed a few issues:
+> >
+> > 1. If a SIGINT comes in, t->files may be null, so where
+> >    send_signal() says
+> >          if( (info->si_fd < files->max_fds) &&
+> >    it should say
+> >          if( files && (info->si_fd < files->max_fds) &&
+> >    otherwise there will be a null pointer oops.
+> >
+> > 2. If a signal has come in, and a reference to it is left
+> >    in filp->f_infoptr, and for some reason the signal is
+> >    removed from the queue without going through collect_signal(),
+> >    a stale pointer may be left in filp->f_infoptr, which could
+> >    cause a wild pointer oops.  There are two places this can happen:
+> >    a. if send_signal() returns -EAGAIN because we're out of memory or queue space
+> >    b. if user sets the signal handler to SIG_IGN, triggering a call
+> >    to rm_sig_from_queue()
+> >
+> > I have seen the above problems in the field in my version of the patch,
+> > and written and tested fixes for them.  (Ah, the joys of ksymoops.)
+> >
+> > 3. Any reference to t->files probably needs to be protected by
+> >    acquiring t->files->file_lock, else when the file table is
+> >    expanded, any filp in use will become stale.
+> >
+> > I have seen this problem in my version of the patch, but have not yet tackled it.
+> > Is there any good guidance out there for how the various spinlocks
+> > interact?  Documentation/spinlocks.txt and Documentation/DocBook/kernel-locking.tmpl
+> > are the best I've seen so far, but they don't get into specifics about, say,
+> > files->file_lock and task->sigmask_lock.  Guess I'll just have to read the source.
+> >
+> > Also, while I have verified that the patch significantly reduces
+> > reliable signal queue usage, I have not yet been able to measure
+> > a reduction in CPU time in a real app.  Presumably the benefits
+> > are in response time, which I am not set up to measure yet.
+> >
+> > This is my first excursion into the kernel, so please be gentle.
+> > - Dan

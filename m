@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbUAMN7C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 08:59:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264311AbUAMN7B
+	id S264337AbUAMO03 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 09:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbUAMO03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 08:59:01 -0500
-Received: from kiy.wanderer.org ([195.218.87.138]:39953 "EHLO kiy.wanderer.org")
-	by vger.kernel.org with ESMTP id S264308AbUAMN7A (ORCPT
+	Tue, 13 Jan 2004 09:26:29 -0500
+Received: from med-gwia-01a.med.umich.edu ([141.214.93.149]:30736 "EHLO
+	med-gwia-01a.med.umich.edu") by vger.kernel.org with ESMTP
+	id S264337AbUAMO01 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 08:59:00 -0500
-Message-ID: <4003F998.4020104@tv.debian.net>
-Date: Tue, 13 Jan 2004 15:58:48 +0200
-From: Tommi Virtanen <tv@tv.debian.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lorenzo Hernandez Garcia-Hierro <lorenzohgh@nsrg-security.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Noise with  2.6.0 in a Dell Laptop ( Latitude c600 )
-References: <1073488405.850.35.camel@zeus>
-In-Reply-To: <1073488405.850.35.camel@zeus>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jan 2004 09:26:27 -0500
+Message-Id: <s003b9c2.082@med-gwia-01a.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
+Date: Tue, 13 Jan 2004 09:26:05 -0500
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lorenzo Hernandez Garcia-Hierro wrote:
-> When the 2.6.0 inits in my laptop it becomes reaaallyyy noisy.
-> Why ?
+>>>> Måns Rullgård <mru@kth.se> 01/13/04 09:07AM >>>
+>"Randal, Phil" <prandal@herefordshire.gov.uk> writes:
 
-If it's the fans, it's the BIOS reading CPU temperature of 85 C,
-which is not true. It seems a Fn-Z press resets this reading to
-sane values. You can look at the temperature reading and fan
-state with i8kutils.
+>>> Fixing typos I like - occurences should be occurrences and comiled
+>>> compiled - but fixing something that is correct in English because
+>>> it is wrong in American?  There are occasional words in Polish,
+>>> Danish, French, German in the kernel.  I wouldn't mind some words
+>>> in English.
+>>
+>> I'd hazard a guess that number of non-American English speakers far
+>> outnumbers the Americans, so can we stick to the Queen's English please?
 
-Atleast that's what a Dell Latitude C640 that I had did.
+> Of the persons with some form of English as a native language, I guess
+> the Americans are the majority.  For the rest, it shouldn't really
+> matter which variety they use.
+>
+> -- 
+> Måns Rullgård
+> mru@kth.se 
+
+69% of mother tongue English speakers live in the US (as of 1995).
+If you add in Lingua Franca and bilingual users, it's a little under 55%.
+But loads of New England natives use some British spellings.
+
+Nik Berry
+(Queens English speaker in the US)
+
 

@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269412AbUJLBKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269416AbUJLBNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269412AbUJLBKa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 21:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266892AbUJLBKa
+	id S269416AbUJLBNf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 21:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUJLBK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 21:10:30 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:62108 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266888AbUJLBHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 21:07:43 -0400
-Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andre Tomt <andre@tomt.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0410111633410.3897@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
-	 <416A53D3.9020002@tomt.ne t>
-	 <Pine.LNX.4.58.0410110758500.3897@ppc970.osdl.org>
-	 <1097507381.2029.40.camel@mulgrave>  <416ACF5E.80407@tomt.net>
-	 <1097522974.2029.161.camel@mulgrave>
-	 <Pine.LNX.4.58.0410111633410.3897@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1097542884.1453.120.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 11 Oct 2004 21:01:25 -0400
+	Mon, 11 Oct 2004 21:10:57 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:42592 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S269404AbUJLBFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 21:05:05 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: akpm@osdl.org
+Subject: [patch 0/17] UML updates, which must be merged before 2.6.9
+Date: Tue, 12 Oct 2004 03:05:24 +0200
+User-Agent: KMail/1.6.1
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410120305.24675.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 19:35, Linus Torvalds wrote:
-> Well, as far as I can tell from the patch, the only way to get data 
-> corruption from the bug is when you use the SCSI ioctl's at the same time 
-> as the disk is busy.
-> 
-> In other words, I think you'd have to do some special disk management, or
-> possibly try to burn a CD on a SCSI CD-ROM (or other special device that
-> uses the SCSI ioctl's) on the same controller. And nobody uses SCSI
-> CD-burners any more, I'd think.
+Andrew, sorry for sending these patches so late, but they are (mostly 
+one-liners) needed to fix either warnings in compilation (the patches are 
+safe) or probable bugs which are created by these warnings.
 
-This is not some far-out scenario.  For a long time Plextor SCSI burners
-were the best on the market, there are 1000's of them out there.
+The Makefile patch are of another kind: actually, when I send that couple of 
+patches merged before -rc3, they were against my tree and absolutely 
+incorrect against Linus tree; sorry for not checking that; in fact UML does 
+not link with neither -rc3 nor -rc4 (also due to a compilation bug I already 
+fixed for -rc3). However, this Makefile fixes fix everything, have been 
+longly tested in public (hanging both in my tree, in SuSE UML tree and in 
+Jeff Dike's tree).
 
-Lee
+Finally, I'm sending a patch for a network corruption which is very nasty; 
+it's a one-liner, a resync against the copied original code and I've actually 
+tested it works perfectly.
 
+So, please, even if now we are in a hurry after -rc4, merge them. It's the 
+only possibility for UML to actually work "out of the box".
+
+Oh well, and sorry for sending "[uml-devel] [patch 4/6] uml: don't declare 
+cpu_online - fix compilation error" - I just noticed it's included in 
+2.6.9-rc4-mm1. All the rest applies without even any offsets to that tree, 
+too.
+
+Thanks a lot for your help.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

@@ -1,52 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269080AbUIHJy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269081AbUIHJ6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269080AbUIHJy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 05:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269081AbUIHJy6
+	id S269081AbUIHJ6r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 05:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269082AbUIHJ6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 05:54:58 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:3482 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269080AbUIHJy4 (ORCPT
+	Wed, 8 Sep 2004 05:58:47 -0400
+Received: from open.hands.com ([195.224.53.39]:7843 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S269081AbUIHJ6n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 05:54:56 -0400
-Date: Wed, 8 Sep 2004 11:56:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Alexander Nyberg <alexn@dsv.su.se>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R9
-Message-ID: <20040908095630.GA4709@elte.hu>
-References: <20040903120957.00665413@mango.fruits.de> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <200409081146.09526.rjw@sisk.pl>
+	Wed, 8 Sep 2004 05:58:43 -0400
+Date: Wed, 8 Sep 2004 11:09:47 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] to add device+inode check to ipt_owner.c - HACKED UP
+Message-ID: <20040908100946.GA9795@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409081146.09526.rjw@sisk.pl>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+dear kernel people,
 
-* Rafael J. Wysocki <rjw@sisk.pl> wrote:
+this is a first pass at attempting to add per-program firewall rule
+checking to iptables.
 
-> Er, it doesn't work for me:
-> 
->   HOSTCC  scripts/genksyms/parse.o
->   HOSTLD  scripts/genksyms/genksyms
->   CC      scripts/mod/empty.o
-> /bin/sh: line 1: x86_64-unknown-linux-gcc: command not found
-> make[2]: *** [scripts/mod/empty.o] Error 127
-> make[1]: *** [scripts/mod] Error 2
-> make: *** [scripts] Error 2
+fireflier makes a complete hash of this in user-space because there
+is no way it track state information (therefore it cannot track RST
+and FIN and FIN ACK packets)
 
-please re-download -R9, it had my crosscompiler flags included by
-accident.
+so, i figured i'd try do this in kernel space instead, where it
+should be done.
 
-	Ingo
+digitally signing the name of the exe is not okay.
+_using_ the name of the exe isn't really okay in my book, either.
+
+inodes are only meaningful on a per-device basis.
+
+therefore i add a device (80 chars as a hack) and an inode number
+argument to ipt_owner.h
+
+i blatantly cut/paste the code from fs/proc/base.c into ipt_owner.c
+only to find that a compile resulted in warnings about mmput
+and mmget (present in kernel/sched.c) not existing.
+
+therefore i blatantly hacked fs/proc/base.c to expose the functionality
+i required, which is, "given a task struct, give me the dentry and
+vfsmount structs associated with its executable".  i called it
+proc_task_dentry_lookup().
+
+from there, i can grab the inode number and the device name.
+
+i had to add an EXPORT_SYMBOL(proc_task_dentry_lookup).
+i realise this is not ideal (it shouldn't be in fs/proc/base.c,
+ipt_owner.c shouldn't be dependent on CONFIG_PROC_FS, etc. at
+this stage i don't care)
+
+i feel certain that the functionality required in this function
+is not only required elsewhere but also available elsewhere
+(in which case, why is it being duplicated in fs/proc/base.c)
+so clearly i must be missing something.
+
+
+from previous messages:
+
+- default rules should be "DENY ALL" and invididual "ALLOW"s this patch
+  is NOT good to use with "DENY" rules because users can always copy the
+  program (even on selinux systems)
+
+
+
+anyone reading this far be warned of the following:
+
+- if you don't like what i have done, i so don't care: i HAVE to
+  get this to work and no amount of "i don't like" is going to
+  take that away.  don't like it?  save yourself some effort:
+  delete this message and your mindset.
+
+- if you do like what i have done, and you are not an experienced
+  kernel hacker, please be aware that i am still experimenting,
+  i am very much in the dark on this, and your input and
+  assistance would be greatly appreciated, but you NEED to take
+  precautions to ensure it doesn't do your system any damage.
+
+- you'll also need a hacked version of userspace iptables.
+  i'm working on it.
+
+with that in mind, comments and assistance much appreciated because
+i feel certain that i cannot be the only person looking for this
+sort of functionality.
+
+l.
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+

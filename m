@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290284AbSBKT7M>; Mon, 11 Feb 2002 14:59:12 -0500
+	id <S290304AbSBKUAc>; Mon, 11 Feb 2002 15:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290285AbSBKT6x>; Mon, 11 Feb 2002 14:58:53 -0500
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:31977 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S290284AbSBKT6d>; Mon, 11 Feb 2002 14:58:33 -0500
-Message-ID: <3C682264.7060707@nyc.rr.com>
-Date: Mon, 11 Feb 2002 14:58:28 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
+	id <S290297AbSBKUA0>; Mon, 11 Feb 2002 15:00:26 -0500
+Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:12691 "EHLO
+	marauder.googgun.com") by vger.kernel.org with ESMTP
+	id <S290285AbSBKUAP>; Mon, 11 Feb 2002 15:00:15 -0500
+Date: Mon, 11 Feb 2002 14:59:35 -0500 (EST)
+From: Ahmed Masud <masud@marauder.googgun.com>
+To: Tom Lord <lord@regexps.com>
+cc: <pavel@suse.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: a new arch feature "for Linus"
+In-Reply-To: <200202112245.OAA20127@morrowfield.home>
+Message-ID: <Pine.LNX.4.33.0202111457480.5668-100000@marauder.googgun.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Linux 2.5.4 Sound Driver Problem
-In-Reply-To: <fa.c0t1afv.1f02hrj@ifi.uio.no> <fa.jvah72v.1h34cqd@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Try to do this. Open drivers/sound/Config.in, and find YMFPCI
-> tristate, then delete $CONFIG_SOUND_OSS from that line.
-> Edit .config, and remove CONFIG_SOUND_OSS. Rerun make oldconfig,
-> when prompted for CONFIG_SOUND_OSS, say N. This should work.
 
-if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
-    bool '      Verbose initialisation' CONFIG_SOUND_TRACEINIT
-    bool '      Persistent DMA buffers' CONFIG_SOUND_DMAP
+On Mon, 11 Feb 2002, Tom Lord wrote:
 
-The YMFPCI option was in the body of the above if statement, so I had
-to move it out of there to be able to enable it without enabling 
-CONFIG_SOUND_OSS.  I hope this is what you meant.
+>
+>
+> It's true, to the best of my knowledge.
+>
+> -t
+>
+>
+>
+>    Date: Mon, 11 Feb 2002 12:55:08 +0000
+>    From: Pavel Machek <pavel@suse.cz>
+>    Cc: linux-kernel@vger.kernel.org
+>    Content-Type: text/plain; charset=us-ascii
+>    X-UIDL: dda5f09a906d84e75abb5b2582204cb3
+>
+>    Hi!
+>
+>    > [1] "Lines of Development" is a trademark of BitMover, Inc.
+>
+>    Is this joke or serious?
 
-> 
-> I use monolithic kernels on 2.4, but on 2.5 it is officially
-> discouraged, so I gave up on it.
+Even if Lines of Development is a trademark, it is only a trademark in a
+particular context. Using it elsewhere, so long as there is no ambiguity
+with the description of the Art in the trademark application is okay and
+does not violate the trademark.
 
-To what granularity?  I use the hardware as a rule of thumb: if the
-the hardware supported is fixed, then I put it in the kernel.
-Should I compile everything as modules?
+ - A.
 
-However, I did hear something about everything being a module in 2.6
-because the kernel will eventually use initramfs or something...
-
-Anyway, this is a different thread.  But I would like to hear your rule 
-of thumb for when you compile things as a module...
-
-
-> I do not see ANYTHING in 2.5.4 Makefiles that depended on
-> CONFIG_SOUND_GAMEPORT. This option only works to restric
-> some configurations choices, but it does not control any
-> compilations. Seems like a deadwood to me. Just kill it too.
-
-I kill it but make oldconfig enables it right back :).
-I'll look through Config.in in a bit.
 

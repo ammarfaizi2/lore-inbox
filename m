@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268914AbUH3U1C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUH3Us1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268914AbUH3U1C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 16:27:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268929AbUH3U1C
+	id S261232AbUH3Us1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 16:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUH3Us1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 16:27:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44163 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268914AbUH3U0p (ORCPT
+	Mon, 30 Aug 2004 16:48:27 -0400
+Received: from holomorphy.com ([207.189.100.168]:21175 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261232AbUH3UsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 16:26:45 -0400
-Date: Mon, 30 Aug 2004 13:26:32 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP Window Scaling problem with buggy routers FIX works
-Message-Id: <20040830132632.4c34f336@dell_ss3.pdx.osdl.net>
-In-Reply-To: <512805293.20040830130037@dns.toxicfilms.tv>
-References: <512805293.20040830130037@dns.toxicfilms.tv>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 30 Aug 2004 16:48:21 -0400
+Date: Mon, 30 Aug 2004 13:48:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+       Andries Brouwer <aeb@cwi.nl>,
+       Alessandro Rubini <rubini@ipvvis.unipv.it>
+Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
+Message-ID: <20040830204814.GG5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paulo Marques <pmarques@grupopie.com>,
+	mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+	Andries Brouwer <aeb@cwi.nl>,
+	Alessandro Rubini <rubini@ipvvis.unipv.it>
+References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <4133718D.60002@grupopie.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4133718D.60002@grupopie.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Aug 2004 13:00:37 +0200
-Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
+William Lee Irwin III wrote:
+>> Well, since I couldn't stop vomiting for hours after I looked at the
+>> code for readprofile(1), here's a reimplementation, with various
+>> misfeatures removed, included as a MIME attachment.
 
-> Hi,
-> 
-> I am just letting you guys know that the fix for
-> tcp window scaling problem with buggy routers works.
+On Mon, Aug 30, 2004 at 07:27:25PM +0100, Paulo Marques wrote:
+> While you're at it, can readprofile work by reading the symbols from 
+> /proc/kallsyms?
+> If it can, this could be added to the list of files that it tries to 
+> open, so that it could work even if System.map wasn't available.
 
-As mentioned in the patch to automatically manage tcp window
-scale size. This was an (mostly unwanted) side-effect.
-
-> There were people (including me) reporting that tcp traffic
-> through some buggy (eg. cisco) routers in linux-2.6.8 slows
-> down to a crawl.
-
-Find and fix the problem. It may come back.
-
-> A workaround was to zero tcp_window_scaling sysctl knob.
-> 
-> With this patch:
-> http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/cset-shemminger@osdl.org|ChangeSet|20040826205608|22084.txt
-> 
-> sitting in 2.6.9-rc1 BK repository the linux box can have
-> fast transfers again.
-> 
-> Note that they are not that fast as with tcp_window_scaling disabled.
-> But they are certainly fast and will not cause problems like
-> ssh sessions hangning, etc.
-
-That is because every time the linux box says the window size is N.
-The other side is thinking the window is N/4 because the router in
-the middle corrupted the initial connection requuest.
+Well, if it can accept input from a pipe, there's no real need. Since
+it would need to be sorted, it would probably bloat the utility too
+much to do it internally by creating redundancy with sort(1).
 
 
-> Thanks for the workaround for buggy routers netdev!
-
-Don't expect the default Linux kernel configuration to work
-on broken networks.
-
-
--- 
-Stephen Hemminger 		mailto:shemminger@osdl.org
-Open Source Development Lab	http://developer.osdl.org/shemminger
+-- wli

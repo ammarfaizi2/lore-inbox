@@ -1,74 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276562AbRJCRJg>; Wed, 3 Oct 2001 13:09:36 -0400
+	id <S276576AbRJCRIq>; Wed, 3 Oct 2001 13:08:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276564AbRJCRJa>; Wed, 3 Oct 2001 13:09:30 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:54766 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S276562AbRJCRJY>; Wed, 3 Oct 2001 13:09:24 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Wed, 3 Oct 2001 11:09:10 -0600
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-lvm@sistina.com
-Subject: Re: [linux-lvm] Re: partition table read incorrectly
-Message-ID: <20011003110910.F8954@turbolinux.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org, linux-lvm@sistina.com
-In-Reply-To: <20011002202934.G14582@wiggy.net> <E15oUUf-0005Xw-00@the-village.bc.nu> <20011002220053.H14582@wiggy.net> <20011002150820.N8954@turbolinux.com> <20011003142633.A16089@cistron.nl> <20011003144236.A31796@cistron.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011003144236.A31796@cistron.nl>
-User-Agent: Mutt/1.3.22i
+	id <S276564AbRJCRIg>; Wed, 3 Oct 2001 13:08:36 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:57608 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S276562AbRJCRIW>;
+	Wed, 3 Oct 2001 13:08:22 -0400
+Date: Wed, 3 Oct 2001 19:06:26 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: <hadi@cyberus.ca>, <linux-kernel@vger.kernel.org>,
+        <Robert.Olsson@data.slu.se>, <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <200110031653.UAA13938@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.33.0110031853220.8633-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 03, 2001  14:42 +0200, Wichert Akkerman wrote:
-> Here are the first 512 bytes for the disk which the kernel gets
-> wrong (/dev/sdb):
-> 
-> 000000 48 4d 01 00 00 00 00 00 00 04 00 00 00 10 00 00
-> 000010 00 10 00 00 00 20 00 00 00 80 00 00 00 a0 00 00
-> 000020 00 48 01 00 00 f0 01 00 00 00 41 00 47 59 75 35
-> 000030 50 30 6a 63 58 57 45 42 74 38 64 44 74 70 51 6d
-> 000040 31 6a 50 38 57 41 31 4e 5a 46 39 65 00 00 00 00
-> 000050 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> *
-> 0000a0 00 00 00 00 00 00 00 00 00 00 00 00 76 67 5f 75
-> 0000b0 73 65 72 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 0000c0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> *
-> 000120 00 00 00 00 00 00 00 00 00 00 00 00 63 6c 6f 75
-> 000130 64 31 30 30 31 37 38 30 32 30 38 00 00 00 00 00
-> 000140 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> *
-> 0001a0 00 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00
-> 0001b0 01 00 00 00 01 00 00 00 02 00 00 00 70 90 23 02
-> 0001c0 01 00 00 00 00 20 00 00 1b 11 00 00 80 00 00 00
-> 0001d0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> *
-> 0001f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 aa
 
-OK, so it turns out that LVM is NOT zeroing any of the metadata outside
-of the actual allocated fields in the on-disk structs.  Since the on-disk
-structs DO NOT include padding at the end, this means we leave garbage
-like the DOS partition table signature on the disk.  Yuck.
+On Wed, 3 Oct 2001 kuznet@ms2.inr.ac.ru wrote:
 
-Likely places to fix this are:
-- pv_setup_for_create(): zap the first few MB of the PV (and the end while
-  you are at it, to remove old MD RAID signatures).  This is slow, and will
-  duplicate some of the I/O when writing the VGDA/PE tables, etc.
-- pv_disk_t(): increase the size with padding at the end to LVM_PV_DISK_SIZE
-  You will need to do the same for all of the other on-disk structures.
-  You also need zero bytes from pe_on_disk.base + pe_total*sizeof(pe_disk_t)
-  to pe_on_disk.base + pe_on_disk.size.  This is also a problem because the
-  LVM_PV_*_SIZE were changed, so the amount of padding is not constant.
-- pv_write(): ugly since it adds constant overhead.  This will be "handled"
-  if pv_disk_t() is increased in size.
+> Ingo, "polling" is wrong name. It does not poll. :-)
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+ok. i was also mislead by a quick hack in the source code :)
+
+> Actually, this misnomer is the worst thing whic I worried about.
+
+i think something like: 'offloading hardirq work into softirqs' covers the
+concept better, right?
+
+> Citing my old explanation:
+>
+> > "Polling" is not a real polling in fact, it just accepts irqs as
+> > events waking rx softirq with blocking subsequent irqs.
+> > Actual receive happens at softirq.
+> >
+> > Seems, this approach solves the worst half of livelock problem
+> > completely: irqs are throttled and tuned to load automatically.
+> > Well, and drivers become cleaner.
+
+i like this approach very much, and indeed this is not polling in any way.
+
+i'm worried by the dev->quota variable a bit. As visible now in the
+2.4.10-poll.pat and tulip-NAPI-010910.tar.gz code, it keeps calling the
+->poll() function until dev->quota is gone. I think it should only keep
+calling the function until the rx ring is fully processed - and it should
+re-enable the receiver afterwards, when exiting net_rx_action.
+
+	Ingo
 

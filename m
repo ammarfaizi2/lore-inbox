@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289872AbSAPGBQ>; Wed, 16 Jan 2002 01:01:16 -0500
+	id <S289883AbSAPGPM>; Wed, 16 Jan 2002 01:15:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290363AbSAPGBG>; Wed, 16 Jan 2002 01:01:06 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:33037 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S289872AbSAPGAt>;
-	Wed, 16 Jan 2002 01:00:49 -0500
-Date: Wed, 16 Jan 2002 17:00:14 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-Subject: Re: likely/unlikely
-Message-ID: <20020116060014.GB24266@krispykreme>
-In-Reply-To: <3C450C4A.8A8382A6@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C450C4A.8A8382A6@mandrakesoft.com>
-User-Agent: Mutt/1.3.25i
+	id <S289884AbSAPGPC>; Wed, 16 Jan 2002 01:15:02 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:47273 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S289883AbSAPGOp>;
+	Wed, 16 Jan 2002 01:14:45 -0500
+Subject: Performance: Neighbour table overflow
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF742EAB6F.38453691-ON65256B43.0021390F@in.ibm.com>
+From: "Rajasekhar Inguva" <irajasek@in.ibm.com>
+Date: Wed, 16 Jan 2002 11:43:46 +0530
+X-MIMETrack: Serialize by Router on d23m0067/23/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 16/01/2002 11:43:49 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> likely/unlikely set the branch prediction values to 99% or 1%
-> respectively.  If this causes the code generated to perform less
-> optimally than without, I'm sure the gcc guys would be -very- interested
-> to hear that...
+Hi All,
+I have observed that when the ARP cache is full , any further networking
+apps fail with error "Neighbour table overflow" until a timer expires and
+the cache is cleared. Below is a detailed re-creation scenario....
 
-On some ppc64 the branch prediction is quite good and static prediction
-will override the dynamic prediction. I think we avoid predicting a
-branch unless we are quite sure (95%/5%).
+1) Set  /proc/sys/net/ipv4/neigh/default/gc_thresh1,2,3  to values 2
+2) ping one_neighbour ( arp cache now has this entry )
+3) ping another_neighbour ( arp cache has now 2 entries )
+4) ping third_neighbour
 
-So if likely/unlikely is overused (on more marginal conditionals) then
-it could be a performance loss.
+    Neighbour table overflow
+    Ping: No buffer space available
 
-Anton
+Until the timer expires and the arp cache gets cleared , no further network
+connections succeed.
+
+IMHO, in situations wherein stale entries do exist in the cache and the
+cache is full, then one should not wait for a timer expiry but remove a few
+entries asap.
+
+I get a feeling it might violate some rfc's , but i am not really sure....
+
+Any feedback ?
+
+Regards,
+
+Raj
+

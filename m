@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267185AbUHDBiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267190AbUHDBk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267185AbUHDBiE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 21:38:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUHDBiD
+	id S267190AbUHDBk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 21:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUHDBk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 21:38:03 -0400
-Received: from web14927.mail.yahoo.com ([216.136.225.85]:2662 "HELO
-	web14927.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267185AbUHDBhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 21:37:55 -0400
-Message-ID: <20040804013745.7323.qmail@web14927.mail.yahoo.com>
-Date: Tue, 3 Aug 2004 18:37:45 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: Exposing ROM's though sysfs
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
-       Jon Smirl <jonsmirl@yahoo.com>, Torrey Hoffman <thoffman@arnor.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091581190.1862.48.camel@gaston>
+	Tue, 3 Aug 2004 21:40:29 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:45532 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267191AbUHDBkR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 21:40:17 -0400
+To: Rik van Riel <riel@redhat.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, pbadari@us.ibm.com
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [patch] mlock-as-nonroot revisted 
+In-reply-to: Your message of Tue, 03 Aug 2004 21:22:45 EDT.
+             <Pine.LNX.4.44.0408032122210.5948-100000@dhcp83-102.boston.redhat.com> 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <32075.1091583420.1@us.ibm.com>
+Date: Tue, 03 Aug 2004 18:37:02 -0700
+Message-Id: <E1BsAiE-0008LT-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben, can you put together a first pass on a "VGA arbitration driver"?
-You probably know more about the quirks necessary on non-x86 platforms
-than anyone else. I can help from the desktop x86 side but I've never
-worked on high end hardware that allows things like multiple active VGA
-devices. I'm sure the Mac machines and ia64 systems will need some
-special code too.
+On Tue, 03 Aug 2004 21:22:45 EDT, Rik van Riel wrote:
+> On Tue, 3 Aug 2004, Gerrit Huizenga wrote:
+> 
+> > DB2, JVM also use hugetlbfs, other uses have been tried with
+> > some success.
+> 
+> OK.  Do any of those do the "root chowns an unnamed
+> hugetlbfs file" scenario ? ;)
 
+Badari will probably know the access method for DB2 better than
+I do.  I know they go quite out of their way to avoid having
+root permissions at any point in time.  How they accomplish this
+in the current source base, I don't know.  They were using
+capabilities for things like this for a while.
 
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+gerrit

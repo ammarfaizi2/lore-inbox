@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbTISWOn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 18:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTISWOm
+	id S261769AbTISWax (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 18:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbTISWax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 18:14:42 -0400
-Received: from ida.rowland.org ([192.131.102.52]:6660 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S261833AbTISWOb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 18:14:31 -0400
-Date: Fri, 19 Sep 2003 18:14:29 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>
-cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: USB APM suspend
-Message-ID: <Pine.LNX.4.44L0.0309191755590.763-100000@ida.rowland.org>
+	Fri, 19 Sep 2003 18:30:53 -0400
+Received: from screech.rychter.com ([212.87.11.114]:35484 "EHLO
+	screech.rychter.com") by vger.kernel.org with ESMTP id S261769AbTISWau
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 18:30:50 -0400
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22 USB problem (uhci)
+References: <m2znh1pj5z.fsf@tnuctip.rychter.com>
+	<20030919190628.GI6624@kroah.com> <m2d6dwr3k8.fsf@tnuctip.rychter.com>
+	<20030919201751.GA7101@kroah.com> <m28yokr070.fsf@tnuctip.rychter.com>
+	<20030919204419.GB7282@kroah.com> <m2smmspjjq.fsf@tnuctip.rychter.com>
+	<20030919212232.GG7282@kroah.com>
+X-Spammers-Please: blackholeme@rychter.com
+From: Jan Rychter <jan@rychter.com>
+Date: Fri, 19 Sep 2003 15:30:41 -0700
+In-Reply-To: <20030919212232.GG7282@kroah.com> (Greg KH's message of "Fri,
+ 19 Sep 2003 14:22:32 -0700")
+Message-ID: <m2brtgpg1a.fsf@tnuctip.rychter.com>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a piece from my system log, when I did "apm --suspend".  The 
-usb_device_suspend/resume messages are things I added for debugging.
+>>>>> "Greg" == Greg KH <greg@kroah.com> writes:
 
-Sep 19 17:02:35 ida kernel: uhci-hcd 0000:00:07.2: suspend to state 3
-Sep 19 17:02:35 ida kernel: drivers/usb/host/uhci-hcd.c: 6400: suspend_hc
-Sep 19 17:02:35 ida kernel: usb_device_suspend: 1-1:0
-Sep 19 17:02:35 ida kernel: usb_device_suspend: 1-1
-Sep 19 17:02:35 ida kernel: usb_device_suspend: 1-0:0
-Sep 19 17:02:35 ida kernel: usb_device_suspend: usb1
-Sep 19 17:02:45 ida kernel: uhci-hcd 0000:00:07.2: suspend D4 --> D3
-Sep 19 17:02:45 ida kernel: drivers/usb/host/uhci-hcd.c: 6400: wakeup_hc
-Sep 19 17:02:45 ida kernel: usb_device_resume: usb1
-Sep 19 17:02:45 ida kernel: usb_device_resume: 1-0:0
-Sep 19 17:02:45 ida kernel: usb_device_resume: 1-1
-Sep 19 17:02:45 ida kernel: usb_device_resume: 1-1:0
-Sep 19 17:02:45 ida kernel: uhci-hcd 0000:00:07.2: can't resume, not suspended!
+[...]
 
-This has several odd things.  Note that both the first two "0000:00:07.2"  
-messages were created by hcd-pci.c, in its usb_hcd_pci_suspend() routine.  
+ >> Please allow me to restate the original problem:
+ >>
+ >> -- I usually use uhci instead of usb-uhci, because it is able to go
+ >> into "suspend mode" when no devices are plugged, which allows the
+ >> CPU to enter C3 states,
+ >>
+ >> -- usb-uhci eats CPU power by keeping it in C2 constantly because of
+ >> busmastering DMA activity, therefore being much less useful,
+ >>
+ >> -- uhci generally works for me just fine, but breaks in one
+ >>    particular
+ >> case, when removing the device causes a strange message to be
+ >> printed and the system being unable to use the C3 states again,
+ >> until uhci is unloaded and reloaded back again.
+ >>
+ >> Just as a reminder, this message is:
+ >>
+ >> uhci.c: efe0: host controller halted. very bad
+ >>
+ >> I hope if the message says "very bad", then this is something that
+ >> can be fixed. I was therefore reporting a problem with "uhci" and
+ >> kindly asking for help.
 
-Why was this routine called twice?  (Don't be fooled by the timestamps; I 
-think the "suspend D4 --> D3" message was created during the suspend but 
-not read by syslogd until after the resume.)
+ Greg> Ok, sorry for the confusion.  No I don't know of a fix for this
+ Greg> problem, but one just went into the 2.6 kernel tree for the
+ Greg> uhci-hcd driver that you might want to take a look at that fixed
+ Greg> a problem almost exactly like this.
 
-Why doesn't usb_hcd_pci_resume() log a similar message when it is called?
-A simple oversight?
+Greg,
 
-Why was the host controller suspended _before_ its child USB devices?  
+I've looked at uhci.c, the message comes from line 2461, in
+uhci_interrupt. But there is no chance I will be able to fix it without
+first understanding thoroughly how uhci.c works.
 
-And why was it woken up twice?
+So I guess this goes into my "unfixed Linux bugs" bin.
 
-Alan Stern
-
-
-P.S.: Greg, what on Earth does "GREG: gregindex = 0" mean?
-
+--J.

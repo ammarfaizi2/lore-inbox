@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbUJ0UlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbUJ0VIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbUJ0UlK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbUJ0UkE
+	id S262619AbUJ0VIG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbUJ0VH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:40:04 -0400
-Received: from smtp4.netcabo.pt ([212.113.174.31]:28685 "EHLO
-	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262719AbUJ0UcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:32:14 -0400
-Message-ID: <32913.192.168.1.5.1098908937.squirrel@192.168.1.5>
-In-Reply-To: <20041027185716.66965.qmail@web12202.mail.yahoo.com>
-References: <32865.192.168.1.5.1098898770.squirrel@192.168.1.5>
-    <20041027185716.66965.qmail@web12202.mail.yahoo.com>
-Date: Wed, 27 Oct 2004 21:28:57 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "karsten wiese" <annabellesgarden@yahoo.de>
-Cc: "Lee Revell" <rlrevell@joe-job.com>, "Ingo Molnar" <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, "Bill Huey" <bhuey@lnxw.com>,
-       "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Wed, 27 Oct 2004 17:07:26 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:207 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262729AbUJ0U5J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 16:57:09 -0400
+Date: Wed, 27 Oct 2004 22:56:32 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrea Arcangeli <andrea@novell.com>, Larry McVoy <lm@work.bitmover.com>,
+       Joe Perches <joe@perches.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+In-Reply-To: <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.61.0410272049040.877@scrub.home>
+References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
+ <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com>
+ <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com>
+ <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random>
+ <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random>
+ <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random>
+ <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 27 Oct 2004 20:32:06.0873 (UTC) FILETIME=[06B89C90:01C4BC64]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-karsten wiese wrote:
-> Rui Nuno Capela wrote:
->> Should I try the other way around? Lets see... 'chrt -p
->> -f 90 `pidof ksoftirwd/0`',... yes, apparentely the xrun
->> rate seems to decrease into half, but IMHO not conclusive
->> enough, thought.
->>
-> 'into half' makes me wonder:
-> did you also 'chrt -p -f 90 `pidof ksoftirwd/1`'?
-> I guess you meant that with '...'. Just in case :-)
->
+Hi,
 
-Wonder no more. All my statistical-wise tests were carried on a UP box (my
-laptop), so there's no "ksoftirqd/1" in there, just a single
-"ksoftirqd/0".
+On Tue, 26 Oct 2004, Linus Torvalds wrote:
 
-Speaking of which, I was not taking tests very seriously on my other
-SMP/HT box, just because I don't want to rant about it anymore :) Only
-recently VP and RT kernels were barely able to boot there, where even
-plain vanilla 2.6.9 seems to be snappier and with far fewer xruns than
-V0.4.1 or even U3 (either RT or not).
+> > Linus, what disturbs me here is that I don't see that you don't even try 
+> > to acknowledge that the bk license might be part of problem
+> 
+> Why?
 
-OTOH, on my laptop (P4/UP) I can testify as truth that, at least for
-RT-U3, the improvement is real: I don't have a record of such a top
-performer, when regarding the zero-xrun, low-latency audio setup
-potential. When even compared, it just outperforms by far that old
-2.4+preempt+low-latency myth ;)
+To answer that you should have quoted a bit more: "the annoying part are 
+the business practices of its owner".
 
-Unfortunately, this is not what I see on my P4/SMP/HT desktop box. I
-cannot tell a lie ;)
+> What's the problem? You don't like it, you don't use it. It's literally 
+> that simple.
 
-Bye now.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+Unfortunately it's not that easy, because you're still missing the point.
+I don't care what software you use, I don't care what license Larry uses 
+for its products. I absolutely don't care.
+The problem is that you support a license which limits everyones ability 
+on how to access the kernel source and gives Larry full control over it. 
+Give me a good reason, why he can deny me that rather simple request to 
+get some data out of the repository. On the one hand you blame Andrea for 
+not developing an alternative, on the other hand we don't have access to 
+the data to actually help other projects. The kernel source is the data 
+that we care most about, why can Larry limit the ways we can make use of 
+it?
+Linus, what happened to the early promises, that the data wouldn't be 
+locked into bk? Is the massively reduced data set in the cvs repository 
+really all we ever get out of it again?
 
-P.S. Karsten, my US-224 is working real nice on my laptop now (provided
-I'm with RT-U3 :) I'm real thankful for all of your work on snd-usb-usx2y.
-Cheers.
-
-
+bye, Roman

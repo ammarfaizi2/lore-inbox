@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314483AbSFEMYV>; Wed, 5 Jun 2002 08:24:21 -0400
+	id <S315416AbSFEMfY>; Wed, 5 Jun 2002 08:35:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315406AbSFEMYU>; Wed, 5 Jun 2002 08:24:20 -0400
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:6330 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S314483AbSFEMYU>; Wed, 5 Jun 2002 08:24:20 -0400
-Message-Id: <200206051224.g55COIZ208776@d06relay02.portsmouth.uk.ibm.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-To: Patrick Mochel <mochel@osdl.org>
-Subject: Re: device model documentation 3/3
-Date: Wed, 5 Jun 2002 16:24:18 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arndb@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S315419AbSFEMfX>; Wed, 5 Jun 2002 08:35:23 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:14085 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S315416AbSFEMfW>; Wed, 5 Jun 2002 08:35:22 -0400
+Date: Wed, 5 Jun 2002 13:10:46 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Hans-Christian Armingeon <linux.johnny@gmx.net>
+Cc: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@zip.com.au>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] "laptop mode"
+Message-ID: <20020605131046.S681@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <3CFD453A.B6A43522@zip.com.au> <20020604233124.GA18668@turbolinux.com> <200206051340.47261.root@johnny>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Jun 04 2002 - 11:25:19 EST,
-Patrick Mochel <mochel@osdl.org> wrote:
+On Wed, Jun 05, 2002 at 01:41:28PM +0200, Hans-Christian Armingeon wrote:
+> What parts of the filesystem needs to be accessed very often? I
+> think, that placing var on a ramdisk, that is mirrored on the
+> hd and is synced every 30 minutes, would be a good solution.
+> I think, that we should add a sysrq key to save the ramdisk to
+> the disk. Is there a similar project, that loads an image into
+> a ramdisk at mount, and writes it back at unmount?
 
-> When a driver is removed, the list of devices that it supports is 
-> iterated over, and the driver's remove callback is called for each 
-> one. The device is removed from that list and the symlinks removed. 
+It's all there already. Just killall -STOP kupdated, use
+sys_readahead() to read your often needed files into pagecache
+and SysRq+S to sync, if needed.
 
-Maybe I'm blind, but I can't see how this works without races for
-bridge device drivers. Imagine for example what happens when I rmmod
-a usb hcd driver. Its module use count should be zero as long as the 
-devices attached to it are not in use, right?
-When I e.g. open a file in directory of a device behind my hcd, the 
-devices use count is incremented but can still remove the driver.
-Reading the file after module unload then can do bad things if the
-show() callback was inside the hcd driver.
-Did I miss the obvious anywhere?
+Your solution involves copying things twice and using memory
+twice, so it is not the right approach.
 
-Arnd <><
+Andrews point was to control flushing by the power state of the
+ide device.
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

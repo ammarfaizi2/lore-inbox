@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262578AbUKLQvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262589AbUKLQvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbUKLQvR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 11:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbUKLQtR
+	id S262589AbUKLQvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 11:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbUKLQtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 11:49:17 -0500
-Received: from alog0333.analogic.com ([208.224.222.109]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262579AbUKLQri
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 11:47:38 -0500
-Date: Fri, 12 Nov 2004 11:47:10 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: RTC Chip and IRQ8 on 2.6.9
-Message-ID: <Pine.LNX.4.61.0411121145520.14827@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 12 Nov 2004 11:49:23 -0500
+Received: from mail.timesys.com ([65.117.135.102]:39585 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262569AbUKLQrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 11:47:31 -0500
+Subject: Re: [PATCH] MII bus API for PHY devices
+From: Jason McMullan <jason.mcmullan@timesys.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, romieu@fr.zoreil.com
+In-Reply-To: <1100240131.20512.47.camel@gaston>
+References: <20041111224845.GA12646@jmcmullan.timesys>
+	 <1100240131.20512.47.camel@gaston>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 12 Nov 2004 11:47:26 -0500
+Message-Id: <1100278046.17607.23.camel@jmcmullan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1-1mdk 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-11-12 at 17:15 +1100, Benjamin Herrenschmidt wrote:
+> Have you looked at what sungem/sungem_phy does ?
+> 
+> Among others, sungem has an algorithm for automatically testing fallback
+> forced speeds when aneg fails, which has proven useful with a variety of
+> PHY/hub combos, plus a "magic_aneg" bit in the PHY definition for PHYs
+> taht can do that themselves automatically.
 
-I must use the RTC and IRQ8 in a driver being ported from
-2.4.20 to 2.6.9. When I attempt request_irq(8,...), it
-returns -EBUSY. I have disabled everything in .config
-that has "RTC" in it.
+	I'll look into it.
 
-The RTC interrupt is used to precisely time the sequencing
-of a precision A/D converter. It is mandatory that I use
-it because the precise interval is essential for its
-IIR filter that produces 20 bits of resolution from a
-16 bit A/D.
+> Also, besides shutdown(), you probably want a suspend() callback used by
+> the MAC driver when the machine is entering a suspend() state (I
+> definitely need that with various PHYs on powermacs) along with the
+> various WOL parameters.
 
-            CPU0
-   0:   60563767    IO-APIC-edge  timer
-   1:      57096    IO-APIC-edge  i8042
-   8:          1    IO-APIC-edge  rtc
-   9:          0   IO-APIC-level  acpi
-  12:         66    IO-APIC-edge  i8042
-  14:     112322    IO-APIC-edge  ide0
-  16:          0   IO-APIC-level  uhci_hcd, uhci_hcd
-  18:        640   IO-APIC-level  libata, uhci_hcd, Analogic Corp DLB
-  19:          0   IO-APIC-level  uhci_hcd
-  20:    4894484   IO-APIC-level  eth0
-  21:     110543   IO-APIC-level  aic7xxx
-  23:          0   IO-APIC-level  ehci_hcd
-NMI:          0 
-LOC:   60565403 
-ERR:          0
-MIS:          0
+	For the 'wake on lan' stuff, could you give me a list of the
+types of features you'd need? I haven't really looked at WOL just yet.
 
-This stuff works fine in 2.4.22 and, in fact, I'm the guy
-that added the global rtc_lock so that this very driver
-could run without interfering with anybody. Now, some code,
-somewhere (not in a module), has allocated the interrupt
-and generated exactly 1 interrupt. The kernel won't let
-me use that interrupt!
+	We can add WOL, suspend, etc. as needed. I just want to
+get the base infrastructure in first, and gradually start migrating
+phys to the mii_bus on embedded systems.
 
-How do I undo this so I can use my hardware on my machine?
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+-- 
+Jason McMullan <jason.mcmullan@timesys.com>

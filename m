@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268077AbUIAVJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267918AbUIAVJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268077AbUIAVJk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 17:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUIAVJO
+	id S267918AbUIAVJn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 17:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267935AbUIAVIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:09:14 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:62180 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267893AbUIAUz4
+	Wed, 1 Sep 2004 17:08:17 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:21895 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267926AbUIAU4M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:55:56 -0400
-Subject: [patch 03/25]  drivers/char/esp.c MIN/MAX removal
+	Wed, 1 Sep 2004 16:56:12 -0400
+Subject: [patch 06/25]  drivers/char/pcmcia/synclink_cs.c MIN/MAX 	removal
 To: linux-kernel@vger.kernel.org
 Cc: akpm@digeo.com, janitor@sternwelten.at
 From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:55:55 +0200
-Message-ID: <E1C2c95-0007HJ-CE@sputnik>
+Date: Wed, 01 Sep 2004 22:56:11 +0200
+Message-ID: <E1C2c9L-0007JR-PK@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -32,40 +32,51 @@ Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 ---
 
- linux-2.6.9-rc1-bk7-max/drivers/char/esp.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
+ linux-2.6.9-rc1-bk7-max/drivers/char/pcmcia/synclink_cs.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
 
-diff -puN drivers/char/esp.c~min-max-char_esp drivers/char/esp.c
---- linux-2.6.9-rc1-bk7/drivers/char/esp.c~min-max-char_esp	2004-09-01 19:33:32.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/char/esp.c	2004-09-01 19:33:32.000000000 +0200
-@@ -19,7 +19,7 @@
-  *
-  *  rs_set_termios fixed to look also for changes of the input
-  *      flags INPCK, BRKINT, PARMRK, IGNPAR and IGNBRK.
-- *                                            Bernd Anhäupl 05/17/96.
-+ *                                            Bernd Anhï¿½pl 05/17/96.
-  *
-  * --- End of notices from serial.c ---
-  *
-@@ -141,7 +141,7 @@ static struct esp_struct *ports;
- 
- static void change_speed(struct esp_struct *info);
- static void rs_wait_until_sent(struct tty_struct *, int);
--	
-+
- /*
-  * The ESP card has a clock rate of 14.7456 MHz (that is, 2**ESPC_SCALE
-  * times the normal 1.8432 Mhz clock of most serial boards).
-@@ -151,10 +151,6 @@ static void rs_wait_until_sent(struct tt
- /* Standard COM flags (except for COM4, because of the 8514 problem) */
- #define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST)
+diff -puN drivers/char/pcmcia/synclink_cs.c~min-max-char_pcmcia_synclink_cs drivers/char/pcmcia/synclink_cs.c
+--- linux-2.6.9-rc1-bk7/drivers/char/pcmcia/synclink_cs.c~min-max-char_pcmcia_synclink_cs	2004-09-01 19:33:54.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/char/pcmcia/synclink_cs.c	2004-09-01 19:33:54.000000000 +0200
+@@ -494,10 +494,6 @@ static struct tty_driver *serial_driver;
+ static void mgslpc_change_params(MGSLPC_INFO *info);
+ static void mgslpc_wait_until_sent(struct tty_struct *tty, int timeout);
  
 -#ifndef MIN
 -#define MIN(a,b)	((a) < (b) ? (a) : (b))
 -#endif
 -
- /*
-  * tmp_buf is used as a temporary buffer by serial_write.  We need to
-  * lock it in case the memcpy_fromfs blocks while swapping in a page,
+ /* PCMCIA prototypes */
+ 
+ static void mgslpc_config(dev_link_t *link);
+@@ -1191,7 +1187,7 @@ void tx_ready(MGSLPC_INFO *info) 
+ 		return;
+ 
+ 	while (info->tx_count && fifo_count) {
+-		c = MIN(2, MIN(fifo_count, MIN(info->tx_count, TXBUFSIZE - info->tx_get)));
++		c = min(2, min_t(int, fifo_count, min(info->tx_count, TXBUFSIZE - info->tx_get)));
+ 		
+ 		if (c == 1) {
+ 			write_reg(info, CHA + TXFIFO, *(info->tx_buf + info->tx_get));
+@@ -1754,8 +1750,8 @@ static int mgslpc_write(struct tty_struc
+ 	}
+ 
+ 	for (;;) {
+-		c = MIN(count,
+-			MIN(TXBUFSIZE - info->tx_count - 1,
++		c = min(count,
++			min(TXBUFSIZE - info->tx_count - 1,
+ 			    TXBUFSIZE - info->tx_put));
+ 		if (c <= 0)
+ 			break;
+@@ -2641,7 +2637,7 @@ static void mgslpc_wait_until_sent(struc
+ 		char_time = 1;
+ 		
+ 	if (timeout)
+-		char_time = MIN(char_time, timeout);
++		char_time = min_t(unsigned long, char_time, timeout);
+ 		
+ 	if (info->params.mode == MGSL_MODE_HDLC) {
+ 		while (info->tx_active) {
 
 _

@@ -1,122 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVAZQZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVAZQ3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbVAZQZh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 11:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVAZQZh
+	id S262363AbVAZQ3z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 11:29:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVAZQ3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 11:25:37 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:49755 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262347AbVAZQZV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 11:25:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=QhCgfMZf5QPqOYv6tp8jESo5uVyf/onoztrWLFTNiOjl/DAVE4kdWzu5OYOXkXKlAboTfJoeY5+T4CjypZF+pqzjQ0kcRiUSvHP1hRpqqx3OlaHtBHOj1HbTUEQNphZIYqaS23l1wYx9HLBlJFbhhB7q5UV/Vf2A+GQRomHqDlQ=
-Message-ID: <d120d500050126082515bd68f9@mail.gmail.com>
-Date: Wed, 26 Jan 2005 11:25:20 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: johnpol@2ka.mipt.ru
-Subject: Re: 2.6.11-rc2-mm1
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1106754848.5257.189.camel@uganda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 26 Jan 2005 11:29:55 -0500
+Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:22655 "EHLO
+	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S262363AbVAZQ3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 11:29:53 -0500
+Message-ID: <41F7C578.4070409@graggrag.com>
+Date: Thu, 27 Jan 2005 03:29:44 +1100
+From: Cal <cal@graggrag.com>
+User-Agent: Mozilla Thunderbird 0.6+ (X11/20050122)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: hihone@bigpond.net.au
+Cc: Ingo Molnar <mingo@elte.hu>, CK Kernel <ck@vds.kolivas.org>,
+       "Jack O'Quin" <joq@io.com>, linux <linux-kernel@vger.kernel.org>
+Subject: Re: [ck] [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D7
+References: <87y8eo9hed.fsf@sulphur.joq.us>	<20050120172506.GA20295@elte.hu>	<87wtu6fho8.fsf@sulphur.joq.us>	<20050122165458.GA14426@elte.hu>	<87hdl940ph.fsf@sulphur.joq.us>	<20050124085902.GA8059@elte.hu>	<20050124125814.GA31471@elte.hu>	<20050125135613.GA18650@elte.hu>	<41F6C5CE.9050303@bigpond.net.au>	<41F6C797.80403@bigpond.net.au> <20050126100846.GB8720@elte.hu> <41F7C2CA.2080107@bigpond.net.au>
+In-Reply-To: <41F7C2CA.2080107@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	 <d120d5000501250811295c298e@mail.gmail.com>
-	 <20050126001443.7f91bbbb@zanzibar.2ka.mipt.ru>
-	 <200501252357.08946.dtor_core@ameritech.net>
-	 <1106727902.5257.109.camel@uganda>
-	 <d120d5000501260546536647e7@mail.gmail.com>
-	 <1106751547.5257.162.camel@uganda>
-	 <d120d5000501260726714e8251@mail.gmail.com>
-	 <1106754848.5257.189.camel@uganda>
+X-Bogosity: Ham, tests=bogofilter, spamicity=0.000000, version=0.93.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jan 2005 18:54:08 +0300, Evgeniy Polyakov
-<johnpol@2ka.mipt.ru> wrote:
-> On Wed, 2005-01-26 at 10:26 -0500, Dmitry Torokhov wrote:
-> > On Wed, 26 Jan 2005 17:59:07 +0300, Evgeniy Polyakov
-> > <johnpol@2ka.mipt.ru> wrote:
-> >
-> > > Each superio chip has the same logical devices inside.
-> > > With your approach we will have following schema:
-> > >
-> > > bus:
-> > > superio1 - voltage, temp, gpio, rtc, wdt, acb
-> > > superio2 - voltage, temp, gpio, rtc, wdt, acb
-> > > superio3 - voltage, temp, gpio, rtc, wdt, acb
-> > > superio4 - voltage, temp, gpio, rtc, wdt, acb
-> > >
-> > > Each logical device driver (for existing superio schema)
-> > > is about(more than) 150 lines of code.
-> > > With your approach above example will be 150*6*4 +
-> > > 4*superio_chip_driver_size bytes
-> > > of the code.
-> >
-> > ????? Let's count again, shall we? Suppose we have:
-> > > superio1 - voltage, temp, gpio, rtc, wdt, acb
-> > > superio2 - voltage, temp, gpio, rtc, wdt, acb
-> > superio1 is driven by scx200 hardware, superio2 is driven by pc8736x
-> > or whatever. So here, you have 2 drivers to manage chips. Plus you
-> > have 6 superio interface drivers - gpio, acb, etc...
-> > It is exactly the same as your cheme size-wise.
-> >
-> > There is no need to many-to-many relationship. Each chip is bound to
-> > only one chip driver which registers several interfaces. Each
-> > interface is bound to only one interface driver. Interface driver is
-> > not chip specific, it knows how to run a specific interface (gpio,
-> > temp) and relies on chip driver to properly manage access to the
-> > hardware. Each combination of inetrface + interface driver produce one
-> > class_device (call it sio, serio, whatever). Class device provides
-> > unified view of the interface to the userspace.
-> >
-> > What am I missing?
-> 
-> Since each logical device does not know who use it, it can not be,
-> for example, removed optimally.
-> You need to run through whole superio device set to find those one that
-> has reference to logical device being removed.
+Please ignore that, I've just started looking through the log properly.
 
-What do you mean by removing optimally? Consider teher 2 scenarios:
- - you unload logical device driver which knows all the logical
-devices (interfaces) it is bound to and it releases those devices.
-- you unload chip driver which knows what logical devices it has
-registered and removes them. Logical devices in turn unbind themselves
-from the logical drivers thay are bound to (only one for each device
-and they have link).
-Seems pretty clean to me.
-
-> And situation become much worse, when we have so called logical device
-> clones -
-> it is virtual logical device that emulates standard one, but inside
-> performs
-> in a different way. Clone creates inside superio device(for example such
-> device
-> can live at different address).
-> When you do not have ldev->sc relation, you must traverse through each
-> logical device
-> in each superio chip to find clones.
-> Thus you will need to traverse through each superio chip,
-> then through each logical device it references, just to remove one
-> logical device.
-
-I am confused and need a concrete example. I would think that cases
-such as these should not require eny special handling, hardware access
-should be hidden from logical drivers by the chip driver. Or if only
-difference is the port address then it probably should be set by the
-chip driver as attribute of logical device.
-
-Look at the serio system again. psmouse module knows how to talk to
-i8042-type ports. It does not rellay matter to it whther the port is
-on actual i8042 controller or somewhere else. What matters that it is
-PS/2 port and it supports writes and reads and that is it. How exactly
-read is performed (what port address, locking, etc) is of no concern
-to psmouse. The same I think should be happening here.
-
--- 
-Dmitry
+cheers.

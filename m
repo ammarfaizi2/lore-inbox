@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVA1QR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVA1QbC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVA1QR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 11:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVA1QR5
+	id S261467AbVA1QbC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 11:31:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVA1QbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 11:17:57 -0500
-Received: from cantor.suse.de ([195.135.220.2]:51361 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261455AbVA1QRv (ORCPT
+	Fri, 28 Jan 2005 11:31:02 -0500
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:12698 "HELO
+	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
+	id S261467AbVA1Qaz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 11:17:51 -0500
-Date: Fri, 28 Jan 2005 17:17:46 +0100
-From: Olaf Hering <olh@suse.de>
-To: dtor_core@ameritech.net
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: atkbd_init lockup with 2.6.11-rc1
-Message-ID: <20050128161746.GA1092@suse.de>
-References: <20050128132202.GA27323@suse.de> <20050128135827.GA28784@suse.de> <d120d50005012806435a17fe98@mail.gmail.com> <20050128145511.GA29340@suse.de> <d120d500050128072268a5c2f0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Fri, 28 Jan 2005 11:30:55 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Dan Williams <dcbw@redhat.com>
+Subject: Re: Where Linux 802.11x support needs work
+Date: Fri, 28 Jan 2005 16:38:08 +0000
+User-Agent: KMail/1.6.1
+References: <Pine.LNX.4.58.0501251630280.30850@devserv.devel.redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0501251630280.30850@devserv.devel.redhat.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <d120d500050128072268a5c2f0@mail.gmail.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200501281638.08372.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.52; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Fri, Jan 28, Dmitry Torokhov wrote:
-
-> Fixes as in "it reports that reset fails" again or it resets the
-> keyboard cleanly and works fine?
-
-It doesnt hang if I add printk around the outb.
-
-> > Do you have a version of that i8042 delay patch for 2.6.11-rc2-bk6?
-> > Maybe it will help.
-> > 
-> 
-> No I don't, and I don't think you need all of it. What happens if you
-> edit drivers/input/serio/i8042.c manually and stick udelay(7); in
-> front of calls to i8042_write_data() in i8042_kbd_write() and
-> i8042_aux_write()?
-
-Doesnt help either, adding printk fixes it.
-
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: 60 -> i8042 (command) [2264]
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: 61 -> i8042 (parameter) [2264]
-i8042_write_data(56) swapper(1):c0,j4294673158 enter 97
-i8042_write_data(58) swapper(1):c0,j4294673158 leave 97
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: ff -> i8042 (kbd-data) [2640]
-i8042_write_data(56) swapper(1):c0,j4294673534 enter 255
-i8042_write_data(58) swapper(1):c0,j4294673534 leave 255
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: fe <- i8042 (interrupt, kbd, 1, timeout) [2895]
-atkbd.c: keyboard reset failed on isa0060/serio0
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [3096]
-i8042_write_data(56) swapper(1):c0,j4294673990 enter 242
-i8042_write_data(58) swapper(1):c0,j4294673990 leave 242
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: fe <- i8042 (interrupt, kbd, 1, timeout) [3351]
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [3494]
-i8042_write_data(56) swapper(1):c0,j4294674388 enter 237
-i8042_write_data(58) swapper(1):c0,j4294674388 leave 237
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: fe <- i8042 (interrupt, kbd, 1, timeout) [3750]
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: 60 -> i8042 (command) [3893]
-/home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: 60 -> i8042 (parameter) [3893]
-i8042_write_data(56) swapper(1):c0,j4294674787 enter 96
-i8042_write_data(58) swapper(1):c0,j4294674787 leave 96
-md: md driver 0.90.1 MAX_MD_DEVS=256, MD_SB_DISKS=27
-NET: Registered protocol family 2
-.. here it hangs again.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
+
+> o  Firmware issues
+>    1) Cisco aironet firmware upload is quite inconsistent, fails with
+>       5.21 for example.  Firmware <= 5.02 seems to be required for using
+>       WEP with most access points.  Latest Cisco-provided driver is quite
+>       different than latest in-kernel driver
+
+This might explain why I've never managed to get WEP working with my cisco 
+cards...
+
+Is there some documentation somewhere on exactly what firmware/driver/kernel 
+versions you need to make WEP work with aironet cards?
+
+Cheers,
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFB+mpwBn4EFUVUIO0RAg+qAKDP9f3uV0YQfN/kj/Wp04NHtoTNJgCggun1
+IhMCNDTQ2sIPollnKE3SXNk=
+=pKy+
+-----END PGP SIGNATURE-----

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbTIPDMC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 23:12:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbTIPDJu
+	id S261763AbTIPDJM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 23:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTIPDHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 23:09:50 -0400
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:57216 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S261767AbTIPDG6
+	Mon, 15 Sep 2003 23:07:41 -0400
+Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:33152 "EHLO
+	goldweb.com.au") by vger.kernel.org with ESMTP id S261772AbTIPDE6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 23:06:58 -0400
-Message-ID: <1063681611.3f667e4bb3573@dubai.stillhq.com>
-Date: Tue, 16 Sep 2003 13:06:51 +1000
+	Mon, 15 Sep 2003 23:04:58 -0400
+Message-ID: <1063681483.3f667dcbbf875@dubai.stillhq.com>
+Date: Tue, 16 Sep 2003 13:04:43 +1000
 From: Michael Still <mikal@stillhq.com>
 To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: [2.6 Patch] Kernel-doc updates 12 of 15 -- /kernel/kmod.c
+Subject: [2.6 Patch] Kernel-doc updates 7 of 15 -- /fs/inode.c
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -34,21 +34,43 @@ Mikal
 --------------------------
 
 
-diff -Nur linux-2.6.0-test4-bk5-mandocs/kernel/kmod.c
-linux-2.6.0-test4-bk5-mandocs_tweaks/kernel/kmod.c
---- linux-2.6.0-test4-bk5-mandocs/kernel/kmod.c	2003-09-04 10:57:23.000000000 +1000
-+++ linux-2.6.0-test4-bk5-mandocs_tweaks/kernel/kmod.c	2003-09-09
-15:49:15.000000000 +1000
-@@ -47,7 +47,8 @@
+diff -Nur linux-2.6.0-test4-bk5-mandocs/fs/inode.c
+linux-2.6.0-test4-bk5-mandocs_tweaks/fs/inode.c
+--- linux-2.6.0-test4-bk5-mandocs/fs/inode.c	2003-09-04 10:57:06.000000000 +1000
++++ linux-2.6.0-test4-bk5-mandocs_tweaks/fs/inode.c	2003-09-06
+19:40:06.000000000 +1000
+@@ -252,6 +252,9 @@
+ }
  
+ /*
++ * dispose_list - dispose of the contents of a local list
++ * @head: the head of the list to free
++ *
+  * Dispose-list gets a local list with local inodes in it, so it doesn't
+  * need to worry about list corruption and SMP locks.
+  */
+@@ -728,11 +731,11 @@
  /**
-  * request_module - try to load a kernel module
-- * @module_name: Name of module
-+ * @fmt:     printf style format string for the name of the module
-+ * @varargs: arguements as specified in the format string
+  * ifind - internal function, you want ilookup5() or iget5().
+  * @sb:		super block of file system to search
+- * @hashval:	hash value (usually inode number) to search for
++ * @head:       the head of the list to search
+  * @test:	callback used for comparisons between inodes
+  * @data:	opaque data pointer to pass to @test
   *
-  * Load a module using the user mode module loader. The function returns
-  * zero on success or a negative errno code on failure. Note that a
+- * ifind() searches for the inode specified by @hashval and @data in the inode
++ * ifind() searches for the inode specified by @data in the inode
+  * cache. This is a generalized version of ifind_fast() for file systems where
+  * the inode number is not sufficient for unique identification of an inode.
+  *
+@@ -764,6 +767,7 @@
+ /**
+  * ifind_fast - internal function, you want ilookup() or iget().
+  * @sb:		super block of file system to search
++ * @head:       head of the list to search
+  * @ino:	inode number to search for
+  *
+  * ifind_fast() searches for the inode @ino in the inode cache. This is for
 
 -- 
 

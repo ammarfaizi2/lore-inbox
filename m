@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbUBWTr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 14:47:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUBWTr5
+	id S262019AbUBWTra (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 14:47:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUBWTra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 14:47:57 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:30188 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S262014AbUBWTrw
+	Mon, 23 Feb 2004 14:47:30 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:38796 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262015AbUBWTrQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 14:47:52 -0500
-Date: Mon, 23 Feb 2004 12:50:39 -0700
-From: Jesse Allen <the3dfxdude@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround instead of apic ack delay.
-Message-ID: <20040223195039.GB755@tesore.local>
-Mail-Followup-To: Jesse Allen <the3dfxdude@hotmail.com>,
-	linux-kernel@vger.kernel.org
-References: <200402120122.06362.ross@datscreative.com.au> <402CB24E.3070105@gmx.de> <200402140041.17584.ross@datscreative.com.au> <200402141124.50880.ross@datscreative.com.au> <40395872.2030007@gmx.de>
+	Mon, 23 Feb 2004 14:47:16 -0500
+Subject: [PATCH] linux-2.6.3_time-interpolator-fix_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris McDermott <lcm@us.ibm.com>, ia64 <linux-ia64@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       David Mosberger <davidm@hpl.hp.com>
+In-Reply-To: <16435.3326.193311.110598@napali.hpl.hp.com>
+References: <1077081648.985.27.camel@cog.beaverton.ibm.com>
+	 <1077086574.985.56.camel@cog.beaverton.ibm.com>
+	 <16435.3326.193311.110598@napali.hpl.hp.com>
+Content-Type: text/plain
+Message-Id: <1077565468.19860.78.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40395872.2030007@gmx.de>
-User-Agent: Mutt/1.4.2i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 23 Feb 2004 11:44:29 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 23, 2004 at 02:33:38AM +0100, Prakash K. Cheemplavam wrote:
-> >>Here are some temperatures from my machine read from the bios on reboot.
-> >>I gave it minimal activity for the minutes prior to reboot.
-> >>
-> >>Win98, 47C
-> >>XPHome, 42C
-> >>Patched Linux 2.4.24 (1000Hz), 40C
-> >>Patched Linux 2.6.3-rc1-mm1, 53C  OUCH!
-> >
-> >Found the problem for 2.6
-> >
-> >After fixing it the 2.6 temperature is
-> >Patched Linux 2.6.3-rc1-mm1, 38C
-> >Ambient today is 1C cooler also.
-> 
-> Well, I hate to say it, but it seems, it doesn't work, or at least not 
-> so well, (running hot, but stability seems to be there) with 2.6.3-mm2. 
-> Like I had 52?C mostly idle with your patch and APIC just a few moments 
-> ago. Now back to PIC within a few minutes I am back to 45?C...7?C is too 
-> much of a difference for me.
-> 
+[Resending to Andrew and LKML]
 
-While on the subject of tempertures,  I found something a bit weird.  In linux 
-with C1 disconnects enabled, the system temperature was 36 C.  I rebooted to 
-BIOS setup and watched the temperatures there.  For some weird reason, the 
-system temperature rose from 36 C, to about 41 C.  And I also watched the CPU 
-temp rise from about 41 C to about 51 C !  I boot back into linux, and I watched
-the system temperature _drop_ to 36 C again.  What is C1 disconnects disabled 
-during POST now on my BIOS?  I have done this before when I first got it and 
-never noticed something like this.
+All,
+	In developing the ia64-cyclone patch, which implements a cyclone based
+time interpolator, I found the following bug which could cause time
+inconsistencies. 
+
+In update_wall_time_one_tick(), which is called each timer interrupt, we
+call time_interpolator_update(delta_nsec) where delta_nsec is
+approximately NSEC_PER_SEC/HZ. This directly correlates with the changes
+to xtime which occurs in update_wall_time_one_tick().
+
+However in update_wall_time(), on a second overflow, we again call
+time_interpolator_update(NSEC_PER_SEC). However while the components of
+xtime are being changed, the overall value of xtime does not (nsec is
+decremented NSEC_PER_SEC and sec is incremented).  Thus this call to
+time_interpolator_update is incorrect.
+
+This patch removes the incorrect call to time_interpolator_update and
+was found to resolve the time inconsistencies I had seen while
+developing the ia64-cyclone patch.
+
+Please consider for inclusion.
 
 
-Jesse
+diff -Nru a/kernel/timer.c b/kernel/timer.c
+--- a/kernel/timer.c	Wed Feb 18 12:04:03 2004
++++ b/kernel/timer.c	Wed Feb 18 12:04:03 2004
+@@ -677,7 +677,6 @@
+ 	if (xtime.tv_nsec >= 1000000000) {
+ 	    xtime.tv_nsec -= 1000000000;
+ 	    xtime.tv_sec++;
+-	    time_interpolator_update(NSEC_PER_SEC);
+ 	    second_overflow();
+ 	}
+ }
+
 

@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315386AbSEGIfx>; Tue, 7 May 2002 04:35:53 -0400
+	id <S315390AbSEGIxD>; Tue, 7 May 2002 04:53:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315387AbSEGIfw>; Tue, 7 May 2002 04:35:52 -0400
-Received: from gw.chygwyn.com ([62.172.158.50]:27141 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S315386AbSEGIfv>;
-	Tue, 7 May 2002 04:35:51 -0400
-From: Steven Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200205070815.JAA11610@gw.chygwyn.com>
-Subject: Re: Kernel deadlock using nbd over acenic driver.
-To: chen_xiangping@emc.com (chen, xiangping)
-Date: Tue, 7 May 2002 09:15:51 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A3A@srgraham.eng.emc.com> from "chen, xiangping" at May 06, 2002 11:05:52 AM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
+	id <S315391AbSEGIxC>; Tue, 7 May 2002 04:53:02 -0400
+Received: from [210.175.4.211] ([210.175.4.211]:6660 "EHLO sarah.cinet.co.jp")
+	by vger.kernel.org with ESMTP id <S315390AbSEGIxC>;
+	Tue, 7 May 2002 04:53:02 -0400
+Message-ID: <3CD79586.63E17164@cinet.co.jp>
+Date: Tue, 07 May 2002 17:51:18 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.79C-ja  [ja/Vine] (X11; U; Linux 2.5.14-pc98 i586)
+X-Accept-Language: ja, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.14 IDE CD-ROM PIO mode
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I could not use CD-ROM drive [PIO mode] on 2.5.14.
+Error messeges are follows.
 
-I suggest trying 2.4.19-pre8 first. This has the fix for the deadlock that I'm
-aware of in it. If that still doesn't work, then try and send me as much
-information as the system will let you extract. What I'm most interested
-in is:
+May  7 11:05:03 sarah kernel: hdc: cdrom_read_intr: data underrun (4294967292 blocks)
+May  7 11:05:03 sarah kernel: end_request: I/O error, dev 16:00, sector 92
+May  7 11:05:03 sarah kernel: Buffer I/O error on device ide1(22,0), logical block 22
 
- o State of the sockets (netstat -t on both client and server)
- o Values of /proc/sys/net/ipv4/tcp_[rw]mem and tcp_mem
- o Does the nbd client get stuck in the D state before or after any other
-   processes doing I/O through nbd? This is useful as it tells me whether
-   the problem is on a transmit or receive.
- o Was your system low on memory at the time ?
- o Were you trying to use nbd as a swap device ?
+This patch works fine for me. Please check it.
 
-Steve.
+--- linux/drivers/ide/ide-cd.c.orig	Mon May  6 12:38:01 2002
++++ linux/drivers/ide/ide-cd.c	Tue May  7 16:43:51 2002
+@@ -962,7 +962,7 @@
  
-> 
-> Hi,
-> 
-> I am using 2.4.16 with xfs patch from SGI. It may not be the acenic
-> driver problem, I can reproduce the deadlock in a 100 base-T network
-> using eepro100 driver. Closing the server did not release the deadlock.
-> What else can I try?
-> 
-> 
-[original messages cut here]
+ 	/* First, figure out if we need to bit-bucket
+ 	   any of the leading sectors. */
+-	nskip = MIN(rq->current_nr_sectors - bio_sectors(rq->bio), sectors_to_transfer);
++	nskip = MIN((int)(rq->current_nr_sectors - bio_sectors(rq->bio)), sectors_to_transfer);
+ 
+ 	while (nskip > 0) {
+ 		/* We need to throw away a sector. */
+-- 
+Osamu Tomita
+E-mail: tomita@cinet.co.jp

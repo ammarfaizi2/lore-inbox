@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263062AbRFLSpy>; Tue, 12 Jun 2001 14:45:54 -0400
+	id <S263079AbRFLSwy>; Tue, 12 Jun 2001 14:52:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263058AbRFLSpo>; Tue, 12 Jun 2001 14:45:44 -0400
-Received: from puffin.external.hp.com ([192.25.206.4]:51207 "EHLO
-	puffin.external.hp.com") by vger.kernel.org with ESMTP
-	id <S263020AbRFLSpc>; Tue, 12 Jun 2001 14:45:32 -0400
-Date: Tue, 12 Jun 2001 18:44:28 -0600
-From: Grant Grundler <grundler@puffin.external.hp.com>
-Message-Id: <200106130044.SAA18081@puffin.external.hp.com>
+	id <S263058AbRFLSwo>; Tue, 12 Jun 2001 14:52:44 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:9326 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S263079AbRFLSw2>; Tue, 12 Jun 2001 14:52:28 -0400
+Subject: Re: 2.2.19: eepro100 and cmd_wait issues
+From: Florin Andrei <florin@sgi.com>
 To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.4.4 PCI /proc output
+In-Reply-To: <01061109303910.16602@ycn013>
+In-Reply-To: <01061109303910.16602@ycn013>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 12 Jun 2001 11:51:47 -0700
+Message-Id: <992371907.26356.3.camel@stantz.corp.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 12 Jun 2001 13:00:41 -0500, John Madden wrote:
+> 
+> kernel: eepro100: cmd_wait for(0x70) timedout with(0x70)!
+> kernel: eepro100: cmd_wait for(0x10) timedout with(0x10)!
 
-The /proc/bus/pci/devices data looks correct.
-/proc/bus/pci/0[01]/* entries look correct.
-The /proc/bus/pci/0[23]/* entries don't match "devices" data
-and looks wrong.
+I have the same problem, since a long time, with various 2.2 and 2.4
+kernels running on a i815 motherboard, with on-board eepro100 net card.
 
-The host machine is a HP LXR8000 (4x 500Mhz PIII, 2GB RAM, ~8 PCI slots).
+> The only solution I've found that works is to reboot, and since this is
 
-Eg for 02/6.0 lspci -v says:
-02:06.0 Non-VGA unclassified device: Digital Equipment Corporation DECchip 21154
-        Flags: fast devsel
-	I/O ports at <ignored> [disabled]
-	Memory at <ignored> (type 3, non-prefetchable) [disabled]
-	Memory at <ignored> (type 3, non-prefetchable) [disabled]
-	Memory at <ignored> (low-1M, non-prefetchable) [disabled]
-	Memory at <ignored> (32-bit, prefetchable) [disabled]
+For me, it's enough to "ifconfig down" then "ifconfig up" the interface.
 
-(This is a 64-bit PCI-PCI bridge)
+I will probably buy another network card, since changing the OS is not
+an option, and Linux seems to not like eepro100 that much... :-/
 
-od -Ax -x /proc/bus/pci/02/06.0
-000000 0000 0000 1000 1000 0000 0000 0040 0000
-000010 0000 0000 020b 4011 1000 000b 0157 0210
-000020 0007 0100 8008 0080 4001 0000 4004 fe40
-000030 0000 0000 0004 fe40 0000 0000 0000 0000
-000040 0000 0000 0000 0000 0000 0000 0000 0000
-*
-000100
+-- 
+Florin Andrei
 
-/proc/bus/pci/devices for 02/06.0 says:
-0230    10110026        0       00000000        00000000        00000000
-00000000        00000000        00000000        00000000        00000000
-00000000        00000000        00000000        00000000        00000000
-00000000
-
-Full output for lspci -t, lspci -v, /proc/bus/pci/0?/*, and devices is
-available at ftp://gsyprf10.external.hp.com/pub/244_pci/. If more info
-is desired, send me mail.  
-
-I didn't see anything obviously wrong with proc_bus_pci_read() in
-drivers/pci/proc.c.  My first guess is the *ppos parameter is fubar
-but I'm not able to test this theory.  My excuse is the LXR8000 doesn't
-reboot reliably and is 10000km away (I'm in Germany instead of California).
-If this isn't already fixed in 2.4.5 (or .6), I'll look at it
-in July when I get back. 
-
-grant
-
-Grant Grundler
-parisc PCI|IOMMU|SMP hacker
-+1 408-447-7253

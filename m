@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270210AbUJTEpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270191AbUJTEpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270210AbUJTEpL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 00:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270152AbUJSXbs
+	id S270191AbUJTEpE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 00:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbUJTEnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:31:48 -0400
-Received: from mail.kroah.org ([69.55.234.183]:11914 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270145AbUJSWqe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:46:34 -0400
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI fixes for 2.6.9
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <10982257374003@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:17 -0700
-Message-Id: <1098225737858@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Wed, 20 Oct 2004 00:43:43 -0400
+Received: from gizmo02bw.bigpond.com ([144.140.70.12]:37345 "HELO
+	gizmo02bw.bigpond.com") by vger.kernel.org with SMTP
+	id S267536AbUJTEmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 00:42:03 -0400
+Message-ID: <4175EC97.5060804@bigpond.net.au>
+Date: Wed, 20 Oct 2004 14:41:59 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
+Subject: [PATCH] V-6.0 ZAPHOD Single Priority Array O(1) CPU Scheduler
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.41, 2004/10/06 13:04:35-07:00, dlsy@snoqualmie.dp.intel.com
+Version 6.0 of the ZAPHOD single priority array scheduler patches for 
+the 2.6.9 kernel are now available for download and evaluation from:
 
-[PATCH] PCI Hotplug: quirk fix missed out in last patch
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.9-spa_zaphod_FULL-v6.0?download>
 
-This patch contains a fix that was missed out in the last patch I sent
-you regarding fixes for writing 1's to RsvdZ in Slot Status register
-causing hot-plugging of PCI-X cards not working in some slots.
+Notes on ZAPHOD's features are available at:
 
-Signed-off-by: Dely Sy <dely.l.sy@intel.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+<https://sourceforge.net/project/shownotes.php?group_id=112404&release_id=273135>
 
+This is the first stage of a code reorganization that moves as much new 
+code as possible out of sched.c into separate source files in order to 
+make it easier to implement alternative (to ZAPHOD) single priority 
+array (SPA) schedulers on top of the SPA base.  As a consequence, the 
+other SPA schedulers (e.g. HYDRA) are not yet available for 2.6.9 and 
+will probably not be available for several days.
 
- drivers/pci/hotplug/shpchp_hpc.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-
-diff -Nru a/drivers/pci/hotplug/shpchp_hpc.c b/drivers/pci/hotplug/shpchp_hpc.c
---- a/drivers/pci/hotplug/shpchp_hpc.c	2004-10-19 15:23:59 -07:00
-+++ b/drivers/pci/hotplug/shpchp_hpc.c	2004-10-19 15:23:59 -07:00
-@@ -1158,7 +1158,7 @@
- 					hp_slot, php_ctlr->callback_instance_id);
- 			
- 			/* Clear all slot events */
--			temp_dword = 0xe01fffff;
-+			temp_dword = 0xe01f3fff;
- 			dbg("%s: Clearing slot events, temp_dword = %x\n",
- 				__FUNCTION__, temp_dword); 
- 			writel(temp_dword, php_ctlr->creg + SLOT1 + (4*hp_slot));
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

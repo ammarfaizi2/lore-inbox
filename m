@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270762AbTGNT3J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 15:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270766AbTGNT3I
+	id S270864AbTGNTin (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 15:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270867AbTGNTin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 15:29:08 -0400
-Received: from sea2-f4.sea2.hotmail.com ([207.68.165.4]:10000 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S270762AbTGNT25
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 15:28:57 -0400
-X-Originating-IP: [143.182.124.3]
-X-Originating-Email: [dagriego@hotmail.com]
-From: "David griego" <dagriego@hotmail.com>
-To: jgarzik@pobox.com
-Cc: alan@storlinksemi.com, linux-kernel@vger.kernel.org
-Subject: Re: Alan Shih: "TCP IP Offloading Interface"
-Date: Mon, 14 Jul 2003 12:43:44 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F4kWkKEsEXlwM9000178d9@hotmail.com>
-X-OriginalArrivalTime: 14 Jul 2003 19:43:44.0832 (UTC) FILETIME=[3C680C00:01C34A40]
+	Mon, 14 Jul 2003 15:38:43 -0400
+Received: from imr2.ericy.com ([198.24.6.3]:8656 "EHLO imr2.ericy.com")
+	by vger.kernel.org with ESMTP id S270864AbTGNTh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 15:37:59 -0400
+From: "Axelle Apvrille (QB/LMC)" <axelle.apvrille@ericsson.com>
+Reply-To: "Axelle Apvrille (QB/LMC)" <Axelle.Apvrille@ericsson.ca>
+To: linux-kernel@vger.kernel.org
+Message-ID: <3F1309E2.4010605@ericsson.ca>
+Date: Mon, 14 Jul 2003 15:52:02 -0400
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en, fr-fr, fr-ca
+MIME-Version: 1.0
+Subject: RSA in Linux kernel ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Jeff Garzik wrote:
->Anything beyond basic host-only TOE adds massive complexity for very little 
->gain:  interfacing netfilter and routing code with a black box we _hope_ 
->will act properly sounds like suicide.
-Keep most of this on the host, offload only performance path like the 
-Alacritech TOE.
+Hi,
 
->All this is vague handwaving without supporting evidence.  So far we get 
->stuff like Internet2 speed records _without_ TOE.  And Linux currently 
->supports 10gige...  and hosts are just going to keep getting faster and 
->faster.
+>From what I see (kernel 2.5.72), there is no implementation yet of RSA
+in the CryptoAPI (in the kernel) - nor of any asymetric algorithm. Are
+there any plans to do so (or not) ?
 
-Intel Clusters and Network Storage Volume Platforms Lab reported that it 
-takes about 1MHz to process 1Mbps on a PIII.  Using this rule of thumb (they 
-showed it scaling from 400MHz to 800MHz) it would take 10GHz to process 
-10Mbps.  Well you might say "what about multi-processers?"  This would be 
-good for people that have multi-processors, but there is a large segment of 
-embedded processors that are not going have SMP, or be at 10GHz anytime 
-soon.  Besides that processing interrupts does not scale across MPs 
-liniarly.  The truth is that communication speeds are outpacing processor 
-speeds at this time.
-David
+The only mails/posts I have seen concerning this matter are rather old
+(at best november 2002). What's happened since then ? Has this issue
+been abandonned ?
 
->
->	Jeff
->
->
->
-
-_________________________________________________________________
-Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
+Axelle.
 

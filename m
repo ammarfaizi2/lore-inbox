@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284361AbRLRR7L>; Tue, 18 Dec 2001 12:59:11 -0500
+	id <S284370AbRLRR4b>; Tue, 18 Dec 2001 12:56:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284393AbRLRR7B>; Tue, 18 Dec 2001 12:59:01 -0500
-Received: from w226.z065104013.sjc-ca.dsl.cnc.net ([65.104.13.226]:48370 "EHLO
-	nile.platodesign.com") by vger.kernel.org with ESMTP
-	id <S284386AbRLRR65>; Tue, 18 Dec 2001 12:58:57 -0500
-From: "Wenyong Deng" <wydeng@platodesign.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: How to use >3G memory per process
-Date: Tue, 18 Dec 2001 09:48:44 -0800
-Message-ID: <OHEPLPGMMIEGHANJIEBAIEPKCEAA.wydeng@platodesign.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S284386AbRLRR4V>; Tue, 18 Dec 2001 12:56:21 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:31217 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S284370AbRLRR4I>;
+	Tue, 18 Dec 2001 12:56:08 -0500
+Date: Tue, 18 Dec 2001 10:54:59 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: David Mansfield <david@cobite.com>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Scheduler ( was: Just a second ) ...
+Message-ID: <20011218105459.X855@lynx.no>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	David Mansfield <david@cobite.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>
+In-Reply-To: <Pine.LNX.4.33.0112181216341.1237-100000@admin> <Pine.LNX.4.33.0112180922500.2867-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.33.0112180922500.2867-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Dec 18, 2001 at 09:27:29AM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Dec 18, 2001  09:27 -0800, Linus Torvalds wrote:
+> Maybe the best thing to do is to educate the people who write the sound
+> apps for Linux (somebody was complaining about "esd" triggering this, for
+> example).
 
-I read about 3.5G-per_process (or 3.5G/0.5G user/kernel space) in this
-mailing list, but I don't find the details of how to do it. I have installed
-Redhat7.2 (kernel 2.4.10enterprise) on a dual CPU 4G memory PC. I wrote a
-simple program to use malloc to allocate memory, and it can never exceeds
-3G. libhoard didn't help either. My question is:
+Yes, esd is an interrupt hog, it seems.  When reading this thread, I
+checked, and sure enough I was getting 190 interrupts/sec on the
+sound card while not playing any sound.  I killed esd (which I don't
+use anyways), and interrupts went to 0/sec when not playing sound.
+Still at 190/sec when using mpg123 on my ymfpci (Yamaha YMF744B DS-1S)
+sound card.
 
-[1] What need to be done for the kernel to support 3.5G or more user address
-space per process?
-
-[2] What need to be done at compilation time? Any option for
-compiler/linker?
-
-Thanks,
-
---Wenyong
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

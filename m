@@ -1,64 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267122AbTAURS4>; Tue, 21 Jan 2003 12:18:56 -0500
+	id <S267131AbTAURec>; Tue, 21 Jan 2003 12:34:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267123AbTAURS4>; Tue, 21 Jan 2003 12:18:56 -0500
-Received: from packet.digeo.com ([12.110.80.53]:55768 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267122AbTAURSz>;
-	Tue, 21 Jan 2003 12:18:55 -0500
-Date: Tue, 21 Jan 2003 09:27:54 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.59-mm1
-Message-Id: <20030121092754.146e64ff.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.3.96.1030121085913.30318A-100000@gatekeeper.tmr.com>
-References: <20030117002451.69f1eda1.akpm@digeo.com>
-	<Pine.LNX.3.96.1030121085913.30318A-100000@gatekeeper.tmr.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S267134AbTAURec>; Tue, 21 Jan 2003 12:34:32 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:43667 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S267131AbTAURea> convert rfc822-to-8bit; Tue, 21 Jan 2003 12:34:30 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Jan 2003 17:27:55.0619 (UTC) FILETIME=[6F385330:01C2C172]
+From: Erich Focht <efocht@ess.nec.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] sched-2.5.59-A2
+Date: Tue, 21 Jan 2003 18:44:08 +0100
+User-Agent: KMail/1.4.3
+Cc: Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
+       Andrew Theurer <habanero@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+References: <Pine.LNX.4.44.0301201743230.11746-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0301201743230.11746-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301211844.08372.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> wrote:
+On Monday 20 January 2003 17:56, Ingo Molnar wrote:
+> On Mon, 20 Jan 2003, Erich Focht wrote:
+> > Could you please explain your idea? As far as I understand, the SMP
+> > balancer (pre-NUMA) tries a global rebalance at each call. Maybe you
+> > mean something different...
 >
-> On Fri, 17 Jan 2003, Andrew Morton wrote:
-> 
-> > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm1/
-> 
-> > -rcf.patch
-> > 
-> >  run-child-first didn't seem to help anything, and an alarming number of
-> >  cleanups and fixes were needed to get it working right.  Later.
-> 
-> I don't know about right, it seems to make threaded applications
-> originally developed on BSD work better (much lower context switching).
-> Anyone know if BSD does rcf? This may be an artifact of...
+> yes, but eg. in the idle-rebalance case we are more agressive at moving
+> tasks across SMP CPUs. We could perhaps do a similar ->nr_balanced logic
+> to do this 'agressive' balancing even if not triggered from the
+> CPU-will-be-idle path. Ie. _perhaps_ the SMP balancer could become a bit
+> more agressive.
 
-"seems to make"?  This is too vague for me to comment on, unfortunately.
+Do you mean: make the SMP balancer more aggressive by lowering the
+125% threshold?
 
-What applications?  What measurements have been made?
+> ie. SMP is just the first level in the cache-hierarchy, NUMA is the second
+> level. (lets hope we dont have to deal with a third caching level anytime
+> soon - although that could as well happen once SMT CPUs start doing NUMA.)
+> There's no real reason to do balancing in a different way on each level -
+> the weight might be different, but the core logic should be synced up.
+> (one thing that is indeed different for the NUMA step is locality of
+> uncached memory.)
 
-It can only affect creation of new threads, not the switching between extant
-ones.
+We have an IA64 2-level node hierarchy machine with 32 CPUs (NEC
+TX7). In the "old" node affine scheduler patch the multilevel feature
+was in by different cross-node steal delays (longer if node is further
+away). In the current approach we could just add another counter, such
+that we call the cross-supernode balancer only if the intra-supernode
+balancer failed a few times. No idea whether this helps...
 
-> > +ext3-scheduling-storm.patch
-> > 
-> >  Fix the bug wherein ext3 sometimes shows blips of 100k context
-> >  switches/sec.
-> 
-> Is this a 2.5 bug only? Does this need to be back ported to 2.4? Perhaps
-> this is why I have ctx rate problems and some other sites don't with a
-> certain application. Very commercial, unfortunately.
-> 
+> > Yes! Actually the currently implemented nr_balanced logic is pretty
+> > dumb: the counter reaches the cross-node balance threshold after a
+> > certain number of calls to intra-node lb, no matter whether these were
+> > successfull or not. I'd like to try incrementing the counter only on
+> > unsuccessfull load balances, this would give a clear priority to
+> > intra-node balancing and a clear and controllable delay for cross-node
+> > balancing. A tiny patch for this (for 2.5.59) is attached. As the name
+> > nr_balanced would be misleading for this kind of usage, I renamed it to
+> > nr_lb_failed.
+>
+> indeed this approach makes much more sense than the simple ->nr_balanced
+> counter. A similar approach makes sense on the SMP level as well: if the
+> current 'busy' rebalancer fails to get a new task, we can try the current
+> 'idle' rebalancer. Ie. a CPU going idle would do the less intrusive
+> rebalancing first.
+>
+> have you experimented with making the counter limit == 1 actually? Ie.
+> immediately trying to do a global balancing once the less intrusive
+> balancing fails?
 
-The problem has existed in 2.4 since 2.4.20-pre5.  The context switch
-problem will only exhibit for small periods of time (say, 10's to 100's of
-milliseconds) when the filesystem is under heavy write load.
+Didn't have time to try and probably won't be able to check this
+before the beginning of next week :-( .
 
-A patch for 2.4 is at
+Regards,
+Erich
 
-http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.20/ext3-scheduling-storm.patch

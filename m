@@ -1,79 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266466AbUFUWT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUFUWWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266466AbUFUWT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 18:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266490AbUFUWT1
+	id S266490AbUFUWWH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 18:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266491AbUFUWWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 18:19:27 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:50316 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266466AbUFUWTZ
+	Mon, 21 Jun 2004 18:22:07 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:1589 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266490AbUFUWWA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 18:19:25 -0400
-Date: Tue, 22 Jun 2004 00:31:09 +0200
+	Mon, 21 Jun 2004 18:22:00 -0400
+Date: Tue, 22 Jun 2004 00:33:44 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Andreas Gruenbacher <agruen@suse.de>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
 Cc: Martin Schlemmer <azarah@nosferatu.za.org>,
        Sam Ravnborg <sam@ravnborg.org>,
        Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH 0/2] kbuild updates
-Message-ID: <20040621223108.GC2903@mars.ravnborg.org>
-Mail-Followup-To: Andreas Gruenbacher <agruen@suse.de>,
+Message-ID: <20040621223344.GD2903@mars.ravnborg.org>
+Mail-Followup-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
 	Martin Schlemmer <azarah@nosferatu.za.org>,
 	Sam Ravnborg <sam@ravnborg.org>,
 	Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-References: <20040620211905.GA10189@mars.ravnborg.org> <200406210026.43988.agruen@suse.de> <1087771141.14794.89.camel@nosferatu.lan> <200406210151.43325.agruen@suse.de>
+References: <20040620211905.GA10189@mars.ravnborg.org> <20040620220319.GA10407@mars.ravnborg.org> <1087769761.14794.69.camel@nosferatu.lan> <200406202326.54354.s0348365@sms.ed.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406210151.43325.agruen@suse.de>
+In-Reply-To: <200406202326.54354.s0348365@sms.ed.ac.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 21, 2004 at 01:51:43AM +0200, Andreas Gruenbacher wrote:
-> > But my original concern (that the only way to figure where the source
-> > are for the running kernel will be broken) is still valid.
+On Sun, Jun 20, 2004 at 11:26:54PM +0100, Alistair John Strachan wrote:
+> [snipped a few CC addresses]
 > 
-> User-space stuff that needs access to kernel headers at build time is a 
-> problem. But for those programs, depending on the running kernel instead of 
-> simply looking in /usr/src/linux is an even bigger problem: What guarantees 
-> that the first time the program is run, the kernel will still be the same? So 
-> depending on the running kernel is definitely wrong. Depending 
-> on /usr/src/linux is also wrong; ideally those programs should look 
-> in /usr/include/{linux,asm}. Unfortunately these headers are not always 
-> recent enough, and so recently added definitions may be missing.
-
-But Martin has a point here.
-How to figure out for example the number of arguments to remap_page_range.
-One could do some grepping in the mm.h file, or one could try to compile
-a minimal module calling this function.
-If we go for the simple version by grepping we need to figure out where
-to find the source. In the past this was simple - just follow the
-build symlink. But now kernels may be shipped with separate source
-and output directory exposing the weakness of this method.
-A much more reliable way is to build a simple module.
-If the module build succeeds that specific version
-of remap_page_range is OK.
-
-nvidia does something similar, but they take the false assumption
-that the running kernel is always the one being build for.
-So they call gcc direct.
-
-Other modules uses the grep method - which will fail when the kernel
-is build with separate output and source directories.
-
-> 
-> > Makefile-pre_M_flag - 100% valid kbuild Makefile for kernels that
-> >                       do not support M=
+> On Sunday 20 June 2004 23:16, Martin Schlemmer wrote:
+> > On Mon, 2004-06-21 at 00:03, Sam Ravnborg wrote:
+> > > On Sun, Jun 20, 2004 at 11:30:34PM +0200, Martin Schlemmer wrote:
+> > > > I know Sam's mta blocks my mail at least (lame isp), but for the rest,
+> > > > please reconsider using this.
+> > >
+> > > Hmm, got your mail.
+> > >
+> > > > Many external modules, libs, etc use
+> > > > /lib/modules/`uname -r`/build to locate the _source_, and this will
+> > > > break them all.
+> > >
+> > > Examples please. What I have seen so far is modules that was not
+> > > adapted to use kbuild when being build.
+> > > If they fail to do so they are inherently broken.
 > >
-> > Makefile-post_M_flag - 100% valid kbuild Makefile for kernels
-> >                        supporting M=
+> > Well, glibc use it for instance as an fall-through if you do not specify
+> > it via ./configure arguments, or environment (yes, glibc should not use
+> > it, etc, etc, no flames please =).  So as well does alsa-driver,
+> > nvidia's drivers (gah, puke, yes, its got some binary-only stuff in
+> > there ;), ati's drivers and a lot of other stuff (if you really need
+> > them all I can try to find time to look for more).
+> >
+> > I am not sure about ati's drivers and alsa, but nvidia uses kbuild.
+> >
+> >
+> > Thanks,
 > 
-> Right now I would collapse the pre/post Makefiles and use SUBDIRS instead. 
-> There is no easy and reliable test for M= support, and it's only cosmetic. 
-> Sam will probably disagree.
+> Sam's point is that unless you ask KBUILD to put the kernel build in a 
+> separate directory to its sources (this is not the default 
+> behaviour), /lib/modules/`uname -r`/build will still point to the mixture of 
+> source and build data, therefore no breakage will occur.
 
-SUBDIRS were kept for backward compatibility - and I realise it will stay
-for a long time. The implementation were kept straightforward so no problem.
+Correct!
+
+> I understand Sam's reasoning and I believe it is sensible to have the source 
+> and build output in separate directories within /lib/modules/`uname -r`. The 
+> drivers in question can easily be updated to support the exceptional case 
+> whereby users build kernels in a different directory to the source.
+> 
+> Sam, maybe if there was a way to easily detect whether a kernel had been build 
+> with or without a different output directory, it would be easier to have 
+> vendors take this change on board. For example, I imagine in the typical case 
+> whereby no change in build directory is made, you will have something like 
+> this:
+> 
+> /lib/modules/2.6.7/build -> /home/alistair/linux-2.6
+> /lib/modules/2.6.7/source -> /home/alistair/linux-2.6
+> 
+> Whereas when O is given, it will instead be like this:
+> 
+> /lib/modules/2.6.7/build -> /home/alistair/my-dir
+> /lib/modules/2.6.7/source -> /home/alistair/linux-2.6
+> 
+> I presume that checking for the existence of /lib/modules/`uname -r`/source 
+> will be enough.
+> 
+> #
+> # where's the kernel source?
+> #
+> 
+> if [ -d /lib/modules/`uname -r`/source ]; then
+> 	# 2.6.8 and newer
+> 	KERNDIR="/lib/modules/`uname -r`/source"
+> else
+> 	# pre 2.6.8 kernels
+> 	KERNDIR="/lib/modules/`uname -r`/build"
+> fi
+
+Look ok.
 
 	Sam

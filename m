@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130619AbRBQJDg>; Sat, 17 Feb 2001 04:03:36 -0500
+	id <S130679AbRBQJGG>; Sat, 17 Feb 2001 04:06:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130679AbRBQJD0>; Sat, 17 Feb 2001 04:03:26 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:58119 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S130619AbRBQJDT>; Sat, 17 Feb 2001 04:03:19 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Sat, 17 Feb 2001 20:01:21 +1100
-To: Rick Richardson <rickr@mn.rr.com>
-Cc: Anton Blanchard <anton@linuxcare.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Whats the rvmalloc() story?
-Message-ID: <20010217200121.A3000@linuxcare.com>
-In-Reply-To: <20010210220808.A18488@mn.rr.com> <20010217184633.A2484@linuxcare.com> <20010217024948.A1726@mn.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010217024948.A1726@mn.rr.com>; from rickr@mn.rr.com on Sat, Feb 17, 2001 at 02:49:48AM -0600
+	id <S130824AbRBQJF4>; Sat, 17 Feb 2001 04:05:56 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:38054 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S130679AbRBQJFi>;
+	Sat, 17 Feb 2001 04:05:38 -0500
+Date: Sat, 17 Feb 2001 09:05:04 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Carlos Fernandez Sanz <cfernandez@myalert.com>
+cc: "David D.W. Downey" <pgpkeys@hislinuxbox.com>,
+        Rik van Riel <riel@conectiva.com.br>, Alan Olsen <alan@clueserver.org>,
+        Mark Haney <mhaney@info4cars.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <058701c09875$1977efa0$f40237d1@MIACFERNANDEZ>
+Message-ID: <Pine.SOL.4.21.0102170903530.18383-100000@red.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> If you are offering to do this work now, here is a thread worth
-> reading which includes a patch to start from...
-> 
-> 	http://www.uwsg.iu.edu/hypermail/linux/kernel/0002.1/0586.html
-> 
-> BTW, Alan Cox sent me the following additional information in a
-> private email.  Might as well get this in the mailing list archives
-> for posterity so that the terms "rvmalloc" and "kiovecs" actually
-> appear in the same post.  This way, at least, we all know what the
-> plan for 2.6 should be.
+On Fri, 16 Feb 2001, Carlos Fernandez Sanz wrote:
 
-Thanks for the info.
+> I did some research on the patent database and found nothing regarding such
+> a patent. There's patent on word processors (not the concept but related to)
+> and uses tab on the description...and that patent is from 1980.
 
-Since we arent going to put kiovecs in here for 2.4, I'll just add the 2.4
-pci DMA fixes so my bttv card will work in my sparc and someone can look at
-cleaning it up properly in 2.5.
+Perhaps that's it, then. Or maybe the story is a little distorted. No
+doubt you've spotted that IBM does have quite a significant portfolio of
+patents, though!
 
-Anton
+
+James.
+

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbTDXJOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 05:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbTDXJOZ
+	id S261962AbTDXJMH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 05:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbTDXJMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 05:14:25 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:19335 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262120AbTDXJOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 05:14:24 -0400
-Date: Thu, 24 Apr 2003 11:26:17 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: John Cherry <cherry@osdl.org>
-Cc: root@chaos.analogic.com, Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can one build 2.5.68 with allyesconfig?
-Message-ID: <20030424092617.GC17751@wohnheim.fh-wedel.de>
-References: <3EA5AABF.4090303@techsource.com> <Pine.LNX.4.53.0304221701320.17809@chaos> <1051127561.20214.20.camel@cherrypit.pdx.osdl.net> <20030423204828.GC26678@wohnheim.fh-wedel.de> <1051142471.20793.17.camel@cherrypit.pdx.osdl.net>
+	Thu, 24 Apr 2003 05:12:07 -0400
+Received: from [12.47.58.68] ([12.47.58.68]:39955 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261962AbTDXJMF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 05:12:05 -0400
+Date: Thu, 24 Apr 2003 02:25:05 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: ncunningham@clear.net.nz, cat@zip.com.au, mbligh@aracnet.com,
+       gigerstyle@gmx.ch, geert@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: Fix SWSUSP & !SWAP
+Message-Id: <20030424022505.5b22eeed.akpm@digeo.com>
+In-Reply-To: <20030424091236.GA3039@elf.ucw.cz>
+References: <1051136725.4439.5.camel@laptop-linux>
+	<1584040000.1051140524@flay>
+	<20030423235820.GB32577@atrey.karlin.mff.cuni.cz>
+	<20030423170759.2b4e6294.akpm@digeo.com>
+	<20030424001733.GB678@zip.com.au>
+	<1051143408.4305.15.camel@laptop-linux>
+	<20030423173720.6cc5ee50.akpm@digeo.com>
+	<20030424091236.GA3039@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1051142471.20793.17.camel@cherrypit.pdx.osdl.net>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Apr 2003 09:24:07.0382 (UTC) FILETIME=[41759F60:01C30A43]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 April 2003 17:01:12 -0700, John Cherry wrote:
-> 
-> No.  I think Randy Dunlap replied earlier that he spent considerable
-> time weeding out broken drivers from an allyesconfig configuration. 
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> No, ext3 will be "unclean" during resume (you can't really unmount it
+> during suspend!) and r-o mounting of ext3 will replay journal and
+> cause data corruption.
 
-Yes, it takes manual inspection of some 30 failures, each costing just
-a minute or so. But the compile time between those really hurts, it
-generates many context switches for my brain.
+Sorry, I still don't get it.  Go through the steps for me:
 
-> This still did not result in a bootable image.
+1) suspend writes pages to disk
 
-Which may be a good thing. 28MB would have used all my memory not too
-long ago. :)
+2) machine is shutdown
 
-> If you want to build with allyesconfig and continue on when you run into
-> errors, just use the -k (keep going) option with make.
+3) restart, journal replay
 
-Good idea. Maybe that can cut down the context switches.
+4) resume reads pages from disk.
 
-> Feel free to hack on the compregress.sh script to produce compilation
-> results that would benefit what you are doing.  It lives on the
-> stability page.
+Where did the corruption happen?
 
-Will do. Thank you!
-
-Jörn
-
--- 
-And spam is a useful source of entropy for /dev/random too!
--- Jasmine Strong
+Please bear in mind that I don't really know how swsusp works, so tell it to
+me in nice simple steps.

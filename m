@@ -1,29 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287979AbSAMJj7>; Sun, 13 Jan 2002 04:39:59 -0500
+	id <S281787AbSAMJmt>; Sun, 13 Jan 2002 04:42:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287984AbSAMJju>; Sun, 13 Jan 2002 04:39:50 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:60055 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S287979AbSAMJjk>; Sun, 13 Jan 2002 04:39:40 -0500
-Date: Sun, 13 Jan 2002 11:39:08 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Jim Studt <jim@federated.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts
-In-Reply-To: <200201111732.g0BHWYhV003902@core.federated.com>
-Message-ID: <Pine.LNX.4.33.0201131137510.28980-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282511AbSAMJmj>; Sun, 13 Jan 2002 04:42:39 -0500
+Received: from mta03ps.bigpond.com ([144.135.25.135]:10701 "EHLO
+	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S281787AbSAMJm0>; Sun, 13 Jan 2002 04:42:26 -0500
+Message-Id: <5.1.0.14.0.20020113204057.00b4af68@mail.bigpond.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 13 Jan 2002 20:42:20 +1100
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+From: Dylan Egan <crack_me@bigpond.com.au>
+Subject: Diamond Data USB CD-RW
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could you please try with kernel option "noapic", you don't have to
-recompile. I'd just like to know wether the problem persists. You might
-find the box sharing a lot of IRQs though.
+Hi,
+
+I was just inquiring whether anyone has a diamond data usb cd-rw
 
 Regards,
-	Zwane Mwaikambo
 
+Dylan
 

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267333AbSLEPRo>; Thu, 5 Dec 2002 10:17:44 -0500
+	id <S267334AbSLEPZt>; Thu, 5 Dec 2002 10:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267334AbSLEPRo>; Thu, 5 Dec 2002 10:17:44 -0500
-Received: from mail.ccur.com ([208.248.32.212]:62221 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id <S267333AbSLEPRm>;
-	Thu, 5 Dec 2002 10:17:42 -0500
-Message-ID: <3DEF6FC9.AFF1EB0B@ccur.com>
-Date: Thu, 05 Dec 2002 10:24:57 -0500
-From: Jim Houston <jim.houston@ccur.com>
-Reply-To: jim.houston@ccur.com
-Organization: Concurrent Computer Corp.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S267335AbSLEPZs>; Thu, 5 Dec 2002 10:25:48 -0500
+Received: from comtv.ru ([217.10.32.4]:44251 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S267334AbSLEPZs>;
+	Thu, 5 Dec 2002 10:25:48 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] for 2.5.50, sysfs works wrong in some cases
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 05 Dec 2002 18:27:57 +0300
+Message-ID: <m3n0nk1o5e.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-References: <Pine.LNX.4.44.0212042009340.11869-100000@home.transmeta.com> <3DEF20E2.5AEE3E78@mvista.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, George,
 
-I like the direction that this ERESTART_RESTARTBLOCK patch is
-going.
+Hello!
 
-It might be nice to clear the restart_block.fun in handle_signal()
-in the ERESTART_RESTARTBLOCK path which returns -EINTR.  This eliminates 
-the chance of a stale restart.
+I've just found that 2.5.50 can't open root device specified in
+'root=/dev/sda3' form. As for me, following patch solves problem:
 
-Jim Houston - Concurrent Computer Corp.
+--- vanilla/linux-2.5.50/drivers/block/genhd.c  Mon Nov 11 06:28:13 2002
++++ linux-2.5.50/drivers/block/genhd.c  Thu Dec  5 18:17:27 2002
+@@ -408,7 +408,6 @@
+                disk->minors = minors;
+                while (minors >>= 1)
+                        disk->minor_shift++;
+-               kobject_init(&disk->kobj);
+                disk->kobj.subsys = &block_subsys;
+                INIT_LIST_HEAD(&disk->full_list);
+
+
+kobject_init() will be called from kobject_register().
+
+
+with best, regards
+

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135240AbRAZLlT>; Fri, 26 Jan 2001 06:41:19 -0500
+	id <S129143AbRAZLo7>; Fri, 26 Jan 2001 06:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135406AbRAZLlJ>; Fri, 26 Jan 2001 06:41:09 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:32408 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S135240AbRAZLkz>; Fri, 26 Jan 2001 06:40:55 -0500
-Date: Fri, 26 Jan 2001 11:40:36 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: "David S. Miller" <davem@redhat.com>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-In-Reply-To: <14961.24658.319734.448248@pizda.ninka.net>
-Message-ID: <Pine.SOL.4.21.0101261139150.15526-100000@orange.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129396AbRAZLot>; Fri, 26 Jan 2001 06:44:49 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:30221 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S129143AbRAZLob>;
+	Fri, 26 Jan 2001 06:44:31 -0500
+Date: Fri, 26 Jan 2001 12:44:26 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: James Sutherland <jas88@cam.ac.uk>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Matti Aarnio <matti.aarnio@zmailer.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re:  hotmail not dealing with ECN
+Message-ID: <20010126124426.O2360@marowsky-bree.de>
+In-Reply-To: <14961.24658.319734.448248@pizda.ninka.net> <Pine.SOL.4.21.0101261139150.15526-100000@orange.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+In-Reply-To: <Pine.SOL.4.21.0101261139150.15526-100000@orange.csi.cam.ac.uk>; from "James Sutherland" on 2001-01-26T11:40:36
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jan 2001, David S. Miller wrote:
+On 2001-01-26T11:40:36,
+   James Sutherland <jas88@cam.ac.uk> said:
 
-> 
-> Matti Aarnio writes:
->  >   But could you nevertheless consider supplying a socket option for it ?
->  >   By all means default it per sysctl, but allow clearing/setting by
->  >   program too.
-> 
-> No, because then people will do the wrong thing.
-> 
-> They will create intricate "ECN black lists" and make
-> their apps set the socket option based upon whether
-> a site is in the black list or not.
-> 
-> This is wrong, and allows the problematic sites to continue to be
-> delinquent.
-> 
-> If these sites gradually become more and more disconnected from
-> the rest of the internet, they will fix their kit.  Other schemes
-> so far have been met with reluctance on the part of these sites.
-> 
-> I do not want to condone mechanisms which allow people to make
-> crutches for these broken sites ad infinitum.
+> A delayed retry without ECN might be a good compromise...
 
-A delayed retry without ECN might be a good compromise...
+_NO!!!!!_
 
-Every single connection to ECN-broken sites would work as normal - it
-would just take an extra few seconds. Instead of "Hotmail doesn't
-work!" it becomes "Hrm... Hotmail is fscking slow, but Yahoo is fine. I'll
-use Yahoo". A few million of those, and suddenly Hotmail isn't so hot...
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-James.
+-- 
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264753AbTFWOtS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 10:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266062AbTFWOtS
+	id S263574AbTFWOwX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 10:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTFWOwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 10:49:18 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24848 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264753AbTFWOtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 10:49:17 -0400
-Date: Mon, 23 Jun 2003 16:03:21 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Call for old information: i82365.c
-Message-ID: <20030623160321.C28325@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+	Mon, 23 Jun 2003 10:52:23 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:36029 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263574AbTFWOwV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 10:52:21 -0400
+Date: Mon, 23 Jun 2003 08:06:16 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Scott Robert Ladd <coyote@coyotegulch.com>
+Cc: Larry McVoy <lm@bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
+       Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
+       lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030623150616.GA20103@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Scott Robert Ladd <coyote@coyotegulch.com>,
+	Larry McVoy <lm@bitmover.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
+	lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
+References: <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com> <3EF70EF8.3050107@coyotegulch.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <3EF70EF8.3050107@coyotegulch.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Back in 2.4.4, Alan submitted a few patches to Linus to add the
-following code to i82365.c:
+On Mon, Jun 23, 2003 at 10:30:16AM -0400, Scott Robert Ladd wrote:
+> Larry McVoy wrote:
+> >The one flaw in this argument and all of those which say basically 
+> >"services
+> >is the answer" is that it only works if you produce crappy software which
+> >needs servicing.  
+> 
+> Your definition of "services" is far too narrow. Requirements change 
+> with time; ideal software today may be inadequate tomorrow. I make most 
+> of my money from customizing software to a specific customer's needs. I 
+> combine and refine existing components to produce unique software.
+> 
+> A case in point: My Java Indexed Serialization Package (JISP) provides a 
+> very basic tool; about half my business comes from people who like the 
+> Jisp concept, and need a custom version that is tightly coupled to their 
+> requirements. I don't sell Jisp; I sell *what I can do* with Jisp.
 
-      /*
-      SS_DETECT events need a small delay here. The reason for this is that
-      the "is there a card" electronics need time to see the card after the
-      "we have a card coming in" electronics have seen it.
-      */
-     if (events & SS_DETECT)
-           mdelay(4);
+I think I'm going to give up soon (much to relief of the list) because I
+keep getting the same sorts of answers which make sense from a small
+custom shop point of view but are simply broken from a company point of
+view.
 
-Unfortunately, there are no specifics about the problem.  Since I'm
-eliminating the work queue handlers in the pcmcia socket drivers,
-this fix doesn't have a logical place inside the socket driver itself.
+Your model is fine, there is nothing wrong with it but there isn't a lot
+right with it either.  You can't really grow your business under that 
+model.  Why?  Because you are essentially a consulting shop and that 
+isn't going to generate the revenue you need to hire more people, build
+more things, get more consulting.  You can keep yourself going but not
+make enough to get more people going.
 
-However, I don't want to loose the fix - it is there to work around some
-problem someone was seeing.  If anyone had a problem around this time,
-and this fixed it for them, please get in contact with me.
-
-Thanks.
-
+Instead of coming back at me with the premise of "well, I'm eating so my
+model is OK" how about coming back with a plan that says "Here's how we
+make an open source based business put Microsoft out of business".  That's
+reality.  You are just playing around on the edges, there is nothing 
+wrong with that, but until you have a viable plan that competes with the
+big boys let's stop kidding ourselves, ok?
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265594AbUEZNCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265592AbUEZNDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265594AbUEZNCp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 09:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265586AbUEZNA4
+	id S265592AbUEZNDm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 09:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265599AbUEZNDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 09:00:56 -0400
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:27880 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP id S265581AbUEZNAN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 09:00:13 -0400
-MIME-Version: 1.0
-Date: Wed, 26 May 2004 22:00:06 +0900
-Subject: Re: why swap at all?
-From: Satoshi Oshima <oshima@sdl.hitachi.co.jp>
-To: orders@nodivisions.com, linux-kernel@vger.kernel.org
-Message-ID: <JI20040526220006.47968296@sdl.hitachi.co.jp>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-In-Reply-To: <40B43B5F.8070208@nodivisions.com>
-References: <40B43B5F.8070208@nodivisions.com>
-X-Mailer: JsvMail 5.0 (Shuriken Pro3)
-X-Priority: 3
+	Wed, 26 May 2004 09:03:01 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:55210 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265581AbUEZNBB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 09:01:01 -0400
+Date: Wed, 26 May 2004 15:00:47 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 4k stacks in 2.6
+Message-ID: <20040526130047.GF12142@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040526125300.GA18028@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anthony DiSante <orders@nodivisions.com> wrote:
-> As a general question about ram/swap and relating to some of the issues 
-in 
-> this thread:
+On Wed, 26 May 2004 14:53:00 +0200, Arjan van de Ven wrote:
+> On Wed, May 26, 2004 at 02:50:14PM +0200, Jörn Engel wrote:
+> > 
+> > Experience indicates that for whatever reason, big stack consumers for
+> > all three contexts never hit at the same time.  Big stack consumers
+> > for one context happen too often, though.  "Too often" may be quite
+> > rare, but considering the result of a stack overflow, even "quite
+> > rare" is too much.  "Never" is the only acceptable target.
 > 
->       ~500 megs cached yet 2.6.5 goes into swap hell
+> Actually it's not mever in 2.4. It does get here there by our customers once
+> in a while. Esp with several NICs hitting an irq on the same CPU (eg the irq
+> context goes over it's 2Kb limit)
 > 
-> Consider this: I have a desktop system with 256MB ram, so I make a 256MB 
-> swap partition.  So I have 512MB "memory" and if some process wants more, 
-> too bad, there is no more.
+> > done, a stack overflow will merely cause a kernel panic.  Until then,
+> > I am just as conservative as Andreas.
 > 
-> Now I buy another 256MB of ram, so I have 512MB of real memory.  Why not 
-> just disable my swap completely now?  I won't have increased my memory's 
-> size at all, but won't I have increased its performance lots?
-> 
-> Or, to make it more appealing, say I initially had 512MB ram and now I 
-have 
-> 1GB.  Wouldn't I much rather not use swap at all anymore, in this case, 
-on 
-> my desktop?
+> actually the 4k stacks approach gives MORE breathing room for the problem
+> cases that are getting hit by our customers...
 
-I really agree. And I think swappoff is not enough.
+For the cases you described, yes.  For some others like nvidia, no.
+Not sure if we want to make things worse for some users in order to
+improve things for others (better paying ones?).  I want the seperate
+interrupt stacks, sure.  I'm just not comfy with 4k per process yet.
 
-Some of my customers have over 4GB of memory. RDMS, 
-Java Virtual Machine or Grid system (like Globus tool 
-kit) run on the servers. 
-Those kinds of application make a lot of threads and 
-they have huge amount of shared memory. And those 
-shared memory is sometimes mlocked.
+But I'll shut up now and see if I can generate better data over the
+weekend.  -test11 still had fun stuff like 3k stack consumption over
+some code paths in a pretty minimal kernel.  Wonder what 2.6.6 will do
+with allyesconfig. ;)
 
-I think, in those systems, memory aging itself is 
-useless or obstructive in worst case. Because mlocked 
-pages which can't be swapped off are on the LRU list.
+Jörn
 
-In such case, aging-off (relevant to process) is 
-effective, I think.
-
-Of course, I agree that swap-off or aging-off is 
-NEVER always useful. On the contrary, these functions 
-may be required by very small number of user.
-
-But it is very important that we can choose 
-how we use the OS.
-
-
-Satoshi Oshima
-
+-- 
+He who knows that enough is enough will always have enough.
+-- Lao Tsu

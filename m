@@ -1,65 +1,270 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUDKIFY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 04:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbUDKIFX
+	id S262286AbUDKI1o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 04:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbUDKI1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 04:05:23 -0400
-Received: from waste.org ([209.173.204.2]:39846 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262279AbUDKIFQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 04:05:16 -0400
-Date: Sun, 11 Apr 2004 03:05:15 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] ketchup 0.5 (formerly kpatchup)
-Message-ID: <20040411080515.GX6248@waste.org>
+	Sun, 11 Apr 2004 04:27:44 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:51071 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262286AbUDKI1e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 04:27:34 -0400
+Subject: Re: 2.6.5 latencytest +aa5 +mm3 as/cfq scheduler
+From: Redeeman <redeeman@metanurb.dk>
+To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <407719E5.8050203@web.de>
+References: <407719E5.8050203@web.de>
+Content-Type: text/plain
+Message-Id: <1081672052.5515.0.camel@redeeman.linux.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 11 Apr 2004 10:27:32 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ketchup is a script that automatically patches between kernel
-versions, downloading and caching patches as needed, and automatically
-determining the latest versions of several trees. Example usage:
+any information to bench this?
 
- $ ketchup 2.6-mm
- 2.6.3-rc1-mm1 -> 2.6.5-mm4
- Applying 2.6.3-rc1-mm1.bz2 -R
- Applying patch-2.6.3-rc1.bz2 -R
- Applying patch-2.6.3.bz2
- Applying patch-2.6.4.bz2
- Applying patch-2.6.5.bz2
- Downloading 2.6.5-mm4.bz2
- Downloading 2.6.5-mm4.bz2.sign
- Verifying signature...
- gpg: Signature made Sat Apr 10 21:55:36 2004 CDT using DSA key ID 517D0F0E
- gpg: Good signature from "Linux Kernel Archives Verification Key
- <ftpadmin@kernel.org>"
- gpg:                 aka "Linux Kernel Archives Verification Key
- <ftpadmin@kernel.org>"
- owner.
- gpg: WARNING: This key is not certified with a trusted signature!
- gpg:          There is no indication that the signature belongs to the
- Primary key fingerprint: C75D C40A 11D7 AF88 9981  ED5B C86B A06A 517D 0F0E
- Applying 2.6.5-mm4.bz2
-
-
-New in this version by popular demand:
-
-- name change kpatchup -> ketchup
-- automatic signature verification
-- works with older versions of Python
-
-Currently it defaults to trying to use gpg, which means you must have
-gpg installed and the appropriate keys in your keyring. You can
-disable this with the -g or --no-gpg options.
-
-Available at:
-
-http://selenic.com/ketchup/ketchup-0.5
-
+On Fri, 2004-04-09 at 23:47, Marcus Hartig wrote:
+> Hello,
+> 
+> I've done some benchs with: 
+> http://www.alsa-project.org/~iwai/alsa.html#LatencyTest
+> 
+> Test condition:
+>    CPU load = 0.8
+>    RTC freq = 1024
+>    RTC wakeup count = 2
+>    Deadline = 2
+>    X-test = yes
+>    Proc-test = yes
+>    Disk-test = yes
+>    Filesize = 1000000000
+> 
+> With the last stable kernel release 2.6.5 compared with -aa5 and -mm3 to 
+> see which scheduler/kernel has a good or low latency.
+> XP Barton 2800+, 512MB PC-333, Abit NF-S-V2 nForce2, SATA Maxtor 80GB, 
+> ASUS 5700 FX. Fedora Core 1.91 test2, xorg-x11-0.6.6-0.2004_03_30.5, GNOME 
+> 2.6, libata, reiserfs. Same .config as possible. All fresh booted in 
+> init5, latencytest-0.5.2 running in each case from an xterm.
+> 
+> ---------- 2.6.5-mm3 CFQ scheduler ----------
+> x11.log:
+> cpu_hz = 2.08855e+09
+> cpu_load=0.800000  loops per run = 645209
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.06087 ms (overrun 0)
+> within 1ms = 39555, factor = 99.9798%
+> within 2ms = 39563, factor = 100%
+> deviation = 0.021617
+> 
+> proc.log:
+> cpu_hz = 2.08855e+09
+> cpu_load=0.800000  loops per run = 645240
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.02978 ms (overrun 0)
+> within 1ms = 15406, factor = 99.9676%
+> within 2ms = 15411, factor = 100%
+> deviation = 0.0219986
+> 
+> diskwrite.log:
+> cpu_hz = 2.08855e+09
+> cpu_load=0.800000  loops per run = 645217
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.03607 ms (overrun 0)
+> within 1ms = 15484, factor = 99.9548%
+> within 2ms = 15491, factor = 100%
+> deviation = 0.0451227
+> 
+> diskcopy.log:
+> cpu_hz = 2.08855e+09
+> cpu_load=0.800000  loops per run = 644828
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.0494 ms (overrun 0)
+> within 1ms = 53058, factor = 99.9699%
+> within 2ms = 53074, factor = 100%
+> deviation = 0.0380116
+> 
+> diskread.log:
+> cpu_hz = 2.08855e+09
+> cpu_load=0.800000  loops per run = 645205
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.25948 ms (overrun 0)
+> within 1ms = 37351, factor = 99.9304%
+> within 2ms = 37377, factor = 100%
+> deviation = 0.0339693
+> 
+> ---------- 2.6.5-mm3 AS scheduler ----------
+> x11.log:
+> cpu_hz = 2.08832e+09
+> cpu_load=0.800000  loops per run = 645104
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.05296 ms (overrun 0)
+> within 1ms = 38316, factor = 99.9791%
+> within 2ms = 38324, factor = 100%
+> deviation = 0.0216183
+> 
+> proc.log:
+> cpu_hz = 2.08832e+09
+> cpu_load=0.800000  loops per run = 645163
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.03901 ms (overrun 0)
+> within 1ms = 15405, factor = 99.9546%
+> within 2ms = 15412, factor = 100%
+> deviation = 0.0223874
+> 
+> diskwrite.log:
+> cpu_hz = 2.08832e+09
+> cpu_load=0.800000  loops per run = 645114
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.06489 ms (overrun 0)
+> within 1ms = 16688, factor = 99.9521%
+> within 2ms = 16696, factor = 100%
+> deviation = 0.0433707
+> 
+> diskcopy.log:
+> cpu_hz = 2.08832e+09
+> cpu_load=0.800000  loops per run = 644503
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.10258 ms (overrun 0)
+> within 1ms = 38427, factor = 99.9662%
+> within 2ms = 38440, factor = 100%
+> deviation = 0.0456989
+> 
+> diskread.log:
+> cpu_hz = 2.08832e+09
+> cpu_load=0.800000  loops per run = 645152
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.44847 ms (overrun 0)
+> within 1ms = 34704, factor = 99.928%
+> within 2ms = 34729, factor = 100%
+> deviation = 0.0357967
+> 
+> ---------- 2.6.5-aa5 AS scheduler ----------
+> x11.log:
+> cpu_hz = 2.08797e+09
+> cpu_load=0.800000  loops per run = 645080
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.05035 ms (overrun 0)
+> within 1ms = 39333, factor = 99.9797%
+> within 2ms = 39341, factor = 100%
+> deviation = 0.0215519
+> 
+> proc.log:
+> cpu_hz = 2.08797e+09
+> cpu_load=0.800000  loops per run = 644734
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.04263 ms (overrun 0)
+> within 1ms = 15399, factor = 99.9675%
+> within 2ms = 15404, factor = 100%
+> deviation = 0.0220961
+> 
+> diskwrite.log:
+> cpu_hz = 2.08797e+09
+> cpu_load=0.800000  loops per run = 645054
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.08033 ms (overrun 0)
+> within 1ms = 14817, factor = 99.9393%
+> within 2ms = 14826, factor = 100%
+> deviation = 0.0457863
+> 
+> diskcopy.log:
+> cpu_hz = 2.08797e+09
+> cpu_load=0.800000  loops per run = 645086
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.1242 ms (overrun 0)
+> within 1ms = 38657, factor = 99.9586%
+> within 2ms = 38673, factor = 100%
+> deviation = 0.0395391
+> 
+> diskread.log:
+> cpu_hz = 2.08797e+09
+> cpu_load=0.800000  loops per run = 645088
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.42394 ms (overrun 0)
+> within 1ms = 35125, factor = 99.926%
+> within 2ms = 35151, factor = 100%
+> deviation = 0.0341163
+> 
+> ---------- 2.6.5 AS scheduler ----------
+> x11.log:
+> cpu_hz = 2.08801e+09
+> cpu_load=0.800000  loops per run = 645059
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.0537 ms (overrun 0)
+> within 1ms = 39353, factor = 99.9771%
+> within 2ms = 39362, factor = 100%
+> deviation = 0.0218243
+> 
+> proc.log:
+> cpu_hz = 2.08801e+09
+> cpu_load=0.800000  loops per run = 645044
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.03839 ms (overrun 0)
+> within 1ms = 15404, factor = 99.9416%
+> within 2ms = 15413, factor = 100%
+> deviation = 0.0226547
+> 
+> diskwrite.log:
+> cpu_hz = 2.08801e+09
+> cpu_load=0.800000  loops per run = 644705
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 4.51782 ms (overrun 4)
+> within 1ms = 13287, factor = 99.9248%
+> within 2ms = 13293, factor = 99.9699%
+> deviation = 0.0516117
+> 
+> diskcopy.log:
+> cpu_hz = 2.08801e+09
+> cpu_load=0.800000  loops per run = 645081
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 4.09889 ms (overrun 1)
+> within 1ms = 37387, factor = 99.9358%
+> within 2ms = 37410, factor = 99.9973%
+> deviation = 0.043017
+> 
+> diskread.log:
+> cpu_hz = 2.08801e+09
+> cpu_load=0.800000  loops per run = 645099
+> total latency = 1.953125 ms
+> cpu latency = 1.562500 ms
+> max diff = 3.36909 ms (overrun 0)
+> within 1ms = 35446, factor = 99.9295%
+> within 2ms = 35471, factor = 100%
+> deviation = 0.033815
+> -----------------------------------------
+> 
+> The vanilla 2.6.5 has overruns here, bad against the others here.
+> 
+> 
+> Happy Easter all,
+> 
+> Marcus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Regards, Redeeman
+redeeman@metanurb.dk
+

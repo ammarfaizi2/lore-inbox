@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262826AbUC2Liw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 06:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbUC2Liw
+	id S262815AbUC2L7x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 06:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUC2L7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 06:38:52 -0500
-Received: from localhost.nl ([62.250.6.43]:10003 "HELO maiden.localhost.nl")
-	by vger.kernel.org with SMTP id S262826AbUC2Liv (ORCPT
+	Mon, 29 Mar 2004 06:59:53 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:18925 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262815AbUC2L7w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 06:38:51 -0500
-Date: Mon, 29 Mar 2004 13:38:50 +0200
-From: Marco Baan <marco@freebsd.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: failure to mount root fs
-Message-ID: <20040329113850.GA21283@maiden.localhost.nl>
-References: <26889266.1080559781017.JavaMail.www@wwinf3002>
+	Mon, 29 Mar 2004 06:59:52 -0500
+Date: Mon, 29 Mar 2004 13:46:35 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, jun.nakajima@intel.com,
+       ricklind@us.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       kernel@kolivas.org, rusty@rustcorp.com.au, anton@samba.org,
+       lse-tech@lists.sourceforge.net, mbligh@aracnet.com
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Message-ID: <20040329114635.GA30093@elte.hu>
+References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de> <20040325190944.GB12383@elte.hu> <20040325162121.5942df4f.ak@suse.de> <20040325193913.GA14024@elte.hu> <20040325203032.GA15663@elte.hu> <20040329084531.GB29458@wotan.suse.de> <4068066C.507@yahoo.com.au> <20040329080150.4b8fd8ef.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <26889266.1080559781017.JavaMail.www@wwinf3002>
+In-Reply-To: <20040329080150.4b8fd8ef.ak@suse.de>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > VFS: Unable to mount root fs on unknown-block(0,0)
-> > ...
-> > kernel /boot/bzImage-2.6.4 ro root=LABEL=/
-> 
-> The "LABEL=/" is the attempt to mount root filesystem by label, so you can 
-> move it to another disk. I find these "clever" things not mature yet and always replace it by an explicit device name (and don't move/replace root disk):
-> 
-> kernel /boot/bzImage-2.6.4 ro root=/dev/hda2
-> 
-> (this assumes that your root fs is on /dev/hda2, change it appropriately to match your situation)
-> 
 
-Okay, changed it. Didnt make a difference however.
+* Andi Kleen <ak@suse.de> wrote:
 
--- 
-Marco Baan
+> Sorry ignore this report - I just found out I booted the wrong kernel
+> by mistake. Currently retesting, also with the proposed change to only
+> use a single scheduling domain.
 
-"MacDonald has the gift on compressing the largest amount of words into
-the smallest amount of thoughts."
-		-- Winston Churchill
+here are the items that are in the works:
+
+  redhat.com/~mingo/scheduler-patches/sched.patch
+
+it's against 2.6.5-rc2-mm5. This patch also reduces the rate of active
+balancing a bit.
+
+	Ingo

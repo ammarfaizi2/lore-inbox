@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132567AbREEOkJ>; Sat, 5 May 2001 10:40:09 -0400
+	id <S132606AbREEO7Q>; Sat, 5 May 2001 10:59:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132577AbREEOkA>; Sat, 5 May 2001 10:40:00 -0400
-Received: from mail-out.chello.nl ([213.46.240.7]:27227 "EHLO
-	amsmta01-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S132567AbREEOj4>; Sat, 5 May 2001 10:39:56 -0400
-Message-ID: <3AF410B3.6B2E7E1B@chello.nl>
-Date: Sat, 05 May 2001 16:39:47 +0200
-From: Segher Boessenkool <segher@chello.nl>
-X-Mailer: Mozilla 4.75C-CCK-MCD {C-UDP; EBM-APPLE} (Macintosh; U; PPC)
-X-Accept-Language: en
+	id <S132614AbREEO7H>; Sat, 5 May 2001 10:59:07 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1910 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S132606AbREEO66>; Sat, 5 May 2001 10:58:58 -0400
+To: "Matt D. Robinson" <yakker@alacritech.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
+Subject: Re: smp_send_stop() and disable_local_APIC()
+In-Reply-To: <3AF19A17.19C2741F@alacritech.com> <m1d79pnm2b.fsf@frodo.biederman.org> <3AF2E717.AF7936BD@alacritech.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 May 2001 23:50:42 -0600
+In-Reply-To: "Matt D. Robinson"'s message of "Fri, 04 May 2001 10:29:59 -0700"
+Message-ID: <m1pudomjil.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: little patches for fbmem.c and offb.c
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The fbmem.c bug made "less /proc/fb" segfault, as it made read()
-returned more
-bytes than were requested.
+"Matt D. Robinson" <yakker@alacritech.com> writes:
 
-The offb.c bug caused /proc/fb output to be incorrect, and potentially
-could cause kernel data structure corruption.
+> It's an SMP (and only when your system crashes on a CPU other
+> than 0) problem.  I did some more checking of this to verify the
+> specifics of the behavior.  Thanks for the sarcasm, though. :)
 
-Enjoy,
+O.k.  That makes perfect sense then.  See below.
 
-Segher
+> All I wanted was clarification as to why it was added in the first
+> place, and whether there was a better way around the scenario.
+> I think Ingo added the code, but I never heard back from him.
+> Thanks for the response.
 
+Welcome.  Linux attempts to properly shutdown the apics when we are
+shutting down, and part of that is returning the apics to the mode
+they were before we got control.  To do that you need to disable every
+cpu but the bootstrap processor, and return the bootstrap processor to
+either virtual wire mode or pic_mode.  So of course it will be the
+only cpu getting interrupts because we are in legacy mode.
 
---->SNIP HERE<---
-diff -ur linux-2.2.19/drivers/video/fbmem.c linux-2.2.19-patched/drivers/video/fbmem.c
---- linux-2.2.19/drivers/video/fbmem.c	Sat May  5 15:41:06 2001
-+++ linux-2.2.19-patched/drivers/video/fbmem.c	Sat May  5 15:41:06 2001
-@@ -251,14 +251,16 @@
- {
- 	struct fb_info **fi;
- 
--	len = 0;
-+	int buflen = 0;
- 	for (fi = registered_fb; fi < &registered_fb[FB_MAX] && len < 4000; fi++)
- 		if (*fi)
--			len += sprintf(buf + len, "%d %s\n",
-+			buflen += sprintf(buf + buflen, "%d %s\n",
- 				       GET_FB_IDX((*fi)->node),
- 				       (*fi)->modename);
- 	*start = buf + offset;
--	return len > offset ? len - offset : 0;
-+
-+	buflen = buflen > offset ? buflen - offset : 0;
-+	return len < buflen ? len : buflen;
- }
- 
- static ssize_t
-diff -ur linux-2.2.19/drivers/video/offb.c linux-2.2.19-patched/drivers/video/offb.c
---- linux-2.2.19/drivers/video/offb.c	Sat May  5 16:17:28 2001
-+++ linux-2.2.19-patched/drivers/video/offb.c	Sat May  5 16:07:41 2001
-@@ -733,7 +733,7 @@
-     disp->scrollmode = SCROLL_YREDRAW;
- 
-     strcpy(info->info.modename, "OFfb ");
--    strncat(info->info.modename, full_name, sizeof(info->info.modename));
-+    strncat(info->info.modename, full_name, sizeof(info->info.modename)
-- 6);
-     info->info.node = -1;
-     info->info.fbops = &offb_ops;
-     info->info.disp = disp;
---->SNIP HERE<---
+I would say it probably makes sense to add an additional call.
+smp_send_panic_stop that does exactly what you need instead of what is
+needed on the normal shutdown path. 
+
+Eric

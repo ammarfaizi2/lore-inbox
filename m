@@ -1,92 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTHSIBq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 04:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTHSIBq
+	id S263930AbTHSIUB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 04:20:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbTHSIUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 04:01:46 -0400
-Received: from mid-2.inet.it ([213.92.5.19]:60622 "EHLO mid-2.inet.it")
-	by vger.kernel.org with ESMTP id S263637AbTHSIBo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 04:01:44 -0400
-From: Paolo Ornati <javaman@katamail.com>
-To: Jamie Lokier <jamie@shareable.org>
-Subject: Re: [OT] Documentation for PC Architecture
-Date: Tue, 19 Aug 2003 10:01:42 +0200
-User-Agent: KMail/1.5.2
-References: <200308181127.43093.javaman@katamail.com> <20030818225422.GA23927@www.13thfloor.at> <20030819010205.GE11081@mail.jlokier.co.uk>
-In-Reply-To: <20030819010205.GE11081@mail.jlokier.co.uk>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 19 Aug 2003 04:20:01 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:24078 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263752AbTHSIT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 04:19:56 -0400
+Message-ID: <05f501c3662a$9ba72d30$c801a8c0@llewella>
+From: "Bas Bloemsaat" <bloemsaa@xs4all.nl>
+To: "Bill Davidsen" <davidsen@tmr.com>, "David S. Miller" <davem@redhat.com>
+Cc: "Willy Tarreau" <willy@w.ods.org>, <alan@lxorguk.ukuu.org.uk>,
+       <carlosev@newipnet.com>, <lamont@scriptkiddie.org>,
+       <marcelo@conectiva.com.br>, <netdev@oss.sgi.com>,
+       <linux-net@vger.kernel.org>, <layes@loran.com>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1030818171100.2101C-100000@gatekeeper.tmr.com>
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Date: Tue, 19 Aug 2003 09:58:20 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308191001.42094.javaman@katamail.com>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 August 2003 03:02, Jamie Lokier wrote:
 >
-> The MMU _is_ used to remap memory addresses.  It is part of the CPU itself.
-> But it translates what's called "virtual address" space to "physical
-> address space".  Physical addresses seemingly map directly to RAM and
-> memory-mapped I/O.
+> Okay, I'll show my ignorance and ask... the Documentation for arp_filter
+> says source routing must be used. Is there some flag I'm missing, or a way
+> to avoid having a rule per address, or is the 8 bit rule number larger in
+> 2.6, or ??? Or is having a lot of IPs on one machine not an imaginable
+> case?
 
-I know...
+I'll include a conversation I had with David, yesterday. Maybe it clear
+things up:
 
->
-> Paolo's question is, what happens to the 384k of _physical_ addresses
-> starting at 0xa0000, which should correspond with 384k of actual
-> physical RAM?
+Someone: Replying again... Alan does mention in the paragraph you've quoted
+Someone: to use arpfilter, which works for every case imaginable.
 
-It seems that only you have understand my question! :-)
+Me: No it doesn't. When I have two nics on DHCP on the same ethernet
+segment, it
+M: cannot be made to work. I don't know the ip addresses beforehand. And if
+if
+M: I would get them with scripting and crafted some rules on the fly,
+there's
+M: no way I can be sure I'll get the same IP's on a renew, so I'd have to
+check
+M: often.
 
->
-> If you use the MMU to map a virtual address to the physical addresses from
-> 0xa0000..0xfffff, then whichever virtual addresses you chose will map to
-> video memory, ROM, BIOS etc.
->
-> The answer is that after the MMU has translated, a _second_ address
-> translation takes place, outside the CPU, which maps the physical addresses
-> so that a hole is created in the RAM without any RAM going missing.  This
-> second translation is done by the motherboard chipset.
+David: You don't understand how 'arpfilter' works.
+D: It's a netfilter module that allows you to block ARP packets
+D: going in and out of the system using any criteria you want.
+D: It can block on device, on src MAC address, on destination
+D: MAC address, whatever you want.
 
-OK.
+Me: Maybe you could explain to me how to filter out all ARP
+M: responses to an IP not bound to that mac address, of letting through all
+the
+M: ARP responses for an IP bound to that mac, without specifying the IP
+address
+M: (because that can change, sometimes quite often). I really do not see it.
 
->
-> Enjyo,
-> -- Jamie
+D: You wouldn't use 'arpfiler' for that.
 
+D: You would use the 'arp_filter' sysctl on your devices and
+D: proper setting of the preferred source in the routes on
+D: your machine.
 
-VERY [OT]:
+M: For that I'd still need the IP address. Don't I? And I don't have that
+until
+M: later, and it is prone to change.
+M: So I have a feeling you are sending me in circles.
 
-Why do I do all these questions?
-At present I'm working on a very small kernel (PabloX :):
-- it's very simple: it only uses segmentation and has drivers only for stupid 
-things like AT-PS/2 keyboard (do you have USB keyboard? I'm sorry!)
-- some (a lot of) code is taken from linux 0.01 / 1.0 / ... 
+D: You need to change routes when the IP address changes, so all I'm
+D: asking you to do is setup your routes correctly at those points
+D: in time.
 
-If anyone want to see this stupid thing:
-http://members.xoom.virgilio.it/javaman/
+M: Which is on dhcp renew. Which calls for a rewrite of dhcpclient, or a
+daemon
+M: that monitors it.
 
-NOTE: don't read the comments in source code! They are a mix of pseudo-English 
-and Italian!
+D: Sure, if software is setting routes manually and it isn't
+D: doing so the way you want it to it'll need changes.
 
-To try it:
-tar xzf pablox.tar.gx
-cd pablox/
-make
+In other words: it keeps being done the way it is now, never mind people
+having problems with it. Never mind the changing it doesn't break anything.
+Never mind I cannot come up with a scenario that actually benefits from the
+current situation over the new situation.
 
-now you should have a floppy image in ./IMAGE, I suggest insert a floppy and 
-do "make disk", than reboot and see keyboard leds! (if you have an AT or PS/2 
-keyboard)
+IP Multipathing does not qualify. The current way actually violates IP
+multipathing: Multipathing calls for two seperate, fixed internal IP's which
+are seperated from each other. Multipathing requires you to restore the IP
+address to it's preferred interface if it comes up again. In multipathing,
+all IP's have preferred interfaces, not one left by chance. Remember that
+multipathing doesn't need to be symmetric. It may very way have a fat pipe
+on one end, and a smaller backup pipe.
 
-press (1,2,3,4) to switch to console (1,2,3,4): the consoles are stupid! All 
-the programs write to the current console...
-press "ESC" to reboot!
+All of this is not satisfied with the current, broken, linux arp. So we're
+still short of an example that benefits from the current situation
 
+Regards,
+Bas
 
-Bye,
-	Paolo
 

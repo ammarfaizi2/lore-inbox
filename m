@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267188AbTAFW0B>; Mon, 6 Jan 2003 17:26:01 -0500
+	id <S267195AbTAFWbU>; Mon, 6 Jan 2003 17:31:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267187AbTAFWZN>; Mon, 6 Jan 2003 17:25:13 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:15878 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267184AbTAFWZL>;
-	Mon, 6 Jan 2003 17:25:11 -0500
-Date: Mon, 6 Jan 2003 14:33:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Emiliano Gabrielli <emiliano.gabrielli@roma2.infn.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: status on the new driver model?
-Message-ID: <20030106223346.GA22844@kroah.com>
-References: <1041888351.12319.15.camel@tiger> <20030106214220.GA22207@kroah.com> <32886.62.98.199.114.1041890715.squirrel@webmail.roma2.infn.it>
+	id <S267194AbTAFWbU>; Mon, 6 Jan 2003 17:31:20 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10374
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267195AbTAFWbT>; Mon, 6 Jan 2003 17:31:19 -0500
+Subject: IDE changes that affect upper layer drivers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041895478.18831.7.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32886.62.98.199.114.1041890715.squirrel@webmail.roma2.infn.it>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 06 Jan 2003 23:24:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 11:05:15PM +0100, Emiliano Gabrielli wrote:
-> 
-> Where can I find Docs about the new device drivers model ??
-> Anybody cat gimme some links where I cat get docs ?!?
+I'm about to enable the vmda logic for non disk drivers. That means IDE
+tape, scsi, cd and friends need updating to follow the new rules
 
-Look in the Documentation/driver-model directory in the kernel.
+Before it was simply:
+	->dma = 1   - do DMA
 
-thanks,
+Some devices and a lot of upcoming ones support DMA to the host while
+doing PIO to the device "Virtual DMA". That means the drivers now
+need to do
 
-greg k-h
+	DMA	VDMA
+	 0	  X		PIO
+	 1	  0		Issue PIO commands, set up for DMA xfers
+	 1        1		Issue DMA commands, set up for DMA xfers
+
+
+Alan
+

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317631AbSFLFhD>; Wed, 12 Jun 2002 01:37:03 -0400
+	id <S317632AbSFLFm6>; Wed, 12 Jun 2002 01:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317632AbSFLFhC>; Wed, 12 Jun 2002 01:37:02 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:8366 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S317631AbSFLFhC>; Wed, 12 Jun 2002 01:37:02 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH, TRIVIAL] Fix argument of BLKGETSIZE64 
-In-Reply-To: Your message of "Wed, 12 Jun 2002 15:02:00 +1000."
-             <15622.54728.469214.307901@wombat.chubb.wattle.id.au> 
-Date: Wed, 12 Jun 2002 15:41:23 +1000
-Message-Id: <E17I0sl-0004y0-00@wagner.rustcorp.com.au>
+	id <S317633AbSFLFm5>; Wed, 12 Jun 2002 01:42:57 -0400
+Received: from mta04ps.bigpond.com ([144.135.25.136]:41955 "EHLO
+	mta04ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S317632AbSFLFm4>; Wed, 12 Jun 2002 01:42:56 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: adam@luchjenbroers.com, linux-kernel@vger.kernel.org
+Subject: Re: Parallel Port and USB Device Drivers
+Date: Wed, 12 Jun 2002 15:39:57 +1000
+User-Agent: KMail/1.4.5
+In-Reply-To: <20020612052609Z317582-22020+2716@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200206121539.57589.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <15622.54728.469214.307901@wombat.chubb.wattle.id.au> you write:
-> 
-> (2.5.21)  The third argument to BLKGETSIZE64 is declared as u64 in
-> include/linux/fs.h
-...
-> -#define BLKGETSIZE64 _IOR(0x12,114,sizeof(u64))        /* 
-> +#define BLKGETSIZE64 _IOR(0x12,114,sizeof(uint64_t))   /* 
+On Wed, 12 Jun 2002 15:28, Adam Luchjenbroers wrote:
+> Could someone tell me where I can find some documentation regarding
+> implementing LPT and USB device drivers.
+USB Printer Class spec + USS720 data sheet + a quick search of drivers/usb for 
+files called printer.c and uss720.c might help.
 
-This is a wider question: uint64_t and int64_t (et. al) are ISO C
-<stdint.h> requirements.  Whether we should begin migration in 2.5, or
-leave them alone is a Linus question.
+> Also, is it possible to have a function called timed to the LPT output
+> (since LPT data rates are very slow it would be more efficient for the
+> driver to be called when the port is ready to output the next byte instead
+> of having it perform a few delay loops).
+You normally get buffering with the device.
 
-> I think it should be uint64_t to allow glibc to copy and mangle the file into
-> its header tree. 
+> Any information regarding how I'd go about building these drivers as kernel
+> modules would be nice.
+CONFIG_USB_PRINTER=m
+CONFIG_USB_USS720=m
+is probably enough :)
 
-I don't think that's really an issue, is it?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Brad
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUE0HEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbUE0HGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbUE0HEg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 03:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUE0HEg
+	id S261661AbUE0HGj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 03:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUE0HGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 03:04:36 -0400
-Received: from quechua.inka.de ([193.197.184.2]:40872 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261631AbUE0HEf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 03:04:35 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: why swap at all?
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <200405270014.10096.tcfelker@mtco.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BTEwL-0007lu-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Thu, 27 May 2004 09:04:33 +0200
+	Thu, 27 May 2004 03:06:39 -0400
+Received: from grisu.bik-gmbh.de ([217.110.154.194]:18697 "EHLO
+	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP id S261661AbUE0HGc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 03:06:32 -0400
+Message-ID: <40B59367.9010609@bik-gmbh.de>
+Date: Thu, 27 May 2004 09:06:15 +0200
+From: Florian Hars <hars@bik-gmbh.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: de, de-de, en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at usb:848
+References: <40B4AF96.5090608@bik-gmbh.de> <20040526183113.GB25978@kroah.com>
+In-Reply-To: <20040526183113.GB25978@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200405270014.10096.tcfelker@mtco.com> you wrote:
-> O_STREAMING and a flag to not cache a file when it closes are a good start.  
+Greg KH wrote:
+> On Wed, May 26, 2004 at 04:54:14PM +0200, Florian Hars wrote:
+>>Do you need anything else, besides the attached gunziped config.gz?
+> What kernel version is this?
+> 
+> Can you enable CONFIG_USB_STORAGE_DEBUG and send the resulting log to
+> the linux-usb-devel mailing list?
 
-Win32 API has a FILE_ATTRIBTE_TEMPORARY to mark files which should be
-prefered be served from buffercache, FIL_FLAG_NO_BUFFERING allows raw access
-(required block boundary reads). FILE_FLAG_RANDOM_ACCESS is used to hint the
-cache (dont know what it does, maybe reduce prefetching?) as well als
-FILE_FLAG_SEQUENTIAL_SCAN as a hint for the other case where you read the
-stream. There is also a writethrough flag, which does not affect caching. So
-basically I think the hints Win32 API offers are not the perfect set of
-flags one can think about. Unless SEQUENTIAL_ACCESS implies also "forget
-blocks vefore current read position".
+It is 2.6.6, and is the same piece of hardware as in
+http://sourceforge.net/mailarchive/forum.php?thread_id=4794135&forum_id=5398
+Which contains some logs from a related problem.
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+I'll try to reproduce this error later.
+
+Yours, Florian

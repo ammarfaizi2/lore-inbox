@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUGNM4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267377AbUGNNNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267376AbUGNM4e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 08:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267377AbUGNM4d
+	id S267377AbUGNNNk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 09:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267378AbUGNNNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 08:56:33 -0400
-Received: from av3-2-sn1.fre.skanova.net ([81.228.11.110]:5792 "EHLO
-	av3-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S267376AbUGNM4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 08:56:31 -0400
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can't make use of swap memory in 2.6.7-bk19
-References: <m2brir9t6d.fsf@telia.com> <40ECADF8.7010207@yahoo.com.au>
-	<m2fz82hq8c.fsf@telia.com> <20040708012005.6232a781.akpm@osdl.org>
-	<40ED049B.2020406@yahoo.com.au>
-	<Pine.LNX.4.58.0407081126360.3104@telia.com>
-	<20040714052010.GE3411@holomorphy.com> <m2u0wayisp.fsf@telia.com>
-	<20040714105713.GP3411@holomorphy.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 14 Jul 2004 14:55:57 +0200
-In-Reply-To: <20040714105713.GP3411@holomorphy.com>
-Message-ID: <m2hdsabvdu.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Wed, 14 Jul 2004 09:13:39 -0400
+Received: from styx.suse.cz ([82.119.242.94]:56220 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S267377AbUGNNNh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 09:13:37 -0400
+Date: Wed, 14 Jul 2004 15:15:23 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: netdev@oss.sgi.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+Message-ID: <20040714131523.GA498@ucw.cz>
+References: <20040714114135.GA25175@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040714114135.GA25175@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> writes:
-
-> William Lee Irwin III <wli@holomorphy.com> writes:
-> >> Probably not what will get merged, but does the following brutal hack
-> >> do anything for you?
+On Wed, Jul 14, 2004 at 01:41:35PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> On Wed, Jul 14, 2004 at 12:39:18PM +0200, Peter Osterlund wrote:
-> > Doesn't help. I added some printk's to your patch and got this:
+> What is the status of ipw2100? Is there chance that it would be pushed
+> into mainline?
 > 
-> Brilliant, about zero dirty. Okay, I'm desperate. Could you try running
-> this and see what it spews when the OOM kill happens?
+> I have few problems with that:
+> 
+> * it will not compile with gcc-2.95. Attached patch fixes one problem
+> but more remain.
 
-Out of memory: pid 2655, comm xterm        , gfp 0x466, order 0
-DMA per-cpu:
-cpu 0 hot: low 2, high 6, batch 1
-cpu 0 cold: low 0, high 2, batch 1
-Normal per-cpu:
-cpu 0 hot: low 28, high 84, batch 14
-cpu 0 cold: low 0, high 28, batch 14
-HighMem per-cpu: empty
+Wouldn't "struct sk_buff **fragments" be a more correct fix?
 
-Free pages:        1820kB (0kB HighMem)
-Active:754 inactive:56177 dirty:0 writeback:3427 unstable:0 free:455 slab:2880 mapped:890 pagetables:384
-DMA free:884kB min:28kB low:56kB high:84kB active:24kB inactive:11124kB present:16384kB
-protections[]: 14 252 252
-Normal free:936kB min:476kB low:952kB high:1428kB active:2992kB inactive:213584kB present:245248kB
-protections[]: 0 238 238
-HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB
-protections[]: 0 0 0
-DMA: 1*4kB 0*8kB 1*16kB 1*32kB 1*64kB 0*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 884kB
-Normal: 0*4kB 1*8kB 0*16kB 1*32kB 0*64kB 1*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 936kB
-HighMem: empty
-Swap cache: add 57227, delete 1309, find 331/331, race 0+0
- [<c0131d69>] out_of_memory+0xb2/0x105
- [<c013a0bd>] try_to_free_pages+0x143/0x190
- [<c0132bae>] __alloc_pages+0x1c3/0x347
- [<c013595b>] do_page_cache_readahead+0x13b/0x197
- [<c012fb50>] filemap_nopage+0x2d8/0x371
- [<c013cfe9>] do_no_page+0xb7/0x30f
- [<c013d431>] handle_mm_fault+0xd6/0x171
- [<c0111076>] do_page_fault+0x346/0x548
- [<c01d5868>] __copy_to_user_ll+0x48/0x6c
- [<c015c7c3>] sys_select+0x228/0x4b0
- [<c0110d30>] do_page_fault+0x0/0x548
- [<c01040a1>] error_code+0x2d/0x38
-Out of Memory: Killed process 2666 (memalloc2).
+> --- ipw2100-ofic/ieee80211.h	2004-07-09 06:32:17.000000000 +0200
+> +++ ipw2100-0.49/ieee80211.h	2004-07-14 13:18:50.000000000 +0200
+> @@ -440,7 +440,7 @@
+>  	u16 reserved;
+>  	u16 frag_size;
+>  	u16 payload_size;
+> -	struct sk_buff *fragments[];
+> +	struct sk_buff *fragments[1];
+>  };
+>  
+>  extern struct ieee80211_txb *ieee80211_skb_to_txb(struct ieee80211_device *ieee, 
+> 
+> * it requires CONFIG_CRYPTO, but fails to force it in Kconfig.
+> 
+> 									Pavel
+> -- 
+> People were complaining that M$ turns users into beta-testers...
+> ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266087AbUALJqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 04:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266091AbUALJqQ
+	id S266095AbUALJrT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 04:47:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266094AbUALJrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 04:46:16 -0500
-Received: from [212.239.224.205] ([212.239.224.205]:41346 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S266087AbUALJqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 04:46:15 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: Bart Samwel <bart@samwel.tk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-Date: Mon, 12 Jan 2004 10:45:56 +0100
-User-Agent: KMail/1.5.4
-Cc: Dax Kelson <dax@gurulabs.com>, Kiko Piris <kernel@pirispons.net>,
-       Bartek Kania <mrbk@gnarf.org>, Simon Mackinlay <smackinlay@mail.com>
-References: <3FFFD61C.7070706@samwel.tk>
-In-Reply-To: <3FFFD61C.7070706@samwel.tk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 04:47:19 -0500
+Received: from smtp-out1.iol.cz ([194.228.2.86]:29378 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S266095AbUALJqt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 04:46:49 -0500
+Date: Mon, 12 Jan 2004 10:45:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Matt Mackall <mpm@selenic.com>
+Cc: George Anzinger <george@mvista.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>,
+       "Amit S. Kale" <amitkale@emsyssoft.com>
+Subject: Re: kgdb cleanups
+Message-ID: <20040112094543.GA10869@elf.ucw.cz>
+References: <20040109183826.GA795@elf.ucw.cz> <3FFF2304.8000403@mvista.com> <20040110044722.GY18208@waste.org> <3FFFB3D6.1050505@mvista.com> <20040110175607.GH18208@waste.org> <400233A5.8080505@mvista.com> <20040112064923.GX18208@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401121045.56749.lkml@kcore.org>
+In-Reply-To: <20040112064923.GX18208@waste.org>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 January 2004 11:38, Bart Samwel wrote:
-> I've created a new version of the laptop-mode patch, this time against
-> linux 2.6.1. It can be found here:
->
-> http://www.liacs.nl/~bsamwel/laptop_mode/laptop-mode-2.6.1-7.patch
->
-> It has no kernel code changes, only changes to the supporting
-> documentation/scripts:
->
-> * Dax Kelson's ACPI integration script is included.
-> * Fixed a missing "esac" in the control script.
-> * Minor documentation improvements.
->
-> Especially Dax's addition should make it a lot more usable. I haven't
-> been able to test this myself however, because I don't own a laptop. Dax
-> probably does, so I'll trust him and assume that he has tested it. ;)
+Hi!
 
-There seems to be a typo in the battery.sh script. It 
-reads /proc/acpi/ac_adapter/AC/state to determine the AC Adaptor state, but 
-this is in the ACAD directory instead of the AC directory.
+> > For the internal kgdb stuff I have created kdgb_local.h which I intended to 
+> > be local to the workings of kgdb and not to contain anything a user would 
+> > need.
+> 
+> Agreed, I just haven't touched it since you last mentioned it.
 
-Jan
+I believe we need better name than kgdb_local.h.... Hmm, but I'm not
+sure what the name should be.
+								Pavel
 -- 
-The man on tops walks a lonely street; the "chain" of command is often a 
-noose.
-
+When do you have heart between your knees?

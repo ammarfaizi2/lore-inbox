@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267203AbTAAFuW>; Wed, 1 Jan 2003 00:50:22 -0500
+	id <S267188AbTAAFwP>; Wed, 1 Jan 2003 00:52:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267204AbTAAFuW>; Wed, 1 Jan 2003 00:50:22 -0500
-Received: from warden3-p.diginsite.com ([208.147.64.186]:13544 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id <S267203AbTAAFuV>; Wed, 1 Jan 2003 00:50:21 -0500
-Date: Tue, 31 Dec 2002 21:46:06 -0800 (PST)
-From: David Lang <dlang@diginsite.com>
-To: Hell.Surfers@cwctv.net
-cc: davids@webmaster.com, <linux-kernel@vger.kernel.org>, <rms@gnu.org>
-Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <0facf3248050113DTVMAIL7@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.44.0212312141480.20648-100000@dlang.diginsite.com>
+	id <S267206AbTAAFwO>; Wed, 1 Jan 2003 00:52:14 -0500
+Received: from mta06ps.bigpond.com ([144.135.25.138]:61674 "EHLO
+	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S267188AbTAAFwI>; Wed, 1 Jan 2003 00:52:08 -0500
+From: Brad Hards <bhards@bigpond.net.au>
+To: David Brownell <david-b@pacbell.net>, rpgday@mindspring.com
+Subject: Re: networking for linux PDAs
+Date: Wed, 1 Jan 2003 16:47:36 +1100
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org
+References: <3E11E573.5080804@pacbell.net>
+In-Reply-To: <3E11E573.5080804@pacbell.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-ID: <Pine.LNX.4.44.0212312141482.20648@dlang.diginsite.com>
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200301011647.36795.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's obvious that you are not going to listen to anyone who disagrees with
-you so would you please stop filling our mailboxes?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This is not a new discussion. In past discussions it has been decided that
-just including header files is not enough to make something a derived
-work. you don't agree with that so you are going to go make a pest of
-yourself. spare us the further e-mail.
+On Wed, 1 Jan 2003 05:44, David Brownell wrote:
+> The deal is that the 'CDCEther' (2.4) or 'cdc-ether' (2.5) driver
+> needs to blacklist the various devices using Lineo's "gadget side"
+> driver code, and it doesn't yet.  Presumably Brad would take a
+> patch for this.
+I'm going to blacklist it in the next patch, expect in a few days.
 
-Linus made a statement in the last couple of months about binary-only
-modules for the kernel. please go read that before you go further.
+Brad
 
-David Lang
+- -- 
+http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-On Wed, 1 Jan 2003 Hell.Surfers@cwctv.net wrote:
+iD8DBQE+EoD4W6pHgIdAuOMRAvvjAKCAFsd9fxMKiLUwjR/WXwsuT7hV6wCfcZcP
+T/rTUibyyT+Ajj35+TrZt3I=
+=06Ob
+-----END PGP SIGNATURE-----
 
-> Date: Wed, 1 Jan 2003 05:51:28 +0000
-> From: Hell.Surfers@cwctv.net
-> To: davids@webmaster.com, linux-kernel@vger.kernel.org, rms@gnu.org
-> Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source
->     drivers?
->
-> You must understand the GNU/LINUX community is being manipulated by NVidia.
->
-> Dean. Three ways to kill yourself, and ive been drove in one...
->
-> On 	Mon, 30 Dec 2002 22:55:35 -0800 	David Schwartz <davids@webmaster.com> wrote:
->
->

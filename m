@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVCHJTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVCHJTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbVCHJTX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 04:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVCHJTW
+	id S261888AbVCHJTb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 04:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVCHJTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 04:19:22 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29088 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261898AbVCHJTR (ORCPT
+	Tue, 8 Mar 2005 04:19:31 -0500
+Received: from fire.osdl.org ([65.172.181.4]:49068 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261888AbVCHJTV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 04:19:17 -0500
-Date: Tue, 8 Mar 2005 10:18:56 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Li, Shaohua" <shaohua.li@intel.com>, Andrew Morton <akpm@zip.com.au>
-Cc: Bruno Ducrot <ducrot@poupinou.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>, seife@suse.de,
-       "Brown, Len" <len.brown@intel.com>
-Subject: Re: [ACPI] s4bios: does anyone use it?
-Message-ID: <20050308091856.GB16436@elf.ucw.cz>
-References: <16A54BF5D6E14E4D916CE26C9AD305750155EBB0@pdsmsx402.ccr.corp.intel.com>
+	Tue, 8 Mar 2005 04:19:21 -0500
+Date: Tue, 8 Mar 2005 01:18:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: suparna@in.ibm.com
+Cc: sebastien.dugue@bull.net, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org, pbadari@us.ibm.com
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+Message-Id: <20050308011814.706c094e.akpm@osdl.org>
+In-Reply-To: <20050308090946.GA4100@in.ibm.com>
+References: <1110189607.11938.14.camel@frecb000686>
+	<20050307223917.1e800784.akpm@osdl.org>
+	<20050308090946.GA4100@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305750155EBB0@pdsmsx402.ccr.corp.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >Okay, so we had 2 users in past but have 0 users now? :-).
-> I wonder how could anyone use S4BIOS in 2.6.11. S4 and S4b all came into
-> 'enter_state'. and in acpi_sleep_init:
+Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+>
+> ...
 > 
-> 		if (i == ACPI_STATE_S4) {
-> 			if (acpi_gbl_FACS->S4bios_f) {
-> 				sleep_states[i] = 1;
-> 				printk(" S4bios");
-> 				acpi_pm_ops.pm_disk_mode =
-> PM_DISK_FIRMWARE;
-> 			}
-> 			if (sleep_states[i])
-> 				acpi_pm_ops.pm_disk_mode =
-> PM_DISK_PLATFORM;
-> 		}
-> That means we actually can't set PM_DISK_FIRMWARE (always set
-> PM_DISK_PLATFORM). Is this intended? If no, .pm_disk_mode should be a
-> mask.
+> Bugs in this area seem never-ending don't they - plug one, open up
+> another - hard to be confident/verify :( - someday we'll have to
+> rewrite a part of this code.
 
-pm_disk_mode is settable using /sys/power/disk, no? Anyway, what about
-this, then?
-
---- clean/Documentation/feature-removal-schedule.txt	2005-01-22 21:24:50.000000000 +0100
-+++ linux/Documentation/feature-removal-schedule.txt	2005-03-08 10:18:05.000000000 +0100
-@@ -15,3 +15,8 @@
- 	against the LSB, and can be replaced by using udev.
- Who:	Greg Kroah-Hartman <greg@kroah.com>
- 
-+What:	ACPI S4bios support
-+When:	May 2005
-+Why:	Noone uses it, and it probably does not work, anyway. swsusp is
-+	faster, more reliable, and people are actually using it.
-+Who:	Pavel Machek <pavel@suse.cz>
+It's solving a complex problem.  Any rewrite would probably end up just as
+hairy once all the new bugs and corner cases are fixed.  Maybe.
 
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> Hmm, shouldn't dio->result ideally have been adjusted to be within
+> i_size at the time of io submission, so we don't have to deal with
+> this during completion ? We are creating bios with the right size
+> after all. 
+> 
+> We have this: 
+> 		if (!buffer_mapped(map_bh)) {
+> 				....
+> 				if (dio->block_in_file >=
+>                                         i_size_read(dio->inode)>>blkbits) {
+>                                         /* We hit eof */
+>                                         page_cache_release(page);
+>                                         goto out;
+>                                 }
+> 
+> and
+> 		dio->result += iov[seg].iov_len -
+>                         ((dio->final_block_in_request - dio->block_in_file) <<
+>                                         blkbits);
+> 
+> 
+> can you spot what is going wrong here that we have to try and
+> workaround this later ?
+
+Good question.  Do we have the i_sem coverage to prevent a concurrent
+truncate?
+
+But from Sebastien's description it doesn't soound as if a concurrent
+truncate is involved.
+

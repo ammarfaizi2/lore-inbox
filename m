@@ -1,151 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269797AbUJGLlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269799AbUJGLnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269797AbUJGLlE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 07:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269798AbUJGLlE
+	id S269799AbUJGLnU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 07:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269802AbUJGLnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 07:41:04 -0400
-Received: from holomorphy.com ([207.189.100.168]:27854 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269797AbUJGLk4 (ORCPT
+	Thu, 7 Oct 2004 07:43:20 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:35032 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269799AbUJGLnT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 07:40:56 -0400
-Date: Thu, 7 Oct 2004 04:40:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Sanders <sandersn@btinternet.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm3
-Message-ID: <20041007114040.GV9106@holomorphy.com>
-References: <20041007015139.6f5b833b.akpm@osdl.org> <200410071041.20723.sandersn@btinternet.com> <20041007025007.77ec1a44.akpm@osdl.org>
+	Thu, 7 Oct 2004 07:43:19 -0400
+Date: Thu, 7 Oct 2004 13:44:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Hanno Meyer-Thurow <h.mth@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+Message-ID: <20041007114434.GA21937@elte.hu>
+References: <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <20041007134116.3e53b239.h.mth@web.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041007025007.77ec1a44.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041007134116.3e53b239.h.mth@web.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Sanders <sandersn@btinternet.com> wrote:
->> I get the following oops when booting and it also stops kde
->> (artswrapper) from starting with the same call trace. USB seems to
->> be working which is good.
 
-On Thu, Oct 07, 2004 at 02:50:07AM -0700, Andrew Morton wrote:
-> Could you please do
-> cd /usr/src/linux
-> wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/broken-out/optimize-profile-path-slightly.patch
-> patch -R -p1 < optimize-profile-path-slightly.patch
-> and retest?
+* Hanno Meyer-Thurow <h.mth@web.de> wrote:
 
-Here is a more likely correct patch for what that was trying to do,
-however misguided that may be. Untested, uncompiled, vs. 2.6.9-rc3-mm3
-without the bad patch:
+> > i've released the -T3 VP patch:
+> > 
+> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
+> 
+> i get this on compile:
+> 
+> init/built-in.o(.text+0x18b): In function `rest_init':
+> : undefined reference to `sub_preempt_count'
 
-Expose some variables from kernel/profile.c to the world to short-
-circuit some checks in some inline wrappers for the purportedly
-``heavier'' profiling functions. I took the liberty of declaring
-some variables extern in the bodies of the inlines, which is rare
-in the kernel, but protects against the use of the now-exposed
-variables by things that shouldn't touch them.
+ok, this happens if PREEMPT_TIMING is not enabled. I've re-uploaded the
+new -T3 patch, please re-download it.
 
-Signed-off-by: William Irwin <wli@holomorphy.com>
-
-Index: mm3-2.6.9-rc3/kernel/profile.c
-===================================================================
---- mm3-2.6.9-rc3.orig/kernel/profile.c	2004-10-07 04:07:13.019223245 -0700
-+++ mm3-2.6.9-rc3/kernel/profile.c	2004-10-07 04:38:08.299177821 -0700
-@@ -34,10 +34,10 @@
- #define NR_PROFILE_HIT		(PAGE_SIZE/sizeof(struct profile_hit))
- #define NR_PROFILE_GRP		(NR_PROFILE_HIT/PROFILE_GRPSZ)
- 
--static atomic_t *prof_buffer;
-+atomic_t *prof_buffer;
- static unsigned long prof_len, prof_shift;
--static int prof_on;
--static cpumask_t prof_cpu_mask = CPU_MASK_ALL;
-+int prof_on;
-+cpumask_t prof_cpu_mask = CPU_MASK_ALL;
- #ifdef CONFIG_SMP
- static DEFINE_PER_CPU(struct profile_hit *[2], cpu_profile_hits);
- static DEFINE_PER_CPU(int, cpu_profile_flip);
-@@ -284,14 +284,12 @@
- 	up(&profile_flip_mutex);
- }
- 
--void profile_hit(int type, void *__pc)
-+void fastcall __profile_hit(void *__pc)
- {
- 	unsigned long primary, secondary, flags, pc = (unsigned long)__pc;
- 	int i, j, cpu;
- 	struct profile_hit *hits;
- 
--	if (prof_on != type || !prof_buffer)
--		return;
- 	pc = min((pc - (unsigned long)_stext) >> prof_shift, prof_len - 1);
- 	i = primary = (pc & (NR_PROFILE_GRP - 1)) << PROFILE_GRPSHIFT;
- 	secondary = (~(pc << 1) & (NR_PROFILE_GRP - 1)) << PROFILE_GRPSHIFT;
-@@ -392,14 +390,6 @@
- }
- #endif /* !CONFIG_SMP */
- 
--void profile_tick(int type, struct pt_regs *regs)
--{
--	if (type == CPU_PROFILING)
--		profile_hook(regs);
--	if (!user_mode(regs) && cpu_isset(smp_processor_id(), prof_cpu_mask))
--		profile_hit(type, (void *)profile_pc(regs));
--}
--
- #ifdef CONFIG_PROC_FS
- #include <linux/proc_fs.h>
- #include <asm/uaccess.h>
-Index: mm3-2.6.9-rc3/include/linux/profile.h
-===================================================================
---- mm3-2.6.9-rc3.orig/include/linux/profile.h	2004-10-07 04:03:39.960613077 -0700
-+++ mm3-2.6.9-rc3/include/linux/profile.h	2004-10-07 04:28:46.333609573 -0700
-@@ -8,6 +8,7 @@
- #include <linux/init.h>
- #include <linux/cpumask.h>
- #include <asm/errno.h>
-+#include <asm/atomic.h>
- 
- #define CPU_PROFILING	1
- #define SCHED_PROFILING	2
-@@ -17,8 +18,8 @@
- 
- /* init basic kernel profiler */
- void __init profile_init(void);
--void profile_tick(int, struct pt_regs *);
--void profile_hit(int, void *);
-+void FASTCALL(__profile_hit(void *));
-+
- #ifdef CONFIG_PROC_FS
- void create_prof_cpu_mask(struct proc_dir_entry *);
- #else
-@@ -101,6 +102,26 @@
- 
- #endif /* CONFIG_PROFILING */
- 
-+static inline void profile_hit(int type, void *pc)
-+{
-+	extern int prof_on;
-+	extern atomic_t *prof_buffer;
-+
-+	if (prof_on == type && prof_buffer)
-+		__profile_hit(pc);
-+}
-+
-+static inline void profile_tick(int type, struct pt_regs *regs)
-+{
-+	extern cpumask_t prof_cpu_mask;
-+
-+	if (type != CPU_PROFILING)
-+		return;
-+	profile_hook(regs);
-+	if (!user_mode(regs) && cpu_isset(smp_processor_id(), prof_cpu_mask))
-+		profile_hit(type, (void *)profile_pc(regs));
-+}
-+
- #endif /* __KERNEL__ */
- 
- #endif /* _LINUX_PROFILE_H */
+	Ingo

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318849AbSIIUdW>; Mon, 9 Sep 2002 16:33:22 -0400
+	id <S318860AbSIIUbz>; Mon, 9 Sep 2002 16:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318881AbSIIUdV>; Mon, 9 Sep 2002 16:33:21 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:53487
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318849AbSIIUdU>; Mon, 9 Sep 2002 16:33:20 -0400
-Subject: Re: [PATCH][RFC] per isr in_progress markers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Zwane Mwaikambo <zwane@mwaikambo.name>
-Cc: Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0209081250000.1096-100000@linux-box.realnet.co.sz>
-References: <Pine.LNX.4.44.0209081250000.1096-100000@linux-box.realnet.co.sz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 09 Sep 2002 21:40:35 +0100
-Message-Id: <1031604035.29792.27.camel@irongate.swansea.linux.org.uk>
+	id <S318888AbSIIUbz>; Mon, 9 Sep 2002 16:31:55 -0400
+Received: from pop016pub.verizon.net ([206.46.170.173]:36518 "EHLO
+	pop016.verizon.net") by vger.kernel.org with ESMTP
+	id <S318860AbSIIUby>; Mon, 9 Sep 2002 16:31:54 -0400
+Message-Id: <200209092047.g89KldtA000217@pool-141-150-242-242.delv.east.verizon.net>
+Date: Mon, 9 Sep 2002 16:47:37 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: [PATCH] 2.5.34 ufs/super.c
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop016.verizon.net from [141.150.242.242] using ID <vze2j9fk@verizon.net> at Mon, 9 Sep 2002 15:36:34 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-08 at 11:57, Zwane Mwaikambo wrote:
-> iirc IDE is capable of doing its own masking per device(nIEN) and in fact 
-> does even do unconditional sti's in its isr paths. So i would think it 
-> would be one of the not so painful device drivers to take care of. 
+I've needed this patch since 2.5.32 to successfully mount a UFS
+partition.
 
-If I remember rightly nIEN doesnt work everywhere. Also many IDE
-interfaces may be using legacy IRQ wiring rather than PCI irq lines. 
+--- linux/fs/ufs/super.c~	Mon Sep  9 16:39:52 2002
++++ linux/fs/ufs/super.c	Mon Sep  9 16:39:57 2002
+@@ -605,7 +605,7 @@
+ 	}
+ 	
+ again:	
+-	if (sb_set_blocksize(sb, block_size)) {
++	if (!sb_set_blocksize(sb, block_size)) {
+ 		printk(KERN_ERR "UFS: failed to set blocksize\n");
+ 		goto failed;
+ 	}
 
+-- 
+Skip

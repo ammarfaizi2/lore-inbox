@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261386AbRETAdP>; Sat, 19 May 2001 20:33:15 -0400
+	id <S261212AbRETArj>; Sat, 19 May 2001 20:47:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261212AbRETAdF>; Sat, 19 May 2001 20:33:05 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:52741 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261247AbRETAdA>; Sat, 19 May 2001 20:33:00 -0400
-Date: Sat, 19 May 2001 17:32:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Edgar Toernig <froese@gmx.de>, Ben LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
- w/info-PATCH]device arguments from lookup)
-In-Reply-To: <Pine.GSO.4.21.0105192008290.7162-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0105191728140.15174-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261190AbRETAra>; Sat, 19 May 2001 20:47:30 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:61337 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S261217AbRETArT>; Sat, 19 May 2001 20:47:19 -0400
+Date: Sun, 20 May 2001 02:44:49 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
+        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
+        John R Lenton <john@grulic.org.ar>
+Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
+Message-ID: <20010520024449.P754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010519110721.A1415@pua.nirvana> <E1519KE-0008Vg-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <E1519KE-0008Vg-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, May 19, 2001 at 05:11:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 19, 2001 at 05:11:30PM +0100, Alan Cox wrote:
+> If it had been a manufacturer in most respectable areas of business they'd be
+> recalling and reissuing components, and paying for the end resllers to notify
+> each customer 
 
-On Sat, 19 May 2001, Alexander Viro wrote:
-> 
-> On Sun, 20 May 2001, Edgar Toernig wrote:
-> 
-> > That assumption is totally bogus.  Even for regular files you have side
-> > effects (atime); for anything else they're unpredictable.
-> 
-> That means only one thing: safe backups are possible only in single-user
-> mode.
+This is consumer hardware. Consumer products are optimized for a
+good buzzword count per $ ratio. Everything else is secondary.
 
-There are some strong arguments that we should have filesystem
-"backdoors" for maintenance purposes, including backup. 
+Producing cheap stuff has its price. And being so smart an buing
+cheapest available has the same price. QA and recalling are
+expensive as hell. That's why cheap products usally have this
+quality tradeoff.
 
-You can, of course, so parts of this on a LVM level, and doing backups
-with "disk snapshots" may be a valid approach. However, even that is
-debatable: there is very little that says that the disk image has to be
-up-to-date at any particular point in time, so even with a disk snapshot
-capability (which is not necessarily reasonable under all circumstances)
-there are arguments for maintenance interfaces.
+Most consumers don't like to pay for quality. 
 
-Thinks like "lazy fsck" (ie fsck while already running the filesystem) and
-defragmentation simply is not feasible on a LVM level.
+Germany has learned this lesson and thus "Made in Germany"
+doesn't mean anything for certain products anymore :-(
 
-		Linus
+Regards
 
+Ingo Oeser
+-- 
+To the systems programmer,
+users and applications serve only to provide a test load.

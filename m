@@ -1,63 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbUCPXlF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 18:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbUCPXlF
+	id S261830AbUCPXoF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 18:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbUCPXoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 18:41:05 -0500
-Received: from mail58-s.fg.online.no ([148.122.161.58]:32488 "EHLO
-	mail58-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S261851AbUCPXjk convert rfc822-to-8bit (ORCPT
+	Tue, 16 Mar 2004 18:44:03 -0500
+Received: from gatekeeper.intransa.com ([12.146.157.2]:61361 "EHLO
+	E2K3-CLUS-01.intransa.com") by vger.kernel.org with ESMTP
+	id S261830AbUCPXmQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 18:39:40 -0500
-To: linux-kernel@vger.kernel.org
-Subject: vmware on linux 2.6.4
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Wed, 17 Mar 2004 00:39:37 +0100
-Message-ID: <yw1xu10ogy4m.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 16 Mar 2004 18:42:16 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: EXT3 FS Assertion failure in journal_forget_R50b6d8df() at transaction.c:1259
+Date: Tue, 16 Mar 2004 15:41:10 -0800
+Message-ID: <68C08EF22187944DAF11634CB353DB6804DD0C@E2K3-CLUS-01.intransa.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: EXT3 FS Assertion failure in journal_forget_R50b6d8df() at transaction.c:1259
+Thread-Index: AcQLrNIiMch/jCuvT2KYNe86YjTKOQAATDPXAAA0uaA=
+From: "David Erickson" <david.erickson@intransa.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to build the vmware modules for kernel 2.6.4 and got this oops
-when loading vmmon.o:
 
-vmmon: no version magic, tainting kernel.
-vmmon: module license 'unspecified' taints kernel.
-Unable to handle kernel NULL pointer dereference at virtual address 0000006e
- printing eip:
-c020160f
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT 
+Running Redhat kernel 2.4.22-1.2115.nptl, I see the following for ext3 filesystems (iSCSI) on the initial mount after installing this kernel:
+
+Assertion failure in journal_forget_R50b6d8df() at transaction.c:1259: "!jh->b_committed_data"
+------------[ cut here ]------------
+kernel BUG at transaction.c:1259!
+invalid operand: 0000
+nfs lockd sunrpc sr_mod st sd_mod iscsi_mod ide-cd cdrom i810_audio ac97_codec soundcore parport_pc lp parport autofs e1000 natsemi floppy sg scsi_mod microco
 CPU:    0
-EIP:    0060:[<c020160f>]    Tainted: PF 
-EFLAGS: 00010206
-EIP is at vsnprintf+0x43/0x4b9
-eax: c6f11c53   ebx: c6f11c00   ecx: 0000006e   edx: 0000006e
-esi: c6f11c54   edi: c6f11c0c   ebp: c6f11c67   esp: d2b61ee8
-ds: 007b   es: 007b   ss: 0068
-Process insmod (pid: 23426, threadinfo=d2b60000 task=d0f52720)
-Stack: e89fe000 c0101e8c 00000202 c01468d5 00000202 c0338394 00000286 d2b61f38 
-       00000014 c6f11c54 0000006e c6f11c00 fffffff4 c6f11c0c c162d180 c023c3e9 
-       d2b61f54 00000000 6f6d6d76 e8a2dd90 6fed6d76 c036ae08 c022fb77 c162d180 
-Call Trace:
- [<c01468d5>] unmap_vm_area+0x27/0x67
- [<c023c3e9>] class_simple_device_add+0xa9/0xff
- [<c022fb77>] misc_register+0xb2/0x186
- [<e8a1a1d0>] init_module+0x144/0x1e8 [vmmon]
- [<c013126e>] sys_init_module+0x105/0x211
- [<c0108ffd>] sysenter_past_esp+0x52/0x71
+EIP:    0060:[<c88107fd>]    Not tainted
+EFLAGS: 00010282
 
-Code: 80 3a 00 74 25 0f b6 02 3c 25 74 41 39 ee 77 06 88 06 8b 54 
- <4>vmmon: no version magic, tainting kernel.
+EIP is at journal_forget_R50b6d8df [jbd] 0x1cd (2.4.22-1.2115.nptl)
+eax: 00000062   ebx: c3931e00   ecx: 00000001   edx: c7a0a000
+esi: c6c37ba0   edi: c13e57f4   ebp: c13e5780   esp: c7a0bd14
+ds: 0068   es: 0068   ss: 0068
+Process rm (pid: 22161, stackpage=c7a0b000)
+Stack: c8817520 c8816ecd c8816d30 000004eb c8816ee6 c6511900 00008008 c664cb00 
+       c7c4d240 c7c4d240 c8820767 c7c4d240 c3931e00 c0cfdc80 c880fbf4 c7c4d240 
+       c6c37bd0 6746300a 00008008 00008008 c7987020 c7a0a000 c8822c59 c7c4d240 
+Call Trace:   [<c8817520>] .rodata.str1.32 [jbd] 0x40 (0xc7a0bd14)
+[<c8816ecd>] .rodata.str1.1 [jbd] 0x1ad (0xc7a0bd18)
+[<c8816d30>] .rodata.str1.1 [jbd] 0x10 (0xc7a0bd1c)
+[<c8816ee6>] .rodata.str1.1 [jbd] 0x1c6 (0xc7a0bd24)
+[<c8820767>] ext3_forget [ext3] 0x67 (0xc7a0bd3c)
+[<c880fbf4>] do_get_write_access [jbd] 0x2b4 (0xc7a0bd4c)
+[<c8822c59>] ext3_clear_blocks [ext3] 0x119 (0xc7a0bd6c)
+[<c880ff35>] journal_get_write_access_R452be5c8 [jbd] 0x55 (0xc7a0bd94)
+[<c8822db7>] ext3_free_data [ext3] 0xa7 (0xc7a0bdb4)
+[<c01474e9>] getblk [kernel] 0x59 (0xc7a0bde0)
+[<c8823135>] ext3_free_branches [ext3] 0x275 (0xc7a0be0c)
+[<c01474e9>] getblk [kernel] 0x59 (0xc7a0be24)
+[<c0147790>] bread [kernel] 0x20 (0xc7a0be48)
+[<c8822f83>] ext3_free_branches [ext3] 0xc3 (0xc7a0be5c)
+[<c88208ec>] start_transaction [ext3] 0x8c (0xc7a0be94)
+[<c8823528>] ext3_truncate [ext3] 0x3d8 (0xc7a0beac)
+[<c880f23a>] start_this_handle [jbd] 0x9a (0xc7a0bec8)
+[<c880f425>] journal_start_R6a1abfe6 [jbd] 0xa5 (0xc7a0bef4)
+[<c88208ec>] start_transaction [ext3] 0x8c (0xc7a0bf18)
+[<c8820a8f>] ext3_delete_inode [ext3] 0x10f (0xc7a0bf30)
+[<c882664d>] ext3_unlink [ext3] 0x10d (0xc7a0bf38)
+[<c8820980>] ext3_delete_inode [ext3] 0x0 (0xc7a0bf44)
+[<c015c146>] iput [kernel] 0x116 (0xc7a0bf4c)
+[<c0152851>] vfs_unlink [kernel] 0xf1 (0xc7a0bf68)
+[<c0152a97>] sys_unlink [kernel] 0x117 (0xc7a0bf84)
+[<c0109b9f>] system_call [kernel] 0x33 (0xc7a0bfc0)
 
-Suggestions welcome.
 
--- 
-Måns Rullgård
-mru@kth.se
+Code: 0f 0b eb 04 30 6d 81 c8 e9 51 ff ff ff c7 44 24 10 fc 6e 81 

@@ -1,116 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131971AbRAQKlX>; Wed, 17 Jan 2001 05:41:23 -0500
+	id <S132806AbRAQKpD>; Wed, 17 Jan 2001 05:45:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132806AbRAQKlP>; Wed, 17 Jan 2001 05:41:15 -0500
-Received: from oriloff.manu.com.au ([203.37.120.101]:32779 "EHLO manu.com.au")
-	by vger.kernel.org with ESMTP id <S131971AbRAQKk6>;
-	Wed, 17 Jan 2001 05:40:58 -0500
-From: Nathan Hand <nathanh@manu.com.au>
-Date: Wed, 17 Jan 2001 21:40:47 +1100
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ewrk3 update for 2.4
-Message-ID: <20010117214047.C10192@manu.com.au>
+	id <S132906AbRAQKox>; Wed, 17 Jan 2001 05:44:53 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:43792 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S132806AbRAQKoi>; Wed, 17 Jan 2001 05:44:38 -0500
+Date: Wed, 17 Jan 2001 11:43:49 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: apark@cdf.toronto.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/PID/stat format
+Message-ID: <20010117114349.D2929@arthur.ubicom.tudelft.nl>
+In-Reply-To: <Pine.LNX.4.21.0101160825450.1629-100000@blue.cdf.utoronto.ca>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="cvVnyQ+4j833TQvp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0101160825450.1629-100000@blue.cdf.utoronto.ca>; from apark@cdf.toronto.edu on Tue, Jan 16, 2001 at 08:26:46AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 16, 2001 at 08:26:46AM -0500, apark@cdf.toronto.edu wrote:
+> What is the format of /proc/PID/stat for 2.2.x?
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-Following patch updates ISA ewrk3 driver for 2.4. Still no SMP support
-sadly. Though if you're using an ewrk3 card on an SMP machine then you
-have bigger problems than a non-working driver.
+See function get_stat() in fs/proc/array.c.
 
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ewrk3.c.diff"
+Erik
 
---- ewrk3.c.orig	Wed Jan 17 09:56:45 2001
-+++ ewrk3.c	Wed Jan 17 10:05:21 2001
-@@ -819,24 +819,24 @@
- 					}
- 					outb(page, EWRK3_TQ);	/* Start sending pkt */
- 				} else {
--					writeb((char) (TCR_QMODE | TCR_PAD | TCR_IFC), (char *) buf);	/* ctrl byte */
-+					isa_writeb((char) (TCR_QMODE | TCR_PAD | TCR_IFC), buf);	/* ctrl byte */
- 					buf += 1;
--					writeb((char) (skb->len & 0xff), (char *) buf);		/* length (16 bit xfer) */
-+					isa_writeb((char) (skb->len & 0xff), buf);		/* length (16 bit xfer) */
- 					buf += 1;
- 					if (lp->txc) {
--						writeb((char) (((skb->len >> 8) & 0xff) | XCT), (char *) buf);
-+						isa_writeb((char) (((skb->len >> 8) & 0xff) | XCT), buf);
- 						buf += 1;
--						writeb(0x04, (char *) buf);	/* index byte */
-+						isa_writeb(0x04, buf);	/* index byte */
- 						buf += 1;
--						writeb(0x00, (char *) (buf + skb->len));	/* Write the XCT flag */
-+						isa_writeb(0x00, (buf + skb->len));	/* Write the XCT flag */
- 						isa_memcpy_toio(buf, skb->data, PRELOAD);	/* Write PRELOAD bytes */
- 						outb(page, EWRK3_TQ);	/* Start sending pkt */
- 						isa_memcpy_toio(buf + PRELOAD, skb->data + PRELOAD, skb->len - PRELOAD);
--						writeb(0xff, (char *) (buf + skb->len));	/* Write the XCT flag */
-+						isa_writeb(0xff, (buf + skb->len));	/* Write the XCT flag */
- 					} else {
--						writeb((char) ((skb->len >> 8) & 0xff), (char *) buf);
-+						isa_writeb((char) ((skb->len >> 8) & 0xff), buf);
- 						buf += 1;
--						writeb(0x04, (char *) buf);	/* index byte */
-+						isa_writeb(0x04, buf);	/* index byte */
- 						buf += 1;
- 						isa_memcpy_toio(buf, skb->data, skb->len);		/* Write data bytes */
- 						outb(page, EWRK3_TQ);	/* Start sending pkt */
-@@ -968,9 +968,9 @@
- 					pkt_len = inb(EWRK3_DATA);
- 					pkt_len |= ((u_short) inb(EWRK3_DATA) << 8);
- 				} else {
--					rx_status = readb(buf);
-+					rx_status = isa_readb(buf);
- 					buf += 1;
--					pkt_len = readw(buf);
-+					pkt_len = isa_readw(buf);
- 					buf += 3;
- 				}
- 
-@@ -1204,7 +1204,7 @@
- 			if (lp->shmem_length == IO_ONLY) {
- 				outb(0xff, EWRK3_DATA);
- 			} else {	/* memset didn't work here */
--				writew(0xffff, p);
-+				isa_writew(0xffff, (int) p);
- 				p++;
- 				i++;
- 			}
-@@ -1221,8 +1221,8 @@
- 				outb(0x00, EWRK3_DATA);
- 			}
- 		} else {
--			memset_io(lp->mctbl, 0, (HASH_TABLE_LEN >> 3));
--			writeb(0x80, (char *) (lp->mctbl + (HASH_TABLE_LEN >> 4) - 1));
-+			isa_memset_io((int) lp->mctbl, 0, (HASH_TABLE_LEN >> 3));
-+			isa_writeb(0x80, (int) (lp->mctbl + (HASH_TABLE_LEN >> 4) - 1));
- 		}
- 
- 		/* Update table */
-@@ -1251,7 +1251,7 @@
- 					outw((short) ((long) lp->mctbl) + byte, EWRK3_PIR1);
- 					outb(tmp, EWRK3_DATA);
- 				} else {
--					writeb(readb(lp->mctbl + byte) | bit, lp->mctbl + byte);
-+					isa_writeb(isa_readb((int)(lp->mctbl + byte)) | bit, (int)(lp->mctbl + byte));
- 				}
- 			}
- 		}
-
---cvVnyQ+4j833TQvp--
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

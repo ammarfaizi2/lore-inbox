@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265255AbTAJP1t>; Fri, 10 Jan 2003 10:27:49 -0500
+	id <S265369AbTAJPhg>; Fri, 10 Jan 2003 10:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265270AbTAJP1s>; Fri, 10 Jan 2003 10:27:48 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:51585 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265255AbTAJP1q>;
-	Fri, 10 Jan 2003 10:27:46 -0500
-Date: Fri, 10 Jan 2003 15:34:21 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Bob_Tracy(0000)" <rct@gherkin.frus.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: XFree86 vs. 2.5.54 - reboot
-Message-ID: <20030110153421.GB21190@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Bob_Tracy(0000)" <rct@gherkin.frus.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <3E1C9D9A.FD5CA1F6@digeo.com> <20030110152659.3F04E4EE7@gherkin.frus.com>
+	id <S265373AbTAJPhg>; Fri, 10 Jan 2003 10:37:36 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:31360 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S265369AbTAJPhf>; Fri, 10 Jan 2003 10:37:35 -0500
+Message-Id: <200301101544.h0AFiBLK009357@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Harry Sileoni <stamina@kolumbus.fi>, linux-kernel@vger.kernel.org
+Subject: Re: Suggestion 
+In-Reply-To: Your message of "Fri, 10 Jan 2003 14:12:53 +0100."
+             <15902.50901.407336.44434@harpo.it.uu.se> 
+From: Valdis.Kletnieks@vt.edu
+References: <1042203152.954.7.camel@vihta>
+            <15902.50901.407336.44434@harpo.it.uu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030110152659.3F04E4EE7@gherkin.frus.com>
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-432089335P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 10 Jan 2003 10:44:11 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 09:26:59AM -0600, Bob_Tracy(0000) wrote:
+--==_Exmh_-432089335P
+Content-Type: text/plain; charset=us-ascii
 
- > > > > > AMD K6-III 450 running a 2.4.19 kernel with vesafb, XFree86 4.1.0, and
- > > > > > a USB mouse works fine.  Same setup with a 2.5.54 kernel does a cold
- > > > > > reboot when I type "startx".
- > > Yup.  It must be something else then.  Perhaps you should try disabling
- > > various DRM/AGP type things in config, see if that helps.
- > 
- > I wrote:
- > > 2.5.55 appears to work fine with CONFIG_AGP and CONFIG_DRM undefined.
- > > I'll retry with CONFIG_AGP_MODULE next...
- > 
- > CONFIG_AGP_MODULE enabled works fine with CONFIG_AGP_VIA_MODULE.  I'll try
- > turning everything back on (AGP 3.0 compliance, DRM) and see what happens.
+On Fri, 10 Jan 2003 14:12:53 +0100, Mikael Pettersson said:
+> Harry Sileoni writes:
+>  > While fighting for some time with my Dell Inspiron 8100 laptop and a new
 
-Can you send me lspci output, and agp related msgs from dmesg.
+> Are you sure you didn't mean ACPI instead? APIC != ACPI but
+> people keep confusing the two.
 
-		Dave
+The Dell Latitude C840 (what I have) and the (AFAIK) Inspiron 8100 both use
+the NVidia geForce4 Go graphics chipset, and apparently the posted patches
+to make nvidia's closed-source drivers work under 2.5 have issues with ACPI
+on some platforms.  Digging back, I only found like one message on the LKML
+archives that mentioned the nvidia drivers don't play nice with ACPI.
 
+Harry - does that match up with what you have?
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
+
+
+--==_Exmh_-432089335P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+HupLcC3lWbTT17ARAu2qAJ96Jn+u+LLJrSVE6kZTN4t0rrarMQCfQqgp
+9phOKaLQVRKL+k3meveWr+U=
+=ew8M
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-432089335P--

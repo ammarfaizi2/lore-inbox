@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287933AbSAQAVf>; Wed, 16 Jan 2002 19:21:35 -0500
+	id <S287945AbSAQA0N>; Wed, 16 Jan 2002 19:26:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287417AbSAQAVO>; Wed, 16 Jan 2002 19:21:14 -0500
-Received: from r-mi131-1-769.tin.it ([213.45.1.7]:31616 "EHLO DarkStar.sns.it")
-	by vger.kernel.org with ESMTP id <S287933AbSAQAU4>;
-	Wed, 16 Jan 2002 19:20:56 -0500
-Date: Thu, 17 Jan 2002 01:08:18 +0100
-From: V-man <venom@DarkStar.sns.it>
-Message-Id: <200201170008.g0H08IEp014359@DarkStar.sns.it>
-To: rgooch@ras.ucalgary.ca, linux-kernel@vger.kernel.org
+	id <S286462AbSAQA0D>; Wed, 16 Jan 2002 19:26:03 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:57617 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S286411AbSAQAZy>; Wed, 16 Jan 2002 19:25:54 -0500
+Message-ID: <3C461A09.8060900@lexus.com>
+Date: Wed, 16 Jan 2002 16:25:45 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020114
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Rik spreading bullshit about VM
+In-Reply-To: <20020116200459.E835@athlon.random> <20020117000758.GL10175@arthur.ubicom.tudelft.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Erik Mouw wrote:
 
-Here is the english version:
+>Sorry, but in my opinion Rik's rmap VM still beats your VM under IO
+>load. My benchmark is very simple: import a kernel tree into a CVS tree
+>that already contains about 470 other kernel trees. Both the import
+>directory and the CVS root are on the same disk. With 2.4.17 the mp3
+>player stutters, I can't even read email or edit a couple of files with
+>XEmacs at the same time. With 2.4.17-rmap-11a the mp3 player runs
+>smoothly and email and XEmacs are usable again.
+>
+Nice try, but do the test again with 2.4.18-pre2-aa2 -
 
-The new VM has better performance than the old VM for typical desktop systems ... but it fails horribly on more systems than the old VM. Redhat, for example, cannot ship the new VM in their distribution because it'll just fall apart for the database servers, some of their users run at least now my code is gone I no longer have to work together with Linus, which is a good thing ;)
+2.4.17 doesn't neccesarily have all andrea's fixes.
 
+Just my .02
 
-
-As a little comment, I would like to avoid to talk about the bad taste 
-and the poor style used to say those thing in this way.
-If you just go to read lkml archive you can find tents of mail
-of people who were just waiting for AA VM to solve the problems they have 
-with their eavilly stressed DB (I am one of them). That is true for small dbs,
-and huge dbs with some GB of RAM used.
-So basically Ri's assertion is far from truth on many aspects.
-
-Luigi 
+jjs
 

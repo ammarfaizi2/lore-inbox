@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314450AbSECPn1>; Fri, 3 May 2002 11:43:27 -0400
+	id <S314465AbSECPq1>; Fri, 3 May 2002 11:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314453AbSECPn0>; Fri, 3 May 2002 11:43:26 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:63175 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S314450AbSECPnZ>; Fri, 3 May 2002 11:43:25 -0400
-Date: Fri, 03 May 2002 08:42:59 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <4056814871.1020415377@[10.10.2.3]>
-In-Reply-To: <20020503123009.P11414@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S314469AbSECPq0>; Fri, 3 May 2002 11:46:26 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:57608 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S314465AbSECPqZ>; Fri, 3 May 2002 11:46:25 -0400
+Date: Fri, 3 May 2002 17:45:54 +0200
+From: tomas szepe <kala@pinerecords.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20020503154554.GB15883@louise.pinerecords.com>
+In-Reply-To: <20020503143738.GC14121@louise.pinerecords.com> <14454.1020439786@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 11 days, 9:32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Putting the mem_map in highmem would be the first step, after that you
-> should be just at at the 90% of work done to make it general purpose,
-> you should wrap most actions on the page struct with wrappers and it
-> will be quite an invasive change (much more invasive than pte-highmem),
-> but it could be done. For this one (unlike pte-highmem) you definitely
-> need a config option to select it, most people doesn't need this feature
-> enabled because they've less than 8G of ram and also considering it will
-> have a significant runtime cost.
+> On Fri, 3 May 2002 16:37:38 +0200, 
+> tomas szepe <kala@pinerecords.com> wrote:
+>
+> >kala@nibbler:~$ tar xzf /usr/src/linux-2.5.13.tgz 
+> >kala@nibbler:~$ cd linux-2.5.13 
+> >kala@nibbler:~/linux-2.5.13$ zcat /usr/src/kbuild-2.5-core-10.gz /usr/src/kbuild-2.5-common-2.5.13-1.gz /usr/src/kbuild-2.5-i386-2.5.13-1.gz |patch -sp1
+> >kala@nibbler:~/linux-2.5.13$ cp /lib/modules/2.5.13/.config .
+> >kala@nibbler:~/linux-2.5.13$ make -f Makefile-2.5 oldconfig
+> >Makefile-2.5:251: /no_such_file-arch/i386/Makefile.defs.noconfig: No such file or directory
+> 
+> The trailing '/' is omitted in one case.  Workaround for common source and object
+> 
+> export KBUILD_SRCTREE_000=`pwd`/
+> make -f Makefile-2.5 oldconfig
 
-Absolutely agree making it an option - other people with smaller memory
-configs may also find this useful for enlarging the user address space 
-to 3.5Gb for databases et al. with a 8Gb or 16Gb machine.
- 
-M.
+Another problem/question:
 
+$ cd build
+$ export KBUILD_OBJTREE=$PWD
+$ export KBUILD_SRCTREE_000=/usr/src/linux-2.5.13
+$ alias M="make -f $KBUILD_SRCTREE_000/Makefile-2.5"
+$ cp /lib/modules/2.5.13/.config .
+$ M oldconfig
+...
 
+$ M installable
+...
+
+[so far so good]
+
+$ make -f Makefile-2.5 menuconfig
+[enable RAMDISK support, tweak ramdisk size, enable initrd]
+...
+
+Now, issuing "M installable" will result in nearly all files getting rebuilt.
+The same happens when switching ramdisk off again. How's that?
+
+I tried enabling/disabling many other config options and doing rebuilds but
+couldn't find anything as damaging buildtime-wise as the ramdisk stuff.
+
+Hopefully I'm causing no headaches,
+T.

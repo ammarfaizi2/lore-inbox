@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbUL2UFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbUL2UHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbUL2UFh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 15:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUL2UFh
+	id S261390AbUL2UHT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 15:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUL2UF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 15:05:37 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:65471 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261414AbUL2UFc
+	Wed, 29 Dec 2004 15:05:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60306 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261416AbUL2UFn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 15:05:32 -0500
-X-Qmail-Scanner-Mail-From: solt2@dns.toxicfilms.tv via dns
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 1.23 (Clear:RC:0(213.238.103.71):. Processed in 0.067998 secs)
-Message-ID: <04ef01c4ede2$ff4a7cc0$0e25fe0a@pysiak>
-From: "Maciej Soltysiak" <solt2@dns.toxicfilms.tv>
-To: <linux-kernel@vger.kernel.org>
-References: <m3mzw262cu.fsf@rajsekar.pc> <41CD51E6.1070105@kolivas.org>
-Subject: Re: Trying out SCHED_BATCH
-Date: Wed, 29 Dec 2004 21:14:00 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Wed, 29 Dec 2004 15:05:43 -0500
+Date: Wed, 29 Dec 2004 15:23:53 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: James Nelson <james4765@verizon.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] cyclades: Put README.cycladeZ in Documentation/serial
+Message-ID: <20041229172353.GB29821@logos.cnet>
+References: <20041229104743.24177.82288.68966@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041229104743.24177.82288.68966@localhost.localdomain>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-Con wrote:
-> Only the staircase scheduler currently has an implementation of
-> sched_batch and you need 2 more patches on top of the staircase patch
-> for it to work.
-Hmm, Is it feasable to write a sched_batch policy for the current linux 
-schedulers?
+ACK
 
-I mean, if there are people that want it bad, maybe it would be nice to be 
-able
-to use a version of sched_batch that would work without the staircase 
-scheduler.
-It is still experimental, right?
+added Signed-off-By line.
 
-Regards,
-Maciej
-
+On Wed, Dec 29, 2004 at 04:47:22AM -0600, James Nelson wrote:
+> Put README.cycladesZ in Documentation/serial.
+> 
+> Firmware is still needed, but the README file shouldn't be in drivers/char.
+> 
+> Signed-off-by: James Nelson <james4765@gmail.com>
+> Signed-off-by: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+> 
+> diff -urN --exclude='*~' linux-2.6.10-original/Documentation/serial/README.cycladesZ linux-2.6.10/Documentation/serial/README.cycladesZ
+> --- linux-2.6.10-original/Documentation/serial/README.cycladesZ	1969-12-31 19:00:00.000000000 -0500
+> +++ linux-2.6.10/Documentation/serial/README.cycladesZ	2004-12-24 16:34:58.000000000 -0500
+> @@ -0,0 +1,8 @@
+> +
+> +The Cyclades-Z must have firmware loaded onto the card before it will
+> +operate.  This operation should be performed during system startup,
+> +
+> +The firmware, loader program and the latest device driver code are
+> +available from Cyclades at
+> +    ftp://ftp.cyclades.com/pub/cyclades/cyclades-z/linux/
+> +
+> diff -urN --exclude='*~' linux-2.6.10-original/drivers/char/README.cycladesZ linux-2.6.10/drivers/char/README.cycladesZ
+> --- linux-2.6.10-original/drivers/char/README.cycladesZ	2004-12-24 16:34:58.000000000 -0500
+> +++ linux-2.6.10/drivers/char/README.cycladesZ	1969-12-31 19:00:00.000000000 -0500
+> @@ -1,8 +0,0 @@
+> -
+> -The Cyclades-Z must have firmware loaded onto the card before it will
+> -operate.  This operation should be performed during system startup,
+> -
+> -The firmware, loader program and the latest device driver code are
+> -available from Cyclades at
+> -    ftp://ftp.cyclades.com/pub/cyclades/cyclades-z/linux/
+> -
+> -

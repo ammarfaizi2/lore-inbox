@@ -1,149 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265342AbUAAJNg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 04:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265343AbUAAJNg
+	id S265340AbUAAJNU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 04:13:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265342AbUAAJNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 04:13:36 -0500
-Received: from mail.contactel.cz ([212.65.193.9]:59550 "EHLO mail.contactel.cz")
-	by vger.kernel.org with ESMTP id S265342AbUAAJN2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 04:13:28 -0500
-Date: Thu, 1 Jan 2004 10:12:26 +0100
-To: vojtech@suse.cz
-Cc: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 2.6] ns558.c check_region -> request_region
-Message-ID: <20040101091226.GA1108@penguin.localdomain>
-Mail-Followup-To: vojtech@suse.cz, linux-kernel@vger.kernel.org,
-	linux-joystick@atrey.karlin.mff.cuni.cz
-References: <20031231215857.GB745@penguin.localdomain>
+	Thu, 1 Jan 2004 04:13:20 -0500
+Received: from shadow02.cubit.at ([80.78.231.91]:52146 "EHLO
+	skeletor.netshadow.at") by vger.kernel.org with ESMTP
+	id S265340AbUAAJM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 04:12:58 -0500
+Subject: Re: 2.6.1-rc1
+From: Andreas Unterkircher <unki@netshadow.at>
+Reply-To: unki@netshadow.at
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200312311434.17036.ornati@lycos.it>
+References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org>
+	 <200312311434.17036.ornati@lycos.it>
+Content-Type: text/plain
+Message-Id: <1072948374.842.7.camel@kuecken>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031231215857.GB745@penguin.localdomain>
-User-Agent: Mutt/1.5.4i
-From: sebek64@post.cz (Marcel Sebek)
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 01 Jan 2004 10:12:55 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 31, 2003 at 10:58:57PM +0100, Marcel Sebek wrote:
+Hello
+
+One short Question. When setting readahead with hdparm to a value
+> 128 i got:
+
+/dev/hde:
+ setting fs readahead to 8192
+ BLKRASET failed: Invalid argument
+ readahead    = 128 (on)
+
+/dev/hde:
+ Timing buffered disk reads:  154 MB in  3.03 seconds =  50.83 MB/sec
+/dev/hde:
+ Timing buffered disk reads:  144 MB in  3.00 seconds =  48.00 MB/sec
+/dev/hde:
+ Timing buffered disk reads:  148 MB in  3.00 seconds =  49.33 MB/sec
+
+does this meen the disks cannot more then 128, or the ide-chipset? or is
+it for the filesystem? (disks are on a promise fasttrack controller#)
+
+andi
+
+
+Am Mit, den 31.12.2003 schrieb Paolo Ornati um 15:50:
+> On Wednesday 31 December 2003 09:36, Linus Torvalds wrote:
+> > Ok, I've merged a lot of pending patches into 2.6.1-rc1, and will now
+> > calm down for a while again, to make sure that the final 2.6.1 is ok.
+> >
+> > Most of the updates is for stuff that has been in -mm for a long while
+> > and is stable, along with driver updates (SCSI, network, i2c and USB).
+> >
+> > 		Linus
+> >
+> > ----
 > 
-> This patch modifies ns558.c to use request_region instead of
-> check_region:
+> With 2.6.1-rc1 I have noticed a strange IDE performance change.
+> 
+> Results of "hdparm -t /dev/hda" with 2.6.0 kernel:
+> (readahead = 256):		~26.31 MB/s
+> (readahead = 128):		~31.82 MB/s
+> 
+> PS = readahead is set to 256 by default on my system, 128 seems to be the 
+> best value
+> 
+> Results of "hdparm -t /dev/hda" with 2.6.1-rc1 kernel:
+> (readahead = 256):		~26.41 MB/s
+> (readahead = 128):		~26.27 MB/s
+> 
+> Setting readahead to 128 doesn't have the same effect with the new kernel...
+> 
+> INFO on my HD:
+> 
+> /dev/hda:
+>  multcount    = 16 (on)
+>  IO_support   =  1 (32-bit)
+>  unmaskirq    =  1 (on)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    = 128 (on)
+>  geometry     = 38792/16/63, sectors = 39102336, start = 0
+> 
+> /dev/hda:
+> 
+>  Model=WDC WD200BB-53AUA1, FwRev=18.20D18, SerialNo=WD-WMA6Y1501425
+>  Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
+>  RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
+>  BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+>  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39102336
+>  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes:  pio0 pio1 pio2 pio3 pio4
+>  DMA modes:  mdma0 mdma1 mdma2
+>  UDMA modes: udma0 udma1 udma2 udma3 *udma4 udma5
+>  AdvancedPM=no WriteCache=enabled
+>  Drive conforms to: device does not report version:  1 2 3 4 5
 > 
 > 
-
-The old version doesn't release region before requesting for new.
-Here's an updated patch:
-
-
-
-diff -urN linux-2.6/drivers/input/gameport/ns558.c linux-2.6-new/drivers/input/gameport/ns558.c
---- linux-2.6/drivers/input/gameport/ns558.c	2003-08-23 13:57:35.000000000 +0200
-+++ linux-2.6-new/drivers/input/gameport/ns558.c	2004-01-01 10:06:23.000000000 +0100
-@@ -77,7 +77,7 @@
-  * No one should be using this address.
-  */
- 
--	if (check_region(io, 1))
-+	if (!request_region(io, 1, "ns558-isa"))
- 		return;
- 
- /*
-@@ -89,7 +89,8 @@
- 	outb(~c & ~3, io);
- 	if (~(u = v = inb(io)) & 3) {
- 		outb(c, io);
--		return;
-+		i = 0;
-+		goto out;
- 	}
- /*
-  * After a trigger, there must be at least some bits changing.
-@@ -99,7 +100,8 @@
- 
- 	if (u == v) {
- 		outb(c, io);
--		return;
-+		i = 0;
-+		goto out;
- 	}
- 	wait_ms(3);
- /*
-@@ -110,7 +112,8 @@
- 	for (i = 0; i < 1000; i++)
- 		if ((u ^ inb(io)) & 0xf) {
- 			outb(c, io);
--			return;
-+			i = 0;
-+			goto out;
- 		}
- /* 
-  * And now find the number of mirrors of the port.
-@@ -118,7 +121,9 @@
- 
- 	for (i = 1; i < 5; i++) {
- 
--		if (check_region(io & (-1 << i), (1 << i)))	/* Don't disturb anyone */
-+		release_region(io & (-1 << (i-1)), (1 << (i-1)));
-+
-+		if (!request_region(io & (-1 << i), (1 << i), "ns558-isa"))	/* Don't disturb anyone */
- 			break;
- 
- 		outb(0xff, io & (-1 << i));
-@@ -126,18 +131,25 @@
- 			if (inb(io & (-1 << i)) != inb((io & (-1 << i)) + (1 << i) - 1)) b++;
- 		wait_ms(3);
- 
--		if (b > 300)					/* We allow 30% difference */
-+		if (b > 300) {					/* We allow 30% difference */
-+			release_region(io & (-1 << i), (1 << i));
- 			break;
-+		}
- 	}
- 
- 	i--;
- 
-+	if (i != 4) {
-+		if (!request_region(io & (-1 << i), (1 << i), "ns558-isa"))
-+			return;
-+	}
-+
- 	if (!(port = kmalloc(sizeof(struct ns558), GFP_KERNEL))) {
- 		printk(KERN_ERR "ns558: Memory allocation failed.\n");
--		return;
-+		goto out;
- 	}
--       	memset(port, 0, sizeof(struct ns558));
--	
-+	memset(port, 0, sizeof(struct ns558));
-+
- 	port->type = NS558_ISA;
- 	port->size = (1 << i);
- 	port->gameport.io = io;
-@@ -148,8 +160,6 @@
- 	sprintf(port->phys, "isa%04x/gameport0", io & (-1 << i));
- 	sprintf(port->name, "NS558 ISA");
- 
--	request_region(io & (-1 << i), (1 << i), "ns558-isa");
--
- 	gameport_register_port(&port->gameport);
- 
- 	printk(KERN_INFO "gameport: NS558 ISA at %#x", port->gameport.io);
-@@ -157,6 +167,9 @@
- 	printk(" speed %d kHz\n", port->gameport.speed);
- 
- 	list_add(&port->node, &ns558_list);
-+	return;
-+out:
-+	release_region(io & (-1 << i), (1 << i));
- }
- 
- #ifdef CONFIG_PNP
-
--- 
-Marcel Sebek
-jabber: sebek@jabber.cz                     ICQ: 279852819
-linux user number: 307850                 GPG ID: 5F88735E
-GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+> IDE controller:
+> 
+> 00:04.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus 
+> Master IDE (rev 10) (prog-if 8a
+> [Master SecP PriP])
+>         Flags: bus master, medium devsel, latency 32
+>         I/O ports at b800 [size=16]
+>         Capabilities: [c0] Power Management version 2
+> 
+> 
+> I don't understand how this happens... the only changes to IDE driver seems 
+> to be these:
+> 
+> >
+> > Summary of changes from v2.6.0 to v2.6.1-rc1
+> > ============================================
+> > Andrew Morton:
+> >   o Can't disable IDE DMA
+> >   o IDE MMIO fix
+> >   o IDE capability elevation fix
+> >
+> > Linus Torvalds:
+> >   o Make IDE DRQ and READY timeouts longer
+> 
+> For my tests I have used this stupid shell script:
+> 
+> #!/bin/bash
+> 
+> echo "HD test for linux `uname -r`"
+> echo
+> 
+> ra=8
+> for i in `seq 12`; do
+>     echo "READAHEAD = $ra";
+>     hdparm -a $ra /dev/hda;
+>     for j in `seq 3`; do
+> 	hdparm -t /dev/hda;
+>     done;
+>     ra=$(($ra*2));
+> done
+> 
+> Results for 2.6.0 && 2.6.1-rc1 are attached.
+> 
+> Bye
 

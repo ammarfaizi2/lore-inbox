@@ -1,77 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVB0SMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVB0SZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbVB0SMn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 13:12:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVB0RrN
+	id S261403AbVB0SZn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 13:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVB0SZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:47:13 -0500
-Received: from mail.suse.de ([195.135.220.2]:11427 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261461AbVB0RXF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 12:23:05 -0500
-Message-Id: <20050227170311.727719000@blunzn.suse.de>
-References: <20050227165954.566746000@blunzn.suse.de>
-Date: Sun, 27 Feb 2005 17:59:57 +0100
-From: Andreas Gruenbacher <agruen@suse.de>
-To: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [nfsacl v2 03/16] Return -ENOSYS for RPC programs that are unavailable
-Content-Disposition: inline; filename=nfsacl-return-enosys-for-rpc-programs-that-are-unavailable.patch
+	Sun, 27 Feb 2005 13:25:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44232 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261403AbVB0SZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 13:25:30 -0500
+Date: Sun, 27 Feb 2005 11:03:55 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: Andrew Morton <akpm@osdl.org>, davem@redhat.com, jlan@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+Message-ID: <20050227140355.GA23055@logos.cnet>
+References: <42168D9E.1010900@sgi.com> <20050218171610.757ba9c9.akpm@osdl.org> <421993A2.4020308@ak.jp.nec.com> <421B955A.9060000@sgi.com> <421C2B99.2040600@ak.jp.nec.com> <421CEC38.7010008@sgi.com> <421EB299.4010906@ak.jp.nec.com> <20050224212839.7953167c.akpm@osdl.org> <20050227094949.GA22439@logos.cnet> <4221E548.4000008@ak.jp.nec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4221E548.4000008@ak.jp.nec.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The issuer of an RPC call should be able to tell the difference between
-an I/O error and program unavailable / program version unavailable /
-procedure unavailable.  Return -ENOSYS for unavailable RPCs instead of
--EIO.
+On Mon, Feb 28, 2005 at 12:20:40AM +0900, KaiGai Kohei wrote:
+> Hi,
+> 
+> >>Kaigai Kohei <kaigai@ak.jp.nec.com> wrote:
+> >>
+> >>>In my understanding, what Andrew Morton said is "If target functionality 
+> >>>can
+> >>>implement in user space only, then we should not modify the kernel-tree".
+> >>
+> >>fork, exec and exit upcalls sound pretty good to me.  As long as
+> >>
+> >>a) they use the same common machinery and
+> >>
+> >>b) they are next-to-zero cost if something is listening on the netlink
+> >>  socket but no accounting daemon is running.
+> >
+> >
+> >b) would involved being able to avoid sending netlink messages in case 
+> >there are no listeners. AFAIK that isnt possible currently, netlink sends 
+> >packets unconditionally.
+> >
+> >Am I wrong? 
+> 
+> In current implementaion, you might be right.
+> But we should make an effort to achieve the requirement-(b) from now.
 
-Only issue a program unavailable warning for program numbers other than
-the one for nfsacl: Clients with nfsacl support are quite common
-already; no need to clutter the syslog.
+Yep, the netlink people should be able to help - they known what would be
+required for not sending messages in case there is no listener registered.
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Maybe its already possible? I have never used netlink myself.
 
-Index: linux-2.6.11-rc5/net/sunrpc/clnt.c
-===================================================================
---- linux-2.6.11-rc5.orig/net/sunrpc/clnt.c
-+++ linux-2.6.11-rc5/net/sunrpc/clnt.c
-@@ -1041,23 +1041,26 @@ call_verify(struct rpc_task *task)
- 	case RPC_SUCCESS:
- 		return p;
- 	case RPC_PROG_UNAVAIL:
--		printk(KERN_WARNING "RPC: call_verify: program %u is unsupported by server %s\n",
--				(unsigned int)task->tk_client->cl_prog,
--				task->tk_client->cl_server);
--		goto out_eio;
-+		dprintk(KERN_WARNING "RPC: call_verify: program %u is unsupported by server %s\n",
-+			(unsigned int)task->tk_client->cl_prog,
-+			task->tk_client->cl_server);
-+		error = -ENOSYS;
-+		goto out_err;
- 	case RPC_PROG_MISMATCH:
- 		printk(KERN_WARNING "RPC: call_verify: program %u, version %u unsupported by server %s\n",
- 				(unsigned int)task->tk_client->cl_prog,
- 				(unsigned int)task->tk_client->cl_vers,
- 				task->tk_client->cl_server);
--		goto out_eio;
-+		error = -ENOSYS;
-+		goto out_err;
- 	case RPC_PROC_UNAVAIL:
- 		printk(KERN_WARNING "RPC: call_verify: proc %p unsupported by program %u, version %u on server %s\n",
- 				task->tk_msg.rpc_proc,
- 				task->tk_client->cl_prog,
- 				task->tk_client->cl_vers,
- 				task->tk_client->cl_server);
--		goto out_eio;
-+		error = -EOPNOTSUPP;
-+		goto out_err;
- 	case RPC_GARBAGE_ARGS:
- 		dprintk("RPC: %4d %s: server saw garbage\n", task->tk_pid, __FUNCTION__);
- 		break;			/* retry */
+> And, why can't netlink packets send always?
+> If there are fork/exec/exit hooks, and they call CSA or other 
+> process-grouping modules,
+> then those modules will decide whether packets for interaction with the 
+> daemon should be
+> sent or not.
 
---
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+The netlink data will be sent to userspace at fork/exec/exit hooks - one wants
+to avoid that if there are no listeners, so setups which dont want to run the 
+accounting daemon dont pay the cost of building and sending the information 
+through netlink. 
 
+Thats what Andrew asked for if I understand correctly.
+
+> In most considerable case, CSA's kernel-loadable-module using such hooks 
+> will not be loaded
+> when no accounting daemon is running. Adversely, this module must be loaded 
+> when accounting
+> daemon needs CSA's netlink packets.
+> Thus, it is only necessary to refer flag valiable and to execute 
+> conditional-jump
+> when no-accounting daemon is running.
+
+That would be one hack, although it is uglier than the pure netlink 
+selection.
+
+> In my estimation, we must pay additional cost for an increment-operation, 
+> an decrement-op,
+> an comparison-op and an conditional jump-op. It's enough lightweight, I 
+> think.
+> 
+> For example:
+> If CSA's module isn't loaded, 'privates_for_grouping' will be empty.
+> 
+> inline int on_fork_hook(task_struct *parent, task_struct *newtask){
+>   rcu_read_lock();
+>   if( !list_empty(&parent->privates_for_grouping) ){
+>     ..<Calling to any process grouping module>..;
+>   }
+>   rcu_read_unlock();
+> }
+
+Andrew has been talking about sending data over netlink to implement the 
+accounting at userspace, so this piece of code is out of the game, no?

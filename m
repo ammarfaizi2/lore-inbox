@@ -1,152 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271638AbSISRPJ>; Thu, 19 Sep 2002 13:15:09 -0400
+	id <S271856AbSISRXD>; Thu, 19 Sep 2002 13:23:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271851AbSISRPJ>; Thu, 19 Sep 2002 13:15:09 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4994 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S271638AbSISRPH>; Thu, 19 Sep 2002 13:15:07 -0400
-Date: Thu, 19 Sep 2002 13:22:35 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Brian Gerst <bgerst@didntduck.org>
-cc: dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Syscall changes registers beyond %eax, on linux-i386
-In-Reply-To: <3D8A04C0.6050508@didntduck.org>
-Message-ID: <Pine.LNX.3.95.1020919131927.15141A-100000@chaos.analogic.com>
+	id <S271864AbSISRXD>; Thu, 19 Sep 2002 13:23:03 -0400
+Received: from auscon.arc.nasa.gov ([143.232.69.76]:21376 "EHLO
+	rudi.arc.nasa.gov") by vger.kernel.org with ESMTP
+	id <S271856AbSISRXC>; Thu, 19 Sep 2002 13:23:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dan Christian <dchristian@mail.arc.nasa.gov>
+Reply-To: dchristian@mail.arc.nasa.gov
+Organization: NASA Ames Research Center
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andreas Steinmetz <ast@domdv.de>
+Subject: Re: 2.4.18 serial drops characters with 16654
+Date: Thu, 19 Sep 2002 10:27:46 -0700
+User-Agent: KMail/1.4.1
+Cc: Ed Vance <EdV@macrolink.com>, linux-kernel@vger.kernel.org
+References: <11E89240C407D311958800A0C9ACF7D13A7992@EXCHANGE> <3D7FCDE0.200@domdv.de> <1031818855.2994.47.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1031818855.2994.47.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209191027.46127.dchristian@mail.arc.nasa.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Sep 2002, Brian Gerst wrote:
+The weird thing is that it looks like the 16654 loses data on the 
+TRANSMIT side.  A FIFO underrun on transmit should never loose data.  A 
+16550 works perfectly.  I don't think that this is a over/under run 
+problem.  
 
-> Richard B. Johnson wrote:
-> > On Thu, 19 Sep 2002, dvorak wrote:
-> > 
-> > 
-> >>Hi,
-> >>
-> >>recently i came across a situation were on linux-i386 not only %eax was
-> >>altered after a syscall but also %ebx. I tracked this problem down, to
-> >>gcc re-using a variable passed to a function.
-> >>
-> >>This was found on a debian system with a 2.4.17 kernel compiled with gcc
-> >>2.95.2 and verified on another system, kernel 2.4.18 compiled with 2.95.4 
-> >>Attached is small program to test for this 'bug'
-> >>
-> >>a syscall gets his data off the stack, the stack looks like:
-> >>
-> >>saved(edx)
-> >>saved(ecx)
-> >>saved(ebx)
-> >>return_addres 	(somewhere in entry.S)
-> >>
-> >>When the syscall is called.
-> >>
-> >>the register came there through use of 'SAVE_ALL'.
-> >>
-> >>After the syscall returns these registers are restored using RESTORE_ALL
-> >>and execution is transferred to userland again.
-> >>
-> >>A short snippet of sys_poll, with irrelavant data removed.
-> >>
-> >>sys_poll(struct pollfd *ufds, .. , ..) {
-> >>    ...
-> >>    ufds++;
-> >>    ...
-> >>}
-> >>
-> >>It seems that gcc in certain cases optimizes in such a way that it changes
-> >>the variable ufds as placed on the stack directly. Which results in saved(ebx)
-> >>being overwritten and thus in a changed %ebx on return from the system call.
-> >>
-> > 
-> > 
-> > The 'C' compiler must make room on the stack for any local
-> > variables except register types. If it was doing as you state, you
-> > couldn't even execute a "hello world" program. Further, the local
-> > variables are after the return address. It would screw up the return
-> > address and you'd go off into hyper-space upon return.
-> > 
-> > 
-> > 
-> >>I don't know if this is considered a bug, and if it is, from whom.
-> >>If it's not a bug it means low-level userland programs need to be rewritten
-> >>to store all registers on a syscall and restore them on return.
-> >>
-> > 
-> > 
-> > No. Various 'C' implementers have standardized calling methods even
-> > though it's not part of the 'C' standard. gcc and others assume that
-> > a called procedure is not going to change any segments or index registers.
-> > There are various optimization things, like "-fcaller-saves" where the
-> > called procedure can destroy anything. You may be using something that
-> > was wrongly compiled using that switch.
-> > 
-> >  
-> > 
-> >>It shouldn't be a bug in gcc, since the C-standard doesn't talk about how to 
-> >>pass variables and stuff. So it seems like a kernel(-gcc-interaction) bug.
-> >>
-> >>To solve this issue 2 solutions spring to mind
-> >>1) add a flag to gcc to tell it that it shouldn't do this optimization, this
-> >>   won't work with the gcc's already out there.
-> >>2) When calling a syscall explicitly push all variable an extra time, since
-> >>   the code in entry.S doesn't know the amount of variables to a syscall it
-> >>   needs to push all theoretical 6 parameters every time, a not so nice
-> >>   overhead.
-> >>
-> >>
-> > 
-> > 
-> > There is a bug in some other code. Try this. It will show
-> > that ebx is not being killed in a syscall. You can prove
-> > that this code works by changing ebx to eax, which will
-> > get destroyed and print "Broken" before exit.
-> 
-> The bug is only with _some_ syscalls, and getpid() is not one of them, 
-> so your example is flawed.  It happens when a syscall modifies one of 
-> it's parameter values.  The solution is to assign the parameter to a 
-> local variable before modifying it.
-> 
+The problem seems to be related to the RTS/CTS flow control handling.  
+The 16654 handles flow control in hardware, but the 16550 does it in 
+software (I've verified this with a digital oscilloscope).  I don't 
+currently have the equipment to compare when the lines drop and which 
+characters are lost.
 
-Well which one?  Here is an ioctl(). It certainly modifies one
-of its parameter values.
+-Dan
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <termios.h>
-
-void barf(void);
-void barf()
-{
-    puts("Broken\n");
-    exit(0);
-}
-int main()
-{
-    struct termios t;
-
-    __asm__ __volatile__("movl	$0xdeadface, %ebx\n");
-    (void)ioctl(0, TCGETS, &t); 
-    (void)getpid();
-    __asm__ __volatile__("cmpl	$0xdeadface, %ebx\n"
-                         "jnz   barf\n");
-
-    return 0;
-}
-
-
-Until you can show the syscall that doesn't follow the correct
-rules, then my example is not flawed. In fact a modified example can
-be used to find any broken calls.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
-
+On Thursday 12 September 2002 01:20, Alan Cox wrote:
+> On Thu, 2002-09-12 at 00:12, Andreas Steinmetz wrote:
+> > I did see something that looks quite similar like dropped
+> > characters on Redhat and 2.4.9 based UP systems (that's customers
+> > choice and couldn't be changed) equipped with a NS-87336.
+> > I can't go into detail but my company did port an application from
+> > DOS to Linux. The application communicates with an electronic cash
+> > device
+>
+> Other than the usual PIO mode IDE suspects I've had no problems going
+> up to 460800bps with a decent UART (ie one with a fifo). At
+> 920Kbit/sec you begin to overrun the flip buffers if you run with the
+> usual 100Mhz timer tick.
+>
+> 2.4 is a bit worse nowdays because of the ksoftirqd stuff but you
+> could easily disable that if you think it is triggering.

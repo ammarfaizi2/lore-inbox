@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267315AbTA1EDf>; Mon, 27 Jan 2003 23:03:35 -0500
+	id <S262808AbTA1Fow>; Tue, 28 Jan 2003 00:44:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267322AbTA1EDe>; Mon, 27 Jan 2003 23:03:34 -0500
-Received: from holomorphy.com ([66.224.33.161]:64679 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267315AbTA1EDe>;
-	Mon, 27 Jan 2003 23:03:34 -0500
-Date: Mon, 27 Jan 2003 20:11:42 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jason Papadopoulos <jasonp@boo.net>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] page coloring for 2.5.59 kernel, version 1
-Message-ID: <20030128041142.GG780@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jason Papadopoulos <jasonp@boo.net>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-References: <3.0.6.32.20030127224726.00806c20@boo.net> <20030128035736.GF780@holomorphy.com>
+	id <S264799AbTA1Fow>; Tue, 28 Jan 2003 00:44:52 -0500
+Received: from host36-226.pool80116.interbusiness.it ([80.116.226.36]:16900
+	"EHLO goljadkin.thesame.org") by vger.kernel.org with ESMTP
+	id <S262808AbTA1Fov> convert rfc822-to-8bit; Tue, 28 Jan 2003 00:44:51 -0500
+Subject: Re: Expand VM
+From: Patrizio Bruno <patrizio@dada.it>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20030123155627.M95099@beta.bandnet.com.br>
+References: <20030123155627.M95099@beta.bandnet.com.br>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1043338714.1358.0.camel@goljadkin.thesame.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030128035736.GF780@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 23 Jan 2003 17:18:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 27, 2003 at 07:57:36PM -0800, William Lee Irwin III wrote:
-> set_num_colors() needs to go downstairs under arch/ Some of the
-> current->pid checks look a bit odd esp. for GFP_ATOMIC and/or
-> in_interrupt() cases. I'm not sure why this is a config option; it
-> should be mandatory. I also wonder about the interaction of this with
-> the per-cpu lists. This may really want to be something like a matrix
-> with (cpu, color) indices to find the right list; trouble is, there's a
-> high potential for many pages to be trapped there. mapnr's (page -
-> zone->zone_mem_map etc.) are being used for pfn's; this may raise
-> issues if zones' required alignments aren't num_colors*PAGE_SIZE or
-> larger. proc_misc.c can be used instead of page_color_init(). ->free_list
-> can be removed. get_rand() needs locking, per-zone state. Useful stuff.
+http://www.openmosix.org
 
-Hmm, actually the mapnr's as physical pfn's are broken with
-MAP_NR_DENSE(), though existing boxen probably luck out. The RNG uses
-an integer multiply which may be slow on various cpus, and I wouldn't
-mind either a stronger or better documented RNG algorithm. ->color_init
-is basically a bitflag, and ->target_color has a very limited range.
-sizeof(task_t) needs to be small, could you fold that stuff into
-->flags or ->thread_info?
-
--- wli
+On Thu, 2003-01-23 at 16:56, User & wrote:
+> Hi all
+> 
+> I have one idea , and this is about expand virtual memory on linux boxes 
+> connected in LAN.
+> Example: Linux A is processing come information , and need more memory , so 
+> with this source , Linux A could access virtual memory on Linux B in LAN.
+> But i don´t know how translate the virtual address between Linux A and B , to 
+> have success in acess VM, or how to send all the process for Linux B to be 
+> processed.
+> 
+> Any ideas ?
+> 
+> Thanks
+> Breno
+> 
+> ----------------------
+> WebMail Bandnet.com.br
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Patrizio Bruno <patrizio@dada.it>

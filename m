@@ -1,86 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130413AbRBTUPV>; Tue, 20 Feb 2001 15:15:21 -0500
+	id <S130704AbRBTUSl>; Tue, 20 Feb 2001 15:18:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130404AbRBTUPL>; Tue, 20 Feb 2001 15:15:11 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:3588 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130540AbRBTUOe>;
-	Tue, 20 Feb 2001 15:14:34 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102202014.XAA00920@ms2.inr.ac.ru>
-Subject: Re: 2.4.1 under heavy network load - more info
-To: magnus.walldal@b-linc.COM (Magnus Walldal)
-Date: Tue, 20 Feb 2001 23:14:06 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <HFEDLHHPHHEOBHLNPJOKIEHNCAAA.magnus.walldal@b-linc.com> from "Magnus Walldal" at Feb 19, 1 06:15:01 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S130708AbRBTUSb>; Tue, 20 Feb 2001 15:18:31 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:7296 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S130704AbRBTUSP>; Tue, 20 Feb 2001 15:18:15 -0500
+Date: Tue, 20 Feb 2001 15:17:39 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: hiren_mehta@agilent.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: can somebody explain barrier() macro ?
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B74779718809AB@xsj02.sjs.agilent.com>
+Message-ID: <Pine.LNX.3.95.1010220151314.1154A-100000@chaos.analogic.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, 20 Feb 2001 hiren_mehta@agilent.com wrote:
 
-> of errors a bit but I'm not sure I fully understand the implications of
-> doing so.
+> Hi,
+> 
+> barrier() is defined in kernel.h as follows :
+> 
+> #define barrier() __asm__ __volatile__("": : :"memory")
+> 
+> 
+> what does this mean ? is this like "nop" ?
+> 
 
-Until these numbers do not exceed total amount of RAM, this is exactly
-the action required in this case.
-
-Dumps, which you sent to me, show nothing pathological. Actually,
-they are made in some period of full peace: only 47 orphans and
-only about 10MB of accounted memory.
-
-
-> echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
-
-This is not essential with 2.4. In 2.4 this state does not grab any essential
-resources.
-
-> echo 0 > /proc/sys/net/ipv4/tcp_timestamps
-> echo 0 > /proc/sys/net/ipv4/tcp_sack
-
-Why?
+It tells the compiler that memory was, or is about to be, modified.
+Therefore, the complier must put back into memory anything it
+was caching, and after the barrier, it must re-read anything it
+uses from memory. It, itself, generates no code, but the compiler
+will usually spew out some 'extra' instructions as a result of
+this, so it isn't a "nop".
 
 
-> echo "3072 3584 6144" > /proc/sys/net/ipv4/tcp_mem
+Cheers,
+Dick Johnson
 
-If you still have problems with orphans, you should raise these
-numbers. Extremal settings are sort of:
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-Z=<total amount of ram in pages>
-Y=<something < Z>
-Z=<something < Y>
-echo "$X $Y $Z" > /proc/sys/net/ipv4/tcp_mem
-
-Set them to maximum and if the messages will not disappear completely,
-decrease them to more tough limits.
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
-> Feb 18 15:05:44 mcquack kernel: sending pkt_too_big to self
-
-Normal. Debugging.
-
-
-> Feb 18 15:24:07 mcquack kernel: TCP: peer xx.xx.xx.xx:1084/7000 shrinks
-> window 2106777705:1072:2106779313. Bad, what else can I say?
-
-Debugging too.
-
-> Feb 18 15:42:06 mcquack kernel: TCP: dbg sk->wmem_queued 5664
-> tcp_orphan_count 99 tcp_memory_allocated 6145
-
-Number Z is exceeded, newly _closed_ sockets will be aborted and
-stack entered state of moderation of its appetite.
-
-Dump, which you have sent to me and further messages in logs,
-show that it succeded and converged to normal state.
-
-
-> Please let me know if I can provide more debug info or test something!
-
-Actually, the only dubious place in your original report was something
-about behaviour of ssh. ssh surely cannot be affected by this effect.
-Could you elaborate this? What kind of problem exactly? Maybe, some
-tcpdump is the problem is reproducable.
-
-Alexey

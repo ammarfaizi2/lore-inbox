@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267727AbUBTIYX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 03:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267729AbUBTIYW
+	id S267730AbUBTIdL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 03:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267738AbUBTIdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 03:24:22 -0500
-Received: from 81-223-104-78.krugerstrasse.Xdsl-line.inode.at ([81.223.104.78]:47798
-	"EHLO mail.sk-tech.net") by vger.kernel.org with ESMTP
-	id S267727AbUBTIYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 03:24:21 -0500
-Date: Fri, 20 Feb 2004 09:32:42 +0100 (CET)
-From: Kianusch Sayah Karadji <kianusch@sk-tech.net>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI-Scan Hangup ...
-In-Reply-To: <20040220002047.GB16267@kroah.com>
-Message-ID: <Pine.LNX.4.58.0402200920270.621@merlin.sk-tech.net>
-References: <Pine.LNX.4.58.0402191426360.27436@kryx.sk-tech.net>
- <20040220002047.GB16267@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Feb 2004 03:33:11 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31248 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267733AbUBTIdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 03:33:09 -0500
+Date: Fri, 20 Feb 2004 08:33:06 +0000
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: Marc Singer <elf@buici.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm <linux-arm@lists.arm.linux.org.uk>
+Subject: Re: New 2.6 port: why would kernel not start /sbin/init?
+Message-ID: <20040220083306.C22236@flint.arm.linux.org.uk>
+Mail-Followup-To: Marc Singer <elf@buici.com>, linux-kernel@vger.kernel.org,
+	linux-arm <linux-arm@lists.arm.linux.org.uk>
+References: <20040220043819.GA9592@buici.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040220043819.GA9592@buici.com>; from elf@buici.com on Thu, Feb 19, 2004 at 08:38:19PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Feb 19, 2004 at 08:38:19PM -0800, Marc Singer wrote:
+> My hardware debugger complains of a 'data abort' when I look at that
+> address which usually means that the CPU returned a page fault.
+> 
+> Should I expect that these pages be mapped already?
 
-> > There I have a Soekris bord with some weird PCI Handup while booting
-> > Linux during PCI-Scan .
->
-> Can you try to determine what is hanging in a non-modified 2.6.3 kernel?
-
-The very last thing I see when booting ist:
-
-   PCI: Probing PCI hardware (bus 0)
-
-That's it.  But it seems to be a BIOS Proble - I just found out that the
-Soekris-Home-Page states:
-
-[...]
-
- The SC1100 has a bug where certain PCI config cycle conbinations can
- cause the processor to lock up. comBIOS version 1.21 or newer reprogram
- the chipset to fix the problem.
-
-[...]
-
-I'll try to upgrade my comBIOS this afternoon, and let you know if 2.6.x
-boot's fine or not.
-
-Regards
-   Kianusch
+No.  Pages are faulted in as required.

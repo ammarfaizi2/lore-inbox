@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316364AbSEOKL1>; Wed, 15 May 2002 06:11:27 -0400
+	id <S316365AbSEOKQN>; Wed, 15 May 2002 06:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316365AbSEOKL0>; Wed, 15 May 2002 06:11:26 -0400
-Received: from c90136.upc-c.chello.nl ([212.187.90.136]:62093 "EHLO
-	peder.flower") by vger.kernel.org with ESMTP id <S316364AbSEOKLZ>;
-	Wed, 15 May 2002 06:11:25 -0400
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre8-ac3 -- thread_info?
-In-Reply-To: <200205141244.g4ECi6P29886@devserv.devel.redhat.com>
-Organization: Jan at Appel
-From: Jan Nieuwenhuizen <janneke@gnu.org>
-Date: Wed, 15 May 2002 12:11:24 +0200
-Message-ID: <87ptzxlnzn.fsf@peder.flower>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
+	id <S316366AbSEOKQM>; Wed, 15 May 2002 06:16:12 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:21143 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316365AbSEOKQM>;
+	Wed, 15 May 2002 06:16:12 -0400
+Date: Wed, 15 May 2002 12:13:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Hotplug CPU prep V: x86 non-linear CPU numbers
+Message-ID: <20020515101314.GA1152@elf.ucw.cz>
+In-Reply-To: <E175jlA-0003X3-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@redhat.com> writes:
+Hi!
 
-> The usual IDE merge comments apply. Please treat this tree with care.
+> @@ -1585,7 +1581,7 @@
+>  
+>  	p = buf;
+>  
+> -	if ((smp_num_cpus == 1) &&
+> +	if ((num_online_cpus() == 1) &&
+>  	    !(error = apm_get_power_status(&bx, &cx, &dx))) {
+>  		ac_line_status = (bx >> 8) & 0xff;
+>  		battery_status = bx & 0xff;
 
-Hi,
-
-It seems that 2.4.19pre8-ac3 introduced the use of thread_info, but
-it's not defined in sched.h?
-
-Greetings,
-Jan.
-
-gcc -D__KERNEL__ -I/var/src/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -O2 -c -o sched.o sched.c
-sched.c: In function `migration_thread':
-sched.c:1595: structure has no member named `thread_info'
-sched.c:1600: structure has no member named `thread_info'
-sched.c:1606: structure has no member named `thread_info'
-sched.c:1574: warning: `cpu_src' might be used uninitialized in this function
-make[2]: *** [sched.o] Error 1
-
-
+Are you sure? What if you add another CPU just after the test?
+									Pavel
 -- 
-Jan Nieuwenhuizen <janneke@gnu.org> | GNU LilyPond - The music typesetter
-http://www.xs4all.nl/~jantien       | http://www.lilypond.org
-
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

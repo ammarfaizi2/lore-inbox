@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266464AbSKGGZr>; Thu, 7 Nov 2002 01:25:47 -0500
+	id <S266376AbSKGGfr>; Thu, 7 Nov 2002 01:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266468AbSKGGZr>; Thu, 7 Nov 2002 01:25:47 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:65042 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S266464AbSKGGZq>;
-	Thu, 7 Nov 2002 01:25:46 -0500
-Date: Wed, 6 Nov 2002 22:28:16 -0800
-From: Greg KH <greg@kroah.com>
-To: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org, perex@suse.cz
-Subject: Re: [PATCH] PnP MODULE_DEVICE_TABLE Update - 2.5.46 (3/6)
-Message-ID: <20021107062816.GC26821@kroah.com>
-References: <20021106210159.GN316@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021106210159.GN316@neo.rr.com>
-User-Agent: Mutt/1.4i
+	id <S266379AbSKGGfr>; Thu, 7 Nov 2002 01:35:47 -0500
+Received: from [212.3.242.3] ([212.3.242.3]:41454 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id <S266376AbSKGGfr>;
+	Thu, 7 Nov 2002 01:35:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.46] Problems with vfat mount umask on directories
+Date: Thu, 7 Nov 2002 07:42:23 +0100
+User-Agent: KMail/1.4.3
+References: <200211070728.47941.devilkin-lkml@blindguardian.org>
+In-Reply-To: <200211070728.47941.devilkin-lkml@blindguardian.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211070742.23188.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 09:02:00PM +0000, Adam Belay wrote:
-> 
-> diff -ur --new-file a/include/linux/module.h b/include/linux/module.h
-> --- a/include/linux/module.h	Wed Oct 30 17:45:58 2002
-> +++ b/include/linux/module.h	Wed Oct 30 17:45:24 2002
-> @@ -239,6 +239,8 @@
->   * The following is a list of known device types (arg 1),
->   * and the C types which are to be passed as arg 2.
->   * pci - struct pci_device_id - List of PCI ids supported by this module
-> + * pnpc - struct pnpc_device_id - List of PnP card ids (PNPBIOS, ISA PnP) supported by this module
-> + * pnp - struct pnp_device_id - List of PnP ids (PNPBIOS, ISA PnP) supported by this module
+On Thursday 07 November 2002 07:28, DevilKin wrote:
+> 'llo list.
+>
+> This morning I discovered I no longer could write on my vfat data partition
+> as a normal user. The following line is present in /etc/fstab (and has
+> worked before with atleast 2.5.40 and each and every 2.4 kernel I used)
+>
 
-I must have missed this last time, but to refresh my memory, why do you
-need two different device types?  What's the difference between a card
-id and a device id?
+And, as usual, if one would first READ the docs and then ask help, one would 
+get a lot farther. Sorry bout this... :oP Just read the 
+Documentation/filesystems/vfat.txt file, it says something about dmask (not 
+present currently in the mount manpage) which made everything work again.
 
-thanks,
+Another case of RTFM...
 
-greg k-h
+DK
+-- 
+Let's just say that where a change was required, I adjusted.  In every
+relationship that exists, people have to seek a way to survive.  If you
+really care about the person, you do what's necessary, or that's the
+end.  For the first time, I found that I really could change, and the
+qualities I most admired in myself I gave up.  I stopped being loud and
+bossy ...  Oh, all right.  I was still loud and bossy, but only behind
+his back."
+		-- Kate Hepburn, on Tracy and Hepburn
+

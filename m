@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbVBCQLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263742AbVBCQNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262954AbVBCQLP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 11:11:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263474AbVBCQLO
+	id S263742AbVBCQNm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 11:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbVBCQLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 11:11:14 -0500
-Received: from fw-us-hou19.bmc.com ([198.207.223.240]:15680 "EHLO
-	creeper.bmc.com") by vger.kernel.org with ESMTP id S263327AbVBCQHZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 11:07:25 -0500
-Message-ID: <1107446835.7087.8.camel@levlinux.boston.bmc.com>
-From: "Makhlis, Lev" <Lev_Makhlis@bmc.com>
-To: nacc@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 19/34]: include/jiffies: add usecs_to_jiffies() functi
-	on
-Date: Thu, 3 Feb 2005 10:07:15 -0600 
+	Thu, 3 Feb 2005 11:11:34 -0500
+Received: from kelly.bath.ac.uk ([138.38.32.20]:56411 "EHLO kelly.bath.ac.uk")
+	by vger.kernel.org with ESMTP id S262953AbVBCQHD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 11:07:03 -0500
+Date: Thu, 3 Feb 2005 16:07:01 +0000 (GMT)
+From: S Iremonger <exxsi@bath.ac.uk>
+X-X-Sender: exxsi@amos.bath.ac.uk
+To: Pankaj Agarwal <pankaj@toughguy.net>
+cc: linux-os@analogic.com, linux-kernel@vger.kernel.org,
+       Linux Net <linux-net@vger.kernel.org>
+Subject: Re: Query - Regarding strange behaviour.
+In-Reply-To: <015901c50a07$721f2620$8d00150a@dreammac>
+Message-ID: <Pine.GSO.4.53.0502031602400.21155@amos.bath.ac.uk>
+References: <001501c509ff$d4be02e0$8d00150a@dreammac>
+ <Pine.LNX.4.61.0502031017430.9404@chaos.analogic.com>
+ <015901c50a07$721f2620$8d00150a@dreammac>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scanner: 2b0cf978998f6064c7a2a3d185895e0994200e0c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nishanth Aravamudan <nacc@us.ibm.com> wrote:
+>its not even allowing me to copy it ...then surely it wont allow me mv as
+>well... what else can i try...
+>[root@test root]# mount
+>/dev/hda2 on / type ext3 (rw)
+>[root@test /]# cd /usr
+>[root@test usr]# cp bin testbin
+>cp: omitting directory `bin'
 
-> +static inline unsigned long usecs_to_jiffies(const unsigned int u)
-> +{
-> +	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
-> +		return MAX_JIFFY_OFFSET;
-> +#if HZ <= 1000 && !(1000 % HZ)
-> +	return (u + (1000000 / HZ) - 1000) / (1000000 / HZ);
-> +#elif HZ > 1000 && !(HZ % 1000)
-> +	return u * (HZ / 1000000);
-> +#else
-> +	return (u * HZ + 999999) / 1000000;
-> +#endif
-> +}
+"cp" does not normally copy direcrories as such by DEFAULT.
 
-Shouldn't this use 1000000 instead of 1000 everywhere?
-It returns 0 if HZ=10000.
+Use the "-R" flag on "cp" to make it 'recurse' and copy the whole
+  directory and directory/files under it.
+
+e.g. "cp -R bin bincopy"
+
+
+And, show us all the results of the following 2 commands, please.
+
+ls -ld /usr/bin
+lsattr -d /usr/bin
+
+--S Iremonger <exxsi@bath.ac.uk>
+

@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVBAKQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVBAKWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbVBAKQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 05:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVBAKQZ
+	id S261969AbVBAKWF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 05:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVBAKWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 05:16:25 -0500
-Received: from mproxy.gmail.com ([216.239.56.244]:31849 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261958AbVBAKQR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 05:16:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=pSVO9r07uuMMlSn4lAodjNgx2baLNkqVIKCoewtWb9hMxMLhWZSvdxojWEpvMqh+6LoGB/mxqogf+75/WmRo0D+KMHAN0IKek9MQtFJjFFS+NFzMGIYO2Jhz0qEZ0wOLEpXM6EqLjD46J+s2/SkLVfaYbqJtjunyCo2S54quepA=
-Message-ID: <21d7e99705020102164f62da2d@mail.gmail.com>
-Date: Tue, 1 Feb 2005 21:16:16 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] DRM: misc cleanup
-Cc: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20050131003650.GB7103@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050131003650.GB7103@stusta.de>
+	Tue, 1 Feb 2005 05:22:05 -0500
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:19623 "EHLO
+	webhosting.rdsbv.ro") by vger.kernel.org with ESMTP id S261960AbVBAKV7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 05:21:59 -0500
+Date: Tue, 1 Feb 2005 12:21:57 +0200 (EET)
+From: "Catalin(ux aka Dino) BOIE" <util@deuroconsult.ro>
+X-X-Sender: util@webhosting.rdsbv.ro
+To: linux-kernel@vger.kernel.org
+cc: linux-ide@vger.kernel.org
+Subject: Strange vmstat output. 2.6.10 Scheduler?
+Message-ID: <Pine.LNX.4.62.0502011217320.26221@webhosting.rdsbv.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005 01:36:50 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> This patch contains the following cleanups:
-> - make needlessly global functions static
-> - remove the following unused global functions:
->   - drm_fops.c: drm_read
->   - i810_dma.c: i810_do_cleanup_pageflip
->   - i830_dma.c: i830_do_cleanup_pageflip
->   - i915_dma.c: i915_do_cleanup_pageflip
->   - mga_dma.c: mga_do_dma_idle
->   - mga_dma.c: mga_do_engine_reset
->   - radeon_irq.c: radeon_emit_and_wait_irq
->   - sis_ds.c: mmAddRange
->   - sis_ds.c: mmReserveMem
->   - sis_ds.c: mmFreeReserved
->   - sis_ds.c: mmDestroy
->   - via_ds.c: via_mmDumpMemInfo
->   - via_ds.c: via_mmAddRange
->   - via_ds.c: via_mmReserveMem
->   - via_ds.c: via_mmFreeReserved
->   - via_ds.c: via_mmDestroy
-> - remove the followig unused global variable:
->   - via_mm.c: VIA_DEBUG
+Hello!
 
-I'll nack this patch for now Adrian, but I'm going to bring all these
-changes into the DRM tree as soon as I can.. one of the functions you
-removed pointed out a bug in the i810/i830/i915 drivers (granted
-no-one uses pageflip in those drivers but still should fix it..), I'm
-going to put the through drm CVS first...
+I have a weird problem with a server. I use deadline.
+The output of vmstat is:
+  1  1  12312   6064   7580 815432    0    0  5332   456 1263  3119 22  5  0 73
+  0  1  12312   5280   7584 816240    0    0  6204   620 1307  1530 15  4  0 81
+  0  1  12312   6096   7528 815088    0    0  7604  8732 1256  1398  5  8  0 87
+  0  1  12312   6048   7528 815144    0    0     8     8 1243  1440 14  2  0 84
+  0  1  12312   6048   7528 815168    0    0     0     0 1261  1287  8  2  0 90
+  0  2  12312   6040   7584 815184    0    0     0     0 1258  1197  7  2  0 91
+  0  2  12312   6024   7584 815208    0    0     0     0 1265  1309  6  5  0 89
+  0  2  12312   6024   7584 815208    0    0     0   136 1253   365  2  2  0 96
+  0  2  12312   5984   7584 815208    0    0     0     0 1268   413  2  1  0 97
+  0  2  12312   6052   7584 815208    0    0     0     0 1270   375  2  1  0 97
+  1  0  12312   6164   7584 815156    0    0  6188   288 1270  4314 23  5  0 72
+  0  1  12312   5684   7536 815592    0    0  4128  8656 1270  1316 14  3  0 83
+  0  1  12312   5684   7536 815608    0    0     0     0 1258  1251  8  3  0 89
+  0  1  12312   5552   7536 815628    0    0     0     0 1258  1327  8  2  0 90
+  0  1  12312   5552   7536 815644    0    0     0     0 1264  1127  7  2  0 91
+  0  1  12312   5552   7536 815668    0    0     0     2 1258  1225  8  3  0 89
+  0  3  12312   5248   7588 816108    0    0  4340   585 1249  1316  7  3  0 90
+  0  2  12312   5612   7584 815680    0    0  3092   188 1254   411  3  1  0 96
+  0  2  12312   5564   7584 815676    0    0     0     0 1261   259  2  2  0 96
+  0  2  12312   5564   7584 815676    0    0     0     0 1254   348  2  1  0 97
 
-Thanks,
-Dave.
+It seems strange because iowait is at 90% but nothing is trasnfered 
+to/from disk. Why is that?
+
+I run postgresql on this server and I'm not satistied by it's speed.
+
+Single Pentium IV, IDE disk.
+
+What can be the problem?
+
+Thank you very much!
+---
+Catalin(ux aka Dino) BOIE
+catab at deuroconsult.ro
+http://kernel.umbrella.ro/

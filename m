@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263697AbUECOKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263766AbUECOsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbUECOKW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 10:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263708AbUECOKW
+	id S263766AbUECOsU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 10:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbUECOsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 10:10:22 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:30667 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263697AbUECOKT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 10:10:19 -0400
-Date: Mon, 3 May 2004 16:10:01 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Junfeng Yang <yjf@stanford.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, mc@stanford.edu,
-       Madanlal S Musuvathi <madan@stanford.edu>,
-       "David L. Dill" <dill@cs.stanford.edu>
-Subject: Re: [Ext2-devel] [CHECKER] warnings in fs/ext3/namei.c (2.4.19) where disk read errors get ignored, causing non-empty dir to be deleted
-Message-ID: <20040503141001.GA23656@wohnheim.fh-wedel.de>
-References: <Pine.GSO.4.44.0404262339360.7250-100000@elaine24.Stanford.EDU> <20040427074455.GD30529@schnapps.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040427074455.GD30529@schnapps.adilger.int>
-User-Agent: Mutt/1.3.28i
+	Mon, 3 May 2004 10:48:20 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:55814 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S263766AbUECOsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 10:48:19 -0400
+Date: Mon, 3 May 2004 22:49:56 +0800 (WST)
+From: raven@themaw.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm1
+In-Reply-To: <20040430014658.112a6181.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405032248270.4454@donald.themaw.net>
+References: <20040430014658.112a6181.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 8,
+	IN_REP_TO, NO_REAL_NAME, PATCH_UNIFIED_DIFF, REFERENCES,
+	UPPERCASE_25_50, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 April 2004 01:44:55 -0600, Andreas Dilger wrote:
-> 
-> Again a conscious decision.  If a name is potentially inaccessible because
-> of an IO error it is better to allow the creation of a potentially duplicate
-> name than refuse creation of any new entries in the directory.  It's a matter
-> of allowing the filesystem to be used as well as possible in the face of
-> failures vs. just giving up and refusing to do anything.
 
-Do you mind if I doubt the sanity of whoever made that decision?  When
-my hard drive fails, I don't care about writing to the fs too much
-anymore, I want to *notice* the failure early and to *read* as much as
-possible, then put the drive on a pile for test hardware.
+Found a couple of symbols not exported that were needed by the ext3.ko 
+module.
 
-But then again, that's just me.
-
-Jörn
-
--- 
-A surrounded army must be given a way out.
--- Sun Tzu
+--- linux-2.6.6-rc3-mm1/fs/dquot.c.orig	2004-05-03 21:59:24.000000000 +0800
++++ linux-2.6.6-rc3-mm1/fs/dquot.c	2004-05-03 22:01:19.000000000 +0800
+@@ -1761,6 +1761,8 @@
+ EXPORT_SYMBOL(vfs_set_dqblk);
+ EXPORT_SYMBOL(dquot_commit);
+ EXPORT_SYMBOL(dquot_commit_info);
++EXPORT_SYMBOL(dquot_acquire);
++EXPORT_SYMBOL(dquot_release);
+ EXPORT_SYMBOL(dquot_mark_dquot_dirty);
+ EXPORT_SYMBOL(dquot_initialize);
+ EXPORT_SYMBOL(dquot_drop);

@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287115AbSALPfc>; Sat, 12 Jan 2002 10:35:32 -0500
+	id <S285369AbSALPkc>; Sat, 12 Jan 2002 10:40:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287134AbSALPfZ>; Sat, 12 Jan 2002 10:35:25 -0500
-Received: from 24-196-120-102.fdl.wi.charter.com ([24.196.120.102]:9353 "EHLO
-	ryoko.kuiki.net") by vger.kernel.org with ESMTP id <S287115AbSALPfK>;
-	Sat, 12 Jan 2002 10:35:10 -0500
-Date: Sat, 12 Jan 2002 09:35:10 -0600
-From: hachi@kuiki.net
-To: linux-kernel@vger.kernel.org
-Subject: netlink sockets in 2.4.17
-Message-ID: <20020112153510.GB22133@ryoko.kuiki.net>
-Mime-Version: 1.0
+	id <S285498AbSALPkM>; Sat, 12 Jan 2002 10:40:12 -0500
+Received: from postfix2-1.free.fr ([213.228.0.9]:51616 "EHLO
+	postfix2-1.free.fr") by vger.kernel.org with ESMTP
+	id <S285369AbSALPkK>; Sat, 12 Jan 2002 10:40:10 -0500
+From: Willy Tarreau <wtarreau@free.fr>
+Message-Id: <200201121540.g0CFe7F01606@ns.home.local>
+Subject: Re: netfilter oops (Was: Re: Linux 2.4.18-pre2)
+To: cat@zip.com.au
+Date: Sat, 12 Jan 2002 16:40:07 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am looking for what happened to the netlink sockets in the 2.4 series 
-kernels (I'm screwing around with 2.4.17) As far as I can tell I need 
-these to run Zebra (bgpd)
+> Writing it down would be a pain so I may opt for the
+> null-modem cable which may take a week or so for me to
+> get at though.
 
-My query is this, when and why were netlink sockets removed from 2.4,
-while netlink devices were left in there? and why was this not included
-in a Changelog at any point?
+You'd better download my kmsgdump patch which will let you save
+all your kernel messages (including oops) to a floppy disk.
+Please read the doc in Documentation/kmsgdump.txt to get more info.
 
-Thanks for your time,
-Jonathan Steinert
+http://www-miaif.lip6.fr/willy/linux-patches//kmsgdump/0.4.3/kmsgdump-0.4.3-2.4.16pre1.patch
+
+Regards,
+Willy
+

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311322AbSCZMif>; Tue, 26 Mar 2002 07:38:35 -0500
+	id <S293276AbSCZM67>; Tue, 26 Mar 2002 07:58:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311434AbSCZMi0>; Tue, 26 Mar 2002 07:38:26 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40459 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311322AbSCZMiU>;
-	Tue, 26 Mar 2002 07:38:20 -0500
-Message-ID: <3CA06B66.7070701@mandrakesoft.com>
-Date: Tue, 26 Mar 2002 07:36:54 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S311471AbSCZM6t>; Tue, 26 Mar 2002 07:58:49 -0500
+Received: from ausxc07.us.dell.com ([143.166.227.166]:34991 "EHLO
+	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
+	id <S293276AbSCZM6j>; Tue, 26 Mar 2002 07:58:39 -0500
+Message-ID: <71714C04806CD51193520090272892170452B50D@ausxmrr502.us.dell.com>
+From: Matt_Domsch@Dell.com
+To: t-kawano@ebina.hitachi.co.jp, linux-ia64@linuxia64.org,
+        linux-kernel@vger.kernel.org
+Subject: RE: [PATCH]fix for double free in efi.c
+Date: Tue, 26 Mar 2002 06:58:30 -0600
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: aj@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Problems with Tigon v0.97
-In-Reply-To: <ho1ye7tyqx.fsf@gee.suse.de> <20020326.024210.55219079.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+> The following is a fix for a double free bug in fs/partitions/efi.c.
 
->It's an amd756 chipset bug.  bcm5700 chooses to work around it in
->their driver, when it really belongs as a generic PCI fixup in
->the kernel.
->
+Indeed, this was pointed out a couple weeks ago and since fixed in the IA-64
+port.  I'm readying a cleanup around EFI's use of GUIDs which affects
+fs/partitions/efi.[ch] too and hope to have that ready to submit yet this
+week.
 
-bcm5700 works around AMD762 bug -- and that workaround should be in 
-stock 2.4.18 and 2.5.7 kernels now as a PCI quirk.  I think something 
-else is going on here...
+Thanks,
+Matt
 
-    Jeff
-
-
-
-
-
+-- 
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001! (IDC Mar 2002)

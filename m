@@ -1,87 +1,164 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315223AbSEIXQp>; Thu, 9 May 2002 19:16:45 -0400
+	id <S315225AbSEIXTW>; Thu, 9 May 2002 19:19:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315225AbSEIXQo>; Thu, 9 May 2002 19:16:44 -0400
-Received: from chiark.greenend.org.uk ([212.22.195.2]:50706 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id <S315223AbSEIXQo>; Thu, 9 May 2002 19:16:44 -0400
-Date: Fri, 10 May 2002 00:16:43 +0100 (BST)
-From: "Jonathan D. Amery" <jdamery@chiark.greenend.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.20 sparc oops in VC handling?
-Message-ID: <Pine.LNX.4.21.0205100014050.9069-100000@chiark.greenend.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315230AbSEIXTV>; Thu, 9 May 2002 19:19:21 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:44228 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315225AbSEIXTT>;
+	Thu, 9 May 2002 19:19:19 -0400
+Date: Thu, 9 May 2002 16:18:21 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: rwhron@earthlink.net, mingo@elte.hu, gh@us.ibm.com,
+        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: O(1) scheduler gives big boost to tbench 192
+Message-ID: <20020509161821.K1516@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <20020503093856.A27263@rushmore> <20020507151356.A18701@w-mikek.des.beaverton.ibm.com> <20020508105049.A31998@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got this oops on my sparc machine (prior and post to which it was
-saying:
-eth0: Carrier Lost, trying AUI
-eth0: Carrier Lost, trying TPE
-eth0: Carrier Lost, trying AUI
-eth0: Carrier Lost, trying TPE
-eth0: Carrier Lost, trying AUI
-eth0: Carrier Lost, trying TPE
-eth0: Carrier Lost, trying AUI
-...), after which I couldn't change VC or log in with ssh, telnet or su
-(creating new ptys with screen worked though).
+On Wed, May 08, 2002 at 10:50:49AM +0200, Andrea Arcangeli wrote:
+> 
+> I would like if you could pass over your changes to the O(1) scheduler
+> to resurrect the sync-wakeup.
+> 
 
-Oops data:
+Here is a patch to reintroduce __wake_up_sync() in 2.5.14.
+It would be interesting to see if this helps in some of the
+areas where people have seen a drop in performance.  Since,
+'full pipes' are the only users of this code, I would only
+expect to see benefit in workloads expecting high pipe
+bandwidth.
 
-Unable to handle kernel NULL pointer dereference<1>tsk->mm->context = 00000032
-tsk->mm->pgd = f1e59000
-              \|/ ____ \|/
-              "@'/ ,. \`@"
-              /_| \__/ |_\
-                 \__U_/
-syslogd(171): Oops
-PSR: 41800fc4 PC: fe30d77c NPC: fe30d780 Y: 1fe00000
-g0: f009f238 g1: 41900fe5 g2: 21a8b469 g3: f01abd30 g4: f00d1e48 g5: 74727969 g6: f242e000 g7: 00000000
-o0: f3000000 o1: 00000010 o2: 00000004 o3: 00000010 o4: 00140000 o5: f0284800 sp: f242fb18 o7: f0034278
-l0: 00000004 l1: f019ff5c l2: f019f000 l3: 00000020 l4: 00000000 l5: 74727969 l6: 03002c48 l7: 00000362
-i0: 419000e5 i1: f01abd30 i2: f2ffffff i3: ff9ffa8f i4: f0152ce8 i5: 00000018 fp: f242fb80 i7: f010bdac
-Caller[f010bdac]
-Caller[f00d20a4]
-Caller[f00d2818]
-Caller[f00d8a04]
-Caller[f00db10c]
-Caller[f00d5b80]
-Caller[f00463ac]
-Caller[f0046550]
-Caller[f001123c]
-Caller[500caaa4]
-Instruction DUMP: 80a40015  0280000d  80a72000 <d0040000> 80a22000  02800004  a0042004  7c74eb6f  01000000 
-
->>PC: fe30d77c <prom_root_node+e15e238/e196190>
->>O7: f0034278 <get_fast_time+a80/bf0>
->>I7: f010bdac <cdrom_get_next_writable+843c/8bfc>
-Trace: f010bdac <cdrom_get_next_writable+843c/8bfc>
-Trace: f00d20a4 <vc_resize+33a0/3ebc>
-Trace: f00d2818 <vc_resize+3b14/3ebc>
-Trace: f00d8a04 <tty_unregister_driver+82c/3240>
-Trace: f00db10c <tty_unregister_driver+2f34/3240>
-Trace: f00d5b80 <tty_hung_up_p+58c/17b8>
-Trace: f00463ac <sys_close+840/f00>
-Trace: f0046550 <sys_close+9e4/f00>
-Trace: f001123c <get_options+1234/14f4>
-Trace: 500caaa4 Before first symbol
-Code:  fe30d770 <prom_root_node+e15e22c/e196190> 0000000000000000 <_PC>:
-Code:  fe30d770 <prom_root_node+e15e22c/e196190>    0:	80 a4 00 15 	cmp  %l0, %l5
-Code:  fe30d774 <prom_root_node+e15e230/e196190>    4:	02 80 00 0d 	be   fe30d7a8 <prom_root_node+e15e264/e196190>
-Code:  fe30d778 <prom_root_node+e15e234/e196190>    8:	80 a7 20 00 	cmp  %i4, 0
-Code:  fe30d77c <prom_root_node+e15e238/e196190>    c:	d0 04 00 00 	ld  [ %l0 ], %o0 <===
-Code:  fe30d780 <prom_root_node+e15e23c/e196190>   10:	80 a2 20 00 	cmp  %o0, 0
-Code:  fe30d784 <prom_root_node+e15e240/e196190>   14:	02 80 00 04 	be   fe30d794 <prom_root_node+e15e250/e196190>
-Code:  fe30d788 <prom_root_node+e15e244/e196190>   18:	a0 04 20 04 	add  %l0, 4, %l0
-Code:  fe30d78c <prom_root_node+e15e248/e196190>   1c:	7c 74 eb 6f 	call   f0048548 <__brelse+0/44>
-Code:  fe30d790 <prom_root_node+e15e24c/e196190>   20:	01 00 00 00 	nop 
-
+Let me know what you think.
 
 -- 
-Jonathan Amery.      Even in the darkness
-   #####                There's a light to light your way
-  #######__o         Though the world you knew is gone
-  #######'/             A world you thought would always stay - Mark Dennis
+Mike
 
+diff -Naur linux-2.5.14/fs/pipe.c linux-2.5.14-pipe/fs/pipe.c
+--- linux-2.5.14/fs/pipe.c	Mon May  6 03:37:52 2002
++++ linux-2.5.14-pipe/fs/pipe.c	Wed May  8 22:48:39 2002
+@@ -116,7 +116,7 @@
+ 		 * writers synchronously that there is more
+ 		 * room.
+ 		 */
+-		wake_up_interruptible(PIPE_WAIT(*inode));
++		wake_up_interruptible_sync(PIPE_WAIT(*inode));
+ 		if (!PIPE_EMPTY(*inode))
+ 			BUG();
+ 		goto do_more_read;
+diff -Naur linux-2.5.14/include/linux/sched.h linux-2.5.14-pipe/include/linux/sched.h
+--- linux-2.5.14/include/linux/sched.h	Mon May  6 03:37:54 2002
++++ linux-2.5.14-pipe/include/linux/sched.h	Thu May  9 20:47:19 2002
+@@ -485,6 +485,11 @@
+ #define wake_up_interruptible(x)	__wake_up((x),TASK_INTERRUPTIBLE, 1)
+ #define wake_up_interruptible_nr(x, nr)	__wake_up((x),TASK_INTERRUPTIBLE, nr)
+ #define wake_up_interruptible_all(x)	__wake_up((x),TASK_INTERRUPTIBLE, 0)
++#ifdef CONFIG_SMP
++#define wake_up_interruptible_sync(x)   __wake_up_sync((x),TASK_INTERRUPTIBLE, 1)
++#else
++#define wake_up_interruptible_sync(x)   __wake_up((x),TASK_INTERRUPTIBLE, 1)
++#endif
+ asmlinkage long sys_wait4(pid_t pid,unsigned int * stat_addr, int options, struct rusage * ru);
+ 
+ extern int in_group_p(gid_t);
+diff -Naur linux-2.5.14/kernel/sched.c linux-2.5.14-pipe/kernel/sched.c
+--- linux-2.5.14/kernel/sched.c	Mon May  6 03:37:57 2002
++++ linux-2.5.14-pipe/kernel/sched.c	Thu May  9 21:04:13 2002
+@@ -329,27 +329,38 @@
+  * "current->state = TASK_RUNNING" to mark yourself runnable
+  * without the overhead of this.
+  */
+-static int try_to_wake_up(task_t * p)
++static int try_to_wake_up(task_t * p, int sync)
+ {
+ 	unsigned long flags;
+ 	int success = 0;
+ 	runqueue_t *rq;
+ 
++repeat_lock_task:
+ 	rq = task_rq_lock(p, &flags);
+-	p->state = TASK_RUNNING;
+ 	if (!p->array) {
++		if (unlikely(sync)) {
++			if (p->thread_info->cpu != smp_processor_id()) {
++				p->thread_info->cpu = smp_processor_id();
++				task_rq_unlock(rq, &flags);
++				goto repeat_lock_task;
++			}
++		}
+ 		activate_task(p, rq);
++		/*
++		 * If sync is set, a resched_task() is a NOOP
++		 */
+ 		if (p->prio < rq->curr->prio)
+ 			resched_task(rq->curr);
+ 		success = 1;
+ 	}
++	p->state = TASK_RUNNING;
+ 	task_rq_unlock(rq, &flags);
+ 	return success;
+ }
+ 
+ int wake_up_process(task_t * p)
+ {
+-	return try_to_wake_up(p);
++	return try_to_wake_up(p, 0);
+ }
+ 
+ void wake_up_forked_process(task_t * p)
+@@ -872,7 +883,7 @@
+  * started to run but is not in state TASK_RUNNING.  try_to_wake_up() returns
+  * zero in this (rare) case, and we handle it by continuing to scan the queue.
+  */
+-static inline void __wake_up_common(wait_queue_head_t *q, unsigned int mode, int nr_exclusive)
++static inline void __wake_up_common(wait_queue_head_t *q, unsigned int mode, int nr_exclusive, int sync)
+ {
+ 	struct list_head *tmp;
+ 	unsigned int state;
+@@ -883,7 +894,7 @@
+ 		curr = list_entry(tmp, wait_queue_t, task_list);
+ 		p = curr->task;
+ 		state = p->state;
+-		if ((state & mode) && try_to_wake_up(p) &&
++		if ((state & mode) && try_to_wake_up(p, sync) &&
+ 			((curr->flags & WQ_FLAG_EXCLUSIVE) && !--nr_exclusive))
+ 				break;
+ 	}
+@@ -897,7 +908,22 @@
+ 		return;
+ 
+ 	wq_read_lock_irqsave(&q->lock, flags);
+-	__wake_up_common(q, mode, nr_exclusive);
++	__wake_up_common(q, mode, nr_exclusive, 0);
++	wq_read_unlock_irqrestore(&q->lock, flags);
++}
++
++void __wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr_exclusive)
++{
++	unsigned long flags;
++
++	if (unlikely(!q))
++		return;
++
++	wq_read_lock_irqsave(&q->lock, flags);
++	if (likely(nr_exclusive))
++		__wake_up_common(q, mode, nr_exclusive, 1);
++	else
++		__wake_up_common(q, mode, nr_exclusive, 0);
+ 	wq_read_unlock_irqrestore(&q->lock, flags);
+ }
+ 
+@@ -907,7 +933,7 @@
+ 
+ 	spin_lock_irqsave(&x->wait.lock, flags);
+ 	x->done++;
+-	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1);
++	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, 0);
+ 	spin_unlock_irqrestore(&x->wait.lock, flags);
+ }
+ 

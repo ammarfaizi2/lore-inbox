@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314265AbSDVQNY>; Mon, 22 Apr 2002 12:13:24 -0400
+	id <S314264AbSDVQS6>; Mon, 22 Apr 2002 12:18:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314266AbSDVQNX>; Mon, 22 Apr 2002 12:13:23 -0400
-Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:6704 "EHLO
-	carey-server.stronghold.to") by vger.kernel.org with ESMTP
-	id <S314265AbSDVQNV>; Mon, 22 Apr 2002 12:13:21 -0400
-Message-Id: <4.3.2.7.2.20020422120453.01c43538@mail.strongholdtech.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Mon, 22 Apr 2002 12:15:24 -0400
-To: "Vasja J Zupan" <vasja@nuedi.com>, <linux-kernel@vger.kernel.org>
-From: "Nicolae P. Costescu" <nick@strongholdtech.com>
-Subject: Re: HPT372 on KR7A-133R (ATA133) on production server
-In-Reply-To: <001d01c1e6e3$c2ef1e60$b4a6a8c0@si>
+	id <S314266AbSDVQS5>; Mon, 22 Apr 2002 12:18:57 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:62968 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S314264AbSDVQS4>; Mon, 22 Apr 2002 12:18:56 -0400
+Date: Mon, 22 Apr 2002 10:17:06 -0600
+From: Andreas Dilger <adilger@turbolinux.com>
+To: "Ph. Marek" <marek@bmlv.gv.at>
+Cc: sct@redhat.com, akpm@zip.com.au, linux-kernel@vger.kernel.org,
+        ext3-users@redhat.com
+Subject: Re: [PATCH] open files in kjounald
+Message-ID: <20020422161706.GC3017@turbolinux.com>
+Mail-Followup-To: "Ph. Marek" <marek@bmlv.gv.at>, sct@redhat.com,
+	akpm@zip.com.au, linux-kernel@vger.kernel.org,
+	ext3-users@redhat.com
+In-Reply-To: <3.0.6.32.20020422065639.0090cd10@pop3.bmlv.gv.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vasja
-I evaluated this board for linux server use. Stay away from it.
-When you hook up and install the hpt raid, it corrupts disk files. This is 
-100% reproducible.
-The non hpt controller on board works ok.
-I believe this is related to the via chipset problem with the PCI bus 
-(doesn't allow bursts that are long enough for high bandwidth pci devices).
+On Apr 22, 2002  06:56 +0200, Ph. Marek wrote:
+> On every mount of ext3 (and I suppose all journaling filesystems which use
+> jbd, although I didn't test this) a new kjournald is created. All kjournald
+> share the same file-information.
+> 
+> Before this patch it would accumulativly fetch open files from the calling
+> process (normally mount); I verified this via (in bash)
+> 	exec 30< /etc/services
+> 	mount <partition> /mnt/tmp
+> 	ps -aux | grep kjournald
+> 	ls -la <pid of any kjournald>
+> gives, among 0, 1 and 2
+> 	30 -> /etc/services
+> 
+> This is really awful as you can't umount devfs (normally /dev/console is
+> opened as from the start-scripts) and so / can't be umounted.
+> 
+> After applying this patch the open files were gone.
 
-We went with i845 based Intel 845BG boards and p4/1.8GHz cpu. Cost 
-difference is not much and performance was much better
-If you like an athlon solution, Tyan's 2466N-4M AMD MPX based board works 
-well too.
+It looks OK to me, except that the patch is reversed.
 
-You can read about the via bug here...
+> diff -ru linux/fs/jbd/journal.c linux.ori/fs/jbd/journal.c
+> --- linux/fs/jbd/journal.c      Mon Apr 22 06:29:16 2002
+> +++ linux.ori/fs/jbd/journal.c  Mon Apr 22 06:28:54 2002
+> @@ -204,7 +204,6 @@
+> 
+>         lock_kernel();
+>         daemonize();
+> -       exit_files(current);
+>         spin_lock_irq(&current->sigmask_lock);
+>         sigfillset(&current->blocked);
+>         recalc_sigpending(current);
 
-http://www.tecchannel.de/hardware/817/index.html
-
-I had this problem with KT133A and KT266A motherboards.
-
-Email me if you want more info.
-Thanks
-Nick
-
-
-At 04:16 PM 4/18/2002 +0200, Vasja J Zupan wrote:
->Hi,
->I'm buying a production server for webservices for mobile operators.
->
->My HW provider suggested Abit's KR7A-133R (ATA133)  with HPT372.
->
->Is this motherboard already fully supported and when will stable kernel be
->ready for production use on these motherboards? (btw - any advice on good
->amd combo is appreciated)
->
->Thank you for your help and I'd appreciate a personal cc: cos I'm not a
->member of this list.
->
->Thanx!
->Vasja
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-****************************************************
-Nicolae P. Costescu, Ph.D.  / Senior Developer
-Stronghold Technologies
-46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
-Tel: 571-434-1472 / Fax: 571-434-1478
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

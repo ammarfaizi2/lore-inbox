@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbTDHTFp (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbTDHTFo (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:05:44 -0400
-Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:29191 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261545AbTDHTFn (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 15:05:43 -0400
-Date: Tue, 8 Apr 2003 21:17:16 +0200 (CEST)
-From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.67
-In-Reply-To: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.51L.0304082115060.20726@piorun.ds.pg.gda.pl>
-References: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
+	id S261609AbTDHTJ1 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbTDHTJ1 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:09:27 -0400
+Received: from smtp02.web.de ([217.72.192.151]:42770 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261609AbTDHTJZ convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 15:09:25 -0400
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: =?iso-8859-2?q?Pawe=B3=20Go=B3aszewski?= <blues@ds.pg.gda.pl>
+Subject: Re: [2.5.67] gen_rtc compile error
+Date: Tue, 8 Apr 2003 21:20:39 +0200
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.51L.0304082033140.20726@piorun.ds.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.51L.0304082033140.20726@piorun.ds.pg.gda.pl>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200304082120.39576.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Apr 2003, Linus Torvalds wrote:
-> All over the place as usual - there's definitely a lot of small things 
-> going on. PCMCIA and i2c updates may be the most noticeable ones.
+On Tuesday 08 April 2003 20:37, Pawe³ Go³aszewski wrote:
+> When I try to build my kernel I get:
+>
+> [...]
+>
+> My kernel configuration:
+> http://piorun.ds.pg.gda.pl/~blues/config-2.5.67.txt
 
-I've got some unresolved symbols with that kernel:
-/sbin/depmod -ae -F System.map  2.5.67; fi
-WARNING: /lib/modules/2.5.67/kernel/drivers/md/xor.ko needs unknown symbol kernel_fpu_begin
-WARNING: /lib/modules/2.5.67/kernel/drivers/scsi/aha152x.ko needs unknown symbol scsi_put_command
-WARNING: /lib/modules/2.5.67/kernel/drivers/scsi/aha152x.ko needs unknown symbol scsi_get_command
-WARNING: /lib/modules/2.5.67/kernel/drivers/hotplug/acpiphp.ko needs unknown symbol acpi_resource_to_address64
+Battery status seems to be not available on all architectures.
+(I don't know the reason for this.)
+With this patch, it should compile (against 2.5.67):
 
-My kernel config: http://piorun.ds.pg.gda.pl/~blues/config-2.5.67.txt
+--- drivers/char/genrtc.c.orig	2003-04-08 21:15:52.000000000 +0200
++++ drivers/char/genrtc.c	2003-04-08 21:17:33.000000000 +0200
+@@ -486,7 +486,9 @@
+ 		     "update_IRQ\t: %s\n"
+ 		     "periodic_IRQ\t: %s\n"
+ 		     "periodic_freq\t: %ld\n"
++#ifdef RTC_BATT_BAD
+ 		     "batt_status\t: %s\n",
++#endif
+ 		     (flags & RTC_DST_EN) ? "yes" : "no",
+ 		     (flags & RTC_DM_BINARY) ? "no" : "yes",
+ 		     (flags & RTC_24H) ? "yes" : "no",
+@@ -494,8 +496,11 @@
+ 		     (flags & RTC_AIE) ? "yes" : "no",
+ 		     irq_active ? "yes" : "no",
+ 		     (flags & RTC_PIE) ? "yes" : "no",
+-		     0L /* freq */,
+-		     (flags & RTC_BATT_BAD) ? "bad" : "okay");
++		     0L /* freq */
++#ifdef RTC_BATT_BAD
++		     ,(flags & RTC_BATT_BAD) ? "bad" : "okay")
++#endif
++		     ;
+ 	if (!get_rtc_pll(&pll))
+ 	    p += sprintf(p,
+ 			 "PLL adjustment\t: %d\n"
 
--- 
-pozdr.  Pawe³ Go³aszewski        
----------------------------------
-worth to see: http://www.againsttcpa.com/
-CPU not found - software emulation...
+
+BUT: Is bat-state *really* not supported on all platforms?
+
+Regards
+Michael Buesch.
+

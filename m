@@ -1,37 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137207AbREKSvI>; Fri, 11 May 2001 14:51:08 -0400
+	id <S137209AbREKSws>; Fri, 11 May 2001 14:52:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137209AbREKSu7>; Fri, 11 May 2001 14:50:59 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35340 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S137207AbREKSut>; Fri, 11 May 2001 14:50:49 -0400
-Subject: Re: 2.4.4 kernel freeze for unknown reason
-To: linuxkernel@AdvancedResearch.org (Vincent Stemen)
-Date: Fri, 11 May 2001 19:46:48 +0100 (BST)
-Cc: jq419@my-deja.com (Jacky Liu), linux-kernel@vger.kernel.org
-In-Reply-To: <01051113452400.07411@quark> from "Vincent Stemen" at May 11, 2001 01:45:24 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14yHw8-0001V8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S137210AbREKSwl>; Fri, 11 May 2001 14:52:41 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:28940 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S137209AbREKSvv>; Fri, 11 May 2001 14:51:51 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: marpet@buy.pl (Marek P=?iso-8859-2?Q?=EAtlicki?=),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+Message-ID: <86256A49.0067820E.00@smtpnotes.altec.com>
+Date: Fri, 11 May 2001 13:50:59 -0500
+Subject: Re: Linux 2.4.4-ac7
+Mime-Version: 1.0
+Content-type: multipart/mixed; 
+	Boundary="0__=dGB88ys22tHY5A1kymHhgX55VX1QYIznj7QQaZesXawq9o0Ywb7HQnIB"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have been monitoring the memory usage constantly with the gnome
-> memory usage meter and noticed that as swap grows it is never freed
-> back up.  I can kill off most of the large applications, such as
+--0__=dGB88ys22tHY5A1kymHhgX55VX1QYIznj7QQaZesXawq9o0Ywb7HQnIB
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The swap handling in 2.4 is somewhat hosed at the moment.
 
-> If I turn swap off all together or turn it off and back on
-> periodically to clear the swap before it gets full, I do not seem to
-> experience the lockups.
 
-That sounds right. I can give you a tiny patch that should fix the lockups
-and instead it will kill processes out of memory but thats obviously not
-the actual fix 8)
+I always make mrproper after applying your patches, and I still got exactly the
+same problem with nfs that Marek found.  There were no errors or warnings during
+the compile of the objects in the fs/nfs directory or the linking of nfs.o.
 
+Wayne
+
+
+
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> on 05/11/2001 12:53:03 PM
+
+To:   marpet@buy.pl (Marek P
+--0__=dGB88ys22tHY5A1kymHhgX55VX1QYIznj7QQaZesXawq9o0Ywb7HQnIB
+Content-type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-transfer-encoding: quoted-printable
+
+
+=EAtlicki)
+cc:   alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org=
+ (bcc:
+      Wayne Brown/Corporate/Altec)
+
+Subject:  Re: Linux 2.4.4-ac7
+
+
+=
+
+--0__=dGB88ys22tHY5A1kymHhgX55VX1QYIznj7QQaZesXawq9o0Ywb7HQnIB
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+> is the EXTRAVERSION set properly in Makefile? I use the http://www.bzim=
+> age.org
+> intermediate diff (chosen ~40K to ~2M) from ac6 nd I still have
+> 2.4.4-ac6 login prompt (and Makefile says: EXTRAVERSION =3D -ac6).
+
+I forgot to change it
+
+> The other thing I noticed is:
+> /lib/modules/2.4.4-ac6/kernel/fs/nfs/nfs.o: unresolved symbol filemap_f=
+> datawait_Rd4250148
+> /lib/modules/2.4.4-ac6/kernel/fs/nfs/nfs.o: unresolved symbol filemap_f=
+> datasync_Rf18ce7a1
+
+cp .config ..; make mrproper; cp ../.config .config
+
+I suspect its an unclean build and the exports didnt get done right. At least
+I think I fixed these right 8)
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
+--0__=dGB88ys22tHY5A1kymHhgX55VX1QYIznj7QQaZesXawq9o0Ywb7HQnIB--
 

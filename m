@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270295AbTG1QnE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 12:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270321AbTG1QnE
+	id S270342AbTG1Qrm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 12:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270345AbTG1Qrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 12:43:04 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30394 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S270295AbTG1QnB (ORCPT
+	Mon, 28 Jul 2003 12:47:42 -0400
+Received: from mail.kroah.org ([65.200.24.183]:52414 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270342AbTG1Qrl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 12:43:01 -0400
-Date: Mon, 28 Jul 2003 09:55:06 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: jdd@seasurf.net, linux-kernel@vger.kernel.org
-Subject: Re: The well-factored 386
-Message-Id: <20030728095506.1655253e.davem@redhat.com>
-In-Reply-To: <20030728164621.GA1773@win.tue.nl>
-References: <03072809023201.00228@linux24>
-	<20030728093245.60e46186.davem@redhat.com>
-	<20030728164621.GA1773@win.tue.nl>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Mon, 28 Jul 2003 12:47:41 -0400
+Date: Mon, 28 Jul 2003 10:03:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Does sysfs really provides persistent hardware path to devices?
+Message-ID: <20030728170308.GA4839@kroah.com>
+References: <200307262036.13989.arvidjaar@mail.ru> <20030726165056.GA3168@kroah.com> <200307282044.43131.arvidjaar@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307282044.43131.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003 18:46:21 +0200
-Andries Brouwer <aebr@win.tue.nl> wrote:
+On Mon, Jul 28, 2003 at 08:44:43PM +0400, Andrey Borzenkov wrote:
+> On Saturday 26 July 2003 20:50, Greg KH wrote:
+> > On Sat, Jul 26, 2003 at 08:36:13PM +0400, Andrey Borzenkov wrote:
+> > > So apparently I cannot rely on sysfs to get reliable persistent
+> > > information about physical location of devices.
+> >
+> > That is correct, but you can get pretty close :)
+> >
+> 
+> sure, I know. The more annoying is how difficult is to step over this "close" 
+> :)
 
-> You on the other hand threaten with censorship.
-> That is not funny at all.
+The kernel isn't going to do this.  It's a user space issue.
 
-Run your own mailing lists, then you can tell people
-what is appropriate or not appropriate for list discussions
-and then decide how to deal with people who ignore such
-requests to stay on-topic.
+> > > the point is - I want to create aliases that would point to specific
+> > > slots. I.e. when I plug USB memory stick in upper slot on front panel I'd
+> > > like to always create the same device alias for it.
+> >
+> > Look at the udev announcement I posted to linux-kernel yesterday to see
+> > how to do this.
+> >
+> 
+> I know udev.
+> 
+> udev does not answer my question. It operates on logical device (bus) numbers. 
+> My question was how to name devices based on physical position 
+> *independently* of logical numbers they get.
 
-Do you accuse me of censoring spammers too?  I filter
-them too. :-)
+You don't know udev then :)
+This is exactly what udev solves.  Please read the paper I posted a link
+to, it should answer your questions.
 
-Off topic postings take people's time, and we have enough
-traffic with just the on-topic stuff as it is.
+> Question: how to configure udev so that "database" always refers to LUN 0 on 
+> target 0 on bus 0 on HBA in PCI slot 1.
 
-If you find pleasure in having to figure out what the regexps are each
-day needed in order to filter out all the GPL, OSDL, bitkeeper,
-whatever threads on linux-kernel each and every day on this list
-that's ok, but most other people do not find this a fun activity
-at all.
+If you can't rely on scsi position, then you need to look for something
+that uniquely describes the device.  Like a filesystem label, or a uuid
+on the device.  udev can handle this (well I'm still working on the
+filesystem label, but others have already done the hard work for that to
+be intregrated easily.)
 
-The fact is that people like to abuse linux-kernel because of how
-large an audience they know it reaches.  And frankly, I'm simply not
-going to tolerate people being jackasses and using linux-kernel as a
-bullhorn to discuss whatever they think every needs to hear about.
+thanks,
+
+greg k-h

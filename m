@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277082AbRJKXur>; Thu, 11 Oct 2001 19:50:47 -0400
+	id <S277083AbRJKXv5>; Thu, 11 Oct 2001 19:51:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277083AbRJKXui>; Thu, 11 Oct 2001 19:50:38 -0400
-Received: from ns2.kvikkjokk.net ([195.196.65.62]:6926 "HELO ns2.kvikkjokk.net")
-	by vger.kernel.org with SMTP id <S277082AbRJKXuX>;
-	Thu, 11 Oct 2001 19:50:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oden Eriksson <oden.eriksson@kvikkjokk.net>
-To: Tim Moore <timothymoore@bigfoot.com>
-Subject: Re: Which kernel (Linus or ac)?
-Date: Fri, 12 Oct 2001 01:50:58 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com>
-In-Reply-To: <3BC5EB56.21B4EF88@bigfoot.com>
+	id <S277084AbRJKXvs>; Thu, 11 Oct 2001 19:51:48 -0400
+Received: from daytona.gci.com ([205.140.80.57]:25348 "EHLO daytona.gci.com")
+	by vger.kernel.org with ESMTP id <S277083AbRJKXvg>;
+	Thu, 11 Oct 2001 19:51:36 -0400
+Message-ID: <BF9651D8732ED311A61D00105A9CA31506146916@berkeley.gci.com>
+From: Leif Sawyer <lsawyer@gci.com>
+To: linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@redhat.com>
+Subject: [BUG] Linux-2.4.12 does not build (Sparc-64 & DRM)
+Date: Thu, 11 Oct 2001 15:52:01 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011011235033Z277082-760+24288@vger.kernel.org>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursdayen den 11 October 2001 20.56, Tim Moore wrote:
-> J Sloan wrote:
-> > Tim Moore wrote:
-> > > Any special reason to use 2.4?
-> >
-> > er... scalability, performance, features?
->
-> Observations based on Roswell 2 and identical Abit BP6's: faster disk
-> I/O and kernel builds (same options), smoother X11 performance (SVGA),
-> higher LAN network I/O (switched LNE100TX) under heavy loads, and, none
-> of the recent latency or VM issues.  As for features, I don't need any
-> new feature specific to 2.4.
+Just a quick bug report -- I haven't had time
+to track this one down yet.
 
-Hi, sorry for intruding, but what is Roswell2?
+Enabling DRM/DRI support on a Sparc64 kernel
+with Creator/Creator3D graphics does not build
+correctly:
 
-And, I also have a Abit BP6. Do you really mean that 2.2.19+ has better 
-performance?
+ld -m elf64_sparc -T arch/sparc64/vmlinux.lds arch/sparc64/kernel/head.o
+arch/sparc64/kernel/init_task.o init/main.o init/version.o \
+	--start-group \
+	arch/sparc64/kernel/kernel.o arch/sparc64/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o arch/sparc64/math-emu/math-emu.o \
+	 drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o drivers/char/drm/drm.o
+drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o
+drivers/sbus/sbus_all.o drivers/video/video.o drivers/input/inputdrv.o \
+	net/network.o \
+	/usr/src/linux/lib/lib.a /usr/src/linux/lib/lib.a
+/usr/src/linux/arch/sparc64/prom/promlib.a
+/usr/src/linux/arch/sparc64/lib/lib.a \
+	--end-group \
+	-o vmlinux
+drivers/char/drm/drm.o: In function `ffb_vm_shm_nopage':
+drivers/char/drm/drm.o(.text+0x4ba8): undefined reference to
+`virt_to_bus_not_defined_use_pci_map'
+drivers/char/drm/drm.o: In function `ffb_vm_dma_nopage':
+drivers/char/drm/drm.o(.text+0x4e4c): undefined reference to
+`virt_to_bus_not_defined_use_pci_map'
+make: *** [vmlinux] Error 1
 
-Maybe i should go back using an older kernel to test it. On this machine I 
-have 2 30GB IBM disks on the HPT controller in raid 0+1, I could try som 
-benchmarking with bonnie.
-
-> > > I only use 2.2.19p8 and 2.2.20p10 where
-> > > stability is important.
-> >
-> > experimental pre-releases? interesting...
->
-> I see your point but everything since 2.2.19p2 been stable for my NFS
-> and app server testing needs as well as primary desktop machine.
->
-> rgds,
-> tim.
-
--- 
-Oden Eriksson, Jokkmokk, Sweden.
-Mandrake Linux release 8.1 (Vitamin) for i586, kernel 2.4.10-2mdksmp. Uptime: 
-2 days
+This makes correctly on 2.4.10 and earlier.

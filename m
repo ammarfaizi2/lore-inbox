@@ -1,66 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262904AbUJ1RWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbUJ1RVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262904AbUJ1RWv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 13:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUJ1RWI
+	id S262934AbUJ1RVo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 13:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbUJ1RVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 13:22:08 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:33758 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262904AbUJ1RVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 13:21:34 -0400
-Message-ID: <41812A92.4020803@colorfullife.com>
-Date: Thu, 28 Oct 2004 19:21:22 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Thu, 28 Oct 2004 13:21:43 -0400
+Received: from web51808.mail.yahoo.com ([206.190.38.239]:18337 "HELO
+	web51808.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262934AbUJ1RV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 13:21:27 -0400
+Message-ID: <20041028172125.67969.qmail@web51808.mail.yahoo.com>
+Date: Thu, 28 Oct 2004 10:21:25 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Help understanding memory layout
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Alexander Nyberg <alexn@dsv.su.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Livelock with the shmctl04 test program from linux test project
-References: <41794334.1080206@colorfullife.com> <1098961145.787.7.camel@boxen>
-In-Reply-To: <1098961145.787.7.camel@boxen>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg wrote:
+Hello,
 
->Sorry for late reply, but I just can't understand why & how this happens, been trying to grasp
->the IPC/SHM part but I'm missing something. One processor gets locked up and never released.
->  
->
-Ok - that's a deadlock.
+I need some help understanding memory layout of
+applications within memory under linux.  I am using
+the command "pmap" to understand where all the
+elements of my application are laying and found that I
+just do not understand how and why it is layed out in
+a particular fashion.  Is there documentation that
+could help me understand memory management under
+Linux?
 
->I did:
->
->printk("taking lock\n"); 
->spin_lock(&info->lock);
->printk("lock taken\n");
->
->and it never prints out "lock taken" so i know where it locks up. Now the fun part,
->spinlock debugging doesn't catch it,
->
-That's not surprising: the full debug code is only active for 
-uniprocessor kernels. On SMP, only a simple check for unitialized 
-spinlocks is performed.
-Btw, I'd use
-    printk("thread %d, struct %p: taking lock", current->pid, info);
-Then you are certain that you are not fooled by multiple concurrent 
-operations.
+Thank you for your time.
+Phy
 
-> but I did a simple patch to show who is holding a lock
->at the current time, and it appears noone has taken the lock. I really don't get this.
->
->  
->
-I must think about it. Who's printed as the last owner that released the 
-lock? Perhaps there is a race with segment destruction: The structures 
-are protected by RCU.
-
-Could you enable debug spinlocks and slab debugging? I would have 
-expected an error message from spinlock debugging due to bad magic.
-
---
-    Manfred
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

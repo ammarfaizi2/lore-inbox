@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266153AbSKOOGb>; Fri, 15 Nov 2002 09:06:31 -0500
+	id <S266316AbSKOOLL>; Fri, 15 Nov 2002 09:11:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266250AbSKOOGb>; Fri, 15 Nov 2002 09:06:31 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:64173 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266153AbSKOOGa>; Fri, 15 Nov 2002 09:06:30 -0500
-Subject: Re: Anyone use HPT366 + UDMA in Linux?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ian Chilton <ian@ichilton.co.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021115123541.GA1889@buzz.ichilton.co.uk>
-References: <20021115123541.GA1889@buzz.ichilton.co.uk>
-Content-Type: text/plain
+	id <S266318AbSKOOLK>; Fri, 15 Nov 2002 09:11:10 -0500
+Received: from smtprelay6.dc2.adelphia.net ([64.8.50.38]:62673 "EHLO
+	smtprelay6.dc2.adelphia.net") by vger.kernel.org with ESMTP
+	id <S266316AbSKOOLK>; Fri, 15 Nov 2002 09:11:10 -0500
+From: Tony Likhite <tony@likhite.net>
+To: balihb@cracker.hu, linux-kernel@vger.kernel.org
+Subject: Re: comp bug in 2.4.20-rc1-ac2???
+Date: Fri, 15 Nov 2002 09:19:07 -0500
+User-Agent: KMail/1.4.7
+References: <E18Cgv6-0004lA-00@armada.prim.hu>
+In-Reply-To: <E18Cgv6-0004lA-00@armada.prim.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 15 Nov 2002 14:39:44 +0000
-Message-Id: <1037371184.19971.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200211150919.08021.tony@likhite.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-15 at 12:35, Ian Chilton wrote:
-> Hello,
-> 
-> I am interested in anyone that has this sucessfully working - if you
-> have maybe you can drop me a mail telling me how you did it :)
-> 
+On Friday 15 November 2002 08:54, balihb@cracker.hu wrote:
+> Bug in 2.4.20-rc1-ac2???
 
-If it still doesnt work in 2.4.20-rc1-ac2 or later please send me a
-detailed bug report
+I get the same thing in -ac3.  I think mm/rmap.c should #include 
+<linux/smp_lock.h> instead of <asm/smplock.h>
+
+Tony
+

@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbUK1XiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbUK1XkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbUK1XiN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 18:38:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUK1XiN
+	id S261608AbUK1XkL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 18:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbUK1XkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 18:38:13 -0500
-Received: from web51902.mail.yahoo.com ([206.190.39.45]:63418 "HELO
-	web51902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261603AbUK1Xhv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 18:37:51 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=01Xxv8RnVdWhZK90Po9j1/P9GkaC3q/t9QqAXhvxY7xcb6rWOuHlCjfVZ5WOdksR/LZYubzVwx9GBknNLHtOxeOENe7xPh44H/xnW/Qsh6fhssEoPZ28qG6UWR4ExyTZl2UzNWwBwYGqaLAF4VP3dTkY5BrAiZEpXVLwXtRNwYg=  ;
-Message-ID: <20041128233747.53950.qmail@web51902.mail.yahoo.com>
-Date: Sun, 28 Nov 2004 15:37:47 -0800 (PST)
-From: A M <alim1993@yahoo.com>
-Subject: Re: Accessing a process structure in the processes link list
-To: Doug McNaught <doug@mcnaught.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <874qj9lg7t.fsf@asmodeus.mcnaught.org>
-MIME-Version: 1.0
+	Sun, 28 Nov 2004 18:40:10 -0500
+Received: from gprs214-185.eurotel.cz ([160.218.214.185]:18565 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261605AbUK1Xjx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 18:39:53 -0500
+Date: Mon, 29 Nov 2004 00:39:34 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 24/51: Keyboard and serial console hooks.
+Message-ID: <20041128233934.GA2856@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101296414.5805.286.camel@desktop.cunninghams> <20041124132949.GB13145@infradead.org> <20041125192834.GB1302@elf.ucw.cz> <1101680341.4343.291.camel@desktop.cunninghams>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101680341.4343.291.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How would you know the offset (location of index 0 if
-it was an array or the head of link list) of that
-variable in memory, in this case it is the process
-table named task of type a pointer to task_struct? 
+Hi!
 
-Any recommendation for references will be appreciated.
-
-
-Thanks, 
-
-Ali 
-
---- Doug McNaught <doug@mcnaught.org> wrote:
-
-> A M <alim1993@yahoo.com> writes:
+> > > > Here we add simple hooks so that the user can interact with suspend
+> > > > while it is running. (Hmm. The serial console condition could be
+> > > > simplified :>). The hooks allow you to do such things as:
 > 
-> > Would it be possible for a program running as root
-> > that wasn't compiled with the kernel to access a
-> > process structure in the processes link list? 
+> > > > - change the amount of detail of debugging info shown
+> > 
+> > Use sysrq-X as you do during runtime.
 > 
-> Yes, but see below.
-> 
-> > I've read an article about hiding processes and
-> the
-> > article made sound so easy to access the link list
-> and
-> > hide a process, how easy is it?
-> 
-> You need read access to /dev/kmem and a fairly
-> intimate knowledge of
-> the kernel data structures in question.
->  
-> > Is it possible to a process to access its own
-> entry in
-> > the processes link list?
-> 
-> Not without read access to the kmem device...
-> 
-> -Doug
-> 
+> No, I don't do this anymore. When I did, I had problems post-resume with
+> the keyboard handler sometimes thinking SysRq was still pressed.
 
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-The all-new My Yahoo! - Get yours free! 
-http://my.yahoo.com 
- 
-
+Fix keyboard handler, then... It probably happens with other keys
+beside SysRq, right?
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

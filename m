@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264506AbUEJFIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264515AbUEJFLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264506AbUEJFIY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 01:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbUEJFIY
+	id S264515AbUEJFLo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 01:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbUEJFLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 01:08:24 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:62085 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264506AbUEJFHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 01:07:49 -0400
-Date: Sun, 9 May 2004 22:07:33 -0700
+	Mon, 10 May 2004 01:11:43 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:2699 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264515AbUEJFK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 01:10:26 -0400
+Date: Sun, 9 May 2004 22:09:05 -0700
 From: Chris Wedgwood <cw@f00f.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Andreas Gruenbacher <agruen@suse.de>, Nathan Scott <nathans@sgi.com>
-Subject: [PATCH] 2.6.6 add qsort library function
-Message-ID: <20040510050733.GA13889@taniwha.stupidest.org>
+Subject: [PATCH] 2.6.6 Have XFS use kernel-provided qsort
+Message-ID: <20040510050905.GB13889@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,303 +22,245 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a rehash of a patch from Andreas Gruenbacher <agruen@suse.de>
-to add qsort as a kernel library function.  Right now the only user of
-this is XFS others users are expected.
-
-The stack utilization is fairly modest and the function is not
-recursive.
-
-I stupidly took the gnu-formatted function and ran Lindent over it
-which made a bit of a mess (I manually fixed most of this and am
-guilty of editing the diff...)
+to have XFS use a kernel-provided qsort function (ie. not it's own).
+It requires (but does not conflict with) the previous patch I posted
+adding qsort to the kernel library functions.
 
 
-   --cw
+    --cw
 
 
- include/linux/kernel.h |    2
- lib/Kconfig            |    3
- lib/Makefile           |    1
- lib/qsort.c            |  239 +++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 245 insertions(+)
+ Kconfig               |    1
+ xfs/linux/xfs_linux.h |    1
+ xfs/support/qsort.c   |  155 --------------------------------------------------
+ xfs/support/qsort.h   |   41 -------------
+ 4 files changed, 1 insertion(+), 197 deletions(-)
 
 
 
-diff -Nru a/include/linux/kernel.h b/include/linux/kernel.h
---- a/include/linux/kernel.h	Sun May  9 20:27:15 2004
-+++ b/include/linux/kernel.h	Sun May  9 20:27:15 2004
-@@ -80,6 +80,8 @@
- 	__attribute__ ((format (scanf,2,3)));
- extern int vsscanf(const char *, const char *, va_list);
+diff -Nru a/fs/Kconfig b/fs/Kconfig
+--- a/fs/Kconfig	Sun May  9 20:27:31 2004
++++ b/fs/Kconfig	Sun May  9 20:27:31 2004
+@@ -293,6 +293,7 @@
  
-+extern void qsort(void *, size_t, size_t, int (*)(const void *,const void *));
-+
- extern int get_option(char **str, int *pint);
- extern char *get_options(const char *str, int nints, int *ints);
- extern unsigned long long memparse(char *ptr, char **retptr);
-diff -Nru a/lib/Kconfig b/lib/Kconfig
---- a/lib/Kconfig	Sun May  9 20:27:15 2004
-+++ b/lib/Kconfig	Sun May  9 20:27:15 2004
-@@ -21,6 +21,9 @@
- 	  require M here.  See Castagnoli93.
- 	  Module will be libcrc32c.
+ config XFS_FS
+ 	tristate "XFS filesystem support"
++	select QSORT
+ 	help
+ 	  XFS is a high performance journaling filesystem which originated
+ 	  on the SGI IRIX platform.  It is completely multi-threaded, can
+diff -Nru a/fs/xfs/linux/xfs_linux.h b/fs/xfs/linux/xfs_linux.h
+--- a/fs/xfs/linux/xfs_linux.h	Sun May  9 20:27:31 2004
++++ b/fs/xfs/linux/xfs_linux.h	Sun May  9 20:27:31 2004
+@@ -64,7 +64,6 @@
+ #include <sema.h>
+ #include <time.h>
  
-+config QSORT
-+	bool "Quick Sort"
-+
- #
- # compression support is select'ed if needed
- #
-diff -Nru a/lib/Makefile b/lib/Makefile
---- a/lib/Makefile	Sun May  9 20:27:15 2004
-+++ b/lib/Makefile	Sun May  9 20:27:15 2004
-@@ -20,6 +20,7 @@
- 
- obj-$(CONFIG_CRC32)	+= crc32.o
- obj-$(CONFIG_LIBCRC32C)	+= libcrc32c.o
-+obj-$(CONFIG_QSORT)	+= qsort.o
- 
- obj-$(CONFIG_ZLIB_INFLATE) += zlib_inflate/
- obj-$(CONFIG_ZLIB_DEFLATE) += zlib_deflate/
-diff -Nru a/lib/qsort.c b/lib/qsort.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/lib/qsort.c	Sun May  9 20:27:15 2004
-@@ -0,0 +1,239 @@
-+/*
-+ * qsort implementation for the Linux kernel.
-+ *
-+ * Original implementation taken form glibc and credited to Douglas
-+ * C. Schmidt (schmidt@ics.uci.edu).
-+ *
-+ * This source code is licensed under the GNU General Public License,
-+ * Version 2.  See the file COPYING for more details.
-+ */
-+
-+/*
-+ * If you consider tuning this algorithm, you should consult first:
-+ * Engineering a sort function; Jon Bentley and M. Douglas McIlroy;
-+ * Software - Practice and Experience; Vol. 23 (11), 1249-1265, 1993.
-+ */
-+
-+# include <linux/module.h>
-+# include <linux/slab.h>
-+# include <linux/string.h>
-+
-+MODULE_LICENSE("GPL");
-+
-+/* Byte-wise swap two items of size SIZE. */
-+#define SWAP(a, b, size)		      \
-+  do {					      \
-+      size_t __size = (size);		      \
-+      char *__a = (a), *__b = (b);	      \
-+      do {				      \
-+	  char __tmp = *__a;		      \
-+	  *__a++ = *__b;		      \
-+	  *__b++ = __tmp;		      \
-+	} while (--__size > 0);		      \
-+    } while (0)
-+
-+/* Discontinue quicksort algorithm when partition gets below this
-+   size.  This particular magic number was chosen to work best on a
-+   Sun 4/260. */
-+#define MAX_THRESH 4
-+
-+/* Stack node declarations used to store unfulfilled partition
-+ * obligations. */
-+typedef struct {
-+	char *lo;
-+	char *hi;
-+} stack_node;
-+
-+/* The next 5 #defines implement a very fast in-line stack
-+ * abstraction.  The stack needs log (total_elements) entries (we
-+ * could even subtract log(MAX_THRESH)).  Since total_elements has
-+ * type size_t, we get as upper bound for log (total_elements): bits
-+ * per byte (CHAR_BIT) * sizeof(size_t).  */
-+
-+#define CHAR_BIT 8
-+#define STACK_SIZE	(CHAR_BIT * sizeof(size_t))
-+#define PUSH(low, high)	((top->lo = (low)), (top->hi = (high)), ++top)
-+#define	POP(low, high)	(--top, (low = top->lo), (high = top->hi))
-+#define	STACK_NOT_EMPTY	(stack < top)
-+
-+/* Order size using quicksort.  This implementation incorporates four
-+   optimizations discussed in Sedgewick:
-+
-+   1. Non-recursive, using an explicit stack of pointer that store the
-+   next array partition to sort.  To save time, this maximum amount
-+   of space required to store an array of SIZE_MAX is allocated on
-+   the stack.  Assuming a 32-bit (64 bit) integer for size_t, this
-+   needs only 32 * sizeof(stack_node) == 256 bytes (for 64 bit:
-+   1024 bytes).  Pretty cheap, actually.
-+
-+   2. Chose the pivot element using a median-of-three decision tree.
-+   This reduces the probability of selecting a bad pivot value and
-+   eliminates certain extraneous comparisons.
-+
-+   3. Only quicksorts TOTAL_ELEMS / MAX_THRESH partitions, leaving
-+   insertion sort to order the MAX_THRESH items within each
-+   partition.  This is a big win, since insertion sort is faster
-+   for small, mostly sorted array segments.
-+
-+   4. The larger of the two sub-partitions is always pushed onto the
-+   stack first, with the algorithm then concentrating on the
-+   smaller partition.  This *guarantees* no more than log
-+   (total_elems) stack size is needed (actually O(1) in this case)!
-+*/
-+
-+void
-+qsort(void *const pbase, size_t total_elems, size_t size,
-+      int (*cmp)(const void*, const void*))
-+{
-+	char *base_ptr = (char *)pbase;
-+
-+	const size_t max_thresh = MAX_THRESH * size;
-+
-+	/* Avoid lossage with unsigned arithmetic below.  */
-+	if (total_elems == 0) {
-+		return;
-+	}
-+
-+	if (total_elems > MAX_THRESH) {
-+		char *lo = base_ptr;
-+		char *hi = &lo[size * (total_elems - 1)];
-+		stack_node stack[STACK_SIZE];
-+		stack_node *top = stack + 1;
-+
-+		while (STACK_NOT_EMPTY) {
-+			char *left_ptr;
-+			char *right_ptr;
-+
-+			/* Select median value from among LO, MID, and
-+			   HI. Rearrange LO and HI so the three values
-+			   are sorted. This lowers the probability of
-+			   picking a pathological pivot value and
-+			   skips a comparison for both the LEFT_PTR
-+			   and RIGHT_PTR in the while loops. */
-+
-+			char *mid = lo + size * ((hi - lo) / size >> 1);
-+
-+			if ((*cmp)((void*)mid, (void*)lo) < 0)
-+				SWAP(mid, lo, size);
-+			if ((*cmp)((void*)hi, (void*)mid) < 0)
-+				SWAP(mid, hi, size);
-+			else
-+				goto jump_over;
-+			if ((*cmp)((void*)mid, (void*)lo) < 0)
-+				SWAP(mid, lo, size);
-+		jump_over:
-+
-+			left_ptr = lo + size;
-+			right_ptr = hi - size;
-+
-+			/* Here's the famous ``collapse the walls''
-+			   section of quicksort.  Gotta like those
-+			   tight inner loops!  They are the main
-+			   reason that this algorithm runs much faster
-+			   than others. */
-+			do {
-+				while ((*cmp)((void*)left_ptr, (void*)mid) < 0)
-+					left_ptr += size;
-+
-+				while ((*cmp)((void*)mid, (void*)right_ptr) < 0)
-+					right_ptr -= size;
-+
-+				if (left_ptr < right_ptr) {
-+					SWAP(left_ptr, right_ptr, size);
-+					if (mid == left_ptr)
-+						mid = right_ptr;
-+					else if (mid == right_ptr)
-+						mid = left_ptr;
-+					left_ptr += size;
-+					right_ptr -= size;
-+				} else if (left_ptr == right_ptr) {
-+					left_ptr += size;
-+					right_ptr -= size;
-+					break;
-+				}
-+			}
-+			while (left_ptr <= right_ptr);
-+
-+			/* Set up pointers for next iteration.  First
-+			   determine whether left and right partitions
-+			   are below the threshold size.  If so,
-+			   ignore one or both.  Otherwise, push the
-+			   larger partition's bounds on the stack and
-+			   continue sorting the smaller one. */
-+
-+			if ((size_t) (right_ptr - lo) <= max_thresh) {
-+				if ((size_t) (hi - left_ptr) <= max_thresh)
-+					/* Ignore both small partitions. */
-+					POP(lo, hi);
-+				else
-+					/* Ignore small left partition. */
-+					lo = left_ptr;
-+			} else if ((size_t) (hi - left_ptr) <= max_thresh)
-+				/* Ignore small right partition. */
-+				hi = right_ptr;
-+			else if ((right_ptr - lo) > (hi - left_ptr)) {
-+				/* Push larger left partition indices. */
-+				PUSH(lo, right_ptr);
-+				lo = left_ptr;
-+			} else {
-+				/* Push larger right partition indices. */
-+				PUSH(left_ptr, hi);
-+				hi = right_ptr;
-+			}
-+		}
-+	}
-+
-+	/* Once the BASE_PTR array is partially sorted by quicksort
-+	   the rest is completely sorted using insertion sort, since
-+	   this is efficient for partitions below MAX_THRESH
-+	   size. BASE_PTR points to the beginning of the array to
-+	   sort, and END_PTR points at the very last element in the
-+	   array (*not* one beyond it!). */
-+
-+	{
-+		char *end_ptr = &base_ptr[size * (total_elems - 1)];
-+		char *tmp_ptr = base_ptr;
-+		char *thresh = min(end_ptr, base_ptr + max_thresh);
-+		char *run_ptr;
-+
-+		/* Find smallest element in first threshold and place
-+		   it at the array's beginning.  This is the smallest
-+		   array element, and the operation speeds up
-+		   insertion sort's inner loop. */
-+
-+		for (run_ptr = tmp_ptr + size; run_ptr <= thresh; run_ptr += size)
-+			if ((*cmp)((void*)run_ptr, (void*)tmp_ptr) < 0)
-+				tmp_ptr = run_ptr;
-+
-+		if (tmp_ptr != base_ptr)
-+			SWAP(tmp_ptr, base_ptr, size);
-+
-+		/* Insertion sort, running from left-hand-side up to
-+		 * right-hand-side.  */
-+
-+		run_ptr = base_ptr + size;
-+		while ((run_ptr += size) <= end_ptr) {
-+			tmp_ptr = run_ptr - size;
-+			while ((*cmp)((void*)run_ptr, (void*)tmp_ptr) < 0)
-+				tmp_ptr -= size;
-+
-+			tmp_ptr += size;
-+			if (tmp_ptr != run_ptr) {
-+				char *trav;
-+
-+				trav = run_ptr + size;
-+				while (--trav >= run_ptr) {
-+					char c = *trav;
-+					char *hi, *lo;
-+
-+					for (hi = lo = trav; (lo -= size) >= tmp_ptr; hi = lo)
-+						*hi = *lo;
-+					*hi = c;
-+				}
-+			}
-+		}
-+	}
-+}
-+
-+EXPORT_SYMBOL(qsort);
+-#include <support/qsort.h>
+ #include <support/ktrace.h>
+ #include <support/debug.h>
+ #include <support/move.h>
+diff -Nru a/fs/xfs/support/qsort.c b/fs/xfs/support/qsort.c
+--- a/fs/xfs/support/qsort.c	Sun May  9 20:27:31 2004
++++ b/fs/xfs/support/qsort.c	Sun May  9 20:27:31 2004
+@@ -1,155 +0,0 @@
+-/*
+- * Copyright (c) 1992, 1993
+- *	The Regents of the University of California.  All rights reserved.
+- *
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that the following conditions
+- * are met:
+- * 1. Redistributions of source code must retain the above copyright
+- *    notice, this list of conditions and the following disclaimer.
+- * 2. Redistributions in binary form must reproduce the above copyright
+- *    notice, this list of conditions and the following disclaimer in the
+- *    documentation and/or other materials provided with the distribution.
+- * 3. Neither the name of the University nor the names of its contributors
+- *    may be used to endorse or promote products derived from this software
+- *    without specific prior written permission.
+- *
+- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+- * SUCH DAMAGE.
+- */
+-
+-#include <linux/kernel.h>
+-#include <linux/string.h>
+-
+-/*
+- * Qsort routine from Bentley & McIlroy's "Engineering a Sort Function".
+- */
+-#define swapcode(TYPE, parmi, parmj, n) { 		\
+-	long i = (n) / sizeof (TYPE); 			\
+-	register TYPE *pi = (TYPE *) (parmi); 		\
+-	register TYPE *pj = (TYPE *) (parmj); 		\
+-	do { 						\
+-		register TYPE	t = *pi;		\
+-		*pi++ = *pj;				\
+-		*pj++ = t;				\
+-        } while (--i > 0);				\
+-}
+-
+-#define SWAPINIT(a, es) swaptype = ((char *)a - (char *)0) % sizeof(long) || \
+-	es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
+-
+-static __inline void
+-swapfunc(char *a, char *b, int n, int swaptype)
+-{
+-	if (swaptype <= 1) 
+-		swapcode(long, a, b, n)
+-	else
+-		swapcode(char, a, b, n)
+-}
+-
+-#define swap(a, b)					\
+-	if (swaptype == 0) {				\
+-		long t = *(long *)(a);			\
+-		*(long *)(a) = *(long *)(b);		\
+-		*(long *)(b) = t;			\
+-	} else						\
+-		swapfunc(a, b, es, swaptype)
+-
+-#define vecswap(a, b, n) 	if ((n) > 0) swapfunc(a, b, n, swaptype)
+-
+-static __inline char *
+-med3(char *a, char *b, char *c, int (*cmp)(const void *, const void *))
+-{
+-	return cmp(a, b) < 0 ?
+-	       (cmp(b, c) < 0 ? b : (cmp(a, c) < 0 ? c : a ))
+-              :(cmp(b, c) > 0 ? b : (cmp(a, c) < 0 ? a : c ));
+-}
+-
+-void
+-qsort(void *aa, size_t n, size_t es, int (*cmp)(const void *, const void *))
+-{
+-	char *pa, *pb, *pc, *pd, *pl, *pm, *pn;
+-	int d, r, swaptype, swap_cnt;
+-	register char *a = aa;
+-
+-loop:	SWAPINIT(a, es);
+-	swap_cnt = 0;
+-	if (n < 7) {
+-		for (pm = (char *)a + es; pm < (char *) a + n * es; pm += es)
+-			for (pl = pm; pl > (char *) a && cmp(pl - es, pl) > 0;
+-			     pl -= es)
+-				swap(pl, pl - es);
+-		return;
+-	}
+-	pm = (char *)a + (n / 2) * es;
+-	if (n > 7) {
+-		pl = (char *)a;
+-		pn = (char *)a + (n - 1) * es;
+-		if (n > 40) {
+-			d = (n / 8) * es;
+-			pl = med3(pl, pl + d, pl + 2 * d, cmp);
+-			pm = med3(pm - d, pm, pm + d, cmp);
+-			pn = med3(pn - 2 * d, pn - d, pn, cmp);
+-		}
+-		pm = med3(pl, pm, pn, cmp);
+-	}
+-	swap(a, pm);
+-	pa = pb = (char *)a + es;
+-
+-	pc = pd = (char *)a + (n - 1) * es;
+-	for (;;) {
+-		while (pb <= pc && (r = cmp(pb, a)) <= 0) {
+-			if (r == 0) {
+-				swap_cnt = 1;
+-				swap(pa, pb);
+-				pa += es;
+-			}
+-			pb += es;
+-		}
+-		while (pb <= pc && (r = cmp(pc, a)) >= 0) {
+-			if (r == 0) {
+-				swap_cnt = 1;
+-				swap(pc, pd);
+-				pd -= es;
+-			}
+-			pc -= es;
+-		}
+-		if (pb > pc)
+-			break;
+-		swap(pb, pc);
+-		swap_cnt = 1;
+-		pb += es;
+-		pc -= es;
+-	}
+-	if (swap_cnt == 0) {  /* Switch to insertion sort */
+-		for (pm = (char *) a + es; pm < (char *) a + n * es; pm += es)
+-			for (pl = pm; pl > (char *) a && cmp(pl - es, pl) > 0; 
+-			     pl -= es)
+-				swap(pl, pl - es);
+-		return;
+-	}
+-
+-	pn = (char *)a + n * es;
+-	r = min(pa - (char *)a, pb - pa);
+-	vecswap(a, pb - r, r);
+-	r = min((long)(pd - pc), (long)(pn - pd - es));
+-	vecswap(pb, pn - r, r);
+-	if ((r = pb - pa) > es)
+-		qsort(a, r / es, es, cmp);
+-	if ((r = pd - pc) > es) { 
+-		/* Iterate rather than recurse to save stack space */
+-		a = pn - r;
+-		n = r / es;
+-		goto loop;
+-	}
+-/*		qsort(pn - r, r / es, es, cmp);*/
+-}
+diff -Nru a/fs/xfs/support/qsort.h b/fs/xfs/support/qsort.h
+--- a/fs/xfs/support/qsort.h	Sun May  9 20:27:31 2004
++++ b/fs/xfs/support/qsort.h	Sun May  9 20:27:31 2004
+@@ -1,41 +0,0 @@
+-/*
+- * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms of version 2 of the GNU General Public License as
+- * published by the Free Software Foundation.
+- *
+- * This program is distributed in the hope that it would be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+- *
+- * Further, this software is distributed without any warranty that it is
+- * free of the rightful claim of any third person regarding infringement
+- * or the like.  Any license provided herein, whether implied or
+- * otherwise, applies only to this software file.  Patent licenses, if
+- * any, provided herein do not apply to combinations of this program with
+- * other software, or any other product whatsoever.
+- *
+- * You should have received a copy of the GNU General Public License along
+- * with this program; if not, write the Free Software Foundation, Inc., 59
+- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
+- *
+- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
+- * Mountain View, CA  94043, or:
+- *
+- * http://www.sgi.com
+- *
+- * For further information regarding this notice, see:
+- *
+- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+- */
+-
+-#ifndef QSORT_H
+-#define QSORT_H
+-
+-extern void qsort (void *const pbase,
+-		    size_t total_elems,
+-		    size_t size,
+-		    int (*cmp)(const void *, const void *));
+-
+-#endif

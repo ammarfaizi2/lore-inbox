@@ -1,90 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263529AbUEWTrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUEWTrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263529AbUEWTrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 15:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUEWTrZ
+	id S263540AbUEWTrr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 15:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUEWTrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 15:47:25 -0400
-Received: from ns2.undead.cc ([216.126.84.18]:4992 "HELO mail.undead.cc")
-	by vger.kernel.org with SMTP id S263529AbUEWTrX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 15:47:23 -0400
-Message-ID: <40B0FFC9.1060601@undead.cc>
-Date: Sun, 23 May 2004 15:47:21 -0400
-From: John Zielinski <grim@undead.cc>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Sun, 23 May 2004 15:47:46 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:18641 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263540AbUEWTrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 15:47:43 -0400
+From: Christian Borntraeger <linux-kernel@borntraeger.net>
 To: linux-kernel@vger.kernel.org
-Subject: [RFC] sysfs null dentry pointer checking
-Content-Type: multipart/mixed;
- boundary="------------030106010402050201080305"
+Subject: Re: Linux 2.4 VS 2.6 fork VS thread creation time test
+Date: Sun, 23 May 2004 21:47:31 +0200
+User-Agent: KMail/1.6.2
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Gergely Czuczy <phoemix@harmless.hu>, itk-sysadm@ppke.hu
+References: <Pine.LNX.4.60.0405230914330.15840@localhost> <200405231139.44096.linux-kernel@borntraeger.net> <Pine.LNX.4.58.0405230247450.8199@dlang.diginsite.com>
+In-Reply-To: <Pine.LNX.4.58.0405230247450.8199@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405232147.36372.linux-kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030106010402050201080305
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+David Lang wrote:
+> On Sun, 23 May 2004, Christian Borntraeger wrote:
+> > Gergely Czuczy wrote:
+> > > failed. As I told it above all the processes are teminated right
+> > > after creation, but there were a lot of defunct processes in the
+> > > system, and they were only gone when the parent termineted.
+> > Have you heard of wait, waitpid and pthread_join?
+> there really is some sort of problem with 2.6.6 in this area. I have an
 
-I've just discovered that some of the sysfs directory functions do not 
-check if the dentry pointer is valid.  Some of the subsystems in the 
-kernel don't check the return value of  subsystem_register since not 
-being able to create a directory in sysfs is not fatal and shouldn't 
-prevent booting the machine.  Any kobject that tries to create a 
-directory under that subsystem would cause a null pointer dereference.
+Well in the example given by Gergely there was no wait call at all. 
+Therefore I believe your problem is not related to his one.
 
-Here's a patch where the dentry pointers should be checked.  The sysfs 
-directory structure wouldn't get updated if there were any directory 
-creation errors in a parent but the internal kset/kobject hierarchy 
-would still function properly.
+What do you mean by with 2.6.6. Does this testcase behaves differently with 
+other kernel versions? Which version is the first with this problem?
 
-John
+> the prarent deals with sigchild by
+> handler{
+> while ( wait(...) >0);
+> signal(SIGCHLD, handler);
+> }
 
+You run signal within the signal handler. This is not necessary, although 
+this should cause no problems. Nevertheless, can you try your test without 
+signal in the signal handler?
 
+cheers
 
---------------030106010402050201080305
-Content-Type: text/plain;
- name="sysfs_dir_null_check"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sysfs_dir_null_check"
-
-diff -urNX dontdiff linux-2.6.6/fs/sysfs/dir.c linux/fs/sysfs/dir.c
---- linux-2.6.6/fs/sysfs/dir.c	2004-05-09 22:32:28.000000000 -0400
-+++ linux/fs/sysfs/dir.c	2004-05-23 15:15:08.000000000 -0400
-@@ -26,6 +26,9 @@
- {
- 	int error;
- 
-+	if (!p)
-+		return -EFAULT;
-+
- 	down(&p->d_inode->i_sem);
- 	*d = sysfs_get_dentry(p,n);
- 	if (!IS_ERR(*d)) {
-@@ -95,7 +98,8 @@
- 
- void sysfs_remove_subdir(struct dentry * d)
- {
--	remove_dir(d);
-+	if (d)
-+		remove_dir(d);
- }
- 
- 
-@@ -164,6 +168,11 @@
- 	if (!kobj->parent)
- 		return;
- 
-+	if (!kobj->dentry) {
-+		kobject_set_name(kobj,new_name);
-+		return;
-+	}
-+
- 	parent = kobj->parent->dentry;
- 
- 	down(&parent->d_inode->i_sem);
-
---------------030106010402050201080305--
-
+Christian

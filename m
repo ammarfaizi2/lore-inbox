@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266113AbSKFXsQ>; Wed, 6 Nov 2002 18:48:16 -0500
+	id <S266233AbSKFX6a>; Wed, 6 Nov 2002 18:58:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266223AbSKFXsQ>; Wed, 6 Nov 2002 18:48:16 -0500
-Received: from email.careercast.com ([216.39.101.233]:41433 "HELO
-	email.careercast.com") by vger.kernel.org with SMTP
-	id <S266113AbSKFXsP>; Wed, 6 Nov 2002 18:48:15 -0500
-Subject: Re: build kernel for server farm
-From: Matt Simonsen <matt_lists@careercast.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0211061813170.27141-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0211061813170.27141-100000@montezuma.mastecende.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Nov 2002 15:55:02 -0800
-Message-Id: <1036626902.1331.30.camel@mattsworkstation>
+	id <S266235AbSKFX6a>; Wed, 6 Nov 2002 18:58:30 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:50941 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S266233AbSKFX63>;
+	Wed, 6 Nov 2002 18:58:29 -0500
+Date: Wed, 6 Nov 2002 19:05:03 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46: ide-cd cdrecord (almost) success report
+Message-ID: <20021107000503.GA1243@www.kroptech.com>
+References: <20021106041330.GA9489@www.kroptech.com> <20021106072223.GB4369@suse.de> <20021106155656.GA20403@www.kroptech.com> <20021106101144.A10985@eng2.beaverton.ibm.com> <20021106233325.GA29940@www.kroptech.com> <20021106155235.A17479@eng2.beaverton.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021106155235.A17479@eng2.beaverton.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 15:13, Zwane Mwaikambo wrote:
-> On 6 Nov 2002, Matt Simonsen wrote:
+On Wed, Nov 06, 2002 at 03:52:35PM -0800, Patrick Mansfield wrote:
+> On Wed, Nov 06, 2002 at 06:33:25PM -0500, Adam Kropelin wrote:
+> > On Wed, Nov 06, 2002 at 10:11:44AM -0800, Patrick Mansfield wrote:
 > 
-> > First, I plan on compiling the kernel on a development box. From there
-> > my plan is basically tar /usr/src/linux, copy to each box, untar, copy
-> > bzImage and System.map to /boot, run make modules_install, edit
-> > lilo.conf, run lilo.
+> > > What queue depth is the AIC setting?
+> > > 
+> > > SCSI in 2.5.x no longer copies the request, so if you have a queue
+> > > depth larger than the allocated requests there might not be
+> > > any free requests left for the blk layer to play with.
+> > > 
+> > > AIC default queue depth is 253 (with 2.5.46 queue depth can be set to 1
 > > 
-> > Tips? Comments?
+> > Are you talking tcq depth here? Best as I can tell, 2.5.46 defaults to
+> > 16. Lowering it to 2 doesn't seem to help.
 > 
-> Network file system?
+> CONFIG_SCSI_AIC7XXX=y
+> CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+> CONFIG_AIC7XXX_RESET_DELAY_MS=15000
 
-For /usr/src and the kernel distribution? Or for the whole boot process?
+Ok, that is indeed the setting I was changing. I've been carrying this
+same .config with my for $BIGNUM kernel versions so I must have lowered
+it to 16 sometime in the past.
 
-I use NFS already for several shared filesystems. NFS isn't quite
-specific enough that I understand what you mean.
+Even setting queue depth to 1 didn't affect the cdrecord problem.
 
-Could you give me a little more detail on exactly what you would use it
-for? If I've overlooked a howto or obvious document please RTFM me- I'm
-trying to learn from the pros here and would ideally like something that
-will scale well to over 100 machines.
-
-Matt
-
-
+--Adam

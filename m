@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132758AbQLHVXD>; Fri, 8 Dec 2000 16:23:03 -0500
+	id <S132691AbQLHV2E>; Fri, 8 Dec 2000 16:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132831AbQLHVWx>; Fri, 8 Dec 2000 16:22:53 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:56429
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S132758AbQLHVWl>; Fri, 8 Dec 2000 16:22:41 -0500
-Date: Fri, 8 Dec 2000 21:52:08 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: jschlst@turbolinux.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove warning from drivers/net/tokenring/smctr.c
-Message-ID: <20001208215208.J599@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+	id <S132604AbQLHV14>; Fri, 8 Dec 2000 16:27:56 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:60833 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S132625AbQLHV1u>;
+	Fri, 8 Dec 2000 16:27:50 -0500
+Date: Fri, 8 Dec 2000 12:57:17 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+cc: Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
+Subject: Re: eepro100 driver update for 2.4
+In-Reply-To: <3A3143D5.98E8E948@Hell.WH8.TU-Dresden.De>
+Message-ID: <Pine.LNX.4.21.0012081254360.26353-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, 8 Dec 2000, Udo A. Steinberg wrote:
 
-This patch makes a 'defined but not used' warning go away when compiling
-drivers/net/tokenring/smctr.c without module support (kernel 240t12p3).
-(It should apply cleanly.)
+> > +               /* disable advertising the flow-control capability */
+> > +               sp->advertising &= ~0x0400;
+> > +               mdio_write(ioaddr, sp->phy[0] & 0x1f, sp->advertising);
+> 
+>                                                       ^^^
+>                                                  missing a 4 here?
 
---- linux-240-t12-pre3-clean/drivers/net/tokenring/smctr.c	Sat Nov  4 23:27:09 2000
-+++ linux/drivers/net/tokenring/smctr.c	Wed Nov 29 19:29:11 2000
-@@ -21,9 +21,10 @@
-  */
- 
- static const char *version = "smctr.c: v1.1 1/1/00 by jschlst@turbolinux.com\n";
--static const char *cardname = "smctr";
- 
- #ifdef MODULE
-+static const char *cardname = "smctr";
-+
- #include <linux/module.h>
- #include <linux/version.h>
- #endif
+Yes, sorry about that.
+
+> I've tried the patch putting a 4 in the place noted above. It doesn't
+> help with the issue at all. 
+
+Ok. Can you send me the entire dump? Also, it would be helpful if you
+could try to determine when exactly it happens (upon insmod, upon ifconfig
+up, or upon receiving some packets later).
+
+> Also interesting is the fact that my kernel
+> hangs upon bootup around starting syslogd/klogd or around setting up the
+> NIC (haven't quite figured out), if I pull the network plug and continues
+> when I plug it back in.
+
+Stupid question: are you sure this is not due to the DNS server being
+unreachable?...
+
+Thanks,
+Ion
 
 -- 
-        Rasmus(rasmus@jaquet.dk)
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 
-China is a big country, inhabited by many Chinese.
--Former French President Charles de Gaulle
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129316AbQKTVs7>; Mon, 20 Nov 2000 16:48:59 -0500
+	id <S129225AbQKTVu7>; Mon, 20 Nov 2000 16:50:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129189AbQKTVst>; Mon, 20 Nov 2000 16:48:49 -0500
-Received: from pC19F09A7.dip.t-dialin.net ([193.159.9.167]:22260 "EHLO
-	mail.linsoft.de") by vger.kernel.org with ESMTP id <S129170AbQKTVsg> convert rfc822-to-8bit;
-	Mon, 20 Nov 2000 16:48:36 -0500
-From: Oliver Poths <oliver.poths@linsoft.de>
-Date: Mon, 20 Nov 2000 21:18:18 GMT
-Message-ID: <20001120.21181800@rock.>
-Subject: kernel 2.4.0-test11 crash (raid-code?) additional information
-To: linux-kernel@vger.kernel.org
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2;Linux)
-X-Priority: 3 (Normal)
+	id <S129732AbQKTVut>; Mon, 20 Nov 2000 16:50:49 -0500
+Received: from 213-123-73-80.btconnect.com ([213.123.73.80]:22022 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129626AbQKTVuk>;
+	Mon, 20 Nov 2000 16:50:40 -0500
+Date: Mon, 20 Nov 2000 21:22:30 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Oliver Poths <oliver.poths@linsoft.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel-2.4.0-test11 crashed again; this time i send you the
+ Oops-message 
+In-Reply-To: <20001120.21034500@rock.>
+Message-ID: <Pine.LNX.4.21.0011202121000.1664-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just like the first time after the kernel crashed, i pressed 
-ctrl-alt-del, then another oops-message appeared.
-After that i could only switch the system off. Reboot with the same result 
---> power off.
-Switching on again (3rd time) --> system boots!!!
-But again the kernel says at ide2, ide3 and ide4: Bios settings: hde:pio.
-Now, when i boot next time the Bios settings will be dma again.
+On Mon, 20 Nov 2000, Oliver Poths wrote:
+> looks fascinating...
 
-Best regards,
-Oliver Poths
+you know, it looks even more fascinating when you pass it through ksymoops
+like this:
+
+ksymoops < rawoops > oops
+
+and then mail the result.
+
+Regards,
+Tigran
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

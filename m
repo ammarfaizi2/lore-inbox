@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285065AbSADWQF>; Fri, 4 Jan 2002 17:16:05 -0500
+	id <S285060AbSADWQZ>; Fri, 4 Jan 2002 17:16:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285062AbSADWPp>; Fri, 4 Jan 2002 17:15:45 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:34998 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S285060AbSADWPe>; Fri, 4 Jan 2002 17:15:34 -0500
-Date: Fri, 4 Jan 2002 22:17:29 +0000
-From: Dave Jones <davej@suse.de>
-To: knobi@knobisoft.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-Message-ID: <20020104221729.A5688@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>, knobi@knobisoft.de,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C3592E0.38DFA96A@sirius-cafe.de>
-Mime-Version: 1.0
+	id <S285110AbSADWQQ>; Fri, 4 Jan 2002 17:16:16 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:31500 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S285060AbSADWP4>;
+	Fri, 4 Jan 2002 17:15:56 -0500
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C3592E0.38DFA96A@sirius-cafe.de>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15414.10574.518266.221241@argo.ozlabs.ibm.com>
+Date: Sat, 5 Jan 2002 09:14:38 +1100 (EST)
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Momchil Velikov <velco@fadata.bg>, Tom Rini <trini@kernel.crashing.org>,
+        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <87itai32rg.fsf@deneb.enyo.de>
+In-Reply-To: <87g05py8qq.fsf@fadata.bg>
+	<20020101234350.GN28513@cpe-24-221-152-185.az.sprintbbd.net>
+	<87ital6y5r.fsf@fadata.bg>
+	<15411.36909.387949.863222@argo.ozlabs.ibm.com>
+	<87itai32rg.fsf@deneb.enyo.de>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 12:32:48PM +0100, Martin Knoblauch wrote:
- >  seeing this thread - is there any serious work being spend on something
- > like "hinv" on IRIX, which gives you a *complete* listing of your
- > hardware? I have seen some attempts at shell and perl scripts, but none
- > of them really is trustworthy.
+Florian Weimer writes:
 
- When devicefs is ready (or more to the point, the drivers become
- devicefs aware), something to the effect of ls -R /devices 
- should be possible.
+> Paul Mackerras <paulus@samba.org> writes:
+> 
+> > One of the reasons why C is a good language for the kernel is that its
+> > memory model is a good match to the memory organization used by the
+> > processors that linux runs on.  Thus, for these processors, adding an
+> > offset to a pointer is in fact simply an arithmetic addition.
+> 
+> But this is not the memory model of C!  Adding an offset to a pointer
+> is an operation involving objects defined by the C language, and not
+> machine registers.  Sometimes, this makes a noticeable difference.
 
- If we have ACPI fill out the tree, it enumerates pretty much
- every device you have in the system, and half dozen you probably
- didn't know you had.
+Sorry, you are correct.  I should have written "One of the reasons why
+C used to be a good language for writing operating system kernels ..."
 
-Dave.
-
--- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+Paul.

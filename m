@@ -1,48 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318148AbSIOSBK>; Sun, 15 Sep 2002 14:01:10 -0400
+	id <S318151AbSIOSN2>; Sun, 15 Sep 2002 14:13:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318151AbSIOSBK>; Sun, 15 Sep 2002 14:01:10 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25606 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318148AbSIOSBJ>; Sun, 15 Sep 2002 14:01:09 -0400
-Date: Sun, 15 Sep 2002 11:06:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@arcor.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-In-Reply-To: <E17qRfU-0001qz-00@starship>
-Message-ID: <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318153AbSIOSN2>; Sun, 15 Sep 2002 14:13:28 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:12416 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318151AbSIOSN2>;
+	Sun, 15 Sep 2002 14:13:28 -0400
+Date: Sun, 15 Sep 2002 20:16:32 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: vesafb one pixel left?!
+Message-ID: <20020915181632.GA188@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Sun, 15 Sep 2002, Daniel Phillips wrote:
-> 
-> Let's try a different show of hands: How many users would be happier if
-> they knew that kernel developers are using modern techniques to improve
-> the quality of the kernel?
-
-You're all talk and no action.
-
-The last time I looked, the people who really _do_ improve the quality of
-the kernel don't tend to care too much about debuggers, or are at least
-capable to add a patch on their own.
-
-In fact, of the people who opened their mouth about the BUG() issue, how 
-many actually ended up personally _debugging_ the BUG() that we were 
-talking about?
-
-I did. Matt probably did. But I didn't see you fixing it with your
-debugger.
-
-So next time you bring up the kernel debugger issue, show some code and 
-real improvement first. Until then, don't spout off.
-
-		Linus
-
+On 2.5.34 I noticed that one pixel at the left was missing. I switched
+consoles and problem went away. Weird.
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

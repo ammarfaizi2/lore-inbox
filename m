@@ -1,185 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261455AbSJACpJ>; Mon, 30 Sep 2002 22:45:09 -0400
+	id <S261464AbSJADcS>; Mon, 30 Sep 2002 23:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261459AbSJACpJ>; Mon, 30 Sep 2002 22:45:09 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:1271 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S261455AbSJACpF>;
-	Mon, 30 Sep 2002 22:45:05 -0400
-Date: Tue, 1 Oct 2002 12:50:17 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Consolidate asm/ucontext.h for 2.5.39
-Message-Id: <20021001125017.5da31db8.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261466AbSJADcS>; Mon, 30 Sep 2002 23:32:18 -0400
+Received: from ausadmmsrr501.aus.amer.dell.com ([143.166.83.88]:21775 "HELO
+	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S261464AbSJADcP>; Mon, 30 Sep 2002 23:32:15 -0400
+X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
+Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1E8F5@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: mochel@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: RE: [RFC][PATCH] x86 BIOS Enhanced Disk Device (EDD) polling
+Date: Mon, 30 Sep 2002 22:37:37 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 1187C70B1600824-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Pat, thanks for the feedback and changes, I appreciate it!
 
-8 of our architectures use the same struct ucontext.  This patch
-creates asm-generic/ucontext.h and changes the 8 architectures to use it.
-When the sigcontext_struct -> sigcontext patch goes in, PPC and PPC64
-will also be able to use asm-generic/ucontext.h.
+> Don't use struct device for the firmware objects. They're not really
+> devices; they're another type of entity that has some sort of magic 
+> ia32 voodoo relationship with real devices. 
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Ahh, yes, it's not the right abstraction, just the easiest for this pass.
+I'll look at how ACPI does it and make my own object type.  I was wondering
+how to get rid of the superfluous 'power' attribute I didn't need...
 
-diff -ruN 2.5.39/include/asm-arm/ucontext.h 2.5.39-ucontext/include/asm-arm/ucontext.h
---- 2.5.39/include/asm-arm/ucontext.h	1998-01-21 11:39:43.000000000 +1100
-+++ 2.5.39-ucontext/include/asm-arm/ucontext.h	2002-10-01 12:40:07.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASMARM_UCONTEXT_H
- #define _ASMARM_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* !_ASMARM_UCONTEXT_H */
-diff -ruN 2.5.39/include/asm-cris/ucontext.h 2.5.39-ucontext/include/asm-cris/ucontext.h
---- 2.5.39/include/asm-cris/ucontext.h	2001-02-09 11:32:44.000000000 +1100
-+++ 2.5.39-ucontext/include/asm-cris/ucontext.h	2002-10-01 12:40:07.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASM_CRIS_UCONTEXT_H
- #define _ASM_CRIS_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* !_ASM_CRIS_UCONTEXT_H */
-diff -ruN 2.5.39/include/asm-generic/ucontext.h 2.5.39-ucontext/include/asm-generic/ucontext.h
---- 2.5.39/include/asm-generic/ucontext.h	1970-01-01 10:00:00.000000000 +1000
-+++ 2.5.39-ucontext/include/asm-generic/ucontext.h	2002-10-01 12:40:07.000000000 +1000
-@@ -0,0 +1,12 @@
-+#ifndef _ASM_GENERIC_UCONTEXT_H
-+#define _ASM_GENERIC_UCONTEXT_H
-+
-+struct ucontext {
-+	unsigned long	  uc_flags;
-+	struct ucontext  *uc_link;
-+	stack_t		  uc_stack;
-+	struct sigcontext uc_mcontext;
-+	sigset_t	  uc_sigmask;	/* mask last for extensibility */
-+};
-+
-+#endif /* !_ASM_GENERIC_UCONTEXT_H */
-diff -ruN 2.5.39/include/asm-i386/ucontext.h 2.5.39-ucontext/include/asm-i386/ucontext.h
---- 2.5.39/include/asm-i386/ucontext.h	1997-12-02 05:45:24.000000000 +1100
-+++ 2.5.39-ucontext/include/asm-i386/ucontext.h	2002-10-01 12:40:07.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASMi386_UCONTEXT_H
- #define _ASMi386_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* !_ASMi386_UCONTEXT_H */
-diff -ruN 2.5.39/include/asm-mips/ucontext.h 2.5.39-ucontext/include/asm-mips/ucontext.h
---- 2.5.39/include/asm-mips/ucontext.h	2000-05-14 01:31:25.000000000 +1000
-+++ 2.5.39-ucontext/include/asm-mips/ucontext.h	2002-10-01 12:40:07.000000000 +1000
-@@ -11,12 +11,6 @@
- #ifndef _ASM_UCONTEXT_H
- #define _ASM_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* _ASM_UCONTEXT_H */
-diff -ruN 2.5.39/include/asm-mips64/ucontext.h 2.5.39-ucontext/include/asm-mips64/ucontext.h
---- 2.5.39/include/asm-mips64/ucontext.h	2001-09-10 03:43:02.000000000 +1000
-+++ 2.5.39-ucontext/include/asm-mips64/ucontext.h	2002-10-01 12:40:07.000000000 +1000
-@@ -10,12 +10,6 @@
- #ifndef _ASM_UCONTEXT_H
- #define _ASM_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* _ASM_UCONTEXT_H */
-diff -ruN 2.5.39/include/asm-parisc/ucontext.h 2.5.39-ucontext/include/asm-parisc/ucontext.h
---- 2.5.39/include/asm-parisc/ucontext.h	2000-12-06 07:29:39.000000000 +1100
-+++ 2.5.39-ucontext/include/asm-parisc/ucontext.h	2002-10-01 12:40:07.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASMPARISC_UCONTEXT_H
- #define _ASMPARISC_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* !_ASMPARISC_UCONTEXT_H */
-diff -ruN 2.5.39/include/asm-sh/ucontext.h 2.5.39-ucontext/include/asm-sh/ucontext.h
---- 2.5.39/include/asm-sh/ucontext.h	1999-08-31 11:12:59.000000000 +1000
-+++ 2.5.39-ucontext/include/asm-sh/ucontext.h	2002-10-01 12:40:07.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef __ASM_SH_UCONTEXT_H
- #define __ASM_SH_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* __ASM_SH_UCONTEXT_H */
-diff -ruN 2.5.39/include/asm-x86_64/ucontext.h 2.5.39-ucontext/include/asm-x86_64/ucontext.h
---- 2.5.39/include/asm-x86_64/ucontext.h	2002-02-20 14:13:21.000000000 +1100
-+++ 2.5.39-ucontext/include/asm-x86_64/ucontext.h	2002-10-01 12:40:07.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASMX8664_UCONTEXT_H
- #define _ASMX8664_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif
+> > $ cat int13_dev80/host_bus
+> > PCI     02:01.0  channel: 0
+> 
+> How about a symlink to the bus's directory? Or the PCI device 
+> that is the controller? 
+
+Ok.
+
+> > $ cat int13_dev80/interface
+> > SCSI            id: 0  lun: 0
+> 
+> And, a symlink to the device itself? I liked it better the 
+> way you had it before :)
+
+Can I have both? :-)  (I hadn't implemented the symlink before, just faked
+it, but I definitely want a symlink, needed the stuff exported to do it
+right - thanks!}
+
+> Ugh. Drop the ascii-fying hexdump for one.
+
+I've been over this with Greg privately.  I moved it to raw_data, separate,
+but there.  I know of only one BIOS that implements the spec right, and that
+is pre-release, because I could say "see, here's what you're returning, it's
+wrong these 4 ways..." in a language the BIOS guys understand - the raw
+hexdump of the return struct.  This will be critical to getting the changes
+required to be useful ubiquitous.
+
+> I'd also strongly encourage you to
+> split the data in 'info' to separate files.
+
+Yep, done, with tests such that if the attribute is invalid or for some
+reason shouldn't exist, it doesn't get created.  The default* files for
+example - if the bios puts 0s there, they don't get made.  Likewise if the
+PCI / SCSI info isn't given by bios, those don't get made either.
+
+Here's my tree now.
+.
+|-- bus
+|   `-- system
+|       |-- devices
+|       |   |-- int13_dev80 -> ../../../root/bios/int13_dev80
+|       |   |-- int13_dev81 -> ../../../root/bios/int13_dev81
+|       `-- drivers
+|           |-- edd
+`-- root
+    |-- bios
+    |   |-- int13_dev80
+    |   |   |-- default_cylinders
+    |   |   |-- default_heads
+    |   |   |-- default_sectors_per_track
+    |   |   |-- raw_data
+    |   |   |-- extensions
+    |   |   |-- host_bus
+    |   |   |-- info_flags
+    |   |   |-- interface
+    |   |   |-- name
+    |   |   |-- power
+    |   |   |-- sectors
+    |   |   `-- version
+    |   |-- name
+    |   `-- power
+
+$ cat default_cylinders
+0x0
+
+$ cat default_heads
+0x0
+
+$ cat default_sectors_per_track
+0x0
+
+$ cat raw_data
+int 13h fn 48h return struct:
+
+1e 00 09 00 00 00 00 00 00 00 00 00 00 00 00 00         ................
+3a b9 8b 08 00 00 00 00 00 02 ff ff ff ff be dd         :...............
+2c 00 00 00 50 43 49 00 53 43 53 49 00 00 00 00         ,...PCI.SCSI....
+02 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00         ................
+00 00 00 00 00 00 00 00 00 28                           .........(
+
+Warning: Spec violation.  Key should be 0xBEDD, is 0xDDBE
+Warning: Spec violation.  Padding should be 0x20, is 0x00.
+
+$ cat extensions
+Fixed disk access
+
+$ cat host_bus
+PCI     02:01.0  channel: 0
+
+$ cat info_flags
+DMA boundry error transparent
+write verify
+
+$ cat interface
+SCSI            id: 0  lun: 0
+
+$ cat name
+BIOS int 13h device 80h
+
+$ cat power
+0
+
+$ cat sectors
+0x88bb93a
+
+$ cat version
+0x30
+
+
+I may try walking the disk class device list for matches rather than the
+individual bus type lists - would be slightly faster and possibly less
+intrusive.  That's a helpful abstraction for me.
+
+My current stuff is in BK at http://mdomsch.bkbits.net/linux-2.5-edd.
+
+Thanks,
+Matt
+
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+

@@ -1,72 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265727AbTABRJs>; Thu, 2 Jan 2003 12:09:48 -0500
+	id <S266115AbTABRKr>; Thu, 2 Jan 2003 12:10:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266115AbTABRJs>; Thu, 2 Jan 2003 12:09:48 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9154 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265727AbTABRJq>; Thu, 2 Jan 2003 12:09:46 -0500
-Date: Thu, 2 Jan 2003 18:18:04 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jaroslav Kysela <perex@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.54
-Message-ID: <20030102171803.GQ6114@fs.tum.de>
-References: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com>
+	id <S266203AbTABRKr>; Thu, 2 Jan 2003 12:10:47 -0500
+Received: from 12-224-209-133.client.attbi.com ([12.224.209.133]:4224 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266115AbTABRKl>; Thu, 2 Jan 2003 12:10:41 -0500
+Subject: Re: Raw data from dedicated kernel bug database
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Larry McVoy <lm@bitmover.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
+       Dave Jones <davej@codemonkey.org.uk>, Randy Dunlap <rddunlap@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030102025605.GE23419@work.bitmover.com>
+References: <20030101194019.GZ5607@work.bitmover.com>
+	 <12310000.1041456646@titus> <20030101221510.GG5607@work.bitmover.com>
+	 <1041473017.22606.8.camel@irongate.swansea.linux.org.uk>
+	 <45160000.1041475166@titus>  <20030102025605.GE23419@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Open Source Development Lab, Inc.
+Message-Id: <1041524136.1491.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 02 Jan 2003 08:15:36 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 07:43:40PM -0800, Linus Torvalds wrote:
+  Sorry for the slow response I'm on vacation and sharing
+the computer with 4 teenagers who are all addicted
+to IRC.  But I think that Martin can get this done.
 
->...
-> Summary of changes from v2.5.53 to v2.5.54
-> ============================================
->...
-> Jaroslav Kysela <perex@suse.cz>:
->   o PnP update
->...
+  Martin if you need help from my folks please contact
+them and get this done.
 
-FYI:
+Tim
 
-This change broke the compilation of drivers/ide/ide-pnp.c:
-
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,drivers/ide/.ide-pnp.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=ide_pnp -DKBUILD_MODNAME=ide_pnp   -c -o 
-drivers/ide/ide-pnp.o drivers/ide/ide-pnp.c
-drivers/ide/ide-pnp.c: In function `pnpide_init':
-drivers/ide/ide-pnp.c:117: structure has no member named `deactivate'
-drivers/ide/ide-pnp.c:118: structure has no member named `deactivate'
-drivers/ide/ide-pnp.c:124: warning: implicit declaration of function `isapnp_find_dev'
-drivers/ide/ide-pnp.c:125: warning: assignment makes pointer from integer without a cast
-drivers/ide/ide-pnp.c:127: structure has no member named `active'
-drivers/ide/ide-pnp.c:130: structure has no member named `prepare'
-drivers/ide/ide-pnp.c:130: structure has no member named `prepare'
-drivers/ide/ide-pnp.c:135: structure has no member named `activate'
-drivers/ide/ide-pnp.c:135: structure has no member named `activate'
-drivers/ide/ide-pnp.c:142: structure has no member named `deactivate'
-drivers/ide/ide-pnp.c:143: structure has no member named `deactivate'
-make[2]: *** [drivers/ide/ide-pnp.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
+On Wed, 2003-01-01 at 18:56, Larry McVoy wrote:
+> > Larry, can I presume that you'll reciprocate, and export whatever you
+> > do to the data in BK in some argument-free format (probably the same
+> > one we export to you)? 
+> 
+> Yup.  A BK database is actually a BK repostory with an SQL layer on 
+> top of it.  So all of the stuff you can do with BK you can do with 
+> BK/Database.  We can export changes as patches, as flat files, as
+> associative arrays in perl, take your pick.
+> 
+> > I think the concerns I had about tools going wild are actually fairly
+> > easy to resolve by making it a pull-pull interchange ... don't know
+> > why I was thinking of push models.
+> 
+> Cool.  I've already tracked down an SQL hacker who is willing to contract
+> with us to write the scripts to get the data out of your Bugzilla database.
+> He said that I need to ask you to do this:
+> 
+> 	shut down the mysql database
+> 	grab all the MySQL files and stuff them in a tarball
+> 	turn on the mysql database again
+> 
+> Then he can set up a mysql instance here and start hacking on the scripts.
+> How's that sound?
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271851AbTGRWH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 18:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271850AbTGRWHP
+	id S271872AbTGRWLU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 18:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271855AbTGRWKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 18:07:15 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:19204
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S271902AbTGRWCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 18:02:25 -0400
-Date: Fri, 18 Jul 2003 15:17:30 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Cc: rms@gnu.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper
-Message-ID: <20030718221730.GF2289@matchmail.com>
-Mail-Followup-To: "Trever L. Adams" <tadams-lists@myrealbox.com>,
-	rms@gnu.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <E19dbGS-00026T-9R@fencepost.gnu.org> <1058558982.2479.28.camel@aurora.localdomain>
+	Fri, 18 Jul 2003 18:10:47 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62423
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S271869AbTGRWIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 18:08:21 -0400
+Subject: Re: [PATCH] 2.6.0-test1-after-alan-s-patch - More Makefile/Kconfig
+	bits
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <20030719001256.C780@electric-eye.fr.zoreil.com>
+References: <200307181432.h6IEW9Mt017886@hraefn.swansea.linux.org.uk>
+	 <20030719001256.C780@electric-eye.fr.zoreil.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058566841.19558.101.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058558982.2479.28.camel@aurora.localdomain>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 18 Jul 2003 23:20:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 18, 2003 at 04:09:42PM -0400, Trever L. Adams wrote:
-> McVoy, thank you for helping Linus, Cox, Miller et al scale better.  As
+On Gwe, 2003-07-18 at 23:12, Francois Romieu wrote:
+> Adds kahlua, harmony and hal2 drivers amongst the build options.
+> 
 
-One nit.
+I left the harmony and hal2 out intentionally because they are tied to
+MIPS and PARISC build rules that are not yet really finalised for 2.6,
+but this looks fine
 
-I don't think Alan is using BK.  I could be wrong though.

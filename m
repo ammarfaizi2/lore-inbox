@@ -1,82 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131020AbRC3U01>; Fri, 30 Mar 2001 15:26:27 -0500
+	id <S131588AbRC3UU5>; Fri, 30 Mar 2001 15:20:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131631AbRC3U0R>; Fri, 30 Mar 2001 15:26:17 -0500
-Received: from out2.prserv.net ([32.97.166.32]:30453 "EHLO prserv.net")
-	by vger.kernel.org with ESMTP id <S131020AbRC3U0E>;
-	Fri, 30 Mar 2001 15:26:04 -0500
-Message-Id: <m14j5FD-001PKFC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: nigel@nrg.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel 
-In-Reply-To: Your message of "Thu, 29 Mar 2001 16:26:44 PST."
-             <Pine.LNX.4.05.10103291555390.8122-100000@cosmic.nrg.org> 
-Date: Sat, 31 Mar 2001 06:11:39 +1000
+	id <S131638AbRC3UUr>; Fri, 30 Mar 2001 15:20:47 -0500
+Received: from cpe.atm0-0-0-209183.boanxx5.customer.tele.dk ([62.242.151.103]:58730
+	"HELO mail.hswn.dk") by vger.kernel.org with SMTP
+	id <S131588AbRC3UUk>; Fri, 30 Mar 2001 15:20:40 -0500
+To: linux-kernel@vger.kernel.org
+Path: news.storner.dk!not-for-mail
+From: henrik@storner.dk (Henrik =?ISO-8859-1?Q?St=F8rner?=)
+Newsgroups: linux.kernel
+Subject: Re: How to compile linux 0.0.0.1?
+Date: 30 Mar 2001 22:19:50 +0200
+Organization: Linux Users Inc.
+Message-ID: <9a2pp6$p39$1@osiris.storner.dk>
+In-Reply-To: <OJECKBFFEMDBJMBOKGEDEEIDCCAA.jisla@elogica.com.br>
+X-Newsreader: NN version 6.5.6 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.05.10103291555390.8122-100000@cosmic.nrg.org> you write:
-> Here is an attempt at a possible version of synchronize_kernel() that
-> should work on a preemptible kernel.  I haven't tested it yet.
+In <OJECKBFFEMDBJMBOKGEDEEIDCCAA.jisla@elogica.com.br> "Bruno Avila" <jisla@elogica.com.br> writes:
 
-It's close, but...
+>       I can't find this anywhere. What is the version of the tools to
+>compile linux kernel 0.0.0.1 (../Historic)? And where can i find them?
 
-Those who suggest that we don't do preemtion on SMP make this much
-easier (synchronize_kernel() is a NOP on UP), and I'm starting to
-agree with them.  Anyway:
+>From what I've heard, the earliest versions of Linux were
+cross-compiled on a Minix system. I've stored one of Linus' old
+postings about the earliest days, and in his famous "Do you pine for
+the nice days of minix-1.1, when men were men and wrote their own
+device drivers?" message announcing linux is this note:
 
-> 		if (p->state == TASK_RUNNING ||
-> 				(p->state == (TASK_RUNNING|TASK_PREEMPTED))) {
-> 			p->flags |= PF_SYNCING;
-
-Setting a running task's flags brings races, AFAICT, and checking
-p->state is NOT sufficient, consider wait_event(): you need p->has_cpu
-here I think.  You could do it for TASK_PREEMPTED only, but you'd have
-to do the "unreal priority" part of synchronize_kernel() with some
-method to say "don't preempt anyone", but it will hurt latency.
-Hmmm...
-
-The only way I can see is to have a new element in "struct
-task_struct" saying "syncing now", which is protected by the runqueue
-lock.  This looks like (and I prefer wait queues, they have such nice
-helpers):
-
-	static DECLARE_WAIT_QUEUE_HEAD(syncing_task);
-	static DECLARE_MUTEX(synchronize_kernel_mtx);
-	static int sync_count = 0;
-
-schedule():
-	if (!(prev->state & TASK_PREEMPTED) && prev->syncing)
-		if (--sync_count == 0) wake_up(&syncing_task);
-
-synchronize_kernel():
-{
-	struct list_head *tmp;
-	struct task_struct *p;
-
-	/* Guard against multiple calls to this function */
-	down(&synchronize_kernel_mtx);
-
-	/* Everyone running now or currently preempted must
-	   voluntarily schedule before we know we are safe. */
-	spin_lock_irq(&runqueue_lock);
-	list_for_each(tmp, &runqueue_head) {
-		p = list_entry(tmp, struct task_struct, run_list);
-		if (p->has_cpu || p->state == (TASK_RUNNING|TASK_PREEMPTED)) {
-			p->syncing = 1;
-			sync_count++;
-		}
-	}
-	spin_unlock_irq(&runqueue_lock);
-
-	/* Wait for them all */
-	wait_event(syncing_task, sync_count == 0);
-	up(&synchronize_kernel_mtx);
-}
-
-Also untested 8),
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+> ALERT! WARNING! NOTE! These sources still need minix-386 to be
+> compiled (and gcc-1.40, possibly 1.37.1, haven't tested), and you need
+> minix to set it up if you want to run it, so it is not yet a
+> standalone system for those of you without minix.
+-- 
+Henrik Storner      | "ATA100 is another testimony to the fact that 
+<henrik@storner.dk> |  pigs can be made to fly given sufficient thrust"
+                    | 
+                    |          Linux kernel hacker Alan Cox, on IDE drives

@@ -1,114 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUGGQ02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265245AbUGGQak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUGGQ02 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 12:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUGGQ02
+	id S265245AbUGGQak (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 12:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUGGQak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 12:26:28 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:3231
-	"EHLO voidhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S265234AbUGGQZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 12:25:54 -0400
-Date: Wed, 7 Jul 2004 17:25:32 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-Message-Id: <200407071625.i67GPW1r019723@voidhawk.shadowen.org>
-To: akpm@osdl.org, apw@shadowen.org
-Subject: Re: [PATCH] convert uses of ZONE_HIGHMEM to is_highmem
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040625152711.60fa7ee1.akpm@digeo.com>
+	Wed, 7 Jul 2004 12:30:40 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:64897 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265245AbUGGQah (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 12:30:37 -0400
+Date: Wed, 7 Jul 2004 18:31:03 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.7-mm6
+Message-ID: <20040707163103.GA1368@ucw.cz>
+References: <20040705023120.34f7772b.akpm@osdl.org> <200407061251.18702.dtor_core@ameritech.net> <20040706231256.GV21066@holomorphy.com> <200407070015.39507.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407070015.39507.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akpm@osdl.org wrote:
+On Wed, Jul 07, 2004 at 12:15:37AM -0500, Dmitry Torokhov wrote:
+> The only suspicious thing that I see is that sunzilog tries to register its
+> serio ports with spinlock held and interrupts off. I wonder if that is what
+> causing a deadlock. Could you please try applying this patch on top of the
+> changes to the drivers/Makefile that I sent earlier.
+
+Shall I add this to my BK then?
+
+> -- 
+> Dmitry
 > 
-> Andy Whitcroft <apw@shadowen.org> wrote:
-> >
-> > As the comments in mmzone.h indicate is_highmem() is designed to
-> > reduce the proliferation of the constant ZONE_HIGHMEM.  This patch
-> > updates three references to ZONE_HIGHMEM to use is_highmem().
-> > None appear to be on critical paths.
-> > 
-> > Revision: $Rev: 305 $ 
-[...]
-> Fair enough.
 > 
-> >  #ifdef CONFIG_HIGHMEM
-> >  unsigned int nr_free_highpages (void)
-> >  {
-> > -	pg_data_t *pgdat;
-> > +	struct zone *zone;
-> >  	unsigned int pages = 0;
-> >  
-> > -	for_each_pgdat(pgdat)
-> > -		pages += pgdat->node_zones[ZONE_HIGHMEM].free_pages;
-> > +	for_each_zone(zone)
-> > +		if (is_highmem(zone))
-> > +			pages += zone->free_pages;
+> ===== drivers/serial/sunzilog.c 1.44 vs edited =====
+> --- 1.44/drivers/serial/sunzilog.c	2004-06-28 22:45:23 -05:00
+> +++ edited/drivers/serial/sunzilog.c	2004-07-06 23:46:54 -05:00
+> @@ -1529,7 +1529,6 @@
+>  static void __init sunzilog_init_kbdms(struct uart_sunzilog_port *up, int channel)
+>  {
+>  	int baud, brg;
+> -	struct serio *serio;
+>  
+>  	if (channel == KEYBOARD_LINE) {
+>  		up->flags |= SUNZILOG_FLAG_CONS_KEYB;
+> @@ -1546,8 +1545,15 @@
+>  	up->curregs[R15] = BRKIE;
+>  	brg = BPS_TO_BRG(baud, ZS_CLOCK / ZS_CLOCK_DIVISOR);
+>  	sunzilog_convert_to_zs(up, up->cflag, 0, brg);
+> +	sunzilog_set_mctrl(&up->port, TIOCM_DTR | TIOCM_RTS);
+> +	__sunzilog_startup(up);
+> +}
+>  
+>  #ifdef CONFIG_SERIO
+> +static void __init sunzilog_register_serio(struct uart_sunzilog_port *up, int channel)
+> +{
+> +	struct serio *serio;
+> +
+>  	up->serio = serio = kmalloc(sizeof(struct serio), GFP_KERNEL);
+>  	if (serio) {
+>  
+> @@ -1576,11 +1582,8 @@
+>  		printk(KERN_WARNING "zs%d: not enough memory for serio port\n",
+>  			channel);
+>  	}
+> -#endif
+> -
+> -	sunzilog_set_mctrl(&up->port, TIOCM_DTR | TIOCM_RTS);
+> -	__sunzilog_startup(up);
+>  }
+> +#endif
+>  
+>  static void __init sunzilog_init_hw(void)
+>  {
+> @@ -1624,6 +1627,11 @@
+>  		}
+>  
+>  		spin_unlock_irqrestore(&up->port.lock, flags);
+> +
+> +#ifdef CONFIG_SERIO
+> +		if (i == KEYBOARD_LINE || i == MOUSE_LINE)
+> +			sunzilog_register_serio(up, i);
+> +#endif
+>  	}
+>  }
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> but that's slower.
 
-Fair point.  This patch only changes the first which is inialisation
-only and the last which is the same code via inline.  The other
-I'll hold onto and think about more.
-
--apw
-
-=== 8< ===
-As the comments in mmzone.h indicate is_highmem() is designed to
-reduce the proliferation of the constant ZONE_HIGHMEM.  This patch
-updates references to ZONE_HIGHMEM to use is_highmem().  None appear
-to be on critical paths.
-
-Revision: $Rev: 377 $
-
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-
----
- arch/i386/mm/discontig.c |   17 +++++++++++------
- mm/page_alloc.c          |    2 +-
- 2 files changed, 12 insertions(+), 7 deletions(-)
-
-diff -upN reference/arch/i386/mm/discontig.c current/arch/i386/mm/discontig.c
---- reference/arch/i386/mm/discontig.c	2004-06-25 22:26:03.000000000 +0100
-+++ current/arch/i386/mm/discontig.c	2004-07-07 18:10:15.000000000 +0100
-@@ -409,17 +409,22 @@ void __init zone_sizes_init(void)
- void __init set_highmem_pages_init(int bad_ppro) 
- {
- #ifdef CONFIG_HIGHMEM
--	int nid;
-+	struct zone *zone;
- 
--	for (nid = 0; nid < numnodes; nid++) {
-+	for_each_zone(zone) {
- 		unsigned long node_pfn, node_high_size, zone_start_pfn;
- 		struct page * zone_mem_map;
- 		
--		node_high_size = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].spanned_pages;
--		zone_mem_map = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_mem_map;
--		zone_start_pfn = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_start_pfn;
-+		if (!is_highmem(zone))
-+			continue;
-+
-+		printk("Initializing %s for node %d\n", zone->name,
-+			zone->zone_pgdat->node_id);
-+
-+		node_high_size = zone->spanned_pages;
-+		zone_mem_map = zone->zone_mem_map;
-+		zone_start_pfn = zone->zone_start_pfn;
- 
--		printk("Initializing highpages for node %d\n", nid);
- 		for (node_pfn = 0; node_pfn < node_high_size; node_pfn++) {
- 			one_highpage_init((struct page *)(zone_mem_map + node_pfn),
- 					  zone_start_pfn + node_pfn, bad_ppro);
-diff -upN reference/mm/page_alloc.c current/mm/page_alloc.c
---- reference/mm/page_alloc.c	2004-07-07 18:08:56.000000000 +0100
-+++ current/mm/page_alloc.c	2004-07-07 18:10:15.000000000 +0100
-@@ -1421,7 +1421,7 @@ void __init memmap_init_zone(struct page
- 		INIT_LIST_HEAD(&page->lru);
- #ifdef WANT_PAGE_VIRTUAL
- 		/* The shift won't overflow because ZONE_NORMAL is below 4G. */
--		if (zone != ZONE_HIGHMEM)
-+		if (!is_highmem(zone))
- 			set_page_address(page, __va(start_pfn << PAGE_SHIFT));
- #endif
- 		start_pfn++;
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,150 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbSL3BCR>; Sun, 29 Dec 2002 20:02:17 -0500
+	id <S265798AbSL3A6k>; Sun, 29 Dec 2002 19:58:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265139AbSL3BCR>; Sun, 29 Dec 2002 20:02:17 -0500
-Received: from stargate-42-82.salzburg-online.at ([213.153.42.82]:24331 "EHLO
-	window.dhis.org") by vger.kernel.org with ESMTP id <S264976AbSL3BCO>;
-	Sun, 29 Dec 2002 20:02:14 -0500
-Date: Mon, 30 Dec 2002 02:09:53 +0100
-From: Thomas Ogrisegg <tom@rhadamanthys.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] TCP Zero Copy for mmapped files
-Message-ID: <20021230010953.GA17731@window.dhis.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6c2NcOVqGQ03X4Wi"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S265806AbSL3A6k>; Sun, 29 Dec 2002 19:58:40 -0500
+Received: from packet.digeo.com ([12.110.80.53]:21240 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265798AbSL3A6j>;
+	Sun, 29 Dec 2002 19:58:39 -0500
+Message-ID: <3E0F9C2E.9652D11A@digeo.com>
+Date: Sun, 29 Dec 2002 17:06:54 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: khromy <khromy@lnuxlab.ath.cx>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.53-mm3: xmms: page allocation failure. order:5, mode:0x20
+References: <3E0F5E2C.70F7D112@digeo.com> <1041211946.1474.31.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Dec 2002 01:06:55.0511 (UTC) FILETIME=[BEC61A70:01C2AF9F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+> On Sun, 2002-12-29 at 20:42, Andrew Morton wrote:
+> > gack.  Someone is requesting 128k of memory with GFP_ATOMIC.  It fell
+> > afoul of the reduced memory reserves.  It deserved to.
+> 
+> ISA sound I/O. And yes it really does want the 128K if it can get it on
+> a slower box. It will try 128/64/32/.. so it gets less if there isnt any
+> DMA RAM around. All the sound works this way because few bits of sound
+> hardware, even in the PCI world, support scatter gather.
+> 
+> If the VM can't deal with it - we need to fix the VM.
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It'll tend to usually work because GFP_KERNEL allocations prefer to
+not dip into the DMA region.
 
-The following patch (for 2.4.20 -- should work with all kernels
-above 2.4.17) implements TCP Zero Copy for normal (writing)
-socket operations on memory mapped files.
+> All these allocations are blocking and can wait a long time.
 
-This is a major speedup for the TCP/IP stack (depending on the size
-of the file more than 100% more throughput) and makes sendfile(2)
-nearly useless.
+But it's not!  dma_alloc_coherent() is using GFP_ATOMIC|__GFP_DMA.
 
-BTW: When I did a (loopback) benchmark against my very own HTTP-
-Server it outperformed TUX by roughly 6%. With logging disabled
-by roughly 20%.
+Now, if we can fix the caller to use
 
-Please CC any replies to me, as I'm not subscribed to this list.
+	__GFP_WAIT | __GFP_IO | __GFP_HIGHIO | __GFP_FS | __GFP_DMA
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tcp.diff"
+then that at least will allow page reclaim.
 
---- linux.old/net/ipv4/tcp.c	Fri Nov 29 00:53:15 2002
-+++ linux-2.4.20/net/ipv4/tcp.c	Sun Dec 29 20:30:10 2002
-@@ -204,6 +204,7 @@
-  *		Andi Kleen 	:	Make poll agree with SIGIO
-  *	Salvatore Sanfilippo	:	Support SO_LINGER with linger == 1 and
-  *					lingertime == 0 (RFC 793 ABORT Call)
-+ *	Thomas Ogrisegg		:	Added TCP Zero Copy for mmapped files
-  *					
-  *		This program is free software; you can redistribute it and/or
-  *		modify it under the terms of the GNU General Public License
-@@ -1006,6 +1007,41 @@
- 	return tmp;
- }
- 
-+static ssize_t file_send_actor (read_descriptor_t *desc, struct page *page,
-+	unsigned long offset, unsigned long size)
-+{
-+	ssize_t res;
-+	unsigned long count = desc->count;
-+	struct sock *sk = (struct sock *) desc->buf;
-+	int flags;
-+
-+	if (size > count)
-+		size = count;
-+
-+	flags = (sk->socket->file->f_flags & O_NONBLOCK) ? MSG_DONTWAIT : 0;
-+	if (size < count) flags |= MSG_MORE;
-+
-+#define TCP_ZC_CSUM_FLAGS (NETIF_F_IP_CSUM|NETIF_F_NO_CSUM|NETIF_F_HW_CSUM)
-+
-+	if (!(sk->route_caps & NETIF_F_SG) ||
-+		!(sk->route_caps & TCP_ZC_CSUM_FLAGS))
-+		return sock_no_sendpage(sk->socket, page, offset, size, flags);
-+
-+#undef TCP_ZC_CSUM_FLAGS
-+
-+	TCP_CHECK_TIMER(sk);
-+	res = do_tcp_sendpages(sk, &page, offset, size, flags);
-+	TCP_CHECK_TIMER(sk);
-+
-+	if (res < 0) desc->error = res;
-+	else {
-+		desc->count -= res;
-+		desc->written += res;
-+	}
-+
-+	return res;
-+}
-+
- int tcp_sendmsg(struct sock *sk, struct msghdr *msg, int size)
- {
- 	struct iovec *iov;
-@@ -1015,6 +1051,7 @@
- 	int mss_now;
- 	int err, copied;
- 	long timeo;
-+	int has_sendpage = sk->socket->file->f_op->sendpage != NULL;
- 
- 	tp = &(sk->tp_pinfo.af_tcp);
- 
-@@ -1049,6 +1086,44 @@
- 
- 		iov++;
- 
-+		if (seglen >= PAGE_SIZE && has_sendpage) {
-+			struct vm_area_struct *vma =
-+				find_vma (current->mm, (long) from);
-+			struct file *filp;
-+
-+			if (vma && (filp = vma->vm_file)) {
-+				read_descriptor_t desc;
-+				struct inode *in, *out;
-+				loff_t pos = (long) from - vma->vm_start;
-+
-+				in  = filp->f_dentry->d_inode;
-+				out = sk->socket->file->f_dentry->d_inode;
-+
-+				if (locks_verify_area (FLOCK_VERIFY_READ, in,
-+					filp, filp->f_pos, seglen))
-+					goto out_no_zero_copy;
-+
-+				if (locks_verify_area (FLOCK_VERIFY_WRITE, out,
-+					sk->socket->file, 0, seglen))
-+					goto out_no_zero_copy;
-+
-+				desc.written = 0;
-+				desc.count   = seglen;
-+				desc.buf     = (char *) sk;
-+				desc.error   = 0;
-+
-+				do_generic_file_read (filp, &pos, &desc,
-+					file_send_actor);
-+
-+				if (!desc.written) {
-+					err = desc.error;
-+					goto do_error;
-+				}
-+				copied += desc.written;
-+				continue;
-+			}
-+		}
-+out_no_zero_copy:
- 		while (seglen > 0) {
- 			int copy;
- 			
+Then we can remove this restriction in __alloc_pages():
 
---6c2NcOVqGQ03X4Wi--
+        /*
+         * Don't let big-order allocations loop.  Yield for kswapd, try again.
+         */
+        if (order <= 3) {
+                yield();
+                goto rebalance;
+        }
+
+and all will be well.
+
+dma_alloc_coherent() should be fixed to take a gfp_mask, and callers
+should be updated.
+
+As for permitting direct page reclaim for higher-order allocations: I
+just don't know - it's from before my time.  Perhaps the VM will livelock.

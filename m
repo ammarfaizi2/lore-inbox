@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263986AbSITXWa>; Fri, 20 Sep 2002 19:22:30 -0400
+	id <S263963AbSITXUo>; Fri, 20 Sep 2002 19:20:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263988AbSITXWa>; Fri, 20 Sep 2002 19:22:30 -0400
-Received: from packet.digeo.com ([12.110.80.53]:9673 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263986AbSITXW3>;
-	Fri, 20 Sep 2002 19:22:29 -0400
-Message-ID: <3D8BAEDC.ED943632@digeo.com>
-Date: Fri, 20 Sep 2002 16:27:24 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S263986AbSITXUn>; Fri, 20 Sep 2002 19:20:43 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:39900 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S263963AbSITXUn>; Fri, 20 Sep 2002 19:20:43 -0400
+Date: Fri, 20 Sep 2002 16:22:20 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: 2.5.36-mm1 dbench 512 profiles
+Message-ID: <231070000.1032564140@flay>
+In-Reply-To: <20020920231126.GN3530@holomorphy.com>
+References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <20020920080628.GK3530@holomorphy.com> <20020920120358.GV28202@holomorphy.com> <68810000.1032557423@flay> <20020920231126.GN3530@holomorphy.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org, msinz@wgate.com
-Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
-References: <3D8B87C7.7040106@wgate.com.suse.lists.linux.kernel> <3D8B8CAB.103C6CB8@digeo.com.suse.lists.linux.kernel> <3D8B934A.1060900@wgate.com.suse.lists.linux.kernel> <3D8B982A.2ABAA64C@digeo.com.suse.lists.linux.kernel> <p73bs6stfv8.fsf@oldwotan.suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Sep 2002 23:27:29.0027 (UTC) FILETIME=[4929E530:01C260FD]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+>>> AFAICT, with one bottleneck out of the way, a new one merely arises to
+>>> take its place. Ugly. OTOH the qualitative difference is striking. The
+>>> interactive responsiveness of the machine, even when entirely unloaded,
+>>> is drastically improved, along with such nice things as init scripts
+>>> and kernel compiles also markedly faster. I suspect this is just the
+>>> wrong benchmark to show throughput benefits with.
 > 
-> Andrew Morton <akpm@digeo.com> writes:
+> On Fri, Sep 20, 2002 at 02:30:23PM -0700, Martin J. Bligh wrote:
+>> Hmmm ... I think you need the NUMA aware scheduler ;-) 
+>> On the plus side, that does look like RCU pretty much obliterated the dcache
+>> problems ....
 > 
-> > True, but it's all more code and I don't believe that it adds
-> > much value.  It means that people need to run off and find
-> 
-> One useful feature of it would be that you can get core dumps for
-> each thread by including the pid (or tid later with newer threading libraries)
-> Currently threads when core dumping overwrite each others cores so you lose
-> the registers of all but one.
+> This sounds like a likely solution to the expense of load_balance().
+> Do you have a patch for it floating around?
 
-Oh sure, I agree that it's a useful feature.  But I don't agree that
-we need to allow users to specify how the final filename is pasted
-together.  Just give them host-uid-gid-comm.core.  ie: everything.
+I have a really old hacky one from Mike Kravetz, or Michael Hohnbaum
+is working on something new, but I don't think it's ready yet .... 
+I think Mike's will need some rework. Will send it to you ...
+
+M.
+

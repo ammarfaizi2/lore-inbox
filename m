@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbVCOCbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVCOCeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262207AbVCOCbK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 21:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbVCOCbK
+	id S262205AbVCOCeU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 21:34:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbVCOCeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 21:31:10 -0500
-Received: from fire.osdl.org ([65.172.181.4]:31638 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262207AbVCOCbB (ORCPT
+	Mon, 14 Mar 2005 21:34:19 -0500
+Received: from waste.org ([216.27.176.166]:32391 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262205AbVCOCeG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 21:31:01 -0500
-Date: Mon, 14 Mar 2005 18:30:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] sparsemem intro patches
-Message-Id: <20050314183042.7e7087a2.akpm@osdl.org>
-In-Reply-To: <1110834883.19340.47.camel@localhost>
-References: <1110834883.19340.47.camel@localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 14 Mar 2005 21:34:06 -0500
+Date: Mon, 14 Mar 2005 18:33:55 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Phillip Lougher <phillip@lougher.demon.co.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH][1/2] SquashFS
+Message-ID: <20050315023355.GK32638@waste.org>
+References: <4235BAC0.6020001@lougher.demon.co.uk> <20050315003802.GH3163@waste.org> <42363EAB.3050603@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42363EAB.3050603@yahoo.com.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> wrote:
->
->  The following four patches provide the last needed changes before the
->  introduction of sparsemem.  For a more complete description of what this
->  will do, please see this patch:
+On Tue, Mar 15, 2005 at 12:47:23PM +1100, Nick Piggin wrote:
+> Matt Mackall wrote:
 > 
->  http://www.sr71.net/patches/2.6.11/2.6.11-bk7-mhp1/broken-out/B-sparse-150-sparsemem.patch
+> >>+	for (;;) {
+> >
+> >while (1)
+> 
+> I always thought for (;;) was preferred. Or at least acceptable?
 
-I don't know what to think about this.  Can you describe sparsemem a little
-further, differentiate it from discontigmem and tell us why we want one? 
-Is it for memory hotplug?  If so, how does it support hotplug?
+The for (;;) form has always struck me as needlessly clever and I've
+known it to puzzle coworkers. I try to make my for loops fall into the
+mold of simple initialize/test/advance. But no, I'm not aware of any
+LKML concensus opinion on this particular point.
 
-To which architectures is this useful, and what is the attitude of the
-relevant maintenance teams?
+The assignment-in-if problem is a bit more serious as it exacerbates
+the jammed-up-against-the-right-margin formatting issues.
 
-Quoting from the above patch:
-
-> Sparsemem replaces DISCONTIGMEM when enabled, and it is hoped that
-> it can eventually become a complete replacement.
-> ...
-> This patch introduces CONFIG_FLATMEM.  It is used in almost all
-> cases where there used to be an #ifndef DISCONTIG, because
-> SPARSEMEM and DISCONTIGMEM often have to compile out the same areas
-> of code.
-
-Would I be right to worry about increasing complexity, decreased
-maintainability and generally increasing mayhem?
-
-If a competent kernel developer who is not familiar with how all this code
-hangs together wishes to acquaint himself with it, what steps should he
-take?
+-- 
+Mathematics is the supreme nostalgia of our time.

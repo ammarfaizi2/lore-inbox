@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262154AbSJVEzz>; Tue, 22 Oct 2002 00:55:55 -0400
+	id <S262158AbSJVFEf>; Tue, 22 Oct 2002 01:04:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262159AbSJVEzz>; Tue, 22 Oct 2002 00:55:55 -0400
-Received: from hank-fep8-0.inet.fi ([194.251.242.203]:35303 "EHLO
-	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S262154AbSJVEzz>; Tue, 22 Oct 2002 00:55:55 -0400
-Message-ID: <3DB4DBC8.8647E32E@pp.inet.fi>
-Date: Tue, 22 Oct 2002 08:02:00 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Herbert Valerio Riedel <hvr@hvrlab.org>
-CC: "David S. Miller" <davem@rth.ninka.net>, Sandy Harris <sandy@storm.ca>,
-       Mitsuru KANDA <mk@linux-ipv6.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, cryptoapi-devel@kerneli.org,
-       design@lists.freeswan.org, usagi@linux-ipv6.org
-Subject: Re: [CryptoAPI-devel] Re: [Design] [PATCH] USAGI IPsec
-References: <m3k7kpjt7c.wl@karaba.org>  <3DB41338.3070502@storm.ca> 
-			<1035168066.4817.1.camel@rth.ninka.net> <1035185654.21824.11.camel@janus.txd.hvrlab.org>
+	id <S262159AbSJVFEf>; Tue, 22 Oct 2002 01:04:35 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:10568 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262158AbSJVFEe>; Tue, 22 Oct 2002 01:04:34 -0400
+Date: Tue, 22 Oct 2002 07:08:48 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andi Kleen <ak@muc.de>
+Cc: Jeff Dike <jdike@karaya.com>, john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
+Message-ID: <20021022050848.GN19337@dualathlon.random>
+References: <20021020023321.GS23930@dualathlon.random> <200210220507.AAA06089@ccure.karaya.com> <20021022041524.GA11474@averell>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021022041524.GA11474@averell>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Valerio Riedel wrote:
-> On Mon, 2002-10-21 at 04:41, David S. Miller wrote:
-> > A completely new CryptoAPI subsystem has been implemented so that
-> > full lists of page vectors can be passed into the ciphers, which is
-> > necessary for a clean IPSEC implementation.
+On Tue, Oct 22, 2002 at 06:15:24AM +0200, Andi Kleen wrote:
+> > > My problem is that mapping user code into the vsyscall fixmap is
+> > > complex and not very clean at all, breaks various concepts in the mm
+> > > and last but not the least it is slow
+> > 
+> > Can you explain, in small words, why mapping user code is so horrible?
 > 
-> oh... nice to learn about your plans (so late) at all ;-)
+> Currently Linux has neatly separated kernel and user page tables.
+> On architectures which have tree type tables in hardware you just have
+> a user level table and you stick a pointer to the kernel level tables
+> somewhere at the end of the first page. The normal user level page
+> handling doesn't know about the kernel pages. The vsyscall code is in
+> the kernel mapping in the fixmaps. Allowing the user to map arbitary
+> pages into the vsyscall area would blur this clear separation and
+> require much more special case handling. 
 > 
-> well, it would be cool if you'd cooperate (or at least share
-> information) with us (the official cryptoapi project ;-), as we're open
-> for the design requirements of the next generation cryptoapi...
+> In addition it would break a lot of assumptions that user mappings are
+> only < __PAGE_OFFSET, probably having security implications. For example
+> you would need to special case this in uaccess.h's access_ok(), which 
+> would be quite a lot of overhead (any change to this function causes
+> many KB of binary bloat because *_user is so heavily used all over the kernel)
 
-Official cryptoapi? Define official.
+that's not the problem. you would use get_user_pages to pin the page,
+after that such a page it's like a normal plain kernel page allocated
+with GFP_KERNEL provided that you never write to it (that's fine, it's
+mapped readonly like the regular vsyscall page) and that you don't
+pretend it to be constant (again that's fine since if uml changes it
+under itself that's its own problem ;).  It's not *that* messy as
+breaking the whole copy-user concept. See my other email for more
+details on this issue.
 
-> ...otherwise this may render the kerneli.org/cryptoapi effort completely
-> useless :-/ ...of course, if it's your long term goal to take the
-> cryptoapi development away from kerneli.org, I'd like to know too ;-)
-
-kerneli.org/cryptoapi _is_ useless joke for many needs. Fortunately other
-people are able to see the limitations/sillyness of kerneli.org/cryptoapi:
-
-1)  You are trying to replace link/insmod time overhead with runtime
-    overhead + unnecessary bloat.
-2)  No direct link access to low level cipher functions or higher level
-    functions.
-3)  No clean way to replace cipher code with processor type optimized
-    assembler implementations.
-
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
-
+Andrea

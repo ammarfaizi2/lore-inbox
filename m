@@ -1,67 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132707AbRDQWvy>; Tue, 17 Apr 2001 18:51:54 -0400
+	id <S132580AbRDQW55>; Tue, 17 Apr 2001 18:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132709AbRDQWvp>; Tue, 17 Apr 2001 18:51:45 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:6490 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132707AbRDQWvf>; Tue, 17 Apr 2001 18:51:35 -0400
-Date: Wed, 18 Apr 2001 01:06:31 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "D . W . Howells" <dhowells@astarte.free-online.co.uk>
-Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, torvalds@transmeta.com
-Subject: Re: generic rwsem [Re: Alpha "process table hang"]
-Message-ID: <20010418010631.H31982@athlon.random>
-In-Reply-To: <01041722480200.05613@orion.ddi.co.uk>
-Mime-Version: 1.0
+	id <S132709AbRDQW5r>; Tue, 17 Apr 2001 18:57:47 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:33179 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132580AbRDQW5d>;
+	Tue, 17 Apr 2001 18:57:33 -0400
+Message-ID: <3ADCCA57.2A354359@mandrakesoft.com>
+Date: Tue, 17 Apr 2001 18:57:27 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-19mdksmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: i386 cleanups
+In-Reply-To: <20010417232614.A4377@bug.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01041722480200.05613@orion.ddi.co.uk>; from dhowells@astarte.free-online.co.uk on Tue, Apr 17, 2001 at 10:48:02PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 10:48:02PM +0100, D . W . Howells wrote:
-> I disagree... you want such primitives to be as efficient as possible. The 
-> whole point of having asm/xxxx.h files is that you can stuff them full of 
-> dirty tricks specific to certain architectures.
+Pavel Machek wrote:
+> 
+> Hi!
+> 
+> These are tiny cleanups you might like. sizes are "logically"
+> long. No, it does not matter on i386.
+> 
+> processor.h makes INIT_TSS look much more readable. [Please tell me
+> applied or rejected]
+> 
+>                                                         Pavel
+> 
+> Index: include/asm-i386/posix_types.h
+> ===================================================================
+> RCS file: /home/cvs/Repository/linux/include/asm-i386/posix_types.h,v
+> retrieving revision 1.1.1.1
+> diff -u -u -r1.1.1.1 posix_types.h
+> --- include/asm-i386/posix_types.h      2000/09/04 16:50:33     1.1.1.1
+> +++ include/asm-i386/posix_types.h      2001/02/13 13:49:18
+> @@ -16,9 +16,9 @@
+>  typedef unsigned short __kernel_ipc_pid_t;
+>  typedef unsigned short __kernel_uid_t;
+>  typedef unsigned short __kernel_gid_t;
+> -typedef unsigned int   __kernel_size_t;
+> -typedef int            __kernel_ssize_t;
+> -typedef int            __kernel_ptrdiff_t;
+> +typedef unsigned long  __kernel_size_t;
+> +typedef long           __kernel_ssize_t;
+> +typedef long           __kernel_ptrdiff_t;
 
-Of course you always have the option to override completly and you should
-on x86 (providing an API for total override is the main object of my patch).
+If it doesn't matter on i386 why bother?
 
-> I've had a look at your implementation... It seems to hold the spinlocks for 
-> an awfully long time... specifically around the local variable initialisation 
 
-My point for not unlocking is that unlocking and locking back another spinlock
-for the waitqueue and using the wait_even interface for serializing the slow
-path is expensive and generates more cacheline ping pong between cpus.  And
-quite frankly I don't care about the scalability of the slow path so if the
-slow path is simpler and slower I'm happy with it.
+>  #define INIT_TSS  {                                            \
+> -       0,0, /* back_link, __blh */                             \
+> -       sizeof(init_stack) + (long) &init_stack, /* esp0 */     \
+> -       __KERNEL_DS, 0, /* ss0 */                               \
+> -       0,0,0,0,0,0, /* stack1, stack2 */                       \
+> -       0, /* cr3 */                                            \
+> -       0,0, /* eip,eflags */                                   \
+> -       0,0,0,0, /* eax,ecx,edx,ebx */                          \
+> -       0,0,0,0, /* esp,ebp,esi,edi */                          \
+> -       0,0,0,0,0,0, /* es,cs,ss */                             \
+> -       0,0,0,0,0,0, /* ds,fs,gs */                             \
+> -       __LDT(0),0, /* ldt */                                   \
+> -       0, INVALID_IO_BITMAP_OFFSET, /* tace, bitmap */         \
+> -       {~0, } /* ioperm */                                     \
+> +       esp0: sizeof(init_stack) + (long) &init_stack,          \
+> +       ss0: __KERNEL_DS,                                       \
+> +       ldt: __LDT(0),                                          \
+> +       bitmap: INVALID_IO_BITMAP_OFFSET,                       \
+> +       ioperm: {~0, }                                          \
 
-> Your rw_semaphore structure is also rather large: 46 bytes without debugging 
+IIRC certain key structures cannot be taken to gcc's style of struct
+initialization, and IIRC this is one of them.  Maybe that's a egcs-1.1.2
+bug.  Have you looked at the assembly output to make sure things are
+100% ok after this change?
 
-It is 36bytes. and on 64bit archs the difference is going to be less.
+Regards,
+Jeff, who wonders if there is a way to upgrade human memory as easily as
+computer memory...
 
-> stuff (16 bytes apiece for the waitqueues and 12 bytes for the rest). 
 
-The real waste is the lock of the waitqueue that I don't need, so I should
-probably keep two list_head in the waitqueue instead of using the
-wait_queue_head_t and wake_up_process by hand.
-
-> Admittedly, though, yours is extremely simple and easy to follow, but I don't 
-> think it's going to be very fast.
-
-The fast path has to be as fast as yours, if not then the only variable that
-can make difference is the fact I'm not inlining the fast path because it's not
-that small, in such a case I should simply inline the fast path, I don't care
-about the scalability of the slow path and I think the slow path may even be
-faster than yours because I don't run additional unlock/lock and memory
-barriers and the other cpus will stop dirtifying my stuff after their first
-trylock until I unlock.
-
-If you have time to benchmark I'd be interested to see some number. But anyways
-my implementation was mostly meant to be obviously right and possible to
-ovverride with per-arch algorithms.
-
-Andrea
+-- 
+Jeff Garzik       | "Give a man a fish, and he eats for a day. Teach a
+Building 1024     |  man to fish, and a US Navy submarine will make sure
+MandrakeSoft      |  he's never hungry again." -- Chris Neufeld

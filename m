@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbTEPU6g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 16:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTEPU6f
+	id S264451AbTEPVJj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 17:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTEPVJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 16:58:35 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:28612 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264386AbTEPU6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 16:58:35 -0400
-Date: Fri, 16 May 2003 14:06:35 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Alistair Strachan <alistair@devzero.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-mm6
-Message-Id: <20030516140635.07f5e843.akpm@digeo.com>
-In-Reply-To: <200305162035.50063.alistair@devzero.co.uk>
-References: <200305162035.50063.alistair@devzero.co.uk>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 May 2003 17:09:39 -0400
+Received: from mail.gmx.net ([213.165.65.60]:13562 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264451AbTEPVJi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 17:09:38 -0400
+Message-ID: <3EC55688.6060605@gmx.net>
+Date: Fri, 16 May 2003 23:22:16 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Tomas Szepe <szepe@pinerecords.com>
+CC: esp@pyroshells.com, linux-kernel@vger.kernel.org
+Subject: Re: FAT32 problems with kernel 2.4.19
+References: <23493.65.122.196.250.1053063209.squirrel@mail.webhaste.com> <20030516194628.GS3478@louise.pinerecords.com>
+In-Reply-To: <20030516194628.GS3478@louise.pinerecords.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 May 2003 21:11:22.0441 (UTC) FILETIME=[B3D04390:01C31BEF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair Strachan <alistair@devzero.co.uk> wrote:
->
-> Just a quick note to alert you to a problem versus 2.5.69 virgin. In 
-> dmesg, I see the following:
+Tomas Szepe wrote:
+> [esp@pyroshells.com]
 > 
-> failed to register PPP device (0)
+>> When I'm writing to FAT32 partition, there seems to be a 300% incurred
+>> size penalty over the equivalent files on ext2 (when unpacking a
+>> source distribution like boost, gcc, etc)
+> 
+> I don't understand what you're trying to say.  Can you elaborate?
 
-ah, thanks.  Easily fixed.
+If I understand him correctly, he is happy that ext2 has not as much
+overhead as FAT32.
 
-diff -puN drivers/net/ppp_generic.c~ppp-warning-fix drivers/net/ppp_generic.c
---- 25/drivers/net/ppp_generic.c~ppp-warning-fix	Fri May 16 14:04:48 2003
-+++ 25-akpm/drivers/net/ppp_generic.c	Fri May 16 14:05:00 2003
-@@ -803,7 +803,7 @@ int __init ppp_init(void)
- 				S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
- 	}
- 
--	if (!err)
-+	if (err)
- 		printk(KERN_ERR "failed to register PPP device (%d)\n", err);
- 	return err;
- }
+esp@pyroshells.com: If you think the FAT32 overhead is a linux problem,
+please unpack the same source tree under windows on the same partition
+and report back if the space used is less than when unpacking this
+source tree under linux.
 
-_
+
+HTH,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
 

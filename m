@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbUKRQS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbUKRQVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbUKRQS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 11:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbUKRQRf
+	id S262775AbUKRQVX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 11:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbUKRQTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 11:17:35 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:6416 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262488AbUKRQRG
+	Thu, 18 Nov 2004 11:19:21 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:51860 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262699AbUKRQRN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 11:17:06 -0500
-Date: Thu, 18 Nov 2004 16:17:01 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc1-mm5
-In-Reply-To: <419CB75C.3080605@aknet.ru>
-Message-ID: <Pine.LNX.4.58L.0411181557430.30376@blysk.ds.pg.gda.pl>
-References: <41967669.3070707@aknet.ru> <Pine.LNX.4.58L.0411150112520.22313@blysk.ds.pg.gda.pl>
- <4198EFE5.5010003@aknet.ru> <Pine.LNX.4.58L.0411151821050.3265@blysk.ds.pg.gda.pl>
- <419A38EE.8000202@aknet.ru> <Pine.LNX.4.58L.0411162226500.8068@blysk.ds.pg.gda.pl>
- <419CB75C.3080605@aknet.ru>
+	Thu, 18 Nov 2004 11:17:13 -0500
+Message-ID: <419CCBA8.4000205@tmr.com>
+Date: Thu, 18 Nov 2004 11:19:52 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Takashi Iwai <tiwai@suse.de>
+CC: Lee Revell <rlrevell@joe-job.com>, Paul Blazejowski <diffie@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Diffie <diffie@blazebox.homeip.net>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Subject: Re: [Alsa-devel] Re: Linux 2.6.10-rc2
+References: <1100553392.4369.1.camel@krustophenia.net><9dda349204111512234f30c60d@mail.gmail.com> <s5h7jomdt3w.wl@alsa2.suse.de>
+In-Reply-To: <s5h7jomdt3w.wl@alsa2.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004, Stas Sergeev wrote:
+Takashi Iwai wrote:
+> At Mon, 15 Nov 2004 16:16:31 -0500,
+> Lee Revell wrote:
+> 
+>>Please report ALSA issues to alsa-devel@lists.sourceforge.net.  I have
+>>added them to the cc:.
+> 
+> 
+> The attached patch should fix this.
+> 
+> 
+> Takashi
+> 
+> ==
+> Summary: [ALSA] fix sleep in atomic during prepare callback
+> 
+> Fixed the sleep in spinlock during prepare callback.
+> This happened only on Nforce chips.
+> 
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> 
+> --- linux/sound/pci/intel8x0.c	15 Nov 2004 14:19:52 -0000	1.173
+> +++ linux/sound/pci/intel8x0.c	16 Nov 2004 09:41:47 -0000
+> @@ -1020,7 +1020,9 @@ static void snd_intel8x0_setup_pcm_out(i
+>  			 */
+>  			if (cnt & ICH_PCM_246_MASK) {
+>  				iputdword(chip, ICHREG(GLOB_CNT), cnt & ~ICH_PCM_246_MASK);
+> +				spin_unlock_irq(&chip->reg_lock);
+>  				msleep(50); /* grrr... */
+> +				spin_lock_irq(&chip->reg_lock);
+>  			}
+>  		} else if (chip->device_type == DEVICE_INTEL_ICH4) {
+>  			if (runtime->sample_bits > 16)
 
-> Another thing I am wondering about,
-> is why the lapic produces the NMI on
-> my Athlon so slowly. It is something
-> like 1 NMI in 20 seconds or so. And
-> it looks like the frequency changes
-> from one boot to another.
+Might this make it into 2.6.10?
 
- The local APIC NMI watchdog, lacking a better source, uses the "cycles
-unhalted" event.  As you may guess it doesn't tick when the CPU is in the
-halted state (which happens when the system is idle) and thus the NMI
-counter's progress depends on the system's activity.  Thy running
-something CPU-intensive, like:
-
-int main(void)
-{
-	while (1);
-	return 0;
-}
-
-and observe the NMI counter ticking every second.
-
-> It didn't work properly with any kernel,
-> so maybe the lapic itself is buggy,
-> but maybe this is a kernel's bug that
-> can be debugged out somehow? Or is
-> there anywhere something that allows
-> me to specify the frequency? The rate
-> I currently have, is really pretty
-> much useless for anything.
-
- Don't worry -- if your system locks up on anything but the "hlt"  
-processor instruction, the watchdog will trigger very soon as the "cycles
-unhalted"  event will happen every clock tick.  If it locks up on "hlt",
-then you are out of luck -- the event will not happen at all and the
-watchdog won't trigger.  This is a shortcoming of the local APIC watchdog
--- unfortunately there is no "clock ticks" event that would work all the
-time.
-
- The I/O APIC watchdog is driven externally and has no such shortcoming.  
-But its NMI frequency is much higher, resulting in a more significant hit
-to the overall system performance.
-
-  Maciej
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

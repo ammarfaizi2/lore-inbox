@@ -1,83 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUBPQO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 11:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUBPQO0
+	id S265711AbUBPQNT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 11:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265756AbUBPQNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 11:14:26 -0500
-Received: from moutng.kundenserver.de ([212.227.126.189]:59867 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265768AbUBPQOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 11:14:22 -0500
-Message-ID: <4030EC43.90605@paceblade.com>
-Date: Mon, 16 Feb 2004 17:13:55 +0100
-From: Robert Woerle <robert@paceblade.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040113
-X-Accept-Language: de, en, de-at, en-us
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: serial.c - start looking from 0x220 iomem_base  ??
-References: <402CE89F.9060404@paceblade.com> <Pine.LNX.4.53.0402131025120.4338@chaos>
-In-Reply-To: <Pine.LNX.4.53.0402131025120.4338@chaos>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:b4ac6117e991eeeca15f2be66d9fb0df
+	Mon, 16 Feb 2004 11:13:19 -0500
+Received: from main.gmane.org ([80.91.224.249]:22706 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265711AbUBPQM6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 11:12:58 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Moritz Muehlenhoff <jmm@informatik.uni-bremen.de>
+Subject: Re: Linux 2.6.3-rc3
+Date: Mon, 16 Feb 2004 16:58:16 +0100
+Organization: Cocytus
+Message-ID: <ot57g1-db1.ln1@legolas.mmuehlenhoff.de>
+References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org> <m2znbk4s8j.fsf@p4.localdomain> <20040215184449.4db42542.onur@delipenguen.net>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9507a26.dip.t-dialin.net
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Onur Kucuk wrote:
+>  New radeonfb works better for me, with a bit of trouble, on this Compaq
+> EVO N800v.
+>
+>  The problem is, If I enter X (works fine) and go back to the console,
+> there are a few permenant color lines at the bottom. If I do "clear"
+> or enter an ncurses based app (like midnight commander) the screen is
+> garbled like interlaced.
 
+I can confirm that bug for Radeon 7500 (RV200 QW) as well. The last
+line isn't properly cleared.
 
-Richard B. Johnson schrieb:
-
->On Fri, 13 Feb 2004, Robert Woerle wrote:
->
->  
->
->>Hi
->>
->>I am having here a device  (Tablet PC ) sample with a serial resistive
->>touchscreen  .
->>Under Windows it comes up as COM1 at IO-Base 0x220 -0x227 IRQ 4 .
->>Now it seems that in linux the serial driver doesnt look for so "low"
->>I/O-Base `s .
->>
->>By hacking around by hardcoding the 0x220 somehwere in serial.c i get it
->>to detect a standard 16550 , but
->>unfortunately it then assumes that all ttySX have this base .
->>This is because of my hardcoded hack and the driver not looking for all
->>the rest mem bases.
->>
->>So the quesion is :
->>Where do i tell serial.o  to start lower ( at 0x220 ) to look for
->>controllers .. .??
->>
->>
->>
->>Pls also CC me directly since i am only monitoring this list .
->>    
->>
->
->There are 4 de facto standard serial ports:
->
->COM1	0x3F8	IRQ4
->COM2	0x2F8	IRQ3
->COM3	0x3E8	IRQ4
->COM4	0x2E8	IRQ3
->
->If you have a port at 0x220, it is above the game-port area,
->but not where the kernel should "look for" serial devices.
->Therefore, you don't tell the kernel to, as you state, start
->lower. Instead, you tell the kernel where they are by putting
->them in the pnp_devices[] table.
->
->
->  
->
-I tryed that now and added a device  like
-ISAPNP_VENDOR('P', 'N', 'P'), ISAPNP_DEVICE(0x0220),
-
-but nothing happens ... it leaves the function saying
-<7>"Leaving  probe_serial_pci() (probe finished)
-
-What can i do ?

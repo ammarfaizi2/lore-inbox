@@ -1,82 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263758AbTIHXj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 19:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTIHXj0
+	id S263751AbTIHXoS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 19:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263753AbTIHXoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 19:39:26 -0400
-Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:7080
-	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id S263758AbTIHXjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 19:39:24 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16221.4899.461679.378288@wombat.chubb.wattle.id.au>
-Date: Tue, 9 Sep 2003 09:39:15 +1000
-To: davidsen@tmr.com (bill davidsen)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Newsgroups: mail.linux-kernel
-In-Reply-To: <bjimht$9dr$1@gatekeeper.tmr.com>
-References: <20030903040327.GA10257@work.bitmover.com>
-	<3F55907B.1030700@cyberone.com.au>
-	<27780000.1062602622@[10.10.2.4]>
-	<20030903153901.GB5769@work.bitmover.com>
-	<bjimht$9dr$1@gatekeeper.tmr.com>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+	Mon, 8 Sep 2003 19:44:18 -0400
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:45193 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S263751AbTIHXoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 19:44:17 -0400
+Date: Mon, 08 Sep 2003 19:44:04 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Fwd: Re: Use of AI for process scheduling
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Timothy Miller <miller@techsource.com>
+Message-id: <200309081944.11736.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "bill" == bill davidsen <davidsen@tmr.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> In article <20030903153901.GB5769@work.bitmover.com>, Larry
-> McVoy <lm@bitmover.com> wrote:
+On Monday 08 September 2003 18:56, you wrote:
+> Well, we have this to deal with:  Someone is exercising the scheduler
+> and notices some kind of misscheduling which causes the system to crawl.
+>
+> How are they going to get to the /proc and /sys directories to do much
+> of anything?  The system is completely unresponsive.  Furthermore, even
+> if the system IS responsive, we need some way to for the user to hit a
+> key and freeze the current state for examination.  Some slow-downs last
+> only seconds, but we need to be able to catch them.
 
-Larry> It's really easy to claim that scalability isn't the problem.
-Larry> Scaling changes in general cause very minute differences, it's
-Larry> just that there are a lot of them.  There is constant pressure
-Larry> to scale further and people think it's cool.  You can argue
-Larry> you all you want that scaling done right isn't a problem but
-Larry> nobody has ever managed to do it right.  I know it's 
-Larry> politically incorrect to say this group won't either but there
-Larry> is no evidence that they will.
+Agreed.
 
-bill> I think that if the problem of a single scheduler which is
-bill> "best" at everything proves out of reach, perhaps in 2.7 a
-bill> modular scheduler will appear, which will allow the user to
-bill> select the Nick+Con+Ingo responsiveness, or the default pretty
-bill> good at everything, or the 4kbit affinity mask NUMA on steroids
-bill> solution.
+> You talk about weights.  Would the linux community be willing to put a
+> neural net into the kernel?  I'm sure we could optimize it to not take a
+> lot of processing overhead, but it's an "unknown".  It would be scary to
+> some people to be unable to disect the actual workings of it and have no
+> way of determining corner-case behavior from examining code.  But if we
+> have, say, only a 2-layer neural net, we might still be able to
+> reverse-engineer it.
 
-Well, as I see it it's not processor but memory scalability that's the
-problem right now.  Memories are getting larger (and for NUMA systems,
-sparser), and the current linux solutions don't scale particularly
-well --- particularly when, for architectures like PPC or IA64, you
-need two copies in different formats, one for the hardware to look up,
-and one for the OS.
+I meant weights in a more general way - variables in calculations is more
+appropriate. Neural nets can do a lot of interesting things, but they really
+need optimization. If we were to use them, we should make it a config option
+in the kernel (nnet or standard scheduler.)
 
-I *do* think that pluggable schedulers are a good idea --- I'd like to
-introduce something like the scheduler class mechanism that SVr4 has
-(except that I've seen that code, and don't want to get sued by SCO)
-to allow different processes to be in different classes in a cleaner
-manner than the current FIFO or RR vs OTHER classes.  We should be
-able to introduce isochronous, gang, lottery or fairshare schedulers
-(etc) at runtime, and then tie processes severally and indivdually to
-those schedulers, with a well defined idea of what happens when
-scheduler priorities overlap, and well defined APIs to adjust
-scheduler parameters.  However, this will require more major
-infrastructure changes, and a better separation of dispatcher from
-scheduler than in the current one-size-fits-all scheduler.
+Jeff.
 
+- --
+Trust me, you don't want me doing _anything_ first thing in the morning.
+		- Linus Torvalds
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories,   all slightly different.
-
+iD8DBQE/XRRHwFP0+seVj/4RAs3KAJ9IISM5bALaOTCJtSWxPDlHxOGVEwCfedgD
+bCPO9/Mf1dtmA4zVgGP2Tcc=
+=vrNw
+-----END PGP SIGNATURE-----
 

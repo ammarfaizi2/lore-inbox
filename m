@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263019AbTCSMXJ>; Wed, 19 Mar 2003 07:23:09 -0500
+	id <S263015AbTCSMUm>; Wed, 19 Mar 2003 07:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263003AbTCSMVB>; Wed, 19 Mar 2003 07:21:01 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:53128 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S263005AbTCSMSk>;
-	Wed, 19 Mar 2003 07:18:40 -0500
-Date: Wed, 19 Mar 2003 13:29:40 +0100 (MET)
-Message-Id: <200303191229.h2JCTeG01024@vervain.sonytel.be>
+	id <S263012AbTCSMUb>; Wed, 19 Mar 2003 07:20:31 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:43656 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S262997AbTCSMSe>;
+	Wed, 19 Mar 2003 07:18:34 -0500
+Date: Wed, 19 Mar 2003 13:29:36 +0100 (MET)
+Message-Id: <200303191229.h2JCTa800982@vervain.sonytel.be>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Affs sizeof()
+Subject: [PATCH] wd33c93 SCSI merge error
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Affs: Make sure the sizeof() is always correct (from Roman Zippel)
+Wd33c93 SCSI: Fix 2.5.64 merge error
 
---- linux-2.5.x/fs/affs/super.c	Tue Mar 18 11:27:51 2003
-+++ linux-m68k-2.5.x/fs/affs/super.c	Tue Mar 18 13:15:12 2003
-@@ -298,8 +298,7 @@
- 	if (!sbi)
- 		return -ENOMEM;
- 	sb->s_fs_info = sbi;
--	memset(sbi, 0, sizeof(struct affs_sb_info));
--
-+	memset(sbi, 0, sizeof(*sbi));
- 	init_MUTEX(&sbi->s_bmlock);
- 
- 	if (!parse_options(data,&uid,&gid,&i,&reserved,&root_block,
+--- linux-2.5.x/drivers/scsi/wd33c93.c	Sun Mar  9 22:40:15 2003
++++ linux-m68k-2.5.x/drivers/scsi/wd33c93.c	Thu Mar  6 12:03:12 2003
+@@ -1471,7 +1471,7 @@
+ 		int busycount = 0;
+ 		extern void sgiwd93_reset(unsigned long);
+ 		/* wait 'til the chip gets some time for us */
+-		while ((READ_AUX_STAT() & ASR_BSY) && busycount++ < 100)
++		while ((read_aux_stat(regs) & ASR_BSY) && busycount++ < 100)
+ 			udelay (10);
+ 	/*
+  	 * there are scsi devices out there, which manage to lock up
+@@ -1481,7 +1481,7 @@
+ 	 * does this for the SGI Indy, where this is possible
+ 	 */
+ 	/* still busy ? */
+-	if (READ_AUX_STAT() & ASR_BSY)
++	if (read_aux_stat(regs) & ASR_BSY)
+ 		sgiwd93_reset(instance->base); /* yeah, give it the hard one */
+ 	}
+ #endif
 
 Gr{oetje,eeting}s,
 

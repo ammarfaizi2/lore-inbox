@@ -1,34 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290284AbSAXHYS>; Thu, 24 Jan 2002 02:24:18 -0500
+	id <S290285AbSAXH07>; Thu, 24 Jan 2002 02:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290285AbSAXHYI>; Thu, 24 Jan 2002 02:24:08 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:52380 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S290284AbSAXHXw>;
-	Thu, 24 Jan 2002 02:23:52 -0500
-Date: Thu, 24 Jan 2002 10:21:19 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Ingo's O(1) scheduler vs. wait_init_idle
-In-Reply-To: <119440000.1011836623@flay>
-Message-ID: <Pine.LNX.4.33.0201241020230.4694-100000@localhost.localdomain>
+	id <S290286AbSAXH0u>; Thu, 24 Jan 2002 02:26:50 -0500
+Received: from web20107.mail.yahoo.com ([216.136.226.44]:23057 "HELO
+	web20107.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S290285AbSAXH0g>; Thu, 24 Jan 2002 02:26:36 -0500
+Message-ID: <20020124072635.53391.qmail@web20107.mail.yahoo.com>
+Date: Wed, 23 Jan 2002 23:26:35 -0800 (PST)
+From: David Beckett <kufcffo@yahoo.com>
+Subject: RE: White paper on the linux VM?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I found this: http://www.nks.net/linux-vm.html
+I hope it helps. 
+Sincerly,
+David Beckett
 
-On Wed, 23 Jan 2002, Martin J. Bligh wrote:
-
-> I was trying to test this in my 8 way NUMA box, but this patch seems
-> to have lost half of the wait_init_idle fix that I put in a while
-> back. [...]
-
-please check out the -J5 2.4.17/18 patch, thats the first 2.4 patch that
-has the correct idle-thread fixes. (which 2.5.3-pre3 has as well.) Do you
-still have booting problems?
-
-	Ingo
-
+__________________________________________________
+Do You Yahoo!?
+Great stuff seeking new owners in Yahoo! Auctions! 
+http://auctions.yahoo.com

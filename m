@@ -1,76 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266203AbSKLEJX>; Mon, 11 Nov 2002 23:09:23 -0500
+	id <S266191AbSKLEWw>; Mon, 11 Nov 2002 23:22:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266210AbSKLEJX>; Mon, 11 Nov 2002 23:09:23 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:11226 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S266203AbSKLEJV>;
-	Mon, 11 Nov 2002 23:09:21 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC920@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Jamie Lokier'" <lk@tantalophile.demon.co.uk>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Cc: "'mingo@redhat.com'" <mingo@redhat.com>,
-       "'Mark Mielke'" <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
-Subject: RE: Users locking memory using futexes
-Date: Mon, 11 Nov 2002 20:16:08 -0800
+	id <S266197AbSKLEWw>; Mon, 11 Nov 2002 23:22:52 -0500
+Received: from dp.samba.org ([66.70.73.150]:3980 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266191AbSKLEWv>;
+	Mon, 11 Nov 2002 23:22:51 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15824.33674.343838.639008@argo.ozlabs.ibm.com>
+Date: Tue, 12 Nov 2002 15:28:58 +1100
+To: linux-kernel@vger.kernel.org
+Subject: Why does sys_rt_sigreturn call do_sigaltstack?
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Currently, in both 2.4 and 2.5, the kernel saves the current alternate
+signal stack setting when invoking the handler for a real-time signal,
+and restores that setting on return from the handler.
 
-> Perez-Gonzalez, Inaky wrote:
-> > [...] each time you lock a futex you are pinning the containing page
-> > into physical memory, that would cause that if you have, for
-> > example, 4000 futexes locked in 4000 different pages, there is going
-> > to be 4 MB of memory locked in [...]
-> 
-> Ouch!  It looks to me like userspace can use FUTEX_FD to lock many
-> pages of memory, achieving the same as mlock() but without the
-> resource checks.
+More precisely, in setup_rt_frame, the kernel saves current->sas_ss_sp
+and current->sas_ss_size in the ucontext that it sets up (in
+frame->uc.uc_stack).  Then, in sys_rt_sigreturn, it copies
+frame->uc.uc_stack back in and calls do_sigaltstack with the copy.
+This is on x86; ppc does something similar too.
 
-This raises a good point - I guess we should be doing something like
-checking user limits (against locked memory, 'ulimit -l'). Something along
-the lines of this [warning, dirty-fastly-scratched-draft, untested]:
+Why does it do this?  It seems rather bizarre to me, given that
+sigaltstack() is not per-signal, its effect is global.  Is there some
+requirement that the effect of a sigaltstack() call during a real-time
+signal handler should only be allowed to persist until the handler
+returns?  If so, can someone please point me at where it says that in
+some standards document?
 
-diff -u futex.c.orig futex.c
---- futex.c.orig	2002-11-11 20:06:22.000000000 -0800
-+++ futex.c	2002-11-11 20:08:48.000000000 -0800
-@@ -261,8 +261,12 @@
- 	struct page *page;
- 	struct futex_q q;
- 
-+	if (current->mm->total_vm + 1 >
-+            (current->rlim[RLIMIT_MEMLOCK].rlim_cur >> PAGE_SHIFT))
-+          return -ENOMEM;
-+        
- 	init_waitqueue_head(&q.waiters);
--
-+        
- 	lock_futex_mm();
- 
- 	page = __pin_page(uaddr - offset);
-@@ -358,6 +362,11 @@
- 	if (signal < 0 || signal > _NSIG)
- 		goto out;
- 
-+	ret = -ENOMEM;
-+        if (current->mm->total_vm + 1 >
-+            (current->rlim[RLIMIT_MEMLOCK].rlim_cur >> PAGE_SHIFT))
-+          goto out;
-+        
- 	ret = get_unused_fd();
- 	if (ret < 0)
- 		goto out;
-
-However, we could break the semantics of other programs that expect that the
-amount of memory they lock is the only one that is used in the rlimit ... 
-
-What else could be done?
-
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
-
+Thanks,
+Paul.

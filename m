@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271045AbTGPSVe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 14:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271046AbTGPSUc
+	id S271066AbTGPSds (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 14:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271065AbTGPSd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 14:20:32 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:1035
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S271047AbTGPSSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 14:18:49 -0400
-Date: Wed, 16 Jul 2003 11:33:43 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
-Subject: Re: Input layer demand loading
-Message-ID: <20030716183343.GE2681@matchmail.com>
-Mail-Followup-To: Andrey Borzenkov <arvidjaar@mail.ru>,
-	Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
-References: <200307162219.17067.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307162219.17067.arvidjaar@mail.ru>
-User-Agent: Mutt/1.5.4i
+	Wed, 16 Jul 2003 14:33:27 -0400
+Received: from unsol-intbg.internet-bg.net ([212.124.67.226]:31496 "HELO
+	ns.unixsol.org") by vger.kernel.org with SMTP id S271060AbTGPScX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 14:32:23 -0400
+Message-ID: <3F159DB2.90604@unixsol.org>
+Date: Wed, 16 Jul 2003 21:47:14 +0300
+From: Georgi Chorbadzhiyski <gf@unixsol.org>
+Organization: Unix Solutions Ltd. (http://unixsol.org)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030514
+X-Accept-Language: en, en-us, bg
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test1-mm1 success, tiny mouse and framebuffer problems
+References: <3F156566.4040206@unixsol.org> <20030716172716.GA8030@kroah.com>
+In-Reply-To: <20030716172716.GA8030@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 10:19:17PM +0400, Andrey Borzenkov wrote:
-> >> True, but then if you try to open the port, you will only get the base
-> >> joydev.o module loaded, not the gameport driver, which is what you
-> >> _really_ want to have loaded, right?
-> >> 
-> >> So there really isn't much benifit to doing this, sorry.
-> >
-> > Why? It could work the way PCMCIA SCSI works.
-> > Cardmgr loads the LLDD, but sd, sg, etc. are loaded
-> > on demand.
+Greg KH wrote:
+> On Wed, Jul 16, 2003 at 05:47:02PM +0300, Georgi Chorbadzhiyski wrote:
 > 
-> how? SCSI (or USB, PCI, EISA etc) have driver-independent means to identify 
-> device or at least device class.
+>>P.S. Every file in sysfs is 4096 bytes, is this normal?
 > 
-> But how are you going you going to know you need to load specific mouse driver 
-> (logitech not microsoft) or specific joystick flavour? All that you possibly 
-> know that you have _some_ mouse or _some_ joystick ...
+> And they _all_ aren't 4096 bytes, there are a few that report other
+> sizes...
 
-Isn't that why we have hotplug in userspace?
+Probably equal to PAGE_SIZE ?
 
-That way, we know we have a mouse, but it's up to userspace to find out
-what kind.
+-
+Georgi Chorbadzhiyski
+http://georgi.unixsol.org/
+

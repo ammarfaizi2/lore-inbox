@@ -1,134 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263260AbTLAEQK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 23:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTLAEQK
+	id S263292AbTLAEmV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 23:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTLAEmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 23:16:10 -0500
-Received: from pine.epix.net ([199.224.64.53]:55985 "EHLO pine.epix.net")
-	by vger.kernel.org with ESMTP id S263260AbTLAEQD (ORCPT
+	Sun, 30 Nov 2003 23:42:21 -0500
+Received: from m17.lax.untd.com ([64.136.30.80]:47259 "HELO m17.lax.untd.com")
+	by vger.kernel.org with SMTP id S263292AbTLAEmU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 23:16:03 -0500
-From: Dosoverride <dosoverride@epix.net>
-To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test11] gconfig does not build cleanly
-Date: Mon, 1 Dec 2003 04:15:44 +0000
-User-Agent: KMail/1.5.4
-References: <200311300610.40705.dosoverride@epix.net> <200311300816.24749.sam@ravnborg.org>
-In-Reply-To: <200311300816.24749.sam@ravnborg.org>
+	Sun, 30 Nov 2003 23:42:20 -0500
+To: wli@holomorphy.com
+Cc: linux-kernel@vger.kernel.org
+Date: Sun, 30 Nov 2003 18:06:41 -0800
+Subject: Re: Oops with tmpfs on both 2.4.22 & 2.6.0-test11
+Message-ID: <20031130.180800.-1591395.6.mcmechanjw@juno.com>
+X-Mailer: Juno 5.0.33
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_xBsy/GOMbmO8q4v"
-Message-Id: <200312010416.01913.dosoverride@epix.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: James W McMechan <mcmechanjw@juno.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> No, it looks like the list poison fooled me.
 
---Boundary-00=_xBsy/GOMbmO8q4v
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Description: clearsigned data
-Content-Disposition: inline
+It took staring at the list_del for me to notice also
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> 
+> I'm really not sure what the ->d_subdirs rearrangement is supposed
+> to accomplish.
 
-On Sunday 30 November 2003 07:16 am, Sam Ravnborg wrote:
-> On Sunday 30 November 2003 07:10, Dosoverride wrote:
-> > [make O=~/kernel-build-tree/test mrproper clean gconfig ]
-> >
-> > [excerpt of make command with alternate tree ]
-> > ./scripts/kconfig/gconf  arch/i386/Kconfig
-> >
-> > (gconf:14841): libglade-WARNING **: could not find glade file
-> > '/home/dosoverride/kernel-build-tree/test//scripts/kconfig/gconf.glade'
-> > 	   							             ^ (seems to be the problem)
-> > ** ERROR **: GUI loading failed !
->
-> Hi John.
-> The problem is know and a fix exist.
-> Usually reported as xconfig build fails with make O=
-> The fix did not pass Linus' current patchfilter - it is not critical - so
-> it will be applied later. Until now here it is.
->
-> [Nw mailer, so apologize if it is whitespace damaged]
->
-> 	Sam
+Neither am I, it needs a few comments
 
-patch didn't stop erring.
-I redirected all output to a file (attached) (plus added some hash comments)
+> No, I've gotten as far as I can with your oopsen. Either someone 
+> else
+> will have to pick it up from here or I'll have to spend more time
+> looking at fs/libfs.c
+> 
+> 
+> -- wli
 
-However, xconfig did work correctly.
+Have you got a suggestion on who to bug, I have not found
+maintainers on tmpfs or now the libfs section.
 
-John
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/ysB2ifWyBgvkFZ0RAhlSAJ0enWe26S6ImQ2nEJgcvuIolUm/KACfaQEY
-xp0tBp3x0nR5vTZK6nWTKMw=
-=Lk/8
------END PGP SIGNATURE-----
-
---Boundary-00=_xBsy/GOMbmO8q4v
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="build.out"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="build.out"
-
-#make file for gconfig test using O=
-#made Dec 1, 0407 UTC
-#applied patch rev-1.1296.61.2.patch
-#make O=~/kernel-build-tree/test mrproper clean gconfig
-  RM  $(CLEAN_FILES)
-  Making mrproper in the srctree
-  RM  $(MRPROPER_DIRS) + $(MRPROPER_FILES)
-  RM  $(CLEAN_FILES)
-  HOSTCC  scripts/fixdep
-  SHIPPED scripts/kconfig/zconf.tab.h
-  HOSTCC  scripts/kconfig/conf.o
-sed < /usr/src/linux-2.6.0-test11/scripts/kconfig/lkc_proto.h > scripts/kconfig/lkc_defs.h 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
-  HOSTCC  scripts/kconfig/gconf.o
-In file included from /usr/include/gtk-2.0/gtk/gtk.h:90,
-                 from /usr/src/linux-2.6.0-test11/scripts/kconfig/gconf.c:17:
-/usr/include/gtk-2.0/gtk/gtkitemfactory.h:51: warning: function declaration isn't a prototype
-/usr/src/linux-2.6.0-test11/scripts/kconfig/gconf.c: In function `on_treeview1_button_press_event':
-/usr/src/linux-2.6.0-test11/scripts/kconfig/gconf.c:1175: warning: passing arg 1 of `gtk_widget_grab_focus' from incompatible pointer type
-/usr/src/linux-2.6.0-test11/scripts/kconfig/gconf.c: In function `update_tree':
-/usr/src/linux-2.6.0-test11/scripts/kconfig/gconf.c:1404: warning: unused variable `path'
-/usr/src/linux-2.6.0-test11/scripts/kconfig/gconf.c: In function `display_tree':
-/usr/src/linux-2.6.0-test11/scripts/kconfig/gconf.c:1530: warning: suggest parentheses around && within ||
-/usr/include/stdlib.h: At top level:
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:6: warning: `xpm_load' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:36: warning: `xpm_save' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:66: warning: `xpm_back' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:175: warning: `xpm_symbol_no' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:192: warning: `xpm_symbol_mod' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:209: warning: `xpm_symbol_yes' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:226: warning: `xpm_choice_no' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:243: warning: `xpm_choice_yes' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:277: warning: `xpm_menu_inv' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/images.c:294: warning: `xpm_menuback' defined but not used
-/usr/src/linux-2.6.0-test11/scripts/kconfig/gconf.c:981: warning: `renderer_toggled' defined but not used
-  HOSTCC  scripts/kconfig/kconfig_load.o
-  HOSTCC  scripts/kconfig/mconf.o
-  SHIPPED scripts/kconfig/zconf.tab.c
-  SHIPPED scripts/kconfig/lex.zconf.c
-  HOSTCC  -fPIC scripts/kconfig/zconf.tab.o
-  HOSTLLD -shared scripts/kconfig/libkconfig.so
-  HOSTLD  scripts/kconfig/gconf
-./scripts/kconfig/gconf  arch/i386/Kconfig
-
-(gconf:23254): libglade-WARNING **: could not find glade file '/home/dosoverride/kernel-build-tree/test//scripts/kconfig/gconf.glade'
-
-** ERROR **: GUI loading failed !
-
-aborting...
-make[2]: *** [gconfig] Aborted
-make[1]: *** [gconfig] Error 2
-make: *** [gconfig] Error 2
-
---Boundary-00=_xBsy/GOMbmO8q4v--
-
+________________________________________________________________
+The best thing to hit the internet in years - Juno SpeedBand!
+Surf the web up to FIVE TIMES FASTER!
+Only $14.95/ month - visit www.juno.com to sign up today!

@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263944AbRFHJb6>; Fri, 8 Jun 2001 05:31:58 -0400
+	id <S263945AbRFHKPk>; Fri, 8 Jun 2001 06:15:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263945AbRFHJbs>; Fri, 8 Jun 2001 05:31:48 -0400
-Received: from oxmail1.ox.ac.uk ([129.67.1.1]:40882 "EHLO oxmail.ox.ac.uk")
-	by vger.kernel.org with ESMTP id <S263944AbRFHJbg>;
-	Fri, 8 Jun 2001 05:31:36 -0400
-Date: Fri, 8 Jun 2001 10:31:35 +0100
-From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+	id <S263946AbRFHKPb>; Fri, 8 Jun 2001 06:15:31 -0400
+Received: from mail.intrex.net ([209.42.192.246]:61714 "EHLO intrex.net")
+	by vger.kernel.org with ESMTP id <S263945AbRFHKPQ>;
+	Fri, 8 Jun 2001 06:15:16 -0400
+Date: Fri, 8 Jun 2001 06:18:06 -0400
+From: jlnance@intrex.net
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: BUG: race-cond with partition-check
-Message-ID: <20010608103134.B15791@sable.ox.ac.uk>
-In-Reply-To: <UTC200106080902.LAA228227.aeb@vlet.cwi.nl>
+Subject: Re: [patch] Re: Linux 2.4.5-ac6
+Message-ID: <20010608061806.A858@bessie.localdomain>
+In-Reply-To: <20010607214808.A18298@jurassic.park.msu.ru> <Pine.GSO.3.96.1010607202832.16852C-100000@delta.ds2.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <UTC200106080902.LAA228227.aeb@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Fri, Jun 08, 2001 at 11:02:11AM +0200
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.3.96.1010607202832.16852C-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Thu, Jun 07, 2001 at 08:31:46PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl writes:
-> --- partitions/check.c~	Thu May 31 22:26:56 2001
-> +++ partitions/check.c	Fri Jun  8 10:44:02 2001
-> @@ -418,11 +418,10 @@
->  		blk_size[dev->major] = NULL;
->  
->  	dev->part[first_minor].nr_sects = size;
-> -	/* No Such Agen^Wdevice or no minors to use for partitions */
-> +	/* No such device or no minors to use for partitions */
+On Thu, Jun 07, 2001 at 08:31:46PM +0200, Maciej W. Rozycki wrote:
+> On Thu, 7 Jun 2001, Ivan Kokshaysky wrote:
 
+> > Exactly. However, there are situations when you have only two options:
+> > rewrite from scratch or use -taso. Netscape vs. mozilla is a good example. :-)
+> 
+>  Why can't mozilla be fixed?  With the -taso option there is actually less
+> encouragement to do so.
 
-Any reason why you're silently removing a good old anti-NSA joke?
-Conspiracy theorists may have fun with that... :-)
+Mozilla is fine.  Its netscape 4.X that probably needs -taso.
 
---Malcolm
-
--- 
-Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-Unix Systems Programmer
-Oxford University Computing Services
+Jim

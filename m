@@ -1,83 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263436AbTHWWVg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 18:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263443AbTHWWVg
+	id S263493AbTHWWWW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 18:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTHWWWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 18:21:36 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:57605 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263436AbTHWWVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 18:21:32 -0400
-Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
-	tst-mmap-eofsync in glibc on parisc)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: hugh@veritas.com, willy@debian.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>, drepper@redhat.com
-In-Reply-To: <20030823144330.5ddab065.davem@redhat.com>
-References: <20030822110144.5f7b83c5.davem@redhat.com>
-	<Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
-	<20030822113106.0503a665.davem@redhat.com>
-	<1061578568.2053.313.camel@mulgrave>
-	<20030822121955.619a14eb.davem@redhat.com>
-	<1061591255.1784.636.camel@mulgrave>
-	<20030822154100.06314c8e.davem@redhat.com>
-	<1061600974.2090.809.camel@mulgrave> 
-	<20030823144330.5ddab065.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 23 Aug 2003 17:21:21 -0500
-Message-Id: <1061677283.1992.471.camel@mulgrave>
+	Sat, 23 Aug 2003 18:22:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44426 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263584AbTHWWWP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 18:22:15 -0400
+Date: Sat, 23 Aug 2003 15:24:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Tomasz Torcz <zdzichu@irc.pl>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@intel.com
+Subject: Re: 2.6.0-test4 - lost ACPI
+Message-Id: <20030823152437.59ed9c3e.akpm@osdl.org>
+In-Reply-To: <20030823220438.GB1155@irc.pl>
+References: <20030823105243.GA1245@irc.pl>
+	<20030823145545.2b7d6ec9.akpm@osdl.org>
+	<20030823220438.GB1155@irc.pl>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-08-23 at 16:43, David S. Miller wrote:
-> On 22 Aug 2003 20:09:30 -0500
-> James Bottomley <James.Bottomley@SteelEye.com> wrote:
-> 
-> > What we were hoping is that we could rely on this little property of
-> > mmap:
+Tomasz Torcz <zdzichu@irc.pl> wrote:
+>
+> On Sat, Aug 23, 2003 at 02:55:45PM -0700, Andrew Morton wrote:
+> > Tomasz Torcz <zdzichu@irc.pl> wrote:
 > > 
-> >        MAP_PRIVATE
-> >                   Create a private copy-on-write mapping.  Stores
-> >                   to the region do not affect the original  file.
-> >                   It  is  unspecified whether changes made to the
-> >                   file after the mmap call  are  visible  in  the
-> >                   mapped region.
+> > >  ACPI disabled because your bios is from 00 and too old
+> > >  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > > 
-> > To avoid having to flush the non-shared mappings (basically on parisc if
-> > you write to a file backing a MAP_PRIVATE mapping then we don't
-> > guarantee you see the update).
-> > 
-> > I suppose if we had a way of telling if any of the i_mmap list members
-> > were really MAP_SHARED semantics mappings, then we could alter our
-> > flush_dcache_page() implementation to work.
+> > Add "acpi=force" to your kernel boot command line and everything should work
+> > as before.
 > 
-> I thought about this very deeply last night and this morning.
-> And what you're trying to optimize won't work.  Here is why.
+> It does not work. It halts in beetween ps/2 mouse init and serio init.
+> Adding "acpi=force pci=noacpi" solves that.
 > 
-> If the first access to a MAP_PRIVATE mapping of a page is a read,
-> we'll use the page-cache page.  This means that, with your
-> optimization, during this time if another cpu write()`s into the
-> page we'll lose the data update.
-> 
-> Sorry :(
 
-Could you elaborate some more?  I agree that the MAP_PRIVATE mapping may
-not see cpu1's write because of cache incoherencies (but that's what I
-believe is covered by the `unspecified' bit of the MAP_PRIVATE
-definition above).  MAP_PRIVATE is COW (i.e. the page is marked read
-only while it's shared), so there can be no data to flush in the cache
-for the page of the MAP_PRIVATE process...The only scenario I see where
-we can get cache based data destruction is if two cache aliases both
-contain dirty caches for the page (which can only happen for MAP_SHARED
-RW, which we already have the correct semantics for...they're racing to
-do a msync and the last one in wins).
+OK.  Please send a full report to linux-acpi@intel.com.  Here is Len's
+how-to-report-ACPI problems recipe:
 
-James
 
+ Regarding how to field these in general...
+ Bugzilla would be really helpful, because we've got multiple bugs and
+ multiple people working on them and bugzilla is better than e-mail at
+ keeping the relevant bits together.  bugzilla with component=ACPI and
+ owner len.brown@intel.com or andrew.grover@intel.com should do the
+ trick.
+
+ The dmesg output of the failing case is really helpful,
+ As is the output of acpidmp to examine the ACPI tables on the system.
+ (Red Hat includes both of these in their severn beta1, acpidmp is also
+ in pmtools on intel's ACPI web page)
+ dmidecode output is useful to identify the BIOS version.
+
+ Of course the 1st thing to check with ACPI failures is that the BIOS
+ version shown by dmidmp is the latest provided by the vendor...  Plus,
+ if we determine the BIOS is toast, DMI provides what we need to add the
+ system to the DMI or acpi blacklists.
+
+ We're seeting the most problems on VIA chip-sets with no IO-APIC.
+ The one below is unusual because it is a 2-way system with 3 IO-APICs.
+
+ The latest code in linus' tree includes ACPICA 20030813, which is
+ slightly newer than the one below, it might be a good idea to try that
+ with CONFIG_ACPI_DEBUG.  Note that it will spit out the DMI info upon
+ the mount root failure automatically.
 

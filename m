@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290766AbSAYScC>; Fri, 25 Jan 2002 13:32:02 -0500
+	id <S290772AbSAYSbw>; Fri, 25 Jan 2002 13:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290770AbSAYSbx>; Fri, 25 Jan 2002 13:31:53 -0500
-Received: from [24.64.71.161] ([24.64.71.161]:28406 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S290766AbSAYSbm>;
-	Fri, 25 Jan 2002 13:31:42 -0500
-Date: Fri, 25 Jan 2002 11:31:18 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: John Levon <movement@marcelothewonderpenguin.com>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
-Message-ID: <20020125113118.S763@lynx.adilger.int>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	John Levon <movement@marcelothewonderpenguin.com>,
-	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-	davej@suse.de
-In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 25, 2002 at 10:08:56AM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S290770AbSAYSbg>; Fri, 25 Jan 2002 13:31:36 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:41105 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S290766AbSAYSbU>;
+	Fri, 25 Jan 2002 13:31:20 -0500
+Date: Fri, 25 Jan 2002 10:31:43 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Grover, Andrew" <andrew.grover@intel.com>, "'lwn@lwn.net'" <lwn@lwn.net>,
+        "Acpi-linux (E-mail)" <acpi-devel@lists.sourceforge.net>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: ACPI mentioned on lwn.net/kernel
+In-Reply-To: <E16UAZO-00034f-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0201251019230.800-100000@segfault.osdlab.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 25, 2002  10:08 -0800, Linus Torvalds wrote:
-> I would prefer instead just avoiding the copy altogether, and just save
-> the name pointer - with no length restrictions.
+
+On Fri, 25 Jan 2002, Alan Cox wrote:
+
+> > battery status, the steps the OS must perform are defined by the BIOS.
+> > However, since they are performed by the OS, the OS in fact gains visibility
+> > into the process, and does not ever relinquish control to the BIOS.
 > 
-> Right now the code has the comment
-> 
->    /* Copy name over so we don't have problems with unloaded modules */
+> It has task file IDE access. It is capable of being abused for that or more.
+> Intent doesnt come into it. Its no different to the current BIOS SMM
+> situation. 
 
-Yes, I put that in.
+That's not his point. ACPI is doing what the BIOS tells us, not asking the 
+BIOS to do something for is. That's not a Good Thing, but it's Better. 
 
-> but that was written before "kmem_cache_destroy()" existed, and we should
-> long ago have fixed any modules that don't properly destroy their caches
-> when they exit (and yes, I know the difference between "should" and "did",
-> but that's not an excuse for a bad interface).
+Unless you're proactive about scanning BIOS routines for power mgmt,
+verifying tables, and analyzing AML before you use it, you won't know 
+something is wacky until it bites you. 
 
-The problem is that if, for some reason, the cache is NOT empty when you
-call kmem_cache_destroy(), it will not be freed, but the module exits
-anyways.  Then, any access to /proc/slabinfo will OOPS.
+With AML, at least you have the freedom to pinpoint the problem and 
+overridde it, either by modifying the table yourself, or providing a new 
+one(*).
 
-Yes, code should be written correctly so that its slab is empty when it
-exits, but I'd rather have a _bit_ of safety here so that you can at
-least check slabinfo when you get a kernel message "slab is not empty"
-(or whatever it is) so you can at least try and investigate the problem.
+I'm a big ACPI pundit, and disagree with many aspects of the spec and 
+implementation. But, a) we're stuck with it and b) it's a lot better in 
+many aspects than previous things, including the ability to catch and work 
+around problems rather than just punting on them.
 
-The other alternative is to BUG with enough information to figure out
-the status of this cache if you try to free a non-empty cache.  At
-least then you would get some data at the time the real problem happens
-as opposed to killing some random process later that tries to read
-slabinfo.
+	-pat
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+(*) Aside from any potential copyright infringement on the tables 
+themselves. But, it is theoretically possible to override the DSDT with 
+one provided at runtime. So, if someone finds a problem with Company X, 
+Model Y's AML, they can go to acpi.sf.net and download a fixed table, run 
+a utility to put it in the early init scripts, reboot and be safe. 
+Hypothetically. 
+
+
 

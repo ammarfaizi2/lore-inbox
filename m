@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263985AbTLENRI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 08:17:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTLENRI
+	id S264118AbTLENfA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 08:35:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264119AbTLENfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 08:17:08 -0500
-Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:20466 "EHLO
-	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S263985AbTLENRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 08:17:06 -0500
-Message-ID: <005301c3bb32$11a041a0$1225a8c0@kittycat>
-From: "jdow" <jdow@earthlink.net>
-To: "Torsten Scheck" <torsten.scheck@gmx.de>, <linux-kernel@vger.kernel.org>
-References: <3FD0555F.5060608@gmx.de>
-Subject: Re: Large-FAT32-Filesystem Bug
-Date: Fri, 5 Dec 2003 05:17:00 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 5 Dec 2003 08:35:00 -0500
+Received: from imhotep.hursley.ibm.com ([195.212.14.170]:44949 "EHLO
+	mail-gw1.hursley.ibm.com") by vger.kernel.org with ESMTP
+	id S264118AbTLENe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 08:34:58 -0500
+Subject: RE: Linux GPL and binary module exception clause?
+From: Anders Karlsson <anders@trudheim.com>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEJHIHAA.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKAEJHIHAA.davids@webmaster.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ebcB9OawmGMYDXPmRzdm"
+Organization: Trudheim Technology Limited
+Message-Id: <1070631296.5746.7.camel@tor.trudheim.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 Rubber Turnip www.usr-local-bin.org 
+Date: Fri, 05 Dec 2003 13:34:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Torsten Scheck" <torsten.scheck@gmx.de>
 
-> Dear friends:
-> 
-> I already sent a message to the VFAT maintainer, but I decided
-> to additionally bother this list with a warning. This way some
-> readers might avoid data loss.
+--=-ebcB9OawmGMYDXPmRzdm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This all may be moot. Microsoft is about to charge a royalty for
-use of the FAT file system. http://www.microsoft.com/mscorp/ip/tech/fat.asp
+Afternoon/Evening/Whatever,
 
-Software patents are the death of innovation and competition.
+However interesting a debate about the legal status of the GPL is, its
+applications to various works, including but not limited to the Linux
+Kernel, perhaps a forum like 'linux-legal' could be created to remove
+such discussions from the more technical list that linux-kernel is.
 
-{+_+}    Joanne Dow
+I am surprised such a discussion flared up in the LKML as I normally
+associate such discussions with the lower scoring threads on SlashDot
+(no offence intended to SlashDot itself).
+
+Just my $0.45... (inflation and currency devaluation taken into account)
+
+--=20
+Anders Karlsson <anders@trudheim.com>
+Trudheim Technology Limited
+
+--=-ebcB9OawmGMYDXPmRzdm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/0Il/LYywqksgYBoRAqhPAKCnk7f8nHFqqW4YkR3kuEFlWCXx1gCgvtUA
+vxk6MdbCaA5Z/bAhlmYI3u8=
+=XJ2v
+-----END PGP SIGNATURE-----
+
+--=-ebcB9OawmGMYDXPmRzdm--
+

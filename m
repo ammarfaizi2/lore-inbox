@@ -1,35 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264165AbUEXJf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264202AbUEXJwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264165AbUEXJf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 05:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264202AbUEXJf1
+	id S264202AbUEXJwj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 05:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264210AbUEXJwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 05:35:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51387 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264165AbUEXJfY (ORCPT
+	Mon, 24 May 2004 05:52:39 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:20894 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264202AbUEXJwh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 05:35:24 -0400
-Date: Mon, 24 May 2004 02:34:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI trigger switch support for debugging
-Message-Id: <20040524023453.7cf5ebc2.akpm@osdl.org>
-In-Reply-To: <40B1BEAC.30500@jp.fujitsu.com>
-References: <40B1BEAC.30500@jp.fujitsu.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 24 May 2004 05:52:37 -0400
+Date: Mon, 24 May 2004 11:51:20 +0200 (MEST)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Jeff Garzik <jgarzik@pobox.com>, Matt Domsch <Matt_Domsch@dell.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: ata_piix: port disabled.  ignoring.
+In-Reply-To: <200405191510.39711.bzolnier@elka.pw.edu.pl>
+Message-ID: <Pine.GSO.4.58.0405241148400.18874@waterleaf.sonytel.be>
+References: <Pine.GSO.4.58.0405141453020.27660@waterleaf.sonytel.be>
+ <200405181520.54952.bzolnier@elka.pw.edu.pl> <Pine.GSO.4.58.0405190945500.23702@waterleaf.sonytel.be>
+ <200405191510.39711.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com> wrote:
+On Wed, 19 May 2004, Bartlomiej Zolnierkiewicz wrote:
+> On Wednesday 19 of May 2004 09:48, Geert Uytterhoeven wrote:
+> > On Tue, 18 May 2004, Bartlomiej Zolnierkiewicz wrote:
+> > > On Monday 17 of May 2004 16:19, Geert Uytterhoeven wrote:
+> > > > If I disable CONFIG_SCSI_SATA, IDE works, but very slow (no DMA).
+> > >
+> > > due to CONFIG_BLK_DEV_PIIX=n but ata_piix.c is prefferred for SATA
+> >
+> > No, I had
+> >
+> >     CONFIG_BLK_DEV_PIIX=y
+> >     CONFIG_BLK_DEV_IDEDMA_PCI=y
+> >
+> > but I get an error when trying to enable DMA using hdparm.
 >
-> Therefore this feature cannot be used at the same time with oprofile
->  and NMI watchdog. This feature hands NMI interrupt over to oprofile
->  and NMI watchdog. So, when they have been activated, this feature
->  doesn't work even if it is activated.
+> I suppose that you're using chipset which ID is not in piix.c.
+> If not than this is a bug and I would like to know more about it.
 
-An API was recently added to solve this.  See reserve_lapic_nmi() and
-release_lapic_nmi().
+Upon closer look, piix.c doesn't recognize the ESB_3 yet. If I add it to
+piix.[ch] and treat it the same as the ICH5-SATA, the SATA disk gets 57 MiB/s
+using the PATA piix driver.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- Sony Network and Software Technology Center Europe (NSCE)
+Geert.Uytterhoeven@sonycom.com ------- The Corporate Village, Da Vincilaan 7-D1
+Voice +32-2-7008453 Fax +32-2-7008622 ---------------- B-1935 Zaventem, Belgium

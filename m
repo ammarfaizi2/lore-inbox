@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267159AbTAPQNl>; Thu, 16 Jan 2003 11:13:41 -0500
+	id <S267178AbTAPQT7>; Thu, 16 Jan 2003 11:19:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267162AbTAPQNl>; Thu, 16 Jan 2003 11:13:41 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:29578 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267159AbTAPQNk>;
-	Thu, 16 Jan 2003 11:13:40 -0500
-Date: Thu, 16 Jan 2003 08:18:04 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: Vojtech Pavlik <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>,
-       <alan@lxorguk.ukuu.org.uk>
-Subject: Re: MB without keyboard controller / USB-only keyboard ?
-In-Reply-To: <20030116120324.2b97e010.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33L2.0301160805110.9551-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267179AbTAPQT7>; Thu, 16 Jan 2003 11:19:59 -0500
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:28901
+	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
+	id <S267178AbTAPQTz>; Thu, 16 Jan 2003 11:19:55 -0500
+Date: Thu, 16 Jan 2003 08:28:51 -0800
+From: Phil Oester <kernel@theoesters.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre3-ac4 oops in free_pages_ok
+Message-ID: <20030116082851.A31643@ns1.theoesters.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Jan 2003, Stephan von Krawczynski wrote:
+Had a qmail server crash this morning with the below oops.  Also had 2 other squid servers running same kernel die with no indication of why in syslog (couldn't see console).  Think I'll stick with 2.4.20 for now...
 
-| On Thu, 9 Jan 2003 23:24:59 +0100
-| Vojtech Pavlik <vojtech@suse.cz> wrote:
-|
-| > On Thu, Jan 09, 2003 at 11:42:47AM +0100, Stephan von Krawczynski wrote:
-| > > Hello all,
-| > >
-| > > how do I work with a mb that contains no keyboard controller, but has only
-| > > USB for keyboard and mouse?
-| > > While booting the kernel I get:
-| > >
-| > > pc_keyb: controller jammed (0xFF)
-| > >
-| > > (a lot of these :-)
-| > >
-| > > and afterwards I cannot use the USB keyboard.
-| > > Everything works with a mb that contains a keyboard-controller, but where I
-| > > use a USB keyboard.
-| >
-| > Get 2.5. ;) It should work without a kbd controller ... you can even
-| > disable it in the kernel config ...
-|
-| Nice idea, but not acceptable as this setup is for production use, you simply
-| won't do that.
-| It would be helpful if there was a kernel parameter for disabling the
-| keyboard(-check) in 2.4. We found out that disabling it as kernel patch is not
-| the right way, as standard setups with keyboard controller do not work any
-| longer afterwards. This is a setup where user should be able to choose...
-| The box contains a BIOS where I can type around with USB-keyboard, btw.
+Phil Oester
 
-I asked 1 week ago if the system BIOS does PS/2 keyboard emulation.
-I think you are saying here that it does, so I'll try to confirm that:
 
-Does the USB keyboard work when talking to BIOS Setup?
-Does the USB keyboard work if NO Linux USB drivers are loaded?
-Or are you using the USB keyboard only by having Linux USB drivers
-loaded?
+Jan 16 08:34:34 mail34 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004
+Jan 16 08:34:34 mail34 kernel: c0131566
+Jan 16 08:34:34 mail34 kernel: *pde = 00000000
+Jan 16 08:34:34 mail34 kernel: Oops: 0002
+Jan 16 08:34:34 mail34 kernel: CPU:    0
+Jan 16 08:34:34 mail34 kernel: EIP:    0010:[<c0131566>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Jan 16 08:34:34 mail34 kernel: EFLAGS: 00010246
+Jan 16 08:34:34 mail34 kernel: eax: 00000000   ebx: c16eaf50   ecx: c9a00000   edx: c9a0005c
+Jan 16 08:34:34 mail34 kernel: esi: 00000000   edi: 00000000   ebp: 00000000   esp: c9a01d84
+Jan 16 08:34:34 mail34 kernel: ds: 0018   es: 0018   ss: 0018
+Jan 16 08:34:34 mail34 kernel: Process smtp_message (pid: 12110, stackpage=c9a01000)
+Jan 16 08:34:34 mail34 kernel: Stack: d63b3840 40014000 00000001 d56f2b00 c0126a82 d63b3840 d56f2b00 c1c0fdb8 
+Jan 16 08:34:34 mail34 kernel:        e4e51000 c1000020 cd552cc0 c012e78a c1c0fdb8 00000025 00000000 c1c22660 
+Jan 16 08:34:34 mail34 kernel:        c012fb39 c1c0fdb8 cd552cc0 00000000 c1c0fdc0 c1c0fdc8 c5523b50 c9a00000 
+Jan 16 08:34:34 mail34 kernel: Call Trace:    [<c0126a82>] [<c012e78a>] [<c012fb39>] [<c0130cc9>] [<c0130d6c>]
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-I posted a patch to 2.4.20 on 2002-Dec-04 that might work for you.
-It's available at
-  http://www.osdl.org/archive/rddunlap/patches/kbc_option_2420.patch
-
-It might work for you.  If you try it out, please let me know how it
-does for you.
-
--- 
-~Randy
-
+>>EIP; c0131566 <__free_pages_ok+286/2a0>   <=====
+Trace; c0126a82 <handle_mm_fault+62/d0>
+Trace; c012e78a <kmem_slab_destroy+aa/d0>
+Trace; c012fb39 <kmem_cache_reap+2b9/330>
+Trace; c0130cc9 <shrink_caches+19/80>
+Trace; c0130d6c <try_to_free_pages_zone+3c/60>
 

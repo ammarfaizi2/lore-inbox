@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264968AbSJ3Xc5>; Wed, 30 Oct 2002 18:32:57 -0500
+	id <S264951AbSJ3Xht>; Wed, 30 Oct 2002 18:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264946AbSJ3Xc5>; Wed, 30 Oct 2002 18:32:57 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:54941 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265091AbSJ3Xcy>; Wed, 30 Oct 2002 18:32:54 -0500
-Message-ID: <3DC06CAE.8040806@us.ibm.com>
-Date: Wed, 30 Oct 2002 15:35:10 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S264946AbSJ3Xht>; Wed, 30 Oct 2002 18:37:49 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:25497 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264951AbSJ3Xhs>; Wed, 30 Oct 2002 18:37:48 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 30 Oct 2002 15:53:45 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: John Gardiner Myers <jgmyers@netscape.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>, <lse-tech@lists.sourceforge.net>
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+In-Reply-To: <20021030230159.GB25231@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.44.0210301547170.1405-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] use asm-generic/topology.h
-References: <3DC056C2.4070609@us.ibm.com> <20021030233107.GB4820@krispykreme>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
-> Hi Matt,
-> 
-> 
->>use_generic_topology.patch
->>
->>This patch changes ppc64 & alpha to use the generic topology.h for the 
->>non-NUMA case rather than redefining the same macros.  It is much easier 
->>to maintain one set of generic non-NUMA macros than several.
-> 
-> 
-> Looks good from the ppc64 perspective.
-> 
-> Anton
+On Wed, 30 Oct 2002, Jamie Lokier wrote:
 
-Glad to have the positive feedback.  It doesn't really change how 
-anything works, just eliminates duplicate code and makes modifying the 
-generic behavior simpler.
+> John Gardiner Myers wrote:
+> > I am uncomfortable with the way the epoll code adds its own set of
+> > notification hooks into the socket and pipe code.  Much better would be
+> > to extend the existing set of notification hooks, like the aio poll code
+> > does.
+>
+> Fwiw, I agree with the above (I'm having a think about it).
+>
+> I also agree with criticisms that epoll should test and send an event
+> on registration, but only _if_ the test is cheap.  Nothing to do with
+> correctness (I like the edge semantics as they are), but because
+> delivering one event is so infinitesimally low impact with epoll that
+> it's preferable to doing a single speculative read/write/whatever.
+>
+> Regarding the effectiveness of the optimisation, I'd guess that quite
+> a lot of incoming connections do not come with initial data in the
+> short scheduling time after a SYN (unless it's on a LAN).  I don't
+> know this for sure though.
 
-Anyone that works with alpha want to verify that I haven't inadvertently 
-hosed your topology file?
+Ok Jamie, try to explain me which kind of improvement this first drop will
+bring. And also, how such first drop would not bring a "confusion" for the
+user, letting him think that he can go sleeping event w/out having first
+received EAGAIN. Isn't it better to say "you wait for events after EAGAIN",
+instead of "you wait for events after EAGAIN but after accept/connect".
+The cost of the test will be basically the cost of a ->poll(), that is
+exactly the same cost of the very first read()/write() that you would do
+by following the current API rule.
 
-Cheers!
 
--Matt
+
+- Davide
+
 

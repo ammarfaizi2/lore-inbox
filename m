@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282705AbRLWOK3>; Sun, 23 Dec 2001 09:10:29 -0500
+	id <S282418AbRLWOIR>; Sun, 23 Dec 2001 09:08:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282523AbRLWOKR>; Sun, 23 Dec 2001 09:10:17 -0500
-Received: from fepC.post.tele.dk ([195.41.46.147]:32908 "EHLO
-	fepC.post.tele.dk") by vger.kernel.org with ESMTP
-	id <S282483AbRLWOKE>; Sun, 23 Dec 2001 09:10:04 -0500
-Date: Sun, 23 Dec 2001 15:09:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bounce buffer usage
-Message-ID: <20011223150940.E7438@suse.de>
-In-Reply-To: <Pine.LNX.4.33L2.0112211652430.2896-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0112211652430.2896-100000@dragon.pdx.osdl.net>
+	id <S282483AbRLWOIH>; Sun, 23 Dec 2001 09:08:07 -0500
+Received: from d101.x-mailer.de ([212.162.12.2]:4578 "EHLO d101.x-mailer.de")
+	by vger.kernel.org with ESMTP id <S282418AbRLWOH6>;
+	Sun, 23 Dec 2001 09:07:58 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gietl <a.gietl@e-admin.de>
+To: linux-kernel@vger.kernel.org
+Subject: serial console on > 2.4.14
+Date: Sun, 23 Dec 2001 15:06:58 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16I9Fq-0007yj-00@d101.x-mailer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21 2001, Randy.Dunlap wrote:
-> Are there any drivers in 2.4.x that support highmem directly,
-> or is all of that being done in 2.5.x (BIO patches)?
+hi,
 
-2.4 + my block-highmem patches support direct highmem I/O.
+i am exploring problems on linux-smp kernels (did not test single-processor) 
+with version greater 2.4.14. In Fact i just tested 2.4.16 and 2.4.17.
 
-> Would it be useful to try this with a 2.5.1 kernel?
+Here's my problem:
 
-Sure
+I compiled all kernels with the same configuration with serial console-option 
+enabled. With 2.4.14 everything is just fine: I see the kernel-output and can 
+type in things during startup esp. do a fsck. With 2.4.16 and 2.4.17 i SEE 
+everything but no input is accepted.
 
+Did you break anything in 2.4.15 or 2.4.16. I of course did not test 2.4.15 
+because of the fs-bug.
+
+I will of course provide any information you request.
+
+thanx
+
+andreas
 -- 
-Jens Axboe
-
+e-admin internet gmbh
+Andreas Gietl
+Roter-Brach-Weg 124a
+tel +49 941 3810884
+fax +49 941 3810891
+mobil +49 171 6070008

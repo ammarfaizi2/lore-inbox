@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318718AbSICGy6>; Tue, 3 Sep 2002 02:54:58 -0400
+	id <S318716AbSICHQF>; Tue, 3 Sep 2002 03:16:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318717AbSICGy5>; Tue, 3 Sep 2002 02:54:57 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62161 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318561AbSICGy4>;
-	Tue, 3 Sep 2002 02:54:56 -0400
-Date: Mon, 02 Sep 2002 23:52:44 -0700 (PDT)
-Message-Id: <20020902.235244.64832172.davem@redhat.com>
-To: jros@ece.uci.edu
-Cc: scott.feldman@intel.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, haveblue@us.ibm.com, Manand@us.ibm.com,
-       kuznet@ms2.inr.ac.ru, christopher.leech@intel.com
-Subject: Re: TCP Segmentation Offloading (TSO)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <JCEFIMMPGNNGFPMJJKINGEMHCDAA.jros@ece.uci.edu>
-References: <288F9BF66CD9D5118DF400508B68C4460283E564@orsmsx113.jf.intel.com>
-	<JCEFIMMPGNNGFPMJJKINGEMHCDAA.jros@ece.uci.edu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S318717AbSICHQF>; Tue, 3 Sep 2002 03:16:05 -0400
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:51716 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id <S318716AbSICHQE>; Tue, 3 Sep 2002 03:16:04 -0400
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200209030719.g837JCJ24173@sprite.physics.adelaide.edu.au>
+Subject: Re: Linux 2.4.18: short dd read from IDE cdrom
+To: linux-kernel@vger.kernel.org
+Date: Tue, 3 Sep 2002 16:49:12 +0930 (CST)
+Cc: axboe@suse.de, andre@linux-ide.org,
+       jwoithe@physics.adelaide.edu.au (Jonathan Woithe)
+In-Reply-To: <200209020527.g825RHd07114@sprite.physics.adelaide.edu.au> from "Jonathan Woithe" at Sep 02, 2002 02:57:17 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Jordi Ros" <jros@ece.uci.edu>
-   Date: Mon, 2 Sep 2002 21:58:32 -0700
+Hi all
 
-   i assume the mtu is ethernet 1500 Bytes, right? and that mss should be
-   something much bigger than mtu, which gives the performance improvement
-   shown in the numbers.
-   
-The performance improvement comes from the fact that the card
-is given huge 64K packets, then the card (using the given ip/tcp
-headers as a template) spits out 1500 byte mtu sized packets.
+Yesterday I reported a problem to lkml I observed with `dd' and ide cds:
+> For a number of years now I have duplicated cds using
+>   dd if=/dev/cdrom of=foo.iso
+>   cdrecord ... foo.iso
+> :
+> Today I tried the same trick under 2.4.18 and struck a problem: the kernel
+> would not read the complete CD image. ...
 
-Less data DMA'd to the device per normal-mtu packet and less
-per-packet data structure work by the cpu is where the improvement
-comes from.
+After further testing, it seems that turning off dma using "hdparm -d 0
+/dev/hdc" allows things to work as expected - the full disk can be read and
+the resulting image is intact.  It appears therefore that the problem may
+lie in the ide DMA error recovery code.  Alan Cox eluded to this possibility
+in Dec 2001 (lkml, 28 Dec 2001, subject "Re: dd cdrom error") but it's not
+clear whether the issue was pursued by anyone at that time.  Does anyone
+know whether this is now being addressed by Andre in his latest round of
+patches via the ac tree, or has already been fixed?
+
+Please CC me any replies.  Thanks.
+
+Regards
+  jonathan
+-- 
+* Jonathan Woithe    jwoithe@physics.adelaide.edu.au                        *
+*                    http://www.physics.adelaide.edu.au/~jwoithe            *
+***-----------------------------------------------------------------------***
+** "Time is an illusion; lunchtime doubly so"                              **
+*  "...you wouldn't recognize a subtle plan if it painted itself purple and *
+*   danced naked on a harpsichord singing 'subtle plans are here again'"    *

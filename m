@@ -1,101 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUCIFhq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 00:37:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUCIFhq
+	id S261238AbUCIFkF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 00:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbUCIFkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 00:37:46 -0500
-Received: from mail-09.iinet.net.au ([203.59.3.41]:25282 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261236AbUCIFhb
+	Tue, 9 Mar 2004 00:40:03 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:6086 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261238AbUCIFjH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 00:37:31 -0500
-Message-ID: <404D56D8.2000008@cyberone.com.au>
-Date: Tue, 09 Mar 2004 16:32:08 +1100
+	Tue, 9 Mar 2004 00:39:07 -0500
+Message-ID: <404D5874.2060108@cyberone.com.au>
+Date: Tue, 09 Mar 2004 16:39:00 +1100
 From: Nick Piggin <piggin@cyberone.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
 X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>,
        Linux Memory Management <linux-mm@kvack.org>
-Subject: [RFC][PATCH 0/4] VM split active lists
+Subject: Re: [RFC][PATCH 4/4] vm-mapped-x-active-lists
+References: <404D56D8.2000008@cyberone.com.au> <404D5784.9080004@cyberone.com.au>
+In-Reply-To: <404D5784.9080004@cyberone.com.au>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Background: there are a number of problems in the 2.6 page reclaim
-algorithms. Thankfully, most of them were simple oversights or small
-bugs, the worst of which Andrew Morton and myself have fixes for in
-his -mm tree and being mostly simple and obviously correct, they will
-hopefully be included in 2.6.5.
 
-With these fixes, 2.6 swapping performance (the area I'm focusing on)
-is very much improved. Unfortunately there is another more complex
-patch in limbo that improves performance by a additional 10%. It is
-Nikita's dont-rotate-active-list.
 
-The reason for the improvement is that it improves ordering of mapped
-pages on the active list. Now I I'd like to fix this problem and get
-this 10%. However dont-rotate-active-list is pretty ugly to put it
-nicely.
+Nick Piggin wrote:
 
-OK, the theory is that mapped pagecache pages are worth more than
-unmapped pages. This is a good theory because mapped pages will
-usually have far more random access patterns, so pagein *and* pageout
-will be much less efficient. Also, applications are probably coded to
-be more suited to blocking in read() than a random code / anon memory
-page. So a factor of >= 16 wouldn't be out of the question.
+>
+>@@ -714,14 +737,27 @@ shrink_zone(struct zone *zone, int max_s
+> 	 * just to make sure that the kernel will slowly sift through the
+> 	 * active list.
+> 	 */
+>-	ratio = (unsigned long)SWAP_CLUSTER_MAX * zone->nr_active /
+>-				((zone->nr_inactive | 1) * 2);
+>+	nr_active = zone->nr_active_mapped + zone->nr_active_unmapped;
+>+	ratio = (unsigned long)SWAP_CLUSTER_MAX * nr_active /
+>+				(zone->nr_inactive * 2 + 1);
+>+	mapped_ratio = (unsigned long long)ratio * nr_active;
+>+	do_div(mapped_ratio, zone->nr_active_mapped+1);
+>
 
-Now the basic problem is that we have these two classes of pages on
-one (the active) list, and we attempt to place different scanning
-semantics on each class. This is done with the reclaim_mapped logic.
-Now I won't be too disparaging of reclaim_mapped because I think
-Andrew crea^W^W^W^W it somehow more or less works, but it has a couple
-of problems.
+Just for information, this is where you would balance mapped vs unmapped
+pages:    do_div(mapped_ratio, 16); /* mapped pages are worth 16 times 
+more */
 
-* Difficult to trace: relies on some saved state from earlier in time.
-* difficult to control: relies on inner workings (eg "priority").
-  mapped vs unmapped scanning behaviour is derived basically by black
-  magic.
-* not-quite-right semantics: mapped pages are infinitely preferable
-  to unmapped pages until something goes click and then they are worth
-  about half as much.
-* These semantics mean that in low memory pressure (before the click),
-  truely inactive mapped pages will never be reclaimed. Probably they
-  should be to increase resident working set.
-* Also, a significant number of mapped pages can be passed over
-  without doing any real work.
-* This causes list position information to be lost (which is where
-  that 10% comes from).
-
-Now I have an alternative which hopefully solves all these problems
-and with less complexity than dont-rotate-active-list which only
-solves the last one: split the active list into active_mapped and
-active_unmapped lists. Pages are moved between them lazily at scan
-time, and they needn't be totally accurate.
-
-You then simply put 16 (or whatever) times the amount of pressure on
-the unmapped list as you do on the mapped list. This number can be the
-tunable (instead of swapiness).
-
-I have an implementation which compiles, boots, and survives a -j8
-kbuild. Probably still has a few problems though. Couple of things: it
-presently just puts even pressure on both lists, so it is swappy
-(trivial to fix). It also gives unmapped pages the full two level
-(active+inactive) system because it was just easier to do it that way.
-Don't know if this would be good or bad.
-
-The patches go like this:
-1/4: vm-lrutopage-cleanup
-Cleanup from Nikita's dont-rotate-active-list patch.
-
-2/4: vm-nofixed-active-list
-Generalise active list scanning to scan different lists.
-
-3/4: vm-no-reclaim_mapped
-Kill reclaim_mapped and its merry men.
-
-4/4: vm-mapped-x-active-lists
-Split the active list into mapped and unmapped pages.
+>+
+>+	ratio = ratio - mapped_ratio;
+>+	atomic_add(ratio+1, &zone->nr_scan_active_unmapped);
+>+	count = atomic_read(&zone->nr_scan_active_unmapped);
+>+	if (count >= SWAP_CLUSTER_MAX) {
+>+		atomic_set(&zone->nr_scan_active_unmapped, 0);
+>+		shrink_active_list(zone, &zone->active_unmapped_list,
+>+					&zone->nr_active_unmapped, count, ps);
+>+	}
+> 
+>-	atomic_add(ratio+1, &zone->nr_scan_active);
+>-	count = atomic_read(&zone->nr_scan_active);
+>+	atomic_add(mapped_ratio+1, &zone->nr_scan_active_mapped);
+>+	count = atomic_read(&zone->nr_scan_active_mapped);
+> 	if (count >= SWAP_CLUSTER_MAX) {
+>-		atomic_set(&zone->nr_scan_active, 0);
+>-		shrink_active_list(zone, &zone->active_list, count, ps);
+>+		atomic_set(&zone->nr_scan_active_mapped, 0);
+>+		shrink_active_list(zone, &zone->active_mapped_list,
+>+					&zone->nr_active_mapped, count, ps);
+> 	}
+> 
+> 	atomic_add(max_scan, &zone->nr_scan_inactive);
+>
+>  
+>
 

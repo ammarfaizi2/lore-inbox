@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUHIPRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUHIPRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUHIPRk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 11:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUHIPPd
+	id S262418AbUHIPRl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 11:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUHIPPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 11:15:33 -0400
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:9675 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S262406AbUHIPL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 11:11:56 -0400
-Date: Mon, 9 Aug 2004 08:11:53 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: [PATCH][PPC32] Optimize/fix timer_interrupt loop
-Message-ID: <20040809081153.A22692@home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	Mon, 9 Aug 2004 11:15:16 -0400
+Received: from smtp.rol.ru ([194.67.21.9]:61608 "EHLO smtp.rol.ru")
+	by vger.kernel.org with ESMTP id S264238AbUHIPMO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 11:12:14 -0400
+Message-ID: <411794E8.6000806@vlnb.net>
+Date: Mon, 09 Aug 2004 19:14:48 +0400
+From: Vladislav Bolkhovitin <vst@vlnb.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: ru, en-us
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
+References: <20040805200622.GA17324@logos.cnet> <411392E0.6080507@vlnb.net> <20040806143359.GC20911@logos.cnet> <4113A579.5060702@vlnb.net> <20040806155328.GA21546@logos.cnet> <4113B752.7050808@vlnb.net> <20040806170931.GA21683@logos.cnet>
+In-Reply-To: <20040806170931.GA21683@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch fixes the situation where the loop condition could
-generate a next_dec of zero while exiting the loop.  This is suboptimal
-on Classic PPC because it forces another interrupt to occur and
-reenter the handler. It is fatal on Book E cores, because their
-decrementer is stopped when writing a zero (Classic interrupts on
-a 0->-1 transition, Book E interrupts on a 1->0 transition). Instead,
-stay in the loop on a next_dec==0.
+Marcelo Tosatti wrote:
+>>>Yes correct. *mb() usually imply barrier(). 
+>>>
+>>>About the flush, each architecture defines its own instruction for doing 
+>>>so,
+>>>PowerPC has  "sync" and "isync" instructions (to flush the whole cache 
+>>>and instruction cache respectively), MIPS has "sync" and so on..
+>>
+>>So, there is no platform independent way for doing that in the kernel?
+> 
+> 
+> Not really. x86 doesnt have such an instruction.
 
-Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
+But how then spin_lock() works? It guarantees memory sync between CPUs, 
+doesn't it? Otherwise how can it prevent possible races with concurrent 
+data modifications?
 
-===== arch/ppc/kernel/time.c 1.29 vs edited =====
---- 1.29/arch/ppc/kernel/time.c	Tue Jun 22 12:05:08 2004
-+++ edited/arch/ppc/kernel/time.c	Tue Aug  3 13:32:22 2004
-@@ -161,7 +161,7 @@
- 
- 	irq_enter();
- 
--	while ((next_dec = tb_ticks_per_jiffy - tb_delta(&jiffy_stamp)) < 0) {
-+	while ((next_dec = tb_ticks_per_jiffy - tb_delta(&jiffy_stamp)) <= 0) {
- 		jiffy_stamp += tb_ticks_per_jiffy;
- 		
- 		ppc_do_profile(regs);
+Vlad

@@ -1,91 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272375AbRIKLzV>; Tue, 11 Sep 2001 07:55:21 -0400
+	id <S272417AbRIKL6v>; Tue, 11 Sep 2001 07:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272420AbRIKLzM>; Tue, 11 Sep 2001 07:55:12 -0400
-Received: from mailhost.iitb.ac.in ([203.197.74.142]:48656 "HELO
-	mailhost.iitb.ac.in") by vger.kernel.org with SMTP
-	id <S272375AbRIKLzA>; Tue, 11 Sep 2001 07:55:00 -0400
-Date: Tue, 11 Sep 2001 17:23:54 +0530 (IST)
-From: ajit k jena <ajit@indica.iitb.ac.in>
-To: <linux-kernel@vger.kernel.org>
-cc: <linux-scsi@vger.kernel.org>
-Subject: Problems with Quantum DLT 4000 + HP C5173-4000
-Message-ID: <Pine.LNX.4.33.0109111658490.5727-100000@indica.iitb.ac.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272422AbRIKL6l>; Tue, 11 Sep 2001 07:58:41 -0400
+Received: from ns1.uklinux.net ([212.1.130.11]:62993 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S272417AbRIKL6e>;
+	Tue, 11 Sep 2001 07:58:34 -0400
+Envelope-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Message-Id: <a05100304b7c3ab26db14@[192.168.239.101]>
+In-Reply-To: <Pine.LNX.4.33.0109111331440.6191-100000@falka.mfa.kfki.hu>
+In-Reply-To: <Pine.LNX.4.33.0109111331440.6191-100000@falka.mfa.kfki.hu>
+Date: Tue, 11 Sep 2001 12:53:34 +0100
+To: Gergely Tamas <dice@mfa.kfki.hu>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [GOLDMINE!!!] Athlon optimisation bug (was Re: Duron kernel 
+ crash)
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>  > The correct working version is kt73c and the latest kt73r has this
+>  > problem.
+>
+>And of course - sorry, I forgot it to write in previous mail - same mobo,
+>ABIT KT7A and BIOSes are available at e.g.
+>ftp://ftp.leo.org/pub/comp/general/devices/abit/bios/kt7/
 
-Hi,
+I have a KT7 mb with the (fairly old) UL BIOS, works fine with my 
+1G/100 Athlon.  I also just got the system working again after a HD 
+failure.  Perhaps I should try different BIOSes (including the 3C and 
+3R) and see if I get it to fail...
 
-I hope the problem I am posting is appropriate for this forum.
-
-We have a Quantum DLT 4000 SCSI-2 tape device connected to a
-RedHat Linux 7.1 box using BusLogic BT-950 card.
-
-When the system boots, we get the following messages on the
-screen:
-
-	Vendor: HP Model: C5173-4000 Media Changer Rev: 3.02
-	Vendor: Quantum Model: DLT4000 Rev: CD3C
-
-The /var/log/messages file shows the following message:
-
-	st0: Block limits 1-16777215 bytes.
-
-When I use the mtx utility on /dev/sg0, things are OK. I am
-able to do 'inquiry', 'status', 'load', 'unload' operations
-properly.
-
-I put a tape cartridge into the drive by using the command
-
-	mtx -f /dev/sg0 load 1
-
-Then I use the mt command as below:
-
-	mt -f /dev/st0 status
-
-	the output is:
-
-	SCSI 2 tape drive:
-
-	File number = 0, block number=0, partition=0
-	Tape block size 0 bytes, Density code 0x1a
-				(unknown to this mt)
-	Soft error count since last status=0
-	General status bits on (41010000):
-		BOT ONLINE IM_REP_EN
-
-I am using HP 1/2" DLTtape IV Data cartridge.
-
-When I try to do a tar onto the tape, I get the message:
-
-	Wrote only 0 of 10240 bytes
-	Error is not recoverable: exiting now
-
-The tape unit was attached to an HP9000 system before. The
-HP DLTtape IV cartridges are recommended for this drive.
-I thought there may something wrong with the particular
-cartridge and so I even tried brand new cartridges. The
-results are the same every time.
-
-Can someone please help me understand the problem here ?
-I hope to benefit from someone else's experience in this
-regard.
-
-Thanks for your time.
-
---ajit
-
-|-----------------------------------------------------------------|
-| Ajit K. Jena                      Phone :                       |
-|                                     Office +91-22-5767751       |
-| Computer Centre                            +91-22-5722545 x8750 |
-| Indian Institute of Technology      Home   +91-22-5722545 x8068 |
-| POWAI, Bombay                     Fax   :        +91-22-5723894 |
-| PIN 400076, India                 Email :    ajit@cc.iitb.ac.in |
-|-----------------------------------------------------------------|
-
-
+-- 
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+website:  http://www.chromatix.uklinux.net/vnc/
+geekcode: GCS$/E dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$
+           V? PS PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+tagline:  The key to knowledge is not to rely on people to teach you it.

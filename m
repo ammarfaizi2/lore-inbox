@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266023AbUA1QeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 11:34:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266043AbUA1QeQ
+	id S266120AbUA1RJW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 12:09:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266130AbUA1RJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 11:34:16 -0500
-Received: from ns.suse.de ([195.135.220.2]:15526 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266023AbUA1QeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 11:34:08 -0500
-Date: Wed, 28 Jan 2004 17:33:20 +0100
-From: Andi Kleen <ak@suse.de>
-To: akpm@osdl.org, mingo@elte.hu, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Use address hint in mmap for search
-Message-Id: <20040128173320.5daeb18a.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jan 2004 12:09:22 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:58320 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S266120AbUA1RI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 12:08:57 -0500
+Date: Wed, 28 Jan 2004 17:08:28 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Tim Hockin <thockin@hockin.org>
+cc: Andrew Morton <akpm@osdl.org>, <thockin@sun.com>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <rusty@rustcorp.com.au>
+Subject: Re: NGROUPS 2.6.2rc2
+In-Reply-To: <20040128010222.GA32323@hockin.org>
+Message-ID: <Pine.LNX.4.44.0401281706040.6069-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 27 Jan 2004, Tim Hockin wrote:
+> On Tue, Jan 27, 2004 at 04:46:15PM -0800, Andrew Morton wrote:
+> > +
+> > +	if (info->ngroups > TASK_SIZE/sizeof(group))
+> > +		return -EFAULT;
+> > +	if (!access_ok(VERIFY_WRITE, grouplist, info->ngroups * sizeof(group)))
+> > +		return -EFAULT;
+> > 
+> > Why are many functions playing with TASK_SIZE?
+> 
+> Not sure - I thought it was maybe a paranoid check, Rusty included it in his
+> version of a similar patch a while ago.
 
-When the user gave an address hint in mmap use it as starting point for the
-search for !MAP_FIXED. Currently it is only checked directly and when already
-used the free area cache is used as starting point. With this change
-you can use mmap(4096, ....) to e.g. get the lowest free address in your
-address space, which is sometimes useful. For example on x86-64 glibc
-wants to preferably allocate thread local data in the first 4GB but use
-higher addresses when this is not possible.
+Yes, a necessary paranoid check: without it, info->ngroups * sizeof(group)
+can easily wrap to something small, and access_ok pass when it should fail.
 
-This can be a bit more costly in CPU time because it may have to skip over more
-VMAs, but gives better semantics for most cases. Most programs pass NULL as hint anyways 
-so it won't make any difference for them. 
+Hugh
 
-I did it for the generic mmap and for x86-64 for now.  Also minor white space
-fixes for x86-64.
-
--Andi
-
-diff -u linux-2.6.2rc2-amd64/arch/x86_64/kernel/sys_x86_64.c-o linux-2.6.2rc2-amd64/arch/x86_64/kernel/sys_x86_64.c
---- linux-2.6.2rc2-amd64/arch/x86_64/kernel/sys_x86_64.c-o	2004-01-28 07:50:31.000000000 -0800
-+++ linux-2.6.2rc2-amd64/arch/x86_64/kernel/sys_x86_64.c	2004-01-28 08:11:59.291265619 -0800
-@@ -105,13 +105,13 @@
- 		return -ENOMEM;
- 
- 	if (addr) {
--	addr = PAGE_ALIGN(addr);
-+		addr = PAGE_ALIGN(addr);
- 		vma = find_vma(mm, addr);
- 		if (end - len >= addr &&
- 		    (!vma || addr + len <= vma->vm_start))
- 			return addr;
--	}
--	addr = mm->free_area_cache;
-+	} else
-+		addr = mm->free_area_cache;
- 	if (addr < begin) 
- 		addr = begin; 
- 	start_addr = addr;
-diff -u linux-2.6.2rc2-amd64/mm/mmap.c-o linux-2.6.2rc2-amd64/mm/mmap.c
---- linux-2.6.2rc2-amd64/mm/mmap.c-o	2004-01-28 07:50:41.000000000 -0800
-+++ linux-2.6.2rc2-amd64/mm/mmap.c	2004-01-28 08:12:37.009510784 -0800
-@@ -743,8 +743,9 @@
- 		if (TASK_SIZE - len >= addr &&
- 		    (!vma || addr + len <= vma->vm_start))
- 			return addr;
--	}
--	start_addr = addr = mm->free_area_cache;
-+	} else
-+		addr = mm->free_area_cache;
-+	start_addr = addr;
- 
- full_search:
- 	for (vma = find_vma(mm, addr); ; vma = vma->vm_next) {

@@ -1,81 +1,436 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261642AbSI0GR0>; Fri, 27 Sep 2002 02:17:26 -0400
+	id <S261639AbSI0GOp>; Fri, 27 Sep 2002 02:14:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261643AbSI0GR0>; Fri, 27 Sep 2002 02:17:26 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9993 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S261642AbSI0GRZ>; Fri, 27 Sep 2002 02:17:25 -0400
-Date: Thu, 26 Sep 2002 23:21:47 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: jgarzik@pobox.com, benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [RFC] {read,write}s{b,w,l} or iobarrier_*()
-In-Reply-To: <20020926.141223.128110378.davem@redhat.com>
-Message-ID: <Pine.LNX.4.10.10209261951560.13669-100000@master.linux-ide.org>
+	id <S261640AbSI0GOp>; Fri, 27 Sep 2002 02:14:45 -0400
+Received: from math.ut.ee ([193.40.5.125]:55502 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id <S261639AbSI0GOk>;
+	Fri, 27 Sep 2002 02:14:40 -0400
+Date: Fri, 27 Sep 2002 09:19:54 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>
+Subject: PPC: more config dependency problems
+Message-ID: <Pine.GSO.4.44.0209270914210.6491-100000@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Sep 2002, David S. Miller wrote:
+This time I compiled some modular IDE to get usb-storage to work.
+Appears there are config dependency problems in IDE too - vmlinux
+doesn't link (2.4.20-pre8). This is just FYI, I can probably find a
+configuration that links.
 
->    From: Jeff Garzik <jgarzik@pobox.com>
->    Date: Thu, 26 Sep 2002 12:23:41 -0400
-> 
->    Benjamin Herrenschmidt wrote:
->    >  - Have all archs provide {read,write}s{b,w,l} functions.
->    > Those will hide all of the details of bytewapping & barriers
->    > from the drivers and can be used as-is for things like IDE
->    > MMIO iops.
->    
->    I prefer this solution...
-> 
-> I'm starting to think about taking back all the previous
-> arguments I had against this idea.  It's starting to sound
-> like the preferred way to go.
+ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic arch/ppc/kernel/head.o init/main.o init/version.o init/do_mounts.o \
+	--start-group \
+	arch/ppc/kernel/kernel.o arch/ppc/platforms/platform.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/ppc/xmon/x.o \
+	 drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/macintosh/macintosh.o drivers/video/video.o drivers/input/inputdrv.o \
+	net/network.o \
+	/home/mroos/compile/linux-2.4/lib/lib.a \
+	--end-group \
+	-o vmlinux
+arch/ppc/platforms/platform.o: In function `pmac_ide_check_region':
+arch/ppc/platforms/platform.o(.text.pmac+0x8e8): undefined reference to `pmac_ide_check_base'
+arch/ppc/platforms/platform.o(.text.pmac+0x8e8): relocation truncated to fit: R_PPC_REL24 pmac_ide_check_base
+arch/ppc/platforms/platform.o: In function `pmac_ide_request_region':
+arch/ppc/platforms/platform.o(.text.pmac+0x940): undefined reference to `pmac_ide_check_base'
+arch/ppc/platforms/platform.o(.text.pmac+0x940): relocation truncated to fit: R_PPC_REL24 pmac_ide_check_base
+arch/ppc/platforms/platform.o: In function `pmac_ide_release_region':
+arch/ppc/platforms/platform.o(.text.pmac+0x990): undefined reference to `pmac_ide_check_base'
+arch/ppc/platforms/platform.o(.text.pmac+0x990): relocation truncated to fit: R_PPC_REL24 pmac_ide_check_base
+arch/ppc/platforms/platform.o: In function `pmac_init':
+arch/ppc/platforms/platform.o(.text.init+0x155a): undefined reference to `pmac_ide_init_hwif_ports'
+arch/ppc/platforms/platform.o(.text.init+0x155e): undefined reference to `pmac_ide_get_base'
+arch/ppc/platforms/platform.o(.text.init+0x1572): undefined reference to `pmac_ide_init_hwif_ports'
+arch/ppc/platforms/platform.o(.text.init+0x1576): undefined reference to `pmac_ide_get_base'
 
-Hi Dave,
+.config:
 
-One of the main reasons for changing the core iops of the ata/ide driver
-results from newer HBA's either supporting dual transports modes or in
-some case exclusive MMIO, similar to current IOMIO x86 HBA's today.
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_PPC=y
+CONFIG_PPC32=y
+CONFIG_6xx=y
+CONFIG_PPC_STD_MMU=y
+CONFIG_ALL_PPC=y
+CONFIG_TAU=y
+CONFIG_TAU_AVERAGE=y
+CONFIG_PPC_ISATIMER=y
+CONFIG_PCI=y
+CONFIG_NET=y
+CONFIG_SYSCTL=y
+CONFIG_SYSVIPC=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_KERNEL_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_PPC_RTC=y
+CONFIG_PROC_DEVICETREE=y
+CONFIG_BOOTX_TEXT=y
+CONFIG_CMDLINE_BOOL=y
+CONFIG_CMDLINE="root=/dev/sda9"
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=m
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IPV6=m
+CONFIG_IP6_NF_IPTABLES=m
+CONFIG_IP6_NF_MATCH_LIMIT=m
+CONFIG_IP6_NF_MATCH_MAC=m
+CONFIG_IP6_NF_MATCH_MULTIPORT=m
+CONFIG_IP6_NF_MATCH_OWNER=m
+CONFIG_IP6_NF_MATCH_MARK=m
+CONFIG_IP6_NF_MATCH_LENGTH=m
+CONFIG_IP6_NF_MATCH_EUI64=m
+CONFIG_IP6_NF_FILTER=m
+CONFIG_IP6_NF_TARGET_LOG=m
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_TARGET_MARK=m
+CONFIG_VLAN_8021Q=m
+CONFIG_NET_DIVERT=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_CSZ=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_CLS_POLICE=y
+CONFIG_IDE=m
+CONFIG_BLK_DEV_IDE=m
+CONFIG_BLK_DEV_IDEDISK=m
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_IDEDISK_STROKE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_IDE_PMAC=y
+CONFIG_BLK_DEV_IDEDMA_PMAC=y
+CONFIG_BLK_DEV_IDEDMA_PMAC_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=m
+CONFIG_BLK_DEV_SR=y
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_SCSI_MESH=y
+CONFIG_SCSI_MESH_SYNC_RATE=10
+CONFIG_SCSI_MESH_RESET_DELAY_MS=4000
+CONFIG_SCSI_MAC53C94=y
+CONFIG_NETDEVICES=y
+CONFIG_TUN=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MACE=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=m
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_OF=y
+CONFIG_FB_CONTROL=y
+CONFIG_FB_VGA16=m
+CONFIG_FB_ATY=y
+CONFIG_FB_ATY_GX=y
+CONFIG_FB_ATY_CT=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FBCON_VGA_PLANES=m
+CONFIG_FBCON_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_FONT_SUN8x16=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_FONT_6x11=y
+CONFIG_FONT_PEARL_8x8=y
+CONFIG_FONT_ACORN_8x8=y
+CONFIG_INPUT=y
+CONFIG_INPUT_KEYBDEV=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+CONFIG_ADB_CUDA=y
+CONFIG_ADB_PMU=y
+CONFIG_MAC_FLOPPY=y
+CONFIG_MAC_SERIAL=m
+CONFIG_ADB=y
+CONFIG_ADB_MACIO=y
+CONFIG_INPUT_ADBHID=y
+CONFIG_MAC_ADBKEYCODES=y
+CONFIG_MAC_EMUMOUSEBTN=y
+CONFIG_MAC_HID=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_KEYWEST=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PROC=m
+CONFIG_BUSMOUSE=y
+CONFIG_MOUSE=y
+CONFIG_NVRAM=m
+CONFIG_VIDEO_DEV=m
+CONFIG_VIDEO_PROC_FS=y
+CONFIG_VIDEO_BT848=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_HFS_FS=m
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_EFS_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+CONFIG_ZISOFS_FS=m
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_ACORN_PARTITION=y
+CONFIG_ACORN_PARTITION_ICS=y
+CONFIG_ACORN_PARTITION_ADFS=y
+CONFIG_ACORN_PARTITION_POWERTEC=y
+CONFIG_ACORN_PARTITION_RISCIX=y
+CONFIG_OSF_PARTITION=y
+CONFIG_AMIGA_PARTITION=y
+CONFIG_ATARI_PARTITION=y
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+CONFIG_MINIX_SUBPARTITION=y
+CONFIG_SOLARIS_X86_PARTITION=y
+CONFIG_UNIXWARE_DISKLABEL=y
+CONFIG_LDM_PARTITION=y
+CONFIG_SGI_PARTITION=y
+CONFIG_ULTRIX_PARTITION=y
+CONFIG_SUN_PARTITION=y
+CONFIG_EFI_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_ISO8859_1=m
+CONFIG_SOUND=m
+CONFIG_DMASOUND_PMAC=m
+CONFIG_DMASOUND=m
+CONFIG_I2C=m
+CONFIG_I2C_KEYWEST=m
+CONFIG_SOUND_BT878=m
+CONFIG_SOUND_TVMIXER=m
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_OHCI=m
+CONFIG_USB_AUDIO=m
+CONFIG_USB_EMI26=m
+CONFIG_USB_BLUETOOTH=m
+CONFIG_USB_MIDI=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_HP8200e=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
+CONFIG_USB_AIPTEK=m
+CONFIG_USB_WACOM=m
+CONFIG_USB_DC2XX=m
+CONFIG_USB_MDC800=m
+CONFIG_USB_SCANNER=m
+CONFIG_USB_MICROTEK=m
+CONFIG_USB_HPUSBSCSI=m
+CONFIG_USB_IBMCAM=m
+CONFIG_USB_OV511=m
+CONFIG_USB_PWC=m
+CONFIG_USB_SE401=m
+CONFIG_USB_STV680=m
+CONFIG_USB_VICAM=m
+CONFIG_USB_DSBR=m
+CONFIG_USB_DABUSB=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_RTL8150=m
+CONFIG_USB_KAWETH=m
+CONFIG_USB_CATC=m
+CONFIG_USB_CDCETHER=m
+CONFIG_USB_USBNET=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_BELKIN=m
+CONFIG_USB_SERIAL_WHITEHEAT=m
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
+CONFIG_USB_SERIAL_EMPEG=m
+CONFIG_USB_SERIAL_FTDI_SIO=m
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_USB_SERIAL_IPAQ=m
+CONFIG_USB_SERIAL_IR=m
+CONFIG_USB_SERIAL_EDGEPORT=m
+CONFIG_USB_SERIAL_EDGEPORT_TI=m
+CONFIG_USB_SERIAL_KEYSPAN_PDA=m
+CONFIG_USB_SERIAL_KEYSPAN=m
+CONFIG_USB_SERIAL_KEYSPAN_USA28=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19=y
+CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
+CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
+CONFIG_USB_SERIAL_MCT_U232=m
+CONFIG_USB_SERIAL_KLSI=m
+CONFIG_USB_SERIAL_PL2303=m
+CONFIG_USB_SERIAL_CYBERJACK=m
+CONFIG_USB_SERIAL_XIRCOM=m
+CONFIG_USB_SERIAL_OMNINET=m
+CONFIG_USB_RIO500=m
+CONFIG_USB_AUERSWALD=m
+CONFIG_USB_TIGL=m
+CONFIG_USB_BRLVGER=m
+CONFIG_USB_LCD=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_WAITQ=y
+CONFIG_XMON=y
 
-Additionally, I suspect the current dual path for execution may end up
-going N-ways.  As there are a few PATA hosts and in the future all SATA
-hosts will convert to the FP-DMA (First Party DMA) messaging service
-protocol.
-
-This will then make (3) different execution transports.  The bad news is
-during transition period (just now starting) it will become more painful
-if we do not make the drive independent of iops regardless of arch/bus
-issues.
-
-One of the key ideas hottly debated between Ben, Jeff, and myself were the
-impacts resulting from this change in direction.  Obviously Ben lives in a
-world of MMIO and has suffered with a driver which was designed around
-IOMIO.  Thus all the bastardized macros we all hate resulted from
-x86-centric lameness (industry driven for the most part, yeah me included).
-
-Now if we expand the issue into Jeff's world of the net-stack drivers, he
-banged me over the head with the issue of "pci-posting delays".  Ben got
-his shots in also about the issue, too.  Thus the resulting io_barrier
-additions by Ben to the original ATA-driver transformation, can be extened
-to the Net-Drivers.  Oh and the slope is increasing fast now.
-
-So if it works for ATA and NET, could it not migrate to all hardware?
-If it makes it to all hardware, should it not be coupled to the BUS?
-If it is coupled to the BUS, are there going to be problems with
-exceptions?
-
-Well once I leave ATA (storage in general), I am not really able to
-discuss those issues from a position of first hand experience.  So here is
-my nickel spent.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
+-- 
+Meelis Roos (mroos@linux.ee)
 
 

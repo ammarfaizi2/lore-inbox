@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267821AbUHEUbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267827AbUHEUc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267821AbUHEUbw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 16:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267933AbUHEUbv
+	id S267827AbUHEUc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 16:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267933AbUHEUcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 16:31:51 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:41856 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S267821AbUHEUbh
+	Thu, 5 Aug 2004 16:32:06 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:26188 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267827AbUHEUbr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 16:31:37 -0400
-Message-ID: <411299D4.5060001@tmr.com>
-Date: Thu, 05 Aug 2004 16:34:28 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Newsgroups: mail.linux-kernel
-To: Rik van Riel <riel@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RSS ulimit enforcement for 2.6.8
-References: <Pine.LNX.4.44.0408051302330.8229-100000@dhcp83-102.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408051302330.8229-100000@dhcp83-102.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 16:31:47 -0400
+Date: Thu, 5 Aug 2004 22:33:17 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Alexander Stohr <Alexander.Stohr@gmx.de>
+Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org,
+       Pawe? Sikora <pluto@pld-linux.org>
+Subject: Re: confirmed: kernel build for 2.6.8-rc3 is broken for at least i386
+Message-ID: <20040805203317.GA22342@mars.ravnborg.org>
+Mail-Followup-To: Alexander Stohr <Alexander.Stohr@gmx.de>,
+	sam@ravnborg.org, linux-kernel@vger.kernel.org,
+	Pawe? Sikora <pluto@pld-linux.org>
+References: <2695.1091715476@www33.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2695.1091715476@www33.gmx.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> The patch below implements RSS ulimit enforcement for 2.6.8-rc3-mm1.
-> It works in a very simple way: if a process has more resident memory
-> than its RSS limit allows, we pretend it didn't access any of its
-> pages, making it easy for the pageout code to evict the pages.
+On Thu, Aug 05, 2004 at 04:17:56PM +0200, Alexander Stohr wrote:
 > 
-> In addition to this, we don't allow a process that exceeds its RSS
-> limit to have the swapout protection token.
-> 
-> I have tested the patch on my system here and it appears to be working
-> fine.
+> As you, and possibly others can see,
+> the compilation happens from the arch/i386/kernel/timers subdir,
+> where we got lead to by th arch/i386/kernel subdir directly
+> and in this case the needed settings seem to lack despite they
+> were present in a former stage of the compilation.
 
-You have had better luck getting that to compile than I have, but I'm 
-still working on it. I assume that the note about sched compiling with 
-SMP set will get me going.
+What happens is that the value assigned to AFLAGS_vmlinux.lds.o is lost
+between the first and the second invocation of make in arch/i386/kernel
 
-Wish there was something like RSS for cache, so that one process reading 
-every inode on the planet, or doing an md5 on an 11GB file wouldn't push 
-every damn process out if it's waiting for me to finish typing a line...
+The only difference is the setting of LANG etc. - which you deleted
+from the log.
 
-I did a brute force patch for 2.4.18 to limit the total memory used for 
-cache, but it would sure be nice to just limit by process. Yes I know 
-cache is shared, I have looked at this before :-(
+Pleae try to delete the following lines from the top-level Makefile and try again:
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+line 622-626:
+	$(Q)if [ ! -z $$LC_ALL ]; then          \
+	export LANG=$$LC_ALL;           \
+	export LC_ALL= ;                \
+	fi;                                     \
+	export LC_COLLATE=C; export LC_CTYPE=C; \
+	
+If this cures the problem then please provide me with you LANG settings.
+Both LANG and LC_* variables.
+
+If it still fails please provide me with the _full_ unedited log up until
+the point where it fails.
+
+Since I have to reports on this issue I really would like to have it
+nailed before 2.6.8 is out.
+
+The other report is from: Pawe? Sikora <pluto@pld-linux.org>
+
+	Sam

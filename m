@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUJAUcC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUJAUcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUJAUcC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 16:32:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUJAUbQ
+	id S266477AbUJAUcB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 16:32:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUJAUbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 16:31:16 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:60134 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266308AbUJAUYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:24:42 -0400
-Subject: RE: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "Mukker, Atul" <Atulm@lsil.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
-       "Ju, Seokmann" <sju@lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230C985@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E570230C985@exa-atlanta>
+	Fri, 1 Oct 2004 16:31:23 -0400
+Received: from rosesmtp01.adp.com ([170.146.91.25]:57096 "EHLO
+	rosesmtp01.adp.com") by vger.kernel.org with ESMTP id S266477AbUJAU1m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 16:27:42 -0400
+X-Server-Uuid: C1AF40A8-8026-4479-A29E-3A5B974B0AC3
+Message-ID: <2D1DF9BA9166D61188F30002B3A6E15318E4D803@ROSEEXCHMA>
+From: Daniel_Weigert@adp.com
+Reply-to: dlw@taco.com
+To: linux-kernel@vger.kernel.org
+Subject: Compaq RA4X00 raid array
+Date: Fri, 1 Oct 2004 16:27:17 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+X-WSS-ID: 6D43623F1L812599517-01-01
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 01 Oct 2004 16:24:27 -0400
-Message-Id: <1096662274.1766.94.camel@mulgrave>
-Mime-Version: 1.0
+X-OriginalArrivalTime: 01 Oct 2004 20:31:15.0721 (UTC) FILETIME=[997DEF90:01C4A7F5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 16:08, Bagalkote, Sreenivas wrote:
-> The submitted previous version of megaraid (2.20.3.1) had 
-> register_ioctl32_conversion & unregister_ioctl32_conversion 
-> defined to empty statements if CONFIG_COMPAT was _not_
-> defined.
+Apparently, the only way to attach the Compaq RA4000, or RA4100 array to a
+linux box is through their
+"66Mhz 64bit Fibre Channel card".  I have several of these boxes, and would
+love to make use of them with a modern Fibre Channel card family such as the
+Emulex LightPulse.  There is an alpha quality LightPulse 
+driver hosted on SourceForge for the 2.6  kernel that I'm quite happy with.
+:-)  I can even see the 
+controller of the RA4000 with it.  I can't, however, see LUN's that array
+has.  The array shows up as a type 12 SCSI device.  There is another driver,
+for the above mentioned "66Mhz 64bit Fibre Channel card" that works quite
+well for >>ONLY<< that card, and if I use the Compaq card and driver, the
+LUN magically becomes visible as a SCSI device.  In my round about fashion,
+I'm wondering if it is possible to get the bits of the diver for the Compaq
+card broken out into a separate driver, which would make it possible to 
+talk to the RAID controller with my Emulex card.  I'd rather have everything
+on one SAN.
 
-
-> But I think the preferred way was to have the occurances of 
-> (un)register_ioctl32_conversion in the code surrounded by 
-> #ifdef CONFIG_COMPAT ... #endif directly. In the kernel source
-> only register_ioctl32_conversion has these #ifdef .. #endif. The
-> unregister_ioctl32_conversion doesn't.
-
-Actually, because of the way linux/ioctl32 defines these, the #ifdef
-CONFIG_COMPAT is unnecessary even around register_ioctl32_...
-
-James
+Dan Weigert
+dlw@taco.com
 
 

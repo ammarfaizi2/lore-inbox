@@ -1,51 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267798AbUIOXhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267770AbUIOXhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267798AbUIOXhl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 19:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267774AbUIOXe4
+	id S267770AbUIOXhm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 19:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267653AbUIOXej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 19:34:56 -0400
-Received: from holomorphy.com ([207.189.100.168]:416 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267772AbUIOXaJ (ORCPT
+	Wed, 15 Sep 2004 19:34:39 -0400
+Received: from [142.46.200.198] ([142.46.200.198]:56283 "EHLO ns1.s2io.com")
+	by vger.kernel.org with ESMTP id S267774AbUIOXaj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 19:30:09 -0400
-Date: Wed, 15 Sep 2004 16:29:56 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@muc.de
-Subject: Re: get_current is __pure__, maybe __const__ even
-Message-ID: <20040915232956.GE9106@holomorphy.com>
-References: <1095288600.1174.5968.camel@cube> <20040915231518.GB31909@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040915231518.GB31909@devserv.devel.redhat.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 15 Sep 2004 19:30:39 -0400
+Message-Id: <200409152329.i8FNTsqG025184@guinness.s2io.com>
+From: "Leonid Grossman" <leonid.grossman@s2io.com>
+To: "'David S. Miller'" <davem@davemloft.net>,
+       "'Jeff Garzik'" <jgarzik@pobox.com>
+Cc: <alan@lxorguk.ukuu.org.uk>, <paul@clubi.ie>, <netdev@oss.sgi.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: The ultimate TOE design
+Date: Wed, 15 Sep 2004 16:29:45 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSba93oeMQT0vylSiqa+KzHVJsgAQABuSwQ
+In-Reply-To: <20040915142926.7bc456a4.davem@davemloft.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+X-Spam-Score: -103.3
+X-Spam-Outlook-Score: ()
+X-Spam-Features: BAYES_10,FORGED_MUA_OUTLOOK,IN_REP_TO,MISSING_OUTLOOK_NAME,QUOTED_EMAIL_TEXT,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 06:50:00PM -0400, Albert Cahalan wrote:
->> This looks fixable.
->> At the very least, __attribute__((__pure__))
->> will apply to your get_current function.
->> I think __attribute__((__const__)) will too,
->> even though it's technically against the
->> documentation. While you do indeed read from
->> memory, you don't read from memory that could
->> be seen as changing. Nothing done during the
->> lifetime of a task will change "current" as
->> viewed from within that task.
+I think Jeff's "ultimate TOE card" based upon generic embedded CPU is doable
+at GbE, but we may not see such a product because it's too late for it to
+succeed.
 
-On Wed, Sep 15, 2004 at 07:15:18PM -0400, Jakub Jelinek wrote:
-> current will certainly change in schedule (),
-> so either you'd need to avoid using current
-> in schedule() and use some other accessor
-> for the same without such attribute, or
-> #ifdef the attribute out when compiling sched.c.
+TOE is a pretty questionable product in itself; one of the main reasons
+people build TOE cards is to put RDMA on top of it and end up with an RNIC
+(NIC+TOE+RDMA) Ethernet card.
+The hope is to eventually run all three types of server traffic (network,
+storage, IPC) over an RNIC, and get rid of two other HBAs in a system.
 
-Why would barrier() not suffice?
+For this "fabric conversion" over Ethernet to happen it has to be at 10GbE
+not GbE, since storage (FiberChannel) is already at 4Gb.
+And at 10GbE, embedded CPUs just don't cut it - it has to be custom ASIC
+(granted, with some means to simplify debugging and reduce the risk of hw
+bugs and TCP changes).
+
+On some other points on the thread:
+
+WRT the TOE price, I suspect that when RNICs come out they will command
+little premium over conventional NICs - it will be just a technology
+upgrade.
+
+WRT larger MTU - going to bigger MTUs helps a lot, but it will be years
+before the infrastructure moves beyond 9600 byte MTU. Even right now, usage
+of 9600 byte Jumbos is not universal.
+
+WRT TSO, for applications that don't require RDMA TSO indeed helps a lot on
+the transmit side for 1500 MTU - 10GbE cards are innevitably CPU bound, and
+we are seeing ~3x throughput improvement with normal frames.
+
+This leaves receive offload schemes in Linux as a biggest improvement (short
+of supporting TOE) to make.
+It will be great to see such receive schemes defined and implemented, as I
+stated in an earlier thread we will be willing to participate in such work
+and put the support in S2io 10GbE ASIC and drivers.
 
 
--- wli
+
+
+> -----Original Message-----
+> From: David S. Miller [mailto:davem@davemloft.net] 
+> Sent: Wednesday, September 15, 2004 2:29 PM
+> To: Jeff Garzik
+> Cc: alan@lxorguk.ukuu.org.uk; paul@clubi.ie; 
+> netdev@oss.sgi.com; leonid.grossman@s2io.com; 
+> linux-kernel@vger.kernel.org
+> Subject: Re: The ultimate TOE design
+> 
+> On Wed, 15 Sep 2004 17:23:49 -0400
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+> > The typical definition of TOE is "offload 90+% of the net 
+> stack", as 
+> > opposed to "TCP assist", which is stuff like TSO.
+> 
+> I think a better goal is "offload 90+% of the net stack cost" 
+> which is effectively what TSO does on the send side.
+> 
+> This is why these discussions are so circular.
+> 
+> If we want to discuss something specific, like receive 
+> offload schemes, that is a very different matter.  And I'm 
+> sure folks like Rusty have a lot to contribute in this area :-)
+> 
+

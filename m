@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264080AbTFPSHm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 14:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbTFPSHm
+	id S264082AbTFPSLd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 14:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264087AbTFPSLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 14:07:42 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:22734 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264080AbTFPSHj convert rfc822-to-8bit (ORCPT
+	Mon, 16 Jun 2003 14:11:33 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:4993 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264082AbTFPSL2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 14:07:39 -0400
-content-class: urn:content-classes:message
+	Mon, 16 Jun 2003 14:11:28 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: e1000 performance hack for ppc64 (Power4)
-Date: Mon, 16 Jun 2003 11:21:16 -0700
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010107D94C@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: e1000 performance hack for ppc64 (Power4)
-Thread-Index: AcMzSuDMkewgo8NbQ/eWd2USmzVnawA6Bt3g
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Herman Dierks" <hdierks@us.ibm.com>, "David S. Miller" <davem@redhat.com>
-Cc: <ltd@cisco.com>, <anton@samba.org>, <haveblue@us.ibm.com>,
-       <dwg@au1.ibm.com>, <linux-kernel@vger.kernel.org>,
-       "Nancy J Milliner" <milliner@us.ibm.com>,
-       "Ricardo C Gonzalez" <ricardoz@us.ibm.com>,
-       "Brian Twichell" <twichell@us.ibm.com>, <netdev@oss.sgi.com>
-X-OriginalArrivalTime: 16 Jun 2003 18:21:16.0611 (UTC) FILETIME=[13787130:01C33434]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16110.2948.423609.97108@napali.hpl.hp.com>
+Date: Mon, 16 Jun 2003 11:25:08 -0700
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: force_successful_syscall_return() buggy?
+In-Reply-To: <20030616185549.E13312@flint.arm.linux.org.uk>
+References: <20030615193604.L5417@flint.arm.linux.org.uk>
+	<16110.147.422432.486761@napali.hpl.hp.com>
+	<20030616185549.E13312@flint.arm.linux.org.uk>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herman wrote:
-> Its only the MTU 1500 case with non-TSO that we are 
-> discussing here so copying a few bytes is really not a big 
-> deal as the data is already in cache from copying into 
-> kernel.  If it lets the adapter run at speed, thats what 
-> customers want and what we need. Granted, if the HW could 
-> deal with this we would not have to, but thats not the case 
-> today so I want to spend a few CPU cycles to get best 
-> performance. Again, if this is not done on other platforms, I 
-> don't understand why you care.
+>>>>> On Mon, 16 Jun 2003 18:55:49 +0100, Russell King <rmk@arm.linux.org.uk> said:
 
-I care because adding the arch-specific hack creates a maintenance issue
-for me.
+  Russell> I through out the idea of accessing user registers for user space
+  Russell> programs at the top of the kernel stack because it does not work for
+  Russell> processes exec'd from kernel space.
 
--scott
+It doesn't work for the execve() itself, but it works for all
+subsequent syscalls.  force_successful_syscall() not working for
+execve() is of course not a problem, since it returns only on error.
 
+	--david

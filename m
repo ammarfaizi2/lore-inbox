@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270210AbTHGPjP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 11:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbTHGPjM
+	id S263990AbTHGPnC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTHGPmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 11:39:12 -0400
-Received: from verein.lst.de ([212.34.189.10]:43736 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S265531AbTHGPij (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 11:38:39 -0400
-Date: Thu, 7 Aug 2003 17:37:56 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mitch@0Bits.COM,
-       Erik Andersen <andersen@codepoet.org>,
+	Thu, 7 Aug 2003 11:42:54 -0400
+Received: from web40606.mail.yahoo.com ([66.218.78.143]:20247 "HELO
+	web40606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263990AbTHGPlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 11:41:37 -0400
+Message-ID: <20030807154133.54615.qmail@web40606.mail.yahoo.com>
+Date: Thu, 7 Aug 2003 16:41:33 +0100 (BST)
+From: =?iso-8859-1?q?Chris=20Rankin?= <rankincj@yahoo.com>
+Subject: Re: Loading Pentium III microcode under Linux - catch 22!
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: tigran@veritas.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre10-ac1 DRI doesn't work with
-Message-ID: <20030807153756.GA30310@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Mitch@0Bits.COM,
-	Erik Andersen <andersen@codepoet.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030807142624.GA29208@lst.de> <Pine.LNX.4.44.0308071147370.2696-100000@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308071147370.2696-100000@logos.cnet>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -5 () EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MUTT
+In-Reply-To: <1060267992.3168.70.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 11:47:53AM -0300, Marcelo Tosatti wrote:
-> > vmap() doesn't break DRM.  The external drm code just detects that
-> > vmap is present and then uses the new interface, but this new code
-> > also expects a new exported symbol.
-> 
-> And which symbol is that? 
+ --- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Looking at it you can do it in initrd fine, or you
+> can do it as the first thing you do once the real
+> root fs is mounted from init's scripts
+> (/etc/rc.sysinit normally)
 
-Ask the DRI folks.  They posted a patch on lkml a few days ago.
+I'm doing the latter right already. The problem is
+that even using ext3, I'm occasionally fscking the
+root partition with dodgy CPUs after a lock-up.
+Hopefully, initrd will allow me to load the microcode
+earlier in the boot sequence.
 
+Cheers,
+Chris
+
+
+
+________________________________________________________________________
+Want to chat instantly with your online friends?  Get the FREE Yahoo!
+Messenger http://uk.messenger.yahoo.com/

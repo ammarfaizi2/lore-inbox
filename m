@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLARqP>; Fri, 1 Dec 2000 12:46:15 -0500
+	id <S129324AbQLARwf>; Fri, 1 Dec 2000 12:52:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129340AbQLARqG>; Fri, 1 Dec 2000 12:46:06 -0500
-Received: from [212.140.94.65] ([212.140.94.65]:27144 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S129314AbQLARpt>;
-	Fri, 1 Dec 2000 12:45:49 -0500
-Date: Fri, 1 Dec 2000 17:16:58 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "T. Camp" <campt@openmars.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mutliple root devs (take II)
-In-Reply-To: <Pine.LNX.4.21.0012010904260.4856-100000@magic.skylab.org>
-Message-ID: <Pine.LNX.4.21.0012011709301.1488-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129340AbQLARwZ>; Fri, 1 Dec 2000 12:52:25 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:55305 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129324AbQLARwL>; Fri, 1 Dec 2000 12:52:11 -0500
+Date: Fri, 1 Dec 2000 11:17:33 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: root <root@trgras.timpanogas.org>, linux-kernel@vger.kernel.org,
+        jmerkey@timpanogas.org
+Subject: Re: Oops in 2.2.18 with pppd dial in server
+Message-ID: <20001201111733.A16573@vger.timpanogas.org>
+In-Reply-To: <20001130185926.A884@trgras.timpanogas.org> <E141pa0-0000CE-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E141pa0-0000CE-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 01, 2000 at 12:46:18PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2000, T. Camp wrote:
-> Hmm didn't know that, from the user-land portable C perspective I'm in the
-> habit of zero'ing everything. - thanks.
+On Fri, Dec 01, 2000 at 12:46:18PM +0000, Alan Cox wrote:
+> > I was able to reproduce this oops with a somewhat more reliable ksymoops (I was ready for this nasty bug this time).  Looks like the problem is in the sockets
+> > code.
+> 
+> The traces so far all match one description , this one included. Its the
+> 'something scribbled a while ago and I just walked the list and found it'
+> 
+> Is your ppp module getting loaded/unloaded a lot. Im wondering if we have
 
-Yes, sorry, I should have explained a bit more, perhaps. The point is that
-when you have an unitialized variable like this:
+Humm.  The kernel ppp module is not getting unloaded.  I am using both the
+pppd 2.3.11 and pppd-mppe 2.3.10 versions (pppd-mppe has CHAP-80 and MPPE
+patched into the code).  The user space module does load and unload a lot 
+due to all the testing we are doing.  
 
-int x;
+I took the CWorthy ncurses interface I wrote for the NWFS tools, and am 
+using it to write a pppconfig utility that handles modem setup, inittab, 
+mgetty, options.ttyX, etc. so setting up a dial-in server will be as 
+easy with IPX and IP as it is in NT.  
 
-the C compiler does not reserve any space for it in the final object file
-but rather puts special information in a section called BSS which tells
-how much stuff is there, so an appropriate memory image is created for
-that section during loading. Subsequently, the kernel initialisation code
-(see arch/i386/kernel/head.S, grep for BSS) explicitly initializes the
-content of that segment to 0 to comply with various ANSI C standards that
-demand this (which presumably demand this for the very reason of making
-such optimization possible).
+I have also noticed that pppd is not "kicking" modprobe -v the way it 
+probably should, and the ppp kernel modules have to be loaded and 
+configured manually.
 
-So, not initializing things explicitly saves space in the final disk image
-and is a common technique used (by far!) by the majority of Linux kernel
-code. In the past, I remember, some arguments against it such as 'having
-explicit 0 initialization better documents the code' but, of course, they
-are not valid because that is what we have /* */ for -- for documentation.
-Comments should not waste space or time.
+Jeff
 
-Anyway, I said too much on such trivial and obvious issue :) -- just
-making sure it is clear to you, that is all.
-
-Regards,
-Tigran
-
+> a module related race. That would explain why folks running large ppp dialin
+> servers simply dont see any problems
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

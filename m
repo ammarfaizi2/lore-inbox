@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316601AbSH0SAa>; Tue, 27 Aug 2002 14:00:30 -0400
+	id <S316609AbSH0SAy>; Tue, 27 Aug 2002 14:00:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316609AbSH0SAa>; Tue, 27 Aug 2002 14:00:30 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:19973 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S316601AbSH0SAa>;
-	Tue, 27 Aug 2002 14:00:30 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200208271804.g7RI4mc05751@oboe.it.uc3m.es>
-Subject: Re: block device/VM question
-In-Reply-To: <Pine.LNX.4.44.0208271118000.3234-100000@hawkeye.luckynet.adm> from
- Thunder from the hill at "Aug 27, 2002 11:22:28 am"
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Date: Tue, 27 Aug 2002 20:04:48 +0200 (MET DST)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S316659AbSH0SAy>; Tue, 27 Aug 2002 14:00:54 -0400
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:20657
+	"HELO dag.newtech.fi") by vger.kernel.org with SMTP
+	id <S316609AbSH0SAx> convert rfc822-to-8bit; Tue, 27 Aug 2002 14:00:53 -0400
+Message-ID: <20020827180510.24175.qmail@dag.newtech.fi>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
+To: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       dag@newtech.fi
+Subject: Re: interrupt latency 
+In-Reply-To: Message from "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com> 
+   of "Tue, 27 Aug 2002 11:58:12 +0200." <D3524C0FFDC6A54F9D7B6BBEECD341D5D56FDB@HBMNTX0.da.hbm.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 27 Aug 2002 21:05:10 +0300
+From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Thunder from the hill wrote:"
-> > there I can do whatever the sysopen with O_DIRECT does.
+> Hello,
 > 
-> I try to say, see how sys_open() handles O_DIRECT. You should be able to 
-> do just the same.
+> I am running and will in near future kernel 2.4.18 on an embedded system.
+> 
+> I have to speed up interrupt latency and need to understand how in what
+> timing tasklets are called and arbitraded.
 
-Well, how it handles it is manifestly unclear. It seems to trace down to
-the dentry and call dentry_open(), but with a struct vfsmount as
-another arg. I don't know what that's for. It got the vfsmount by aother
-esoteric lookup, getting a struct nameidata from the filename via
-open_namei.
+Have you already checked if the low-latency patch and/or the preempt patch
+that is out there could do the trick for you ?
 
-Yecch. I have the inode of the sepecial device file. I don't want to
-know the name. I even have a file pointer.
+Good luck
 
-In dentry_open(), we get a struct file f = get_empty_filp(), and then
-fill out various of its fields with enormously obscure things.  And for
-the O_DIRECT flag we seem to do alloc_kiovec(1, &f->f_iobuf).
 
-I feel that the latter is all I want to do, and the question is to what,
-where (I'll clean up on release). Do I do this every time the devices
-_open() function is called? Or just once, and what do I do it to? I
-should do it to the struct file that gets passed into to the driver
-open()? I'll try that. And set the flag.
+-- 
+Dag Nygren                               email: dag@newtech.fi
+Oy Espoon NewTech Ab                     phone: +358 9 8024910
+Träsktorpet 3                              fax: +358 9 8024916
+02360 ESBO                              Mobile: +358 400 426312
+FINLAND
 
-Peter
+

@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316853AbSGNO2a>; Sun, 14 Jul 2002 10:28:30 -0400
+	id <S316856AbSGNOcR>; Sun, 14 Jul 2002 10:32:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316856AbSGNO23>; Sun, 14 Jul 2002 10:28:29 -0400
-Received: from p50886DAC.dip.t-dialin.net ([80.136.109.172]:15496 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316853AbSGNO22>; Sun, 14 Jul 2002 10:28:28 -0400
-Date: Sun, 14 Jul 2002 08:31:15 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
+	id <S316857AbSGNOcQ>; Sun, 14 Jul 2002 10:32:16 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:61164 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S316856AbSGNOcP> convert rfc822-to-8bit; Sun, 14 Jul 2002 10:32:15 -0400
+Date: Sun, 14 Jul 2002 16:35:02 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
 To: Joerg Schilling <schilling@fokus.gmd.de>
-cc: andre@linux-ide.org, <linux-kernel@vger.kernel.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <200207141347.g6EDlU9k019093@burner.fokus.gmd.de>
-Message-ID: <Pine.LNX.4.44.0207140829380.3331-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
+In-Reply-To: <200207141324.g6EDOvUe019079@burner.fokus.gmd.de>
+Message-ID: <Pine.NEB.4.44.0207141629440.4981-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
 On Sun, 14 Jul 2002, Joerg Schilling wrote:
-> I am not whining, but you answer with  unrelated stuff. Why? Are you missing
-> experience and arguments?
 
-Andre is LAD storage consultant for a reason. He lead Linux ATA device 
-support to success for a long time, and he did it again recently. If he 
-mixed up the threads, then it's not a matter of experience on ATA.
+>...
+> If a CD-ROM does not support ATAPI, you are not able to
+>
+> -	open/close/lock the door.
+>...
 
-							Regards,
-							Thunder
+Look at drivers/cdrom/mcdx.c, a driver for proprietary (the device is
+connected via an ISA card to the computer) single and double speed Mitsumi
+CD-ROM drives. This driver supports to open the door although the drive
+definitely doesn't support ATAPI...
+
+> Jörg
+
+cu
+Adrian
+
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

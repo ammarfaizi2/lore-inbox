@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbUKJHEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbUKJHH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbUKJHEv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 02:04:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUKJHEv
+	id S261515AbUKJHH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 02:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbUKJHH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 02:04:51 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:52388 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261235AbUKJHEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 02:04:48 -0500
-Subject: [PATCH] two sysdevs have same name
-From: Li Shaohua <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Pallipadi Venkatesh <venkatesh.pallipadi@intel.com>
-Content-Type: multipart/mixed; boundary="=-DlV2zSmxRKzIJ+dSvQiF"
-Message-Id: <1100069919.25061.11.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 10 Nov 2004 14:58:39 +0800
+	Wed, 10 Nov 2004 02:07:57 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:6768 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261496AbUKJHHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 02:07:36 -0500
+Message-ID: <4191BE2D.4060407@yahoo.com.au>
+Date: Wed, 10 Nov 2004 18:07:25 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Herbert Poetzl <herbert@13thfloor.at>
+CC: Patrick Mau <mau@oscar.ping.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Workaround for wrapping loadaverage
+References: <20041108001932.GA16641@oscar.prima.de> <20041108012707.1e141772.akpm@osdl.org> <20041108102553.GA31980@oscar.prima.de> <20041108155051.53c11fff.akpm@osdl.org> <20041109004335.GA1822@oscar.prima.de> <20041109185103.GE29661@mail.13thfloor.at>
+In-Reply-To: <20041109185103.GE29661@mail.13thfloor.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Herbert Poetzl wrote:
+> On Tue, Nov 09, 2004 at 01:43:35AM +0100, Patrick Mau wrote:
+> 
 
---=-DlV2zSmxRKzIJ+dSvQiF
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+>>We re-calculate the load every 5 seconds. I think it would be OK to
+>>use more bits/registers, it's not that frequently called.
+> 
+> 
+> hmm ...
+> 
+> 	do_timer() -> update_times() -> calc_load()
+> 
+> so not exactly every 5 seconds ...
+> 
 
-Hi,
-It takes me several days to debug a resume failure and I finally found
-it's a mis-merge. Two sysdevs (previous PIT and Timer, after Venki's
-HPET patch) use the same name 'timer'. Please feel free to select a
-different name.
+calc_load() -> messing with LOAD_FREQ -> once every 5 seconds, no?
 
-PS. I'm surprised sysdev_class_register doesn't return an error in such
-situation.
+I think doing 32/32 bit calculations would be fine.
 
-Thanks,
-Shaohua
+> but I agree that a higher resolution would be a good
+> idea ... also doing the calculation when the number
+> of running/uninterruptible processes has changed would
+> be a good idea ...
+> 
 
+Apart from the problem Con pointed out, you'd need a fancier algorithm
+to calculate load because your interval isn't going to be fixed, so you
+need to factor that in when calculating the area under the 'curve'
+(loadavg).
 
-===== arch/i386/kernel/timers/timer_pit.c 1.14 vs edited =====
---- 1.14/arch/i386/kernel/timers/timer_pit.c	2004-08-24 03:48:32 +08:00
-+++ edited/arch/i386/kernel/timers/timer_pit.c	2004-11-10 14:46:12
-+08:00
-@@ -181,7 +181,7 @@ static int timer_resume(struct sys_devic
- }
- 
- static struct sysdev_class timer_sysclass = {
--	set_kset_name("timer"),
-+	set_kset_name("pit"),
- 	.resume	= timer_resume,
- };
- 
-
---=-DlV2zSmxRKzIJ+dSvQiF
-Content-Disposition: attachment; filename=pit.patch
-Content-Type: text/x-patch; name=pit.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-===== arch/i386/kernel/timers/timer_pit.c 1.14 vs edited =====
---- 1.14/arch/i386/kernel/timers/timer_pit.c	2004-08-24 03:48:32 +08:00
-+++ edited/arch/i386/kernel/timers/timer_pit.c	2004-11-10 14:46:12 +08:00
-@@ -181,7 +181,7 @@ static int timer_resume(struct sys_devic
- }
- 
- static struct sysdev_class timer_sysclass = {
--	set_kset_name("timer"),
-+	set_kset_name("pit"),
- 	.resume	= timer_resume,
- };
- 
-
---=-DlV2zSmxRKzIJ+dSvQiF--
-
+I think the good 'ol 5 seconds should be alright.

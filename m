@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293541AbSCPAAJ>; Fri, 15 Mar 2002 19:00:09 -0500
+	id <S293544AbSCPABk>; Fri, 15 Mar 2002 19:01:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293540AbSCPAAB>; Fri, 15 Mar 2002 19:00:01 -0500
-Received: from web13601.mail.yahoo.com ([216.136.175.112]:39692 "HELO
-	web13601.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S293538AbSCOX7q>; Fri, 15 Mar 2002 18:59:46 -0500
-Message-ID: <20020315235944.59157.qmail@web13601.mail.yahoo.com>
-Date: Fri, 15 Mar 2002 15:59:44 -0800 (PST)
-From: Balbir Singh <balbir_soni@yahoo.com>
-Subject: Nice values for kernel modules
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293538AbSCPABY>; Fri, 15 Mar 2002 19:01:24 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:3490 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S293540AbSCPAAq>;
+	Fri, 15 Mar 2002 19:00:46 -0500
+Date: Fri, 15 Mar 2002 15:57:48 -0800 (PST)
+Message-Id: <20020315.155748.68123299.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: davids@webmaster.com, linux-kernel@vger.kernel.org
+Subject: Re: RFC2385 (MD5 signature in TCP packets) support
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E16m1oW-00057N-00@the-village.bc.nu>
+In-Reply-To: <20020315.154527.98068496.davem@redhat.com>
+	<E16m1oW-00057N-00@the-village.bc.nu>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In older v2.4 we could directly access current->nice
-and set it to any value we wanted. This has now
-been replaced by set_user_nice(). The problem
-that I face is that task_nice() is not exportted, so
-my kernel module cannot use it to read the current
-nice value. 
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Sat, 16 Mar 2002 00:12:48 +0000 (GMT)
+   
+   I've actually got a more constructive suggestion for the zebra folks. 
+   Route the BGP crap through a netlink tap device, mangle and unmangle the
+   tcp frames in luserspace. Saves doing TCP in userspace, saves screwing up
+   Dave's nice networking stack.
+   
+   You'll still need to kill SACK support to make it fit
+   
+Another solution could involve a netfilter module to mangle
+the packets.
 
-Was there some reason for hiding the nice value from
-kernel modules?
-
-I have the following solutions
-
-0. I could use the TASK_NICE() macro, but I would
-   like to avoid using it.
-1. Export task_nice in ksyms.c
-2. Use sys_nice() using a user space disguise.
-
-Comments,
-Balbir Singh.
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - live college hoops coverage
-http://sports.yahoo.com/

@@ -1,73 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265078AbUAYSM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 13:12:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbUAYSM0
+	id S264974AbUAYSKK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 13:10:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbUAYSKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 13:12:26 -0500
-Received: from colino.net ([62.212.100.143]:27386 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S265078AbUAYSK5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 13:10:57 -0500
-Date: Sun, 25 Jan 2004 19:08:32 +0100
-From: Colin Leroy <colin@colino.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Hugang <hugang@soulinfo.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       ncunningham@clear.net.nz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
-Message-Id: <20040125190832.619e3225@jack.colino.net>
-In-Reply-To: <1074988008.1262.125.camel@gaston>
-References: <20040119105237.62a43f65@localhost>
-	<1074483354.10595.5.camel@gaston>
-	<1074489645.2111.8.camel@laptop-linux>
-	<1074490463.10595.16.camel@gaston>
-	<1074534964.2505.6.camel@laptop-linux>
-	<1074549790.10595.55.camel@gaston>
-	<20040122211746.3ec1018c@localhost>
-	<1074841973.974.217.camel@gaston>
-	<20040123183030.02fd16d6@localhost>
-	<1074912854.834.61.camel@gaston>
-	<20040124172800.43495cf3@jack.colino.net>
-	<1074988008.1262.125.camel@gaston>
-Organization: 
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 25 Jan 2004 13:10:10 -0500
+Received: from pxy1allmi.all.mi.charter.com ([24.247.15.38]:20885 "EHLO
+	proxy1.gha.chartermi.net") by vger.kernel.org with ESMTP
+	id S264974AbUAYSJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 13:09:58 -0500
+Message-ID: <401406CA.5000107@quark.didntduck.org>
+Date: Sun, 25 Jan 2004 13:11:22 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: WHarms@bfs.de
+CC: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: mm/slab.c: linux 2.6.1 fix 2 unguarded kmalloc and a PAGE_SHIFT
+References: <S264257AbUAYOAm/20040125140042Z+37462@vger.kernel.org>
+In-Reply-To: <S264257AbUAYOAm/20040125140042Z+37462@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Charter-MailScanner-Information: 
+X-Charter-MailScanner: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Jan 2004 at 10h01, Benjamin Herrenschmidt wrote:
-
-Hi, 
-
-> > Didn't you forget to include include/asm-ppc/suspend.h ? ;-)
+  (Walter Harms) wrote:
+> Hi list,
+> this fixes catches 2 unguarded kmallocs() and changes a statement so that PAGE_SHIFT >20 causes a warning. 
+> At least sparc64 is prepared for a  PAGE_SHIFT >20.
 > 
-> Yes, but you could have re-created it easily: 
+> hope that helps,
+> walter
+> 
+> 
+> --- mm/slab.c.org       2004-01-25 08:18:25.243165360 +0100
+> +++ mm/slab.c   2004-01-25 08:33:05.135401408 +0100
+> @@ -666,7 +666,7 @@
+>          * Fragmentation resistance on low memory - only use bigger
+>          * page orders on machines with more than 32MB of memory.
+>          */
+> -       if (num_physpages > (32 << 20) >> PAGE_SHIFT)
+> +       if (num_physpages > (32 << (20-PAGE_SHIFT) )
+>                 slab_break_gfp_order = BREAK_GFP_ORDER_HI;
+>  
+>  
+> @@ -737,6 +737,10 @@
+>                 void * ptr;
+>  
+>                 ptr = kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
+> +
+> +               if (!ptr)
+> +                 BUG();
+> +
+>                 local_irq_disable();
+>                 BUG_ON(ac_data(&cache_cache) != &initarray_cache.cache);
+>                 memcpy(ptr, ac_data(&cache_cache), sizeof(struct arraycache_init
+> ));
+> @@ -744,6 +748,10 @@
+>                 local_irq_enable();
+>  
+>                 ptr = kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
+> +
+> +               if (!ptr)
+> +                 BUG();
+> +
+>                 local_irq_disable();
+>                 BUG_ON(ac_data(malloc_sizes[0].cs_cachep) != &initarray_generic.
+> cache);
+>                 memcpy(ptr, ac_data(malloc_sizes[0].cs_cachep),
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Thanks - I wasn't sure about it.
-The kernel now builds. However, after doing
-	echo disk > /sys/power/state
-or "hda14" or "/dev/hda14" (which is my swap partition) instead of "disk", 
-nothing happens (and nothing gets logged). 
-The only things different from your patch is that I added PMAC_MB_CAN_SLEEP 
-to my iBook's entry in pmac_feature.c, and added 
-	return -EBUSY; 
-after your 
-        if (state != 2 && state != 3)
-                return 0;
-in radeon_pm.c (to avoid pmud putting the iBook to sleep by mistake).
+BUG_ON(!ptr) would be better.
 
-relevant .config part:
-# CONFIG_SOFTWARE_SUSPEND is not set
-CONFIG_PM_DISK=y
-CONFIG_PM_DISK_PARTITION="/dev/hda14"
-
-Any pointer ? (did I miss something obvious?)
-
-Thanks,
--- 
-Colin
+--
+				Brian Gerst

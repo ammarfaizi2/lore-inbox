@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUHaVdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268875AbUHaVBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267901AbUHaVdv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 17:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267705AbUHaVdV
+	id S268875AbUHaVBt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 17:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269161AbUHaU5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 17:33:21 -0400
-Received: from lakermmtao06.cox.net ([68.230.240.33]:43251 "EHLO
-	lakermmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S267901AbUHaVa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 17:30:28 -0400
-In-Reply-To: <1093973977.434.7097.camel@cube>
-References: <1093964782.434.7054.camel@cube> <Pine.LNX.4.58.0408310945580.2295@ppc970.osdl.org> <1093973977.434.7097.camel@cube>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <F8184F90-FB94-11D8-9B58-000393ACC76E@mac.com>
+	Tue, 31 Aug 2004 16:57:49 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:6534
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S267650AbUHaU5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 16:57:10 -0400
+Date: Tue, 31 Aug 2004 13:56:51 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org, perex@suse.de
+Subject: Re: ALSA update broke Sparc
+Message-Id: <20040831135651.0da4dc5d.davem@davemloft.net>
+In-Reply-To: <s5heklnyvmg.wl@alsa2.suse.de>
+References: <20040827183646.1da2befc.davem@davemloft.net>
+	<s5h4qmkkjl5.wl@alsa2.suse.de>
+	<s5heklnyvmg.wl@alsa2.suse.de>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: Albert Cahalan <albert@users.sourceforge.net>, axboe@suse.de,
-       bunk@fs.tum.de, Linus Torvalds <torvalds@osdl.org>, arjanv@redhat.com,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: What policy for BUG_ON()?
-Date: Tue, 31 Aug 2004 17:30:24 -0400
-To: Albert Cahalan <albert@users.sf.net>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 31, 2004, at 13:39, Albert Cahalan wrote:
-> Expensive function calls won't get optimized away unless you
-> mark them __attribute__((__const__)) or __attribute__((__pure__)).
-> (perhaps that should be encouraged)
->
-> Then of course the compiler must assume that the function
-> really needed the arguments it was passed, and that it
-> might have modified memory, and so on.
->
-> Eh, how about a BUG_ON_WITH_SIDE_EFFECT() macro?
+On Tue, 31 Aug 2004 21:07:19 +0200
+Takashi Iwai <tiwai@suse.de> wrote:
 
-Due to the potentially large number of existing BUG_ON() usages with 
-side
-effects, it might be better to do this:
+> Although I still couldn't set up the sparc cross-compile environment,
 
-#if DEBUG
-# define	BUG_ON(cond)		do { if (cond) BUG(); } while(0)
-# define	BUG_CHECK(cond)		do { if (cond) BUG(); } while(0)
-#else
-# define	BUG_ON(cond)		do { if (cond); } while(0)
-# define	BUG_CHECK(cond)		do { } while(0)
-#endif
+There is a good one available somewhere, ask Andrew Morton for
+pointers, he uses it.
 
-Then in most cases new statements would use BUG_CHECK, especially if
-they contain expensive unnecessary function calls or critical sections.
+> I fixed/updated the ALSA pcm layer.
+> 
+> David, could you try the attached patch?  With this, the problematic
+> part will be disabled on sparc (it won't work on every architecture,
+> anyway).
 
-This would break the least amount of existing code, and provide both
-methods to kernel developers.
+Generates lots of warnings like this:
 
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
-
-
+  CC [M]  drivers/i2c/chips/smsc47m1.o
+In file included from sound/pci/au88x0/au88x0.h:26,
+                 from sound/pci/au88x0/au8820.c:2:
+include/sound/pcm.h:960:1: warning: "SNDRV_PCM_INFO_MMAP" redefined
+In file included from include/sound/pcm.h:26,
+                 from sound/pci/au88x0/au88x0.h:26,
+                 from sound/pci/au88x0/au8820.c:2:
+include/sound/asound.h:264:1: warning: this is the location of the previous definition

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314409AbSD0Tb5>; Sat, 27 Apr 2002 15:31:57 -0400
+	id <S314411AbSD0Tch>; Sat, 27 Apr 2002 15:32:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314411AbSD0Tb4>; Sat, 27 Apr 2002 15:31:56 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:9617 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314409AbSD0Tbz>;
-	Sat, 27 Apr 2002 15:31:55 -0400
-Date: Thu, 25 Apr 2002 20:41:03 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: dmacbanay@softhome.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.5.10 problems
-Message-ID: <20020425204102.B88@toy.ucw.cz>
-In-Reply-To: <courier.3CC89816.00006EFA@softhome.net>
-Mime-Version: 1.0
+	id <S314420AbSD0Tcd>; Sat, 27 Apr 2002 15:32:33 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36370 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314411AbSD0Tc3>; Sat, 27 Apr 2002 15:32:29 -0400
+Subject: Re: The tainted message
+To: linux@cabbey.net (Chris Abbey)
+Date: Sat, 27 Apr 2002 20:50:36 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        rthrapp@sbcglobal.net (Richard Thrapp),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <Pine.LNX.4.33.0204271406010.11653-100000@tweedle.cabbey.net> from "Chris Abbey" at Apr 27, 2002 02:22:16 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E171YDM-0000YJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > 	 author of this module, or duplicate them from a boot without
+> > 	 ever loading this module before reporting them to the community
+> > 	 or your Linux vendor
+> 
+> I think you're making an assumption about the vendor's support statement
+> that may not be valid. If I were a distro I wouldn't appreciate modutils
+> makeing statements about my support policies and confusing the newbies,
+> who are after all the target audience here. I'd take that last "or your
+> Linux vendor." bit off of this.
 
-> error when booting and I have to push the reset switch to reboot.  This 
-> problem has also been mentioned before but I don't think anyone has related 
-> it to the ACPI support. 
+This message is correct for just about every distribution. Remember vendors can
+and do customise modutils anyway. I don't think its a problem.
 
-Try acpi list.
-
-> 3.  Starting sometime after kernel 2.5.1 (I couldn't compile any kernels 
-> from then up until 2.5.5) the Evolution email program locks up whenever 
-> Calender, Tasks, or Contacts is selected.  I have to go to another terminal 
-> and kill it. 
-
-Try strace to see what it does before it dies.
-
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+Alan

@@ -1,87 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266050AbUBQGsV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 01:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266051AbUBQGsV
+	id S266094AbUBQGyT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 01:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266097AbUBQGyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 01:48:21 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:56327 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S266050AbUBQGsB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 01:48:01 -0500
-Date: Mon, 16 Feb 2004 22:47:55 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior
-Message-ID: <20040217064755.GC9466@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr> <20040216062152.GB5192@pegasys.ws> <20040216155534.GA17323@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040216155534.GA17323@mail.shareable.org>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: Annoy potential new customers!  Reach new depths of advertising opportunism!  Contact this email address to see your product or service featured in this space.
+	Tue, 17 Feb 2004 01:54:18 -0500
+Received: from dp.samba.org ([66.70.73.150]:1423 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266094AbUBQGyM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 01:54:12 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16433.47753.192288.493315@samba.org>
+Date: Tue, 17 Feb 2004 17:54:01 +1100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: UTF-8 and case-insensitivity
+In-Reply-To: <Pine.LNX.4.58.0402162034280.30742@home.osdl.org>
+References: <16433.38038.881005.468116@samba.org>
+	<Pine.LNX.4.58.0402162034280.30742@home.osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 16, 2004 at 03:55:34PM +0000, Jamie Lokier wrote:
-> jw schultz wrote:
-> > If you have a filesystem with filenames that don't conform
-> > to your policy write userspace tools to detect and/or fix
-> > them.  If you have programs creating non-conforming
-> > filenames, fix or rm those programs.
-> 
-> You do understand that GNU coreutils, bash etc. are among those
+Linus,
 
-Doesn't matter where they come from.
+ > Kernel-level case insensitivity is a total disaster, and your "very
+ > painful and potentially quite complex" assertion is the understatement of
+ > the year. The thing is, you can't sanely do dentry caching, since the case
+ > insensitivity has to be per-open or at least per-process (you MUST NOT be
+ > case-insensitive in a POSIX process).
 
-> programs, right?  As in "touch zöe.txt" creates a non-conforming
-> filename...
+right, and the patches to add this support to Linux that I have been
+involved with in the past have been per-process. You are right that it
+is messy, but it is not *horribly* messy. In fact I'd say it is no
+worse than many of the other things we already have in the kernel,
+although it certainly is much harder than sticking to the "bag of
+bytes" interpretation of filenames. I just think that in this case the
+simple solution is also wrong.
 
-Your concrete example is a good one.  Where did that
-filename come from?  It would seem to have come from the
-keyboard via a tty (or simulator) which also had to display
-it.  I'd say this is an argument for the terminal to display
-UTF-8 and convert intput into UTF-8.  That is something that
-seems to be not consistantly done as yet.  Ultimately it
-seems to be a responsiblity of the user interface, whether
-tty or GUI.  Until that happens the shells might be able to
-fill the gap, however poorly.
+ > So the only way to do case-insensitive names is to do all lookups very 
+ > slowly.
 
-Perhaps the utilities that don't attempt to interpret
-filenames should treat filenames exactly like the kernel
-does.
+I don't agree with this at all. I agree that the worst-case will get
+worse, but I see absolutely no reason why the average case will get
+sigificantly worse and I think that the worst case will be rare.
 
-> > OK.  The questions have been asked and answered.
-> > Asking again and again and again won't change the answer.
-> 
-> The question of what a program like this should do has not been
-> answered:
-> 
->    perl -e 'for (glob "*") { rename $_, "??i-".$_ or die "rename: $!\n"; }'
-> 
->    (NB: The prefix string is N WITH CEDILLA followed by "i-").
-> 
-> Hint: it mangles perfectly fine non-ASCII file names, instead of just
-> prefixing the prefix string.  If you change the program to correctly
-> prepend the prefix string, then it mangles non-UTF-8 names, which is
-> arguably correct, but can result in you losing some files.
+In fact, John Bonesio did a patch to the 2.4 kernel with XFS that
+implemened per-process case-insensitivity. It's been a long time since
+I played with that patch, but I certainly don't recall any significant
+slowdowns. The patch was messy, but it wasn't grossly
+inefficient. (that patch was just a proof of concept, and just used
+strcasecmp() instead of doing a proper UTF-8 case-insensitive compare,
+so there will be some amount of additional cost to adding that).
 
-Then if there is incorrect behavior is it the shell, tty or perl that is
-getting things wrong here.
+>From memory, the patch added new classes of dentries to the current
+"+ve" and "-ve" dentries. It added concepts like a "-ve
+case-insensitive" dentry and a "-ve case-sensitive" dentry. It
+certainly adds more code in trying to deal with these variants, but I
+see no reason why it should be significantly computationally less
+efficient.
 
-> This _is_ a userspace problem, but it is a genuine problem for which
-> no good answer is yet apparent.
+ > I'm willing to bet that WNT opens files a hell of a lot slower 
+ > than Linux does, and one big portion of that is exactly the fact that 
+ > Linux can do a really good job with the dentry cache.
 
-I'll buy that.  Then the first question to ask is "what is
-the correct forum for resolving this".
+Anyone have any lmbench filesystem numbers for w2k3? The only windows
+boxes I use are in vmware sessions, so running performance tests
+myself is pretty pointless.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+ > And that _depends_ on a well-defined and unique filename setup (by
+ > changing the hashing function and compare function, a filesystem can do a
+ > limited kind of case-insensitivity right now in Linux, but then it will
+ > have to be not only fairly slow, but also case-insensitive for _everybody_
+ > which is unacceptable in a mixed POSIX/samba environment).
 
-		Remember Cernan and Schmitt
+right, and thats why bones made it per-process in his patch. It was
+set using a process personality bit, which really wasn't ideal (that
+was one of my contributions to the patch) but it did work.
+
+ > In other words, just forget the whole notion. The only set people who have
+ > any reason at _all_ to want it is the samba team, and we can solve the 
+ > samba-specific problems other ways.
+
+Nope, its not just Samba, though perhaps Samba is the app that cares
+the most about the actual performance. The other obvious people who
+care are wine and anyone porting an application from windows. Also,
+the problem isn't just one of performance, its also hard to make it
+raceless from userspace.
+
+I also think that if the choice were given then some linux distros
+(the likes of Lindows comes to mind) would choose to run all processes
+case-insensitive. These sorts of distros are aiming at the sorts of
+users that would want everything to be case-insensitive.
+
+ > Just take that as a simple fact - case insensitivity in the kernel is such 
+ > a horribly bad idea, that you really shouldn't go there.
+
+I'm yet to be convinced :)
+
+ >  - MOST name lookups are likely results of some kind of "readdir()" 
+ >    lookup, and tend to have the case right in the first place. So that 
+ >    should go fast. Maybe Tridge has some statistics on this one?
+
+ok, the first thing you need to understand about case-insensitivity on
+a case-sensitive system is that the hardest thing to do is prove that
+a file doesn't exist. File operations on non-existant files are *very*
+common. If you can come up with a solution that allows me to prove
+that a file doesn't exist in any case combination then we will be most
+of the way there.
+
+That immediately throws out most of the "why don't you just use a
+cache" arguments that everyone seems to come up with. We *do* use a
+cache that primes the "most likely" filename code, its just that a
+cache is almost useless when you are trying to prove that a file
+definately doesn't exist.
+
+ >  - samba probably has certain pretty well-defined special patterns for 
+ >    what it wants to do with a filename, do you probably don't need a 
+ >    generic "everything that takes a filename should be case-insensitive", 
+ >    and it would be acceptable to have a few _very_ specific system calls.
+
+yes, if we had a single function that took a pathname and gave us
+either -1/ENOENT or the pathname of a file that matches
+case-insensitively then that would be great. Then again, if we had
+such a function then it would be really easy to use that function in
+the VFS to make the Linux case-insensitive on a per-process basis.
+
+So lets imagine we have such a function like this:
+
+  int ci_normalize(char *path);
+
+Lets assume it takes a pathname and returns either -1/ENOENT or
+modifies the pathname in place (totally ignoring the fact that the
+length of the pathname could change, and that the "char *" is really a
+"const char *" - pedants go home).
+
+now lets build a ci_unlink() on top of that:
+
+   int ci_unlink(char *path)
+   {
+	if (task_is_case_sensitive(current)) {
+		return unlink(path);
+	}
+	if (ci_normalize(path) == -1) {
+		return -1;
+	}
+	return unlink(path);
+   }
+
+The problem is the negative dentries. If you do the above then
+case-sensitive processes will be fast, but case-insensitive processes
+will effectively be running without the negative dcache, so unlink()
+on paths that don't exist will be slow each and every time. That's why
+doing this with any sort of decent efficiency needs dcache changes.
+
+btw, I already know that Al is completely and utterly opposed to
+putting any case-insensitivity in the dcache (I think the phrase "over
+my dead body" was mentioned), so I know that I'm fighting an uphill
+battle here, but I like trying every now and again to see if I can
+make any progress.
+
+ > With those assumptions out of the way, we could think of an interface that
+ > exports some partial functionality of the "lookup_path()" code the kernel
+ > as a special system call. In particular, something that takes an input
+ > pathname, and is able to stop at any point of the name when a lookup
+ > fails.
+ > So some variation of the interface
+ > 
+ > 	int magic_open(
+....
+
+how would this interact with the negative dcache entries? That is the
+key.
+
+ > I suspect we can do case-insensitive names faster than WNT even with a 
+ > fairly complex user-mode interface. Just because _not_ having them in the 
+ > kernel allows us to have much faster default behaviour.
+
+on this I completely disagree. Any solution that doesn't cope with
+case insensitive properties of negative dentries is just going to
+start filling the dcache with lots of useless entries (case
+combinations) or effectively not end up using the dcache at
+all. Either way its a big loss compared to making the dcache know
+about case insensitivity properly.
+
+Cheers, Tridge
+
+PS: ahh, what timing, someone just posted a request to the rsync list
+asking for case-insensitivity in rsync.

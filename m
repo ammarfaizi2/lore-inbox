@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbUKDR7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbUKDSCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbUKDR7l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbUKDR5v
+	id S262300AbUKDSCm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbUKDR75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:57:51 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:57788 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262279AbUKDR4B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:56:01 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix find_next_best_node
-Date: Thu, 4 Nov 2004 09:55:57 -0800
+	Thu, 4 Nov 2004 12:59:57 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:11936 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S262309AbUKDR6t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:58:49 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org, kernel@crazytrain.com
+Subject: Re: is killing zombies possible w/o a reboot?
+Date: Thu, 4 Nov 2004 12:58:47 -0500
 User-Agent: KMail/1.7
+Cc: DervishD <lkml@dervishd.net>,
+       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+References: <200411030751.39578.gene.heskett@verizon.net> <200411041118.36204.gene.heskett@verizon.net> <1099586824.3949.1.camel@crazytrain>
+In-Reply-To: <1099586824.3949.1.camel@crazytrain>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_t0miBs94/S4MAph"
-Message-Id: <200411040955.57369.jbarnes@engr.sgi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
---Boundary-00=_t0miBs94/S4MAph
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200411041258.47199.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.42.194] at Thu, 4 Nov 2004 11:58:48 -0600
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
-If NUMA is enabled, find_next_best_node is responsible for helping build the 
-zonelist for each pgdat in the system.  However, if one sets 
-PENALTY_FOR_NODE_WITH_CPUS to a large value in an attempt to prefer nodes w/o 
-CPUs, the local node is erroneously placed after all nodes w/o CPUs in the 
-pgdat's zonelist.  This small patch fixes that by just checking if the local 
-node is part of the zonelist yet, and if not, returns it first.
+On Thursday 04 November 2004 11:47, kernel wrote:
+>On Thu, 2004-11-04 at 11:18, Gene Heskett wrote:
+>> And where is htop, it apparently isn't part of an FC2 install.
+>
+>http://htop.sourceforge.net/
+>
+Thanks, got it.  Looks good, more thanks...
 
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
-
-Thanks,
-Jesse
-
---Boundary-00=_t0miBs94/S4MAph
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="local-node-with-penalty-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="local-node-with-penalty-fix.patch"
-
-===== mm/page_alloc.c 1.239 vs edited =====
---- 1.239/mm/page_alloc.c	2004-10-25 13:06:48 -07:00
-+++ edited/mm/page_alloc.c	2004-11-04 09:41:23 -08:00
-@@ -1213,6 +1213,12 @@
- 		if (test_bit(n, used_node_mask))
- 			continue;
- 
-+		/* Use the local node if we haven't already */
-+		if (!test_bit(node, used_node_mask)) {
-+			best_node = node;
-+			break;
-+		}
-+
- 		/* Use the distance array to find the distance */
- 		val = node_distance(node, n);
- 
-
---Boundary-00=_t0miBs94/S4MAph--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

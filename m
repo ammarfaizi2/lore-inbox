@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318599AbSIBXj1>; Mon, 2 Sep 2002 19:39:27 -0400
+	id <S318601AbSIBXtX>; Mon, 2 Sep 2002 19:49:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318601AbSIBXj1>; Mon, 2 Sep 2002 19:39:27 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:15772 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S318599AbSIBXj0>; Mon, 2 Sep 2002 19:39:26 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 2 Sep 2002 16:48:08 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Stupid anti-spam testings...
-In-Reply-To: <20020902233230.GC5834@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.44.0209021645250.1614-100000@blue1.dev.mcafeelabs.com>
+	id <S318602AbSIBXtX>; Mon, 2 Sep 2002 19:49:23 -0400
+Received: from dsl-213-023-007-204.arcor-ip.net ([213.23.7.204]:48904 "HELO
+	is1.blocksberg.com") by vger.kernel.org with SMTP
+	id <S318601AbSIBXtW> convert rfc822-to-8bit; Mon, 2 Sep 2002 19:49:22 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Justin Heesemann <jh@ionium.org>
+Organization: ionium Technologies
+To: linux-kernel@vger.kernel.org
+Subject: Re: P4 with i845E not booting with 2.4.19 / 3.5.31
+Date: Tue, 3 Sep 2002 01:53:47 +0200
+User-Agent: KMail/1.4.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209030153.47433.jh@ionium.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Sep 2002, Matti Aarnio wrote:
+> I tested:
+> 2.4.19-pre6 -> boots with mem=512M parameter
+> 2.4.19-pre7 -> didn't boot at all
+> 2.4.19-pre7 with arch/i386/kernel/setup.c from 2.4.19-pre6 -> boots with
+> mem=512M parameter
 
-> On Mon, Sep 02, 2002 at 04:28:37PM -0600, Andreas Dilger wrote:
-> ...
-> > > Folks,  when you deploy that kind of testers, DO VERIFY THAT THEY
-> > > HAVE SANE CACHES!  A positive result shall be cached for at least
-> > > two hours, a negative result shall be cached for at least 30 minutes.
-> >
-> > Do you know if this is one of the default checks from spamassassin?
->
->   No idea.  I have seen these coming from Exim 4.10, Exim-something,
->   some sendmail milter (whatever that is), etc..
->
->   Apparently the idea (which I have thought of long ago, and rejected
->   as incomplete) has caught, and has multiple implementations...
+I have another update:
+some might know the memtest86 utility.
 
-Personally i don't think this kind of tests are going to reduce the spam
-that much but a simple lookup in the subscribers database might help
-reducing the smtp-test traffic only for non-subscriber addresses.
+it has three ways of detecting the memory size "BIOS - Std", "BIOS - All" and 
+"Probe"
+
+on my Athlon Mainboard (which has no Problems with 2.4.19 or later kernels) 
+all methods show the same (or nearly same) ammount of memory.
+
+on my Epox 4G4A+ i845g Mainboard, which has all the Problems Jens Wiesecke 
+has, it's different:
+BIOS - Std : 640k (!!)
+BIOS - All : 4091M (!!!!)
+Probe      : 511M (which seems correct as I have 512 MB Ram and 1 MB is shared 
+graphics ram)
 
 
+-- 
+Best Regards
 
-- Davide
-
+Justin Heesemann
 

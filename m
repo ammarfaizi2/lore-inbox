@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbUDDWye (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 18:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbUDDWye
+	id S262907AbUDDW77 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 18:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUDDW77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 18:54:34 -0400
-Received: from mail.tpgi.com.au ([203.12.160.100]:22230 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S262898AbUDDWyc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 18:54:32 -0400
-Subject: Re: BK tree corruption?
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040404225336.GA2078@mars.ravnborg.org>
-References: <1081117647.2616.15.camel@laptop-linux.wpcb.org.au>
-	 <20040404225336.GA2078@mars.ravnborg.org>
-Content-Type: text/plain
-Message-Id: <1081118928.2616.39.camel@laptop-linux.wpcb.org.au>
+	Sun, 4 Apr 2004 18:59:59 -0400
+Received: from starsphere.linkinnovations.com ([203.94.138.50]:4224 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S262907AbUDDW7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 18:59:55 -0400
+Date: Mon, 5 Apr 2004 08:59:51 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5: kernel crash on large disk writes
+Message-ID: <20040404225951.GA1586@zip.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Mon, 05 Apr 2004 08:48:49 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Had to leave the house quickly today so this is not as complete as I
+would like. The situation is as follows: I have a k6-500 on an ali1541
+(from memory) ide chipset. All channels filled with 3 hds and 1 cdrom.
+2 hds on the asme port at ata66, one at ata33 and the cdrom at whatever
+it's on. ;) The system boots up normally and light use is just fine. 
+When I backup my laptop to it though I can repeatedly bring the system
+down. The end result is an oops on the screen in soft_irq_timer that
+came from cpu_idle. (I had no time to write it down). The following,
+just before the oops was logged:
 
-Thanks. I've looked some more and decided my laptop copy is corrupt -
-the file it's complaining about is missing.
+Apr  5 01:14:35 nessie kernel: Assertion failure in journal_add_journal_head() a
+t fs/jbd/journal.c:1679: "(((&bh->b_count)->counter) > 0) || (bh->b_page && bh->
+b_page->mapping)"
+Apr  5 01:14:35 nessie kernel: ------------[ cut here ]------------
+Apr  5 01:14:35 nessie kernel: kernel BUG at fs/jbd/journal.c:1679!
 
-Thanks for the reply.
+The backup was an rsync over the net.
 
-Regards,
+There have been other problems with the system. It liked my promise
+card in it even less (old driver variety) but nothing ever did get
+logged.
 
-Nigel
+If you need mroe info, please yell and I'll try to answer from memory
+and I'll try to give oops details when I get home (please specify what
+details you're most interested in so that I don't have to type it all
+in if possible :).
 
-On Mon, 2004-04-05 at 08:53, Sam Ravnborg wrote:
-> On Mon, Apr 05, 2004 at 08:27:27AM +1000, Nigel Cunningham wrote:
-> > Hi all.
-> > 
-> > Is anyone else having issues trying to pull from bkbits.net?
-> Just tried to pull linux-2.6 with success.
-> 
-> 	Sam
+Thanks.
+
 -- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
-
+    Red herrings strewn hither and yon.

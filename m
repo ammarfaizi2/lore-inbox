@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbTHTOyE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 10:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbTHTOyE
+	id S262027AbTHTO5h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 10:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbTHTO5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 10:54:04 -0400
-Received: from werbeagentur-aufwind.com ([217.160.128.76]:29659 "EHLO
-	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
-	id S261992AbTHTOyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 10:54:01 -0400
-Subject: Re: [OT] Connection tracking for IPSec
-From: Christophe Saout <christophe@saout.de>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1061389376.3804.16.camel@teapot.felipe-alfaro.com>
-References: <1061378568.668.9.camel@teapot.felipe-alfaro.com>
-	 <1061381498.4210.16.camel@chtephan.cs.pocnet.net>
-	 <1061389376.3804.16.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain
-Message-Id: <1061391227.5558.2.camel@chtephan.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 20 Aug 2003 16:53:47 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Aug 2003 10:57:36 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:14352 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262027AbTHTO5f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 10:57:35 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, jmorris@redhat.com, chris@wirex.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Call security hook from pid*_revalidate
+References: <20030819013834.1fa487dc.akpm@osdl.org>
+	<1061327958.28439.62.camel@moss-spartans.epoch.ncsc.mil>
+	<20030819142234.64433bad.akpm@osdl.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 20 Aug 2003 23:56:14 +0900
+In-Reply-To: <20030819142234.64433bad.akpm@osdl.org>
+Message-ID: <87wud8pecx.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mi, 2003-08-20 um 16.22 schrieb Felipe Alfaro Solana:
->  saying it's not honouring the netfilter rules at all?
-> 
-> No... What I'm saying is that normal IP traffic is processed by the
-> firewall. However, if the incoming traffic is protected with IPSec,
-> since I opened up protocols 50 and 51, the IPSec traffic is admitted
-> without passing any remaining firewall filters. The machine in question
-> is an end host (not a router).
+Andrew Morton <akpm@osdl.org> writes:
 
-Yes, you're right. I just checked. Only the encrypted traffic passes the
-netfilter rules, never the unencrypted data. So if you open the
-protocols 50 and 51, the encrypted data can pass, gets
-encrypted/decrypted and that data can always pass unchecked.
+> I'm not sure that the /proc/fd ownership patch is the correct solution to
+> that bug yet; we'll see.
 
-These packets should get reinjected into the netfilter mechanism after
-decryption and should pass the rules before getting encrypted.
+>  		dentry->d_inode->i_uid = task->euid;
+>  		dentry->d_inode->i_gid = task->egid;
+> +		security_task_to_inode(task, dentry->d_inode);
+>  		return 1;
+>  	}
+>  	d_drop(dentry);
+> @@ -899,6 +900,7 @@
+>  			put_files_struct(files);
+>  			dentry->d_inode->i_uid = task->euid;
+>  			dentry->d_inode->i_gid = task->egid;
+> +			security_task_to_inode(task, dentry->d_inode);
+>  			return 1;
+>  		}
+>  		spin_unlock(&files->file_lock);
 
---
-Christophe Saout <christophe@saout.de>
-Please avoid sending me Word or PowerPoint attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
+Umm.. Wasn't the following needed?
 
+	inode->i_uid = 0;
+	inode->i_gid = 0;
+	if (ino == PROC_PID_INO || task_dumpable(task)) {
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

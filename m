@@ -1,77 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135841AbRDTJnS>; Fri, 20 Apr 2001 05:43:18 -0400
+	id <S135838AbRDTJn6>; Fri, 20 Apr 2001 05:43:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135839AbRDTJnJ>; Fri, 20 Apr 2001 05:43:09 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:53122 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S135838AbRDTJnF>;
-	Fri, 20 Apr 2001 05:43:05 -0400
-Date: Fri, 20 Apr 2001 02:42:55 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Roberto Nibali <ratz@tac.ch>
-cc: <linux-kernel@vger.kernel.org>, Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
-In-Reply-To: <3ADFFB56.A9C84A2@tac.ch>
-Message-ID: <Pine.LNX.4.33.0104200227420.5165-100000@age.cs.columbia.edu>
+	id <S135839AbRDTJnt>; Fri, 20 Apr 2001 05:43:49 -0400
+Received: from mailhub2.shef.ac.uk ([143.167.2.154]:50405 "EHLO
+	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
+	id <S135838AbRDTJnd>; Fri, 20 Apr 2001 05:43:33 -0400
+Date: Fri, 20 Apr 2001 10:43:23 +0100 (BST)
+From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Hai Xu <xhai@CLEMSON.EDU>, linux-kernel@vger.kernel.org
+Subject: Re: A little problem.
+In-Reply-To: <E14qMB9-00089Z-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0104201023100.17277-100000@erdos.shef.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Apr 2001, Roberto Nibali wrote:
+It is way OT here, but since Alan replied to this, I'll continue this
+thread a bit: The interesting bit here, that I don't understand, is - how
+in RedHat-7.0, that was released last year, libc is compiled against
+2.4.0?... Did they include headers from one of pre / test versions?
 
-> Hmm, but doesn't the code in 2.4.x improve the hard IRQ signal delivery
-> even for UP systems with a local APIC table? I have an APIC aware board
-> but I have only got 1 CPU on it and I currently need to run 2.2 kernel.
-> But if you tell me that there is not much help, I'm ok with that, as 
-> long as it wouldn't be better with APIC support :)
+Thanks
+Guennadi
 
-I think the UP-APIC support was added primarily to support the NMI oopser 
-on UP systems. I might be wrong, though.
+On Thu, 19 Apr 2001, Alan Cox wrote:
 
-> > Well.. Space.c is a dinozaur. However, this is the 2.2 series and no more
-> > surgery will happen on this kernel, at least normally.
+> > and upgrade the Linux Kerenl from their original 2.2.16 to 2.2.18. But when
+> > I compile some modules, it said my kernel is 2.4.0. I check the
+> > /usr/include/linux/version.h as follows, found that it shows I am using
+> > Kernel 2.4.0.
 > 
-> So, what is your suggestion: Does this limitation do any harm or can I
-> live with that and still run 16 eth devices and safely disregard the
-> "early initialization ..." ?
-
-You can safely disregard the "early initialization deferred" messages. 
-They are essentially harmless.
-
-As for the 16 eth ports limit, if you want to increase it, simply edit 
-drivers/net/net_init.c and change the value of MAX_ETH_CARDS. This limit 
-appears to also affect modules, so my earlier suggestion of using modules 
-wouldn't have helped.
-
-> > Because, again, this is legacy code. It works, it does the job, that's it.
-> > All this crap is gone in 2.4.
+> No. It shows the headers your C compiler libraries are built againt. Which is
+> 2.4 - and which is correct. It has nothing to do with the kernel you are 
+> running
 > 
-> I'll be porting my distribution to 2.4.x soon I think :)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-If the only thing you need from your boxes is networking-related, than 
-it's probably ok. Otherwise I'd wait a bit longer before putting 2.4 on 
-production servers...
+___
 
-> Your driver works now and for me now need to mark it experimental. 
-
-Yeah, I guess I'll submit a patch to remove the experimental bit, after 
-the current code changes are accepted..
-
-> It also works statically built into the kernel up to 4 quadboards. I
-> hacked Space.c and enhanced the ``static struct device ethX_dev = { };''
-> stuff.
-
-You shouldn't need to do that, it's just wasted memory. The ethX_dev was
-used mostly to avoid probing for ISA cards, which is completely irrelevant
-when using PCI cards. As for the 4 quadboards limit, see above -- all you
-need to change is MAX_ETH_CARDS.
-
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Dr. Guennadi V. Liakhovetski
+Department of Applied Mathematics
+University of Sheffield, U.K.
+email: G.Liakhovetski@sheffield.ac.uk
 
 

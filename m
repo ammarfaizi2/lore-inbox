@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265901AbSLXWPg>; Tue, 24 Dec 2002 17:15:36 -0500
+	id <S265909AbSLXW0H>; Tue, 24 Dec 2002 17:26:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265909AbSLXWPg>; Tue, 24 Dec 2002 17:15:36 -0500
-Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:5380
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S265901AbSLXWPf>; Tue, 24 Dec 2002 17:15:35 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PROBLEM][2.5.52/53][USB] USB Device unusable
-Date: Tue, 24 Dec 2002 17:25:15 -0500
-User-Agent: KMail/1.5.9
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200212241533.21347.spstarr@sh0n.net> <200212241652.45041.spstarr@sh0n.net> <20021224220913.GA3237@kroah.com>
-In-Reply-To: <20021224220913.GA3237@kroah.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200212241725.15439.spstarr@sh0n.net>
+	id <S265947AbSLXW0H>; Tue, 24 Dec 2002 17:26:07 -0500
+Received: from h-64-105-35-71.SNVACAID.covad.net ([64.105.35.71]:173 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265909AbSLXW0G>; Tue, 24 Dec 2002 17:26:06 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 24 Dec 2002 14:33:56 -0800
+Message-Id: <200212242233.OAA17934@adam.yggdrasil.com>
+To: rgooch@atnf.csiro.au
+Subject: Module unload race with devfs + char devices
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mount reports:
-usbfs on /proc/bus/usb type usbfs (rw)
+Hi Richard,
 
-/etc/fstab:
-usbfs          /proc/bus/usb  usbfs   defaults    0       0
+	This is pretty obscure, but I thought I should mention this
+bug to you.
 
-well, KDE has a plugin that utilizes libusb, libgphoto2 to manipulate the 
-camera. 
+	I think there is a module unload race for character devices in
+devfs whereby devfs retains a file_operations pointer that is no longer
+valid after a character device driver module has been unloaded.
 
-I never tried the USB on this machine in 2.5 or 2.4.
+	I was able to trip the problem by adding a 10 second
+sleep near the beginning of dentry_open (in fs/open.c) whenever a
+parallel port was opened.  Then I was able to produce a kernel paging
+error by doing the following:
 
-Shawn.
+modprobe parport_pc
+modprobe lp
+cat /dev/printers/0 &
+rmmod lp
 
-On Tuesday 24 December 2002 5:09 pm, Greg KH wrote:
-> On Tue, Dec 24, 2002 at 04:52:44PM -0500, Shawn Starr wrote:
-> > 2.5.53-mm1 compiled w/ lm_sensors merged in:
-> >
-> > Same error however new thing:
-> >
-> > When a non-root user tries to configure the USB device the userland
-> > program returns 'Unable to claim USB device'
->
-> So you are using usbfs?  What program?  Nothing changed with usbfs from
-> 2.5.52 to 2.5.53, but some things did change from 2.5.50 to 2.5.51.  Did
-> .50 work for you?
->
-> thanks,
->
-> greg k-h
+	Ten seconds later, I'd get a bad pointer reference on the
+address previously occupied by lp_fops.  dentry_open would call
+devfs_open; devfs_open would try to read lp_fops presumably because
+some pointer to it had not been cleared.
 
+	The problem does not occur without devfs because the regular
+chrdev_open calls get_chrfops which fetches the appropriate takes a
+semaphore that is used by {,un}register_chrdev, and, with that
+semaphore held, fetches the appropriate f_ops and increments the
+module's reference count before releasing the semaphore.  I had
+previously thought that this was a more general problem, but now I now
+think it's limited to devfs, so I thought I ought to let you know.
 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

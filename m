@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317541AbSHOWMy>; Thu, 15 Aug 2002 18:12:54 -0400
+	id <S317544AbSHOWTW>; Thu, 15 Aug 2002 18:19:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317544AbSHOWMy>; Thu, 15 Aug 2002 18:12:54 -0400
-Received: from spratly.wl.nominum.com ([128.177.195.135]:47030 "EHLO
-	spratly.nominum.com") by vger.kernel.org with ESMTP
-	id <S317541AbSHOWMx>; Thu, 15 Aug 2002 18:12:53 -0400
-Date: Thu, 15 Aug 2002 15:16:47 -0700 (PDT)
-From: Brian Wellington <bwelling@xbill.org>
-X-X-Sender: bwelling@spratly.nominum.com
+	id <S317587AbSHOWTV>; Thu, 15 Aug 2002 18:19:21 -0400
+Received: from gadolinium.btinternet.com ([194.73.73.111]:2225 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S317544AbSHOWTU>; Thu, 15 Aug 2002 18:19:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Benjamin Geer <ben@beroul.uklinux.net>
 To: linux-kernel@vger.kernel.org
-Subject: ptrace/select/signal errno weirdness
-Message-ID: <Pine.LNX.4.44.0208151508060.21876-100000@spratly.nominum.com>
+Subject: 2.4.19 ATAPI cdrom I/O errors when reading CD-R
+Date: Thu, 15 Aug 2002 23:17:29 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17fT1P-0004tk-00@gadolinium.btinternet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When sending a SIGINT to a ptraced process (run under gdb), an interrupted 
-select() call returns with errno==514.  linux/include/linux/errno.h says:
+I'm getting errors with kernel 2.4.19 when reading a data CD-R burnt 
+under Windows (using Adaptec DirectCD).  Kernel 2.2.20 reads the same CD 
+with no problems, as does Windows XP.
 
-/* Should never be seen by user programs */
-#define ERESTARTSYS     512
-#define ERESTARTNOINTR  513
-#define ERESTARTNOHAND  514     /* restart if no handler.. */
-#define ENOIOCTLCMD     515     /* No ioctl command */
+With kernel 2.4.19, the CD mounts, and ls works, but when I try to copy a 
+file from it, the copy is incomplete, and I get a lot of errors like this:
 
-As gdb is a user program, and the printf is printing it, there's something
-wrong.  This might be due to a problem in gdb, but the fact that the errno
-is being seen in userspace seems bad.
+hdc: command error: status=0x51 { DriveReady SeekComplete Error }
+hdc: command error: error=0x54
+end_request: I/O error, dev 16:00 (hdc), sector 999504
 
-A simple test program is included.  To test, build and run it under gdb.  
-Hit ^C to get back to the gdb prompt, and enter 'signal SIGINT' to send a 
-SIGINT.
+I've tried turning off DMA for the drive (hdparm -d0 /dev/hdc), but this 
+has no effect.
 
-This has been reproduced on 2.4.18 (the Red Hat 7.3 errata kernel) and 
-2.4.19 (built from scratch).
+I've had no problems reading CD-ROMs (including copies of CD-ROMs on CD-R 
+media) under kernel 2.4.19.
 
-Brian
+Here's the drive information as reported by the kernel when it boots:
 
-----
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/select.h>
-#include <sys/signal.h>
+hdc: HL-DT-STCD-RW/DVD-ROM GCC-4240N, ATAPI CD/DVD-ROM drive
+hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
 
-void
-printsig(int sig) {
-	fprintf(stderr, "got sig %d\n", sig);
-}
+The drive is in a Dell Inspiron 4150 laptop.
 
-int
-main(int argc, char **argv) {
-	int n;
-	struct sigaction sa;
-	memset(&sa, 0, sizeof sa);
-	sa.sa_handler = printsig;
-	n = sigaction(SIGINT, &sa, NULL);
-	if (n < 0) {
-		fprintf(stderr, "sigaction: %s\n", strerror(errno));
-		exit(1);
-	}
-	n = select(0, NULL, NULL, NULL, NULL);
-	if (n < 0) {
-		fprintf(stderr, "select: %s\n", strerror(errno));
-		exit(1);
-	}
-	exit(0);
-}
+Benjamin
 

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281808AbRKVWqD>; Thu, 22 Nov 2001 17:46:03 -0500
+	id <S281810AbRKVXHu>; Thu, 22 Nov 2001 18:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281810AbRKVWpx>; Thu, 22 Nov 2001 17:45:53 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11790 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281808AbRKVWph>; Thu, 22 Nov 2001 17:45:37 -0500
-Date: Thu, 22 Nov 2001 14:27:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Leif Sawyer <lsawyer@gci.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, <leif@denali.net>
-Subject: RE: Linux-2.4.15-pre9
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA31506DB3B73@berkeley.gci.com>
-Message-ID: <Pine.LNX.4.33.0111221424010.1006-100000@penguin.transmeta.com>
+	id <S281811AbRKVXHl>; Thu, 22 Nov 2001 18:07:41 -0500
+Received: from colorfullife.com ([216.156.138.34]:43787 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S281810AbRKVXHa>;
+	Thu, 22 Nov 2001 18:07:30 -0500
+Message-ID: <3BFD852C.C4CDC39F@colorfullife.com>
+Date: Fri, 23 Nov 2001 00:07:24 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.15-pre6 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Paul Mackerras <paulus@samba.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re:[RFC][PATCH] flush_icache_user_range
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Thu, 22 Nov 2001, Leif Sawyer wrote:
->
-> This option works in 2.4.14 and prior.
+> The patch below changes access_one_page in kernel/ptrace.c to use a
+> new function, flush_icache_user_range, instead of flush_icache_page as
+> at present.  The reason for making this change is that
+> flush_icache_page is also called in do_no_page and do_swap_page, where
+> it does a fundamentally different job.  Decoupling the two makes it
+> possible to improve performance, because we can make flush_icache_page
+> do the flush only when needed.
+> 
 
-Oh, I didn't notice this part.
+Could you also check map_user_kiobuf()?
 
-If it actually works in 2.4.14, can you check _which_ pre-patch changes
-behaviour? I don't see _any_ changes that look even remotely likely to
-cause BIOS routines to oops, and it might just be random luck, for all I
-know.
+map_user_kiobuf() calls flush_dcache_page() - if I understand
+cachetlb.txt correctly that function is only suitable for dcache/mmap
+cache coherency, it's not suitable for anon pages. But map_user_kiobuf()
+must support arbitrary pages.
 
-		Linus
+And unmap_kiobuf doesn't contain a single cache flush.
 
+--
+	Manfred

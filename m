@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262536AbTCMUwJ>; Thu, 13 Mar 2003 15:52:09 -0500
+	id <S262545AbTCMUxd>; Thu, 13 Mar 2003 15:53:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262542AbTCMUwJ>; Thu, 13 Mar 2003 15:52:09 -0500
-Received: from home.linuxhacker.ru ([194.67.236.68]:11941 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id <S262536AbTCMUwI>;
-	Thu, 13 Mar 2003 15:52:08 -0500
-Date: Fri, 14 Mar 2003 00:01:44 +0300
-From: Oleg Drokin <green@linuxhacker.ru>
-To: alan@redhat.com, linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: [2.4] init/do_mounts.c::rd_load_image() memleak
-Message-ID: <20030313210144.GA3542@linuxhacker.ru>
+	id <S262546AbTCMUxd>; Thu, 13 Mar 2003 15:53:33 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:48853 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262545AbTCMUxb>; Thu, 13 Mar 2003 15:53:31 -0500
+Subject: Re: [Ext2-devel] Re: [Bug 417] New: htree much slower than regular
+	ext3
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Daniel Phillips <phillips@arcor.de>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, "Theodore Ts'o" <tytso@mit.edu>,
+       chrisl@vmware.com, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20030227140019.G1373@schatzie.adilger.int>
+References: <11490000.1046367063@[10.10.2.4]>
+	 <20030227200425.253F03FE26@mx01.nexgo.de>
+	 <20030227140019.G1373@schatzie.adilger.int>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047589455.1924.97.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 13 Mar 2003 21:04:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-   rd_load_image() leaks some memory if it cannot determine source device size,
-   if it cannot close or open source for ramdisk device.
+On Thu, 2003-02-27 at 21:00, Andreas Dilger wrote:
 
-   Probably this is not all that critical, since we most likely panic after
-   failure to load initrd, but still there is chance that we have valid
-   root device too, from which we can try to continue to boot.
+> I've got a patch which should help here, although it was originally written
+> to speed up the "create" case instead of the "lookup" case.  In the lookup
+> case, it will do a pre-read of a number of inode table blocks, since the cost
+> of doing a 64kB read and doing a 4kB read is basically the same - the cost
+> of the seek.
 
-   Found with help of smatch + enhanced unfree script.
+No it's not --- you're evicting 16 times as much other
+potentially-useful data from the cache for each lookup.  You'll improve
+the "du" or "ls -l" case by prefetching, but you may well slow down the
+overall system performance when you're just doing random accesses (eg.
+managing large spools.)
 
-Bye,
-    Oleg
+It would be interesting to think about how we can spot the cases where
+the prefetch is likely to be beneficial, for example by observing
+"stat"s coming in in strict hash order.
 
-===== init/do_mounts.c 1.35 vs edited =====
---- 1.35/init/do_mounts.c	Wed Jan 15 09:42:29 2003
-+++ edited/init/do_mounts.c	Thu Mar 13 23:56:18 2003
-@@ -551,7 +551,7 @@
- 	int in_fd, out_fd;
- 	unsigned long rd_blocks, devblocks;
- 	int nblocks, i;
--	char *buf;
-+	char *buf = 0;
- 	unsigned short rotate = 0;
- #if !defined(CONFIG_ARCH_S390) && !defined(CONFIG_PPC_ISERIES)
- 	char rotator[4] = { '|' , '/' , '-' , '\\' };
-@@ -648,7 +648,6 @@
- #endif
- 	}
- 	printk("done.\n");
--	kfree(buf);
- 
- successful_load:
- 	res = 1;
-@@ -656,6 +655,8 @@
- 	close(in_fd);
- noclose_input:
- 	close(out_fd);
-+	if (buf)
-+		kfree(buf);
- out:
- 	sys_unlink("/dev/ram");
- #endif
+--Stephen
+

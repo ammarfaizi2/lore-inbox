@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319059AbSHFLKi>; Tue, 6 Aug 2002 07:10:38 -0400
+	id <S319063AbSHFLK4>; Tue, 6 Aug 2002 07:10:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319063AbSHFLKi>; Tue, 6 Aug 2002 07:10:38 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:42758 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S319059AbSHFLKg>; Tue, 6 Aug 2002 07:10:36 -0400
-Message-ID: <3D4FAE5C.9050205@evision.ag>
-Date: Tue, 06 Aug 2002 13:09:16 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: martin@dalecki.de, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.30 IDE 113
-References: <13A77E76028@vcnet.vc.cvut.cz> <3D4FA2F8.2050305@evision.ag> <20020806104238.GB1132@suse.de> <3D4FA845.90702@evision.ag> <20020806105450.GD1323@suse.de> <3D4FAA87.8040303@evision.ag> <20020806110548.GF1323@suse.de>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+	id <S319066AbSHFLK4>; Tue, 6 Aug 2002 07:10:56 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:26247 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S319063AbSHFLKy>; Tue, 6 Aug 2002 07:10:54 -0400
+Date: Tue, 6 Aug 2002 13:13:56 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
+Message-Id: <20020806131356.61ece6ca.us15@os.inf.tu-dresden.de>
+In-Reply-To: <200208061120.GAA01735@ccure.karaya.com>
+References: <20020806101059.51ae728d.us15@os.inf.tu-dresden.de>
+	<200208061120.GAA01735@ccure.karaya.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Jens Axboe napisa?:
-> On Tue, Aug 06 2002, Marcin Dalecki wrote:
-> 
->>Uz.ytkownik Jens Axboe napisa?:
->>
->>>On Tue, Aug 06 2002, Marcin Dalecki wrote:
->>>
->>>
->>>>Uz.ytkownik Jens Axboe napisa?:
->>>>
->>>>
->>>>>On Tue, Aug 06 2002, Marcin Dalecki wrote:
->>>>>
->>>>>
->>>>>
->>>>>>device not per channel! If q->request_fn would properly return the
->>>>>>error count instead of void, we could even get rid ot the
->>>>>>checking for rq->errors after finishment... But well that's
->>>>>>entierly different story.
->>>>>
->>>>>
->>>>>That's nonsense! What exactly would you return from a request_fn after
->>>>>having queued, eg, 20 commands? Error count is per request, anything
->>>>>else would be stupid.
->>>>
->>>>Returning the error count in the case q->request_fn is called for
->>>>a self submitted request like for example REQ_SPECIAL would be handy and 
->>>>well defined. For the cumulative case it would of course make sense to 
->>>>return the cumulative error count. Tough not very meaningfull, it would
->>>>indicate the occurrence of the error very fine.
->>>
->>>
->>>It's much nicer to maintain a sane API that doesn't depend on stuff like
->>>the above. Cumulative error count, come on, you can't possibly be
->>>serious?!
->>
->>Hey don't get me wrong - I *do not* suggest adding it becouse I don't 
->>think we are going to change the "eat as many as possible requests" 
->>instead of "eat one request" semantics of the q->reuqest_fn().
->>OK?
-> 
-> 
-> You look from the IDE perspective, I look from the interface
-> perspective. There's is no "eat one request" semantic of request_fn(),
-> in fact there's just the opposite. If you quit after having just
-> consumed one request, you must make sure to invoke request_fn _yourself_
-> later on -- or use the recent blk_start/stop_queue helpers.
+On Tue, 06 Aug 2002 06:20:52 -0500
+Jeff Dike <jdike@karaya.com> wrote:
 
-Yes of course I know that there is not "eat one request" semantic of
-request_fn(). However looking at the interface perspective (out of my
-small corner) I think the above is precisely what leads to ugly things
-(and I think you will agree that this is ugly) like calling 
-do_ide_request() back out from ata_irq_handler() - shrug.
+> us15@os.inf.tu-dresden.de said:
+> >                         if (current->pgrp != -arg &&
+> >                                 current->pid != arg &&
+> >                                 !capable(CAP_KILL)) return(-EPERM); 
+> 
+> What's the problem here?  This will let UML do F_SETOWN as well.
 
+It will let the incoming process take over ownership of the socket,
+which is probably what you mean and what you currently use.
+
+I'm talking about a setup with the kernel residing in its own process.
+On iret it would have to change ownership of the socket to another task,
+i.e. process with kernel_pid wants to set task_pid as the owner of the
+socket. The above code fragment doesn't permit this, as far as I can see.
+What it does permit is the incoming task setting itself to the socket
+owner, but that requires that the incoming task always runs a trampoline
+first which accomplishes that.
+
+-Udo.

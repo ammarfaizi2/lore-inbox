@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265726AbUADQdP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 11:33:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265734AbUADQdP
+	id S265751AbUADQfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 11:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265752AbUADQfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 11:33:15 -0500
-Received: from [130.57.169.10] ([130.57.169.10]:42168 "EHLO peabody.ximian.com")
-	by vger.kernel.org with ESMTP id S265726AbUADQdO (ORCPT
+	Sun, 4 Jan 2004 11:35:16 -0500
+Received: from luli.rootdir.de ([213.133.108.222]:19359 "EHLO luli.rootdir.de")
+	by vger.kernel.org with ESMTP id S265751AbUADQfI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 11:33:14 -0500
-Subject: Re: Pentium M config option for 2.6
-From: Rob Love <rml@ximian.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, szepe@pinerecords.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040104162516.GB31585@redhat.com>
-References: <200401041227.i04CReNI004912@harpo.it.uu.se>
-	 <1073228608.2717.39.camel@fur>  <20040104162516.GB31585@redhat.com>
-Content-Type: text/plain
-Message-Id: <1073233988.5225.9.camel@fur>
+	Sun, 4 Jan 2004 11:35:08 -0500
+X-Qmail-Scanner-Mail-From: claas@rootdir.de via luli
+X-Qmail-Scanner: 1.20 (Clear:RC:1(217.186.136.12):SA:0(-4.4/5.0):. Processed in 0.207289 secs)
+Date: Sun, 4 Jan 2004 17:35:07 +0100
+From: Claas Langbehn <claas@rootdir.de>
+To: =?iso-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0: atyfb broken
+Message-ID: <20040104163507.GA1643@rootdir.de>
+References: <20040104005246.GA2153@rootdir.de> <Pine.LNX.4.44.0401041040480.28807-402000@deadlock.et.tudelft.nl> <20040104110941.GA983@rootdir.de> <20040104121019.GB1073@rootdir.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Sun, 04 Jan 2004 11:33:08 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040104121019.GB1073@rootdir.de>
+Reply-By: Wed Jan  7 17:14:06 CET 2004
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.1-rc1 i686
+X-No-archive: yes
+X-Uptime: 17:14:06 up  6:05,  8 users,  load average: 0.00, 0.00, 0.00
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-01-04 at 11:25, Dave Jones wrote:
+Hello Daniël,
 
-> Regardless, Tomas's patch changed CONFIG_X86_L1_CACHE_SHIFT for
-> that CPU, and CONFIG_X86_L1_CACHE_SHIFT shouldn't affect this.
-> The cacheline size is determined at boottime using the code in
-> pcibios_init() and set using pci_generic_prep_mwi().
-> 
-> The config option is the default that pci_cache_line_size starts at,
-> but this gets overridden when the CPU type is determined.
 
-Yah.  I was just answering in the abstract to the "does cache line
-matter on non-SMP" question.
+(the follwing is made with 2.4.23:)
 
-I actually like this patch (perhaps since I have a P-M :) and think it
-ought to go in, although I agree with others that the P-M is more of a
-super-P3 than a scaled down P4.
+at first I want to thank you again for helping me to debug this bug.
+After you left irc, i continued to debug, with the following results:
 
-	Rob Love
+First, I need to enable CONFIG_FB_ATY_GENERIC_LCD. But I dont need 
+to patch it. around the hack for Geerts notebook.
+
+Second, I need to enable "Video Expansion" in system bios.
+(At lower resolutions, video is expanded to cover the entire LCD)
+
+If I dont enable Video Expansion, the 640x480-60 and 800x600-60
+resolutions are broken. Repairing by pressing Fn-F5 is possible,
+though. In that case booting with video=atyfb:1024x768-8@60 helped
+to get at least that resolution working.
+
+Have a look at my debugging logs 10.log - 16.log at
+http://www.rootdir.de/files/atyfb/. 
+
+
+regards, claas
 
 

@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267687AbTASSae>; Sun, 19 Jan 2003 13:30:34 -0500
+	id <S262500AbTASSrZ>; Sun, 19 Jan 2003 13:47:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267688AbTASSae>; Sun, 19 Jan 2003 13:30:34 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:35822 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S267687AbTASSad>; Sun, 19 Jan 2003 13:30:33 -0500
-Date: Sun, 19 Jan 2003 11:39:02 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Larry McVoy <lm@bitmover.com>, Jamie Lokier <jamie@shareable.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Is the BitKeeper network protocol documented?
-Message-ID: <20030119113902.D1594@schatzie.adilger.int>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Larry McVoy <lm@bitmover.com>, Jamie Lokier <jamie@shareable.org>,
-	linux-kernel@vger.kernel.org
-References: <20030118043309.GA18658@bjl1.asuk.net> <20030118052919.GA22751@work.bitmover.com> <3E296342.B3042E09@linux-m68k.org>
+	id <S264010AbTASSrZ>; Sun, 19 Jan 2003 13:47:25 -0500
+Received: from [216.38.156.94] ([216.38.156.94]:38927 "EHLO
+	mail.networkfab.com") by vger.kernel.org with ESMTP
+	id <S262500AbTASSrX>; Sun, 19 Jan 2003 13:47:23 -0500
+Subject: Re: A Flightening and Strange experience compiling 2.5.58
+From: Dmitri <dmitri@users.sourceforge.net>
+To: Sampson Fung <sampson@attglobal.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000001c2bfe9$28bf8340$febca8c0@noelpc>
+References: <000001c2bfe9$28bf8340$febca8c0@noelpc>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-1+JLqY5vS23ZiTAuZ6hD"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Jan 2003 10:55:43 -0800
+Message-Id: <1043002544.1982.564.camel@usb.networkfab.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E296342.B3042E09@linux-m68k.org>; from zippel@linux-m68k.org on Sat, Jan 18, 2003 at 03:22:58PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 18, 2003  15:22 +0100, Roman Zippel wrote:
-> Larry McVoy wrote:
-> > I guess I don't know how to help you.  As far as I can tell, if Linus
-> > wasn't using BK he'd still be doing what he was doing up until he started
-> > using BK which means you wouldn't have the option of the up to date
-> > snapshots you can currently get.
-> 
-> IOW "You should be thankful for what I offer, if you don't like it, piss
-> off!"  Might not be what you've intended, but that's what I arrived here and
-> I'm sure I'm not the only one.
 
-That's what he intended, and rightfully so.  You now have things you didn't
-have before (i.e. hourly snapshots of Linus' tree) and you still aren't
-happy.  I guess some people will never be happy with anything, so there is
-no point in trying to appease them.
+--=-1+JLqY5vS23ZiTAuZ6hD
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+On Sun, 2003-01-19 at 10:32, Sampson Fung wrote:
+
+> Does anyone has similar problems?  That is:  H/W POST do not start after
+> machine hangs.
+
+Sure. I have one m/b here that:
+
+a) enters POST only if the planets are in favorable position
+b) once running, it sometimes stops unpredictably; then goto a;
+
+I suspect a crack in the m/b, since the RAM was tested in other boxes
+and appears to be fine. I already retired this m/b, and it is on its way
+to the trash.
+
+Messages that you saw are probably related to some hardware that went
+belly up while the box was running, and the code mistook the hardware
+failure for some valid condition that only asked for a reset.
+
+Generally, if the box does not enter POST after hard reset then the m/b
+or other major components such as RAM or CPU are broken. This is by
+definition, because RESET is supposed to reinit all the h/w, and any
+memory of the past is not supposed to be there.
+
+Dmitri
+
+
+--=-1+JLqY5vS23ZiTAuZ6hD
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+KvSviqqasvm69/IRApVzAKCfCV+IKcKVT2+wr5KbZSrVjQiU2QCfaIB8
+5PGNXKQOgVokmPmU+uhvdsc=
+=BEcI
+-----END PGP SIGNATURE-----
+
+--=-1+JLqY5vS23ZiTAuZ6hD--
 

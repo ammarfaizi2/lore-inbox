@@ -1,56 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264834AbUD1Pnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264835AbUD1Pok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264834AbUD1Pnj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 11:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264840AbUD1Pnj
+	id S264835AbUD1Pok (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 11:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264839AbUD1Pok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 11:43:39 -0400
-Received: from mail.skule.net ([216.235.14.165]:34730 "EHLO mail.skule.net")
-	by vger.kernel.org with ESMTP id S264834AbUD1Pnh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 11:43:37 -0400
-Date: Wed, 28 Apr 2004 11:43:37 -0400
-From: Mark Frazer <mark@mjfrazer.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: root cause of VFS: Cannot open root device "LABEL=/" or unknown-block(0,0)
-Message-ID: <20040428154337.GC26897@mjfrazer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Outlook not so good.
-Organization: Detectable, well, not really
-X-Bender: Want me to smack the corpse around a little?
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 28 Apr 2004 11:44:40 -0400
+Received: from omr-m12.mx.aol.com ([64.12.136.10]:49394 "EHLO
+	omr-m12.mx.aol.com") by vger.kernel.org with ESMTP id S264835AbUD1Pog
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 11:44:36 -0400
+Date: Wed, 28 Apr 2004 11:44:13 -0400 (EDT)
+From: Mail Delivery Subsystem <MAILER-DAEMON@aol.com>
+Message-Id: <200404281544.LAL01350@rly-yi02.mx.aol.com>
+To: <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="LAL01350.1083167053/rly-yi02.mx.aol.com"
+Subject: Returned mail: User unknown
+Auto-Submitted: auto-generated (failure)
+X-AOL-IP: 172.18.180.130
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'make install' on the Fedora systems will set grub up to use an initrd.
-If you do this with a Linus 2.6 kernel, you will often see this error
-when trying to use the initrd:
+This is a MIME-encapsulated message
 
-VFS: Cannot open root device "LABEL=/" or unknown-block(0,0)
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)
+--LAL01350.1083167053/rly-yi02.mx.aol.com
 
-The most common advice given is to change your grub entry to something
-like root=/dev/hda2.
+The original message was received at Wed, 28 Apr 2004 11:43:53 -0400 (EDT)
+from  [200.21.67.66]
 
-What most of the other posts on this topic don't include is the
-preceeding messages:
-kernel: checking if image is initramfs...it isn't (no cpio magic); looks like an initrd
-kernel: Freeing initrd memory: 98k freed
-kernel: RAMDISK: Compressed image found at block 0
-kernel: RAMDISK: incomplete write (-28 != 32768) 4194304
 
-The root of the problem is that the default ramdisk size of 4096 is not
-big enough for the initrd used on Fedora.  I presume the same problem
-exists on other systems.
+*** ATTENTION ***
 
-Perhaps the default ramdisk size (CONFIG_BLK_DEV_RAM_SIZE) on the linus
-kernels could be increased to 8192.
+Your e-mail is being returned to you because there was a problem with its
+delivery.  The address which was undeliverable is listed in the section
+labeled: "----- The following addresses had permanent fatal errors -----".
 
-cheers
--mark
--- 
-Drugs are for losers. And hypnosis is for losers with big weird
-eyebrows. - Fry
+The reason your mail is being returned to you is listed in the section
+labeled: "----- Transcript of Session Follows -----".
+
+The line beginning with "<<<" describes the specific reason your e-mail could
+not be delivered.  The next line contains a second error message which is a
+general translation for other e-mail servers.
+
+Please direct further questions regarding this message to your e-mail
+administrator.
+
+--AOL Postmaster
+
+
+
+   ----- The following addresses had permanent fatal errors -----
+<vjorsin@aol.com>
+
+   ----- Transcript of session follows -----
+... while talking to air-yi01.mail.aol.com.:
+>>> RCPT To:<vjorsin@aol.com>
+<<< 550 MAILBOX NOT FOUND
+550 <vjorsin@aol.com>... User unknown
+
+--LAL01350.1083167053/rly-yi02.mx.aol.com
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; rly-yi02.mx.aol.com
+Arrival-Date: Wed, 28 Apr 2004 11:43:53 -0400 (EDT)
+
+Final-Recipient: RFC822; vjorsin@aol.com
+Action: failed
+Status: 5.1.1
+Remote-MTA: DNS; air-yi01.mail.aol.com
+Diagnostic-Code: SMTP; 550 MAILBOX NOT FOUND
+Last-Attempt-Date: Wed, 28 Apr 2004 11:44:13 -0400 (EDT)
+
+--LAL01350.1083167053/rly-yi02.mx.aol.com
+Content-Type: text/rfc822-headers
+
+Received: from  aol.com ([200.21.67.66]) by rly-yi02.mx.aol.com (v98.5) with ESMTP id MAILRELAYINYI210-7b8408fd134a5; Wed, 28 Apr 2004 11:43:49 -0500
+From: linux-kernel@vger.kernel.org
+To: vjorsin@aol.com
+Subject: Important
+Date: Wed, 28 Apr 2004 10:43:39 -0500
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0008_000072DF.00006D32"
+X-Priority: 1
+X-MSMail-Priority: High
+X-AOL-IP: 200.21.67.66
+X-AOL-SCOLL-SCORE: 0:XXX:XX
+X-AOL-SCOLL-URL_COUNT: 0
+Message-ID: <200404281143.7b8408fd134a5@rly-yi02.mx.aol.com>
+
+--LAL01350.1083167053/rly-yi02.mx.aol.com--
+

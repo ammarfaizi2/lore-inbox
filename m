@@ -1,157 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbUB2HUa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 02:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUB2HUa
+	id S261999AbUB2HYP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 02:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUB2HYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 02:20:30 -0500
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:43428 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261998AbUB2HUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 02:20:25 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 3/9] synaptics strict/relaxed protocol checks
-Date: Sun, 29 Feb 2004 01:56:51 -0500
-User-Agent: KMail/1.6
-Cc: linux-kernel@vger.kernel.org
-References: <200402290153.08798.dtor_core@ameritech.net> <200402290155.04825.dtor_core@ameritech.net> <200402290155.46360.dtor_core@ameritech.net>
-In-Reply-To: <200402290155.46360.dtor_core@ameritech.net>
+	Sun, 29 Feb 2004 02:24:15 -0500
+Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:28332
+	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S261999AbUB2HYL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 02:24:11 -0500
+Message-ID: <4041504A.60604@rogers.com>
+Date: Sun, 29 Feb 2004 02:36:58 +0000
+From: Stephen Pearce <s-pearce@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: PS/2 Mouse Craziness with 2.6.x
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402290156.53325.dtor_core@ameritech.net>
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep01-mail.bloor.is.net.cable.rogers.com from [24.114.66.128] using ID <s-pearce@rogers.com> at Sun, 29 Feb 2004 02:24:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have had no end of problems with psmouse and my Logitech M-BJ58 PS/2 
+3-button optical wheel mouse under 2.6.  Most recently with 2.6.2 it 
+just wouldn't work at all, despite being detected.  With 2.6.3 the mouse 
+will go all crazy after the first boot (both in console with GPM and 
+under X), but work fine on the 2nd or later boot.  I get this common 
+complaint when it's not working right:
+"kernel: psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, 
+throwing 2 bytes away."
 
-===================================================================
+Here's some information on my setup:
+
+dmesg:
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
+
+/proc/bus/input/devices:
+I: Bus=0011 Vendor=0002 Product=0006 Version=0000
+N: Name="ImExPS/2 Generic Explorer Mouse"
+P: Phys=isa0060/serio1/input0
+H: Handlers=mouse0
+B: EV=7
+B: KEY=1f0000 0 0 0 0 0 0 0 0
+B: REL=103
+
+/etc/X11/XF86Config-4:
+Section "InputDevice"
+Identifier  "Mouse0"
+Driver      "mouse"
+Option      "Protocol" "imps/2"
+Option      "Device" "/dev/mouse"
+Option      "ZAxisMapping" "4 5"
+Option      "Buttons" "3"
+EndSection
+
+kernel config:
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+
+GPM:
+/usr/sbin/gpm -m /dev/mouse -t imps2
+(/dev/mouse points to /dev/psaux)
+
+My system is a 1 GHz PIII (Coppermine) on an Asus TUSLC-2 (i815) board 
+running Slackware 9.1 with ACPI enabled.  I've tried passing 
+"psmouse.proto=imps" to the kernel and the behaviour is the same.  I've 
+never had any problems with this mouse under any 2.4 kernel, so I 
+believe this to be an issue with the new PS/2 mouse support in 2.6 and 
+not a hardware problem.
 
 
-ChangeSet@1.1687, 2004-02-27 23:44:17-05:00, dtor_core@ameritech.net
-  Input: Switch between strict/relaxed synaptics protocol checks based on
-         data in the first full data packet. Having strict checks helps
-         getting rid of bad data after loosing sync, but not all harware
-         implements strict protocol.
+-Stephen Pearce
 
-
- synaptics.c |   53 +++++++++++++++++++++++++++++++++++++++++------------
- synaptics.h |    7 +++++++
- 2 files changed, 48 insertions(+), 12 deletions(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
---- a/drivers/input/mouse/synaptics.c	Sun Feb 29 01:16:28 2004
-+++ b/drivers/input/mouse/synaptics.c	Sun Feb 29 01:16:28 2004
-@@ -435,6 +435,8 @@
- 		goto init_fail;
- 	}
- 
-+	priv->pkt_type = SYN_MODEL_NEWABS(priv->model_id) ? SYN_NEWABS : SYN_OLDABS;
-+
- 	if (SYN_CAP_EXTENDED(priv->capabilities) && SYN_CAP_PASS_THROUGH(priv->capabilities))
-        		synaptics_pt_create(psmouse);
- 
-@@ -602,19 +604,42 @@
- 	input_sync(dev);
- }
- 
--static int synaptics_validate_byte(struct psmouse *psmouse)
-+static int synaptics_validate_byte(unsigned char packet[], int idx, unsigned char pkt_type)
- {
--	static unsigned char newabs_mask[] = { 0xC0, 0x00, 0x00, 0xC0, 0x00 };
--	static unsigned char newabs_rslt[] = { 0x80, 0x00, 0x00, 0xC0, 0x00 };
--	static unsigned char oldabs_mask[] = { 0xC0, 0x60, 0x00, 0xC0, 0x60 };
--	static unsigned char oldabs_rslt[] = { 0xC0, 0x00, 0x00, 0x80, 0x00 };
--	struct synaptics_data *priv = psmouse->private;
--	int idx = psmouse->pktcnt - 1;
-+	static unsigned char newabs_mask[]	= { 0xC8, 0x00, 0x00, 0xC8, 0x00 };
-+	static unsigned char newabs_rel_mask[]	= { 0xC0, 0x00, 0x00, 0xC0, 0x00 };
-+	static unsigned char newabs_rslt[]	= { 0x80, 0x00, 0x00, 0xC0, 0x00 };
-+	static unsigned char oldabs_mask[]	= { 0xC0, 0x60, 0x00, 0xC0, 0x60 };
-+	static unsigned char oldabs_rslt[]	= { 0xC0, 0x00, 0x00, 0x80, 0x00 };
-+
-+	switch (pkt_type) {
-+		case SYN_NEWABS:
-+		case SYN_NEWABS_RELAXED:
-+			return (packet[idx] & newabs_rel_mask[idx]) == newabs_rslt[idx];
-+
-+		case SYN_NEWABS_STRICT:
-+			return (packet[idx] & newabs_mask[idx]) == newabs_rslt[idx];
-+
-+		case SYN_OLDABS:
-+			return (packet[idx] & oldabs_mask[idx]) == oldabs_rslt[idx];
- 
--	if (SYN_MODEL_NEWABS(priv->model_id))
--		return (psmouse->packet[idx] & newabs_mask[idx]) == newabs_rslt[idx];
--	else
--		return (psmouse->packet[idx] & oldabs_mask[idx]) == oldabs_rslt[idx];
-+		default:
-+			printk(KERN_ERR "synaptics: unknown packet type %d\n", pkt_type);
-+			return 0;
-+	}
-+}
-+
-+static unsigned char synaptics_detect_pkt_type(struct psmouse *psmouse)
-+{
-+	int i;
-+
-+	for (i = 0; i < 5; i++)
-+		if (!synaptics_validate_byte(psmouse->packet, i, SYN_NEWABS_STRICT)) {
-+			printk(KERN_INFO "synaptics: using relaxed packet validation\n");
-+			return SYN_NEWABS_RELAXED;
-+		}
-+
-+	return SYN_NEWABS_STRICT;
- }
- 
- void synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
-@@ -630,13 +655,17 @@
- 			printk(KERN_NOTICE "Synaptics driver resynced.\n");
- 		}
- 
-+		if (unlikely(priv->pkt_type == SYN_NEWABS))
-+			priv->pkt_type = synaptics_detect_pkt_type(psmouse);
-+
- 		if (psmouse->ptport && psmouse->ptport->serio.dev && synaptics_is_pt_packet(psmouse->packet))
- 			synaptics_pass_pt_packet(&psmouse->ptport->serio, psmouse->packet);
- 		else
- 			synaptics_process_packet(psmouse);
- 		psmouse->pktcnt = 0;
- 
--	} else if (psmouse->pktcnt && !synaptics_validate_byte(psmouse)) {
-+	} else if (psmouse->pktcnt &&
-+		   !synaptics_validate_byte(psmouse->packet, psmouse->pktcnt - 1, priv->pkt_type)) {
- 		printk(KERN_WARNING "Synaptics driver lost sync at byte %d\n", psmouse->pktcnt);
- 		psmouse->pktcnt = 0;
- 		if (++priv->out_of_sync == psmouse_resetafter) {
-diff -Nru a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
---- a/drivers/input/mouse/synaptics.h	Sun Feb 29 01:16:28 2004
-+++ b/drivers/input/mouse/synaptics.h	Sun Feb 29 01:16:28 2004
-@@ -70,6 +70,12 @@
- #define SYN_PS_SET_MODE2		0x14
- #define SYN_PS_CLIENT_CMD		0x28
- 
-+/* synaptics packet types */
-+#define SYN_NEWABS			0
-+#define SYN_NEWABS_STRICT		1
-+#define SYN_NEWABS_RELAXED		2
-+#define SYN_OLDABS			3
-+
- /*
-  * A structure to describe the state of the touchpad hardware (buttons and pad)
-  */
-@@ -103,6 +109,7 @@
- 	/* Data for normal processing */
- 	unsigned int out_of_sync;		/* # of packets out of sync */
- 	int old_w;				/* Previous w value */
-+	unsigned char pkt_type;			/* packet type - old, new, etc */
- };
- 
- #endif /* _SYNAPTICS_H */

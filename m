@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289762AbSAWKTx>; Wed, 23 Jan 2002 05:19:53 -0500
+	id <S289769AbSAWKUG>; Wed, 23 Jan 2002 05:20:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289772AbSAWKTo>; Wed, 23 Jan 2002 05:19:44 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:50305 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S289768AbSAWKTb>;
-	Wed, 23 Jan 2002 05:19:31 -0500
-Date: Wed, 23 Jan 2002 02:18:19 -0800 (PST)
-Message-Id: <20020123.021819.21955581.davem@redhat.com>
-To: drobbins@gentoo.org
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de, alan@redhat.com,
-        akpm@zip.com.au, vherva@niksula.hut.fi, lwn@lwn.net
-Subject: Re: Athlon/AGP issue update
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1011779573.9368.40.camel@inventor.gentoo.org>
-In-Reply-To: <1011779573.9368.40.camel@inventor.gentoo.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S289772AbSAWKTy>; Wed, 23 Jan 2002 05:19:54 -0500
+Received: from danielle.hinet.hr ([195.29.148.143]:43926 "EHLO
+	danielle.hinet.hr") by vger.kernel.org with ESMTP
+	id <S289769AbSAWKTg>; Wed, 23 Jan 2002 05:19:36 -0500
+Date: Wed, 23 Jan 2002 11:19:34 +0100
+From: Mario Mikocevic <mozgy@hinet.hr>
+To: linux-kernel@vger.kernel.org
+Subject: i810 TCO ?!
+Message-ID: <20020123111934.C9441@danielle.hinet.hr>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-This means that the fix belongs in the DRM drivers, specifically
-DRM(mmap_dma) should clear the cacheability bits in the
-vma->vm_page_prot at mmap time.
+I would like to use i810 watchdog module (i810-tco).
 
-I always thought the idea was that the AGP device accessed main memory
-through GART with full cache coherency with the processor.  This
-should be pretty easy to implement since the PCI controller has to do
-this already.
+Upon modprobing I get ->
 
-I'm really surprised that both the NVIDIA driver and DRM both get this
-wrong.
+kernel: i810 TCO timer: failed to reset NO_REBOOT flag, reboot disabled by hardware
 
-Actually, the AMD guys say this:
+what should I do now ?
 
-	This situation is fundamentally illegal because GART is non-coherent and
-	all translations that the processor could use to access the AGP memory
-	must, therefore, be non-cacheable.  Although we have seen no intentional
-	access to the AGP memory by the processor via the 4MB cacheable
-	translation we have seen legitimate, speculative, accesses performed by
-	the processor.
+ - add some options to insmod ?
+ - change some option in BIOS (I can't pinpoint any)
+ - change some jumper onboard ?
+ - apply some patch ?
 
-"access by the processor" to the 4MB cacheable translation or
-somewhere else?  This needs clarification.
 
-Disabling 4MB translations has zero effect on the problem they say is
-the root all of this.  The mappings given to the OpenGL driver to the
-GART memory is still going to be cacheable, thus the problem ought to
-still exist.
+driver is 0.03 posted on this list in Oct last year.
+Kernel is latest 2.4.x (currently 18-pre4).
 
-As usual, AMD's commentary brings more questions than it answers.
+lspci ->
+
+# lspci
+00:00.0 Host bridge: Intel Corporation 82815 815 Chipset Host Bridge and Memory Controller Hub (rev 02)
+00:02.0 VGA compatible controller: Intel Corporation 82815 CGC [Chipset Graphics Controller]  (rev 02)
+00:1e.0 PCI bridge: Intel Corporation 82801BAM PCI (rev 02)
+00:1f.0 ISA bridge: Intel Corporation 82801BA ISA Bridge (ICH2) (rev 02)
+00:1f.1 IDE interface: Intel Corporation 82801BA IDE U100 (rev 02)
+00:1f.2 USB Controller: Intel Corporation 82801BA(M) USB (Hub A) (rev 02)
+00:1f.3 SMBus: Intel Corporation 82801BA(M) SMBus (rev 02)
+00:1f.4 USB Controller: Intel Corporation 82801BA(M) USB (Hub B) (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corporation 82801BA(M) AC'97 Audio (rev 02)
+01:08.0 Ethernet controller: Intel Corporation 82801BA(M) Ethernet (rev 01)
+
+any other information available on request,
+
+
+TIA,
+
+-- 
+Mario Mikoèeviæ (Mozgy)
+mozgy at hinet dot hr
+My favourite FUBAR ...

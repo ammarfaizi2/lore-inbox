@@ -1,84 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262468AbTJIVWc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 17:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTJIVWc
+	id S262594AbTJIV1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 17:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTJIV1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 17:22:32 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17662 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262468AbTJIVW3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 17:22:29 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Howard Duck" <h.t.d@gmx.net>
-Subject: Re: kernel 2.6.0betaX: ich5 sata enhanced mode hangs during init
-Date: Thu, 9 Oct 2003 23:26:08 +0200
-User-Agent: KMail/1.5.4
-References: <22605.1065733565@www40.gmx.net>
-In-Reply-To: <22605.1065733565@www40.gmx.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 9 Oct 2003 17:27:46 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:5807 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S262594AbTJIV1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 17:27:15 -0400
+Subject: Re: [Fastboot] kexec update (2.6.0-test7)
+From: Steven Cole <elenstev@mesatop.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Cherry George Mathew <cherry@sdf.lonestar.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, fastboot@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>, Hans Reiser <reiser@namesys.com>
+In-Reply-To: <m1y8vufe5l.fsf@ebiederm.dsl.xmission.com>
+References: <20031008172235.70d6b794.rddunlap@osdl.org>
+	 <Pine.NEB.4.58.0310090401310.17767@sdf.lonestar.org>
+	 <m1y8vufe5l.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1065734288.1658.35.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 09 Oct 2003 15:18:08 -0600
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310092326.08362.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-10-09 at 12:40, Eric W. Biederman wrote:
+> Cherry George Mathew <cherry@sdf.lonestar.org> writes:
+> 
+> > On Wed, 8 Oct 2003, Randy.Dunlap wrote:
+> > 
+> > > You'll need to update the kexec-syscall.c file for the correct
+> > > kexec syscall number (274).
+> > 
+> > Is there a consensus about what the syscall number will finally be ? We've
+> > jumped from 256 to 274 over the 2.5.x+  series kernels. Or is it the law
+> > the Jungle ?
+> 
+> So far the law of the jungle.  Regardless of the rest it looks like it
+> is time to submit a place keeping patch.
+> 
+> Eric
+> -
 
-You are using drivers/ide, right?
-Please also test 2.5.75 and snapshot kernels
-http://www.kernel.org/pub/linux/kernel/v2.5/snapshots/old/
+And if Linus takes that patch, Hans should do the same for __NR_reiser4
+for the same reason.
 
-thanks,
---bartlomiej
-
-On Thursday 09 of October 2003 23:06, Howard Duck wrote:
-> Hi
->
-> I have a Mainboard with a intel 865PE chipset. I tested many kernels to get
-> my
-> Serial-ATA (sata) disk to work in enhanced mode and so far only one kernel
-> works - 2.5.74. I need the enhanced mode because I lose all secondary ide
-> ports if i switch to legacy/compatible mode in the mainboards bios (which
-> disables some of my drives).
->
-> Since the first beta of kernel 2.6.0 i had no luck in successfully booting
-> the
-> machine unless i switched to SATA legacy mode. All 2.6.0beta-kernels make
-> it
->
-> to the init sequence and detect the sata disk, but the system hangs at
-> random
-> postions during init (starting devfsd, mounting swap or setting the
-> machines
->
-> hostname, well - somewhere during startup).
->
-> I tried removing swap from /etc/fstab and disabling some init-scripts but
-> it
->
-> doesn't help. Booting in "single" mode does not work too. The only thing
-> that
-> works is using legacy sata support, so i guess it is related to some new
-> code for
-> handling serial ata controllers/disks (the machine boots off a sata disk)
-> in the
-> 2.6.0beta kernels. 2.5.74 boots and works w/o problems, but i'd feel better
-> if i
-> run a kernel marked "stable" ;)
->
-> Is there something i can do to trace the problem of the hang during boot,
-> maybe
-> some special kernel options, new user-space tools,...? Is this maybe
-> related to
-> SMP support or hyperthreading cpus?
->
-> I am open for any hints or test-procedures that may help to fix or find the
-> problem.
-> thanks in advance
->  Michael Kefeder
->
-> p.s.: i'm not subscribed to the lkml, please put me on CC when answering
+Steven
 

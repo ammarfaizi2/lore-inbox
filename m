@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbUJ1OSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbUJ1OS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbUJ1OSt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 10:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUJ1OSt
+	id S261427AbUJ1OS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 10:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUJ1OSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 10:18:49 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:40877 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261281AbUJ1ONX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 10:13:23 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Colin Leroy <colin@colino.net>
-Subject: Re: [linux-usb-devel] 2.6.10-rc1 OHCI usb error messages
-Date: Thu, 28 Oct 2004 07:10:22 -0700
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-References: <20041026172843.6ac07c1a.colin@colino.net> <200410271559.37540.david-b@pacbell.net> <20041028110731.74ac5eb5.colin@colino.net>
-In-Reply-To: <20041028110731.74ac5eb5.colin@colino.net>
+	Thu, 28 Oct 2004 10:18:25 -0400
+Received: from mail4.utc.com ([192.249.46.193]:9633 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S261319AbUJ1OOd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 10:14:33 -0400
+Message-ID: <4180FEBB.5020802@cybsft.com>
+Date: Thu, 28 Oct 2004 09:14:19 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041027130359.GA6203@elte.hu>
+In-Reply-To: <20041027130359.GA6203@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410280710.22564.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 02:07, Colin Leroy wrote:
-> On 27 Oct 2004 at 15h10, David Brownell wrote:
+Ingo Molnar wrote:
+> i have released the -V0.4 Real-Time Preemption patch, which can be
+> downloaded from:
 > 
-> > So:  since it's not being actively used then, why shouldn't the
-> > root hub (or any other device) be suspended?  During boot, or at
-> > any other time.  So long as it works when you plug in a USB device,
-> > it looks to me like everything is behaving quite reasonably.
+>    http://redhat.com/~mingo/realtime-preempt/
 > 
-> That's right. Just that it didn't do so previously, so i didn't think 
-> of that.
 
-You won't be alone either ... so I'll be glad to get
-rid of those pointless usbcore "non-error" messages!
+I have been having problems on my UP system at home with all of the more 
+recent patches (since U10.X). Some would boot and then the networking 
+was severely busted (slowdowns, hangs, etc.), some would not even boot. 
+V0.4.3 was of the no boot variety. Just for grins I disabled kudzu, and 
+the thing boots fine with no networking or other problems. This very 
+well may have been a fluke, but I have successfully booted this kernel 
+twice now. It did hang on a reboot at the point when it should have been 
+doing the actual reboot and I had to press the button. I didn't have 
+time this morning to turn kudzu back on to see if was just a fluke that 
+it didn't boot the first time. Not sure what, if anything, this means, 
+but V0.4.3 is running very nicely on my UP system with no lag or 
+noticeable problems.
 
-
-> > So if something's timing out, it's for some other reason.
-> > (Such as bugs in "lsusb"; the "usbutils" package is overdue
-> > for a new release, it's changed a lot since the 0.11 tarball
-> > that's widely available.)
-> 
-> Yes, btw, I once sent a patch about lsusb endianness problems, and didn't
-> hear anything back about it. I ended up sending the patch to the gentoo
-> guys so that at least my distro is fixed:
-
-Thomas put "usbutils" into CVS at linux-usb.sf.net and
-that version has the Debian patches to make it use the
-system's "libusb" instead of its own older snapshot.
-Plus bugfixes, and printing more descriptors.
-
-It looks like libusb-0.1.8 still expects the kernel to
-return a little-endian device descriptor rather than
-its private byteswapped version.
-
-- Dave
+kr

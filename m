@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVDDXPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVDDXOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbVDDXPu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 19:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVDDXPl
+	id S261497AbVDDXOP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 19:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVDDXLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 19:15:41 -0400
-Received: from fire.osdl.org ([65.172.181.4]:33189 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261477AbVDDXM0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 19:12:26 -0400
-Message-ID: <4251C9A5.3020704@osdl.org>
-Date: Mon, 04 Apr 2005 16:11:33 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: ioe-lkml@axxeo.de, matthew@wil.cx, lkml <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com, hadi@cyberus.ca, cfriesen@nortel.com, tgraf@suug.ch
-Subject: Re: [PATCH] network configs: disconnect network options from drivers
-References: <20050330234709.1868eee5.randy.dunlap@verizon.net> <20050331185226.GA8146@mars.ravnborg.org> <424C5745.7020501@osdl.org> <20050331203010.GA8034@mars.ravnborg.org> <4250B4C5.2000200@osdl.org> <20050404195051.GA12364@mars.ravnborg.org> <4251A830.5030905@osdl.org> <20050404215554.GA29170@mars.ravnborg.org>
-In-Reply-To: <20050404215554.GA29170@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Apr 2005 19:11:52 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:42648 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261465AbVDDXGQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 19:06:16 -0400
+Date: Tue, 5 Apr 2005 01:05:43 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       B.Zolnierkiewicz@elka.pw.edu.pl, rusty@rustcorp.com.au
+Subject: Re: [patch 2/3] hd eliminate bad section references
+Message-ID: <20050404230543.GA14823@sputnik.stro.at>
+References: <20050404181102.GB12394@sputnik.stro.at> <4251BBC5.8000802@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4251BBC5.8000802@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> 
->>>- Move submenu to the top
->>>- Rename top menu to "Networking" and located it just before
->>>"File systems"
->>
->>I still prefer Networking to come before Device Drivers FWIW.
->>Just makes some kind of hierarchical sense to me.
-> 
-> Moved up as suggested.
-> 
-> 
->>I propose that the new file net/atm/Kconfig be sourced somewhere.
-> 
-> Thanks, I have missed that one - added just before wanrouter.
->  
-> 
->>I'll look at it more to see if I have any other comments.
-> 
-> OK. I will await and post an updated patch if you do not beat me.
+On Mon, 04 Apr 2005, Randy.Dunlap wrote:
 
-Sam,
-Here are a few more suggestions for you to consider.
+> >-static int parse_hd_setup (char *line) {
+> >+static int __init parse_hd_setup (char *line) {
+.. 
+> This one is fairly interesting and needs some resolution by someone
+> who knows....
 
-- in Networking support, move Network testing and Netpoll
-support to the end of the menu (basically put the devel.
-tools toward the bottom of the menu)
+thanks a lot for your quick and profund feedback.
+ 
+> On the surface, the patch is correct.
+> 
+> Rusty, can you explain when __setup functions are called relative
+> to in-kernel init functions?  or put another way, can a __setup
+> function safely call in __init function?
+> 
+> Here's the function in question:
+> 
+> static int parse_hd_setup (char *line) {
+> 	int ints[6];
+> 
+> 	(void) get_options(line, ARRAY_SIZE(ints), ints);
+> 	hd_setup(NULL, ints);
+> 
+> 	return 1;
+> }
+> __setup("hd=", parse_hd_setup);
+> 
+> 
+> 
+> Should we make parse_hd_setup() __init,
+> or make hd_setup() non-__init, or something else?
+> 
+> {time passes, he looks]
+> 
+> OK, I looked at include/linux/init.h.  From what I can see
+> there, __setup() causes an .init.setup section to be emitted,
+> so marking __setup() function as __init would make sense.
+> I think that this patch is good.
 
-- I would rather not "hide" Amateur Radio, IrDA, and
-Bluetooth in the Networking protocols area, but have them
-near 802.1x and ATM in the top-level Networking support
-menu.  How does that sound to you?
+i saw that ide_setup() is __init as a bunch of lots others.
+yes init.h confirms that. :)
 
-Thanks.
+--
+maks
+kernel janitor  	http://janitor.kernelnewbies.org/
 
--- 
-~Randy

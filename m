@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263986AbSJJUgx>; Thu, 10 Oct 2002 16:36:53 -0400
+	id <S263997AbSJJUm5>; Thu, 10 Oct 2002 16:42:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263989AbSJJUgw>; Thu, 10 Oct 2002 16:36:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20240 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263987AbSJJUgu>;
-	Thu, 10 Oct 2002 16:36:50 -0400
-Date: Thu, 10 Oct 2002 21:42:33 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org
-Subject: RFC: No more deadlock detection for POSIX locks
-Message-ID: <20021010214233.G18545@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S263998AbSJJUm5>; Thu, 10 Oct 2002 16:42:57 -0400
+Received: from ns.suse.de ([213.95.15.193]:56837 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S263997AbSJJUm4>;
+	Thu, 10 Oct 2002 16:42:56 -0400
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] EVMS core (3/9) discover.c
+References: <02101014305502.17770@boiler.suse.lists.linux.kernel> <02101014352905.17770@boiler.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 10 Oct 2002 22:48:42 +0200
+In-Reply-To: Kevin Corry's message of "10 Oct 2002 22:20:58 +0200"
+Message-ID: <p73n0pmow9h.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kevin Corry <corryk@us.ibm.com> writes:
 
-The deadlock detection for posix locks really isn't worth anything
-any more.  It was always slightly dubious, since a parent/child could
-remove each other's locks (thanks, POSIX!).  But now it's really dubious
-since we store the TID, not the PID of the requesting process, and any
-thread can unlock a lock set by another thread.
+> +	list_for_each_entry(plugin, &plugin_head, headers) {
+> +		if (GetPluginType(plugin->id) == EVMS_DEVICE_MANAGER) {
+> +			spin_unlock(&plugin_lock);
+> +			DISCOVER(plugin, disk_list);
+> +			spin_lock(&plugin_lock);
+> +		}
 
-Here's one situation in which it can falsely return -EDEADLK:
+How do you know "plugin" and its successors are still valid when retaking 
+the spinlock? Looks like you need a reference count on the object here.
 
-TID 1001, PID 1002 takes lock A
-TID 1003, PID 1004 takes lock B
-TID 1001, PID 1005 takes lock B, blocks
-TID 1003, PID 1004 takes lock A, gets -EDEADLK.
-Even though (1001,1002) isn't blocking on any lock and will release lock A
-in the future.
+Similar with other functions.
 
-So how about we just delete the nasty deadlock detection code?  I've never
-been fond of the user-triggerable O(N^2) algorithm, and we're permitted
-to not implement it (POSIX suggests applications set a timer to detect
-deadlock themselves, so anyone writing a portable application is already
-doing this).
+> +
+> +	if (!gd) {
+> +		gd = alloc_disk();
+> +		BUG_ON(!gd);
 
-Objections?
 
--- 
-Revolutions do not require corporate support.
+BUG_ON ? Can't this fail for legal reasons?
+
+
+-Andi

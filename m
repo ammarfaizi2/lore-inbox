@@ -1,98 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUGYVWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUGYVft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbUGYVWa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 17:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUGYVWa
+	id S264503AbUGYVft (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 17:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbUGYVft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 17:22:30 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:21381 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S264502AbUGYVWK
+	Sun, 25 Jul 2004 17:35:49 -0400
+Received: from centaur.culm.net ([83.16.203.166]:47622 "EHLO centaur.culm.net")
+	by vger.kernel.org with ESMTP id S264503AbUGYVfr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 17:22:10 -0400
-Message-ID: <410424D5.505@blue-labs.org>
-Date: Sun, 25 Jul 2004 17:23:33 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040724
-X-Accept-Language: en-us, en
+	Sun, 25 Jul 2004 17:35:47 -0400
+From: Witold Krecicki <adasi@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Disabling compiled-in modules at kernel boot cmdline?
+Date: Sun, 25 Jul 2004 23:35:37 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-To: Gene Heskett <gene.heskett@verizon.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: changing ethernet devices, new one stops cold at iptables
-References: <Pine.LNX.4.44.0407251149290.25333-100000@filer.marasystems.com> <200407251628.14604.gene.heskett@verizon.net>
-In-Reply-To: <200407251628.14604.gene.heskett@verizon.net>
-Content-Type: multipart/mixed;
- boundary="------------040404080806000502060405"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200407252335.37487.adasi@kernel.pl>
+X-Spam-Score: -4.7 (----)
+X-MIME-Warning: Serious MIME defect detected ()
+X-Scan-Signature: fd30f7fe92f0baa0e673755cf3407eaf
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040404080806000502060405
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Case: I'm using PowerBook with stock PLD Linux PPC kernel, it has i8042 and 
+8250 modules built-in. But, those have no use on this machine (as those are 
+for IBM RS/6000), and actually are really messing stuff (e.g. i8042 gives a 
+lot of debug info to kernel log (that it cannot find a device blah blah), 
+with 8250 I cannot use pmac_zilog driver (there is a conflict somewhere)).
 
-No need to reboot it.  Simply flush the neighbor cache.
+Quick look at the code told me that currently there is no possibility to 
+disable compiled-in kernel modules at boottime. Would it be hard to do? For 
+example I give module_i8042=off (or sth. ) and initcall for i8042 is not 
+called. That would be probably enough.
 
-Scott root # ip neigh flush help
-Usage: ip neigh { add | del | change | replace } { ADDR [ lladdr LLADDR ]
-          [ nud { permanent | noarp | stale | reachable } ]
-          | proxy ADDR } [ dev DEV ]
-       ip neigh {show|flush} [ to PREFIX ] [ dev DEV ] [ nud STATE ]
+Yes, I know that the solution is compiling kernel myself, but doing it every 
+week (for testing purposes) for about 2-3 hour could be annoying...
 
-David
-
-Gene Heskett wrote:
-
->On Sunday 25 July 2004 05:50, Henrik Nordstrom wrote:
->  
->
->>On Thu, 22 Jul 2004, Gene Heskett wrote:
->>    
->>
->>>I can ping the firewall, and I can ssh into it, so that part of
->>>the network is fine, I just cannot get past iptables in the
->>>firewall when eth0 is the nforce hardware, which has a different
->>>MAC address.
->>>      
->>>
->>Have you verified that the routing got correctly set up on the new
->>box?
->>
->>  ip ro ls
->>
->>The usual cause to the symptoms you describe is that the default
->>route has gone missing or is invalid.
->>    
->>
->
->The routing was good, showing the fireall as the default gateway 
->address.
->
->In this case, the fix was to reboot the firewall so that its arp 
->tables got refreshed to match the new MAC address of the onboard 
->nforce (forcedeth) nic.  Once that was done, everything was peachy.
->
->Thanks, I appreciate the reply, Henrik.
->
->  
->
-
---------------040404080806000502060405
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
-
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
-
-
---------------040404080806000502060405--
+-- 
+Witold Krêcicki (adasi) adasi [at] culm.net
+GPG key: 7AE20871
+http://www.culm.net

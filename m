@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSAHNiE>; Tue, 8 Jan 2002 08:38:04 -0500
+	id <S288021AbSAHNjY>; Tue, 8 Jan 2002 08:39:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288021AbSAHNhz>; Tue, 8 Jan 2002 08:37:55 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:8196 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S288019AbSAHNhh>;
-	Tue, 8 Jan 2002 08:37:37 -0500
-Date: Wed, 9 Jan 2002 00:33:35 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Luigi Genoni <kernel@Expansa.sns.it>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020108133335.GB26307@krispykreme>
-In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <Pine.LNX.4.33.0201081153310.29480-100000@Expansa.sns.it> <20020108142117.F3221@inspiron.school.suse.de>
-Mime-Version: 1.0
+	id <S288022AbSAHNjF>; Tue, 8 Jan 2002 08:39:05 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14609 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288021AbSAHNi4>; Tue, 8 Jan 2002 08:38:56 -0500
+Subject: Re: Two hdds on one channel - why so slow?
+To: petro@auctionwatch.com (Petro)
+Date: Tue, 8 Jan 2002 13:50:08 +0000 (GMT)
+Cc: stevie@qrpff.net (Stevie O), jfbeam@bluetronic.net (Ricky Beam),
+        hahn@physics.mcmaster.ca (Mark Hahn),
+        linux-kernel@vger.kernel.org (Linux Kernel Mail List)
+In-Reply-To: <20020107201938.GB1227@auctionwatch.com> from "Petro" at Jan 07, 2002 12:19:38 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020108142117.F3221@inspiron.school.suse.de>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Nwdk-0006SG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> So yes, mean latency will decrease with preemptive kernel, but your CPU
-> is definitely paying something for it.
+> On Mon, Jan 07, 2002 at 03:11:22AM -0500, Stevie O wrote:
+> > You're all DEAD WRONG.
+> > IDE and SCSI both suck!
+> > The way of the future is punch cards!
+> 
+>     Are there any drivers for a paper-tape reader? 
 
-And Andrew Morton's work suggests he can do a much better job of
-reducing latency than -preempt.
-
-Anton
+2.2 S/390 code seems to have one

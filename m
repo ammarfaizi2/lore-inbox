@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLPHAe>; Sat, 16 Dec 2000 02:00:34 -0500
+	id <S130026AbQLPHCy>; Sat, 16 Dec 2000 02:02:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130026AbQLPHAZ>; Sat, 16 Dec 2000 02:00:25 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:15044 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129183AbQLPHAK>; Sat, 16 Dec 2000 02:00:10 -0500
-Message-ID: <3A3B0CBD.1AAA99C2@uow.edu.au>
-Date: Sat, 16 Dec 2000 17:33:33 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: barryn@pobox.com
-CC: "Mohammad A. Haque" <mhaque@haque.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: test13pre2 - netfilter modiles compile failure
-In-Reply-To: <3A3AF5F5.BDC853F4@haque.net> from "Mohammad A. Haque" at Dec 15, 2000 11:56:21 PM <200012160552.VAA27106@pobox.com>
+	id <S130773AbQLPHCo>; Sat, 16 Dec 2000 02:02:44 -0500
+Received: from icarus.com ([208.36.26.146]:55825 "EHLO icarus.com")
+	by vger.kernel.org with ESMTP id <S130026AbQLPHCh>;
+	Sat, 16 Dec 2000 02:02:37 -0500
+Message-Id: <200012160632.WAA26178@icarus.com>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [paperboy@g2news.com: Client Server NEWS FLASH: Linus Savages Red Hat 7.0] 
+In-Reply-To: Message from "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> 
+   of "Fri, 15 Dec 2000 19:39:32 MST." <20001215193932.A5880@vger.timpanogas.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 15 Dec 2000 22:32:07 -0800
+From: Stephen Williams <steve@icarus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Barry K. Nathan" wrote:
-> 
-> I got the same error with the ipchains-compatible netfilter compiled as
-> modules.
 
-This works for me:
+jmerkey@vger.timpanogas.org said:
+> FYI Guys, This just went over the wire from CSN.  Might need some
+> damage  control.
 
---- linux-2.4.0-test13-pre2/net/ipv4/netfilter/Makefile	Sat Dec 16 14:23:48 2000
-+++ linux-akpm/net/ipv4/netfilter/Makefile	Sat Dec 16 15:01:23 2000
-@@ -61,6 +61,3 @@
- 
- ipchains.o: $(ipchains-objs)
- 	$(LD) -r -o $@ $(ipchains-objs)
--
--ip_nf_compat.o: $(ip_nf_compat-objs)
--	$(LD) -r -o $@ $(ip_nf_compat-objs)
+... and I wonder about the press that MSVC 6.0 got before the first
+few service packs got released.  (Weren't there a few difficulties
+with MFC42.dll? Correct me if I'm wrong.)
+
+As a producer of free software myself (Icarus Verilog) I've come to
+the conclusion that the mass media is perfectly capable of turning away
+the idiots that you don't really want as customers anyhow:-)
+-- 
+Steve Williams                "The woods are lovely, dark and deep.
+steve@icarus.com              But I have promises to keep,
+steve@picturel.com            and lines to code before I sleep,
+http://www.picturel.com       And lines to code before I sleep."
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

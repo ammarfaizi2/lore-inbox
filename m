@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUGAAkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUGABFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbUGAAkP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 20:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUGAAkP
+	id S263555AbUGABFb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 21:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUGABFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 20:40:15 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:53482 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263429AbUGAAkK
+	Wed, 30 Jun 2004 21:05:31 -0400
+Received: from modemcable166.48-200-24.mc.videotron.ca ([24.200.48.166]:10906
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S263555AbUGABFZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 20:40:10 -0400
-Date: Wed, 30 Jun 2004 15:31:20 -0500
-From: linas@austin.ibm.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: paulus@au1.ibm.com, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6 PPC64: lockfix for rtas error log (third-times-a-charm?)
-Message-ID: <20040630153120.W21634@forte.austin.ibm.com>
-References: <20040629175007.P21634@forte.austin.ibm.com> <1088559864.1906.9.camel@gaston> <20040630123637.S21634@forte.austin.ibm.com> <1088621248.1920.43.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1088621248.1920.43.camel@gaston>; from benh@kernel.crashing.org on Wed, Jun 30, 2004 at 01:47:29PM -0500
+	Wed, 30 Jun 2004 21:05:25 -0400
+Date: Wed, 30 Jun 2004 21:05:15 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Jamie Lokier <jamie@shareable.org>
+cc: Ian Molton <spyro@f2s.com>, <linux-arm-kernel@lists.arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: A question about PROT_NONE on ARM and ARM26
+In-Reply-To: <20040630233014.GC32560@mail.shareable.org>
+Message-ID: <Pine.LNX.4.44.0406302100260.1713-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 30, 2004 at 01:47:29PM -0500, Benjamin Herrenschmidt wrote:
+On Thu, 1 Jul 2004, Jamie Lokier wrote:
+
+> Russell King wrote:
+> > Ok, this could work, but there's one gotcha - TASK_SIZE-4 doesn't fit
+> > in an 8-bit rotated constants, so we need 2 extra instructions:
+> > 
+> > __get_user_4:
+> > 	mov	r1, #TASK_SIZE
+> > 	sub	r1, r1, #4
+> > 	cmp	r0, r1
+> > 4:	ldrlet	r1, [r0]
+> > 	movle	r0, #0
+> > 	movle	pc, lr
+> > 	...
 > 
-> > Well, the problem was that there is no lock that is protecting the
-> > use of the single, global buffer.  Adding yet another lock is bad;
-> > it makes hunting for deadlocks that much more tedious and difficult;
-> > already, finding deadlocks is error-prone, and subject to bit-rot as
-> > future hackers update the code.  So instead, the problem can be easily
-> > avoided by not using a global buffer.  The code below mallocs/frees.
-> > Its not perf-critcal, so I don't mind malloc overhead.  Would this
-> > work for you?  Patch attached below.
+> One more possibility:
 > 
-> I prefer that, but couldn't we move the kmalloc outside of the spinlock
-> and so use GFP_KERNEL instead ?
+> 	cmp	r0, #(TASK_SIZE - (1<<24))
+> 
+> I.e. just compare against the largest constant that can be
+> represented.  For accesses to the last part of userspace, it's a
+> penalty of 4 instructions -- but it might work out to be a net gain.
 
-OK,
+Maybe not.  The user stack is located at the top so any user buffer 
+allocated on the stack would be penalized.
 
-Upon closer analysis of the code, I see that log_rtas_error() 
-was incorrectly named, and was being used incorrectly.  The 
-solution is to get rid of it entirely; see patch below. So:
 
--- In one case kmalloc must be GFP_ATOMIC because rtas_call()
-   can happen in any context, incl. irqs.
--- In the other case, I turned it into GFP_KENREL, at the cost
-   of doing a needless malloc/free in the vast majority of 
-   cases where there is no error.  Small price, as I beleive
-   that this routine is very rarely called.
-
-Patch below, 
-Signed-off-by: Linas Vepstas <linas@linas.org>
-
---linas
+Nicolas
 

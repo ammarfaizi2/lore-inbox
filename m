@@ -1,69 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264512AbUF1JCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264900AbUF1JSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264512AbUF1JCu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 05:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUF1JCu
+	id S264900AbUF1JSb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 05:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUF1JSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 05:02:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16909 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264512AbUF1JCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 05:02:46 -0400
-Date: Mon, 28 Jun 2004 10:02:39 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Chris Wedgwood <cw@f00f.org>,
-       Erik Jacobson <erikj@subway.americas.sgi.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Altix serial driver
-Message-ID: <20040628100239.E32206@flint.arm.linux.org.uk>
-Mail-Followup-To: Chris Wedgwood <cw@f00f.org>,
-	Erik Jacobson <erikj@subway.americas.sgi.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
-References: <20040625083130.GA26557@infradead.org> <Pine.SGI.4.53.0406250742350.377639@subway.americas.sgi.com> <20040625124807.GA29937@infradead.org> <Pine.SGI.4.53.0406250751470.377692@subway.americas.sgi.com> <20040626235248.GC12761@taniwha.stupidest.org> <Pine.SGI.4.53.0406271908390.524706@subway.americas.sgi.com> <20040628003311.GA23017@taniwha.stupidest.org> <20040628021439.A17654@flint.arm.linux.org.uk> <20040628014443.GA24247@taniwha.stupidest.org> <20040628085429.C32206@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Mon, 28 Jun 2004 05:18:31 -0400
+Received: from [195.32.84.175] ([195.32.84.175]:56798 "EHLO
+	host01.pcaserver.com") by vger.kernel.org with ESMTP
+	id S264900AbUF1JS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 05:18:29 -0400
+Message-ID: <40DFE262.3040107@pca.it>
+Date: Mon, 28 Jun 2004 11:18:26 +0200
+From: Luca Capello <luca@pca.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040624 Debian/1.7-2
+X-Accept-Language: en-us, en-gb, en, it, it-ch, fr-ch, fr, de
+MIME-Version: 1.0
+To: acpi-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] No APIC interrupts after ACPI suspend
+References: <B44D37711ED29844BEA67908EAF36F032D566A@pdsmsx401.ccr.corp.intel.com> <40DFDB5A.7070301@travellingkiwi.com>
+In-Reply-To: <40DFDB5A.7070301@travellingkiwi.com>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040628085429.C32206@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Mon, Jun 28, 2004 at 08:54:30AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 08:54:30AM +0100, Russell King wrote:
-> On Sun, Jun 27, 2004 at 06:44:43PM -0700, Chris Wedgwood wrote:
-> > On Mon, Jun 28, 2004 at 02:14:39AM +0100, Russell King wrote:
-> > > It's the way its always been done, and the way the tty layer works.
-> > > You register a range of ttys that you're going to be driving, and
-> > > you own those ttys whether or not you actually have hardware for
-> > > them.
-> > 
-> > How about this (yes, it's a hack but it's really not that bad and will
-> > get things working until we can fix this up in 2.7.x):
-> 
-> If you're going to do that, why not just disable 8250 in the kernels
-> configuration?  It has exactly the same effect.  With the change you
-> propose, you can't even use 8250 for PCMCIA serial cards.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Note also that I don't want to apply hacks to 8250 _unless_ there is a
-clear method to remove those hacks in a later kernel.
+Hello,
 
-To put it another way, I want to see the clean solution, preferably
-already developed and reviewed ready for the next development series
-before applying the hack to the stable version.
+on 06/28/04 10:48, Hamie wrote:
+> Li, Shaohua wrote:
+>> I attached a new patch to handler all level triggered IRQs after resume
+>> for 8259 in http://bugme.osdl.org/show_bug.cgi?id=2643. Please try and
+>> attach your test result on it.
+> Uh.... That might work.... Except that after applying the patch &
+> restarting. Then suspend-resume I get another small problem... My
+> thinkpad (r50p) uses the power button to wake up from suspend... The
+> system wakes, but with this latest patch, acpid then kicks in & says
+> 'Ohh! I saw him press the power button' and promptly shuts down...
+<cut>
+> Sleeps, wakes & a shutdown... Should acpid do that? (i.e. shouldn't it
+> eat the power button event that woke it up as a wakeup? Should it even
+> get that?) Or is it the previous patch for drivers/acpi/sleep/main.c
+> resetting the IRQ9 to edge triggered that's killing me? (I'll try
+> removing that now).
+this is a known /bug/, I experienced the same on my ancient ASUS M3N. It
+has nothing to do with 'acpid'. Please refer to this thread:
+	http://marc.theaimsgroup.com/?l=acpi4linux&m=107291320113621&w=2
 
-Without this step, we have historically added hacks to the old serial
-driver and forgotten about them, because the problem is no longer in
-peoples minds.
+For the moment, you can use the workaround I proposed here
+	http://marc.theaimsgroup.com/?l=acpi4linux&m=107333070225744&w=2
 
-IOW, I don't have any objection to adding hacks to work around
-problems in the same series _provided_ we have a clear way to resolve
-those hacks in the next development kernel series.
+Thx, bye,
+Gismo / Luca
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+iD8DBQFA3+JiVAp7Xm10JmkRAoioAJ0Wm/HoUcW0CH2yePQvjB4YGJDs/gCdHd8S
+NHmS97q0bfg8JOec6H7fFKs=
+=J5E+
+-----END PGP SIGNATURE-----

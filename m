@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273233AbRI0PH0>; Thu, 27 Sep 2001 11:07:26 -0400
+	id <S273242AbRI0PNg>; Thu, 27 Sep 2001 11:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273254AbRI0PHR>; Thu, 27 Sep 2001 11:07:17 -0400
-Received: from [200.250.64.5] ([200.250.64.5]:27767 "EHLO nat.brsat.com.br")
-	by vger.kernel.org with ESMTP id <S273233AbRI0PHE>;
-	Thu, 27 Sep 2001 11:07:04 -0400
-Message-ID: <3BB34142.3010508@brsat.com.br>
-Date: Thu, 27 Sep 2001 12:09:54 -0300
-From: Roberto Orenstein <roberto@brsat.com.br>
-Reply-To: roberto@brsat.com.br
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.9-ac15 i686; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: pt-br, en
-MIME-Version: 1.0
-To: Xavier Bestel <xavier.bestel@free.fr>,
-        linux-kernel <linux-kernel@vger.kernel.org>
+	id <S273254AbRI0PN1>; Thu, 27 Sep 2001 11:13:27 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:1286 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273242AbRI0PNN>;
+	Thu, 27 Sep 2001 11:13:13 -0400
+Date: Thu, 27 Sep 2001 12:13:23 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: 2.4.9-ac15 sluggish
 In-Reply-To: <1001602003.17481.7.camel@nomade>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.33L.0109271212100.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel wrote:
+On 27 Sep 2001, Xavier Bestel wrote:
 
-> I gave 2.4.9-ac15 a try on my dual-pIII, 700MB
-> 
-> I tried to run /usb/bin/automake on the gstreamer project (current
-> automake has a bug which sucks all ram, gstreamer provides its own)
-> 
 > with -ac10 no real bad behavior, just automake is working like crazy.
-> 
+>
 > with -ac15 the system starts disk-trashing immediately, xterms, ssh or
 > telnet sessions are unresponsive for 20mn (after that I gave up and
 > rebooted)
 
-Did you try Rik's patch on http://www.surriel.com/patches?
+We discovered a merge bug, -ac15 has a few lines in
+try_to_swap_out() 10 lines higher than they were in
+the patch I sent to Alan ;)
 
-I had the same problem and it is fixed with the patch.
-patch name is 2.4.9-ac15-age+launder
+This is fixed in the age+launder patch from my home
+page ard in the vmscan.c I sent to Alan for -ac16.
 
+If you want the patch:
+	http://www.surriel.com/patches/
 
-Roberto
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbUCDJk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 04:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUCDJkz
+	id S261573AbUCDJiL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 04:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbUCDJiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 04:40:55 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:3549 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S261612AbUCDJkp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 04:40:45 -0500
-To: "Michael Frank" <mhf@linuxmail.org>
-Cc: "kernel mailing list" <linux-kernel@vger.kernel.org>
-Subject: Re: How to black list shared libraries and executable
-References: <opr4bsvwbj4evsfm@smtp.pacific.net.th>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 04 Mar 2004 04:40:26 -0500
-In-Reply-To: <opr4bsvwbj4evsfm@smtp.pacific.net.th>
-Message-ID: <yq0d67tt0fp.fsf@wildopensource.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Thu, 4 Mar 2004 04:38:11 -0500
+Received: from web8304.mail.in.yahoo.com ([203.199.122.34]:27988 "HELO
+	web8304.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S261573AbUCDJiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 04:38:08 -0500
+Message-ID: <20040304093805.18936.qmail@web8304.mail.in.yahoo.com>
+Date: Thu, 4 Mar 2004 09:38:05 +0000 (GMT)
+From: =?iso-8859-1?q?Dinesh=20Ahuja?= <mdlinux7@yahoo.co.in>
+Subject: Using the Native POSIX Threading Library (NPTL) instead of linuxthreads.
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Michael" == Michael Frank <mhf@linuxmail.org> writes:
+Hi Everbody,
 
-Michael> Just wondering on how to build a kernel-level facility which
-Michael> would require shared libraries and executables to be "keyed"
-Michael> or even "signed" to run on linux.
+I am new to Linux world and fascinated with it. I have
+an experience of 2.5 years in C++,C,COM,ATL,VC++ and
+want to get into Linux World.I have build and
+installed Linux Kernel 2.6.0 after struggling for four
+days.
 
-Michael> This is to prevent execution of software not specifically
-Michael> authorized.
+I installed Linux 2.6.0 so that I should be able to
+work with NPTL which is POSIX1.b compliant. But, when
+I see ma for mq_open and mq_close functions, it
+doesn't shows me anything.
 
-The shared libraries are going to cause you 'issues' since these are
-all loaded by dynamic linker. All the kernel loads is ld.so, the
-rest of them are mmap'ed from userland.
+I want to explore the NPTL and functionality provided
+by NPTL as I want to use POSIX Message Queues, Shared
+Memory and Semaphores.
 
-So if you want to take this approach, you would have to hack a special
-ld.so that only allows your authorized libraries and only authorize
-the kernel to load that dynamic linker. Otherwise you have to do
-content validation for all mmap operations.
+I was assuming the Linux Kernel 2.6.0 should have NPTL
+installed in it with default along with the neccessay
+headers.
 
-Jes
+How can I see the detailed descriptions of the
+services provided by NPTL ? Please suggest me what are
+the neccessary steps requried to use NPTL in my Linux
+Kernel 2.6.0 ? Do I need to download some packages to
+work with NPTL in Linux Kernel 2.6.0 ?
+
+Thanks & Regards
+Dinesh
+
+________________________________________________________________________
+Yahoo! India Insurance Special: Be informed on the best policies, services, tools and more. 
+Go to: http://in.insurance.yahoo.com/licspecial/index.html

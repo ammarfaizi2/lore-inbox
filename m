@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277512AbRJJWyW>; Wed, 10 Oct 2001 18:54:22 -0400
+	id <S277519AbRJJXDp>; Wed, 10 Oct 2001 19:03:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277514AbRJJWyC>; Wed, 10 Oct 2001 18:54:02 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47885 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277512AbRJJWxw>; Wed, 10 Oct 2001 18:53:52 -0400
-Subject: Re: 2.4.11 oops
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 10 Oct 2001 23:59:49 +0100 (BST)
-Cc: bmatthews@redhat.com (Bob Matthews), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110101540080.2918-100000@penguin.transmeta.com> from "Linus Torvalds" at Oct 10, 2001 03:44:46 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277526AbRJJXD1>; Wed, 10 Oct 2001 19:03:27 -0400
+Received: from cx48762-b.cv1.sdca.home.com ([24.251.153.196]:45606 "EHLO
+	train.sweet-haven.com") by vger.kernel.org with ESMTP
+	id <S277519AbRJJXDW>; Wed, 10 Oct 2001 19:03:22 -0400
+Date: Wed, 10 Oct 2001 16:03:48 -0700 (PDT)
+From: Lew Wolfgang <wolfgang@sweet-haven.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Dump corrupts ext2?
+Message-ID: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15rSKL-000178-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Th ebug is in get_pgd_slow() in include/asm-i386/pgalloc.h, where it just
-> does a "kmalloc()" and expects the thing to be magically aligned.
-> 
-> Does anybody have (tested) patches for this?
+Hi Folks,
 
-Ingo did patches for -ac a long time back. I've not submitted them since
-it simply didnt seem an important matter when prioritising patches,
+I was looking for some scripts to backup ext2 partitions
+to multiple CDR's when I stumbled onto "cdbackup" at
+http://www.cableone.net/ccondit/cdbackup/.
 
-If you want them I can isolate them tomorrow
+Alas, there is a warning saying:
+
+"WARNING! When using this program under Linux, be sure not to use
+ dump with kernels in the 2.4.x series. Using dump on an ext2
+ filesystem has a very high potential for causing filesystem
+ corruption.  As of kernel version 2.4.5, this has not been
+ resolved, and it may not be for some time."
+
+I don't recall any problems like this, does anyone have
+additional comments?
+
+Regards,
+Lew Wolfgang
+
+

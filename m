@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263298AbTDVQm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 12:42:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263299AbTDVQm2
+	id S263299AbTDVQmh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 12:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbTDVQmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 12:42:28 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:27038 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263298AbTDVQm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 12:42:27 -0400
-Date: Tue, 22 Apr 2003 18:54:18 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Michael Buesch <fsdeveloper@yahoo.de>
-Cc: Julien Oster <frodo@dereference.de>, linux-kernel@vger.kernel.org
-Subject: Re: kernel ring buffer accessible by users
-Message-ID: <20030422165418.GA7178@wohnheim.fh-wedel.de>
-References: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org> <200304221844.05754.fsdeveloper@yahoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200304221844.05754.fsdeveloper@yahoo.de>
-User-Agent: Mutt/1.3.28i
+	Tue, 22 Apr 2003 12:42:36 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:4312 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263299AbTDVQmd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 12:42:33 -0400
+Date: Tue, 22 Apr 2003 18:54:30 +0200 (MEST)
+Message-Id: <200304221654.h3MGsUQK029822@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: olh@suse.de
+Subject: Re: 2.4.21-rc1 doesn't build on ppc (6xx/pmac)
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 April 2003 18:44:05 +0200, Michael Buesch wrote:
+On Tue, 22 Apr 2003 15:47:39 +0200, Olaf Hering wrote:
+>  On Tue, Apr 22, mikpe@csd.uu.se wrote:
 > 
-> On Tuesday 22 April 2003 18:21, Julien Oster wrote:
-> > it's been quite a while that I noticed that any ordinary user, not
-> > just root, can type "dmesg" to see the kernel ring buffer.
+> > arch/ppc/kernel/head.o(__ftr_fixup+0x60): undefined reference to `CPU_FTR_HAS_HIGH_BATS'
+> > arch/ppc/kernel/head.o(__ftr_fixup+0x64): undefined reference to `CPU_FTR_HAS_HIGH_BATS'
+> > arch/ppc/kernel/kernel.o: In function `sys_call_table':
+> > arch/ppc/kernel/kernel.o(.data+0x330c): undefined reference to `__setup_cpu_7450'
+> > arch/ppc/kernel/kernel.o(.data+0x332c): undefined reference to `__setup_cpu_7450'
+> > arch/ppc/kernel/kernel.o(.data+0x334c): undefined reference to `__setup_cpu_7450'
+> > arch/ppc/kernel/kernel.o(.data+0x336c): undefined reference to `__setup_cpu_7455'
+> > arch/ppc/kernel/kernel.o(.data+0x338c): undefined reference to `__setup_cpu_7455'
+> > arch/ppc/kernel/kernel.o(.data+0x33ac): undefined reference to `__setup_cpu_7455'
+> > make: *** [vmlinux] Error 1
 > 
-> just make
-> $ chmod 700 /bin/dmesg
+> 
+> diff -purNX /home/olaf/kernel_exclude.txt kaputteslinuxdingens/arch/ppc/kernel/cputable.c linux-2.4.21-pre7-cset-1.1100-to-1.1116/arch/ppc/kernel/cputable.c
+> --- kaputteslinuxdingens/arch/ppc/kernel/cputable.c	Mon Apr 21 21:28:04 2003
+> +++ linux-2.4.21-pre7-cset-1.1100-to-1.1116/arch/ppc/kernel/cputable.c	Mon Apr 21 20:46:17 2003
+> @@ -26,8 +26,7 @@ extern void __setup_cpu_750cx(unsigned l
 
-scp /bin/dmesg remote:
-ssh remote ./dmesg
+<patch omitted>
 
-Jörn
+That fixed it. Thanks!
 
--- 
-Good warriors cause others to come to them and do not go to others.
--- Sun Tzu
+/Mikael

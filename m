@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266292AbUIIV1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUIIVag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266292AbUIIV1X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 17:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267588AbUIIVQ6
+	id S266169AbUIIVag (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 17:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUIIVag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 17:16:58 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:16556 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267625AbUIIVMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 17:12:33 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org, mista.tapas@gmx.net, kr@cybsft.com,
-       Mark_H_Johnson@Raytheon.com
-In-Reply-To: <20040909130526.2b015999.akpm@osdl.org>
-References: <20040903120957.00665413@mango.fruits.de>
-	 <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>
-	 <20040906110626.GA32320@elte.hu>
-	 <1094626562.1362.99.camel@krustophenia.net> <20040909192924.GA1672@elte.hu>
-	 <20040909130526.2b015999.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094760584.15210.1.camel@localhost.localdomain>
+	Thu, 9 Sep 2004 17:30:36 -0400
+Received: from mail3.bluewin.ch ([195.186.1.75]:10161 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S266169AbUIIVW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 17:22:28 -0400
+Date: Thu, 9 Sep 2004 23:19:57 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040909211957.GA31413@k3.hellgate.ch>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Albert Cahalan <albert@users.sf.net>, Paul Jackson <pj@sgi.com>
+References: <20040908184028.GA10840@k3.hellgate.ch> <20040908184130.GA12691@k3.hellgate.ch> <20040909003529.GI3106@holomorphy.com> <20040909184300.GA28278@k3.hellgate.ch> <20040909184933.GG3106@holomorphy.com> <20040909191142.GA30151@k3.hellgate.ch> <20040909192313.GK3106@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 09 Sep 2004 21:09:57 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040909192313.GK3106@holomorphy.com>
+X-Operating-System: Linux 2.6.9-rc1-bk13 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-09 at 21:05, Andrew Morton wrote:
-> I did a patch a while back which switches the swapspace allocator over to
-> perform program-virtual-address clustering, but it didn't help much in
-> brief testing and I haven't got back onto it.
-> 
-> And contrary to my above assertion, I don't think it'll help latency ;)
+On Thu, 09 Sep 2004 12:23:13 -0700, William Lee Irwin III wrote:
+> I took the structure fields to be just an argument passing convention
+> giving the nommu case an identical prototype much like the helpers in
 
-I would still expect the only thing to materially improve swap latency
-to be a log structured swap, possibly with a cleaner which tidies
-together pages that are referenced together.
+That seems rather confusing. We must special-case for !CONFIG_MMU
+anyway because field IDs are tied to meaning, i.e. systems export
+different sets of fields depending on this configuration setting. The
+proc filesystem does the same, the difference is that a changing set
+is easier to handle with nproc.
 
-
-You also want contiguous runs of at least 64K and probaly a lot more on
-bigger memory systems. 
-
+Roger

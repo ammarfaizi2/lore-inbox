@@ -1,104 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131051AbRCFSXN>; Tue, 6 Mar 2001 13:23:13 -0500
+	id <S129084AbRCFSXx>; Tue, 6 Mar 2001 13:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131052AbRCFSWx>; Tue, 6 Mar 2001 13:22:53 -0500
-Received: from s057.dhcp212-109.cybercable.fr ([212.198.109.57]:28420 "EHLO
-	s057.dhcp212-109.cybercable.fr") by vger.kernel.org with ESMTP
-	id <S131051AbRCFSWm>; Tue, 6 Mar 2001 13:22:42 -0500
-Message-ID: <3AA52916.5FD87258@baretta.com>
-Date: Tue, 06 Mar 2001 19:14:46 +0100
-From: Alessandro Baretta <alex@baretta.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: it, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Inadequate documentation: sockets
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S129115AbRCFSXp>; Tue, 6 Mar 2001 13:23:45 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:45728 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S131052AbRCFSXZ>; Tue, 6 Mar 2001 13:23:25 -0500
+Message-Id: <l03130313b6cad51a8439@[192.168.239.101]>
+In-Reply-To: <3AA51AE7.29FAC080@uni-mb.si>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 6 Mar 2001 18:23:15 +0000
+To: David Balazic <david.balazic@uni-mb.si>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: scsi vs ide performance on fsync's
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody!
+>Jonathan Morton (chromi@cyberspace.org) wrote :
+>
+>> The OS needs to know the physical act of writing data has finished
+>>before
+>> it tells the m/board to cut the power - period. Pathological data sets
+>> included - they are the worst case which every engineer must take into
+>> account. Out of interest, does Linux guarantee this, in the light of what
+>> we've uncovered? If so, perhaps it could use the same technique to fix
+>> fdatasync() and family...
+>
+>Linux currently ignores write-cache, AFAICT.
+>Recently I asked a similar question , about flushing drive caches at
+>shutdown :
 
-I am a newbie in this list, so please accept my apologies for not
-being adeqately informed on many technical issues many a kernel
-programmer might consider banal.
+>On Mon, Feb 19, 2001 at 01:45:57PM +0100, David Balazic wrote:
 
-I wish to bring your attention to the documentation available on
-the topic of of the _disconnection_ of stream oriented sockets.
-I'm writing a user space program that uses TCP sockets. I need to
-know if and when a given connection is broken, and more
-specifically if and when _one_ direction of the stream is shut
-down by the peer. The following documentation seems to apply to my
-case:
+>> It is a good idea IMO to flush the write cache of storage devices
+>> at shutdown and other critical moments.
+>
+>Not needed. All device drivers should disable write caches of
+>their devices, that need another signal than switching it off by
+>the power button to flush themselves.
 
-1) man poll:
-The manual specifies the following flag to be returned by the
-kernel
-> #define POLLHUP     0x0010    /* Hung up */
+Sounds like a sensible place to implement it - in the device driver.  I
+also note the existence of an ATA flush-buffer command, which should
+probably be used in sync() and family.  The call(s) to the sync() family on
+shutdown should probably be performed by the filesystem itself on unmount
+(or remount read-only), and if journalled filesystems need synchronisation
+they should use sync() (or a more fine-grained version) themselves as
+necessary.
 
-Hanging up is ambiguous. Does it mean that the client is dead,
-that he closed his end of the socket, or that he shut down one or
-both directions of the data flow? The following man page clears
-this up, but I think the following information would best be
-placed in man poll.
+Doesn't sound like too much of a headache to implement, to me - unless some
+drives ignore the ATA FLUSH command, in which case said drives can be
+considered seriously broken.  :P  I don't agree that write-caching in
+itself is a bad thing, particularly given the amount of CPU overhead that
+IDE drives demand while attached to the controller (orders of magnitude
+higher than a good SCSI controller) - the more overhead we can hand off to
+dedicated hardware, the better.  What does matter is that drives
+implementing write-caching are handled in a safe and efficient manner,
+especially in cases where they refuse to turn such caching off (eg. my
+Seagate Barracuda *glares at drive*).
 
-2) man 7 socket
-> The user can then wait for
-> various events via poll(2) or select(2).
+Recalling my recent comments on worst-case drive-shutdown timings, I also
+remember seeing drives with 18ms *average* seek times quite recently - this
+was a Quantum Bigfoot (yes, a 5.25" HD), found in a low-end Compaq desktop
+- if anyone still believes Compaq makes high-quality machines for their
+low-end market, they're totally mistaken.  The machine sped up quite a lot
+when a new 3.5" IBM DeskStar was installed, with an 8.5ms average seek and
+an almost doubling in rotational speed.  :)
 
-      
-+-----------+-----------+--------------------------------------------+
-       |Read       | POLLHUP   | A disconnection request has been
-initiated |
-       |           |           | by the other
-end.                          |
-      
-+-----------+-----------+--------------------------------------------+
-       |Read       | POLLHUP   | A connection is broken (only 
-for  connec­ |
-       |           |           | tion-oriented protocols).  When
-the socket |
-       |           |           | is writen SIGPIPE is also
-sent.            |
-      
-+-----------+-----------+--------------------------------------------+
-      
-+-----------+-----------+--------------------------------------------+
-       |Read/Write | POLLHUP   | The other end has shut down one
-direction. |
-      
-+-----------+-----------+--------------------------------------------+
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-This means that I get a POLLHUP in all the time, but it does not
-allow me to distinguish among the three different relevant cases:
-a) the client shutting down reads only, b) the client shutting
-down writes only, c) the client going down entirely.
+The key to knowledge is not to rely on people to teach you it.
 
-I figured the following documentation might help, but it did not.
-3) man 2 send
->ERRORS
->       EPIPE  The  local  end  has been shut down on a connection
->              oriented socket.  In this  case  the  process  will
->              also  receive a SIGPIPE unless MSG_NOSIGNAL is set.
-4) man recv
->       The flags argument to a recv call is formed by OR'ing  one
->       or more of the following values:
->       MSG_NOSIGNAL
->              This flag turns off raising of  SIGPIPE  on  stream
->              sockets when the other end disappears.
-Yet, although the manpage mentions an MSG_NOSIGNAL flag, it never
-mentions either raising a SIGPIPE when the socket is disconnected,
-nor setting errno to EPIPE upon execution of recv on a socket
-closed by the peer. This is very ambiguous. I would be very
-greatful to anyone who clear up this point.
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-Finally I'm left with my original problem: how am I supposed to
-detect a close or a shutdown from the peer? Once again, I thank in
-advance anyone who will lend me a hand by explaining this to me or
-by addressing me to more adequate documentation.
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
+-----END GEEK CODE BLOCK-----
 
-Thanks for your kind interest.
 
-Alex Baretta

@@ -1,49 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbUAaM21 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 07:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264558AbUAaM21
+	id S264558AbUAaMw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 07:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbUAaMw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 07:28:27 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:50382 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S264553AbUAaM20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 07:28:26 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: "H. Peter Anvin" <hpa@zytor.com>, Paul Mackerras <paulus@samba.org>
-Subject: Re: [klibc] Re: long long on 32-bit machines
-Date: Sat, 31 Jan 2004 13:23:40 +0100
-User-Agent: KMail/1.5.4
-Cc: klibc list <klibc@zytor.com>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <4017F991.2090604@zytor.com> <16408.59474.427408.682002@cargo.ozlabs.ibm.com> <401B464C.50004@zytor.com>
-In-Reply-To: <401B464C.50004@zytor.com>
+	Sat, 31 Jan 2004 07:52:56 -0500
+Received: from pop.gmx.de ([213.165.64.20]:17894 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264558AbUAaMwv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 07:52:51 -0500
+X-Authenticated: #21910825
+Message-ID: <401BA520.7070204@gmx.net>
+Date: Sat, 31 Jan 2004 13:52:48 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401311323.40399.arnd@arndb.de>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] [2.6.2-rc3] Fix module.c pointer arithmetics
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------040506040303040806050402"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 January 2004 07:08, H. Peter Anvin wrote:
-> Does system calls follow the same convention?
+This is a multi-part message in MIME format.
+--------------040506040303040806050402
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I have just looked up in glibc what architectures need this kind
-of handling and found that there is no easy rule. The good news
-is that none of (hppa m68k s390 sparc x86_64 alpha cris i386 sparc64 
-arm ia64) are doing this. 
+Linus,
+Rusty,
 
-AFAICS, the padding is done for exactly these system calls:
+while studying the module code closely, I found a problem in
+kernel/module.c:153ff.
 
-ppc: truncate64, ftruncate64, pread64, pwrite64
-mips: truncate64, ftruncate64, pread64, pwrite64
-sh: pread64, pwrite64
+for (i = 0; __start___ksymtab+i < __stop___ksymtab; i++)
 
-fadvise64_64 is another story: 
-mips does no padding, ppc32 reorders the arguments (int fd, int advise,
-off64_t offset, off64_t len) and s390 passes a struct, for the
-reason Uli already explained.
+In combination with __start___ksymtab[i].name this will go eight times too
+far. Proposed fix is attached.
 
-	Arnd <><
+Please apply before 2.6.2. If you think this makes the code too slow, I
+can offer an alternative which will even speed up the current code.
+
+Thanks,
+Carl-Daniel
+
+--------------040506040303040806050402
+Content-Type: text/plain;
+ name="modulefix.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="modulefix.txt"
+
+===== kernel/module.c 1.99 vs edited =====
+--- 1.99/kernel/module.c	Wed Jan 21 02:50:58 2004
++++ edited/kernel/module.c	Sat Jan 31 13:50:47 2004
+@@ -150,14 +150,14 @@
+ 
+ 	/* Core kernel first. */ 
+ 	*owner = NULL;
+-	for (i = 0; __start___ksymtab+i < __stop___ksymtab; i++) {
++	for (i = 0; __start___ksymtab+i*sizeof(struct kernel_symbol) < __stop___ksymtab; i++) {
+ 		if (strcmp(__start___ksymtab[i].name, name) == 0) {
+ 			*crc = symversion(__start___kcrctab, i);
+ 			return __start___ksymtab[i].value;
+ 		}
+ 	}
+ 	if (gplok) {
+-		for (i = 0; __start___ksymtab_gpl+i<__stop___ksymtab_gpl; i++)
++		for (i = 0; __start___ksymtab_gpl+i*sizeof(struct kernel_symbol) < __stop___ksymtab_gpl; i++)
+ 			if (strcmp(__start___ksymtab_gpl[i].name, name) == 0) {
+ 				*crc = symversion(__start___kcrctab_gpl, i);
+ 				return __start___ksymtab_gpl[i].value;
+@@ -1308,7 +1308,7 @@
+ 	unsigned int i;
+ 
+ 	if (!mod) {
+-		for (i = 0; __start___ksymtab+i < __stop___ksymtab; i++)
++		for (i = 0; __start___ksymtab+i*sizeof(struct kernel_symbol) < __stop___ksymtab; i++)
+ 			if (strcmp(__start___ksymtab[i].name, name) == 0)
+ 				return 1;
+ 		return 0;
+
+--------------040506040303040806050402--
 

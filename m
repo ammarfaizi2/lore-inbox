@@ -1,31 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129445AbRBMLjj>; Tue, 13 Feb 2001 06:39:39 -0500
+	id <S130887AbRBMLkj>; Tue, 13 Feb 2001 06:40:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129592AbRBMLj3>; Tue, 13 Feb 2001 06:39:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48392 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129445AbRBMLjQ>; Tue, 13 Feb 2001 06:39:16 -0500
+	id <S130749AbRBMLk3>; Tue, 13 Feb 2001 06:40:29 -0500
+Received: from host217-32-132-155.hg.mdip.bt.net ([217.32.132.155]:48901 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S130887AbRBMLkL>;
+	Tue, 13 Feb 2001 06:40:11 -0500
+Date: Tue, 13 Feb 2001 11:37:08 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: lost charaters -- this is becoming annoying!
-To: tigran@veritas.com (Tigran Aivazian)
-Date: Tue, 13 Feb 2001 11:39:44 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0102131133240.927-100000@penguin.homenet> from "Tigran Aivazian" at Feb 13, 2001 11:34:15 AM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <3A891CC4.3956892A@uow.edu.au>
+Message-ID: <Pine.LNX.4.21.0102131134300.927-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SdoB-0001XQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > When you say 2.2.x works does that include 2.2.18.
+Hi Andrew,
+
+Keyboard internal, but... you are right -- this _only_ happens when the
+laptop is plugged into the docking station... that could be an extra clue
+(i.e. two PS/2 controllers simultaneously -- maybe the docking station one
+needs to be somehow explicitly disabled).
+
+How come I can't tell? Because when I type on the console it seems to be
+ok, i.e. it is probably _not_ a keyboard driver. On the other hand, on the
+laptop I don't type that much on the console and spend all the time in
+X in xterm. That is why I am not certain what exactly is broken.
+
+I do not have ACPI enabled, nor APM in the kernel.
+
+Regards,
+Tigran
+
+On Tue, 13 Feb 2001, Andrew Morton wrote:
+
+> Hi, Tigran.
 > 
-> no, I meant the plain 2.2.x as of Red Hat 7.0 which is labelled as
-> "2.2.16-22".
-
-Can you try 2.2.18/2.2.19pre. Those if my first guess is right will behave
-like 2.4 does to you.
-
+> Internal keyboard, or external?
+> 
+> Does it happen on the console or just in X?  (How come you can't
+> tell whether it's the k/b driver or the PTY driver?)
+> 
+> Tried disabling ACPI?
+> 
+> Tigran Aivazian wrote:
+> > 
+> > Hi,
+> > 
+> > I amtyping this without correcting -- allthe lost characters you see
+> > (including spaces!) are exactly what the pseudo-tty driver does! This is
+> > 2.4.1 a it definitely (oh, see "nd" of the ave "and" disappeared? and
+> > "above" turned into "ave"!) did work fine previously -- like in the days
+> > of 2.3.99 and 2.4.0-teX series (yes, teX was meant to be "testX"!)
+> > 
+> > So, the keyboard or pty driver is badly broken.
+> > 
+> > Regards,
+> > Tigran
+> > 
+> > PS. This only happens on this Dell latitude CPx (notice lost shift in
+> > Latitude?) H450GT.
+> > 
+> > PPS. No, my laptop is fine -- rebootingnto 2.2.x makes it type without
+> > loosing characters...
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264015AbTIJOHk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 10:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264055AbTIJOHj
+	id S264500AbTIJOF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 10:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264589AbTIJOF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 10:07:39 -0400
-Received: from [81.7.109.108] ([81.7.109.108]:5901 "EHLO trading.w3.lt")
-	by vger.kernel.org with ESMTP id S264015AbTIJOHh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 10:07:37 -0400
-From: "Wood Trading" <wood@trading.w3.lt>
-To: linux-kernel@vger.kernel.org
-Subject: Lumber
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-Reply-To: wood@trading.w3.lt
-Date: Wed, 10 Sep 2003 12:20:41 +0200
+	Wed, 10 Sep 2003 10:05:28 -0400
+Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:28319 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264500AbTIJOFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 10:05:22 -0400
+Subject: Re: [ANNOUNCE] New hardware - SGA155D dual STM-1/OC3 PCI ad
+From: Stewart Smith <stewart@linux.org.au>
+To: Horvath Gyorgy <HORVAATH@tmit.bme.hu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <1063119321.30379.19.camel@dhcp23.swansea.linux.org.uk>
+References: <200309091428.h89ES0Oe015172@alpha.ttt.bme.hu>
+	 <1063119321.30379.19.camel@dhcp23.swansea.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1063202707.7632.25.camel@willster>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Authenticated-Sender: a.sushko@trading.w3.lt
-X-Spam-Processed: trading.w3.lt, Wed, 10 Sep 2003 12:20:42 +0200
-	(not processed: message from valid local sender)
-X-Return-Path: wood@trading.w3.lt
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Message-ID: <MDAEMON-F200309101220.AA2042311md50000000050@trading.w3.lt>
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 11 Sep 2003 00:05:08 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-09-10 at 00:55, Alan Cox wrote:
+> > 4. Optionally - and if I have enough time - I'd like
+> >    to develop a twin-linear filesystem driver for
+> >    time-stamped capture/playback for multiple channels
+> >    of data - like a multi-band magnetic tape.
+> >    BTW do you know an existing one?
+> 
+> I've seen people do this in user space (just interleaving the disk in
+> big chunks in the app and driving it with O_DIRECT raw access) but not
+> in kernel file system space.
 
-Hello
+(from memory) I think that ext2/ext3 does (or at least did) this - they
+lacked any smart logic for rapid allocations - at least for inodes in
+the same cylinder group. I think this was mentioned in the "Journaling
+the ext2 filesystem" paper.
 
-I found the information about your company and your email address on the internet pages,
-related to the wood market (google,yahoo,emarketservices,globalwood etc.)
-As stated on the the mentioned search engines your business activity is the wood trading,
-At the present time i am looking for a buyer of the wood production from Lithuanian and Russian
-mills to the European, UK, USA or Japan markets (Russian and Lithuanian timber).
-The mills i represent in Lithuania, can produce almost everything from pine and spruce - either
-fingerjointed or solid. Other wood species can also be provided upon request (larch,oak etc.).
-Chinese plywood is also available upon your request. Wooden briquets as bio fuel are also available.
+This could probably be faked by taking out any intelligence in block
+allocation (allocate last block+1 or some such thing). Even as a mount
+option (seq_alloc), this could be useful (for this type of streaming).
+This will give you great write throughput, but if you don't read things
+off the same way you read them - reading is going to suck.
 
-Please visit my web site at http://trading.w3.lt
-to find more about all kinds of wood production i can supply.
+I read in a discussion of multimedia filesystems (for PVRs) that a block
+size of 256KB helped in throughput when playback configurations weren't
+known (the more data you read before seeking the better). google for
+"multimedia filesystems" - you'll find a fair few papers on such things.
 
-Also new kinds of production could be developed upon your requests.
-
-If you are interested in this proposal, please do not hesitate to contact me either by phone or email.
-Please let me know about any other wooden products you might be interested in or
-can propose to us.
-
-P.S. This email message is addressed to the people of wood trading business.
-If i emailed wrong person, please excuse me and delete this message immediately.
-
-
-With best regards,
-
-Alexander Sushko
-Wood trading,
-Lithuania
-
-Cell.phone:     +370 683 15227
-E-mail:	        a.sushko@trading.w3.lt
-                        wood@trading.w3.lt
-
-http://trading.w3.lt
-
-Instant Messaging contacts:
-MSN : asushko@hotmail.com
-ICQ:   215152715
-
-
-
+Things like XFS were designed for large, high bandwidth systems, so
+that's also worth looking into as a zero-effort approach :)
 

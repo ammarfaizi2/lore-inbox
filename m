@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276680AbRJBUxx>; Tue, 2 Oct 2001 16:53:53 -0400
+	id <S276677AbRJBU7M>; Tue, 2 Oct 2001 16:59:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276677AbRJBUxm>; Tue, 2 Oct 2001 16:53:42 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:22022 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S276679AbRJBUxd>;
-	Tue, 2 Oct 2001 16:53:33 -0400
-Date: Tue, 2 Oct 2001 22:51:34 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ben Greear <greearb@candelatech.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <E15oQYt-0004r1-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110022246300.2543-100000@localhost.localdomain>
+	id <S276682AbRJBU7D>; Tue, 2 Oct 2001 16:59:03 -0400
+Received: from vela.salleURL.edu ([130.206.42.85]:1462 "EHLO vela.salleURL.edu")
+	by vger.kernel.org with ESMTP id <S276677AbRJBU6t>;
+	Tue, 2 Oct 2001 16:58:49 -0400
+Date: Tue, 2 Oct 2001 23:17:19 +0200 (CEST)
+From: Carles Pina i Estany <is08139@salleURL.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: System reset on Kernel 2.4.10
+In-Reply-To: <Pine.LNX.4.33.0110022110070.21544-100000@vela.salleURL.edu>
+Message-ID: <Pine.LNX.4.33.0110022316210.28226-100000@vela.salleURL.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 2 Oct 2001, Alan Cox wrote:
 
-> What you really care about is limiting the total amount of CPU time
-> used for interrupt processing so that usermode progress is made.
-> [...]
+Hi,
 
-exactly. The estimator in -D9 tries to achieve precisely this, both
-hardirqs and softirqs are measured.
+> You can get this file here:
+> 	http://www.salleurl.edu/~is08139/hang.html
+> (10 k)
 
-> Silencing a specific target cannot be done by IRQ masking, you have to
-> ask the controller to shut up. It may be the default "shut up" handler
-> is disable_irq but that is non optimal.
+It seems that before the "mini-file" was a compressed file.
 
-this could be done later on, but i think this is out of question for 2.4,
-as it needs extensive changes in irq handler and network driver API.
+Now the web is good (with the entire file compressed and the first 10kb of
+file decompressed)
 
-	Ingo
+Sorry...
+
+
+----
+Carles Pina i Estany | Nick: Pinux / Pine / Teufeus
+http://www.salleURL.edu/~is08139/
+
+   ­­­Creoquesemehaestropeadolabarraespaciadora!!!
 

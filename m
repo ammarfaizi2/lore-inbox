@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbTISNGk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 09:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbTISNGk
+	id S261554AbTISNDi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 09:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbTISNDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 09:06:40 -0400
-Received: from host-38.mier.com ([198.138.183.38]:26057 "EHLO wwwsrvr")
-	by vger.kernel.org with ESMTP id S261553AbTISNGj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 09:06:39 -0400
-From: "Dan Van Derveer" <dan@cyberkni.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: Logitech Wireless Elite Keyboard
-Date: Fri, 19 Sep 2003 09:06:33 -0400
-Message-ID: <001a01c37eae$da29d610$0203a8c0@dandesktop>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Fri, 19 Sep 2003 09:03:38 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:57563 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261554AbTISNDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 09:03:37 -0400
+Date: Fri, 19 Sep 2003 14:02:08 +0100
+From: Dave Jones <davej@redhat.com>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>,
+       Marcelo Tossati <marcelo.tosatti@cyclades.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via-rhine apparently broken in 2.4.23-pre4
+Message-ID: <20030919130208.GA20814@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Bernhard Rosenkraenzer <bero@arklinux.org>,
+	Marcelo Tossati <marcelo.tosatti@cyclades.com.br>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.56.0309190254480.18687@dot.kde.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0309190254480.18687@dot.kde.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The keyboard produces unknown scancodes and escape sequences at
-(seemingly)random intervals. I receive this message when I am at the
-console:
-keyboard: unknown e1 escape sequence
-keyboard: unknown e1 escape sequence
-keyboard: unrecognized scancode (65) - ignored
+On Fri, Sep 19, 2003 at 02:58:21AM +0200, Bernhard Rosenkraenzer wrote:
+ > Unverified (due to lack of hardware) report from a user:
+ > 
+ > Updating from 2.4.22 to 2.4.23-pre4 breaks networking with an onboard VIA 
+ > Rhine II chip.
+ > 
+ > It seems to transfer about 2 kB of data, then stall forever.
 
-This issue also manifests itself in Xfree86 as a q character.
+It sends packets, but doesn't receive any.  To get it working I needed
+to apply Andrew de Quincey's ACPI IRQ fixes which are in -ac/-pac
+(These, or variants of are must-haves for 2.4.23).
 
-Where should I start to begin to fix this?
+A workaround in the meantime is to boot with pci=noacpi
 
-Dan Van Derveer
+		Dave
 
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282747AbRLBEoE>; Sat, 1 Dec 2001 23:44:04 -0500
+	id <S282728AbRLBExh>; Sat, 1 Dec 2001 23:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282726AbRLBEny>; Sat, 1 Dec 2001 23:43:54 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:42257 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S282728AbRLBEnp>; Sat, 1 Dec 2001 23:43:45 -0500
-Message-ID: <3C09B168.401E61C9@zip.com.au>
-Date: Sat, 01 Dec 2001 20:43:20 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+	id <S282773AbRLBEx1>; Sat, 1 Dec 2001 23:53:27 -0500
+Received: from adsl-63-193-243-214.dsl.snfc21.pacbell.net ([63.193.243.214]:19842
+	"EHLO dmz.ruault.com") by vger.kernel.org with ESMTP
+	id <S282772AbRLBExT>; Sat, 1 Dec 2001 23:53:19 -0500
+Message-ID: <3C09B3FA.61777E84@ruault.com>
+Date: Sat, 01 Dec 2001 20:54:18 -0800
+From: Charles-Edouard Ruault <ce@ruault.com>
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: space-00002@vortex.physik.uni-konstanz.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: buffer/memory strangeness in 2.4.16 / 2.4.17pre2
-In-Reply-To: <200111291201.fATC1pd04206@lists.us.dell.com> <200111292030.fATKU1s05921@vortex.physik.uni-konstanz.de> <3C075196.613894EA@zip.com.au>,
-		<3C075196.613894EA@zip.com.au> <200112012209.fB1M92s12294@vortex.physik.uni-konstanz.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: stephane@tuxfinder.org
+CC: Jeff Merkey <jmerkey@timpanogas.org>, J Sloan <jjs@pobox.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: File system Corruption with 2.4.16
+In-Reply-To: <3C0954D5.6AA3532B@ruault.com> <3C09580F.5F323195@pobox.com> <3C095B0B.7EA478C1@ruault.com> <003601c17ac2$7a8dec10$f5976dcf@nwfs> <3C096DB3.204CE41C@pobox.com> <001e01c17acb$a44b69c0$f5976dcf@nwfs> <20011202023145.A1628@emeraude.kwisatz.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-space-00002@vortex.physik.uni-konstanz.de wrote:
-> 
-> It is still the same in 2.4.17pre2 :-(
-> 
+The symlink problem you're reporting is exactly what i've been experiencing among
+other things ...
+on both systems i had multiple ext2 partitions and one reseirfs partition.
+The problem showed up after a few days of uptime. Both machines where not heaviliy
+loaded and had no memory shortage.
+It looks like it also happened on my third system, which had only 2 ext2 partitions
+. I was able to clean up this one with fsck and rebooted safely to 2.4.14 ....
+Given the fact that i'm not the only one to see the problem with 2.4.16 i'll safely
+backtrack all my machines to 2.4.14 ...
+If i can be of any help to pinpoint the problem please let me know. But since i'm
+not a kernel hacker i don't think i'll be pluging into the sources myself on my own
+!
+Thanks for the feedback !
+Charles-Edouard Ruault
 
-Yes, well, it would be.
+Stephane Jourdois wrote:
 
-It seems that what's happening is that all your buffercache memory
-is on the active list, and all your anonymous memory is on the
-inactive list.   Consequently the logic in shrink_caches() which
-is supposed to move pages onto the inactive list doesn't do anything - it
-just sits there calling refill_inactive() with a zero argument all
-the time.
+> On Sat, Dec 01, 2001 at 05:52:39PM -0700, Jeff Merkey wrote:
+> > ----- Original Message ----- From: "J Sloan" <jjs@pobox.com>
+> > > Just to be positive, can you reproduce the problem without nwfs?
+> > Yes. The problem shows up on ext2 partitions only.
+> I destroyed a  hard  disk  yesterday  with  2.4.16,  using  ext3.  A  heavy load
+> (compiling The gimp and several other things)  and everything came bad, symlinks
+> didn't work... (for exemple ln -s linux-2.4.17-pre2  linux did a link from linux
+> to linux either using linux-2.4.17-pre2 and /usr/src/linux-2.4.17-pre2.
+> > I see this lockup when I have more than  one file system mounted at a time. It
+> > does not happen when only a single  volume (superblock) has been mounted, only
+> > with multiples. Ditto the ext2 corruption. It only shows up when more than one
+> > superblock is active.
+> I had only one partition mounted at the moment (/dev/hda1 on / type ext3)
+>
+> Just in case : debian sid, gcc 2.95.4, everything up to date.
+>
+> We're living in a dangerous world, since 2.4.10...
+>
+> Ciao,
+>
+> --
+>  ///  Stephane Jourdois         /"\  ASCII RIBBON CAMPAIGN \\\
+> (((    Ingénieur développement  \ /    AGAINST HTML MAIL    )))
+>  \\\   6, av. de la Belle Image  X                         ///
+>   \\\  94440 Marolles en Brie   / \    +33 6 8643 3085    ///
 
-You'll find that if you push the machine really hard - allocate
-1.5x physical memory and touch it all then the VM will, eventually,
-with great reluctance and much swapping, relinquish the 30 megabytes
-of buffercache memory.  But it's out of whack.
-
-I tested the pre7aa1 patches and it seemed possibly a little better,
-but not right.
-
-If we put anon pages on the active list instead, then shrink_caches()
-and refill_inactive() start to do something, and they move that stale
-old buffercache memory onto the inactive list where it can be freed.
-
-This is just a random hack.  I don't understand what's going on in
-the VM, let alone what's *supposed* to be going on.  And given the
-state of documentation available to us,  I never will.
-
-
---- linux-2.4.17-pre2/mm/memory.c	Thu Nov 22 23:02:59 2001
-+++ linux-akpm/mm/memory.c	Sat Dec  1 20:14:28 2001
-@@ -1174,6 +1174,7 @@ static int do_anonymous_page(struct mm_s
- 		flush_page_to_ram(page);
- 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
- 		lru_cache_add(page);
-+		activate_page(page);
- 	}
- 
- 	set_pte(page_table, entry);
-
--

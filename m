@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVCCQHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVCCQP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbVCCQHh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 11:07:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVCCQHg
+	id S261875AbVCCQP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 11:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVCCQP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 11:07:36 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:1994 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261869AbVCCQHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 11:07:24 -0500
-Date: Thu, 3 Mar 2005 17:07:20 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: pci_find_class obsolete
-In-Reply-To: <42271D12.90408@tiscali.de>
-Message-ID: <Pine.LNX.4.61.0503031551460.1007@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0503031436490.22266@yvahk01.tjqt.qr>
- <42271D12.90408@tiscali.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 3 Mar 2005 11:15:28 -0500
+Received: from lakshmi.addtoit.com ([198.99.130.6]:5383 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261875AbVCCQPV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 11:15:21 -0500
+Message-Id: <200503030804.j2384WBY016301@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: Chris Wright <chrisw@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc5-mm1 
+In-Reply-To: Your message of "Tue, 01 Mar 2005 13:49:16 PST."
+             <20050301214916.GJ28536@shell0.pdx.osdl.net> 
+References: <20050301012741.1d791cd2.akpm@osdl.org>  <20050301214916.GJ28536@shell0.pdx.osdl.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 03 Mar 2005 03:04:32 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+chrisw@osdl.org said:
+> I just did a more complete grep of the symbols that can get config'd
+> away (including CONFIG_AUDIT as well), and I think there's a few more
+> missing pieces.  Sorry about that.  Jeff, Ralf, Martin, these look ok?
 
->> What function would I need to use, now that pci_find_class is gone?
+For UML, this is fine as far as it goes, but you're adding register references
+to arch-independent code, so this is needed as well:
 
-> Hi!
-> you have to use pci_get_class (). But have a look at the patches for 6111 
-> on my webiste:
+Index: linux-2.6.10/arch/um/kernel/ptrace.c
+===================================================================
+--- linux-2.6.10.orig/arch/um/kernel/ptrace.c	2005-03-03 00:14:46.000000000 -0500
++++ linux-2.6.10/arch/um/kernel/ptrace.c	2005-03-03 00:22:58.000000000 -0500
+@@ -340,11 +341,15 @@
+ 
+ 	if (unlikely(current->audit_context)) {
+ 		if (!entryexit)
+-			audit_syscall_entry(current, regs->orig_eax,
+-					    regs->ebx, regs->ecx,
+-					    regs->edx, regs->esi);
++			audit_syscall_entry(current, 
++					    UPT_SYSCALL_NR(&regs->regs),
++					    UPT_SYSCALL_ARG1(&regs->regs),
++					    UPT_SYSCALL_ARG2(&regs->regs),
++					    UPT_SYSCALL_ARG3(&regs->regs),
++					    UPT_SYSCALL_ARG4(&regs->regs));
+ 		else
+-			audit_syscall_exit(current, regs->eax);
++			audit_syscall_exit(current, 
++					   UPT_SYSCALL_RET(&regs->regs));
+ 	}
+ 
+ 	/* Fake a debug trap */
 
-I use 4996 because it uses four times less kernel memory than 6111. (And on 
-top, 6111 does not give me any performance improvements over 4996.)
-
-> http://unixforge.org/~matthias-christian-ott/index.php?entry=entry050303-082233
-What's the patch doing?
-
-I do not use AGPGART/DRI - no performance plus either.
-
-
-
-Jan Engelhardt
--- 

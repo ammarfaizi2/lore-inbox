@@ -1,101 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129160AbRBMSpO>; Tue, 13 Feb 2001 13:45:14 -0500
+	id <S129027AbRBMSqe>; Tue, 13 Feb 2001 13:46:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129101AbRBMSpE>; Tue, 13 Feb 2001 13:45:04 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:60427 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129032AbRBMSov>; Tue, 13 Feb 2001 13:44:51 -0500
-Message-ID: <3A896CB5.82BD1ADC@programmfabrik.de>
-Date: Tue, 13 Feb 2001 18:19:49 +0100
-From: Martin Rode <Martin.Rode@programmfabrik.de>
-Organization: Programmfabrik GmbH
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-9mdk i686)
-X-Accept-Language: en
+	id <S129032AbRBMSqO>; Tue, 13 Feb 2001 13:46:14 -0500
+Received: from ip164-150.fli-ykh.psinet.ne.jp ([210.129.164.150]:24259 "EHLO
+	standard.erephon") by vger.kernel.org with ESMTP id <S129027AbRBMSqD>;
+	Tue, 13 Feb 2001 13:46:03 -0500
+Message-ID: <3A8980CA.5A5DADB3@yk.rim.or.jp>
+Date: Wed, 14 Feb 2001 03:45:31 +0900
+From: Ishikawa <ishikawa@yk.rim.or.jp>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: ja, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: BUG in sched.c, Kernel 2.4.1?
-In-Reply-To: <3A8942FA.484BE2FC@programmfabrik.de> <3A8944F1.93C252EB@didntduck.org> <3A895194.89D69AE9@programmfabrik.de> <3A8956E9.402D0136@didntduck.org>
-Content-Type: multipart/mixed;
- boundary="------------E2993B8F972F82382F81FCEF"
+To: Ralf Oehler <ro@GDImbH.com>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Kernel panic: Ththththaats all folks
+In-Reply-To: <200102131612.RAA26210@marvin.GDImbH.Com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------E2993B8F972F82382F81FCEF
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+> My system:
+> Pentium-II, 350 MHz, 64MB
+> Adaptec AHA-2940A (-> aic7xxx.o)
+> kernel: 2.4.0
+> patch:  SGI-debugger (kdb-v1.7-2.4.0)
+>
+> Some more details:
+> My jukebox consists of a picker device (sg.o) and some MO-drives (sd_mod.o)
+> The sg.o attaches to all these devices, while sd attaches to the drives only.
+> My jukebox driver registers as scsi-disk-device, moves a medium to a free drive
+> (via sg), opens sd for the drive and further maps
+> ( see ll_rw_blk.c: generic_make_request() ) the requests to sd.
+> For testing I run more copy-processes to mounted virtual jukebox-disks
+> than there are physical drives. So the picker-thread alternatingly moves the
+> involved media between their storage-slots the drives while the copy-processes
+> do stop-and-go.
+> It works well, just until SCSI timeouts occur...
+>
+> The kernel-panic occurs, independently of the presence of tagged queuing, some time
+> (seconds or minutes) after the occurence of disconnected timeouts for the
+> SCSI-READ/WRITE commands to the MO-drives (by sd_mod.o).
+> I see some messages about bus-resets in the syslog, then the kernel stops.
+>
+> Can anybody help ...?
 
-Re-ran ksymoops:
+I used to see kernel panic when I  used a 7 CD changer
+(Nakamichi MBR-7) if I mount two CDs and
+tried to access them simultaneously.
+It was during 2.2.xx, and 2.3.yy development.
+I can't recall what happened during 2.0.zz.
 
-; Martin
+My problem with just 2 CDs mounting seems to have been
+solved in the latest 2.4.1 kernel and the driver.
+I use tmscsim (DC390) driver.
+Admittedly, just two CDs in a seven CD changer drive
+is not a heavy workload in comparison to yours.
+So the bug is still lurking somewhere but is now harder
+to spot by casual users.
 
+I vaguely recall one thing.
+During the earlier 2.3.1xx or even during 2.2.yy development and
+debugging efforts.
+some timeout values in the driver and SCSI subsystem
+were tweaked to see if the change would affect
+the behavior of the drive. I remember
+the symptom or the frequencey of the kenrel hung
+were lessened.
+The hung never disappered completely, though
+in my setting. (However, at certain point in
+time during 2.3.1xx
+development, using BusLogic Flashpoint
+card and the buslogic driver
+somehow eliminated the kernel panic I saw with DC390
+card with tmscsim driver. So I figured that a very subtle
+interaction of timeout values and such were responsible
+for the problem. I tried to see if I could find the
+difference of timeout values between tmscsim and buslogic
+driver, but didn't follow through due to lack of time then.
+My guess is that it must have been the timeout value setting
+as well as the use of new and old scsi error handler code back then.)
 
+It might be that you need to see if there are
+hard-coded timeout values in aic7xxx.o and
+see if they could be LENGTHENED without breaking
+scsi compatibility with other devices: but you don't
+have other devices on the same scsi chain, do you?
 
-kernel BUG at sched.c:714!
-invalid operand: 0000
-CPU: 0
-EIP: 0010:[<c0113781>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 0000001b ebx 00000000 ecx df4f6000 edx 00000001
-esi: 001cffe3 edi db5eede0 ebp dc0e9f40 esp dc0e9ef0
-stack: c01f26f3 c01f2856 000002ca db5eed80 dc0e8000 db5eede0 dc0e9f18
-dc0e8000 000033ba 00000000 00000000 000000e7 0000001c 0000001c
-fffffff3 dc0e8000 00000800 00000000 dc0e8000 dc0e9f68 c0139c44
-d488bf80 00000000
-call trace: [<c0139c44>] [<c0139d1c>] [<c0130af6>] [<c0108e93>]
-code: 0f 0b 8d 65 bc 5b 5e 5f 89 ec 5d c3 8d 76 00 55 89 e5 83 ec
+When these timeout occurs and resets are invoked,
+the old scsi error handler can get into a big trouble
+sometimes,  and it has been a constant irritation for
+scsi users with esoteric devices such as yours,
+slow-starting scanners, or CD changers like mine.
 
->>EIP; c0113781 <schedule+421/430>   <=====
-Trace; c0139c44 <pipe_wait+44/9c>
-Trace; c0139d1c <pipe_read+80/238>
-Trace; c0130af6 <sys_read+5e/c4>
-Trace; c0108e93 <system_call+33/40>
-Code;  c0113781 <schedule+421/430>
-00000000 <_EIP>:
-Code;  c0113781 <schedule+421/430>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0113783 <schedule+423/430>
-   2:   8d 65 bc                  lea    0xffffffbc(%ebp),%esp
-Code;  c0113786 <schedule+426/430>
-   5:   5b                        pop    %ebx
-Code;  c0113787 <schedule+427/430>
-   6:   5e                        pop    %esi
-Code;  c0113788 <schedule+428/430>
-   7:   5f                        pop    %edi
-Code;  c0113789 <schedule+429/430>
-   8:   89 ec                     mov    %ebp,%esp
-Code;  c011378b <schedule+42b/430>
-   a:   5d                        pop    %ebp
-Code;  c011378c <schedule+42c/430>
-   b:   c3                        ret
-Code;  c011378d <schedule+42d/430>
-   c:   8d 76 00                  lea    0x0(%esi),%esi
-Code;  c0113790 <__wake_up+0/9c>
-   f:   55                        push   %ebp
-Code;  c0113791 <__wake_up+1/9c>
-  10:   89 e5                     mov    %esp,%ebp
-Code;  c0113793 <__wake_up+3/9c>
-  12:   83 ec 00                  sub    $0x0,%esp
+It seems that old SCSI standards never mentioned
+anything about device startup time or
+dead time during transition of the media into the
+drive,  or for that matter, the time it takes DAT drives
+to rewind the tape and so the
+application and/or driver writer needs to
+take care of these long silent/dead time without causing
+timeout (and yet not miss the real time out from other
+faster devices.)
 
-Kernel panic: Aiee, killing interrupt handler!
+BTW, I was pleasantly surprised to see the nicely formatted
+dump of registers and such. It seems that kdb is really
+useful for the type of analysis at hand!
 
-971 warnings and 5 errors issued.  Results may not be reliable.
---------------E2993B8F972F82382F81FCEF
-Content-Type: text/x-vcard; charset=iso-8859-1;
- name="Martin.Rode.vcf"
-Content-Transfer-Encoding: base64
-Content-Description: Card for Martin Rode
-Content-Disposition: attachment;
- filename="Martin.Rode.vcf"
+Happy Hacking,
 
-YmVnaW46dmNhcmQgCm46Um9kZTtNYXJ0aW4KdGVsO2NlbGw6KzQ5LTE3MS0xMjU5NTI1CnRl
-bDtmYXg6KzQ5LTMwLTQyODEtODAwOAp0ZWw7d29yazorNDktMzAtNDI4MS04MDAxCngtbW96
-aWxsYS1odG1sOlRSVUUKdXJsOnd3dy5wcm9ncmFtbWZhYnJpay5kZS9+bWFydGluCm9yZzpQ
-cm9ncmFtbWZhYnJpayBHbWJIO0VudHdpY2tsdW5nCmFkcjo7O0ZyYW5rZnVydGVyIEFsbGVl
-IDczZDsxMDI0NyBCZXJsaW47OztHZXJtYW55CnZlcnNpb246Mi4xCmVtYWlsO2ludGVybmV0
-Ok1hcnRpbi5Sb2RlQHByb2dyYW1tZmFicmlrLmRlCnRpdGxlOkRpcGwuLUtmbS4KeC1tb3pp
-bGxhLWNwdDo7LTI4OTYwCmZuOk1hcnRpbiBSb2RlCmVuZDp2Y2FyZAo=
---------------E2993B8F972F82382F81FCEF--
+Chiaki Ishikawa
+
 

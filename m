@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264219AbTICSP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:15:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264187AbTICSOg
+	id S264225AbTICSSG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:18:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264179AbTICSQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:14:36 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:42764 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S264179AbTICSMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:12:37 -0400
-Date: Wed, 3 Sep 2003 15:13:14 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew de Quincey <adq_dvb@lidskialf.net>, Roger Luethi <rl@hellgate.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>,
-       Andrew Grover <andrew.grover@intel.com>,
-       "Brown, Len" <len.brown@intel.com>
-Subject: Re: [ACPI] Where do I send APIC victims?
-In-Reply-To: <1062589205.19059.6.camel@dhcp23.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0309031511420.6102-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Sep 2003 14:16:10 -0400
+Received: from holomorphy.com ([66.224.33.161]:36489 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264191AbTICSOm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 14:14:42 -0400
+Date: Wed, 3 Sep 2003 11:15:50 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Larry McVoy <lm@work.bitmover.com>, "Brown, Len" <len.brown@intel.com>,
+       Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+Message-ID: <20030903181550.GR4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Larry McVoy <lm@work.bitmover.com>,
+	"Brown, Len" <len.brown@intel.com>,
+	Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com> <20030903111934.GF10257@work.bitmover.com> <20030903180037.GP4306@holomorphy.com> <20030903180547.GD5769@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030903180547.GD5769@work.bitmover.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At some point in the past, I wrote:
+>> The lines of reasoning presented against tightly coupled systems are
+>> grossly flawed. 
+
+On Wed, Sep 03, 2003 at 11:05:47AM -0700, Larry McVoy wrote:
+> [etc].
+> Only problem with your statements is that IBM has already implemented all
+> of the required features in VM.  And multiple Linux instances are running
+> on it today, with shared disks underneath so they don't replicate all the
+> stuff that doesn't need to be replicated, and they have shared memory 
+> across instances.
+
+Independent operating system instances running under a hypervisor don't
+qualify as a cache-coherent cluster that I can tell; it's merely dynamic
+partitioning, which is great, but nothing to do with clustering or SMP.
 
 
-On Wed, 3 Sep 2003, Alan Cox wrote:
-
-> On Mer, 2003-09-03 at 11:48, Andrew de Quincey wrote:
-> > 2.4.22 has the ACPI from 2.6 backported into it, (which includes my patch for 
-> > nforce2 boards) so it will start having the same issue with the BIOS bug in 
-> > KT333/KT400  boards.
-> 
-> It does - 2.4.22pre7 is great on my boxes, 2.4.22 final ACPI is
-> basically unusable on anything I own thats not intel. 
-
-I've collected a few 2.4.22 ACPI problems and sent them to the ACPI guys.
-
-Randy, Len? Any update on any bug? 
-
+-- wli

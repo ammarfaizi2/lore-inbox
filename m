@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271957AbRH2M7j>; Wed, 29 Aug 2001 08:59:39 -0400
+	id <S271961AbRH2NOc>; Wed, 29 Aug 2001 09:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271958AbRH2M73>; Wed, 29 Aug 2001 08:59:29 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:64547 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S271957AbRH2M7K>; Wed, 29 Aug 2001 08:59:10 -0400
-Date: Wed, 29 Aug 2001 07:58:07 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200108291258.HAA66579@tomcat.admin.navo.hpc.mil>
-To: VDA@port.imtp.ilyichevsk.odessa.ua, Jesse Pollard <jesse@cats-chateau.net>
-Subject: Re: Shutting down NFS
-CC: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S271962AbRH2NON>; Wed, 29 Aug 2001 09:14:13 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:52656 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S271961AbRH2NOI> convert rfc822-to-8bit; Wed, 29 Aug 2001 09:14:08 -0400
+Importance: Normal
+Subject: Re: VM: Bad swap entry 0044cb00
+To: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
+Cc: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF189FBE02.DCD70B2A-ONC1256AB7.0046D3BE@de.ibm.com>
+From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
+Date: Wed, 29 Aug 2001 15:14:43 +0200
+X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 29/08/2001 15:14:14
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-VDA <VDA@port.imtp.ilyichevsk.odessa.ua>:
-> Hello Jesse,
-> 
-> Tuesday, August 28, 2001, 4:42:48 AM, you wrote:
-> JP> On Mon, 27 Aug 2001, VDA wrote:
-> >>...
-> >>  killall5 -15; sleep 2; killall5 -9:
-> >>    1st run - nothing
-> >>    2nd run - nfsd dies
-> >>    3rd run - lockd/statd die
-> >>    (This is strange. Complicates shutdown script)
-> 
-> JP> You are using 2 second delay, which might be a bit short, but not unreasonable.
-> 
-> I have tested this not by shutting down my system but by running a
-> test script, watching "ps -AH e" after each run.
-> After first run of "killall5 -15; sleep 2; killall5 -9" NFS daemons
-> DON'T die at all. After second run only nfsd dies. Only third run
-> kills lockd and statd. It does not matter how long I wait between
-> runs. (however I didn't wait for minutes. Do you want me to try it?)
-> Am I supposed to do the same in shutdown script, i.e.
-> 
-> killall5 -15; sleep 5; killall5 -9; sleep 5
-> killall5 -15; sleep 5; killall5 -9; sleep 5
-> killall5 -15; sleep 5; killall5 -9 ?
-> 
-> This looks ugly and total sleep time is 25 sec.
-> A better way is to make NFS daemons understand what user wants after
-> first call, not a third.
 
-This already looks like overkill :-) Only the first one should be
-needed. I can understand that NFSD could disable signal 15, but not
-how it can disable 9... The only way I know for that to happen is
-if the process is in an uninterruptable sleep for some reason (and
-that should only delay signal delivery, not eliminate it).
 
-I'll have to look at the sources  to get more details.
+After some debug if think that the function which was called is:
 
-Everything else looks reasonable (even with a two second sleep).
+zap_page_range
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+which inlines: zap_pmd_range
+which inlines: zap_pte_range
+which inlines: free_pte
+which calls: swap_free
+Adress 30d00 is part of the call to swap_free.
 
-Any opinions expressed are solely my own.
+
+
+--
+Mit freundlichen Grüßen / Best Regards
+
+Christian Bornträger
+IBM Deutschland Entwicklung GmbH
+eServer SW  System Evaluation + Test
+email: CBORNTRA@de.ibm.com
+Tel +49 7031-16-3507
+
+

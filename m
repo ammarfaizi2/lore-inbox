@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264666AbSJRHGS>; Fri, 18 Oct 2002 03:06:18 -0400
+	id <S265028AbSJRHJX>; Fri, 18 Oct 2002 03:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264989AbSJRHGR>; Fri, 18 Oct 2002 03:06:17 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:16656 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264666AbSJRHGQ>;
-	Fri, 18 Oct 2002 03:06:16 -0400
-Date: Fri, 18 Oct 2002 00:11:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Crispin Cowan <crispin@wirex.com>
-Cc: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+	id <S265029AbSJRHJX>; Fri, 18 Oct 2002 03:09:23 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:6084 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265028AbSJRHJW>;
+	Fri, 18 Oct 2002 03:09:22 -0400
+Date: Fri, 18 Oct 2002 00:07:38 -0700 (PDT)
+Message-Id: <20021018.000738.05626464.davem@redhat.com>
+To: crispin@wirex.com
+Cc: hch@infradead.org, greg@kroah.com, torvalds@transmeta.com,
        linux-kernel@vger.kernel.org, linux-security-module@wirex.com
 Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021018071152.GL3896@kroah.com>
-References: <20021017195015.A4747@infradead.org> <20021017185352.GA32537@kroah.com> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com> <20021017210402.A7741@infradead.org> <20021017201030.GA384@kroah.com> <20021017211223.A8095@infradead.org> <3DAFB260.5000206@wirex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: "David S. Miller" <davem@redhat.com>
 In-Reply-To: <3DAFB260.5000206@wirex.com>
-User-Agent: Mutt/1.4i
+References: <20021017201030.GA384@kroah.com>
+	<20021017211223.A8095@infradead.org>
+	<3DAFB260.5000206@wirex.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 12:04:00AM -0700, Crispin Cowan wrote:
-> Why the fierce desire to remove something so cheap?
+   From: Crispin Cowan <crispin@wirex.com>
+   Date: Fri, 18 Oct 2002 00:04:00 -0700
 
-Because it's so crappy :)
+   Christoph Hellwig wrote:
+   
+   >On Thu, Oct 17, 2002 at 01:10:31PM -0700, Greg KH wrote:
+   >I know.  but hiding them doesn't make them any better..
 
-And will not work properly on all architectures, which is one of the
-biggest reasons to get rid of it, IMHO.
+   Actuall, yes it does, and that is the point. You don't have to like 
+   SELinux's system calls, or any other module's syscalls. The whole point 
+   of LSM was to decouple security design from the Linux kernel development.
 
-thanks,
+Anything which passes a completely opaque value through a system
+call is a sign of trouble, design wise.
 
-greg k-h
+There is simply no way we can enfore proper portable typing by
+all these security module authors such that we can do any kind
+of proper 32-bit/64-bit syscall translation on the ports that
+need to do this.
+
+If we do things such as the fs stacking or fs filter ideas,
+that eliminates a whole swath of the facilities the security_ops
+"provide".  No ugly syscalls passing opaque types through the kernel
+to some magic module, but rather a real facility that is useful
+to many things other than LSM.
+

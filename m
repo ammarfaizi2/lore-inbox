@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUEOWlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264772AbUEOWqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbUEOWlM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 18:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUEOWlM
+	id S264772AbUEOWqk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 18:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUEOWqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 18:41:12 -0400
-Received: from main.gmane.org ([80.91.224.249]:32165 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264763AbUEOWlJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 18:41:09 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: walt <wa1ter@myrealbox.com>
-Subject: Re: [OT] "bk pull" does not update my sources...?
-Date: Sat, 15 May 2004 10:59:05 -0700
-Message-ID: <c85lk9$96j$1@sea.gmane.org>
-References: <40A51CFB.7000305@g-house.de>
-Mime-Version: 1.0
+	Sat, 15 May 2004 18:46:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59817 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264772AbUEOWqj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 18:46:39 -0400
+Message-ID: <40A69DC0.9060109@pobox.com>
+Date: Sat, 15 May 2004 18:46:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pekka Pietikainen <pp@ee.oulu.fi>
+CC: Miroslav Zubcic <mvz@nimium.com>, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz, netdev@oss.sgi.com
+Subject: Re: [PATCH] Re: ethernet/b44: Bug in b44.c:v0.93 (Mar, 2004) ethernet
+ driver in 2.6.6
+References: <lzekpnlxwl.fsf@nimiumvax.nimium.local> <20040514130206.GA9583@ee.oulu.fi> <20040515120518.GA9480@ee.oulu.fi>
+In-Reply-To: <20040515120518.GA9480@ee.oulu.fi>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-67-119-36-247.dsl.lsan03.pacbell.net
-User-Agent: Mozilla/5.0 (X11; U; NetBSD i386; en-US; rv:1.6) Gecko/20040401
-X-Accept-Language: en-us, en
-In-Reply-To: <40A51CFB.7000305@g-house.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian wrote:
-> hi,
-> 
-> being a beginner with Bitkeeper repositories i used to "clone" 
-> bk://linux.bkbits.net/linux-2.5 to my disk, then did "bk -r get" (as 
-> advised elsewhere) and do "bk pull" every now and then. but i noted the 
-> following:
-> 
-> evil@sheep:/usr/src/linux-2.6-BK$ date
-> Fr Mai 14 21:09:51 CEST 2004
-> evil@sheep:/usr/src/linux-2.6-BK$ bk pull
-> Pull bk://linux.bkbits.net/linux-2.5
->   -> file://usr/src/linux-2.6-BK
-> Nothing to pull.
-> evil@sheep:/usr/src/linux-2.6-BK$ head -n5 Makefile
-> VERSION = 2
-> PATCHLEVEL = 6
-> SUBLEVEL = 6
-> EXTRAVERSION =
+Ignore my last email...  I used BK to clone a 2.6.5 tree, then merge to 
+latest.
 
-This is correct.  Linus does not include the 'bk' in the 'extraversion' field.
-Doing a 'bk pull' will always get you the most recent changes.  If you see the
-'Nothing to pull' message then Linus has not posted any changes since the last
-time you pulled.
+Patch applied.
 
-Everything seems OK so far.
+	Jeff
+
+
+
 

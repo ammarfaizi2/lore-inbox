@@ -1,93 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUHFLff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUHFLiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265789AbUHFLff (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 07:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUHFLff
+	id S265808AbUHFLiR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 07:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbUHFLiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 07:35:35 -0400
-Received: from cantor.suse.de ([195.135.220.2]:5310 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265789AbUHFLfa (ORCPT
+	Fri, 6 Aug 2004 07:38:17 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6280 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265808AbUHFLiN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 07:35:30 -0400
-Date: Fri, 6 Aug 2004 13:31:02 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: torvalds@osdl.org, vda@port.imtp.ilyichevsk.odessa.ua,
-       gene.heskett@verizon.net, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Possible dcache BUG
-Message-Id: <20040806133102.25a7c2bf.ak@suse.de>
-In-Reply-To: <20040806073739.GA6617@elte.hu>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
-	<200408042216.12215.gene.heskett@verizon.net>
-	<Pine.LNX.4.58.0408042359460.24588@ppc970.osdl.org>
-	<200408051133.55359.vda@port.imtp.ilyichevsk.odessa.ua>
-	<Pine.LNX.4.58.0408050913320.24588@ppc970.osdl.org>
-	<20040805180634.GA26732@elte.hu>
-	<Pine.LNX.4.58.0408051144520.24588@ppc970.osdl.org>
-	<20040806073739.GA6617@elte.hu>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 6 Aug 2004 07:38:13 -0400
+Date: Fri, 6 Aug 2004 13:37:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040806113755.GP10274@suse.de>
+References: <200408061018.i76AIdmV005276@burner.fokus.fraunhofer.de> <20040806104221.GL10274@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040806104221.GL10274@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Aug 2004 09:37:39 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
-
-
+On Fri, Aug 06 2004, Jens Axboe wrote:
+> > >> -	Only the first 14 bytes of SCSI Sense data is returned (reported
+> > >>	in 1998) This is extremely important - it prevents me from unsing
+> > >>	Linux as a development platform.	
+> > >> 
+> > >> 	Time to fix: about one month to rework the whole SCSI driver
+> > >> 	stack.  With good luck, this may be done on 2 days.
+> > 
+> > >2.6 uses 96 byte sense buffers inside the command and copies back as
+> > >much as specified in the sense buffer, I fear you have to qualify this
+> > >bug some more (for SCSI). ide-cd uses 18 bytes.
+> > 
+> > If this is true, it could be documented by running "scgcheck". I would
+> > be happy to include some text like "fixed in Linux-2.9.199" somewhere
+> > in README.linux or README.ATAPI.
 > 
-> ebx is 00000008, it came in from (%esi), which is (0xc20a7b30) - that
-> looks like a valid pointer.
-> 
-> to me this crash seems to imply prefetch.
+> Great.
 
+So I downloaded:
 
-Can you add the following patch and see if it triggers at all? 
+ftp://ftp.berlios.de/pub/cdrecord/alpha/cdrtools-2.01a35.tar.gz
 
-Maybe it is just the software prefetch fault handler that is somehow buggy.
-There was a change there recently to handle NX, maybe that broke something.
+and built it, ran scgcheck on a SCSI hard drive. And you pass in
+->mx_sb_len == 16 to the sg driver, so that's why it's not copying more
+than 16 bytes back to you. There are 18 available in that first test
+case. Here's that test case:
 
-Also testing with prefetch disabled (see my earlier patch) may also be useful
-just to see if it triggers then too.
+Testing if at least CCS_SENSE_LEN (18) is supported...
+Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 00
+---------->     Method 0x00: expected: 18 reported: 16 max found: 16
+Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 FF FF
+---------->     Method 0xFF: expected: 18 reported: 16 max found: 16
+---------->     Minimum standard (CCS) sense length failed
+---------->     Wanted 18 sense bytes, got (16)
+Testing for 32 bytes of sense data...
+Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00
+---------->     Method 0x00: expected: 32 reported: 16 max found: 16
+Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 FF FF FF FF
+FF FF FF FF FF FF FF FF FF FF FF FF
+---------->     Method 0xFF: expected: 32 reported: 16 max found: 16
+---------->     Wanted 32 sense bytes, got (16)
+----------> Got a maximum of 16 sense bytes
+----------> SCSI sense count test FAILED
+----------> SCSI status byte test NOT YET READY
 
--Andi
+Changing your scsi-linux-sg.c to set max sense to 64:
 
-diff -u linux-2.6.8rc2-update/arch/i386/mm/fault.c-o linux-2.6.8rc2-update/arch/i386/mm/fault.c
---- linux-2.6.8rc2-update/arch/i386/mm/fault.c-o	2004-07-28 02:23:24.000000000 +0200
-+++ linux-2.6.8rc2-update/arch/i386/mm/fault.c	2004-08-05 22:20:02.000000000 +0200
-@@ -21,6 +21,7 @@
- #include <linux/vt_kern.h>		/* For unblank_screen() */
- #include <linux/highmem.h>
- #include <linux/module.h>
-+#include <linux/kallsyms.h>
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -185,6 +186,12 @@
- 			break;
- 		} 
- 	}
-+
-+	if (prefetch) {		
-+		printk("corrected prefetch fault at %lx ", addr);
-+		print_symbol("eip %s\n", regs->eip);
-+	} 
-+
- 	return prefetch;
- }
- 
-@@ -193,6 +200,9 @@
- {
- 	if (unlikely(boot_cpu_data.x86_vendor == X86_VENDOR_AMD &&
- 		     boot_cpu_data.x86 >= 6)) {
-+		printk("possible prefetch fault at %lx ", addr);
-+		print_symbol("eip %s\n", regs->eip);
-+
- 		/* Catch an obscure case of prefetch inside an NX page. */
- 		if (nx_enabled && (error_code & 16))
- 			return 0;
+Testing if at least CCS_SENSE_LEN (18) is supported...
+Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 03
+---------->     Method 0x00: expected: 18 reported: 18 max found: 18
+Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 03
+---------->     Method 0xFF: expected: 18 reported: 18 max found: 18
+---------->     Wanted 18 sense bytes, got it.
+Testing for 32 bytes of sense data...
+Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 03 00 00
+00 00 00 00 00 00 00 00 00 00 00 00
+---------->     Method 0x00: expected: 32 reported: 18 max found: 18
+Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 03 FF FF
+FF FF FF FF FF FF FF FF FF FF FF FF
+---------->     Method 0xFF: expected: 32 reported: 18 max found: 18
+---------->     Wanted 32 sense bytes, got (18)
+----------> Got a maximum of 18 sense bytes
+----------> SCSI sense count test PASSED
+----------> SCSI status byte test NOT YET READY
 
+and it passes just fine. What's the deal?
 
-
+-- 
+Jens Axboe
 

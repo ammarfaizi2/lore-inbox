@@ -1,168 +1,175 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbTLBQwO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 11:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTLBQwO
+	id S262188AbTLBQ5M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 11:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTLBQ5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 11:52:14 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:55456 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S261774AbTLBQwG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 11:52:06 -0500
-Date: Tue, 02 Dec 2003 08:51:56 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 1627] New: system crashes after 3 hours test
-Message-ID: <49580000.1070383916@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Dec 2003 11:57:12 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:14473 "EHLO
+	catnet.kabel.utwente.nl") by vger.kernel.org with ESMTP
+	id S262188AbTLBQ5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 11:57:01 -0500
+Date: Tue, 2 Dec 2003 17:56:53 +0100
+From: Wilmer van der Gaast <lintux@lintux.cx>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.23 masquerading broken?
+Message-ID: <20031202165653.GJ615@gaast.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pMCBjikF2xGw87uL"
 Content-Disposition: inline
+X-Operating-System: Linux 2.4.23 on a i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1627
 
-           Summary: system crashes after 3 hours test.
-    Kernel Version: 2.6.0-test9
-            Status: NEW
-          Severity: high
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: dvnguyen@us.ibm.com
-                CC: wmb@us.ibm.com
+--pMCBjikF2xGw87uL
+Content-Type: multipart/mixed; boundary="PWfwoUCx3AFJRUBq"
+Content-Disposition: inline
 
 
-Distribution:
-Hardware Environment:
-pSeries p650
-Software Environment:
-2.6.0-test9
-Problem Description:
-Ran SPECweb99_SSL benchmark test for 3 hours and system crashed .
-Here are some information about xmon:
-0:mon> t
-c0000007fc70fd00  c00000000035ddfc  .tcp_do_twkill_work+0x19c/0x1b0
-c0000007fc70fdd0  c00000000035e064  .twkill_work+0x11c/0x1b4
-c0000007fc70fe80  c00000000006457c  .worker_thread+0x280/0x3b8
-c0000007fc70ff90  c000000000017d4c  .kernel_thread+0x4c/0x68
-0:mon>
-0:mon> r
-R00 = 0000000000000001   R16 = 0000000000000000
-R01 = c0000007fc70fd00   R17 = 0000000000000000
-R02 = c000000000679000   R18 = 0000000000000000
-R03 = c0000007fc2a5b80   R19 = 0000000000000000
-R04 = c0000007fc2a4000   R20 = 0000000000c00000
-R05 = 0000000000000000   R21 = 0000000000000000
-R06 = c0000000005ec880   R22 = c000000000745ce8
-R07 = c0000007f9000000   R23 = 0000000000000064
-R08 = 00000000000d4c50   R24 = 0000000000000000
-R09 = 0000000000000000   R25 = 0000000000000001
-R10 = 0000000000000001   R26 = 0000000000000001
-R11 = c0000007fc2a4010   R27 = c00000065069aef8
-R12 = 0000000024000080   R28 = c00000062d56acf8
-R13 = c0000000005aa000   R29 = c0000000004ea428
-R14 = 0000000000000000   R30 = c0000000005927e8
-R15 = 0000000000000000   R31 = c00000062d56ac80
-pc  = c00000000035dce0   msr = 9000000000009032
-lr  = c00000000035ddfc   cr  = 0000000084008080
-ctr = 0000000000000000   xer = 0000000020000000   trap =      300
-0:mon> S
-msr  = 9000000000001032  sprg0= 0000000000000000
-pvr  = 0000000000380201  sprg1= 0000000000000000
-dec  = 000000003f96aab1  sprg2= 0000000000c00000
-sp   = c0000007fc70f560  sprg3= c0000000005aa000
-toc  = c000000000679000  dar  = 0000000000000000
-srr0 = c00000000000a888  srr1 = 9000000000001032
-asr  = 0000000000009001
-sr00 = 0000000000000053  sr08 = 0000000000000053
-sr01 = 0000000000000053  sr09 = 0000000000000053
-sr02 = 0000000000000053  sr10 = 0000000000000053
-sr03 = 0000000000000053  sr11 = 0000000000000053
-sr04 = 0000000000000053  sr12 = 0000000000000053
-sr05 = 0000000000000053  sr13 = 0000000000000053
-sr06 = 0000000000000053  sr14 = 0000000000000053
-sr07 = 0000000000000053  sr15 = 0000000000000053
-Paca:
-  Local Processor Control Area (LpPaca):
-    Saved Srr0=0000000000000000  Saved Srr1=0000000000000000
-    Saved Gpr3=0000000000000000  Saved Gpr4=0000000000000000
-    Saved Gpr5=0000000000000000
-  Local Processor Register Save Area (LpRegSave):
-    Saved Sprg0=0000000000000000  Saved Sprg1=0000000000000000
-    Saved Sprg2=0000000000000000  Saved Sprg3=0000000000000000
-    Saved Msr  =0000000000000000  Saved Nia  =0000000000000000
-0:mon> e
-cpu 0: Vector: 300 (Data Access) at [c0000007fc70fa80]
-    pc: c00000000035dce0 (.tcp_do_twkill_work+0x80/0x1b0)
-    lr: c00000000035ddfc (.tcp_do_twkill_work+0x19c/0x1b0)
-    sp: c0000007fc70fd00
-   msr: 9000000000009032
-   dar: 0
- dsisr: 42000000
-  current = 0xc0000007fc7547b8
-  paca    = 0xc0000000005aa000
-    pid   = 10, comm = events/0
-0:mon> s
-Oops: Kernel access of bad area, sig: 11 [#1]
-NIP: C00000000035DCE0 XER: 0000000020000000 LR: C00000000035DDFC
-REGS: c0000007fc70fa80 TRAP: 0300    Not tainted
-MSR: 9000000000009432 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-DAR: 0000000000000000, DSISR: 0000000042000000
-TASK = c0000007fc7547b8[10] 'events/0'  CPU: 0
-GPR00: 0000000000000001 C0000007FC70FD00 C000000000679000 C0000007FC2A5B80
-GPR04: C0000007FC2A4000 0000000000000000 C0000000005EC880 C0000007F9000000
-GPR08: 00000000000D4C50 0000000000000000 0000000000000001 C0000007FC2A4010
-GPR12: 0000000024000080 C0000000005AA000 0000000000000000 0000000000000000
-GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-GPR20: 0000000000C00000 0000000000000000 C000000000745CE8 0000000000000064
-GPR24: 0000000000000000 0000000000000001 0000000000000001 C00000065069AEF8
-GPR28: C00000062D56ACF8 C0000000004EA428 C0000000005927E8 C00000062D56AC80
-NIP [c00000000035dce0] .tcp_do_twkill_work+0x80/0x1b0
-Call Trace:
-[c00000000035e064] .twkill_work+0x11c/0x1b4
-[c00000000006457c] .worker_thread+0x280/0x3b8
-[c000000000017d4c] .kernel_thread+0x4c/0x68
-<0>Kernel panic: Fatal exception in interrupt
-In interrupt handler - not syncing
- <0>Rebooting in 180 seconds..
-=============================================
+--PWfwoUCx3AFJRUBq
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Quote here some debug info:
-"I disassembled the kernel around where the crash occurs, and compared that to 
-the source code.  It's a little hard to follow due to the inlining, but I think 
-I see where in the source the crash is occurring.
+For security reasons, I upgraded to 2.4.23 last night. Now, suddenly, IP
+masquerading seems to be broken. When I use SNAT instead of
+masquerading, everything works.
 
-tcp_do_twkill_work calls __tw_del_dead_node(tw), which calls  __hlist_del(&tw-
-> tw_death_node).  I think the crash occurs in __hlist_del, at the line shown 
-below.
+Unfortunately, I think it's hard to reproduce the problem. Right after
+booting .23 for the first time, everything seemed to be okay. The
+problems started just an hour ago, after having the server running for
+fifteen hours without any problems.
 
-static __inline__ void __hlist_del(struct hlist_node *n)
-{                                                       
-        struct hlist_node *next = n->next;              
-        struct hlist_node **pprev = n->pprev;           
-        *pprev = next;        <<<<<<---------- crash occurs here            
-        if (next)                                       
-                next->pprev = pprev;                    
-}
+Unfortunately there's not much more information I can provide. I can
+attach my iptables/rule/route file and keep my machine running in case
+anyone needs/wants more information. For now I'll just stick with SNAT.
+It works good enough for me.
 
-The corresponding assembly code looks as follows:
+Just FYI, and maybe someone else will have a similar problem.
 
-c000000000376380:  eb 7c 00 00     ld      r27,0(r28)           
-c000000000376384:  e9 3c 00 08     ld      r9,8(r28)            
-c000000000376388:  3b bc ff 88     addi    r29,r28,-120         
-c00000000037638c:  2e 3b 00 00     cmpdi   cr4,r27,0            
-c000000000376390:  fb 69 00 00     std     r27,0(r9)  <<<---- crashes here 
-c000000000376394:  41 92 00 08     beq-    cr4,c00000000037639c 
-c000000000376398:  f9 3b 00 08     std     r9,8(r27)           
-"
-"The xmon output shows that r9 == 0.  Linking this back to the source code, this 
-means that pprev == n->pprev == NULL in hlist_del."
-"
+Wilmer v/d Gaast. (not on the list)
 
-I'll test the latest kernel (test11) and will have some infor posted back here.
+--=20
++-------- .''`.     - -- ---+  +        - -- --- ---- ----- ------+
+| lintux : :'  :  lintux.cx |  | OSS Programmer   www.bitlbee.org |
+|   at   `. `~'  debian.org |  | www.algoritme.nl   www.lintux.cx |
++--- -- -  ` ---------------+  +------ ----- ---- --- -- -        +
 
-Steps to reproduce:
-Need to run SPECweb99_SSL benchmark to reproduce problem.
+--PWfwoUCx3AFJRUBq
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: attachment; filename=S19router
 
+#!/bin/sh
 
+if [ "$1" != "start" ]; then
+	exit;
+fi
+
+if ! ifconfig hensema > /dev/null 2> /dev/null; then sleep 1; fi
+
+catnet="130.89.203.37"
+utwente="utwente"
+hensema="hensema"
+
+echo -n 'Setting up routes and iptables... '
+
+## Without this Linux will reject packets from outside the network
+echo 0 > /proc/sys/net/ipv4/conf/eth1/rp_filter
+
+iptables -F
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -t nat -F
+
+iptables -A INPUT -i wlan0 -p tcp --dport ssh -j ACCEPT
+iptables -A INPUT -i wlan0 -p tcp --dport tinc -j ACCEPT
+iptables -A INPUT -i wlan0 -p udp --dport tinc -j ACCEPT
+iptables -A INPUT -i wlan0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i wlan0 -p icmp -j ACCEPT
+iptables -A INPUT -i wlan0 -j REJECT
+
+iptables -A INPUT -i eth1 -p tcp --dport ssh -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp --dport smtp -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp --dport domain -j ACCEPT
+iptables -A INPUT -i eth1 -p udp --dport domain -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp --dport www -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp --dport imap2 -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp --dport imap3 -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp --dport imaps -j ACCEPT
+iptables -A INPUT -i eth1 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i eth1 -p icmp -j ACCEPT
+iptables -A INPUT -i eth1 -j REJECT
+
+iptables -A FORWARD -i wlan0 -j REJECT --reject-with icmp-host-unreachable
+#iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+iptables -t nat -A POSTROUTING -o eth1 -j SNAT --to-source $catnet
+
+ip route flush table utwente
+ip route flush table hensema
+
+## This is a quick hack to flush the rule table. It's not yet perfect.
+ip rule list | \
+cut -d '	' -f2 | \
+sed s/all/0\\/0/g | \
+while read LINE; do
+	ip rule del $LINE;
+done
+
+ip rule add prio 10 to 192.168.0.0/16 table main
+ip rule add prio 12 iif hensema table $utwente ## For the ssh->hensema portfw
+ip rule add prio 15 from $catnet table $utwente
+ip rule add prio 15 from 192.168.7.2 table $hensema
+ip rule add prio 20 to 130.89.0.0/16 table $utwente
+ip rule add prio 20 to 212.120.64.0/18 table $hensema
+ip rule add prio 40 from 192.168.9.11 table $hensema
+ip rule add prio 40 from 192.168.9.13 table $hensema
+#ip rule add prio 40 from 192.168.9.14 table $hensema
+#ip rule add prio 40 from 192.168.9.17 table $hensema
+ip rule add prio 55 from 192.168.9.0/24 table $utwente
+ip rule add prio 60 table main
+
+ip route flush cache
+
+ip route add table hensema 192.168.7.0/24 dev hensema
+ip route add table hensema default via 192.168.7.1 dev hensema
+ip route add table utwente 130.89.192.0/20 dev eth1
+ip route add table utwente default via 130.89.192.1 dev eth1
+
+ip route add 192.168.1.0/24 via 192.168.7.1 dev hensema
+
+## Add default routes as fallbacks. The second route seems to be
+## necessary to be able to bind() to eth1 and have things work.
+while ip route del default; do :; done
+ip route add table main default via 192.168.7.1 dev hensema metric 0
+ip route add table main default via 130.89.192.1 dev eth1 metric 1
+
+ip route flush cache
+
+## Port forward stuff
+iptables -t nat -A PREROUTING -p tcp -d $catnet --dport 2222 -j DNAT --to 192.168.1.1:22
+iptables -t nat -A PREROUTING -p tcp -d $catnet --dport 2121 -j DNAT --to 192.168.9.15:21
+#iptables -t nat -A PREROUTING -p tcp -d $catnet --dport  222 -j DNAT --to 192.168.9.14:22
+#iptables -t nat -s \! 192.168.9.0/24 -A POSTROUTING -o hensema -j MASQUERADE
+iptables -t nat -s \! 192.168.9.0/24 -A POSTROUTING -o hensema -j SNAT --to-source 192.168.7.2
+
+echo 'OK'
+
+--PWfwoUCx3AFJRUBq--
+
+--pMCBjikF2xGw87uL
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE/zMRVeYWXmuMwQFERAsiDAJ95UJoXiRFnGZCh4gbL03PPSgPHJgCfftuU
+BpaNQUOnw50DHCx57MYhv1Q=
+=Ggj/
+-----END PGP SIGNATURE-----
+
+--pMCBjikF2xGw87uL--

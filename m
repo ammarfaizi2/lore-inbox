@@ -1,95 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268158AbUHYDEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268372AbUHYDIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268158AbUHYDEp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 23:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268256AbUHYDEp
+	id S268372AbUHYDIW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 23:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268406AbUHYDIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 23:04:45 -0400
-Received: from holomorphy.com ([207.189.100.168]:43144 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268158AbUHYDEm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 23:04:42 -0400
-Date: Tue, 24 Aug 2004 20:04:37 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: fix text reporting in O(1) proc_pid_statm()
-Message-ID: <20040825030437.GO2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sf.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1093388816.434.355.camel@cube> <20040824231236.GG2793@holomorphy.com> <1093402351.434.631.camel@cube>
+	Tue, 24 Aug 2004 23:08:22 -0400
+Received: from dsl081-100-231.den1.dsl.speakeasy.net ([64.81.100.231]:15744
+	"EHLO hal9000.jaa.iki.fi") by vger.kernel.org with ESMTP
+	id S268372AbUHYDIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 23:08:19 -0400
+Date: Tue, 24 Aug 2004 21:08:17 -0600
+From: Jani Averbach <jaa@jaa.iki.fi>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x: Kernel Oops with netconsole + serial console
+Message-ID: <20040825030817.GA4571@jaa.iki.fi>
+References: <20040819171918.GC5050@jaa.iki.fi> <20040824191853.GF5414@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1093402351.434.631.camel@cube>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040824191853.GF5414@waste.org>
+X-PGP-Key: http://www.cc.jyu.fi/~jaa/averbach_jani_pub_asc.txt
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 19:12, William Lee Irwin III wrote:
->> The current 2.6 semantics are purely virtual, so this merely
->> reimplements those semantics more efficiently. The scheme you
->> describe would require accounting at the time of pte modification
->> to implement in a like fashion, which has been rejected.
+On 2004-08-24 14:18-0500, Matt Mackall wrote:
+> On Thu, Aug 19, 2004 at 11:19:18AM -0600, Jani Averbach wrote:
+> > [please Cc: me]
+> > 
+> > I have tried to setup both netconsole and serial console for
+> > unattended server (I need a serial console for booting and a netconsole for
+> > logging).
+> > 
+> > However, 2.6.6 and 2.6.8.1 both will oops if both consoles are
+> > configured and in use. Disabling one of them will help, and system
+> > boots up normally.
+> 
+> Does it work with netconsole and no serial then? Hmm.
 
-On Tue, Aug 24, 2004 at 10:52:31PM -0400, Albert Cahalan wrote:
-> Hmmm, why not reject RSS too then? It's the same thing.
-> If trs and drs and so on were kept, then rss would
-> just be the sum of them. Per-permission tracking
-> seems about right:
-> rss[perms] += change;
-> (where "perms" is rwx plus shared/private and dirty/clean)
-> At some point, it would be good to have per-vma rss.
-> This would be displayed by the pmap command's -x option.
-> (added to /proc/*/maps right before the filename)
+Yes, kernel with compiled in netconsole and serial console will work
+iff the netconsole or the serial console alone is configured at
+boot time by boot-parameters. If you try to use both of them,
+kernel will oops.
 
-Generally the way these patches have operated is accounting
-only the interesting combinations of those with respect to
-reporting in the interest of conserving space in the mm. These
-have also been combined with various checks on e.g. address
-ranges and some special casing of hugetlb. So it's not been
-quite as simple as all that.
+> > This is dual amd64, with two BCM5704 NIC.
+> 
+> Can you send your boot dmesg?
 
-The code from my 2.6.0-test7-bk1 forward port of the Red Hat patches
-for this was as follows:
+I will send to you my system information (it is 18K tar.bz2)
+out-of-list, if someone else likes to take look of it, please ask, and
+I will send it also to you.
 
-static inline void vm_account(struct vm_area_struct *vma, pte_t pte,
-					unsigned long addr, long adjustment)
-{
-	struct mm_struct *mm = vma->vm_mm;
-	unsigned long pfn;
-	struct page *page;
+Thanks for looking this,
+Jani
 
-	if (!pte_present(pte))
-		return;
-
-	pfn = pte_pfn(pte);
-	if (!pfn_valid(pfn))
-		goto out;
-
-	page = pfn_to_page(pfn);
-	if (PageReserved(page))
-		goto out;
-
-	if (vma->vm_flags & VM_EXECUTABLE)
-		mm->text += adjustment;
-	else if (vma->vm_flags & (VM_STACK_FLAGS & (VM_GROWSUP | VM_GROWSDOWN))) {
-		mm->data += adjustment;
-		mm->stack += adjustment;
-	} else if (addr >= TASK_UNMAPPED_BASE)
-		mm->lib += adjustment;
-	else
-		mm->data += adjustment;
-
-	if (page_mapping(page))
-		mm->shared += adjustment;
-
-out:
-	if (pte_write(pte))
-		mm->dirty += adjustment;
-}
-
-
--- wli
+-- 
+Jani Averbach

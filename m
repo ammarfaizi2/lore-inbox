@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262474AbTH0X7E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 19:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTH0X7E
+	id S262497AbTH1ABR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 20:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbTH1ABR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 19:59:04 -0400
-Received: from ozlabs.org ([203.10.76.45]:34954 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262489AbTH0X67 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 19:58:59 -0400
+	Wed, 27 Aug 2003 20:01:17 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:13195 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262497AbTH1ABN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 20:01:13 -0400
+Date: Wed, 27 Aug 2003 19:58:17 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: /proc/net/* read drops data (was: lost socket)
+In-Reply-To: <Pine.GSO.4.33.0308271658370.7750-100000@sweetums.bluetronic.net>
+Message-ID: <Pine.GSO.4.33.0308271935550.7750-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16205.17596.600646.259901@martins.ozlabs.org>
-Date: Thu, 28 Aug 2003 09:54:36 +1000
-To: linux-kernel@vger.kernel.org
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>, Con Kolivas <kernel@kolivas.org>
-Subject: 2.6.0-test4 suspends IDE devices after resume
-X-Mailer: VM 7.17 under Emacs 21.3.2
-From: "Martin Schwenke" <martin@meltin.net>
-Reply-To: "Martin Schwenke" <martin@meltin.net>
-X-Kernel: Linux 2.6.0-test4
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running 2.6.0-test4 (with Con Kolivas' interactivity patch) and
-twice I've had my IDE devices re-suspend after I resume from an APM
-suspend (to disk/hibernation).  This is obviously annoying, because
-there's little you can do to recover from it!  :-) The machine is an
-IBM ThinkPad T22 with an IDE interface that looks like this:
+On Wed, 27 Aug 2003, Ricky Beam wrote:
+>This smells like a simple "off by one" bug, but I've been too busy to go
+>look at the code.
 
-  00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+Ah hah!  it's a block size problem... netstat reads 1024 at a time.
 
-I didn't see this problem with test3 (or test2 or test1).
+Using dd...
 
-Stuff I copied down from the console is at the end of this message.
-"..." indicates intermingled USB stuff that I didn't write down.
+[root:pts/5{9}]gir:~/[7:55pm]:dd if=/proc/net/udp bs=1024 | wc
+2+1 records in
+2+1 records out
+     18     216    2304
+[root:pts/5{9}]gir:~/[7:56pm]:dd if=/proc/net/udp bs=2048 | wc
+1+1 records in
+1+1 records out
+     19     228    2432
+[root:pts/5{9}]gir:~/[7:56pm]:dd if=/proc/net/udp bs=4096 | wc
+0+1 records in
+0+1 records out
+     20     240    2560
+[root:pts/5{9}]gir:~/[7:56pm]:dd if=/proc/net/udp bs=8192 | wc
+0+1 records in
+0+1 records out
+     20     240    2560
+[root:pts/5{9}]gir:~/[7:56pm]:dd if=/proc/net/udp bs=32768 | wc
+0+1 records in
+0+1 records out
+     20     240    2560
+[root:pts/5{9}]gir:~/[7:56pm]:dd if=/proc/net/udp bs=1 | wc
+2432+0 records in
+2432+0 records out
+     19     228    2432
 
-Apart from that, I've also seen a message in my logs that looks like:
+--Ricky
 
-  hda: a request made it's way while we are power managing...
-
-Any ideas?
-
-peace & happiness,
-martin
---------8<---------8<-------- CUT HERE --------8<---------8<--------
-hda: start_power_step(step: 1000)
-blk: queue dfe50800, I/O limit 4095Mb (mask 0xffffffff)
-hda: completing PM request, resume
-hdc: Wakeup request inited, waiting for !BSY...
-hdc: start_power_step(step: 1000)
-hdc: completing PM request, resume
-...
-hdc: start_power_step(step: 0)
-hdc: completing PM request, suspend
-hda: start_power_step(step: 0)
-hda: start_power_step(step: 1)
-hda: complete_power_step(step: 1, stat: 50, err: 0)
-hda: completing PM request, suspend
-hda: Wakeup request inited, waiting for !BSY...
-hda: start_power_step(step: 1000)
-blk: queue dfe50800, I/O limit 4095Mb (mask 0xffffffff)
-hda: completing PM request, resume
-hdc: Wakeup request inited, waiting for !BSY...
-hdc: start_power_step(step: 1000)
-hdc: completing PM request, resume
-...
-hdc: start_power_step(step: 0)
-hdc: completing PM request, suspend
-hda: start_power_step(step: 0)
-hda: start_power_step(step: 1)
-hda: complete_power_step(step: 1, stat: 50, err: 0)
-hda: completing PM request, suspend
---------8<---------8<-------- CUT HERE --------8<---------8<--------
 

@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274326AbRITGRU>; Thu, 20 Sep 2001 02:17:20 -0400
+	id <S272590AbRITGQL>; Thu, 20 Sep 2001 02:16:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274324AbRITGRK>; Thu, 20 Sep 2001 02:17:10 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:782 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S274327AbRITGQx>; Thu, 20 Sep 2001 02:16:53 -0400
-Date: Wed, 19 Sep 2001 23:15:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: pre12 VM doubts and patch
-In-Reply-To: <20010920080837.A719@athlon.random>
-Message-ID: <Pine.LNX.4.33.0109192310340.2852-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274324AbRITGQA>; Thu, 20 Sep 2001 02:16:00 -0400
+Received: from fe070.worldonline.dk ([212.54.64.208]:17669 "HELO
+	fe070.worldonline.dk") by vger.kernel.org with SMTP
+	id <S272590AbRITGPz>; Thu, 20 Sep 2001 02:15:55 -0400
+Date: Thu, 20 Sep 2001 08:13:53 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+Cc: "steve j. kondik" <shade@chemlab.org>, linux-kernel@vger.kernel.org
+Subject: Re: encrypted swap on loop in 2.4.10-pre12?
+Message-ID: <20010920081353.H588@suse.de>
+In-Reply-To: <1000912739.17522.2.camel@discord> <3BA907F6.3586811C@pp.inet.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BA907F6.3586811C@pp.inet.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 20 2001, Jari Ruusu wrote:
+> "steve j. kondik" wrote:
+> > i've been using encrypted swap over loopdev using the new cryptoapi
+> > patches.  i just built a 2.4.10-pre12 kernel and i got a panic doing
+> > mkswap on the loopdev.  the mkswap process becomes unkillable after this
+> > and never finishes.  this is repeatable everytime.  i've had no problems
+> > whatsoever until this kernel even under high load..  any ideas? :>
+> 
+> Cryptoapi can't be used to encrypt swap. It has nasties like sleeping in
+> make_request_fn() and potential memory allocation deadlock.
 
-On Thu, 20 Sep 2001, Andrea Arcangeli wrote:
->
-> hmm, the stuff inside #if 0 doesn't seem to be correct either there,
-> write_access doesn't mean we have the right to write to it, it just mean
-> we're trying to.
+sleeping in make_request_fn is not a nasty in itself, btw. in fact loop
+just needs an emergency page pool for swap to be perfectly safe.
 
-No, write_access means not only that we are trying to write to it, but it
-(by implication) means that we have the right too - otherwise we would
-have SIGSEGV'd.
-
-Anyway, I'm not at all sure that the write_access test is worth it, we
-could just never do it (like your patch), or we could test if we allow COW
-and do early COW (which the write-access kind of means).
-
-However, your patch isn't right for another reason: if we do delete it
-from the swap cache, we'd better mark it dirty so that it gets
-re-allocated a swap entry if it later on needs it.
-
-That's why the old code went to such extremes: it marked it dirty and
-writable if it was a write access (and exclusive), and it marked it _just_
-dirty and removed it from the swap cache if it went over the swap limit.
-
-Whether that complexity is worth it, I don't know.
-
-		Linus
+-- 
+Jens Axboe
 

@@ -1,70 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSDJNQC>; Wed, 10 Apr 2002 09:16:02 -0400
+	id <S312532AbSDJNPA>; Wed, 10 Apr 2002 09:15:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312582AbSDJNQB>; Wed, 10 Apr 2002 09:16:01 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:60341 "EHLO ibm.com")
-	by vger.kernel.org with ESMTP id <S312560AbSDJNP7>;
-	Wed, 10 Apr 2002 09:15:59 -0400
-Date: Wed, 10 Apr 2002 08:19:29 -0600
-From: sullivan <sullivan@austin.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Event logging vs enhancing printk
-Message-ID: <20020410081929.Q7333@austin.ibm.com>
-In-Reply-To: <OF58E93BB4.1862769F-ON85256B97.0047811A@pok.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312560AbSDJNO7>; Wed, 10 Apr 2002 09:14:59 -0400
+Received: from mail.sonytel.be ([193.74.243.200]:46740 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S312532AbSDJNO6>;
+	Wed, 10 Apr 2002 09:14:58 -0400
+Date: Wed, 10 Apr 2002 15:14:38 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] Radeon frame buffer driver
+In-Reply-To: <20020410130315.GA1372@berserk.demon.co.uk>
+Message-ID: <Pine.GSO.4.21.0204101509290.9914-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 07:07:46PM -0500, Mike Sullivan wrote:
-> >> Right - what I'm proposing would be a generic equivalent of the
-> >> local staging buffer and sprintf - basically just a little wrapper
-> >> that does this for you, keeping a per task buffer somewhere.
-> >
-> > That still doesn't solve the race with the interrupt handlers, you'd
-> > need a buffer for each irq handler and one the softirq too to make
-> > printk buffered and coeherent coherent across newlines (doable but even
-> > more tricky and in turn less robust and less self contained).
+On Wed, 10 Apr 2002, Peter Horton wrote:
+> On Wed, Apr 10, 2002 at 01:06:09PM +0200, Geert Uytterhoeven wrote:
+> > On Wed, 10 Apr 2002, Peter Horton wrote:
+> > > 
+> > > The colour map is only used by the kernel and the kernel only uses 16
+> > > entries so there isn't any reason to waste memory by making it any
+> > > larger. I checked a few other drivers and they do the same (aty128fb for
+> > > one).
+> > 
+> > However, this change will make the driver not save/restore all color map
+> > entries on VC switch in graphics mode.
 > 
-> I was envisaging a larger buffer where the current location pointer
-> simply taken by the interrupt handler, and the remaining section of
-> that buffer was used for the "inner printk". Which is really just
-> like a stack, so it makes more sense to just allocate this off the
-> stack really .... I think this would work? We might need to flush
-> on a certain size limit (128 chars, maybe?) to stop any risk of
-> stack overflow.
-> 
-> > Some other code may omit it by mistake, leading to the other cpus
-> > blackholed and data lost after the buffer on the other cpus overflowed
-> > so at least we should put a timer that spawns an huge warning if a cpu
-> > doesn't flush the buffer in a rasonable amount of time so we can catch
-> > those places.
-> 
-> It seems that 99.9% of these cases are just assembling a line of output
-> a few characters at a time. There might be a few odd miscreants around,
-> but not enough to worry about - I think it's overkill to do the runtime
-> timer check, but we could always run like this to test it, or try to
-> work some sort of automated code inspection (though that sounds hard to
-> do 100% reliably).
+> Well I thought this didn't matter because if we only use 16 entries they
+> will all be saved / restored. But there is a problem because the copy of
+> the entire palette that we keep is per card and will be lost on VC
+> switch, though the kernel will restore the first 16 entries.  Really we
+> need to keep a copy of the relevant part of the palette for each display
+> (256 for 8bpp, 32 for 15 bit mode, 64 for 16bpp and 256 for 32bpp).
+> Looking at a handful of drivers this seems to be a common error, so it
+> can't be causing users much grief. I don't think changing the size of
+> the colour map fixes this though (I need to look at the code when I get
+> home).
 
-As an alternative to building a buffer and flushing, maybe it would be better ifin the case of evlog records of this type could be marked with a continuation flag. During post processing there should be enough information on the invocation location to the record to allow the recombination and viewing of the full record.
+Or: few fbdev applications expect a correct behavior.
+IIRC XF68_FBDev also saves/restores the palette itself.
 
-In general I think the event notification features offered by evlog offer a good platform upon which to build some very useful sysadmin tools.
+> On a side note would you take a patch that changed the cursor xor value
+> in fbcon-cfb16/24/32 to the correct value if the display is DIRECTCOLOR
+> rather than TRUECOLOR? We could then avoid having to set spurious
+> 
+> I think the correct xor values are
+> 
+> 	depth 15	0x3DEF
+> 	depth 16	0x79EF
+> 	depth 24/32	0x000F0F0F
+> 
+> P.
 
-> 
-> M.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> Thanks.
-> Mike Sullivan
-> IBM Linux Technology Center
-> (512)838-0539 or t/l  678-0539
+In general, this is not correct, since no one guarantees that in e.g. depth 32
+the alpha bits are in the 8 most significant bits of the pixel value.
+But in directcolor mode XORing with the 16th entry of the pseudo palette should
+be OK. So yes, I guess we (cfr. the CC to linux-fbdev-devel) would take a
+patch for that...
+
+That's why for 2.5.x we plan to add a 17th entry to the pseudo palette, so the
+fbdev can specify the correct XOR value.
+
+> palette indices to make the soft cursor work. I note that fbcon-cfb8
+> does the right thing.
+
+Yes, but fbcon-cfb8 does the right thing for pseudocolor modes only :-( There
+does exist non-pseudocolor depth 8 hardware (e.g. RGB332).
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

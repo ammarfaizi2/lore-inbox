@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288861AbSAEQ1Z>; Sat, 5 Jan 2002 11:27:25 -0500
+	id <S288865AbSAEQwx>; Sat, 5 Jan 2002 11:52:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288860AbSAEQ1P>; Sat, 5 Jan 2002 11:27:15 -0500
-Received: from arsenal.visi.net ([206.246.194.60]:18336 "EHLO visi.net")
-	by vger.kernel.org with ESMTP id <S288858AbSAEQ1E>;
-	Sat, 5 Jan 2002 11:27:04 -0500
-Date: Sat, 5 Jan 2002 11:27:00 -0500
-From: Ben Collins <bcollins@debian.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: andreas.bombe@munich.netsurf.de, linux1394-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: Patch: linux-2.5.2-pre8/drivers/ieee1394 kdev_t compilation fixes
-Message-ID: <20020105162700.GB14634@blimpo.internal.net>
-In-Reply-To: <20020104234128.A26076@baldur.yggdrasil.com>
+	id <S288867AbSAEQwn>; Sat, 5 Jan 2002 11:52:43 -0500
+Received: from ns01.netrox.net ([64.118.231.130]:31122 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S288865AbSAEQwa>;
+	Sat, 5 Jan 2002 11:52:30 -0500
+Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
+From: Robert Love <rml@tech9.net>
+To: george anzinger <george@mvista.com>
+Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C36B112.5A533652@mvista.com>
+In-Reply-To: <Pine.LNX.4.33.0201041238350.2247-100000@localhost.localdomain>
+	<200201050031.g050V7217956@mailf.telia.com>  <3C36B112.5A533652@mvista.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 05 Jan 2002 11:54:04 -0500
+Message-Id: <1010249648.1986.0.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020104234128.A26076@baldur.yggdrasil.com>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 11:41:28PM -0800, Adam J. Richter wrote:
-> 	The following patch fixes the kdev_t compilation errors
-> in linux-2.5.2-pre8/drivers/ieee1394.  It just a global replace
-> of "MINOR(" with "minor(".  I only know that the new code compiles.
-> I have not tested it.
+On Sat, 2002-01-05 at 02:53, george anzinger wrote:
 
-I'll get this checked into CVS today. I planned on a sync with Linus
-soon anyway.
+> The two patches will are not compatable.  When the time comes we will
+> have to work out how to make them compatable as they both modify key
+> parts of sched.c.
 
-Andreas, now would be a good time for us to branch 2.2.x support in CVS
-to simplify 2.4.x/2.5.x compatibility.
+Ingo and I are working on a merged patchset that works.  Yay.
 
--- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/                   Ben Collins    --    Debian GNU/Linux                  \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
+	Robert Love
+

@@ -1,132 +1,618 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315210AbSD2V40>; Mon, 29 Apr 2002 17:56:26 -0400
+	id <S315212AbSD2WBK>; Mon, 29 Apr 2002 18:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315211AbSD2V4Z>; Mon, 29 Apr 2002 17:56:25 -0400
-Received: from smtp0.nada.kth.se ([130.237.222.202]:36751 "EHLO
-	smtp0.nada.kth.se") by vger.kernel.org with ESMTP
-	id <S315210AbSD2V4Y>; Mon, 29 Apr 2002 17:56:24 -0400
-Message-ID: <3CCDC0E0.6040807@nada.kth.se>
-Date: Mon, 29 Apr 2002 23:53:36 +0200
-From: "Andrew T. Miller" <amiller@nada.kth.se>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
-X-Accept-Language: en-us
+	id <S315213AbSD2WBJ>; Mon, 29 Apr 2002 18:01:09 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:45582 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315212AbSD2WBF>; Mon, 29 Apr 2002 18:01:05 -0400
+Date: Tue, 30 Apr 2002 00:00:50 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+In-Reply-To: <20020427004641.L19278@dualathlon.random>
+Message-ID: <Pine.LNX.4.21.0204292349330.23113-100000@serv>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ide dma timeout error, linux 2.4.9, PIIX4 Ultra 100 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Andre and others:
-I recently installed RedHat's 2.4.9-31 on my 1Ghz/256MB Dell Inspiron 8000.
-Now a week or so later, I'm noticing dma errors in my messages file and my disk
-is having FS problems.  I'm really hope this a software issue and that my disk
-isn't hosed.  What can I do?  I've appended as much pertinent info as I can
-think of, but please let me know if you need more.
+Hi,
 
-I am not on the linux-kernel mailing list, so please cc me when replying.
+On Sat, 27 Apr 2002, Andrea Arcangeli wrote:
 
-TIA,
-  -Andrew Miller
+> correct. This should fix it:
+> 
+> --- 2.4.19pre7aa2/include/asm-alpha/mmzone.h.~1~	Fri Apr 26 10:28:28 2002
+> +++ 2.4.19pre7aa2/include/asm-alpha/mmzone.h	Sat Apr 27 00:30:02 2002
+> @@ -106,8 +106,8 @@
+>  #define kern_addr_valid(kaddr)	test_bit(LOCAL_MAP_NR(kaddr), \
+>  					 NODE_DATA(KVADDR_TO_NID(kaddr))->valid_addr_bitmap)
+>  
+> -#define virt_to_page(kaddr)	(ADDR_TO_MAPBASE(kaddr) + LOCAL_MAP_NR(kaddr))
+> -#define VALID_PAGE(page)	(((page) - mem_map) < max_mapnr)
+> +#define virt_to_page(kaddr)	(KVADDR_TO_NID((unsigned long) kaddr) < MAX_NUMNODES ? ADDR_TO_MAPBASE(kaddr) + LOCAL_MAP_NR(kaddr) : 0)
+> +#define VALID_PAGE(page)	((page) != NULL)
+>  
+>  #ifdef CONFIG_NUMA
+>  #ifdef CONFIG_NUMA_SCHED
 
-=================Excerpts from: /var/log/messages============================
-kernel: Linux version 2.4.9-31 (bhcompile@daffy.perf.redhat.com) (gcc version 
-2.96 20000731 (Red Hat Linux 7.1 2.96-98)) #1 Tue Feb 26 07:11:02 EST 2002
-...
-kernel: Kernel command line: auto BOOT_IMAGE=linux ro root=302 
-BOOT_FILE=/boot/vmlinuz-2.4.9-31
-...
-kernel: PCI: PCI BIOS revision 2.10 entry at 0xfc06e, last bus=8
-kernel: PCI: Using configuration type 1
-kernel: PCI: Probing PCI hardware
-kernel: Unknown bridge resource 2: assuming transparent
-kernel: Unknown bridge resource 2: assuming transparent
-kernel: PCI: Using IRQ router PIIX [8086/244c] at 00:1f.0
-...
-kernel: Uniform Multi-Platform E-IDE driver Revision: 6.31
-kernel: ide: Assuming 33MHz PCI bus speed for PIO modes; override with idebus=xx
-kernel: PIIX4: IDE controller on PCI bus 00 dev f9
-kernel: PIIX4: chipset revision 3
-kernel: PIIX4: not 100%% native mode: will probe irqs later
-kernel:     ide0: BM-DMA at 0xbfa0-0xbfa7, BIOS settings: hda:DMA, hdb:DMA
-kernel: hda: IBM-DJSA-232, ATA DISK drive
-kernel: hdb: TOSHIBA DVD-ROM SD-C2502, ATAPI CD/DVD-ROM drive
-kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-kernel: blk: queue c0352660, I/O limit 4095Mb (mask 0xffffffff)
-kernel: blk: queue c0352660, I/O limit 4095Mb (mask 0xffffffff)
-kernel: hda: 62506080 sectors (32003 MB) w/1874KiB Cache, CHS=3890/255/63, UDMA(66)
-kernel: Partition check:
-kernel:  hda: hda1 hda2 hda3 < hda5 hda6 hda7 >
-...
-fsck: /: clean, 20163/78624 files, 220017/313267 blocks
-fsck: /usr
-fsck:  contains a file system with errors, check forced.
-fsck: /usr: 119584/704512 files (2.6% non-contiguous), 755987/1407687 blocks
-fsck: /var: clean, 1139/64256 files, 93985/257008 blocks
-rc.sysinit: Checking filesystems succeeded
-...
-kernel: hda: timeout waiting for DMA
-kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-kernel: blk: queue c0352660, I/O limit 4095Mb (mask 0xffffffff)
-kernel: hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-kernel: hda: drive not ready for command
-kernel: blk: queue c0352660, I/O limit 4095Mb (mask 0xffffffff)
-...
-kernel: EXT2-fs error (device ide0(3,5)): ext2_check_page: bad entry in 
-directory #475434: directory entry across blocks - offset=0, inode=1074324436, 
-rec_len=59264, name_len=25
-kernel: hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-kernel: hda: drive not ready for command
-kernel: hdb: ATAPI 24X DVD-ROM drive, 128kB Cache, UDMA(33)
-kernel: Uniform CD-ROM driver Revision: 3.12
+I'd prefer if VALID_PAGE would go away completely, that test was almost
+always to late. What about the patch below, it even reduces the code size
+by 1072 bytes (but it's otherwise untested).
+It introduces virt_to_valid_page and pte_valid_page, which include a
+check, whether the input is valid.
 
-...[By now system had come up, but later, while using the machine, I got:]...
+bye, Roman
 
-kernel: hda: timeout waiting for DMA
-kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-kernel: blk: queue c0352660, I/O limit 4095Mb (mask 0xffffffff)
-kernel: hda: status timeout: status=0xd0 { Busy }
-kernel: hdb: DMA disabled
-kernel: hda: drive not ready for command
-
-================== hdparm -iv /dev/hda ==========================
-/dev/hda:
-  multcount    =  0 (off)
-  I/O support  =  0 (default 16-bit)
-  unmaskirq    =  0 (off)
-  using_dma    =  1 (on)
-  keepsettings =  0 (off)
-  nowerr       =  0 (off)
-  readonly     =  0 (off)
-  readahead    =  8 (on)
-  geometry     = 3890/255/63, sectors = 62506080, start = 0
-
-  Model=IBM-DJSA-232, FwRev=JS8OAD0A, SerialNo=48W48LR7370
-  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
-  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
-  BuffType=DualPortCache, BuffSize=1874kB, MaxMultSect=16, MultSect=off
-  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=62506080
-  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
-  PIO modes: pio0 pio1 pio2 pio3 pio4
-  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4
-
-=================== /proc/ide/piix ==============================
-
-                                 Intel PIIX4 Ultra 100 Chipset.
---------------- Primary Channel ---------------- Secondary Channel -------------
-                  enabled                          enabled
---------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
-DMA enabled:    yes              no              no                no
-UDMA enabled:   yes              yes             no                no
-UDMA enabled:   4                4               X                 X
-UDMA
-DMA
-PIO
-
-
-
-
-
+Index: arch/arm/mach-arc/small_page.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/arm/mach-arc/small_page.c,v
+retrieving revision 1.1.1.1
+diff -u -p -r1.1.1.1 small_page.c
+--- arch/arm/mach-arc/small_page.c	15 Jan 2002 18:12:17 -0000	1.1.1.1
++++ arch/arm/mach-arc/small_page.c	29 Apr 2002 20:38:49 -0000
+@@ -150,8 +150,8 @@ static void __free_small_page(unsigned l
+ 	unsigned long flags;
+ 	struct page *page;
+ 
+-	page = virt_to_page(spage);
+-	if (VALID_PAGE(page)) {
++	page = virt_to_valid_page(spage);
++	if (page) {
+ 
+ 		/*
+ 		 * The container-page must be marked Reserved
+Index: arch/arm/mm/fault-armv.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/arm/mm/fault-armv.c,v
+retrieving revision 1.1.1.5
+diff -u -p -r1.1.1.5 fault-armv.c
+--- arch/arm/mm/fault-armv.c	14 Apr 2002 20:06:12 -0000	1.1.1.5
++++ arch/arm/mm/fault-armv.c	29 Apr 2002 19:18:37 -0000
+@@ -240,9 +240,9 @@ make_coherent(struct vm_area_struct *vma
+  */
+ void update_mmu_cache(struct vm_area_struct *vma, unsigned long addr, pte_t pte)
+ {
+-	struct page *page = pte_page(pte);
++	struct page *page = pte_valid_page(pte);
+ 
+-	if (VALID_PAGE(page) && page->mapping) {
++	if (page && page->mapping) {
+ 		if (test_and_clear_bit(PG_dcache_dirty, &page->flags))
+ 			__flush_dcache_page(page);
+ 
+Index: arch/ia64/mm/init.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/ia64/mm/init.c,v
+retrieving revision 1.1.1.3
+diff -u -p -r1.1.1.3 init.c
+--- arch/ia64/mm/init.c	24 Apr 2002 19:35:43 -0000	1.1.1.3
++++ arch/ia64/mm/init.c	29 Apr 2002 20:39:05 -0000
+@@ -147,7 +147,7 @@ free_initrd_mem (unsigned long start, un
+ 		printk(KERN_INFO "Freeing initrd memory: %ldkB freed\n", (end - start) >> 10);
+ 
+ 	for (; start < end; start += PAGE_SIZE) {
+-		if (!VALID_PAGE(virt_to_page(start)))
++		if (!virt_to_valid_page(start))
+ 			continue;
+ 		clear_bit(PG_reserved, &virt_to_page(start)->flags);
+ 		set_page_count(virt_to_page(start), 1);
+Index: arch/mips/mm/umap.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/mips/mm/umap.c,v
+retrieving revision 1.1.1.2
+diff -u -p -r1.1.1.2 umap.c
+--- arch/mips/mm/umap.c	31 Jan 2002 22:19:02 -0000	1.1.1.2
++++ arch/mips/mm/umap.c	29 Apr 2002 19:17:45 -0000
+@@ -116,8 +116,8 @@ void *vmalloc_uncached (unsigned long si
+ static inline void free_pte(pte_t page)
+ {
+ 	if (pte_present(page)) {
+-		struct page *ptpage = pte_page(page);
+-		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
++		struct page *ptpage = pte_valid_page(page);
++		if (!ptpage || PageReserved(ptpage))
+ 			return;
+ 		__free_page(ptpage);
+ 		if (current->mm->rss <= 0)
+Index: arch/mips64/mm/umap.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/mips64/mm/umap.c,v
+retrieving revision 1.1.1.2
+diff -u -p -r1.1.1.2 umap.c
+--- arch/mips64/mm/umap.c	31 Jan 2002 22:19:51 -0000	1.1.1.2
++++ arch/mips64/mm/umap.c	29 Apr 2002 19:17:29 -0000
+@@ -115,8 +115,8 @@ void *vmalloc_uncached (unsigned long si
+ static inline void free_pte(pte_t page)
+ {
+ 	if (pte_present(page)) {
+-		struct page *ptpage = pte_page(page);
+-		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
++		struct page *ptpage = pte_valid_page(page);
++		if (!ptpage || PageReserved(ptpage))
+ 			return;
+ 		__free_page(ptpage);
+ 		if (current->mm->rss <= 0)
+Index: arch/sh/mm/fault.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/sh/mm/fault.c,v
+retrieving revision 1.1.1.2
+diff -u -p -r1.1.1.2 fault.c
+--- arch/sh/mm/fault.c	31 Jan 2002 22:19:42 -0000	1.1.1.2
++++ arch/sh/mm/fault.c	29 Apr 2002 19:17:11 -0000
+@@ -298,8 +298,8 @@ void update_mmu_cache(struct vm_area_str
+ 		return;
+ 
+ #if defined(__SH4__)
+-	page = pte_page(pte);
+-	if (VALID_PAGE(page) && !test_bit(PG_mapped, &page->flags)) {
++	page = pte_valid_page(pte);
++	if (page && !test_bit(PG_mapped, &page->flags)) {
+ 		unsigned long phys = pte_val(pte) & PTE_PHYS_MASK;
+ 		__flush_wback_region((void *)P1SEGADDR(phys), PAGE_SIZE);
+ 		__set_bit(PG_mapped, &page->flags);
+Index: arch/sparc/mm/generic.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/sparc/mm/generic.c,v
+retrieving revision 1.1.1.2
+diff -u -p -r1.1.1.2 generic.c
+--- arch/sparc/mm/generic.c	31 Jan 2002 22:19:00 -0000	1.1.1.2
++++ arch/sparc/mm/generic.c	29 Apr 2002 19:16:58 -0000
+@@ -19,8 +19,8 @@ static inline void forget_pte(pte_t page
+ 	if (pte_none(page))
+ 		return;
+ 	if (pte_present(page)) {
+-		struct page *ptpage = pte_page(page);
+-		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
++		struct page *ptpage = pte_valid_page(page);
++		if (!ptpage || PageReserved(ptpage))
+ 			return;
+ 		page_cache_release(ptpage);
+ 		return;
+Index: arch/sparc/mm/sun4c.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/sparc/mm/sun4c.c,v
+retrieving revision 1.1.1.3
+diff -u -p -r1.1.1.3 sun4c.c
+--- arch/sparc/mm/sun4c.c	14 Apr 2002 20:05:32 -0000	1.1.1.3
++++ arch/sparc/mm/sun4c.c	29 Apr 2002 20:39:35 -0000
+@@ -1327,7 +1327,7 @@ static __u32 sun4c_get_scsi_one(char *bu
+ 	unsigned long page;
+ 
+ 	page = ((unsigned long)bufptr) & PAGE_MASK;
+-	if (!VALID_PAGE(virt_to_page(page))) {
++	if (!virt_to_valid_page(page)) {
+ 		sun4c_flush_page(page);
+ 		return (__u32)bufptr; /* already locked */
+ 	}
+@@ -2106,7 +2106,7 @@ static void sun4c_pte_clear(pte_t *ptep)
+ static int sun4c_pmd_bad(pmd_t pmd)
+ {
+ 	return (((pmd_val(pmd) & ~PAGE_MASK) != PGD_TABLE) ||
+-		(!VALID_PAGE(virt_to_page(pmd_val(pmd)))));
++		(!virt_to_valid_page(pmd_val(pmd))));
+ }
+ 
+ static int sun4c_pmd_present(pmd_t pmd)
+Index: arch/sparc64/kernel/traps.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/sparc64/kernel/traps.c,v
+retrieving revision 1.1.1.3
+diff -u -p -r1.1.1.3 traps.c
+--- arch/sparc64/kernel/traps.c	11 Feb 2002 18:49:01 -0000	1.1.1.3
++++ arch/sparc64/kernel/traps.c	29 Apr 2002 20:39:53 -0000
+@@ -1284,9 +1284,9 @@ void cheetah_deferred_handler(struct pt_
+ 			}
+ 
+ 			if (recoverable) {
+-				struct page *page = virt_to_page(__va(afar));
++				struct page *page = virt_to_valid_page(__va(afar));
+ 
+-				if (VALID_PAGE(page))
++				if (page)
+ 					get_page(page);
+ 				else
+ 					recoverable = 0;
+Index: arch/sparc64/mm/generic.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/sparc64/mm/generic.c,v
+retrieving revision 1.1.1.3
+diff -u -p -r1.1.1.3 generic.c
+--- arch/sparc64/mm/generic.c	19 Mar 2002 01:27:51 -0000	1.1.1.3
++++ arch/sparc64/mm/generic.c	29 Apr 2002 19:14:35 -0000
+@@ -19,8 +19,8 @@ static inline void forget_pte(pte_t page
+ 	if (pte_none(page))
+ 		return;
+ 	if (pte_present(page)) {
+-		struct page *ptpage = pte_page(page);
+-		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
++		struct page *ptpage = pte_valid_page(page);
++		if (!ptpage || PageReserved(ptpage))
+ 			return;
+ 		page_cache_release(ptpage);
+ 		return;
+Index: arch/sparc64/mm/init.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/arch/sparc64/mm/init.c,v
+retrieving revision 1.1.1.6
+diff -u -p -r1.1.1.6 init.c
+--- arch/sparc64/mm/init.c	14 Apr 2002 20:06:08 -0000	1.1.1.6
++++ arch/sparc64/mm/init.c	29 Apr 2002 19:14:15 -0000
+@@ -187,11 +187,10 @@ extern void __update_mmu_cache(unsigned 
+ 
+ void update_mmu_cache(struct vm_area_struct *vma, unsigned long address, pte_t pte)
+ {
+-	struct page *page = pte_page(pte);
++	struct page *page = pte_valid_page(pte);
+ 	unsigned long pg_flags;
+ 
+-	if (VALID_PAGE(page) &&
+-	    page->mapping &&
++	if (page && page->mapping &&
+ 	    ((pg_flags = page->flags) & (1UL << PG_dcache_dirty))) {
+ 		int cpu = ((pg_flags >> 24) & (NR_CPUS - 1UL));
+ 
+@@ -260,10 +259,10 @@ static inline void flush_cache_pte_range
+ 			continue;
+ 
+ 		if (pte_present(pte) && pte_dirty(pte)) {
+-			struct page *page = pte_page(pte);
++			struct page *page = pte_valid_page(pte);
+ 			unsigned long pgaddr, uaddr;
+ 
+-			if (!VALID_PAGE(page) || PageReserved(page) || !page->mapping)
++			if (!page || PageReserved(page) || !page->mapping)
+ 				continue;
+ 			pgaddr = (unsigned long) page_address(page);
+ 			uaddr = address + offset;
+Index: fs/proc/array.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/fs/proc/array.c,v
+retrieving revision 1.1.1.7
+diff -u -p -r1.1.1.7 array.c
+--- fs/proc/array.c	14 Apr 2002 20:01:10 -0000	1.1.1.7
++++ fs/proc/array.c	29 Apr 2002 19:12:38 -0000
+@@ -424,8 +424,8 @@ static inline void statm_pte_range(pmd_t
+ 		++*total;
+ 		if (!pte_present(page))
+ 			continue;
+-		ptpage = pte_page(page);
+-		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
++		ptpage = pte_valid_page(page);
++		if (!ptpage || PageReserved(ptpage))
+ 			continue;
+ 		++*pages;
+ 		if (pte_dirty(page))
+Index: include/asm-cris/processor.h
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/include/asm-cris/processor.h,v
+retrieving revision 1.1.1.2
+diff -u -p -r1.1.1.2 processor.h
+--- include/asm-cris/processor.h	31 Jan 2002 22:16:02 -0000	1.1.1.2
++++ include/asm-cris/processor.h	29 Apr 2002 20:40:17 -0000
+@@ -101,8 +101,7 @@ unsigned long get_wchan(struct task_stru
+     ({                  \
+         unsigned long eip = 0;   \
+         unsigned long regs = (unsigned long)user_regs(tsk); \
+-        if (regs > PAGE_SIZE && \
+-            VALID_PAGE(virt_to_page(regs))) \
++        if (regs > PAGE_SIZE && virt_to_valid_page(regs)) \
+               eip = ((struct pt_regs *)regs)->irp; \
+         eip; })
+ 
+Index: include/asm-i386/page.h
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/include/asm-i386/page.h,v
+retrieving revision 1.1.1.3
+diff -u -p -r1.1.1.3 page.h
+--- include/asm-i386/page.h	24 Feb 2002 23:11:41 -0000	1.1.1.3
++++ include/asm-i386/page.h	29 Apr 2002 21:09:09 -0000
+@@ -132,7 +132,10 @@ static __inline__ int get_order(unsigned
+ #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
+ #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
+ #define virt_to_page(kaddr)	(mem_map + (__pa(kaddr) >> PAGE_SHIFT))
+-#define VALID_PAGE(page)	((page - mem_map) < max_mapnr)
++#define virt_to_valid_page(kaddr) ({ \
++	unsigned long __paddr = __pa(kaddr); \
++	__paddr < max_mapnr ? mem_map + (__paddr >> PAGE_SHIFT) : NULL; \
++})
+ 
+ #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
+ 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+Index: include/asm-i386/pgtable-2level.h
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/include/asm-i386/pgtable-2level.h,v
+retrieving revision 1.1.1.1
+diff -u -p -r1.1.1.1 pgtable-2level.h
+--- include/asm-i386/pgtable-2level.h	26 Nov 2001 19:29:55 -0000	1.1.1.1
++++ include/asm-i386/pgtable-2level.h	29 Apr 2002 21:13:29 -0000
+@@ -57,6 +57,7 @@ static inline pmd_t * pmd_offset(pgd_t *
+ #define ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
+ #define pte_same(a, b)		((a).pte_low == (b).pte_low)
+ #define pte_page(x)		(mem_map+((unsigned long)(((x).pte_low >> PAGE_SHIFT))))
++#define pte_valid_page(x)	(pte_val(x) < max_mapnr ? pte_page(x) : NULL)
+ #define pte_none(x)		(!(x).pte_low)
+ #define __mk_pte(page_nr,pgprot) __pte(((page_nr) << PAGE_SHIFT) | pgprot_val(pgprot))
+ 
+Index: include/asm-i386/pgtable-3level.h
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/include/asm-i386/pgtable-3level.h,v
+retrieving revision 1.1.1.1
+diff -u -p -r1.1.1.1 pgtable-3level.h
+--- include/asm-i386/pgtable-3level.h	26 Nov 2001 19:29:55 -0000	1.1.1.1
++++ include/asm-i386/pgtable-3level.h	29 Apr 2002 21:13:08 -0000
+@@ -87,6 +87,7 @@ static inline int pte_same(pte_t a, pte_
+ }
+ 
+ #define pte_page(x)	(mem_map+(((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT))))
++#define pte_valid_page(x) (pte_val(x) < max_mapnr ? pte_page(x) : NULL)
+ #define pte_none(x)	(!(x).pte_low && !(x).pte_high)
+ 
+ static inline pte_t __mk_pte(unsigned long page_nr, pgprot_t pgprot)
+Index: include/asm-m68k/processor.h
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/include/asm-m68k/processor.h,v
+retrieving revision 1.1.1.1
+diff -u -p -r1.1.1.1 processor.h
+--- include/asm-m68k/processor.h	26 Nov 2001 19:29:57 -0000	1.1.1.1
++++ include/asm-m68k/processor.h	29 Apr 2002 20:40:37 -0000
+@@ -139,7 +139,7 @@ unsigned long get_wchan(struct task_stru
+     ({			\
+ 	unsigned long eip = 0;	 \
+ 	if ((tsk)->thread.esp0 > PAGE_SIZE && \
+-	    (VALID_PAGE(virt_to_page((tsk)->thread.esp0)))) \
++	    (virt_to_valid_page((tsk)->thread.esp0))) \
+ 	      eip = ((struct pt_regs *) (tsk)->thread.esp0)->pc; \
+ 	eip; })
+ #define	KSTK_ESP(tsk)	((tsk) == current ? rdusp() : (tsk)->thread.usp)
+Index: include/asm-sh/pgalloc.h
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/include/asm-sh/pgalloc.h,v
+retrieving revision 1.1.1.2
+diff -u -p -r1.1.1.2 pgalloc.h
+--- include/asm-sh/pgalloc.h	31 Jan 2002 22:15:51 -0000	1.1.1.2
++++ include/asm-sh/pgalloc.h	29 Apr 2002 19:11:43 -0000
+@@ -105,9 +105,8 @@ static inline pte_t ptep_get_and_clear(p
+ 
+ 	pte_clear(ptep);
+ 	if (!pte_not_present(pte)) {
+-		struct page *page = pte_page(pte);
+-		if (VALID_PAGE(page)&&
+-		    (!page->mapping || !(page->mapping->i_mmap_shared)))
++		struct page *page = pte_valid_page(pte);
++		if (page && (!page->mapping || !(page->mapping->i_mmap_shared)))
+ 			__clear_bit(PG_mapped, &page->flags);
+ 	}
+ 	return pte;
+Index: mm/memory.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/mm/memory.c,v
+retrieving revision 1.1.1.9
+diff -u -p -r1.1.1.9 memory.c
+--- mm/memory.c	29 Apr 2002 17:30:38 -0000	1.1.1.9
++++ mm/memory.c	29 Apr 2002 20:38:17 -0000
+@@ -76,8 +76,8 @@ mem_map_t * mem_map;
+  */
+ void __free_pte(pte_t pte)
+ {
+-	struct page *page = pte_page(pte);
+-	if ((!VALID_PAGE(page)) || PageReserved(page))
++	struct page *page = pte_valid_page(pte);
++	if (!page || PageReserved(page))
+ 		return;
+ 	if (pte_dirty(pte))
+ 		set_page_dirty(page);		
+@@ -278,9 +278,8 @@ skip_copy_pte_range:		address = (address
+ 					swap_duplicate(pte_to_swp_entry(pte));
+ 					goto cont_copy_pte_range;
+ 				}
+-				ptepage = pte_page(pte);
+-				if ((!VALID_PAGE(ptepage)) || 
+-				    PageReserved(ptepage))
++				ptepage = pte_valid_page(pte);
++				if (!ptepage || PageReserved(ptepage))
+ 					goto cont_copy_pte_range;
+ 
+ 				/* If it's a COW mapping, write protect it both in the parent and the child */
+@@ -356,8 +355,8 @@ static inline int zap_pte_range(mmu_gath
+ 		if (pte_none(pte))
+ 			continue;
+ 		if (pte_present(pte)) {
+-			struct page *page = pte_page(pte);
+-			if (VALID_PAGE(page) && !PageReserved(page))
++			struct page *page = pte_valid_page(pte);
++			if (page && !PageReserved(page))
+ 				freed ++;
+ 			/* This will eventually call __free_pte on the pte. */
+ 			tlb_remove_page(tlb, ptep, address + offset);
+@@ -473,7 +472,7 @@ static struct page * follow_page(struct 
+ 	if (pte_present(pte)) {
+ 		if (!write ||
+ 		    (pte_write(pte) && pte_dirty(pte)))
+-			return pte_page(pte);
++			return pte_valid_page(pte);
+ 	}
+ 
+ out:
+@@ -488,8 +487,6 @@ out:
+ 
+ static inline struct page * get_page_map(struct page *page)
+ {
+-	if (!VALID_PAGE(page))
+-		return 0;
+ 	return page;
+ }
+ 
+@@ -860,12 +857,12 @@ static inline void remap_pte_range(pte_t
+ 		end = PMD_SIZE;
+ 	do {
+ 		struct page *page;
+-		pte_t oldpage;
++		pte_t oldpage, newpage;
+ 		oldpage = ptep_get_and_clear(pte);
+-
+-		page = virt_to_page(__va(phys_addr));
+-		if ((!VALID_PAGE(page)) || PageReserved(page))
+- 			set_pte(pte, mk_pte_phys(phys_addr, prot));
++		newpage = mk_pte_phys(phys_addr, prot);
++		page = pte_valid_page(newpage);
++		if (!page || PageReserved(page))
++ 			set_pte(pte, newpage);
+ 		forget_pte(oldpage);
+ 		address += PAGE_SIZE;
+ 		phys_addr += PAGE_SIZE;
+@@ -978,8 +975,8 @@ static int do_wp_page(struct mm_struct *
+ {
+ 	struct page *old_page, *new_page;
+ 
+-	old_page = pte_page(pte);
+-	if (!VALID_PAGE(old_page))
++	old_page = pte_valid_page(pte);
++	if (!old_page)
+ 		goto bad_wp_page;
+ 
+ 	if (!TryLockPage(old_page)) {
+Index: mm/msync.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/mm/msync.c,v
+retrieving revision 1.1.1.2
+diff -u -p -r1.1.1.2 msync.c
+--- mm/msync.c	14 Apr 2002 20:01:38 -0000	1.1.1.2
++++ mm/msync.c	29 Apr 2002 19:04:34 -0000
+@@ -26,8 +26,8 @@ static int filemap_sync_pte(pte_t *ptep,
+ 	pte_t pte = *ptep;
+ 
+ 	if (pte_present(pte) && pte_dirty(pte)) {
+-		struct page *page = pte_page(pte);
+-		if (VALID_PAGE(page) && !PageReserved(page) && ptep_test_and_clear_dirty(ptep)) {
++		struct page *page = pte_valid_page(pte);
++		if (page && !PageReserved(page) && ptep_test_and_clear_dirty(ptep)) {
+ 			flush_tlb_page(vma, address);
+ 			set_page_dirty(page);
+ 		}
+Index: mm/page_alloc.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/mm/page_alloc.c,v
+retrieving revision 1.1.1.8
+diff -u -p -r1.1.1.8 page_alloc.c
+--- mm/page_alloc.c	24 Apr 2002 19:31:04 -0000	1.1.1.8
++++ mm/page_alloc.c	29 Apr 2002 20:42:30 -0000
+@@ -101,8 +101,6 @@ static void __free_pages_ok (struct page
+ 		BUG();
+ 	if (page->mapping)
+ 		BUG();
+-	if (!VALID_PAGE(page))
+-		BUG();
+ 	if (PageSwapCache(page))
+ 		BUG();
+ 	if (PageLocked(page))
+@@ -294,8 +292,6 @@ static struct page * balance_classzone(z
+ 						BUG();
+ 					if (page->mapping)
+ 						BUG();
+-					if (!VALID_PAGE(page))
+-						BUG();
+ 					if (PageSwapCache(page))
+ 						BUG();
+ 					if (PageLocked(page))
+@@ -474,7 +470,7 @@ void __free_pages(struct page *page, uns
+ void free_pages(unsigned long addr, unsigned int order)
+ {
+ 	if (addr != 0)
+-		__free_pages(virt_to_page(addr), order);
++		__free_pages(virt_to_valid_page(addr), order);
+ }
+ 
+ /*
+Index: mm/slab.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/mm/slab.c,v
+retrieving revision 1.1.1.5
+diff -u -p -r1.1.1.5 slab.c
+--- mm/slab.c	13 Mar 2002 21:16:16 -0000	1.1.1.5
++++ mm/slab.c	29 Apr 2002 20:44:21 -0000
+@@ -1415,7 +1415,7 @@ alloc_new_slab_nolock:
+ #if DEBUG
+ # define CHECK_NR(pg)						\
+ 	do {							\
+-		if (!VALID_PAGE(pg)) {				\
++		if (!pg) {					\
+ 			printk(KERN_ERR "kfree: out of range ptr %lxh.\n", \
+ 				(unsigned long)objp);		\
+ 			BUG();					\
+@@ -1439,7 +1439,7 @@ static inline void kmem_cache_free_one(k
+ {
+ 	slab_t* slabp;
+ 
+-	CHECK_PAGE(virt_to_page(objp));
++	CHECK_PAGE(virt_to_valid_page(objp));
+ 	/* reduces memory footprint
+ 	 *
+ 	if (OPTIMIZE(cachep))
+@@ -1519,7 +1519,7 @@ static inline void __kmem_cache_free (km
+ #ifdef CONFIG_SMP
+ 	cpucache_t *cc = cc_data(cachep);
+ 
+-	CHECK_PAGE(virt_to_page(objp));
++	CHECK_PAGE(virt_to_valid_page(objp));
+ 	if (cc) {
+ 		int batchcount;
+ 		if (cc->avail < cc->limit) {
+@@ -1601,7 +1601,7 @@ void kmem_cache_free (kmem_cache_t *cach
+ {
+ 	unsigned long flags;
+ #if DEBUG
+-	CHECK_PAGE(virt_to_page(objp));
++	CHECK_PAGE(virt_to_valid_page(objp));
+ 	if (cachep != GET_PAGE_CACHE(virt_to_page(objp)))
+ 		BUG();
+ #endif
+@@ -1626,7 +1626,7 @@ void kfree (const void *objp)
+ 	if (!objp)
+ 		return;
+ 	local_irq_save(flags);
+-	CHECK_PAGE(virt_to_page(objp));
++	CHECK_PAGE(virt_to_valid_page(objp));
+ 	c = GET_PAGE_CACHE(virt_to_page(objp));
+ 	__kmem_cache_free(c, (void*)objp);
+ 	local_irq_restore(flags);
+Index: mm/vmalloc.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/mm/vmalloc.c,v
+retrieving revision 1.1.1.5
+diff -u -p -r1.1.1.5 vmalloc.c
+--- mm/vmalloc.c	24 Apr 2002 19:31:04 -0000	1.1.1.5
++++ mm/vmalloc.c	29 Apr 2002 18:59:39 -0000
+@@ -45,8 +45,8 @@ static inline void free_area_pte(pmd_t *
+ 		if (pte_none(page))
+ 			continue;
+ 		if (pte_present(page)) {
+-			struct page *ptpage = pte_page(page);
+-			if (VALID_PAGE(ptpage) && (!PageReserved(ptpage)))
++			struct page *ptpage = pte_valid_page(page);
++			if (ptpage && (!PageReserved(ptpage)))
+ 				__free_page(ptpage);
+ 			continue;
+ 		}
+Index: mm/vmscan.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/mm/vmscan.c,v
+retrieving revision 1.1.1.7
+diff -u -p -r1.1.1.7 vmscan.c
+--- mm/vmscan.c	24 Apr 2002 19:31:04 -0000	1.1.1.7
++++ mm/vmscan.c	29 Apr 2002 18:57:37 -0000
+@@ -206,9 +206,9 @@ static inline int swap_out_pmd(struct mm
+ 
+ 	do {
+ 		if (pte_present(*pte)) {
+-			struct page *page = pte_page(*pte);
++			struct page *page = pte_valid_page(*pte);
+ 
+-			if (VALID_PAGE(page) && !PageReserved(page)) {
++			if (page && !PageReserved(page)) {
+ 				count -= try_to_swap_out(mm, vma, address, pte, page, classzone);
+ 				if (!count) {
+ 					address += PAGE_SIZE;
 

@@ -1,87 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281435AbRKEXoD>; Mon, 5 Nov 2001 18:44:03 -0500
+	id <S281436AbRKEXqN>; Mon, 5 Nov 2001 18:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281436AbRKEXny>; Mon, 5 Nov 2001 18:43:54 -0500
-Received: from addleston.eee.nott.ac.uk ([128.243.70.70]:52907 "HELO
-	addleston.eee.nott.ac.uk") by vger.kernel.org with SMTP
-	id <S281435AbRKEXni>; Mon, 5 Nov 2001 18:43:38 -0500
-Date: Mon, 5 Nov 2001 23:43:35 +0000 (GMT)
-From: Matthew Clark <matt@eee.nott.ac.uk>
-X-X-Sender: <matt@perry>
-To: <linux-kernel@vger.kernel.org>
-Subject: PCI interrupts
-Message-ID: <Pine.OSF.4.31.0111052332160.25619-100000@perry>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281437AbRKEXqD>; Mon, 5 Nov 2001 18:46:03 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:23800 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281436AbRKEXpy>;
+	Mon, 5 Nov 2001 18:45:54 -0500
+Date: Mon, 5 Nov 2001 16:45:01 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Christian Laursen <xi@borderworlds.dk>, linux-kernel@vger.kernel.org
+Subject: Re: Ext2 directory index, updated
+Message-ID: <20011105164501.K3957@lynx.no>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	Christian Laursen <xi@borderworlds.dk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011104022659Z16995-4784+750@humbolt.nl.linux.org> <20011105014225Z17055-18972+38@humbolt.nl.linux.org> <m3n120x1re.fsf@borg.borderworlds.dk> <20011105231222Z16039-18972+236@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011105231222Z16039-18972+236@humbolt.nl.linux.org>; from phillips@bonn-fries.net on Tue, Nov 06, 2001 at 12:13:12AM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Nov 06, 2001  00:13 +0100, Daniel Phillips wrote:
+> > > From 2.4.10 on ext2 has an accelerator in 
+> > > ext2_find_entry - it caches the last lookup position.  I'm wondering how 
+> > > that affects this case.
+> > 
+> > From the description I read a while ago, I believe it could cause a
+> > significant speedup.
+> > 
+> > I'll have to try that out one of these days.
+> 
+> I noticed split results with the find_entry accelerator, at least in its 
+> current form: faster delete, slower create.
 
-Dear kernel list,
+Well, according to reiserfs benchmarks at:
+http://namesys.com/benchmarks/mongo/2.4.8_vs_2.4.9_vs_2.4.10_table.txt
 
-I am writing a dev driver for a pci device and I am having some
-difficultly getting the interrupts line.
+the accelerator speeds up stat times (in all cases) by a factor of 3 to 5.
+Create times are reduced as well (although not as much).  In fact, it also
+shows delete speed as being slower, but that is hard to quantify as the
+reiserfs delete spped is slower also.
 
-As far as I understood the BIOS / kernel would sort out a unique
-interrupt line for me which I could then get by registering with
-the system.
+It actually looks like both ext2 and reiserfs took a hit in the read
+department in 2.4.10 as well.  Maybe a bad interaction with the page
+cache or something?  It would also be worthwhile to go back to the
+addition of directories-in-pagecache as well, because I seem to recall
+posting about a hit in read performance at that time as well, and never
+really heard anything about it.
 
-In my development system the PCI card I am developing  the
-driver for reports (from the PCI config region) that it is using
-interrupt 5.  I can't register this interrupt as it is already
-in use by the USB controller.
+The bonnie++ benchmark doesn't show any obvious trends (incomplete tables):
+http://namesys.com/benchmarks/bonnie/2.4.8_2.4.9_2.4.10.txt
 
+I'll have to go and update my bonnie benchmarks for newer kernels (last
+run when testing indexed directores and dir-in-pagecache at 2.4.5).
 
-(a) should my card have a unique number- if so what should I
-do?
-
-(b) if it shouldn't have a unique number do I have to share the
-interrupt (with the usb controller) or can I change it to
-another address (by writing to the config space?)?
-If I have to share it how do I do this- (my card will generate a
-lot of interrupt traffic)?.
-
-I have free interrupts and would prefer not to share the
-interrrupt for this device.
-
-Any help / suggestions gratefully received-
-
-apologies if this is in the wrong place--
-
-
-Thanks matt
-
-
-snippet from lspci -v
-.....
-00:1f.2 USB Controller: Intel Corporation 82801AA USB (rev 02)
-(prog-if 00 [UHCI])
-        Subsystem: Intel Corporation 82801AA USB
-        Flags: bus master, medium devsel, latency 0, IRQ 5
-......
-01:05.0 DMA controller: PLX Technology, Inc. PCI <-> IOBus
-Bridge (rev 02) (prog-if 00 [8237])
-        Subsystem: PLX Technology, Inc. PCI <-> IOBus Bridge
-        Flags: medium devsel, IRQ 5
-......
-Ignore the PLX PCI id- the card developers didn't get their own
-number.....
-
-
-cat /proc/interrupts
-
-           CPU0
-  0:    2099604          XT-PIC  timer
-  1:       3541          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:         11          XT-PIC  serial
-  4:       1537          XT-PIC  serial
-  5:          0          XT-PIC  usb-uhci
-  8:          1          XT-PIC  rtc
- 11:     196886          XT-PIC  eth0, i810@PCI:0:1:0
- 14:      13005          XT-PIC  ide0
- 15:          0          XT-PIC  ide1
-NMI:          0
-ERR:          0
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

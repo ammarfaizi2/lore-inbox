@@ -1,91 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281307AbRKTUM0>; Tue, 20 Nov 2001 15:12:26 -0500
+	id <S281318AbRKTUM4>; Tue, 20 Nov 2001 15:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281318AbRKTUMQ>; Tue, 20 Nov 2001 15:12:16 -0500
-Received: from postfix2-2.free.fr ([213.228.0.140]:58076 "HELO
-	postfix2-2.free.fr") by vger.kernel.org with SMTP
-	id <S281307AbRKTUMH> convert rfc822-to-8bit; Tue, 20 Nov 2001 15:12:07 -0500
-Date: Tue, 20 Nov 2001 18:26:26 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Anton Blanchard <anton@samba.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] small sym-2 fix
-In-Reply-To: <20011120170219.A10454@krispykreme>
-Message-ID: <20011120181131.F1961-100000@gerard>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S281320AbRKTUMh>; Tue, 20 Nov 2001 15:12:37 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:58633 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S281318AbRKTUM1>;
+	Tue, 20 Nov 2001 15:12:27 -0500
+Date: Tue, 20 Nov 2001 21:11:28 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Ricardo Galli <gallir@uib.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problem with NAT on 2.4
+Message-Id: <20011120211128.1b9ae5fa.skraw@ithnet.com>
+In-Reply-To: <20011120195443.6842910619@mcrg>
+In-Reply-To: <20011120195443.6842910619@mcrg>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Nov 2001 20:54:43 +0100
+Ricardo Galli <gallir@uib.es> wrote:
 
-Hello,
+> 
+>  > Does anybody have an idea why NAT in 2.4.10 wouldn't work like NAT in some
+>  > cheap dsl-router equipment regarding http-connections?
+>  > Is there any sense in upgrading to 2.4.15-preX?
+>  > I even tried some gateway software based on windoze that is able to NAT - 
+> and
+>  > it works too! I pretty much ran out of ideas...
+> 
+> Did you disable ECN? (echo 0 > /proc/sys/net/ipv4/tcp_ecn)
 
-On Tue, 20 Nov 2001, Anton Blanchard wrote:
+Is 0. I didn't explicitely disable, it only happens to be so.
 
-> Hi,
->
-> > Could you revert your change and give my patch below a try. Btw, you will
-> > be in sync with my current sources. Booting with sym53c8xx=debug:1 will
-> > let the driver print all memory allocations to the syslog. You may send me
-> > the drivers messages related to these allocations for information.
->
-> Thanks, it boots OK now. Do you still want a debug log?
+> Did you try a connection to port 80 from the Linux box?
 
-I can guess the result.
+Now this is interesting:
 
-> BTW on ppc64 we can have io port addresses > 32 bits so this change is
-> required.
+I try a simple telnet www.thedeadman.com 80 (I will post the publicly available
+servers name if you want me to) and this is what happens:
 
-Linux/ppc64 looks strange invention to me. As you know IO base addresses
-are limited to 32 bit in PCI. And, btw, 32 bits seems to work just fine
-here as PPC is defined from the driver as using normal IO. But, IIRC, the
-strange Linux/PPC invention only supports MMIO. :-)
+not working: (connection fails)
+2.0.39, some 2.2.18, 2.4.10, 2.4.13, some 2.2.19
 
-If you want to play with _explicit_ MMIO, you just have to remove a couple
-of line from sym53c8xx.h. Here they are:
+working:
+some 2.2.18, some 2.2.19, 2.4.5, 2.4.15-pre3, 2.4.15-pre7
 
-  /*
-   *  Use normal IO if configured. Forced for alpha and powerpc.
-   *  Powerpc fails copying to on-chip RAM using memcpy_toio().
-   *  Forced to MMIO for sparc.
-   */
-  #if defined(__alpha__)
-  #define	SYM_CONF_IOMAPPED
-  #elif defined(__powerpc__)
-- #define	SYM_CONF_IOMAPPED
-- #define SYM_OPT_NO_BUS_MEMORY_MAPPING
-  #elif defined(__sparc__)
-  #undef SYM_CONF_IOMAPPED
-  #elif defined(CONFIG_SCSI_SYM53C8XX_IOMAPPED)
-  #define	SYM_CONF_IOMAPPED
-  #endif
-
-Btw, I cannot guess the result here. You may want to really let me know
-this time. :)
-
-I cannot apply your patch as it is, since I want the driver to distinguish
-between kernel fake cookies associated with base addresses and actual
-values of those registers. This is needed, since some of these values must
-be known from SCSI SCRIPTS and thus must fit the _reality_ and not any
-kernel developpers' dream, could be the greatest ones:).
-
-Thanks, anyway, for reporting this problem.
+?
 
 Regards,
-  Gérard.
-
-> diff -urN linuxppc_2_4_devel/drivers/scsi/sym53c8xx_2/sym_glue.h linuxppc_2_4_devel_work/drivers/scsi/sym53c8xx_2/sym_glue.h
-> --- linuxppc_2_4_devel/drivers/scsi/sym53c8xx_2/sym_glue.h	Mon Nov 12 11:46:42 2001
-> +++ linuxppc_2_4_devel_work/drivers/scsi/sym53c8xx_2/sym_glue.h	Tue Nov 20 16:35:14 2001
-> @@ -463,7 +462,7 @@
->
->  	vm_offset_t	mmio_va;	/* MMIO kernel virtual address	*/
->  	vm_offset_t	ram_va;		/* RAM  kernel virtual address	*/
-> -	u32		io_port;	/* IO port address		*/
-> +	u_long		io_port;	/* IO port address		*/
->  	u_short		io_ws;		/* IO window size		*/
->  	int		irq;		/* IRQ number			*/
+Stephan
 

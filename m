@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268237AbUI2GvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268238AbUI2GvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268237AbUI2GvE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 02:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268247AbUI2GtA
+	id S268238AbUI2GvA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 02:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268237AbUI2Guh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 02:49:00 -0400
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:36206 "HELO
+	Wed, 29 Sep 2004 02:50:37 -0400
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:37998 "HELO
 	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268235AbUI2GsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 02:48:02 -0400
+	id S268238AbUI2GsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 02:48:03 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 2/8] Psmouse rate and resolution handlers
-Date: Wed, 29 Sep 2004 01:42:31 -0500
+Subject: [PATCH 5/8] Export psmouse parameters via sysfs
+Date: Wed, 29 Sep 2004 01:44:48 -0500
 User-Agent: KMail/1.6.2
 Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200409290140.53350.dtor_core@ameritech.net> <200409290141.48766.dtor_core@ameritech.net>
-In-Reply-To: <200409290141.48766.dtor_core@ameritech.net>
+References: <200409290140.53350.dtor_core@ameritech.net> <200409290143.11562.dtor_core@ameritech.net> <200409290144.04783.dtor_core@ameritech.net>
+In-Reply-To: <200409290144.04783.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409290142.33707.dtor_core@ameritech.net>
+Message-Id: <200409290144.50310.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -30,21 +30,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 ===================================================================
 
 
-ChangeSet@1.1948, 2004-09-28 00:07:10-05:00, dtor_core@ameritech.net
-  Input: psmouse - add set_rate and set_resolution handlers to make
-         adding new protocols easier and remove special knowledge
-         from psmouse-base.c
+ChangeSet@1.1951, 2004-09-28 00:51:49-05:00, dtor_core@ameritech.net
+  Input: psmouse - export rate, resolution, resetafter and smartscroll
+         (Logitech only) as individual mouse attributes (sysfs) and allow
+         them to be set/changed independently for each mouse:
   
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+           echo -n "100" > /sys/bus/serio/devices/serio0/rate
+           echo -n "200" > /sys/bus/serio/devices/serio0/resolution
 
 
- logips2pp.c    |   22 ++++++++++++++--------
- logips2pp.h    |    1 -
- psmouse-base.c |   43 ++++++++++++++++++++-----------------------
- psmouse.h      |    8 +++++++-
- synaptics.c    |   37 +++++++++++++++++++++++++++----------
- synaptics.h    |    1 +
- 6 files changed, 69 insertions(+), 43 deletions(-)
+ logips2pp.c    |   48 +++++++++++++++++----
+ psmouse-base.c |  127 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ psmouse.h      |   22 +++++++++
+ 3 files changed, 185 insertions(+), 12 deletions(-)
 
 
 ===================================================================
@@ -52,276 +50,314 @@ ChangeSet@1.1948, 2004-09-28 00:07:10-05:00, dtor_core@ameritech.net
 
 
 diff -Nru a/drivers/input/mouse/logips2pp.c b/drivers/input/mouse/logips2pp.c
---- a/drivers/input/mouse/logips2pp.c	2004-09-29 01:15:50 -05:00
-+++ b/drivers/input/mouse/logips2pp.c	2004-09-29 01:15:50 -05:00
-@@ -137,15 +137,19 @@
-  * also good reasons to use it, let the user decide).
+--- a/drivers/input/mouse/logips2pp.c	2004-09-29 01:21:02 -05:00
++++ b/drivers/input/mouse/logips2pp.c	2004-09-29 01:21:02 -05:00
+@@ -109,14 +109,17 @@
+  * enabled if we do nothing to it. Of course I put this in because I want it
+  * disabled :P
+  * 1 - enabled (if previously disabled, also default)
+- * 0/2 - disabled
++ * 0 - disabled
   */
  
--void ps2pp_set_800dpi(struct psmouse *psmouse)
-+static void ps2pp_set_resolution(struct psmouse *psmouse, unsigned int resolution)
+-static void ps2pp_set_smartscroll(struct psmouse *psmouse)
++static void ps2pp_set_smartscroll(struct psmouse *psmouse, unsigned int smartscroll)
  {
--	struct ps2dev *ps2dev = &psmouse->ps2dev;
--	unsigned char param = 3;
--
--	ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
--	ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
--	ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
--	ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES);
-+	if (resolution > 400) {
-+		struct ps2dev *ps2dev = &psmouse->ps2dev;
-+		unsigned char param = 3;
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 	unsigned char param[4];
+ 
++	if (smartscroll > 1)
++		smartscroll = 1;
 +
-+		ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
-+		ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
-+		ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
-+		ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES);
-+		psmouse->resolution = 800;
-+	} else
-+		psmouse_set_resolution(psmouse, resolution);
+ 	ps2pp_cmd(psmouse, param, 0x32);
+ 
+ 	param[0] = 0;
+@@ -124,13 +127,31 @@
+ 	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+ 	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+ 
+-	if (psmouse_smartscroll < 2) {
+-		/* 0 - disabled, 1 - enabled */
+-		param[0] = psmouse_smartscroll;
+-		ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+-	}
++	param[0] = smartscroll;
++	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
++}
++
++static ssize_t psmouse_attr_show_smartscroll(struct psmouse *psmouse, char *buf)
++{
++	return sprintf(buf, "%d\n", psmouse->smartscroll ? 1 : 0);
++}
++
++static ssize_t psmouse_attr_set_smartscroll(struct psmouse *psmouse, const char *buf, size_t count)
++{
++	unsigned long value;
++	char *rest;
++
++	value = simple_strtoul(buf, &rest, 10);
++	if (*rest || value > 1)
++		return -EINVAL;
++
++	ps2pp_set_smartscroll(psmouse, value);
++	psmouse->smartscroll = value;
++	return count;
  }
  
++PSMOUSE_DEFINE_ATTR(smartscroll);
++
+ /*
+  * Support 800 dpi resolution _only_ if the user wants it (there are good
+  * reasons to not use it even if the mouse supports it, and of course there are
+@@ -152,6 +173,11 @@
+ 		psmouse_set_resolution(psmouse, resolution);
+ }
+ 
++static void ps2pp_disconnect(struct psmouse *psmouse)
++{
++	device_remove_file(&psmouse->ps2dev.serio->dev, &psmouse_attr_smartscroll);
++}
++
  static struct ps2pp_info *get_model_info(unsigned char model)
-@@ -299,6 +303,8 @@
+ {
+ 	static struct ps2pp_info ps2pp_list[] = {
+@@ -295,7 +321,7 @@
+ 			if ((param[0] & 0x78) == 0x48 &&
+ 			    (param[1] & 0xf3) == 0xc2 &&
+ 			    (param[2] & 0x03) == ((param[1] >> 2) & 3)) {
+-				ps2pp_set_smartscroll(psmouse);
++				ps2pp_set_smartscroll(psmouse, psmouse->smartscroll);
+ 				protocol = PSMOUSE_PS2PP;
+ 			}
+ 		}
+@@ -303,8 +329,12 @@
  		if (set_properties) {
  			psmouse->vendor = "Logitech";
  			psmouse->model = model;
-+			if (protocol == PSMOUSE_PS2PP)
-+				psmouse->set_resolution = ps2pp_set_resolution;
+-			if (protocol == PSMOUSE_PS2PP)
++			if (protocol == PSMOUSE_PS2PP) {
+ 				psmouse->set_resolution = ps2pp_set_resolution;
++				psmouse->disconnect = ps2pp_disconnect;
++
++				device_create_file(&psmouse->ps2dev.serio->dev, &psmouse_attr_smartscroll);
++			}
  
  			if (buttons < 3)
  				clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
-diff -Nru a/drivers/input/mouse/logips2pp.h b/drivers/input/mouse/logips2pp.h
---- a/drivers/input/mouse/logips2pp.h	2004-09-29 01:15:50 -05:00
-+++ b/drivers/input/mouse/logips2pp.h	2004-09-29 01:15:50 -05:00
-@@ -12,7 +12,6 @@
- #define _LOGIPS2PP_H
- 
- void ps2pp_process_packet(struct psmouse *psmouse);
--void ps2pp_set_800dpi(struct psmouse *psmouse);
- int ps2pp_init(struct psmouse *psmouse, int set_properties);
- 
- #endif
 diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
---- a/drivers/input/mouse/psmouse-base.c	2004-09-29 01:15:50 -05:00
-+++ b/drivers/input/mouse/psmouse-base.c	2004-09-29 01:15:50 -05:00
-@@ -36,11 +36,11 @@
- module_param_named(proto, psmouse_proto, charp, 0);
- MODULE_PARM_DESC(proto, "Highest protocol extension to probe (bare, imps, exps). Useful for KVM switches.");
- 
--int psmouse_resolution = 200;
-+static unsigned int psmouse_resolution = 200;
- module_param_named(resolution, psmouse_resolution, uint, 0);
- MODULE_PARM_DESC(resolution, "Resolution, in dpi.");
- 
--unsigned int psmouse_rate = 100;
-+static unsigned int psmouse_rate = 100;
+--- a/drivers/input/mouse/psmouse-base.c	2004-09-29 01:21:02 -05:00
++++ b/drivers/input/mouse/psmouse-base.c	2004-09-29 01:21:02 -05:00
+@@ -44,7 +44,7 @@
  module_param_named(rate, psmouse_rate, uint, 0);
  MODULE_PARM_DESC(rate, "Report rate, in reports per second.");
  
-@@ -521,38 +521,29 @@
-  * Here we set the mouse resolution.
-  */
+-int psmouse_smartscroll = 1;
++static unsigned int psmouse_smartscroll = 1;
+ module_param_named(smartscroll, psmouse_smartscroll, bool, 0);
+ MODULE_PARM_DESC(smartscroll, "Logitech Smartscroll autorepeat, 1 = enabled (default), 0 = disabled.");
  
--static void psmouse_set_resolution(struct psmouse *psmouse)
-+void psmouse_set_resolution(struct psmouse *psmouse, unsigned int resolution)
+@@ -52,6 +52,10 @@
+ module_param_named(resetafter, psmouse_resetafter, uint, 0);
+ MODULE_PARM_DESC(resetafter, "Reset device after so many bad packets (0 = never).");
+ 
++PSMOUSE_DEFINE_ATTR(rate);
++PSMOUSE_DEFINE_ATTR(resolution);
++PSMOUSE_DEFINE_ATTR(resetafter);
++
+ __obsolete_setup("psmouse_noext");
+ __obsolete_setup("psmouse_resolution=");
+ __obsolete_setup("psmouse_smartscroll=");
+@@ -209,7 +213,7 @@
+ 				psmouse->name, psmouse->phys, psmouse->pktcnt);
+ 			psmouse->pktcnt = 0;
+ 
+-			if (++psmouse->out_of_sync == psmouse_resetafter) {
++			if (++psmouse->out_of_sync == psmouse->resetafter) {
+ 				psmouse->state = PSMOUSE_IGNORE;
+ 				printk(KERN_NOTICE "psmouse.c: issuing reconnect request\n");
+ 				serio_reconnect(psmouse->ps2dev.serio);
+@@ -638,6 +642,10 @@
  {
--	unsigned char param[1];
-+	unsigned char params[] = { 0, 1, 2, 2, 3 };
+ 	struct psmouse *psmouse, *parent;
  
--	if (psmouse->type == PSMOUSE_PS2PP && psmouse_resolution > 400) {
--		ps2pp_set_800dpi(psmouse);
--		return;
--	}
--
--	if (!psmouse_resolution || psmouse_resolution >= 200)
--		param[0] = 3;
--	else if (psmouse_resolution >= 100)
--		param[0] = 2;
--	else if (psmouse_resolution >= 50)
--		param[0] = 1;
--	else if (psmouse_resolution)
--		param[0] = 0;
-+	if (resolution == 0 || resolution > 200)
-+		resolution = 200;
++	device_remove_file(&serio->dev, &psmouse_attr_rate);
++	device_remove_file(&serio->dev, &psmouse_attr_resolution);
++	device_remove_file(&serio->dev, &psmouse_attr_resetafter);
++
+ 	psmouse = serio->private;
+ 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
  
--	ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_SETRES);
-+	ps2_command(&psmouse->ps2dev, &params[resolution / 50], PSMOUSE_CMD_SETRES);
-+	psmouse->resolution = 25 << params[resolution / 50];
- }
+@@ -706,6 +714,8 @@
  
- /*
-  * Here we set the mouse report rate.
-  */
- 
--static void psmouse_set_rate(struct psmouse *psmouse)
-+static void psmouse_set_rate(struct psmouse *psmouse, unsigned int rate)
- {
- 	unsigned char rates[] = { 200, 100, 80, 60, 40, 20, 10, 0 };
- 	int i = 0;
- 
--	while (rates[i] > psmouse_rate) i++;
--	ps2_command(&psmouse->ps2dev, rates + i, PSMOUSE_CMD_SETRATE);
-+	while (rates[i] > rate) i++;
-+	ps2_command(&psmouse->ps2dev, &rates[i], PSMOUSE_CMD_SETRATE);
-+	psmouse->rate = rates[i];
- }
- 
- /*
-@@ -568,8 +559,8 @@
-  */
- 
- 	if (psmouse_max_proto != PSMOUSE_PS2) {
--		psmouse_set_rate(psmouse);
--		psmouse_set_resolution(psmouse);
-+		psmouse->set_rate(psmouse, psmouse->rate);
-+		psmouse->set_resolution(psmouse, psmouse->resolution);
- 		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
- 	}
- 
-@@ -709,6 +700,8 @@
- 		goto out;
- 	}
- 
-+	psmouse->rate = psmouse_rate;
-+	psmouse->resolution = psmouse_resolution;
+ 	psmouse->rate = psmouse_rate;
+ 	psmouse->resolution = psmouse_resolution;
++	psmouse->resetafter = psmouse_resetafter;
++	psmouse->smartscroll = psmouse_smartscroll;
  	psmouse->type = psmouse_extensions(psmouse, psmouse_max_proto, 1);
  	if (!psmouse->vendor)
  		psmouse->vendor = "Generic";
-@@ -716,6 +709,10 @@
- 		psmouse->name = "Mouse";
- 	if (!psmouse->protocol_handler)
- 		psmouse->protocol_handler = psmouse_process_byte;
-+	if (!psmouse->set_rate)
-+		psmouse->set_rate = psmouse_set_rate;
-+	if (!psmouse->set_resolution)
-+		psmouse->set_resolution = psmouse_set_resolution;
+@@ -741,6 +751,10 @@
+ 	if (parent && parent->pt_activate)
+ 		parent->pt_activate(parent);
  
- 	sprintf(psmouse->devname, "%s %s %s",
- 		psmouse_protocols[psmouse->type], psmouse->vendor, psmouse->name);
-diff -Nru a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
---- a/drivers/input/mouse/psmouse.h	2004-09-29 01:15:50 -05:00
-+++ b/drivers/input/mouse/psmouse.h	2004-09-29 01:15:50 -05:00
-@@ -50,7 +50,13 @@
- 	char devname[64];
- 	char phys[32];
- 
-+	unsigned int rate;
-+	unsigned int resolution;
++	device_create_file(&serio->dev, &psmouse_attr_rate);
++	device_create_file(&serio->dev, &psmouse_attr_resolution);
++	device_create_file(&serio->dev, &psmouse_attr_resetafter);
 +
- 	psmouse_ret_t (*protocol_handler)(struct psmouse *psmouse, struct pt_regs *regs);
-+	void (*set_rate)(struct psmouse *psmouse, unsigned int rate);
-+	void (*set_resolution)(struct psmouse *psmouse, unsigned int resolution);
+ 	if (serio->child) {
+ 		/*
+ 		 * Nothing to be done here, serio core will detect that
+@@ -817,6 +831,115 @@
+ 	.disconnect	= psmouse_disconnect,
+ 	.cleanup	= psmouse_cleanup,
+ };
 +
- 	int (*reconnect)(struct psmouse *psmouse);
- 	void (*disconnect)(struct psmouse *psmouse);
- 
-@@ -73,8 +79,8 @@
- 
- int psmouse_sliced_command(struct psmouse *psmouse, unsigned char command);
- int psmouse_reset(struct psmouse *psmouse);
-+void psmouse_set_resolution(struct psmouse *psmouse, unsigned int resolution);
- 
- extern int psmouse_smartscroll;
--extern unsigned int psmouse_rate;
- 
- #endif /* _PSMOUSE_H */
-diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
---- a/drivers/input/mouse/synaptics.c	2004-09-29 01:15:50 -05:00
-+++ b/drivers/input/mouse/synaptics.c	2004-09-29 01:15:50 -05:00
-@@ -193,23 +193,37 @@
- 	return 0;
- }
- 
--static int synaptics_set_mode(struct psmouse *psmouse, int mode)
-+static int synaptics_set_absolute_mode(struct psmouse *psmouse)
- {
- 	struct synaptics_data *priv = psmouse->private;
- 
--	mode |= SYN_BIT_ABSOLUTE_MODE;
--	if (psmouse_rate >= 80)
--		mode |= SYN_BIT_HIGH_RATE;
-+	priv->mode = SYN_BIT_ABSOLUTE_MODE;
- 	if (SYN_ID_MAJOR(priv->identity) >= 4)
--		mode |= SYN_BIT_DISABLE_GESTURE;
-+		priv->mode |= SYN_BIT_DISABLE_GESTURE;
- 	if (SYN_CAP_EXTENDED(priv->capabilities))
--		mode |= SYN_BIT_W_MODE;
--	if (synaptics_mode_cmd(psmouse, mode))
-+		priv->mode |= SYN_BIT_W_MODE;
-+
-+	if (synaptics_mode_cmd(psmouse, priv->mode))
- 		return -1;
- 
- 	return 0;
- }
- 
-+static void synaptics_set_rate(struct psmouse *psmouse, unsigned int rate)
++ssize_t psmouse_attr_show_helper(struct device *dev, char *buf,
++				 ssize_t (*handler)(struct psmouse *, char *))
 +{
-+	struct synaptics_data *priv = psmouse->private;
++	struct serio *serio = to_serio_port(dev);
++	int retval;
 +
-+	if (rate >= 80) {
-+		priv->mode |= SYN_BIT_HIGH_RATE;
-+		psmouse->rate = 80;
-+	} else {
-+		priv->mode &= ~SYN_BIT_HIGH_RATE;
-+		psmouse->rate = 40;
++	retval = serio_pin_driver(serio);
++	if (retval)
++		return retval;
++
++	if (serio->drv != &psmouse_drv) {
++		retval = -ENODEV;
++		goto out;
 +	}
 +
-+	synaptics_mode_cmd(psmouse, priv->mode);
++	retval = handler(serio->private, buf);
++
++out:
++	serio_unpin_driver(serio);
++	return retval;
 +}
 +
- /*****************************************************************************
-  *	Synaptics pass-through PS/2 port support
-  ****************************************************************************/
-@@ -247,10 +261,12 @@
- static void synaptics_pt_activate(struct psmouse *psmouse)
++ssize_t psmouse_attr_set_helper(struct device *dev, const char *buf, size_t count,
++				ssize_t (*handler)(struct psmouse *, const char *, size_t))
++{
++	struct serio *serio = to_serio_port(dev);
++	struct psmouse *psmouse = serio->private, *parent = NULL;
++	int retval;
++
++	retval = serio_pin_driver(serio);
++	if (retval)
++		return retval;
++
++	if (serio->drv != &psmouse_drv) {
++		retval = -ENODEV;
++		goto out;
++	}
++
++	if (serio->parent && (serio->type & SERIO_TYPE) == SERIO_PS_PSTHRU) {
++		parent = serio->parent->private;
++		psmouse_deactivate(parent);
++	}
++	psmouse_deactivate(psmouse);
++
++	retval = handler(psmouse, buf, count);
++
++	psmouse_activate(psmouse);
++	if (parent)
++		psmouse_activate(parent);
++
++out:
++	serio_unpin_driver(serio);
++	return retval;
++}
++
++static ssize_t psmouse_attr_show_rate(struct psmouse *psmouse, char *buf)
++{
++	return sprintf(buf, "%d\n", psmouse->rate);
++}
++
++static ssize_t psmouse_attr_set_rate(struct psmouse *psmouse, const char *buf, size_t count)
++{
++	unsigned long value;
++	char *rest;
++
++	value = simple_strtoul(buf, &rest, 10);
++	if (*rest)
++		return -EINVAL;
++
++	psmouse->set_rate(psmouse, value);
++	return count;
++}
++
++static ssize_t psmouse_attr_show_resolution(struct psmouse *psmouse, char *buf)
++{
++	return sprintf(buf, "%d\n", psmouse->resolution);
++}
++
++static ssize_t psmouse_attr_set_resolution(struct psmouse *psmouse, const char *buf, size_t count)
++{
++	unsigned long value;
++	char *rest;
++
++	value = simple_strtoul(buf, &rest, 10);
++	if (*rest)
++		return -EINVAL;
++
++	psmouse->set_resolution(psmouse, value);
++	return count;
++}
++
++static ssize_t psmouse_attr_show_resetafter(struct psmouse *psmouse, char *buf)
++{
++	return sprintf(buf, "%d\n", psmouse->resetafter);
++}
++
++static ssize_t psmouse_attr_set_resetafter(struct psmouse *psmouse, const char *buf, size_t count)
++{
++	unsigned long value;
++	char *rest;
++
++	value = simple_strtoul(buf, &rest, 10);
++	if (*rest)
++		return -EINVAL;
++
++	psmouse->resetafter = value;
++	return count;
++}
+ 
+ static inline void psmouse_parse_proto(void)
  {
- 	struct psmouse *child = psmouse->ps2dev.serio->child->private;
-+	struct synaptics_data *priv = psmouse->private;
+diff -Nru a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+--- a/drivers/input/mouse/psmouse.h	2004-09-29 01:21:02 -05:00
++++ b/drivers/input/mouse/psmouse.h	2004-09-29 01:21:02 -05:00
+@@ -52,6 +52,8 @@
  
- 	/* adjust the touchpad to child's choice of protocol */
- 	if (child && child->type >= PSMOUSE_GENPS) {
--		if (synaptics_set_mode(psmouse, SYN_BIT_FOUR_BYTE_CLIENT))
-+		priv->mode |= SYN_BIT_FOUR_BYTE_CLIENT;
-+		if (synaptics_mode_cmd(psmouse, priv->mode))
- 			printk(KERN_INFO "synaptics: failed to enable 4-byte guest protocol\n");
- 	}
- }
-@@ -552,7 +568,7 @@
- 	    old_priv.ext_cap != priv->ext_cap)
- 		return -1;
+ 	unsigned int rate;
+ 	unsigned int resolution;
++	unsigned int resetafter;
++	unsigned int smartscroll;	/* Logitech only */
  
--	if (synaptics_set_mode(psmouse, 0)) {
-+	if (synaptics_set_absolute_mode(psmouse)) {
- 		printk(KERN_ERR "Unable to initialize Synaptics hardware.\n");
- 		return -1;
- 	}
-@@ -590,7 +606,7 @@
- 		goto init_fail;
- 	}
+ 	psmouse_ret_t (*protocol_handler)(struct psmouse *psmouse, struct pt_regs *regs);
+ 	void (*set_rate)(struct psmouse *psmouse, unsigned int rate);
+@@ -81,6 +83,24 @@
+ int psmouse_reset(struct psmouse *psmouse);
+ void psmouse_set_resolution(struct psmouse *psmouse, unsigned int resolution);
  
--	if (synaptics_set_mode(psmouse, 0)) {
-+	if (synaptics_set_absolute_mode(psmouse)) {
- 		printk(KERN_ERR "Unable to initialize Synaptics hardware.\n");
- 		goto init_fail;
- 	}
-@@ -604,6 +620,7 @@
- 	set_input_params(&psmouse->dev, priv);
+-extern int psmouse_smartscroll;
++ssize_t psmouse_attr_show_helper(struct device *dev, char *buf,
++			ssize_t (*handler)(struct psmouse *, char *));
++ssize_t psmouse_attr_set_helper(struct device *dev, const char *buf, size_t count,
++			int (*handler)(struct psmouse *, const char *, size_t));
++
++#define PSMOUSE_DEFINE_ATTR(_name)						\
++static ssize_t psmouse_attr_show_##_name(struct psmouse *, char *);		\
++static ssize_t psmouse_attr_set_##_name(struct psmouse *, const char *, size_t);\
++static ssize_t psmouse_do_show_##_name(struct device *d, char *b)		\
++{										\
++	return psmouse_attr_show_helper(d, b, psmouse_attr_show_##_name);	\
++}										\
++static ssize_t psmouse_do_set_##_name(struct device *d, const char *b, size_t s)\
++{										\
++	return psmouse_attr_set_helper(d, b, s, psmouse_attr_set_##_name);	\
++}										\
++static struct device_attribute psmouse_attr_##_name = 				\
++	__ATTR(_name, S_IWUSR | S_IRUGO,					\
++		psmouse_do_show_##_name, psmouse_do_set_##_name);
  
- 	psmouse->protocol_handler = synaptics_process_byte;
-+	psmouse->set_rate = synaptics_set_rate;
- 	psmouse->disconnect = synaptics_disconnect;
- 	psmouse->reconnect = synaptics_reconnect;
- 
-diff -Nru a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
---- a/drivers/input/mouse/synaptics.h	2004-09-29 01:15:50 -05:00
-+++ b/drivers/input/mouse/synaptics.h	2004-09-29 01:15:50 -05:00
-@@ -104,6 +104,7 @@
- 	/* Data for normal processing */
- 	int old_w;				/* Previous w value */
- 	unsigned char pkt_type;			/* packet type - old, new, etc */
-+	unsigned char mode;			/* current mode byte */
- };
- 
- #endif /* _SYNAPTICS_H */
+ #endif /* _PSMOUSE_H */

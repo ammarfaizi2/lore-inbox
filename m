@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267437AbSKQDIN>; Sat, 16 Nov 2002 22:08:13 -0500
+	id <S267440AbSKQDMQ>; Sat, 16 Nov 2002 22:12:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267439AbSKQDIN>; Sat, 16 Nov 2002 22:08:13 -0500
-Received: from excalibur.cc.purdue.edu ([128.210.189.22]:20495 "EHLO
-	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
-	id <S267437AbSKQDIM>; Sat, 16 Nov 2002 22:08:12 -0500
-Date: Sat, 16 Nov 2002 22:18:01 -0500 (EST)
-From: Patrick Finnegan <pat@purdueriots.com>
-To: romieu@fr.zoreil.com
+	id <S267441AbSKQDMQ>; Sat, 16 Nov 2002 22:12:16 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8462 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267440AbSKQDMP>; Sat, 16 Nov 2002 22:12:15 -0500
+Date: Sat, 16 Nov 2002 19:19:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't Johnny compile?
-In-Reply-To: <20021117010801.A21229@electric-eye.fr.zoreil.com>
-Message-ID: <Pine.LNX.4.44.0211162216100.18649-100000@ibm-ps850.purdueriots.com>
+Subject: Re: lan based kgdb
+In-Reply-To: <1037490849.24843.11.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0211161915360.1337-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Nov 2002 romieu@fr.zoreil.com wrote:
 
-> [Cc trimmed]
->
-> Dan Kegel <dank@kegel.com> :
-> [...]
-> > So how 'bout this:
-> >
-> > * mark all drivers that don't compile OBSOLETE.  That keeps us from
-> >    trying to fix drivers without having hardware to test them.
-> >    Anyone with proper hardware is invited to fix the drivers and then
-> >    mark them non-OBSOLETE.
->
-> Plain old #warning doesn't work that bad and requires 0 extra new feature.
+On 16 Nov 2002, Alan Cox wrote:
+> 
+> And in the real world you end up back with TCP. Been there, done that
+> with network debugger tools before.
 
-I think there needs to be some sort of warning during the configuration
-process - people will discover that a driver doesn't compile when they get
-a screenfull of gcc errors and make halts compiling, they shouldn't need a
-#warning to figure that out.
+.. and we have another "been there, done that" that says UDP works fine.
 
-Pat
---
-Purdue Universtiy ITAP/RCS
-Information Technology at Purdue
-Research Computing and Storage
-http://www-rcd.cc.purdue.edu
+I also dislike overdesign with a passion. I'll believe we have to go to
+TCP when I see it - and even if that happens, I think we should do the UDP
+case first just to avoid having a monster ("start off simple, and evolve"  
+as opposed to "try to get it right the first time").
 
+		Linus
 

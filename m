@@ -1,27 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267234AbRGTTTR>; Fri, 20 Jul 2001 15:19:17 -0400
+	id <S267241AbRGTTV1>; Fri, 20 Jul 2001 15:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267241AbRGTTTI>; Fri, 20 Jul 2001 15:19:08 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7296 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267234AbRGTTSx>; Fri, 20 Jul 2001 15:18:53 -0400
-Date: Fri, 20 Jul 2001 15:18:44 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
+	id <S267244AbRGTTVR>; Fri, 20 Jul 2001 15:21:17 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:34566 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S267241AbRGTTVI>;
+	Fri, 20 Jul 2001 15:21:08 -0400
+Date: Fri, 20 Jul 2001 22:21:07 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
 To: Dipak Biswas <dipak@monmouth.com>
-cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Please suggest me
+Message-ID: <20010720222107.A5559@mea-ext.zmailer.org>
 In-Reply-To: <3B5874AC.43D2E698@monmouth.com>
-Message-ID: <Pine.LNX.3.95.1010720151621.6191A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B5874AC.43D2E698@monmouth.com>; from dipak@monmouth.com on Fri, Jul 20, 2001 at 02:13:00PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Fri, 20 Jul 2001, Dipak Biswas wrote:
-
+On Fri, Jul 20, 2001 at 02:13:00PM -0400, Dipak Biswas wrote:
 > Hi All,
 >     I'm quite new to linux world. I've a very awkard question for you.
 > That is: I'm writting an user process, where I need all outgoing
@@ -29,21 +29,11 @@ On Fri, 20 Jul 2001, Dipak Biswas wrote:
 > yes, how? I don't want to make any kernel source code changes. A wild
 > guess: by configuration changes, is it possible to make IP process write
 > on to a particular FD which I can read when I require?
-> 
+
+	Look at how tools like  tcpdump  and  etherreal  do it.
+	It has been done over and over again -- in userspace tool.
+
 > Thanks,
 > dipak
-> 
 
-Get the source-code of `tcpdump` and see how packet capturing is done.
-You can also look at `ipchains` to see how to block packets.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+/Matti Aarnio

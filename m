@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135616AbREBQD4>; Wed, 2 May 2001 12:03:56 -0400
+	id <S135599AbREBQMw>; Wed, 2 May 2001 12:12:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135612AbREBQDr>; Wed, 2 May 2001 12:03:47 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:60170 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135607AbREBQDk>; Wed, 2 May 2001 12:03:40 -0400
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Message-ID: <3AF02FD3.617B8EB4@transmeta.com>
-Date: Wed, 02 May 2001 09:03:31 -0700
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S135612AbREBQMl>; Wed, 2 May 2001 12:12:41 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:4327 "EHLO
+	c0mailgw09.prontomail.com") by vger.kernel.org with ESMTP
+	id <S135599AbREBQMc>; Wed, 2 May 2001 12:12:32 -0400
+Message-ID: <3AF031DC.B8D793FE@mvista.com>
+Date: Wed, 02 May 2001 09:12:12 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: iso9660 endianness cleanup patch
-In-Reply-To: <3AEE4A06.3666F4BE@transmeta.com> <3AEFCAD0.BE2A5FA@evision-ventures.com>
-Content-Type: text/plain; charset=us-ascii
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: xconfig is broken (example ppc 8xx)
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
-> 
-> "H. Peter Anvin" wrote:
-> >
-> > Hi guys,
-> >
-> > I was looking over the iso9660 code, and noticed that it was doing
-> > endianness conversion via ad hoc *functions*, not even inlines; nor did
-> > it take any advantage of the fact that iso9660 is bi-endian (has "all"
-> > data in both bigendian and littleendian format.)
-> >
-> > The attached patch fixes both.  It is against 2.4.4, but from the looks
-> > of it it should patch against -ac as well.
-> 
-> Please beware: There is a can of worms you are openning up here,
-> since there are many broken CD producer programms out there, which
-> only provide the little endian data and incorrect big endian
-> entries. I had some CD's of this form myself. So the endian neutrality
-> of the iso9660 is only in the theory present...
-> 
+To show the problem do:
 
-So it has been discussed, and been updated.
+make xconfig ARCH=ppc
 
-	-hpa
+in the "Platform support" menu "Processor Type" select "8xx" then close
+the subminue with "MainMenu"
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+now select "Save and Exit"
+
+This produces the following error messages:
+
+ERROR - Attempting to write value for unconfigured variable
+(CONFIG_SCC_ENET).
+ERROR - Attempting to write value for unconfigured variable
+(CONFIG_FEC_ENET).
+
+The named CONFIG options are not set, nor are a few others related to
+CONFIG_SCC_ENET.
+(This means the on board NIC is not configured and since this is usually
+a disc less system, boot fails when trying to mount "/" over nfs.)
+
+make menueconfig ARCH=ppc  works correctly.
+
+The problem appears to be related to these lines in
+../ARCH/ppc/config.in
+
+
+if [ "$CONFIG_CPU_PPC_8xx" = "y" ]; then
+source arch/ppc/8xx_io/Config.in
+fi
+
+if [ "$CONFIG_CPU_PPC_8260" = "y" ]; then
+source arch/ppc/8260_io/Config.in
+fi
+
+Only one of the two files is included, however, both configure the two
+options mentioned in the error messages.
+
+I think the problem is that the "wish" script builder does not allow a
+CONFIG option to be configured in two different places, even if only one
+of scripts should be included.
+
+Additional info: Kernel revs tested 2.4.2, 2.4.3
+If you swap the two "if" phrases above, the 8xx config works but the
+8260 fails in the same way.  I.e. the last one wins.

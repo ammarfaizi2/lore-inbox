@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbUKQAI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbUKQA1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbUKQAI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 19:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbUKQAHx
+	id S262127AbUKQA1b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 19:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbUKQAG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 19:07:53 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:39886 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S262143AbUKPX4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 18:56:06 -0500
-Date: Wed, 17 Nov 2004 00:56:03 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: checking if a job still uses the CPU
-Message-ID: <20041116235603.GA8120@cirrus.madduck.net>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Tue, 16 Nov 2004 19:06:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58297 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262134AbUKPXu2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 18:50:28 -0500
+Date: Tue, 16 Nov 2004 18:50:09 -0500
+From: Dave Jones <davej@redhat.com>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: acpi_power_off issue in 2.6.10-rc2-mm1
+Message-ID: <20041116235009.GG8674@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0411162301460.5829@student.dei.uc.pt>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-OS: Debian GNU/Linux 3.1 kernel 2.6.8-cirrus i686
-X-Mailer: Mutt 1.5.6+20040907i (CVS)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.61.0411162301460.5829@student.dei.uc.pt>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 16, 2004 at 11:10:03PM +0000, Marcos D. Marado Torres wrote:
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ > In 2.6.10-rc2 and previous kernels acpi_power_off allways worked fine, but 
+ > in
+ > 2.6.10-rc2-mm1 when I do 'halt' all runs fine, the last message 
+ > "acpi_power_off
+ > called. System is going to power off" (something like this, I don't recall
+ > ^-^;) appears, but then the machine just doesn't power off.
+ > 
+ > This is happening with an ASUS M3N laptop, I guess that it's a problem
+ > somewhere in
+ > http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm1/broken-out/bk-acpi.patch
+ > When I get some time I'll take a deeper look into it...
 
-I want to check a job periodically whether it still uses the CPU. If
-not, I want to kill it. The latest solution I found is at
+This one has been around for a while. It's been plagueing me since 2.6.8,
+though its interesting that you only see it happening recently.
 
-  http://madduck.net/~madduck/scratch/worker.sh
-  http://madduck.net/~madduck/scratch/job.sh
+My attempts to debug it led to the bug disappearing when I added
+instrumentation to the kernel.  On my Compaq Evo, it does power off
+eventually, though it takes about a minute after that last
+acpi_power_off message.
 
-worker.sh starts job.sh and polls /proc/$PID/stat:16 (the 16th
-field: cutime) regularly. As soon as it stopped changing, the job is
-killed.
+There are bugs open on this in bugme.osdl.org, and bugzilla.redhat.com
 
-This works fine as long as job.sh does not start jobs itself which
-run longer than the period used to check in the worker (7 seconds in
-my example). If job.sh's children take longer than 7 seconds to
-complete, job.sh might get killed because the cutime value of
-a process in /proc is only updated whenever a child returns.
+http://bugme.osdl.org/show_bug.cgi?id=3642
+https://bugzilla.redhat.com/beta2/show_bug.cgi?id=acpi_power_off
 
-Is there another way to achieve what I am trying to do? How can
-I kill jobs that are idling and have not used the CPU in $DELAY
-time?
+		Dave
 
-Thanks,
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-spamtraps: madduck.bogus@madduck.net
-=20
-"we are like shop windows in which we are continually arranging,
- concealing or illuminating the supposed qualities other ascribe to us
- -- in order to deceive ourselves."
-                                                 - friedrich nietzsche
-
---opJtzjQTFsWo+cga
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBmpOTIgvIgzMMSnURAmxgAKCBatgIRrMhuM4EgY+tj6IAttgDNgCcDACl
-0OGYv2sbCqWJcuuMBplLVJ4=
-=K/G7
------END PGP SIGNATURE-----
-
---opJtzjQTFsWo+cga--

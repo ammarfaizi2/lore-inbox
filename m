@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262229AbUCADXq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 22:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbUCADXq
+	id S262234AbUCADa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 22:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbUCADa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 22:23:46 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:42011 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S262229AbUCADXp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 22:23:45 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][2.6] linux/README update 
-In-reply-to: Your message of "Fri, 27 Feb 2004 08:18:20 CDT."
-             <Pine.LNX.4.58.0402270815350.17504@montezuma.fsmlabs.com> 
+	Sun, 29 Feb 2004 22:30:26 -0500
+Received: from mail-gate.ait.ac.th ([202.183.214.47]:56483 "EHLO
+	mail-gate.ait.ac.th") by vger.kernel.org with ESMTP id S262234AbUCADaY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 22:30:24 -0500
+Date: Mon, 1 Mar 2004 10:30:17 +0700
+From: Alain Fauconnet <alain@ait.ac.th>
+To: Enrico Demarin <enricod@videotron.ca>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Jo Christian Buvarp <jcb@svorka.no>,
+       "Moore, Eric Dean" <Emoore@lsil.com>, linux-kernel@vger.kernel.org
+Subject: Re: Ibm Serveraid Problem with 2.4.25
+Message-ID: <20040301033017.GD1270@ait.ac.th>
+References: <403DB882.9000401@svorka.no> <1077839333.4823.5.camel@localhost.localdomain> <1077846502.4454.2.camel@localhost.localdomain> <Pine.LNX.4.58L.0402270011140.2029@logos.cnet> <403EEEB9.5030408@svorka.no> <Pine.LNX.4.58L.0402271133220.18055@logos.cnet> <20040301021014.GA1270@ait.ac.th> <1078110630.4446.87.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 01 Mar 2004 14:23:01 +1100
-Message-ID: <3596.1078111381@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <1078110630.4446.87.camel@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004 08:18:20 -0500 (EST), 
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
->- - You can use the "ksymoops" program to make sense of the dump.  This
->-   utility can be downloaded from
->+ - If you compiled the kernel with CONFIG_KALLSYMS you can send the dump
->+   as is, otherwise you will have to use the "ksymoops" program to make
->+   sense of the dump.  This utility can be downloaded from
+Enrico,
 
-ksymoops is still useful even when CONFIG_KALLSYMS is on.  ksymoops
-decodes the Code: line, kallsyms does not.  Also kallsyms only handles
-code addresses[*], ksymoops handles all symbols.
+Thanks for the update, but...
 
-[*] Rusty's definition of "all symbols" does not not match mine.
-    kallsyms in 2.6 should really be "ksomesyms".
+On Sun, Feb 29, 2004 at 10:10:30PM -0500, Enrico Demarin wrote:
+> Alain,
+> 
+> so far Jo went through all the pre2.4.24 and 25 and the bug appeared
+> in 2.4.24pre1. 
 
+Are you meaning that  the  bug  was  already  present  in  the  2.4.24
+release? I'm  a bit confused here.
+
+> 
+> - Enrico
+> 
+> 
+> On Sun, 2004-02-29 at 21:10, Alain Fauconnet wrote:
+> > On Fri, Feb 27, 2004 at 11:36:51AM -0300, Marcelo Tosatti wrote:
+> > > 
+> > > 
+> > > On Fri, 27 Feb 2004, Jo Christian Buvarp wrote:
+> > > 
+> > > > No, I only got IBM ServeRAID support
+> > > 
+> > > Eric, my mistake. Nevermind it :)
+> > > 
+> > > Jo, Enrico,
+> > > 
+> > > The error is harmless, although it is a bug.
+> > > 
+> > > I suspect the ext2 2.6 compat updates on 2.4.25 might be causing this.
+> > > I'll send you a patch privately to revert those and confirm (or not).
+> 

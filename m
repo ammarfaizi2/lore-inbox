@@ -1,44 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264371AbUEaMIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUEaMSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbUEaMIn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 08:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264588AbUEaMIn
+	id S264561AbUEaMSW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 08:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264588AbUEaMSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 08:08:43 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:28165 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264371AbUEaMIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 08:08:41 -0400
-Subject: Re: 2.6.7-rc1, 3com still broken after resume
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Christian Borntraeger <linux-kernel@borntraeger.net>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       David Ford <david+challenge-response@blue-labs.org>
-In-Reply-To: <200405310759.10963.linux-kernel@borntraeger.net>
-References: <40BAB8D9.2080705@blue-labs.org>
-	 <200405310759.10963.linux-kernel@borntraeger.net>
-Content-Type: text/plain
-Message-Id: <1086005305.1681.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Mon, 31 May 2004 14:08:25 +0200
+	Mon, 31 May 2004 08:18:22 -0400
+Received: from maximus.kcore.de ([213.133.102.235]:4422 "EHLO maximus.kcore.de")
+	by vger.kernel.org with ESMTP id S264561AbUEaMSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 08:18:12 -0400
+From: Oliver Feiler <kiza@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: "Reliable" faulty SCSI device for testing
+Date: Mon, 31 May 2004 14:20:33 +0200
+User-Agent: KMail/1.5
+Cc: linux-scsi@vger.kernel.org
+X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
+X-PGP-Key: http://kiza.kcore.de/pgpkey
+X-Species: Snow Leopard
+X-Operating-System: Linux
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_dMyuAtrwONXPJuT";
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405311420.45288.kiza@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-31 at 07:59, Christian Borntraeger wrote:
-> David Ford wrote:
-> > May 30 21:37:39 powerix PM: Preparing system for suspend
-> [error messages]
-> 
-> Which 3com driver fails? 3c59x?
-> 
-> Have you checked this patch?
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=108591456410688&w=2
-> 
-> If it helps, you should report back.
 
-It doesn't work for me... When resuming from disk (swsusp), I have to
-manually eject my 3c59x CardBus NIC and then plug it in.
+--Boundary-02=_dMyuAtrwONXPJuT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
+
+Hi,
+
+the subject might sound a bit stupid, but I couldn't come up with a better=
+=20
+one. I'm not sure if there is a need for such a thing mentioned in this mai=
+l.=20
+If not, please don't flame me too hard. ;)
+
+I have a DVD-RAM drive (Panasonic LF-D101) that has seen the end of its day=
+s.=20
+The device will stop working anywhere within 15-30 mins of operation and lo=
+ck=20
+up until you power cycle the box. Some device drivers handle this gracefull=
+y,=20
+some don't like it very much.
+
+I don't know how error handling is tested by the developers, I know there a=
+re=20
+special devices that can simulate various failures, but I guess they could =
+be=20
+quite expensive. So my question is if there is anyone who would have a use=
+=20
+for this drive? If yes I'd be willing to send it, preferably to some in=20
+Germany (Europe, rest of the world).
+
+	Oliver
+
+=2D-=20
+Oliver Feiler  -  http://kiza.kcore.de/
+
+--Boundary-02=_dMyuAtrwONXPJuT
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQBAuyMdOpifZVYdT9IRAk5FAKC/uB5BllbYgNFOnYCVwuMAN80rdQCcDNTV
+Sel/cBp+wH7kBxnJtqst5qw=
+=gKqt
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_dMyuAtrwONXPJuT--
 

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280577AbRKFVWP>; Tue, 6 Nov 2001 16:22:15 -0500
+	id <S280585AbRKFVYp>; Tue, 6 Nov 2001 16:24:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280579AbRKFVV4>; Tue, 6 Nov 2001 16:21:56 -0500
-Received: from f272.law9.hotmail.com ([64.4.8.147]:62726 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S280577AbRKFVVv>;
-	Tue, 6 Nov 2001 16:21:51 -0500
-X-Originating-IP: [128.2.152.69]
-From: "William Knop" <w_knop@hotmail.com>
-To: linux-kernel@vger.kernel.org
+	id <S280583AbRKFVYf>; Tue, 6 Nov 2001 16:24:35 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:1028 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S280579AbRKFVYY>; Tue, 6 Nov 2001 16:24:24 -0500
+Date: Tue, 6 Nov 2001 19:24:13 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: <erik@hensema.net>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Date: Tue, 06 Nov 2001 16:21:45 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F272lT2NqFJ3sl3xbYi00004f63@hotmail.com>
-X-OriginalArrivalTime: 06 Nov 2001 21:21:45.0845 (UTC) FILETIME=[09B72A50:01C16709]
+In-Reply-To: <slrn9ugh1g.dld.spamtrap@dexter.hensema.xs4all.nl>
+Message-ID: <Pine.LNX.4.33L.0111061921240.27028-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>1)  IT SHOULD NOT BE PRETTY.  No tabs to line up columns. No "progress
->>bars."  No labels except as "proc comments" (see later).  No in-line
->>labelling.
+On 6 Nov 2001, Erik Hensema wrote:
+
+> >1)  IT SHOULD NOT BE PRETTY.  No tabs to line up columns.  No "progress
+> >bars."  No labels except as "proc comments" (see later).  No in-line labelling.
 >
->It should not be pretty TO HUMANS. Slight difference. It should be >pretty 
->to shellscripts and other applications though.
+> It should not be pretty TO HUMANS. Slight difference. It should
+> be pretty to shellscripts and other applications though.
 
-If this is the case, why are we using ASCII for everything? If the only 
-interface to /proc will be applications, then we could just as well let the 
-application turn four bytes into an ASCII IPv4 adddress. We could easily 
-have it set up to parse using the format [single byte type identifier (ie 4 
-for string with the first byte of "data" being the string length, 1 for 
-unsigned int, 2 for signed int, 19 for IPv4, 116 for progress bar, 
-etc.)][data]. Let people standardize away. Am I missing the point?
+I really fail to see your point, it's trivial to make
+files which are easy to read by humans and also very
+easy to parse by shellscripts.
 
-I think every aspect of an OS should be intuitive (so long as it is 
-efficient), which IMO /proc isn't. If this means splitting it in two, as 
-some have suggested, so be it. It certainly should have a design 
-guideline/spec so we may at least be consistant. Just my 2 coppers.
+PROCESSOR=0
+VENDOR_ID=GenuineIntel
+CPU_FAMILY=6
+MODEL=6
+MODEL_NAME="Celeron (Mendocino)"
+.....
 
+As you can see, this is easily readable by humans,
+while "parsing" by a shell script would be as follows:
 
-Will Knop
-w_knop@hotmail.com
+. /proc/cpuinfo
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+After which you could just "echo $PROCESSOR" or
+something like that ...
+
+Yes, this is probably a bad example, but it does show
+that machine-readable and human-readable aren't mutually
+exclusive.
+
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

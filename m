@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129773AbRARAaq>; Wed, 17 Jan 2001 19:30:46 -0500
+	id <S129975AbRARAeI>; Wed, 17 Jan 2001 19:34:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130078AbRARAah>; Wed, 17 Jan 2001 19:30:37 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:49332 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S129798AbRARAa2>; Wed, 17 Jan 2001 19:30:28 -0500
-Date: Thu, 18 Jan 2001 01:30:11 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: Rainer Mager <rmager@vgkk.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Oops with 4GB memory setting in 2.4.0 stable
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGOECDCNAA.rmager@vgkk.com>
-Message-ID: <Pine.LNX.4.30.0101180122370.18642-100000@cola.teststation.com>
+	id <S130077AbRARAd5>; Wed, 17 Jan 2001 19:33:57 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:8208
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129975AbRARAdn>; Wed, 17 Jan 2001 19:33:43 -0500
+Date: Wed, 17 Jan 2001 16:32:44 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Tim Fletcher <tim@parrswood.manchester.sch.uk>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Terrence Martin <tmartin@cal.montage.ca>,
+        linux-kernel@vger.kernel.org
+Subject: Re: File System Corruption with 2.2.18
+In-Reply-To: <Pine.LNX.4.30.0101172356370.26536-100000@pine.parrswood.manchester.sch.uk>
+Message-ID: <Pine.LNX.4.10.10101171630000.19441-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Rainer Mager wrote:
+On Wed, 17 Jan 2001, Tim Fletcher wrote:
 
-> Here is a newly parsed oops, this time using the /var/log/ksymoops method
-> mentioned by Keith Owens. Does this look better?
+> > > Hi!
+> > >
+> > > Cute. Can it be run on say a swap partition?
+> >
+> > maybe but why?
+> 
+> Because it stores no data, hence the wiping out of it is no problem?
 
-Yes, and it sort of matches the other oops someone sent. Thanks.
+Well that is useless test them because you can not test things completely.
 
-
-I have a changed version now, based on the ncpfs directory cahce code.
-But it doesn't work at all right now. (and that would be the "based on"
-bit, the copy and paste bits haven't crashed yet :)
-
-Assuming that all meetings have an end, and sometimes they don't seem to
-have one, there may be something for you to try tomorrow.
-
-/Urban
+Andre Hedrick
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

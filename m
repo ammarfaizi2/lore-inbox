@@ -1,37 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbULPHkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbULPHmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262627AbULPHkH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 02:40:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbULPHkH
+	id S262629AbULPHmA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 02:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbULPHmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 02:40:07 -0500
-Received: from web53304.mail.yahoo.com ([206.190.39.233]:4214 "HELO
-	web53304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262627AbULPHkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 02:40:04 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=Cus/SQOxmd3mV+ng2my6IDMCa5sUrn1s/XDxEoDJ3v0I+SpJz/XutdtRFLb1PvXwHmlSJfsSVt4njkfIyNMEpYC000G3T3Lk50PUg1Ds3WfjSri+FCY0xkjCfYHEo0GBILGGHOQbd9uaq7DD/Xj7AiEo+9RCLiIy0ggvIHbVix8=  ;
-Message-ID: <20041216074004.46385.qmail@web53304.mail.yahoo.com>
-Date: Wed, 15 Dec 2004 23:40:04 -0800 (PST)
-From: firnnauriel <rinoa012000@yahoo.com>
-Subject: bcopy and page faults
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Dec 2004 02:42:00 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:30427 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S262631AbULPHlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 02:41:47 -0500
+Date: Thu, 16 Dec 2004 08:41:41 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sockets from kernel space?
+Message-ID: <20041216074140.GJ31835@admingilde.org>
+Mail-Followup-To: John Richard Moser <nigelenki@comcast.net>,
+	linux-kernel@vger.kernel.org
+References: <41C0E720.8050201@comcast.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/qIPZgKzMPM+y5U5"
+Content-Disposition: inline
+In-Reply-To: <41C0E720.8050201@comcast.net>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In general, is there a correlation between the number
-of page faults occurred in the system and bcopy's
-performance? If the page fault is high, will the
-bcopy's performance become slower? Kindly enlighten me
-on this. If you can provide a URL that will support
-your answer, I will really appreciate it. Thank you
-very much!
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+--/qIPZgKzMPM+y5U5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+hoi :)
+
+On Wed, Dec 15, 2004 at 08:38:40PM -0500, John Richard Moser wrote:
+> Is it possible to create socket connections (AF_UNIX for example) from
+> the kernel to local user processes that are listen()ing?
+
+AF_NETLINK is made for exactly that purpose.
+
+look at linux/netlink.h and net/ipv4/netfilter/ipt_ULOG.c for example code.
+
+--=20
+Martin Waitz
+
+--/qIPZgKzMPM+y5U5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBwTw0j/Eaxd/oD7IRArEuAJ40EFVrEp+8s+aCgJvjubL+vwVlLwCfZkvY
+iAvqsQXmExzVpoOxK4CNNuU=
+=7FkS
+-----END PGP SIGNATURE-----
+
+--/qIPZgKzMPM+y5U5--

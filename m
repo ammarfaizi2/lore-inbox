@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316953AbSHBFIn>; Fri, 2 Aug 2002 01:08:43 -0400
+	id <S318205AbSHBFSe>; Fri, 2 Aug 2002 01:18:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318167AbSHBFIn>; Fri, 2 Aug 2002 01:08:43 -0400
-Received: from holomorphy.com ([66.224.33.161]:23231 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316953AbSHBFIn>;
-	Fri, 2 Aug 2002 01:08:43 -0400
-Date: Thu, 1 Aug 2002 22:11:51 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: large page patch
-Message-ID: <20020802051151.GX29537@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-References: <20020801.211357.93822733.davem@redhat.com> <Pine.LNX.4.33.0208012128110.1857-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0208012128110.1857-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S318211AbSHBFSe>; Fri, 2 Aug 2002 01:18:34 -0400
+Received: from pcp01179415pcs.strl1201.mi.comcast.net ([68.60.208.36]:2546
+	"EHLO mythical") by vger.kernel.org with ESMTP id <S318205AbSHBFSd>;
+	Fri, 2 Aug 2002 01:18:33 -0400
+Date: Fri, 2 Aug 2002 01:21:54 -0400 (EDT)
+From: Ryan Anderson <ryan@michonline.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: martin@dalecki.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.28 and partitions
+In-Reply-To: <Pine.GSO.4.21.0208011709390.12627-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.10.10208020111410.579-100000@mythical.michonline.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 09:32:44PM -0700, Linus Torvalds wrote:
-> I bet that is mainly because of CPU scalability, and being able to avoid
-> touching the buddy lists from multiple CPU's - the same reason _we_ have
-> the per-CPU front-ends on various allocators.
-> I doubt it is because buddy matters past the 4MB mark. I just can't see 
-> how you can avoid the naive math which says that it should be 1/512th as 
-> common to coalesce to 4MB as it is to coalesce to 8kB. 
-> Walking the buddy bitmaps for a few levels (ie up to order 3 or 4) is
-> probably quite common, and it's likely to be bad from a SMP cache
-> standpoint (touching a few bits with what must be fairly random patterns). 
-> So avoiding the buddy with a simple front-end is likely to win you 
-> something, without actually being meaningful at the MAX_ORDER point.
+On Thu, 1 Aug 2002, Alexander Viro wrote:
+> On Thu, 1 Aug 2002, Marcin Dalecki wrote:
+> 
+> you: "it's easy to screw up when working with ASCII strings"
+> me: "tossers will find a way to screw up on anything, no matter what it is;
+>      see example of tosser screwing up on plain arithmetics"
+> you: "use of ASCII wouldn't help them in that case"
 
-This is actually part of my strategy.
+Ages and ages ago (ok, not that long ago, really) I remember reading a
+vaguely similar arugment on Fidonet.
 
-By properly organizing the deferred queues into lists of lists and
-maintaining a small per-cpu cache of pages, a "cache fill" involves
-doing a single list deletion under the zone->lock and the remainder
-of the work to fill a pagevec occurs outside the lock, reducing the
-mean hold time down to ridiculous lows. And since the allocations
-are batched, the arrival rate is then divided by the batch size.
-Conversely, frees are also batched and the same effect achieved with
-the dual operations.
+The argument was largely over the format of the "next gen" message
+format - RFC822 came up a lot, and the ensuing "binary header" vs "ASCII
+header" arguments would follow.
 
-i.e. magazines for the page-level allocator
+All I really learned from that was, "parsing email headers is more 
+complicated than people suspect" (binary or ascii, doesn't matter), and that
+ASCII has one advantage that more compact/binary/etc formats lack:
 
-This can't be achieved with a pure buddy system, as it must examine
-individual pages one-by-one to keep the bitmaps updated. Vahalia
-discusses the general approach in another section, and integration with
-buddy systems (and other allocators) in an exercise.
+When the ASCII file/header/partition table/whatever gets fscked
+beyond all recognition, I can fix the goddamn thing with a text editor.
+
+That last part is the reason most people utterly detest things like the
+Windows registry and prefer the (imo, at least), much saner /etc design
+prevalent in Linux distributions.
 
 
-Cheers,
-Bill
+--
+Ryan Anderson
+  sometimes Pug Majere
+

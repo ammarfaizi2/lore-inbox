@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265422AbUFCPTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUFCPYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265422AbUFCPTr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 11:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbUFCPTm
+	id S264377AbUFCPYD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 11:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUFCPYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 11:19:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54794 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265558AbUFCPTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 11:19:18 -0400
-Date: Thu, 3 Jun 2004 16:19:10 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Export swapper_space
-Message-ID: <20040603161909.D8244@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Thu, 3 Jun 2004 11:24:00 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:45967 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S264397AbUFCPNN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 11:13:13 -0400
+Message-ID: <40BF4007.8010102@linux-user.net>
+Date: Thu, 03 Jun 2004 17:13:11 +0200
+From: Daniel Andersen <anddan@linux-user.net>
+Reply-To: daniel@linux-user.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Pernet <WebMonster@idsa.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: .config question
+References: <s0bf4d74.020@idfw.idsa.ch>
+In-Reply-To: <s0bf4d74.020@idfw.idsa.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-swapper_space appears to be needed by modules:
+Francois Pernet wrote:
 
-  Building modules, stage 2.
-  MODPOST
-*** Warning: "swapper_space" [drivers/block/loop.ko] undefined!
-*** Warning: "swapper_space" [drivers/scsi/st.ko] undefined!
-*** Warning: "swapper_space" [drivers/scsi/sg.ko] undefined!
+> I've got a kernel already installed in my machine (SuSe Pro 9). I would
+> like to modify something and recompile the kernel. Since it has been
+> installed from rpm, there is no .config in /usr/src/linux. Is there any
+> way to create this file from the image and modules, so i do not need to
+> verify all my config prior to change something ?
 
---- orig/mm/swap_state.c	Mon May 24 11:26:25 2004
-+++ linux/mm/swap_state.c	Thu Jun  3 16:11:58 2004
-@@ -6,7 +6,7 @@
-  *
-  *  Rewritten to use page cache, (C) 1998 Stephen Tweedie
-  */
--
-+#include <linux/module.h>
- #include <linux/mm.h>
- #include <linux/kernel_stat.h>
- #include <linux/swap.h>
-@@ -38,6 +38,7 @@ struct address_space swapper_space = {
- 	.a_ops		= &swap_aops,
- 	.backing_dev_info = &swap_backing_dev_info,
- };
-+EXPORT_SYMBOL(swapper_space);
- 
- #define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
- 
+Suse Pro 9.1 has a copy of the running kernelconfig in /proc/config.gz.
+Type 'zcat /proc/config.gz > /usr/src/linux/.confg' to copy it to your 
+sourcetree.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Daniel Andersen

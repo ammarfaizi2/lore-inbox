@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272464AbTG1BRp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 21:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272428AbTG1ADE
+	id S272557AbTG1BHa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 21:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272554AbTG1ADm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:03:04 -0400
+	Sun, 27 Jul 2003 20:03:42 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:31477 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272743AbTG0W7I (ORCPT
+	by vger.kernel.org with ESMTP id S272737AbTG0W6p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 18:59:08 -0400
-Date: Sun, 27 Jul 2003 21:28:54 +0100
+	Sun, 27 Jul 2003 18:58:45 -0400
+Date: Sun, 27 Jul 2003 21:15:47 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307272028.h6RKSsHh029853@hraefn.swansea.linux.org.uk>
+Message-Id: <200307272015.h6RKFl9f029725@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: update Changes for NFS changes
+Subject: PATCH: switch escaped 8859-1 symbols inthe kernel to ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/Documentation/Changes linux-2.6.0-test2-ac1/Documentation/Changes
---- linux-2.6.0-test2/Documentation/Changes	2003-07-10 21:14:21.000000000 +0100
-+++ linux-2.6.0-test2-ac1/Documentation/Changes	2003-07-16 18:40:03.000000000 +0100
-@@ -61,9 +61,9 @@
- o  quota-tools            3.09                    # quota -V
- o  PPP                    2.4.0                   # pppd --version
- o  isdn4k-utils           3.1pre1                 # isdnctrl 2>&1|grep version
-+o  nfs-utils              1.0.4                   # showmount --version
- o  procps                 2.0.9                   # ps --version
- o  oprofile               0.5.3                   # oprofiled --version
--o  nfs-utils              1.0.3                   # showmount --version
+(Otherwise this plays hell with logging on non old US systems)
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/usb/serial/visor.c linux-2.6.0-test2-ac1/drivers/usb/serial/visor.c
+--- linux-2.6.0-test2/drivers/usb/serial/visor.c	2003-07-27 19:56:28.000000000 +0100
++++ linux-2.6.0-test2-ac1/drivers/usb/serial/visor.c	2003-07-27 20:32:35.000000000 +0100
+@@ -169,7 +169,7 @@
+  */
+ #define DRIVER_VERSION "v2.1"
+ #define DRIVER_AUTHOR "Greg Kroah-Hartman <greg@kroah.com>"
+-#define DRIVER_DESC "USB HandSpring Visor, Palm m50x, Sony Clié driver"
++#define DRIVER_DESC "USB HandSpring Visor, Palm m50x, Sony Clie driver"
  
- Kernel compilation
- ==================
-@@ -280,6 +280,34 @@
- Due to changes in the length of the phone number field, isdn4k-utils
- needs to be recompiled or (preferably) upgraded.
- 
-+NFS-utils
-+---------
-+
-+In 2.4 and earlier kernels, the nfs server needed to know about any
-+client that expected to be able to access files via NFS.  This
-+information would be given to the kernel by "mountd" when the client
-+mounted the filesystem, or by "exportfs" at system startup.  exportfs
-+would take information about active clients from /var/lib/nfs/rmtab.
-+
-+This approach is quite fragile as it depends on rmtab being correct
-+which is not always easy, particularly when trying to implement
-+fail-over.  Even when the system is working well, rmtab suffers from
-+getting lots of old entries that never get removed.
-+
-+With 2.6 we have the option of having the kernel tell mountd when it
-+gets a request from an unknown host, and mountd can give appropriate
-+export information to the kernel.  This removes the dependency on
-+rmtab and means that the kernel only needs to know about currently
-+active clients.
-+
-+To enable this new functionality, you need to:
-+
-+  mount -t nfsd nfsd /proc/fs/nfs
-+
-+before running exportfs or mountd.  It is recommended that all NFS
-+services be protected from the internet-at-large by a firewall where
-+that is possible.
-+
- Getting updated software
- ========================
- 
-@@ -368,6 +396,10 @@
- ------------
- o  <ftp://ftp.isdn4linux.de/pub/isdn4linux/utils/isdn4k-utils.v3.1pre1.tar.gz>
- 
-+NFS-utils
-+---------
-+o  <http://sourceforge.net/project/showfiles.php?group_id=14>
-+
- Netfilter
- ---------
- o  <http://netfilter.filewatcher.org/iptables-1.2.tar.bz2>
+ /* function prototypes for a handspring visor */
+ static int  visor_open		(struct usb_serial_port *port, struct file *filp);
+@@ -275,7 +275,7 @@
+ /* All of the device info needed for the Handspring Visor, and Palm 4.0 devices */
+ static struct usb_serial_device_type handspring_device = {
+ 	.owner =		THIS_MODULE,
+-	.name =			"Handspring Visor / Treo / Palm 4.0 / Clié 4.x",
++	.name =			"Handspring Visor / Treo / Palm 4.0 / Clie 4.x",
+ 	.short_name =		"visor",
+ 	.id_table =		id_table,
+ 	.num_interrupt_in =	NUM_DONT_CARE,
+@@ -303,7 +303,7 @@
+ /* device info for the Sony Clie OS version 3.5 */
+ static struct usb_serial_device_type clie_3_5_device = {
+ 	.owner =		THIS_MODULE,
+-	.name =			"Sony Clié 3.5",
++	.name =			"Sony Clie 3.5",
+ 	.short_name =		"clie_3.5",
+ 	.id_table =		clie_id_3_5_table,
+ 	.num_interrupt_in =	0,

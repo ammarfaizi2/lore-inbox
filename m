@@ -1,78 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265154AbTAJPMF>; Fri, 10 Jan 2003 10:12:05 -0500
+	id <S265198AbTAJPUc>; Fri, 10 Jan 2003 10:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265168AbTAJPMF>; Fri, 10 Jan 2003 10:12:05 -0500
-Received: from mail.sevencubes.de ([62.245.134.131]:61575 "HELO
-	wwwserver1.sevencubes.de") by vger.kernel.org with SMTP
-	id <S265154AbTAJPME> convert rfc822-to-8bit; Fri, 10 Jan 2003 10:12:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
-Organization: Entracom GmbH
-To: Oleg Drokin <green@namesys.com>
-Subject: Re: Severe reiserfs problems
-Date: Fri, 10 Jan 2003 16:20:42 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200301101332.50873.robert.szentmihalyi@entracom.de> <20030110172115.A9028@namesys.com>
-In-Reply-To: <20030110172115.A9028@namesys.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301101620.42248.robert.szentmihalyi@entracom.de>
+	id <S265201AbTAJPUc>; Fri, 10 Jan 2003 10:20:32 -0500
+Received: from host217-36-81-41.in-addr.btopenworld.com ([217.36.81.41]:30664
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S265198AbTAJPU2>; Fri, 10 Jan 2003 10:20:28 -0500
+Subject: Re: Kernel hooks just to get rid of copy_[to/from]_user() and
+	syscall overhead?
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: Mihnea Balta <dark_lkml@mymail.ro>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200301101645.39535.dark_lkml@mymail.ro>
+References: <200301101645.39535.dark_lkml@mymail.ro>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-BV3ZPaNC+ZVYC1KynZll"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Jan 2003 15:31:06 +0000
+Message-Id: <1042212666.21822.32.camel@lemsip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 January 2003 15:21, Oleg Drokin wrote:
-> Hello!
 
-Hi Oleg,
+--=-BV3ZPaNC+ZVYC1KynZll
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->
-> On Fri, Jan 10, 2003 at 01:32:50PM +0100, Robert Szentmihalyi wrote:
-> > I have severe file system problems on a reiserfs partition.
-> > When I try copy files to another filesystem, the kernel panics at
-> > certain files.
->
-> Can you tell us what the panics were?
-> What was the kernel version?
+On Fri, 2003-01-10 at 14:45, Mihnea Balta wrote:
+> Hi,
+>=20
+> I have to implement a system which grabs udp packets off a gigabit connec=
+tion,=20
+> take some basic action based on what they contain, repack their data with=
+ a=20
+> custom protocol header and send them through a gigabit ethernet interface=
+ on=20
+> broadcast.
+>=20
+> I know how to do this in userspace, but I need to know if doing everyting=
+ in=20
+> the kernel would show a considerable speed improvement due to removing=20
+> syscall and memory copy overhead. The system will be quite stressed, havi=
+ng=20
+> to deal with around 15-20000 packets/second.
 
-It said "... killing interrupt handler!"
-However, the message is not exactly reproduceable. 
-Meanwhile, when I mount the partition in the rescue system (SuSE Linux 
-8.1) and access the mountpoint somehow, the machine reboots...
+mmap() packet socket interface eliminates the need for system calls when
+traffic is coming in at a high rate.  The kernel -> user copy is also
+eliminated, but its just replaced with a kernel -> kernel copy :P
 
->
-> > reiserfsck --fix-fixable says that I need to run
-> > reiserfsck --rebuild-tree to fix the errors, but when I do this,
-> > reiserfsck hangs after a few secounds.
->
-> What's the reiserfsck version you have?
+You could perhaps also use linux socket filters to minimize the number
+of packets you need to evaluate...
 
-I have tried tried SuSE 8.0 and 81 rescue systems with kernels 2.4.18.and 
-2.4.19 / reiserfsck 3.x.1b and 3.6.2 with the same result.
+Check out this sample code: http://www.scaramanga.co.uk/code-fu/lincap.c
 
-> What do you mean by hangs? Does it eats cpu time or something?
+HTH
 
-It just freezes doesn't react to key presses no more.
-All you can do is swith the computer off... 
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
->
-> > Is there a way to rescue at least some of the data on the partition?
->
-> There is not enough info yet to know the answer.
+--=-BV3ZPaNC+ZVYC1KynZll
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I am happy to provide any inforamation you might need.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
->
-> Bye,
->     Oleg
+iD8DBQA+Huc6kbV2aYZGvn0RAgMyAJ9k8b5dBs0pDKKxGcYcpRF4q38eTwCeMwSA
+JK7JWpSaYKsenks8H4jXzQk=
+=pfqa
+-----END PGP SIGNATURE-----
 
-Thanks for your help so far,
- Robert
-
--- 
-Where do you want to be tomorrow?
-
-Entracom. Building Linux systems.
-http://www.entracom.de
+--=-BV3ZPaNC+ZVYC1KynZll--
 

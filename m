@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314514AbSDXETw>; Wed, 24 Apr 2002 00:19:52 -0400
+	id <S314516AbSDXEkd>; Wed, 24 Apr 2002 00:40:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314516AbSDXETv>; Wed, 24 Apr 2002 00:19:51 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32524 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314514AbSDXETu>; Wed, 24 Apr 2002 00:19:50 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: graphical cset stats
-Date: Wed, 24 Apr 2002 04:18:45 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <aa5bn5$28v$1@penguin.transmeta.com>
-In-Reply-To: <200204232240.g3NMe9231822@work.bitmover.com> <20020423232520.GA10479@kroah.com> <20020423203211.7a6d7078.dang@fprintf.net>
-X-Trace: palladium.transmeta.com 1019621961 6305 127.0.0.1 (24 Apr 2002 04:19:21 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 24 Apr 2002 04:19:21 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S314523AbSDXEkc>; Wed, 24 Apr 2002 00:40:32 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:47371 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S314516AbSDXEkc>; Wed, 24 Apr 2002 00:40:32 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: in_interrupt race 
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: Your message of "Tue, 23 Apr 2002 09:31:51 +0100."
+             <20020423093151.A17302@flint.arm.linux.org.uk> 
+Date: Wed, 24 Apr 2002 14:43:04 +1000
+Message-Id: <E170EcT-0003bW-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020423203211.7a6d7078.dang@fprintf.net>,
-Daniel Gryniewicz  <dang@fprintf.net> wrote:
->
->But it is interesting how it's an exponential progression.
+In message <20020423093151.A17302@flint.arm.linux.org.uk> you write:
+> On Tue, Apr 23, 2002 at 01:25:24PM +1000, Rusty Russell wrote:
+> > Yes: the old CPU happens to be processing an interrupt now.
+> > The neat solution is to follow Linus' original instinct and make
+> > PREEMPT an option only for UP: I only like preempt because it brings
+> > UP into line with SMP, effectively enlarging the SMP userbase to reasonable
+> > size.
+> 
+> > -bool 'Preemptible kernel' CONFIG_PREEMPT
+> > +dep_bool 'Preemptible kernel' CONFIG_PREEMPT $CONFIG_SMP
+> > -bool 'Preemptible Kernel' CONFIG_PREEMPT
+> > +dep_bool 'Preemptible Kernel' CONFIG_PREEMPT $CONFIG_SMP
+> 
+> Do you really mean that CONFIG_PREEMPT is only available if CONFIG_SMP is
+> 'y' or undefined?
 
-I think it's a bit dangerous, because it is so misleading. Both the "top
-performers" are clearly integrators rather than big coders, and I
-suspect a lot of my "cset-points" are actually from the early BK tree
-creation where every single cset got attributed to me simply because
-they got merged from the historic non-SCM patch info.
+<sigh>... Of course that should be reversed.
+if [ "$CONFIG_SMP" != y ]; then
+   bool 'Preemptible Kernel' CONFIG_PREEMPT
+fi
 
-Certainly looking at the SCM statistics from the last 500 ChangeSets, 63
-of them were attributed to me ("Hey, Linus does 12% of all kernel coding
-himself! Studly, man!"), but if you actually look at the details of the
-changesets, you'll notice that I'm a total loser, and I end up doing
-little coding and most of my changesets are merges, cset excludes,
-kernel version updates etc ("Hey, Linus is a complete moron!").. 
-
-So I personally get a bit nervous about pretty graphs - they _seem_ to
-say so much, yet they clearly don't tell enough.  Which can be a bit
-dangerous if somebody takes them too seriously. They're just simple
-enough that you think you get the RealTruth(tm).
-
-				Linus
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVCGXn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVCGXnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbVCGXn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:43:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVCGXm1
+	id S261908AbVCGXnz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbVCGXmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:42:27 -0500
-Received: from fire.osdl.org ([65.172.181.4]:34477 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261824AbVCGXg5 (ORCPT
+	Mon, 7 Mar 2005 18:42:44 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:22949 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261916AbVCGXhS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 18:36:57 -0500
-Message-ID: <422CE5BA.9040209@osdl.org>
-Date: Mon, 07 Mar 2005 15:37:30 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Mon, 7 Mar 2005 18:37:18 -0500
+Message-ID: <422CE5AB.2030304@candelatech.com>
+Date: Mon, 07 Mar 2005 15:37:15 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
-       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [8/many] acrypto: crypto_dev.c
-References: <1110227854480@2ka.mipt.ru>
-In-Reply-To: <1110227854480@2ka.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Christian Schmid <webmaster@rapidforum.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+References: <4229E805.3050105@rapidforum.com> <422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com> <422BC303.9060907@candelatech.com> <422C66B8.2060605@rapidforum.com>
+In-Reply-To: <422C66B8.2060605@rapidforum.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> --- /tmp/empty/crypto_dev.c	1970-01-01 03:00:00.000000000 +0300
-> +++ ./acrypto/crypto_dev.c	2005-03-07 20:35:36.000000000 +0300
-> @@ -0,0 +1,421 @@
-> +/*
-> + * 	crypto_dev.c
-> + *
-> + * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+I started trying to reproduce this, and hit a bug in either
+my code or perhaps the tcp stack.
 
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/types.h>
-> +#include <linux/list.h>
-> +#include <linux/slab.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/device.h>
+I have a control TCP socket on machine A connected to machine B.
 
-In alpha order as much as possible, please.
+Currently, server A is stuck spinning trying very hard to send commands to
+server B.  The interesting this is that netstat shows the SendQ to have
+data on both machines (they are trying to send to each other on the same
+socket connection), but the receive queues are empty on both machines as well:
 
-> +#include "acrypto.h"
-> +
-> +static LIST_HEAD(cdev_list);
-> +static spinlock_t cdev_lock = SPIN_LOCK_UNLOCKED;
+machine A:
+FC3 x86-64, kernel:  2.6.10-1.766_FC3smp, Dual opetron, 2GB RAM, SMP kernel
 
-DEFINE_SPINLOCK(cdev_lock);
+netstat:
+tcp        0  93440 192.168.1.5:57228           192.168.1.165:4002          ESTABLISHED
+
+Strace of this server:
+socketcall(0x9, 0xffffb780)             = -1 EAGAIN (Resource temporarily unavailable)
+nanosleep({42949672960000000, 597879105668495392}, NULL) = 0
+gettimeofday({2058282582467209, 597879105668495392}, NULL) = 0
+gettimeofday({2058737849000585, 597879101513232728}, NULL) = 0
+write(3, "1110237833479:  iohandler.cc 383"..., 103) = 103
+socketcall(0x9, 0xffffb780)             = -1 EAGAIN (Resource temporarily unavailable)
+.....
+
+
+
+machine B:
+
+2.6.11 + my patches, dual xeon, SMP kernel, 1GB RAM
+
+netstat:
+tcp        0 202940 192.168.1.165:4002      192.168.1.5:57228       ESTABLISHED
+
+# Machine B is not trying to send so much stuff to A, so it is not busy-spinning,
+# at least it won't untill it finally fills up it's 8MB user-space send buffer.
+
+Any ideas??
+
+Ben
 
 -- 
-~Randy
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

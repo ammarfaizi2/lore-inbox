@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbTD0UAx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 16:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbTD0UAx
+	id S261722AbTD0URy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 16:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbTD0URy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 16:00:53 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:23803 "EHLO
-	iapetus.localdomain") by vger.kernel.org with ESMTP id S261757AbTD0UAv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 16:00:51 -0400
-Date: Sun, 27 Apr 2003 22:13:57 +0200
-From: Frank van Maarseveen <frankvm@xs4all.nl>
-To: Larry McVoy <lm@bitmover.com>
+	Sun, 27 Apr 2003 16:17:54 -0400
+Received: from alfie.demon.co.uk ([158.152.44.128]:64523 "EHLO
+	bagpuss.pyrites.org.uk") by vger.kernel.org with ESMTP
+	id S261722AbTD0URx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 16:17:53 -0400
+Newsgroups: list.linux-kernel
+References: <20030421142624.B11886@figure1.int.wirex.com> <Pine.GSO.4.44.0304251855390.21961-100000@elaine24.Stanford.EDU>
+X-Newsreader: NN version 6.5.0 CURRENT #120
+X-Mailer: Mail User's Shell (7.2.6unoff2-mime 8/31/96)
+To: yjf@stanford.edu (Junfeng Yang)
+Subject: Re: [CHECKER] 30 potential dereference of user-pointer errors
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030427201357.GA19859@iapetus.localdomain>
-Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net> <20030427185037.GA23581@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030427185037.GA23581@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-Subliminal-Message: Use Linux!
+Message-Id: <20030427201826.DCFCD7D45@bagpuss.pyrites.org.uk>
+Date: Sun, 27 Apr 2003 21:18:26 +0100 (BST)
+From: Nick.Holloway@pyrites.org.uk (Nick Holloway)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 27, 2003 at 11:50:37AM -0700, Larry McVoy wrote:
+In list.linux-kernel yjf@stanford.edu (Junfeng Yang) wrote:
+> [BUG] on VIDIOCGCAPUTRE and VIDIOCSCAPUTRE branches copy_*_user functions are called. on other branches not
+> /home/junfeng/linux-tainted/drivers/media/video/cpia.c:3432:cpia_do_ioctl: ERROR:TAINTED:3432:3432: dereferencing tainted ptr 'vp' [Callstack: ]
 > 
-> This isn't a BK thing, we don't have lobbyists in Washington get laws
-> passed on our behalf.  This is my private opinion based on observing
-> what's happened in the last five years or so.  The world is moving more
-> and more towards a place where IP is the significant source of revenue.
+> 		DBG("VIDIOCSPICT\n");
+> 
+> 		/* check validity */
+> 		DBG("palette: %d\n", vp->palette);
+> 		DBG("depth: %d\n", vp->depth);
+> 
+> Error --->
+> 		if (!valid_mode(vp->palette, vp->depth)) {
+> 			retval = -EINVAL;
+> 			break;
+> 		}
+> ---------------------------------------------------------
 
-In general, maybe. In software business I think the world is moving
-towards making money out of services rather than IP.
+I can't see this.  This code fragment is from cpia_do_ioctl.  This is
+never called directly, the entry point is cpia_ioctl, which always passes
+ioctl calls to video_usercopy (which calls cpia_do_ioctl through the
+supplied function pointer).
 
-On another perspective, something which is often underestimated is the
-fact that the cost of copying software (programs, music etc.) has no
-relation whatsoever with the "value" of the software itself. This is
-not a permit to copy -- it is an observation about the properties of
-software in general. This is a very strong property and I think that
-any attempt to resist this "law of nature" will ultimately be futile.
+In video_usercopy, it calls copy_from_user for an _IOW ioctl (which
+VIDIOCSPICT is).  There is certainly no differentiation between the
+different ioctl calls made by video_usercopy.
+
+Is there something I have missed?
 
 -- 
-Frank
+ `O O'  | Nick.Holloway@pyrites.org.uk
+// ^ \\ | http://www.pyrites.org.uk/

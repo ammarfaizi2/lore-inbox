@@ -1,123 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312410AbSDMKXB>; Sat, 13 Apr 2002 06:23:01 -0400
+	id <S313422AbSDMLJ1>; Sat, 13 Apr 2002 07:09:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312846AbSDMKXA>; Sat, 13 Apr 2002 06:23:00 -0400
-Received: from mo.optusnet.com.au ([203.10.68.101]:46990 "EHLO
-	mo.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S312410AbSDMKW7>; Sat, 13 Apr 2002 06:22:59 -0400
-To: linux-kernel@vger.kernel.org
-From: public@dgmo.org
-Subject: Very trace tcp issue on 2.2.19
-Date: 13 Apr 2002 20:22:53 +1000
-In-Reply-To: Steven Whitehouse's message of "Sun, 24 Mar 2002 20:16:38 +0000 (GMT)"
-Message-ID: <m1sn5zq4n6.fsf@mo.optusnet.com.au>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S313585AbSDMLJ0>; Sat, 13 Apr 2002 07:09:26 -0400
+Received: from ws-002.ray.fi ([193.64.14.2]:26489 "EHLO behemoth.ts.ray.fi")
+	by vger.kernel.org with ESMTP id <S313422AbSDMLJZ>;
+	Sat, 13 Apr 2002 07:09:25 -0400
+Date: Sat, 13 Apr 2002 14:09:18 +0300 (EEST)
+From: Tommi Kyntola <kynde@ts.ray.fi>
+X-X-Sender: kynde@behemoth.ts.ray.fi
+To: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] oops with USB mass storage and DiskOnKey
+In-Reply-To: <Pine.LNX.4.44.0204131121040.22068-100000@behemoth.ts.ray.fi>
+Message-ID: <Pine.LNX.4.44.0204131403320.22254-100000@behemoth.ts.ray.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've got an app (backup program) writing large
-quantities over data over a TCP connection from
-one 2.2.19 kernel to another.
+Just a minor additional note, by rmmod'ing usb-storage module before 
+plugging it back in this mount/umount hangs go away. 
 
-My problem is that after a while, the connection simply
-hangs. The application on the local side is sleeping
-in read(), netstat on the local side show an empty
-receive Q.
+Worth noting may also be that where 2.4.19-pre6 oopses with 2nd mount
+the 2.4.18 (and for example RedHat flavor 2.4.9-31) behaves slightly 
+differently, the mount (after being plugged out) succeeds, but the
+umount after that will hang instead.
 
-Netstat on the remote site show a large send Q:
+If there are any "Could you do/try this-and-that ?", I'll be glad to help.
 
-Proto Recv-Q Send-Q Local Address           Foreign Address         State       Timer
-tcp        0  39308 remote:33149            remote:2989 ESTABLISHED on (51.97/11/0)
+> Reproducible mount/sync hang which results in oops with DiskOnKey.
+> 
+> After unplugging a DiskOnKey USB mass storage device (after being plugged 
+> in and mounted/umounted atleast once) and then plugging it back in, any 
+> mount for that device will hang (and after that all calls to sync 
+> will/would hang, too) And after 20ish seconds it oopses...
+> 
+> Here's the oops with 2.4.19-pre6, what was done was :
+> mount /dev/sda1 /mnt/diskonkey
+> umout /mnt/diskonkey
+> *** unplugged the DoK and plugged it right back in ***
+> mount /dev/sda1 /mnt/diskonkey
+> 
+> straced : 
+> mount("/dev/sda1","/mnt/diskonkey","ext2",MS_NOSUID|MS_NODEV|0xc0ed0000,0x805b140 
+> -------------------------------------------------------------------------
+> 
+> Unable to handle kernel paging request at virtual address 6c2d7479
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<d0851269>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010202
+> eax: 6c2d7461   ebx: cf658c00   ecx: cd837e5c   edx: cf2228c0
+> esi: 00000190   edi: cd837e58   ebp: cd836000   esp: cd837e4c
+> ds: 0018   es: 0018   ss: 0018
+> Process scsi_eh_0 (pid: 1372, stackpage=cd837000)
+> Stack: d0851352 cf2228c0 cd837e68 00000000 cd837e70 cd837e70 00000000 00000000
+>        cd836000 cd837e5c cd837e5c cf658c00 80000000 ce47ee40 00000000 d08514b9
+>        cf2228c0 00000190 cd837e98 00000246 00000000 ce47ee40 00000190 cf658c00
+> Call Trace: [<d0851352>] [<d08514b9>] [<d0851554>] [<d085f484>] [<d0852371>]   
+>   [<d0855016>] [<c011543b>] [<d0962359>] [<d0917c0d>] [<d0918313>] [<d091882a>]
+>   [<c010879e>] [<c0110018>] [<c0107036>] [<d0918730>]
+> Code: 8b 40 18 85 c0 74 06 52 ff 50 0c 5a c3 b8 ed ff ff ff c3 8d
+> 
+> >>EIP; d0851269 <[usbcore]usb_submit_urb+19/30>   <=====
+> Trace; d0851352 <[usbcore]usb_start_wait_urb+82/190>
+> Trace; d08514b9 <[usbcore]usb_internal_control_msg+59/70>
+> Trace; d0851554 <[usbcore]usb_control_msg+84/a0>
+> Trace; d085f484 <[usbcore]usb_address0_sem+0/14>
+> Trace; d0852371 <[usbcore]usb_set_address+31/40>
+> Trace; d0855016 <[usbcore]usb_reset_device+c6/2f7>
+> Trace; c011543b <call_console_drivers+eb/100>
+> Trace; d0962359 <[usb-storage]bus_reset+89/1e0>
+> Trace; d0917c0d <[scsi_mod]scsi_try_bus_reset+3d/90>
+> Trace; d0918313 <[scsi_mod]scsi_unjam_host+383/7a0>
+> Trace; d091882a <[scsi_mod]scsi_error_handler+fa/160>
+> Trace; c010879e <ret_from_fork+6/20>
+> Trace; c0110018 <pcibios_lookup_irq+138/2a0>
+> Trace; c0107036 <kernel_thread+26/30>
+> Trace; d0918730 <[scsi_mod]scsi_error_handler+0/160>
+> Code;  d0851269 <[usbcore]usb_submit_urb+19/30>   <=====
+>    0:   8b 40 18                  mov    0x18(%eax),%eax   <=====
+> Code;  d085126c <[usbcore]usb_submit_urb+1c/30>
+>    3:   85 c0                     test   %eax,%eax
+> 
+> ...
+> 
+> I'm not sure wether this is a known issue or just induced by 
+> possible bugs in DiskOnKey. I've tested this thing with uhci (bx 
+> chipset) and ohci (Ali chipset) boxen with same results.
+> 
+> I've had this same issue with kernel versions 2.4.X (vanilla aswell 
+> as -ac tree) from atleast 2.4.9 up to 2.4.19-pre6 aswell as 2.5.0 up to 
+> IIRC 2.5.7 (possibly just up to 2.5.6).
+> 
+> I can post the .config and post the full ksymoops and look into it more 
+> if this indeed is a new issue and not just some personal fsck-up due to 
+> ignorance. 
+> 
+> 
 
+-- 
+Tommi Kynde Kyntola		kynde@ts.ray.fi
+      "A man alone in the forest talking to himself and
+       no women around to hear him. Is he still wrong?"
 
-The remote side is continually re-sending the next packet
-which the local machine utterly ignores.
-
-Here's a tcp dump from the local machine:
-
-19:50:01.857439 < remote.33149 > local.afm: P 120184:121632(1448) ack 35 win 32120
-19:50:01.857561 < remote.33149 > local.afm: P 121632:123080(1448) ack 36 win 32120
-19:50:01.857683 < remote.33149 > local.afm: P 123080:124528(1448) ack 36 win 32120
-19:50:01.857808 < remote.33149 > local.afm: P 124528:125976(1448) ack 36 win 32120
-19:50:01.857870 > local.afm > remote.33149: P 36:41(5) ack 120184 win 31856
-
-#1. Why didn't it ack the 125976 instead of 120184? It clearly
-received the 120184 packet and it was inside the window. Why didn't it
-ack it? remember, this is tcpdump running on the _local_ machine. 
-
-19:50:01.857930 < remote.33149 > local.afm: P 125976:127424(1448) ack 36 win 32120
-19:50:01.857960 > local.afm > remote.33149: . 41:41(0) ack 120184 win 31856
-19:50:01.858054 < remote.33149 > local.afm: P 127424:128872(1448) ack 36 win 32120
-19:50:01.858090 > local.afm > remote.33149: . 41:41(0) ack 120184 win 31856
-19:50:01.858226 < remote.33149 > local.afm: P 128872:130320(1448) ack 41 win 32120
-19:50:01.858259 > local.afm > remote.33149: . 41:41(0) ack 120184 win 31856
-19:50:01.858351 < remote.33149 > local.afm: P 130320:131768(1448) ack 41 win 32120
-19:50:01.858379 > local.afm > remote.33149: . 41:41(0) ack 120184 win 31856
-19:50:01.858473 < remote.33149 > local.afm: P 131768:133216(1448) ack 41 win 32120
-19:50:01.858501 > local.afm > remote.33149: . 41:41(0) ack 120184 win 31856
-19:50:01.858595 < remote.33149 > local.afm: P 133216:134664(1448) ack 41 win 32120
-19:50:01.858623 > local.afm > remote.33149: . 41:41(0) ack 120184 win 31856
-19:50:01.858721 < remote.33149 > local.afm: P 120184:121632(1448) ack 41 win 32120
-
-We see the remote machine finally re-send 120184. Why did it
-need to do that!?
-
-19:50:01.858752 > local.afm > remote.33149: . 41:41(0) ack 121632 win 30408
-19:50:01.858803 > local.afm > remote.33149: P 41:42(1) ack 121632 win 30408
-19:50:01.858845 < remote.33149 > local.afm: P 134664:136112(1448) ack 41 win 32120
-19:50:01.858871 > local.afm > remote.33149: . 42:42(0) ack 121632 win 30408
-19:50:01.858963 < remote.33149 > local.afm: P 136112:137560(1448) ack 41 win 32120
-19:50:01.858993 > local.afm > remote.33149: . 42:42(0) ack 121632 win 30408
-19:50:01.859085 < remote.33149 > local.afm: P 121632:123080(1448) ack 41 win 32120
-19:50:01.859112 > local.afm > remote.33149: . 42:42(0) ack 123080 win 28960
-19:50:01.859211 < remote.33149 > local.afm: P 123080:124528(1448) ack 41 win 32120
-19:50:01.859256 > local.afm > remote.33149: . 42:42(0) ack 137560 win 24616
-19:50:01.859335 < remote.33149 > local.afm: P 137560:139008(1448) ack 41 win 32120
-19:50:01.859459 < remote.33149 > local.afm: P 139008:140456(1448) ack 41 win 32120
-19:50:01.859485 > local.afm > remote.33149: . 42:42(0) ack 140456 win 27512
-19:50:01.859865 > local.afm > remote.33149: . 45:45(0) ack 144800 win 24616
-19:50:01.860117 > local.afm > remote.33149: . 45:45(0) ack 144800 win 24616
-19:50:01.860236 > local.afm > remote.33149: . 45:45(0) ack 144800 win 24616
-19:50:01.860360 > local.afm > remote.33149: . 45:45(0) ack 144800 win 24616
-19:50:01.860946 < remote.33149 > local.afm: P 144800:146248(1448) ack 45 win 32120
-19:50:01.861437 < remote.33149 > local.afm: . 160728:162176(1448) ack 46 win 32120
-19:50:01.861560 < remote.33149 > local.afm: P 162176:163624(1448) ack 49 win 32120
-19:50:01.861847 > local.afm > remote.33149: . 49:49(0) ack 144800 win 26064
-19:50:01.861941 < remote.33149 > local.afm: P 166520:167968(1448) ack 49 win 32120
-19:50:01.862192 < remote.33149 > local.afm: P 157832:159280(1448) ack 49 win 32120
-19:50:01.862313 < remote.33149 > local.afm: P 169416:170864(1448) ack 49 win 32120
-19:50:02.060443 < remote.33149 > local.afm: P 144800:146248(1448) ack 49 win 32120
-19:50:02.460445 < remote.33149 > local.afm: P 144800:146248(1448) ack 49 win 32120
-19:50:02.460480 > local.afm > remote.33149: . 49:49(0) ack 169416 win 18824
-19:50:02.460540 > local.afm > remote.33149: P 49:50(1) ack 169416 win 18824
-19:50:02.460846 < remote.33149 > local.afm: P 169416:170864(1448) ack 49 win 32120
-19:50:02.480221 < remote.33149 > local.afm: . 170864:170864(0) ack 50 win 32120
-19:50:02.480271 > local.afm > remote.33149: P 50:58(8) ack 169416 win 31856
-
-Again, it's already received 170864. Why didn't it ack that?
-
-19:50:02.500217 < remote.33149 > local.afm: . 170864:170864(0) ack 58 win 32120
-19:50:02.740450 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-19:50:03.300445 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-19:50:04.420448 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-19:50:06.660454 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-19:50:11.140494 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-19:50:20.100516 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-19:50:38.191149 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-19:51:14.031209 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-19:52:25.711371 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-19:54:25.711600 < remote.33149 > local.afm: P 169416:170864(1448) ack 58 win 32120
-
-Remote machine times out waiting for an ack which never comes. Local machine
-continually ignores the packet it's supposed to be waiting for!
-
-No firewall on local machine. /sbin/ipchains -F run just in case.
-eepro100 ethernet card. 512Meg of ram, not close to running low.  (At
-this point, the machine actually has 400Meg free, not cache/buffers
-cos it was just rebooted). Netstat on local side size receive Q is
-zero. Remote send has large send Q.
-
-I keep feeling I'm missing something basic, but I just
-can't see it!

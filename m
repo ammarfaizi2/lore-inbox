@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316580AbSGGVWT>; Sun, 7 Jul 2002 17:22:19 -0400
+	id <S316585AbSGGVYZ>; Sun, 7 Jul 2002 17:24:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316582AbSGGVWS>; Sun, 7 Jul 2002 17:22:18 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:14565 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S316580AbSGGVWR>; Sun, 7 Jul 2002 17:22:17 -0400
-Date: Sun, 7 Jul 2002 22:24:25 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       M?ns Rullg?rd <mru@users.sourceforge.net>,
-       Mohamed Ghouse Gurgaon <MohamedG@ggn.hcltech.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Diff b/w 32bit & 64-bit
-Message-ID: <20020707222425.A12535@kushida.apsleyroad.org>
-References: <20020707191232.A11999@kushida.apsleyroad.org> <Pine.LNX.4.44.0207071338570.10105-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207071338570.10105-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Sun, Jul 07, 2002 at 01:41:35PM -0600
+	id <S316586AbSGGVYY>; Sun, 7 Jul 2002 17:24:24 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:1762 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316585AbSGGVYW> convert rfc822-to-8bit; Sun, 7 Jul 2002 17:24:22 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Greg KH <greg@kroah.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: BKL removal
+Date: Sun, 7 Jul 2002 23:28:34 +0200
+User-Agent: KMail/1.4.1
+Cc: kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L.0207061306440.8346-100000@imladris.surriel.com> <3D27390E.5060208@us.ibm.com> <20020707205543.GA18298@kroah.com>
+In-Reply-To: <20020707205543.GA18298@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207072328.34244.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the hill wrote:
-> > > don't cast from "foo *" to "bar *" if sizeof(foo)<sizeof(bar)
-> > 
-> > What is the reason for this?  I do it quite routinely ("poor man's
-> > inheritance").
-> 
-> This should only be OK if you pad bar before.
+[..]
+> Excuse me, but please do NOT compare coding style with using the BKL!  I
+> can use the BKL in my code just fine, and it does not impare your
+> ability to use, modify, or understand my code.  As long as I comment why
+> I am using the BKL.
 
-Erm, crossed wire :-)
+That should be something the maintainers enforce.
 
-I do it for inheritance in the same way as, say, Xlib with X events.
-That's perfectly safe and commonplace.
+[..]
+> > I would mind the BKL a lot less if it was as well understood
+> > everywhere as it is in VFS.  The funny part is that a lock like the
+> > BKL would not last very long if it were well understood or documented
+> > everywhere it was used.
+>
+> I would mind it a whole lot less if when you try to remove the BKL, you
+> do it correctly.  So far it seems like you enjoy doing "hit and run"
+> patches, without even fully understanding or testing your patches out
+> (the driverfs and input layer patches are proof of that.)  This does
+> nothing but aggravate the developers who have to go clean up after you.
+>
+> Also, stay away from instances of it's use WHERE IT DOES NOT MATTER for
+> performance.  If I grab the BKL on insertion or removal of a USB device,
+> who cares?  I know you are trying to remove it entirely out of the
+> kernel, but please focus on places where it actually helps, and leave
+> the other instances alone.
 
-I didn't understand Albert's reason for prohibiting the mere cast.
-(Notions of old machines where the char * representation is different
-from int * came to mind, but Linux doesn't run on those... does it?)
+If you really want to make maximum impact, do tests. Very few people can measure
+lock contention on a 4-CPU system. And please rest assured that nobody wants to
+be maintainer of the subsystem that ruins scalability.
 
-Oliver Neukum explained that you shouldn't dereference a pointer to a
-larger type because of alignment issues on some machines.
-sizeof(foo)<sizeof(bar) captures this rule just fine for the basic data
-types (char, int etc.).
+And if you see a use of the BKL you don't understand ask first, or send a patch
+to the subsystem's mailing list, not lkml. People will look at BKL usage if you ask.
+In fact such a look might even uncover bugs as in case of USB.
 
-But for structures, it's actually possible to have a smaller type with a
-larger alignment requirement, and vice versa:
+	Regards
+		Oliver
 
-     struct small { double x; };
-     struct large { char y [11]; };
-
-Also, it is certainly permitted to cast "char *" to "int *" if you know
-that the underlying object is an "int" or something compatible with one.
-
-So, the general rule `don't cast from "foo *" to "bar *" if
-sizeof(foo)<sizeof(bar)' is wrong, and is routinely not followed.
-
-An alternative rule might be `never dereference a "bar *" if it might
-not have the correct alignment for "bar" on any platform'.
-
--- Jamie

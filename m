@@ -1,102 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbTIZSFr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 14:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbTIZSFr
+	id S261447AbTIZSQi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 14:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTIZSQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 14:05:47 -0400
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:29446 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S261542AbTIZSFo
+	Fri, 26 Sep 2003 14:16:38 -0400
+Received: from xs.heimsnet.is ([193.4.194.50]:21917 "EHLO cg.c.is")
+	by vger.kernel.org with ESMTP id S261447AbTIZSQg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 14:05:44 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Michael Frank <mhf@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG?] SIS IDE DMA errors
-References: <yw1x7k3vlokf.fsf@users.sourceforge.net>
-	<200309262208.30582.mhf@linuxmail.org>
-	<yw1x3cejlk34.fsf@users.sourceforge.net>
-	<200309262332.30091.mhf@linuxmail.org> <20030926165957.GA11150@ucw.cz>
-	<yw1x7k3vjw8o.fsf@users.sourceforge.net>
-	<20030926175358.GA12072@ucw.cz>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Fri, 26 Sep 2003 19:46:03 +0200
-In-Reply-To: <20030926175358.GA12072@ucw.cz> (Vojtech Pavlik's message of
- "Fri, 26 Sep 2003 19:53:58 +0200")
-Message-ID: <yw1x3cejjvdw.fsf@users.sourceforge.net>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+	Fri, 26 Sep 2003 14:16:36 -0400
+From: =?iso-8859-1?q?B=F6rkur=20Ingi=20J=F3nsson?= <bugsy@isl.is>
+Reply-To: bugsy@isl.is
+Subject: Fwd: Re: khubd is a Succubus!
+Date: Fri, 26 Sep 2003 18:28:58 +0000
+User-Agent: KMail/1.5.3
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200309261828.58253.bugsy@isl.is>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
 
->> > Actually, it's me who wrote the 961 and 963 support. It works fine for
->> > most people. Did you check you cabling?
->> 
->> I'm dealing with a laptop, but I suppose I could wiggle the cables a
->> bit.  I still doubt it's a cable problem, since reading works
->> flawlessly.
+
+----------  Forwarded Message  ----------
+
+Subject: Re: khubd is a Succubus!
+Date: Friday 26 September 2003 18:27
+From: Börkur Ingi Jónsson <bugsy@isl.is>
+To: Greg KH <greg@kroah.com>
+
+ Friday 26 September 2003 18:03, you wrote:
+> On Fri, Sep 26, 2003 at 05:24:56PM +0000, Börkur Ingi Jónsson wrote:
+> > Ps. in english this means that. On my computer khubd is using 100% of my
+> > cpu... any fix on this?
 >
-> Hmm, that's indeed interesting and it'd point to a driver problem -
-
-See, I told you :)
-
-> when reading, the drive is dictating the timing, but when writing, it's
-> the controllers turn.
+> As I asked for in your bugzilla.kernel.org filing, what does the kernel
+> log showing?  Is there lots of USB activity?  Are there any USB devices
+> plugged into the system?  Does this also happen for 2.4?  Are you using
+> ACPI?  (I can go on, but that's a good start.  You need to provide a
+> much better bug report than this...)
 >
-> So if the controller timing is not correctly programmed, reads function,
-> but writes don't.
+> greg k-h
 
-Furthermore, short writes work just fine.  The errors usually start
-happening after about 100 MB at full speed.  When copying from NFS
-over a 100 MB/s network it usually goes a little longer, sometimes
-even up to 500 MB.  All this could indicate that there is some error
-in the timing, and that it takes some time for it build up enough to
-trigger the bad things.  Or am I wrong?
+Ok Hi,
 
-Why can't the drive give notice when it's ready to accept more data?
-That would seem like the simple solution, instead of trying to
-synchronize the timers.
+I sent an earlier email (
+http://www.ussg.iu.edu/hypermail/linux/kernel/0309.3/0409.html )
+asking what kind of info dev's wanted for a report and where I could get it.
 
-> Can you send me the output of 'lspci -vvxxx' of the IDE device?
-> I'll take a look to see if it looks correct.
+1. Where can I find the kernel log?
+If it's in /var/log/kernel/ my current file hold's this
+Sep 26 16:56:55 [kernel] Linux version 2.6.0-test5 (root@localhost) (gcc
+versio$
+Sep 26 16:57:30 [kernel] nvidia: no version magic, tainting kernel.
+Sep 26 16:57:30 [kernel] nvidia: module license 'NVIDIA' taints kernel.
+Sep 26 16:57:30 [kernel] 0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel
+Mo$
+Sep 26 16:57:33 [kernel] 0: NVRM: AGPGART: unable to retrieve symbol table
+Sep 26 18:11:02 [kernel] 0: NVRM: AGPGART: unable to retrieve symbol table
+Sep 26 18:12:16 [kernel] Linux version 2.4.20-gentoo-r5 (root@localhost) (gcc
+v$
+Sep 26 18:12:16 [kernel] blk: queue c016a344, I/O limit 4095Mb (mask
+0xffffffff)
+Sep 26 18:12:19 [kernel] 0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel
+Mo$
 
-Here you go:
+Looks like nothing usb related to me.
 
-00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0) (prog-if 80 [Master])
-        Subsystem: Asustek Computer, Inc.: Unknown device 1688
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 128
-        Region 4: I/O ports at b800 [size=16]
-00: 39 10 13 55 07 00 00 00 d0 80 01 01 00 80 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 b8 00 00 00 00 00 00 00 00 00 00 43 10 88 16
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 31 81 00 00 31 85 00 00 08 01 e6 51 00 02 00 02
-50: 01 00 01 06 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+2. I have a usb keyboard plugged in It's packard Bell model number 9201
 
+3. This did not happen with 2.4
 
->> It appears to me that during heavy IO load, some DMA interrupts get
->> lost, for some reason.
->
-> Well, I've got this feeling that not just IDE interrupts get lost under
-> heavy IO load with recent kernels ...
+4. ACPI is for laptops correct? I'm using a desktop and I've never installed
+anything ACPI related..
 
-Like mouse and keyboard...
+I'm sorry for a bad bug report It's just that it was my first :) Hope this
+helps
 
--- 
-Måns Rullgård
-mru@users.sf.net
+-------------------------------------------------------
+

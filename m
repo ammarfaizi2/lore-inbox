@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263769AbTEOCro (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 22:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbTEOCro
+	id S263765AbTEOCqz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 22:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTEOCqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 22:47:44 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:12551 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S263769AbTEOCrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 22:47:41 -0400
-Date: Thu, 15 May 2003 00:01:47 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, ch@murgatroid.com,
-       inaky.perez-gonzalez@intel.com, hch@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
-Message-ID: <20030515030147.GK6372@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Andrew Morton <akpm@digeo.com>,
-	Linus Torvalds <torvalds@transmeta.com>, ch@murgatroid.com,
-	inaky.perez-gonzalez@intel.com, hch@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <20030514182526.36823e2b.akpm@digeo.com> <Pine.LNX.4.44.0305141827200.28093-100000@home.transmeta.com> <20030514183925.67a538fc.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030514183925.67a538fc.akpm@digeo.com>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+	Wed, 14 May 2003 22:46:55 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:177 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263765AbTEOCqu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 22:46:50 -0400
+Date: Wed, 14 May 2003 20:00:02 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.69-mm5: reverting i8259-shutdown.patch
+In-Reply-To: <Pine.LNX.4.50.0305142243440.19782-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.44.0305141956530.9816-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, May 14, 2003 at 06:39:25PM -0700, Andrew Morton escreveu:
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> --- 25/init/Kconfig~CONFIG_FUTEX	Wed May 14 12:43:16 2003
-> +++ 25-akpm/init/Kconfig	Wed May 14 13:06:15 2003
-> @@ -108,8 +108,17 @@ config LOG_BUF_SHIFT
->  		     13 =>  8 KB
->  		     12 =>  4 KB
->  
-> +menu "Size reduced kernel"
-> +
-> +config FUTEX
-> +	bool "Futex support"
-> +	default y
-> +	---help---
-> +	Say Y if you want support for Fast Userspace Mutexes (Futexes).
-> +	WARNING: disabling futex support will probably cause glibc to fail.
->  endmenu
->  
-> +endmenu
 
-Thanks! With this CONFIG_TINY is born :)
+On Wed, 14 May 2003, Zwane Mwaikambo wrote:
 
-- Arnaldo
+> On Wed, 14 May 2003, Patrick Mochel wrote:
+> 
+> > Interesting. This is yet more proof that system-level devices cannot be
+> > treated as common, everyday devices. Sure, it's nice to see them show up
+> > in sysfs with little overhead, and very nice not to have to work about
+> > them during shutdown or power transitions. But there are just too many
+> > special cases (like getting the ordering right ;) that you have to worry
+> > about.
+> > 
+> > So, what do we do with them? 
+> 
+> Does the PIC shutdown callback get called _just_ before acpi_power_off?
+
+It may or may not be. It depends on which order it gets registered in, 
+which is arbitrary (*). One can enable DEBUG in drivers/base/power.c and 
+crank up the console log level to see the order that devices get shutdown 
+in on their system. 
+
+
+	-pat
+
+(*) - Ok, we can control the registration via link order, but that's 
+something we'll be tweaking until our dying days in absence of a good 
+solution. 
+

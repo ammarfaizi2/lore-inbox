@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264671AbSJPBOa>; Tue, 15 Oct 2002 21:14:30 -0400
+	id <S264783AbSJPBZi>; Tue, 15 Oct 2002 21:25:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264719AbSJPBOa>; Tue, 15 Oct 2002 21:14:30 -0400
-Received: from zero.aec.at ([193.170.194.10]:30995 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S264671AbSJPBOa>;
-	Tue, 15 Oct 2002 21:14:30 -0400
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] Add extended attributes to ext2/3
-References: <E181a3N-0006No-00@snap.thunk.org> <3DACAC0C.D4C497C1@digeo.com>
-	<200210160211.39284.agruen@suse.de> <3DACB86A.829ECF3C@digeo.com>
-From: Andi Kleen <ak@muc.de>
-Date: 16 Oct 2002 03:20:08 +0200
-In-Reply-To: <3DACB86A.829ECF3C@digeo.com>
-Message-ID: <m3y98zp4c7.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S264796AbSJPBZi>; Tue, 15 Oct 2002 21:25:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9997 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264783AbSJPBZh>; Tue, 15 Oct 2002 21:25:37 -0400
+Date: Tue, 15 Oct 2002 18:33:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: John Levon <levon@movementarian.org>
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
+In-Reply-To: <20021016000623.GA45945@compsoc.man.ac.uk>
+Message-ID: <Pine.LNX.4.44.0210151830550.1203-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
 
-> The kernel has just gained supoprt for 64-bit sectors on ia32
-> and PPC32 but the new mbcache code will not support that.
+On Wed, 16 Oct 2002, John Levon wrote:
+> 
+> Look OK ? Applies after the previous 7 patches.
 
-<nitpick> ... and x86-64 (CONFIG_X86 includes X86-64) 
+Ok, everything applied.
 
-But I wonder why this weird ifdef. Is there any reason why the other
-architectures are not supported ? 
+I only have one more comment - my Intel contacts tell me that the people
+working on vtune are trying to make it play together somewhat with
+oprofile, and that they are already talking to you.
 
--Andi
+Quite frankly, as long as the vtune user-level tools are all proprietary,
+I don't really care all that much about vtune compatibility, but if it
+turns out to be easy and convenient we might as well try to be polite
+about it (and apparently they've sorted out all the issues with their
+kernel-level code, and are happy to do that stuff all GPL'd, but since
+it's pretty useless without the tools..).
+
+Thanks,
+
+		Linus
+

@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130147AbQJ0Cg3>; Thu, 26 Oct 2000 22:36:29 -0400
+	id <S129091AbQJ0DLW>; Thu, 26 Oct 2000 23:11:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130222AbQJ0CgJ>; Thu, 26 Oct 2000 22:36:09 -0400
-Received: from web6105.mail.yahoo.com ([128.11.22.99]:59910 "HELO
-	web6105.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129962AbQJ0Cf7>; Thu, 26 Oct 2000 22:35:59 -0400
-Message-ID: <20001027023557.20423.qmail@web6105.mail.yahoo.com>
-Date: Thu, 26 Oct 2000 19:35:57 -0700 (PDT)
-From: Hunt Kent <kenthunt@yahoo.com>
-Subject: Re: test[9-10] USB depmod unresolved symbols
-To: linux kernel <linux-kernel@vger.kernel.org>
+	id <S129102AbQJ0DLM>; Thu, 26 Oct 2000 23:11:12 -0400
+Received: from suntan.tandem.com ([192.216.221.8]:11980 "EHLO Tandem.com")
+	by vger.kernel.org with ESMTP id <S129091AbQJ0DLG>;
+	Thu, 26 Oct 2000 23:11:06 -0400
+Message-ID: <39F8F06B.B77E30A1@compaq.com>
+Date: Thu, 26 Oct 2000 20:03:07 -0700
+From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.2.12-20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Anonymous <anonymos@micron.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: scheduler
+In-Reply-To: <006901c03e4a$9c48e9a0$53b613d1@micron.net>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, updates:
-
-        Compiled modutils 2.3.19 and the problem
-persists.
-Arch is i386, AMD K-6.
-
-        Result for modprobe -ae (test10-pre5):
-
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test10-pre5/kernel/drivers/usb/dc2xx.o
-depmod:         usb_bulk_msg
-depmod:         usb_deregister
-depmod:         usb_free_dev
-depmod:         usb_inc_dev_use
-depmod:         usb_register
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test10-pre5/kernel/drivers/usb/ov511.o
-depmod:         usb_deregister
-depmod:         usb_free_urb
-depmod:         usb_alloc_urb
-depmod:         usb_register
-depmod:         usb_submit_urb
-depmod:         usb_driver_release_interface
-depmod:         usb_control_msg
-depmod:         usb_set_interface
-depmod:         usb_unlink_urb
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test10-pre5/kernel/drivers/usb/printer.o
-depmod:         usb_deregister
-depmod:         usb_register
-depmod:         usb_submit_urb
-depmod:         usb_set_interface
-depmod:         usb_unlink_urb
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test10-pre5/kernel/drivers/usb/scanner.o
-depmod:         usb_bulk_msg
-depmod:         usb_deregister
-depmod:         usb_register
-depmod:         usb_submit_urb
-depmod:         usb_driver_release_interface
-depmod:         usb_unlink_urb
-
-        Let me know if you need more info.
+Anonymous wrote:
+> 
+> In redhat where is the process scheduler located? Does this scheduler
+> implement round robin?
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Messenger - Talk while you surf!  It's FREE.
-http://im.yahoo.com/
+It doesn't matter whether it's RedHat, or any other distribution.
+They're all the same kernel.
+
+Look at schedule() in kernel/sched.c to see the heart of the scheduler.
+My understanding is that it's a weighted round robiner, considering such
+things as the nice value and how often a process gets caught "holding
+the ball" by the clock interrupt.
+
+Hope this helps.
+
+
+-Brian
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

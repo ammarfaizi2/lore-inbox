@@ -1,71 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267674AbTBUVzy>; Fri, 21 Feb 2003 16:55:54 -0500
+	id <S267731AbTBUV7P>; Fri, 21 Feb 2003 16:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267720AbTBUVzx>; Fri, 21 Feb 2003 16:55:53 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:33936 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267674AbTBUVzw>; Fri, 21 Feb 2003 16:55:52 -0500
-Message-Id: <200302212205.h1LM5gCu016220@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4+dev
-To: Mika Liljeberg <mika.liljeberg@welho.com>
-Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN 
-In-Reply-To: Your message of "Fri, 21 Feb 2003 23:43:58 +0200."
-             <1045863838.22625.121.camel@devil> 
-From: Valdis.Kletnieks@vt.edu
-References: <200302212040.h1LKejY3001679@81-2-122-30.bradfords.org.uk>
-            <1045863838.22625.121.camel@devil>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1325935527P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 21 Feb 2003 17:05:41 -0500
+	id <S267735AbTBUV7P>; Fri, 21 Feb 2003 16:59:15 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:59880 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id <S267731AbTBUV7N>;
+	Fri, 21 Feb 2003 16:59:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: "Moore, Robert" <robert.moore@intel.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       "Walz, Michael" <michael.walz@intel.com>
+Subject: Re: [ACPI] [PATCH] 1/3 ACPI resource handling
+Date: Fri, 21 Feb 2003 15:09:15 -0700
+User-Agent: KMail/1.4.3
+Cc: t-kochi@bq.jp.nec.com, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+References: <B9ECACBD6885D5119ADC00508B68C1EA0D19BAFC@orsmsx107.jf.intel.com>
+In-Reply-To: <B9ECACBD6885D5119ADC00508B68C1EA0D19BAFC@orsmsx107.jf.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302211509.15641.bjorn_helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1325935527P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <16207.1045865133.1@turing-police.cc.vt.edu>
+> 2) I'm not convinced that this buys a whole lot -- it just hides the code
+> behind a macro (something that's not generally liked in the Linux world.)
+> Would this procedure be called from more than one place?
 
-On Fri, 21 Feb 2003 23:43:58 +0200, Mika Liljeberg said:
+Or, since you mention a macro, maybe your question is not about
+the usefulness of acpi_resource_to_address64() itself, but about
+how I implemented it, namely, with the copy_field and copy_address
+macros:
 
-> That's right. Unfortunately, the way most people *will* deal with it is
-> by turning ECN off permanently and forgetting about it. That won't help
-> ECN become widely adopted.
++#define copy_field(out, in, field)     out->field = in->field
++#define copy_address(out, in)                                  \
++       copy_field(out, in, resource_type);                     \
++       copy_field(out, in, producer_consumer);                 \
+...
 
-That's what I'm trying to avoid doing. ;)
+If you'd rather see it implemented without the macros, I have no
+objection to that.  I just used the macros to reduce the chance of
+making typographical errors along the way.  Attached is the
+equivalent patch (untested) without the macros.  I also added a
+note to the struct acpi_resource_addressXX definitions about the
+need to make corresponding changes to acpi_resource_to_address64()
+if the structures change.
 
-(As an aside, yes, the URL to the previous marc.theaimsgroup thread *is*
-what I'm talking about).
-
-It turns out that I *CAN* do it all with iptables *IF* the following
-untested code actually works (this assumes that mangle is re-called on
-a retransmit)
-
-# If we've already marked this packet, strip/log/send...
-iptables -t mangle -A OUTPUT -p tcp --syn -m mark --mark 99 --ecn-tcp-remove
-iptables -t mangle -A OUTPUT -p tcp --syn -m mark --mark 99 -j LOG
-iptables -t mangle -A OUTPUT -p tcp --syn -m mark --mark 99 -j ACCEPT
-# Else tag it - if it makes it on the first try, good. If not, re-enter above
-iptables -t mangle -A OUTPUT -p tcp --syn -m mark --set-mark 99
-
-Does the mangle/output chain get called again for a retransmitted
-packet, or only once?
-
-/Valdis
+Bjorn
 
 
---==_Exmh_1325935527P
-Content-Type: application/pgp-signature
+diff -u -ur linux-2.5.59/drivers/acpi/resources/rsxface.c acpi-2/drivers/acpi/resources/rsxface.c
+--- linux-2.5.59/drivers/acpi/resources/rsxface.c	2003-01-16 19:22:23.000000000 -0700
++++ acpi-2/drivers/acpi/resources/rsxface.c	2003-02-21 14:45:00.000000000 -0700
+@@ -233,3 +233,83 @@
+ 	status = acpi_rs_set_srs_method_data (device_handle, in_buffer);
+ 	return_ACPI_STATUS (status);
+ }
++
++
++/*******************************************************************************
++ *
++ * FUNCTION:    acpi_resource_to_address64
++ *
++ * PARAMETERS:  resource                - Pointer to a resource
++ *              out                     - Pointer to the users's return 
++ *                                        buffer (a struct
++ *                                        acpi_resource_address64)
++ *
++ * RETURN:      Status
++ *
++ * DESCRIPTION: If the resource is an address16, address32, or address64,
++ *              copy it to the address64 return buffer.  This saves the
++ *              caller from having to duplicate code for different-sized
++ *              addresses.
++ *
++ ******************************************************************************/
++
++acpi_status
++acpi_resource_to_address64 (
++	struct acpi_resource            *resource,
++	struct acpi_resource_address64  *out)
++{
++	struct acpi_resource_address16  *address16;
++	struct acpi_resource_address32  *address32;
++	struct acpi_resource_address64  *address64;
++
++	switch (resource->id) {
++		case ACPI_RSTYPE_ADDRESS16:
++			address16 = (struct acpi_resource_address16 *) &resource->data;
++			out->resource_type              = address16->resource_type;
++			out->producer_consumer          = address16->producer_consumer;
++			out->decode                     = address16->decode;
++			out->min_address_fixed          = address16->min_address_fixed;
++			out->max_address_fixed          = address16->max_address_fixed;
++			out->attribute                  = address16->attribute;
++			out->granularity                = address16->granularity;
++			out->min_address_range          = address16->min_address_range;
++			out->max_address_range          = address16->max_address_range;
++			out->address_translation_offset = address16->address_translation_offset;
++			out->address_length             = address16->address_length;
++			out->resource_source            = address16->resource_source;
++			break;
++		case ACPI_RSTYPE_ADDRESS32:
++			address32 = (struct acpi_resource_address32 *) &resource->data;
++			out->resource_type              = address32->resource_type;
++			out->producer_consumer          = address32->producer_consumer;
++			out->decode                     = address32->decode;
++			out->min_address_fixed          = address32->min_address_fixed;
++			out->max_address_fixed          = address32->max_address_fixed;
++			out->attribute                  = address32->attribute;
++			out->granularity                = address32->granularity;
++			out->min_address_range          = address32->min_address_range;
++			out->max_address_range          = address32->max_address_range;
++			out->address_translation_offset = address32->address_translation_offset;
++			out->address_length             = address32->address_length;
++			out->resource_source            = address32->resource_source;
++			break;
++		case ACPI_RSTYPE_ADDRESS64:
++			address64 = (struct acpi_resource_address64 *) &resource->data;
++			out->resource_type              = address64->resource_type;
++			out->producer_consumer          = address64->producer_consumer;
++			out->decode                     = address64->decode;
++			out->min_address_fixed          = address64->min_address_fixed;
++			out->max_address_fixed          = address64->max_address_fixed;
++			out->attribute                  = address64->attribute;
++			out->granularity                = address64->granularity;
++			out->min_address_range          = address64->min_address_range;
++			out->max_address_range          = address64->max_address_range;
++			out->address_translation_offset = address64->address_translation_offset;
++			out->address_length             = address64->address_length;
++			out->resource_source            = address64->resource_source;
++			break;
++		default:
++			return (AE_BAD_PARAMETER);
++	}
++	return (AE_OK);
++}
+diff -u -ur linux-2.5.59/include/acpi/acpixf.h acpi-2/include/acpi/acpixf.h
+--- linux-2.5.59/include/acpi/acpixf.h	2003-02-21 14:39:23.000000000 -0700
++++ acpi-2/include/acpi/acpixf.h	2003-02-21 14:40:16.000000000 -0700
+@@ -340,6 +340,11 @@
+ 	acpi_handle                     bus_device_handle,
+ 	struct acpi_buffer              *ret_buffer);
+ 
++acpi_status
++acpi_resource_to_address64 (
++	struct acpi_resource            *resource,
++	struct acpi_resource_address64  *out);
++
+ 
+ /*
+  * Hardware (ACPI device) interfaces
+diff -u -ur linux-2.5.59/include/acpi/actypes.h acpi-2/include/acpi/actypes.h
+--- linux-2.5.59/include/acpi/actypes.h	2003-02-21 14:39:23.000000000 -0700
++++ acpi-2/include/acpi/actypes.h	2003-02-21 14:48:35.000000000 -0700
+@@ -1049,6 +1049,11 @@
+ 	char                                *string_ptr;
+ };
+ 
++/*
++ * Changes to the following address structures should
++ * also be reflected in acpi_resource_to_address64().
++ */
++
+ struct acpi_resource_address16
+ {
+ 	u32                                 resource_type;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+VqK1cC3lWbTT17ARAqREAKD+JikcCfss0CZnwPeERBxk6kks8QCdF5CI
-r8e/aYoHssB4brFdmHpSCxQ=
-=nX4u
------END PGP SIGNATURE-----
-
---==_Exmh_1325935527P--

@@ -1,386 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272395AbTGZASw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 20:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272396AbTGZASw
+	id S272397AbTGZA3P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 20:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272398AbTGZA3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 20:18:52 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:35520 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S272395AbTGZASo convert rfc822-to-8bit
+	Fri, 25 Jul 2003 20:29:15 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:52237 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S272397AbTGZA3O
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 20:18:44 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [ACPI] fujitsu-siemens e-6624 kernel oops 2.6.0testing1 acpi
-Date: Fri, 25 Jul 2003 17:33:48 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A8470255EEAD@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] fujitsu-siemens e-6624 kernel oops 2.6.0testing1 acpi
-Thread-Index: AcNTBfbcxoAoYU3nR4WKV07fgwszIwAAehgw
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Boldizsar BENCSATH" <bencsath@datacontact.hu>,
-       "Paulo Andre'" <fscked@netvisao.pt>
-Cc: "Bencsath Boldizsar" <boldi@dc.hu>, <acpi-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>, "Pawel Jochym" <jochym@rozeta.com.pl>,
-       "Nuno Monteiro" <nuno@paradigma.co.pt>
-X-OriginalArrivalTime: 26 Jul 2003 00:33:51.0899 (UTC) FILETIME=[965EEEB0:01C3530D]
+	Fri, 25 Jul 2003 20:29:14 -0400
+Date: Fri, 25 Jul 2003 17:44:20 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Net device byte statistics
+Message-ID: <20030726004420.GE25838@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <E19fqMF-0007me-00@calista.inka.de> <20030725105818.6bc97653.rddunlap@osdl.org> <20030725215548.GB25838@pegasys.ws> <200307251852.03441.jeffpc@optonline.net> <3F21C68E.4080209@candelatech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F21C68E.4080209@candelatech.com>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well it kinda sounds like 2 different issues here, but w.r.t. the oops
-on boot, can you debug things a little more and tell me exactly where
-the dereference is happening and why? That code hasn't changed in a long
-time.
+On Fri, Jul 25, 2003 at 05:08:46PM -0700, Ben Greear wrote:
+> Jeff Sipek wrote:
+> >-----BEGIN PGP SIGNED MESSAGE-----
+> >Hash: SHA1
+> >
+> >On Friday 25 July 2003 17:55, jw schultz wrote:
+> >
+> 
+> >>My thought would be to use 96bits for each counter.  In-kernel
+> >>code would run periodically doing something like this:
+> >>
+> >>	curval = counter.in_kernel;
+> >>			/* get it in a register for atomicity */
+> >>	if (counter.user_low < curval)
+> >>		++counter.user_high;
+> >>	counter.user_low = curval;
+> 
+> What about every 30 seconds or so, detect wraps, and bump the 'high' counter
+> if it wraps.  (Check more often if you can wrap more than once in 30 secs).
 
-(One of the problems with debugging ACPI is that I don't have your
-machine, so I can't duplicate the exact circumstances that cause the
-problem...)
+Yes, how often the component needs run will depend on the
+fastest counter.
 
-Thanks -- Regards -- Andy
+> Then, upon read by user-space (or whatever needs 64-bit counters):
+> 
+> 1) check wrap
+> 2) grab low bits and OR them with the high bits.
+> 3) check wrap again.  If wrap happened, try again.  Assumption is it could 
+> never wrap
+>    more than once during the time you are checking.
 
-> -----Original Message-----
-> From: Boldizsar BENCSATH [mailto:bencsath@datacontact.hu] 
-> Sent: Friday, July 25, 2003 4:39 PM
-> To: Paulo Andre'
-> Cc: Bencsath Boldizsar; acpi-devel@lists.sourceforge.net; 
-> linux-kernel@vger.kernel.org; Grover, Andrew; Pawel Jochym; 
-> Nuno Monteiro
-> Subject: Re: [ACPI] fujitsu-siemens e-6624 kernel oops 
-> 2.6.0testing1 acpi
-> 
-> 
-> 
-> I've managed a test, Linux 2.5.69 is booting correctly on f-s 
-> e-6624, but
-> if I press some function button (e.g. fn+volume up), Linux freezes
-> suddenly. This happened on 2.4.x previously, too.
-> 2.5.74,2.5.75 2.6.0testing1 and the latest acpi patch from 
-> the sf.net site
-> all hang with the same kernel oops. Any way to debug it? Any 
-> RTFM for a
-> non-kernel-hacker?
-> 
-> APM suspend/standby is STILL causes eternal fairy-tale 
-> eternal-sleep on my
-> F-S E-6624, it cannot resume (it can sleep, and it gets back 
-> - turns on
-> the fans and has some hdd activity, but nothing in the logs, 
-> console, or
-> display). It cannot resume on NETBSD, too. ACPI and APM is fully
-> functional on ALL windows version. What causes this major 
-> difference in
-> stability of a -so-called- standard? ;-)
-> 
-> boldizsar
-> 
-> 
-> 
-> On Thu, 17 Jul 2003, Paulo Andre' wrote:
-> 
-> > Hi,
-> >
-> > I'm experiencing exactly the same problem and this is by 
-> far my biggest
-> > concern with 2.5/2.6 these days. I subscribe everything Bencsath
-> > Boldizsar said and I can add a bit more detail pertaining to this
-> > problem.
-> >
-> > Namely, I've started to notice this less than desirable 
-> behaviour under
-> > 2.5.70 and later kernels (up to 2.6.0-test1[-ac2,-mm1]. In 
-> particular,
-> > the problem seems to have been introduced with patch
-> > acpi-20030523-2.5.69. My call trace is just like the one 
-> quoted below so
-> > I'll refrain from pasting mine(though I will quote it below for
-> > reference). Moreover, booting with acpi=off prevents the 
-> oops from being
-> > triggered whereas pci=noacpi doesn't.
-> >
-> > Other than that, let me point out that I'm also having this 
-> trouble in a
-> > Fujitsu E series, though it is a E-7110 running Slackware 9.0.
-> >
-> > By the way, Bencsath, could you please give 2.5.69 a spin and see if
-> > ACPI works for you? Thanks in advance.
-> >
-> > 		Paulo
-> >
-> >
-> > On Thu, 17 Jul 2003 16:23:54 +0200
-> > Bencsath Boldizsar wrote:
-> >
-> > > Hi,
-> > >  I have only bad experience with both acpi and apm on my Fujitsu
-> > >  Siemens E-6624
-> > > notebook(933Mhz PIII-M,512M SD133 ram, some nasty stuff like
-> > > "security" keys on the front of the notebook). ACPI did 
-> not work with
-> > > the 2.4 series and nowtime I tried it again on the 2.5 
-> series. It is
-> > > still not working with the latest 2.6.0testing1 too. (In 
-> 2.4 series,
-> > > with ACPI enabled the kernel hanged if I pressed any special keys
-> > > (fn+brightness etc.), now it drops OOPS at kernel start.
-> > >
-> > >  I would be pretty happy to solve the issue.
-> > >  Details:
-> > >  Kernel: Simple 2.6.0testing1. Debian unstable - kernel 
-> from source.
-> > >
-> > >  Dump of the serial console:
-> > >  Linux version 2.6.0-test1 (root@fbi) (gcc version 3.3.1 20030626
-> > >  (Debian prerelease)) #2
-> > > SMP Tue Jul 15 16:00:47 CEST 2003
-> > >  Video mode to be used for restore is ffff
-> > >  BIOS-provided physical RAM map:
-> > >   BIOS-e820: 0000000000000000 - 000000000009f400 (usable)
-> > >   BIOS-e820: 000000000009f400 - 00000000000a0000 (reserved)
-> > >   BIOS-e820: 00000000000e6400 - 0000000000100000 (reserved)
-> > >   BIOS-e820: 0000000000100000 - 000000001fee0000 (usable)
-> > >   BIOS-e820: 000000001fee0000 - 000000001feefc00 (ACPI data)
-> > >   BIOS-e820: 000000001feefc00 - 000000001fef0000 (ACPI NVS)
-> > >   BIOS-e820: 000000001fef0000 - 000000001ff00000 (reserved)
-> > >   BIOS-e820: 000000001ff00000 - 000000001ff80000 (usable)
-> > >   BIOS-e820: 000000001ff80000 - 0000000020000000 (reserved)
-> > >   BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
-> > >  511MB LOWMEM available.
-> > >  On node 0 totalpages: 130944
-> > >    DMA zone: 4096 pages, LIFO batch:1
-> > >    Normal zone: 126848 pages, LIFO batch:16
-> > >    HighMem zone: 0 pages, LIFO batch:1
-> > >  ACPI: RSDP (v000 FUJ                        ) @ 0x000f62c0
-> > >  ACPI: RSDT (v001 FUJ    RICKWOOD 00265.00000) @ 0x1feeba1f
-> > >  ACPI: FADT (v001 FUJ    RICKWOOD 00265.00000) @ 0x1feefb8c
-> > >  ACPI: DSDT (v001 FUJ    RICKWOOD 00265.00000) @ 0x00000000
-> > >  ACPI: BIOS passes blacklist
-> > >  ACPI: MADT not present
-> > >  Building zonelist for node : 0
-> > >  Kernel command line: BOOT_IMAGE=l260p1 ro root=305
-> > >  console=ttyS0,38400n8 console=tty0 Local APIC disabled by BIOS --
-> > >  reenabling. Found and enabled local APIC!
-> > >  Initializing CPU#0
-> > >  PID hash table entries: 2048 (order 11: 16384 bytes)
-> > >  Detected 930.413 MHz processor.
-> > >  Console: colour VGA+ 80x25
-> > >  Calibrating delay loop... 1839.10 BogoMIPS
-> > >  Memory: 510088k/523776k available (4302k kernel code, 12808k
-> > >  reserved, 1594k data, 244k
-> > > init, 0k highmem)
-> > >  Security Scaffold v1.0.0 initialized
-> > >  Capability LSM initialized
-> > >  Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
-> > >  Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
-> > >  Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-> > >  -> /dev
-> > >  -> /dev/console
-> > >  -> /root
-> > >  CPU: L1 I cache: 16K, L1 D cache: 16K
-> > >  CPU: L2 cache: 512K
-> > >  Intel machine check architecture supported.
-> > >  Intel machine check reporting enabled on CPU#0.
-> > >  Enabling fast FPU save and restore... done.
-> > >  Enabling unmasked SIMD FPU exception support... done.
-> > >  Checking 'hlt' instruction... OK.
-> > >  POSIX conformance testing by UNIFIX
-> > >  CPU0: Intel(R) Pentium(R) III Mobile CPU       933MHz stepping 01
-> > >  per-CPU timeslice cutoff: 1462.52 usecs.
-> > >  task migration cache decay timeout: 2 msecs.
-> > >  SMP motherboard not detected.
-> > >  enabled ExtINT on CPU#0
-> > >  ESR value before enabling vector: 00000000
-> > >  ESR value after enabling vector: 00000000
-> > >  Using local APIC timer interrupts.
-> > >  calibrating APIC timer ...
-> > >  ..... CPU clock speed is 235.0889 MHz.
-> > >  ..... host bus clock speed is 132.0844 MHz.
-> > >  Starting migration thread for cpu 0
-> > >  CPUS done 32
-> > >  Initializing RT netlink socket
-> > >  PCI: PCI BIOS revision 2.10 entry at 0xfd97e, last bus=4
-> > >  PCI: Using configuration type 1
-> > >  mtrr: v2.0 (20020519)
-> > >  BIO: pool of 256 setup, 15Kb (60 bytes/bio)
-> > >  biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
-> > >  biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
-> > >  biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
-> > >  biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
-> > >  biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
-> > >  biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
-> > >  ACPI: Subsystem revision 20030619
-> > >  ACPI: Interpreter enabled
-> > >  ACPI: Using PIC for interrupt routing
-> > >  ACPI: PCI Root Bridge [PCI0] (00:00)
-> > >  PCI: Probing PCI hardware (bus 00)
-> > >  Transparent bridge - Intel Corp. 82801BAM/CAM PCI Bri
-> > >  Unable to handle kernel NULL pointer dereference at 
-> virtual address
-> > >  00000007
-> > >   printing eip:
-> > >  c02a622c
-> > >  *pde = 00000000
-> > >  Oops: 0000 [#1]
-> > >  CPU:    0
-> > >  EIP:    0060:[<c02a622c>]    Not tainted
-> > >  EFLAGS: 00010246
-> > >  EIP is at acpi_ns_map_handle_to_node+0x1a/0x22
-> > >  eax: 00000000   ebx: c167ef40   ecx: dfeddde4   edx: 00000007
-> > >  esi: 00000000   edi: dfeddde4   ebp: dfedddb8   esp: dfedddb8
-> > >  ds: 007b   es: 007b   ss: 0068
-> > >  Process swapper (pid: 1, threadinfo=dfedc000 task=dfedf8c0)
-> > >  Stack: dfedddd0 c02a5c3f 00000007 c167ef40 00000000 
-> c167ef50 dfeddef8
-> > >  c02b0ac0
-> > >         00000007 dfeddde4 dfeddde4 00000100 dfedddec 
-> 00000000 00000000
-> > >         00000000 00000000 00000000 00000000 00000000 
-> 00000000 00000000
-> > >         00000000 00000000
-> > >  Call Trace:
-> > >   [<c02a5c3f>] acpi_ns_handle_to_pathname+0x11/0x4a
-> > >   [<c02b0ac0>] acpi_pci_bind_root+0xa5/0xd5
-> > >   [<c02afd0d>] acpi_pci_root_add+0x177/0x1c9
-> > >   [<c02b190e>] acpi_bus_driver_init+0x2d/0x8f
-> > >   [<c02b1c5d>] acpi_bus_find_driver+0x86/0xe6
-> > >   [<c02b212c>] acpi_bus_add+0x127/0x155
-> > >   [<c02b2254>] acpi_bus_scan+0xfa/0x145
-> > >   [<c06dbc38>] acpi_scan_init+0x51/0x79
-> > >   [<c06c6a1b>] do_initcalls+0x2b/0xa0
-> > >   [<c0137732>] init_workqueues+0x12/0x29
-> > >   [<c01050da>] init+0x5a/0x1f0
-> > >   [<c0105080>] init+0x0/0x1f0
-> > >   [<c01091e9>] kernel_thread_helper+0x5/0xc
-> > >
-> > >  Code: 80 3a aa 0f 44 c2 5d c3 55 89 e5 8b 45 08 5d c3 55 89 e5 ff
-> > >   <0>Kernel panic: Attempted to kill init!
-> > >
-> > >  ===============================-------------
-> > >  ksymoops, If it succeeded:
-> > >  ksymoops 2.4.8 on i686 2.6.0-test1.  Options used
-> > >       -V (default)
-> > >       -k /proc/ksyms (default)
-> > >       -l /proc/modules (default)
-> > >       -o /lib/modules/2.6.0-test1/ (default)
-> > >       -m /boot/System.map (specified)
-> > >
-> > >  Error (regular_file): read_ksyms stat /proc/ksyms failed
-> > >  No modules in ksyms, skipping objects
-> > >  No ksyms, skipping lsmod
-> > >  Reading Oops report from the terminal
-> > >  Unable to handle kernel NULL pointer dereference at 
-> virtual address
-> > >  00000007 c02a622c
-> > >  *pde = 00000000
-> > >  Oops: 0000 [#1]
-> > >  CPU:    0
-> > >  EIP:    0060:[<c02a622c>]    Not tainted
-> > >  Using defaults from ksymoops -t elf32-i386 -a i386
-> > >  EFLAGS: 00010246
-> > >  eax: 00000000   ebx: c167ef40   ecx: dfeddde4   edx: 00000007
-> > >  esi: 00000000   edi: dfeddde4   ebp: dfedddb8   esp: dfedddb8
-> > >  ds: 007b   es: 007b   ss: 0068
-> > >  Stack: dfedddd0 c02a5c3f 00000007 c167ef40 00000000 
-> c167ef50 dfeddef8
-> > >  c02b0ac0
-> > >         00000007 dfeddde4 dfeddde4 00000100 dfedddec 
-> 00000000 00000000
-> > >         00000000 00000000 00000000 00000000 00000000 
-> 00000000 00000000
-> > >         00000000 00000000
-> > >  Call Trace:
-> > >   [<c02a5c3f>] acpi_ns_handle_to_pathname+0x11/0x4a
-> > >   [<c02b0ac0>] acpi_pci_bind_root+0xa5/0xd5
-> > >   [<c02afd0d>] acpi_pci_root_add+0x177/0x1c9
-> > >   [<c02b190e>] acpi_bus_driver_init+0x2d/0x8f
-> > >   [<c02b1c5d>] acpi_bus_find_driver+0x86/0xe6
-> > >   [<c02b212c>] acpi_bus_add+0x127/0x155
-> > >   [<c02b2254>] acpi_bus_scan+0xfa/0x145
-> > >   [<c06dbc38>] acpi_scan_init+0x51/0x79
-> > >   [<c06c6a1b>] do_initcalls+0x2b/0xa0
-> > >   [<c0137732>] init_workqueues+0x12/0x29
-> > >   [<c01050da>] init+0x5a/0x1f0
-> > >   [<c0105080>] init+0x0/0x1f0
-> > >   [<c01091e9>] kernel_thread_helper+0x5/0xc
-> > >  Code: 80 3a aa 0f 44 c2 5d c3 55 89 e5 8b 45 08 5d c3 55 89 e5 ff
-> > >
-> > >
-> > >  >>EIP; c02a622c <acpi_ns_map_handle_to_node+1a/22>   <=====
-> > >
-> > >  >>ebx; c167ef40 <_end+f1a1f8/3f8992b8>
-> > >  >>ecx; dfeddde4 <_end+1f77909c/3f8992b8>
-> > >  >>edi; dfeddde4 <_end+1f77909c/3f8992b8>
-> > >  >>ebp; dfedddb8 <_end+1f779070/3f8992b8>
-> > >  >>esp; dfedddb8 <_end+1f779070/3f8992b8>
-> > >
-> > >  Trace; c02a5c3f <acpi_ns_handle_to_pathname+11/4a>
-> > >  Trace; c02b0ac0 <acpi_pci_bind_root+a5/d5>
-> > >  Trace; c02afd0d <acpi_pci_root_add+177/1c9>
-> > >  Trace; c02b190e <acpi_bus_driver_init+2d/8f>
-> > >  Trace; c02b1c5d <acpi_bus_find_driver+86/e6>
-> > >  Trace; c02b212c <acpi_bus_add+127/155>
-> > >  Trace; c02b2254 <acpi_bus_scan+fa/145>
-> > >  Trace; c06dbc38 <pte_chain_init+58/60>
-> > >  Trace; c06c6a1b <_edata+71b/1d00>
-> > >  Trace; c0137732 <init_workqueues+12/29>
-> > >  Trace; c01050da <init+5a/1f0>
-> > >  Trace; c0105080 <init+0/1f0>
-> > >  Trace; c01091e9 <kernel_thread_helper+5/c>
-> > >
-> > >  Code;  c02a622c <acpi_ns_map_handle_to_node+1a/22>
-> > >  00000000 <_EIP>:
-> > >  Code;  c02a622c <acpi_ns_map_handle_to_node+1a/22>   <=====
-> > >     0:   80 3a aa                  cmpb   $0xaa,(%edx)   <=====
-> > >  Code;  c02a622f <acpi_ns_map_handle_to_node+1d/22>
-> > >     3:   0f 44 c2                  cmove  %edx,%eax
-> > >  Code;  c02a6232 <acpi_ns_map_handle_to_node+20/22>
-> > >     6:   5d                        pop    %ebp
-> > >  Code;  c02a6233 <acpi_ns_map_handle_to_node+21/22>
-> > >     7:   c3                        ret
-> > >  Code;  c02a6234 <acpi_ns_convert_entry_to_handle+0/8>
-> > >     8:   55                        push   %ebp
-> > >  Code;  c02a6235 <acpi_ns_convert_entry_to_handle+1/8>
-> > >     9:   89 e5                     mov    %esp,%ebp
-> > >  Code;  c02a6237 <acpi_ns_convert_entry_to_handle+3/8>
-> > >     b:   8b 45 08                  mov    0x8(%ebp),%eax
-> > >  Code;  c02a623a <acpi_ns_convert_entry_to_handle+6/8>
-> > >     e:   5d                        pop    %ebp
-> > >  Code;  c02a623b <acpi_ns_convert_entry_to_handle+7/8>
-> > >     f:   c3                        ret
-> > >  Code;  c02a623c <acpi_ns_terminate+0/31>
-> > >    10:   55                        push   %ebp
-> > >  Code;  c02a623d <acpi_ns_terminate+1/31>
-> > >    11:   89 e5                     mov    %esp,%ebp
-> > >  Code;  c02a623f <acpi_ns_terminate+3/31>
-> > >    13:   ff 00                     incl   (%eax)
-> > >
-> > >   <0>Kernel panic: Attempted to kill init!
-> > >
-> > >  1 error issued.  Results may not be reliable.
-> > >
-> > >
-> > >  (FYI: apm -s or -S 1. does nothing 2. does not suspend 3. does
-> > >  suspend but it cannot
-> > > resume)
-> > >  (FYI2: with acpi=off kernel says everything is on the same IRQ
-> > >  (shared), and recommends
-> > > pci=umasqpirq)
-> > >
-> > >
-> > >  any answers are welcome, I can send more detail or check 
-> anything as
-> > >  you wish. CC: to me
-> > > please,
-> > >  boldizsar
-> > >
-> >
-> >
-> > 		Paulo
-> >
-> >
-> 
-> 
+If you need to have userspace get instantaneous values it
+would be more efficient to have userspace do the
+update_64bit_counter code for just its counter than to have
+multiple wrap checks.
+
+> I think this could give us very low overhead, and extremely precise 64-bit
+> reads.  And, I think it would not need locks in the fast path..but I could
+> also be missing something :)
+
+Per-cpu counters.  If this is done a variant of this for
+per-cpu counters would be helpful.  Per-cpu counters have
+the advantage of reducing cache-line bouncing.  I don't
+think per-cpu counters should be used as a band-aid
+(elasto-plast) for counter wrapping.  Besides, how many
+12Ghz 4-way hypertheaded (shared cache) CPUs do you need?
+And if you only have one should you have per-cpu counters?
+I don't think so.  
+
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbTBNRZO>; Fri, 14 Feb 2003 12:25:14 -0500
+	id <S263204AbTBNRbd>; Fri, 14 Feb 2003 12:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbTBNRZO>; Fri, 14 Feb 2003 12:25:14 -0500
-Received: from [208.0.185.14] ([208.0.185.14]:23303 "EHLO ncbdc.bbs.com")
-	by vger.kernel.org with ESMTP id <S261530AbTBNRZN>;
-	Fri, 14 Feb 2003 12:25:13 -0500
-Message-ID: <057889C7F1E5D61193620002A537E8690B5A2B@NCBDC>
-From: Larry Hileman <LHileman@snapappliance.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux \"Kernel \"Maillist \"\"(E-mail)" 
-	<linux-kernel@vger.kernel.org>
-Subject: RE: Question about 48 bit IDE on 2.4.18 kernel
-Date: Fri, 14 Feb 2003 09:35:02 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S263215AbTBNRbd>; Fri, 14 Feb 2003 12:31:33 -0500
+Received: from SMTP7.andrew.cmu.edu ([128.2.10.87]:32157 "EHLO
+	smtp7.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S263204AbTBNRbc>; Fri, 14 Feb 2003 12:31:32 -0500
+Subject: Re: [PATCH][2.5][4/14] smp_call_function_on_cpu - MIPS
+From: Justin Carlson <justinca@cs.cmu.edu>
+To: Zwane Mwaikambo <zwane@zwane.ca>
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+In-Reply-To: <Pine.LNX.4.50.0302140356050.3518-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0302140356050.3518-100000@montezuma.mastecende.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Feb 2003 12:41:06 -0500
+Message-Id: <1045244466.1044.13.camel@PISTON.AHS.RI.CMU.EDU>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, from this information it would seem that the 2.4.18 kernel
-will not support > 137G drives?  
+On Fri, 2003-02-14 at 04:33, Zwane Mwaikambo wrote:
+> +}
+> +
+> +int smp_call_function (void (*func) (void *info), void *info, int retry, int wait)
+> +{
+> +	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
+>  }
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Thursday, February 13, 2003 5:59 PM
-To: Larry Hileman
-Cc: Linux "Kernel "Maillist ""(E-mail)
-Subject: RE: Question about 48 bit IDE on 2.4.18 kernel
+IIRC, the semantics of smp_call_function() are to call the function on
+all other cpus.  So shouldn't this be
+
+	return smp_call_function_on_cpu(func, info, wait, cpu_online_map & ~(1<<smp_processor_id()));
+
+?
+
+Also, maybe you were planning to do this in a future patch, but
+shouldn't smp_call_function() be moved to non-arch-specific code, given
+this change?
+
+-Justin
 
 
-On Thu, 2003-02-13 at 23:51, Larry Hileman wrote:
-> Do the 2.4.20/21 predrivers work on a 2.4.18 kernel?
-> Or have they been back ported?
-
-
-No and no. The newer IDE code has dependancies on the block layer
-improvements.

@@ -1,41 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274255AbRJJOSS>; Wed, 10 Oct 2001 10:18:18 -0400
+	id <S274603AbRJJOY3>; Wed, 10 Oct 2001 10:24:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274299AbRJJOSI>; Wed, 10 Oct 2001 10:18:08 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:38638 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S274255AbRJJORz>;
-	Wed, 10 Oct 2001 10:17:55 -0400
-Date: Wed, 10 Oct 2001 10:18:25 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Keith Owens <kaos@ocs.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Tainted Modules Help Notices 
-In-Reply-To: <4527.1002723183@redhat.com>
-Message-ID: <Pine.GSO.4.21.0110101016120.17790-100000@weyl.math.psu.edu>
+	id <S275449AbRJJOYI>; Wed, 10 Oct 2001 10:24:08 -0400
+Received: from mail.nep.net ([12.23.44.24]:41994 "HELO nep.net")
+	by vger.kernel.org with SMTP id <S274434AbRJJOYB>;
+	Wed, 10 Oct 2001 10:24:01 -0400
+Message-ID: <19AB8F9FA07FB0409732402B4817D75A038B7E@FILESERVER.SRF.srfarms.com>
+From: "Ryan C. Bonham" <Ryan@srfarms.com>
+To: jkniiv@hushmail.com
+Cc: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: Dilemma: Replace Escalade with Adaptec 2400A or Promise Super
+	trak66?
+Date: Wed, 10 Oct 2001 10:25:39 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+All the Adaptec I2O RAID products use the same driver, including the
+ATA(Adaptec 2400A) based one.  The ATA drives/arrays will appear to the OS
+as a scsi
+device.  The driver was in the last Linus release also (2.4.10). I am
+running the adaptec 2400A on a 2.4.6 kernel which i patch with adaptecs
+dirvers, with no problems..
+
+Ryan
 
 
-On Wed, 10 Oct 2001, David Woodhouse wrote:
 
+> -----Original Message-----
+> From: jkniiv@hushmail.com [mailto:jkniiv@hushmail.com]
+> Sent: Wednesday, October 10, 2001 10:08 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Dilemma: Replace Escalade with Adaptec 2400A or Promise
+> Supertrak66?
 > 
-> kaos@ocs.com.au said:
-> > David Woodhouse <dwmw2@infradead.org> wrote:
-> > > BSD-licensed modules shouldn't mark the kernel as tainted. If they do, 
-> > > that's surely a bug.
 > 
-> >  Any license not listed in include/linux/module.h is not GPL
-> > compatible. That list is currently (2.4.11) 
 > 
-> In the world I live in,  the BSD licence without the advertising clause is
-> GPL compatible.
-
-So is LGPL, for that matter.  And yes, it _does_ make sense, especially
-for headers.
-
+> -----BEGIN PGP SIGNED MESSAGE-----
+> 
+> Hi folks,
+> 
+> I'm sorry to involve you lot but I have a dilemma of how to 
+> replace a problematic 3Ware Escalade 6400 with another ATA 
+> RAID controller due to the known problem of Escalade "losing" 
+> one or several drives from my striped mirror (RAID10). It 
+> needs a reboot and juggling the drives back and forth before 
+> it rebuilds the set. Now that 3Ware seems to be discontinuing 
+> the line, this issue probably won't be resolved any time soon 
+> and I'm wondering which one of two remaining options, Adaptec 
+> 2400A or Promise Supertrak66/100 is reasonably compatible 
+> with recent (2.4.[89]) Alan Cox kernels? (compatible == 
+> hopefully reliable)
+> 
+> I know that both are based on an I2O architecture so there's 
+> some hope, at least, even if there is very little support 
+> officially by Adaptec or Promise. Alan himself has proclaimed 
+> that the Supertrak works for him just fine, but I presume 
+> there are no Linux-based utilities available yet. Is there 
+> then any way to find out if a drive has gone south and needs 
+> to be replaced -- kernel log messages, maybe?
+> 
+> The Adaptec 2400A is presumably very much like the 2100S SCSI 
+> model. Adaptec has released some binary only drivers and 
+> utilities but none for the 2.4 kernel line. There are however 
+> some beta stage drivers (dpt_i2o) available as source for the 
+> SCSI models. Now, I happened to list the symbols of the 
+> binary only driver for the 2400A (dpt_i2o.o) and came to the 
+> conclusion that they are the very same as in the SCSI driver 
+> source! Any differences ought to be small. Now, I'm wondering 
+> whether anybody has already tested the driver with a 2400A? Alan?
+> 
+> Yours,
+> 
+>   // Jarkko Kniivila, CIO, Ambientia Ltd., Finland
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: Hush 2.0
+> 
+> wlsEARECABsFAjvEViAUHGprbmlpdkBodXNobWFpbC5jb20ACgkQlshdxPYU0CZLvQCd
+> FRTf26MRGbvJ79i6hiXdWwBO9ksAn2nROfTFKpsfOfOROgjHNWPIVmm5
+> =4bKb
+> -----END PGP SIGNATURE-----
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

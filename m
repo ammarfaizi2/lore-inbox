@@ -1,80 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264971AbUDUGCj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264969AbUDUGCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264971AbUDUGCj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 02:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264972AbUDUGCj
+	id S264969AbUDUGCD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 02:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264970AbUDUGCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 02:02:39 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:3996 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264971AbUDUGCe (ORCPT
+	Wed, 21 Apr 2004 02:02:03 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:26123 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S264969AbUDUGB6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 02:02:34 -0400
-Date: Wed, 21 Apr 2004 11:30:21 +0530
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       suparna@in.ibm.com
-Subject: Re: Problem with Netpoll based netdumping and NAPI
-Message-ID: <20040421060021.GB3716@in.ibm.com>
-Reply-To: hari@in.ibm.com
-References: <20040419125148.GA4495@in.ibm.com> <20040419174254.GQ1175@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040419174254.GQ1175@waste.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Apr 2004 02:01:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Kevin O'Connor" <kevin@koconnor.net>
+Subject: Re: inline_hunter 0.2 and it's results
+Date: Wed, 21 Apr 2004 09:01:48 +0300
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
+References: <200404162230.40530.vda@port.imtp.ilyichevsk.odessa.ua> <20040419214041.GA3749@ohio.localdomain>
+In-Reply-To: <20040419214041.GA3749@ohio.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404210901.48882.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
+[resend, I don't see my mail on lkml.org]
 
-On Mon, Apr 19, 2004 at 12:42:54PM -0500, Matt Mackall wrote:
-> [changed cc: from linux-net to netdev]
-> 
-> On Mon, Apr 19, 2004 at 06:21:48PM +0530, Hariprasad Nellitheertha wrote:
-> > Hi All,
-> > 
-> > I am facing a problem while trying to network dump using LKCD. My 
-> > debugging so far indicates that this is due to both NAPI and NETPOLL 
-> > being enabled.
-> > 
-> > I am using LKCD on the 2.6.5 kernel and both the client and server are 
-> > i386 boxes. The dumping machine has an e100 card. I have built the kernel
-> > with both CONFIG_E100_NAPI and CONFIG_NET_POLL_CONTROLLER (and the other
-> > netpoll related options) selected.
-> > 
-> > LKCD uses netpoll for its network dump implementation. The problem we see
-> > is that the network dump driver does not receive any packet from the 
-> > card driver and hence dumping fails. In e100_intr(), we call 
-> > netif_rx_schedule() if we are using the NAPI feature. netif_rx_schedule, 
-> > in turn, ends up adding the processing of this packet to the NET_RX_SOFTIRQ 
-> > softirq.
-> 
-> Netpoll should be manually calling the NAPI poll function like this 
-> after calling the interrupt handler (in netpoll_poll()):
-> 
->       /* If scheduling is stopped, tickle NAPI bits */
->          if(trapped && np->dev->poll &&
->             test_bit(__LINK_STATE_RX_SCHED, &np->dev->state))
->                  np->dev->poll(np->dev, &budget);
-> 
-> Please ensure that LKCD is calling netpoll_set_trap(1) which tells it
-> that packet scheduling is stopped.
+On Tuesday 20 April 2004 00:40, Kevin O'Connor wrote:
+> On Fri, Apr 16, 2004 at 10:30:40PM +0300, Denis Vlasenko wrote:
+> > Size  Uses Wasted Name and definition
+> > ===== ==== ====== ================================================
+> >    56  461  16560 copy_from_user    include/asm/uaccess.h
+> >   122  119  12036 skb_dequeue       include/linux/skbuff.h
+> >   164   78  11088 skb_queue_purge   include/linux/skbuff.h
+> >    97  141  10780 netif_wake_queue  include/linux/netdevice.h
+> >    43  468  10741 copy_to_user      include/asm/uaccess.h
+> >    43  461  10580 copy_from_user    include/asm/uaccess.h
+>
+> Hi Denis,
+>
+> Why are there two copy_from_user lines?
 
-This was indeed the problem. We were not calling netpoll_set_trap in LKCD.
-Adding this fixed the problem. Thanks so much for your help with this.
+Good question!
 
-Regards, Hari
+...(/me digs into this)...
 
-> 
-> I've tested this path primarily with tg3 and kgdb-over-ethernet, but
-> it should be functionally quite similar to e100 and lkcd.
-> 
-> -- 
-> Matt Mackall : http://www.selenic.com : Linux development and consulting
+Because there are files which has 56 byte copy_from_user().
+Namely these:
 
--- 
-Hariprasad Nellitheertha
-Linux Technology Center
-India Software Labs
-IBM India, Bangalore
+56 copy_from_user tree/sound/oss/audio.o
+56 copy_from_user tree/net/atm/svc.o
+56 copy_from_user tree/net/atm/resources.o
+56 copy_from_user tree/fs/open.o
+56 copy_from_user tree/drivers/video/sstfb.o
+56 copy_from_user tree/drivers/video/fbcmap.o
+56 copy_from_user tree/drivers/net/pppoe.o
+
+Rest of them (~400 files) has 43 byte one.
+
+disasm, diff of
+void inline_copy_from_user_3(void) { copy_from_user(0,0,0); }
+yields:
+
+--- copy_from_user_43   Tue Apr 20 23:40:07 2004
++++ copy_from_user_56   Tue Apr 20 23:41:23 2004
+@@ -11,11 +11,16 @@
+        39 5a 18                cmp    %ebx,0x18(%edx)
+        83 d9 00                sbb    $0x0,%ecx
+        85 c9                   test   %ecx,%ecx
+-       75 0b                   jne    XXXX <inline_copy_from_user_3+0x28>
++       75 0d                   jne    XXXX <inline_copy_from_user_3+0x2a>
+        31 c9                   xor    %ecx,%ecx
+        31 d2                   xor    %edx,%edx
+        31 c0                   xor    %eax,%eax
+        e8 fc ff ff ff          call   XXXX <inline_copy_from_user_3+0x24>
++       eb 0b                   jmp    XXXX <inline_copy_from_user_3+0x35>
++       31 c9                   xor    %ecx,%ecx
++       31 d2                   xor    %edx,%edx
++       31 c0                   xor    %eax,%eax
++       e8 4f 01 00 00          call   XXXX <__constant_c_and_count_memset>
+        5b                      pop    %ebx
+        c9                      leave
+        c3                      ret
+
+oops... we've got files which do not honor 'inline' on
+__constant_c_and_count_memset()! For example,
+
+fs/open.c:
+==========
+#include <linux/string.h>
+        this pulls __constant_c_and_count_memset()
+#include <linux/mm.h>
+        this pulls <compiler.h>, re#defining
+        inline == __inline__ __attribute__((always_inline)).
+        too late!
+#include <linux/utime.h>
+#include <linux/file.h>
+#include <linux/smp_lock.h>
+#include <linux/quotaops.h>
+#include <linux/dnotify.h>
+#include <linux/module.h>
+#include <linux/slab.h>
+#include <linux/tty.h>
+#include <linux/namei.h>
+#include <linux/backing-dev.h>
+#include <linux/security.h>
+#include <linux/mount.h>
+#include <linux/vfs.h>
+#include <asm/uaccess.h>
+#include <linux/fs.h>
+#include <linux/pagemap.h>
+
+Will do patch tomorrow.
+--
+vda

@@ -1,89 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbTKQSg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 13:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbTKQSg2
+	id S263583AbTKQSvN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 13:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTKQSvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 13:36:28 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:64154 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263653AbTKQSg0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 13:36:26 -0500
-Message-ID: <3FB91527.50007@softhome.net>
-Date: Mon, 17 Nov 2003 19:36:23 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Mon, 17 Nov 2003 13:51:13 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:13575 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S263583AbTKQSvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 13:51:10 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: viro@parcelfarce.linux.theplanet.co.uk,
+       Chris Friesen <cfriesen@nortelnetworks.com>
+Subject: Re: Is initramfs freed after kernel is booted?
+Date: Mon, 17 Nov 2003 21:33:59 +0300
+User-Agent: KMail/1.5.3
+Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <E1ALlQs-000769-00.arvidjaar-mail-ru@f7.mail.ru> <3FB90A6A.4050505@nortelnetworks.com> <20031117180312.GZ24159@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20031117180312.GZ24159@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Q] jiffies overflow & timers.
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311172133.59839.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Monday 17 November 2003 21:03, viro@parcelfarce.linux.theplanet.co.uk 
+wrote:
+> On Mon, Nov 17, 2003 at 12:50:34PM -0500, Chris Friesen wrote:
+> > viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > >On Mon, Nov 17, 2003 at 11:06:48AM -0500, Chris Friesen wrote:
+> > >>Anyone know why it overmounts rather than pivots?
+> > >
+> > >Because amount of extra code you lose that way takes more memory than
+> > >empty roots takes.
+> > >
+> > >Remove whatever files you don't need and be done with that.
+> >
+> > How do you remove files from the old rootfs after the new one has been
+> > mounted on top of it?
+>
+> You do that before ;-)
 
-    [ ver 2.4.18/22 ]
+would the following work?
 
-    [ I feel strongly that is FAQ - so any ptr(RTFM)!=0 apreciated. ]
+pivot_root . /initramfs
+cd /initramfs && rm -rf *
 
-    [ ldd2 covers this very sparsely - overflow case is not covered at 
-all - just mentioned. Google - looks like I cannot find right keywords 
-for this ... ]
+?? doing it before is rather hard ... you apparently still need something to 
+execute your mounts :)
 
-    I'm trying to find correct solution for case of jiffies overflow and 
-standard kernel timers (./kernel/timer.c).
-
-    My module has to maintain list of timers. I cannot reuse directly 
-struct timer_list - since it uses jiffies and jiffies do wrap on overflow.
-
-    I decided to use struct timeval & do_gettimeofday(). But still I 
-have to handle case when next timer to expire will happend after jiffies 
-will overflow.
-
-   So my question - how to detect that jiffies had overflown?
-
-   Is the following code is sufficient?
-   (Assuming that I will not try to set timer longer than (~0UL/(HZ)) 
-seconds)
-
-unsigned long
-tv_get_next_expiring_jiffies( struct timeval *target_tv )
-{
-   struct timeval curr_tv, timeout;
-   ulong dif_jif;
-
-   do_gettimeofday( &curr_tv );
-
-   /* timeout = curr_tv - target_tv */
-   tv_sub( &timeout, &curr_tv, target_tv );
-
-   dif_jif = tv_to_jiffies( &timeout );   /* assumption above. */
-
-   if (jiffies > ~0UL - dif_jif) {
-       /* will overflow
-        * so wait for overflow, then just reschedule
-        */
-       return ~0UL;
-   } else {
-       /* will not */
-       return jiffies + dif_jif;
-   }
-}
-
-Is (~0UL) "safe harbour"? in other words - will this value reached? /me 
-cannot find where jiffies is incremented... Dumd grep -r jiffies gives 
-no results (no assignment, no taking of pointer, literally no matches in 
-.S files - what I'm missing?) Because if this value will be reached and 
-I will detect that jiffies == ~0UL I will have to "while(jiffies == 
-~0UL);" wait for overflow.
-
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  "... and for $64000 question, could you get yourself       |_|*|_|
-    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
-                                 -- Al Viro @ LKML           |*|*|*|
+-andrey 
 

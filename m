@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263356AbTLJCK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 21:10:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTLJCJv
+	id S263376AbTLJCvI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 21:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTLJCvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 21:09:51 -0500
-Received: from mail.kroah.org ([65.200.24.183]:19678 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263299AbTLJCID (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 21:08:03 -0500
-Date: Tue, 9 Dec 2003 17:56:01 -0800
-From: Greg KH <greg@kroah.com>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: "Mr. Mailing List" <mailinglistaddie@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: palm pilot broken in test 10
-Message-ID: <20031210015601.GX2279@kroah.com>
-References: <20031125101529.77057.qmail@web60202.mail.yahoo.com> <1069781651.3452.8.camel@mentor.gurulabs.com>
-Mime-Version: 1.0
+	Tue, 9 Dec 2003 21:51:08 -0500
+Received: from smtp12.eresmas.com ([62.81.235.112]:48022 "EHLO
+	smtp12.eresmas.com") by vger.kernel.org with ESMTP id S263376AbTLJCvE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 21:51:04 -0500
+Message-ID: <3FD68A14.90500@wanadoo.es>
+Date: Wed, 10 Dec 2003 03:51:00 +0100
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: bad performance on 2.4.23
+References: <Pine.LNX.4.44.0312081101030.1289-100000@logos.cnet>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1069781651.3452.8.camel@mentor.gurulabs.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 25, 2003 at 10:34:12AM -0700, Dax Kelson wrote:
-> On Tue, 2003-11-25 at 03:15, Mr. Mailing List wrote:
-> > visor ttyUSB2: Handspring Visor / Palm OS converter
-> > now disconnected from ttyUSB2
-> > visor ttyUSB3: Handspring Visor / Palm OS converter
-> > now disconnected from ttyUSB3
-> > usbserial 4-2:1.0: device disconnected
-> > 
-> > 
-> > worked several versions ago, then was broken, then
-> > fixed,  and has been broken the last several versions.
+Marcelo Tosatti wrote:
+
+> About the high numbers on -ac and -aa:
 > 
-> I can confirm that there is a problem in test10. I have a Treo600 and
-> plugging it in (and/or pressing the hotsync button) results in no
-> autoloading of the visor module. If I manually modprobe the visor
-> module, then when I connect/disconnect and/or press hotsync there is no
-> activity viewable via "dmesg".
+> -ac includes rmap and the drop_behind() logic (I just posted the patch
+> against 2.4.23 to lkml). I believe its the reason for the read slowdowns
+> reported on lkml.
 > 
-> Greg, how can I troubleshoot this better for you?
+> -aa includes this patch which will increase the max readahead 
+> significantly. Mind trying it?
 
-I've posted some patches here that should fix this bug (a combo of a
-sysfs patch, a kobject patch, and a usb-serial patch.)
+Sorry. I don't have any free machine to do this kind of tests. :(
 
-thanks,
+>>In 'Sequential Reads' and 'Sequential Writes', 'Maximum Latency' is _too much high_
+>>
+>>2.4.23-pre4                   8192  4096  256    5.10  6.83%   430.551  1602091.53  0.35501  0.31585     75
+>>2.4.23-rc1                    8192  4096  256    5.04  6.94%   432.486  1937701.66  0.33408  0.29884     73
 
-greg k-h
+> Now this is really odd. When did it started happening?
+
+It looks like between .20 and .23, included.
+
+Test was done by Randy Hron <rwhron@earthlink.net> over a OSDL server:
+4x700 mhz Pentium III Xeons with 1MB cache 3.75 GB RAM
+DAC960 Fiber channel to SCSI disks in RAID5 configuration
+more details at http://home.earthlink.net/~rwhron/kernel/bigbox.html
+
+what is very strange is that in two different tests and kernels
+(2.4.23-pre4 and2.4.23-rc1) 'Maximum Latency' is very high with
+256 threads.
+

@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266021AbUGELJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266018AbUGELIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266021AbUGELJK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 07:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUGELJJ
+	id S266018AbUGELIs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 07:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUGELIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 07:09:09 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:6324 "EHLO scrub.home")
-	by vger.kernel.org with ESMTP id S266021AbUGELI0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 07:08:26 -0400
-Date: Mon, 5 Jul 2004 13:01:26 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: karim@opersys.com, peterm@redhat.com, faith@redhat.com, davidm@hpl.hp.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ray.lanza@hp.com, trz@us.ibm.com, richardj_moore@uk.ibm.com,
-       bob@watson.ibm.com, michel.dagenais@polymtl.ca
-Subject: Re: [PATCH] IA64 audit support
-In-Reply-To: <20040701231844.0aed5201.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0407051211410.5033@scrub.home>
-References: <200406301556.i5UFuGg8009251@redrum.boston.redhat.com>
- <20040701124644.5e301ca0.akpm@osdl.org> <40E4B20F.8010503@opersys.com>
- <20040701182954.43351d36.akpm@osdl.org> <40E4D4AD.2020302@opersys.com>
- <20040701231844.0aed5201.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jul 2004 07:08:47 -0400
+Received: from mailfe07.swip.net ([212.247.154.193]:20386 "EHLO
+	mailfe07.swip.net") by vger.kernel.org with ESMTP id S266018AbUGELIT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 07:08:19 -0400
+X-T2-Posting-ID: mzHRUpvOlCbvaGn327Befg==
+Date: Mon, 5 Jul 2004 12:54:21 +0200
+From: Erik Rigtorp <erik@rigtorp.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel/power/swsusp.c
+Message-ID: <20040705105421.GA8680@linux.nu>
+References: <20040703172843.GA7274@linux.nu> <20040703204647.GE31892@elf.ucw.cz> <20040704133715.GA4717@linux.nu> <20040704151848.GC8488@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="sm4nu43k4a2Rpi4c"
+Content-Disposition: inline
+In-Reply-To: <20040704151848.GC8488@elf.ucw.cz>
+X-GPG-Key: Search for erkki@linux.nu at wwwkeys.eu.pgp.net
+X-GPG-Fingerprint: 0534 CF05 8171 3EC6 921A  346F 1882 91C4 993F C709
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 1 Jul 2004, Andrew Morton wrote:
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > This is probably one of the biggest misconception about LTT amongst kernel
-> > developers. So let me present this once more: LTT is _NOT_ for kernel
-> > developers, it has never been developed with this crowd in mind. LTT is and
-> > has _ALWAYS_ been intended for the end user.
-> 
-> Note I said "developer", not "kernel developer".  If the audience for a
-> feature is kernel developers, userspace developers and perhaps the most
-> sophisticated sysadmins then that's a small audience.  It's certainly an
-> _important_ audience, but the feature is not as important as those
-> codepaths which Uncle Tillie needs to run his applications.
+On Sun, Jul 04, 2004 at 05:18:49PM +0200, Pavel Machek wrote:
+> Actually, this has several advantages -- you can actually see the
+> messages of the kernel during resume. And reading does logically
+> belong to the kernel doing boot, so it belongs on its screen, too...
 
-And if one this applications misbehaves, he might want to know what is 
-actually going wrong. A tracing mechanism could tell him e.g. why xmms 
-sometimes stops and with the right visualization tools even an user with 
-basic technical knowledge could give some more precise feedback. You 
-wouldn't just get reports with "if I do X, the system feels weird".
+Here's a clean patch that does just that.
 
-I'd really like to see some tracing infrastructure in the kernel, as it's 
-also a very useful tool during kernel development, when trying to find 
-some weird problems or finding perfomance bottlenecks, where printk or 
-kgdb isn't much help.
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="swsusp-alloc-console-later.patch"
 
-> > The issues about the spread of trace points across the source code are
-> > exactly the same, you still need to mark the code-paths (and maintain
-> > these markings for each version) regardless of the mechanism being used.
-> 
-> Nope, kprobes allows a kernel module to patch hooks into the running
-> binary.  That's all it does, really.   See
-> http://www-124.ibm.com/linux/projects/kprobes/
+diff -Nru linux-2.6.7/kernel/power/swsusp.c linux-2.6.7-pavel/kernel/power/swsusp.c
+--- linux-2.6.7/kernel/power/swsusp.c	2004-06-16 07:19:02.000000000 +0200
++++ linux-2.6.7-pavel/kernel/power/swsusp.c	2004-07-04 15:15:25.000000000 +0200
+@@ -1190,9 +1190,6 @@
+ 	}
+ 	MDELAY(1000);
+ 
+-	if (pm_prepare_console())
+-		printk("swsusp: Can't allocate a console... proceeding\n");
+-
+ 	if (!resume_file[0] && resume_status == RESUME_SPECIFIED) {
+ 		printk( "suspension device unspecified\n" );
+ 		return -EINVAL;
+@@ -1201,12 +1198,15 @@
+ 	printk( "resuming from %s\n", resume_file);
+ 	if (read_suspend_image(resume_file, 0))
+ 		goto read_failure;
++
++	if (pm_prepare_console())
++		printk("swsusp: Can't allocate a console... proceeding\n");
++
+ 	device_suspend(4);
+ 	do_magic(1);
+ 	panic("This never returns");
+ 
+ read_failure:
+-	pm_restore_console();
+ 	return 0;
+ }
+ 
 
-kprobes are a nice option, but it would be a nightmare (especially 
-regarding portability) if any project had to rely on them.
-kprobes are already very complex conceptually, it may be a requirement to 
-debug a binary kernel, but otherwise some simple hooks are preferable.
-
-bye, Roman
+--sm4nu43k4a2Rpi4c--

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130911AbRCFEWY>; Mon, 5 Mar 2001 23:22:24 -0500
+	id <S130910AbRCFEVo>; Mon, 5 Mar 2001 23:21:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130913AbRCFEWP>; Mon, 5 Mar 2001 23:22:15 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55054 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130911AbRCFEV7>; Mon, 5 Mar 2001 23:21:59 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Linux 2.4.2-ac12
-Date: 5 Mar 2001 20:21:54 -0800
-Organization: Transmeta Corporation
-Message-ID: <981ol2$rp$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0103052124250.1132-100000@groveland.analogic.com> <Pine.LNX.4.32.0103052121180.1029-100000@nic-31-c31-100.mn.mediaone.net>
+	id <S130911AbRCFEVe>; Mon, 5 Mar 2001 23:21:34 -0500
+Received: from csa.iisc.ernet.in ([144.16.67.8]:38928 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S130910AbRCFEV3>;
+	Mon, 5 Mar 2001 23:21:29 -0500
+Date: Tue, 6 Mar 2001 09:33:54 +0530 (IST)
+From: Sourav Sen <sourav@csa.iisc.ernet.in>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: lkml <linux-kernel@vger.kernel.org>, kernelnewbies@humbolt.nl.linux.org
+Subject: Re: sk_buff in 2.4.0
+In-Reply-To: <200103060117.f261HDY404898@saturn.cs.uml.edu>
+Message-ID: <Pine.SOL.3.96.1010306093004.4156A-100000@kohinoor.csa.iisc.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.32.0103052121180.1029-100000@nic-31-c31-100.mn.mediaone.net>,
-Scott M. Hoffman <scott1021@mediaone.net> wrote:
->
-> It may not be related, but out of five boot attempts, only one got past
->the IDE driver stage(ie, below from 2.4.2 :
->  VP_IDE: IDE controller on PCI bus 00 dev 39
->  VP_IDE: chipset revision 16
->  VP_IDE: not 100% native mode: will probe irqs later
->  ide: Assuming 33MHz system bus speed for PIO modes; override with
->  idebus=xx
->  VP_IDE: VIA vt82c596b (rev 23) IDE UDMA66 controller on pci00:07.1
->      ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
->      ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA)
->
->  I've had 2.4.2 running great for the past 10 days. Need any more info?
 
-I'd love to hear anything you can come up with. What's the next step in
-your boot process, ie what's the part that normally shows up but doesn't
-with 2.4.2-ac12? Is this using IDE-SCSI, for example?
+In the patch by David S. Miller, copy_from_user() is still there (Line
+14360 in zerocopy-2.4.0-1.diff). So which copy is reduced? Can anyone
+explain kindly.
 
-One thing that both 2.4.3-pre3 and -ac12 do is to not have allocate a
-result buffer for TEST_UNIT_READY. I don't see why that should matter,
-but can you try un-doing the patch to "scsi_error.c" and see if that
-makes a difference. I'm worried about this report, and the buslogic
-corruption thing.. 
+thanks
+sourav
 
-Justin: there's another "2.4.3-pre2 corrupts all disks on a buslogic
-controller" report. The interesting part is that 2.4.3-pre2 doesn't
-actually contain any buslogic changes. The only generic-scsi changes
-were yours. Ideas?
+On Mon, 5 Mar 2001, Albert D. Cahalan wrote:
 
-		Linus
+> > 	My question is: Is the state of the art same in 2.4.0, ie. is
+> > protocol header and data still has to reside contiguously? Or header and
+> > data may be non-contiguous and the driver does scatter/gather.
+> > 
+> > 	I am starting off in 2.4.0 , plz. help.
+> 
+> See the zero-copy patches by David S. Miller on ftp.kernel.org in
+> his personal directory. If I remember right, the name of the
+> directory is: /pub/linux/kernel/people/davem
+> 
+> These patches are now in Alan Cox's patch sets. (the "ac" kernels)
+n> You may find Alan Cox's stuff in his personal directory ("alan") at
+> the same FTP site.
+> 
+

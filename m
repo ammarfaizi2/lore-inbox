@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264513AbRFTRsV>; Wed, 20 Jun 2001 13:48:21 -0400
+	id <S264520AbRFTR5n>; Wed, 20 Jun 2001 13:57:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264515AbRFTRsL>; Wed, 20 Jun 2001 13:48:11 -0400
-Received: from gateway.sequent.com ([192.148.1.10]:54937 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S264513AbRFTRsH>; Wed, 20 Jun 2001 13:48:07 -0400
-Date: Wed, 20 Jun 2001 10:48:00 -0700
-From: Mike Kravetz <mkravetz@sequent.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Threads FAQ entry incomplete
-Message-ID: <20010620104800.D1174@w-mikek2.des.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264522AbRFTR5d>; Wed, 20 Jun 2001 13:57:33 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:40465 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264520AbRFTR50>; Wed, 20 Jun 2001 13:57:26 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: spindown
+Date: Wed, 20 Jun 2001 20:00:22 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Pavel Machek <pavel@suse.cz>, Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0106201407450.1376-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33.0106201407450.1376-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Message-Id: <0106202000220B.00439@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would take exception with the following statements in the FAQ:
+On Wednesday 20 June 2001 19:32, Rik van Riel wrote:
+> On Wed, 20 Jun 2001, Daniel Phillips wrote:
+> > BTW, with nominal 100,000 erases you have to write 10 terabytes
+> > to your 100 meg flash disk before you'll see it start to
+> > degrade.
+>
+> That assumes you write out full blocks.  If you flush after
+> every byte written you'll hit the limit a lot sooner ;)
 
-"However, the Linux scheduler is designed to work well with a small
-number of running threads. Best results are obtained when the number
-of running theads equals the number of processors."
+Yep, so if you are running on a Yopy, try not to sync after each byte.
 
-I agree that the Linux scheduler is designed to work well with
-a small number of threads.  However, when the number of processors
-is no longer small, the Linux scheduler starts to suffer if the
-number of threads equals the number of processors.  For example
-consider the following data from TPC-H benchmark runs (2.4.3 kernel).
+> Btw, this is also a problem with your patch, when you write
+> out buffers all the time your disk will spend more time seeking
+> all over the place (moving the disk head away from where we are
+> currently reading!) and you'll end up writing the same block
+> multiple times ...
 
-                      2-CPU          4-CPU          8-CPU
--------------------------------------------------------------
-Mean runqueue         4.93 (18)      7.25 (23)      8.21 (35)
-length (max)
+It doesn't work that way, it tacks the flush onto the trailing edge of a 
+burst of disk activity, or it flushes out an isolated update, say an edit 
+save, which would have required the same amount of disk activity, just a few 
+seconds off in the future.  Sometimes it does write a few extra sectors when 
+disk activity is sporadic, but the impact on total throughput is small enough 
+to be hard to measure reliably.  Even so, there is some optimizing that could 
+be done - the update could be interleaved a little better with the falling 
+edge of a heavy traffic episode.  This would require that the io rate be 
+monitored instead of just the queue backlog.  I'mi nterested in tackling that 
+eventually - it has applications in other areas than just the early update.
 
-runqueue lock         2.4%           9.6%           47.2%
-contention
-
-Mean lock hold        1.5us          2.2us          3.9us
-time
-
-Mean lock wait        2.8us          3.9us          10us
-time
-
-Note that in the 2 and 4 CPU cases, the run queue length is
-aprox 2x the number of CPUs and the scheduler seems to perform
-reasonably well with respect to locking.  In the 8 CPU case,
-the number of tasks is aprox equal to the number of CPUs yet
-scheduler performance has gone downhill.
-
--- 
-Mike Kravetz                                 mkravetz@sequent.com
-IBM Linux Technology Center
+--
+Daniel

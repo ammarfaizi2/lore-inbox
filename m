@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131573AbRC3Rbj>; Fri, 30 Mar 2001 12:31:39 -0500
+	id <S131578AbRC3Rg3>; Fri, 30 Mar 2001 12:36:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131578AbRC3Rb3>; Fri, 30 Mar 2001 12:31:29 -0500
-Received: from bacchus.veritas.com ([204.177.156.37]:19907 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S131573AbRC3RbS>; Fri, 30 Mar 2001 12:31:18 -0500
-Message-ID: <3AC4C26E.7050406@muppetlabs.com>
-Date: Fri, 30 Mar 2001 09:29:18 -0800
-From: Amit D Chaudhary <amit@muppetlabs.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S131587AbRC3RgT>; Fri, 30 Mar 2001 12:36:19 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:31301 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S131578AbRC3RgH>; Fri, 30 Mar 2001 12:36:07 -0500
+Date: Fri, 30 Mar 2001 11:35:12 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>, George Bonser <george@gator.com>,
+   linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.3 aic7xxx wont compile
+In-Reply-To: <200103301509.f2UF9ws23721@aslan.scsiguy.com>
+Message-ID: <Pine.LNX.3.96.1010330113142.8826Q-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Memory leak in the ramfs file system
-In-Reply-To: <Pine.LNX.3.96.1010330034506.8826F-100000@mandrakesoft.mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Thanks for the reply.
-
-So the question next would be whether ramfs will include features to make it 
-viable or stay with less features with the aim of keeping it simple.
-
-Today, plan to check the 2-4.2-ac2x series to see if they fix this.
-
-Regards
-Amit
-
-Jeff Garzik wrote:
-
-> On Thu, 29 Mar 2001, Amit D Chaudhary wrote:
+On Fri, 30 Mar 2001, Justin T. Gibbs wrote:
+> >  Yes,  "-I." from gcc flags.
+> >
+> >  The sad part is that people have been patching right and left to get
+> >  that monster utility to compile because the dependencies say that it
+> >  must be used to remake the AIC sequencer binary image; which image is
+> >  perfectly ok except of its timestampts due to patching process.
 > 
->>  >(none):/mnt/ramfs/root# df -h /mnt/ramfs/
->>  >Filesystem            Size  Used Avail Use% Mounted on
->>  >ramfs                    0     0     0   -  /mnt/ramfs
->> I am not sure, how related this is, but we have / on ramfs and using rpm 
->> to install(-iUvh) fails with the mesages, need 12K on /
-> 
-> 
-> This is normal -- ramfs doesn't do filesystem accounting needed for 'df'.
+> The sad part is that there has been a fix for this "problem", supplied
+> by the author of the driver, for well over a month that everyone seems
+> to ignore.
+
+You cannot expect that all people will instantly start using the
+latest driver from your Web site, immediately.  Especially considering
+
+1) There is no MAINTAINERS entry listing you or your web site
+2) Your e-mail address is nowhere to be found in the code
+3) The driver Web site address is nowhere to be found in the code
+4) People are used to getting aic7xxx out of the kernel tarball
+
+Are people just supposed to pick up your psychic waves?  :)
+
+	Jeff
+
+
+
 

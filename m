@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131845AbRCZPow>; Mon, 26 Mar 2001 10:44:52 -0500
+	id <S132029AbRCZQED>; Mon, 26 Mar 2001 11:04:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131889AbRCZPon>; Mon, 26 Mar 2001 10:44:43 -0500
-Received: from penguin.roanoke.edu ([199.111.154.8]:12818 "EHLO
-	penguin.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S131845AbRCZPod>; Mon, 26 Mar 2001 10:44:33 -0500
-Message-ID: <3ABF63D3.D0C8558@linuxjedi.org>
-Date: Mon, 26 Mar 2001 10:44:19 -0500
-From: "David L. Parsley" <parsley@linuxjedi.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132456AbRCZQDx>; Mon, 26 Mar 2001 11:03:53 -0500
+Received: from gherkin.sa.wlk.com ([192.158.254.49]:23563 "HELO
+	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
+	id <S132029AbRCZQDe>; Mon, 26 Mar 2001 11:03:34 -0500
+Message-Id: <m14hZSE-0005khC@gherkin.sa.wlk.com>
+From: rct@gherkin.sa.wlk.com (Bob_Tracy)
+Subject: Re: Linux Worm (fwd)
+In-Reply-To: <20010326102418.C18480@xi.linuxpower.cx> "from Gregory Maxwell at
+ Mar 26, 2001 10:24:18 am"
 To: linux-kernel@vger.kernel.org
-Subject: /proc/sys/vm/freepages read-only?!?
-Content-Type: text/plain; charset=us-ascii
+Date: Mon, 26 Mar 2001 10:02:50 -0600 (CST)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Gregory Maxwell wrote:
+> On Mon, Mar 26, 2001 at 10:07:22AM -0500, Richard B. Johnson wrote:
+> [snip]
+> > I have just received notice that my machines will no longer be
+> > provided access to "The Internet".
+> 
+> It's sad that people like the one who sent out messages like that can stay
+> employed.
 
-I'm trying to do some vm tuning for diskless (and therefore swapless)
-devices.  (I'm working on a distro that tftp's packages and runs
-entirely in RAM)
+So let's quit covering for 'em.  Let's have the name(s) behind that
+idiotic policy letter, because I would not knowingly allow any company
+I work for to hire such people.
 
-Even on an X terminal with 64MB RAM, badly behaved apps can use lots of
-ram in the Xserver, and what I'm seeing is a hang.  The box is usually
-still pingable, just unresponsive.  I'm using cramfs pretty heavily, and
-I think what's occuring is that the terminal gets too low on freepages,
-and since pages used by X can't be swapped out, the box starts thrashing
-the vm and is unable to get pages to uncompress into.
+        Problem        Remedy
+	-------        ------
+	hangnail       amputate
+	headache       amputate
+	(etc.)
 
-My first thought was echo (bigger numbers) > /proc/sys/vm/freepages -
-but lo! - it's not writable anymore.  I found comments in page_alloc.c
-indicating it had to be read-only, but it seems it's only a safety
-precaution.  Something along the lines of values too small being 'bad
-bad'.
+Sheesh...
 
-
-help?
-	David
--- 
-David L. Parsley
-Network Administrator
-Roanoke College
+--Bob Tracy
+rct@frus.com

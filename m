@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318814AbSHESKV>; Mon, 5 Aug 2002 14:10:21 -0400
+	id <S318810AbSHESPb>; Mon, 5 Aug 2002 14:15:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318815AbSHESKV>; Mon, 5 Aug 2002 14:10:21 -0400
-Received: from web12903.mail.yahoo.com ([216.136.174.70]:62840 "HELO
-	web12903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318814AbSHESKU>; Mon, 5 Aug 2002 14:10:20 -0400
-Message-ID: <20020805181353.53816.qmail@web12903.mail.yahoo.com>
-Date: Mon, 5 Aug 2002 19:13:53 +0100 (BST)
-From: =?iso-8859-1?q?ahmed=20jubril?= <ahjubril2002@yahoo.co.uk>
-Subject: Appealing for ugent business proposal
-To: linux-kernel@vger.kernel.org
+	id <S318811AbSHESPb>; Mon, 5 Aug 2002 14:15:31 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:45324 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S318810AbSHESPa>; Mon, 5 Aug 2002 14:15:30 -0400
+Date: Mon, 5 Aug 2002 20:19:05 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs blocks long on getdents64() during concurrent write
+In-Reply-To: <20020805150436.A1176@namesys.com>
+Message-ID: <Pine.LNX.4.44.0208052014220.31879-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sir, 
-Permit me to inform you of my desire of going into
-businessraine@deloitte.co.uk <sraine@deloitte.co.uk>s
-relationship with you. I got your contact from the
-Ivory coast chember of commerce. I prayed over it and
-selected your name among other names due to its
-esteeming nature and I perssonaly recommend you as a
-reputable and trust worthy person I can do business
-with though we've not know before and by my
-recommendations,I must not hesitate to confide in you
-for this simple and sincere business.
- I am Ahmed Jubril, The only son of late Alhaji and
-Mrs Ibrahim Jubril . My father was a very wealthy
-cocoa and Elephant tusk MERCHANT IN Abidjan, the
-capital of Ivory Coast before he was poisoned to death
-by his business associates on one of their outing to
-discuss on a business deal. Before the death of my
-father, he took me so special as his only son that he
-promise to prepare my future for better. Since I was
-not present on the 29th June 2000, the day he (my
-father) died in a private hospital here in Abidjan, he
-called my mother on his bedside revealing to her that
-he has one metal box contaning the sum of
-US$11.200.000 Dollars (Eleven Million, Two Hundrend
-Thousand United States Dollars)and 4kgs of raw Gold
-left in one of the security company here in Abidjan,he
-later handed her over the certificate of deposit and
-prove of ownership and that he used my name as his
-only son for the next of kin in the deposit of this
-fund. He also explained to my mother that it was
-because of this money that he was poisoned by his
-business associates who doesn't know the actual place
-this money was deposited. He also advised me that I
-should seek for a foreign partner in a country of my
-choice where I can transfer this fund and use it for
-investment purposes (such as estate management) and
-that immediately it is done, I should leave the
-country for he fears my security is in danger. I have
-already discussed it with my mother and she assured me
-that this money will be transferred immediatrely I got
-a trust worthy and a genuine pertner overseas. Dear, I
-am honourably seeking your assistance for the transfer
-of this money which I am sure will open a business
-relationship between both of us. Furthermore, you can
-indicate your option towards assisting me by email for
-us to discuss terms and conditions for this
-transactions. Thanks for your co-operations. Yours
-sincerely,
- Ahmed Jubril
+Hi Oleg!
 
+On Mon, 5 Aug 2002, Oleg Drokin wrote:
 
+> Hello!
+> 
+> On Mon, Aug 05, 2002 at 12:51:35PM +0200, Roland Kuhn wrote:
+> 
+> > > Unfortunatelly dirty flag for reiserfs gets set way to often than necessary,
+> > > we have some patches that should help this (from Chris Mason).
+> > > You can try these for yourself too, for example from here:
+> > > ftp://ftp.suse.com/pub/people/mason/patches/data-logging/02-commit_super-8-relocation.diff.gz 
 
-__________________________________________________
-Do You Yahoo!?
-Everything you'll ever need on one web page
-from News and Sport to Email and Music Charts
-http://uk.my.yahoo.com
+>From there I get 'permission denied', but I got it somewhere else (google 
+is great).
+
+However, it does not apply cleanly to 2.4.19. It is already partly in, as 
+it seems, but there are some rejects that are not obvious to fix for me. 
+If this patch still makes sense, it would be great if someone with more 
+knowledge/experience than me could have a look...
+
+> No, it is not possible to begin "new journal" in reiser3.
+> 
+Is this going to change in reiser4?
+
+> I know for sure that atime on mbox-style files used to determine which messages
+> are new, and which are not. (N and O status in mutt).
+> There may be other users as well.
+> 
+Yes, this kind of stuff. But we use it "only" to buffer some 600GB of 
+valuable physics data before it can go to tape ;-)
+
+Ciao,
+					Roland
+
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
+

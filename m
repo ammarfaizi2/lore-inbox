@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276069AbRI1OOf>; Fri, 28 Sep 2001 10:14:35 -0400
+	id <S276070AbRI1OaS>; Fri, 28 Sep 2001 10:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276070AbRI1OOZ>; Fri, 28 Sep 2001 10:14:25 -0400
-Received: from t2.redhat.com ([199.183.24.243]:41466 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S276069AbRI1OOI>; Fri, 28 Sep 2001 10:14:08 -0400
-Message-ID: <3BB485C1.4FFAD808@redhat.com>
-Date: Fri, 28 Sep 2001 15:14:25 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Caujolle-Bert <segfault@club-internet.fr>
+	id <S276072AbRI1OaI>; Fri, 28 Sep 2001 10:30:08 -0400
+Received: from alcove.wittsend.com ([130.205.0.10]:32189 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S276070AbRI1O37>; Fri, 28 Sep 2001 10:29:59 -0400
+Date: Fri, 28 Sep 2001 10:30:22 -0400
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Bobby Hitt <bobhitt@bscnet.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <3BB48494.404F15A8@club-internet.fr>
+Subject: Re: 2GB File limitation
+Message-ID: <20010928103022.C28366@alcove.wittsend.com>
+Mail-Followup-To: Bobby Hitt <bobhitt@bscnet.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <013801c147e5$3330bec0$092cdb3f@bobathome>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <013801c147e5$3330bec0$092cdb3f@bobathome>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Caujolle-Bert wrote:
+On Fri, Sep 28, 2001 at 02:17:07AM -0400, Bobby Hitt wrote:
+> Hello,
 
-> > Hardware drivers
-> > ----------------
-> [...]
-> > PCTel           - winmodem driver
-> 
->         This one is not really 100% binary only, it use
-> an modified version of serial.c kernel driver. Of course
-> it's freely available.
+> Is someone working on a way to overcome the 2GB file limitation in Linux? I
+> currently backup several servers using a dedicated hard drive for the
+> backups. Recently I saw one backup die saying the the file size had been
+> exceeded. I've never had good luck with tape backups, yes they backup, but
+> whenever I really need a file, it can't be retrieved.
 
-That I would call an obvious GPL violation... no discussion
-about vague "interfaces", if you directly link serial.c 
-(even modified) into a non-GPL .o file that's obvious....
+	The problem has been fixed in the file system, the kernel and
+the supporting libraries for ages.  Applications may need to be updated
+to take advantage of 64 bit file offsets and file operations, though.
+You didn't say how you were backing up those other servers.  Is it a
+particular backup program?  If so, that program may need to be rebuilt
+or updated.  Are you backing up over NFS or some other file transport
+where the Linux box is just acting as a file server or is the backup
+program running on that Linux box?
+
+	Oh...  And what version of Linux?  If it's old enough, I
+suppose you might still have a problem there.  Recent (RedHat 7.x
+and contemporaries) distributions shouldn't be a problem.
+
+> TIA,
+
+> Bobby
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+

@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVASOQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVASOZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbVASOQV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 09:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVASOQU
+	id S261475AbVASOZu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 09:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVASOZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 09:16:20 -0500
-Received: from mail.suse.de ([195.135.220.2]:6343 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261730AbVASOQJ (ORCPT
+	Wed, 19 Jan 2005 09:25:50 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:30737 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261475AbVASOZl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 09:16:09 -0500
-Message-ID: <41EE6BA8.6020705@suse.de>
-Date: Wed, 19 Jan 2005 15:16:08 +0100
-From: Hannes Reinecke <hare@suse.de>
-Organization: SuSE Linux AG
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
+	Wed, 19 Jan 2005 09:25:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:x-mailer:reply-to:x-priority:message-id:to:mime-version:content-type:content-transfer-encoding;
+        b=FqtyDg1ZEsxvz9KQuwg+zIdNj2vKZ5xWHg6kQ9xA7NZofGm5PecBi5qIk2l8nuISk/S+CnvrOy8V62na7pZ7el14IqAqnPb2Sy9qkO/fny8j2uwDuYp8pd8Aqq6DeesqVGhCe5XtMNcvxY+t3V8zLlZIbKGdw/BeR/uhAlSlxL0=
+Date: Wed, 19 Jan 2005 16:25:22 +0200
+From: Gmail <todor.t@gmail.com>
+X-Mailer: The Bat! (v3.0) UNREG / CD5BF9353B3B7091
+Reply-To: Gmail <todor.t@gmail.com>
+X-Priority: 3 (Normal)
+Message-ID: <987426305.20050119162522@gmail.com>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: dtor_core@ameritech.net
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 2/2] Remove input_call_hotplug
-References: <41ED2457.1030109@suse.de>	 <d120d50005011807566ee35b2b@mail.gmail.com> <41EE2F82.3080401@suse.de> <d120d500050119060530b57cd7@mail.gmail.com>
-In-Reply-To: <d120d500050119060530b57cd7@mail.gmail.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Hi Hannes, 
-> 
-> On Wed, 19 Jan 2005 10:59:30 +0100, Hannes Reinecke <hare@suse.de> wrote:
-> 
->>Dmitry Torokhov wrote:
->>
->>>But the real question is whether we really need class devices have
->>>unique names or we could do with inputX thus leaving individual
->>>drivers intact and only modifying the input core. As far as I
->>>understand userspace should be concerned only with device
->>>capabilities, not particular name, besides, it gets PRODUCT string
->>>which has all needed data encoded.
->>>
->>
->>Indeed. What about using 'phys' (with all '/' replaced by '-') as the
->>class_id? This way we'll retain compability with /proc/bus/input/devices
->>and do not have to touch every single driver.
->>
-> 
-> 
-> I want to kill phys at some point - we have topology information
-> already present in sysfs in much better form. Can we have a new
-> hotplug variable HWDEV= which is kobject_path(input_dev->dev). If
-> input_dev is not set then we can just dump phys in it. And the class
-> id will still be inputX. Will this work?
->  
-Sure. And we don't need a special HWDEV variable, as there is already a 
-PHYSDEVPATH variable providing exactly this information.
-I'm not too happy about this 'inputX' thing (as this doesn't carry any 
-information, whereas 'phys' gives you at least a rough guess what this 
-device's about), but if phys is to go it would be the logical choice.
+--------------------------------------------------------------
+ * Building module-init-tools...
+./configure --prefix=/usr --host=i486-slackware-linux --mandir=//usr/share/man --infodir=//usr/share/info --datadir=//usr/share --sysconfdir=//etc --localstatedir=//var/lib --prefix=/ --enable-zlib
+configure: WARNING: If you wanted to set the --build type, don't use --host.
+    If a cross compiler is detected then cross compile mode will be used.
+checking build system type... i586-pc-linux-gnu
+checking host system type... i486-slackware-linux-gnu
+checking target system type... i486-slackware-linux-gnu
+checking for a BSD-compatible install... /usr/bin/ginstall -c
+checking whether build environment is sane... yes
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking for i486-slackware-linux-strip... no
+checking for strip... strip
+checking for i486-slackware-linux-gcc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables...
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ANSI C... none needed
+checking for style of include used by make... GNU
+checking dependency style of gcc... gcc3
+configure: Adding gcc options: -O2 -mcpu=i686 -pipe -Wunused -Wall
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: executing depfiles commands
+Makefile:385: *** missing separator.  Stop.
 
-> Btw, I really doubt that topology information is important here as the
-> only thing that one needs to do when new "input_device" appears is to
-> load one or more input handler modules based on device's capability
-> bits. The decision whether a device is "good enough" to create a
-> device node should be done by hotplug handler for the other "input"
-> class.
-> 
-Yes, topology is not an issue when loading modules.
+!!! ERROR: sys-apps/module-init-tools-3.0-r2 failed.
+!!! Function src_compile, Line 1980, Exitcode 2
+!!! emake module-init-tools failed
+!!! If you need support, post the topmost build error, NOT this status message.
 
-Cheers,
+phases failed
+-------------------------------------------------------------------
 
-Hannes
--- 
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux AG				S390 & zSeries
-Maxfeldstraße 5				+49 911 74053 688
-90409 Nürnberg				http://www.suse.de
+[1] When we reach the 'make' command.. it prints that error...
+Makefile:385. I'm not familiar at all with this kind of stuff... So I
+just CAN'T help myself! And that makes me nervous...
+
+[2]
+[3] module-init-tools
+[4] Linux version 2.4.26 (root@tree) (gcc version 3.3.4) #6 Mon Jun 14 19:07:27 PDT 2004
+[6] bash# make
+

@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264899AbTGCQN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 12:13:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbTGCQLh
+	id S264965AbTGCQao (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 12:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265073AbTGCQ23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 12:11:37 -0400
-Received: from pangsit.kjoe.net ([145.98.147.119]:640 "EHLO pangsit.kjoe.net")
-	by vger.kernel.org with ESMTP id S264850AbTGCQCC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 12:02:02 -0400
-Date: Thu, 3 Jul 2003 17:09:32 +0200
-To: Peter Osterlund <petero2@telia.com>
-Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Synaptics trouble in 2.5.73
-Message-ID: <20030703150932.GB19538@surfnet.nl>
-References: <20030702185412.GA24350@outpost.ds9a.nl> <m2fzlnzybr.fsf@telia.com>
+	Thu, 3 Jul 2003 12:28:29 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7947 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265062AbTGCQ1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 12:27:41 -0400
+Date: Thu, 3 Jul 2003 17:42:04 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5.74] correct gcc bug comment in <linux/spinlock.h>
+Message-ID: <20030703174204.D20336@flint.arm.linux.org.uk>
+Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <200307031608.h63G8B1r006911@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m2fzlnzybr.fsf@telia.com>
-X-Mailer: Mutt on Debian GNU/Linux sid
-X-Editor: vim
-X-Organisation: SURFnet bv
-X-Address: Radboudburcht, P.O. Box 19035, 3501 DA Utrecht, NL
-X-Phone: +31 302 305 305
-X-Telefax: +31 302 305 329
-User-Agent: Mutt/1.5.4i
-From: Niels den Otter <otter@surfnet.nl>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200307031608.h63G8B1r006911@harpo.it.uu.se>; from mikpe@csd.uu.se on Thu, Jul 03, 2003 at 06:08:11PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter,
-
-On Thursday,  3 July 2003, Peter Osterlund wrote:
-> > I saw mention of special X drivers for this, but the kernel messages
-> > appear to indicate that the kernel itself is not succeeding in
-> > communicating with the touchpad.
+On Thu, Jul 03, 2003 at 06:08:11PM +0200, Mikael Pettersson wrote:
+> Linus,
 > 
-> The kernel messages could very well indicate that the communication
-> works 99.9% of the time, but you really need the special X driver or
-> else the touchpad will not work at all in X.
+> This patch updates include/linux/spinlock.h's comment regarding gcc
+> bugs for empty struct initializers, to correctly state that the bug
+> is present also in 2.95.x and at least early versions of 2.96 (as
+> reported by one Mandrake user).
+> 
+> /Mikael
+> 
+> --- linux-2.5.74/include/linux/spinlock.h.~1~	2003-07-03 12:32:46.000000000 +0200
+> +++ linux-2.5.74/include/linux/spinlock.h	2003-07-03 16:07:59.772534704 +0200
+> @@ -144,7 +144,7 @@
+>  	} while (0)
+>  #else
+>  /*
+> - * gcc versions before ~2.95 have a nasty bug with empty initializers.
+> + * gcc versions up to 2.95, and early versions of 2.96, have a nasty bug with empty initializers.
+>   */
+>  #if (__GNUC__ > 2)
+>    typedef struct { } spinlock_t;
 
-I am using the special driver in X and this works fine after a cold
-boot. However after a hibernation of my laptop the mouse doesn't work
-and syslog reports:
+This also isn't that clear (does it mean up to 2.95.0 but not including
+2.95.1 etc.)  Also, we don't build with gcc < 2.95 anyway, so there's
+no need to mention anything older.  This removes the doubt:
 
-Jul  3 17:05:34 pangsit kernel: Synaptics driver lost sync at 1st byte
-Jul  3 17:05:43 pangsit last message repeated 968 times
-Jul  3 17:05:49 pangsit kernel: Synaptics driver lost sync at 1st byte
-Jul  3 17:06:14 pangsit last message repeated 3773 times
-Jul  3 17:07:12 pangsit kernel: Synaptics driver lost sync at 1st byte
-[etc]
+"All gcc 2.95 versions and early versions of gcc 2.96 have a nasty bug with
+ empty initializers."
 
-I have to reboot my laptop to get it working again.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-
--- Niels

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSK0GLH>; Wed, 27 Nov 2002 01:11:07 -0500
+	id <S261599AbSK0GyY>; Wed, 27 Nov 2002 01:54:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261963AbSK0GLH>; Wed, 27 Nov 2002 01:11:07 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:40210 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261934AbSK0GLH>;
-	Wed, 27 Nov 2002 01:11:07 -0500
-Date: Tue, 26 Nov 2002 22:10:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Roger Gammans <roger@computer-surgery.co.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A Kernel Configuration Tale of Woe
-Message-ID: <20021127061025.GB2889@kroah.com>
-References: <3de3cc8d.54dd.0@wincom.net> <1038341131.2534.73.camel@irongate.swansea.linux.org.uk> <20021126232121.A12861@computer-surgery.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021126232121.A12861@computer-surgery.co.uk>
-User-Agent: Mutt/1.4i
+	id <S261600AbSK0GyY>; Wed, 27 Nov 2002 01:54:24 -0500
+Received: from h-64-105-35-74.SNVACAID.covad.net ([64.105.35.74]:31967 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S261599AbSK0GyX>; Wed, 27 Nov 2002 01:54:23 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 26 Nov 2002 23:01:24 -0800
+Message-Id: <200211270701.XAA23288@adam.yggdrasil.com>
+To: rusty@rustcorp.com.au
+Subject: Re: Modules with list
+Cc: linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz, zippel@linux-m68k.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 26, 2002 at 11:21:22PM +0000, Roger Gammans wrote:
-> On Tue, Nov 26, 2002 at 08:05:31PM +0000, Alan Cox wrote:
-> > On Tue, 2002-11-26 at 19:28, Dennis Grant wrote:
-> > > Agreed - so then the association between "board" and "chipset" must be capable
-> > > of being multi-valued, and when there is a mult-valued match there must be some
-> > > means of further interrogating the user (or user agent) for more information.
-> > 
-> > Much simpler to just include "modular everything" and let user space
-> > sort it out. Guess why every vendor takes this path
-> 
-> Is there a tool though to map bus (PCI,USB etc) id's back 
-> onto modules which are likely[1] contain driver for them.
+Rusty Russell writes:
+>In message <200211260649.WAA22216@adam.yggdrasil.com> you write:
+>> >TCP for example, sets the destructor function for the skb.  It can be
+>> >called an arbitrary time later.  Netfilter modules do a similar thing,
+>> >for similar reasons.  You'd better grab a reference to *something*.
+>> 
+>> 	The ->remove() function of a network device driver will
+>> not return until it has freed all receive skb's that it allocated
+>> and all transmit skb's that were passed to its transmit function.
 
-That's exactly what the hotplug package does.
+>I'm not talking about a device driver, but modularizing the IPv4
+>stack.
 
-See http://linux-hotplug.sf.net/ for more info.  Odds are it's already
-installed on your box :)
+	I don't see skb->destructor being set in net/ipv4 (although I
+see it in other net/ subdirectories).  Anyhow, I don't see why ipv4
+would need to increment or decrement a module reference count every
+time a packet is sent or received.  It should suffice to do so when a
+file descriptor is opened or closed and when a network connection is
+created or completely forgotten (if that does not necessarily happen
+before the close system call returns).
 
-greg k-h
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+

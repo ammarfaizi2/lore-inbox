@@ -1,80 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbTDXXtu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 19:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264555AbTDXXtB
+	id S264510AbTDXXvg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 19:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbTDXXvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 19:49:01 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:5577 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264553AbTDXXpI (ORCPT
+	Thu, 24 Apr 2003 19:51:20 -0400
+Received: from mx01.arcor-online.net ([151.189.8.96]:18308 "EHLO mx01.nexgo.de")
+	by vger.kernel.org with ESMTP id S264510AbTDXXqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 19:45:08 -0400
-Date: Thu, 24 Apr 2003 16:58:36 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: [BK PATCH] i2c driver changes for 2.5.68
-Message-ID: <20030424235836.GA29888@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 24 Apr 2003 19:46:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Flame Linus to a crisp!
+Date: Fri, 25 Apr 2003 01:59:36 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Jamie Lokier <jamie@shareable.org>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <170EBA504C3AD511A3FE00508BB89A9201FD91E8@exnanycmbx4.ipc.com> <20030424214116.097D912EABA@mx12.arcor-online.net> <1051224351.4005.87.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1051224351.4005.87.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030424235817.B25D73BD4F@mx01.nexgo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri 25 Apr 03 00:45, Alan Cox wrote:
+> On Iau, 2003-04-24 at 22:42, Daniel Phillips wrote:
+> > A more mundane goal would be to prevent the 3D driver from letting you
+> > see through polygons that are supposed to be opaque.
+>
+> In the MUD world we solved that by not telling anyone about objects they
+> can't see.
 
-Here are some i2c driver changes for 2.5.68.  These include a lot of
-cleanup patches, removing dead or duplicated code.  With these patches,
-we are almost able to remove i2c-sensor.h and i2c-sensor.c, but not
-quite there.  Also a new i2c chip driver has been added.
+Doing the visibility calculations on the server, down to the pixel, is 
+possible but not really practical.
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.5
+Regards,
 
-thanks,
-
-greg k-h
-
- drivers/i2c/busses/i2c-viapro.c  |  321 +++++-------
- drivers/i2c/chips/Kconfig        |   14 
- drivers/i2c/chips/Makefile       |    1 
- drivers/i2c/chips/adm1021.c      |  130 -----
- drivers/i2c/chips/it87.c         |  976 +++++++++++++++++++++++++++++++++++++--
- drivers/i2c/chips/lm75.c         |    8 
- drivers/i2c/chips/via686a.c      |    8 
- drivers/i2c/chips/w83781d.c      |   10 
- drivers/i2c/i2c-core.c           |    8 
- drivers/i2c/i2c-sensor.c         |   46 -
- drivers/media/video/msp3400.c    |    6 
- drivers/media/video/saa5249.c    |    2 
- drivers/media/video/saa7111.c    |    2 
- drivers/media/video/tda7432.c    |    3 
- drivers/media/video/tda9840.c    |    2 
- drivers/media/video/tda9875.c    |    3 
- drivers/media/video/tda9887.c    |    3 
- drivers/media/video/tea6415c.c   |    2 
- drivers/media/video/tea6420.c    |    2 
- drivers/media/video/tuner-3036.c |    3 
- drivers/media/video/tuner.c      |    3 
- drivers/media/video/tvaudio.c    |    3 
- include/linux/i2c-sensor.h       |  152 +-----
- include/linux/i2c.h              |   25 
- 24 files changed, 1216 insertions(+), 517 deletions(-)
------
-
-<florin@iucha.net>:
-  o i2c: added it87 driver
-
-Christoph Hellwig <hch@lst.de>:
-  o i2c: bring i2c-viapro uptodate with the style guide
-  o i2c: remove dead init code from i2c-sensors.c
-  o i2c: remove dead code from adm1021
-  o i2c: remove dead junk from i2c-sensors.h
-
-Greg Kroah-Hartman <greg@kroah.com>:
-  o i2c: remove a lot of dupliated macros from i2c-sensor.h and use the current values in i2c.h
-  o i2c: removed unneeded typedef from i2c-sensor.h
-  o i2c: fix up the media drivers due to removing flags paramater of callback function
-  o i2c: removed unused flags paramater in found_proc callback
-  o i2c: fix up it87.c check_region mess
-
+Daniel

@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263720AbTEWGqW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 02:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbTEWGqW
+	id S263721AbTEWGt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 02:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTEWGt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 02:46:22 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:34319 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S263720AbTEWGqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 02:46:18 -0400
-Date: Fri, 23 May 2003 09:06:10 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Andrew Morton <akpm@digeo.com>
-cc: "David S. Miller" <davem@redhat.com>, Greg KH <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>, Jean Tourrilhes <jt@hpl.hp.com>
-Subject: Re: [2.5.69] rtnl-deadlock with usermodehelper and keventd
-In-Reply-To: <20030515181211.5853fd18.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0305230840140.14825-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 May 2003 02:49:56 -0400
+Received: from cpe-24-243-96-64.stx.rr.com ([24.243.96.64]:9991 "EHLO
+	sobmit.com") by vger.kernel.org with ESMTP id S263802AbTEWGsg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 02:48:36 -0400
+Subject: Monitor Your Website Rankings
+From: referral@google-dance.com
+To: linux-kernel@vger.kernel.org
+Message-Id: <E19J8Qa-0005TA-00@sobmit.com>
+Date: Fri, 23 May 2003 02:01:28 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 May 2003, Andrew Morton wrote:
+Hello 
+. Your friend (greg@kroah.com) has referred you to our website: http://www.google-dance.com
 
-> > > [ unregister_netdevice calls call_usermodehelper which waits for keventd to
-> > >   pick up the subprocess_info, but keventd is blocked on rtnl_lock, which
-> > >   unregister_netdev took ]
-> 
-> 
-> "David S. Miller" <davem@redhat.com> wrote:
-> >
-> > I'd much rather see /sbin/hotplug be able to handle things
-> > asynchonously.
-> 
-> Yeah, I'm inclined to agree.  I'll take a look at it.
+http://www.google-dance.com is a tool that enables you to track your website rankings in the Google Search engine. Tracking your rankings can help you increase your hits to your website.
 
-Asking just because there was another user hitting this deadlock: it seems 
-with linux-irda we have a very good test case for reproducing this issue.
-So I'd be happy to go testing patches if this might help.
+For the latest SEO (Search Engine Optimization) tips and tricks, please be sure to visit http://www.seochat.com - a community of professional Webmasters & Optimizers.
 
-I've also looked into the code to see if I could do something myself. 
-Well, personally I do also think the best way would be to modify the 
-kernel hotplug part so we can call it asynch under rtnl-lock. 
-Unfortunately, given the fact there are already several layers 
-(schedule_work, 2 times kernel_thread and execve) stacked on top of each 
-other, I'm pretty much lost how to fix it without breaking other stuff.
+Regards...
 
-I was also thinking about making net_run_sbin_hotplug asynch itself, but 
-I'm unsure how this might interact with call_usermodehelper(), namely
-wrt. the wait=0 parameter.
+Webmaster
 
-I assume we all agree this issue isn't easy to resolve. May I suggest 
-adding it to the must-fix-before-2.6 list so it wouldn't get lost?
-As people tend to run with CONFIG_HOTPLUG=y there would be a lot of 
-trouble with 2.6 otherwise.
-
-Thanks.
-Martin
-
+-----------------------------------------
+NOTE: You have been sent this ONE TIME ONLY email because a friend of yours has referred you to our website.
+Your E-mail addres has NOT been added to any lists or databases, and you will NEVER receive unsolictated emailfrom us. There is no need to unsubscribe.
+If you feel that this email has reaced you as spam, then please email me ( webmaster@seochat.com ) and I will attempt to track the cause of this abuse.

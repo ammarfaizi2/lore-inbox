@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbUL3EcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbUL3EiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbUL3EcK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 23:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbUL3EcJ
+	id S261490AbUL3EiN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 23:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbUL3EiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 23:32:09 -0500
-Received: from [220.181.31.173] ([220.181.31.173]:16067 "HELO 126.com")
-	by vger.kernel.org with SMTP id S261514AbUL3Eby (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 23:31:54 -0500
-X-Originating-IP: [219.133.248.38]
-Message-ID: <41D3847A.5090006@126.com>
-Date: Thu, 30 Dec 2004 12:30:50 +0800
-From: Walter Liu <Walter.liu@126.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.2; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
+	Wed, 29 Dec 2004 23:38:13 -0500
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:18300 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261490AbUL3EiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 23:38:12 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org, Andrew Haninger <ahaning@gmail.com>
+Subject: Re: Toshiba PS/2 touchpad on 2.6.X not working along bottom and right sides
+Date: Wed, 29 Dec 2004 23:38:08 -0500
+User-Agent: KMail/1.6.2
+References: <105c793f04122907116b571ebf@mail.gmail.com>
+In-Reply-To: <105c793f04122907116b571ebf@mail.gmail.com>
 MIME-Version: 1.0
-To: "Josef E. Galea" <josefeg@euroweb.net.mt>
-CC: Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Memory management in Linux
-References: <41D2ABA8.2080906@euroweb.net.mt> <2cd57c900412290606f356334@mail.gmail.com> <41D2C8CD.8070001@euroweb.net.mt>
-In-Reply-To: <41D2C8CD.8070001@euroweb.net.mt>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200412292338.08931.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josef E. Galea wrote:
+On Wednesday 29 December 2004 10:11 am, Andrew Haninger wrote:
+> Hello.
+> 
+> I recently installed Linux 2.6.10 on my Gateway Solo 2500 notebook
+> after using it happily with 2.4.27 (aside from some ACPI sleeping
+> issues). Since installing the new kernel, I've noticed an odd problem
+> with the Toshiba PS/2 touchpad which is used as a cursor. If I move my
+> finger left and right along the 'bottom' portion of the touchpad or up
+> and down along the right side, there is no movement from the mouse
+> cursor at all. This behavior shows up using gdm and XFree86. Running
+> 'xev' produces no output when these sides are used. However, if I move
+> my finger left-right along the top side or up-down along the left
+> side, the cursor moves just fine. Tapping the pad to click in the
+> non-working areas and moving the finger from outside of these areas
+> and then into them, however, works fine
 
-> Ok I may have got the name wrong :). What I am trying to do is to 
-> implement a package on linux similiar to the TreadMarks by Alan Cox et 
-> al. (ref. http://citeseer.ist.psu.edu/amza96treadmarks.html) that runs 
-> at kernel level instead of user level. Right now I think that inorder 
-> to achieve what I want to do, I have to change the code of the linux 
-> virtual memory manager. This is ok for academic purposes (which is my 
-> aim) however it severly reduces portability (it is much easier to just 
-> load a kernel module than to patch and recompile the kernel).
->
-Kernel-level thread or code can modify  mm_struct,vma,pde,pte,page 
-protection bits,etc.
-I think that it can modify  everything  in kernel.
+What does dmesg and /proc/bus/input/devices say about your touchpad?
 
-Regards,
-LWT
-
+-- 
+Dmitry

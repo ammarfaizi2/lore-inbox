@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263722AbTFPLHi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 07:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263737AbTFPLHi
+	id S263737AbTFPLOi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 07:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTFPLOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 07:07:38 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:7431 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263722AbTFPLHh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 07:07:37 -0400
-Date: Mon, 16 Jun 2003 13:21:28 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: =?unknown-8bit?Q?J=F6rn_Engel_=3Cjoern=40wohnheim=2Efh-wedel=2Ede=3E?=@win.tue.nl
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make cramfs look less hostile
-Message-ID: <20030616112128.GA9415@win.tue.nl>
-References: <20030615160524.GD1063@wohnheim.fh-wedel.de> <20030615182642.A19479@infradead.org> <20030615173926.GH1063@wohnheim.fh-wedel.de> <20030615184417.A19712@infradead.org> <20030615175815.GI1063@wohnheim.fh-wedel.de> <20030615190349.A21931@infradead.org> <20030615181424.GJ1063@wohnheim.fh-wedel.de> <20030615191853.A22150@infradead.org> <20030615234909.A11481@pclin040.win.tue.nl> <20030616091215.GA17446@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030616091215.GA17446@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.25i
+	Mon, 16 Jun 2003 07:14:38 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:46269 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S263737AbTFPLOh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 07:14:37 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21 / IDE lost interrupt / ServerWorks problem
+Message-ID: <1055763075.3eedaa83b19c8@imp.free.fr>
+Date: Mon, 16 Jun 2003 13:31:15 +0200 (CEST)
+From: jfontain@free.fr
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.6
+X-Originating-IP: 195.101.92.253
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 16, 2003 at 11:12:15AM +0200, J?rn Engel wrote:
-> On Sun, 15 June 2003 23:49:09 +0200, Andries Brouwer wrote:
-> > On Sun, Jun 15, 2003 at 07:18:53PM +0100, Christoph Hellwig wrote:
-> > > 
-> > > The only places where this should happen is mounting the rootfs.
-> > > mount(8) has it's own filesystem type detection code and doesn't
-> > > call mount(2) unless it found a matching filesystem type.
-> > 
-> > Too optimistic a description.
-> > Any person who likes reliable results will give mount a -t option.
-> > If someone likes to gamble, and doesnt mind system crashes, he'll
-> > omit the -t and let mount guess what the type should have been.
-> > Mount has a battery of heuristics for a handful of filesystems.
-> > If any of these succeeds mount will try that type.
-> > If none succeeds, mount will try consecutively all types listed
-> > in /proc/filesystems for which no heuristic is present.
-> 
-> Actually, I have one example of reality matching Christoph's
-> description, so he wins this fight as well.
-
-Please don't distribute misinformation.
-If you doubt, read the mount(8) code first.
-
-
+[Please CC me as I am not subscribed to the list] 
+ 
+I just upgraded from a 2.4.20 to 2.4.21 but had to revert due to the following 
+errors: 
+ hdd: dma_timer_expiry: dma status == 0x60 
+ hdd: timeout waiting for DMA 
+ hdd: lost interrupt 
+ 
+This chipset is: 
+  Bus  0, device  15, function  0: 
+    ISA bridge: ServerWorks CSB5 South Bridge (rev 147). 
+  Bus  0, device  15, function  1: 
+    IDE interface: ServerWorks CSB5 IDE Controller (rev 147). 
+  Bus  0, device  15, function  2: 
+    USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 5). 
+on a bi-pentium III machine. 
+ 
+With 2.4.20 and the ide1=ata66 kernel option, that setup worked great: 
+# /sbin/hdparm -t /dev/hdd 
+/dev/hdd: 
+ Timing buffered disk reads:  64 MB in  1.37 seconds = 46.72 MB/sec 
+(thanks to all for such great performance (same as SCSI!)) 
+ 
+For 2.4.21, I just added the new "Generic PCI IDE Chipset Support" (no help 
+provided), and recompiled, then rebooted. The 2.4.20 message: 
+  hdd:351651888sectors(180046 MB)w/2048KiBCache,CHS=21889/255/63,UDMA(100) 
+appeared on 2.4.21 as (notice that UDMA(100) has dissapeared): 
+  hdd:351651888sectors(180046 MB)w/2048KiBCache,CHS=21889/255/63 
+ 
+I then tried hdparm, which came up with only 2.5 MB/sec, then forced DMA which 
+hdparm, tested again and got the errors cited at the beginning of this 
+message. 
+ 
+Please let me know if you'd like me to perform some tests, but as I can only 
+reboot once or twice at lunch time. 
+ 
+Regards, 
+ 
+Jean-Luc 
+ 

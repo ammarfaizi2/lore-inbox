@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUE0Exx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUE0FBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUE0Exx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 00:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUE0Exw
+	id S261358AbUE0FBs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 01:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUE0FBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 00:53:52 -0400
-Received: from [61.95.205.193] ([61.95.205.193]:39296 "HELO asthatech.com")
-	by vger.kernel.org with SMTP id S261347AbUE0Exr (ORCPT
+	Thu, 27 May 2004 01:01:48 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:11203 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261358AbUE0FBr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 00:53:47 -0400
-Date: Thu, 27 May 2004 10:15:03 +0530
-From: Sreekandh Iyer <sree@asthatech.com>
-To: linux-kernel@vger.kernel.org
-Subject: Socket Close Problem
-Message-Id: <20040527101503.5a98c292.sree@asthatech.com>
-Organization: Astha Technologies
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 27 May 2004 01:01:47 -0400
+Date: Thu, 27 May 2004 15:58:29 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: dag@bakke.com
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: xfsdump hangs - 2.6.6 && 2.6.7-rc1-bk3
+Message-ID: <20040527055829.GA8981@frodo>
+References: <20040526091315.17983.h012.c000.wm@mail.bakke.com.criticalpath.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040526091315.17983.h012.c000.wm@mail.bakke.com.criticalpath.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 26, 2004 at 09:13:14AM -0700, dag@bakke.com wrote:
+> 
+> I experience hangs with xfsdump, when dumping my rootfs to a USB 2.0
+> ...
+> http://thaifood.homeip.net/xfsdumphang/xfsdump.dmesg.txt 
+> ...
 
-Hi,
+The xfsdump stack trace in there is the important one.
+Can you try this patch and let me know how it goes?
 
-We have a simple TCP client and server setup. We want the tcp client
-sockets to close immediately once the close method is called as the no
-of open sockets is increasing rapidly as many are still in the TIME_WAIT
-state.We tried the SO_LINGER option to eliminate the TIME_WAIT state but
-it doesn't seem to be effective on our Linux - 2.4.18-14.
-We need a solution to the "close" problem desperately. We would
-appreciate it if you could kindly help us find a solution.
-
-Regards and TIA,
-sree
-
- 
- 
+thanks.
 
 -- 
-Om. May all be happy; may all be healthy ;
-may all see good in all. May none experience misery. 
+Nathan
 
-Om. peace! peace! peace!
+
+--- fs/xfs/linux/xfs_buf.c.orig	2004-05-27 14:06:59.992936144 +1000
++++ fs/xfs/linux/xfs_buf.c	2004-05-27 14:08:21.548537808 +1000
+@@ -370,8 +370,12 @@
+ 	      retry:
+ 		page = find_or_create_page(mapping, first + i, gfp_mask);
+ 		if (unlikely(page == NULL)) {
+-			if (flags & PBF_READ_AHEAD)
++			if (flags & PBF_READ_AHEAD) {
++				for (--i; i >= 0; i--)
++					page_cache_release(bp->pb_pages[i]);
++				_pagebuf_free_pages(bp);
+ 				return -ENOMEM;
++			}
+ 
+ 			/*
+ 			 * This could deadlock.

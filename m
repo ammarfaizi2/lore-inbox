@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbTJWUIP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 16:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbTJWUIP
+	id S261776AbTJWUJn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 16:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbTJWUIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 16:08:15 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6855 "EHLO
+	Thu, 23 Oct 2003 16:08:32 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12231 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261775AbTJWUIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 16:08:13 -0400
-Date: Thu, 23 Oct 2003 10:24:11 +0200
+	id S261786AbTJWUIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 16:08:14 -0400
+Date: Thu, 23 Oct 2003 22:00:22 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: M?ns Rullg?rd <mru@users.sourceforge.net>,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
-Message-ID: <20031023082410.GC643@openzaurus.ucw.cz>
-References: <20031020141512.GA30157@hell.org.pl> <yw1x8yngj7xg.fsf@users.sourceforge.net> <20031020184750.GA26154@hell.org.pl>
+To: John Mock <kd6pag@qsl.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kill unneccessary debug printk
+Message-ID: <20031023200022.GI643@openzaurus.ucw.cz>
+References: <E1ABePM-0002dL-00@penngrove.fdns.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031020184750.GA26154@hell.org.pl>
+In-Reply-To: <E1ABePM-0002dL-00@penngrove.fdns.net>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
+> Actually, that 'printk' is useful.  As i understand it, the only way software
+> suspend is going to work is that if the same video mode is used on resume as
+> on booting.  If one uses "vga=ask", then one can 'dmesg | grep' to generate
+> a proper string for 'lilo -R' (which i already do to make sure the correct
+> kernel gets resumed during testing).  If i'm mistaken about needing to set
+> VGA mode identically on resume, then i have no objection to removing the
+> printk.
 
-> > working.  Normally, they will generate an ACPI event, that is
-> > processed by acpid etc.  After a suspend, each button will work once.
-> > If I then close and open the lid, they will work one more time, and so
-> > on.  Any way I can help?
-> 
-> Please specify the type of suspend. The situation I described only occurs
-> for S1 (or, echo -n standby, more specifically), and only in certain kernel
-> versions.
-
-Find out which versions break it, pay special atetion to
-hwsleep.c.
+Oops, someone is using my debug printk :-(. I'll at least try
+to merge it with some other msg, so it does not waste full
+line.
 -- 
 				Pavel
 Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...

@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267746AbUJMIlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267860AbUJMImV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267746AbUJMIlm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 04:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUJMIlm
+	id S267860AbUJMImV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 04:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUJMImU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 04:41:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20943 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267746AbUJMIll (ORCPT
+	Wed, 13 Oct 2004 04:42:20 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:28382 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S267826AbUJMImQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 04:41:41 -0400
-Date: Wed, 13 Oct 2004 01:39:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: nathans@sgi.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: Page cache write performance issue
-Message-Id: <20041013013941.49693816.akpm@osdl.org>
-In-Reply-To: <416CE423.3000607@cyberone.com.au>
-References: <20041013054452.GB1618@frodo>
-	<20041012231945.2aff9a00.akpm@osdl.org>
-	<20041013063955.GA2079@frodo>
-	<20041013000206.680132ad.akpm@osdl.org>
-	<20041013172352.B4917536@wobbly.melbourne.sgi.com>
-	<416CE423.3000607@cyberone.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Oct 2004 04:42:16 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16748.60002.875945.950324@napali.hpl.hp.com>
+Date: Wed, 13 Oct 2004 01:42:10 -0700
+To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: davidm@hpl.hp.com, akepner@sgi.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, akpm@osdl.org, jbarnes@sgi.com
+Subject: Re: bug in 2.6.9-rc4-mm1 ia64/mm/init.c
+In-Reply-To: <416CEADA.2060207@jp.fujitsu.com>
+References: <Pine.LNX.4.33.0410121705510.31839-100000@localhost.localdomain>
+	<16748.57721.66330.638048@napali.hpl.hp.com>
+	<416CEADA.2060207@jp.fujitsu.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->
->  Andrew probably has better ideas.
+>>>>> On Wed, 13 Oct 2004 17:44:10 +0900, Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com> said:
 
-uh, is this an ia32 highmem box?
+  Hiroyuki> My purpose was to reduce # of page fault when
+  Hiroyuki> ia64_pfn_valid() is called.  It is called heavily in
+  Hiroyuki> bad_range() (in mm/page_alloc.c) now.
 
-If so, you've hit the VM sour spot.  That 128M highmem zone gets 100%
-filled with dirty pages and we end up doing a ton of writeout off the page
-LRU.  And we do that while `dd' is cheerfully writing to a totally
-different part of the disk via balance_dirty_pages().  Seekstorm ensues. 
-Although last time I looked (a long time ago) the slowdown was only 2:1 -
-perhaps your disk is in writethrough mode??
+At the expense of ignoring perfectly good memory?  Or did I miss something?
 
-Basically, *any* other config is fine.  896MB and below, 1.5GB and above.
-
-I could well understand that a minor kswapd tweak would make this bad
-situation worse.  Making the dirty ratios really small (dirty_ratio less
-than the 128MB) should make it go away.
-
-If it's not ia32 then dunno.
+	--david

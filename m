@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268485AbTBNV0i>; Fri, 14 Feb 2003 16:26:38 -0500
+	id <S267466AbTBNViQ>; Fri, 14 Feb 2003 16:38:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268483AbTBNVZ4>; Fri, 14 Feb 2003 16:25:56 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56073 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268482AbTBNVZt>; Fri, 14 Feb 2003 16:25:49 -0500
-Date: Fri, 14 Feb 2003 22:35:42 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rusty Lynch <rusty@linux.co.intel.com>,
-       lkml <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Daniel Pittman <daniel@rimspace.net>
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-Message-ID: <20030214213542.GH23589@atrey.karlin.mff.cuni.cz>
-References: <1045106216.1089.16.camel@vmhack> <1045160506.1721.22.camel@vmhack> <20030213230408.GA121@elf.ucw.cz> <1045260726.1854.7.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1045260726.1854.7.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+	id <S268490AbTBNVgi>; Fri, 14 Feb 2003 16:36:38 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:37783 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267466AbTBNU4V>; Fri, 14 Feb 2003 15:56:21 -0500
+Date: Fri, 14 Feb 2003 16:06:13 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200302142106.h1EL6Do29394@devserv.devel.redhat.com>
+To: John Bradford <john@grabjohn.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Sparc IDE in 2.4.20
+In-Reply-To: <mailman.1045255810.17251.linux-kernel2news@redhat.com>
+References: <mailman.1045255810.17251.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Is IDE known to be broken on Sparc in 2.4.20?  I just got this compile
+> failiure:
+> sparc-linux-ld -T arch/sparc/vmlinux.lds arch/sparc/kernel/head.o arch/sparc/kernel
+> drivers/ide/idedriver.o: In function `ide_end_drive_cmd':
+> drivers/ide/idedriver.o(.text+0x11d4): undefined reference to `inw_p'
 
-> > > temperature (RO)
-> > >   - show: prints temperature in degrees farenheit
-> > 
-> > Please, use degrees celsius to keep it consistent with ACPI and
-> > lm-sensors.
-> 
-> The ioctl interface is farenheit and has been since before Linux 2.0
-> That may not have been smart but we are stuck with it there at
-> least.
+I tested it in 2.4.7 for the last time. It probably bitrotted.
+Why do you care? I posess the only IDE capable sparc on this planet.
+Just configure it out, and be happy.
 
-Oops, that's bad.
+Are you sure you did not want to compile for sparc64, hint, hint?
 
-But I believe we should make it celsius in /sys, even if it means
-conversion somewhere.
-
-								Pavel
-
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+-- Pete

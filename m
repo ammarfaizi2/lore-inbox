@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276803AbRJBXzb>; Tue, 2 Oct 2001 19:55:31 -0400
+	id <S276800AbRJCAKZ>; Tue, 2 Oct 2001 20:10:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276799AbRJBXzW>; Tue, 2 Oct 2001 19:55:22 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:15657 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S276798AbRJBXzH>; Tue, 2 Oct 2001 19:55:07 -0400
-Message-ID: <3BBA53ED.90404@blue-labs.org>
-Date: Tue, 02 Oct 2001 19:55:25 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010929
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Petr Titera <Petr.Titera@quick.cz>
-CC: haiquy@yahoo.com, linux-kernel@vger.kernel.org
+	id <S276798AbRJCAKP>; Tue, 2 Oct 2001 20:10:15 -0400
+Received: from 00-d0-cf-00-79-bd.bconnected.net ([209.53.17.48]:9716 "EHLO
+	00-a0-24-71-59-48.bconnected.net") by vger.kernel.org with ESMTP
+	id <S276800AbRJCAKA>; Tue, 2 Oct 2001 20:10:00 -0400
+Date: Tue, 2 Oct 2001 16:45:32 -0700 (PDT)
+From: Jonathan Walther <krooger@debian.org>
+X-X-Sender: <djw@localhost>
+To: David Ford <david@blue-labs.org>
+Cc: Petr Titera <Petr.Titera@quick.cz>, <haiquy@yahoo.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: linux kernel 2.4.10 possibly breaks LILO
-In-Reply-To: <002c01c14b6b$5f19ba30$13a76cc0@NEVSKIJ>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3BBA53ED.90404@blue-labs.org>
+Message-ID: <Pine.LNX.4.33.0110021644490.5005-100000@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lilo is fine, back down to the kernel image prior to your current one, 
-run lilo with your new image, then boot into the new image.
+-----BEGIN PGP SIGNED MESSAGE-----
 
-Lilo can now be run just fine.
+Although its not a bad idea to switch to GRUB in any event. I've
+found it to be far superior in terms of userfriendliness and power.
 
-Something in the pre10 series hosed something which caused the first 
-instance of lilo to segfault then the next to deadlock waiting on a 
-page.  2.4.10 proper fixed that.  In my case I reverted to 2.4.7-pre6, 
-ran lilo, then booted into 2.4.10 and ran lilo.  Worked like a charm. 
- ('course I had a boot disk at the ready)
+Jonathan
 
-David
+On Tue, 2 Oct 2001, David Ford wrote:
+> Lilo is fine, back down to the kernel image prior to your current one,
+> run lilo with your new image, then boot into the new image.
 
-Petr Titera wrote:
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.3ia
+Charset: noconv
 
->Possitive here. Just try to change to new kernel image. I was forced to
->install grub after upgrading to 2.4.10.
->
-
+iQCVAwUBO7pRnMK9HT/YfGeBAQHY/wQAmLadHS8w3KdU5L5GMda2REchyWHYCMCa
+Nqm2WJD9GC493VGzmIlnCK05//k1tDmIkACOFJ1Bnw8FO71dNWYyVQOwOO/Mg4pw
+Ydd9xgMOvBlrRkeq0ghPG4X8ZfIf1Zw9IFk+q2wDbK8ZmfNq4dt5GPKIKN1E1jII
+l6nA5209ry8=
+=Zfex
+-----END PGP SIGNATURE-----
 

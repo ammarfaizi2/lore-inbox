@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317881AbSGWBHx>; Mon, 22 Jul 2002 21:07:53 -0400
+	id <S317365AbSGWBVF>; Mon, 22 Jul 2002 21:21:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317888AbSGWBHx>; Mon, 22 Jul 2002 21:07:53 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:2011 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317881AbSGWBHw>; Mon, 22 Jul 2002 21:07:52 -0400
-Date: Tue, 23 Jul 2002 03:10:38 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: A Guy Called Tyketto <tyketto@wizard.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: please DON'T run 2.5.27 with IDE!
-In-Reply-To: <Pine.LNX.4.44.0207221857160.3241-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.SOL.4.30.0207230307110.22774-100000@mion.elka.pw.edu.pl>
+	id <S317890AbSGWBVF>; Mon, 22 Jul 2002 21:21:05 -0400
+Received: from mta02ps.bigpond.com ([144.135.25.134]:28669 "EHLO
+	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S317365AbSGWBVF>; Mon, 22 Jul 2002 21:21:05 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Stelian Pop <stelian.pop@fr.alcove.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.27 IDE: problems, again.
+Date: Tue, 23 Jul 2002 11:19:59 +1000
+User-Agent: KMail/1.4.5
+References: <20020722144557.GJ26837@tahoe.alcove-fr>
+In-Reply-To: <20020722144557.GJ26837@tahoe.alcove-fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200207231120.00126.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 23 Jul 2002 00:45, Stelian Pop wrote:
+> Disabling PIIX chipset support & dma makes the kernel survive for
+> some longer time (between 10 seconds and 2-3 minutes), but it will
+> eventually halt, this time CORRUPTING THE DATA!
+See Bart's comments in separate post.
 
-On Mon, 22 Jul 2002, Thunder from the hill wrote:
+> Right now I'm trying to recover my disk partition...
 
-> Hi,
->
-> On Mon, 22 Jul 2002, A Guy Called Tyketto wrote:
-> > With this, I'm assuming 2.5.27 has IDE 100 in it, patched up from IDE
-> > 99. Correct me if I'm wrong.
+You are *out of your fscking mind*.
 
-Hi,
+Why are you running 2.5 on a machine that has anything worth
+recovering on it? IDE or SCSI, no matter.
 
-You are wrong. ;-)
-IDE patches are incremetnal, IDE 100 is incremental to IDE 99.
-Both are in 2.5.27.
+Standard 2.5 equipment includes a CD drive with the install disk(s)
+for $DISTRO ready to drop into the drive as soon as anything looks
+bad. Advanced 2.5 requires a duplicate hard disk on a removable drive
+caddy :)
 
- > Introducing a bug in 99 doesn't mean it has to be fixed in 100. However,
-> it might be. Martin, could you please tell us more about it?
+Brad
 
-It IS NOT. IDE 100 is a trivia patch indendation + initializers etc.
-
->
-> BTW, where did we end up? We don't even know the current IDE state...
->
-> 							Regards,
-> 							Thunder
-> --
-> (Use http://www.ebb.org/ungeek if you can't decode)
-> ------BEGIN GEEK CODE BLOCK------
-> Version: 3.12
-> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-> e++++ h* r--- y-
-> ------END GEEK CODE BLOCK------
-
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

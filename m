@@ -1,28 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271794AbRHUSfa>; Tue, 21 Aug 2001 14:35:30 -0400
+	id <S271792AbRHUShV>; Tue, 21 Aug 2001 14:37:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271790AbRHUSfP>; Tue, 21 Aug 2001 14:35:15 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14085 "EHLO
+	id <S271807AbRHUShH>; Tue, 21 Aug 2001 14:37:07 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15877 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271794AbRHUSew>; Tue, 21 Aug 2001 14:34:52 -0400
-Subject: Re: i810 audio doesn't work with 2.4.9
-To: dledford@redhat.com (Doug Ledford)
-Date: Tue, 21 Aug 2001 19:37:29 +0100 (BST)
-Cc: pavenis@latnet.lv (Andris Pavenis), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Doug Ledford" at Aug 21, 2001 01:42:11 PM
+	id <S271790AbRHUSfw>; Tue, 21 Aug 2001 14:35:52 -0400
+Subject: Re: PROBLEM: select() says closed socket readable
+To: davids@webmaster.com (David Schwartz)
+Date: Tue, 21 Aug 2001 19:38:51 +0100 (BST)
+Cc: jaggy@purplet.demon.co.uk (Mike Jagdis), linux-kernel@vger.kernel.org
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMIEKBDFAA.davids@webmaster.com> from "David Schwartz" at Aug 21, 2001 10:35:10 AM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZGP3-0008Q4-00@the-village.bc.nu>
+Message-Id: <E15ZGQN-0008QO-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> (hmmm, what changes went into 2.4.9 kernel for this driver, I haven't 
-> looked?)
+> 	No, because 'select' is defined to work the same on both blocking and
+> non-blocking sockets. Roughly, select should hit on read if a non-blocking
+> read wouldn't return 'would block'.
 
-2.4.9 has an obsolete driver
-
+Select is not reliable for a blocking socket in all cases. There is always 
+a risk select may return "data to read" and the read will find there is now
+none. It isnt going to bite anyone on Linux with our current protocols but
+it may bite portable code

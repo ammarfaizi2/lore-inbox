@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVCBObV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVCBOcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262326AbVCBObV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 09:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbVCBO30
+	id S262304AbVCBOcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 09:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVCBOcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 09:29:26 -0500
-Received: from web54603.mail.yahoo.com ([68.142.225.187]:9325 "HELO
-	web54603.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262323AbVCBO2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 09:28:40 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=Qj8KdN9z7AFhGWNDVEnpV96Gs0Bm0Hk7b21TkySfn/gELj41V6EwMYWAdE5mC+VVuU0R6IZGgo1XuakLct77CUJ8kkys0P/cs3ap8szOddhWmIsRlNkODU8PreGDFZ/8ZNW6/jPkbbXiJyUm8vhYGzvHmROLHF1Ic/YuwlFgE4w=  ;
-Message-ID: <20050302142836.8560.qmail@web54603.mail.yahoo.com>
-Date: Wed, 2 Mar 2005 06:28:36 -0800 (PST)
-From: Prakash Bhurke <prakash_bhurke@yahoo.com>
-Subject: Re: memory mapping of vmalloc
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0503011713470.31799@goblin.wat.veritas.com>
+	Wed, 2 Mar 2005 09:32:21 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:57217 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S262312AbVCBO3P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 09:29:15 -0500
+To: linux-kernel@vger.kernel.org
+Cc: bunk@stusta.de, Andrew Morton <akpm@osdl.org>, reiserfs-dev@namesys.com
+Subject: Re: [2.6.11-rc5-mm1 patch] reiser4 Kconfig help cleanup
+References: <20050301012741.1d791cd2.akpm@osdl.org>
+	<20050301234324.GJ4845@stusta.de> <yq0is4afml7.fsf@jaguar.mkp.net>
+	<20050302011448.37f1e951.akpm@osdl.org>
+From: Nikita Danilov <nikita@clusterfs.com>
+Date: Wed, 02 Mar 2005 17:29:08 +0300
+In-Reply-To: <20050302011448.37f1e951.akpm@osdl.org> (Andrew Morton's
+ message of "Wed, 2 Mar 2005 01:14:48 -0800")
+Message-ID: <m1vf8aktor.fsf@clusterfs.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi  Hugh,
+Andrew Morton <akpm@osdl.org> writes:
 
-   rvmallaoc is working.
-   Very Very Thanks.
+> Jes Sorensen <jes@wildopensource.com> wrote:
+>>
 
-Regards,
-Prakash
+[...]
 
---- Hugh Dickins <hugh@veritas.com> wrote:
+>> 
+>> [jes@tomahawk linux-2.6.11-rc5-mm1]$ grep PG_arch fs/reiser4/*.c
+>> fs/reiser4/page_cache.c:               page_flag_name(page, PG_arch_1),
+>> fs/reiser4/txnmgr.c:                    assert("vs-1448", test_and_clear_bit(PG_arch_1, &node->pg->flags));
+>> fs/reiser4/txnmgr.c:            ON_DEBUG(set_bit(PG_arch_1, &(copy->pg)->flags));
+>> 
+>> Someone was obviously smoking something illegal, what part of 'arch'
+>> did she/he not understand? I assume we can request this is fixed by
+>> the patch owner asap.
+>> 
+>
+> Could the reiserfs team please comment?
+>
+> If it's just debug then probably it would be better to add a new flag.
+>
 
-> On Tue, 1 Mar 2005, Prakash Bhurke wrote:
-> >   I am trying to map a vmalloc kernel buffer to
-> user
-> > space using remap_page_range(). In my module, this
-> > function returns success if we call mmap() from
-> user
-> > space, but i can not access content of vmalloc
-> buffer
-> > from user space. Pointer returned by mmap()
-> syscall
-> > seems pointing to other memory page which contains
-> > zeros. I am using linux 2.6.10 kernel on Pentium 4
-> > system.
-> 
-> Look for "rvmalloc" in various drivers in the kernel
-> source tree:
-> you must SetPageReserved before remap_pfn_range (or
-> remap_page_range)
-> agrees to map the page, and ClearPageReserved before
-> freeing after.
-> 
-> Hugh
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Yes, this is debugging. I believe it can be removed now.
 
+> If these pages are never mmapped then it'll just happen to work, I guess. 
+> But a filesystem really shouldn't be dinking with PG_arch_1.
 
-
-	
-		
-__________________________________ 
-Celebrate Yahoo!'s 10th Birthday! 
-Yahoo! Netrospective: 100 Moments of the Web 
-http://birthday.yahoo.com/netrospective/
+Nikita.

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbTHUHls (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 03:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbTHUHls
+	id S262503AbTHUHqh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 03:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbTHUHq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 03:41:48 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:35326 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262499AbTHUHlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 03:41:46 -0400
-Message-ID: <3F4437D7.9090706@nortelnetworks.com>
-Date: Wed, 20 Aug 2003 23:09:11 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       akpm@ravnborg.org, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kbuild: Separate ouput directory support
-References: <20030819214144.GA30978@mars.ravnborg.org> <3F429C5D.4010201@pobox.com> <20030819215656.GE1791@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 21 Aug 2003 03:46:27 -0400
+Received: from mail2.uu.nl ([131.211.16.76]:26806 "EHLO mail2.uu.nl")
+	by vger.kernel.org with ESMTP id S262496AbTHUHqY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 03:46:24 -0400
+Subject: Re: [PATCH] 2.6.0-test3 zoran driver update
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030821010812.A6961@electric-eye.fr.zoreil.com>
+References: <1061414594.1320.97.camel@localhost.localdomain>
+	 <20030821010812.A6961@electric-eye.fr.zoreil.com>
+Content-Type: text/plain
+Message-Id: <1061452050.4235.222.camel@shrek.bitfreak.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 21 Aug 2003 09:47:30 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Tue, Aug 19, 2003 at 05:53:33PM -0400, Jeff Garzik wrote:
-> 
->>Is it possible, with your patches, to build from a kernel tree on a 
->>read-only medium?
->>
-> 
-> Yes, thats possible. But I have seen that as a secondary possibility.
-> But I know people has asked about the possibility to build a kernel
-> from src located on a CD. And thats possible with this patch.
+Hi Francois,
 
-This rocks.  I've been cleaning and rebuilding with different configs up 
-till now.  Once we switch to 2.6 this will make things much nicer.
+thanks for the comments, I'll definately look at them. One thing is
+unclear:
 
-Chris
+On Thu, 2003-08-21 at 01:08, Francois Romieu wrote:
+> - {adv7170/adv7175/bt819/saa7110/saa7185}_detect_client()
+>   for each of these functions, two error exit path leak on locally allocated
+>   variable "channel".
 
+There is no variable 'channel' in these functions. I've double checked
+these functions, too, and can't find any obvious leaks in them at all.
+Could you please re-check?
+
+Thanks again,
+Ronald
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Ronald Bultje <rbultje@ronald.bitfreak.net>
 

@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265309AbUAETpo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 14:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265314AbUAETpn
+	id S265338AbUAET60 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 14:58:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265344AbUAET6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 14:45:43 -0500
-Received: from mail.kroah.org ([65.200.24.183]:39867 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265309AbUAETpg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 14:45:36 -0500
-Date: Mon, 5 Jan 2004 11:45:37 -0800
-From: Greg KH <greg@kroah.com>
-To: DervishD <raul@pleyades.net>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Weird problems with printer using USB
-Message-ID: <20040105194537.GJ22177@kroah.com>
-References: <20040105192430.GA15884@DervishD>
-Mime-Version: 1.0
+	Mon, 5 Jan 2004 14:58:25 -0500
+Received: from magic-mail.adaptec.com ([216.52.22.10]:31883 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S265338AbUAET6W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 14:58:22 -0500
+Date: Mon, 05 Jan 2004 13:04:01 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org, davem@redhat.com, linux-scsi@vger.kernel.org
+Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple map/unmaps
+Message-ID: <2997092704.1073333041@aslan.btc.adaptec.com>
+In-Reply-To: <m3brpi41q0.fsf@averell.firstfloor.org>
+References: <2938942704.1073325455@aslan.btc.adaptec.com> <m3brpi41q0.fsf@averell.firstfloor.org>
+X-Mailer: Mulberry/3.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040105192430.GA15884@DervishD>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 08:24:30PM +0100, DervishD wrote:
->     Hi all :)
+> "Justin T. Gibbs" <gibbs@scsiguy.com> writes:
 > 
->     I have a Lexmark E312 laser printer, which comes with both a parallel
-> port and an USB port. It interprets PostScript, so when I print I
-> simply 'cat' the file to the printer device (together with some
-> codes, quite simple). This method works smoothly when using the
-> printer through the parallel port, no problem, but when I use the USB
-> port, sometimes I get the following:
+>> Berkley Shands recently tripped over this problem.  The 2.6.X pci_map_sg
+>> code for x86_64 modifies the passed in S/G list to compact it for mapping
+>> by the GART.  This modification is not reversed when pci_unmap_sg is
+>> called.  In the case of a retried SCSI command, this causes any attempt
 > 
-> kernel: host/usb-uhci.c: interrupt, status 2, frame# 682
-> kernel: printer.c: usblp0: nonzero read/write bulk status received: -110
-> kernel: printer.c: usblp0: error -84 reading printer status
-> kernel: printer.c: usblp0: removed
+> Qlogic has the same bug.
+
+Which bug is this?  Not updating use_sg, or mapping the command the
+second time when it is retried?  If the latter, I don't think this is an
+HBA bug.  The HBA driver doesn't know that the command has been mapped in
+the past, so it will blindly map/unmap it again.
+
+...
+
+>> DMA-API.txt doesn't seem to cover this issue.
 > 
->     I have shown one of each error messages I get in my system logs.
-> Normally I get a couple or three of the first message, a few of the
-> last and a good bunch of the another two. Whenever I get the message
-> about the 'bulk status', the printer dies and I must turn cycle it.
-> 
->     I'm using kernel 2.4.21, if this matters...
+> It does actually, but not very clearly. I've suggested changes of wording
+> recently to make this more clear, but it hasn't gotten in.
 
-It does.  I'd recommend trying 2.4.23-pre3, as it had a usb printer
-driver update in it.
+Can you point to the section of the document you believe applies?
 
-Or 2.6.0, that also should be better.
+> You should never remap an already mapped sg list.
 
-Good luck,
+But the sg list is no longer mapped.  The HBA driver did call pci_unmap_sg
+on it.  Did you mean to say, "Never map an sg list again that has been
+mapped in the past"?
 
-greg k-h
+> Either reuse the already mapped list or keep a copy of the original list
+> around. First is better because the later may have problems with the page
+> reference counts.
+
+The mid-layer doesn't map the list.  The HBA drivers do.  So you're saying
+that either the mid-layer or the HBA drivers need to copy the list so it
+can be restored just in case the command will be retried?
+
+--
+Justin
+

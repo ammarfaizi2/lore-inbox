@@ -1,84 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261390AbSJPUaV>; Wed, 16 Oct 2002 16:30:21 -0400
+	id <S261342AbSJPUbK>; Wed, 16 Oct 2002 16:31:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261391AbSJPUaV>; Wed, 16 Oct 2002 16:30:21 -0400
-Received: from wilma1.suth.com ([207.127.128.4]:14609 "EHLO wilma1.suth.com")
-	by vger.kernel.org with ESMTP id <S261390AbSJPUaU>;
-	Wed, 16 Oct 2002 16:30:20 -0400
-Subject: 2.5.43 and the VIA vt8233 IDE controller.
-From: Jason Williams <jason_williams@suth.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-WMtWbZXZ/Ku4K9o0Xu5P"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 16 Oct 2002 16:38:18 -0400
-Message-Id: <1034800703.12979.12.camel@cermanius.suth.com>
-Mime-Version: 1.0
+	id <S261388AbSJPUbK>; Wed, 16 Oct 2002 16:31:10 -0400
+Received: from mail.3ware.com ([205.253.146.92]:23591 "EHLO
+	siamese.engr.3ware.com") by vger.kernel.org with ESMTP
+	id <S261342AbSJPUbE>; Wed, 16 Oct 2002 16:31:04 -0400
+Message-ID: <A1964EDB64C8094DA12D2271C04B812672C79C@tabby>
+From: Adam Radford <aradford@3WARE.com>
+To: "'Patrick Mansfield'" <patmans@us.ibm.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'torvalds@transmeta.com'" <torvalds@transmeta.com>
+Subject: RE: 2.5.43 aic7xxx segfault sd_synchronize_cache() called after S
+	HT-> release()
+Date: Wed, 16 Oct 2002 13:38:46 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It is a "BUG", 2 lines got chopped from my output:
 
---=-WMtWbZXZ/Ku4K9o0Xu5P
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+kernel BUG at drivers/base/core.c:269!
+invalid operand: 0000
 
-I am suspecting something is amist with the via controller code in
-2.5.43, because my promise controller goes through the same routines
-just fine.  I started to try to back trace everything to hunt down the
-culperate myself, but alas, I couldn't find the cause.  So if anyone can
-give me a hand here, I would be very grateful.  What follows is the
-bottom snippet of kernel output.  If you require anything further, let
-me know I will send it.
+-Adam
 
-Jason
-
-
+-----Original Message-----
+From: Patrick Mansfield [mailto:patmans@us.ibm.com]
+Sent: Wednesday, October 16, 2002 1:23 PM
+To: Adam Radford
+Cc: 'linux-kernel@vger.kernel.org'; 'torvalds@transmeta.com'
+Subject: Re: 2.5.43 aic7xxx segfault sd_synchronize_cache() called after
+SHT-> release()
 
 
---=-WMtWbZXZ/Ku4K9o0Xu5P
-Content-Disposition: attachment; filename=kerneloutput.txt
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=kerneloutput.txt; charset=ISO-8859-1
+On Wed, Oct 16, 2002 at 12:41:14PM -0700, Adam Radford wrote:
+> I think sd_synchronize_cache() is getting called after SHT->release()
+> function,
+> which couldn't possibly be right.  This causes adaptec, 3ware, etc, to
+> segfault
+> on rmmod.
+> 
+> See below for adaptec segfault output:
+> 
+> aic7xxx
+> CPU:    1
+> EIP:    0060:[<c025918b>]    Not tainted
+> EFLAGS: 00010202
+> EIP is at put_device+0x7b/0xa0
+> eax: 00000000   ebx: c8997028   ecx: 00000001   edx: c0465470
+> esi: c12f4174   edi: c8997000   ebp: 00000000   esp: c5b81ee4
+> ds: 0068   es: 0068   ss: 0068
+> Process rmmod (pid: 1085, threadinfo=c5b80000 task=c5d4a800)
+> Stack: c8997028 c0481e20 c02d0f3a c8997028 c8997028 c0481f3c c8997028
+> c0481f4c
+>        00000000 c66fe1e8 00000286 c798aa00 c0481e20 c12f4000 c13b5000
+> c02be9aa
+>        c12f4000 c5b81f30 00000002 00030002 00000002 08072009 c042399f
+> 08071fff
+> Call Trace:
+>  [<c02d0f3a>] sg_detach+0x20a/0x240
+>  [<c02be9aa>] scsi_unregister_host+0x26a/0x5f0
+>  [<c01418d8>] __alloc_pages+0x88/0x270
+>  [<c892f12a>] exit_this_scsi_driver+0xa/0xc [aic7xxx]
+>  [<c893a740>] driver_template+0x0/0x70 [aic7xxx]
+>  [<c012029e>] free_module+0x1e/0x140
+>  [<c011f3db>] sys_delete_module+0x1db/0x4c0
+>  [<c010787f>] syscall_call+0x7/0xb
+> 
+> Code: 0f 0b 0d 01 86 69 3d c0 8b 83 d4 00 00 00 85 c0 74 04 53 ff
 
+Are you sure it is not a BUG? This looks just like what Badari reported
+yesterday:
 
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=3D=
-xx
-VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
-=A0=A0=A0 ide1: BM-DMA at 0x9008-0x900fUnable to handle kernel NULL pointer=
- dereference at virtual address 00000650
- printing eip:
-c024a52b
-*pde =3D 00000000
-Oops: 0000
-
-CPU:=A0=A0=A0 0
-EIP:=A0=A0=A0 0060:[<c024a52b>]=A0=A0=A0 Not tainted
+kernel BUG at drivers/base/core.c:251!
+invalid operand: 0000
+qla2200
+CPU:    0
+EIP:    0060:[<c023eb24>]    Not tainted
 EFLAGS: 00010202
-EIP is at ide_iomio_dma+0xbb/0x1c0
-eax: 00000000=A0=A0 ebx: c052cbb4=A0=A0 ecx: c03aa274=A0=A0 edx: 00000001
-esi: c052cbc4=A0=A0 edi: 00009008=A0=A0 ebp: 00000008=A0=A0 esp: dffcbeb4
-ds: 0068=A0=A0 es: 0068=A0=A0 ss: 0068
-Process swapper (pid: 1, threadinfo=3Ddffca000 task=3Ddffc8040)
-Stack: c0380d6f 00009008 00000008 c052cbc4 c1526000 c052cbb4 c03e7a50 c052c=
-bb4
-=A0=A0=A0=A0=A0=A0 c024a687 c052cbb4 00009008 00000008 00000089 c04195dd c1=
-526000 00009008
-=A0=A0=A0=A0=A0=A0 c0418a58 c052cbb4 00009008 00000008 c02488be c052cbb4 00=
-009008 00000004
+EIP is at put_device+0x64/0x90
+eax: 00000000   ebx: f8a08028   ecx: f8a080c4   edx: 00000001
+esi: c3aded54   edi: f8a08000   ebp: 00000003   esp: cb007ee4
+ds: 0068   es: 0068   ss: 0068
+Process rmmod (pid: 4803, threadinfo=cb006000 task=f62c98c0)
+Stack: f8a08028 c0477a40 c02ce533 f8a08028 f8a08028 c0477b5c f8a08028
+c0477b6c
+       00000000 40153f6d 00000286 f68fc000 c0477a40 c3adec00 f4df0000
+c02a7a9a
+       c3adec00 cb007f30 00000002 00030002 00000001 08071002 c041685c
+08070ffd  
 Call Trace:
- [<c024a687>] ide_setup_dma+0x27/0x380
- [<c02488be>] ide_hwif_setup_dma+0x10e/0x150
- [<c0248bce>] do_ide_setup_pci_device+0x16e/0x330
- [<c0248dbb>] ide_setup_pci_device+0x2b/0x80
- [<c02388e8>] via_init_one+0x38/0x40
- [<c010507a>] init+0x3a/0x160
- [<c0105040>] init+0x0/0x160
- [<c0105641>] kernel_thread_helper+0x5/0x14
+ [<c02ce533>] sg_detach+0x1e3/0x210
+ [<c02a7a9a>] scsi_unregister_host+0x26a/0x5d0
+ [<c01f4736>] __generic_copy_to_user+0x56/0x80
+ [<c013e4e8>] __alloc_pages+0x98/0x270
+ [<f89e7cba>] exit_this_scsi_driver+0xa/0x10 [qla2200]
+ [<f8a00360>] driver_template+0x0/0x74 [qla2200]
+ [<c011ea0e>] free_module+0x1e/0x130
+ [<c011dc94>] sys_delete_module+0x1b4/0x410
+ [<c01075e3>] syscall_call+0x7/0xb
 
-Code: 8b 80 50 06 00 00 89 83 4c 06 00 00 c7 04 24 77 0d 38 c0 e8
- <0>Kernel panic: Attempted to kill init!
+I posted a patch to change the put_device() calls to device_unregister(),
+st.c got fixed in 2.5.43, these are still not fixed in 2.5.43:
 
---=-WMtWbZXZ/Ku4K9o0Xu5P--
-
+--- linux-2.5.43/drivers/scsi/scsi.c	Tue Oct 15 20:28:22 2002
++++ linux-2.5.43-unreg/drivers/scsi/scsi.c	Wed Oct 16 12:50:08 2002
+@@ -2248,7 +2248,7 @@
+ 			if (shpnt->hostt->slave_detach)
+ 				(*shpnt->hostt->slave_detach) (SDpnt);
+ 			devfs_unregister (SDpnt->de);
+-			put_device(&SDpnt->sdev_driverfs_dev);
++			device_unregister(&SDpnt->sdev_driverfs_dev);
+ 		}
+ 	}
+ 
+@@ -2299,7 +2299,7 @@
+ 		/* Remove the /proc/scsi directory entry */
+ 		sprintf(name,"%d",shpnt->host_no);
+ 		remove_proc_entry(name, tpnt->proc_dir);
+-		put_device(&shpnt->host_driverfs_dev);
++		device_unregister(&shpnt->host_driverfs_dev);
+ 		if (tpnt->release)
+ 			(*tpnt->release) (shpnt);
+ 		else {
+--- linux-2.5.43/drivers/scsi/sg.c	Tue Oct 15 20:27:57 2002
++++ linux-2.5.43-unreg/drivers/scsi/sg.c	Wed Oct 16 12:50:25 2002
+@@ -1611,7 +1611,7 @@
+ 		sdp->de = NULL;
+ 		device_remove_file(&sdp->sg_driverfs_dev, &dev_attr_type);
+ 		device_remove_file(&sdp->sg_driverfs_dev, &dev_attr_kdev);
+-		put_device(&sdp->sg_driverfs_dev);
++		device_unregister(&sdp->sg_driverfs_dev);
+ 		if (NULL == sdp->headfp)
+ 			vfree((char *) sdp);
+ 	}

@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUH2XK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268370AbUH2XOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268355AbUH2XK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 19:10:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUH2XK6
+	id S268370AbUH2XOG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 19:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268387AbUH2XOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 19:10:58 -0400
-Received: from ruby.getonit.net.au ([210.8.120.221]:21907 "EHLO
-	ruby.getonit.net.au") by vger.kernel.org with ESMTP id S268355AbUH2XKl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 19:10:41 -0400
-From: "Tim Warnock" <timoid@getonit.net.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: More than 2048 ptys on 2.4.27
-Date: Mon, 30 Aug 2004 09:10:34 +1000
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA4+E3P43380+sBshf1RHa98KAAAAQAAAADqFMzKrGHECigO+5JIV4KgEAAAAA@getonit.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Sun, 29 Aug 2004 19:14:05 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:29060 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S268370AbUH2XOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 19:14:03 -0400
+Subject: Re: SMP Panic caused by [PATCH] sched: consolidate sched domains
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040829175058.GP5492@holomorphy.com>
+References: <1093786747.1708.8.camel@mulgrave>
+	<200408290948.06473.jbarnes@engr.sgi.com>
+	<20040829170328.GK5492@holomorphy.com> <1093799390.10990.19.camel@mulgrave>
+	<20040829172250.GM5492@holomorphy.com>
+	<20040829172923.GN5492@holomorphy.com>
+	<20040829174039.GO5492@holomorphy.com> 
+	<20040829175058.GP5492@holomorphy.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA4+E3P43380+sBshf1RHa98KAAAAQAAAAQtYYqknGzU6+CzMBqc9FPgEAAAAA@getonit.net.au>
-Thread-Index: AcSMjQsUtaA0ilozQAO1tkwqpMgdZABkETnw
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 29 Aug 2004 19:13:14 -0400
+Message-Id: <1093821196.10973.80.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Tim Warnock
-> Sent: Saturday, 28 August 2004 9:25 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: More than 2048 ptys on 2.4.27
+On Sun, 2004-08-29 at 13:50, William Lee Irwin III wrote:
+> On Sun, Aug 29, 2004 at 10:40:39AM -0700, William Lee Irwin III wrote:
+> > Okay, if you prefer the #ifdef:
 > 
-> Hi all,
-> Im trying to increase ptys from 2048 to 4096 by doing these things:
-> 
-> Modifying include/linux/major.h:
-> Increase major numbers to 16
-> Move slave major start to 231 (according to docs this is 
-> available for use)
-> 
-> This appears to work to the point that the kernel doesn't 
-> panic on boot (ive
-> had some fun before now ;) however when an application tries 
-> to allocate a
-> pty I get an: "inappropriate ioctl for device"
-> 
-> As a test I lowered major numbers to 4, set ptys to 1024 and 
-> put slave major
-> start to 138 (should have been 136) and I didn't get this error.
-> 
-> So my question is how do I allow the use of major numbers 231 
-> through to 247
-> as pty slaves and major numbers 136-144 as pty masters?
+> And for the other half of it:
 
-I was wondering if no-one can help specifically whether they could at least
-point me in the direction I'd need to go to learn how this works.
+Much better ... this one looks fine to me and boots OK on an SMP parisc
+box.
 
-Thanks for any assistance, its appreciated.
+James
 
-Tim
 

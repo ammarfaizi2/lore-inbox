@@ -1,90 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262686AbTCYPvT>; Tue, 25 Mar 2003 10:51:19 -0500
+	id <S262689AbTCYP5o>; Tue, 25 Mar 2003 10:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262688AbTCYPvT>; Tue, 25 Mar 2003 10:51:19 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:25038 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S262686AbTCYPvS>; Tue, 25 Mar 2003 10:51:18 -0500
-Date: Tue, 25 Mar 2003 08:12:32 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] timer hang with current 2.5 BK
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Linux USB <linux-usb-devel@lists.sourceforge.net>
-Message-id: <3E807FF0.3050304@pacbell.net>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_RHgjP6oa79I87GkcP4WNZg)"
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <200303251159.26108.baldrick@wanadoo.fr>
+	id <S262690AbTCYP5o>; Tue, 25 Mar 2003 10:57:44 -0500
+Received: from [170.210.46.46] ([170.210.46.46]:43528 "EHLO
+	scdt.frc.utn.edu.ar") by vger.kernel.org with ESMTP
+	id <S262689AbTCYP5m> convert rfc822-to-8bit; Tue, 25 Mar 2003 10:57:42 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Edgardo Hames <ehames@scdt.frc.utn.edu.ar>
+Organization: UTN
+To: linux-kernel@vger.kernel.org
+Subject: Error accessing memory between 0xc0000 and 0x100000
+Date: Tue, 25 Mar 2003 13:08:36 -0300
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200303251308.36565.ehames@scdt.frc.utn.edu.ar>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi everybody. I'm trying to write a simple device driver to read and write 
+memory at addresses beween 0xc0000 and 0x100000, but when I try to load the 
+module I get the following error:
 
---Boundary_(ID_RHgjP6oa79I87GkcP4WNZg)
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
+memalloc: successful request base=0xd0000, size=0x10000
+Unable to handle kernel paging request at virtual address 000d0001
+ printing eip:
+c182b0b6
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c182b0b6>]    Not tainted
+EFLAGS: 00010282
 
-Duncan Sands wrote:
-> If I remove the uhci_hcd or ehci_hcd module, then I
-> systematically get the following:
-> 
-> (EIP) run_timer_softirq+0xe3/0x400
-> timer_interrupt+0x1a3/0x3f0
-> do_softirq+0xa1/0xb0
-> do_IRQ+0x23f/0x380
-> common_interrupt+0x18/0x20
-> code: 89 50 04 89 02 C7 41
-> 
-> kernel/timer.c:302: spin_lock (kernel/timer.c:c02f7b00) already
-> locked by kernel/timer.c/398.
-> 
-> killing interrupt handler etc
-> 
-> Presumably this is related to the stall_timer.
-> This has been happening for ?one week?, and
-> still occurs with current BK.  Occurs with and
-> without preempt (UP).
-> 
-> Any ideas?
+EIP is at  (2.4.18diskless)
+eax: 000d0000   ebx: 00010000   ecx: c026fed8   edx: 00000000
+esi: 00000000   edi: 00000000   ebp: c058bf28   esp: c058bf10
+ds: 0018   es: 0018   ss: 0018
+Process insmod (pid: 220, stackpage=c058b000)
+Stack: c182b160 000d0000 00010000 c182b130 00000000 c182b000 0806a810 c01159f5
+       00000000 c07a2000 00000220 c07a5000 00000060 ffffffea 00000008 c0638640
+       00000060 c1819000 c182b060 000005a4 00000000 00000000 00000000 00000000
+Call Trace: [<c182b160>]
+[<c182b130>]
+[<c01159f5>]
+[<c182b060>]
+[<c0108ac3>]
 
-I'm not getting it any more, but then I'm also running with
-this patch too ... the current source prevents drivers from
-properly disconnect()ing, which means all kinds of state
-doesn't get cleaned up.
-
-What usually gets me lately is that the whole system locks
-up when I remove certain modules.  SysRq behaves but little
-else (no console).  The common behavior seems to be that
-the call_usermode_helper() logic is waiting forever; such
-as waiting for network interface "remove" events to finish.
-
-- Dave
+Code: c6 40 01 41 83 c4 10 eb 1d 90 50 53 ff 35 9c b5 82 c1 68 a0
 
 
+Can you help me out, please? Here is the code for my driver:
+/***************************** DRIVER CODE ******************************/
+int major = 0;
+MODULE_PARM(major, "i");
 
---Boundary_(ID_RHgjP6oa79I87GkcP4WNZg)
-Content-type: text/plain; name=p5.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=p5.patch
+unsigned long isa_base = 0xc0000;
+MODULE_PARM(isa_base, "l");
 
---- 1.15/drivers/usb/core/urb.c	Thu Mar 13 10:45:40 2003
-+++ edited/drivers/usb/core/urb.c	Thu Mar 20 11:17:55 2003
-@@ -384,11 +384,11 @@
- 	/* FIXME
- 	 * We should not care about the state here, but the host controllers
- 	 * die a horrible death if we unlink a urb for a device that has been
--	 * physically removed.
-+	 * physically removed.  (after driver->disconnect returns...)
- 	 */
- 	if (urb &&
- 	    urb->dev &&
--	    (urb->dev->state >= USB_STATE_DEFAULT) &&
-+	    // (urb->dev->state >= USB_STATE_DEFAULT) &&
- 	    urb->dev->bus &&
- 	    urb->dev->bus->op)
- 		return urb->dev->bus->op->unlink_urb(urb);
+unsigned long isa_max = 0x100000;
+MODULE_PARM(isa_max, "l");
 
---Boundary_(ID_RHgjP6oa79I87GkcP4WNZg)--
+MODULE_AUTHOR("Edgardo Hames");
+MODULE_LICENSE("GPL");
+
+//#define BUFFER "Hello, world!"
+
+int memalloc_init(void)
+{
+	int result = 0;
+	unsigned long region_size = isa_max - isa_base;
+
+	if (! check_mem_region(isa_base, region_size)) {
+		request_mem_region(isa_base, region_size, "memalloc");
+		printk("memalloc: successful request base=0x%lx, size=0x%lx\n",
+			isa_base, region_size);
+//		isa_memcpy_toio(isa_base, BUFFER, strlen(BUFFER));
+		writeb ('A', isa_base+1);
+	} else {
+		printk("memalloc: failed request base=0x%lx, size=0x%lx\n",
+			isa_base, region_size);
+		return -EBUSY;
+	}
+	return result;
+}
+
+void memalloc_cleanup(void)
+{
+//#define BUFSIZE 100
+
+	unsigned long region_size = isa_max - isa_base;
+//	char buf[BUFSIZE];
+	
+//	memset(buf, 0, BUFSIZE);
+//	isa_memcpy_fromio(buf, isa_base, BUFSIZE);
+	printk("Leí: %c\n", readb(isa_base+1));
+	release_mem_region(isa_base, region_size);
+	printk("Successfully unloading memalloc.\n");
+}
+
+module_init(memalloc_init);
+module_exit(memalloc_cleanup);
+
+/************************* END OF DRIVER CODE **************************/
+
+Thanks
+Ed
+-- 
+If you cannot convince them, confuse them.
+Truman's Law
+

@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265528AbUBFPtx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 10:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265529AbUBFPtx
+	id S265526AbUBFPtL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 10:49:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUBFPtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 10:49:53 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:50108 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S265528AbUBFPtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 10:49:49 -0500
-Date: Fri, 06 Feb 2004 07:49:38 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Keith Mannthey <kmannth@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem	involving X  (fwd)
-Message-ID: <5450000.1076082574@[10.10.2.4]>
-In-Reply-To: <1076061476.27855.1144.camel@nighthawk>
-References: <51080000.1075936626@flay> <Pine.LNX.4.58.0402041539470.2086@home.osdl.org><60330000.1075939958@flay> <64260000.1075941399@flay><Pine.LNX.4.58.0402041639420.2086@home.osdl.org> <20040204165620.3d608798.akpm@osdl.org> <Pine.LNX.4.58.0402041719300.2086@home.osdl.org> <1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com> <Pine.LNX.4.58.0402041800320.2086@home.osdl.org> <98220000.1076051821@[10.10.2.4]> <1076061476.27855.1144.camel@nighthawk>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 6 Feb 2004 10:49:10 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:3033
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265526AbUBFPtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 10:49:08 -0500
+Date: Fri, 6 Feb 2004 16:49:06 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Jamie Lokier <jamie@shareable.org>,
+       Andi Kleen <ak@suse.de>, johnstul@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040206154906.GS31926@dualathlon.random>
+References: <20040205214348.GK31926@dualathlon.random> <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com> <20040206042815.GO31926@dualathlon.random> <40235D0B.5090008@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <40235D0B.5090008@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> +#ifdef CONFIG_NUMA
->> +	#ifdef CONFIG_X86_NUMAQ
->> +		#include <asm/numaq.h>
->> +	#else	/* summit or generic arch */
->> +		#include <asm/srat.h>
->> +	#endif
->> +#else /* !CONFIG_NUMA */
->> +	#define get_memcfg_numa get_memcfg_numa_flat
->> +	#define get_zholes_size(n) (0)
->> +#endif /* CONFIG_NUMA */
+On Fri, Feb 06, 2004 at 01:23:23AM -0800, Ulrich Drepper wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> We ran into a bug with #ifdefs like this before.  It was fixed in some
-> of the code that you're trying to remove.
-
-What bug?
- 
-> It's not safe to assume that NUMA && !NUMAQ means SUMMIT.  Remember the
-> linking errors we got when we turned CONFIG_NUMA on with the regular PC
-> config?  The generic arch wasn't a problem because it sets
-> CONFIG_X86_SUMMIT and compiles in the summit code, but the regular PC
-> code doesn't.  
+> Andrea Arcangeli wrote:
 > 
-> Also, I don't think we need the #ifdef CONFIG_NUMA around the whole
-> block.  How about something like this?
+> > I don't think I was arguing against it completely, exactly because I'm
+> > just saying it should be optional.
+> 
+> And the result is that the current fast syscall handling on x86-64 is
+> completely unacceptable.  If it's not change security enhancements are
+> not possible since the libc has to hardcode the address.
 
-If you want to go change it, and test the crap out of it for 3 months on
-a variety of platforms, then go for it. What's here works, and is well
-tested - I'm sticking with it, unless you can point out a specific case
-where it's wrong.
-
-M.
-
+by the same argument the 2.6 i386 vsyscall is not acceptable too since
+it has an hardcoded address too that is the same for all binary kernels
+that you ship, and furthmore it has the sysenter or int 0x80 hardcoded
+at a fixed address to jump into. In short either you claim the 2.6.2
+i386 code as broken the way glibc calls into it, or x86-64 is perfectly
+fine too. so your claims makes very little sense to me.

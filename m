@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264094AbTGLShQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 14:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268276AbTGLShQ
+	id S268296AbTGLSvv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 14:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268304AbTGLSvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 14:37:16 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:1684 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S268259AbTGLShP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 14:37:15 -0400
-Date: Sat, 12 Jul 2003 19:51:57 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miguel Freitas <miguel@cetuc.puc-rio.br>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sat, 12 Jul 2003 14:51:51 -0400
+Received: from RJ161046.user.veloxzone.com.br ([200.149.161.46]:50420 "EHLO
+	mf.dnsalias.org") by vger.kernel.org with ESMTP id S268296AbTGLSvt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 14:51:49 -0400
 Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
-Message-ID: <20030712185157.GC10450@mail.jlokier.co.uk>
-References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com> <20030712154942.GB9547@mail.jlokier.co.uk> <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com> <20030712162029.GE9547@mail.jlokier.co.uk> <1058028064.1196.111.camel@mf>
+From: Miguel Freitas <miguel@cetuc.puc-rio.br>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55.0307120922450.4351@bigblue.dev.mcafeelabs.com>
+References: <1058017391.1197.24.camel@mf> 
+	<Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com>
+	<1058027672.1196.105.camel@mf> 
+	<Pine.LNX.4.55.0307120922450.4351@bigblue.dev.mcafeelabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 12 Jul 2003 16:13:46 -0300
+Message-Id: <1058037226.1196.122.camel@mf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058028064.1196.111.camel@mf>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Freitas wrote:
-> > I'm wondering what happens if the tasks are both good, early to bed
-> > without a fuss.  Neither runs their entire timeslice.
-> > 
-> > Or to illustrate: say xine uses 10% of my CPU.  What happens when I
-> > open 11 xine windows?
+On Sat, 2003-07-12 at 13:30, Davide Libenzi wrote:
+> > > Patch acceptance is
+> > > tricky and definitely would need more discussion and test.
+> >
+> > Sure. But let me add a voice of support here: I would be great if kernel
+> > provided a way to multimedia or interactive applications to request a
+> > better latency predictability (or hint the scheduler somehow) without
+> > need of being root. If that comes in a form of a new scheduler policy,
+> > or just allowing small negative nice values for non-root i don't mind...
 > 
-> well of course 110% is more than what you have of resources and xine
-> would have to drop frames to keep it up... :)
+> You'd need a nice value that will keep you away from being caught by
+> interactive SCHED_OTHER. Otherwise yes, this is another solution. Did you
+> try it with xine under high load ?
 
-That's fine.  The problem is, does this completely starve the other
-tasks such as kswapd, ksoftirqd, bash etc.?
+Since i upgraded my computer recently it's difficult to compare with the
+experiments i made before. But basically no, i haven't tried to make
+xine smooth under high load. my primary complain was that even a small
+background load caused by KSysGuard (KDE system monitor) could make it
+drop frames from time to time. with nice values like -2 the problem was
+completely fixed.
 
-The real problem is can a user accidentally or malicious lock up a box
-using SCHED_SOFTRR (when xmms, xine, GNU software radio and modem are
-all using it :), and also what about multi-user boxes, can two users
-accidentally break it.
+regards,
 
-Perhaps there should be a _global_ maximum amount of CPU used in
-SCHED_SOFTRR beyond which SCHED_SOFTRR tasks get downgraded.
+Miguel
 
--- Jamie

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263083AbRE1QG5>; Mon, 28 May 2001 12:06:57 -0400
+	id <S263084AbRE1QJh>; Mon, 28 May 2001 12:09:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263084AbRE1QGr>; Mon, 28 May 2001 12:06:47 -0400
-Received: from [200.192.207.230] ([200.192.207.230]:29700 "EHLO
-	olimpo.networx.com.br") by vger.kernel.org with ESMTP
-	id <S263083AbRE1QGc> convert rfc822-to-8bit; Mon, 28 May 2001 12:06:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Thiago Vinhas de Moraes <tvinhas@networx.com.br>
-Organization: Networx - A SuaCompanhia.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        tvinhas@networx.com.br (Thiago Vinhas de Moraes)
-Subject: Re: The difference between Linus's kernel and Alan Cox's kernel
-Date: Mon, 28 May 2001 12:50:42 -0300
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <E153QeK-0007Cs-00@the-village.bc.nu>
-In-Reply-To: <E153QeK-0007Cs-00@the-village.bc.nu>
-MIME-Version: 1.0
-Message-Id: <01052812504202.01026@zeus.networx.com.br>
-Content-Transfer-Encoding: 7BIT
+	id <S263086AbRE1QJR>; Mon, 28 May 2001 12:09:17 -0400
+Received: from cr545978-a.nmkt1.on.wave.home.com ([24.112.25.43]:61705 "HELO
+	saturn.tlug.org") by vger.kernel.org with SMTP id <S263084AbRE1QJG>;
+	Mon, 28 May 2001 12:09:06 -0400
+Date: Mon, 28 May 2001 12:09:05 -0400
+From: Mike Frisch <mfrisch@saturn.tlug.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Status of ALi MAGiK 1 support in 2.4.?
+Message-ID: <20010528120905.A32157@saturn.tlug.org>
+Mail-Followup-To: Mike Frisch <mfrisch@saturn.tlug.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010528175712.B18955@pua.nirvana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010528175712.B18955@pua.nirvana>; from Axel.Thimm@physik.fu-berlin.de on Mon, May 28, 2001 at 05:57:12PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sex 25 Mai 2001 20:05, Alan Cox escreveu:
-> > Why there are two different kernel trees? There is always the official
-> > release, provided by Torvalds, and then Alan provides a patch merging
-> > Linus's stuff, and adding (?) tons of bug fixes.
->
-> Well it started by accident but it turns out good to have a tree that
-> changes are merged into, tested by those who need the fixes and reviewed by
-> third parties before they go to Linus.
->
-> So the -ac tree is kind of a peer review, testing and distillation process
-> for patches.
+On Mon, May 28, 2001 at 05:57:12PM +0200, Axel Thimm wrote:
+> What is the status of the support for this chipset, found for example in an
+> ASUS A7A266? Judging from
+>              http://www.acerlabs.com/eng/support/faqlnx.htm
+> one gets the impression that ALi is respectfully treating the Linux community.
 
-But will this happen forever? You (Alan) is currently the maintaner of the 
-2.2 tree. Won't you be going to assume the 2.4 tree, while the 2.5 series 
-development starts?
+I cannot answer your question about the level of support this chipset
+has, but suffice it to say that my new (as of last week) A7A266 based
+system (1.2Ghz T-Bird w/256MB Crucial DDR RAM) is running 2.4.5 (and
+previous to that 2.2.18) quite nicely.  Perhaps Linux is not optimized
+for performance with this chipset, but it feels fast to me.
 
-BTW, Thanks for your answer.
+According to 'hdparm -t /dev/hda', I am getting 25MB/s transfer rates
+with my Quantum Fireball Plus LM.  Seems a little high, but drive
+performance 'feels' good.
 
-Regards,
--- 
-________________________________
- Thiago Vinhas de Moraes
- NetWorx - A SuaCompanhia.com
+Based on my weekend experience with this board and Linux, I think I have
+made the right choice.

@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUEOSJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbUEOSLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUEOSJL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 14:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUEOSJL
+	id S262045AbUEOSLg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 14:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUEOSLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 14:09:11 -0400
-Received: from mxout2.iskon.hr ([213.191.128.16]:42943 "HELO mxout2.iskon.hr")
-	by vger.kernel.org with SMTP id S261752AbUEOSJG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 14:09:06 -0400
-X-Remote-IP: 213.191.128.11
-X-Remote-IP: 213.202.124.154
-To: Pekka Pietikainen <pp@ee.oulu.fi>
-Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz, netdev@oss.sgi.com,
-       jgarzik@pobox.com
-Subject: Re: [PATCH] Re: ethernet/b44: Bug in b44.c:v0.93 (Mar, 2004)
- ethernet driver in 2.6.6
-X-face: GK)@rjKTDPkyI]TBX{!7&/#rT:#yE\QNK}s(-/!'{dG0r^_>?tIjT[x0aj'Q0u>a
-              yv62CGsq'Tb_=>f5p|$~BlO2~A&%<+ry%+o;k'<(2tdowfysFc:?@($aTGX
-              4fq`u}~4,0;}y/F*5,9;3.5[dv~C,hl4s*`Hk|1dUaTO[pd[x1OrGu_:1%-lJ]W@
-Organization: EINPROGRESS
-X-Operating-System: GNU/Linux 2.6.5
-Mail-Copies-To: never
-References: <lzekpnlxwl.fsf@nimiumvax.nimium.local>
-	<20040514130206.GA9583@ee.oulu.fi> <20040515120518.GA9480@ee.oulu.fi>
-	<20040515121112.GA9579@ee.oulu.fi>
-From: Miroslav Zubcic <mvz@nimium.com>
-In-Reply-To: <20040515121112.GA9579@ee.oulu.fi> (Pekka Pietikainen's message
- of "Sat, 15 May 2004 15:11:12 +0300")
-Message-ID: <lzbrkp36rr.fsf@anthea.home.int>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Date: Sat, 15 May 2004 20:07:50 +0200
+	Sat, 15 May 2004 14:11:35 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35200 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262045AbUEOSL1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 14:11:27 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [RFC][DOC] writing IDE driver guidelines
+Date: Sat, 15 May 2004 20:13:34 +0200
+User-Agent: KMail/1.5.3
+Cc: Marc Singer <elf@buici.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <200405151923.50343.bzolnier@elka.pw.edu.pl> <20040515173430.GA28873@havoc.gtf.org> <200405151958.03322.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200405151958.03322.bzolnier@elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405152013.34189.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Pietikainen <pp@ee.oulu.fi> writes:
-
-> On Sat, May 15, 2004 at 03:05:19PM +0300, Pekka Pietikainen wrote:
->> +	/* Enable CRC32, set proper LED modes and power on MAC */
->> +	bw32(B44_MAC_CTRL, MAC_CTRL_CRC32_ENAB | MAC_CTRL_PHY_LEDCTRL);
-> Erk, that comment should of course be "power on PHY". I hate acronyms...
+On Saturday 15 of May 2004 19:58, Bartlomiej Zolnierkiewicz wrote:
+> > > - ide_init_hwif_ports() is obsolete and dying,
+> > >   define IDE_ARCH_NO_OBSOLETE_INIT in <asm/ide.h>
+> >
+> > hmmmm.  Please consider reversing this:
+> >
+> > Make ide_init_hwif_ports() present _only_ if IDE_ARCH_OBSOLETE_INIT
+> > is defined.
+> >
+> > Then add that define for all arches that still use ide_init_hwif_ports().
 >
-> --- linux-2.6.5-1.358/drivers/net/b44.c.orig	2004-05-15 13:59:57.000000000 +0300
-> +++ linux-2.6.5-1.358/drivers/net/b44.c	2004-05-15 14:59:39.794720368 +0300
-> @@ -27,8 +27,8 @@
+> Well, I started with this idea but it requires adding this define for far
+> too many archs.  This is a problem especially for arm because we have to
+> either leave <asm-arm/arch-*/ide.h> or add #ifdef horror <asm-arm/ide.h>.
 
-Pekka, thank you very much for your patch. It looks like things are
-working now:
-
-dmesg part:
-b44.c:v0.95 (May 15, 2004)
-...
-eth0: Broadcom 4400 10/100BaseT Ethernet 00:08:02:e2:2d:ba
-ip_tables: (C) 2000-2002 Netfilter core team
-b44: eth0: Link is down.
-b44: eth0: Link is up at 100 Mbps, full duplex.
-b44: eth0: Flow control is off for TX and off for RX.
-
-I have tried moving large packets, NFS, ping etc ... no problem
-anymore, it works.
-
-Thanks again!
-
-
--- 
-		The Network is the Filesystem.
+It was thinko.  I will change this, thanks.
 

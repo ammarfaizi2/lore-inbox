@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSEXGtI>; Fri, 24 May 2002 02:49:08 -0400
+	id <S314232AbSEXGvz>; Fri, 24 May 2002 02:51:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317103AbSEXGtH>; Fri, 24 May 2002 02:49:07 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:9203 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S317102AbSEXGtG>; Fri, 24 May 2002 02:49:06 -0400
-Date: Fri, 24 May 2002 02:49:06 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: Re: [PATCH] XBUG(comment) BUG enhancement
-Message-ID: <20020524024906.A1547@redhat.com>
-In-Reply-To: <E17B7Z0-0003cP-00@wagner.rustcorp.com.au>
-Mime-Version: 1.0
+	id <S317103AbSEXGvy>; Fri, 24 May 2002 02:51:54 -0400
+Received: from web14309.mail.yahoo.com ([216.136.224.59]:12551 "HELO
+	web14309.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314232AbSEXGvx>; Fri, 24 May 2002 02:51:53 -0400
+Message-ID: <20020524065153.15644.qmail@web14309.mail.yahoo.com>
+Date: Thu, 23 May 2002 23:51:53 -0700 (PDT)
+From: samson swanson <intellectcrew@yahoo.com>
+Subject: Compiling 2.2.19 with -O3 flag
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 03:24:30PM +1000, Rusty Russell wrote:
->   __asm__ __volatile__(	"ud2\n"		\
-> -			"\t.word %c0\n"	\
-> +			"\t.long %c0\n"	\
->  			"\t.long %c1\n"	\
-> -			 : : "i" (__LINE__), "i" (__FILE__))
-> +			 : : "i" (__stringify(__LINE__)), "i" (__FILE__))
+hi everyone. [all done for fun]
 
-This part I can't agree with: changing the line number to a string 
-results in excess pollution of the data segment with useless strings 
-that are frequently duplicates.  Why not leave it as a number?
+I compiled 2.2.19 with the -O3 flag. then benched with
+crafty (chess engine) and it peformed faster in that
+respect.
 
-		-ben
+I would like to ask when compiling with -O3 flag on a
+kernel such as 2.2.19, what harm / side effect will I
+feel later on if any? will i loose speed in other area's?
+
+__________________________________________________
+Do You Yahoo!?
+LAUNCH - Your Yahoo! Music Experience
+http://launch.yahoo.com

@@ -1,97 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268328AbUGXGdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUGXGmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268328AbUGXGdc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 02:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268329AbUGXGdc
+	id S264717AbUGXGmA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 02:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268332AbUGXGmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 02:33:32 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:52125 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268328AbUGXGd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 02:33:29 -0400
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
-	Preemption Patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+	Sat, 24 Jul 2004 02:42:00 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:18560 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264717AbUGXGl5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 02:41:57 -0400
+Date: Sat, 24 Jul 2004 08:43:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
        linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1090647952.1006.7.camel@mindpipe>
-References: <1089673014.10777.42.camel@mindpipe>
-	 <20040712163141.31ef1ad6.akpm@osdl.org>
-	 <1089677823.10777.64.camel@mindpipe>
-	 <20040712174639.38c7cf48.akpm@osdl.org>
-	 <1089687168.10777.126.camel@mindpipe>
-	 <20040712205917.47d1d58b.akpm@osdl.org>
-	 <1089705440.20381.14.camel@mindpipe> <20040719104837.GA9459@elte.hu>
-	 <1090301906.22521.16.camel@mindpipe> <20040720061227.GC27118@elte.hu>
-	 <20040720121905.GG1651@suse.de>  <1090642050.2871.6.camel@mindpipe>
-	 <1090647952.1006.7.camel@mindpipe>
-Content-Type: text/plain
-Message-Id: <1090650808.845.3.camel@mindpipe>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040724064304.GA32269@elte.hu>
+References: <20040712174639.38c7cf48.akpm@osdl.org> <1089687168.10777.126.camel@mindpipe> <20040712205917.47d1d58b.akpm@osdl.org> <1089705440.20381.14.camel@mindpipe> <20040719104837.GA9459@elte.hu> <1090301906.22521.16.camel@mindpipe> <20040720061227.GC27118@elte.hu> <20040720121905.GG1651@suse.de> <1090642050.2871.6.camel@mindpipe> <1090647952.1006.7.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 24 Jul 2004 02:33:28 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1090647952.1006.7.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-24 at 01:46, Lee Revell wrote:
-> On Sat, 2004-07-24 at 00:07, Lee Revell wrote:
-> > On Tue, 2004-07-20 at 08:19, Jens Axboe wrote:
-> > > On Tue, Jul 20 2004, Ingo Molnar wrote:
-> > > > > How much I/O do you allow to be in flight at once?  It seems like by
-> > > > > decreasing the maximum size of I/O that you handle in one interrupt
-> > > > > you could improve this quite a bit.  Disk throughput is good enough,
-> > > > > anyone in the real world who would feel a 10% hit would just throw
-> > > > > hardware at the problem.
-> > > > 
-> > > it's not tweakable right now, but if you wish to experiment you just
-> > > need to add a line to ide-disk.c:idedisk_setup() - pseudo patch:
-> > > 
-> > > +	blk_queue_max_sectors(drive->queue, 32);
-> > > +
-> > I am currently testing the effect on throughput and will have some
-> > better numbers soon.
+
+* Lee Revell <rlrevell@joe-job.com> wrote:
+
+> jackd was running in the background in both cases.  With 1024KB, there
+> were massive XRUNS, and worse, occasionally the soundcard interrupt
+> was completely lost for tens of milliseconds.  This is what I would
+> expect if huge SG lists are being built in hardirq context.  With
+> 16KB, jackd ran perfectly, the highest latency I was was about 100
+> usecs.
 > 
-> OK, here are my bonnie test results.  They are not what I expected -
-> read and write performance is significantly better with 16KB max request
-> size, while seeking is much better with 1024KB.
-> 
+> Kernel is 2.6.8-rc2 + voluntary-preempt-I4.  CPU is 600Mhz, 512MB RAM.
 
-I repeated the test with 'bonnie -f' and without jackd running, and with
-32KB vs. 1024KB.  The results are not as drastic, which suggests that
-all the overhead from the XRUN tracing was a factor.
+ok, i'll put in a tunable for the sg size.
 
-These results show that 32KB is better than 1024KB in some areas, and
-not singificantly worse in any of these metrics.
+Btw., it's not really the building of the SG list that is expensive,
+it's the completion activity that is expensive since e.g. in the case of
+ext3 IO traffic it goes over _every single_ sg entry with the following
+fat codepath:
 
-32KB:
+__end_that_request_first()
+  bio_endio()
+    end_bio_bh_io_sync()
+      journal_end_buffer_io_sync()
+         unlock_buffer()
+           wake_up_buffer()
+    bio_put()
+      bio_destructor()
+        mempool_free()
+          mempool_free_slab()
+            kmem_cache_free()
+        mempool_free()
+          mempool_free_slab()
+            kmem_cache_free()
 
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-mindpipe         1G           38499  68 16383  28           35913  34 154.5   1
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16   257  99 +++++ +++ 24008  98   256  99 +++++ +++  1179  98
-mindpipe,1G,,,38499,68,16383,28,,,35913,34,154.5,1,16,257,99,+++++,+++,24008,98,256,99,+++++,+++,1179,98
+the buffer_head, the bio and bio->bi_io_vec all lie on different
+cachelines and are very likely to be not cached after long IO latencies. 
+So we eat at least 3 big cachemisses, times 256.
 
-1024KB:
+Jens, one solution would be to make BIO completion a softirq - like SCSI
+does. That makes the latencies much easier to control.
 
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-mindpipe         1G           38285  60 13961  20           33694  28 155.2   1
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16   259  99 +++++ +++ 24250  98   256  99 +++++ +++  1184  98
-mindpipe,1G,,,38285,60,13961,20,,,33694,28,155.2,1,16,259,99,+++++,+++,24250,98,256,99,+++++,+++,1184,98
+Another thing would be to create a compound structure for bio and
+[typical sizes of] bio->bi_io_vec and free them as one entity, this
+would get rid of one of the cachemisses. (there cannot be a 3-way
+compound structure that includes the bh too because the bh is freed
+later on by ext3.)
 
-Lee
-
-
-
-
+	Ingo

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbVAJSsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVAJRxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbVAJSsD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:48:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVAJSoo
+	id S262371AbVAJRxN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 12:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVAJRu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:44:44 -0500
-Received: from coderock.org ([193.77.147.115]:45756 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262404AbVAJSmW (ORCPT
+	Mon, 10 Jan 2005 12:50:57 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:8868 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262336AbVAJRbk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:42:22 -0500
-Subject: [patch 1/1] list_for_each_entry: fs-dquot.c
-To: mvw@planets.elm.net
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, janitor@sternwelten.at
-From: domen@coderock.org
-Date: Mon, 10 Jan 2005 19:42:17 +0100
-Message-Id: <20050110184218.405431F1ED@trashy.coderock.org>
+	Mon, 10 Jan 2005 12:31:40 -0500
+Date: Mon, 10 Jan 2005 09:31:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
+       tom.l.nguyen@intel.com
+Subject: Re: [PATCH] PCI: Clean up printks in msi.c
+Message-ID: <20050110173133.GA30605@kroah.com>
+References: <52sm59yzsx.fsf@topspin.com> <Pine.LNX.4.61.0501101022500.26637@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501101022500.26637@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 10, 2005 at 10:23:22AM -0700, Zwane Mwaikambo wrote:
+> On Mon, 10 Jan 2005, Roland Dreier wrote:
+> 
+> > Add "PCI:" prefixes and fix up the formatting and grammar of printks
+> > in drivers/pci/msi.c.  The main motivation was to fix the shouting
+> > "MSI INIT SUCCESS" message printed when an MSI-using driver is first
+> > started, but while we're at it we might as well tidy up all the messages.
+> 
+> I reckon just get rid of that MSI init success message entirely.
 
+I agree.  Roland, care to change it?
 
+thanks,
 
-Make code more readable with list_for_each_entry_safe.
-(Didn't compile before, doesn't compile now)
-
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
-
-
- kj-domen/fs/dquot.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
-
-diff -puN fs/dquot.c~list-for-each-entry-safe-fs_dquot fs/dquot.c
---- kj/fs/dquot.c~list-for-each-entry-safe-fs_dquot	2005-01-10 17:59:46.000000000 +0100
-+++ kj-domen/fs/dquot.c	2005-01-10 17:59:46.000000000 +0100
-@@ -406,13 +406,10 @@ out_dqlock:
-  * for this sb+type at all. */
- static void invalidate_dquots(struct super_block *sb, int type)
- {
--	struct dquot *dquot;
--	struct list_head *head;
-+	struct dquot *dquot, *tmp;
- 
- 	spin_lock(&dq_list_lock);
--	for (head = inuse_list.next; head != &inuse_list;) {
--		dquot = list_entry(head, struct dquot, dq_inuse);
--		head = head->next;
-+	list_for_each_entry_safe(dquot, tmp, &inuse_list, dq_inuse) {
- 		if (dquot->dq_sb != sb)
- 			continue;
- 		if (dquot->dq_type != type)
-_
+greg k-h

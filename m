@@ -1,208 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266686AbTB0Taz>; Thu, 27 Feb 2003 14:30:55 -0500
+	id <S266640AbTB0T3t>; Thu, 27 Feb 2003 14:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266716AbTB0Taz>; Thu, 27 Feb 2003 14:30:55 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:33411 "EHLO
+	id <S266686AbTB0T3t>; Thu, 27 Feb 2003 14:29:49 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:30851 "EHLO
 	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S266686AbTB0Tao>; Thu, 27 Feb 2003 14:30:44 -0500
-Message-Id: <200302271940.h1RJexJT010415@turing-police.cc.vt.edu>
+	id <S266640AbTB0T3q>; Thu, 27 Feb 2003 14:29:46 -0500
+Message-Id: <200302271940.h1RJe1JT010312@turing-police.cc.vt.edu>
 X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4+dev
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.63 - if/ifdef janitor work - kernel/*
+Subject: 2.5.63 - if/ifdef janitor work - include/linux/*
 From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1350185843P";
+Content-Type: multipart/signed; boundary="==_Exmh_1349971881P";
 	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Feb 2003 14:40:59 -0500
+Date: Thu, 27 Feb 2003 14:40:01 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1350185843P
+--==_Exmh_1349971881P
 Content-Type: text/plain; charset=us-ascii
 
-Cleaning up kernel/*
+Cleaning up include/linux...
 
---- kernel/sched.c.dist	2003-02-24 14:05:40.000000000 -0500
-+++ kernel/sched.c	2003-02-27 02:05:52.041106052 -0500
-@@ -712,7 +712,7 @@
- 		spin_unlock(&rq2->lock);
- }
- 
--#if CONFIG_NUMA
-+#ifdef CONFIG_NUMA
- /*
-  * If dest_cpu is allowed for this process, migrate the task to it.
-  * This is accomplished by forcing the cpu_allowed mask to only
-@@ -831,7 +831,7 @@
- 
- #endif /* CONFIG_NUMA */
+--- include/linux/sched.h.dist	2003-02-24 14:05:07.000000000 -0500
++++ include/linux/sched.h	2003-02-27 01:36:55.213742840 -0500
+@@ -466,7 +466,7 @@
+ #define PF_FSTRANS	0x00020000	/* inside a filesystem transaction */
+ #define PF_KSWAPD	0x00040000	/* I am kswapd */
  
 -#if CONFIG_SMP
 +#ifdef CONFIG_SMP
- 
- /*
-  * double_lock_balance - lock the busiest runqueue
-@@ -1104,7 +1104,7 @@
- 			kstat_cpu(cpu).cpustat.iowait += sys_ticks;
- 		else
- 			kstat_cpu(cpu).cpustat.idle += sys_ticks;
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- 		idle_tick(rq);
- #endif
- 		return;
-@@ -1162,7 +1162,7 @@
- 			enqueue_task(p, rq->active);
- 	}
- out:
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- 	if (!(jiffies % BUSY_REBALANCE_TICK))
- 		load_balance(rq, 0);
- #endif
-@@ -1224,7 +1224,7 @@
- 	}
- pick_next_task:
- 	if (unlikely(!rq->nr_running)) {
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- 		load_balance(rq, 1);
- 		if (rq->nr_running)
- 			goto pick_next_task;
-@@ -1358,7 +1358,7 @@
- 	__wake_up_common(q, mode, 1, 0);
- }
- 
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- 
- /**
-  * __wake_up - sync- wake up threads blocked on a waitqueue.
-@@ -2172,14 +2172,14 @@
- 	local_irq_restore(flags);
- 
- 	/* Set the preempt count _outside_ the spinlocks! */
--#if CONFIG_PREEMPT
-+#ifdef CONFIG_PREEMPT
- 	idle->thread_info->preempt_count = (idle->lock_depth >= 0);
+ extern void set_cpus_allowed(task_t *p, unsigned long new_mask);
  #else
- 	idle->thread_info->preempt_count = 0;
- #endif
- }
+ # define set_cpus_allowed(p, new_mask) do { } while (0)
+--- include/linux/blkdev.h.dist	2003-02-24 14:05:12.000000000 -0500
++++ include/linux/blkdev.h	2003-02-27 01:37:21.380998808 -0500
+@@ -302,7 +302,7 @@
+ #define BLK_BOUNCE_ANY		((u64)blk_max_pfn << PAGE_SHIFT)
+ #define BLK_BOUNCE_ISA		(ISA_DMA_THRESHOLD)
  
+-#if CONFIG_MMU
++#ifdef CONFIG_MMU
+ extern int init_emergency_isa_pool(void);
+ extern void blk_queue_bounce(request_queue_t *q, struct bio **bio);
+ #else
+--- include/linux/timer.h.dist	2003-02-24 14:05:38.000000000 -0500
++++ include/linux/timer.h	2003-02-27 01:37:44.631114260 -0500
+@@ -65,7 +65,7 @@
+ extern int del_timer(struct timer_list * timer);
+ extern int mod_timer(struct timer_list *timer, unsigned long expires);
+   
 -#if CONFIG_SMP
 +#ifdef CONFIG_SMP
- /*
-  * This is how migration works:
-  *
-@@ -2360,7 +2360,7 @@
+   extern int del_timer_sync(struct timer_list * timer);
+ #else
+ # define del_timer_sync(t) del_timer(t)
+--- include/linux/nfs_fs_sb.h.dist	2003-02-24 14:06:03.000000000 -0500
++++ include/linux/nfs_fs_sb.h	2003-02-27 01:38:00.027853268 -0500
+@@ -27,7 +27,7 @@
+ 	char *			hostname;	/* remote hostname */
+ 	struct nfs_fh		fh;
+ 	struct sockaddr_in	addr;
+-#if CONFIG_NFS_V4
++#ifdef CONFIG_NFS_V4
+ 	/* Our own IP address, as a null-terminated string.
+ 	 * This is used to generate the clientid, and the callback address.
+ 	 */
+--- include/linux/tpqic02.h.dist	2003-02-24 14:05:11.000000000 -0500
++++ include/linux/tpqic02.h	2003-02-27 01:39:24.963929504 -0500
+@@ -12,7 +12,7 @@
  
- #endif
+ #include <linux/config.h>
+ 
+-#if CONFIG_QIC02_TAPE || CONFIG_QIC02_TAPE_MODULE
++#if defined(CONFIG_QIC02_TAPE) || defined(CONFIG_QIC02_TAPE_MODULE)
+ 
+ /* need to have QIC02_TAPE_DRIVE and QIC02_TAPE_IFC expand to something */
+ #include <linux/mtio.h>
+@@ -724,7 +724,7 @@
+ 	unsigned short	dma_enable_value;
+ };
+ 
+-#if MODULE
++#ifdef MODULE
+ static int qic02_tape_init(void);
+ #else
+ extern int qic02_tape_init(void);			  /* for mem.c */
+--- include/linux/smp_lock.h.dist	2003-02-24 14:05:40.000000000 -0500
++++ include/linux/smp_lock.h	2003-02-27 01:45:00.424031816 -0500
+@@ -5,7 +5,7 @@
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
  
 -#if CONFIG_SMP || CONFIG_PREEMPT
 +#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
+ 
+ extern spinlock_t kernel_flag;
+ 
+--- include/linux/interrupt.h.dist	2003-02-24 14:05:33.000000000 -0500
++++ include/linux/interrupt.h	2003-02-27 02:01:32.824663760 -0500
+@@ -28,7 +28,7 @@
  /*
-  * The 'big kernel lock'
-  *
---- kernel/ksyms.c.dist	2003-02-24 14:05:05.000000000 -0500
-+++ kernel/ksyms.c	2003-02-27 02:07:32.099909144 -0500
-@@ -462,7 +462,7 @@
- EXPORT_SYMBOL(complete_and_exit);
- EXPORT_SYMBOL(default_wake_function);
- EXPORT_SYMBOL(__wake_up);
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- EXPORT_SYMBOL_GPL(__wake_up_sync); /* internal use only */
- #endif
- EXPORT_SYMBOL(wake_up_process);
-@@ -480,10 +480,10 @@
- EXPORT_SYMBOL(set_user_nice);
- EXPORT_SYMBOL(task_nice);
- EXPORT_SYMBOL_GPL(idle_cpu);
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- EXPORT_SYMBOL_GPL(set_cpus_allowed);
- #endif
--#if CONFIG_SMP || CONFIG_PREEMPT
-+#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
- EXPORT_SYMBOL(kernel_flag);
- #endif
- EXPORT_SYMBOL(jiffies);
---- kernel/signal.c.dist	2003-02-24 14:05:16.000000000 -0500
-+++ kernel/signal.c	2003-02-27 02:08:20.382225584 -0500
-@@ -756,7 +756,7 @@
- 
- 	if (!irqs_disabled())
- 		BUG();
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- 	if (!spin_is_locked(&t->sighand->siglock))
- 		BUG();
- #endif
-@@ -841,7 +841,7 @@
- 	unsigned int mask;
- 	int ret = 0;
- 
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- 	if (!spin_is_locked(&p->sighand->siglock))
- 		BUG();
- #endif
---- kernel/timer.c.dist	2003-02-24 14:05:41.000000000 -0500
-+++ kernel/timer.c	2003-02-27 02:09:30.883609988 -0500
-@@ -412,7 +412,7 @@
- 
- 			list_del(&timer->entry);
- 			timer->base = NULL;
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- 			base->running_timer = timer;
- #endif
- 			spin_unlock_irq(&base->lock);
-@@ -426,7 +426,7 @@
- 		++base->timer_jiffies; 
- 		base->tv1.index = (base->tv1.index + 1) & TVR_MASK;
- 	}
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- 	base->running_timer = NULL;
- #endif
- 	spin_unlock_irq(&base->lock);
-@@ -894,7 +894,7 @@
- 	parent = me->group_leader->real_parent;
- 	for (;;) {
- 		pid = parent->tgid;
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- {
- 		struct task_struct *old = parent;
- 
---- kernel/exit.c.dist	2003-02-24 14:05:42.000000000 -0500
-+++ kernel/exit.c	2003-02-27 02:10:15.777764804 -0500
-@@ -756,7 +756,7 @@
- 	struct pid_link *link = p->pids + PIDTYPE_TGID;
- 	struct list_head *tmp, *head = &link->pidptr->task_list;
- 
--#if CONFIG_SMP
-+#ifdef CONFIG_SMP
- 	if (!p->sighand)
- 		BUG();
- 	if (!spin_is_locked(&p->sighand->siglock) &&
+  * Temporary defines for UP kernels, until all code gets fixed.
+  */
+-#if !CONFIG_SMP
++#if !defined(CONFIG_SMP)
+ # define cli()			local_irq_disable()
+ # define sti()			local_irq_enable()
+ # define save_flags(x)		local_save_flags(x)
 
 
-
---==_Exmh_1350185843P
+--==_Exmh_1349971881P
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+XmnLcC3lWbTT17ARAvrhAJwM1Eq9x5NyevGhQwZbaFeX4d5W0ACeOCeE
-OZBT/80PI5XKGmdgOpU3WMw=
-=Yvsw
+iD8DBQE+XmmRcC3lWbTT17ARAqRKAKCUpqYEAKO6izM/MFuAcvWIH4AY3QCeJvng
+ZXARt6Qqf+WXsQoUYbOWHn4=
+=wU2C
 -----END PGP SIGNATURE-----
 
---==_Exmh_1350185843P--
+--==_Exmh_1349971881P--

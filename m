@@ -1,40 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbULICX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbULICqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbULICX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 21:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbULICX7
+	id S261440AbULICqh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 21:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbULICqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 21:23:59 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:34319 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261427AbULICXz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 21:23:55 -0500
-Date: Thu, 9 Dec 2004 02:23:55 +0000
-From: John Levon <levon@movementarian.org>
-To: Greg Banks <gnb@sgi.com>
-Cc: Philippe Elie <phil.el@wanadoo.fr>, Akinobu Mita <amgta@yacht.ocn.ne.jp>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
-Message-ID: <20041209022355.GA50185@compsoc.man.ac.uk>
-References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041208160055.GA82465@compsoc.man.ac.uk> <20041208223156.GB4239@sgi.com> <20041208235623.GA563@zaniah> <20041209003906.GE4239@sgi.com> <20041209014622.GB48804@compsoc.man.ac.uk> <20041209015024.GG4239@sgi.com>
+	Wed, 8 Dec 2004 21:46:36 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:54759 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261440AbULICqb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 21:46:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=I/cO3TTle+ZjU+iPte5iG7kmc63M5h+6bNW2m87fRpqKj0LmaT0b+dmthO2d5vg9ixO79LRdz6f+RhNGFARQgH8SxaAJolRvbnBT5U4VRD3hXuJ0FA6bdbaoN5JmE1tSCL4eNmHNuv3BJazXwQeMmDP2UptI6ZXKjuJKQ2E7k4U=
+Message-ID: <aad1205e0412081846161b4dcd@mail.gmail.com>
+Date: Thu, 9 Dec 2004 10:46:30 +0800
+From: andyliu <liudeyan@gmail.com>
+Reply-To: andyliu <liudeyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Concurrent access to /dev/urandom
+Cc: tytso@mit.edu
+In-Reply-To: <20041209015705.GB6978@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041209015024.GG4239@sgi.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Graham Coxon - Happiness in Magazines
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CcDyF-000Nb2-73*zoNg7YjjzBE*
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <006001c4d4c2$14470880$6400a8c0@centrino>
+	 <009501c4d4c6$40b4f270$6400a8c0@centrino>
+	 <Pine.LNX.4.53.0411272220530.26852@yvahk01.tjqt.qr>
+	 <02c001c4d58c$f6476bb0$6400a8c0@centrino>
+	 <06a501c4dcb6$3cb80cf0$6401a8c0@centrino>
+	 <20041208012802.GA6293@thunk.org>
+	 <079001c4dcc9$1bec3a60$6401a8c0@centrino>
+	 <20041208192126.GA5769@thunk.org> <20041208215614.GA12189@waste.org>
+	 <20041209015705.GB6978@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 09, 2004 at 12:50:24PM +1100, Greg Banks wrote:
+hi Ted
 
-> Ok, how about this patch?
+   i think this is better than use the spin lock.
+  but i think maybe there should put an #ifdef SMP :)
+just like
 
-Fine by me
+#ifdef CONFIG_SMP
+               tmp[0] = 0x67452301 ^ smp_processor_id();
+               tmp[1] = 0xefcdab89 ^ (__u32) current;
+               tmp[2] = 0x98badcfe ^ preempt_count();
+#endif
 
-john
+is it needed? 
 
-> Allow stack tracing to work when sampling on timer is forced
-> using the timer=1 boot option.  Reported by Akinobu Mita.
+
+
+On Wed, 8 Dec 2004 20:57:05 -0500, Theodore Ts'o <tytso@mit.edu> wrote:
+> On Wed, Dec 08, 2004 at 01:56:14PM -0800, Matt Mackall wrote:
+> >
+> > Ted, I think this is a bit more straightforward than your patch, and
+> > safer as it protects get_random_bytes() and internal extract_entropy()
+> > users. And I'd be leery of your get_cpu() trick due to preempt
+> > issues.
+> >
+> 
+> I'm concerned that turning off interrupts during even a single SHA-1
+> transform will put us above the radar with respect to the preempt
+> latency statistics again.  We could use a separate spinlock that only
+> pretects the mix_ptr and mixing access to the pool, so we're at least
+> not disabling interrupts, but we still are holding a spinlock across a
+> cryptographic operation.
+> 
+> So I've come up with another trick which I think avoids needing to add
+> additional locking altogether.  What we do is we diddle the initial
+> HASH input values with the following values: initial the processor ID,
+> the current task pointer, and preempt_count().  On an UP system with
+> preemption, it won't matter if we get preempted, since on a UP system
+> access to the pool is by definition serialized :-).  On a SMP system
+> with preemption, while we could theoretically get preempted away and
+> then scheduled on another CPU, just in time for another process to
+> call extract_entropy(), the task identifier is enough to guarantee a
+> unique starting point.  The reason for adding preempt_count() is so we
+> can deal with the case where a process gets interrupted, and the
+> bottom half handler calls get_random_bytes(), and at the same time
+> said process gets preempted away to another CPU().  I think this
+> covers all of the cases.....
+> 
+> Yeah, it would be simper to reason about things if we were to just put
+> it under the spinlock, but everyone seems tp be on a reduce latency at
+> all costs kick as of late.  :-)
+> 
+> Comments?
+> 
+>                                                        - Ted
+> 
+> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+> 
+> ===== drivers/char/random.c 1.60 vs edited =====
+> --- 1.60/drivers/char/random.c  2004-11-18 17:23:14 -05:00
+> +++ edited/drivers/char/random.c        2004-12-08 20:51:18 -05:00
+> @@ -1402,10 +1402,19 @@ static ssize_t extract_entropy(struct en
+>                                  sec_random_state->entropy_count);
+>                }
+> 
+> -               /* Hash the pool to get the output */
+> -               tmp[0] = 0x67452301;
+> -               tmp[1] = 0xefcdab89;
+> -               tmp[2] = 0x98badcfe;
+> +               /*
+> +                * Hash the pool to get the output.
+> +                *
+> +                * We diddle the initial inputs so that if two
+> +                * processors are executing extract_entropy
+> +                * concurrently, they will get different results.
+> +                * Even if we get preempted and moved to another CPU,
+> +                * the combination of initial CPU, task pointer, and
+> +                * preempt count is good enough to avoid duplication.
+> +                */
+> +               tmp[0] = 0x67452301 ^ smp_processor_id();
+> +               tmp[1] = 0xefcdab89 ^ (__u32) current;
+> +               tmp[2] = 0x98badcfe ^ preempt_count();
+>                tmp[3] = 0x10325476;
+> #ifdef USE_SHA
+>                tmp[4] = 0xc3d2e1f0;
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+-- 
+Yours andyliu

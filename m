@@ -1,93 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVCTVbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVCTVhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVCTVbG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 16:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVCTVbG
+	id S261276AbVCTVhC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 16:37:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVCTVhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 16:31:06 -0500
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:55714 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261177AbVCTVbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 16:31:02 -0500
-Date: Sun, 20 Mar 2005 22:35:33 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.11.2][1/2] printk with anti-cluttering-feature
-In-Reply-To: <Pine.LNX.4.58.0503202151360.2869@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0503202232001.3051@be1.lrz>
-References: <Pine.LNX.4.58.0503200528520.2804@be1.lrz> <423D6353.5010603@tls.msk.ru>
- <Pine.LNX.4.58.0503201425080.2886@be1.lrz> <Pine.LNX.4.58.0503202151360.2869@be1.lrz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Mar 2005 16:37:02 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:22542 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261276AbVCTVg6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 16:36:58 -0500
+Date: Sun, 20 Mar 2005 13:38:24 -0800
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
+       shemminger@osdl.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, rusty@au1.ibm.com, tgall@us.ibm.com,
+       jim.houston@comcast.net, gh@us.ibm.com,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Real-Time Preemption and RCU
+Message-ID: <20050320213824.GA23167@nietzsche.lynx.com>
+References: <20050318002026.GA2693@us.ibm.com> <20050318091303.GB9188@elte.hu> <20050318092816.GA12032@elte.hu> <423BB299.4010906@colorfullife.com> <20050319162601.GA28958@elte.hu> <423D19FE.7020902@colorfullife.com> <1111310736.17944.24.camel@tglx.tec.linutronix.de> <423DAB73.2030904@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <423DAB73.2030904@colorfullife.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce printk_nospam, which will prevent duplicate and excessive 
-printing.
+On Sun, Mar 20, 2005 at 05:57:23PM +0100, Manfred Spraul wrote:
+> That was just one random example.
+> Another one would be :
+> 
+> drivers/chat/tty_io.c, __do_SAK() contains
+>    read_lock(&tasklist_lock);
+>    task_lock(p);
+> 
+> kernel/sys.c, sys_setrlimit contains
+>    task_lock(current->group_leader);
+>    read_lock(&tasklist_lock);
+> 
+> task_lock is a shorthand for spin_lock(&p->alloc_lock). If read_lock is 
+> a normal spinlock, then this is an A/B B/A deadlock.
 
-Signed-Off-By: Bodo Eggert <7eggert@gmx.de>
+That code was already dubious in the first place just because it
+contained that circularity. If you had a rwlock that block on an
+upper read count maximum a deadlock situation would trigger anyways,
+say, upon a flood of threads trying to do that sequence of aquires.
 
-diff -purNXdontdiff linux-2.6.11/include/linux/kernel.h linux-2.6.11.new/include/linux/kernel.h
---- linux-2.6.11/include/linux/kernel.h	2005-03-03 15:42:13.000000000 +0100
-+++ linux-2.6.11.new/include/linux/kernel.h	2005-03-20 21:15:23.000000000 +0100
-@@ -104,6 +104,12 @@ extern int session_of_pgrp(int pgrp);
- asmlinkage int vprintk(const char *fmt, va_list args);
- asmlinkage int printk(const char * fmt, ...)
- 	__attribute__ ((format (printf, 1, 2)));
-+asmlinkage int printk_nospam(unsigned int magic, const char * fmt, ...)
-+	__attribute__ ((format (printf, 2, 3)));
-+/* Don't print the previously printed message had the same magic or the rate
-+   limit would be exceeded.
-+   Hint: Use a unique random value for the magic, e.g. the first value from
-+   cksum on the file you're editing */
- 
- unsigned long int_sqrt(unsigned long);
- 
-diff -purNXdontdiff linux-2.6.11/kernel/printk.c linux-2.6.11.new/kernel/printk.c
---- linux-2.6.11/kernel/printk.c	2005-03-18 21:54:35.000000000 +0100
-+++ linux-2.6.11.new/kernel/printk.c	2005-03-20 21:15:14.000000000 +0100
-@@ -115,6 +115,8 @@ static int preferred_console = -1;
- /* Flag: console code may call schedule() */
- static int console_may_schedule;
- 
-+static int antispam_magic;
-+
- /*
-  *	Setup a list of consoles. Called from init/main.c
-  */
-@@ -517,6 +519,26 @@ asmlinkage int printk(const char *fmt, .
- 	va_list args;
- 	int r;
- 
-+	antispam_magic = 0;
-+
-+	va_start(args, fmt);
-+	r = vprintk(fmt, args);
-+	va_end(args);
-+
-+	return r;
-+}
-+
-+asmlinkage int printk_nospam(unsigned int magic, const char *fmt, ...)
-+{
-+	va_list args;
-+	int r;
-+	
-+	if (magic == antispam_magic)
-+		return 0;
-+	if (!printk_ratelimit())
-+		return 0;
-+	antispam_magic = magic;
-+
- 	va_start(args, fmt);
- 	r = vprintk(fmt, args);
- 	va_end(args);
-@@ -591,6 +613,7 @@ out:
- 	return printed_len;
- }
- EXPORT_SYMBOL(printk);
-+EXPORT_SYMBOL(printk_nospam);
- EXPORT_SYMBOL(vprintk);
- 
- /**
+I'd probably experiment with using the {spin,read,write}-trylock
+logic and release the all locks contains in a sequence like that
+on the failure to aquire any of the locks in the chain as an
+initial fix. A longer term fix might be to break things up a bit
+so that whatever ordering being done would have that circularity.
+
+BTW, the runtime lock cricularity detector was designed to trigger
+on that situtation anyways.
+
+That's my thoughts on the matter.
+
+bill
+

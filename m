@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264298AbUDSINt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 04:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbUDSINt
+	id S264213AbUDSIOR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 04:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbUDSIOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 04:13:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35991 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264298AbUDSINs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 04:13:48 -0400
-Date: Mon, 19 Apr 2004 01:13:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Phy Prabab <phyprabab@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question on forcing cache data to write out
-Message-Id: <20040419011329.0b07b0ad.akpm@osdl.org>
-In-Reply-To: <20040419073507.8572.qmail@web90005.mail.scd.yahoo.com>
-References: <20040419073507.8572.qmail@web90005.mail.scd.yahoo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 19 Apr 2004 04:14:17 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:19918 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264213AbUDSIOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 04:14:14 -0400
+Subject: Re: 2.6.5 pts problem
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: joshk@triplehelix.org, midian@ihme.org, hpa@zytor.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1082353929.850.126.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 19 Apr 2004 01:52:09 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phy Prabab <phyprabab@yahoo.com> wrote:
+>> As you see, pts is just growing, not using the old used numbers.
 >
-> Sirs,
-> 
-> I am interested in understanding how tot tune the 2.6
-> kernel such that I can get the WM to write out data
-> that is held within the "cache".
-> 
-> My situtation is that I have a NFS file server that
-> gets data in bursts.  The first couple of burst move
-> quickly, but once the system memory becomes filled,
-> mostly held in "cache", then my NFS performance drops.
->  The issue here is how to get the VM to write out the
-> data held within the cache when times are slow (which
-> amounts to 90% of the time)?  I have played a little
-> bit with the /proc/sys/vm/dirty_ratio, etc with out
-> much help.
+> The implementation was changed intentionally to make
+> it that way. The numbers will only be recycled once we
+> go over the max number of psuedoterminals, I think..
 
-Setting dirty_background_ratio lower might smooth things out.
+You can also recycle the numbers by rebooting.
+That's what I do. :-/
+
+(I can't be spending 10% of my disk on a giant wtmp
+file. Also, I use the tty names for xterm titles now.
+If they get too big, the GNOME taskbar button titles
+get truncated.)
+
+

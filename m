@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264646AbRFPSa6>; Sat, 16 Jun 2001 14:30:58 -0400
+	id <S264645AbRFPSgI>; Sat, 16 Jun 2001 14:36:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264645AbRFPSaj>; Sat, 16 Jun 2001 14:30:39 -0400
-Received: from mta03-svc.ntlworld.com ([62.253.162.43]:18150 "EHLO
-	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S264644AbRFPSa1>; Sat, 16 Jun 2001 14:30:27 -0400
-Date: Sat, 16 Jun 2001 19:29:57 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Oops] 2.4.5-ac14/2.4.6-pre3+Athlon+gcc3-prerelease+VIAKT133A
-Message-ID: <20010616192957.A2713@debian>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010616161801.A1821@caesar>
+	id <S264647AbRFPSf6>; Sat, 16 Jun 2001 14:35:58 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:57608
+	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S264645AbRFPSfy>;
+	Sat, 16 Jun 2001 14:35:54 -0400
+Subject: Re: Buffer management - interesting idea
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Helge Hafting <helgehaf@idb.hist.no>
+Cc: Ivan Schreter <is@zapwerk.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3B29D048.4E19D545@idb.hist.no>
+In-Reply-To: <01060613422800.07218@linux>  <3B29D048.4E19D545@idb.hist.no>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 16 Jun 2001 11:35:25 -0700
+Message-Id: <992716525.22810.2.camel@ixodes.goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010616161801.A1821@caesar>
-User-Agent: Mutt/1.3.18i
-From: Michael <leahcim@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 16, 2001 at 04:18:01PM +0800, Richard Chan wrote:
-> Here's an oops from
-> 
-> 1. Athlon kernel, gcc3 prerelease 14 June compiled
-> 2. Kernel version 2.4.5-ac14
-> 3. Mobo: Soltek 75KAV (VT133A disaster??) with Athlon 1.2G C
-> 
-> Any ideas? Bad compiler or bad kernel?
-> The problems occur in kmem_cache_????.
-> 
-> On this mobo and chipset I have had no luck with locally compiled
-> Athlon kernels at all (whether stock or -ac, RedHat gcc or gcc3-prerelease).
-> Me thinks something is seriously wrong with this mobo/chipset or is it
-> the Athlon code in gcc?
+On 15 Jun 2001 11:07:20 +0200, Helge Hafting wrote:
+> The "resistance to scanning" seemed interesting, maybe one-time
+> activities like a "find" run or big cat/dd will have less impact with
+> this.
 
-FWIW, I've got 2 of these boards (with duron 800 chips) 
+It should also be good for streaming file use.  It gives a natural way
+of detecting when you should be doing drop-behind (things fall out of
+the fifo without ever making it into the LRU); doubly nice because it
+works for both reads and writes without needing to treat them
+differently.  It's also nice that it gives a natural interpretation to
+the various madvise() flags.
 
-I use gcc2.95.4 in debian sid.
+    J
 
-Got it about the same time the 686b patch went
-into ac1 and its run flawlessly with every ac version I've used since.
-
-Didn't compile ac14, went straight to 15.
--- 
-Michael.

@@ -1,106 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264448AbTH1Xlu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 19:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTH1Xlu
+	id S264357AbTH1XAU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 19:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264351AbTH1XAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 19:41:50 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:1257 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S264448AbTH1Xlr convert rfc822-to-8bit
+	Thu, 28 Aug 2003 19:00:20 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:54919 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264357AbTH1XAR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 19:41:47 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take 2
-Date: Thu, 28 Aug 2003 16:41:36 -0700
-Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D211@fmsmsx405.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take 2
-Thread-Index: AcNtvetg9NR6AxlpTV2Vaez1+h4T0Q==
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: <torvalds@osdl.org>, <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, "Nakajima, Jun" <jun.nakajima@intel.com>
-X-OriginalArrivalTime: 28 Aug 2003 23:41:36.0672 (UTC) FILETIME=[EBACC200:01C36DBD]
+	Thu, 28 Aug 2003 19:00:17 -0400
+Date: Fri, 29 Aug 2003 00:00:10 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Lockless file reading
+Message-ID: <20030828230010.GC10035@mail.jlokier.co.uk>
+References: <MDEHLPKNGKAHNMBLJOLKEEEEFMAA.davids@webmaster.com> <E19sUzl-0004Az-00@calista.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E19sUzl-0004Az-00@calista.inka.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bernd Eckenfels wrote:
+> Why is that? For a hash with n bits there are at least
+> 2^y / 2^n = 2^(y-n) files with the same hash, if they have size y bits.
+> Three are even more, if you consider all files up to this size.
 
+Correct.  Now, can you tell me how many of the 2^(y-n) files are ones
+you will find on the net or on anybody's hard disk?
 
-Resending the patch. A major change from previous version is
-elimination of fixmap for HPET. Based on Andrew Morton's suggestion, 
-we have a new hook in init/main.c for late_time_init(), at which 
-time we can use ioremap, in place of fixmap.
-Impact on other archs: Calibrate_delay() (and hence loops_per_jiffy
-calculation) has moved down in main.c, from after time_init() 
-to after kmem_cache_init().
+I'll take a couple of guesses: either 0 or 1 :)
 
+The strength of a cryptographic hash is due to the immense difficulty
+of deliberately creating a file given a hash value.  Another strength
+is the very low probability of finding two different files with the
+same hash value.
 
-Patchset description:
-1/6 - hpet1.patch - main.c change to introduce late_time_init()
-2/6 - hpet2.patch - acpi boot time parsing changes to look for HPET
-3/6 - hpet3.patch - Miscallaneous makefile and config changes
-4/6 - hpet4.patch - All the changes required to use HPET in place
-                    of PIT as the kernel base-timer at IRQ 0.
-5/6 - hpet5.patch - All changes required to support timer services
-                    (gettimeofday) with HPET. There are two options:
-                    - Use HPET for gettimeofday.
-                    - Use rdtsc for gettimeofday.
-                    rdtsc is still faster then HPET reads, but HPET
-                    has advantage that its rate remain same,
-                    irrespective of CPU frequency. Also, HPET is
-                    more scalable than TSC in case of multi-node
-                    systems. So, our timer priority is
-                    platform_specific_timer(if any), timer_hpet
-                    and timer_tsc in that order.
-6/6 - hpet6.patch - This can be a standalone patch. Without this
-                    patch we loose interrupt generation capability
-                    of RTC (/dev/rtc), due to HPET. With this patch
-                    we basically try to emulate RTC interrupt
-                    functions in software using HPET counter 1.
-                    This is only required to provide compatibility
-                    to the applications that depend on rtc driver's
-                    interrupt generation capability.
-                    This emulation will not be as accurate as RTC
-                    interrupt, as HPET is not tied to RTC hardware
-                    and does not know anything about RTC time.
-                    But should enough for compatibility purposes.
+They're a bit like uncomputable numbers.  (Just a little bit).  Lots
+of colliding files exist.  But if you can find even one pair, that's
+an amazing event.
 
-All comments/feedbacks welcome.
+Uncomputable numbers are similar.  There are infinitely more
+uncomputable numbers than computable ones, yet it is impossible to
+write one down or even refer to a specific one of them.
 
-Thanks,
--Venkatesh
-
-
-HPET Description
-High Precision Event Timer (HPET) is next generation timer
-hardware and has various advantages over legacy 8254
-(PIT) timer, like:
-- Associated registers are mapped to memory space. So, we no
-  longer require in and out on legacy ioports
-- Memory map address is reported by ACPI (and are not
-  hard-coded)
-- Each timer can be configured to generate separate interrupts,
-  even sharing lines with PCI devices
-- HPET has a minimum period of 100 nanosecs and is not fixed.
-  Giving a flexibility of increasing the resolution in future.
-- Most current implementations has 3 counters, but in future,
-  we can have as many as 32 timers per block, and 8
-  HPET timer blocks (total 256 timers)
-- Can support 32bit and 64bit counting
-
-(Refer to http://www.intel.com/labs/platcomp/hpet/hpetspec.htm
- for complete specs)
-
-The patchset that follow adds support for High Precision Event
-Timer (HPET) based timer in kernel. This uses the HPET in
-LegacyReplacement mode (so that counter 0 will be tied to IRQ0,
-and counter 1 will be tied to IRQ 8). In this mode, HPET overrides
-PIT and RTC interrupt lines. The patch will enable HPET by default,
-on systems where ACPI tables reports this feature. The patch will
-have no impact on systems that do not support this feature.
-
-
+-- Jamie

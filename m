@@ -1,111 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264329AbRFLLaA>; Tue, 12 Jun 2001 07:30:00 -0400
+	id <S264336AbRFLLjb>; Tue, 12 Jun 2001 07:39:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264332AbRFLL3v>; Tue, 12 Jun 2001 07:29:51 -0400
-Received: from main.braxis.co.uk ([213.77.40.29]:11270 "EHLO main.braxis.co.uk")
-	by vger.kernel.org with ESMTP id <S264329AbRFLL3e>;
-	Tue, 12 Jun 2001 07:29:34 -0400
-Date: Tue, 12 Jun 2001 13:28:37 +0200
-From: Krzysztof Rusocki <kszysiu@braxis.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.5 2.4.6pre crashes
-Message-ID: <20010612132837.A30675@main.braxis.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264334AbRFLLjV>; Tue, 12 Jun 2001 07:39:21 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:41253 "EHLO
+	c0mailgw13.prontomail.com") by vger.kernel.org with ESMTP
+	id <S264332AbRFLLjH> convert rfc822-to-8bit; Tue, 12 Jun 2001 07:39:07 -0400
+Message-ID: <3B250C0A.79299E45@mvista.com>
+Date: Mon, 11 Jun 2001 11:20:58 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: =?iso-8859-15?Q?Mich=E8l?= Alexandre Salim <salimma1@yahoo.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Clock drift on TransmetaCrusoe
+In-Reply-To: <20010611150111.7747.qmail@web3505.mail.yahoo.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michèl Alexandre Salim wrote:
+> 
+> Hello,
+> 
+> Searching through the mailing list I could not find a
+> reference to this problem, hence this post.
+> 
+> Having ran various kernel and distribution
+> combinations (SGI's 2.4.2-xfs bundled with their Red
+> Hat installer, 2.4-xfs-1.0 and 2.4 CVS trees, Linux
+> Mandrake with default kernel 2.4.3, and lastly
+> 2.4.5-ac9), compiled for generic i386 and/or Transmeta
+> Crusoe with APM off or on, one thing sticks out : a
+> clock drift of a few minutes per day.
+> 
+> This problem might not be noticeable for most users
+> since notebooks are not normally left running that
+> long, but it is rather serious. I can choose not to
+> sync the software and hardware clock on shutdown and
+> re-read the hardware clock every hour or so but it is
+> rather kludgy.
+> 
+> Anyone experienced this before or willing to try it
+> out?
+> 
+This is most likely a bad "rock" (crystal) in the box.  There is a
+"built in" drift of about .1445 seconds a day (runs too slow) due to the
+fact that 1.193180Mhz can not be divided to 10 ms. but you are way over
+this.  
 
-Hi,
+Here is a bit of code to sync your system to the RTC:
 
-For few months I am running XFS CVS kernels
-(http://oss.sgi.com/projects/xfs/). Up till now i haven't faced any generic
-2.4 issues. Problems  began while XFS moved to 2.4.5 , same thing (i
-believe) i observed with both 2.4.6pre kernels. Linux-xfs people suggested
-to mail linux-kernel, so.. take a look please.
+http://www.linuxppc.org/software/index/linuxppc_stable/software/adjtimex-1.9-3.ppc.html
 
-My machine is Celeron 366 (Mendocino) 128MB RAM, PIIX4E, PDC20262, HPT366,
-with 6 ide disks (4 at PDC, 1 at PIIX4E and  1 at HPT366) and DM9102
-Ethernet.
-RedHat 6.2 with some vital updates for 2.4 kernels...
+Of course, you best bet would be to use the xntpd code to sync to
+another system.
 
-Sorry for  not-complete backtrace (no serial console at the moment -
-rewritten manually).
-
-Stuff you can find below was observed on 2.4.6-pre2-xfs dated at 06/09.
-
-Machine crashed just before init run gettys (first output, no bt), the
-second time it crashed after being up  for 3 minutes ca..
-
-------
-Scheduling in interrupt
-kernel BUG at sched.c:709!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0111341>]
-EFLAGS: 00010092
-eax: 0000001b   ebx: 00000000   ecx: c76a4000   edx: 00000001
-esi: ffffffff	edi: c01104f4	ebp: c12f9e04	esp: c12f9db4
-ds: 0018   es: 0018   ss: 0018
-Process init (pid: 1, stackpage=c12f9000)
-Stack c024aab4 c024ab56 000002c5 c12f8000 00000000 c01104f4 c12f9e74 c12f8000
-      c014ffd6 c7fa9460 c6c38bc0 c12f9e24 c0150200 c12f9e74 c12f9e80 c12f8000
-      c014ff17 00000000 c12f8000 c0106c48 c881818c c0106c05 c76b41a0 c76b4228
-Call Trace: [<c01104f4>] [<c014ffd6>] [<c0150200>] [<c014ff17>] [<c0106c48>] [<c
-881818c>] [<c0106c05>]
-       [<c881818c>] [<c881818c>] [<c011a46c>] [<c0119d66>] [<c01171e2>] [<c01171
-04>] [<c0116edc>] [<c0107fe8>]
-       [<c0106bd8>] [<c0120018>] [<c011e983>] [<c011232f>] [<c0112c4e>] [<c01057
-d4>] [<c0106af3>]
-
-Code: 0f 0b 8d 65 bc 5b 5e 5f 89 ec 5d c3 8d 76 00 55 89 e5 83 ec
-Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-------
-
-------
-Scheduling in interrupt
-kernel BUG at sched.c:709!
-
-Entering kdb (current=0xc1b30000, pid 1822) Oops: invalid operand
-due to oops @ 0xc01118d1
-eax = 0x0000001b ebx = 0x00000000 ecx = 0xc75e2000 edx = 0x00000001
-esi = 0xffffffff edi = 0x00000246 esp = 0xc1b31ea0 eip = 0xc01118d1
-ebp = 0xc1b31ef0 xss = 0x00000018 xcs = 0x00000010 eflags = 0x00010086
-xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xc1b31e6c
-kdb> bt
-    EBP       EIP         Function(args)
-0xc1b31ef0 0xc01118d1 schedule+0x421 (0xc12e1d40, 0xa490, 0x0, 0xc12e1c00, 0x246
-)
-                               kernel .text 0xc0100000 0xc01114b0 0xc01118e0
-0xc1b31f44 0xc0106cd9 reschedule+0x5 (0xc12e1c00)
-                               kernel .text 0xc0100000 0xc0106cd4 0xc0106ce0
-           0xc011aa52 timer_bh+0x226
-                               kernel .text 0xc0100000 0xc011a82c 0xc011aa90
-0xc1b31f74 0xc0117828 bh_action+0x1c (0x0)
-                               kernel .text 0xc0100000 0xc011780c 0xc0117844
-0xc1b31f8c 0xc0117745 tasklet_hi_action+0x81 (0xc034fd60)
-                               kernel .text 0xc0100000 0xc01176c4 0xc0117774
-0xc1b31fa4 0xc01174fc do_softirq+0x4c
-                               kernel .text 0xc0100000 0xc01174b0 0xc011752c
-0xc1b31fbc 0xc01084d3 do_IRQ+0x9f
-                               kernel .text 0xc0100000 0xc0108434 0xc01084e4
-kdb> lsmod
-Module                  Size  modstruct     Used by
-cls_u32                 5705  0xc881b000     1  (autoclean)
-sch_tbf                 3257  0xc8819000     3
-sch_cbq                13053  0xc8814000     1
-nls_iso8859-1           3536  0xc8812000     1
-kdb>
-------
-
-Hope that it helps...
-
-Cheers,
-Krzysztof
-
-PS.
- please CC, ain't subscriber.
+George

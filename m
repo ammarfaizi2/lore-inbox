@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264927AbRFUIFF>; Thu, 21 Jun 2001 04:05:05 -0400
+	id <S264928AbRFUIIz>; Thu, 21 Jun 2001 04:08:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264928AbRFUIEz>; Thu, 21 Jun 2001 04:04:55 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:14348 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S264927AbRFUIEm>; Thu, 21 Jun 2001 04:04:42 -0400
-Date: Thu, 21 Jun 2001 10:04:37 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: cproto use in the kernel source tree?
-Message-ID: <Pine.LNX.4.30.0106210834070.5747-100000@cola.teststation.com>
+	id <S264929AbRFUIIp>; Thu, 21 Jun 2001 04:08:45 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:36257 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S264928AbRFUIIc>; Thu, 21 Jun 2001 04:08:32 -0400
+Date: Thu, 21 Jun 2001 17:08:24 +0900
+Message-ID: <66dq45mv.wl@nisaaru.open.nm.fujitsu.co.jp>
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: Trevor-Hemsley@dial.pipex.com (Trevor Hemsley)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx oops with 2.4.5-ac13
+In-Reply-To: <20010621072142Z264883-17720+6265@vger.kernel.org>
+In-Reply-To: <20010621072142Z264883-17720+6265@vger.kernel.org>
+User-Agent: Wanderlust/2.5.8 (Smooth) EMY/1.13.9 (Art is long, life is
+ short) SLIM/1.14.7 (=?ISO-2022-JP?B?GyRCPHIwZjpMTD4bKEI=?=) APEL/10.3 MULE
+ XEmacs/21.2 (beta46) (Urania) (i386-kondara-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I would like to automate generating the prototype list for smbfs. The list
-in include/linux/smb_fs.h is probably mostly correct ... or not.
+Hello,
 
-Does anyone use this type of tool anywhere else in the kernel sources?
-Any input on how to set it up right is appreciated.
+At Thu, 21 Jun 2001 08:15:10,
+Trevor Hemsley wrote:
+> 
+> On Thu, 21 Jun 2001 03:05:02, "Jeff V. Merkey" 
+> <jmerkey@vger.timpanogas.org> wrote:
+> 
+> > Ditto.  I am also seeing this oops calling the sg driver for a 
+> > robotic tape library, and it also seems to happen on 2.4.4.
+> 
+> In my case it appears that it was the symptom of severe bus problems. 
+> About 5 minutes after I posted the initial report I discovered that 
+> the cable from the back of the Nikon to the MO drive had fallen off so
+> the bus was running unterminated. Replugging it fixed teh bus error 
+> and the oops. 
+> 
+> Looks like error handling is all fscked up...
+> 
+
+  I saw this oops too. The following patch is working for me, but I don't
+know this is a correct fix.
 
 
-Here is what I have right now. arch/i386/math-emu/Makefile has this rule
-
-proto:
-        cproto -e -DMAKING_PROTO *.c >fpu_proto.h
-
-
-If I do that in the smbfs Makefile, and run it as:
-$ make TOPDIR=`pwd` -C fs/smbfs proto
-
-I get heaps of errors (some of which I also get for the math-emu rule and
-fpu_proto.h is definitly hand edited, so I wonder if it is really used).
-
-
-For one thing it goes digging in "/usr/include/asm/" which isn't exactly
-what I want. I can improve it by changing the rule to:
-
-proto:
-        cproto -e -I$(TOPDIR)/include -D__KERNEL__ -DMAKING_PROTO *.c > proto.h
-
-And that seems to sort of work.
-
-The only thing is that I get wierd errors on some gcc header:
-
-"/usr/lib/gcc-lib/i386-redhat-linux/2.96/include/stdarg.h", line 43: parse 
-error at token '__builtin_va_list'
-Expected: auto char define-name double extern inline register static ... 
-union
-
-$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.0)
-$ rpm -qf `which gcc`
-gcc-2.96-69
-$ rpm -qf `which cproto`
-cproto-4.6-5
-
-I know it stops working (it misses some functions and complains more :)
-after I apply some of my non-released patches. But that is probably
-something I do wrong.
-
-Is cproto even a good tool for doing this in the kernel tree?
-
-/Urban
-
+diff -r -N -u linux.org/drivers/scsi/aic7xxx/aic7xxx_linux.c linux/drivers/scsi/aic7xxx/aic7xxx_linux.c
+--- linux.org/drivers/scsi/aic7xxx/aic7xxx_linux.c	Fri Mar 16 13:47:01 2001
++++ linux/drivers/scsi/aic7xxx/aic7xxx_linux.c	Fri Mar 16 13:54:34 2001
+@@ -1872,7 +1872,9 @@
+ 		break;
+         case AC_BUS_RESET:
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,0)
+-		scsi_report_bus_reset(ahc->platform_data->host, channel - 'A');
++		if (ahc->platform_data->host) {
++			scsi_report_bus_reset(ahc->platform_data->host, channel - 'A');
++		}
+ #endif
+                 break;
+         default:

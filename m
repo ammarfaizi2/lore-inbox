@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316820AbSE1CGu>; Mon, 27 May 2002 22:06:50 -0400
+	id <S316819AbSE1CIz>; Mon, 27 May 2002 22:08:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316821AbSE1CGt>; Mon, 27 May 2002 22:06:49 -0400
-Received: from squeaker.ratbox.org ([63.216.218.7]:27663 "EHLO
-	squeaker.ratbox.org") by vger.kernel.org with ESMTP
-	id <S316820AbSE1CGr>; Mon, 27 May 2002 22:06:47 -0400
-Date: Mon, 27 May 2002 22:06:46 -0400 (EDT)
-From: Aaron Sethman <androsyn@ratbox.org>
-To: Dan Kegel <dank@kegel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        <pwaechtler@loewe-komp.de>, <austin@digitalroadkill.net>
-Subject: Re: RT Sigio broken on 2.4.19-pre8
-In-Reply-To: <3CF2DCDE.CCBB499F@kegel.com>
-Message-ID: <Pine.LNX.4.44.0205272205530.6201-100000@simon.ratbox.org>
-X-GPG-FINGRPRINT: 1024D/D4DE2553 0E60 59B5 60DA 2FD3 F6F5  27A3 6CD2 21AD D4DE 2553
-X-GPG-PUBLIC_KEY: http://squeaker.ratbox.org/androsyn.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316822AbSE1CIz>; Mon, 27 May 2002 22:08:55 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:61844 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S316819AbSE1CIw>; Mon, 27 May 2002 22:08:52 -0400
+Date: Mon, 27 May 2002 19:08:33 -0700
+From: Wim Coekaerts <wim.coekaerts@oracle.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org,
+        andrea@suse.de, riel@surriel.com, akpm@zip.com.au
+Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
+Message-ID: <20020528020817.GD21763@nic1-pc.us.oracle.com>
+In-Reply-To: <E17AaR0-0002QM-00@the-village.bc.nu> <Pine.LNX.4.33.0205221048570.23621-100000@penguin.transmeta.com> <20020522203024.GZ2035@holomorphy.com> <384590000.1022102334@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, May 22, 2002 at 02:18:54PM -0700, Martin J. Bligh wrote:
+> If we could get the apps (well, Oracle) to co-operate, we could just use
+> clone ;-) Having this transparent for shmem segments would be really nice.
 
-On Mon, 27 May 2002, Dan Kegel wrote:
->
-> Er, forgot to send the signal.  Corrected test case:
+Except that we fork() from different areas, eg at startup, or from the
+listener process once things are up, or directly through a locally
+running client etc. so it's not just using clone() and done... 
 
-Just tried the corrected version, still passed.
+Altho we probably should have a look at it, maybe someone already did,
+will check it out.
 
-Regards,
-
-Aaron
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE88uY3bNIhrdTeJVMRAhAVAJ41B1bC7q++8FCgZf+NDKN9mOaY6QCg2XKe
-EtuaFO1o403xHAP+KjY3VHs=
-=PjcP
------END PGP SIGNATURE-----
+Wim
 

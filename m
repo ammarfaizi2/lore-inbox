@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265810AbUEZVZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265820AbUEZVn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265810AbUEZVZk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 17:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUEZVZj
+	id S265820AbUEZVn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 17:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265822AbUEZVn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 17:25:39 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:30649 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265810AbUEZVZi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 17:25:38 -0400
-MIME-Version: 1.0
+	Wed, 26 May 2004 17:43:27 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:42992 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265820AbUEZVnW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 17:43:22 -0400
+Date: Wed, 26 May 2004 14:43:19 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+To: greg@kroah.com, mochel@digitalimplant.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Leave runtime suspended devices off at system resume
+Message-ID: <20040526214319.GB7176@slurryseal.ddns.mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16565.1600.168844.334347@alkaid.it.uu.se>
-Date: Wed, 26 May 2004 23:04:00 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Paul Jackson <pj@sgi.com>
-Cc: akiyama.nobuyuk@jp.fujitsu.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI trigger switch support for debugging
-In-Reply-To: <20040526133438.196ca930.pj@sgi.com>
-References: <40B1BEAC.30500@jp.fujitsu.com>
-	<20040524023453.7cf5ebc2.akpm@osdl.org>
-	<40B3F484.4030405@jp.fujitsu.com>
-	<20040525184148.613b3d6e.akpm@osdl.org>
-	<40B400D1.1080602@jp.fujitsu.com>
-	<16564.26285.431229.665902@alkaid.it.uu.se>
-	<20040526133438.196ca930.pj@sgi.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson writes:
- > Mikael Pettersson, replying to AKIYAMA Nobuyuki:
- > >  > +	if (!old_state == !unknown_nmi_panic)
- > >  > +		return 0;
- > > 
- > > This conditional looks terribly obscure.
- > 
- > Would the following variant seem clearer:
- > 
- > 	if (!!unknown_nmi_panic == !!old_state)
- > 		return 0;
- > 
- > Odd, I know.  For those of us familiar with the '!!' idiom, which
- > converts any value to its binary logical equivalent 0 (if zero) or
- > 1 (otherwise), this reads as:
- > 
- > 	if (the logical value of unknown_nmi_panic is unchanged)
- > 		return 0;
+Currently all devices are resumed at system resume time, including any
+that were individually powered off ("at runtime") prior to the system
+suspend.  In certain cases it can be nice to force back on individually
+suspended devices, such as the display, but hopefully this policy can be
+left up to userspace power managers; the kernel should probably honor
+the settings previously made by userspace/drivers.  This seems
+preferable to requiring a power-conscious system to re-suspend devices
+after a system resume; furthermore, for certain platforms (such as
+XScale PXA27X) there can be disastrous consequences of powering up
+devices when the system is in a state incompatible with operation of the
+device.
 
-The !! idiom has the advantage of making it crystal clear
-that the author is comparing boolean-normalised values.
-The code I commented on was unusual enough that I couldn't
-ignore the possibility of a bug.
+Suggested patch does this:
 
-In this case, I'd prefer the !! idiom, or moving the test into
-the two state-changing code snippets below it.
+(1) At system resume, checks power_state to see if the device was
+suspended prior to system suspend, and skips powering on the device if
+so.
 
-/Mikael
+(2) Does not re-suspend an already-suspended device at system suspend
+(using a different method than is currently employed, which reorders the
+list, see #3).
+
+(3) Preserves the active/off device list order despite the above changes
+to suspend/resume behavior, to avoid dependency problems that tend to
+occur when the list is reordered.
+
+--- linux-2.6.6-orig/drivers/base/power/suspend.c	2004-05-10 11:22:58.000000000 -0700
++++ linux-2.6.6-prevstate/drivers/base/power/suspend.c	2004-05-25 19:00:20.803379624 -0700
+@@ -39,7 +39,7 @@
+ {
+ 	int error = 0;
+ 
+-	if (dev->bus && dev->bus->suspend)
++	if (dev->bus && dev->bus->suspend && ! dev->power.power_state)
+ 		error = dev->bus->suspend(dev,state);
+ 
+ 	if (!error) {
+--- linux-2.6.6-orig/drivers/base/power/resume.c	2004-05-10 11:22:58.000000000 -0700
++++ linux-2.6.6-prevstate/drivers/base/power/resume.c	2004-05-25 18:07:30.978266288 -0700
+@@ -35,7 +35,10 @@
+ 		struct list_head * entry = dpm_off.next;
+ 		struct device * dev = to_device(entry);
+ 		list_del_init(entry);
+-		resume_device(dev);
++
++		if (! dev->power.power_state)
++			resume_device(dev);
++
+ 		list_add_tail(entry,&dpm_active);
+ 	}
+ }
+
+
+
+-- 
+Todd

@@ -1,150 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbTI3Jlo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 05:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbTI3Jlo
+	id S261249AbTI3JmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 05:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbTI3JmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 05:41:44 -0400
-Received: from mx1.actcom.co.il ([192.114.47.13]:32650 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S261242AbTI3Jlj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 05:41:39 -0400
-Date: Tue, 30 Sep 2003 12:24:03 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Miles Bader <miles@gnu.org>
-Cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_ bits
-Message-ID: <20030930092403.GR29313@actcom.co.il>
-References: <20030929090629.GF29313@actcom.co.il> <20030929153437.GB21798@mail.jlokier.co.uk> <20030930071005.GY729@actcom.co.il> <buohe2u3f20.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030930074138.GG729@actcom.co.il> <buoad8m3dvn.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	Tue, 30 Sep 2003 05:42:25 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:58247 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S261249AbTI3JmW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 05:42:22 -0400
+From: Gabriel Paubert <paubert@iram.es>
+Date: Tue, 30 Sep 2003 11:35:56 +0200
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andi Kleen <ak@colin2.muc.de>, Andi Kleen <ak@muc.de>, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, richard.brunner@amd.com
+Subject: Re: [PATCH] Athlon Prefetch workaround for 2.6.0test6
+Message-ID: <20030930093556.GB12970@iram.es>
+References: <20030929125629.GA1746@averell> <20030929170323.GC21798@mail.jlokier.co.uk> <20030929174910.GA90905@colin2.muc.de> <20030929200820.GA23444@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/KohU7xR/z4Rz7fl"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <buoad8m3dvn.fsf@mcspd15.ucom.lsi.nec.co.jp>
+In-Reply-To: <20030929200820.GA23444@mail.jlokier.co.uk>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 29, 2003 at 09:08:20PM +0100, Jamie Lokier wrote:
+> Btw, you assume that regs->xcs is a valid segment value.  I think that
+> the upper 16 bits are not guaranteed to be zero in general on the
+> IA32, although they clearly are zero for the majority of IA-32 chips.
+> Are they guaranteed to be zero on AMD's processors?
 
---/KohU7xR/z4Rz7fl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+At least for pushes of segment registers a 486 decrements
+the stack pointer by 4 but only writes the 2 least significant
+bytes, leaving garbage in the upper half. 
 
-On Tue, Sep 30, 2003 at 04:59:56PM +0900, Miles Bader wrote:
-> Muli Ben-Yehuda <mulix@mulix.org> writes:
-> > Ok, that's a pretty convincing argument for scraping that
-> > version. I'll rewrite it to evaluate the arguments at compile time if
-> > they're constants, which they are, in our case. Unless someone else
-> > beats me to it, of course ;-)=20
->=20
-> What's wrong with the macro version?  The presence of a __ prefix
-> suggests that it's only used in controlled circumstances anyway, so is
-> validity-checking on the bit arguments really worthwhile?
+That's documented in the list of differences between 486 and Pentium.
+It may be different for the frame pushed on the stack during interrupt
+entry; my take on it is that it is inherently dangerous to rely
+on the upper 16 bits being zero.
 
-I like code that is "future proof", especially when it doesn't cost
-anything. These examples generate identical code for me with gcc-3.3
-and almost identical code with gcc-2.96 (one instruction difference,
-and I can't tell which is faster), and the inline function barfs when
-its arguments are incorrect during compile time, whereas the macro
-will silently give you the wrong results. How does it fare on your
-arch?
+Just my 2 cents,
 
-#include <stdio.h>=20
-#include <assert.h>=20
-
-#define BUG_ON(x) assert(x)=20
-
-/* compiler trap for assert_single_bit. */=20
-extern void __assert_single_bit_failed_dont_exist(void);=20
-
-/*=20
- * assert that only a single bit is on in 'bit'=20
- */=20
-#define assert_single_bit(bit) do { \
-        if (__builtin_constant_p(bit)) {			        \
-		if ((bit & (bit -1)))					\
-			__assert_single_bit_failed_dont_exist();	\
-	}  else								\
-		BUG_ON(!(bit & (bit - 1)));				\
-	} while(0)
-/*=20
- * Optimisation function.  It is equivalent to:=20
- *      (x & bit1) ? bit2 : 0
- * but this version is faster. =20
- * ("bit1" and "bit2" must be single bits).=20
- */
-static inline unsigned long=20
-inline_calc_vm_trans(unsigned long x, unsigned long bit1, unsigned long bit=
-2)=20
-{
-	assert_single_bit(bit1);=20
-	assert_single_bit(bit2);=20
-
-	return ((bit1) <=3D (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1))
-		: ((x) & (bit1)) / ((bit1) / (bit2)));=20
-}
-
-/* Optimisation macro. */
-#define macro_calc_vm_trans(x,bit1,bit2) \
-  ((bit1) <=3D (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1)) \
-   : ((x) & (bit1)) / ((bit1) / (bit2)))
-
-
-int test3(unsigned long arg)
-{
-	return macro_calc_vm_trans(arg, 0x20, 0x80);=20
-}
-
-int test4(unsigned long arg)
-{=20
-	return inline_calc_vm_trans(arg, 0x20, 0x80);=20
-}
-
-int main(void)
-{
-	int l1 =3D test4(~0UL);=20
-	int l2 =3D test3(~0UL);=20
-	return l1 & l2; /* don't optimize them out */=20
-}
-
-gcc-2.96:=20
-
-test3:
-	pushl	%ebp
-	movl	%esp, %ebp
-	movl	8(%ebp), %eax
-	andl	$32, %eax
-	sall	$2, %eax
-	popl	%ebp
-	ret
-
-test4:
-	pushl	%ebp
-	movl	%esp, %ebp
-	subl	$8, %esp
-	movl	8(%ebp), %eax
-	andl	$32, %eax
-	sall	$2, %eax
-	leave
-	ret
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
-
-
---/KohU7xR/z4Rz7fl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/eUuzKRs727/VN8sRAoB8AJwNMJhoG1wLeD7j4wMzZwc2eEbiagCfXzup
-b2HbB5jMSe5DO3I7Ic3ZjUE=
-=kN8Q
------END PGP SIGNATURE-----
-
---/KohU7xR/z4Rz7fl--
+	Regards,
+	Gabriel

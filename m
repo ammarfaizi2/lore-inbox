@@ -1,40 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130265AbQKPNYD>; Thu, 16 Nov 2000 08:24:03 -0500
+	id <S129718AbQKPNYO>; Thu, 16 Nov 2000 08:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbQKPNXx>; Thu, 16 Nov 2000 08:23:53 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24511 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129186AbQKPNXm>;
-	Thu, 16 Nov 2000 08:23:42 -0500
-Date: Thu, 16 Nov 2000 07:53:40 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] get_empty_inode() cleanup
-In-Reply-To: <Pine.LNX.4.21.0011161242330.1530-100000@saturn.homenet>
-Message-ID: <Pine.GSO.4.21.0011160745580.11017-100000@weyl.math.psu.edu>
+	id <S130387AbQKPNYE>; Thu, 16 Nov 2000 08:24:04 -0500
+Received: from mail1.rdc3.on.home.com ([24.2.9.40]:21656 "EHLO
+	mail1.rdc3.on.home.com") by vger.kernel.org with ESMTP
+	id <S129186AbQKPNXx>; Thu, 16 Nov 2000 08:23:53 -0500
+Message-ID: <3A13D8D6.8C12E31A@home.com>
+Date: Thu, 16 Nov 2000 07:53:42 -0500
+From: John Cavan <johncavan@home.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: Patch to fix lockup on ppa insert
+In-Reply-To: <3A13D4BA.AD4A580B@home.com>
+Content-Type: multipart/mixed;
+ boundary="------------A81078DE903C8C33FD2F5FA3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------A81078DE903C8C33FD2F5FA3
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+John Cavan wrote:
+> 
+> Similar to the imm patch, it's working for me.
+> 
+> John
 
-On Thu, 16 Nov 2000, Tigran Aivazian wrote:
+Again... not all screwed up...
+--------------A81078DE903C8C33FD2F5FA3
+Content-Type: text/plain; charset=us-ascii;
+ name="ppa.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ppa.diff"
 
-> on the other hand, even 1 minute's thought reveals that making strict
-> logical separation between "consumers of inode with sb" and "consumers of
-> inode without sb" is probably worth the overhead of an extra function
-> call. So, I don't strongly feel about the above... maybe you are right :)
+patch -ur linux.clean/drivers/scsi/ppa.h linux.current/drivers/scsi/ppa.h
+--- linux.clean/drivers/scsi/ppa.h	Thu Sep 14 20:27:05 2000
++++ linux.current/drivers/scsi/ppa.h	Thu Nov 16 07:26:38 2000
+@@ -170,7 +170,7 @@
+ 		eh_device_reset_handler:	NULL,			\
+ 		eh_bus_reset_handler:		ppa_reset,		\
+ 		eh_host_reset_handler:		ppa_reset,		\
+-		use_new_eh_code:		1,			\
++		use_new_eh_code:		0,			\
+ 		bios_param:			ppa_biosparam,		\
+ 		this_id:			-1,			\
+ 		sg_tablesize:			SG_ALL,			\
+patch -ur linux.clean/drivers/scsi/ppa.c linux.current/drivers/scsi/ppa.c
+--- linux.clean/drivers/scsi/ppa.c	Thu Nov 16 07:25:29 2000
++++ linux.current/drivers/scsi/ppa.c	Thu Nov 16 07:28:10 2000
+@@ -215,8 +215,10 @@
+ 	}
+ 	try_again = 1;
+ 	goto retry_entry;
+-    } else
++    } else {
++	host->use_new_eh_code = 1;
+ 	return 1;		/* return number of hosts detected */
++    }
+ }
+ 
+ /* This is to give the ppa driver a way to modify the timings (and other
 
-It's not the with sb/without sb thing. Everything is much simpler -
-changing the get_empty_inode() prototype means mandatory changes in
-all 3rd-party code. Code freeze and all such...
-
-IOW, unmodified code doesn't break from the addition of helper function,
-but changing get_empty_inode() will break (albeit in a trivial way)
-every bloody filesystem out there. Not a problem for 2.5, but doing that
-now for no good reason...
+--------------A81078DE903C8C33FD2F5FA3--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

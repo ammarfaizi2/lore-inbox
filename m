@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265736AbSK1QoL>; Thu, 28 Nov 2002 11:44:11 -0500
+	id <S265843AbSK1Qu1>; Thu, 28 Nov 2002 11:50:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265828AbSK1QoL>; Thu, 28 Nov 2002 11:44:11 -0500
-Received: from bitmover.com ([192.132.92.2]:56223 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S265736AbSK1QoK>;
-	Thu, 28 Nov 2002 11:44:10 -0500
-Date: Thu, 28 Nov 2002 08:51:28 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: [rmk@arm.linux.org.uk: Re: connectivity to bkbits.net?]
-Message-ID: <20021128085128.A4846@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
+	id <S265863AbSK1Qu0>; Thu, 28 Nov 2002 11:50:26 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:4113 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S265843AbSK1QuY>; Thu, 28 Nov 2002 11:50:24 -0500
+Message-Id: <200211281657.gASGve102802@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Andries.Brouwer@cwi.nl
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] scsi/hosts.c device_register fix 
+In-Reply-To: Message from Andries.Brouwer@cwi.nl 
+   of "Thu, 28 Nov 2002 17:47:53 +0100." <UTC200211281647.gASGlrq03953.aeb@smtp.cwi.nl> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-MailScanner: Found to be clean
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_5066416220"
+Date: Thu, 28 Nov 2002 10:57:40 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to Russell for doing my legwork.
+This is a multipart MIME message.
 
-Mea culpa, I never thought to check to see if sgi had turned off pings.
-They apparently have (bummer).
+--==_Exmh_5066416220
+Content-Type: text/plain; charset=us-ascii
 
-Sorry for the noise, 
+Actually, the patch is wrong.  It will wreak havoc with SCSI's use of sysfs.  
+The device_register has to be done in scsi_add_host, which is called after all 
+the driver specific sysfs setup has been done.  The correct fix is to move the 
+corresponding device_unregister into scsi_remove_host so that they match.
 
---lm
+I've attached it below.  I'll also commit it to the scsi-misc-2.5 BK tree.
 
------ Forwarded message from Russell King <rmk@arm.linux.org.uk> -----
+James
 
-Date: Thu, 28 Nov 2002 16:41:19 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: connectivity to bkbits.net?
 
-On Thu, Nov 28, 2002 at 08:25:50AM -0800, Larry McVoy wrote:
-> We've been having problems getting out to certain parts of the net for the
-> last few days, in particular, we can't get to sgi.com which is unusual.
-> If you are having problems getting to bkbits.net, let me know.  We have
-> a couple of machines at rackspace and I can push repos over there.
+--==_Exmh_5066416220
+Content-Type: text/plain ; name="tmp.diff"; charset=us-ascii
+Content-Description: tmp.diff
+Content-Disposition: attachment; filename="tmp.diff"
 
-I think you're hitting their firewall.  If I traceroute to the same
-address, it stops at the same place.  However, telnet sgi.com 80
-"GET /" connects and returns data, so it is reachable.
+===== hosts.c 1.31 vs edited =====
+--- 1.31/drivers/scsi/hosts.c	Sun Nov 17 15:47:02 2002
++++ edited/hosts.c	Sat Nov 23 17:25:57 2002
+@@ -295,6 +295,8 @@
+ 		kfree(sdev);
+ 	}
+ 
++	device_unregister(&shost->host_driverfs_dev);
++
+ 	return 0;
+ }
+ 
+@@ -348,7 +350,6 @@
+ 
+ 	/* Cleanup proc and driverfs */
+ 	scsi_proc_host_rm(shost);
+-	device_unregister(&shost->host_driverfs_dev);
+ 
+ 	kfree(shost);
+ }
 
-Unfortunately, in this day and age, telnetting to the http port seems to
-be a better test of connectivity than traceroute ever was.
+--==_Exmh_5066416220--
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 
------ End forwarded message -----
-
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129404AbQKTBhN>; Sun, 19 Nov 2000 20:37:13 -0500
+	id <S129532AbQKTBlY>; Sun, 19 Nov 2000 20:41:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129532AbQKTBhD>; Sun, 19 Nov 2000 20:37:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22308 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129404AbQKTBgo>; Sun, 19 Nov 2000 20:36:44 -0500
-Subject: Re: 2.4.0-test11-pre7: isapnp hang
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Mon, 20 Nov 2000 01:06:47 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8v9rf6$54k$1@cesium.transmeta.com> from "H. Peter Anvin" at Nov 19, 2000 04:32:38 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130032AbQKTBlO>; Sun, 19 Nov 2000 20:41:14 -0500
+Received: from anime.net ([63.172.78.150]:12815 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S129532AbQKTBlA>;
+	Sun, 19 Nov 2000 20:41:00 -0500
+Date: Sun, 19 Nov 2000 17:11:23 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Andries Brouwer <aeb@veritas.com>
+cc: <linux-kernel@vger.kernel.org>, <ahu@ds9a.nl>
+Subject: Re: 2.4 sendfile() not doing as manpage promises?
+In-Reply-To: <20001119173623.A1185@veritas.com>
+Message-ID: <Pine.LNX.4.30.0011191708530.17673-100000@anime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13xfQ1-0003CR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Try reserving ports 0x300-0x31f on the kernel command line
-> ("reserve=0x300,0x20").
-> 
-> I'm surprised isapnp uses a port in such a commonly used range,
-> though.
+On Sun, 19 Nov 2000, Andries Brouwer wrote:
+> Moreover, the text Dan Hollis quotes is rather strange
 
-It seems to be a combination of two bugs. The one I posted a patch for and
-something odd that is taking port 0x279 before the pnp probe is run, which
-suggests a link order issue. Although in truth _nobody_ should be claing
-that anyway
+It's from redhat 6.0 man-pages-1.23-3 rpm package.
+
+-Dan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

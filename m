@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272360AbTGaAAx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 20:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272359AbTGaAAx
+	id S272338AbTG3Xye (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 19:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272341AbTG3Xye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 20:00:53 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:37385 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S272360AbTGaAAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 20:00:50 -0400
-Date: Thu, 31 Jul 2003 10:00:37 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Richard A Nelson <cowboy@vnet.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-mm1 & ipsec-tools (xfrm_type_2_50?)
-In-Reply-To: <Pine.LNX.4.56.0307301515250.26621@onqynaqf.yrkvatgba.voz.pbz>
-Message-ID: <Mutt.LNX.4.44.0307310959390.20194-100000@excalibur.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Jul 2003 19:54:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:38092 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272338AbTG3Xye (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 19:54:34 -0400
+Date: Wed, 30 Jul 2003 16:50:44 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: chas3@users.sourceforge.net
+Cc: chas@cmf.nrl.navy.mil, eguaj@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix 2.6.0-test1 *** Warning: "llc_oui"
+ [net/sched/sch_atm.ko] undefined!
+Message-Id: <20030730165044.6f21f803.davem@redhat.com>
+In-Reply-To: <200307301713.h6UHDFsG012606@ginger.cmf.nrl.navy.mil>
+References: <20030725103106.GB1670@satellite.workgroup.fr>
+	<200307301713.h6UHDFsG012606@ginger.cmf.nrl.navy.mil>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jul 2003, Richard A Nelson wrote:
+On Wed, 30 Jul 2003 13:10:32 -0400
+chas williams <chas@cmf.nrl.navy.mil> wrote:
 
-> most of the module not found messages are fine, its xfrm_type_2_50 that
-> I'm worried about... What am I missing ?
+> please apply to 2.6 -- thanks
 
-Possibly some aliases in /etc/modprobe.conf
-
-alias xfrm-type-2-50    esp4
-alias xfrm-type-2-51    ah4
-alias xfrm-type-2-108   ipcomp
-alias xfrm-type-10-50   esp6
-alias xfrm-type-10-51   ah6
-alias xfrm-type-10-108  ipcomp6
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+Applied, thanks Chas.

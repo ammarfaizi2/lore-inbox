@@ -1,103 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUEENMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264649AbUEENLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264650AbUEENMI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 09:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUEENMI
+	id S264649AbUEENLr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 09:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264664AbUEENLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 09:12:08 -0400
-Received: from gizmo04bw.bigpond.com ([144.140.70.14]:5293 "HELO
-	gizmo04bw.bigpond.com") by vger.kernel.org with SMTP
-	id S264653AbUEENIS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 09:08:18 -0400
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: Ian Kumlien <pomac@vapor.com>
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
-Date: Wed, 5 May 2004 23:12:44 +1000
-User-Agent: KMail/1.5.1
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Allen Martin <AMartin@nvidia.com>, linux-kernel@vger.kernel.org,
+	Wed, 5 May 2004 09:11:47 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:7354 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S264649AbUEENIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 09:08:07 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+	for idle=C1halt, 2.6.5
+From: Ian Kumlien <pomac@vapor.com>
+To: ross@datscreative.com.au
+Cc: Allen Martin <AMartin@nvidia.com>, linux-kernel@vger.kernel.org,
        Len Brown <len.brown@intel.com>, Jesse Allen <the3dfxdude@hotmail.com>,
        "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
        Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
        Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com> <200405052214.38855.ross@datscreative.com.au> <1083760029.2797.33.camel@big>
-In-Reply-To: <1083760029.2797.33.camel@big>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200405052312.44623.ross@datscreative.com.au>
+In-Reply-To: <200405052252.29359.ross@datscreative.com.au>
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com>
+	 <200405052124.55515.ross@datscreative.com.au>
+	 <1083759539.2797.24.camel@big>
+	 <200405052252.29359.ross@datscreative.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4d0206BzBFNee4nUAPRR"
+Message-Id: <1083762481.2797.49.camel@big>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 05 May 2004 15:08:01 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 05 May 2004 22:27, Ian Kumlien wrote:
-> On Wed, 2004-05-05 at 14:14, Ross Dickson wrote:
-> > To my knowledge the only thing left to sort out for the normal kernel
-> > distro is what to do about the timer_ack issue in check_timer().
-> > 
-> > We need it off for nforce2 to get nmi_watchdog=1 working with ioapic
-> > 8254 timer pin0  timer override patch routing. I vote to revisit Maciej's
-> > patch that was dropped by Linus after appearing in 2.6.3-mm3. 
-> > For those with problems of clock skew with the timer into pin0 routing, 
-> > that patch gave a virtual wire timer routing which worked well for those
-> > users.
-> 
-> Whats the real difference between nmi_watchdog?1 and =2? Since
-> nmi_watchdog=2 works here:
-> 
-> NMI:       9884
-> LOC:   80297310
-> ERR:          0
-> MIS:          0
 
->From memory 2 uses resources that code profiling tools need to use so
-if you can use 1 then you can have your watchdog and profile too.
+--=-4d0206BzBFNee4nUAPRR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Also, wouldn't it be better to not depend on bioses and bios versions
-> atm, ie hardcode pin0 since Allen Martin stated that it's hardwired on
-> pin0?
-> 
-> ie, just:
-> if(pin2 && nforce2_chip)
-> {
-> 	printk("ALERT: Known defect in bios, mail your manufacturer. Using
-> pin0\n");
-> 	<whateverisneededtousepin0>
-> }
+On Wed, 2004-05-05 at 14:52, Ross Dickson wrote:
+> On Wednesday 05 May 2004 22:18, Ian Kumlien wrote:
+> > On Wed, 2004-05-05 at 13:24, Ross Dickson wrote:
+> > <snip>
+> > > They can't see through their Windows.??!@@#$$%%&*&
+> > >=20
+> > > ML1-0505-19 Re: Cause of lockups with KM-18G Pro is incorrect pci reg=
+ values in bios -please update bios
+> > >=20
+> > > From:=20
+> > > "dr.pro" <dr.pro@albatron.com.tw>
+> > >=20
+> > > To:=20
+> > > <ross@datscreative.com.au>
+> > >=20
+> > > Date:=20
+> > > Today 17:38:08
+> > >=20
+> > >   Dear Ross,
+> > >=20
+> > >   Thank you very much for contacting Albatron technical support.
+> > >=20
+> > >   KM18G Pro has been proved under Windows 98SE/ME/2000/XP but Linux, =
+so you
+> > > may encounter problems with it under Linux. We suggest you use Window=
+s
+> > > 98SE/ME/2000/XP for the stable performance. Sorry for the inconvenien=
+ce and
+> > > please kindly understand it.
+> > >=20
+> > >   Please let us know if you have any question.
+> >=20
+> > Please kindly understand it? I wouldn't... I'm about to bash asus, so..=
+.
+> > This information gets me in the moood to do some real bashing =3D)
+> >=20
+> > Btw, does windows do a C1 disconnect? And if so how often?
+>=20
+> I think it does as temps are lower then linux without disconnect.
+> Here are some temperatures from my machine read from the bios on reboot.
+> I gave it minimal activity for the minutes prior to reboot.
+>=20
+>  Win98, 47C
+>  XPHome, 42C
+>  Patched Linux 2.4.24 (1000Hz), 40C
+>  Linux 2.6.3-rc1-mm1, 53C  with no disconnect
+> =20
+> I think the disconnect happens for less time percentage. With slower
+> ticks one might assume less often than linux.=20
+> -Ross
 
-It should be OK, but those with mobos that get clock skew on pin 0 would
-then demand a clock skew fix for their noisy hardware. I don't have a
-motherboard with skew problems.
+Which means that the problem isn't as likely to occur under Windows,
+which also explains why mb-manuf ppl are lazy =3DP.
+=20
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
 
-Personally I think that the clock system should be made immune to noise
-generated timer interrupts just as it has been coded to detect missing
-timer interrupts. I am pretty sure on nforce2 athlon mobos the tsc is used
-in detecting missing pulses. Kind of like a digital phase locked loop? so
-should it not also debounce the interrupts given that the ioapic interrupt
-hardware cannot?
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-04/6385.html
-Obviously the pc hardware design is flawed in this respect.
+--=-4d0206BzBFNee4nUAPRR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Anyone know how to modify the existing timer tsc code to do this? And
-offer to do it? Any brand/type of mobo is open to clock speed up due
-to this effect, so I think it should be fixed, debouncing is fundamental
-to input transitions that need to be counted.
- 
--Ross
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-> 
-> Since this whole problem is pissing me off... It would be much better if
-> one had some kind of access to the information from nvidia so you can
-> just point at it, telling the mb-manuf. that they are morons and go fix
-> =). (Did i mention that i have had this problem for quite some time and
-> would have gone postal if it wasn't for Ross Dicksons fixes =))
-> 
-> -- 
-> Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-> 
+iD8DBQBAmOcx7F3Euyc51N8RAurUAJwNJASNaCwHVY2MU97wqOFEZKHUVQCfbyfc
+py4q+PKlKxTynkFmi6gIrJ8=
+=8IUG
+-----END PGP SIGNATURE-----
+
+--=-4d0206BzBFNee4nUAPRR--
 

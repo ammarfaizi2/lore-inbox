@@ -1,80 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261264AbSJDBFo>; Thu, 3 Oct 2002 21:05:44 -0400
+	id <S261330AbSJDBIB>; Thu, 3 Oct 2002 21:08:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261330AbSJDBFo>; Thu, 3 Oct 2002 21:05:44 -0400
-Received: from smtp2.texas.rr.com ([24.93.36.230]:13983 "EHLO
-	txsmtp02.texas.rr.com") by vger.kernel.org with ESMTP
-	id <S261264AbSJDBFn>; Thu, 3 Oct 2002 21:05:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <kcorry@austin.rr.com>
-Reply-To: kcorry@austin.rr.com
-To: Greg KH <greg@kroah.com>, Mark Peloquin <peloquin@us.ibm.com>
-Subject: Re: [PATCH] add safe version of list_for_each_entry() to list.h
-Date: Thu, 3 Oct 2002 19:25:47 -0500
-X-Mailer: KMail [version 1.2]
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net
-References: <OF9EDF8472.CDE2D9D8-ON85256C47.0080772B@pok.ibm.com> <20021003234430.GG2289@kroah.com>
-In-Reply-To: <20021003234430.GG2289@kroah.com>
+	id <S261386AbSJDBIB>; Thu, 3 Oct 2002 21:08:01 -0400
+Received: from pat.uio.no ([129.240.130.16]:61688 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S261330AbSJDBIA>;
+	Thu, 3 Oct 2002 21:08:00 -0400
 MIME-Version: 1.0
-Message-Id: <02100319254700.00236@cygnus>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15772.60202.510717.850059@charged.uio.no>
+Date: Fri, 4 Oct 2002 03:13:14 +0200
+To: Christian Reis <kiko@async.com.br>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, NFS@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19+trond and diskless locking problems
+In-Reply-To: <20021003202602.M3869@blackjesus.async.com.br>
+References: <20021003184418.K3869@blackjesus.async.com.br>
+	<shsy99f16np.fsf@charged.uio.no>
+	<20021003202602.M3869@blackjesus.async.com.br>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 October 2002 18:44, Greg KH wrote:
-> On Thu, Oct 03, 2002 at 06:42:09PM -0500, Mark Peloquin wrote:
-> > Please consider adding the following patch to list.h.
->
-> This patch had the tabs mangled and would not apply.
->
-> Yeah, Notes sucks for sending patches...
+>>>>> " " == Christian Reis <kiko@async.com.br> writes:
 
-It does indeed. Avoid Notes at all costs. :)
+    >> >     kernel:Aug 10 17:39:22 anthem kernel: lockd: cannot
+    >> >     monitor 192.168.99.7
+    >>
+    >> Means that the kernel was unable to contact rpc.statd, or that
+    >> was unable to contact the server's rpc.statd for some reason.
 
-Here is the patch again. Should apply cleanly this time.
+     > Hmmm, I wonder if I understand properly. Is the following flow
+     > correct for the RPC request?
 
--Kevin
+     >     Client Kernel -> Client rpc.statd -> Server rpc.statd ->
+     >     Server Kernel
 
-=========================================================
-diff -Naur linux-2.5.40a/include/linux/list.h linux-2.5.40b/include/linux/list.h
---- linux-2.5.40a/include/linux/list.h	Tue Oct  1 02:05:48 2002
-+++ linux-2.5.40b/include/linux/list.h	Thu Oct  3 19:17:27 2002
-@@ -137,6 +137,15 @@
- 	return head->next == head;
- }
- 
-+/**
-+ * list_member - tests whether a list member is currently on a list
-+ * @member:	member to evaulate
-+ */
-+static inline int list_member(struct list_head *member)
-+{
-+	return ((!member->next || !member->prev) ? 0 : 1);
-+}
-+
- static inline void __list_splice(struct list_head *list,
- 				 struct list_head *head)
- {
-@@ -240,6 +249,20 @@
- 	     &pos->member != (head); 					\
- 	     pos = list_entry(pos->member.next, typeof(*pos), member),	\
- 		     prefetch(pos->member.next))
-+
-+/**
-+ * list_for_each_entry_safe - iterate over list safe against removal of list entry
-+ * @pos:	the type * to use as a loop counter.
-+ * @n:		another type * to use as temporary storage
-+ * @head:	the head for your list.
-+ * @member:	the name of the list_struct within the struct.
-+ */
-+#define list_for_each_entry_safe(pos, n, head, member)			\
-+	for (pos = list_entry((head)->next, typeof(*pos), member),	\
-+		n = list_entry(pos->member.next, typeof(*pos), member);	\
-+	     &pos->member != (head);					\
-+	     pos = n,							\
-+		n = list_entry(pos->member.next, typeof(*pos), member))
- 
- #endif /* __KERNEL__ || _LVM_H_INCLUDE */
- 
+That's more or less right, except that the communication is bidirectional.
+
+    >> lies with rpc.statd.  Can you see any reason in your setup why
+    >> it should be failing?
+
+     > Not really. The clients run rpc.statd 1.0 and the server,
+     > 1.0.1. Should I start gdbing it to see what is going wrong?
+
+Start by using tcpdump to find out who, in the above chain, is taking
+such a long time to respond.
+
+Cheers,
+  Trond

@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130694AbQJ1OFe>; Sat, 28 Oct 2000 10:05:34 -0400
+	id <S129791AbQJ1OPS>; Sat, 28 Oct 2000 10:15:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130767AbQJ1OFY>; Sat, 28 Oct 2000 10:05:24 -0400
-Received: from p3EE3CA60.dip.t-dialin.net ([62.227.202.96]:2565 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S130694AbQJ1OFM>; Sat, 28 Oct 2000 10:05:12 -0400
-Date: Sat, 28 Oct 2000 14:33:15 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Tekram's TRM-1040S USCSI proc driver?
-Message-ID: <20001028143315.C3120@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0010271822330.31743-100000@q.dyndns.org>
-Mime-Version: 1.0
+	id <S130313AbQJ1OPI>; Sat, 28 Oct 2000 10:15:08 -0400
+Received: from smtppop2pub.gte.net ([206.46.170.21]:41271 "EHLO
+	smtppop2pub.verizon.net") by vger.kernel.org with ESMTP
+	id <S129791AbQJ1OOz>; Sat, 28 Oct 2000 10:14:55 -0400
+Message-ID: <39FADF38.9CA09B1A@gte.net>
+Date: Sat, 28 Oct 2000 10:14:16 -0400
+From: "Stephen E. Clark" <sclark46@gte.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test9 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: lk <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
+Subject: Re: RTNL assert
+In-Reply-To: <39FA4968.62588272@gte.net> <39FAAFF2.200E1860@uow.edu.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0010271822330.31743-100000@q.dyndns.org>; from blc@q.dyndns.org on Fri, Oct 27, 2000 at 18:25:45 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2000, Benson Chow wrote:
+Andrew Morton wrote:
+> 
+> "Stephen E. Clark" wrote:
+> >
+> > When I configure in Tunneling I get the following error message. Is this
+> > normal? This with 2.4test9pre5
+> >
+> > GRE over IPv4 tunneling driver
+> > RTNL: assertion failed at devinet.c(775):inetdev_event
+> 
+> The rtnetlink lock needs to be taken around
+> register_netdevice().  There should be a function
+> which does these three common steps, but there isn't.
+> 
+> --- linux-2.4.0-test10-pre5/net/ipv4/ip_gre.c   Sat Sep  9 16:19:30 2000
+> +++ linux-akpm/net/ipv4/ip_gre.c        Sat Oct 28 21:44:23 2000
+> @@ -1266,7 +1266,9 @@
+>  #ifdef MODULE
+>         register_netdev(&ipgre_fb_tunnel_dev);
+>  #else
+> +       rtnl_lock();
+>         register_netdevice(&ipgre_fb_tunnel_dev);
+> +       rtnl_unlock();
+>  #endif
+> 
+>         inet_add_protocol(&ipgre_protocol);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-> Anyone know if Tekram's DC315/DC395 SCSI driver will be incorporated
-> into the kernel distribution?  I think their driver is GPL, or was there
-> some other reason it wasn't incorporated?
+Thanks Andrew,
 
-The driver will not be included until its maintainer, currently Kurt
-Garloff, says it's ready for inclusion. 
+I also get the same error if I try to configure in normal IPV4
+tunneling. I guess it needs the same kind of patch.
 
--- 
-Matthias Andree
+Oct 27 14:46:59 joker kernel: IPv4 over IPv4 tunneling driver 
+Oct 27 14:46:59 joker kernel: RTNL: assertion failed at
+devinet.c(775):inetdev_event 
+Oct 27 14:46:59 joker kernel: GRE over IPv4 tunneling driver 
+Oct 27 14:46:59 joker kernel: RTNL: assertion failed at
+devinet.c(775):inetdev_event
+
+Steve
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

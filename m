@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265125AbUAaWFU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 17:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbUAaWFU
+	id S265139AbUAaWNM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 17:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUAaWNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 17:05:20 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41805 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S265125AbUAaWFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 17:05:13 -0500
-To: Matthew Wilcox <willy@debian.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Greg KH <greg@kroah.com>, Andi Kleen <ak@colin2.muc.de>,
-       Andrew Morton <akpm@osdl.org>, mj@ucw.cz,
-       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
-       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-References: <6B09584CC3D2124DB45C3B592414FA830112C34F@bgsmsx402.gar.corp.intel.com>
-	<20040129150925.GC18725@parcelfarce.linux.theplanet.co.uk>
-	<20040129155911.GD18725@parcelfarce.linux.theplanet.co.uk>
-	<Pine.LNX.4.58.0401290802370.689@home.osdl.org>
-	<20040129164230.GE18725@parcelfarce.linux.theplanet.co.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 31 Jan 2004 14:57:29 -0700
-In-Reply-To: <20040129164230.GE18725@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <m1hdybwzli.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 31 Jan 2004 17:13:12 -0500
+Received: from hb6.lcom.net ([216.51.236.182]:23424 "EHLO
+	petrus.dynamic.digitasaru.net") by vger.kernel.org with ESMTP
+	id S265139AbUAaWNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 17:13:09 -0500
+Date: Sat, 31 Jan 2004 17:11:37 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Software Suspend 2.0
+Message-ID: <20040131231134.GA6084@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+	linux-kernel@vger.kernel.org
+References: <20040131071619.GD7245@digitasaru.net> <1075534088.18161.61.camel@laptop-linux> <20040131073848.GE7245@digitasaru.net> <1075537924.17730.88.camel@laptop-linux> <401B6F7A.5030103@gmx.de> <1075540107.17727.90.camel@laptop-linux> <401B7312.3060207@gmx.de> <1075542685.25454.124.camel@laptop-linux> <401B86EB.50604@gmx.de> <yw1xznc4tfle.fsf@kth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xznc4tfle.fsf@kth.se>
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox <willy@debian.org> writes:
+>From Måns Rullgård on Saturday, 31 January, 2004:
+>"Prakash K. Cheemplavam" <PrakashKC@gmx.de> writes:
+>>> My error. My patch script has put kernel/power/swsusp2.c in the version
+>> No problem. I already tested it. After throwing out usb modules, it
+>> did suspend, though taking quite long at the kernel and processing
+>> (something like that) message. But upon restart, it didn't resume,
+>> ie. it didn't find its image, just normal swap space.
+>Try disabling write cache on the disk with hdparm -W0 /dev/hde.
 
-> On Thu, Jan 29, 2004 at 08:05:52AM -0800, Linus Torvalds wrote:
-> > The compiler _should_ entirely compile away "fix_to_virt(xxx)", so by 
-> > creating a variable for the value, you're actually making code generation 
-> > worse. You might as well have
-> > 
-> > 	#define mmcfg_virt_addr (fix_to_virt(FIX_PCIE_MCFG))
-> > 
-> > instead.
-> 
-> Ahh, I missed the comment towards the top of fixmap.h that this is a
-> constant address.  You're so smart sometimes ;-)
-> 
-> > That said, this patch looks perfectly acceptable to me. With some testing, 
-> > I'd take it through Greg or -mm.
-> 
-> Cool.  Here's the final version for testing then.
+When should this be done?
 
-Is it really safe to treat the base address as a u32?  I know
-if I was doing the BIOS and that address was tied to a 32bit BAR I
-would be extremely tempted to put those 256M of address space above
-4G.  Putting something like that below 4G leads to 1/2 Gig of memory
-missing. 
+I have 2.6.1 + the 2.6.1-specific patches + core patches.  It suspends
+  without difficulty, but on boot, it says it couldn't read a part
+  of the resume data (a "chunk", iirc).  The status bar doesn't make
+  much progress.
 
-You can also put the memory above 4G on most intel chipsets but I'd
-rather have my memory down low where my legacy OS could get to it
-rather than have my PCI extended configuration space down low where
-nothing really needs it. 
+I tried hdparm -W 0 right before the call to hibernate (in a script).
+  But I still have the problem.
 
-Point being I don't think it is safe to assume the BIOS always puts
-the extended PCI configuration space below 4G.
+When should hdparm be called?
 
-Eric
+Thanks!
+
+-Joseph

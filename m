@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVDFRO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVDFRSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbVDFRO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 13:14:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVDFRO6
+	id S262246AbVDFRSq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 13:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVDFRSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 13:14:58 -0400
-Received: from inutil.org ([193.22.164.111]:9913 "EHLO
-	vserver151.vserver151.serverflex.de") by vger.kernel.org with ESMTP
-	id S262248AbVDFROp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 13:14:45 -0400
-To: linux-kernel@vger.kernel.org
-Cc: benh@kernel.crashing.org
-Subject: Re: Linux 2.6.12-rc2
-In-Reply-To: <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504040945100.32180@ppc970.osdl.org> <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
-Date: Wed, 6 Apr 2005 19:14:35 +0200
-Message-Id: <E1DJE6t-0001T5-UD@localhost.localdomain>
-From: Moritz Muehlenhoff <jmm@inutil.org>
-X-SA-Exim-Connect-IP: 84.137.114.145
-X-SA-Exim-Mail-From: jmm@inutil.org
-X-SA-Exim-Scanned: No (on vserver151.vserver151.serverflex.de); SAEximRunCond expanded to false
+	Wed, 6 Apr 2005 13:18:45 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:3016 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S262246AbVDFRS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 13:18:29 -0400
+To: <arun.prabha@wipro.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduling tasklets from process context...
+X-Message-Flag: Warning: May contain useful information
+References: <8F94FD7C111E3D43BA3C7CF89CB50E92012AA7B5@BLR-EC-2K3MSG.wipro.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 06 Apr 2005 09:46:17 -0700
+In-Reply-To: <8F94FD7C111E3D43BA3C7CF89CB50E92012AA7B5@BLR-EC-2K3MSG.wipro.com> (arun
+ prabha's message of "Wed, 6 Apr 2005 08:20:28 +0530")
+Message-ID: <52mzsbam5i.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 06 Apr 2005 16:46:17.0325 (UTC) FILETIME=[271169D0:01C53AC8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Benjamin Herrenschmidt:
->   o radeonfb: Implement proper workarounds for PLL accesses
->   o radeonfb: DDC i2c fix
->   o radeonfb: Fix mode setting on CRT monitors
->   o radeonfb: Preserve TMDS setting
+    arun> Since tasklets are typically used for bottom half
+    arun> processing, is it acceptable/recommended that they be
+    arun> scheduled from a process context (say an ioctl handler)?
 
-One of these patches introduced two regressions on my Thinkpad X31 with
-"ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])":
+    arun> Should one try to minimize such scheduling and try to do
+    arun> things in process context if possible, as tasklets run in
+    arun> interrupt context? Or is the driver writer free to use the
+    arun> tasklets at will? What is recommended here?
 
-1. When resuming from S3 suspend and having switched off the backlight
-with radeontool the backlight isn't switched back on any more.
+I guess it would work to schedule a tasklet from your ioctl handler, but
+I don't see a good reason to do it.  What are you really trying to do?
 
-2. I'm using fbcon as my primary work environment, but tty switching has
-become _very_ sloppy, it's at least a second now, while with 2.6.11 it
-was as fast as a few ms. Is this caused by the "proper PLL accesses"?
+Your ioctl handler runs in process context so you are free to do
+pretty much anything -- allocate with GFP_KERNEL, sleep, etc.  If you
+want to return to userspace immediately but defer some work until
+later, it would probably make more sense to use something like
+schedule_work() instead of a tasklet.
 
-Cheers,
-        Moritz
+The main point of tasklets is that they run at a high priority, very
+soon after they're scheduled, so that an interrupt handler can return
+quickly by deferring work to a tasklet but still not add too much
+latency.  But in your ioctl handler, if you have some high priority
+work, you can just do it immediately without the complication of a tasklet.
+
+ - R.
+

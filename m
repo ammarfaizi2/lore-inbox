@@ -1,135 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262639AbUKRGu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbUKRGwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262639AbUKRGu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 01:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUKRGu2
+	id S262641AbUKRGwc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 01:52:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbUKRGwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 01:50:28 -0500
-Received: from siaag2ac.compuserve.com ([149.174.40.133]:1270 "EHLO
-	siaag2ac.compuserve.com") by vger.kernel.org with ESMTP
-	id S262639AbUKRGsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 01:48:20 -0500
-Date: Thu, 18 Nov 2004 01:44:20 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Linux 2.6.9-ac9
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <200411180148_MC3-1-8EE2-A85E@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Thu, 18 Nov 2004 01:52:32 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:43187 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262641AbUKRGwH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 01:52:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=j2S3pz2RjzulXkIBPDiwHIXKy8ziicjwRy0l7nDJtLwmDvjA0m2rsIe9WTY1IJKTg4k3G/H/tnYo34Eaq4adtkXGhYiOvJ6AFksbS2Gp3L1mjT5YzachzMmVoAG2JArOKY9rywPZfV/oDFTN3dBJUKelf4VSNosy5BX2k/2kO4Q=
+Message-ID: <7153331f04111712467a00b60d@mail.gmail.com>
+Date: Wed, 17 Nov 2004 15:46:11 -0500
+From: Don Lafontaine <don.lafontaine@gmail.com>
+Reply-To: Don Lafontaine <don.lafontaine@gmail.com>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Packet capturing, iptables and eth0 vs. dummy0
+In-Reply-To: <20041117203033.GA7907@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <20041117203033.GA7907@DervishD>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
-> Time to check them all and the size of the diff already
+That's because when you try locally, you end up using lo0, not eth0.
 
 
-I just merged these on top of the ones in 2.6.9-ac9:
+On Wed, 17 Nov 2004 21:30:33 +0100, DervishD <lkml@dervishd.net> wrote:
+>    Hi all :)
+> 
+>    I've noticed that, no matter what filtering is iptables doing,
+> tcpdump gets all packets from interface eth0 as seen in the bus, but
+> doesn't do the same in dummy0. I'll explain it further...
+> 
+>    Let's say that I'm filtering all incoming TCP SYN packets on all
+> interfaces that have a destination port of 6666 (for example), and
+> I'm listening, with tcpdump, to all packets in eth0. Well, I use
+> another computer to try to connect to port 6666 of the machine
+> running tcpdump and the packet filter, and obviously I'm unable to
+> connect (without the filter I can do it normally), but I see the SYN
+> packets in the output of tcpdump.
+> 
+>    If I do exactly the same from the machine running tcpdump and the
+> filter, I cannot connect (without the filter I can), but no output
+> comes from tcpdump, which is exactly what I expected in the case
+> explained in the paragraph above.
+> 
+>    Is is normal? Is normal that tcpdump shows packets before they
+> enter the filter when the interface is a real one (eth0) but no when
+> you access through a dummy interface or localhost, or am I missing
+> anything?
+> 
+>    Thanks a lot in advance :)
+> 
+>    Raúl Núñez de Arenas Coronado
+> 
+> --
+> Linux Registered User 88736
+> http://www.dervishd.net & http://www.pleyades.net/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-================================================================================
-# binfmt_elf_partial_read_2.patch
-#       fs/binfmt_elf.c -2 +5
-#
-#       [PATCH] binfmt_elf: handle p_filesz == 0 on PT_INTERP section
-#       Jakub Jelinek points out that current fix has an underflow problem
-#       if elf_ppnt->p_filesz == 0.  Fix that up, and also stop overwriting
-#       interpreter buffer, simply check that it's NULL-terminated.
-#   
-#       From: Jakub Jelinek <jakub@redhat.com>
-#       Signed-off-by: Chris Wright <chrisw@osdl.org>
-#       Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-#       Status: in 2.6.10
-# 
---- 2.6.9/fs/binfmt_elf.c
-+++ 2.6.9.1/fs/binfmt_elf.c
-@@ -576,7 +576,8 @@
-                         */
- 
-                        retval = -ENOMEM;
--                       if (elf_ppnt->p_filesz > PATH_MAX)
-+                       if (elf_ppnt->p_filesz > PATH_MAX || 
-+                           elf_ppnt->p_filesz == 0)
-                                goto out_free_file;
-                        elf_interpreter = (char *) kmalloc(elf_ppnt->p_filesz,
-                                                           GFP_KERNEL);
-@@ -592,7 +593,9 @@
-                                goto out_free_interp;
-                        }
-                        /* make sure path is NULL terminated */
--                       elf_interpreter[elf_ppnt->p_filesz - 1] = '\0';
-+                       retval = -EINVAL;
-+                       if (elf_interpreter[elf_ppnt->p_filesz - 1] != '\0')
-+                               goto out_free_interp;
- 
-                        /* If the program interpreter is one of these two,
-                         * then assume an iBCS2 image. Otherwise assume
-================================================================================
-# md_linear_sector_t_2.patch
-#       drivers/md/linear.c -10 +11
-#
-#       From: Neil Brown <neilb@cse.unsw.edu.au>
-#
-#       We replace 'size' by 'start'.  'start' means exactly the same as
-#       'curr_offset - size', and the equivalence of the new code can be tested
-#       based on this.  The difference is that 'start' will never be negative and
-#       so can fit in a 'sector_t' while 'size' could be negative.
-#
-#       Also make curr_offset sector_t, as it should have been.
-#
-#       Signed-off-by: Neil Brown <neilb@cse.unsw.edu.au>
-#       Signed-off-by: Andrew Morton <akpm@osdl.org>
-#       Status: in 2.6.10-mm
-#
---- 2.6.9/drivers/md/linear.c
-+++ 2.6.9.1/drivers/md/linear.c
-@@ -120,8 +120,8 @@ static int linear_run (mddev_t *mddev)
-        struct linear_hash *table;
-        mdk_rdev_t *rdev;
-        int i, nb_zone, cnt;
--       sector_t size;
--       unsigned int curr_offset;
-+       sector_t start;
-+       sector_t curr_offset;
-        struct list_head *tmp;
- 
-        conf = kmalloc (sizeof (*conf) + mddev->raid_disks*sizeof(dev_info_t),
-@@ -196,23 +196,24 @@ static int linear_run (mddev_t *mddev)
-         * Here we generate the linear hash table
-         */
-        table = conf->hash_table;
--       size = 0;
-+       start = 0;
-        curr_offset = 0;
-        for (i = 0; i < cnt; i++) {
-                dev_info_t *disk = conf->disks + i;
- 
-+               if (start > curr_offset)
-+                       table[-1].dev1 = disk;
-+
-                disk->offset = curr_offset;
-                curr_offset += disk->size;
- 
--               if (size < 0) {
--                       table[-1].dev1 = disk;
--               }
--               size += disk->size;
--
--               while (size>0) {
-+               /* 'curr_offset' is the end of this disk
-+                * 'start' is the start of table
-+                */
-+               while (start < curr_offset) {
-                        table->dev0 = disk;
-                        table->dev1 = NULL;
--                       size -= conf->smallest->size;
-+                       start += conf->smallest->size;
-                        table++;
-                }
-        }
-================================================================================
 
---Chuck Ebbert  18-Nov-04  01:41:54
+-- 
+Don Lafontaine
+http://www.avsim.com/hangar/utils/freefd

@@ -1,143 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVCCLXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVCCL1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVCCLXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 06:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVCCLPm
+	id S261629AbVCCL1F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 06:27:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVCCLZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 06:15:42 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:14096 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261571AbVCCLNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 06:13:47 -0500
-Date: Thu, 3 Mar 2005 12:13:40 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, greg@kroah.com, torvalds@osdl.org,
-       rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303111340.GL4608@stusta.de>
-References: <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com> <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org> <20050303081958.GA29524@kroah.com> <4226CCFE.2090506@pobox.com> <20050303090106.GC29955@kroah.com> <4226D655.2040902@pobox.com> <20050303021506.137ce222.akpm@osdl.org>
+	Thu, 3 Mar 2005 06:25:44 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:31634 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261629AbVCCLPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 06:15:44 -0500
+Subject: [PATCH]: Speed freeing memory for suspend.
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Content-Type: text/plain
+Message-Id: <1109848654.3733.34.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050303021506.137ce222.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 03 Mar 2005 22:17:34 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 02:15:06AM -0800, Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> >
-> > We need to not only produce a useful kernel, but also package it in a 
-> >  way that is useful to the direct consumers of the kernel:  distros 
-> >  [large and small] and power users.
-> 
-> This comes down to the question "what are we making"?  Is it an end
-> product, or is it a technology which can be turned into an end product? 
-> Because the two are different things.
-> 
-> I'd say that mainline kernel.org for the past couple of years has been a
-> technology, not a product.
->...
+Hi.
 
-Even-numbered kernels started becoming a product after the next 
-odd-numbered kernel series started.
+Here's a patch I've prepared which improves the speed at which memory is
+freed prior to suspend. It should be a big gain for swsusp. For
+suspend2, it isn't used much, but has shown big improvements when I set
+a very low image size limit and had memory quite full.
 
-2.4 might have it's limitations, but today it's a pretty good product.
+Signed-Off-By: Nigel Cunningham <ncunningham@cyclades.com>
+Acked-By: Pavel Machek <pavel@ucw.cz>
 
-> But there's something else:
-> 
-> I would maintain that we're still fixing stuff faster than we're breaking
-> stuff.  If you look at the fixes which are going into the tree (and there
-> are a HUGE number of fixes), many of them are addressing problems which have
-> been there for a long time.
-> 
-> So as long as we remain in this state, we don't need to do anything.  The
-> technology gets closer to a product until we reach the stage where the
-> fixage rate equals the breakage rate.   And we're not there yet.
-> 
-> (It's nice that patches are called "fix the frobnozzle gadget", but this
-> analysis would be a lot easier if people would also label their patches
-> "break the frobnozzle gadget" when that's what they do.  Oh well).
-> 
-> So I'd suspect that on average, kernel releases are getting more stable. 
-> But the big big problem we have is that even though we fixed ten things for
-> each one thing we broke, those single breakages tend to be prominent, and
-> people get upset.  It's fairly bad PR that Dell Inspiron keyboards don't
-> work in 2.6.11, for example...
-> 
-> And people will incorrectly (and even wildly) generalise as a result of
-> such silly little isolated bugs.  We can wholly address such problems with
-> a 2.6.x.y productisation series.
+Also submitted to Linux-MM. No response received.
 
-The point behind this is:
+Regards,
 
-It's not the most important question for a user whether the total number 
-of bugs has decreased or increased.
+Nigel
 
-The most serious problems for users are regressions compared to the 
-kernel before.
-
-If a user who is happily using 2.6.8 learned that "stable" kernel 2.6.9 
-broke driver A for him and "stable" kernel 2.6.10 broke driver B for 
-him, he will not try any new "stable" kernel simply because it only 
-causes trouble for him.
-
-Bad luck, if he therefore misses some serious security fix.
-
-And yes, there are many people out there who use for many different 
-reasons self-compiled kernels.
-
-> And something else:
-> 
-> I don't think 2.2 and 2.4 models are applicable any more.  There are more
-> of us, we're better (and older) than we used to be, we're better paid (and
-> hence able to work more), our human processes are better and the tools are
-> better.  This all adds up to a qualitative shift in the rate and accuracy
-> of development.  We need to take this into account when thinking about
-> processes.
-> 
-> It's important to remember that all those kernel developers out there
-> *aren't going to stop typing*.  They're just going to keep on spewing out
-> near-production-quality code with the very reasonable expectation that
-> it'll become publically available in less than three years.  We need
-> processes which will allow that.
->...
-
-The traditional solution was to have a development series for the 
-developers who don't stop typing and a stable series with few 
-regresssions.
-
-Until now, it seems 2.6 has too many regressions in every new released 
-kernel for being a really stable kernel.
-
-And people aren't dumb - you can't fool them with any version number 
-games. People have learned that a -rc by Linus is equivalent to a -pre 
-release by Marcelo. And they will quickly learn that a 2.6.<even> 
-kernel will be equivalent to a -pre releaese by Marcelo.
-
-What about thinking instead how to get a 2.7 cycle that roughly fits 
-everyones needs?
-
-It took two years from 2.5.0 to 2.6.0 .
-That was long. Let's try to shorten it.
-
-Make the feature freeze half a year after the start of 2.5 instead of 
-one year as was done in 2.5 . This cuts off half a year of the two 
-years. Yes, it really cuts off half a year, because the first year of 
-2.5 also included half a year of IDE changes where even the bravest 
-kernel developer didn't dare to test the kernel.
-
-Perhaps there are also ways how the more developers, better tools and 
-processes can help in shortening the one year after halloween.
-
-cu
-Adrian
+diff -ruNp 898-swap_cluster_max_adjustments-old/mm/vmscan.c 898-swap_cluster_max_adjustments-new/mm/vmscan.c
+--- 898-swap_cluster_max_adjustments-old/mm/vmscan.c	2005-03-03 12:04:12.000000000 +1100
++++ 898-swap_cluster_max_adjustments-new/mm/vmscan.c	2005-03-03 11:51:00.000000000 +1100
+@@ -73,6 +73,12 @@ struct scan_control {
+ 	unsigned int gfp_mask;
+ 
+ 	int may_writepage;
++
++	/* This context's SWAP_CLUSTER_MAX. If freeing memory for
++	 * suspend, we effectively ignore SWAP_CLUSTER_MAX.
++	 * In this context, it doesn't matter that we scan the
++	 * whole list at once. */
++	int swap_cluster_max;
+ };
+ 
+ #ifdef CONFIG_MKI
+@@ -566,7 +572,7 @@ static void shrink_cache(struct zone *zo
+ 		int nr_scan = 0;
+ 		int nr_freed;
+ 
+-		while (nr_scan++ < SWAP_CLUSTER_MAX &&
++		while (nr_scan++ < sc->swap_cluster_max &&
+ 				!list_empty(&zone->inactive_list)) {
+ 			page = lru_to_page(&zone->inactive_list);
+ 
+@@ -811,31 +817,31 @@ shrink_zone(struct zone *zone, struct sc
+ 	 */
+ 	zone->nr_scan_active += (zone->nr_active >> sc->priority) + 1;
+ 	nr_active = zone->nr_scan_active;
+-	if (nr_active >= SWAP_CLUSTER_MAX)
++	if (nr_active >= sc->swap_cluster_max)
+ 		zone->nr_scan_active = 0;
+ 	else
+ 		nr_active = 0;
+ 
+ 	zone->nr_scan_inactive += (zone->nr_inactive >> sc->priority) + 1;
+ 	nr_inactive = zone->nr_scan_inactive;
+-	if (nr_inactive >= SWAP_CLUSTER_MAX)
++	if (nr_inactive >= sc->swap_cluster_max)
+ 		zone->nr_scan_inactive = 0;
+ 	else
+ 		nr_inactive = 0;
+ 
+-	sc->nr_to_reclaim = SWAP_CLUSTER_MAX;
++	sc->nr_to_reclaim = sc->swap_cluster_max;
+ 
+ 	while (nr_active || nr_inactive) {
+ 		if (nr_active) {
+ 			sc->nr_to_scan = min(nr_active,
+-					(unsigned long)SWAP_CLUSTER_MAX);
++					(unsigned long)sc->swap_cluster_max);
+ 			nr_active -= sc->nr_to_scan;
+ 			refill_inactive_zone(zone, sc);
+ 		}
+ 
+ 		if (nr_inactive) {
+ 			sc->nr_to_scan = min(nr_inactive,
+-					(unsigned long)SWAP_CLUSTER_MAX);
++					(unsigned long)sc->swap_cluster_max);
+ 			nr_inactive -= sc->nr_to_scan;
+ 			shrink_cache(zone, sc);
+ 			if (sc->nr_to_reclaim <= 0)
+@@ -936,13 +942,14 @@ int try_to_free_pages(struct zone **zone
+ 		sc.nr_scanned = 0;
+ 		sc.nr_reclaimed = 0;
+ 		sc.priority = priority;
++		sc.swap_cluster_max = SWAP_CLUSTER_MAX;
+ 		shrink_caches(zones, &sc);
+ 		shrink_slab(sc.nr_scanned, gfp_mask, lru_pages);
+ 		if (reclaim_state) {
+ 			sc.nr_reclaimed += reclaim_state->reclaimed_slab;
+ 			reclaim_state->reclaimed_slab = 0;
+ 		}
+-		if (sc.nr_reclaimed >= SWAP_CLUSTER_MAX) {
++		if (sc.nr_reclaimed >= sc.swap_cluster_max) {
+ 			ret = 1;
+ 			goto out;
+ 		}
+@@ -956,7 +963,7 @@ int try_to_free_pages(struct zone **zone
+ 		 * that's undesirable in laptop mode, where we *want* lumpy
+ 		 * writeout.  So in laptop mode, write out the whole world.
+ 		 */
+-		if (total_scanned > SWAP_CLUSTER_MAX + SWAP_CLUSTER_MAX/2) {
++		if (total_scanned > sc.swap_cluster_max + sc.swap_cluster_max/2) {
+ 			wakeup_bdflush(laptop_mode ? 0 : total_scanned);
+ 			sc.may_writepage = 1;
+ 		}
+@@ -1091,6 +1098,7 @@ scan:
+ 			sc.nr_scanned = 0;
+ 			sc.nr_reclaimed = 0;
+ 			sc.priority = priority;
++			sc.swap_cluster_max = nr_pages? nr_pages : SWAP_CLUSTER_MAX;
+ 			shrink_zone(zone, &sc);
+ 			reclaim_state->reclaimed_slab = 0;
+ 			shrink_slab(sc.nr_scanned, GFP_KERNEL, lru_pages);
+@@ -1128,7 +1136,7 @@ scan:
+ 		 * matches the direct reclaim path behaviour in terms of impact
+ 		 * on zone->*_priority.
+ 		 */
+-		if (total_reclaimed >= SWAP_CLUSTER_MAX)
++		if ((total_reclaimed >= SWAP_CLUSTER_MAX) && (!nr_pages))
+ 			break;
+ 	}
+ out:
 
 -- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Maintainer of Suspend2 Kernel Patches http://softwaresuspend.berlios.de
+
 

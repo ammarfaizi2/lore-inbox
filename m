@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVBDQa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265659AbVBDQkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVBDQa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 11:30:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbVBDQa5
+	id S265659AbVBDQkr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 11:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265485AbVBDQkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 11:30:57 -0500
-Received: from gprs215-42.eurotel.cz ([160.218.215.42]:4802 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261570AbVBDQad (ORCPT
+	Fri, 4 Feb 2005 11:40:47 -0500
+Received: from mail.joq.us ([67.65.12.105]:38632 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S266024AbVBDQkb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 11:30:33 -0500
-Date: Fri, 4 Feb 2005 17:30:19 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Cc: Jon Smirl <jonsmirl@gmail.com>, ncunningham@linuxmail.org,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [RFC] Reliable video POSTing on resume
-Message-ID: <20050204163019.GC1290@elf.ucw.cz>
-References: <20050122134205.GA9354@wsc-gmbh.de> <4201825B.2090703@gmx.net> <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net> <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz> <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net> <9e47339105020321031ccaabb@mail.gmail.com> <420367CF.7060206@gmx.net>
-Mime-Version: 1.0
+	Fri, 4 Feb 2005 11:40:31 -0500
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <200502031420.j13EKwFx005545@localhost.localdomain>
+	<42029C23.1000300@bigpond.net.au>
+From: "Jack O'Quin" <joq@io.com>
+Date: Fri, 04 Feb 2005 10:41:15 -0600
+In-Reply-To: <42029C23.1000300@bigpond.net.au> (Peter Williams's message of
+ "Fri, 04 Feb 2005 08:48:19 +1100")
+Message-ID: <87u0oscm6s.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420367CF.7060206@gmx.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Peter Williams <pwil3058@bigpond.net.au> writes:
 
-> > 3) The user space reset programs have to be serialized because of the
-> > rule about only a single VGA at a time. Calling vm86 from kernel mode
-> > is not a good idea. Doing this in user space lets you have two reset
-> > programs, vm86 and emu86 for non-x86 machines.
-> 
-> With the approach I detailed in the thread starter, this is easily
-> possible. vesaposter can call the kernel function used to synchronize
-> in an endless loop and this kernel function would not only be used
-> to synchronize, but its return value would tell vesaposter what to do
-> to which card. An alternative would be to restart vesaposter as soon
-> as it has finished its job, which would make the POSTing reliable
-> even if the BIOS code hangs or causes crashes. The kernel can simply
-> store a list of video devices and their respective treatments and
-> the kernel function called by vesaposter would just iterate through
-> the list. Hmmm... why not call it
-> 
-> int video_helper(struct video_actions *what_to_do)
+> Paul Davis wrote:
+>> There are several kernel-side attributes that would make JACK better
+>> from my perspective:
+>> 	* better ways to acquire and release RT scheduling
+>
+> I'm no expert on the topic but it would seem to me that the mechanisms
+> associated with the capable() function are intended to provide a
+> consistent and extensible interface to the control of privileged
+> operations with possible finer grained control than "root 'yes' and
+> everybody else 'no'".  Maybe the way to solve this problem is to
+> modify the interpretation of capable(CAP_SYS_NICE) so that it returns
+> true when invoked by a task setuid to a nominated uid in addition to
+> zero?
 
-I do not know, synchronously executing userland code from kernel seems
-like wrong thing to do.
+That is essentially what the RT-LSM does.  At exec() time RT-LSM turns
+on CAP_SYS_NICE for appropriate process images.
 
-> And the problem of locking all application memory: The current tool
-> for POSTing and restoring video state (vbetool) uses only 27k on
-> disk. If we put it in initramfs, we could maybe avoid mlock
-> completely (if we can guarantee initramfs contents aren't swapped
-> out). And it would be available early enough for initializing
-> video hardware on boot.
+In the current implementation this is only done per-group not
+per-user.  Adding UID as well as GID granularity should be easy.  We
+didn't do it because we didn't really need it.  If there's a use for
+it, I have no objection to adding it.  It could even compatibly be
+added later.
 
-I do not understand how initramfs fits into picture... Plus lot of
-people (me :-) do not use initramfs...
-								Pavel
+Many distributions require users to join group `audio' anyway to gain
+access to the sound card.  We found it convenient to piggy-back on
+that mechanism.
+
+I believe Paul considers this adequate for his requirements.  :-)
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+  joq

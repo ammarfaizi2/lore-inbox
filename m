@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265568AbUANL3X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 06:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUANL3X
+	id S265896AbUANLbm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 06:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266015AbUANLbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 06:29:23 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:38196 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S265568AbUANL3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 06:29:22 -0500
-Date: Wed, 14 Jan 2004 12:29:20 +0100
-From: Haakon Riiser <hakonrk@ulrik.uio.no>
+	Wed, 14 Jan 2004 06:31:41 -0500
+Received: from gizmo10ps.bigpond.com ([144.140.71.20]:22708 "HELO
+	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
+	id S265896AbUANLbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 06:31:41 -0500
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Busy-wait delay in qmail 1.03 after upgrading to Linux 2.6
-Message-ID: <20040114112920.GB298@s.chello.no>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040113210923.GA955@s.chello.no> <20040113135152.3ed26b85.akpm@osdl.org> <20040113232624.GA302@s.chello.no> <20040113154348.5542cb7b.akpm@osdl.org> <20040114000746.GA691@s.chello.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Solved (was: Re: [PROBLEM] ip_conntrack_ftp module oops under 2.6.1-mm2)
+Date: Wed, 14 Jan 2004 22:30:42 +1100
+User-Agent: KMail/1.5.4
+References: <200401122329.38659.harisri@bigpond.com>
+In-Reply-To: <200401122329.38659.harisri@bigpond.com>
+Cc: Martin Josefsson <gandalf@wlug.westbo.se>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040114000746.GA691@s.chello.no>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200401142230.42778.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have some more info on this bug:
+On Monday 12 January 2004 23:29, Srihari Vijayaraghavan wrote:
+> Executing
+> "modprobe ip_conntrack_ftp" causes this oops:
 
-Apparently, lock/trigger is a named pipe that connects to
-qmail-send.  I immediately tried stracing qmail-send while sending
-the test message, but unfortunately, the bug is not reproducible
-while qmail-send is straced.  The entire process is almost as
-fast as it is under 2.4 when I strace qmail-send.
+2.6.1-mm3 does not oops. That is good. Thanks to whoever fixed it :-).
 
-At least now we have a temporary workaround:
+Hari
+harisri@bigpond.com
 
-  strace -p $(pidof qmail-send) -o /dev/null &
-
-:-)
-
-Btw, the output from strace -p $(pidof qmail-send) can be viewed here:
-(probably not interesting though, since the bug is not reproduced
-under strace)
-
-  http://home.chello.no/~hakonrk/qmail-send.st.out.gz
-
--- 
- Haakon

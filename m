@@ -1,102 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbUKBPKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbUKBPKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbUKBPKy (ORCPT <rfc822;willy@w.ods.org>);
+	id S261224AbUKBPKy (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 2 Nov 2004 10:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbUKBPD0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUKBPJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 10:03:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:10683 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262635AbUKBPCQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 10:02:16 -0500
-Date: Tue, 2 Nov 2004 10:02:44 -0500 (EST)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
-To: Krzysztof Taraszka <dzimi@pld-linux.org>
-cc: Sergey Vlasov <vsu@altlinux.ru>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] 2.4.28-pre3 tty/ldisc fixes
-In-Reply-To: <200410311053.34927.dzimi@pld-linux.org>
-Message-ID: <Pine.LNX.4.44.0411020958460.8117-100000@dhcp83-105.boston.redhat.com>
+	Tue, 2 Nov 2004 10:09:47 -0500
+Received: from use.the.admin.shell.to.set.your.reverse.dns.for.this.ip ([80.68.90.175]:19211
+	"EHLO hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S261251AbUKBNxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 08:53:35 -0500
+Message-ID: <41879145.7090309@shadowen.org>
+Date: Tue, 02 Nov 2004 13:53:09 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@novell.com>,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: PG_zero
+References: <20041030141059.GA16861@dualathlon.random> <20041030140732.2ccc7d22.akpm@osdl.org> <40860000.1099235861@[10.10.2.4]>
+In-Reply-To: <40860000.1099235861@[10.10.2.4]>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 31 Oct 2004, Krzysztof Taraszka wrote:
-
-> Dnia sobota, 30 pa¼dziernika 2004 21:19, napisa³e¶:
-> > On Fri, Oct 29, 2004 at 02:29:43PM -0400, Jason Baron wrote:
-> 
-> > > Here's an updated 2.4 tty patch. I'm not sure if the updated patch would
-> > > fix the above issue, but it has a lot of changes so it might be worth a
-> > > try.
-> >
-> > This looks better - at least the system boots without hang or oops ;)
-> 
-> where is an updated 2.4 tty patch ?
+Martin J. Bligh wrote:
+> --Andrew Morton <akpm@osdl.org> wrote (on Saturday, October 30, 2004 14:07:32 -0700):
 > 
 > 
+>>Andrea Arcangeli <andrea@novell.com> wrote:
+>>
+>>>I think it's much better to have PG_zero in the main page allocator than
+>>> to put the ptes in the slab. This way we can share available zero pages with
+>>> all zero-page users and we have a central place where people can
+>>> generate zero pages and allocate them later efficiently.
+>>
+>>Yup.
+>>
+>>
+>>> This gives a whole internal knowledge to the whole buddy system and
+>>> per-cpu subsystem of zero pages.
+>>
+>>Makes sense.  I had a go at this ages ago and wasn't able to demonstrate
+>>much benefit on a mixed workload.
+>>
+>>I wonder if it would help if the page zeroing in the idle thread was done
+>>with the CPU cache disabled.  It should be pretty easy to test - isn't it
+>>just a matter of setting the cache-disable bit in the kmap_atomic()
+>>operation?
+> 
+> 
+> I looked at the basic problem a couple of years ago (based on your own code,
+> IIRC Andrew) then Andy (cc'ed) did it again with cache writethrough. It 
+> doesn't provide any benefit at all, no matter what we did, and it was 
+> finally ditched. 
+> 
+> I wouldn't bother doing it again personally ... perhaps Andy still has
+> the last set of results he can send to you.
 
-hmmm...seems like my e-mails keeping getting dropped, perhaps the patch is
-too large? Here is a link to the patch:
+I'll have a look out for the results, they should be around somewhere?
 
-http://people.redhat.com/~jbaron/tty/2.4-tty-V5.patch
+The work I did was based on the idea it _had_ to be more efficient to 
+have pre-zero'd pages available instead of wasting the hot pages, 
+scrubbing them on use.  I did a lot of work to introduce a new queue for 
+these, per-cpu.  Scrubbing them using spare cycles, even trying a 
+version where we didn't polute the cache with them using uncached 
+write-combining.  The results all showed (on i386 machines at least) 
+that the predominant cost was cache warmth.  It was slower to fetch the 
+clean zero page from memory than it was to clean out all of the cache 
+page for use.  The colder the page the slower the system went.
 
--Jason
-
- linux-2.4.28-rc1-tty/drivers/char/n_r3964.c               |    3 
- linux-2.4.28-rc1-tty/Documentation/tty.txt                |  194 ++++
- linux-2.4.28-rc1-tty/drivers/bluetooth/hci_ldisc.c        |    8 
- linux-2.4.28-rc1-tty/drivers/char/amiserial.c             |   12 
- linux-2.4.28-rc1-tty/drivers/char/cyclades.c              |   14 
- linux-2.4.28-rc1-tty/drivers/char/dz.c                    |    4 
- linux-2.4.28-rc1-tty/drivers/char/epca.c                  |   27 
- linux-2.4.28-rc1-tty/drivers/char/esp.c                   |   13 
- linux-2.4.28-rc1-tty/drivers/char/generic_serial.c        |   15 
- linux-2.4.28-rc1-tty/drivers/char/hvc_console.c           |    5 
- linux-2.4.28-rc1-tty/drivers/char/isicom.c                |   14 
- linux-2.4.28-rc1-tty/drivers/char/moxa.c                  |   16 
- linux-2.4.28-rc1-tty/drivers/char/mxser.c                 |   13 
- linux-2.4.28-rc1-tty/drivers/char/n_tty.c                 |  331 ++++++-
- linux-2.4.28-rc1-tty/drivers/char/pcmcia/synclink_cs.c    |   59 -
- linux-2.4.28-rc1-tty/drivers/char/pcxx.c                  |   36 
- linux-2.4.28-rc1-tty/drivers/char/pty.c                   |    9 
- linux-2.4.28-rc1-tty/drivers/char/riscom8.c               |   12 
- linux-2.4.28-rc1-tty/drivers/char/rocket.c                |   26 
- linux-2.4.28-rc1-tty/drivers/char/selection.c             |    4 
- linux-2.4.28-rc1-tty/drivers/char/ser_a2232.c             |    5 
- linux-2.4.28-rc1-tty/drivers/char/serial.c                |   21 
- linux-2.4.28-rc1-tty/drivers/char/serial167.c             |   21 
- linux-2.4.28-rc1-tty/drivers/char/serial_tx3912.c         |    5 
- linux-2.4.28-rc1-tty/drivers/char/sgiserial.c             |    4 
- linux-2.4.28-rc1-tty/drivers/char/specialix.c             |   15 
- linux-2.4.28-rc1-tty/drivers/char/stallion.c              |   13 
- linux-2.4.28-rc1-tty/drivers/char/sx.c                    |    4 
- linux-2.4.28-rc1-tty/drivers/char/synclink.c              |   64 -
- linux-2.4.28-rc1-tty/drivers/char/synclinkmp.c            |   49 -
- linux-2.4.28-rc1-tty/drivers/char/tty_io.c                |  587 +++++++++++---
- linux-2.4.28-rc1-tty/drivers/char/tty_ioctl.c             |   60 +
- linux-2.4.28-rc1-tty/drivers/char/vme_scc.c               |    8 
- linux-2.4.28-rc1-tty/drivers/char/vt.c                    |    3 
- linux-2.4.28-rc1-tty/drivers/macintosh/macserial.c        |   11 
- linux-2.4.28-rc1-tty/drivers/net/ppp_async.c              |   31 
- linux-2.4.28-rc1-tty/drivers/net/ppp_synctty.c            |   15 
- linux-2.4.28-rc1-tty/drivers/net/slip.c                   |   20 
- linux-2.4.28-rc1-tty/drivers/net/wan/pc300_tty.c          |   34 
- linux-2.4.28-rc1-tty/drivers/net/wan/sdla_chdlc.c         |   19 
- linux-2.4.28-rc1-tty/drivers/s390/char/con3215.c          |   10 
- linux-2.4.28-rc1-tty/drivers/sbus/char/aurora.c           |   15 
- linux-2.4.28-rc1-tty/drivers/sbus/char/zs.c               |    4 
- linux-2.4.28-rc1-tty/drivers/tc/zs.c                      |   13 
- linux-2.4.28-rc1-tty/drivers/usb/serial/digi_acceleport.c |   12 
- linux-2.4.28-rc1-tty/drivers/usb/serial/io_edgeport.c     |    7 
- linux-2.4.28-rc1-tty/drivers/usb/serial/io_ti.c           |    7 
- linux-2.4.28-rc1-tty/drivers/usb/serial/keyspan_pda.c     |    8 
- linux-2.4.28-rc1-tty/drivers/usb/serial/mct_u232.c        |    6 
- linux-2.4.28-rc1-tty/fs/proc/proc_tty.c                   |   11 
- linux-2.4.28-rc1-tty/include/linux/tty.h                  |   41 
- linux-2.4.28-rc1-tty/include/linux/tty_ldisc.h            |    9 
- 52 files changed, 1368 insertions(+), 579 deletions(-)
+-apw
 

@@ -1,61 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267824AbTAHP1u>; Wed, 8 Jan 2003 10:27:50 -0500
+	id <S267929AbTAHPZq>; Wed, 8 Jan 2003 10:25:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267823AbTAHP1u>; Wed, 8 Jan 2003 10:27:50 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:28614 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S267824AbTAHP1t> convert rfc822-to-8bit; Wed, 8 Jan 2003 10:27:49 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: markh@compro.net, linux-kernel@vger.kernel.org
+	id <S267930AbTAHPZq>; Wed, 8 Jan 2003 10:25:46 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:13768 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S267929AbTAHPZp>;
+	Wed, 8 Jan 2003 10:25:45 -0500
+Date: Wed, 8 Jan 2003 08:26:15 -0700
+From: yodaiken@fsmlabs.com
+To: Richard Stallman <rms@gnu.org>
+Cc: billh@gnuppy.monkey.org, mark@mark.mielke.cc, lm@bitmover.com,
+       linux-kernel@vger.kernel.org, paul@clubi.ie, riel@conectiva.com.br
 Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Date: Wed, 8 Jan 2003 09:33:42 -0600
-User-Agent: KMail/1.4.1
-References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org> <3E1BF82B.E55C84EE@aitel.hist.no> <3E1C1971.2A2FD368@compro.net>
-In-Reply-To: <3E1C1971.2A2FD368@compro.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301080933.42461.pollard@admin.navo.hpc.mil>
+Message-ID: <20030108082615.A2271@hq.fsmlabs.com>
+References: <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8O-0004jy-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E18WB8O-0004jy-00@fencepost.gnu.org>; from rms@gnu.org on Wed, Jan 08, 2003 at 03:00:20AM -0500
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 January 2003 06:28 am, Mark Hounschell wrote:
-> Helge Hafting wrote:
-> > Valdis.Kletnieks@vt.edu wrote:
-> > > On Tue, 07 Jan 2003 10:08:00 +0100, Helge Hafting 
-<helgehaf@aitel.hist.no>  said:
-> > > > loss.  Giving away driver code (or at least programming specs)
-> > > > wouldn't be a loss to nvidia though - because users would still
-> > > > need to buy those cards.
-> > >
-> > > It would be a major loss to nvidia *AND* its customers if it were
-> > > bankrupted in a lawsuit because it open-sourced code or specs that
-> > > contained intellectual property that belonged to somebody else.
-> >
-> > Perhaps their driver contains some IP.  But I seriously doubt the
-> > programming specs for their chips contains such secrets.  It is
-> > not as if we need the entire chip layout - it is basically
-> > things like:
-> >
-> > "To achieve effect X, write command code 0x3477 into register 5
-> > and the new coordinates into registers 75-78.  Then wait 2.03ms before
-> > attempting to access the chip again..."
-> >
-> > Something is very wrong if they _can't_ release that sort of
-> > information.
-> > Several other manufacturers have no problem with this.
->
-> Aren't nvidias' chipsets really owned by SGI. It think there is some deal
-> nvidia has with SGI that prohibits nvidia from opening up their driver and
-> chip set info. It's looking like SGI might be gone soon. Maybe if they
-> disappear, nvidia can do what they want???
+On Wed, Jan 08, 2003 at 03:00:20AM -0500, Richard Stallman wrote:
+> The definition of GNU is simple: GNU is an operating system.  In 1983
+> I announced the plan to develop a Unix-like operating system that
+> would be entirely free software, and I gave the system the name GNU.
 
-Think they sold it to Microsoft....
+Just for the record, "operating system", and "kernel" are used as 
+synonyms in the research literature. If you open a textbook on 
+"operating systems" or look at the contents of the proceedings
+of  Operating Systems conferences, you will not find many discussions
+of text editors, compilers, or other programming tools.  Generally, the operating
+system is considered to stop at the system call interface.
+
+One of the revolutionary features of UNIX was that it was relatively
+agnostic about "tools". 
+Oddly enough, the two most active campaigners for expanding the 
+definition of operating system are the FSF and Microsoft.
+
+I think that Richard's usage of "operating system" is based on 
+Digital Equipment Corp. terminology from the prehistorical times
+of releases on tape.
+
+
+> We're looking for a good term to use for "programs released under GNU
+> licenses", because we want to educate the community that this is not
+> the same thing as free software (there are other free software
+
+(1) GNU Programming System. 
+or
+(2) GPL Programming Layer 
+
+You should be able to get US military funding because these are  recursive
+TLAs. The GPL expansion to "GPL Programming Layer" so that  GPL becomes
+a context sensitive recursive TLA should be enough to get an entire Homeland
+Security program dedicated to the project. 
+
+Please feel free to use this idea without restriction.  In fact, this is released
+under "I don't want to have anything to do with it" license.
+
+victor
+
 
 -- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+www.fsmlabs.com  www.rtlinux.com
+1+ 505 838 9109
 
-Any opinions expressed are solely my own.

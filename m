@@ -1,32 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265497AbTFMVNX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 17:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265534AbTFMVNX
+	id S265534AbTFMVSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 17:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265535AbTFMVSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 17:13:23 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:51343 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265497AbTFMVNX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 17:13:23 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 13 Jun 2003 23:27:10 +0200 (MEST)
-Message-Id: <UTC200306132127.h5DLRA917693.aeb@smtp.cwi.nl>
-To: aebr@win.tue.nl, alan@lxorguk.ukuu.org.uk
-Subject: Re: Anybody gotta list archive tarball?
-Cc: Andries.Brouwer@cwi.nl, corbet@lwn.net, linux-kernel@vger.kernel.org
+	Fri, 13 Jun 2003 17:18:25 -0400
+Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:5651 "EHLO
+	deimos.one.pl") by vger.kernel.org with ESMTP id S265534AbTFMVSY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 17:18:24 -0400
+Date: Fri, 13 Jun 2003 23:31:47 +0200 (CEST)
+From: =?ISO-8859-2?Q?Damian_Ko=B3kowski?= <deimos@deimos.one.pl>
+To: Daniel Egger <degger@fhm.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Stephan von Krawczynski <skraw@ithnet.com>, <stefan@stefan-foerster.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.21 released
+In-Reply-To: <1055538278.11366.13.camel@sonja>
+Message-ID: <Pine.LNX.4.44.0306132325110.26388-100000@wenus.deimos.one.pl>
+X-OS: Slackware GNU/Linux
+X-Age: 22 (1980.09.27 - libra)
+X-Girl: 1 will be enough!
+X-GG: 88988
+X-ICQ: 59367544
+X-GPG: http://deimos.one.pl/deimos.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Also Oct 1993 to Jul 1995.
+On 13 Jun 2003, Daniel Egger wrote:
 
-> Thats about what I have of linux-activists
+> Surprise, but ACPI never was the problem with this board... :)
 
-Yes. In fact that line referred to my copy of your archive.
+ROTFL
 
-I just checked the kclug archive that was mentioned, and it has
-two things: a copy of your archive and a copy of Ted's archive,
-nothing new.
+It is. As you know now.
 
-kclug/linux-activists/Volume6/digest and
-kclug/linux-activists/Volume6/digest217 are duplicates.
+> I've tested a few more kernels. .21 fails as well as the latest -ac.
+
+Now you surprise me, so 2.4.21-rc8-ac1 with ACPI:
+
+	CONFIG_X86_UP_APIC
+	CONFIG_X86_UP_IOAPIC
+
+with module via-rhine on ECS_L7VTA works for you or not..?
+
+-- 
+# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+

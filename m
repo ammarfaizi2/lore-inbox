@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264473AbRFISqn>; Sat, 9 Jun 2001 14:46:43 -0400
+	id <S264468AbRFISod>; Sat, 9 Jun 2001 14:44:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264474AbRFISqd>; Sat, 9 Jun 2001 14:46:33 -0400
-Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:38832 "EHLO
-	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S264473AbRFISqU>; Sat, 9 Jun 2001 14:46:20 -0400
-Date: Sat, 9 Jun 2001 14:46:12 -0400
-From: Tom Vier <tmv5@home.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, Tom Vier <tmv5@home.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Linux 2.4.5-ac6
-Message-ID: <20010609144612.A571@zero>
-In-Reply-To: <20010608181612.A561@jurassic.park.msu.ru> <Pine.GSO.3.96.1010608172843.18837A-100000@delta.ds2.pg.gda.pl> <20010609141445.A566@jurassic.park.msu.ru>
+	id <S264473AbRFISoX>; Sat, 9 Jun 2001 14:44:23 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:950 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S264468AbRFISoS>; Sat, 9 Jun 2001 14:44:18 -0400
+Date: Sat, 9 Jun 2001 20:44:34 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] usb.c: USB device not accepting new address=4 (error=-110)
+Message-ID: <20010609204434.Z11815@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010609064123.V11815@nightmaster.csn.tu-chemnitz.de> <0ab501c0f0ac$10532720$cc07aace@brownell.org> <20010609091919.W11815@nightmaster.csn.tu-chemnitz.de> <0ae201c0f0e6$1b59fb00$cc07aace@brownell.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010609141445.A566@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Sat, Jun 09, 2001 at 02:14:45PM +0400
+User-Agent: Mutt/1.2i
+In-Reply-To: <0ae201c0f0e6$1b59fb00$cc07aace@brownell.org>; from david-b@pacbell.net on Sat, Jun 09, 2001 at 06:14:24AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 09, 2001 at 02:14:45PM +0400, Ivan Kokshaysky wrote:
-> Ok, here is a single loop version.
+On Sat, Jun 09, 2001 at 06:14:24AM -0700, David Brownell wrote:
+> Then whatever sets up your ServerWorks ServerSet III LE chipset
+> needs its PCI IRQ setup fixed ...
 
-that fixed it. netscape runs fine now.
+Right. "noapic" helps, which is a sure sign of such bugs.
 
+> I'm not sure how to do this.
+
+Neither me. I boot with "noapic" now, but this sucks on SMP, as
+we all know :-(
+
+> Perhaps someone who's familiar with arch/i386/kernel/pci-*.c
+> irq setup can suggest the right patch for this problem.  I think
+> the "dmesg" output in your original post probably had the info
+> needed to figure that out.
+
+Maybe some of the people with good contacts to ServerWorks Inc.
+can help me (and all the ServerWorks customers) out...
+
+
+Thanks and Regards
+
+Ingo oeser
 -- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+To the systems programmer,
+users and applications serve only to provide a test load.

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262213AbTCHU6Z>; Sat, 8 Mar 2003 15:58:25 -0500
+	id <S262203AbTCHVAW>; Sat, 8 Mar 2003 16:00:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262219AbTCHU6Y>; Sat, 8 Mar 2003 15:58:24 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:51922 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262213AbTCHU6X>;
-	Sat, 8 Mar 2003 15:58:23 -0500
-Date: Sat, 08 Mar 2003 12:50:24 -0800 (PST)
-Message-Id: <20030308.125024.44441125.davem@redhat.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] obselete some atm_vcc members
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200303051547.h25FleGi006585@locutus.cmf.nrl.navy.mil>
-References: <200303051547.h25FleGi006585@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262205AbTCHVAW>; Sat, 8 Mar 2003 16:00:22 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:36019 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S262203AbTCHVAT>; Sat, 8 Mar 2003 16:00:19 -0500
+Message-ID: <3E6A5C44.9060002@zytor.com>
+Date: Sat, 08 Mar 2003 13:10:28 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Russell King <rmk@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Roman Zippel <zippel@linux-m68k.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+References: <Pine.LNX.4.44.0303072121180.5042-100000@serv>	<Pine.LNX.4.44.0303071459260.1309-100000@home.transmeta.com>	<20030307233916.Q17492@flint.arm.linux.org.uk>	<m1d6l2lih9.fsf@frodo.biederman.org>	<20030308100359.A27153@flint.arm.linux.org.uk> <m18yvpluw7.fsf@frodo.biederman.org>
+In-Reply-To: <m18yvpluw7.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-   Date: Wed, 05 Mar 2003 10:47:40 -0500
+Eric W. Biederman wrote:
+> 
+> The last time I worked on something like this I put a dhcp client, and
+> a tftp client in a single binary, my compressed initrd was only 16K on
+> x86.  And I had a complete network boot loader using the linux kernel.
+> 
+> Now the kernel is so big and bloated it has not been practical to use
+> it.  So my effort has mostly been concentrated on etherboot.  Which
+> is essentially a mini-kernel that just focuses on being a network boot
+> loader.  And with etherboot I can get a udp/ip stack. With dhcp and
+> tftp support, and an eepro100 nic driver into 38K on an Itanium (The
+> platform with possible the most bloated binaries known to man).  On x86
+> with an eepro100 driver I can usually get it down to around 16K.  (All
+> sizes represent self decompressing executables).
+> 
 
-   it has been suggested that atm_vcc has redundant members with
-   struct sock.
-   
-   this patch removes family, tx_inuse, rx_inuse, and recvq from 
-   atm_vcc in favor of sk->family, sk->wmem_alloc, sk->rmem_alloc,
-   and sk->receive_queue (respectively).
+Incidentally, any hope of getting Etherboot to act as a PXE stack any 
+time soon?
 
-Applied, but Chas please build fresh patches in the future.
+	-hpa (ducks & runs)
 
-This stuff was all against a tree which still had the atm_dev
-semaphore instead of the new spinlock.  Therefore half of the patches
-rejected and I had to put these parts in by hand.
 
-I did it this time, but really this needs to be done by you.
-:-)

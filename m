@@ -1,69 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbTJRXBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 19:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTJRXBZ
+	id S261881AbTJRWz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 18:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTJRWz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 19:01:25 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:43221 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261931AbTJRXBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 19:01:23 -0400
-Message-ID: <3F91C645.6060906@colorfullife.com>
-Date: Sun, 19 Oct 2003 01:01:25 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 18 Oct 2003 18:55:28 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:54280 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S261881AbTJRWz1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 18:55:27 -0400
+Date: Sat, 18 Oct 2003 15:55:21 -0700
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-Subject: migh_sleep during early boot
-Content-Type: multipart/mixed;
- boundary="------------020909030602030300050207"
+Subject: Re: Software RAID5 with 2.6.0-test
+Message-ID: <20031018225521.GA3699@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <1065690658.10389.19.camel@slurv> <Pine.LNX.3.96.1031017125544.24004C-100000@gatekeeper.tmr.com> <yw1xu167kbcw.fsf@users.sourceforge.net> <3F903768.7060803@rackable.com> <yw1xllrjk70f.fsf@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xllrjk70f.fsf@users.sourceforge.net>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020909030602030300050207
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Oct 17, 2003 at 09:18:24PM +0200, Måns Rullgård wrote:
+> Samuel Flory <sflory@rackable.com> writes:
+> 
+> >> What about the RAID controllers in the $400 category?  Surely, they
+> >> must be doing something better than the $50 fakeraid controllers.
+> >>
+> >
+> >    Yes, but follow this logic.
+> >
+> > 1)You are willing to devote 10% of 2Ghz xeon to software raid.
+> > 2)A $500+ controller has a 100Mhz proccessor.
+> >
+> >    Thus just from this you could guess that software raid has x2 as
+> >    many clock cycles availble to it.  It's even worse when you realize
+> >    the 2Ghz xeon is a better proccessor in many more ways than just
+> >    clock cycles.
+> 
+> How about this logic:
+> 
+> 1) If the processor on the RAID controller can handle the full
+> bandwidth of the disks, it's fast enough.
+> 2) If someone else does the 10% work, the CPU can do 10% more work.
 
-Hi,
+And as has been addressed on this list before:
 
-With might_sleep reports several calls from invalid contexts during 
-early boot:
+3) If the additional I/O traffic of the RAID can be kept off
+of the system busses the overall system throughput goes up.
 
-First some calls due to irq off, preempt off: This are the first stages 
-of start_kernel, irqs are not yet enabled.
-Then calls with only preemption off: The kernel runs on the future idle 
-thread, and these threads have preempt_count==1.
-
-Attached is a patch that fixes the latter bug: ignore the preemption 
-counter for the idle threads. I haven't figured out how to identify the 
-calls before the first local_irq_enable().
-
---
-    Manfred
+Once the CPU reaches a certain level of performance it is
+the I/O and memory that limit things.  Do you really want to
+pollute L1 cache with RAID-5?  When the $400 RAID server
+card can saturate the PCI buss it doesn't matter how much
+spare CPU you have, SW RAID will not be able to match the
+performance.
 
 
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
---------------020909030602030300050207
-Content-Type: text/plain;
- name="patch-might_sleep_2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-might_sleep_2"
-
---- 2.6/kernel/sched.c	2003-10-18 21:17:11.000000000 +0200
-+++ build-2.6/kernel/sched.c	2003-10-19 00:49:03.000000000 +0200
-@@ -2848,7 +2848,7 @@
- #if defined(in_atomic)
- 	static unsigned long prev_jiffy;	/* ratelimiting */
- 
--	if (in_atomic() || irqs_disabled()) {
-+	if ((in_atomic() && current->pid) || irqs_disabled()) {
- 		if (time_before(jiffies, prev_jiffy + HZ) && prev_jiffy)
- 			return;
- 		prev_jiffy = jiffies;
-
---------------020909030602030300050207--
-
+		Remember Cernan and Schmitt

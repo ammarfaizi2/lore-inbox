@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130498AbRBPQGn>; Fri, 16 Feb 2001 11:06:43 -0500
+	id <S130599AbRBPQGd>; Fri, 16 Feb 2001 11:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130575AbRBPQGd>; Fri, 16 Feb 2001 11:06:33 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:49167 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S130498AbRBPQG0>; Fri, 16 Feb 2001 11:06:26 -0500
-Date: Fri, 16 Feb 2001 16:06:44 +0000 (GMT)
-From: John Levon <moz@compsoc.man.ac.uk>
-To: Matthew McCormick <mattmcc@cs.wisc.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: write system call location
-In-Reply-To: <Pine.LNX.3.96L.1010216100247.2507G-100000@tux17.cs.wisc.edu>
-Message-ID: <Pine.LNX.4.21.0102161606010.17200-100000@mrworry.compsoc.man.ac.uk>
+	id <S130575AbRBPQGX>; Fri, 16 Feb 2001 11:06:23 -0500
+Received: from alto.i-cable.com ([210.80.60.4]:25573 "EHLO alto.i-cable.com")
+	by vger.kernel.org with ESMTP id <S130498AbRBPQGL>;
+	Fri, 16 Feb 2001 11:06:11 -0500
+Message-ID: <3A8D4FFF.320E7A16@hkicable.com>
+Date: Sat, 17 Feb 2001 00:06:23 +0800
+From: Thomas Lau <lkthomas@hkicable.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-reiserfs i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jocelyn Mayer <jocelyn.mayer@netgem.com>, linux-kernel@vger.kernel.org
+Subject: Re: finding Tekram SCSI dc395U linux patch driver:
+In-Reply-To: <3A8D2763.9080102@netgem.com>
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Feb 2001, Matthew McCormick wrote:
+Jocelyn Mayer wrote:
 
-> I have been trying to find the source code for the write system call.
-> I've checked through all the source code for the kernel and looked around
-> on the mailling list but can't seem to find it anywhere.  I was tracing
-> the file system operations and reached the function sys_write (which calls
-> write).  Any help would be greatly appreciated.  I don't belong to the
-> mailing list so please CC me on the answer.  My e-mail is:
-> 
-> mattmcc@cs.wisc.edu
-> 
-> Thank you for the help.
-> 
-> Matt McCormick
+> >
+> >
+> > Well, I think it should add to normal kernel and do not need to patch,
+> > Thanks
+> >
+> > also, why this driver still stick in ac3?
+> > and where can I find the new version of this patch?
+> > I think mandrake was improved that driver, Thanks
+> >
+> I'm not so sure...
+> I've been using this driver for a long time,
+> and there still are kernel Ooops and hangs
+> with the 1.32 driver...
+> Actually, it's quite stable, but only with 5 M
+> speed. It's a pity when your card can drive
+> a SCSI bus up to 40 M/s....
+> But, even with that speed, I got problems
+> from time to time....
+>
+> So, you should take a good care of what you do...
+> But, maybe it shold be integrated into the kernel
+> so a lot of people could test and (maybe) debut it...
+>
+> Jocelyn Mayer.
+>
+> >
 
-Well then you've already found it. And the kernelnewbies mailing list would
-probably have been more appropriate in this case.
-
-john
-
--- 
-"Nothing would please me more than being able to hire ten programmers and 
- deluge the hobby market with good software."
- 	- Bill Gates
+that's what I want to do, if not included in kernel = not a lot of people
+know what is this, so no one will help to improve this driver!
+I hope alan can help to add this driver into kernel hacks, Thanks
 

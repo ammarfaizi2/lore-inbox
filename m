@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262851AbTIQT7y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 15:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbTIQT7y
+	id S262835AbTIQUAP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 16:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTIQUAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 15:59:54 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.28]:39770 "EHLO
-	mwinf0302.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262851AbTIQT7w convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 15:59:52 -0400
-From: jjluza <jjluza@yahoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: test5-mm2: Unknown symbol when modprobe atm
-Date: Wed, 17 Sep 2003 21:59:55 +0200
-User-Agent: KMail/1.5.3
-References: <200309160153.59196.jjluza@yahoo.fr> <20030915193228.122b52c2.akpm@osdl.org>
-In-Reply-To: <20030915193228.122b52c2.akpm@osdl.org>
+	Wed, 17 Sep 2003 16:00:09 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:11784 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S262752AbTIQUAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 16:00:03 -0400
+Date: Wed, 17 Sep 2003 17:00:26 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4 force_successful_syscall()
+In-Reply-To: <200309101626.48541.bjorn.helgaas@hp.com>
+Message-ID: <Pine.LNX.4.44.0309171659510.3994-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200309172159.55721.jjluza@yahoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mardi 16 Septembre 2003 04:32, vous avez écrit :
-> jjluza <jjluza@yahoo.fr> wrote:
-> > I try to make test5-mm2 work on my gateway
-> >  I need to load module atm and pppoatm
-> >  these 2 modules return errors when I modprobe them.
-> >  dmesg says :
-> >  atm: Unknown symbol try_atm_clip_ops
-> >  pppoatm: Unknown symbol pppoatm_ioctl_set
 
-maybe I forgot a module because of a missing dependancy ?
+
+On Wed, 10 Sep 2003, Bjorn Helgaas wrote:
+
+> Here's a 2.4 backport of this change to 2.5:
+> 
+>     http://linux.bkbits.net:8080/linux-2.5/cset@1.1046.238.7?nav=index.html
+> 
+> Alpha, ppc, and sparc64 define force_successful_syscall_return() in 2.5,
+> but since it's not obvious to me how to do it correctly in 2.4, I left
+> them unchanged.
+
+Whats the reasoning behing this patch?
+
 

@@ -1,77 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262804AbTIEPRK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 11:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbTIEPRK
+	id S262803AbTIEPg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 11:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbTIEPg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 11:17:10 -0400
-Received: from ns.suse.de ([195.135.220.2]:37583 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262804AbTIEPRH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 11:17:07 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, <rth@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <jh@suse.cz>
-Subject: Re: [PATCH] Use -fno-unit-at-a-time if gcc supports it
-References: <Pine.LNX.4.44.0309050735570.25313-100000@home.osdl.org>
-From: Andreas Jaeger <aj@suse.de>
-Date: Fri, 05 Sep 2003 17:17:00 +0200
-In-Reply-To: <Pine.LNX.4.44.0309050735570.25313-100000@home.osdl.org> (Linus
- Torvalds's message of "Fri, 5 Sep 2003 07:54:30 -0700 (PDT)")
-Message-ID: <ho65k76z9v.fsf@byrd.suse.de>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 5 Sep 2003 11:36:27 -0400
+Received: from babsi.intermeta.de ([212.34.184.3]:64260 "EHLO
+	mail.intermeta.de") by vger.kernel.org with ESMTP id S262803AbTIEPgX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 11:36:23 -0400
+Subject: Re: bandwidth for bkbits.net (good news)
+From: Henning Schmiedehausen <hps@intermeta.de>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <874qzrsljc.fsf@deneb.enyo.de>
+References: <20030830230701.GA25845@work.bitmover.com>
+	 <87llt9bvtc.fsf@deneb.enyo.de> <bj1fhj$its$4@tangens.hometree.net>
+	 <874qzrsljc.fsf@deneb.enyo.de>
+Content-Type: text/plain
+Organization: INTERMETA - Gesellschaft  =?ISO-8859-1?Q?=20f=C3=BCr?= Mehrwertdienste mbH
+Message-Id: <1062776157.20632.1697.camel@forge.intermeta.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 05 Sep 2003 17:35:57 +0200
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -5.2 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Fri, 2003-09-05 at 10:10, Florian Weimer wrote:
 
-Linus Torvalds <torvalds@osdl.org> writes:
+> > You need a shaper connected to the ISP backbone which shapes the
+> > outgoing traffic for you and a border router which talks to the T1
+> > (C17xx or C26xx). Normally, if your ISP has some sort of clue, you
+> > will also need a bastion router which can handle backbone <-> 100 MBit
+> > traffic and does dynamic routing updates (EGP or OSPF) to the ISP
+> > backbone (A C26xx or C37xx).
+> 
+> C37xx can handle a maximum load of 225 kpps (data sheet number,
+> i.e. this value cannot be exceeded even under most favorable
+> conditions), the others handle even less.  Such routers are of no help
+> during a DoS attack.
+> 
+> Yes, I snipped the DoS context, and your approach would work in a
+> benign environment. 8-)
 
-> On Fri, 5 Sep 2003, Andi Kleen wrote:
->>=20
->> Unfortunately the kernel doesn't compile with unit-at-a-time currently,
->> it cannot tolerate the reordering of functions in relation to inline
->> assembly.
->
-> What is the problem exactly? Is it the exception table getting unordered?=
-=20=20
-> We _could_ just sort it at boot-time (or, even better, at build time after
-> the final link) instead...
+225kpps * 64 Bytes (minimum packet len) = 13,7 MBytes / sec
 
-The problem is that unit-at-a-time sees all functions used and finds
-some static functions/variables that are not called anywhere and
-therefore drops them, making a smaller binary.  Since GCC does not
-look into inline assembler, anything referenced from inline assembler
-only, will be treated as not used and therefore removed.
+100 MBit / 8 bit = 12,5 MBytes / sec
 
-You have to options:
-=2D use attribute ((used)) (implemented since GCC 3.2) to tell GCC that
-  a function/variable should never be removed
-=2D use -fno-unit-at-a-time.
+So, IMHO even with a small packet saturated 100 MBit link you won't
+reach 225kpps. AFAIK this was Ciscos intention to publish this number.
+It basically says "you will have filled your link before you fill our
+router". 
 
-Since unit-at-a-time has better inlining heuristics the better way is
-to add the used attribute - but that takes some time.  The short-term
-solution would be to add the compiler flag,
+I'm pretty sure that your 37xx won't do any routing updates anymore at
+this point. And if you do _anything_ that forces the packets down the
+slow path from the routing engine, you're toast anyway.
 
-Andreas
-=2D-=20
- Andreas Jaeger, aj@suse.de, http://www.suse.de/~aj
-  SuSE Linux AG, Deutschherrnstr. 15-19, 90429 N=FCrnberg, Germany
-   GPG fingerprint =3D 93A3 365E CE47 B889 DF7F  FED1 389A 563C C272 A126
+But I'm pretty sure that a C37xx would handle full 100 MBit traffic to a
+busy website without any problems. In fact, I know that it does. ;-) (We
+did switch to a C12000 shortly after, mainly because we went Gigabit).
 
---=-=-=
-Content-Type: application/pgp-signature
+	Regards
+		Henning
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQA/WKjsOJpWPMJyoSYRAvDYAJ9Gh08lYo58vNvvPmNWplDBuepQQQCdFHX6
-eif4Qp4A4yvtoL/ppzWIJvE=
-=qV7v
------END PGP SIGNATURE-----
---=-=-=--
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire
+
+"Dominate!! Dominate!! Eat your young and aggregate! I have grotty silicon!" 
+      -- AOL CD when played backwards  (User Friendly - 200-10-15)
+

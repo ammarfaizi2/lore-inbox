@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbUBRE0S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 23:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbUBRE0C
+	id S263600AbUBREXU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 23:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbUBREXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 23:26:02 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63459 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263101AbUBREXt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 23:23:49 -0500
-Date: Wed, 18 Feb 2004 04:23:40 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Dave Jones <davej@redhat.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Santiago Leon <santil@us.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH][2.6] IBM PowerPC Virtual Ethernet Driver
-Message-ID: <20040218042340.GW8858@parcelfarce.linux.theplanet.co.uk>
-References: <40329A24.5070209@us.ibm.com> <1077065118.1082.83.camel@gaston> <20040218040130.GC26304@redhat.com>
+	Tue, 17 Feb 2004 23:23:00 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:42397 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S263101AbUBREUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 23:20:01 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6] IBM PowerPC Virtual Ethernet Driver 
+In-reply-to: Your message of "Wed, 18 Feb 2004 11:45:20 +1100."
+             <1077065118.1082.83.camel@gaston> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040218040130.GC26304@redhat.com>
-User-Agent: Mutt/1.4.1i
+Date: Wed, 18 Feb 2004 15:19:36 +1100
+Message-ID: <7789.1077077976@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 04:01:30AM +0000, Dave Jones wrote:
-> On Wed, Feb 18, 2004 at 11:45:20AM +1100, Benjamin Herrenschmidt wrote:
-> 
->  > BITFIELDS ARE EVIL !!!
->  > 
->  > Especially when mapping things like HW registers... I know the p/iSeries
->  > code is full of them, I'd strongly recommend getting rid of them.
->  > 
->  > The compiler is perfectly free, afaik, to re-order them
-> 
-> That can't be right surely ? That would make them utterly useless afaics.
-> I've not seen this happen in practice either with the 2 x86 cpufreq drivers
-> I wrote that both use bitfields extensively.
+On Wed, 18 Feb 2004 11:45:20 +1100, 
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+>BITFIELDS ARE EVIL !!!
+>The compiler is perfectly free, afaik, to re-order them
 
-It _is_ right and they are utterly useless.  Original rationale was, indeed,
-"describe the layout of hardware registers" but it had gone to hell may years
-ago.  Any assumptions regarding their allocation are non-portable.
+Not it is not.  C standard (ISO/IEC 9899:1999 (E)), section 6.7.2.1.
+
+10 ...  If enough space remains, a bit-field that immediately follows
+   another bit-field in a structure shall be packed into adjacent bits
+   of the same unit. ...
+
+13 Within a structure object, the non-bit-field members and the units
+   in which bit-fields reside have addresses that increase in the order
+   in which they are declared. ...
+
+There is no scope for a compiler to reorder the members or the bit
+fields of a structure.
+

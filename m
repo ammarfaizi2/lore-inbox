@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265275AbUAJStf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 13:49:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbUAJStf
+	id S265335AbUAJTHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 14:07:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265336AbUAJTHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 13:49:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:6343 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265275AbUAJSte (ORCPT
+	Sat, 10 Jan 2004 14:07:09 -0500
+Received: from odpn1.odpn.net ([212.40.96.53]:3986 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S265335AbUAJTHH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 13:49:34 -0500
-Date: Sat, 10 Jan 2004 10:42:47 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Unhork ymfpci broken by hasty janitors
-Message-Id: <20040110104247.072131cd.rddunlap@osdl.org>
-In-Reply-To: <20040110102912.78ef218b.rddunlap@osdl.org>
-References: <200401101805.i0AI50x8012960@hera.kernel.org>
-	<20040110102912.78ef218b.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jan 2004 14:07:07 -0500
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       Scott Feldman <scott.feldman@intel.com>
+Subject: Re: 2.4.24 eth0: TX underrun, threshold adjusted.
+References: <x665fkb59o@gzp> <1073746559.752.44.camel@tux.rsn.bth.se>
+	<x6oetb66uu@gzp> <1073757207.752.50.camel@tux.rsn.bth.se>
+	<x6d69r65yv@gzp> <1073759038.752.56.camel@tux.rsn.bth.se>
+From: "Gabor Z. Papp" <gzp@papp.hu>
+Date: Sat, 10 Jan 2004 20:07:02 +0100
+Message-ID: <x64qv362sp@gzp>
+User-Agent: Gnus/5.1004 (Gnus v5.10.4)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Authenticated: gzp1 odpn1.odpn.net a3085bdc7b32ae4d7418f70f85f7cf5f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jan 2004 10:29:12 -0800 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+* Martin Josefsson <gandalf@wlug.westbo.se>:
 
-| On Sat, 10 Jan 2004 17:49:31 +0000 Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
-| 
-| | ChangeSet 1.1391, 2004/01/10 15:49:31-02:00, zaitcev@redhat.com
-| | 
-| | 	[PATCH] Unhork ymfpci broken by hasty janitors
-| | 	
-| | 	- Do not use schedule_timeout with spinlocks taken.
-| | 	- Restore missing kfree's.
-| 
-| some janitors maybe.  but "hasty janitors" != "kernel-janitors project".
-| 
-| BK shows previous changes here by "alan", "patch", and "torvalds",
-| so they must have been made by "patch".  8:)
+| From my understanding you need to use an intel server-chipset to get
+| good pci-performance, or a serverworks one.
+| It seems the old Intel chipsets had quite good pci-performance but the
+| newer low to medium-range chipsets just suck. But I might be mistaken,
+| won't be the first time :)
 
-Sorry, I meant to also say:
+Switched from *i815* [Asus TUSL2-C] to *i845G* [Asus P4PE-X].
 
-Yes, we (the KJ project) [or I] do make mistakes, but we haven't
-been making patches to 2.4.x kernels.
+Both old and new config had 6 PCI and 1 AGP card installed.
+(2 VGA, 2 NIC, 1 Sound, 1 ATA and the AGP card)
 
---
-~Randy

@@ -1,37 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266831AbUBMO1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 09:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267002AbUBMO1Y
+	id S267024AbUBMOfy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 09:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267033AbUBMOfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 09:27:24 -0500
-Received: from mail.shareable.org ([81.29.64.88]:44418 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266831AbUBMO1X
+	Fri, 13 Feb 2004 09:35:54 -0500
+Received: from gaia.di.uniba.it ([193.204.187.131]:51208 "EHLO
+	gaia.di.uniba.it") by vger.kernel.org with ESMTP id S267024AbUBMOfv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 09:27:23 -0500
-Date: Fri, 13 Feb 2004 14:27:19 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Daniel Blueman <daniel.blueman@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: File system performance, hardware performance, ext3, 3ware RAID1, etc.
-Message-ID: <20040213142719.GA28100@mail.shareable.org>
-References: <9792.1076675029@www11.gmx.net>
+	Fri, 13 Feb 2004 09:35:51 -0500
+Date: Fri, 13 Feb 2004 15:35:42 +0100
+From: "Angelo Dell'Aera" <buffer@antifork.org>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Michael Frank <mhf@linuxmail.org>
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+Message-Id: <20040213153542.29686f0f.buffer@antifork.org>
+In-Reply-To: <XFMail.20040213145513.pochini@shiny.it>
+References: <20040213124232.B2871@pclin040.win.tue.nl>
+	<XFMail.20040213145513.pochini@shiny.it>
+Organization: Antifork Research, Inc.
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-PGP-Program: GNU Privacy Guard (http://www.gnupg.org)
+X-PGP-PublicKey: http://buffer.antifork.org/privacy/buffer-gpg.asc
+X-PGP-Fingerprint: 48CC B0D8 C394 CD30 355F E36D A4E3 48CF 19C1 5CA2
+X-Operating-System: GNU-Linux
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9792.1076675029@www11.gmx.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Blueman wrote:
-> many modern IDE disks and
-> controllers also have tagged command queuing, so it is even more of a corner case.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Linux doesn't use tagged command queueing, though - the code has been
-disabled for some time.  I thought the TCQ stuff was disabled because
-only very few disks supported it and the code wasn't reliable.
+On Fri, 13 Feb 2004 14:55:13 +0100 (CET)
+Giuliano Pochini <pochini@shiny.it> wrote:
 
-Yet you say many modern disks support it?
+>> The 80 here has a pedagogical and a practical purpose.
+>> The practical one is that it makes sure that everybody can read the source.
+>> The pedagogical is to invite you to arrange the code in a different way
+>> if you are nesting too deeply or your expressions are too complicated.
 
--- Jamie
+>Deeply nested doesn't mean unreadable or badly structured.
+
+I think you're really wrong since "deeply nested" means exactly "unreadable 
+and badly structured" and you could easily realize it by simply spending ~10 
+hours per day coding and/or taking a look at the code written by someone 
+which is not you. A simple use of inline functions and a previous thinking 
+about what you're going to write could easily solve all problems. 
+
+>1 tab in the function, 1tab a switch, 1 if, 1 for, 1 if and you have already 
+>lost half of the available space. It's not difficult to find lines compressed
+>towards the 79th column in the kernel sources. I propose to change "hard limit" 
+>to "soft limit" to avoid things like this:
+>
+>                                rc=idefloppy_begin_format(drive, inode,
+>                                                              file,
+>                                                              (int *)arg);
+
+No one is saying this line of code is the best one could imagine... have you
+ever thought that maybe anything "floating around" that code line could be 
+written in a not-well structured way?
+
+>IMO we should try to keep function calls on the same line. btw it's
+>only a matter of taste and the compiler accepts ugly code too :))
+
+A compiler should do it, a maintainer IMHO should not for a really simple 
+reason: readability (which in most cases means maintainability too).
+
+>> There is also ergonomics. There is a reason newspapers do not print
+>> text across the full width of the page - it would be very difficult
+>> to read.
+
+>Code has only one instruction per line.
+
+Not a good point.
+
+
+Regards.
+
+- --
+
+Angelo Dell'Aera 'buffer' 
+Antifork Research, Inc.	  	http://buffer.antifork.org
+
+PGP information in e-mail header
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFALOC+pONIzxnBXKIRApWFAJ9JjvwcnfgPz1V5bvfwzjE2Xb7c5wCfWdOH
+s9fGQvTBV3iEaZQdy8tp8nQ=
+=v4FT
+-----END PGP SIGNATURE-----

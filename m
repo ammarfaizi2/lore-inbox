@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315406AbSEQDbE>; Thu, 16 May 2002 23:31:04 -0400
+	id <S315410AbSEQDoJ>; Thu, 16 May 2002 23:44:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315408AbSEQDbD>; Thu, 16 May 2002 23:31:03 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:15621 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S315406AbSEQDbC>; Thu, 16 May 2002 23:31:02 -0400
-Date: Fri, 17 May 2002 05:30:56 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-Message-ID: <20020517033056.GB4595@louise.pinerecords.com>
-In-Reply-To: <3038.1021588938@ocs3.intra.ocs.com.au> <Pine.LNX.4.44.0205162003360.4117-100000@xanadu.home>
+	id <S315411AbSEQDoI>; Thu, 16 May 2002 23:44:08 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:55198 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S315410AbSEQDoH>; Thu, 16 May 2002 23:44:07 -0400
+Date: Thu, 16 May 2002 23:43:57 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: joergprante@gmx.de, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.19pre8][RFC] remove-NFS-close-to-open from VFS (was Re: [PATCHSET] 2.4.19-pre8-jp12)
+Message-ID: <20020517034357.GA18449@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, joergprante@gmx.de,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200205162142.AWF00051@netmail.netcologne.de> <E178TUb-0005Bh-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 20:37)
+User-Agent: Mutt/1.3.28i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Third and final attempt.  Original sent on May 2, second mail sent on
-> > May 14, still no response from Linus.
+On Thu, May 16, 2002 at 11:13:01PM +0100, Alan Cox wrote:
+> > Is it possible to leave the VFS layer untouched? Or restrict the dentry 
+> > revalidation to NFS and let other remote file systems coexist, i.e. without 
+> > revalidation calls? 
 > 
-> Linus is a bastard.  Did you forget?
+> Really the other file systems want fixing - that revalidation is a real bug
+> fix and the situation could occur for other network file systems too
 
-This is getting ridiculous all right.
+And I thought I broke something with my latest changes in Coda. This
+'bugfix' is hitting us hard. In some cases we hand down quite volatile
+objects, files that are involved in a conflict, fake expanded directory
+trees during the repair/examination of such conflicts.
 
-Linus, what makes you ignore Keith's work?
+These object are passed down with a 'no-cache' flag, which uses
+dentry_revalidate to skip the cached lookup from the dcache but forces
+all lookups to be passed through to the Coda filesystem. This bugfix
+causes breakage, instead of forcing a new filesystem lookup, the VFS
+simply returns ESTALE.
 
-Would you tend to think he's worked on kbuild25 this long
-to end up having to send a linus-dammit-would-you-have-
--a-look-at-last-i'm-not-going-to-keep-asking-forever msg?
+AFAIK, before the fix, failing dentry revalidate meant 'the lookup path
+in the dcache is probably invalid, please double check with the
+filesystem'. And now it means, 'the lookup path is invalid, return failure'.
 
-Sorry for a slightly offensive post; I can't stand to
-see such impoliteness.
+Jan
 
-T.

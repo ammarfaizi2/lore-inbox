@@ -1,264 +1,469 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUDTH0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbUDTHjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbUDTH0R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 03:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUDTH0R
+	id S262272AbUDTHjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 03:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUDTHjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 03:26:17 -0400
-Received: from ms-smtp-01-qfe0.socal.rr.com ([66.75.162.133]:6869 "EHLO
-	ms-smtp-01-eri0.socal.rr.com") by vger.kernel.org with ESMTP
-	id S262274AbUDTHZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 03:25:50 -0400
-Message-ID: <4084D07A.1080402@hawaii.edu>
-Date: Mon, 19 Apr 2004 21:25:46 -1000
-From: Eric Firing <efiring@hawaii.edu>
-Organization: University of Hawaii
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 20 Apr 2004 03:39:08 -0400
+Received: from [194.89.250.117] ([194.89.250.117]:16770 "EHLO
+	kimputer.holviala.com") by vger.kernel.org with ESMTP
+	id S262272AbUDTHit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 03:38:49 -0400
+From: Kim Holviala <kim@holviala.com>
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: no USB functionality with 2.6 kernels on Dell Dimension
- 4500
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] psmouse fixes for 2.6.5
+Date: Tue, 20 Apr 2004 10:38:46 +0300
+User-Agent: KMail/1.6.1
+Cc: vojtech@suse.cz
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_GONhA5q7fFVw6I3"
+Message-Id: <200404201038.46644.kim@holviala.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] There is no USB functionality with 2.6.3 or 2.6.5 kernels on Dell 
-Dimension 4500.
 
-[2.] USB has worked fine with 2.4 kernels from Mandrake through 9.2, but 
-stopped completely with the 2.6.3 kernels from Mandrake 10.0 Community 
-and Official.  I downloaded and compiled a stock 2.6.5 kernel, and the 
-result is the same.  I have USB working with 2.6.3 kernels on an old 
-Sony and on a new Dell Precision, so I am confident the problem is 
-peculiar to the Dell 4500.  The symptoms are that the usb modules load 
-normally, but plugging in a USB peripheral (in this case, a Zip drive) 
-produces the following in /var/log/messages:
+--Boundary-00=_GONhA5q7fFVw6I3
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Apr 17 15:22:24 nene kernel: usb 2-1: new full speed USB device using 
-address 2
-Apr 17 15:22:29 nene kernel: usb 2-1: control timeout on ep0out
-Apr 17 15:22:29 nene kernel: uhci_hcd 0000:00:1d.1: Unlink after no-IRQ? 
-  Different ACPI or APIC settings may help.
+Some fixes for PS/2 mice:
 
-The drive never spins, and shows no signs of having been connected. 
-Disconnecting the usb cable results in no additional messages.  There is 
-no response to turning on or connecting a usb printer, either; both of 
-these peripherals work normally on this machine with the 2.4 kernels. (I 
-have found that one setup difference is needed when switching between 
-2.4 and 2.6 kernels on the machines that work normally: the hotplug 
-service needs to be enabled [in the init scripts, e.g. with chkconfig] 
-for 2.4 kernels, but must not be enabled for 2.6 kernels.)
+- fixed hotplugging (real reset of device instead of softreset)
+- support for Targus Scroller mice (from my last weeks patch)
+- extended protocol probing fixed
 
-Subsequent plug/unplug events produce no messages or response 
-whatsoever, regardless of the USB port used, until the machine is rebooted.
+The major change is that the probing of extended protocols is now changed to 
+be more configurable. Previously the driver probed for all the protocols it 
+knew about and stopped when it found one that the mouse accepted. This didn't 
+work with a bunch of mice so now you can choose the protocols which are to be 
+probed.
 
-I have tried kernel options "noapic" and "acpi=off", as well as omitting 
-them; they make no difference.  (I have had no problems with acpi and 
-apic using the 2.4 kernels on this machine.)
+In current 2.6.5 the parameter "proto=imps" probes all protocols up to ImPS/2. 
+The patch changes this so that "proto=imps" ONLY probes for ImPS/2 and if 
+that fails uses regular PS/2. Similarly "proto=ps2pp,genps,exps" probes for 
+Logitech, Genius and Intellimouse Expolorer and if none found uses the bare 
+PS/2.
 
-[3.] PCI IRQ USB
+To be continued.....
 
-[4.] [root@nene efiring]# cat /proc/version
-Linux version 2.6.5 (efiring@nene.hawaii.rr.com) (gcc version 3.3.2 
-(Mandrake Linux 10.0 3.3.2-6mdk)) #1 Sat Apr 17 14:09:04 HST 2004
 
-[5.] none
 
-[6.] none
+Kim
 
-[7.]
-[7.1.]
-  Gnu C                  3.3.2
-Gnu make               3.80
-binutils               2.14.90.0.7
-util-linux             2.12
-mount                  2.12
-module-init-tools      3.0
-e2fsprogs              1.34
-nfs-utils              1.0.6
-Linux C Library        2.3.3
-Dynamic linker (ldd)   2.3.3
-Procps                 3.1.15
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.1.2
-Modules Loaded         snd nfsd exportfs usblp lp parport_pc parport 
-ipv6 es1371          soundcore gameport ac97_codec af_packet hid ide_cd 
-cdrom floppy natsemi ntfs nl         s_iso8859_1 nls_cp850 vfat fat 
-intel_agp agpgart ehci_hcd uhci_hcd usbcore genrt         c ext3 jbd
+--Boundary-00=_GONhA5q7fFVw6I3
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="psmouse.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment;
+	filename="psmouse.patch"
 
-[7.2.]
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 1
-model name      : Intel(R) Pentium(R) 4 CPU 1.80GHz
-stepping        : 2
-cpu MHz         : 1794.775
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 3538.94
+diff -ruN linux-2.6.5-orig/Documentation/kernel-parameters.txt linux-2.6.5-mouse/Documentation/kernel-parameters.txt
+--- linux-2.6.5-orig/Documentation/kernel-parameters.txt	2004-04-04 06:38:27.000000000 +0300
++++ linux-2.6.5-mouse/Documentation/kernel-parameters.txt	2004-04-20 10:03:09.182129723 +0300
+@@ -874,8 +874,8 @@
+ 			before loading.
+ 			See Documentation/ramdisk.txt.
+ 
+-	psmouse.proto=  [HW,MOUSE] Highest PS2 mouse protocol extension to
+-			probe for (bare|imps|exps).
++	psmouse.proto=  [HW,MOUSE] PS2 mouse protocols to probe for (probes all except targus default)
++			{ bare | ps2pp | genps | imps | exps | targus | synaptics }
+ 	psmouse.rate=	[HW,MOUSE] Set desired mouse report rate, in reports
+ 			per second.
+ 	psmouse.resetafter=
+diff -ruN linux-2.6.5-orig/drivers/input/mouse/Kconfig linux-2.6.5-mouse/drivers/input/mouse/Kconfig
+--- linux-2.6.5-orig/drivers/input/mouse/Kconfig	2004-04-04 06:37:45.000000000 +0300
++++ linux-2.6.5-mouse/drivers/input/mouse/Kconfig	2004-04-08 11:29:01.000000000 +0300
+@@ -33,6 +33,9 @@
+ 	  If you do not want install specialized drivers but want tapping
+ 	  working please use option psmouse.proto=imps.
+ 
++	  If you have a Targus Scroller mouse and the scroll wheel moves the
++	  cursor instead of scrolling, use option psmouse.proto=targus.
++
+ 	  If unsure, say Y.
+ 
+ 	  To compile this driver as a module, choose M here: the
+diff -ruN linux-2.6.5-orig/drivers/input/mouse/logips2pp.c linux-2.6.5-mouse/drivers/input/mouse/logips2pp.c
+--- linux-2.6.5-orig/drivers/input/mouse/logips2pp.c	2004-04-04 06:37:36.000000000 +0300
++++ linux-2.6.5-mouse/drivers/input/mouse/logips2pp.c	2004-04-19 14:28:18.498643867 +0300
+@@ -152,6 +152,7 @@
+ 						76, 80, 81, 83, 88, 96, 97, 112, -1 };
+ 	static int logitech_mx[] = { 61, 112, -1 };
+ 
++	psmouse->proto = "PS2++";
+ 	psmouse->vendor = "Logitech";
+ 	psmouse->model = ((param[0] >> 4) & 0x07) | ((param[0] << 3) & 0x78);
+ 
+@@ -167,7 +168,6 @@
+ 			psmouse->type = PSMOUSE_PS2PP;
+ 
+ 	if (psmouse->type == PSMOUSE_PS2PP) {
+-
+ 		for (i = 0; logitech_4btn[i] != -1; i++)
+ 			if (logitech_4btn[i] == psmouse->model)
+ 				set_bit(BTN_SIDE, psmouse->dev.keybit);
+@@ -191,9 +191,7 @@
+ /*
+  * Do Logitech PS2++ / PS2T++ magic init.
+  */
+-
+ 		if (psmouse->model == 97) { /* TouchPad 3 */
+-
+ 			set_bit(REL_WHEEL, psmouse->dev.relbit);
+ 			set_bit(REL_HWHEEL, psmouse->dev.relbit);
+ 
+@@ -206,19 +204,19 @@
+ 
+ 			param[0] = 0;
+ 			if (!psmouse_command(psmouse, param, 0x13d1) &&
+-				param[0] == 0x06 && param[1] == 0x00 && param[2] == 0x14) {
++			     param[0] == 0x06 && param[1] == 0x00 && param[2] == 0x14) {
++				psmouse->proto = "PS2T++";
+ 				psmouse->name = "TouchPad 3";
+ 				return PSMOUSE_PS2TPP;
+ 			}
+ 
+ 		} else {
+-
+ 			param[0] = param[1] = param[2] = 0;
+ 			ps2pp_cmd(psmouse, param, 0x39); /* Magic knock */
+ 			ps2pp_cmd(psmouse, param, 0xDB);
+ 
+ 			if ((param[0] & 0x78) == 0x48 && (param[1] & 0xf3) == 0xc2 &&
+-				(param[2] & 3) == ((param[1] >> 2) & 3)) {
++			    (param[2] & 3) == ((param[1] >> 2) & 3)) {
+ 					ps2pp_set_smartscroll(psmouse);
+ 					return PSMOUSE_PS2PP;
+ 			}
+diff -ruN linux-2.6.5-orig/drivers/input/mouse/psmouse-base.c linux-2.6.5-mouse/drivers/input/mouse/psmouse-base.c
+--- linux-2.6.5-orig/drivers/input/mouse/psmouse-base.c	2004-04-04 06:36:27.000000000 +0300
++++ linux-2.6.5-mouse/drivers/input/mouse/psmouse-base.c	2004-04-20 10:19:17.317528215 +0300
+@@ -2,6 +2,7 @@
+  * PS/2 mouse driver
+  *
+  * Copyright (c) 1999-2002 Vojtech Pavlik
++ * Copyright (c) 2004 Kim Holviala
+  */
+ 
+ /*
+@@ -27,9 +28,9 @@
+ MODULE_LICENSE("GPL");
+ 
+ static char *psmouse_proto;
+-static unsigned int psmouse_max_proto = -1U;
++static unsigned int psmouse_probe_proto = PSMOUSE_ANY;
+ module_param_named(proto, psmouse_proto, charp, 0);
+-MODULE_PARM_DESC(proto, "Highest protocol extension to probe (bare, imps, exps). Useful for KVM switches.");
++MODULE_PARM_DESC(proto, "Protocol extensions to probe (bare, ps2pp, genps, imps, exps, targus, synaptics).");
+ 
+ int psmouse_resolution = 200;
+ module_param_named(resolution, psmouse_resolution, uint, 0);
+@@ -53,7 +54,6 @@
+ __obsolete_setup("psmouse_resetafter=");
+ __obsolete_setup("psmouse_rate=");
+ 
+-static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
+ 
+ /*
+  * psmouse_process_packet() analyzes the PS/2 mouse packet contents and
+@@ -70,21 +70,18 @@
+ /*
+  * The PS2++ protocol is a little bit complex
+  */
+-
+ 	if (psmouse->type == PSMOUSE_PS2PP || psmouse->type == PSMOUSE_PS2TPP)
+ 		ps2pp_process_packet(psmouse);
+ 
+ /*
+  * Scroll wheel on IntelliMice, scroll buttons on NetMice
+  */
+-
+ 	if (psmouse->type == PSMOUSE_IMPS || psmouse->type == PSMOUSE_GENPS)
+ 		input_report_rel(dev, REL_WHEEL, -(signed char) packet[3]);
+ 
+ /*
+  * Scroll wheel and buttons on IntelliMouse Explorer
+  */
+-
+ 	if (psmouse->type == PSMOUSE_IMEX) {
+ 		input_report_rel(dev, REL_WHEEL, (int) (packet[3] & 8) - (int) (packet[3] & 7));
+ 		input_report_key(dev, BTN_SIDE, (packet[3] >> 4) & 1);
+@@ -94,16 +91,31 @@
+ /*
+  * Extra buttons on Genius NewNet 3D
+  */
+-
+ 	if (psmouse->type == PSMOUSE_GENPS) {
+ 		input_report_key(dev, BTN_SIDE, (packet[0] >> 6) & 1);
+ 		input_report_key(dev, BTN_EXTRA, (packet[0] >> 7) & 1);
+ 	}
+ 
+ /*
+- * Generic PS/2 Mouse
++ * Scroll wheel on Targus Scroller
+  */
++	if (psmouse->type == PSMOUSE_TARGUS) {
++		if ((packet[2] >> 7) != (packet[0] >> 5)) {
++			input_report_rel(dev, REL_WHEEL, -(signed char) packet[2]);
++			packet[2] = 0;
++		}
+ 
++		/* Horizontal scrolling - uncomment when hardware becomes available, if ever...
++		if ((packet[1] >> 7) != ((packet[0] >> 4) & 0x01)) {
++			input_report_rel(dev, REL_HWHEEL, -(signed char) packet[1]);
++			packet[1] = 0;
++		}
++		*/
++	}
++
++/*
++ * Generic PS/2 Mouse
++ */
+ 	input_report_key(dev, BTN_LEFT,    packet[0]       & 1);
+ 	input_report_key(dev, BTN_MIDDLE, (packet[0] >> 2) & 1);
+ 	input_report_key(dev, BTN_RIGHT,  (packet[0] >> 1) & 1);
+@@ -264,7 +276,6 @@
+ 			return (psmouse->cmdcnt = 0) - 1;
+ 
+ 	while (psmouse->cmdcnt && timeout--) {
+-
+ 		if (psmouse->cmdcnt == 1 && command == PSMOUSE_CMD_RESET_BAT &&
+ 				timeout > 100000) /* do not run in a endless loop */
+ 			timeout = 100000; /* 1 sec */
+@@ -291,6 +302,7 @@
+ /*
+  * psmouse_reset() resets the mouse into power-on state.
+  */
++
+ int psmouse_reset(struct psmouse *psmouse)
+ {
+ 	unsigned char param[2];
+@@ -367,6 +379,7 @@
+ {
+ 	int synaptics_hardware = 0;
+ 
++	psmouse->proto = "PS/2";
+ 	psmouse->vendor = "Generic";
+ 	psmouse->name = "Mouse";
+ 	psmouse->model = 0;
+@@ -374,12 +387,13 @@
+ /*
+  * Try Synaptics TouchPad
+  */
+-	if (psmouse_max_proto > PSMOUSE_PS2 && synaptics_detect(psmouse)) {
++	if ((psmouse_probe_proto & PSMOUSE_SYNAPTICS) && synaptics_detect(psmouse)) {
+ 		synaptics_hardware = 1;
++		psmouse->proto = "SynPS/2";
+ 		psmouse->vendor = "Synaptics";
+ 		psmouse->name = "TouchPad";
+ 
+-		if (psmouse_max_proto > PSMOUSE_IMEX) {
++		if (psmouse_probe_proto & PSMOUSE_IMEX) {
+ 			if (synaptics_init(psmouse) == 0)
+ 				return PSMOUSE_SYNAPTICS;
+ /*
+@@ -387,7 +401,7 @@
+  * Unfortunately Logitech/Genius probes confuse some firmware versions so
+  * we'll have to skip them.
+  */
+-			psmouse_max_proto = PSMOUSE_IMEX;
++			psmouse_probe_proto &= (PSMOUSE_ANY ^ (PSMOUSE_GENPS & PSMOUSE_PS2PP));
+ 		}
+ /*
+  * Make sure that touchpad is in relative mode, gestures (taps) are enabled
+@@ -395,38 +409,60 @@
+ 		synaptics_reset(psmouse);
+ 	}
+ 
+-	if (psmouse_max_proto > PSMOUSE_IMEX && genius_detect(psmouse)) {
++/*
++ * Genius mice
++ */
++	if ((psmouse_probe_proto & PSMOUSE_GENPS) && genius_detect(psmouse)) {
+ 		set_bit(BTN_EXTRA, psmouse->dev.keybit);
+ 		set_bit(BTN_SIDE, psmouse->dev.keybit);
+ 		set_bit(REL_WHEEL, psmouse->dev.relbit);
+ 
++		psmouse->proto = "GenPS/2";
+ 		psmouse->vendor = "Genius";
+ 		psmouse->name = "Wheel Mouse";
+ 		return PSMOUSE_GENPS;
+ 	}
+ 
+-	if (psmouse_max_proto > PSMOUSE_IMEX) {
++/*
++ * Logitech mice
++ */
++	if (psmouse_probe_proto & PSMOUSE_PS2PP) {
+ 		int type = ps2pp_detect(psmouse);
+-		if (type)
+-			return type;
++		if (type) return type;
+ 	}
+ 
+-	if (psmouse_max_proto >= PSMOUSE_IMPS && intellimouse_detect(psmouse)) {
++/*
++ * Microsoft Intellimouse and Intellimouse Explorer protocols
++ */
++	if ((psmouse_probe_proto & PSMOUSE_IMPS) && intellimouse_detect(psmouse)) {
+ 		set_bit(REL_WHEEL, psmouse->dev.relbit);
+ 
+-		if (psmouse_max_proto >= PSMOUSE_IMEX &&
+-					im_explorer_detect(psmouse)) {
+-			set_bit(BTN_SIDE, psmouse->dev.keybit);
+-			set_bit(BTN_EXTRA, psmouse->dev.keybit);
+-
+-			psmouse->name = "Explorer Mouse";
+-			return PSMOUSE_IMEX;
+-		}
+-
++		psmouse->proto = "ImPS/2";
+ 		psmouse->name = "Wheel Mouse";
+ 		return PSMOUSE_IMPS;
+ 	}
+ 
++	if ((psmouse_probe_proto & PSMOUSE_IMEX) && im_explorer_detect(psmouse)) {
++		set_bit(REL_WHEEL, psmouse->dev.relbit);
++		set_bit(BTN_SIDE, psmouse->dev.keybit);
++		set_bit(BTN_EXTRA, psmouse->dev.keybit);
++
++		psmouse->proto = "ExPS/2";
++		psmouse->name = "Explorer Mouse";
++		return PSMOUSE_IMEX;
++	}
++
++/*
++ * Targus Scroller mice can't be detected so proto has to be explicitly enabled
++ */
++	if (psmouse_probe_proto & PSMOUSE_TARGUS) {
++		psmouse->vendor = "Targus";
++		psmouse->name = "Scroller Mouse";
++		set_bit(REL_WHEEL, psmouse->dev.relbit);
++
++		return PSMOUSE_TARGUS;
++	}
++
+ /*
+  * Okay, all failed, we have a standard mouse here. The number of the buttons
+  * is still a question, though. We assume 3.
+@@ -457,7 +493,6 @@
+  * First, we check if it's a mouse. It should send 0x00 or 0x03
+  * in case of an IntelliMouse in 4-byte mode or 0x04 for IM Explorer.
+  */
+-
+ 	param[0] = 0xa5;
+ 
+ 	if (psmouse_command(psmouse, param, PSMOUSE_CMD_GETID))
+@@ -469,15 +504,13 @@
+ /*
+  * Then we reset and disable the mouse so that it doesn't generate events.
+  */
+-
+-	if (psmouse_command(psmouse, NULL, PSMOUSE_CMD_RESET_DIS))
++	if (psmouse_reset(psmouse))
+ 		printk(KERN_WARNING "psmouse.c: Failed to reset mouse on %s\n", psmouse->serio->phys);
+ 
+ /*
+  * And here we try to determine if it has any extensions over the
+  * basic PS/2 3-button mouse.
+  */
+-
+ 	return psmouse->type = psmouse_extensions(psmouse);
+ }
+ 
+@@ -530,8 +563,7 @@
+ /*
+  * We set the mouse report rate, resolution and scaling.
+  */
+-
+-	if (psmouse_max_proto != PSMOUSE_PS2) {
++	if (psmouse_probe_proto != PSMOUSE_PS2) {
+ 		psmouse_set_rate(psmouse);
+ 		psmouse_set_resolution(psmouse);
+ 		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+@@ -540,7 +572,6 @@
+ /*
+  * We set the mouse into streaming mode.
+  */
+-
+ 	psmouse_command(psmouse, param, PSMOUSE_CMD_SETSTREAM);
+ }
+ 
+@@ -636,7 +667,7 @@
+ 	}
+ 
+ 	sprintf(psmouse->devname, "%s %s %s",
+-		psmouse_protocols[psmouse->type], psmouse->vendor, psmouse->name);
++		psmouse->proto, psmouse->vendor, psmouse->name);
+ 	sprintf(psmouse->phys, "%s/input0",
+ 		serio->phys);
+ 
+@@ -716,14 +747,18 @@
+ static inline void psmouse_parse_proto(void)
+ {
+ 	if (psmouse_proto) {
+-		if (!strcmp(psmouse_proto, "bare"))
+-			psmouse_max_proto = PSMOUSE_PS2;
+-		else if (!strcmp(psmouse_proto, "imps"))
+-			psmouse_max_proto = PSMOUSE_IMPS;
+-		else if (!strcmp(psmouse_proto, "exps"))
+-			psmouse_max_proto = PSMOUSE_IMEX;
+-		else
+-			printk(KERN_ERR "psmouse: unknown protocol type '%s'\n", psmouse_proto);
++		psmouse_probe_proto = 0;
++
++		if (strstr(psmouse_proto, "bare")) psmouse_probe_proto |= PSMOUSE_PS2;
++		if (strstr(psmouse_proto, "targus")) psmouse_probe_proto |= PSMOUSE_TARGUS;
++		if (strstr(psmouse_proto, "ps2pp")) psmouse_probe_proto |= PSMOUSE_PS2PP;
++		if (strstr(psmouse_proto, "genps")) psmouse_probe_proto |= PSMOUSE_GENPS;
++		if (strstr(psmouse_proto, "imps")) psmouse_probe_proto |= PSMOUSE_IMPS;
++		if (strstr(psmouse_proto, "exps")) psmouse_probe_proto |= PSMOUSE_IMEX;
++		if (strstr(psmouse_proto, "synaptics")) psmouse_probe_proto |= PSMOUSE_IMEX;
++
++		if (!psmouse_probe_proto)
++			printk(KERN_ERR "psmouse: '%s' contains no valid protocols\n", psmouse_proto);
+ 	}
+ }
+ 
+diff -ruN linux-2.6.5-orig/drivers/input/mouse/psmouse.h linux-2.6.5-mouse/drivers/input/mouse/psmouse.h
+--- linux-2.6.5-orig/drivers/input/mouse/psmouse.h	2004-04-04 06:38:13.000000000 +0300
++++ linux-2.6.5-mouse/drivers/input/mouse/psmouse.h	2004-04-19 14:17:07.623109614 +0300
+@@ -36,6 +36,7 @@
+ 	struct input_dev dev;
+ 	struct serio *serio;
+ 	struct psmouse_ptport *ptport;
++	char *proto;
+ 	char *vendor;
+ 	char *name;
+ 	unsigned char cmdbuf[8];
+@@ -56,13 +57,15 @@
+ 	void (*disconnect)(struct psmouse *psmouse);
+ };
+ 
+-#define PSMOUSE_PS2		1
+-#define PSMOUSE_PS2PP		2
+-#define PSMOUSE_PS2TPP		3
+-#define PSMOUSE_GENPS		4
+-#define PSMOUSE_IMPS		5
+-#define PSMOUSE_IMEX		6
+-#define PSMOUSE_SYNAPTICS 	7
++#define PSMOUSE_ANY		0xFFFF
++#define PSMOUSE_PS2		0x0001
++#define PSMOUSE_TARGUS		0x0002
++#define PSMOUSE_PS2PP		0x0004
++#define PSMOUSE_PS2TPP		0x0008
++#define PSMOUSE_GENPS		0x0010
++#define PSMOUSE_IMPS		0x0020
++#define PSMOUSE_IMEX		0x0040
++#define PSMOUSE_SYNAPTICS 	0x0080
+ 
+ int psmouse_command(struct psmouse *psmouse, unsigned char *param, int command);
+ int psmouse_reset(struct psmouse *psmouse);
 
-[7.3.]
-snd 50884 0 - Live 0xf1a10000
-nfsd 182112 8 - Live 0xf1a5e000
-exportfs 5856 1 nfsd, Live 0xf1928000
-usblp 12096 0 - Live 0xf19e9000
-lp 11976 0 - Live 0xf1995000
-parport_pc 32032 1 - Live 0xf19f0000
-parport 38248 2 lp,parport_pc, Live 0xf19cf000
-ipv6 226816 10 - Live 0xf1a25000
-es1371 33280 0 - Live 0xf19da000
-soundcore 9056 2 snd,es1371, Live 0xf1999000
-gameport 4416 1 es1371, Live 0xf1925000
-ac97_codec 17612 1 es1371, Live 0xf198f000
-af_packet 20264 0 - Live 0xf1989000
-hid 42304 0 - Live 0xf19c3000
-ide_cd 38532 0 - Live 0xf19b8000
-cdrom 37920 1 ide_cd, Live 0xf19ad000
-floppy 59060 0 - Live 0xf199d000
-natsemi 23072 0 - Live 0xf1949000
-ntfs 85484 1 - Live 0xf1952000
-nls_iso8859_1 3904 2 - Live 0xf1803000
-nls_cp850 4736 1 - Live 0xf1838000
-vfat 13984 1 - Live 0xf191d000
-fat 45216 1 vfat, Live 0xf192b000
-intel_agp 17308 1 - Live 0xf1832000
-agpgart 31848 1 intel_agp, Live 0xf1903000
-ehci_hcd 24836 0 - Live 0xf182a000
-uhci_hcd 28464 0 - Live 0xf180b000
-usbcore 96892 6 usblp,hid,ehci_hcd,uhci_hcd, Live 0xf185c000
-genrtc 8712 0 - Live 0xf1807000
-ext3 105992 6 - Live 0xf1841000
-jbd 52824 1 ext3, Live 0xf1814000
-
-[7.4.]
-0000-001f : dma1
-0020-0021 : pic1
-0040-005f : timer
-0060-006f : keyboard
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0218-021f : es1371
-0376-0376 : ide1
-0378-037a : parport0
-03c0-03df : vesafb
-03f6-03f6 : ide0
-03f8-03ff : serial
-04d0-04d1 : pnp 00:0b
-0778-077a : parport0
-0cf8-0cff : PCI conf1
-d480-d4bf : 0000:02:02.0
-   d480-d4bf : es1371
-d800-d8ff : 0000:02:00.0
-   d800-d8ff : eth0
-dc00-dc07 : 0000:02:01.0
-e480-e49f : 0000:00:1f.3
-e800-e81f : 0000:00:1d.0
-   e800-e81f : uhci_hcd
-e880-e89f : 0000:00:1d.1
-   e880-e89f : uhci_hcd
-ec00-ec1f : 0000:00:1d.2
-   ec00-ec1f : uhci_hcd
-ffa0-ffaf : 0000:00:1f.1
-   ffa0-ffa7 : ide0
-   ffa8-ffaf : ide1
-
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-2ff3ffff : System RAM
-   00100000-002b2ac8 : Kernel code
-   002b2ac9-003748ff : Kernel data
-2ff40000-2ff4ffff : ACPI Tables
-2ff50000-2fffffff : ACPI Non-volatile Storage
-30000000-300003ff : 0000:00:1f.1
-e4600000-f46fffff : PCI Bus #01
-   e8000000-efffffff : 0000:01:00.0
-     e8000000-e8ffffff : vesafb
-f8000000-fbffffff : 0000:00:00.0
-fc900000-fe9fffff : PCI Bus #01
-   fd000000-fdffffff : 0000:01:00.0
-fead0000-feadffff : 0000:02:01.0
-feaff000-feafffff : 0000:02:00.0
-   feaff000-feafffff : eth0
-febffc00-febfffff : 0000:00:1d.7
-   febffc00-febfffff : ehci_hcd
-
-[7.5.]  (I don't have lspci on the MDK 10.0 side of this machine.)
-[root@nene efiring]# lspcidrake
-intel-agp       : Intel Corporation|82845 845 (Brookdale) Chipset Host 
-Bridge [BRIDGE_HOST]
-unknown         : Intel Corporation|82845 845 (Brookdale) Chipset AGP 
-Bridge [BRIDGE_PCI]
-usb-uhci        : Intel Corporation|82801DB USB Controller [SERIAL_USB]
-usb-uhci        : Intel Corporation|82801DB USB Controller [SERIAL_USB]
-usb-uhci        : Intel Corporation|82801DB USB Controller [SERIAL_USB]
-ehci-hcd        : Intel Corporation|82801DB USB Enhanced Controller 
-[SERIAL_USB]
-i810_rng        : Intel Corporation|82820 815e (Camino 2) Chipset PCI 
-[BRIDGE_PCI]
-i810-tco        : Intel Corporation|82801DB 845G/GL Chipset ISA Bridge 
-(ICH4) [BRIDGE_ISA]
-unknown         : Intel Corporation|82801DB 845G/GL Chipset IDE 
-Controller [STORAGE_IDE]
-unknown         : Intel Corporation|82801DB SMBus Controller [SERIAL_SMBUS]
-Card:NVIDIA GeForce2 DDR (generic): nVidia Corporation|NV11 Geforce2 
-MX/MX 400 [DISPLAY_VGA]
-natsemi         : National Semi|DP83810 10/100 Ethernet [NETWORK_ETHERNET]
-unknown         : Conexant|HSP MicroModem 56K [COMMUNICATION_OTHER]
-es1371          : Creative Labs|Sound Blaster AudioPCI64V/AudioPCI128 
-[MULTIMEDIA_AUDIO]
-unknown         : Linux 2.6.5 ehci_hcd|Intel Corp. 82801DB USB2 [Hub]
-unknown         : Linux 2.6.5 uhci_hcd|Intel Corp. 82801DB USB (Hub #3) 
-[Hub]
-unknown         : Linux 2.6.5 uhci_hcd|Intel Corp. 82801DB USB (Hub #2) 
-[Hub]
-unknown         : Linux 2.6.5 uhci_hcd|Intel Corp. 82801DB USB (Hub #1) 
-[Hub]
-
-[7.6.]
-no scsi modules loaded
-
-[7.7.]
-[root@nene proc]# cat interrupts
-            CPU0
-   0:    2086694          XT-PIC  timer
-   1:       6626          XT-PIC  i8042
-   2:          0          XT-PIC  cascade
-   5:          0          XT-PIC  uhci_hcd
-   7:          1          XT-PIC  parport0
-   9:        750          XT-PIC  uhci_hcd, es1371
-  10:          0          XT-PIC  ehci_hcd
-  11:       1194          XT-PIC  uhci_hcd, eth0
-  12:      66721          XT-PIC  i8042
-  14:       7894          XT-PIC  ide0
-  15:         47          XT-PIC  ide1
-NMI:          0
-LOC:    2086857
-ERR:          0
-MIS:          0
-
----------------------------------------------------
-That's all I can think of for now; I will happy to provide any other 
-information I can that might be useful.
-
-Eric
-
+--Boundary-00=_GONhA5q7fFVw6I3--

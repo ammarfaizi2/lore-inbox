@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVDCI45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVDCJAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVDCI45 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 04:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVDCI45
+	id S261625AbVDCJAA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 05:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVDCI7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 04:56:57 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:56038 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261617AbVDCI4z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 04:56:55 -0400
-Date: Sun, 3 Apr 2005 14:26:50 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, shemminger@osdl.org,
-       manfred@colorfullife.com, bunk@stusta.de
-Subject: Re: [RFC,PATCH 2/4] Deprecate synchronize_kernel, GPL replacement
-Message-ID: <20050403085650.GA4563@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050403062149.GA1656@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050403062149.GA1656@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 3 Apr 2005 04:59:31 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:36557 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261621AbVDCI7Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 04:59:24 -0400
+Message-ID: <424FB06B.3060607@yandex.ru>
+Date: Sun, 03 Apr 2005 12:59:23 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> <20050401152325.GB4150@gondor.apana.org.au> <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org> <20050401221303.GA6557@gondor.apana.org.au> <424FA7B4.6050008@yandex.ru> <20050403084415.GA20326@gondor.apana.org.au>
+In-Reply-To: <20050403084415.GA20326@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 02, 2005 at 10:21:50PM -0800, Paul E. McKenney wrote:
-> The synchronize_kernel() primitive is used for quite a few different
-> purposes: waiting for RCU readers, waiting for NMIs, waiting for interrupts,
-> and so on.  This makes RCU code harder to read, since synchronize_kernel()
-> might or might not have matching rcu_read_lock()s.  This patch creates
-> a new synchronize_rcu() that is to be used for RCU readers and a new
-> synchronize_sched() that is used for the rest.  These two new primitives
-> currently have the same implementation, but this is might well change
-> with additional real-time support.  Both new primitives are GPL-only,
-> the old primitive is deprecated.
-> 
-> Signed-off-by: <paulmck@us.ibm.com>
-> ---
-> Depends on earlier "Add deprecated_for_modules" patch.
-> 
-> +/*
-> + * Deprecated, use synchronize_rcu() or synchronize_sched() instead.
-> + */
-> +void synchronize_kernel(void)
-> +{
-> +	synchronize_rcu();
-> +}
-> +
+Herbert Xu wrote:
+> Surely that defeats the purpose of pcompress? I thought the whole point
+> was to compress as much of the input as possible into the output?
+Absolutely correct.
 
-We should probably mark it deprecated - 
+> So 1G into 1G doesn't make sense here.
+I thought you are afraid about the case of a totally random input which 
+may *grow* after it has been compressed.
 
-void __deprecated synchronize_kernel(void)
-{
-	synchronize_rcu();
-}
+> But 1G into 1M does and you
+> want to put as much as you can in there.  Otherwise we might as well
+> delete crypto_comp_pcompress :)
 
-Thanks
-Dipankar
+Err, it looks like we've lost the conversation flow. :-) I commented 
+your phrase: "The question is what happens when you compress 1 1GiB 
+input buffer into a 1GiB output buffer."
+
+Then could you please in a nutshell write what worries you or what issue 
+you would like to clarify?
+
+IIRC, you worried that in case of a large input and output 12 bytes 
+won't be enough. I argued it should. I'm even going to check this soon :-)
+
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

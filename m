@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267151AbUBSKEy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 05:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267155AbUBSKEy
+	id S267166AbUBSKHo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 05:07:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267167AbUBSKHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 05:04:54 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:11761 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267151AbUBSKEx
+	Thu, 19 Feb 2004 05:07:44 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:17804 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S267166AbUBSKHl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 05:04:53 -0500
-Date: Thu, 19 Feb 2004 15:35:50 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@redhat.com>, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: keventd_create_kthread
-Message-ID: <20040219100549.GA27018@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040218231322.35EE92C05F@lists.samba.org> <Pine.LNX.4.58.0402190205040.16515@devserv.devel.redhat.com> <20040219001011.6245f163.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 19 Feb 2004 05:07:41 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040219001011.6245f163.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16436.35563.593635.277584@laputa.namesys.com>
+Date: Thu, 19 Feb 2004 13:07:39 +0300
+To: linux-kernel@vger.kernel.org
+Cc: ltp-list@lists.sourceforge.net, "dan carpenter" <error27@email.com>
+Subject: Re: [Announce] Strace Test
+In-Reply-To: <20040216052257.A2C971D7214@ws3-3.us4.outblaze.com>
+References: <20040216052257.A2C971D7214@ws3-3.us4.outblaze.com>
+X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 08:12:19AM +0000, Andrew Morton wrote:
-> However, if that wake_up_process() comes too early we'll just flip the new
-> thread out of TASK_INTERUPTIBLE into TASK_RUNNING and the schedule() in
-> kthread() will fall straight through.  So perhaps we can simply remove the
-> wait_task_inactive()?
+dan carpenter writes:
+ > Good evening,
+ > 
+ > I'm happy to announce the initial public release of 
+ > Strace Test.  I believe Strace Test is the most 
+ > aggressive general purpose kernel tester available.
+ > Strace Test generally crashes my system within 
+ > 5 minutes (2.6.1-rc2).
+ > 
+ > Strace Test uses a modified version of strace 4.5.1.  
+ > Instead of printing out information about system calls, 
+ > the modified version calls the syscalls with improper 
+ > values.
 
-If wake_up_process() comes too early (when the target task is still
-in TASK_RUNNING state), then won't wake_up_process() be a no-op?
-In which case, the target kthread will miss a wake-up event 
-(kthread_start/kthread_stop)?
+It immediately DoSes kernel by calling sys_sysctl() with huge nlen:
+printk() consumes all CPU.
 
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Nikita.

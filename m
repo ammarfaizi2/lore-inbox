@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131579AbQLMPMz>; Wed, 13 Dec 2000 10:12:55 -0500
+	id <S131448AbQLMPM0>; Wed, 13 Dec 2000 10:12:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131600AbQLMPMt>; Wed, 13 Dec 2000 10:12:49 -0500
-Received: from terminus.zytor.com ([209.10.217.84]:9740 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP
-	id <S131579AbQLMPMc>; Wed, 13 Dec 2000 10:12:32 -0500
-Message-ID: <2741.194.236.209.133.976716626.squirrel@www.zytor.com>
-Date: Wed, 13 Dec 2000 06:10:26 -0800 (PST)
-Subject: Re: [PATCH] setup.c notsc Re: Microsecond accuracy
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: hugh@veritas.com
-In-Reply-To: <Pine.LNX.4.21.0012071856280.1138-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.21.0012071856280.1138-100000@localhost.localdomain>
-Cc: macro@ds2.pg.gda.pl, hpa@zytor.com, linux-kernel@vger.kernel.org
-X-Mailer: SquirrelMail (version 0.5)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S131579AbQLMPMP>; Wed, 13 Dec 2000 10:12:15 -0500
+Received: from mx3.sac.fedex.com ([199.81.208.11]:49670 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S131448AbQLMPMH>; Wed, 13 Dec 2000 10:12:07 -0500
+Date: Wed, 13 Dec 2000 22:38:28 +0800
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+Message-Id: <200012131438.eBDEcSK12203@silk.corp.fedex.com>
+To: linux-kernel@silk.corp.fedex.com
+Subject: ramdisk on P3 vs Celeron failure!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> The present situation is inconsistent: "notsc" removes cpuinfo's
-> "tsc" flag in the UP case (when cpu_data[0] is boot_cpu_data), but
-> not in the SMP case.  I don't believe HPA's recent mods affected that
-> behaviour, but it is made consistent (cleared in SMP case too) by the
-> patch I sent him a couple of days ago, below updated for test12-pre7...
-> 
-
-Great.  You've taken something that was somewhat broken in the UP case and 
-introduced massive braindamage in the SMP case.  What really needs to be is 
-that the global enables (boot_cpu_data) should be exposed.
-
-    -hpa
 
 
+Boot up using:
+        Loadlin-1.6a
+        Win98
+        ramdisk_size=18000
+        initrd=ram.gz (this is the gzip'ed root filesystem)
 
 
+Kernel 2.2.x (up to 2.2.18)
+- on P3 and Celeron
+        ram.gz must be <3862544 bytes
+
+Kernel 2.4.x (up to 2.4.0-test12)
+- on Celeron
+        ram.gz must be <3862544 bytes
+- on P3
+        ram.gz has no such limit!!!
+
+
+Failure I got was ...
+        System Halted
+        Less than 4MB!
+
+
+Same ram.gz and bzimage tested on P3 and Celeron.
+
+
+Jeff
+jchua@fedex.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285097AbRLFKXZ>; Thu, 6 Dec 2001 05:23:25 -0500
+	id <S285108AbRLFKwb>; Thu, 6 Dec 2001 05:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285100AbRLFKXP>; Thu, 6 Dec 2001 05:23:15 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:41491 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S285097AbRLFKW6>; Thu, 6 Dec 2001 05:22:58 -0500
-Date: Thu, 6 Dec 2001 05:22:29 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: dwmw2@infradead.org, jgarzik@mandrakesoft.com, kaos@ocs.com.au,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.16 for pointers to __devexit functions
-Message-ID: <20011206052229.H4087@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <11777.1007619756@kao2.melbourne.sgi.com> <3C0F27CA.59C22DEF@mandrakesoft.com> <15133.1007631619@redhat.com> <20011206.021534.66178457.davem@redhat.com>
+	id <S285109AbRLFKwV>; Thu, 6 Dec 2001 05:52:21 -0500
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:6150 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S285108AbRLFKwR>; Thu, 6 Dec 2001 05:52:17 -0500
+Message-Id: <5.0.2.1.0.20011206113115.00a53c10@pop.mail.yahoo.fr>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Thu, 06 Dec 2001 11:43:21 +0100
+To: Dipak <dipak@monmouth.com>
+From: Romain Giry <romain_giry@yahoo.fr>
+Subject: Re: 
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C0E90C0.A1738C8C@monmouth.com>
+In-Reply-To: <5.0.2.1.0.20011205170157.01a7ae98@pop.mail.yahoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011206.021534.66178457.davem@redhat.com>; from davem@redhat.com on Thu, Dec 06, 2001 at 02:15:34AM -0800
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 02:15:34AM -0800, David S. Miller wrote:
->    From: David Woodhouse <dwmw2@infradead.org>
->    Date: Thu, 06 Dec 2001 09:40:19 +0000
->    
->    Doesn't work at all, or just doesn't work with the (current) minimum
->    recommended compiler? We have to increase those minima at some point. 
-> 
-> The "golden" sparc64 compiler has been in use for years and is what
-> has the weak problem, and updating it would be a major pain in the
-> butt.
+Hi,
 
-Note that gcc-2.96-RH (particularly 2.96-101) is not that far off from being
-usable on sparc64 AFAIK (there is just one miscompilation in ext2_statfs
-I'm aware of which I've submitted fix for review yesterday), of course
-further testing may prove otherwise.
+> > I'm doing a ethernet device
+> > that doesn't add any header to the packet but change the output device,
+> > then i should say the network device that the packet is like if it has been
+> > sent by the ip protocol.
+>
+>I didn't understand what did you mean by "ethernet device doesn't add any
+>header but change the output device"? May be after you explain a bit more I
+>can suggest something more.
 
-	Jakub
+
+For my thesis, I should do a module for linux that allows the user to 
+switch the
+physical device at run-time. In a first time this should be done by user 
+commands
+and later the module should decide himself to switch the physical device.
+
+That's why it seems to me natural to create a dummy ethernet device driver 
+which
+does nothing else apart from forwarding the packets received from the IP stack
+to a real (= physical) network device. Therefore i need to fake that the 
+packet was
+sent by the IP stack so as the physical device fill in correctly the 
+protocol field in
+the header it adds.
+
+Otherwise i thought i can do a transparent firewall that decides to which real
+interface to switch the packets after beeing sure that the physical device is
+running otherwise it should change.
+
+One thing that may be difficult to implement is that i want to keep a TCP
+connection running when i change the physical device. That's why maybe the
+firewall solution may be better because when receiving packets i could fake
+that they all come from the same physical device and have therefore the same
+IP.
+
+Thanks
+
+Romain
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

@@ -1,96 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbTFFWJT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 18:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTFFWJT
+	id S262306AbTFFWEn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 18:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTFFWEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 18:09:19 -0400
-Received: from miranda.zianet.com ([216.234.192.169]:61195 "HELO
-	miranda.zianet.com") by vger.kernel.org with SMTP id S262312AbTFFWJR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 18:09:17 -0400
-Message-ID: <3EE1143A.9030801@zianet.com>
-Date: Fri, 06 Jun 2003 16:22:50 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Smart Array driver
-References: <3EE0D5E0.4060408@zianet.com> <16096.59965.283412.477292@gargle.gargle.HOWL> <3EE0F90C.8030604@zianet.com>
-In-Reply-To: <3EE0F90C.8030604@zianet.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Jun 2003 18:04:42 -0400
+Received: from daffy.hulpsystems.net ([64.246.21.252]:12705 "EHLO
+	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
+	id S262306AbTFFWEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 18:04:40 -0400
+Subject: Re: SCO's claims seem empty
+From: Martin List-Petersen <martin@list-petersen.dk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Stefan Smietanowski <stesmi@stesmi.com>, uaca@alumni.uv.es,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1054912403.17190.1.camel@dhcp22.swansea.linux.org.uk>
+References: <1054512915.1620.2.camel@localhost>
+	 <200306020119.h521Jbdv003050@eeyore.valparaiso.cl>
+	 <20030602111037.GA32253@pusa.informat.uv.es> <3EDB33F8.9060507@stesmi.com>
+	 <1054902687.3ee0899f6f6f7@support.tuxbox.dk>
+	 <1054912403.17190.1.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5f6eV6vYB0KYgkSH0gDv"
+Organization: 
+Message-Id: <1054937877.6388.32.camel@loke>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 07 Jun 2003 00:17:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I lied.  I am back to the question of does the driver work
-correctly with 2.5.x.  I see it recognize the hardware on bootup
-but it can't ever find the root partition.
 
-Here is the df of it on a 2.4.x system
+--=-5f6eV6vYB0KYgkSH0gDv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-/dev/cciss/c0d0p2    280132792   2405636 263497184   1% /
+On Fri, 2003-06-06 at 17:13, Alan Cox wrote:
+> On Gwe, 2003-06-06 at 13:31, Martin List-Petersen wrote
+> > Besides this article states confirmation on similar code, still i would=
+ say: Did
+> > it come from Linux orginally or did it come from SCO ?
+> >=20
+> > http://informationweek.com/story/showArticle.jhtml?articleID=3D10300314
+>=20
+> If it isn't simply carefully doctored choices designed mislead clueless
+> analysts. You are also ignoring at least two other things - code that is
+> common because its from the reference (eg intel locking code) and code
+> from third party vendors legitimately supplied to both Linux and SCO.
 
-So they grub kernel config line looks like so
+I'm just pushing it here. Of course this code could be from anywhere and th=
+at's exactly the point.
+Wouldn't wonder me if some code was legitimate both used in Linux and SCO t=
+hat came from outside.
 
-kernel /vmlinuz-2.5.70 ro root=/dev/cciss/c0d0p2
-
-I get this on boot up with 2.5.x:
-
-VFS: Cannot open root device "/cciss/c0d0p2" or unknown-block(0,0)
-
-I don't see what I have wrong in my configs.
-Has anyone been able to boot off this RAID controller under 2.5.x?
-
-Steve
+Regards,
+Martin List-Petersen
+martin at list-petersen dot dk
+--
+In like a dimwit, out like a light.
+                -- Pogo
 
 
-kwijibo@zianet.com wrote:
+--=-5f6eV6vYB0KYgkSH0gDv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> Argh, I thought I had checked that option.  That option
-> was off and it worked when I turned it on. It didn't boot
-> all the way because the kernel didn't understand the
-> / label on the partition.  Something I can fix however.
->
-> Thanks.
->
-> John Stoffel wrote:
->
->> kwijibo> Is the Compaq Smart Array 5XXX driver 2.5.x ready?  Before I
->> kwijibo> get to far into debugging this computer I figure I would ask.
->> kwijibo> It boots fine in 2.4.x kernels but when I try 2.5.70 it
->> kwijibo> freezes at the Uncompressing Linux line.  I thought maybe I
->> kwijibo> didn't the console set up right for 2.5 but as far as I can
->> kwijibo> tell it is and even if it wasn't it should still continue
->> kwijibo> booting and eventually be pingable.  My first thought was of
->> kwijibo> the RAID controller.  This is on a HP Proliant ML530.  Any
->> kwijibo> suggestions?  Config attached.
->>
->> I was going to suggest that you make sure ACPI was turned off, but
->> your config shows that already.  Make sure you have CONFIG_VGA_CONSOLE
->> set is all I can think of.
->>
->> John
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->>
->>  
->>
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
+iD8DBQA+4RMVzAGaxP8W1ugRAmv4AJ0TE1R++sgVWfKMq7OTk4luONKbqACgowAE
+vn735rJmBw+B4UsTpi/LLnQ=
+=n1lc
+-----END PGP SIGNATURE-----
+
+--=-5f6eV6vYB0KYgkSH0gDv--
 

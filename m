@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135786AbREBTuy>; Wed, 2 May 2001 15:50:54 -0400
+	id <S135795AbREBUXO>; Wed, 2 May 2001 16:23:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135792AbREBTuo>; Wed, 2 May 2001 15:50:44 -0400
-Received: from 3jane.ashpool.org ([195.24.172.2]:34061 "EHLO 3jane.ashpool.org")
-	by vger.kernel.org with ESMTP id <S135786AbREBTu3>;
-	Wed, 2 May 2001 15:50:29 -0400
-Date: Wed, 2 May 2001 21:56:20 +0200 (CEST)
-From: poptix <poptix@poptix.net>
-X-X-Sender: <poptix@3jane.ashpool.org>
-To: Cliff Albert <cliff@oisec.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: 2.4.4, 2.4.4-ac1, 2.4.4-ac2, neighbour discovery bug
- (ipv6)
-In-Reply-To: <20010501154437.A23200@oisec.net>
-Message-ID: <Pine.LNX.4.33.0105022155090.444-100000@3jane.ashpool.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135796AbREBUXF>; Wed, 2 May 2001 16:23:05 -0400
+Received: from VM.NMU.EDU ([198.110.200.34]:22962 "HELO VM.NMU.EDU")
+	by vger.kernel.org with SMTP id <S135795AbREBUWx>;
+	Wed, 2 May 2001 16:22:53 -0400
+Message-Id: <5.0.0.25.2.20010502161742.009e1090@pop.mail.nmu.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0
+Date: Wed, 02 May 2001 16:22:39 -0400
+To: linux-kernel@vger.kernel.org
+From: "Carey B. Stortz" <castortz@nmu.edu>
+Subject: Kernel Research Results
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I belong to a small group of students at Northern Michigan University who
+have spent the last 3 months running LMBench on Linux kernels from 2.0.1 to
+2.4.0 we have some interesting results at:
 
+http://euclid.nmu.edu/~benchmark
 
-On Tue, 1 May 2001, Cliff Albert wrote:
+If you would like to email our group directly the address is
 
->
-> When i traceroute6 my 2.4.4 box on my local lan, the 2.4.4 box panic's after about 10 seconds. The traceroute6 completes on the other box.
->
-> 2.4.3-ac14 doesn't experience these problems. Only 2.4.4 (with or without ac{1,2}) panics
->
-> ---- traceroute6 output ----
-> traceroute to neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a) from 3ffe:8114:2000:0:210:4bff:feb3:1fb4, 30 hops max, 16 byte packets
->  1  neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a)  0.583 ms  0.278 ms  0.233 ms
->
->
-[snip]
+nmu-benchmark@yahoogroups.com
 
-I am unable to reproduce this, either locally or remotely, I am also using
-the 2.4.4 kernel, do you have any more information on this, and is it
-possible to reproduce every time?
-
-
-
-			Matthew S. Hallacy
+Thanks
 

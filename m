@@ -1,94 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVAJOMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVAJOX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbVAJOMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 09:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVAJOMY
+	id S262254AbVAJOX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 09:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVAJOX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 09:12:24 -0500
-Received: from [212.177.115.178] ([212.177.115.178]:38532 "HELO ignazio.it")
-	by vger.kernel.org with SMTP id S262274AbVAJOMS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 09:12:18 -0500
-Message-ID: <1104936601.41dbfe9977d46@webmail.ignazio.it>
-Date: Wed,  5 Jan 2005 15:50:01 +0100
-From: rayhart@ignazio.it
-To: peterkline01@netscape.net
-Subject: Grant Award Notification
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 217.166.95.250
+	Mon, 10 Jan 2005 09:23:59 -0500
+Received: from pat.uio.no ([129.240.130.16]:45478 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262254AbVAJOX5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 09:23:57 -0500
+Subject: Re: make flock_lock_file_wait static
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: viro@zenII.uk.linux.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1105346324.4171.16.camel@laptopd505.fenrus.org>
+References: <20050109194209.GA7588@infradead.org>
+	 <1105310650.11315.19.camel@lade.trondhjem.org>
+	 <1105345168.4171.11.camel@laptopd505.fenrus.org>
+	 <1105346324.4171.16.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 10 Jan 2005 09:23:34 -0500
+Message-Id: <1105367014.11462.13.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+må den 10.01.2005 Klokka 09:38 (+0100) skreiv Arjan van de Ven:
+>  
+> > is "sooner or later" and "maybe someone else uses it" worth making
+> > everyone elses kernel bigger by 500 bytes of code ?
+> 
+> eh 60 not 500; sorry need coffee
 
+It's an API that provides *necessary* functionality for those
+filesystems that wish to override the standard flock(). It was very
+recently introduced by a third party, so we haven't had time to code up
+an NFS flock yet.
+Removing it now will just mean that we have to reintroduce it in a month
+or so when NFS and the other filesystems start to catch up.
 
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
- 
- 
- 
-Executive Secretary,
-
-Johnnie Walker Charity Foundation Heritage Trust,
-
-23, Mangotsfield, BRISTOL, BS16 9JE,
-
-England.
-
-Ref No: JWCF/765/2005/185
-
-Batch No: 231-967-17-05
-
-Dear Sir,
-
-Notification of Cash Aid.
-
-This is to notify you that you have been selected By the Board of Trustees of 
-the above International charity organization based in the U. K to qualify for 
-a Cash Grant/Donation for Business, Economic, social and Research developments 
-in your community.
-
-The Johnnie Walker Charity Foundation as established 184 years ago by the  
-Walker family was conceived with the objective of Human Growth and Community 
-development. In line with the 184 years anniversary program this year the 
-Johnnie Walker  foundation in conjunction with the British Council is giving 
-out One Hundred Million United States Dollars as specific Donations/Grants to 
-75 lucky international recipients worldwide in different categories for 
-Business development and Social upliftment of their various communities. These 
-funds are freely given to enhance your business and community development.
-
-Based on the random selection exercise of millions of Internet and Credit card 
-users worldwide your name was selected among the lucky recipients to receive 
-the award sum of US$5,300,000 (Five million,Three Hundred thousand United 
-States Dollars)as charity donations/aid from the Johnnie Walker Foundation in 
-accordance with the enabling act of Parliament.Of the awarded 
-Grant,USD$3.000.000.00(Three million United States Dollars)is earmarked for 
-community development in your area of operation and USD$2.300.000.00(Two 
-million,three hundred thousand United States dollars) will be solely for 
-business upliftment and growth.
-
-You are required to Contact immediately the Executive Secretary below for pre 
-qualification and processing of your claims. Please quote your reference No. 
-and batch No. in all correspondence. 
-
-Mr. Peter Kline
-
-Email: peterkline01@netscape.net
-
-Fax: +448715214148
-
-Please note that this donations/Grants are administered by a British Bank and 
-therefore subject to British Laws. On behalf of the Board kindly accept our 
-warmest congratulations in advance.
-
-Yours faithfully,
-
-Mr. Ray Hart. 
-
-(Legal Secretary)
-
-------------------------------------------------------
-Non conosci ancora Ignazio?
-Cosa stai aspettando? Visita www.ignazio.it
-powered by Multiplayer Network - www.multiplayer.it

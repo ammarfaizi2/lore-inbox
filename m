@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289314AbSA3PoG>; Wed, 30 Jan 2002 10:44:06 -0500
+	id <S289317AbSA3Pn4>; Wed, 30 Jan 2002 10:43:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289315AbSA3Pn4>; Wed, 30 Jan 2002 10:43:56 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:23712
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S289314AbSA3Pnv>; Wed, 30 Jan 2002 10:43:51 -0500
-Date: Wed, 30 Jan 2002 08:42:33 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-        Rik van Riel <riel@conectiva.com.br>
+	id <S289315AbSA3Pnq>; Wed, 30 Jan 2002 10:43:46 -0500
+Received: from B558a.pppool.de ([213.7.85.138]:1810 "HELO Nicole.fhm.edu")
+	by vger.kernel.org with SMTP id <S289314AbSA3Pne>;
+	Wed, 30 Jan 2002 10:43:34 -0500
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130154233.GK25973@opus.bloom.county>
-In-Reply-To: <E16Vp2w-0000CA-00@starship.berlin> <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com>
+From: Daniel Egger <degger@fhm.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 30 Jan 2002 14:13:15 +0100
+Message-Id: <1012396396.32247.2.camel@sonja>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 11:48:05PM -0800, Linus Torvalds wrote:
+Am Mit, 2002-01-30 um 00.50 schrieb Linus Torvalds:
+
+> Or look at USB: I get the USB patches from Greg, and he gets them from
+> various different people. Johannes Erdfelt is the maintainer for uhci.c,
+> and he sends them to Greg, not to me.
+
+What about creating a small document that states who's the correct
+recipient for a subsystem? This would prevent dotzends of questions
+like "Where do I send my patches?" and turn them into a RTFF.
  
-> -- tangential --
-> 
-> One thing intrigued me in this thread - which was not the discussion
-> itself, but the fact that Rik is using bitkeeper.
-> 
-> How many other people are actually using bitkeeper already for the kernel?
-> I know the ppc guys have, for a long time, but who else is? bk, unlike
-> CVS, should at least be _able_ to handle a "network of people" kind of
-> approach.
-
-It does in some ways anyhow.  Following things downstream is rather
-painless, but one of the things we in the PPC tree hit alot is when we
-have a new file in one of the sub trees and want to move it up to the
-'stable' tree, or when it shows up in your/marcelo's tree.  bk send only
-works for same base tree type things (ie a clone of tree X, some
-changes, not a clone of tree Y, which was a clone of tree X but has lots
-of changes and has tree X changes pulled in frequently).  Unfortunaly I
-don't think this is an easy problem to work on either.
-
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Servus,
+       Daniel
+

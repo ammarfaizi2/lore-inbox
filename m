@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbTFJHjs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 03:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbTFJHjs
+	id S262429AbTFJHqo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 03:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbTFJHqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 03:39:48 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10624 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262424AbTFJHjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 03:39:47 -0400
-Date: Tue, 10 Jun 2003 08:53:46 +0100
-From: john@grabjohn.com
-Message-Id: <200306100753.h5A7rk0e000377@81-2-122-30.bradfords.org.uk>
-To: core@enodev.com, ms@citd.de
-Subject: Re: cachefs on linux
-Cc: leoh@dcc.ufmg.br, linux-kernel@vger.kernel.org
+	Tue, 10 Jun 2003 03:46:44 -0400
+Received: from ugp.viaduk.net ([212.68.162.134]:63427 "EHLO ugp.viaduk.net")
+	by vger.kernel.org with ESMTP id S262429AbTFJHqn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 03:46:43 -0400
+From: =?koi8-r?b?68/O09TBztTJziDk1c7Bxdc=?= <kostya.nipi@naftogaz.net>
+To: axboe@suse.de, andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: PROBLEM: ide driver in 2.4.20 discards DMA on my CD-ROM
+Date: Tue, 10 Jun 2003 11:01:23 +0300
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <200306101101.23587.kostya.nipi@naftogaz.net>
+X-MIMETrack: Itemize by SMTP Server on Lotus/Nipi(Release 5.0.9 |November 16, 2001) at
+ 10.06.2003 11:02:45,
+	Serialize by Router on Lotus/Nipi(Release 5.0.9 |November 16, 2001) at 10.06.2003
+ 11:02:59,
+	Serialize complete at 10.06.2003 11:02:59
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anyway, linux also does not have unionFS. If it was that big of a deal,
-> someone would write it. As it is, it's a whizbang no one cares about enough.
+Hello!
+I have recently compiled kernel 2.4.20 and my Liteon 222 CD-ROM drive
+doesn't work stable with this kernel. Problem is that in older kernels 
+(2.2.13, 2.2.15, 2.4.2, 2.4.18, 2.4.19) it works only when DMA is enabled 
+(hdparm -d1).
 
-BSD has had a UnionFS for a while now, by the way.
+In PIO mode it produces a lot of messages "hdX: lost interrupt" (i have tried 
+on /dev/hdb and /dev/hdc )and hangs sometimes when reading files >1 MB.
 
-There are a lot of things we _could_ add to filesystems, E.G.:
+echo file_readahead:512000 >/proc/ide/hdX/settings
+echo max_kb_per_request:120 >/proc/ide/hdX/settings
 
-* Appending to a read-only filesystem on a separate volume
+helps a little(doesn't hang, but some data was broken). The figures are 
+empyrical.
 
-* File versioning
+In DMA mode it has worked well up to 2.4.19. No hangs, no data loss.
 
-* Transparent, variable compression
+With 2.4.20 produces message "DMA interrupt recovery, hdx:lost interrupt" and
+discards DMA mode on mount and each time, when I try to enable DMA and read 
+something from CD.
 
-* Format conversion, (I.E. write a png file to a filesystem, and it is
-			   automatically visible as half a dozen other
-			   formats, without them actually existing on
-			   the disk)
+gcc, that was used to compile :gcc-3.2 
+(2.4.18 & 2.4.19 were compiled with it too)
 
-* Priorities, (E.G. temp files could have a bit to indicate that we
-		    don't really care how long they remain in
-		    write-cache, instead of flushing them along with
-		    other more-important-to-get-to-the-oxide data)
+IDE: PIIX3 (430VX motherboard)
+CD-ROM: Liteon LTN222A
 
-* WORM mode, (I.E. start at block 1 and use blocks sequentially, never
-		   re-using blocks - makes a tape somewhat usable as a
-		   block device)
+kernel 2.4.20, that I have compiled by gcc-3.2 on some other computer with 
+other CD-ROM drive works well and DMA works with that drive
 
-Some of these are available in some form or another already.  There is
-plenty we can do, given enough time :-).
+Help me, please!
+Sorry for bad English
 
-John.
+Best regards
+Mr. Constantin Dunayev, Ukraine
+mailto: kostya.nipi@naftogaz.net

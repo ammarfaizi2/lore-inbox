@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284366AbRLRRxL>; Tue, 18 Dec 2001 12:53:11 -0500
+	id <S284393AbRLRSAB>; Tue, 18 Dec 2001 13:00:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284361AbRLRRxB>; Tue, 18 Dec 2001 12:53:01 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:25607 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S284370AbRLRRwt>; Tue, 18 Dec 2001 12:52:49 -0500
-Date: Tue, 18 Dec 2001 09:55:35 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Benjamin LaHaise <bcrl@redhat.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112180843510.2867-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40.0112180952170.1591-100000@blue1.dev.mcafeelabs.com>
+	id <S284386AbRLRR7w>; Tue, 18 Dec 2001 12:59:52 -0500
+Received: from waste.org ([209.173.204.2]:52205 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S284436AbRLRR7g>;
+	Tue, 18 Dec 2001 12:59:36 -0500
+Date: Tue, 18 Dec 2001 11:59:21 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "Ahmed, Zameer" <Zameer.Ahmed@gs.com>
+cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: RE: Turning off nagle algorithm in 2.2.x and 2.4.x kernels?
+In-Reply-To: <FBC7494738B7D411BD7F00902798761908BFF19B@gsny49e.ny.fw.gs.com>
+Message-ID: <Pine.LNX.4.40.0112181157480.13118-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, Linus Torvalds wrote:
+On Tue, 18 Dec 2001, Ahmed, Zameer wrote:
 
-> Quite frankly, I don't think you've told that many people. I haven't seen
-> any discussion about the aio stuff on linux-kernel, which may be because
-> you posted several announcements and nobody cared, or it may be that
-> you've only mentioned it fleetingly and people didn't notice.
+> The finicky nature of closed sourced sybase libraries that we are using in
+> the custom apps make me ask this question. Will turning off the Nagle
+> algorithm in the kernel on the fly, impact performance in any way? or Can we
+> have this feature in the kernel in some way?
 
-This is not to ask the inclusion of /dev/epoll inside the kernel ( it can
-be easily merged by users that want to use it ) but i've had its users to
-prefer talking about that out of the mailing list. Maybe because they're
-scared to be eaten by some gurus when asking easy questions :)
+Nagle isn't there for looks, of course it will affect performance.
 
+Considered LD_PRELOAD?
 
-
-
-- Davide
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

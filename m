@@ -1,103 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262979AbTJPOCc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 10:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTJPOCc
+	id S262947AbTJPNvz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 09:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTJPNvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 10:02:32 -0400
-Received: from dci.doncaster.on.ca ([66.11.168.194]:62420 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S262979AbTJPOC3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 10:02:29 -0400
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Greg Stark <gsstark@mit.edu>, Helge Hafting <helgehaf@aitel.hist.no>,
-       Joel Becker <Joel.Becker@oracle.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-References: <Pine.LNX.4.44.0310120909050.12190-100000@home.osdl.org>
-	<200310151525.40470.ioe-lkml@rameria.de>
-	<87llrmbl1g.fsf@stark.dyndns.tv>
-	<200310161229.44861.ioe-lkml@rameria.de>
-In-Reply-To: <200310161229.44861.ioe-lkml@rameria.de>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 16 Oct 2003 10:02:27 -0400
-Message-ID: <87smlt9t70.fsf@stark.dyndns.tv>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Oct 2003 09:51:55 -0400
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:39619 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S262947AbTJPNvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 09:51:53 -0400
+Date: Thu, 16 Oct 2003 15:51:34 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Javier Achirica <achirica@telefonica.net>
+Cc: Celso =?ISO-8859-1?Q?Gonz=E1lez?= <celso@mitago.net>,
+       Marc Giger <gigerstyle@gmx.ch>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: airo regression with Linux 2.4.23-pre2
+Message-Id: <20031016155134.612b61d5.us15@os.inf.tu-dresden.de>
+In-Reply-To: <Pine.SOL.4.30.0310152323320.21600-100000@tudela.mad.ttd.net>
+References: <20031015194754.GA14859@viac3>
+	<Pine.SOL.4.30.0310152323320.21600-100000@tudela.mad.ttd.net>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Thu__16_Oct_2003_15_51_34_+0200_7tk53DhPGgdCWVTC"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Thu__16_Oct_2003_15_51_34_+0200_7tk53DhPGgdCWVTC
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Ingo Oeser <ioe-lkml@rameria.de> writes:
+On Wed, 15 Oct 2003 23:27:35 +0200 (MEST) Javier Achirica (JA) wrote:
 
-> Hi there,
-> 
-> first: I think the problem is solvable with mixing blocking and
-> non-blocking IO or simply AIO, which will be supported nicely by 2.6.0,
-> is a POSIX standard and is meant for doing your own IO scheduling.
+Hi,
 
-I think aio could be very useful for databases, but not in this area. I think
-it's useful as a more fine-grained tool than sync/fsync. Currently the
-database has to fsync a file to commit a transaction, which means flushing
-_all_writes to the file even ones from other transactions. If aio inserted
-write barriers to the disk controller then it would provide a way to ensure
-the current transaction is synced without having to flush all other
-transactions writes at the same time.
+JA> Anyway, I've been discussing this issue with Celso and looks like the line
+JA> he mentions make his configuration fail. I added it because in other cases
+JA> it makes it work. Anyway, please test the driver removing that line and if
+JA> it fixes the problem I'll just try to figure out the exact cases when it's
+JA> neede (Cisco hasn't been very helpful about it)..
 
-But I don't see how it's useful for the problem I'm describing.
+JA> > Try removing this line on airo.c
+JA> > Line 2948
+JA> > ai->config._reserved1a[0] = 2 /* ??? */
 
-> On Wednesday 15 October 2003 17:03, Greg Stark wrote:
-> > Ingo Oeser <ioe-lkml@rameria.de> writes:
-> > > On Monday 13 October 2003 10:45, Helge Hafting wrote:
-> > > > This is easier than trying to tell the kernel that the job is
-> > > > less important, that goes wrong wether the job runs too much
-> > > > or too little.  Let that job  sleep a little when its services
-> > > > aren't needed, or when you need the disk bandwith elsewhere.
-> >
-> > Actually I think that's exactly backwards. The problem is that if the
-> > user-space tries to throttle the process it doesn't know how much or when.
-> > The kernel knows exactly when there are other higher priority writes, it
-> > can schedule just enough writes from vacuum to not interfere.
-> 
-> On dedicated servers this might be true. But on these you could also
-> solve it in user space by measuring disk bandwidth and issueing just
-> enough IO to keep up roughly with it.
+Removing the line mentioned above fixes my problems as well. Thanks Celso.
 
-Indeed we're discussing methods for doing that now. But this seems like a
-awkward way to accomplish what the kernel could do very precisely. I don't see
-why non-dedicated servers would be make priorities any less useful, in fact I
-think that's exactly where they would shine.
+-Udo.
 
-> > So if vacuum slept a bit, say every 64k of data vacuumed. It could end up
-> > sleeping when the disks are actually idle. Or it could be not sleeping
-> > enough and still be interfering with transactions.
-> 
-> The vacuum io is submitted (via AIO or simulation of it) normally in a
-> unit U and waiting ALWAYS for U to complete, before submitting a new one.
-> Between submitting units, the vacuums checks for outstanding transactions 
-> and stops, when we have one.
-> 
-> Now a transaction is submitted and the submitting from vacuum is stopped
-> by it existing. The transaction waits for completion (e.g.  aio_suspend()) 
-> and signals vacuum to continue.
+--Signature=_Thu__16_Oct_2003_15_51_34_+0200_7tk53DhPGgdCWVTC
+Content-Type: application/pgp-signature
 
-User-space has no idea if disk i/o is occurring. The data the transaction
-needs could be cached, or it could be on a different disk.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.3.1 (GNU/Linux)
 
-Besides, I think this is far too coarse-grained than what's needed.
-Transactions sometimes run for seconds, minutes, or hours,, some of that time
-is spent doing disk i/o and some of it doing cpu calculations. It can't stop
-and signal another process every time it finishes reading a block and needs to
-do a bit of calculation. Then context switch again a millisecond later so it
-can read the next block...
+iD8DBQE/jqJpnhRzXSM7nSkRAsm4AJ4j8fcNWtDezbtIbUmkNuNJhH975wCfSzr1
+r0ZUa/B94eBs1Pzhwvu97y8=
+=hRJf
+-----END PGP SIGNATURE-----
 
-And besides, this is would only useful on dedicated servers.
-
--- 
-greg
-
+--Signature=_Thu__16_Oct_2003_15_51_34_+0200_7tk53DhPGgdCWVTC--

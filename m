@@ -1,176 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261349AbSL0KDk>; Fri, 27 Dec 2002 05:03:40 -0500
+	id <S263760AbSL0KP2>; Fri, 27 Dec 2002 05:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbSL0KDk>; Fri, 27 Dec 2002 05:03:40 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:64179 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261349AbSL0KDi>;
-	Fri, 27 Dec 2002 05:03:38 -0500
-Date: Fri, 27 Dec 2002 11:11:16 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       LMKL <linux-kernel@vger.kernel.org>
-Subject: [patch] Fix for ATAPI CD/DVD-ROMs and burners with vt8235 (and other chipsets)
-Message-ID: <20021227111116.A2614@ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="82I3+IH0IqGh5yIs"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264863AbSL0KP2>; Fri, 27 Dec 2002 05:15:28 -0500
+Received: from packet.digeo.com ([12.110.80.53]:56000 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263760AbSL0KP1>;
+	Fri, 27 Dec 2002 05:15:27 -0500
+Message-ID: <3E0C2A1F.ADAFC280@digeo.com>
+Date: Fri, 27 Dec 2002 02:23:27 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Chua <jchua@fedex.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bdflush system call obsolete???
+References: <Pine.LNX.4.51.0212271802520.664@boston.corp.fedex.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Dec 2002 10:23:27.0446 (UTC) FILETIME=[FEADC760:01C2AD91]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Chua wrote:
+> 
+> 2.5.53 kernel complaint about ...
+> 
+> warning: process 'update' used the obsolete bdflush system call.
+> Fix your initscripts?
+> 
+> ... what's the replacement for "update-2.11"?
+> 
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+There isn't one.  The daemon itself has been obsolete for years.
 
-Hi!
-
-Attached are two patches, one for recent 2.4 and one for 2.5, which
-enlarge the address setup timing for ATAPI devices. This is needed for
-several CD/DVD-ROMs and burners that won't work with standard timings.
-So far problems were reported only on vt8233a and vt8235, but I suppose
-other chipsets where the drivers actually program the address setup
-timing according to the spec can be affected.
-
-Please apply, thanks.
-
--- 
-Vojtech Pavlik
-SuSE Labs
-
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=vt8235-marcelo
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.897, 2002-12-27 10:59:52+01:00, vojtech@suse.cz
-   Workaround (ide-timing.h) for many ATAPI CD/DVD-ROMs and burners.
-   They need extended (beyond spec) address setup timing, and as such
-   don't work on recent VIA chipsets.
-
-
- ide-timing.h |    8 ++++++++
- 1 files changed, 8 insertions(+)
-
-
-diff -Nru a/drivers/ide/ide-timing.h b/drivers/ide/ide-timing.h
---- a/drivers/ide/ide-timing.h	Fri Dec 27 11:00:15 2002
-+++ b/drivers/ide/ide-timing.h	Fri Dec 27 11:00:15 2002
-@@ -245,6 +245,14 @@
- 	}
- 
- /*
-+ * If the drive is an ATAPI device it may need slower address setup timing,
-+ * so we stay on the safe side.
-+ */
-+
-+	if (drive->media != ide_disk)
-+		p.setup = 120;
-+
-+/*
-  * Convert the timing to bus clock counts.
-  */
- 
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-+
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch2571
-M'XL(`*\D##X``^V476_3,!2&K^M?<=`NV`=-;.>S19U66@05H%5E&S=(R+-/
-ME]`FKF*WI2@_'J>MMFG:D(;@CB1*8N?X]3GO>90#N#18=5LK_=VBS,@!O-?&
-M=EMF:="3/]UXHK4;^YDNT-]'^=<SOQ"5Q+DF+F(LK,Q@A97IMI@7W,[8S0*[
-MK<G;=Y<?^Q-">CT89**\P<]HH=<C5E<K,5?F3-ALKDO/5J(T!5KA25W4MZ$U
-MIY2[,V))0*.X9C$-DUHRQ9@(&2K*PS0.2;:\R<Y<#KD5YA$!QGE">9#0J':/
-M(")#8%[:28!RGW&?)\!H-^IT(WY"69=2V)=ZMC<"3ABT*7D#?S?K`9$`7W0U
-M$Y5>E@H.<X5MFQ=Y>>-E1S#5%12BW$#_HC\>P6#H#Z^&[<GY)P/"15\OJ]*Y
-M[C4B%QENH$14@#\LELJ]'%[C1KLPLT!Y!$*I"HT!@W:Y@-T>K[8RPDTN7>^=
-MBM+E2PMKEQ#H$BJ46%JX&O5!9OG"K71[?0`>A`$9WS63M)]Y$$(%):>P:#!Y
-MW$A5Y0U0OO/#O^_)/5^C@"=NF,91':L8(Q&QSE3%`1?R8?=^+[=EHQ-UPK@.
-MXB1E6U2?6M&0^\_R)L_*FP:\P](PX&GMR`Z2+=/!0Z+#^"FBT_]$[XG>M?T<
-MVM5Z>SE$QT\2\`>XCWB80$K@&$93L!GNM"%OBMX[H7"52S=EG3W[LLU<K[%Z
-MO,Q&RVA8(QCKXEUIC:P14W=SR7KNNT^^DE8^A</M9NW3`E4NX$4/W/=O*C>S
-H(])J+;R=;`\8IZ_="O_X[I<N,Y0SLRQZBH5*1E-!?@&ZOKMG+P8`````
-`
-end
-
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=vt8235-linus
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.957, 2002-12-27 10:46:29+01:00, vojtech@suse.cz
-  Workaround (ide-timing.h) for many ATAPI CD/DVD-ROMs and burners.
-  They need extended (beyond spec) address setup timing, and as such
-  don't work on recent VIA chipsets.
-
-
- ide-timing.h |    8 ++++++++
- 1 files changed, 8 insertions(+)
-
-
-diff -Nru a/drivers/ide/ide-timing.h b/drivers/ide/ide-timing.h
---- a/drivers/ide/ide-timing.h	Fri Dec 27 10:47:10 2002
-+++ b/drivers/ide/ide-timing.h	Fri Dec 27 10:47:10 2002
-@@ -245,6 +245,14 @@
- 	}
- 
- /*
-+ * If the drive is an ATAPI device it may need slower address setup timing,
-+ * so we stay on the safe side.
-+ */
-+
-+	if (drive->media != ide_disk)
-+		p.setup = 120;
-+
-+/*
-  * Convert the timing to bus clock counts.
-  */
- 
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-+
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch1702
-M'XL(`)XA##X``[V46V_3,!3'G^M/<=`>V(4F=JY-4*>.%4$%:%79Q@L2<FUW
-M"6WC*G;:%>7#<])6&XP-,6Y)%,4^Y_Q]+C]E#RZ,*M/64G^V2F1D#UYK8].6
-MJ8QRQ!=<C[3&M9OIN7)W7NYXZL[RHC($[4-N109+59JTQ1S_9L>N%RIMC5Z^
-MNGA[,B*DVX73C!=7ZKVRT.T2J\LEGTG3XS:;Z<*Q)2_,7%GN"#VO;UQKCU(/
-M[Y#%/@VCFD4TB&O!)&,\8$I2+^A$`5GPI9KU*K'"G.\$,\^+6$(CG]9^%"<>
-MZ0-SDC`&ZKG,<[T8&$V#*/62(\I22F%79&_7`CABT*;D!?S=C$^)@`^ZG/)2
-M5X6$_5RJMLWG>7'E9`<PT27,>;&&D_.3X0!.^V[_LM\>G;TSP-%[7)4%-MQ!
-MC?-,K:%02H*ZMJJ0^+$_5FN-7F:AQ`%P*4ME#!AEJP5LCWBV4>&X6>',!4A=
-M/+6PPG1`%U`JH0H+EX,3$%F^P$`\Z0WX8=P)R/!VC*3]R(L0RBDY!GX]UJK7
-M%&&<ABMGJK">F2.GM2SS!B47V^%^VY)M5SLL8AZ-65B'":6T[HQID(1C7XQC
-MGD@QN3N[G\LA&3%-@C!(&C(Z;`/I0Q$-L_\L[S]7CFK/C_UX`[?W/=IA&CR(
-M=N<_H/V++-]#,NH\DN5[24:9'UC>S/L,VN5J\R";PP='_QN<#[P@A@Z!0QA,
-MP&9JJPUY4_*N#U(M<X%;%INSJ]O,]$J5]U?9:!D-*P7&HC\6U\@:/L$7)NN@
-MW24?22N?P/[FL/;Q7,F<PY,NH/V3S,WT@+1:"V<KVP7DYCE&N(>W?W&1*3$U
-2U;PKPTXH/"[)5_MR+Q\@!@``
-`
-end
-
---82I3+IH0IqGh5yIs--
+The parameters all changed, and the interface for setting those
+is to read or write the entries in /proc/sys/vm/.  They are mostly
+described in Documentation/sysctl/vm.txt.

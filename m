@@ -1,38 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130986AbQKNMlz>; Tue, 14 Nov 2000 07:41:55 -0500
+	id <S131005AbQKNMnf>; Tue, 14 Nov 2000 07:43:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131005AbQKNMlq>; Tue, 14 Nov 2000 07:41:46 -0500
-Received: from mx3.port.ru ([194.67.23.37]:57614 "EHLO mx3.port.ru")
-	by vger.kernel.org with ESMTP id <S130986AbQKNMle>;
-	Tue, 14 Nov 2000 07:41:34 -0500
-From: "Samium Gromoff" <_deepfire@mail.ru>
+	id <S131067AbQKNMnZ>; Tue, 14 Nov 2000 07:43:25 -0500
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:56839 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S131005AbQKNMnK>; Tue, 14 Nov 2000 07:43:10 -0500
+From: aprasad@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
 To: linux-kernel@vger.kernel.org
-Subject: /proc tweaking
+cc: linux-mm@kvack.org
+Message-ID: <CA256997.0042FE68.00@d73mta05.au.ibm.com>
+Date: Tue, 14 Nov 2000 17:35:43 +0530
+Subject: Oops when using MAP_SHARED with do_mmap
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.30.70]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E13vevy-0003Lv-00@f4.mail.ru>
-Date: Tue, 14 Nov 2000 15:11:31 +0300
+Content-type: multipart/mixed; 
+	Boundary="0__=wKT86s92xsA0OyvaX1d5bgZavxJRhvGiamlbZGoFBLH9aiMuWkmfgLwM"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-           Hey people, i`ve got such a thought
-    not long ago:
-      all boxes are different, but the /proc/sys/vm
-      defaults are equal for every people, so there
-      is a good issue in getting more performance
-      from linux, just by making a way to autoadjust
-      these mysterious values according to amount of
-      RAM/swap and speed of CPU!  Or this can be done 
-      in userspace with an utility which look also 
-      on the field of box` use (eg workstation, server        etc...)
-          But who can make this better than the people        who hack the kernel?
-          And i wonder why such a issue is not clearly        covered? (maybe i`m making mistake?)
-          This can also be done for proc/sys/net/*...
+--0__=wKT86s92xsA0OyvaX1d5bgZavxJRhvGiamlbZGoFBLH9aiMuWkmfgLwM
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi,
+I have written a simple char device which allocate a page size buffer and
+maps this to user-land via mmap-ing. it works if i specify MAP_PRIVATE as
+flag in do_mmap but i am getting oops with MAP_SHARED flag.
+i am using 2.4-test10 kernel.
+
+attached are files.
+(See attached file: char.c)code for the module.
+(See attached file: mmap.c)test code.
+
+thanks and regards,
+anil
+
+--0__=wKT86s92xsA0OyvaX1d5bgZavxJRhvGiamlbZGoFBLH9aiMuWkmfgLwM
+Content-type: application/octet-stream; 
+	name="char.c"
+Content-Disposition: attachment; filename="char.c"
+Content-transfer-encoding: base64
+
+LyoNCiAqY2hhci5jIC0tIHRoZSBiYXJlIGNoYXIgbW9kdWxlDQogKg0KICogDQogKi8NCg0KI2lm
+bmRlZiAJX19LRVJORUxfXw0KI2RlZmluZSAJX19LRVJORUxfXw0KI2VuZGlmDQojaWZuZGVmIAlN
+T0RVTEUNCiNkZWZpbmUgCU1PRFVMRQ0KI2VuZGlmDQojaWZuZGVmCQlFWFBPUlRfU1lNVEFCDQoj
+ZGVmaW5lCQlFWFBPUlRfU1lNVEFCDQojZW5kaWYNCiNpbmNsdWRlIAk8bGludXgvbW9kdWxlLmg+
+DQojaW5jbHVkZSAJPGxpbnV4L2tlcm5lbC5oPiAvKiBwcmludGsoKSAqLw0KI2luY2x1ZGUgCTxh
+c20vdWFjY2Vzcy5oPg0KI2luY2x1ZGUgIAk8YXNtL2lvLmg+DQojaW5jbHVkZSAJPGFzbS9zdHJp
+bmcuaD4NCiNpbmNsdWRlIAk8bGludXgvbWFsbG9jLmg+IC8qIGttYWxsb2MoKSAqLw0KI2luY2x1
+ZGUgCTxsaW51eC9mcy5oPiAgICAgLyogZXZlcnl0aGluZy4uLiAqLw0KI2luY2x1ZGUgCTxsaW51
+eC9lcnJuby5oPiAgLyogZXJyb3IgY29kZXMgKi8NCiNpbmNsdWRlIAk8bGludXgvdHlwZXMuaD4g
+IC8qIHNpemVfdCAqLw0KI2luY2x1ZGUgCTxsaW51eC9wcm9jX2ZzLmg+DQojaW5jbHVkZSAJPGxp
+bnV4L2ZjbnRsLmg+ICAgICAgICAvKiBPX0FDQ01PREUgKi8NCiNpbmNsdWRlCTxsaW51eC9tbS5o
+Pg0KI2luY2x1ZGUJPGFzbS9tbWFuLmg+DQojaW5jbHVkZQk8bGludXgvc2xhYi5oPg0KI2luY2x1
+ZGUJPGFzbS9pb2N0bC5oPg0KI2luY2x1ZGUJPGxpbnV4L3dyYXBwZXIuaD4NCiNpbmNsdWRlIAk8
+YXNtL3N5c3RlbS5oPiAgIC8qIGNsaSgpLCAqX2ZsYWdzICovDQojaW5jbHVkZSAJPGFzbS9zZWdt
+ZW50Lmg+DQojZGVmaW5lCSAgICBDSEFSX0lPQ1RMCTB4MWENCiNkZWZpbmUJICAgIElfQ0hBUl9N
+TUFQCV9JT1dSKENIQVJfSU9DVEwsIDEsMTAyNCkNCg0KI2RlZmluZQkJZGVidWcoZm10LGFyZ3Mu
+Li4pCVwNCgkJCXByaW50ayhLRVJOX0RFQlVHICIlcywgJXMsICVkIiwgX19GSUxFX18sIF9fRlVO
+Q1RJT05fXywgX19MSU5FX18pOyBcDQoJCQlwcmludGsoS0VSTl9ERUJVRywgZm10LCAjI2FyZ3Mp
+Ow0KDQpzdGF0aWMgaW50IHBlcmZvcm1fbW1hcCh1bnNpZ25lZCBsb25nKTsNCnN0YXRpYyBpbnQg
+dGVzdF9tbWFwKHN0cnVjdCBmaWxlKiwgc3RydWN0IHZtX2FyZWFfc3RydWN0ICopOw0Kc3RhdGlj
+IGludCBjaGFyX21ham9yPTA7DQpzdGF0aWMgdW5zaWduZWQgbG9uZyBwaHlzaWNhbD0wOw0Kc3Rh
+dGljIGludCBmbGFnPTA7DQovKg0KICoJb3BlbiANCiAqLw0KIA0KaW50IA0KY2hhcl9vcGVuIChz
+dHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlscCkNCnsNCg0KCWlmKCBpbm9kZT09
+IE5VTEwgfHwgZmlscCA9PSBOVUxMKQ0KCXsNCgkJcmV0dXJuCS1FTk9ERVY7DQoJfQ0KICAgIC8q
+Y29udGludWUgb25seSBpZiBjYWxsZWQgaW4gcmVhZCBvciB3cml0ZSBvciBib3RoIG1vZGUqLw0K
+CQ0KCWlmICggKGZpbHAtPmZfZmxhZ3MgJiBPX0FDQ01PREUpID09IE9fUkRXUikgDQoJew0KCQly
+ZXR1cm4gMDsgLyppbmRpY2F0ZSBzdWNjZXMqLw0KICAgIH0NCglyZXR1cm4gLUVBQ0NFUzsgLypy
+ZXR1cm5lZCBhY2Nlc3MgZGVuaWVkKi8NCn0NCmludCANCmNoYXJfaW9jdGwoc3RydWN0IGlub2Rl
+ICppbm9kZSwgc3RydWN0IGZpbGUgKmZpbGUsIHVuc2lnbmVkIGludCBjbWQsIHVuc2lnbmVkIGxv
+bmcgdXNycHRyKQ0Kew0KCWludCByYz0wOw0KCXByaW50ayhLRVJOX0RFQlVHICIlcywgJXMsICVk
+XG4iLCBfX0ZJTEVfXywgX19GVU5DVElPTl9fLCBfX0xJTkVfXyk7IA0KDQoJc3dpdGNoKGNtZCkg
+ew0KCQljYXNlIElfQ0hBUl9NTUFQOg0KCQkJCXJjID0gcGVyZm9ybV9tbWFwKHVzcnB0cik7DQoJ
+CQkJYnJlYWs7DQoJCWRlZmF1bHQ6DQoJCQkJcmMgPSAtRUFDQ0VTOw0KCQkJCWJyZWFrOw0KCX0N
+CglyZXR1cm4gcmM7DQp9DQoJCQkJDQoJCQ0KLyoNCiAqIFRoZSBkaWZmZXJlbnQgZmlsZSBvcGVy
+YXRpb25zDQogKi8NCg0KDQpzdHJ1Y3QgZmlsZV9vcGVyYXRpb25zIGNoYXJfZm9wcyA9IHsNCgly
+ZWFkOglOVUxMLAkJCQ0KCXdyaXRlOiAJTlVMTCwNCiAgIAlvcGVuOiAJY2hhcl9vcGVuLA0KCWlv
+Y3RsOgljaGFyX2lvY3RsDQp9Ow0KDQoNCi8qDQogKiBGaW5hbGx5LCB0aGUgbW9kdWxlIHN0dWZm
+DQogKi8NCg0KaW50IGluaXRfbW9kdWxlKHZvaWQpDQp7DQoJaW50IHJlc3VsdDsgDQoNCiAgICAv
+Kg0KICAgICAqIFJlZ2lzdGVyIHRoZSBtYWpvciBudW1iZXIgLCBhbmQgYWNjZXB0IGEgZHluYW1p
+YyBudW1iZXINCiAgICAgKi8NCgkNCglyZXN1bHQgPSByZWdpc3Rlcl9jaHJkZXYoY2hhcl9tYWpv
+ciwgInNpbXBsZWNoYXIiLCAmY2hhcl9mb3BzKTsNCiAgICANCglpZiAocmVzdWx0IDwgMCkgDQoJ
+ew0KICAgICAgICBwcmludGsoS0VSTl9XQVJOSU5HICJjaGFyOiBjYW4ndCBnZXQgbWFqb3IgJWRc
+biIsY2hhcl9tYWpvcik7DQogICAgICAgIHJldHVybiByZXN1bHQ7DQogICAgfQ0KICAgIA0KCWlm
+IChjaGFyX21ham9yID09IDApIA0KCQljaGFyX21ham9yID0gcmVzdWx0OyAvKiBkeW5hbWljICov
+DQoNCiAgICAvKiANCiAgICAgKiBhbGxvY2F0ZSB0aGUgZGV2aWNlcyAtLSB3ZSBjYW4ndCBoYXZl
+IHRoZW0gc3RhdGljLCBhcyB0aGUgbnVtYmVyDQogICAgICogY2FuIGJlIHNwZWNpZmllZCBhdCBs
+b2FkIHRpbWUNCiAgICAgKi8NCglwcmludGsoIlxuaW5pdGlhbGl6YXRpb24gc3VjY2Vzc2Z1bFxu
+Iik7DQogICAgcmV0dXJuIDA7IC8qIHN1Y2NlZWQgKi8NCn0NCg0Kdm9pZCBjbGVhbnVwX21vZHVs
+ZSh2b2lkKQ0Kew0KICAgIA0KICAgIHVucmVnaXN0ZXJfY2hyZGV2KGNoYXJfbWFqb3IsICJzaW1w
+bGVjaGFyIik7DQp9DQpzdGF0aWMgaW50DQpwZXJmb3JtX21tYXAodW5zaWduZWQgbG9uZyB1c3Jw
+dHIpDQp7DQoJdW5zaWduZWQgbG9uZyB2aXJ0PTA7DQoJc3RydWN0IGZpbGVfb3BlcmF0aW9ucyBm
+b3BzOw0KCXN0cnVjdCBmaWxlIHBzZXVkb2ZpbGU7DQoJDQoJcHJpbnRrKEtFUk5fREVCVUcgIiVz
+LCAlcywgJWRcbiIsIF9fRklMRV9fLCBfX0ZVTkNUSU9OX18sIF9fTElORV9fKTsgDQoNCglwaHlz
+aWNhbCA9ICh1bnNpZ25lZCBsb25nKWttYWxsb2MoNDA5NixHRlBfS0VSTkVMKTsNCgkNCglmb3Bz
+Lm1tYXAgPSB0ZXN0X21tYXA7DQoJcHNldWRvZmlsZS5mX29wID0gJmZvcHM7DQoJcHNldWRvZmls
+ZS5mX21vZGU9IDB4MzsNCglmb3IodmlydCA9IHBoeXNpY2FsICYgUEFHRV9NQVNLOyB2aXJ0IDwg
+cGh5c2ljYWwgKyA0MDk2OyB2aXJ0ICs9IFBBR0VfU0laRSkNCgltZW1fbWFwX3Jlc2VydmUodmly
+dF90b19wYWdlKHZpcnQpKTsNCglwcmludGsoImJlZm9yZSBkb19tbWFwXG5cblxuXG4iKTsNCgl2
+aXJ0ID0gZG9fbW1hcCgmcHNldWRvZmlsZSwgMCwgKDQwOTYgKyB+UEFHRV9NQVNLKSAmIFBBR0Vf
+TUFTSywgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9TSEFSRUQsIHBoeXNpY2FsICYgUEFHRV9N
+QVNLKTsNCglpZih2aXJ0IDwwKSB7DQoJCXByaW50aygiZXJyb3IgaW4gbW1hcCB3aXRoIDolZCIs
+dmlydCk7DQoJCXJldHVybiAtRUFDQ0VTOw0KCX0NCglwcmludGsoImFmdGVyIGRvX21tYXAgcmV0
+dXJucyB3aXRoOiVseFxuIix2aXJ0KTsNCgl2aXJ0IHw9IHBoeXNpY2FsICYgflBBR0VfTUFTSzsN
+CglwdXRfdXNlciggdmlydCwgKHVuc2lnbmVkIGxvbmcqKXVzcnB0cik7DQoJc3RyY3B5KChjaGFy
+ICopIHBoeXNpY2FsLCAiaGVsbG8iKTsNCglwcmludGsoInZpcnQgYWRkcmVzOiV1bCBhbmQgd3Jv
+dGU6JXNcbiIsdmlydCwgKGNoYXIqKXBoeXNpY2FsKTsNCglyZXR1cm4gMDsNCgkNCgkJDQp9DQpz
+dGF0aWMgaW50DQp0ZXN0X21tYXAoc3RydWN0IGZpbGUgKmZpbGUsIHN0cnVjdCB2bV9hcmVhX3N0
+cnVjdCAqdm1hKQ0Kew0KCXVuc2lnbmVkIGxvbmcgcGh5Ow0KDQoJcHJpbnRrKEtFUk5fREVCVUcg
+IiVzLCAlcywgJWRcbiIsIF9fRklMRV9fLCBfX0ZVTkNUSU9OX18sIF9fTElORV9fKTsgDQoJcHJp
+bnRrKCJcbiIpOw0KCXBoeSA9IHZtYS0+dm1fcGdvZmYgPDwgUEFHRV9TSElGVDsNCglwaHkgPSBf
+X3BhKHBoeSk7DQoJcHJpbnRrKEtFUk5fREVCVUcgIiVzLCAlcywgJWRcbiIsIF9fRklMRV9fLCBf
+X0ZVTkNUSU9OX18sIF9fTElORV9fKTsgDQoNCglpZihyZW1hcF9wYWdlX3JhbmdlKHZtYS0+dm1f
+c3RhcnQsIHBoeSwgdm1hLT52bV9lbmQtIHZtYS0+dm1fc3RhcnQsIHZtYS0+dm1fcGFnZV9wcm90
+KSkgew0KCQlwcmludGsoInJlbWFwX3BhZ2UgZmFpbGVkXG4iKTsNCgkJcmV0dXJuIC0xOw0KCX0N
+Cgl2bWEtPnZtX2ZpbGUgPSBOVUxMOw0KCXJldHVybiAwOw0KfQ0K
+
+--0__=wKT86s92xsA0OyvaX1d5bgZavxJRhvGiamlbZGoFBLH9aiMuWkmfgLwM
+Content-type: application/octet-stream; 
+	name="mmap.c"
+Content-Disposition: attachment; filename="mmap.c"
+Content-transfer-encoding: base64
+
+I2luY2x1ZGU8dW5pc3RkLmg+DQojaW5jbHVkZTxzeXMvbW1hbi5oPg0KI2luY2x1ZGU8ZmNudGwu
+aD4NCiNpbmNsdWRlPHN5cy90eXBlcy5oPg0KI2luY2x1ZGU8c3RkbGliLmg+DQojaW5jbHVkZTxl
+cnJuby5oPg0KI2luY2x1ZGU8c3lzL2lvY3RsLmg+DQoNCiNkZWZpbmUJIENIQVJfSU9DVEwJMHgx
+YQ0KI2RlZmluZQlJX0NIQVJfTU1BUAlfSU9XUihDSEFSX0lPQ1RMLCAxLDEwMjQpCQ0KDQptYWlu
+KCkNCnsNCglpbnQgZmQ9MDsNCiAgICB1bnNpZ25lZCBsb25nIGJ1ZmZlcjsNCgljaGFyICpidWY7
+DQoJaW50IHJjPTA7DQoJY2hhciB0b3dyaXRlOw0KCWZkID0gb3BlbigiL2Rldi9zaW1wbGVjaGFy
+IixPX1JEV1IpOw0KCWlmKGZkIDwwKXsNCgkJcGVycm9yKCJPcGVuIGZhaWxlZCIpOw0KCQlyZXR1
+cm47DQoJfQ0KCXByaW50ZigiYnVmZmVyIHB0cjolcFxuIiwgYnVmZmVyKTsJDQoJcmMgPSBpb2N0
+bCAoZmQsIElfQ0hBUl9NTUFQLCZidWZmZXIpOw0KCWlmKHJjICkgew0KCQlwZXJyb3IoIm1tYXAi
+KTsNCgkJcmV0dXJuOw0KCX0NCglwcmludGYoImJ1ZmZlciBwb2ludHI6JXBcbiIsYnVmZmVyKTsN
+Cg0KCXByaW50ZigiIGJ1ZmZlciBpczolc1xuIiwgKGNoYXIgKilidWZmZXIpOw0KICAvLyBzdHJj
+cHkoKGNoYXIqKWJ1ZmZlciwiaGkgbWVyaSIpOwkNCgkNCgkNCn0NCgkNCgkNCg==
+
+--0__=wKT86s92xsA0OyvaX1d5bgZavxJRhvGiamlbZGoFBLH9aiMuWkmfgLwM--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

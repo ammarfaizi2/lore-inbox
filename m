@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287919AbSAPVcJ>; Wed, 16 Jan 2002 16:32:09 -0500
+	id <S287896AbSAPVe7>; Wed, 16 Jan 2002 16:34:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287918AbSAPVcA>; Wed, 16 Jan 2002 16:32:00 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:16143 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287881AbSAPVbw>;
-	Wed, 16 Jan 2002 16:31:52 -0500
-Date: Wed, 16 Jan 2002 19:31:42 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: christian e <cej@ti.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: aa works for me..rrmap didn't
-In-Reply-To: <3C45ED3A.7060403@ti.com>
-Message-ID: <Pine.LNX.4.33L.0201161923450.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S287940AbSAPVep>; Wed, 16 Jan 2002 16:34:45 -0500
+Received: from mail.uni-kl.de ([131.246.137.52]:24231 "EHLO mail.uni-kl.de")
+	by vger.kernel.org with ESMTP id <S287932AbSAPVeE>;
+	Wed, 16 Jan 2002 16:34:04 -0500
+Message-ID: <3C45F1C6.2010409@student.uni-kl.de>
+Date: Wed, 16 Jan 2002 22:33:58 +0100
+From: "R. Sinoradzki" <sinoradz@student.uni-kl.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011126
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Justin Carlson <justincarlson@cmu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: multithreading  on a multiprocessor system ( a bit OT )
+In-Reply-To: <3C45D95C.7000402@student.uni-kl.de> <1011212204.314.3.camel@gs256.sp.cs.cmu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, christian e wrote:
+Justin Carlson wrote:
 
-> I think that's about it ;-)
->
-> And I did the echo 500 > /proc/sys/vm/vm_mapped_ratio with the aa patch..
+> On Wed, 2002-01-16 at 14:49, R. Sinoradzki wrote:
+> 
+>>O.K my question:
+>>Consider two modern processors that share some data and a lock.
+>>The lock may be implemented with something like an atomic test-and-set
+>>instruction. Now processor 'A' acquires the lock and works with the data.
+>>Processor 'B' also wants to access the data, but internally reorders it's
+>>instructions because the instructions seem independent from each other.
+>>So 'B' might access the data without having the lock.
+>>If it's a single processor system, reordering instructions in a way that
+>>ensures that it looks 'as if' everything has been executed in the right order
+>>might be easy, but in a multiprocessor system 'A' doesn't know 'B's state.
+>>
+> 
+> Then you've got a bug.  Modern implementations that do SMP provide some
+> way of placing barriers around speculative execution structures to make
+> sure you don't, say, go out and read some memory location that changes
+> state in a device because that's an OK speculative action to take.
+> 
+> Can't really comment on x86, as I'm not very good with it, but taking
+> for example MIPS and Alpha, in addition to the ll-sc ops, there are a
+> sync and mb instructions, respectively, which provide a method for
+> assuring that previous operations have become visible in terms of
+> general machine state before going on.
+> 
+> -Justin
+> 
 
-Ahhhhh ok.
+Ah, thank you for the keywords.
+Sorry, I should have searched "multiprocessor synchronization" in Google, but
+I tried something else that gave me a lot of useless results ...
 
-I think your workload (leaving a huge process inactive for
-a few minutes, then switching desktops to that process)
-really does need a special VM tuning knob.
-
-I guess I'll add a knob like this to the -rmap VM.
-
-I'll try to keep it a bit simpler than vm_max_mapped too,
-it would seem it's possible to set vm_max_mapped so high
-that the box will refuse swapping under any circumstance
-and the box will just crash if you have too much RAM ;)))
-(then again, root can always do this)
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Ralf
 

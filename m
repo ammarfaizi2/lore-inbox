@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVCXJau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVCXJdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVCXJau (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 04:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVCXJau
+	id S263020AbVCXJdz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 04:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbVCXJdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 04:30:50 -0500
-Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:10907 "EHLO
-	bastet.signetmail.com") by vger.kernel.org with ESMTP
-	id S261982AbVCXJak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 04:30:40 -0500
-Date: Thu, 24 Mar 2005 04:30:32 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Asfand Yar Qazi <ay1204@qazi.f2s.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How's the nforce4 support in Linux?
-Message-ID: <20050324093032.GA14022@havoc.gtf.org>
-References: <4242865D.90800@qazi.f2s.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4242865D.90800@qazi.f2s.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 24 Mar 2005 04:33:55 -0500
+Received: from web53307.mail.yahoo.com ([206.190.39.236]:38746 "HELO
+	web53307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263020AbVCXJdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 04:33:52 -0500
+Message-ID: <20050324093352.43916.qmail@web53307.mail.yahoo.com>
+Date: Thu, 24 Mar 2005 09:33:51 +0000 (GMT)
+From: sounak chakraborty <sounakrin@yahoo.co.in>
+Subject: Re: sched.c  function
+To: Oliver Neukum <oliver@neukum.org>,
+       linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 09:20:29AM +0000, Asfand Yar Qazi wrote:
-> Hi,
+
+
+> What exactly do you want to know about the
+> scheduler?
 > 
-> I'm currently contemplating going for an Athlon 64 system.  However, 
-> I'll primarily be using a Linux-based OS (Gentoo, namely), so I need 
-> to know how well the chipsets are supported currently.
-> 
-> I'd really like to go Via - but the crummy KT890 / VT8237 combo sucks 
-> - mainly due to the lack of SATA II with NCQ.  I share the sentiments 
-> of the person in a post in the AnandTech forums 
-> (http://tinyurl.com/6d9bx) who says:
-> 
-> "The feature set on the K8T890 sucks. It was supposed to use the 
-> VT8251 southbridge, bringing SATA-II/NCQ, HD Audio, etc. 
-> Unfortunately, this southbridge has since dissappeared off the face of 
-> the earth, and all the current K8T890 boards use the old VT8237. 
-> nForce4, on the other hand, has SATA-II/NCQ, hardware firewall, nice 
-> software overclocking/monitoring tools (ntune), gigabit lan, etc. On 
-> top of that, performance and overclocking is pretty damn good. I was 
-> at one point looking forward to the K8T890, but considering how much 
-> of a joke the whole product line has been (lacking features, months of 
-> delays with no explanation, lack of any variety of retail boards), I 
-> have to say I'd avoid it like the plague."
+I had a wild idea  to process one function that
+repeatedly checks the task list and find out which
+process is in which state 
 
-Well, let's cut through the B.S. ;-)
+At first i retrieve the information from fork.c in
+do_fork() and exit.x in do_exit()
+but the problem it showed me is that the information
+of the task at the beginnig and at the
+end(termination)
 
-* Even when the SATA core is updated to support NCQ, nForce will not
-support it under Linux.  No hardware info.
+but the process may be in different states at
+different moment in between these two extremes(start
+-- end)
 
-* "hardware firewall" -- sounds silly.  Pretty sure Linux doesn't support
-it in any case.
+So how to know that .
 
-* overclocking -- overclockers are always playing with fire.  any
-overclocked hardware is suspect and unsupportable.
+I can  run for_each process after certain interval of
+time , but rather than using timer i thought to set a
+value or call the function (for_each_process) whenever
+sheduling occurs(that is some process is going to
+sleep and some are awakening) that is i am getting
+some changes in the task list after that..
 
-* via comes with gigabit lan these days.  My own VIA-based Athlon64
-system comes with r8169 gigabit.
+is my approch is correct ?
+or should i implement timer ?
+plz help me 
 
-	Jeff
+i am sorry if some of my concepts are wrong as i am
+new to kernel and would be obliged if you correct me
+thank for your help 
+sounak  
 
-
-
+________________________________________________________________________
+Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/

@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315414AbSEQEW1>; Fri, 17 May 2002 00:22:27 -0400
+	id <S315415AbSEQEWm>; Fri, 17 May 2002 00:22:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315415AbSEQEW0>; Fri, 17 May 2002 00:22:26 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:16396 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S315414AbSEQEW0>;
-	Fri, 17 May 2002 00:22:26 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200205170422.g4H4M5q295551@saturn.cs.uml.edu>
-Subject: Re: Htree directory index for Ext2, updated
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Fri, 17 May 2002 00:22:04 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E178Vhr-0008Vj-00@starship> from "Daniel Phillips" at May 17, 2002 02:34:51 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315416AbSEQEWm>; Fri, 17 May 2002 00:22:42 -0400
+Received: from [202.135.142.196] ([202.135.142.196]:47884 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315415AbSEQEWl>; Fri, 17 May 2002 00:22:41 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Ghozlane Toumi <ghoz@sympatico.ca>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [PATCH] Fix BUG macro 
+In-Reply-To: Your message of "Thu, 16 May 2002 19:41:58 MST."
+             <3CE46DF6.62EF67E0@zip.com.au> 
+Date: Fri, 17 May 2002 14:25:34 +1000
+Message-Id: <E178ZJ8-0001TJ-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> After learning to my horror that gnu patch will, if a patch was made to be 
-> applied with option -p0, sometimes apply patches to your 'clean' tree (the 
-> one with the ---'s) instead of the target tree (the one with the +++'s) I 
-> decided to switch to -p1, and that is how this patch is to be applied.
+In message <3CE46DF6.62EF67E0@zip.com.au> you write:
+> I'd share Hugh's concern on this one.  Adding the name of the
+> containing function to every BUG() expansion will increase
+> the size of .rodata.
 
-The worst thing is that gnu patch will make
-this decision on a per-file basis, so you
-can't then back out the changes with -R.
+Andrew: you used to be such a bright young man. 8)
 
-Do like this:
+> Do you have before-and-after /usr/bin/size output?
 
-diff -Naurd old new
+I even put the kernel in /usr/src/, not my home directory, to help you
+out here.
 
-IMPORTANT: the directory names should have
-the same number of characters in them.
-Do not try something like:
+before: 
+	   text    data     bss     dec     hex filename
+	1192605  355848  353780 1902233  1d0699 vmlinux
 
-diff -Naurd bad idea
-diff -Naurd doomed 2fail
+after: 
+	   text    data     bss     dec     hex filename
+	1168396  355848  353780 1878024  1ca808 vmlinux
 
-Don't use "linux" for a name. Don't use
-anything Linus might use. Pick your own
-equal-length directory names, and don't
-distribute tarballs containing them.
-This prevents source-destroying disasters.
-
-Then to apply:
-
-(cd my-linux && bzip2 -dc ../foo.bz2 | patch -p1 -s -E)
-
+Understand?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268117AbUGWWSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268145AbUGWWlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268117AbUGWWSX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 18:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268118AbUGWWSX
+	id S268145AbUGWWlV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 18:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268146AbUGWWlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 18:18:23 -0400
-Received: from [221.2.232.138] ([221.2.232.138]:6243 "ehlo sohu.com")
-	by vger.kernel.org with ESMTP id S268117AbUGWWSV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 18:18:21 -0400
-From: "Tony" <zlblzm@sohu.com>
-Subject: Seeking joint-venture partners for ERW oil casing project
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: zlblzm@sohu.com
-Date: Sat, 24 Jul 2004 07:17:57 +0800
-X-Priority: 3
-X-Mailer: FoxMail 4.0 beta 2 [cn]
-Message-Id: <S268117AbUGWWSV/20040723221821Z+105@vger.kernel.org>
+	Fri, 23 Jul 2004 18:41:21 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:5100 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S268145AbUGWWlT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 18:41:19 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Fri, 23 Jul 2004 18:40:26 -0400 (EDT)
+To: Roger Luethi <rl@hellgate.ch>
+Cc: zanussi@us.ibm.com, linux-kernel@vger.kernel.org, karim@opersys.com,
+       richardj_moore@uk.ibm.com, bob@watson.ibm.com,
+       michel.dagenais@polymtl.ca
+Subject: Re: LTT user input
+In-Reply-To: <20040723191900.GA2817@k3.hellgate.ch>
+References: <16640.10183.983546.626298@tut.ibm.com>
+	<20040723100101.GA22440@k3.hellgate.ch>
+	<16641.19483.708016.320557@tut.ibm.com>
+	<20040723191900.GA2817@k3.hellgate.ch>
+X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
+Message-ID: <16641.36290.751769.126111@k42.watson.ibm.com>
+From: Robert Wisniewski <bob@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir or Madam:
+Roger Luethi writes:
+ > On Fri, 23 Jul 2004 12:34:19 -0500, zanussi@us.ibm.com wrote:
+ > > I agree that it would make sense for all these tools to at least share
+ > > a common set of hooks in the kernel; it would be great if a single
+ > > framework could serve them all too.  The question at the summit was
+ > > 'why not use the auditing framework for tracing?'.  I haven't had a
+ > > chance to look much at the code, but the performance numbers published
+ > > for tracing syscalls using the auditing framework aren't encouraging
+ > > for an application as intensive as tracing the entire system, as LTT
+ > > does.
+ > > 
+ > > http://marc.theaimsgroup.com/?l=linux-kernel&m=107826445023282&w=2
+ > 
+ > Looking for a common base was certainly easier before one tracing
+ > framework got merged. I don't claim to know if a common basic framework
+ > would be beneficial, but I am somewhat amazed that not more effort has
+ > gone into exploring this.
 
-We are keenly interested in setting up a new factory to produce 120,000 ERW oil casings per year to meet the big market of Shengli Oilfied. Since we lack some starting-up capital, we are seeking for investments. I will give you a brief introduction to the project as follow:
+Argh.  I had up to this point been passively following this thread because
+a while ago, prior to dtrace and other such work I, Karim, and others
+invested quite of bit of effort and time responding to this group pointing
+out the benefits of performance monitoring via tracing and
 
-I. Background:
-Shengli Oilfield, the second largest oilfield in China and the leading company of Sinopec Corp. (http://www.sinopec.com), as well as neighboring oilfields as Dagang Oilfield, Central Plain Oilfield and Jiangsu Oilfield are potential market of ERW oil casing. It is expected that the total oil casing needed in the above area is about 400,000 tons, including 260,000 tons in Sinopec and 150,000 tons in Shengli Oilfield. To meet the great need, we plan to set up a joint venture to produce 120,000 tons of ERW casings per year in Shengli Oilfield.  With good management and market outlets, we believe that this JV also has the potential to expand beyond China to other nations. 
+IN FACT this was exactly one of the points I ardently made.  Having each
+subsystem set up their own monitoring was not only counter productive in
+terms of time and implementation effort, but prevented a unified view of
+performance from being achieved.  Nevertheless, it appears that some
+subsystem tracing has been incorporated, though tbh I have not followed as
+closely recently.
 
-II. About us
-Shengli Oilfield Engineering Machinery Factory is one of sub-companies of Shengli Oilfield Co., Ltd, with total assets of 267 million yuan, net assets of 170 million yuan and 2462 staff. The factory mainly produces oilfield special equipment such as beam unit, Spiral-seam submerged-arc weldedsteel pipe, sucker rod, line pipe, casing, tubing, plastic compound pipe etc. It produces 200,000 tons of line pipes, 1 million meters of strengthened plastic compound pipes, 500 beam units, 2.5 million meters of sucker rods, 12,000 tons of PP gas pipes and 50,000 tons of oil tubings yearly, and has become important pipe base in Shandong and Shengli Oilfield. Its products have entering many areas as Shengli Oilfield, Daqing Oilfield, Liaohe Oilfield, Dagang Oilfield and so on. In 2002, the sale income amounted to over 600 million yuan.
-The Factory holds Quality accreditations as ISO9001, API and so on.
+LTT and relayfs offered the best performing, most comprehensive solution,
+and was reasonably unintrusive.  The work was integrated with dprodes,
+allowing dynamic insertion and the zero cost non-monitored overhead
+proclaimed by dtrace.  As Karim has pointed out in previous posts, though
+the technical concerns that were raised were addressed, it didn't seem to
+help as other nits would crop up appearing to imply that something else was
+happening.  If indeed the remaining issue is whether there is a benefit to
+a performance monitoring infrastructure, then I wonder how you would
+interpret reactions to dtrace.
 
-III. Content of the project
-It is planned to introduce Japanese technology and equipment to set up one production line with range of casing diameter from¦Õ114 to ¦Õ339.7 and produce 120,000 tons of ERW casings and delivery pipes per year.
+Robert Wisniewski
+The K42 MP OS Project
+IBM T.J. Watson Research Center
+http://www.research.ibm.com/K42/
 
-IV. Product specifications
-For Casing: grade of steel are J55 and N80, specification ranges from ¦Õ114 to ¦Õ339.7
-For delivery: grade of steel are X52¡¢X60¡¢X70, specification ranges from ¦Õ114 to ¦Õ339.7.
-
-V. Economic Analysis
-The total investment in this project is 142.41 million yuan. After the completion of the project, it is estimated that the internal financial rate of return before paying tax is 24.9 percent with a payback period of 5.6 years, and the internal rate of return after paying tax is 21.8 percent with a payback period of 5.9 years.
-The break-even point of the project is 46.95 percent, which means the project can keep balance if the annual output amount to 42,000 tons.
-
-VI. Plans for cooperation
-We have set up a joint venture with Japan's Marubeni in the early of the year, with a registered capital of 57 million yuan. The capital structure is as follow:
-a. Shengli Oilfield Bureau of Administration          19.95 million yuan   35£¥
-b. Shengli Oilfield Engineering Machinery Facotry     17.10 million yuan   30£¥
-c. Dongying District State Assets Operation & Management Co., Ltd 5.70million yuan 10£¥
-d. Marubeni Engineering Technology Co., Ltd           14.25 million yuan   25£¥
-
-To meet our capital need for this project, we are now planned to increase our registered capital to 118.88 million yuan. Taking our added investment into consideration, we need another 34.68 million yuan to get the plan executed. So we are seeking a new joint venture partner who'd like to join this project and meet our capital requirement.
-We would like to exchange the information with the manufacturers and suppliers who are interested in this project and have discussion on raw material supply as well as jointly investing the factory establishment. And we hope we could have good cooperation in future.
-For additional information regarding this project, please feel free to contact us.
-
-Looking forward to your prompt reply.
-
-Sincerely yours, 
-
-Tony Leung
-Project officer
-
-Tel: +86-546-833 9362
-Fax:+86-546-832 9817
-Mobile: +86-133 4505 3225
-Email: tony@mpbdy.com

@@ -1,62 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130484AbQLOUAJ>; Fri, 15 Dec 2000 15:00:09 -0500
+	id <S129345AbQLOUL6>; Fri, 15 Dec 2000 15:11:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129870AbQLOT77>; Fri, 15 Dec 2000 14:59:59 -0500
-Received: from smtp.alacritech.com ([209.10.208.82]:3332 "EHLO
-	smtp.alacritech.com") by vger.kernel.org with ESMTP
-	id <S129413AbQLOT7w>; Fri, 15 Dec 2000 14:59:52 -0500
-Message-ID: <3A3A7284.DE48A381@alacritech.com>
-Date: Fri, 15 Dec 2000 11:35:32 -0800
-From: "Matt D. Robinson" <yakker@alacritech.com>
-Organization: Alacritech, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
+	id <S129383AbQLOULt>; Fri, 15 Dec 2000 15:11:49 -0500
+Received: from web5202.mail.yahoo.com ([216.115.106.170]:28165 "HELO
+	web5202.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129345AbQLOULa>; Fri, 15 Dec 2000 15:11:30 -0500
+Message-ID: <20001215194059.10333.qmail@web5202.mail.yahoo.com>
+Date: Fri, 15 Dec 2000 11:40:59 -0800 (PST)
+From: Rob Landley <telomerase@yahoo.com>
+Subject: Re: Is there a Linux trademark issue with sun?
+To: Larry McVoy <lm@bitmover.com>
+Cc: maddog@valinux.com, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-CC: Alexander Viro <viro@math.psu.edu>, LA Walsh <law@sgi.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linus's include file strategy redux
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <Pine.GSO.4.21.0012141900140.10441-100000@weyl.math.psu.edu> <20001215152137.K599@almesberger.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-> 
-> Alexander Viro wrote:
-> > In the situation above they should have -I<wherever_the_tree_lives>/include
-> > in CFLAGS. Always had to. No links, no pain in ass, no interference with
-> > userland compiles.
-> 
-> As long as there's a standard location for "<wherever_the_tree_lives>",
-> this is fine. In most cases, the tree one expects to find is "roughly
-> the kernel we're running". Actually, maybe a script to provide the
-> path would be even better (*). Such a script could also complain if
-> there's an obvious problem.
+--- Larry McVoy <lm@bitmover.com> wrote:
 
-I personally think the definition of an environment variable to point to
-a header file location is the right way to go.  Same with tools -- that
-way I can say build with $(TOOLDIR), which pulls whatever tools that
-tree uses, and use $(INCDIR) as my kernel include files.
+> Yup, that's Scooter (all the Sun old timers call him
+> Scooter, I dunno where
+> it came from, I wasn't enough of an old timer). 
+> And, yeah, he does a lot 
+> of marketing.  But in many respects, he's the
+> perfect CEO.  He's always
+> out in public, pushing the message, and he tends to
+> leave the day to day
+> stuff to the other folks.  I'll take him over Gates
+> any day of the week.
 
-Then you can build using whatever header files you want to use, using
-whatever compilers/linkers/whatever you want to.  So:
+I'm not against them, and I wouldn't make too big a
+deal out of it.  I'm just recommending that somebody
+official ask them politely to stop doing it.
 
-TOOLDIR=/src/gcctree
-INCDIR=/src/2.2.18
+Here's how I see it:
 
-or:
+Sun feels that their core product, Solaris, is
+threatened by Linux.  They have several options:
 
-TOOLDIR=/src/egcstree
-INCDIR=/src/2.4.0-test12-custom
+A) Jump on board and use Linux on their hardware.
+B) Improve Solaris until it can compete on its own
+merits.
+C) Market Solaris better, to make people want Solaris
+instead of Linux.
+D) Confuse people into thinking that Linux and Solaris
+are the same thing.
 
-Then a 'make' from my $(TOPDIR) builds everything with the tools in
-$(TOOLDIR) and uses -I$(INCDIR) for header files.  It's a beautiful
-thing.
+He's gone for D, and he's run straight into the Linux
+trademark doing so.  If everybody wants to abolish the
+Linux trademark, that's fine.  But if we don't defend
+it here, I really do think it becomes too weak to be
+useful in other situations.
 
---Matt
+McNealy wants to leverage the growth of Linux to help
+his company, which is fine, but he's going about it
+the wrong way.  What if IBM had done this sort of
+thing with AIX or Monterey instead of miraculously
+acquiring a clue?  IBM hasn't, they've respected the
+Linux trademark very conscientiously.
+
+> Scott's only big sin was to dump SunOS for Slowaris.
+
+I still dunno WHY that happened (other than gaining
+threading), but I suspect that should go to email...
+
+Rob
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

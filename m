@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314446AbSHFRZw>; Tue, 6 Aug 2002 13:25:52 -0400
+	id <S314284AbSHFRYY>; Tue, 6 Aug 2002 13:24:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314459AbSHFRZv>; Tue, 6 Aug 2002 13:25:51 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:19698 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314446AbSHFRZo>; Tue, 6 Aug 2002 13:25:44 -0400
-Subject: Re: Linux 2.4.20-pre1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jt@hpl.hp.com
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020806171736.GC11313@bougret.hpl.hp.com>
-References: <20020806002126.GA10585@bougret.hpl.hp.com>
-	<Pine.LNX.4.44.0208060933070.7302-100000@freak.distro.conectiva> 
-	<20020806171736.GC11313@bougret.hpl.hp.com>
-Content-Type: text/plain
+	id <S314278AbSHFRXU>; Tue, 6 Aug 2002 13:23:20 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:56547 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314149AbSHFRXR>;
+	Tue, 6 Aug 2002 13:23:17 -0400
+Date: Tue, 06 Aug 2002 10:23:56 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, colpatch@us.ibm.com
+Subject: Re: [PATCH] NUMA-Q xquad_portio declaration
+Message-ID: <1253454051.1028629435@[10.10.2.3]>
+In-Reply-To: <1028656471.18156.179.camel@irongate.swansea.linux.org.uk>
+References: <1028656471.18156.179.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 06 Aug 2002 19:48:22 +0100
-Message-Id: <1028659702.18156.185.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-06 at 18:17, Jean Tourrilhes wrote:
-> 	Yep, tons of these :
-> -----------------------------------------------
-> -        IRDA_DEBUG(4, __FUNCTION__ "(), speed=%d (was %d)\n", speed, 
-> -		   self->speed);
-> +        IRDA_DEBUG(4, "%s(), speed=%d (was %d)\n", __FUNCTION__,
-> +        	speed, self->speed);
-> -----------------------------------------------
-> 	Between this and fixing a Oops or Deadlock, I'll take the
-> second any day.
+>> The STANDALONE thing? I'm not convinced that's really any cleaner,
+>> it makes even more of a mess of io.h than there was already (though
+>> we could consider that a lost cause ;-)). 
+>> 
+>> What's your objection to just throwing in a defn of xquad_portio?
+>> A preference for burying the messy stuff in header files? Seems to
+>> me that as you have to define STANDALONE now, the point is moot.
+> 
+> Because you are assuming there will be -one- kind of wackomatic PC
+> system - IBM's. The chances are there will be more than one as other
+> vendors like HP, Compaq and Dell begin shipping stuff. Having
+> __STANDALONE__ works for all the cases instead of exporting xquad this
+> hpmagic that and compaq the other in an ever growing cess pit
 
-I'd prefer to be able to read the errors too but yes.
+OK, fair enough. Would a simpler approach to what you've done be
+to do in io.h something like:
 
-> Alan if anything was pending, so that I could avoid wasting my time
-> and instead wait for the next release doing something else.
-> 	I guess it's too late, I already wasted my afternoon.
+#ifdef CONFIG_MULTIQUAD
+ #ifdef STANDALONE
+  #define xquad_portio 0
+ #else
+  extern void *xquad_portio;    /* Where the IO area was mapped */
+ #endif
+#endif /* CONFIG_MULTIQUAD */
 
-By the time you asked I'd sent them
+Or something along these lines ... ? Would make the changeset
+somewhat smaller. Seems to work from 30 seconds thought, but 
+haven't tried it (yet).
 
-> 	The second thing that bugs me is that because those patches
-> pass behind my back, they won't get applied to *both* 2.4.X and
-> 2.5.X. Because of that, keeping 2.4.X and 2.5.X in synch is an
-> exercise in futility.
-
-I sent them to the maintainer. 
-
-
-IRDA SUBSYSTEM
-P:      Dag Brattli
-M:      Dag Brattli <dag@brattli.net>
-L:      linux-irda@pasta.cs.uit.no
-W:      http://irda.sourceforge.net/
-S:      Maintained
-
-
-If thats wrong, then thats why you never found out.
+M.
 

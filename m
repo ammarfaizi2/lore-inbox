@@ -1,151 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbULYQNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbULYRCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbULYQNH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 11:13:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbULYQNH
+	id S261277AbULYRCU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 12:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbULYRCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 11:13:07 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:32693 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261525AbULYQM5 (ORCPT
+	Sat, 25 Dec 2004 12:02:19 -0500
+Received: from omega.datac.cz ([81.31.15.4]:64232 "EHLO omega.datac.cz")
+	by vger.kernel.org with ESMTP id S261277AbULYRCN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 11:12:57 -0500
-Message-ID: <41CDA035.BF574176@tv-sign.ru>
-Date: Sat, 25 Dec 2004 20:15:33 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sat, 25 Dec 2004 12:02:13 -0500
+Message-ID: <41CD9D00.4090505@feix.cz>
+Date: Sat, 25 Dec 2004 18:01:52 +0100
+From: Michal Feix <michal@feix.cz>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] optimize prefetch() usage in list_for_each_xxx
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] FW_LOADER required in Kconfig for certain DVB frontend modules
+Content-Type: multipart/mixed;
+ boundary="------------030905000409020704070000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+This is a multi-part message in MIME format.
+--------------030905000409020704070000
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This patch changes list_for_each_xxx iterators
+I would have sent this to DVB maintener, if linuxtv.org wasn't down for the 
+whole day and their SMTP wouldn't reject all emails for linuxtv.org domain. :((
 
-from:
-	for (pos = (head)->next, prefetch(pos->next);
-	     pos != (head);
-             pos = pos->next, prefetch(pos->next))
-to:
-	for (pos = (head)->next;
-	     prefetch(pos->next), pos != (head);
-             pos = pos->next)
+Due to a change between 2.6.9 and 2.6.10 in certain DVB frontend modules, 
+it is now required to have "Hotplug firmware loading support" selected in 
+Kernel configuration (FW_LOADER in .config file).
 
-Reduces my vmlinux .text size by 4401 bytes.
+-- 
+Michal Feix
+michal@feix.cz
 
-Oleg.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+--------------030905000409020704070000
+Content-Type: text/plain;
+ name="dvb-fwloader.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dvb-fwloader.patch"
 
---- 2.6.10/include/linux/list.h~	2004-11-15 17:12:20.000000000 +0300
-+++ 2.6.10/include/linux/list.h	2004-12-25 21:46:56.379911176 +0300
-@@ -326,8 +326,8 @@
-  * @head:	the head for your list.
-  */
- #define list_for_each(pos, head) \
--	for (pos = (head)->next, prefetch(pos->next); pos != (head); \
--        	pos = pos->next, prefetch(pos->next))
-+	for (pos = (head)->next; prefetch(pos->next), pos != (head); \
-+        	pos = pos->next)
+diff -ur a/drivers/media/dvb/frontends/Kconfig b/drivers/media/dvb/frontends/Kconfig
+--- a/drivers/media/dvb/frontends/Kconfig	Sat Dec 25 12:16:31 2004
++++ b/drivers/media/dvb/frontends/Kconfig	Sat Dec 25 14:12:36 2004
+@@ -46,6 +46,7 @@
+ config DVB_SP8870
+  	tristate "Spase sp8870 based"
+ 	depends on DVB_CORE
++	select FW_LOADER
+ 	help
+  	  A DVB-T tuner module. Say Y when you want to support this frontend.
  
- /**
-  * __list_for_each	-	iterate over a list
-@@ -348,8 +348,8 @@
-  * @head:	the head for your list.
-  */
- #define list_for_each_prev(pos, head) \
--	for (pos = (head)->prev, prefetch(pos->prev); pos != (head); \
--        	pos = pos->prev, prefetch(pos->prev))
-+	for (pos = (head)->prev; prefetch(pos->prev), pos != (head); \
-+        	pos = pos->prev)
+@@ -56,6 +57,7 @@
+ config DVB_SP887X
+  	tristate "Spase sp887x based"
+ 	depends on DVB_CORE
++	select FW_LOADER
+ 	help
+ 	  A DVB-T tuner module. Say Y when you want to support this frontend.
  
- /**
-  * list_for_each_safe	-	iterate over a list safe against removal of list entry
-@@ -368,11 +368,9 @@
-  * @member:	the name of the list_struct within the struct.
-  */
- #define list_for_each_entry(pos, head, member)				\
--	for (pos = list_entry((head)->next, typeof(*pos), member),	\
--		     prefetch(pos->member.next);			\
--	     &pos->member != (head); 					\
--	     pos = list_entry(pos->member.next, typeof(*pos), member),	\
--		     prefetch(pos->member.next))
-+	for (pos = list_entry((head)->next, typeof(*pos), member);	\
-+	     prefetch(pos->member.next), &pos->member != (head); 	\
-+	     pos = list_entry(pos->member.next, typeof(*pos), member))
+@@ -84,6 +86,7 @@
+ config DVB_TDA1004X
+ 	tristate "Philips TDA10045H/TDA10046H based"
+ 	depends on DVB_CORE
++	select FW_LOADER
+ 	help
+ 	  A DVB-T tuner module. Say Y when you want to support this frontend.
  
- /**
-  * list_for_each_entry_reverse - iterate backwards over list of given type.
-@@ -381,11 +379,9 @@
-  * @member:	the name of the list_struct within the struct.
-  */
- #define list_for_each_entry_reverse(pos, head, member)			\
--	for (pos = list_entry((head)->prev, typeof(*pos), member),	\
--		     prefetch(pos->member.prev);			\
--	     &pos->member != (head); 					\
--	     pos = list_entry(pos->member.prev, typeof(*pos), member),	\
--		     prefetch(pos->member.prev))
-+	for (pos = list_entry((head)->prev, typeof(*pos), member);	\
-+	     prefetch(pos->member.prev), &pos->member != (head); 	\
-+	     pos = list_entry(pos->member.prev, typeof(*pos), member))
- 
- /**
-  * list_prepare_entry - prepare a pos entry for use as a start point in
-@@ -405,11 +401,9 @@
-  * @member:	the name of the list_struct within the struct.
-  */
- #define list_for_each_entry_continue(pos, head, member) 		\
--	for (pos = list_entry(pos->member.next, typeof(*pos), member),	\
--		     prefetch(pos->member.next);			\
--	     &pos->member != (head);					\
--	     pos = list_entry(pos->member.next, typeof(*pos), member),	\
--		     prefetch(pos->member.next))
-+	for (pos = list_entry(pos->member.next, typeof(*pos), member);	\
-+	     prefetch(pos->member.next), &pos->member != (head);	\
-+	     pos = list_entry(pos->member.next, typeof(*pos), member))
- 
- /**
-  * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
-@@ -434,8 +428,8 @@
-  * as long as the traversal is guarded by rcu_read_lock().
-  */
- #define list_for_each_rcu(pos, head) \
--	for (pos = (head)->next, prefetch(pos->next); pos != (head); \
--        	pos = rcu_dereference(pos->next), prefetch(pos->next))
-+	for (pos = (head)->next; prefetch(pos->next), pos != (head); \
-+        	pos = rcu_dereference(pos->next))
- 
- #define __list_for_each_rcu(pos, head) \
- 	for (pos = (head)->next; pos != (head); \
-@@ -467,12 +461,10 @@
-  * as long as the traversal is guarded by rcu_read_lock().
-  */
- #define list_for_each_entry_rcu(pos, head, member)			\
--	for (pos = list_entry((head)->next, typeof(*pos), member),	\
--		     prefetch(pos->member.next);			\
--	     &pos->member != (head); 					\
-+	for (pos = list_entry((head)->next, typeof(*pos), member);	\
-+	     prefetch(pos->member.next), &pos->member != (head); 	\
- 	     pos = rcu_dereference(list_entry(pos->member.next, 	\
--					typeof(*pos), member)),		\
--		     prefetch(pos->member.next))
-+					typeof(*pos), member)))
- 
- 
- /**
-@@ -486,8 +478,8 @@
-  * as long as the traversal is guarded by rcu_read_lock().
-  */
- #define list_for_each_continue_rcu(pos, head) \
--	for ((pos) = (pos)->next, prefetch((pos)->next); (pos) != (head); \
--        	(pos) = rcu_dereference((pos)->next), prefetch((pos)->next))
-+	for ((pos) = (pos)->next; prefetch((pos)->next), (pos) != (head); \
-+        	(pos) = rcu_dereference((pos)->next))
- 
- /*
-  * Double linked lists with a single pointer list head.
+
+
+--------------030905000409020704070000--

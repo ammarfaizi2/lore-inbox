@@ -1,141 +1,232 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbTBEQK0>; Wed, 5 Feb 2003 11:10:26 -0500
+	id <S261581AbTBEQNk>; Wed, 5 Feb 2003 11:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261581AbTBEQK0>; Wed, 5 Feb 2003 11:10:26 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:3082 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S261530AbTBEQKY>; Wed, 5 Feb 2003 11:10:24 -0500
-Subject: Re: [PATCH] Re: [CHECKER] 112 potential memory leaks in 2.5.48
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Andy Chou <acc@CS.Stanford.EDU>, mc@CS.Stanford.EDU,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <Pine.LNX.4.50L.0302050037460.32328-100000@imladris.surriel.com>
-References: <20030205011353.GA17941@Xenon.Stanford.EDU>
-	<Pine.LNX.4.50L.0302050037280.32328-100000@imladris.surriel.com> 
-	<Pine.LNX.4.50L.0302050037460.32328-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 05 Feb 2003 10:19:48 -0600
-Message-Id: <1044461995.1773.44.camel@mulgrave>
-Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S261594AbTBEQNk>; Wed, 5 Feb 2003 11:13:40 -0500
+Received: from ganon.smb.utfors.se ([195.58.112.27]:52878 "EHLO
+	ganon.smb.utfors.se") by vger.kernel.org with ESMTP
+	id <S261581AbTBEQNh>; Wed, 5 Feb 2003 11:13:37 -0500
+Date: Wed, 05 Feb 2003 17:23:11 +0100
+From: Joakim Tjernlund <joakim.tjernlund@lumentis.se>
+Subject: [PATCH]  crc32 improvements for 2.5
+In-reply-to: <1044365707.4067.4.camel@passion.cambridge.redhat.com>
+To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Reply-to: joakim.tjernlund@lumentis.se
+Message-id: <IGEFJKJNHJDCBKALBJLLGEPOFJAA.joakim.tjernlund@lumentis.se>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Importance: Normal
+X-Priority: 3 (Normal)
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-04 at 20:42, Rik van Riel wrote:
-> The patch below fixes the scsi request leak. I'm not sure
-> how the bounce buffer thing is supposed to work (Christoph?
-> James?) so I'm not touching that at the moment.
+Hi
 
-The patch below should fix all the bounce buffer problems (including the
-stack allocation of a DMA region, the missing kfree and use of
-virt_to_phys).
+I did the optimizations in the crc32 patch Brian Murphy submitted a while ago.
+Now I have cleaned it up a little and made some more optimizations.
 
-> Linus, could you please apply this patch (against today's
-> bk tree) ?
+gcc is quite bad at loop optimizations (at least for PPC) so I have
+rewritten them to make gcc to generate better code. Even recent gcc's(3.2.x) produces
+better code.
 
-I've captured both patches in the scsi-misc-2.5 BK tree.
+Also reduced the unrolling since it did not make a noticeable difference. 
 
-James
+           Joakim Tjernlund
 
-===== ./sr_ioctl.c 1.28 vs edited =====
---- 1.28/drivers/scsi/sr_ioctl.c	Tue Feb  4 17:37:02 2003
-+++ edited/./sr_ioctl.c	Wed Feb  5 10:18:19 2003
-@@ -80,30 +80,16 @@
- 	struct scsi_device *SDev;
-         struct request *req;
- 	int result, err = 0, retries = 0;
--	char *bounce_buffer;
- 
- 	SDev = cd->device;
- 	SRpnt = scsi_allocate_request(SDev);
-         if (!SRpnt) {
--                printk("Unable to allocate SCSI request in sr_do_ioctl");
-+                printk(KERN_ERR "Unable to allocate SCSI request in sr_do_ioctl");
- 		err = -ENOMEM;
- 		goto out;
-         }
- 	SRpnt->sr_data_direction = cgc->data_direction;
- 
--	/* use ISA DMA buffer if necessary */
--	SRpnt->sr_request->buffer = cgc->buffer;
--	if (cgc->buffer && SRpnt->sr_host->unchecked_isa_dma &&
--	    (virt_to_phys(cgc->buffer) + cgc->buflen - 1 > ISA_DMA_THRESHOLD)) {
--		bounce_buffer = (char *) kmalloc(cgc->buflen, GFP_DMA);
--		if (bounce_buffer == NULL) {
--			printk("SCSI DMA pool exhausted.");
--			err = -ENOMEM;
--			goto out_free;
--		}
--		memcpy(bounce_buffer, cgc->buffer, cgc->buflen);
--		cgc->buffer = bounce_buffer;
--	}
-       retry:
- 	if (!scsi_block_when_processing_errors(SDev)) {
- 		err = -ENODEV;
-@@ -276,11 +262,15 @@
- 	return 0;
- }
- 
-+/* primitive to determine whether we need to have GFP_DMA set based on
-+ * the status of the unchecked_isa_dma flag in the host structure */
-+#define SR_GFP_DMA(cd) (((cd)->device->host->unchecked_isa_dma) ? GFP_DMA : 0)
-+
- int sr_get_mcn(struct cdrom_device_info *cdi, struct cdrom_mcn *mcn)
+--- lib/crc32.c.org	Thu Jan  9 00:19:02 2003
++++ lib/crc32.c	Tue Feb  4 19:05:01 2003
+@@ -87,55 +87,51 @@
  {
- 	Scsi_CD *cd = cdi->handle;
- 	struct cdrom_generic_command cgc;
--	char buffer[32];
-+	char *buffer = kmalloc(32, GFP_KERNEL | SR_GFP_DMA(cd));
- 	int result;
+ # if CRC_LE_BITS == 8
+ 	const u32      *b =(u32 *)p;
+-	const u32      *e;
+-	/* load data 32 bits wide, xor data 32 bits wide. */
++	const u32      *tab = crc32table_le;
  
- 	memset(&cgc, 0, sizeof(struct cdrom_generic_command));
-@@ -297,6 +287,7 @@
- 	memcpy(mcn->medium_catalog_number, buffer + 9, 13);
- 	mcn->medium_catalog_number[13] = 0;
- 
-+	kfree(buffer);
- 	return result;
- }
- 
-@@ -338,7 +329,7 @@
- 	Scsi_CD *cd = cdi->handle;
- 	struct cdrom_generic_command cgc;
- 	int result;
--	unsigned char buffer[32];
-+	unsigned char *buffer = kmalloc(32, GFP_KERNEL | SR_GFP_DMA(cd));
- 
- 	memset(&cgc, 0, sizeof(struct cdrom_generic_command));
- 	cgc.timeout = IOCTL_TIMEOUT;
-@@ -409,7 +400,7 @@
+-	crc = __cpu_to_le32(crc);
+-	/* Align it */
+-	for ( ; ((long)b)&3 && len ; len--){
+-# ifdef __LITTLE_ENDIAN
+-		crc = (crc>>8) ^ crc32table_le[ (crc ^ *((u8 *)b)++) & 0xff ];
+-# else
+-		crc = (crc<<8) ^ crc32table_le[ crc>>24 ^ *((u8 *)b)++ ];
+-# endif
+-	}
+-	e = (u32 *) ( (u8 *)b + (len & ~7));
+-	while (b < e) {
+-		crc ^= *b++;
+-# ifdef __LITTLE_ENDIAN
+-		crc = (crc>>8) ^ crc32table_le[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_le[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_le[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_le[ crc & 0xff ];
+-# else
+-		crc = (crc<<8) ^ crc32table_le[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_le[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_le[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_le[ crc >> 24 ];
+-# endif
+-		crc ^= *b++;
+ # ifdef __LITTLE_ENDIAN
+-		crc = (crc>>8) ^ crc32table_le[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_le[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_le[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_le[ crc & 0xff ];
++#  define DO_CRC crc = (crc>>8) ^ tab[ crc & 255 ]
++#  define ENDIAN_SHIFT 0
+ # else
+-		crc = (crc<<8) ^ crc32table_le[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_le[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_le[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_le[ crc >> 24 ];
++#  define DO_CRC crc = (crc<<8) ^ tab[ crc >> 24 ]
++#  define ENDIAN_SHIFT 24
+ # endif
++
++	crc = __cpu_to_le32(crc);
++	/* Align it */
++	if(unlikely(((long)b)&3 && len)){
++		do {
++			crc ^= *((u8 *)b)++ << ENDIAN_SHIFT;
++			DO_CRC;
++		} while ((--len) && ((long)b)&3 );
++	}
++	if(likely(len >= 4)){
++		/* load data 32 bits wide, xor data 32 bits wide. */
++		size_t save_len = len & 3;
++	        len = len >> 2;
++		--b; /* use pre increment below(*++b) for speed */
++		do {
++			crc ^= *++b;
++			DO_CRC;
++			DO_CRC;
++			DO_CRC;
++			DO_CRC;
++		} while (--len);
++		b++; /* point to next byte(s) */
++		len = save_len;
  	}
- 
- 	default:
--		return -EINVAL;
-+		result = -EINVAL;
+ 	/* And the last few bytes */
+-	e = (u32 *)((u8 *)b + (len & 7));
+-	while (b < e){
+-# ifdef __LITTLE_ENDIAN
+-		crc = (crc>>8) ^ crc32table_le[ (crc ^ *((u8 *)b)++) & 0xff ];
+-# else
+-		crc = (crc<<8) ^ crc32table_le[ crc>>24 ^ *((u8 *)b)++ ];
+-# endif
++	if(len){
++		do {
++			crc ^= *((u8 *)b)++ << ENDIAN_SHIFT;
++			DO_CRC;
++		} while (--len);
  	}
+-	return __le32_to_cpu(crc) ;
++
++	return __le32_to_cpu(crc);
++#undef ENDIAN_SHIFT
++#undef DO_CRC
++
+ # elif CRC_LE_BITS == 4
+ 	while (len--) {
+ 		crc ^= *p++;
+@@ -196,55 +192,50 @@
+ {
+ # if CRC_BE_BITS == 8
+ 	const u32      *b =(u32 *)p;
+-	const u32      *e;
+-	/* load data 32 bits wide, xor data 32 bits wide. */
++	const u32      *tab = crc32table_be;
  
- #if 0
-@@ -417,6 +408,7 @@
- 		printk("DEBUG: sr_audio: result for ioctl %x: %x\n", cmd, result);
- #endif
- 
-+	kfree(buffer);
- 	return result;
- }
- 
-@@ -528,7 +520,7 @@
- 	if (!xa_test)
- 		return 0;
- 
--	raw_sector = (unsigned char *) kmalloc(2048, GFP_DMA | GFP_KERNEL);
-+	raw_sector = (unsigned char *) kmalloc(2048, GFP_KERNEL | SR_GFP_DMA(cd));
- 	if (!raw_sector)
- 		return -ENOMEM;
- 	if (0 == sr_read_sector(cd, cd->ms_offset + 16,
+-	crc = __cpu_to_be32(crc);
+-	/* Align it */
+-	for ( ; ((long)b)&3 && len ; len--){
+-# ifdef __LITTLE_ENDIAN
+-		crc = (crc>>8) ^ crc32table_be[ (crc ^ *((u8 *)b)++) & 0xff ];
+-# else
+-		crc = (crc<<8) ^ crc32table_be[ crc>>24 ^ *((u8 *)b)++ ];
+-# endif
+-	}
+-	e = (u32 *) ( (u8 *)b + (len & ~7));
+-	while (b < e) {
+-		crc ^= *b++;
+-# ifdef __LITTLE_ENDIAN
+-		crc = (crc>>8) ^ crc32table_be[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_be[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_be[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_be[ crc & 0xff ];
+-# else
+-		crc = (crc<<8) ^ crc32table_be[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_be[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_be[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_be[ crc >> 24 ];
+-# endif
+-		crc ^= *b++;
+ # ifdef __LITTLE_ENDIAN
+-		crc = (crc>>8) ^ crc32table_be[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_be[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_be[ crc & 0xff ];
+-		crc = (crc>>8) ^ crc32table_be[ crc & 0xff ];
++#  define DO_CRC crc = (crc>>8) ^ tab[ crc & 255 ]
++#  define ENDIAN_SHIFT 24
+ # else
+-		crc = (crc<<8) ^ crc32table_be[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_be[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_be[ crc >> 24 ];
+-		crc = (crc<<8) ^ crc32table_be[ crc >> 24 ];
++#  define DO_CRC crc = (crc<<8) ^ tab[ crc >> 24 ]
++#  define ENDIAN_SHIFT 0
+ # endif
++
++	crc = __cpu_to_be32(crc);
++	/* Align it */
++	if(unlikely(((long)b)&3 && len)){
++		do {
++			crc ^= *((u8 *)b)++ << ENDIAN_SHIFT;
++			DO_CRC;
++		} while ((--len) && ((long)b)&3 );
++	}
++	if(likely(len >= 4)){
++		/* load data 32 bits wide, xor data 32 bits wide. */
++		size_t save_len = len & 3;
++	        len = len >> 2;
++		--b; /* use pre increment below(*++b) for speed */
++		do {
++			crc ^= *++b;
++			DO_CRC;
++			DO_CRC;
++			DO_CRC;
++			DO_CRC;
++		} while (--len);
++		b++; /* point to next byte(s) */
++		len = save_len;
+ 	}
+ 	/* And the last few bytes */
+-	e = (u32 *)((u8 *)b + (len & 7));
+-	while (b < e){
+-# ifdef __LITTLE_ENDIAN
+-		crc = (crc>>8) ^ crc32table_be[ (crc ^ *((u8 *)b)++) & 0xff ];
+-# else
+-		crc = (crc<<8) ^ crc32table_be[ crc>>24 ^ *((u8 *)b)++ ];
+-# endif
+-	}
+-	return __be32_to_cpu(crc) ;
++	if(len){
++		do {
++			crc ^= *((u8 *)b)++ << ENDIAN_SHIFT;
++			DO_CRC;
++		} while (--len);
++	}
++	return __be32_to_cpu(crc);
++#undef ENDIAN_SHIFT
++#undef DO_CRC
++
+ # elif CRC_BE_BITS == 4
+ 	while (len--) {
+ 		crc ^= *p++ << 24;
 
 

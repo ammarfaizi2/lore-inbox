@@ -1,60 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129091AbQK1Tux>; Tue, 28 Nov 2000 14:50:53 -0500
+        id <S129183AbQK1Tzy>; Tue, 28 Nov 2000 14:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129183AbQK1Tuo>; Tue, 28 Nov 2000 14:50:44 -0500
-Received: from mx2.eskimo.com ([204.122.16.49]:62738 "EHLO mx2.eskimo.com")
-        by vger.kernel.org with ESMTP id <S129091AbQK1Tuc>;
-        Tue, 28 Nov 2000 14:50:32 -0500
-Date: Tue, 28 Nov 2000 11:19:42 -0800 (PST)
-From: Clayton Weaver <cgweav@eskimo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: reproducible 2.2.1x nethangs
-Message-ID: <Pine.SUN.3.96.1001128102439.6304A-100000@eskimo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129543AbQK1Tzo>; Tue, 28 Nov 2000 14:55:44 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:52490 "EHLO
+        etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+        id <S129183AbQK1Tz2>; Tue, 28 Nov 2000 14:55:28 -0500
+Date: Tue, 28 Nov 2000 20:22:59 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: modutils-2.3.21: modprobe looping
+Message-ID: <20001128202259.E27219@garloff.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+        Keith Owens <kaos@ocs.com.au>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+        protocol="application/pgp-signature"; boundary="fwblGvOBo7NCOYks"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I retract the comment about "accept() 2nd argument scribbled over
-in the child". That was a misinterpretation of the strace log.
-strace shows the struct sockaddr * scribble in the parent after a restart
-of the accept() call. Also, the firewalling code is eliminated from
-consideration. I compiled it and ppp out, and the only difference was that
-the hang happened sooner, in about a dozen http connects instead of
-around 30.
 
-What happens, according to strace, is that accept() gets interrupted when
-the SIGCHLD signal is delivered after the child that handled the previous
-connect exits, and accept() sets ERESTARTSYS.
+--fwblGvOBo7NCOYks
+Content-Type: multipart/mixed; boundary="Ioqcch2Htvy99P9q"
+Content-Disposition: inline
 
-For the first N connects, this is not problematic. accept() is called
-again, it returns normally, the fork() happens, everything is
-copascetic. But eventually the restarted accept() call shows nul bytes in
-the struct sockaddr *addr arg value in the strace output after
-restarting accept, and a few connects later the kernel hangs.
 
-If the socket itself is truly ozoned when strace says the accept() struct
-sockaddr * argument has changed in between interrupt and restart, the
-subsequent forked child shouldn't be able to send at all, but that is not
-what happens. That html document gets there.
+--Ioqcch2Htvy99P9q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yet the kernel always hangs within a few connects of seeing that, so I'd
-be suspicious of the internal kernel data associated with that socket
-when it comes time to deallocate it. The accept() code in the context of
-interrupts that cause it to be stopped and restarted is at least worth a
-look for possible races.
+Hi Keith,
+
+thanks for your modutils-2.3.21!
+
+During testing I found a problem:
+modprobe pppoe was recursing endlessly in build_stack().
+
+Find attached the modules.dep that caused this: There is a circular
+dependency of pppoe on pppox on pppoe on ....
+
+modprobe has code to detect this in build_stack(), but it seems to not work.
+The old dep is thrown away and the new one is taken. And checked for
+dependencies again :-(
+Of course, one could also think of depmod making sure that such circular
+dependencies do not occur, but I guess, it's more robust if depmod has a
+working test in any case.
+
+Test system was a PPC machine running 2.4.0-test9.
+
+Do you have a fix for this?
 
 Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
 
-Clayton Weaver
-<mailto:cgweav@eskimo.com>
-(Seattle)
+--Ioqcch2Htvy99P9q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="modules.dep"
 
-"Everybody's ignorant, just in different subjects."  Will Rogers
+/lib/modules/2.4.0-test9/kernel/drivers/net/ppp_async.o:	/lib/modules/2.4.0-test9/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.0-test9/kernel/drivers/net/ppp_deflate.o:	/lib/modules/2.4.0-test9/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.0-test9/kernel/drivers/net/ppp_generic.o:
+
+/lib/modules/2.4.0-test9/kernel/drivers/net/ppp_synctty.o:	/lib/modules/2.4.0-test9/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.0-test9/kernel/drivers/net/pppoe.o:	/lib/modules/2.4.0-test9/kernel/drivers/net/pppox.o \
+	/lib/modules/2.4.0-test9/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.0-test9/kernel/drivers/net/pppox.o:	/lib/modules/2.4.0-test9/kernel/drivers/net/pppoe.o \
+	/lib/modules/2.4.0-test9/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.0-test9/kernel/drivers/net/skfp/skfp.o:
+
+/lib/modules/2.4.0-test9/kernel/drivers/net/slip.o:
 
 
+--Ioqcch2Htvy99P9q--
 
+--fwblGvOBo7NCOYks
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6JAYSxmLh6hyYd04RAqyDAJ9Z9i3dKA1VqCLnrzRqt8I+tBo7ogCgtCs4
+2myOgYkdJpQbHNe6Xc/EJAI=
+=PHPJ
+-----END PGP SIGNATURE-----
+
+--fwblGvOBo7NCOYks--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

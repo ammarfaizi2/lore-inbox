@@ -1,102 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265869AbUAPXPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 18:15:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265871AbUAPXPZ
+	id S265879AbUAPXaY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 18:30:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265894AbUAPXaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 18:15:25 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:26328 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265869AbUAPXPR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 18:15:17 -0500
-Message-ID: <4008709E.6030207@pacbell.net>
-Date: Fri, 16 Jan 2004 15:15:42 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [2.6 patch] improce USB Gadget Kconfig
-References: <20031123172356.GB16828@fs.tum.de> <3FF0F6F5.10409@pacbell.net> <Pine.LNX.4.58.0401152200330.2530@serv> <400749F3.6070203@pacbell.net> <Pine.LNX.4.58.0401162118320.2530@serv>
-In-Reply-To: <Pine.LNX.4.58.0401162118320.2530@serv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 16 Jan 2004 18:30:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27099 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265879AbUAPXaV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 18:30:21 -0500
+Date: Fri, 16 Jan 2004 15:31:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: timing code in 2.6.1
+Message-Id: <20040116153122.2c4adffe.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.53.0401161150390.28039@chaos>
+References: <Pine.LNX.4.53.0401161150390.28039@chaos>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+>
 > 
-> On Thu, 15 Jan 2004, David Brownell wrote:
+> Some drivers are being re-written for 2.6++. The following
+> construct seems to work for "waiting for an event" in
+> the kernel modules.
 > 
->> > choice values can also be tristate symbols, so you wouldn't need the
->> > separate defines, unless you really always want to compile only a 
->> > single controller (even as module).
->>
->> That's it precisely.  USB devices have only one (upstream) link;
->> they're not like hosts.  And its link to the controller isn't
->> re-wired on the fly any more than, say, the MMU.  Kconfig just
->> needed some persuasion before it'd dance that way.
+>         // No locks are being held
+>         tim = jiffies + EVENT_TIMEOUT;
+>         while(!event() && time_before(jiffies, tim))
+>             schedule_timeout(0);
 > 
+> Is there anything wrong?
+
+This is not a good thing to be doing.  You should add this task to a
+waitqueue and then sleep.  Make the code which causes event() to come true
+deliver a wake_up to that waitqueue.  There are many examples of this in
+the kernel.
+
+If the hardware only supports polling then gee, you'd be best off spinning
+for a few microseconds then fall into a schedule_timeout(1) polling loop. 
+Or something like that.  Or make the hardware designer write the damn
+driver.
+
+> Do I have to execute "set_current_state(TASK_INTERRUPTIBLE)" before?
+> Do I have to execute "set_current_state(TASK_RUNNING)" after?
 > 
-> It's still weird. Where is the problem to compile all controllers as
-> module? At runtime you still have the possibility that only one of them
-> can be loaded and the next one would fail to load.
+> I don't want to have to change this again so I really need to
+> know. For instance, if I execute "set_current_state(TASK_INTERRUPTIBLE)"
+> in version 2.4.24, it didn't hurt anything. In 2.6.1, there are
+> conditions where schedule_timeout(0) doesn't return if another
+> task is spinning "while(1) ; ". This is NotGood(tm).
 
-The problem is something I accidently neglected to respond to in your
-previous note.  Those controllers aren't drop-in substitutes for one
-another, and you seemed to be assuming they were.
-
-
->> > The dependency "USB_DUMMY_HCD || USB_NET2280 || USB_PXA2XX || USB_SA1100
->> > || USB_GOKU" can be basically reduced to "USB_GADGET".
-
-That's where I accidentally trimmed out a response.  It's wrong; those
-controllers are not equivalent in general.  Gadget drivers that work with
-one controller will not automagically work with another.  Two quick examples
-should illustrate the point:
-
-  (i) A "video" gadget driver would requires isochronous transfer support.
-      But only two of those controllers support that (net2280, pxa2xx_udc).
-
-      So a video (or audio) class gadget driver would depend on configuring
-      an appropriate controller ... and even then, it'd probably compile in
-      more code if it's talking to a controller that supports high bandwidth
-      transfer modes (up to 24 MByte/sec) than one maxing ouat a 1 Mbyte/sec.
-
-(ii) Essentially every controller has endpoints that differ from the others
-      in capabilities like addressing, direction, supported packet sizes
-      transfer modes, or throughput.  All of those are things that MUST be
-      reported to the USB host in device descriptors.
-
-      The differences are currently all handled by conditional compilation.
-      Until a gadget driver has that support for a particular controller,
-      it shouldn't be possible to configure that combination.
-
-There's some work afoot to do more autoconfiguration, but it won't be able
-to handle all the issues for all drivers.  I have hopes that at least some
-simple configurations -- two endpoints for bulk data (IN/OUT) and one
-for status (interrupt IN), for example -- will be able to autoconfigure
-at some point.
-
-
->> Reproduced it again here today, with a reasonably current 2.6.1
->> tree on top of RH9 (plus some updated RPMs from RH).  It's there
->> in gconfig too.  The workaround is "vi .config" and delete the
->> sticky DUMMY_HCD entry, then re-configure.
-> 
-> 
-> It really works fine here, are you sure you don't have any additional
-> changes under scripts/kconfig? Did you try this on a different machine?
-
-Absolutely certain.  Yes, tried on multiple machines.  Did you try
-it on RH9?  Since it's working for you, I wonder if that's the source
-of the difference.  Same bug in xconfig, gconfig, and menuconfig;
-doesn't make a lot of sense to me but then I've not looked at that
-code in any case.
-
-- Dave
+As you have it, you may as well be calling schedule() inside that loop. 
+You _have_ to be in state TASK_RUNNING, else you'll sleep forever.
 
 

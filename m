@@ -1,29 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269221AbUI3OcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268719AbUI3OrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269221AbUI3OcP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 10:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269297AbUI3OcP
+	id S268719AbUI3OrI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 10:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268900AbUI3OrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 10:32:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:5796 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269303AbUI3OcH (ORCPT
+	Thu, 30 Sep 2004 10:47:08 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:46331 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268719AbUI3OrF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 10:32:07 -0400
-Date: Thu, 30 Sep 2004 07:32:03 -0700
-From: John Cherry <cherry@osdl.org>
-Message-Id: <200409301432.i8UEW3Fn029396@cherrypit.pdx.osdl.net>
-To: linux-kernel@vger.kernel.org
-Subject: IA32 (2.6.9-rc3 - 2004-09-29.21.30) - 10 New warnings (gcc 3.2.2)
+	Thu, 30 Sep 2004 10:47:05 -0400
+Message-ID: <415C1C6D.1030307@watson.ibm.com>
+Date: Thu, 30 Sep 2004 10:47:09 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][1/1] Per-priority statistics for CFQ w/iopriorities 2.6.8.1
+References: <20040930065917.GA2288@suse.de> <415C1643.8000605@watson.ibm.com> <20040930142004.GB3251@suse.de>
+In-Reply-To: <20040930142004.GB3251@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*** Warning: "isdn_ppp_register_compressor" [drivers/isdn/i4l/isdn_bsdcomp.ko] undefined!
-*** Warning: "isdn_ppp_unregister_compressor" [drivers/isdn/i4l/isdn_bsdcomp.ko] undefined!
-*** Warning: "register_isdn" [drivers/isdn/act2000/act2000.ko] undefined!
-*** Warning: "register_isdn" [drivers/isdn/capi/capidrv.ko] undefined!
-*** Warning: "register_isdn" [drivers/isdn/hisax/hisax.ko] undefined!
-*** Warning: "register_isdn" [drivers/isdn/icn/icn.ko] undefined!
-*** Warning: "register_isdn" [drivers/isdn/pcbit/pcbit.ko] undefined!
-*** Warning: "register_isdn" [drivers/isdn/sc/sc.ko] undefined!
-*** Warning: "register_isdn" [drivers/isdn/tpam/tpam.ko] undefined!
-drivers/net/wan/pc300_tty.c:704: warning: passing arg 1 of `tty_ldisc_ref' from incompatible pointer type
+Jens Axboe wrote:
+
+> On Thu, Sep 30 2004, Shailabh Nagar wrote:
+> 
+>>Jens Axboe wrote:
+>>
+>>>Hi,
+>>>
+>>>Missed this patch the first time over (thank you lwn :-) - why are you
+>>>using atomic counters? In all the paths you set them, you already have
+>>>the queue lock.
+>>>
+>>
+>>Thats right, there's no need for them. I used these instinctively....
+>>Will fix in next version, unless (hint, hint) you're taking a look at 
+>>adding priorities back to mainline's CFQ.
+> 
+> 
+> It will never be for the mainline cfq, that is a dead code base. -mm has
+> a first stab at a cfq v2 with persistent io contexts, the priority based
+> code will go on top of that.
+> 
+
+Great. In CKRM, we'll switch to using -mm's cfq then.
+
+-- Shailabh

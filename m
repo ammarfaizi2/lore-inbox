@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273854AbRKHPga>; Thu, 8 Nov 2001 10:36:30 -0500
+	id <S273881AbRKHPjA>; Thu, 8 Nov 2001 10:39:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274248AbRKHPgU>; Thu, 8 Nov 2001 10:36:20 -0500
-Received: from posta2.elte.hu ([157.181.151.9]:5096 "HELO posta2.elte.hu")
-	by vger.kernel.org with SMTP id <S273854AbRKHPgH>;
-	Thu, 8 Nov 2001 10:36:07 -0500
-Date: Thu, 8 Nov 2001 17:33:58 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] scheduler cache affinity improvement for 2.4 kernels
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBEEPMEAAA.znmeb@aracnet.com>
-Message-ID: <Pine.LNX.4.33.0111081726310.14244-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274194AbRKHPiu>; Thu, 8 Nov 2001 10:38:50 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:37509 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S273881AbRKHPio>; Thu, 8 Nov 2001 10:38:44 -0500
+Date: Thu, 8 Nov 2001 16:38:22 +0100
+From: Tobias Diedrich <ranma@gmx.at>
+To: Peter Seiderer <Peter.Seiderer@ciselant.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What is the difference between 'login: root' and 'su -' ?
+Message-ID: <20011108163821.A26539@router.ranmachan.dyndns.org>
+Mail-Followup-To: Tobias Diedrich <ranma@gmx.at>,
+	Peter Seiderer <Peter.Seiderer@ciselant.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011107184710.A1410@zodiak.ecademix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011107184710.A1410@zodiak.ecademix.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter Seiderer wrote:
+> Hello,
+> tried today to mkfs.ext2 a partition of my disk and detected there is
+> a little difference between 'login: root' and 'su -'.
+[...]
+> 	--- SIGXFSZ (File size limit exceeded) ---
+> 	+++ killed by SIGXFSZ +++
 
-On Thu, 8 Nov 2001, M. Edward Borasky wrote:
+I ran into the same Problem in SuSE 7.0 .
+Turned out it was pam_limits.so , try if it works if you comment out the
+line with pam_limits.so in it in /etc/pam.d/su .
+You probably have to recompile the pam libraries.
 
-> I can think of some circumstances where one would want the *opposite*
-> of this patch. Consider a "time-sharing" system running both
-> CPU-intensive "batch" tasks and "interactive" tasks. There is going to
-> be a tradeoff between efficiency / throughput of the batch tasks and
-> the response times of interactive ones. [...]
-
-this mechanizm is already part of the scheduler and is not affected by my
-patch. Interactive tasks get their '->counter' value increased gradually
-via the recalculate code in the scheduler, which after some time gives
-them effective priority above that of CPU-intensive processes.
-
-To see this mechanizm working, just boot into the stock kernel or try a
-kernel with the patch applied, start a few CPU-intensive processes, eg.
-a couple of subshells doing an infinite loop:
-
-	while N=1; do N=1; done &
-	while N=1; do N=1; done &
-	while N=1; do N=1; done &
-	while N=1; do N=1; done &
-
-and see how the interactive shell is still responding instantaneously in
-such a mixed workload, despite having the same static priority as the
-subshells.
-
-	Ingo
-
+-- 
+Tobias								PGP: 0x9AC7E0BC

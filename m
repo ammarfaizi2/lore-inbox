@@ -1,97 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVCJAzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVCJBLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262401AbVCJAzE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:55:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVCJAub
+	id S262640AbVCJBLx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 20:11:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVCJBLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 19:50:31 -0500
-Received: from mail.kroah.org ([69.55.234.183]:59295 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262633AbVCJAme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:34 -0500
-Date: Wed, 9 Mar 2005 16:34:03 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] Driver core and kobject updates for 2.6.11
-Message-ID: <20050310003403.GA32215@kroah.com>
+	Wed, 9 Mar 2005 20:11:22 -0500
+Received: from mail.kroah.org ([69.55.234.183]:40095 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262602AbVCJAmV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:21 -0500
+Cc: kjhall@us.ibm.com
+Subject: [PATCH] tpm: fix cause of SMP stack traces
+In-Reply-To: <1110415321526@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 9 Mar 2005 16:42:01 -0800
+Message-Id: <11104153213727@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.2036, 2005/03/09 10:12:38-08:00, kjhall@us.ibm.com
 
-Here are some driver core and kobject/kref updates for 2.6.11.  They
-have all been in the -mm releases for some time now.  There is also a
-documentation update for the schedule removal feature list.
+[PATCH] tpm: fix cause of SMP stack traces
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/2.6.11/driver
+There were misplaced spinlock acquires and releases in the probe, close and release
+paths which were causing might_sleep and schedule while atomic error messages accompanied
+by stack traces when the kernel was compiled with SMP support. Bug reported by Reben Jenster
+<ruben@hotheads.de>
 
-Individual patches will follow, sent to the linux-kernel list.
-
-thanks,
-
-greg k-h
-
- Documentation/feature-removal-schedule.txt |   23 +++++-
- drivers/base/bus.c                         |    4 -
- drivers/base/class.c                       |   98 +++++++++++++----------------
- drivers/base/class_simple.c                |   21 ------
- drivers/base/driver.c                      |   13 +--
- drivers/base/map.c                         |   21 ++----
- drivers/base/platform.c                    |    2 
- drivers/base/sys.c                         |   39 +++++------
- drivers/block/floppy.c                     |   19 +----
- drivers/block/genhd.c                      |   55 ++++++++++------
- drivers/i2c/i2c-dev.c                      |    9 --
- drivers/media/video/videodev.c             |   11 ---
- drivers/usb/core/file.c                    |   64 +++++-------------
- fs/char_dev.c                              |   26 ++-----
- include/linux/device.h                     |    5 -
- include/linux/kobj_map.h                   |    2 
- include/linux/kobject.h                    |    2 
- include/linux/kref.h                       |    2 
- lib/kobject.c                              |   15 ++--
- lib/kref.c                                 |   11 ++-
- 20 files changed, 202 insertions(+), 240 deletions(-)
------
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
-Arjan van de Ven:
-  o Kobject: remove some unneeded exports
+ drivers/char/tpm/tpm.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
-Dominik Brodowski:
-  o cpufreq 2.4 interface removal schedule
 
-Greg Kroah-Hartman:
-  o class: add a semaphore to struct class, and use that instead of the subsystem rwsem
-  o sysdev: remove the rwsem usage from this subsystem
-  o sysdev: fix the name of the list of drivers to be a sane name
-  o kmap: remove usage of rwsem from kobj_map
-  o USB: move usb core to use class_simple instead of it's own class functions
-  o kref: make kref_put return if this was the last put call
-  o sysdev: make system_subsys static as no one else needs access to it
-  o kset: make ksets have a spinlock, and use that to lock their lists
-
-Kay Sievers:
-  o floppy.c: pass physical device to device registration
-  o Driver core: add "bus" symlink to class/block devices
-  o videodev: pass dev_t to the class core
-  o i2c: class driver pass dev_t to the class core
-  o usb: class driver pass dev_t to the class core
-  o class_simple: pass dev_t to the class core
-  o block core: export MAJOR/MINOR to the hotplug env
-  o class core: export MAJOR/MINOR to the hotplug env
-
-Mike Waychison:
-  o driver core: clean driver unload
-
-Randy Dunlap:
-  o Add 2.4.x cpufreq /proc and sysctl interface removal feature-removal-schedule
-
-Russell King:
-  o driver core: Separate platform device name from platform device number
+diff -Nru a/drivers/char/tpm/tpm.c b/drivers/char/tpm/tpm.c
+--- a/drivers/char/tpm/tpm.c	2005-03-09 16:40:19 -08:00
++++ b/drivers/char/tpm/tpm.c	2005-03-09 16:40:19 -08:00
+@@ -422,21 +422,24 @@
+ int tpm_release(struct inode *inode, struct file *file)
+ {
+ 	struct tpm_chip *chip = file->private_data;
++	
++	file->private_data = NULL;
+ 
+ 	spin_lock(&driver_lock);
+ 	chip->num_opens--;
++	spin_unlock(&driver_lock);
++
+ 	down(&chip->timer_manipulation_mutex);
+ 	if (timer_pending(&chip->user_read_timer))
+ 		del_singleshot_timer_sync(&chip->user_read_timer);
+ 	else if (timer_pending(&chip->device_timer))
+ 		del_singleshot_timer_sync(&chip->device_timer);
+ 	up(&chip->timer_manipulation_mutex);
++
+ 	kfree(chip->data_buffer);
+ 	atomic_set(&chip->data_pending, 0);
+ 
+ 	pci_dev_put(chip->pci_dev);
+-	file->private_data = NULL;
+-	spin_unlock(&driver_lock);
+ 	return 0;
+ }
+ 
+@@ -534,6 +537,8 @@
+ 
+ 	list_del(&chip->list);
+ 
++	spin_unlock(&driver_lock);
++
+ 	pci_set_drvdata(pci_dev, NULL);
+ 	misc_deregister(&chip->vendor->miscdev);
+ 
+@@ -541,8 +546,6 @@
+ 	device_remove_file(&pci_dev->dev, &dev_attr_pcrs);
+ 	device_remove_file(&pci_dev->dev, &dev_attr_caps);
+ 
+-	spin_unlock(&driver_lock);
+-
+ 	pci_disable_device(pci_dev);
+ 
+ 	dev_mask[chip->dev_num / 32] &= !(1 << (chip->dev_num % 32));
+@@ -583,6 +586,7 @@
+ int tpm_pm_resume(struct pci_dev *pci_dev)
+ {
+ 	struct tpm_chip *chip = pci_get_drvdata(pci_dev);
++
+ 	if (chip == NULL)
+ 		return -ENODEV;
+ 
+@@ -650,15 +654,12 @@
+ 	chip->vendor->miscdev.dev = &(pci_dev->dev);
+ 	chip->pci_dev = pci_dev_get(pci_dev);
+ 
+-	spin_lock(&driver_lock);
+-
+ 	if (misc_register(&chip->vendor->miscdev)) {
+ 		dev_err(&chip->pci_dev->dev,
+ 			"unable to misc_register %s, minor %d\n",
+ 			chip->vendor->miscdev.name,
+ 			chip->vendor->miscdev.minor);
+ 		pci_dev_put(pci_dev);
+-		spin_unlock(&driver_lock);
+ 		kfree(chip);
+ 		dev_mask[i] &= !(1 << j);
+ 		return -ENODEV;
+@@ -672,7 +673,6 @@
+ 	device_create_file(&pci_dev->dev, &dev_attr_pcrs);
+ 	device_create_file(&pci_dev->dev, &dev_attr_caps);
+ 
+-	spin_unlock(&driver_lock);
+ 	return 0;
+ }
+ 
 

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264501AbUF0WQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUF0WeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264501AbUF0WQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 18:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUF0WQQ
+	id S264522AbUF0WeI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 18:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbUF0WeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 18:16:16 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:34831 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S264501AbUF0WQO (ORCPT
+	Sun, 27 Jun 2004 18:34:08 -0400
+Received: from ozlabs.org ([203.10.76.45]:1770 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264522AbUF0WeG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 18:16:14 -0400
-Date: Mon, 28 Jun 2004 00:16:12 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Steve G <linux_4ever@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x signal handler bug
-Message-ID: <20040627221612.GA16664@pclin040.win.tue.nl>
-References: <20040626143326.50865.qmail@web50607.mail.yahoo.com> <Pine.LNX.4.58.0406260839460.10038@bigblue.dev.mdolabs.com>
+	Sun, 27 Jun 2004 18:34:06 -0400
+Date: Mon, 28 Jun 2004 08:28:03 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] __alloc_bootmem_node should not panic when it fails
+Message-ID: <20040627222803.GH23589@krispykreme>
+References: <20040627052747.GG23589@krispykreme> <200406270827.28310.ioe-lkml@rameria.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406260839460.10038@bigblue.dev.mdolabs.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : mailhost.tue.nl 1182; Body=1 Fuz1=1 Fuz2=1
+In-Reply-To: <200406270827.28310.ioe-lkml@rameria.de>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 26, 2004 at 09:05:34AM -0700, Davide Libenzi wrote:
 
-> You're receiving a SIGSEGV while SIGSEGV is blocked (force_sig_info). The 
-> force_sig_info call wants to send a signal that the task can't refuse 
-> (kinda The GodFather offers ;). The kernel will noticed this and will 
-> restore the handler to SIG_DFL.
+> But allocating from other nodes has performance implications, which
+> might be quite big, depending on the specific architecture. So you
+> should at least print an KERN_INFO or even KERN_WARNING message, 
+> if this happens.
 
-Yes.
+...
 
-So checking whether this is POSIX conforming:
+> So now the user knows what is going on and that this node might need
+> more memory ;-)
 
-- Blocking a signal in its signal handler is explicitly allowed.
-  (signal(3p))
-- It is unspecified what longjmp() does with the signal mask.
-  (longjmp(3p))
-- The SIGSEGV that occurs during a stack overflow is of the GodFather kind.
-  (getrlimit(3p))
-- If SIGSEGV is generated while blocked, the result is undefined
-  (sigprocmask(3p))
+Unfortunately nodes without memory is relatively common on ppc64, and I
+believe x86-64. From a ppc64 perspective Im fine with best effort, perhaps
+someone from the heavily NUMA camp (ia64?) could comment.
 
-So, maybe the restoring to SIG_DFL was not required, but it doesnt seem
-incorrect either. It may be a bit surprising.
-
-Andries
+Anton

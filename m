@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291620AbSDAAh0>; Sun, 31 Mar 2002 19:37:26 -0500
+	id <S290818AbSDAApG>; Sun, 31 Mar 2002 19:45:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290983AbSDAAhH>; Sun, 31 Mar 2002 19:37:07 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:5697 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S290818AbSDAAg6>; Sun, 31 Mar 2002 19:36:58 -0500
-Date: Mon, 1 Apr 2002 02:36:41 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br
-Subject: Re: Linux 2.4.19-pre5
-Message-ID: <20020401023641.M1331@dualathlon.random>
-In-Reply-To: <20020330135333.A16794@rushmore> <3CA616B2.1F0D8A76@zip.com.au> <3CA6B210.D5AE5D7A@zip.com.au>
+	id <S291787AbSDAAo4>; Sun, 31 Mar 2002 19:44:56 -0500
+Received: from as2-4-6.am.g.bonet.se ([194.236.50.239]:34439 "HELO
+	sunni.bumby.net") by vger.kernel.org with SMTP id <S290818AbSDAAok>;
+	Sun, 31 Mar 2002 19:44:40 -0500
+Date: Mon, 1 Apr 2002 01:47:43 +0200
+From: niklas <niklas@bumby.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18-xfs and the preemptive patch
+Message-Id: <20020401014743.42630286.niklas@bumby.net>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 30, 2002 at 10:52:00PM -0800, Andrew Morton wrote:
-> False alarm.  My test app was not handling SIGBUS inside its SIGBUS
-> handler. 
+I just installed the preemptive ( http://www.tech9.net/rml/linux/ ----  preempt-kernel-rml-2.4.18-4 )  patch on my 2.4.18-xfs tree and when i run this kernel, every process ends with "exited with preempt_count 1" ( for example "rc.2[35] exited with preempt_count 1" )
+The number varies from 1 to 41 so far.
+Is this a known issue that there is a fix to, or is it just a misconfigured syslog?
 
-Good :). BTW, sigbus should never indicate an oom failure, SIGKILL is
-always sent in such a case. If it would came out of a pagefault it would
-mean it was a MAP_SHARED access beyond the end of the file.
+Please CC the answer to me as i don't subscribe to the mailing list.
 
-thanks,
+//niklas
+niklas@bumby.net
 
-Andrea

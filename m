@@ -1,90 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269386AbRHGToJ>; Tue, 7 Aug 2001 15:44:09 -0400
+	id <S269390AbRHGTtJ>; Tue, 7 Aug 2001 15:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269385AbRHGTn7>; Tue, 7 Aug 2001 15:43:59 -0400
-Received: from tux.creighton.edu ([147.134.5.192]:21671 "EHLO
-	tux.creighton.edu") by vger.kernel.org with ESMTP
-	id <S269380AbRHGTno>; Tue, 7 Aug 2001 15:43:44 -0400
-Date: Tue, 7 Aug 2001 14:43:53 -0500 (CDT)
-From: Phil Brutsche <pbrutsch@tux.creighton.edu>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Compile failure: 2.2.19 + eide patch on PPC
-In-Reply-To: <20010807122439.A22612@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.33.0108071429460.30593-100000@tux.creighton.edu>
+	id <S269385AbRHGTs7>; Tue, 7 Aug 2001 15:48:59 -0400
+Received: from [64.175.255.50] ([64.175.255.50]:64443 "HELO kobayashi.soze.net")
+	by vger.kernel.org with SMTP id <S269380AbRHGTsw>;
+	Tue, 7 Aug 2001 15:48:52 -0400
+Date: Tue, 7 Aug 2001 12:48:34 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@kobayashi.soze.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: encrypted swap
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C9A8@mail0.myrio.com>
+Message-ID: <Pine.LNX.4.33.0108071223100.17919-100000@kobayashi.soze.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A long time ago, in a galaxy far, far way, someone said...
+On Tue, 7 Aug 2001, Torrey Hoffman wrote:
 
-> I am trying to compile 2.2.19 + ide.2.2.19.05042001.patch.  When doing this,
-> I get the errors below.
+> Imagine you have:
+> - a Linux laptop with a small amount of RAM
+> - Email and important documents encrypted on disk, either
+>   with GPG / PGP or with an encrypted /home partition.
+> - Documents and email are decrypted, viewed, and edited by
+>   applications, not all of which are SUID root, so
+>   unencrypted data might be swapped out.
 >
-> I've also tried:
-> ide.2.2.19.03252001.patch
-> ide.2.2.19.04092001.patch
+> Now that laptop is stolen at an airport. The thief decides
+> to try to improve his take by grabbing useful information
+> from documents.  The encrypted documents are untouchable,
+> of course.  It _doesn't matter_ that the thief has the
+> hardware, the decryption key is protected by a passphrase
+> which is _nowhere_ on the hard drive.
 
-These patches are broken for PPC machines and have been for some time.  I
-suppose I should file a bug report...
+As someone just pointed out, if the laptop's suspended, the password for
+encrypted swap pretty much has to be in ram, unless you're going to add
+hooks in resume such that before anything even starts running again
+(possible?) it prompts for the decryption password.  Otherwise, you can't
+block swap access, and if the data's encrypted, seems like that will crash
+the machine.
 
-It's simple enough to fix however.
+With encryption boards, what's to stop either hackers with root or people
+with physical access from simply dumping everything sent across the bus to
+the encryption card, unless your whole [embedded] computer is tamper-
+resistant, the kernel doesn't accept loadable modules, and has been proven
+secure.  The only thing that doesn't have to be attack-resistant is the
+hd, since it only ever sees encrypted data.
 
-> I've tried compiling on several different machines, though they were all
-> setup with Debian 2.2.
->
-> I haven't tried a 2.4.x on ppc,
-
-Be aware that 2.4.x on non-x86 architectures is still somewhat
-experimental (much more so than on x86).
-
-> but I want to try to get 2.2 working.  Is there another patch I need?
-
-Yes - see below
-
-> # gcc -v
-> Reading specs from /usr/lib/gcc-lib/powerpc-linux/2.95.2/specs
-> gcc version 2.95.2 20000220 (Debian GNU/Linux)
->
-> Error:
-> make[3]: Entering directory /usr/src/lk2.2/2.2.19-ide-05042001/drivers/block'
-> cc -D__KERNEL__ -I/usr/src/lk2.2/2.2.19-ide-05042001/include -Wall
-> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
-> -D__powerpc__ -fsigned-char -msoft-float -pipe -fno-builtin -ffixed-r2
-> -Wno-uninitialized -mmultiple -mstring   -DEXPORT_SYMTAB -c ll_rw_blk.c
-> In file included from ll_rw_blk.c:28:
-> /usr/src/lk2.2/2.2.19-ide-05042001/include/asm/ide.h:53: parse error before *'
-> /usr/src/lk2.2/2.2.19-ide-05042001/include/asm/ide.h:56: warning: function
-> declaration isn't a prototype
-
-You need an
-
-#include <linux/ide.h>
-
-before the
-
-#include <asm/ide.h>
-
-in ll_rw_blk.c.
-
-Lines 27-30 of ll_rw_blk.c would end up looking like this:
-
-#ifdef CONFIG_POWERMAC
-#include <linux/ide.h>
-#include <asm/ide.h>
-#endif
-
-There are a number of other compilation problems in the code that will
-need similar "fixes".
-
-Note that you will need the PCI fixup patch from
-http://www.cpu.lu/~mlan/linux/dev/pci.html if you want to be able to use a
-PCI IDE controller card, like the Promise Ultra33/Ultra66/Ultra100, in
-your PowerMac.  It seems that the PCI resources won't get seupt correctly
-by OpenFirmware otherwise.
+And of course, "tamper-resistant", not "tamper-proof".  I wouldn't bet
+very much money against the NSA being able to get at least some data out
+of the ibm card.
 
 
-Phil
+justin
 

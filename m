@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270689AbRHJXZb>; Fri, 10 Aug 2001 19:25:31 -0400
+	id <S270683AbRHJX0l>; Fri, 10 Aug 2001 19:26:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270684AbRHJXZW>; Fri, 10 Aug 2001 19:25:22 -0400
-Received: from zero.tech9.net ([209.61.188.187]:23304 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S270683AbRHJXZP>;
-	Fri, 10 Aug 2001 19:25:15 -0400
-Subject: Re: [PATCH] 2.4.7-ac11: Updated emu10k1 driver
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15VLWl-0001qB-00@the-village.bc.nu>
-In-Reply-To: <E15VLWl-0001qB-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 10 Aug 2001 19:26:15 -0400
-Message-Id: <997485978.898.33.camel@phantasy>
-Mime-Version: 1.0
+	id <S270684AbRHJX0c>; Fri, 10 Aug 2001 19:26:32 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:59151 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270683AbRHJX0N>; Fri, 10 Aug 2001 19:26:13 -0400
+Date: Fri, 10 Aug 2001 16:26:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+In-Reply-To: <3B745990.7040808@zytor.com>
+Message-ID: <Pine.LNX.4.33.0108101618270.1045-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Aug 2001 00:17:15 +0100, Alan Cox wrote:
-> > Alan, please consider merging this.  I know it is big but how else will
-> > we ever get it back in sync?  I will work to keep it up to date if it
-> > falls behind again.
-> 
-> Is there ar reason the maintainer hasnt submitted it yet ?
 
-The "maintainer" is listed as Creative.  They have not updated anything
-in a year (in the kernel tree; their CVS tree gets frequent updates).
-There was a thread a month or so ago where the emu10k1 was mentioned and
-the reply was "get the updated driver" -- I asked why the kernel driver
-was so old and I was told a patch was floating around but it had not
-been merged.  I have never seen this patch, so I replied I would do it
-myself.
+On Fri, 10 Aug 2001, H. Peter Anvin wrote:
+>
+> Note that it isn't very hard to deal with *that* problem, *if you want
+> to*... you just need to maintain a shadow data structure in the same
+> format as the page tables and stuff your software bits in there.
 
-It took awhile but here it is.
+Actually, this is what Linux already does.
 
-I don't think there is a reason as in "its beta code" or "it needs to
-remain a module for licensing reasons" -- its solid (admittedly better
-than what is in there now, has more features, and is GLPed).
+The Linux page tables _are_ a "shadow data structure", and are
+conceptually independent from the hardware page tables (or hash table, or
+whatever the actual hardware uses to actually fill in the TLB).
 
-With the exception of the two modifications listed, its right from the
-Creative CVS tree.  It compiles.  It works for me.
+This is most clearly seen on CPU's that don't have traditional page table
+trees, but use software fill TLB's, hashes, or other things in hardware.
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+> Whether or not that is a good idea is another issue entirely, however,
+> on some level it would make sense to separate protection from all the
+> other VM things...
+
+I think that the current Linux approach is much superior - the page tables
+are conceptually a separate shadow data structure, but the way things are
+set up, you can choose to make the mapping from the shadow data structure
+to the actual hardware data structures be a 1:1 mapping.
+
+This does mean that we do NOT want to make the Linux shadow page tables
+contain stuff that is not easy to translate to hardware page tables.
+Tough. It's a trade-off: either you overspecify the kernel page tables
+(and take the hit of having to keep two separate page tables), or you say
+"the kernel page tables are weaker than we could make them", and you get
+the optimization of being able to "fold" them on top of the hardware page
+tables.
+
+I'm 100% convinced that the Linux VM does the right choice - we optimize
+for the important case, and I will claim that it is _really_ hard for
+anybody to make a VM that is as efficient and as fast as the Linux one.
+
+Proof: show me a full-fledged VM setup that even comes _close_ in
+performance, and gives the protection and the flexibility that the Linux
+one does.
+
+And yes, we do have _another_ shadow data structure too. It's called the
+vm_area_struct, aka "vma", and we do not artificially limit ourself to
+trying to look like hardware on that one.
+
+Which brings us back to the original question, and answers it: we already
+do all of this, and we do it RIGHT. We optimize for the right things.
+
+		Linus
 

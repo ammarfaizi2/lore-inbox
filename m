@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbUBRNMF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 08:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbUBRNMF
+	id S267237AbUBROHh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 09:07:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267286AbUBROHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 08:12:05 -0500
-Received: from chiark.greenend.org.uk ([193.201.200.170]:8101 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S262030AbUBRNMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 08:12:03 -0500
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
-In-Reply-To: <20040217164651.GB23499@mail.shareable.org>
-References: <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <20040216200321.GB17015@schmorp.de> <Pine.LNX.4.58.0402161205120.30742@home.osdl.org> <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org> <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org> <20040217161111.GE8231@schmorp.de> <Pine.LNX.4.58.0402170820070.2154@home.osdl.org> <Pine.LNX.4.58.0402170820070.2154@home.osdl.org> <20040217164651.GB23499@mail.shareable.org>
+	Wed, 18 Feb 2004 09:07:37 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:27627 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S267273AbUBROHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 09:07:35 -0500
+Date: Wed, 18 Feb 2004 08:53:00 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Alexey Goldin <ab_goldin@swissmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Firewire troubles with  SMP kernel
+Message-ID: <20040218135300.GN957@phunnypharm.org>
+References: <1075940005.11793.34.camel@hobbit>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E1AtRUZ-000309-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Date: Wed, 18 Feb 2004 13:11:55 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1075940005.11793.34.camel@hobbit>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+On Wed, Feb 04, 2004 at 04:13:26PM -0800, Alexey Goldin wrote:
+> Thanks to fine people who helped me to sort out problems with my laptop
+> couple of months ago. This is the timeto ask for help again :-)
+> 
+> Please cc: any reply to me as I am not subscribed to the list. 
+> 
+> Well, I know firewire with SMP is a little bit iffy. 
+> However we managed to get it working on one computer and we hoped it
+> will work with other. Here is what we have instead.
+> 
+> The first computer is dual Athlon-MP with Tyan mobo, firewire card is 
+> fairly basic, we got it from
+> http://shop.store.yahoo.com/gooddealpc-store/139pci3p.html 
+> We tried it with Western Digital 120GB firewire drives and with IDE
+> enclosures:
 
->I'd like a way to type something like "touch zöe.txt" on an ordinary
->latin1 terminal and get a UTF-8 filename in my filesystem.  Thanks :)
-
-screen will already do this - check the encoding command. There's a
-couple of more lightweight proxies that do much the same thing.
+I'm running firewire with SMP kernels with no problems. I think the
+issue is you are using old drivers that may not be working with SMP. Try
+build the latest drivers from linux1394.org for 2.4.
 
 -- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

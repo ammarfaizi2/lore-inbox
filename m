@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288930AbSAXXOn>; Thu, 24 Jan 2002 18:14:43 -0500
+	id <S290457AbSAXXSx>; Thu, 24 Jan 2002 18:18:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290457AbSAXXOd>; Thu, 24 Jan 2002 18:14:33 -0500
-Received: from dpc6682034030.direcpc.com ([66.82.34.30]:260 "EHLO
-	oscar.hatestheinter.net") by vger.kernel.org with ESMTP
-	id <S288930AbSAXXOZ>; Thu, 24 Jan 2002 18:14:25 -0500
-Subject: Re: [right one][patch] amd athlon cooling on kt266/266a chipset
-From: Disconnect <lkml@sigkill.net>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0201242240380.9957-100000@infcip10.uni-trier.de>
-In-Reply-To: <Pine.LNX.4.40.0201242240380.9957-100000@infcip10.uni-trier.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 24 Jan 2002 18:11:06 -0500
-Message-Id: <1011913866.2189.15.camel@oscar>
-Mime-Version: 1.0
+	id <S290463AbSAXXSn>; Thu, 24 Jan 2002 18:18:43 -0500
+Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:47585 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S290472AbSAXXSc>; Thu, 24 Jan 2002 18:18:32 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Martin Eriksson <nitrax@giron.wox.org>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+Date: Fri, 25 Jan 2002 00:18:01 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>, Vojtech Pavlik <vojtech@suse.cz>,
+        Timothy Covell <timothy.covell@ashavan.org>,
+        Martin Peters <mpet@bigfoot.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0201242201480.9957-100000@infcip10.uni-trier.de>
+In-Reply-To: <Pine.LNX.4.40.0201242201480.9957-100000@infcip10.uni-trier.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020124231839Z290472-13996+11473@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-01-24 at 16:44, Daniel Nofftz wrote:
-> but : cause i have no problems with the patch, i have another problem : i
-> could not look where the problems come from ... :( ... so i need those on
-> of you, who have problems with it, so we could track the cause of the
-> problems down ...
+On Thursday, 24. January 2002 21:55, Daniel Nofftz wrote:
+> On 24 Jan 2002, Disconnect wrote:
+>
+> > 1.3G here.. how much faster does it need to be? (didn't test audio/video
+> > streams due to the unusability of my keyboard.. I can reboot and try it
+> > if it would be useful.)
+> >
+> > calibrating APIC timer ...
+> > ..... CPU clock speed is 1302.9962 MHz.
+> > ..... host bus clock speed is 200.4608 MHz.
+>
+> ok ... does not look like a speed problen :)
+> i have 1,4g and it works like a charm ....
+>
+> hmmm ... maybe acpi problems with the different motherboards ? buggy
+> implemention of the acpi functions in the bios ? or maybee a fsb problem
+> (have 133mhz fsb ... does someone with 133mhz fsb have problems to?)
+>
+> i have no real idea at the moment ...
 
-Lemme know what you need.
+I found some additional info for you.
 
-> > Also, I noticed an odd problem w/ ACPI. dmesg shows:
-> > ACPI: Power Button (FF) found
-> > ACPI: Multiple power buttons detected, ignoring fixed-feature
-> > ACPI: Power Button (CM) found
-> 
-> as far as i know the power button does not work at all with the curent
-> kernel ... so i think it is no problem :)
+Our famous German c't magazin have:
+http://www.heise.de/ct/01/18/036/default.shtml
 
-I just apt-get install acpid and edit /etc/acpi/default.sh to do
-whatever I want :)
+And you should have a look into this AMD doku (sadly _NO_ AMD 750/760 infos):
+"AMD Athlon Processor Model 4 Revision Guide"
+www.amd.com/products/cpg/athlon/techdocs/pdf/23614.pdf 
 
+AMD could be easily enlighten us, of course!
 
+-Dieter
+
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

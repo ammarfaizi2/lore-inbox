@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUKPFyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbUKPF4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUKPFyz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 00:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUKPFyz
+	id S261915AbUKPF4k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 00:56:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbUKPF4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 00:54:55 -0500
-Received: from HELIOUS.MIT.EDU ([18.238.1.151]:22695 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261900AbUKPFyx (ORCPT
+	Tue, 16 Nov 2004 00:56:40 -0500
+Received: from mail.kroah.org ([69.55.234.183]:47067 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261915AbUKPFze (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 00:54:53 -0500
-Date: Tue, 16 Nov 2004 00:52:40 -0500
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
-       bjorn.helgaas@hp.com, vojtech@suse.cz
-Subject: Re: [PATCH] PNP support for i8042 driver
-Message-ID: <20041116055240.GF29574@neo.rr.com>
-Mail-Followup-To: ambx1@neo.rr.com,
-	matthieu castet <castet.matthieu@free.fr>, dtor_core@ameritech.net,
-	linux-kernel@vger.kernel.org, bjorn.helgaas@hp.com, vojtech@suse.cz
-References: <41960AE9.8090409@free.fr> <200411140148.02811.dtor_core@ameritech.net> <41974DFD.5070603@free.fr> <d120d50004111506416237ff1b@mail.gmail.com> <419908B8.10202@free.fr> <d120d500041115122846b9f0fa@mail.gmail.com> <41993320.3010501@free.fr>
+	Tue, 16 Nov 2004 00:55:34 -0500
+Date: Mon, 15 Nov 2004 21:54:06 -0800
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org,
+       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       Kay Sievers <kay.sievers@vrfy.org>, tokunaga.keiich@jp.fujitsu.com,
+       motoyuki@soft.fujitsu.com, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, rml@novell.com, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
+Message-ID: <20041116055406.GG29328@kroah.com>
+References: <20041105001328.3ba97e08.akpm@osdl.org> <d120d5000411091548584bf8c5@mail.gmail.com> <20041110000811.GA8543@kroah.com> <200411092315.55187.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41993320.3010501@free.fr>
-User-Agent: Mutt/1.5.6+20040722i
-From: ambx1@neo.rr.com (Adam Belay)
+In-Reply-To: <200411092315.55187.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 15, 2004 at 11:52:16PM +0100, matthieu castet wrote:
-> Hi,
+On Tue, Nov 09, 2004 at 11:15:55PM -0500, Dmitry Torokhov wrote:
+> On Tuesday 09 November 2004 07:08 pm, Greg KH wrote:
+> > On Tue, Nov 09, 2004 at 06:48:17PM -0500, Dmitry Torokhov wrote:
+> > > On Tue, 9 Nov 2004 14:55:02 -0800, Greg KH <greg@kroah.com> wrote:
+> > > > On Fri, Nov 05, 2004 at 09:18:48PM -0800, Keshavamurthy Anil S wrote:
+> > > > > Also, since you have brought this, I have one another question to you.
+> > > > > Now in the new kernel, I see whenever anybody calls sysdev_register(kobj),
+> > > > > an "ADD" notification is sent. why is this? I would like to call
+> > > > > kobject_hotplug(kobj, ADD) later.
+> > > > 
+> > > > This happens when kobject_add() is called.  You shouldn't ever need to
+> > > > call kobject_hotplug() for an add event yourself.
+> > > > 
+> > > 
+> > > This is not always the case. One might want to postpone ADD event
+> > > until all summpelental object attributes are created. This way userspace
+> > > is presented with object in consistent state.
+> > 
+> > No, that's a mess.  Let userspace wait for those attributes to show up
+> > if they need to.  That's what the "wait_for_sysfs" program bundled with
+> > udev is for.
+> >
 > 
-> Dmitry Torokhov wrote:
-> >On Mon, 15 Nov 2004 20:51:20 +0100, matthieu castet
-> >>Yes you could do a very ugly hack : set pnp_can_disable(dev) to 0 before
-> >> unregister. With that the device won't be disabled (no resource
-> >>desalocation), but the device will be mark as not active in pnp layer.
-> >>
-> >
-> >
-> > I'd like to release resoures al well (interrupts only really, as 
-> ports are
-> > always reserved by the system even before PNP is initialized).
+> I strongly disagree:
+> 
+> - it makes userspace being aware of implementation details (whe exactly it
+>   has to wait for, for how long, etc.) which is bad thing;
+> - not all the world is udev - needless replication of the code and bugs;
+> - not only making visible but announcing an object in non-working state
+>   to userspace simply does not feel right.
 
-They shouldn't be.  PnP detection should occur before the system assumes the
-location of a device.  I realize that it can be difficult given the current
-state of many drivers.  Still, I think assuming information about a device,
-especially if you consider how easy it is to get from ACPI etc., can be
-potentially dangerous.
+Based on the recent additions to the /sbin/hotplug environment
+variables, userspace now knows exactly what it needs to wait for, if
+anything.  
 
-> >I think you need to make an effort to make a PCI device use IRQ12
-> >but the idea is that if you don't have a mouse attached (but you do
-> >have i8042) and you are short on free interrupts and your HW can
-> >use IRQ12 for some other stuff let it have it. That is the reqson why
-> >i8042 requests IRQ only when corresponding port is open. No mouse -
-> >IRQ is free.
-> >
-> And what happen if you use irq12 for an other stuff and you plug your 
-> mouse and try to use it. The motherboard hasn't desalocated the irq12 
-> for mouse, so there will be a big conflict...
+Also, there's no needless replication of this code, that's why
+wait_for_sysfs was split off of udev, it's for everyone to use, if they
+want to.
 
-I agree.  Disabling the device is fine, but we _really_ should disable the
-device with the BIOS before assuming a resource is free.
+thanks,
 
-Thanks,
-Adam
+greg k-h

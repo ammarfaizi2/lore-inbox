@@ -1,280 +1,302 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275082AbRJaWyA>; Wed, 31 Oct 2001 17:54:00 -0500
+	id <S275126AbRJaW7A>; Wed, 31 Oct 2001 17:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275012AbRJaWxw>; Wed, 31 Oct 2001 17:53:52 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38905 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S275126AbRJaWxo>; Wed, 31 Oct 2001 17:53:44 -0500
-Message-ID: <3BE08108.91067996@mvista.com>
-Date: Wed, 31 Oct 2001 14:54:00 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S275224AbRJaW6r>; Wed, 31 Oct 2001 17:58:47 -0500
+Received: from femail46.sdc1.sfba.home.com ([24.254.60.40]:55725 "EHLO
+	femail46.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S275126AbRJaW6b>; Wed, 31 Oct 2001 17:58:31 -0500
+Message-ID: <3BE080FE.1040603@home.com>
+Date: Wed, 31 Oct 2001 14:53:50 -0800
+From: "Kahli R. Burke" <kahliburke@home.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010702
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-CC: "Richard B. Johnson" <root@chaos.analogic.com>,
-        vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Re: Nasty suprise with uptime
-In-Reply-To: <Pine.LNX.4.30.0110311902410.29481-100000@gans.physik3.uni-rostock.de>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Heavy IO in 2.4.13-ac4 with preempt patch -> kupdated hogs system
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to post this this AM, but it was a no show.  Here it is again:
+Hello,
 
-First I want to thank Tim for pointing out (by usage) the do_div()
-macro.  This has troubled me for some time.  Thanks Tim.
+    I have seen this with the above mentioned kernel, and 2.4.10 with no 
+extra patches.  When I perform some IO intensive operation (and I'm 
+thinking it may just be writing, not reading), such as copying 300MB 
+from one filesystem to another, or ripping a CD, the system gets VERY 
+slow.  It happens in bursts, if I'm in X the mouse will move normally 
+for a second, then the system will appear to hang completely for a few 
+seconds, then it will move normally, and so on.  If I look at top, I see 
+my system load go up above 3, kupdated hogs the CPU, and the system 
+slice of the CPU is up at about 99%.  It seems like the throughput is 
+way less than it should be, although I haven't benchmarked it.
 
-As to the method to use for 64-bit jiffies, the one Tim used was
-discussed on the list a short time ago under the subject "How should we
-do a 64-bit jiffies?" (thread started by me on 10/22/01).  The asm
-overlay was discussed as well as other methods.  Linus proposed the
-version that Tim used here and that I am using in the high-res-timers
-patch. (See: http://sourceforge.net/projects/high-res-timers)  And, yes
-it does make it a NO-NO to have a local variable (or a struct member)
-named jiffies and I am sure that we will find other uses of such as
-additional drivers and platforms are tried.
-http://sourceforge.net/projects/high-res-timers
-On the issue of locking, jiffies (in the current system) is updated
-under the xtime_lock, so this is the lock one would use to read it if
-you cared, however, as patched, almost NO ONE cares or needs to.  Just
-using the low 32 bits and the existing compare macros will do just fine,
-thank you.  For those that care, i.e. uptime, CLOCK_MONOTOINIC (and
-other code in POSIX timers), either the xtime_lock (a read/write lock by
-the way, not a spin lock) can be taken.
+    Has anyone else been experiencing this, or might have an idea on 
+where to look for answers?
 
-Here Tim is proposing a while loop which, IMHO, will fail in the SMP
-case, but does handle the UP interrupt case quite nicely.
+    Other than that, system seems to be quite stable and performs well.
 
-Tim Schmielau wrote:
-> 
-> On Wed, 31 Oct 2001, Richard B. Johnson wrote:
-> 
-> > On Wed, 31 Oct 2001, vda wrote:
-> >
-> > [SNIPPED...]
-> >
-> > > Hmm.... 64bit jiffies are attractive.
-> > >
-> > > I'd like to see less #defines in kernel
-> > > Some parts of your patch fight with the fact that jiffies
-> > > is converted to macro -> it is illegal now to have local vars
-> > > called "jiffies". This is ugly. I know that there are tons of similarly
-> > > (ab)used macros in the kernel now but let's stop adding more!
-> > >
-> > > This test prog shows how to make overlapping 32bit and 64bit vars.
-> > > It works for me.
-> > >
-> 
-> [asm snipped]
-> 
-> > >
-> > > Is this better or not? If not, why?
+Thanks for any assistance.  If I missed any important info, let me know...
 
-The principle problem is platform dependence.
+    Here is my hardware:
 
-> > > --
-> > > vda
-> >
-> > The problem is that a 64-bit jiffies on a 32-bit machine would
-> > require a spin-lock every time the jiffies variable is changed!
+    Athlon 1.2 GHz
+    ABit KT7A-RAID MB, (I think it's the VIA Apollo KT133A chipset)
+    320MB RAM
+    Assorted HD's, some ATA-66, some not, not using the HPT 370 RAID 
+right now
+    GeForce2 32MB
+    and a bunch of other stuff I don't think is relevant.
 
-Ah, but it is only changed in the timer interrupt which is already under
-a write_irq lock.
+    Here's excepts from .config that may be relevant (it's probably 
+still too much, I apologize but I 'm not sure exactly what might be wanted)
 
-> > This is because there are two (or more) memory accesses for
-> > every 64 bit operation, plus two or more register accesses for
-> > every 64 bit operation. If a context-switch or an interrupt
-> > occurs between those operations, all bets are off about the
-> > result.
-> >
-> > The appended small tar.gz file contains some 64-bit assembly
-> > plus some 64-bit C, Look at the assembly and it will become
-> > obvious to you that you don't want to use a 64-bit timer
-> > on a 32 bit machine.
-> >
-> >
-> > Cheers,
-> > Dick Johnson
-> >
-> 
-> The idea was that all drivers that use the 32 bit jiffies counter have to
-> be aware of the wraparound anyways, and won't see a difference.
-> The race only happens for 64 bit accesses to jiffies, but hey, without
-> the patch these values come out wrong _every_ time, so I believed a
-> tiny window for a single wrong display of uptime every 497.1 days to be
-> acceptable.
+     grep "[y|m]" .config | grep -v "^#" | grep -v "CONFIG_NLS_" | grep 
+-v "CONFIG_SOUND" | grep -v "CONFIG_INPUT"
 
-For display, ok, but not for CLOCK_MONOTONIC and other POSIX timers
-usage :)
-> 
-> If we want to make sure to eliminate this possibility as well, the kind of
-> home-made synchronization may help that I came up with before considering
-> the race acceptable. It also has the advantage of not touching the jiffies
-> definition at all.
 
-As pointed out above, this works for interrupts  on UP machines, but,
-IMHO, will fail on SMP machines.
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MK7=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_NET=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=m
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PM=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_PCMCIA=m
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_RAID5=m
+CONFIG_MD_MULTIPATH=m
+CONFIG_BLK_DEV_LVM=m
+CONFIG_PACKET=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK_DEV=m
+CONFIG_NETFILTER=y
+CONFIG_NETFILTER_DEBUG=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_COMPAT_IPFWADM=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_BLK_DEV_ATARAID=m
+CONFIG_BLK_DEV_ATARAID_PDC=m
+CONFIG_BLK_DEV_ATARAID_HPT=m
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SD=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_PPA=m
+CONFIG_SCSI_SYM53C8XX=m
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_EL1=m
+CONFIG_EL2=m
+CONFIG_ELPLUS=m
+CONFIG_EL16=m
+CONFIG_EL3=m
+CONFIG_3C515=m
+CONFIG_VORTEX=m
+CONFIG_LANCE=m
+CONFIG_NET_VENDOR_SMC=y
+CONFIG_WD80x3=m
+CONFIG_ULTRA=m
+CONFIG_SMC9194=m
+CONFIG_AT1700=m
+CONFIG_DEPCA=m
+CONFIG_HP100=m
+CONFIG_NET_PCI=y
+CONFIG_PCNET32=m
+CONFIG_ADAPTEC_STARFIRE=m
+CONFIG_AC3200=m
+CONFIG_APRICOT=m
+CONFIG_CS89x0=m
+CONFIG_TULIP=m
+CONFIG_DE4X5=m
+CONFIG_DGRS=m
+CONFIG_DM9102=m
+CONFIG_EEPRO100=m
+CONFIG_FEALNX=m
+CONFIG_NATSEMI=m
+CONFIG_NE2K_PCI=m
+CONFIG_8139CP=m
+CONFIG_8139TOO=m
+CONFIG_SIS900=m
+CONFIG_EPIC100=m
+CONFIG_SUNDANCE=m
+CONFIG_TLAN=m
+CONFIG_VIA_RHINE=m
+CONFIG_WINBOND_840=m
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_AGP=y
+CONFIG_AGP_ALI=y
+CONFIG_AGP_AMD=y
+CONFIG_AGP_SIS=y
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_I810=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_OLD=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_REISERFS_FS=m
+CONFIG_EXT3_FS=m
+CONFIG_JBD=m
+CONFIG_JBD_DEBUG=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_MIDI_EMU10K1=y
+CONFIG_USB=y
+CONFIG_USB_DEBUG=y
+CONFIG_USB_UHCI=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_OHCI=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DEBUG=y
+CONFIG_USB_STORAGE_HP8200e=y
+CONFIG_USB_PRINTER=m
 
-George
-
-> 
-> Tim
-> 
-> --- fs/proc/proc_misc.c.orig    Wed Oct 31 17:45:08 2001
-> +++ fs/proc/proc_misc.c Wed Oct 31 18:49:19 2001
-> @@ -39,6 +39,7 @@
->  #include <asm/uaccess.h>
->  #include <asm/pgtable.h>
->  #include <asm/io.h>
-> +#include <asm/div64.h>
-> 
->  #define LOAD_INT(x) ((x) >> FSHIFT)
-> @@ -103,15 +104,28 @@
->  static int uptime_read_proc(char *page, char **start, off_t off,
->                                  int count, int *eof, void *data)
->  {
-> -       unsigned long uptime;
-> +       u64 uptime;
-> +       unsigned long jiffies_tmp, jiffies_high_tmp, remainder;
->         unsigned long idle;
->         int len;
-> 
-> -       uptime = jiffies;
-> +       /* We need to make sure jiffies_high does not change while
-> +        * reading jiffies and jiffies_high */
-> +       do {
-> +               jiffies_high_tmp = jiffies_high_shadow;
-> +               barrier();
-> +               jiffies_tmp = jiffies;
-> +               barrier();
-> +       } while (jiffies_high != jiffies_high_tmp);
-> +
-> +       uptime = jiffies_tmp + ((u64)jiffies_high_tmp << BITS_PER_LONG);
-> +       remainder = (unsigned long) do_div(uptime, HZ);
-> +
->         idle = init_tasks[0]->times.tms_utime + init_tasks[0]->times.tms_stime;
-> 
-> -       /* The formula for the fraction parts really is ((t * 100) / HZ) % 100, but
-> -          that would overflow about every five days at HZ == 100.
-> +       /* The formula for the fraction part of the idle time really is
-> +          ((t * 100) / HZ) % 100, but that would overflow about
-> +           every five days at HZ == 100.
->            Therefore the identity a = (a / b) * b + a % b is used so that it is
->            calculated as (((t / HZ) * 100) + ((t % HZ) * 100) / HZ) % 100.
->            The part in front of the '+' always evaluates as 0 (mod 100). All divisions
-> @@ -121,14 +135,14 @@
->          */
->  #if HZ!=100
->         len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
-> -               uptime / HZ,
-> -               (((uptime % HZ) * 100) / HZ) % 100,
-> +               (unsigned long) uptime,
-> +               ((remainder * 100) / HZ) % 100,
->                 idle / HZ,
->                 (((idle % HZ) * 100) / HZ) % 100);
->  #else
->         len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
-> -               uptime / HZ,
-> -               uptime % HZ,
-> +               (unsigned long) uptime,
-> +               remainder,
->                 idle / HZ,
->                 idle % HZ);
->  #endif
-> --- kernel/timer.c.orig Wed Oct 31 17:24:36 2001
-> +++ kernel/timer.c      Wed Oct 31 18:38:47 2001
-> @@ -65,7 +65,9 @@
-> 
->  extern int do_setitimer(int, struct itimerval *, struct itimerval *);
-> 
-> -unsigned long volatile jiffies;
-> +#define INITIAL_JIFFIES 0xFFFFD000ul
-> +unsigned long volatile jiffies = INITIAL_JIFFIES;
-> +unsigned long volatile jiffies_high, jiffies_high_shadow;
-> 
->  unsigned int * prof_buffer;
->  unsigned long prof_len;
-> @@ -117,7 +119,7 @@
->                 INIT_LIST_HEAD(tv1.vec + i);
->  }
-> 
-> -static unsigned long timer_jiffies;
-> +static unsigned long timer_jiffies = INITIAL_JIFFIES;
-> 
->  static inline void internal_add_timer(struct timer_list *timer)
->  {
-> @@ -638,7 +640,7 @@
->  }
-> 
->  /* jiffies at the most recent update of wall time */
-> -unsigned long wall_jiffies;
-> +unsigned long wall_jiffies = INITIAL_JIFFIES;
-> 
->  /*
->   * This spinlock protect us from races in SMP while playing with xtime. -arca
-> @@ -673,7 +675,22 @@
-> 
->  void do_timer(struct pt_regs *regs)
->  {
-> -       (*(unsigned long *)&jiffies)++;
-> +       /* we assume that two calls to do_timer can never overlap
-> +        * since they are one jiffie apart in time */
-> +       if (jiffies != 0xffffffffUL) {
-> +               jiffies++;
-> +       } else {
-> +               /* We still need to care about the race with readers of
-> +                * jiffies_high. Readers have to discard the values if
-> +                * jiffies_high != jiffies_high_shadow when read with
-> +                * proper barriers in between. */
-> +               jiffies_high++;
-> +               barrier();
-> +               jiffies++;
-> +               barrier();
-> +               jiffies_high_shadow = jiffies_high;
-> +               barrier();
-> +       }
->  #ifndef CONFIG_SMP
->         /* SMP process accounting uses the local APIC timer */
-> 
-> --- kernel/info.c.orig  Wed Oct 31 17:58:25 2001
-> +++ kernel/info.c       Wed Oct 31 18:48:52 2001
-> @@ -12,15 +12,28 @@
->  #include <linux/smp_lock.h>
-> 
->  #include <asm/uaccess.h>
-> +#include <asm/div64.h>
-> 
->  asmlinkage long sys_sysinfo(struct sysinfo *info)
->  {
->         struct sysinfo val;
-> +       u64 uptime;
-> +       unsigned long jiffies_tmp, jiffies_high_tmp;
-> 
->         memset((char *)&val, 0, sizeof(struct sysinfo));
-> 
->         cli();
-> -       val.uptime = jiffies / HZ;
-> +        /* We need to make sure jiffies_high does not change while
-> +         * reading jiffies and jiffies_high */
-> +        do {
-> +                jiffies_high_tmp = jiffies_high_shadow;
-> +                barrier();
-> +                jiffies_tmp = jiffies;
-> +                barrier();
-> +        } while (jiffies_high != jiffies_high_tmp);
-> +       uptime = jiffies_tmp + ((u64)jiffies_high_tmp << BITS_PER_LONG);
-> +       do_div(uptime, HZ);
-> +       val.uptime = uptime;
-> 
->         val.loads[0] = avenrun[0] << (SI_LOAD_SHIFT - FSHIFT);
->         val.loads[1] = avenrun[1] << (SI_LOAD_SHIFT - FSHIFT);
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

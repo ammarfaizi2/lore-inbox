@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131457AbRDJLSz>; Tue, 10 Apr 2001 07:18:55 -0400
+	id <S131424AbRDJLQz>; Tue, 10 Apr 2001 07:16:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131460AbRDJLSp>; Tue, 10 Apr 2001 07:18:45 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48132 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131457AbRDJLSh>; Tue, 10 Apr 2001 07:18:37 -0400
-Subject: Re: No 100 HZ timer !
-To: ak@suse.de (Andi Kleen)
-Date: Tue, 10 Apr 2001 12:18:03 +0100 (BST)
-Cc: mbs@mc.com (Mark Salisbury), jdike@karaya.com (Jeff Dike),
-        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010410075109.A9549@gruyere.muc.suse.de> from "Andi Kleen" at Apr 10, 2001 07:51:09 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14mw9t-00041m-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S131446AbRDJLQq>; Tue, 10 Apr 2001 07:16:46 -0400
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:62329 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131424AbRDJLQ3>; Tue, 10 Apr 2001 07:16:29 -0400
+Date: Tue, 10 Apr 2001 12:16:22 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: kees <kees@schoen.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] exec_via_sudo
+Message-ID: <20010410121622.H1136@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0104101251210.6726-100000@schoen3.schoen.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="jPJw4wSVUvI9Tm/b"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0104101251210.6726-100000@schoen3.schoen.nl>; from kees@schoen.nl on Tue, Apr 10, 2001 at 12:55:29PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > interrupting decrementer.  (i.e just about any modern chip)
-> 
-> Just how would you do kernel/user CPU time accounting then ?  It's currently done 
-> on every timer tick, and doing it less often would make it useless.
 
-On the contrary doing it less often but at the right time massively improves
-its accuracy. You do it on reschedule. An rdtsc instruction is cheap and all
-of a sudden you have nearly cycle accurate accounting
+--jPJw4wSVUvI9Tm/b
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Alan
+On Tue, Apr 10, 2001 at 12:55:29PM +0200, kees wrote:
 
+> Unix/Linux have a lot of daemons that have to run as root because they
+> need to acces some specific data or run special programs. They are
+> vulnerable as we learn.
+> Is there any way to have something like an exec call that is
+> subject to a sudo like permission system? That would run the daemons
+> as a normal user but allow only for specific functions i.e. NOT A SHELL.
+
+Yeah, exec sudo.
+
+Tim.
+*/
+
+--jPJw4wSVUvI9Tm/b
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE60uuGONXnILZ4yVIRAht9AKCHLasBvP1BxvPCXsJC+NS2HVbTpgCfY2cY
+fK5ZiDfRL9lkGuFiWhCQfJQ=
+=d/fm
+-----END PGP SIGNATURE-----
+
+--jPJw4wSVUvI9Tm/b--

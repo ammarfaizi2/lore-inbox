@@ -1,330 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264482AbUEJHQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264543AbUEJHRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264482AbUEJHQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 03:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbUEJHQ0
+	id S264543AbUEJHRf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 03:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUEJHRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 03:16:26 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:4252 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264482AbUEJHQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 03:16:03 -0400
-Date: Mon, 10 May 2004 00:15:52 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andreas Gruenbacher <agruen@suse.de>, Nathan Scott <nathans@sgi.com>
-Subject: [PATCH] 2.6.6 add qsort library function (UPDATED PATCH, symbol exported _GPL)
-Message-ID: <20040510071552.GB30834@taniwha.stupidest.org>
-References: <20040510050733.GA13889@taniwha.stupidest.org>
-Mime-Version: 1.0
+	Mon, 10 May 2004 03:17:34 -0400
+Received: from mail.enyo.de ([212.9.189.167]:2313 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S264543AbUEJHR2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 03:17:28 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       Andrew Morton <akpm@osdl.org>, dipankar@in.ibm.com,
+       manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, maneesh@in.ibm.com
+Subject: Re: dentry bloat.
+References: <Pine.LNX.4.44.0405091058300.2106-100000@poirot.grange>
+	<Pine.LNX.4.58.0405090832310.24865@ppc970.osdl.org>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Mon, 10 May 2004 09:17:18 +0200
+In-Reply-To: <Pine.LNX.4.58.0405090832310.24865@ppc970.osdl.org> (Linus
+ Torvalds's message of "Sun, 9 May 2004 08:35:55 -0700 (PDT)")
+Message-ID: <87fza8zr7l.fsf@deneb.enyo.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040510050733.GA13889@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- [ This is an updated patch where the symbol is exported GPL only
-   recognized the GPL origin in the code used.  Thanks for those
-   people who pointed this out. ]
+* Linus Torvalds:
 
-This is a rehash of a patch from Andreas Gruenbacher <agruen@suse.de>
-to add qsort as a kernel library function.  Right now the only user of
-this is XFS others users are expected.
+> so Andrew really must have a fairly different setup if he sees 20% 
+> filenames being > 23 characters.
 
-The stack utilization is fairly modest and the function is not
-recursive.
+A few Maildir folders are more than sufficient for that.
 
-I stupidly took the gnu-formatted function and ran Lindent over it
-which made a bit of a mess (I manually fixed most of this and am
-guilty of editing the diff...)
-
-
-   --cw
-
-
- include/linux/kernel.h |    2
- lib/Kconfig            |    3
- lib/Makefile           |    1
- lib/qsort.c            |  239 +++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 245 insertions(+)
-
-
-
-diff -Nru a/include/linux/kernel.h b/include/linux/kernel.h
---- a/include/linux/kernel.h	Sun May  9 20:27:15 2004
-+++ b/include/linux/kernel.h	Sun May  9 20:27:15 2004
-@@ -80,6 +80,8 @@
- 	__attribute__ ((format (scanf,2,3)));
- extern int vsscanf(const char *, const char *, va_list);
- 
-+extern void qsort(void *, size_t, size_t, int (*)(const void *,const void *));
-+
- extern int get_option(char **str, int *pint);
- extern char *get_options(const char *str, int nints, int *ints);
- extern unsigned long long memparse(char *ptr, char **retptr);
-diff -Nru a/lib/Kconfig b/lib/Kconfig
---- a/lib/Kconfig	Sun May  9 20:27:15 2004
-+++ b/lib/Kconfig	Sun May  9 20:27:15 2004
-@@ -21,6 +21,9 @@
- 	  require M here.  See Castagnoli93.
- 	  Module will be libcrc32c.
- 
-+config QSORT
-+	bool "Quick Sort"
-+
- #
- # compression support is select'ed if needed
- #
-diff -Nru a/lib/Makefile b/lib/Makefile
---- a/lib/Makefile	Sun May  9 20:27:15 2004
-+++ b/lib/Makefile	Sun May  9 20:27:15 2004
-@@ -20,6 +20,7 @@
- 
- obj-$(CONFIG_CRC32)	+= crc32.o
- obj-$(CONFIG_LIBCRC32C)	+= libcrc32c.o
-+obj-$(CONFIG_QSORT)	+= qsort.o
- 
- obj-$(CONFIG_ZLIB_INFLATE) += zlib_inflate/
- obj-$(CONFIG_ZLIB_DEFLATE) += zlib_deflate/
-diff -Nru a/lib/qsort.c b/lib/qsort.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/lib/qsort.c	Sun May  9 20:27:15 2004
-@@ -0,0 +1,239 @@
-+/*
-+ * qsort implementation for the Linux kernel.
-+ *
-+ * Original implementation taken form glibc and credited to Douglas
-+ * C. Schmidt (schmidt@ics.uci.edu).
-+ *
-+ * This source code is licensed under the GNU General Public License,
-+ * Version 2.  See the file COPYING for more details.
-+ */
-+
-+/*
-+ * If you consider tuning this algorithm, you should consult first:
-+ * Engineering a sort function; Jon Bentley and M. Douglas McIlroy;
-+ * Software - Practice and Experience; Vol. 23 (11), 1249-1265, 1993.
-+ */
-+
-+# include <linux/module.h>
-+# include <linux/slab.h>
-+# include <linux/string.h>
-+
-+MODULE_LICENSE("GPL");
-+
-+/* Byte-wise swap two items of size SIZE. */
-+#define SWAP(a, b, size)		      \
-+  do {					      \
-+      size_t __size = (size);		      \
-+      char *__a = (a), *__b = (b);	      \
-+      do {				      \
-+	  char __tmp = *__a;		      \
-+	  *__a++ = *__b;		      \
-+	  *__b++ = __tmp;		      \
-+	} while (--__size > 0);		      \
-+    } while (0)
-+
-+/* Discontinue quicksort algorithm when partition gets below this
-+   size.  This particular magic number was chosen to work best on a
-+   Sun 4/260. */
-+#define MAX_THRESH 4
-+
-+/* Stack node declarations used to store unfulfilled partition
-+ * obligations. */
-+typedef struct {
-+	char *lo;
-+	char *hi;
-+} stack_node;
-+
-+/* The next 5 #defines implement a very fast in-line stack
-+ * abstraction.  The stack needs log (total_elements) entries (we
-+ * could even subtract log(MAX_THRESH)).  Since total_elements has
-+ * type size_t, we get as upper bound for log (total_elements): bits
-+ * per byte (CHAR_BIT) * sizeof(size_t).  */
-+
-+#define CHAR_BIT 8
-+#define STACK_SIZE	(CHAR_BIT * sizeof(size_t))
-+#define PUSH(low, high)	((top->lo = (low)), (top->hi = (high)), ++top)
-+#define	POP(low, high)	(--top, (low = top->lo), (high = top->hi))
-+#define	STACK_NOT_EMPTY	(stack < top)
-+
-+/* Order size using quicksort.  This implementation incorporates four
-+   optimizations discussed in Sedgewick:
-+
-+   1. Non-recursive, using an explicit stack of pointer that store the
-+   next array partition to sort.  To save time, this maximum amount
-+   of space required to store an array of SIZE_MAX is allocated on
-+   the stack.  Assuming a 32-bit (64 bit) integer for size_t, this
-+   needs only 32 * sizeof(stack_node) == 256 bytes (for 64 bit:
-+   1024 bytes).  Pretty cheap, actually.
-+
-+   2. Chose the pivot element using a median-of-three decision tree.
-+   This reduces the probability of selecting a bad pivot value and
-+   eliminates certain extraneous comparisons.
-+
-+   3. Only quicksorts TOTAL_ELEMS / MAX_THRESH partitions, leaving
-+   insertion sort to order the MAX_THRESH items within each
-+   partition.  This is a big win, since insertion sort is faster
-+   for small, mostly sorted array segments.
-+
-+   4. The larger of the two sub-partitions is always pushed onto the
-+   stack first, with the algorithm then concentrating on the
-+   smaller partition.  This *guarantees* no more than log
-+   (total_elems) stack size is needed (actually O(1) in this case)!
-+*/
-+
-+void
-+qsort(void *const pbase, size_t total_elems, size_t size,
-+      int (*cmp)(const void*, const void*))
-+{
-+	char *base_ptr = (char *)pbase;
-+
-+	const size_t max_thresh = MAX_THRESH * size;
-+
-+	/* Avoid lossage with unsigned arithmetic below.  */
-+	if (total_elems == 0) {
-+		return;
-+	}
-+
-+	if (total_elems > MAX_THRESH) {
-+		char *lo = base_ptr;
-+		char *hi = &lo[size * (total_elems - 1)];
-+		stack_node stack[STACK_SIZE];
-+		stack_node *top = stack + 1;
-+
-+		while (STACK_NOT_EMPTY) {
-+			char *left_ptr;
-+			char *right_ptr;
-+
-+			/* Select median value from among LO, MID, and
-+			   HI. Rearrange LO and HI so the three values
-+			   are sorted. This lowers the probability of
-+			   picking a pathological pivot value and
-+			   skips a comparison for both the LEFT_PTR
-+			   and RIGHT_PTR in the while loops. */
-+
-+			char *mid = lo + size * ((hi - lo) / size >> 1);
-+
-+			if ((*cmp)((void*)mid, (void*)lo) < 0)
-+				SWAP(mid, lo, size);
-+			if ((*cmp)((void*)hi, (void*)mid) < 0)
-+				SWAP(mid, hi, size);
-+			else
-+				goto jump_over;
-+			if ((*cmp)((void*)mid, (void*)lo) < 0)
-+				SWAP(mid, lo, size);
-+		jump_over:
-+
-+			left_ptr = lo + size;
-+			right_ptr = hi - size;
-+
-+			/* Here's the famous ``collapse the walls''
-+			   section of quicksort.  Gotta like those
-+			   tight inner loops!  They are the main
-+			   reason that this algorithm runs much faster
-+			   than others. */
-+			do {
-+				while ((*cmp)((void*)left_ptr, (void*)mid) < 0)
-+					left_ptr += size;
-+
-+				while ((*cmp)((void*)mid, (void*)right_ptr) < 0)
-+					right_ptr -= size;
-+
-+				if (left_ptr < right_ptr) {
-+					SWAP(left_ptr, right_ptr, size);
-+					if (mid == left_ptr)
-+						mid = right_ptr;
-+					else if (mid == right_ptr)
-+						mid = left_ptr;
-+					left_ptr += size;
-+					right_ptr -= size;
-+				} else if (left_ptr == right_ptr) {
-+					left_ptr += size;
-+					right_ptr -= size;
-+					break;
-+				}
-+			}
-+			while (left_ptr <= right_ptr);
-+
-+			/* Set up pointers for next iteration.  First
-+			   determine whether left and right partitions
-+			   are below the threshold size.  If so,
-+			   ignore one or both.  Otherwise, push the
-+			   larger partition's bounds on the stack and
-+			   continue sorting the smaller one. */
-+
-+			if ((size_t) (right_ptr - lo) <= max_thresh) {
-+				if ((size_t) (hi - left_ptr) <= max_thresh)
-+					/* Ignore both small partitions. */
-+					POP(lo, hi);
-+				else
-+					/* Ignore small left partition. */
-+					lo = left_ptr;
-+			} else if ((size_t) (hi - left_ptr) <= max_thresh)
-+				/* Ignore small right partition. */
-+				hi = right_ptr;
-+			else if ((right_ptr - lo) > (hi - left_ptr)) {
-+				/* Push larger left partition indices. */
-+				PUSH(lo, right_ptr);
-+				lo = left_ptr;
-+			} else {
-+				/* Push larger right partition indices. */
-+				PUSH(left_ptr, hi);
-+				hi = right_ptr;
-+			}
-+		}
-+	}
-+
-+	/* Once the BASE_PTR array is partially sorted by quicksort
-+	   the rest is completely sorted using insertion sort, since
-+	   this is efficient for partitions below MAX_THRESH
-+	   size. BASE_PTR points to the beginning of the array to
-+	   sort, and END_PTR points at the very last element in the
-+	   array (*not* one beyond it!). */
-+
-+	{
-+		char *end_ptr = &base_ptr[size * (total_elems - 1)];
-+		char *tmp_ptr = base_ptr;
-+		char *thresh = min(end_ptr, base_ptr + max_thresh);
-+		char *run_ptr;
-+
-+		/* Find smallest element in first threshold and place
-+		   it at the array's beginning.  This is the smallest
-+		   array element, and the operation speeds up
-+		   insertion sort's inner loop. */
-+
-+		for (run_ptr = tmp_ptr + size; run_ptr <= thresh; run_ptr += size)
-+			if ((*cmp)((void*)run_ptr, (void*)tmp_ptr) < 0)
-+				tmp_ptr = run_ptr;
-+
-+		if (tmp_ptr != base_ptr)
-+			SWAP(tmp_ptr, base_ptr, size);
-+
-+		/* Insertion sort, running from left-hand-side up to
-+		 * right-hand-side.  */
-+
-+		run_ptr = base_ptr + size;
-+		while ((run_ptr += size) <= end_ptr) {
-+			tmp_ptr = run_ptr - size;
-+			while ((*cmp)((void*)run_ptr, (void*)tmp_ptr) < 0)
-+				tmp_ptr -= size;
-+
-+			tmp_ptr += size;
-+			if (tmp_ptr != run_ptr) {
-+				char *trav;
-+
-+				trav = run_ptr + size;
-+				while (--trav >= run_ptr) {
-+					char c = *trav;
-+					char *hi, *lo;
-+
-+					for (hi = lo = trav; (lo -= size) >= tmp_ptr; hi = lo)
-+						*hi = *lo;
-+					*hi = c;
-+				}
-+			}
-+		}
-+	}
-+}
-+
-+EXPORT_SYMBOL_GPL(qsort);
+-- 
+Current mail filters: many dial-up/DSL/cable modem hosts, and the
+following domains: atlas.cz, bigpond.com, di-ve.com, hotmail.com,
+jumpy.it, libero.it, netscape.net, postino.it, simplesnet.pt,
+tiscali.co.uk, tiscali.cz, tiscali.it, voila.fr, yahoo.com.

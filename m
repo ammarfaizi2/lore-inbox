@@ -1,74 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130792AbRAVJxI>; Mon, 22 Jan 2001 04:53:08 -0500
+	id <S129413AbRAVK1E>; Mon, 22 Jan 2001 05:27:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131555AbRAVJw6>; Mon, 22 Jan 2001 04:52:58 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:62724 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S130792AbRAVJwv>; Mon, 22 Jan 2001 04:52:51 -0500
-Message-ID: <3A6C02C4.E34E3A6@idb.hist.no>
-Date: Mon, 22 Jan 2001 10:52:04 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: no, da, en
-MIME-Version: 1.0
-To: James Sutherland <mandrake@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.LNX.4.30.0101210945220.8238-100000@dax.joh.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130154AbRAVK0y>; Mon, 22 Jan 2001 05:26:54 -0500
+Received: from [213.221.172.239] ([213.221.172.239]:4625 "EHLO
+	smtp-relay1.barrysworld.com") by vger.kernel.org with ESMTP
+	id <S129413AbRAVK0j>; Mon, 22 Jan 2001 05:26:39 -0500
+Date: Mon, 22 Jan 2001 10:26:00 +0000
+From: Scaramanga <scaramanga@barrysworld.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Firewall netlink question...
+Message-ID: <20010122102600.A4458@lemsip.lan>
+Reply-To: scaramanga@barrysworld.com
+In-Reply-To: <20010122073343.A3839@lemsip.lan> <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de>; from pmhahn@titan.lahn.de on Mon, Jan 22, 2001 at 09:46:03 +0000
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Sutherland wrote:
-> 
-> On Sat, 20 Jan 2001, Linus Torvalds wrote:
-> 
-> >
-> >
-> > On Sat, 20 Jan 2001, Roman Zippel wrote:
-> > >
-> > > On Sat, 20 Jan 2001, Linus Torvalds wrote:
-> > >
-> > > > But point-to-point also means that you don't get any real advantage from
-> > > > doing things like device-to-device DMA. Because the links are
-> > > > asynchronous, you need buffers in between them anyway, and there is no
-> > > > bandwidth advantage of not going through the hub if the topology is a
-> > > > pretty normal "star" kind of thing. And you _do_ want the star topology,
-> > > > because in the end most of the bandwidth you want concentrated at the
-> > > > point that uses it.
-> > >
-> > > I agree, but who says, that the buffer always has to be the main memory?
-> >
-> > It doesn't _have_ to be.
-> >
-> > But think like a good hardware designer.
-> >
-> > In 99% of all cases, where do you want the results of a read to end up?
-> > Where do you want the contents of a write to come from?
-> >
-> > Right. Memory.
-> 
-> For many applications, yes - but think about a file server for a moment.
-> 99% of the data read from the RAID (or whatever) is really aimed at the
-> appropriate NIC - going via main memory would just slow things down.
-> 
-> Take a heavily laden webserver. With a nice intelligent NIC and RAID
-> controller, you might have the httpd write the header to this NIC, then
-> have the NIC and RAID controller handle the sendfile operation themselves
-> - without ever touching the OS with this data.
+Hi,
 
-And when the next user wants the same webpage/file you read it from the
-RAID again?
-Seems to me you loose the benefit of caching stuff in memory with this
-scheme.
-Sure - the RAID controller might have some cache, but it is usually
-smaller
-than main memory anyway.  And then there are things like
-retransmissions...
+> QUEUE means to pass the packet to userspace (if supported by the kernel).
 
+Looking at the code it seemed to do the same thing as the old netlink, but
+with more complexity, to what end though, i couldnt tell, was only a brief
+skim.
 
-Helge Hafting
+> $ sed -n -e '1874,1876p' /usr/src/linux-2.4.0/Documentation/Configure.help
+> CONFIG_IP_NF_QUEUE
+>   Netfilter has the ability to queue packets to user space: the
+>   netlink device can be used to access them using this driver.
+> 
+> $ lynx /usr/share/doc/iptables/html/packet-filtering-HOWTO-7.html
+> 
+
+Yeah, after some quick googling and freshmeating, i came accross a daemon
+that picked up these QUEUEd packets and multiplexed them to various child
+processes, which seemed very innefcient, the documentation said something
+about QUEUE not being multicast in nature, like the old firewall netlink.
+
+What was wrong with the firewall netlink? My re-implementation works great
+here. I can't see why anything else would be needed, QUEUE seems twice as
+complex. Unless with QUEUE the userspce applications can make decisions on
+what to do with the packet? In which case, it would be far too inefficient
+for an application like mine, where all i need is to be able to read the
+IP datagrams..
+
+Am I missing something totally obvious?
+
+Regards
+
+--
+// Gianni Tedesco <scaramanga@barrysworld.com>
+Fingerprint: FECC 237F B895 0379 62C4  B5A9 D83B E2B0 02F3 7A68
+Key ID: 02F37A68
+
+egg.microsoft.com: Remote operating system guess: Solaris 2.6 - 2.7
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

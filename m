@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264437AbTE0X0K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 19:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264438AbTE0X0K
+	id S264442AbTE0X1W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 19:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbTE0X1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 19:26:10 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:24021 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264437AbTE0X0J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 19:26:09 -0400
-Date: Wed, 28 May 2003 00:40:51 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, John Stoffel <stoffel@lucent.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       DevilKin-LKML <devilkin-lkml@blindguardian.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.70 compile error
-Message-ID: <20030527234051.GA7174@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	John Stoffel <stoffel@lucent.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	DevilKin-LKML <devilkin-lkml@blindguardian.org>,
+	Tue, 27 May 2003 19:27:22 -0400
+Received: from dp.samba.org ([66.70.73.150]:64673 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264442AbTE0X1T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 19:27:19 -0400
+Date: Wed, 28 May 2003 09:40:39 +1000
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: "John T. Guthrie" <guthrie@counterexample.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] reading /proc/hermes/eth1/recs causes an oops in 2.5.69
+Message-ID: <20030527234039.GA20861@zax>
+Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
+	"John T. Guthrie" <guthrie@counterexample.org>,
 	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com> <200305271048.36495.devilkin-lkml@blindguardian.org> <20030527130515.GH8978@holomorphy.com> <200305271729.49047.devilkin-lkml@blindguardian.org> <20030527153619.GJ8978@holomorphy.com> <16083.35048.737099.575241@gargle.gargle.HOWL> <Pine.LNX.4.44.0305272010550.12110-100000@serv> <20030527184016.GA5847@suse.de> <4060000.1054072761@[10.10.2.4]>
+References: <200305270803.h4R83dMc010911@gauss.counterexample.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4060000.1054072761@[10.10.2.4]>
+In-Reply-To: <200305270803.h4R83dMc010911@gauss.counterexample.org>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 02:59:23PM -0700, Martin J. Bligh wrote:
 
- > > Given that 99% of users will be choosing option 1, it might be a
- > > good thing to have the remaining options only shown if a
- > > CONFIG_X86_SUBARCHS=y and have things default to option 1 if =n.
- > 
- > Please, not more layered config options! That just makes people who
- > want to enable the x440 or other alternative platform require fair
- > amounts of psychic power (maybe this can be fixed with a big fat help
- > message, but so can the current method).
+On Tue, May 27, 2003 at 04:03:39AM -0400, John T. Guthrie wrote:
+> Hello all,
+> 
+> I'm currently running Red Hat linux 8.0 on my Inspiron 8100 laptop.  Last
+> night, I decided to check out a recent 2.5 kernel.  While wandering around
+> in the /proc filesystem, I came across /proc/hermes/eth1/recs.  From what I
+> had seen in under 2.4.21-pre4, it should have just given me a whole bunch of
+> interesting information about my wireless card.  Instead, just attempting to
+> read the file caused an oops.  After the initial oops, the machine wasn't
+> completely unresponsive, I could still press the keyboard one more time to
+> generate yet another oops, but then the machine would be completely
+> unresponsive and had to be power cycled.
 
-With all due respect, 'screw x440 et al'. The fact remains that a
-majority of users won't even know what an x440 _is_, let alone
-need to configure for one.  If someone has actually ended up with
-one of those, I'd like to think they at least have enough clue to
-know what it is they've just spent their megabucks on.		
+Doesn't surprise me all that much - there are a lot of bugs in 0.13a,
+the driver version in 2.5.69.
 
- > If you're going hide the other options away so much, then the default
- > should be the generic arch, IMHO.
+In 0.13e, the latest version, the /proc support has been abolished in
+favour of a simpler debugging hack.  I intend to retransmit a patch to
+update the driver today.
 
-That's precisely what I was saying.  I think we're in agreement,
-in a roundabout 'same but different' sort of way. I think.
-
-		Dave
-
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

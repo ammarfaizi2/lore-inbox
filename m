@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131126AbRANIqZ>; Sun, 14 Jan 2001 03:46:25 -0500
+	id <S131427AbRANIqf>; Sun, 14 Jan 2001 03:46:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131428AbRANIqP>; Sun, 14 Jan 2001 03:46:15 -0500
-Received: from styx.suse.cz ([195.70.145.226]:43770 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S131126AbRANIqF>;
-	Sun, 14 Jan 2001 03:46:05 -0500
-Date: Sun, 14 Jan 2001 09:46:02 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ide.2.4.1-p3.01112001.patch
-Message-ID: <20010114094602.B365@suse.cz>
-In-Reply-To: <200101132340.AAA00985@green.mif.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200101132340.AAA00985@green.mif.pg.gda.pl>; from ankry@green.mif.pg.gda.pl on Sun, Jan 14, 2001 at 12:40:58AM +0100
+	id <S131428AbRANIqZ>; Sun, 14 Jan 2001 03:46:25 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:24580 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S131427AbRANIqP>;
+	Sun, 14 Jan 2001 03:46:15 -0500
+Date: Sun, 14 Jan 2001 08:44:59 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: <andre@linux-ide.org>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: IDE DMA problem in 2.4.0
+In-Reply-To: <Pine.LNX.4.30.0101120942170.7175-100000@svea.tellus>
+Message-ID: <Pine.LNX.4.30.0101140843320.1590-100000@svea.tellus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 12:40:58AM +0100, Andrzej Krzysztofowicz wrote:
+On Fri, 12 Jan 2001, Tobias Ringstrom wrote:
 
-> > > 2.4 has code in the pci quirks to disable the register which makes
-> > > the chip masquerade as a VP3, and forces it to identify itself as
-> > > an MVP3 part.  I'm curious whether this has an interaction here.
-> > 
-> > This doesn't do anything but change the ID so that Linux drivers are not
-> > confused anymore. This caused a lot of trouble in 2.2, especially with
-> > the old VIA IDE driver.
-> [...]
-> > Fortunately all these chips use PIIX-compatible extensions to the PCI
-> > bus, so they are all interchangeable to some degree.
-> > 
-> > > I'm curious if all of the other boards in Alans bug reports also
-> > > fall into the stranger category.
-> > 
-> > It's possible. I have a board (VA-503A), which has a masqueraded 598,
-> > which identifies itself as 597, and a 686a southbridge. This got the
-> > 2.2 ide driver completely confused, for example. 
-> 
-> Maybe the VIA IDE chipset support option should depend on PCI quirks now ?
+> On Thu, 11 Jan 2001, Adrian Bunk wrote:
+> > On Thu, 11 Jan 2001, Tobias Ringstrom wrote:
+> >
+> > > When copying huge files from one disk to another (hda->hdc), I get the
+> > > following error (after some hundred megabytes):
+> > >
+> > > hdc: timeout waiting for DMA
+> > > ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> > > hdc: irq timeout: status=0xd1 { Busy }
+> > > hdc: DMA disabled
+> > > ide1: reset: success
+> > >...
+> > > VP_IDE: VIA vt82c596b IDE UDMA66 controller on pci0:7.1
+> > >...
+> > > Did I miss anything?
+> >
+> > Could you try if the (experimental) version 3.11 of the VIA IDE driver
+> > (announced by Vojtech Pavlik in [1]) fixes your problem? Simply copy the
+> > two files you find there to drivers/ide after you unpacked the kernel
+> > source.
+>
+> Works like a charm!  I copied the full 4 GB without glitches, and it has
+> not eaten my filesystem yet, either.  I will continue to stress it, and
+> report any errors I find.
 
-No, in 2.4 the VIA IDE driver doesn't use this (northbridge) information
-anymore.
+Hrmph...  Grrr...  No, I got the same error again, it was just soooo much
+harder to get it.  The error is still there, I'm afraid.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+/Tobias
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

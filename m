@@ -1,81 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbUKWDKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbUKWDQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbUKWDKb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 22:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbUKWDID
+	id S261228AbUKWDQj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 22:16:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbUKWDOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 22:08:03 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:39338 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262559AbUKWDEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 22:04:44 -0500
-Date: Mon, 22 Nov 2004 22:04:39 -0500
-From: Decklin Foster <decklin@red-bean.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] gamecon.c and PSX DDR controllers
-Message-ID: <20041123030439.GA31019@terminus.dhs.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="82I3+IH0IqGh5yIs"
+	Mon, 22 Nov 2004 22:14:06 -0500
+Received: from out008pub.verizon.net ([206.46.170.108]:20702 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S261228AbUKWDNY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 22:13:24 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Dave Jones <davej@redhat.com>, Len Brown <len.brown@intel.com>,
+       Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: why use ACPI (Re: 2.6.10-rc2 doesn't boot (if no floppy device))
+Date: Mon, 22 Nov 2004 22:13:21 -0500
+User-Agent: KMail/1.7
+References: <20041115152721.U14339@build.pdx.osdl.net> <1101178052.20007.196.camel@d845pe> <20041123025004.GM17249@redhat.com>
+In-Reply-To: <20041123025004.GM17249@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-GPG-Key: finger://debian.org/decklin@debian.org
-X-LR8R: Money can't buy you respect so go ahead and do your worst.
-Organization: Society for the Unification of Hindiusm and Islam
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200411222213.21168.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.10.220] at Mon, 22 Nov 2004 21:13:21 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-PSX DDR controllers don't work with gamecon.c. I sent a quick fix for
-the crash-on-load to Vojtech a while ago, but didn't have time to
-really fix it until now, and it didn't actually make DDR controllers
-*work* (just load without an oops) so I can't blame him for ignoring
-it. :-)
-
-It turns out that getting DDR controllers to function with gamecon is
-very simple -- we just forgot to check for them when looking in
-status_bit. Here's the three-line patch. Could someone get this into
-2.6.10? Thanks a lot.
+On Monday 22 November 2004 21:50, Dave Jones wrote:
+>On Mon, Nov 22, 2004 at 09:47:32PM -0500, Len Brown wrote:
+> > > > Also, CPUFREQ usually often on ACPI, and that can save
+> > > > power even when the system is not idle, and this results
+> > > > in lower temperatures and hopefully slower fan speeds.
+> > >
+> > > My computer has a desktop Athlon...
+> >
+> > maybe Dave can determine if there is a governor that can help
+> > you.
+> >
+> > cheers,
+> > -Len
+>
+>desktop athlons tend not to have powernow. And those that do
+>(usually by someone transplanting a mobile part into a desktop
+> board), hit the problem where the BIOS has no idea what the
+>hell is going on, and sets up no PST tables.
+>
+>  Dave
+>
+A link to a neat util was posted earlier today, to 'gcccpuopt', which 
+scans things and reports the appropriate options to put in the 
+Makefile.  But it doesn't even contain the 'powernow' string.  Does 
+this need updated?
 
 -- 
-things change.
-decklin@red-bean.com
-
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="gamecon-ddr.diff"
-
---- gamecon.c~	2004-10-18 17:55:35.000000000 -0400
-+++ gamecon.c	2004-11-22 21:53:15.000000000 -0500
-@@ -89,7 +89,7 @@
- static int gc_status_bit[] = { 0x40, 0x80, 0x20, 0x10, 0x08 };
- 
- static char *gc_names[] = { NULL, "SNES pad", "NES pad", "NES FourPort", "Multisystem joystick",
--				"Multisystem 2-button joystick", "N64 controller", "PSX controller"
-+				"Multisystem 2-button joystick", "N64 controller", "PSX controller",
- 				"PSX DDR controller" };
- /*
-  * N64 support.
-@@ -271,7 +271,7 @@
- 		udelay(gc_psx_delay);
- 		read = parport_read_status(gc->pd->port) ^ 0x80;
- 		for (j = 0; j < 5; j++)
--			data[j] |= (read & gc_status_bit[j] & gc->pads[GC_PSX]) ? (1 << i) : 0;
-+			data[j] |= (read & gc_status_bit[j] & (gc->pads[GC_PSX]|gc->pads[GC_DDR])) ? (1 << i) : 0;
- 		parport_write_data(gc->pd->port, cmd | GC_PSX_CLOCK | GC_PSX_POWER);
- 		udelay(gc_psx_delay);
- 	}
-@@ -300,7 +300,7 @@
- 	gc_psx_command(gc, 0, data2);							/* Dump status */
- 
- 	for (i =0; i < 5; i++)								/* Find the longest pad */
--		if((gc_status_bit[i] & gc->pads[GC_PSX]) && (GC_PSX_LEN(id[i]) > max_len))
-+		if((gc_status_bit[i] & (gc->pads[GC_PSX]|gc->pads[GC_DDR])) && (GC_PSX_LEN(id[i]) > max_len))
- 			max_len = GC_PSX_LEN(id[i]);
- 
- 	for (i = 0; i < max_len * 2; i++) {						/* Read in all the data */
-
---82I3+IH0IqGh5yIs--
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.29% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

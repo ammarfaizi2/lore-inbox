@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSHDNZP>; Sun, 4 Aug 2002 09:25:15 -0400
+	id <S314395AbSHDNS7>; Sun, 4 Aug 2002 09:18:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315266AbSHDNZP>; Sun, 4 Aug 2002 09:25:15 -0400
-Received: from mail.hometree.net ([212.34.181.120]:50655 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S315265AbSHDNZO>; Sun, 4 Aug 2002 09:25:14 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: No Subject
-Date: Sun, 4 Aug 2002 13:28:46 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <aija6e$brm$1@forge.intermeta.de>
-References: <1028417880.1760.52.camel@irongate.swansea.linux.org.uk> <Pine.SOL.4.30.0208040049140.696-100000@mion.elka.pw.edu.pl>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1028467726 23134 212.34.181.4 (4 Aug 2002 13:28:46 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 4 Aug 2002 13:28:46 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S314553AbSHDNS6>; Sun, 4 Aug 2002 09:18:58 -0400
+Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:35090 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S314395AbSHDNS6>; Sun, 4 Aug 2002 09:18:58 -0400
+Subject: Re: [patch] USB storage: Datafab KECF-USB, Sagatek DCS-CF
+In-Reply-To: <20020626145741.GD4611@kroah.com>
+To: Greg KH <greg@kroah.com>
+Date: Sun, 4 Aug 2002 15:22:04 +0200 (CEST)
+CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, marcelo@conectiva.com.br,
+       mdharm-usb@one-eyed-alien.net, mwilck@freenet.de,
+       linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL95 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E17bLKe-0001p2-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> writes:
-
->On 4 Aug 2002, Alan Cox wrote:
-
->> On Sat, 2002-08-03 at 23:16, Bartlomiej Zolnierkiewicz wrote:
->> > Just rethough it. What if chipset is in compatibility mode?
->> > Like VIA with base addresses set to 0?
->>
->> If we found a register that was marked as unassigned with a size then we
->> would map it to a PCI address. That would go for BAR0-3 on any PCI IDE
->> device attached to the south bridge.
->>
->> What problems does that cause for the VIA stuff ?
-
->In compatibility mode IDE chipsets have IO at legacy ISA ports and
->PCI_BASE_ADDRESS0-3 are set to them or to zero (at least on VIA).
->And they can't be programmed to any other ports (unless native mode).
-
 Hi,
 
-this sounds like a problem that I have with the ServerWorks OSB5
-chipset. I actually have PCI_BASE_ADDRESS0-3 at 0 and
-PCI_BASE_ADDRESS4 = 0x3a0.
+> Heh, send this to me again after 2.4.19-final is out, and I'll
+> reconsider it :)
 
-Does this hold true here, too? Or is this VIA specific?
+Over a month later, here it is - this drivers/usb/storage/unusual_devs.h
+entry appears to be sufficient to make my Sagatek DCS-CF work:
 
-	Regards
-		Henning
+/* aka Sagatek DCS-CF */
+UNUSUAL_DEV(  0x07c4, 0xa400, 0x0000, 0xffff,
+		"Datafab",
+		"KECF-USB",
+		US_SC_SCSI, US_PR_BULK, NULL,
+		US_FL_FIX_INQUIRY ),
 
+Not even US_FL_MODE_XLATE or US_FL_START_STOP is necessary as far as
+I can tell, but I guess that may depend on the chip revision.
+US_FL_FIX_INQUIRY is required, or the device does not work at all...
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+Boot messages (with a 64MB == ~61 MiB CF card) look like this:
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+scsi1 : SCSI emulation for USB Mass Storage devices
+  Vendor: Datafab   Model: KECF-USB          Rev: 0113
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
+SCSI device sda: 125185 512-byte hdwr sectors (64 MB)
+sda: test WP failed, assume Write Enabled
+ sda: sda1
+WARNING: USB Mass Storage data integrity not assured
+USB Mass Storage device found at 2
+
+The "test WP failed" message appears to be harmless - I have tested
+reading and writing, and it works for me.
+
+Marek
+

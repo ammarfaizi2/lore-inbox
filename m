@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317366AbSFCLIQ>; Mon, 3 Jun 2002 07:08:16 -0400
+	id <S317369AbSFCLIh>; Mon, 3 Jun 2002 07:08:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317370AbSFCLIP>; Mon, 3 Jun 2002 07:08:15 -0400
-Received: from daimi.au.dk ([130.225.16.1]:60553 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S317366AbSFCLIN>;
-	Mon, 3 Jun 2002 07:08:13 -0400
-Message-ID: <3CFB4E19.C916D938@daimi.au.dk>
-Date: Mon, 03 Jun 2002 13:08:09 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: Christian Vik <cvik@vanadis.no>, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org, dstephenson@snapserver.com
-Subject: Re: SV: RAID-6 support in kernel?
-In-Reply-To: <A2C65A3296DA4A4FB30DB57A9A464A16436851@exchange.lan.vanadis.no> <200206030959.g539xXb31139@mail.pronto.tv>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S317370AbSFCLIg>; Mon, 3 Jun 2002 07:08:36 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:37062 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S317369AbSFCLIe>;
+	Mon, 3 Jun 2002 07:08:34 -0400
+Date: Mon, 3 Jun 2002 13:08:16 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: suspend.c: This is broken, fixme
+Message-ID: <20020603110816.GI820@suse.de>
+In-Reply-To: <20020603095507.GA3030@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
+On Mon, Jun 03 2002, Pavel Machek wrote:
+> Hi!
 > 
-> Below is a (patented?)
-
-No problem for me I live in Europe.
-
-> version that works. This is from the linux-raid list
+> I found this in 2.5.20...
 > 
-> >  A1   A2  (P1) (PA)
-> > (P2) (PB)  B2   B1
+> --- a/kernel/suspend.c  Sun Jun  2 18:44:56 2002
+> +++ b/kernel/suspend.c  Sun Jun  2 18:44:56 2002
+> @@ -64,6 +64,7 @@
+>  #include <asm/mmu_context.h>
+>  #include <asm/pgtable.h>
+>  #include <asm/io.h>
+> +#include <linux/swapops.h>
+> 
+>  unsigned char software_suspend_enabled = 0;
+> 
+> @@ -300,7 +301,8 @@
+>  static void do_suspend_sync(void)
+>  {
+>         while (1) {
+> -               run_task_queue(&tq_disk);
+> +               blk_run_queues();
+> +#error this is broken, FIXME
+>                 if (!TQ_ACTIVE(tq_disk))
+>                         break;
+> 
+> . Why is it broken?
 
-Nice, looks like it works.
-
-> >  C4   C3  (PC) (P3)
-> > (PD) (P4)  D3   D4
-
-In this encoding the roles of disk one and two are
-switched, and three and four are also switched. Are
-there any reason for this?
+Hey, I even cc'ed you on the patch when it went to Linus... Lets look at
+what happened before: run tq_disk, then check if it is active. What
+prevents tq_disk from being active right after you issue the TQ_ACTIVE
+check? Nothing. And I'm not sure exactly what semantics you think
+running tq_disk has. I suspect you are looking for a 'start any pending
+i/o and return when it has completed', which is far from what happens.
+Running tq_disk will _try_ to start _some_ I/O, and eventually, in time,
+the currently pending requests will have completed. In the mean time,
+more I/O could have been added though.
 
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+Jens Axboe
+

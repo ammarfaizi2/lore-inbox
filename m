@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265675AbUA0Xyh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 18:54:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUA0Xyh
+	id S265677AbUA0XjK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 18:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265464AbUA0XhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 18:54:37 -0500
-Received: from ozlabs.org ([203.10.76.45]:5508 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265675AbUA0Xyc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 18:54:32 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16406.63734.400759.452955@cargo.ozlabs.ibm.com>
-Date: Wed, 28 Jan 2004 10:49:10 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: davidm@hpl.hp.com
-Cc: Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@trained-monkey.org>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
- ia64
-In-Reply-To: <16406.36741.510353.456578@napali.hpl.hp.com>
-References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-	<20040120090004.48995f2a.akpm@osdl.org>
-	<16401.57298.175645.749468@napali.hpl.hp.com>
-	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
-	<16405.41953.344071.456754@napali.hpl.hp.com>
-	<16406.10170.911012.262682@cargo.ozlabs.ibm.com>
-	<16406.36741.510353.456578@napali.hpl.hp.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+	Tue, 27 Jan 2004 18:37:03 -0500
+Received: from mail.kroah.org ([65.200.24.183]:36031 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265263AbUA0XeQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 18:34:16 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.2-rc2
+In-Reply-To: <1075246453680@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 27 Jan 2004 15:34:13 -0800
+Message-Id: <1075246453858@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger writes:
+ChangeSet 1.1474.148.2, 2004/01/23 17:14:38-08:00, khali@linux-fr.org
 
->   Paul> Also, I don't think there is enough code there to be worth the
->   Paul> bother of trying to abstract the generic routine so you can
->   Paul> plug in different compare and move-element routines.  The
->   Paul> whole sort routine is only 16 lines of code, after all.  Why
->   Paul> not just have an ia64-specific version of sort_extable?
->   Paul> That's what I thought you would do.
-> 
-> Because the Alpha needs exactly the same code.
+[PATCH] I2C: undo documentation change
 
-I really don't like the uglification of lib/extable.c.  I think it is
-much better to have ~20 lines of code in each of arch/ia64/mm and
-arch/alpha/mm than to try to generalize lib/extable.c.  Once you add
-all the extra definitions you need for your version, I doubt that the
-overall savings would be more than a dozen lines or so.
+Undo a recent change to the i2c documentation. The change belongs to
+2.7.
 
-The point is that with lib/extable.c as it is, you can look at one
-page of code, and everything you need to understand that code is
-there.  With your change, I have to hunt around to check what the
-macros are doing on each arch, and flip backwards and forwards to
-check side effects, calling environment etc.  With an ia64-specific
-extable.c, you should be able to look at one page of code there and
-see that the ia64 version is also correct.
 
-Paul.
+ Documentation/i2c/porting-clients |    5 +----
+ 1 files changed, 1 insertion(+), 4 deletions(-)
+
+
+diff -Nru a/Documentation/i2c/porting-clients b/Documentation/i2c/porting-clients
+--- a/Documentation/i2c/porting-clients	Tue Jan 27 15:27:19 2004
++++ b/Documentation/i2c/porting-clients	Tue Jan 27 15:27:19 2004
+@@ -92,10 +92,7 @@
+   i2c_get_clientdata(client) instead.
+ 
+ * [Interface] Init function should not print anything. Make sure
+-  there is a MODULE_LICENSE() line. MODULE_PARM() is replaced
+-  by module_param(). Note that module_param has a third parameter,
+-  that you should set to 0 by default. See include/linux/moduleparam.h
+-  for details.
++  there is a MODULE_LICENSE() line.
+ 
+ Coding policy:
+ 
+

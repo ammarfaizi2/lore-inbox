@@ -1,57 +1,131 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314671AbSEKKgN>; Sat, 11 May 2002 06:36:13 -0400
+	id <S314675AbSEKKu3>; Sat, 11 May 2002 06:50:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314672AbSEKKgM>; Sat, 11 May 2002 06:36:12 -0400
-Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:16900 "HELO
-	alhambra.merseine.nu") by vger.kernel.org with SMTP
-	id <S314671AbSEKKgL>; Sat, 11 May 2002 06:36:11 -0400
-Date: Sat, 11 May 2002 13:32:14 +0300
-From: Muli Ben-Yehuda <mulix@actcom.co.il>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3com 3c905cx-tx-nm "unknown device"
-Message-ID: <20020511133214.B768@actcom.co.il>
-In-Reply-To: <20020511103650.A790@actcom.co.il> <3CDCD159.8F9049C4@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314676AbSEKKu3>; Sat, 11 May 2002 06:50:29 -0400
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:23045 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S314675AbSEKKu2>; Sat, 11 May 2002 06:50:28 -0400
+Date: Sat, 11 May 2002 12:50:25 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 4a/6: 64 bit accounting 
+In-Reply-To: <Pine.LNX.4.33.0205111227290.26626-100000@gans.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.33.0205111247460.26874-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 11, 2002 at 01:07:53AM -0700, Andrew Morton wrote:
-> Muli Ben-Yehuda wrote:
-> > lspci -vx (with the latest pci.ids file) shows:
-> > 
-> > 00:09.0 Ethernet controller: 3Com Corporation: Unknown device ffff (rev 78)
-> >      Flags: bus master, medium devsel, latency 64, IRQ 11
-> >      I/O ports at 6500 [size=128]
-> >      Expansion ROM at <unassigned> [disabled] [size=128K]
-> >      Capabilities: [dc] Power Management version 2
-> > 00: b7 10 ff ff 07 00 10 02 78 00 00 02 08 40 00 00
-> > 10: 01 65 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > 20: 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff
-> > 30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 1e 3f
-> 
-> PCI IDs are 0xffff.  Normally that is supplied from the EEPROM (we think).
-> 
-> Try setting the NIC up with 3com's DOS-based setup program 
-> ftp://ftp.3com.com/pub/nic/3c90x/3c90xx2.exe and also check your
-> BIOS power management settings, PnP OS settings, etc.
+Sorry, PATCH] 4/6: 64 bit accounting had a wrong description.
+Same patch again, but this time described correctly (I hope):
 
-The BIOS setting have all been tweaked to death, with no apparent
-change. I tried the setup program on windows 95, and it failed to
-detect the card as well. 
+comp_t as used by the accounting code is able to export values up to
+(2^34-2^21). So lets use the two extra bits to export elapsed time
+correctly after 32 bit jiffies wrap.
 
-> Try to work out why the EEPROM hasn't been powered up - could be
-> a dead card (test it under Windows) or a BIOS thing.
+Applications not aware of this change will probably overflow when
+expanding comp_t into a 32 bit variable, thus see no difference
+with this patch.
 
-I'll try to test the card on a different computer running a reasonably
-recent version of windows, and I'll try to get another unit of the
-same card to try with linux. I'll inform the list of any conclustions.
-Thanks!
--- 
-The ill-formed Orange
-Fails to satisfy the eye:       http://vipe.technion.ac.il/~mulix/
-Segmentation fault.             http://syscalltrack.sf.net/
+Start time is reported in seconds, and now is correct even after
+32 bit jiffies wrap.
+
+Per process user and system times are still 32 bit, but are less likely to
+overflow than the elapsed time.
+
+
+Maybe accounting isn't worth of major changes, so I'll post an alternate
+patch (4b/6) where etime just maxes out at the highest representable
+32 bit value for the benefit of older, 32 bit applications.
+
+
+--- linux-2.5.15/kernel/acct.c	Sun May  5 08:32:04 2002
++++ linux-2.5.15-j64/kernel/acct.c	Thu May  9 18:14:24 2002
+@@ -50,6 +50,7 @@
+ #include <linux/file.h>
+ #include <linux/tty.h>
+ #include <asm/uaccess.h>
++#include <asm/div64.h>
+ 
+ /*
+  * These constants control the amount of freespace that suspend and
+@@ -248,20 +249,24 @@
+  *  This routine has been adopted from the encode_comp_t() function in
+  *  the kern_acct.c file of the FreeBSD operating system. The encoding
+  *  is a 13-bit fraction with a 3-bit (base 8) exponent.
++ *
++ *  Bumped up to encode 64 bit values. Unfortunately the result may
++ *  overflow now.
+  */
+ 
+ #define	MANTSIZE	13			/* 13 bit mantissa. */
+-#define	EXPSIZE		3			/* Base 8 (3 bit) exponent. */
++#define	EXPSIZE		3			/* 3 bit exponent. */
++#define	EXPBASE		3			/* Base 8 (3 bit) exponent. */
+ #define	MAXFRACT	((1 << MANTSIZE) - 1)	/* Maximum fractional value. */
+ 
+-static comp_t encode_comp_t(unsigned long value)
++static comp_t encode_comp_t(u64 value)
+ {
+ 	int exp, rnd;
+ 
+ 	exp = rnd = 0;
+ 	while (value > MAXFRACT) {
+-		rnd = value & (1 << (EXPSIZE - 1));	/* Round up? */
+-		value >>= EXPSIZE;	/* Base 8 exponent == 3 bit shift. */
++		rnd = value & (1 << (EXPBASE - 1));	/* Round up? */
++		value >>= EXPBASE;	/* Base 8 exponent == 3 bit shift. */
+ 		exp++;
+ 	}
+ 
+@@ -269,16 +274,21 @@
+          * If we need to round up, do it (and handle overflow correctly).
+          */
+ 	if (rnd && (++value > MAXFRACT)) {
+-		value >>= EXPSIZE;
++		value >>= EXPBASE;
+ 		exp++;
+ 	}
+ 
+ 	/*
+          * Clean it up and polish it off.
+          */
+-	exp <<= MANTSIZE;		/* Shift the exponent into place */
+-	exp += value;			/* and add on the mantissa. */
+-	return exp;
++	if (exp >= (1 << EXPSIZE)) {
++		/* Overflow. Return largest representable number instead. */
++		return (1ul << (MANTSIZE + EXPSIZE)) - 1;
++	} else {
++		exp <<= MANTSIZE;	/* Shift the exponent into place */
++		exp += value;		/* and add on the mantissa. */
++		return exp;
++	}
+ }
+ 
+ /*
+@@ -299,6 +309,7 @@
+ 	mm_segment_t fs;
+ 	unsigned long vsize;
+ 	unsigned long flim;
++	u64 elapsed;
+ 
+ 	/*
+ 	 * First check to see if there is enough free_space to continue
+@@ -316,9 +327,10 @@
+ 	strncpy(ac.ac_comm, current->comm, ACCT_COMM);
+ 	ac.ac_comm[ACCT_COMM - 1] = '\0';
+ 
+-	ac.ac_btime = CT_TO_SECS(current->start_time) +
+-		(xtime.tv_sec - (jiffies / HZ));
+-	ac.ac_etime = encode_comp_t(jiffies - current->start_time);
++	elapsed = get_jiffies64() - current->start_time;
++	ac.ac_etime = encode_comp_t(elapsed);
++	do_div(elapsed, HZ);
++	ac.ac_btime = xtime.tv_sec - elapsed;
+ 	ac.ac_utime = encode_comp_t(current->times.tms_utime);
+ 	ac.ac_stime = encode_comp_t(current->times.tms_stime);
+ 	ac.ac_uid = current->uid;
+

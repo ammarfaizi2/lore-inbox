@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315630AbSHIUA0>; Fri, 9 Aug 2002 16:00:26 -0400
+	id <S315690AbSHIUCn>; Fri, 9 Aug 2002 16:02:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315628AbSHIUA0>; Fri, 9 Aug 2002 16:00:26 -0400
-Received: from pop.gmx.de ([213.165.64.20]:35839 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315456AbSHIUAZ> convert rfc822-to-8bit;
-	Fri, 9 Aug 2002 16:00:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@gmx.net>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: Benjamin LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: AIO together with SMPtimers-A0 oops and freezing
-Date: Fri, 9 Aug 2002 22:03:00 +0200
-X-Mailer: KMail [version 1.4]
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Ruben Puettmann <ruben@puettmann.net>
-References: <200208051920.29018.mcp@linux-systeme.de> <20020806223550.GC2733@werewolf.able.es> <20020806191446.E19564@redhat.com>
-In-Reply-To: <20020806191446.E19564@redhat.com>
+	id <S315709AbSHIUCn>; Fri, 9 Aug 2002 16:02:43 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:52748 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S315690AbSHIUCm>; Fri, 9 Aug 2002 16:02:42 -0400
+Message-ID: <3D5420BC.7090002@lexus.com>
+Date: Fri, 09 Aug 2002 13:06:20 -0700
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020802
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208092158.57656.m.c.p@gmx.net>
-X-PRIORITY: 2 (High)
+To: Mitch Sako <msako@cadence.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: -aa 3.5GB Patch Questions
+References: <3D541969.48A1D9E3@cadence.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 August 2002 01:14, Benjamin LaHaise wrote:
+Just a sanity check, are you using the
+current (errata) red hat gcc?
 
-Hi Benjamin,
+Just asking since 2.96 is all I use, and
+the -aa kernels are completely stable
+here - do you have a test workload to
+allow me to try and duplicate your bug?
 
->> Ben, I am using your AIO 20020619 patch + relevant fixes from the AIO 
->> mailinglist together with your patch Ingo, SMPtimers-A0.
+Joe
 
-> Hmmm, the only problem I can see in the aio code wrt timer usage is 
-> the following.  Does this patch make a difference?  If not, I'm guessing 
-> that the problem is something in SMPtimers-A0 that aio happens to 
-> trigger.  The only timer aio uses is for the timeout when waiting for an 
-> event, and the structure for that is put on the stack.
-Perfect!! That, really small, patch makes it working perfectly. The system is 
-up for some hours now with stress testing Oracle without any oops() or any 
-other problem.
+Mitch Sako wrote:
 
-Thanks alot Ben! :-)
+>I've been using Andrea's 2.4.18rc4aa1 patches applied to a generic
+>2.4.18 kernel running on Intel 32-bit machines with 4GB of memory and
+>usually some sort of Serversorks chipset with 1-2 CPUs of various speeds
+>with great success for almost 6 months now.  The primary base has been a
+>SuSE 7.2 distro but others are now being tried, including Slackware 8.1
+>and RH 7.[23].  The principal reason for this was to use the
+>00_3.5G-address-space-4 feature.  I apply all patches in the directory
+>and have not seen a kernel failure yet with thousands of hours of "big
+>process" CPU time logged across many machines.  I consider this to be a
+>pretty stable combination of kernel and patches for what I need.
+>
+>RH's 2.96 gcc compiles fine but blows up or slows to a crawl (not
+>unexpected) when big jobs are run and the machine starts paging.  I've
+>fixed this by putting a 2.95.3 gcc on the machine.  I'll leave the
+>editorial comments about 2.96-RH to others.
+>
+>I'm trying to write some sanitized procedures which will allow me to
+>pass this on to others.  Non-2.96 distros (everyone except RH and
+>Mandrake, AFAIK) have run fine without issues, mainly because they have
+>a pretty stable 2.95 compiler included.
+>
+>I will assume that a gcc 2.95 retrofit is required to make the -aa
+>patches work on RH 7.[23].
+>
+>What's the correct way to retrofit a 2.95.3 compiler onto an RH 7.[23]
+>distro?
+>Is it OK to just load it into /usr/local and build it?
+>Does it require 'make bootstrap' to be entirely santized?
+>Are there other GNU packages that I should be including with the gcc
+>retrofit?
+>
+>-ms
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-I'll let you know, after some days of stress testing Oracle, if it still 
-works. I expect it will do! :)
-
-
--- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.

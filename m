@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131977AbRARF20>; Thu, 18 Jan 2001 00:28:26 -0500
+	id <S131979AbRARF3G>; Thu, 18 Jan 2001 00:29:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131979AbRARF2Q>; Thu, 18 Jan 2001 00:28:16 -0500
-Received: from dsl-45-165.muscanet.com ([208.164.45.165]:2181 "EHLO grace")
-	by vger.kernel.org with ESMTP id <S131931AbRARF2F>;
-	Thu, 18 Jan 2001 00:28:05 -0500
-Date: Wed, 17 Jan 2001 04:36:19 -0600
-From: Josh Myer <josh@joshisanerd.com>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Joel Franco Guzmán <joel@gds-corp.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 128M memory OK, but with 192M sound card es1391 trouble
-Message-ID: <20010117043619.B23406@grace>
-In-Reply-To: <Pine.LNX.4.30.0101172037310.1309-100000@thor.gds-corp.com> <20010118002551.C883@werewolf.able.es>
+	id <S132048AbRARF25>; Thu, 18 Jan 2001 00:28:57 -0500
+Received: from snark.tuxedo.org ([207.106.50.26]:31238 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132035AbRARF2w>;
+	Thu, 18 Jan 2001 00:28:52 -0500
+Date: Thu, 18 Jan 2001 00:28:12 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Documenting stat(2)
+Message-ID: <20010118002812.A19810@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010118002551.C883@werewolf.able.es>; from jamagallon@able.es on Wed, Jan 17, 2001 at 17:25:51 -0600
-X-Mailer: Balsa 1.0.pre5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You're probably just hearing electrical noise from the memory buss; try
-moving the 128 stick to the slot you put the 64 in (if you can) and run
-that way -- you'll probably hear it there too.
+I'm trying to pin down and document the behavior of the size field in
+stat(2) on Linux and under various stat emulations on Windows and the
+Mac.  What I find out will be documented where it will do some good (in
+particular I'll send a stat.2 man page patch to Andries Brouwer).
 
-I get something similiar to this with my SB Live (!... damn marketroids) on
-a BP6 with 192MB as well. In my case, it's not during DSP use per se, but
-during memory activity. Try dragging a window around in X and listen for
-buzzing.
+Here is what I think I know about stat(2) that isn't in the
+Linux man pages:
 
-My guess is that JA's console player doesn't move around as much memory as
-the gnome one (imagine that), therefore produces less memory noise.
---
-/jbm, but you can call me Josh. Really, you can.
-       "car. snow. slippery. wheee. 
-        dead josh. car slipped on ice."
- -- Manda explaining my purchase of kitty litter
+* For a plain file or directory (S_IFREG or S_IFDIR), the st_size
+field reports the size of the file in bytes.
 
-On Wed, 17 Jan 2001 17:25:51 J . A . Magallon wrote:
-> 
-> On 2001.01.18 Joel Franco Guzmán wrote:
-> > 1. 128M memory OK, but with 192M the sound card generate a noise while
-> > use the DSP.
-> .. 
-> > the problem: The sound card generates a toc.. toc.. toc .. toc...while
-> > playing a sound using the DSP of the soundcard. Two "tocs"/sec
-> > aproxiumadetely.
-> > 
-> > 
-.
-> I have noticed something similar. If I start gqmpeg from the command line
-> in
-> a terminal (rxvt), sounds fine. If I start it from the icon in the gnome
-> panel, it makes that 'toc toc' noise you describe. ????
-> (I know it sounds strange, but real...)
+* For a symlink (S_IFLNK) it reports the size of the link file, not the
+size of the file the link points to. 
 
+* For a socket or FIFO (S_IFSOCK, S_IFIFO) it reports the count of bytes
+waiting to be read. 
+
+* For a block special device (S_IFBLK) it returns 0.
+
+I don't know what it should be expected to return for terminal or
+other special devices.  My guess is number of characters waiting
+in clists.
+
+Can anyone verify, correct, or expand on the above?  Reply to 
+esr@thyrsus.com, please, and thanks in advance.
+
+(Among other things, this may turn into a substantial improvement
+in the documented capabilities of Perl and Python.)
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+The spirit of resistance to government is so valuable on certain
+occasions, that I wish it always to be kept alive.  It will often be
+exercised when wrong, but better so than not to be exercised at all.
+I like a little rebellion now and then.  It is like a storm in the
+Atmosphere.
+	-- Thomas Jefferson, letter to Abigail Adams, 1787
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

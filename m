@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbTBOS5z>; Sat, 15 Feb 2003 13:57:55 -0500
+	id <S264886AbTBOS66>; Sat, 15 Feb 2003 13:58:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbTBOS5z>; Sat, 15 Feb 2003 13:57:55 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42000 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264877AbTBOS5y>; Sat, 15 Feb 2003 13:57:54 -0500
-Subject: PATCH: high pedantry in ARM spelling
-To: rmk@arm.linux.org.uk, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Sat, 15 Feb 2003 19:07:37 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S264903AbTBOS66>; Sat, 15 Feb 2003 13:58:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44815 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264886AbTBOS64>;
+	Sat, 15 Feb 2003 13:58:56 -0500
+Message-ID: <3E4E9028.3090601@pobox.com>
+Date: Sat, 15 Feb 2003 14:08:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Roger Luethi <rl@hellgate.ch>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [0/4][via-rhine] Improvements
+References: <20030215111705.GA11127@k3.hellgate.ch>
+In-Reply-To: <20030215111705.GA11127@k3.hellgate.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E18k7f0-0007GS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One erratum
-Two errata
+Roger Luethi wrote:
+> Here comes a batch of patches for the via-rhine driver. Please apply.
+> 
+> via-rhine is still hardly usable on the most common Rhine hardware; it
+> can't sustain 100Mbps traffic. The changes presented here improve the
+> situation considerably; they fix a number of real problems and have been
+> tested for regression (alas, by few people).
 
-Alan
---
-                Dim rhyfel mewn ein enw ni
+
+Looks good, all patches applied to 2.5.
+
+Should these apply to 2.4, too?
+
+Just a general comment, the reset logic seems a bit too much like voodoo 
+magic ;-)  It would be nice long-term to get an official answer from Via 
+about the proper reset sequence and time limits.  [regardless, like I 
+said, patch applied...]
+
+	Jeff
 
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/arch/arm/mach-sa1100/cpu-sa1110.c linux-2.5.61-ac1/arch/arm/mach-sa1100/cpu-sa1110.c
---- linux-2.5.61/arch/arm/mach-sa1100/cpu-sa1110.c	2003-02-10 18:37:56.000000000 +0000
-+++ linux-2.5.61-ac1/arch/arm/mach-sa1100/cpu-sa1110.c	2003-02-14 22:36:51.000000000 +0000
-@@ -9,7 +9,7 @@
-  * it under the terms of the GNU General Public License version 2 as
-  * published by the Free Software Foundation.
-  *
-- * Note: there are two erratas that apply to the SA1110 here:
-+ * Note: there are two errata that apply to the SA1110 here:
-  *  7 - SDRAM auto-power-up failure (rev A0)
-  * 13 - Corruption of internal register reads/writes following
-  *      SDRAM reads (rev A0, B0, B1)
-@@ -139,7 +139,7 @@
- 	 * run SDCLK at half speed.
- 	 *
- 	 * CPU steppings prior to B2 must either run the memory at
--	 * half speed or use delayed read latching (errata 13).
-+	 * half speed or use delayed read latching (erratum 13).
- 	 */
- 	if ((ns_to_cycles(sdram->tck, sd_khz) > 1) ||
- 	    (CPU_REVISION < CPU_SA1110_B2 && sd_khz < 62000))
+

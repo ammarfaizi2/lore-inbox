@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbUKCBAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbUKCA7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbUKCBAV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 20:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbUKCA75
+	id S261286AbUKCA7q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 19:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbUKBVlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 19:59:57 -0500
-Received: from c-24-10-162-127.client.comcast.net ([24.10.162.127]:49792 "EHLO
-	zedd.willden.org") by vger.kernel.org with ESMTP id S261175AbUKCA6C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 19:58:02 -0500
-From: Shawn Willden <shawn-lkml@willden.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8 Thinkpad T40, clock running too fast
-Date: Tue, 2 Nov 2004 17:58:12 -0700
-User-Agent: KMail/1.7
-Cc: john stultz <johnstul@us.ibm.com>
-References: <200411021551.53253.shawn-lkml@willden.org> <200411021703.43453.shawn-lkml@willden.org> <1099441631.9139.36.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1099441631.9139.36.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411021758.16313.shawn-lkml@willden.org>
+	Tue, 2 Nov 2004 16:41:18 -0500
+Received: from mail.dif.dk ([193.138.115.101]:13518 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261494AbUKBVkB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 16:40:01 -0500
+Date: Tue, 2 Nov 2004 22:48:39 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Oliver Neukum <oliver@neukum.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on common error-handling idiom
+In-Reply-To: <Pine.LNX.4.53.0411022229070.6104@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.61.0411022241160.3285@dragon.hygekrogen.localhost>
+References: <4187E920.1070302@nortelnetworks.com>
+ <Pine.LNX.4.61.0411022208390.3285@dragon.hygekrogen.localhost>
+ <Pine.LNX.4.53.0411022229070.6104@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2 Nov 2004, Jan Engelhardt wrote:
 
-On Tuesday 02 November 2004 05:27 pm, john stultz wrote:
-> Not really, the problem is that the sleep call returns after so many
-> timer ticks, so even if the wrong amount of time has passed, you'll see
-> the same number of interrupts.
+> >There are some places that do
+> >
+> >err = -SOMEERROR;
+> >if (some_error)
+> >	goto out;
+> >if (some_other_error)
+> >	goto out;
+> >if (another_error)
+> >	goto out;
+> >
+> >Let's see what other people think :)
+> 
+> err = -ESOME;
+> if(some_error || some_other_error || another_error) {
+> 	goto out;
+> }
+> 
+> Best.
+> 
+Agreed, but that would potentially make something like the following (from 
+fs/binfmt_elf.c::load_elf_binary) quite unreadable :
 
-Ah, right.  Nothing like measuring a ruler with itself.
+if (loc->elf_ex.e_type != ET_EXEC && loc->elf_ex.e_type != ET_DYN)
+	goto out;
+if (!elf_check_arch(&loc->elf_ex))
+	goto out;
+if (!bprm->file->f_op||!bprm->file->f_op->mmap)
+	goto out;
 
-> It would be best if you checked the time 
-> on your watch, waited 5 minutes and checked again, or better, did
-> something similar w/ ntpdate.  I just wanted to eyeball it to make sure
-> you weren't running away w/ way too many timer interrupts.
 
-I'll do that
+But that's not even the most interresting case, the interresting one is 
+the one that does
 
-> PS: If you wouldn't mind, CC me next time.
+err = -ERR;
+if (foo)
+	goto out;
 
-I am.  BTW, in case you didn't see my other e-mail, I'm now running with 2.6.9 
-and cpufreq off.  No significant change.
+err = -ERROR;
+if (bar)
+	goto out;
 
- Shawn.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+where there's the potential to save an instruction by moving the err= into 
+the error path.
+But as Oliver Neukum pointed out gcc may not be smart enough for that to 
+actually generate the best code.
 
-iD8DBQFBiC0o6d8WxFy/CWcRAv2RAJ9ZhrXkIAoiEpZ9PrFK+jAQLMKyhQCfXkai
-YhtDAgHFdjIR+WpV3XdG5Ss=
-=kO2+
------END PGP SIGNATURE-----
+Has anyone taken a look at what recent gcc's actually do with different 
+variations of the constructs mentioned in this thread?
+
+
+--
+Jesper Juhl
+
+

@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbULHHjC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbULHHjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbULHHjC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 02:39:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbULHHhU
+	id S262059AbULHHjB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 02:39:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbULHHhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 02:37:20 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:36543 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262065AbULHHaS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 02:30:18 -0500
-Date: Wed, 8 Dec 2004 13:16:05 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Dave Hansen <dave@sr71.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: oops in proc_pid_stat() on task->real_parent?
-Message-ID: <20041208074605.GA4495@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <1102467332.19465.197.camel@localhost> <20041207220016.6917ee6f.akpm@osdl.org> <20041207220753.E469@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6TrnltStXW4iwmi0"
-Content-Disposition: inline
-In-Reply-To: <20041207220753.E469@build.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+	Wed, 8 Dec 2004 02:37:01 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:40586 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S262062AbULHHaI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 02:30:08 -0500
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org,
+       Ian.Pratt@cl.cam.ac.uk
+Subject: [3/6] Xen VMM #4: runtime disable of VT console
+In-reply-to: Your message of "Wed, 08 Dec 2004 07:28:16 GMT."
+             <E1CbwFE-0006PZ-00@mta1.cl.cam.ac.uk> 
+Date: Wed, 08 Dec 2004 07:30:01 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CbwGw-0006Rk-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch enables the VT console to be disabled at runtime even if it
+is built into the kernel. Arch xen needs this to avoid trying to
+initialise a VT in virtual machine that doesn't have access to the
+console hardware.
 
-On Tue, Dec 07, 2004 at 10:07:55PM -0800, Chris Wright wrote:
-> * Andrew Morton (akpm@osdl.org) wrote:
-> > yup, we fixed that one.
-> 
-> I thought the same thing, but this oops is from proc_pid_stat, not
-> proc_pid_status.  The code is now in do_task_stat(), and the oops is
-> within the orignal tasklist lock (instead of dropping and reaquiring the
-> lock).  So, might be fixed, but if so, I think for a different reason.
-> 
-> thanks,
-> -chris
+Signed-off-by: ian.pratt@cl.cam.ac.uk
 
-hmmm they were two places that I had changed to reflect the parent.
-
-This should fix it?
-
-Signed-off-by: Dinakar Guniguntala <dino@in.ibm.com>
+---
 
 
-
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ps_stat-2.patch"
-
-diff -Naurp linux-2.6.10-rc2.orig/fs/proc/array.c linux-2.6.10-rc2/fs/proc/array.c
---- linux-2.6.10-rc2.orig/fs/proc/array.c	2004-11-15 06:57:52.000000000 +0530
-+++ linux-2.6.10-rc2/fs/proc/array.c	2004-12-08 12:54:40.000000000 +0530
-@@ -370,7 +370,7 @@ static int do_task_stat(struct task_stru
- 			stime += task->signal->stime;
- 		}
- 	}
--	ppid = task->pid ? task->group_leader->real_parent->tgid : 0;
-+	ppid = pid_alive(task) ? task->group_leader->real_parent->tgid : 0;
- 	read_unlock(&tasklist_lock);
+diff -Nurp pristine-linux-2.6.10-rc3/drivers/char/tty_io.c tmp-linux-2.6.10-rc3-xen.patch/drivers/char/tty_io.c
+--- pristine-linux-2.6.10-rc3/drivers/char/tty_io.c	2004-12-03 21:53:57.000000000 +0000
++++ tmp-linux-2.6.10-rc3-xen.patch/drivers/char/tty_io.c	2004-12-08 00:57:23.000000000 +0000
+@@ -131,6 +131,8 @@ LIST_HEAD(tty_drivers);			/* linked list
+    vt.c for deeply disgusting hack reasons */
+ DECLARE_MUTEX(tty_sem);
  
- 	if (!whole || num_threads<2)
++int console_use_vt = 1;
++
+ #ifdef CONFIG_UNIX98_PTYS
+ extern struct tty_driver *ptm_driver;	/* Unix98 pty masters; for /dev/ptmx */
+ extern int pty_limit;		/* Config limit on Unix98 ptys */
+@@ -2964,14 +2966,19 @@ static int __init tty_init(void)
+ #endif
+ 
+ #ifdef CONFIG_VT
+-	cdev_init(&vc0_cdev, &console_fops);
+-	if (cdev_add(&vc0_cdev, MKDEV(TTY_MAJOR, 0), 1) ||
+-	    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1, "/dev/vc/0") < 0)
+-		panic("Couldn't register /dev/tty0 driver\n");
+-	devfs_mk_cdev(MKDEV(TTY_MAJOR, 0), S_IFCHR|S_IRUSR|S_IWUSR, "vc/0");
+-	class_simple_device_add(tty_class, MKDEV(TTY_MAJOR, 0), NULL, "tty0");
++	if (console_use_vt) {
++		cdev_init(&vc0_cdev, &console_fops);
++		if (cdev_add(&vc0_cdev, MKDEV(TTY_MAJOR, 0), 1) ||
++		    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1,
++					   "/dev/vc/0") < 0)
++			panic("Couldn't register /dev/tty0 driver\n");
++		devfs_mk_cdev(MKDEV(TTY_MAJOR, 0), S_IFCHR|S_IRUSR|S_IWUSR,
++			      "vc/0");
++		class_simple_device_add(tty_class, MKDEV(TTY_MAJOR, 0), NULL,
++					"tty0");
+ 
+-	vty_init();
++		vty_init();
++	}
+ #endif
+ 	return 0;
+ }
 
---6TrnltStXW4iwmi0--

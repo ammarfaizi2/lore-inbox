@@ -1,89 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131246AbRDBSA7>; Mon, 2 Apr 2001 14:00:59 -0400
+	id <S131254AbRDBSNl>; Mon, 2 Apr 2001 14:13:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131254AbRDBSAt>; Mon, 2 Apr 2001 14:00:49 -0400
-Received: from smtp01.web.de ([194.45.170.210]:54034 "HELO smtp.web.de")
-	by vger.kernel.org with SMTP id <S131246AbRDBSAi>;
-	Mon, 2 Apr 2001 14:00:38 -0400
-Message-ID: <003c01c0bb9e$851756a0$c70ca8c0@klabunde>
-From: "Roland Klabunde" <roland.klabunde@web.de>
-To: <imesmits@xs4all.nl>, <linux-kernel@vger.kernel.org>
-Cc: <r.klabunde@berkom.de>, <info@scitel.de>, <kkeil@suse.de>
-In-Reply-To: <3AC4A0A9.EA78984@xs4all.nl>
-Subject: Re: [PATCH] drivers/isdn/hisax/bkm_a8.c, kernel 2.4.2 (Scitel Quadro)
-Date: Mon, 2 Apr 2001 19:58:00 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S131269AbRDBSNa>; Mon, 2 Apr 2001 14:13:30 -0400
+Received: from ns0.petreley.net ([64.170.109.178]:13715 "EHLO petreley.com")
+	by vger.kernel.org with ESMTP id <S131254AbRDBSNQ>;
+	Mon, 2 Apr 2001 14:13:16 -0400
+Date: Mon, 2 Apr 2001 11:12:29 -0700
+From: Nicholas Petreley <nicholas@petreley.com>
+To: Robert NEDBAL <R.Nedbal@sh.cvut.cz>
+Cc: linux-kernel@vger.kernel.org,
+   ReiserFS Mailing List <reiserfs-list@namesys.com>
+Subject: Re: ReiserFS - corrupted files (2.4.3)
+Message-ID: <20010402111229.B482@petreley.com>
+In-Reply-To: <20010402085448.A482@petreley.com> <Pine.BSF.4.31.0104021921380.36074-100000@veverka.sh.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <Pine.BSF.4.31.0104021921380.36074-100000@veverka.sh.cvut.cz>; from R.Nedbal@sh.cvut.cz on Mon, Apr 02, 2001 at 07:27:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Robert,
 
-great to hear, that the fix solves the problem. Is there any information
-about, whether and when the fix will migrate into the isdn4l source pool?
+That output below is part of the results from
 
-Roland
+ reiserfsck /dev/hde5 
+
+(obviously /dev/hde5 is the partition that I checked).  I'm
+using reiserfsprogs version 3.x.0i.  You can run reiserfsck
+without any arguments and it can't do any harm to your
+partition - it's read-only.  
+
+I tried "reiserfsck -x /dev/hde5" but that didn't fix
+anything.  (the -x switch is supposed to "fix fixable
+without having to use --rebuild-tree).  But 
+
+reiserfsck --rebuild-tree /dev/hde5 
+
+fixed the bitmap problem in this case, and it didn't cause
+any new problems.  Nevertheless, I'm using reiserfs on all
+my machines, so I would be glad to help debug the problems
+asap - I'm worried about losing a whole partition here and
+there eventually.  I'd go back to kernel 2.2.18, which is
+supposedly very stable, but I can't. It doesn't work for me
+on reiserfs partitions created with 2.4.x.
+
+I don't know where to start with debugging, either, but I'm
+willing to take instructions.  
+
+-Nick
 
 
+* Robert NEDBAL (R.Nedbal@sh.cvut.cz) [010402 10:28]:
+> Hello,
+> thank you for your fast reply.
+> 
+> On Mon, 2 Apr 2001, Nicholas Petreley wrote:
+> > Comparing bitmaps..free block count 613785 mismatches with
+> > a correct one 613799.
+> > byte 114154: bm1: ffffffff bm2 1f
+> > byte 114155: bm1: ffffffff bm2 fffffffc
+> > byte 118307: bm1: ffffffff bm2 ffffffef
+> > byte 118309: bm1: ffffffff bm2 3f
+> > byte 118310: bm1: ffffffff bm2 fffffffc
+> > byte 118312: bm1: ffffffff bm2 ffffff87
+> > on-disk bitmap does not match to the correct one. 6 bytes
+> > differ
+> 
+> How you get these results?
+> 
+> >
+> > And I found a recently updated log file with nulls in it -
+> > I thought that problem was fixed long ago.  I've been using
+> > ac28 and 2.4.3 while getting these errors.  The corruptions
+> > occur on two machines, asus a7v and asus a7v133, via686a
+> > and via686b.  I've had reasonably good luck with
+> > reiserfsck, though, so it's not something to fear entirely.
+> > ;-)
+> >
+> 
+> I'll try running reiserfsck as the last option. (Just before complete
+> reinstallation :-) )
+> 
+> > I'd be glad to help with any debugging as time permits.
+> >
+> 
+> I'm happy that somebody is interrested in debugging. Bud I'm only C/C++
+> coder, I dont know much about kernel internals. How can I begin with
+> debugging?
+> 
+> regards,
+> Robert
+> 
+> >
+> > --
+> > **********************************************************
+> > Nicholas Petreley   Caldera Systems - LinuxWorld/InfoWorld
+> > nicholas@petreley.com - http://www.petreley.com - Eph 6:12
+> > **********************************************************
+> > .
+> >
+> 
+> --------------------------------------------------------------------
+> Robert Nedbal - Czech Technical University in Prague, Czech Republic
+> email: R.Nedbal@sh.cvut.cz             http://www.sh.cvut.cz/~robik/
+>           /* Debuggers are evil. Never ever trust them. */
+> --------------------------------------------------------------------
+> 
 
------ Original Message -----
-From: <imesmits@xs4all.nl>
-To: <linux-kernel@vger.kernel.org>
-Cc: <r.klabunde@berkom.de>; <info@scitel.de>; <kkeil@suse.de>
-Sent: Friday, March 30, 2001 5:05 PM
-Subject: [PATCH] drivers/isdn/hisax/bkm_a8.c, kernel 2.4.2 (Scitel Quadro)
-
-
-> Hi,
->
-> Please find attached a patch to fix the following problems with the
-> Scitel Quadro ISDN card in 2.4 kernels which suddenly arised when I
-> bought
-> a K7T Pro motherboard.
->
-> kernel: HiSax: Scitel port 0xcc00-0xcd00 already in use
-> kernel: HiSax: Card Scitel Quadro not installed !
->
-> Credits go to Roland Klabunde who told me early december:
->
-> <quote>
-> The Scitel [...] resource requirements are as follows:
->
-> - 1 shared interrupt for all controllers
-> - 1 shared port address for all controllers with a range of 128 bytes
-> - 1 port address for each controller with a range of 64 bytes
->
-> [...]
->
-> I've currently downloaded the ISDN stuff [...] As mentioned above, the
-> span is *128* for pci_ioaddr1 and *64* for pci_ioaddr2 to pci_ioaddr5
-> [...]. What I see from the source is, that one attempts to claim a
-> range of 256 bytes for pci_ioaddr1 to _5. That may cause the problems
-> if the range overlaps with other boards. You may try to change the
-> following calls in bkm_a8.c:
->
-> sct_alloc_io(pci_ioaddr1, 256) to sct_alloc_io(pci_ioaddr1, 128)
-> sct_alloc_io(pci_ioaddr2, 256) to sct_alloc_io(pci_ioaddr1, 64)
-> sct_alloc_io(pci_ioaddr3, 256) to sct_alloc_io(pci_ioaddr1, 64)
-> sct_alloc_io(pci_ioaddr4, 256) to sct_alloc_io(pci_ioaddr1, 64)
-> sct_alloc_io(pci_ioaddr5, 256) to sct_alloc_io(pci_ioaddr1, 64)
->
-> Please note the necessary changes in release_io_sct_quadro.
-> </quote>
->
-> Too bad I went on a holiday that time and forgot all about it, untill
-> today (shame shame shame). Anyway, this patch to 2.4.2
-> drivers/isdn/hisax/bkm_a8.c fixes the problem and everything runs
-> fine again.
->
-> Ime Smits
->
->
-
+-- 
+**********************************************************
+Nicholas Petreley   Caldera Systems - LinuxWorld/InfoWorld
+nicholas@petreley.com - http://www.petreley.com - Eph 6:12
+**********************************************************
+.

@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280684AbRKNQgz>; Wed, 14 Nov 2001 11:36:55 -0500
+	id <S280683AbRKNQiy>; Wed, 14 Nov 2001 11:38:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280683AbRKNQgp>; Wed, 14 Nov 2001 11:36:45 -0500
-Received: from mail307.mail.bellsouth.net ([205.152.58.167]:7078 "EHLO
-	imf07bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280680AbRKNQg3>; Wed, 14 Nov 2001 11:36:29 -0500
-Message-ID: <3BF29D69.B16479A1@mandrakesoft.com>
-Date: Wed, 14 Nov 2001 11:35:53 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S280690AbRKNQio>; Wed, 14 Nov 2001 11:38:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64261 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280683AbRKNQib> convert rfc822-to-8bit; Wed, 14 Nov 2001 11:38:31 -0500
+Date: Wed, 14 Nov 2001 08:34:12 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
+In-Reply-To: <200111141243.fAEChS915731@neosilicon.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0111140821120.17217-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Stuart MacDonald <stuartm@connecttech.com>
-CC: tytso@mit.edu, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Fw: [Patch] Some updates to serial-5.05
-In-Reply-To: <00df01c16d23$b409ab20$294b82ce@connecttech.com> <3BF2947B.DF3BE9DC@mandrakesoft.com> <013d01c16d29$bc5d4380$294b82ce@connecttech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id IAA10584
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart MacDonald wrote:
-> 
-> From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-> > Your code formatting is totally different from the formatting of the
-> > surrounding serial.c code you modify.
-> 
-> Please point out the bad parts. From my end the formatting is
-> exactly the same.
 
-Easily.  Your patch:
-> +  case TIOCSER485GET:
-> +  case TIOCSER485SET:
-> +   if (state->lmode_fn)
-> +    return (state->lmode_fn)(state, cmd,
-> +       (unsigned int *) arg);
-> +   else
-> +    return -EINVAL;
->    case TIOCMGET:
->     return get_modem_info(info, (unsigned int *) arg);
->    case TIOCMBIS:
+On Wed, 14 Nov 2001, Sebastian Dröge wrote:
+>
+> The system has 256 MB RAM, nothing RAM-eating in the background I got many
+> buffer-underuns just because of swapping. When I turn swap off everything
+> works fine. I think it's something with the cache.
 
-2.4.x serial.c:
->                 case TIOCMGET:
->                         return get_modem_info(info, (unsigned int *) arg);
->                 case TIOCMBIS:
+Can you do some statistics for me:
 
-The formatting is blatantly, obviously different.
+   cat /proc/meminfo
+   cat /proc/slabinfo
+   vmstat 1
 
+while the worst swapping is going on..
 
-> > Also, a diff against the kernel 2.4.x serial.c might be nice, as there
-> > haven't been updates from tytso in ages (serial-5.05), and rmk has a new
-> > serial driver for 2.5.x.
-> 
-> 2.4.0 contains 5.02 and 2.4.14 contains 5.05c. These patches should
-> apply cleanly to all 5.xx serial drivers, although there may be
-> fuzz/offsets.
+> Leaving system 2 alone, just play mp3s over nfs:
+>
+> After two or three days the used swap-space is around 3 MB. I just played
+> MP3s and no X and no other "big" applications were running. This isn't really
+> a problem but it doesn't look good. Just because of cache swap gets full :(
 
-Doubtful.  When applied to 2.4.x-current:
+That's normal and usually good. It's supposed to swap stuff out if it
+really isn't needed, and that improves performance. Cache _is_ more
+important than swap if the cache is active.
 
-[jgarzik@rum linux_2_4]$ patch drivers/char/serial.c < ~/tmp/patch 
-patching file drivers/char/serial.c
-Hunk #1 FAILED at 1405.
-Hunk #2 FAILED at 2514.
-Hunk #3 FAILED at 2572.
-Hunk #4 FAILED at 3968.
-patch: **** malformed patch at line 55: {
+HOWEVER, there's probably something in your system that triggers this too
+easily. Heavy NFS usage will do that, for example - as mentioned in
+another thread on linux-kernel, the VM doesn't really understand
+writebacks and asynchronous reads from filesystems that don't use buffers,
+and so sometimes the heuristics get confused simply because NFS activity
+can _look_ like page mapping to the VM.
 
+Your MP3-over-NFS doesn't sound bad, though. 3MB of swap is perfectly
+normal: that tends to be just the idle deamons etc which really _should_
+go to swapspace.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+The cdrecord thing is something else, though. I'd love to see the
+statistics from that. Although it can, of course, just be another SCSI
+allocation strangeness.
+
+		Linus
 

@@ -1,46 +1,95 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315780AbSEJDVZ>; Thu, 9 May 2002 23:21:25 -0400
+	id <S315785AbSEJD0X>; Thu, 9 May 2002 23:26:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315782AbSEJDVY>; Thu, 9 May 2002 23:21:24 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:60859 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S315780AbSEJDVY>;
-	Thu, 9 May 2002 23:21:24 -0400
+	id <S315786AbSEJD0W>; Thu, 9 May 2002 23:26:22 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:17340 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S315785AbSEJD0W>;
+	Thu, 9 May 2002 23:26:22 -0400
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
-To: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: Kernel Build for 2.5, Release 2.4 is available 
-In-Reply-To: Your message of "09 May 2002 18:46:18 MST."
-             <1020995179.2911.1.camel@tduffy-lnx.afara.com> 
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.15 broken code
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 10 May 2002 13:21:04 +1000
-Message-ID: <25985.1021000864@kao2.melbourne.sgi.com>
+Date: Fri, 10 May 2002 13:26:09 +1000
+Message-ID: <26013.1021001169@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09 May 2002 18:46:18 -0700, 
-Thomas Duffy <tduffy@directvinternet.com> wrote:
->here is kbuild-2.5-sparc64-2.5.14-2.  you still need to apply the hacks
->patch before using this from
->http://prdownloads.sourceforge.net/kbuild/linux-2.5.14-sparc64-hacks.patch.bz2.  This won't be necessary once 2.5.15 comes out as Dave has already sent these fixes to Linus. 
->
->  Changes from kbuild-2.5-sparc64-2.5.14-1 
->
->    Build against core-12 
->
->    Builds with kbuild 2.4 now as well
->
->    asm-offsets.c now uses the new thread_info offsets 
->
->    Had to use the CFLAG ugliness of ia64 to get asm-offsets.c to
->    work properly as include/asm-sparc64/system.h uses thread_info 
->    offsets.
+The following config options are broken in 2.5.15 i386.
 
-Uploaded to http://sourceforge.net/project/showfiles.php?group_id=18813
-under release 2.4.
+# Broken code, will not compile
+CONFIG_BLK_CPQ_DA=n
+CONFIG_BLK_DEV_ATARAID_HPT=n
+CONFIG_BLK_DEV_ATARAID=n
+CONFIG_BLK_DEV_ATARAID_PDC=n
+CONFIG_BLK_DEV_DAC960=n
+CONFIG_BLK_DEV_HD_IDE=n
+CONFIG_BLK_DEV_LVM=n
+CONFIG_CYCLADES=n
+CONFIG_DEFXX=n
+CONFIG_FARSYNC=n
+CONFIG_FTL=n
+CONFIG_I2O_BLOCK=n
+CONFIG_I2O_LAN=n
+CONFIG_I2O=n
+CONFIG_I2O_PCI=n
+CONFIG_I2O_SCSI=n
+CONFIG_IEEE1394_PCILYNX=n
+ONFIG_INTERMEZZO_FS=n
+CONFIG_IPHASE5526=n
+CONFIG_MD_RAID5=n
+CONFIG_NET_DIVERT=n
+CONFIG_NFTL=n
+CONFIG_PHONE_IXJ=n
+CONFIG_RCPCI=n
+CONFIG_ROADRUNNER=n
+CONFIG_SCSI_ACARD=n
+CONFIG_SCSI_AHA1740=n
+CONFIG_SCSI_AM53C974=n
+CONFIG_SCSI_BUSLOGIC=n
+CONFIG_SCSI_DC390T=n
+CONFIG_SCSI_DMX3191D=n
+CONFIG_SCSI_DPT_I2O=n
+CONFIG_SCSI_DTC3280=n
+CONFIG_SCSI_EATA_DMA=n
+CONFIG_SCSI_EATA_PIO=n
+CONFIG_SCSI_FD_MCS=n
+CONFIG_SCSI_FUTURE_DOMAIN=n
+CONFIG_SCSI_GDTH=n
+CONFIG_SCSI_GENERIC_NCR5380=n
+CONFIG_SCSI_IBMMCA=n
+CONFIG_SCSI_IN2000=n
+CONFIG_SCSI_INIA100=n
+CONFIG_SCSI_INITIO=n
+CONFIG_SCSI_NCR53C406A=n
+CONFIG_SCSI_NCR53C7xx=n
+CONFIG_SCSI_PAS16=n
+CONFIG_SCSI_PCI2000=n
+CONFIG_SCSI_PCI2220I=n
+CONFIG_SCSI_SEAGATE=n
+CONFIG_SCSI_SYM53C416=n
+CONFIG_SCSI_T128=n
+CONFIG_SOUND_MSNDCLAS=n
+CONFIG_SOUND_MSNDPIN=n
+CONFIG_TLAN=n
+CONFIG_USB_STORAGE_DATAFAB=n
+CONFIG_USB_STORAGE_JUMPSHOT=n
+CONFIG_VIDEO_STRADIS=n
+CONFIG_VIDEO_ZORAN=n
+CONFIG_VIDEO_ZR36120=n
+CONFIG_WANPIPE_FR=n
 
-Also uploaded are kbuild-2.5-common-2.5.15-1.bz2 and
-kbuild-2.5-i386-2.5.15-1.bz2 for kernel 2.5.15 support.
+# All for sbpcd.c
+CONFIG_SBPCD=n
+CONFIG_SBPCD2=n
+CONFIG_SBPCD3=n
+CONFIG_SBPCD4=n
+
+# Duplicate symbol dev_list in drivers/bluetooth/bluecard_cs.o and dtl1_cs.o
+CONFIG_BLUEZ_HCIBLUECARD=n
+
+# net/socket.c refers to bluez_init but that function is static.
+CONFIG_BLUEZ=n
 

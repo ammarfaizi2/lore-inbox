@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271419AbTHDJHx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 05:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271420AbTHDJHx
+	id S271423AbTHDJKu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 05:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271606AbTHDJKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 05:07:53 -0400
-Received: from main.gmane.org ([80.91.224.249]:30615 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S271419AbTHDJHw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 05:07:52 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.6 ide i/o performance
-Date: Mon, 04 Aug 2003 11:04:42 +0200
-Message-ID: <yw1xel01kd3p.fsf@users.sourceforge.net>
-References: <200308021205.59280.vt@vt.fermentas.lt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:3Xf1tX1r78ffBbGLQJN3xqQDzSQ=
+	Mon, 4 Aug 2003 05:10:50 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:52163 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S271423AbTHDJKt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 05:10:49 -0400
+From: Vitaly Fertman <vitaly@namesys.com>
+Organization: NAMESYS
+To: Martin Pitt <martin@piware.de>, Oleg Drokin <green@namesys.com>
+Subject: Re: PROBLEM: 2.6.0-test1/2 reiserfsck journal replaying hangs
+Date: Mon, 4 Aug 2003 13:10:44 +0400
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <20030803102321.GA428@donald.balu5> <20030804075420.GB4396@namesys.com> <20030804084306.GB15110@donald.balu5>
+In-Reply-To: <20030804084306.GB15110@donald.balu5>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308041310.44577.vitaly@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vitalis Tiknius <vt@vt.fermentas.lt> writes:
+> 3.6.6, the kernel Changes says that 3.6.3 is required at least, thus
+> it should be okay.
 
-> i simultaneously burned (audio mode, without scsi emulation) and ripped cd's 
-> under 2.6.0-test2-mm2. devices are:
->
->  ../ide/host0/bus1/target0/lun0/cd (Teac CD-W552E) 
->  ../ide/host0/bus1/target1/lun0/cd (Teac DV-516E).
->
-> mobo is Intel 875. software is k3b-0.9, cdrtools-2.01_alpha18, grip-3.1.1, and 
-> cdparanoia-3.9.8 with all paranoia options on.
->
-> when burning and ripping are performed separately, their speeds are approx. 
-> 42x and 6.3x. when simultaneously, 12x and 1.6x with no options touched.
->
-> although devices are on the same controller (my first controller is
-> SATA) and on the same bus, i'd rather expect linear and not almost
-> square-law throughput regression observed. are the things expected
-> to go this way, or there is some room for optimizations, etc.?
-
-The first thing to do is to use separate cables for those devices, and
-see if it helps.
+Hi Martin, would you try 3.6.11 reiserfsprogs and tell us about the result?
 
 -- 
-Måns Rullgård
-mru@users.sf.net
-
+Thanks,
+Vitaly Fertman

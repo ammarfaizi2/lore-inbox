@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVCOTR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVCOTR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbVCOTR4 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261798AbVCOTR4 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 15 Mar 2005 14:17:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVCOTNl
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVCOTOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:13:41 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:1164 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261785AbVCOTIg (ORCPT
+	Tue, 15 Mar 2005 14:14:16 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:18395 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261803AbVCOTIy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:08:36 -0500
-Date: Tue, 15 Mar 2005 11:06:32 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Phillip Lougher <phillip@lougher.demon.co.uk>
-Cc: mpm@selenic.com, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH][1/2] SquashFS
-Message-Id: <20050315110632.07fc8d09.pj@engr.sgi.com>
-In-Reply-To: <42370B14.50608@lougher.demon.co.uk>
-References: <4235BAC0.6020001@lougher.demon.co.uk>
-	<20050315003802.GH3163@waste.org>
-	<42363EAB.3050603@yahoo.com.au>
-	<20050315004759.473f6a0b.pj@engr.sgi.com>
-	<42370442.7020401@lougher.demon.co.uk>
-	<20050315172724.GO32638@waste.org>
-	<42370B14.50608@lougher.demon.co.uk>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 15 Mar 2005 14:08:54 -0500
+Date: Tue, 15 Mar 2005 20:08:47 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [RFC] Changes to the driver model class code.
+Message-ID: <20050315190847.GA1870@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	linux-usb-devel@lists.sourceforge.net,
+	Kay Sievers <kay.sievers@vrfy.org>
+References: <20050315170834.GA25475@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050315170834.GA25475@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>Shouldn't issues like this be in the coding style document?
+On Tue, Mar 15, 2005 at 09:08:34AM -0800, Greg KH wrote:
+> Then I moved the USB host controller code to use this new interface.
+> That was a bit more complex as it used the struct class and struct
+> class_device code directly.  As you can see by the patch, the result is
+> pretty much identical, and actually a bit smaller in the end.
+> 
+> So I'll be slowly converting the kernel over to using this new
+> interface, and when finished, I can get rid of the old class apis (or
+> actually, just make them static) so that no one can implement them
+> improperly again...
+> 
+> Comments?
 
-There is not a concensus (nor a King Penguin dictate) between the
-"while(1)" and "for(;;)" style to document.  If this were a
-frequently asked question, I suppose someone would eventually
-note in a coding style doc that either style is acceptable.
+The "old" class api _forced_ you to think of reference counting of
+dynamically allocated objects, while it gets easier to get reference
+counting wrong using this "simple"/"new" interface: while struct class will 
+always have fine reference counting, the "parent" struct [with struct class
+no longer being embedded] needs to be thought of individually; and the 
+reference count cannot be shared any longer.
+
+Also, it seems to me that you view the class subsystem to be too closely
+related to /dev entries -- and for these /dev entries class_simple was
+introduced, IIRC. However, /dev is not the reason the class subsystem was 
+introduced for -- instead, it describes _types_ of devices which want to
+share (userspace and in-kernel) interfaces. For example pcmcia sockets which
+can reside on different buses, but can be handled (mostly) the same way by
+kernel- and userspace. For example, temperature sensors could be exported
+using /sys/class/temp_sensors/... -- then userspace wouldn't need to know
+whether the temperature was determined using an ACPI BIOS call or by
+accessing an i2c device. Such "abstractions", and other kernel code whcih
+uses these "abstractions" (a.k.a. class interfaces) are a great feature to
+have, and one too less used by now.
 
 
-> It's a shame the 'rather trivial' issue got picked up in the first place 
-
-Not a shame at all.  Such coding style issues are well known to be a
-proper subject for discussion here.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+	Dominik

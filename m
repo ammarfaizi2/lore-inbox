@@ -1,38 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310749AbSDMVxJ>; Sat, 13 Apr 2002 17:53:09 -0400
+	id <S310769AbSDMWIK>; Sat, 13 Apr 2002 18:08:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310769AbSDMVxI>; Sat, 13 Apr 2002 17:53:08 -0400
-Received: from 24-25-196-177.san.rr.com ([24.25.196.177]:48908 "HELO
-	acmay.homeip.net") by vger.kernel.org with SMTP id <S310749AbSDMVxI>;
-	Sat, 13 Apr 2002 17:53:08 -0400
-Date: Sat, 13 Apr 2002 14:53:06 -0700
-From: andrew may <acmay@acmay.homeip.net>
-To: Robert Love <rml@tech9.net>
-Cc: mark manning <mark.manning@fastermail.com>, linux-kernel@vger.kernel.org
-Subject: Re: nanosleep
-Message-ID: <20020413145306.A29006@ecam.san.rr.com>
-In-Reply-To: <20020410055708.9474.qmail@fastermail.com> <1018418496.903.228.camel@phantasy>
+	id <S310806AbSDMWIJ>; Sat, 13 Apr 2002 18:08:09 -0400
+Received: from jalon.able.es ([212.97.163.2]:35548 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S310769AbSDMWIJ>;
+	Sat, 13 Apr 2002 18:08:09 -0400
+Date: Sun, 14 Apr 2002 00:08:00 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux as a minicomputer ?
+Message-ID: <20020413220800.GA4283@werewolf.able.es>
+In-Reply-To: <E16wSh5-0000ue-00@the-village.bc.nu> <3CB88713.4070209@zytor.com> <200204131937.g3DJbw607029@vindaloo.ras.ucalgary.ca> <3CB889C7.2080907@zytor.com> <200204131949.g3DJnhD07302@vindaloo.ras.ucalgary.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 02:01:35AM -0400, Robert Love wrote:
-> On Wed, 2002-04-10 at 01:57, mark manning wrote:
-> > hrm - im confiused now - how can you do a n NANO second delay when the
-> > resolution is 10 mili seconds ?
-> 
-> Uh, you can't - that was his point.
 
-Well there is a cheap trick if you catch what the man page says.
- 
-> You can try, and you will certainly sleep at least that long, but any
-> time given modulo 10ms is out the door ...
+On 2002.04.13 Richard Gooch wrote:
+>H. Peter Anvin writes:
+>> Richard Gooch wrote:
+>> > 
+>> > Actually, there is some impedance matching. I've seen monitors with
+>> > hi/lo impedance switches. And I've used 15 m long high-quality VGA
+>> > cables. The result has been pretty good.
+>> > 
+>> 
+>> The best I've seen is to use Sun D-sub coax or plain coax inputs on
+>> the monitors that have them.  Those are impedance matched and can be
+>> extended without problem.
+>
+>Sure, coax inputs are the best. But there are still problems. Even
+>expensive coax has higher attenuation at higher frequencies, so the
+>longer the cable, the more fuzziness you get. Also, there are
+>differential delay effects between the R, G and B components. You
+>don't want the pixel components to arrive at different times. So
+>there's a length limitation there as well.
+>
+>But even though coax is better, VGA isn't that bad. 15 m gets you
+>quite a lot of terminals in a web kiosk (or undergrad computer lab).
+>
+>BTW: I agree that X terminals suck. Even worse are SunRays. Ug!
+>
 
-Make all your calls to nanasleep be less than 2ms, and loop through as
-many as you need until you are under 2ms.
+We have built a 'pseudo-CAVE' for presentations, and have six vgas
+feeding sony projectors with cabling between 15 and 20m, running
+at 1024x768@32. Quality is ok.
 
-Don't do it for too long because you get no other use out of your machine
-while your doing this but it does work.
+The problem is finding good PCI vga cards, even finding any,
+good or bad. Now they are TNT-M64. I'm also aware that SiS has some,
+but nothing special. But, to use it as terminals, they could be ok.
+
+And coax is not so good. Even with expensive cable, the bounces of
+the signal made me see double like drunk. Video did not worked right
+until we got _golden_ connectors and soldered with silver. Believe
+me you could even put more mony on the cables that on the box.
+
+Physics is funny...
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre6-jam1 #1 SMP Sun Apr 7 00:50:05 CEST 2002 i686

@@ -1,84 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263460AbUDEWEt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 18:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbUDEWDQ
+	id S263480AbUDEWId (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 18:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263389AbUDEWGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 18:03:16 -0400
-Received: from webmail.sub.ru ([213.247.139.22]:19468 "HELO techno.sub.ru")
-	by vger.kernel.org with SMTP id S263484AbUDEWAS (ORCPT
+	Mon, 5 Apr 2004 18:06:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24298 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263480AbUDEWDt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 18:00:18 -0400
-Subject: 2.6.5-rc3-mm4 eats more CPU on disk i/o than 2.4 line (VIA chipset)
-From: Mikhail Ramendik <mr@ramendik.ru>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1081202409.1036.3.camel@localhost.localdomain>
+	Mon, 5 Apr 2004 18:03:49 -0400
+Date: Mon, 5 Apr 2004 15:00:01 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: kjo <kernel-janitors@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] 2.6.5-kj1 patchset
+Message-Id: <20040405150001.45f7671a.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-6aspMR) 
-Date: Tue, 06 Apr 2004 02:00:10 +0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-After discussions in the "100% cpu use" thread, I have done some careful
-testing, and updated the tools to see the difference between "system"
-and "iowait" time. And I still see that the 2.6 line eats more CPU time
-on disk I/O than the 2.4 line, albeit it also has better system
-performance.
-
-I have a system with a Duron 650 CPU, KT133 chipset, 256 MB RAM, Seagate
-Barracuda 7200.7 HDD.
-
-The testing procedure is as follows. I run an endless loop of copying a
-file to the same directory (on ext3fs). In another window I run ubench
-(http://www.phystech.com/download/ubench.html), a CPU benchmark (it also
-can benchmark memory but I look at the CPU results; the memory footprint
-is quite small at about 1.5MB, so I don't think swapping is a part of
-the picture).
-
-In a third window I look at top, running it as root to make sure I see
-everything.
-
-I used kernel 2.6.5-rc3-mm4. I tried running it with usual options and
-with the deadline elevator. I also did the sate test under stock distro
-(RH9-based) kernel 2.4.20, for comparison.
-
-In 2.6.5-rc3-mm4, the 100% cpu use on copying  breaks down into "system"
-and "iowait"; these two values vary over time but stay within some
-bounds. When I run the benchmark, iowait falls to zero, apparently it
-gets given over to the benchmark; the "system" is either unchanged or
-climbs up about 5%.
-
-The "system" CPU use varied over time. Without the deadline elevator, it
-was jumping up and down within the range of 25% to 40%, occasionally
-more; with the deadline elevator, significantly lower, at 20% to 25%.
-
-In 2.4.20 iowait was shown as zero. The "system" CPU use was at 10% to
-20%, and stayed within these borders when the benchmark was run.
-
-And of course, the more "system" CPU usage there is, the less are the
-results given by the benchmark. Therefore the results were highest on
-2.4.20, and lowest on 2.6.4-rc3-mm4 without the deadline elevator. (The
-proportion is quite simple so I don't include benchmark values here).
-
-So, the 2.6.5-rc3-mm4 kernel took more CPU away for disk operation than
-the 2.4.20 kernel. But on the other hand, disk performance is increased
-(especially without the deadline evelator - and there the CPU usage is
-highest too).
-
-I am ready to do more benchmarking if and when necessary, to whatever
-specs necessary. Just tell me what to try (no trojans ;)
-
-I'm not sure if this is a genuine problem, or a valid trade-off of CPU
-time for disk performance. The 2.6 line does seem more responsive when
-disk operations are going on.
-
-The final word here, of course, is with the developers. 
-
-Yours, Mikhail Ramendik
+(I'll be pushing patches to maintainers this week.)
 
 
+patch is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.5/2.6.5-kj1.patch.bz2  [2004-04-05]
 
+M: merged at kernel.org;   mm: in -mm;   tx: sent;   mntr: maintainer merged;
+
+This patch applies to linux-2.6.5.
+new (for 2.6.5-rc3):  [2004-04-05]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+add/	extraver.patch
+	rddunlap%osdl!org
+
+add/	remove_concat_FUNCTION_arch.patch
+	remove_concat_FUNCTION_drivers.patch
+	remove_concat_FUNCTION_include.patch
+	remove_concat_FUNCTION_net.patch
+	remove_concat_FUNCTION_sound.patch
+	From: Tony Breeds <tony@bakeyournoodle.com>
+
+This patch applies to linux-2.6.5-rc3.
+new (for 2.6.5-rc3):  [2004-04-01]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+add/	floppy_audit_v2.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	eth1394_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+
+add/	pcmcia_cs_class_reg.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+
+add/	jfs_metapage_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+
+add/	mandocs_params-001.patch
+	mandocs_params-002.patch
+	mandocs_params-003.patch
+	mandocs_params-004.patch
+	mandocs_params-005.patch
+	mandocs_params-006.patch
+	1-6 sent to mntr: 2004.0405;
+	mandocs_params-007.patch
+	From: mikal@stillhq.com
+
+This patch applies to linux-2.6.5-rc1.
+previous (for 2.6.5-rc1):  [2004-03-16]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+add/	floppy_deugli_00.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	floppy_deugli_01.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	floppy_deugli_02.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	floppy_deugli_03.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+This patch applies to linux-2.6.4-rc2.
+previous (for 2.6.4-rc2):  [2004-03-09]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+add/	kswapd_init_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+
+tx/	lmc_proto_raw_h_rm.patch
+	From: Domen Puncer <domen@coderock.org>
+	sent to netdev/jgarzik: 2004.0229;
+
+add/	ipv4_fib_hash_check.patch
+	From: Francois Romieu <romieu@fr.zoreil.com>
+	original From: <WHarms@bfs.de>(Walter Harms)
+
+tx/	file2alias_signcomp.patch
+fxd	From: Ron Gage <ron@rongage.org>
+	sent to mntrs: 2004.0316;
+
+tx/	fixdep_signcomp.patch
+fxd	From: Ron Gage <ron@rongage.org>
+	sent to mntrs: 2004.0316;
+
+tx/	modpost_signcomp.patch
+	From: Ron Gage <ron@rongage.org>
+	sent to mntrs: 2004.0316;
+
+tx/	errno_numbers_assembly.patch
+	From: Danilo Piazzalunga <danilopiazza@libero.it>
+	to akpm: 2004.0126;
+	to akpm: 2004.0316;
+	must go thru arch maintainers;
+
+tx/	dgrs_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to jgarzik/netdev: 2004.0124;
+
+tx/	drivers_ide_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to mntr/linux-ide: 2004.0316;
+
+tx/	drivers_ide_minmax2.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to mntr/linux-ide: 2004.0316;
+
+add/	keyboard_ptr_to_string.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	string_form_drivers.patch
+	From: maximilian attems <janitor@sternwelten.at>
+
+Merged (hence dropped from here):
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mntr/	nfs_parse.patch
+	From: Fabian_LoneStar_Frederick <fabian.frederick@gmx.fr>
+	sent to mntr: 2004.0319; he acked it & will merge it;
+
+backlog:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- check kernel_thread() results (Walter);
+- list_for_each() usage (max attems);
+
+Dropped:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- remove sleep_on() in drivers/usb/ (Domen): needs USB feedback;
+
+###
+
+--
+~Randy
+"We have met the enemy and he is us."  -- Pogo (by Walt Kelly)

@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293733AbSCFAF4>; Tue, 5 Mar 2002 19:05:56 -0500
+	id <S293676AbSCFAIh>; Tue, 5 Mar 2002 19:08:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293728AbSCFAFq>; Tue, 5 Mar 2002 19:05:46 -0500
-Received: from [216.250.138.66] ([216.250.138.66]:19406 "HELO guts.pl.net")
-	by vger.kernel.org with SMTP id <S293676AbSCFAFk>;
-	Tue, 5 Mar 2002 19:05:40 -0500
-Message-ID: <3C856E33.80F01C9A@utah-nac.org>
-Date: Tue, 05 Mar 2002 18:17:39 -0700
-From: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-Organization: Utah Native American Church
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S293728AbSCFAI0>; Tue, 5 Mar 2002 19:08:26 -0500
+Received: from h24-83-222-158.vc.shawcable.net ([24.83.222.158]:23689 "EHLO
+	me.bcgreen.com") by vger.kernel.org with ESMTP id <S293676AbSCFAIS>;
+	Tue, 5 Mar 2002 19:08:18 -0500
+Message-ID: <3C8554F4.9000403@bcgreen.com>
+Date: Tue, 05 Mar 2002 15:29:56 -0800
+From: Stephen Samuel <samuel@bcgreen.com>
+Organization: Just Another Radical
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Kevin Brown <kobalt711@yahoo.com>
-CC: jgarzik@mandrakesoft.com, jmerkey@vger.timpanogas.org,
-        linux-kernel@vger.kernel.org, Opensource@mail.cis.ohio-state.edu
-Subject: [OFF- TOPIC]Re: Petition Against Official Endorsement of BitKeeper by 
- Linux Maintainers
-In-Reply-To: <20020305235015.70549.qmail@web14208.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305154147.A6211@vger.timpanogas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I think you missed the point of the petition.  They're not asking
+people to stop using bitkeeper. They're asking that it not be
+advocated as an OFFICIAL kernel development/maintenance process.
 
-Kevin,
-
-The comments you responded to were someone else's attached to the
-original post, but since you addressed me I'll respond.   These
-gentlemen were telling us what we should use and what we should think
-about their views of open source.   Those opinions are fine, but Alan
-and other folks bascially said it is a matter of personal choice and
-freedom.  I'm sorry that we are  advocates of freedom rather than
-mindless lumps of clay you can twist to your will.
-
-I have a lot of bugs to fix and code to get ready to post, and will not
-respond to this thread beyond this post.
-
-Jeff
+As you said.. What you do in the privacy of your own home/office
+is your business. On the other hand, what you advocate that the
+Open Source community do in theirs is the business of the whole
+community.
 
 
-Kevin Brown wrote:
+Jeff V. Merkey wrote:
+ > On Tue, Mar 05, 2002 at 04:52:34PM -0500, The Open Source Club at The Ohio State University wrote:
+ >
+ >>have participated in active development.  It is fine if some kernel
+ >>developers choose to use BitKeeper on their own machines, but
+ >>officially endorsing proprietary software as the means of working on
+ >>the kernel is a large step backwards for Linux, and for the Open
+ >>Source and Free Software communities.
 
-> I'm not terribly concerned about the issue at-hand,
-> here, but I am motivated by the level of idiocy that's
-> appearing in my inbox right now.
->
-> > How do they have any business telling me what to
-> advocate?
-> > That doesn't sound like free speech nor free thought
-> to me.
->
-> I'm not sure free speech or free thought was at stake
-> here, Jeffs; the topic
-> was whether the use of bitkeeper compromised open
-> source ideology.  Colin
-> (and certain members of the club) were voicing their
-> concerns in a
-> professional manner.  Reducing that concern in an
-> altruistic shriek against
-> national socialism and your "violated freedoms" is a
-> bit simple-minded.
-> Your refusal to receive the petition in an
-> argumentative way is indicative
-> of *your* inability to exchange ideas.
->
-> Mr. Merkey, I think you're better off continuing to
-> hand your two cents over
-> to Novell in the future.
->
-> Cheers,
->
-> Kevin
->
-> __________________________________________________
-> Do You Yahoo!?
-> Try FREE Yahoo! Mail - the world's greatest free email!
-> http://mail.yahoo.com/
+> All hail the non-profit nazis from Ohio State.  It's none of your 
+> f_cking business what we use to develop software.  I use a hardware
+
+Yep.  and they acknowledged that at the start of their petition
+
+> American Arium logic analyzer and a proprietary Linux kernel 
+> debugger.  Should people be boycotted when they use hardware 
+> analyzers to debug hardware and software with Linux.  
+....
+> How about sending me some of the killer weed you guys have been smoking.
+> You can pass the crack pipe around while you're at it.
+
+...
+
+>>metadata is really a part of Linux, because people will want to use it
+>>when talking about the kernel.  Those who can't[2] or don't want to
+>>use BitKeeper are left out in the cold.  One of the most important
+.....
+
+>>We respect the kernel maintainer's freedom to use proprietary software 
+>>for their own purposes.  And we ask the kernel maintainers to respect 
+>>the community's freedom from entrapment by proprietary software.
+
+
+-- 
+Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
+		   http://www.bcgreen.com/~samuel/
+Powerful committed communication, reaching through fear, uncertainty and
+doubt to touch the jewel within each person and bring it to life.
 

@@ -1,33 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286594AbRLUVom>; Fri, 21 Dec 2001 16:44:42 -0500
+	id <S286602AbRLUVsm>; Fri, 21 Dec 2001 16:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286595AbRLUVod>; Fri, 21 Dec 2001 16:44:33 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:12160 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S286594AbRLUVoO>; Fri, 21 Dec 2001 16:44:14 -0500
+	id <S286603AbRLUVsd>; Fri, 21 Dec 2001 16:48:33 -0500
+Received: from pop.gmx.net ([213.165.64.20]:37731 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S286606AbRLUVsT>;
+	Fri, 21 Dec 2001 16:48:19 -0500
+From: Hans-Christian Armingeon <linux.johnny@gmx.net>
 To: linux-kernel@vger.kernel.org
-Cc: marcelo@conectiva.com.br
-Subject: [PATCH] Minor touch to filemap.c
-From: Momchil Velikov <velco@fadata.bg>
-Date: 21 Dec 2001 23:28:48 +0200
-Message-ID: <87ello9sa7.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+Subject: Re: link errors with CONFIG_SERIAL_ACPI enabled
+Date: Fri, 21 Dec 2001 23:48:54 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011221204458Z286550-18284+5821@vger.kernel.org>
+In-Reply-To: <20011221204458Z286550-18284+5821@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_I1UPQXULLZPA0L3TKBPR"
+Message-Id: <20011221214826Z286606-18285+3968@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As Linus pointed out, we've just checked that page is NULL.
 
---- 1.5/mm/filemap.c	Fri Dec 21 11:54:14 2001
-+++ edited/mm/filemap.c	Fri Dec 21 23:26:07 2001
-@@ -941,7 +941,6 @@
- 	spin_unlock(&pagecache_lock);
- 	if (!page) {
- 		struct page *newpage = alloc_page(gfp_mask);
--		page = NULL;
- 		if (newpage) {
- 			spin_lock(&pagecache_lock);
- 			page = __find_lock_page_helper(mapping, index, *hash);
+--------------Boundary-00=_I1UPQXULLZPA0L3TKBPR
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
+Am Freitag, 21. Dezember 2001 22:45 schrieb Hans-Christian Armingeon:
+> Hi folks,
+> I noticed, that every time I switch on CONFIG_SERIAL_ACPI as a Module, I
+> get some linker errors when make bzImage tries to link the bzImage
+> together. I don't have the exact output at hands, but I'll reproduce it if
+> needed.
+here it comes
+>
+> Johnny
+
+--------------Boundary-00=_I1UPQXULLZPA0L3TKBPR
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="linux-errors"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-errors"
+
+bWFrZSBhbGxfdGFyZ2V0cwptYWtlWzJdOiBFbnRlcmluZyBkaXJlY3RvcnkgYC91c3Ivc3JjL2xp
+bnV4LTIuNC4xNy9hcmNoL2kzODYvbGliJwpnY2MgLURfX0FTU0VNQkxZX18gLURfX0tFUk5FTF9f
+IC1JL3Vzci9zcmMvbGludXgtMi40LjE3L2luY2x1ZGUgLWMgY2hlY2tzdW0uUyAtbyBjaGVja3N1
+bS5vCmdjYyAtRF9fS0VSTkVMX18gLUkvdXNyL3NyYy9saW51eC0yLjQuMTcvaW5jbHVkZSAtV2Fs
+bCAtV3N0cmljdC1wcm90b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm9taXQtZnJhbWUtcG9p
+bnRlciAtZm5vLXN0cmljdC1hbGlhc2luZyAtZm5vLWNvbW1vbiAtcGlwZSAtbXByZWZlcnJlZC1z
+dGFjay1ib3VuZGFyeT0yIC1tYXJjaD1pMzg2ICAgIC1jIC1vIG9sZC1jaGVja3N1bS5vIG9sZC1j
+aGVja3N1bS5jCmdjYyAtRF9fS0VSTkVMX18gLUkvdXNyL3NyYy9saW51eC0yLjQuMTcvaW5jbHVk
+ZSAtV2FsbCAtV3N0cmljdC1wcm90b3R5cGVzIC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm9taXQtZnJh
+bWUtcG9pbnRlciAtZm5vLXN0cmljdC1hbGlhc2luZyAtZm5vLWNvbW1vbiAtcGlwZSAtbXByZWZl
+cnJlZC1zdGFjay1ib3VuZGFyeT0yIC1tYXJjaD1pMzg2ICAgIC1jIC1vIGRlbGF5Lm8gZGVsYXku
+YwpnY2MgLURfX0tFUk5FTF9fIC1JL3Vzci9zcmMvbGludXgtMi40LjE3L2luY2x1ZGUgLVdhbGwg
+LVdzdHJpY3QtcHJvdG90eXBlcyAtV25vLXRyaWdyYXBocyAtTzIgLWZvbWl0LWZyYW1lLXBvaW50
+ZXIgLWZuby1zdHJpY3QtYWxpYXNpbmcgLWZuby1jb21tb24gLXBpcGUgLW1wcmVmZXJyZWQtc3Rh
+Y2stYm91bmRhcnk9MiAtbWFyY2g9aTM4NiAgICAtYyAtbyB1c2VyY29weS5vIHVzZXJjb3B5LmMK
+Z2NjIC1EX19BU1NFTUJMWV9fIC1EX19LRVJORUxfXyAtSS91c3Ivc3JjL2xpbnV4LTIuNC4xNy9p
+bmNsdWRlIC1jIGdldHVzZXIuUyAtbwpnZXR1c2VyLm8KZ2NjIC1EX19LRVJORUxfXyAtSS91c3Iv
+c3JjL2xpbnV4LTIuNC4xNy9pbmNsdWRlIC1XYWxsIC1Xc3RyaWN0LXByb3RvdHlwZXMgLVduby10
+cmlncmFwaHMgLU8yIC1mb21pdC1mcmFtZS1wb2ludGVyIC1mbm8tc3RyaWN0LWFsaWFzaW5nIC1m
+bm8tY29tbW9uIC1waXBlIC1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5PTIgLW1hcmNoPWkzODYg
+ICAgLWMgLW8gbWVtY3B5Lm8gbWVtY3B5LmMKZ2NjIC1EX19LRVJORUxfXyAtSS91c3Ivc3JjL2xp
+bnV4LTIuNC4xNy9pbmNsdWRlIC1XYWxsIC1Xc3RyaWN0LXByb3RvdHlwZXMgLVduby10cmlncmFw
+aHMgLU8yIC1mb21pdC1mcmFtZS1wb2ludGVyIC1mbm8tc3RyaWN0LWFsaWFzaW5nIC1mbm8tY29t
+bW9uIC1waXBlIC1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5PTIgLW1hcmNoPWkzODYgICAgLWMg
+LW8gc3Ryc3RyLm8gc3Ryc3RyLmMKZ2NjIC1EX19LRVJORUxfXyAtSS91c3Ivc3JjL2xpbnV4LTIu
+NC4xNy9pbmNsdWRlIC1XYWxsIC1Xc3RyaWN0LXByb3RvdHlwZXMgLVduby10cmlncmFwaHMgLU8y
+IC1mb21pdC1mcmFtZS1wb2ludGVyIC1mbm8tc3RyaWN0LWFsaWFzaW5nIC1mbm8tY29tbW9uIC1w
+aXBlIC1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5PTIgLW1hcmNoPWkzODYgICAgLWMgLW8gaW9k
+ZWJ1Zy5vIGlvZGVidWcuYwpybSAtZiBsaWIuYQphciAgcmNzIGxpYi5hIGNoZWNrc3VtLm8gb2xk
+LWNoZWNrc3VtLm8gZGVsYXkubyB1c2VyY29weS5vIGdldHVzZXIubyBtZW1jcHkubyBzdHJzdHIu
+byBpb2RlYnVnLm8KbWFrZVsyXTogTGVhdmluZyBkaXJlY3RvcnkgYC91c3Ivc3JjL2xpbnV4LTIu
+NC4xNy9hcmNoL2kzODYvbGliJwptYWtlWzFdOiBMZWF2aW5nIGRpcmVjdG9yeSBgL3Vzci9zcmMv
+bGludXgtMi40LjE3L2FyY2gvaTM4Ni9saWInCmxkIC1tIGVsZl9pMzg2IC1UIC91c3Ivc3JjL2xp
+bnV4LTIuNC4xNy9hcmNoL2kzODYvdm1saW51eC5sZHMgLWUgc3RleHQgYXJjaC9pMzg2L2tlcm5l
+bC9oZWFkLm8gYXJjaC9pMzg2L2tlcm5lbC9pbml0X3Rhc2subyBpbml0L21haW4ubyBpbml0L3Zl
+cnNpb24ubyBcCiAgICAgICAgLS1zdGFydC1ncm91cCBcCiAgICAgICAgYXJjaC9pMzg2L2tlcm5l
+bC9rZXJuZWwubyBhcmNoL2kzODYvbW0vbW0ubyBrZXJuZWwva2VybmVsLm8gbW0vbW0ubyBmcy9m
+cy5vIGlwYy9pcGMubyBcCiAgICAgICAgIGRyaXZlcnMvYWNwaS9hY3BpLm8gZHJpdmVycy9jaGFy
+L2NoYXIubyBkcml2ZXJzL2Jsb2NrL2Jsb2NrLm8gZHJpdmVycy9taXNjL21pc2MubyBkcml2ZXJz
+L25ldC9uZXQubyBkcml2ZXJzL21lZGlhL21lZGlhLm8gZHJpdmVycy9jaGFyL2RybS9kcm0ubyBk
+cml2ZXJzL25ldC9mYy9mYy5vIGRyaXZlcnMvbmV0L2FwcGxldGFsay9hcHBsZXRhbGsubyBkcml2
+ZXJzL2Nkcm9tL2RyaXZlci5vIGRyaXZlcnMvcGNpL2RyaXZlci5vIGRyaXZlcnMvbmV0L3BjbWNp
+YS9wY21jaWFfbmV0Lm8gZHJpdmVycy9uZXQvd2lyZWxlc3Mvd2lyZWxlc3NfbmV0Lm8KZHJpdmVy
+cy92aWRlby92aWRlby5vIGRyaXZlcnMvbmV0L2hhbXJhZGlvL2hhbXJhZGlvLm8gZHJpdmVycy9t
+ZC9tZGRldi5vIFwKICAgICAgICBuZXQvbmV0d29yay5vIFwKICAgICAgICAvdXNyL3NyYy9saW51
+eC0yLjQuMTcvYXJjaC9pMzg2L2xpYi9saWIuYSAvdXNyL3NyYy9saW51eC0yLjQuMTcvbGliL2xp
+Yi5hIC91c3Ivc3JjL2xpbnV4LTIuNC4xNy9hcmNoL2kzODYvbGliL2xpYi5hIFwKICAgICAgICAt
+LWVuZC1ncm91cCBcCiAgICAgICAgLW8gdm1saW51eApkcml2ZXJzL2NoYXIvY2hhci5vOiBJbiBm
+dW5jdGlvbiBgc2V0dXBfc2VyaWFsX2FjcGknOgpkcml2ZXJzL2NoYXIvY2hhci5vKC50ZXh0Lmlu
+aXQrMHhmOGQpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBlYXJseV9zZXJpYWxfc2V0dXAnCm1h
+a2U6ICoqKiBbdm1saW51eF0gRXJyb3IgMQo=
+
+--------------Boundary-00=_I1UPQXULLZPA0L3TKBPR--

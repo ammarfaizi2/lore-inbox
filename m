@@ -1,52 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130374AbRANMIX>; Sun, 14 Jan 2001 07:08:23 -0500
+	id <S132279AbRANMIx>; Sun, 14 Jan 2001 07:08:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132279AbRANMIN>; Sun, 14 Jan 2001 07:08:13 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:61012 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130374AbRANMIC>; Sun, 14 Jan 2001 07:08:02 -0500
-Date: Sun, 14 Jan 2001 12:07:59 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: LAMBERT Bernard <bga.lambert@wanadoo.fr>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: lp with kernel 2.2.18
-Message-ID: <20010114120759.A7887@redhat.com>
-In-Reply-To: <3A615D6D.AF2E8982@wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A615D6D.AF2E8982@wanadoo.fr>; from bga.lambert@wanadoo.fr on Sun, Jan 14, 2001 at 09:03:57AM +0100
+	id <S132496AbRANMIf>; Sun, 14 Jan 2001 07:08:35 -0500
+Received: from jdi.jdimedia.nl ([212.204.192.51]:22801 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S132279AbRANMI1>;
+	Sun, 14 Jan 2001 07:08:27 -0500
+Date: Sun, 14 Jan 2001 13:08:16 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+To: "David S. Miller" <davem@redhat.com>
+cc: Harald Welte <laforge@gnumonks.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0 + iproute2
+In-Reply-To: <14945.28354.209720.579437@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.30.0101141253590.16758-100000@jdi.jdimedia.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Igmar Palsenberg writes:
+>
+>  > we might want to consider changing the error the call gives in case
+>  > MULTIPLE_TABLES isn't set. -EINVAL is ugly, -ENOSYS should make the error
+>  > more clear..
+>
+> How do I tell the difference between using the wrong system call
+> number to invoke an ioctl or socket option change, and making a
+> call for a feature I haven't configured into my kernel?
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The large tables option is rather strange : Looking at the name I start
+thinking that the option is actually already there, but this option
+enlarges this table.
 
-Looks like you didn't configure your kernel with printer support.  You
-want CONFIG_PRINTER.
+When the kernel return -EINVAL I start thinking that the call is actually
+supported, but the userspace stuff sends garbage. In this case, it sends
+valid data, bit the call isn't there.
 
-Tim.
-*/
+I haven't had a real good look at the code, but we might change the
+behaviour so that the call fails (same case if NETLINK isn't compiled in,
+you get an error when creating the socket).
 
---sdtB3X0nJg68CQEu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+If this isn't possible (if we don't know what userspace wants when
+creating the socket, it's a good idea to print an aditional hint saying
+'you might want to compile LARGE TABLES option'.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> I think ENOSYS is just a bad a choice.
 
-iD8DBQE6YZaeONXnILZ4yVIRAorqAJ9ccTse9cwRE8/YuQzPYcamXvx46gCdGUOy
-/mwVrtFP2aPMPTdUrWEZAI0=
-=36Yn
------END PGP SIGNATURE-----
+Maybe time for a ENOTSUPPORTED or so ?
 
---sdtB3X0nJg68CQEu--
+The config option says :
+
+'If you have routing zones that grow to more than about 64 entries, you
+may want to say Y here to speed up the routing process'
+
+Which I assume that it just enlarges the table.
+
+-ENOSYS is bad in this case indeed, but -EINVAL is also bad IMHO.
+
+
+
+	Regards,
+
+		Igmar
+-- 
+
+--
+Igmar Palsenberg
+JDI Media Solutions
+
+Jansplaats 11
+6811 GB Arnhem
+The Netherlands
+
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

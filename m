@@ -1,60 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283603AbSAATlP>; Tue, 1 Jan 2002 14:41:15 -0500
+	id <S283780AbSAAT4h>; Tue, 1 Jan 2002 14:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283259AbSAATlF>; Tue, 1 Jan 2002 14:41:05 -0500
-Received: from [212.84.215.194] ([212.84.215.194]:17163 "EHLO reactor.hyte.de")
-	by vger.kernel.org with ESMTP id <S283594AbSAATky>;
-	Tue, 1 Jan 2002 14:40:54 -0500
-Date: Tue, 1 Jan 2002 19:42:03 +0100 (CET)
-From: Joachim Steiger <roh@hyte.de>
-To: Bill Nottingham <notting@redhat.com>
-cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Scott McDermott <vaxerdec@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Framebuffer...Why oh Why???
-In-Reply-To: <20011231214322.A26481@nostromo.devel.redhat.com>
-Message-ID: <Pine.LNX.4.21.0201011928590.2321-100000@reactor.hyte.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283758AbSAAT41>; Tue, 1 Jan 2002 14:56:27 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:7161 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S283265AbSAAT4K>; Tue, 1 Jan 2002 14:56:10 -0500
+Date: Tue, 1 Jan 2002 14:56:05 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Ed Tomlinson <tomlins@cam.org>, Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] in 2.4.17 after 10 days uptime
+Message-ID: <20020101145605.B3283@redhat.com>
+In-Reply-To: <20020101071802.6E8533F2B6@oscar.casa.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020101071802.6E8533F2B6@oscar.casa.dyndns.org>; from tomlins@cam.org on Tue, Jan 01, 2002 at 02:18:01AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 01, 2002 at 02:18:01AM -0500, Ed Tomlinson wrote:
+> I started getting these bugs after about 10 days uptime.  There is a patch 
+> set for reiserfs applied along with a few minor patches (ide-tape, disk 
+> stats for up to hdg).  The kernel is tainted by:
 
-i didn't wrote it, i can only give you a hint where to find it
-so you can try it
+Expected BUG.  Here's the fix.  Marcelo, this is what we discussed previously: 
+parts of the kernel that grab a temporary reference to a page will frequently 
+not use page_cache_release as the page may never have been part of the page 
+cache.  This shows up with the network stack in sendpage() as well as many 
+other paths.  Please apply.
 
-http://directfb.org/cgi-bin/cvsweb.cgi/~checkout~/
-DirectFB/patches/neofb-0.3-linux-2.4.17.patch.bz2
-
-it applys fine an i have i patched it in out own working tree
-as far as i know it is tested on acer, sony vaio and some thinkpad
-and works great.
-since 0.3 move and clear is implemented by using the acclerator on nm2200
-and above so you really gain speed when scrolling though your consoles
-
-there is also some patch for aty128fb i use some time now without any
-problems... anyway... now my ati works, before it doesnt.
-
-have fun testing, and yes... a textconsole at native resolution is that
-what i need to work with an lc-monitor.... 1600x1024 looks great booting
-at native resolution:
-Console: switching to colour frame buffer device 200x64
-
-On Mon, 31 Dec 2001, Bill Nottingham wrote:
-
-> Arnaldo Carvalho de Melo (acme@conectiva.com.br) said: 
-> > My card is a Neomagic, so I use vesafb...
-> > 
-> > Please let me know if somebody has specs for:
-> > 
-> > 00:08.0 VGA compatible controller: Neomagic Corporation NM2160 [MagicGraph
-> > 128XD] (rev 01)
-> 
-> Someone wrote a neomagic framebuffer driver at some point; ISTR
-> the patch showing up on linux-kernel. Mind you, I don't know that
-> it was accelerated at all...
-> 
-> Bill
-
+:r ~/patches/v2.4.17-pglru.diff
+diff -urN v2.4.17/include/linux/pagemap.h v2.4.17-pglru/include/linux/pagemap.h
+--- v2.4.17/include/linux/pagemap.h	Thu Dec 20 19:30:25 2001
++++ v2.4.17-pglru/include/linux/pagemap.h	Tue Jan  1 14:46:04 2002
+@@ -29,7 +29,7 @@
+ #define PAGE_CACHE_ALIGN(addr)	(((addr)+PAGE_CACHE_SIZE-1)&PAGE_CACHE_MASK)
+ 
+ #define page_cache_get(x)	get_page(x)
+-extern void FASTCALL(page_cache_release(struct page *));
++#define page_cache_release(x)	__free_page(x)
+ 
+ static inline struct page *page_cache_alloc(struct address_space *x)
+ {
+diff -urN v2.4.17/kernel/ksyms.c v2.4.17-pglru/kernel/ksyms.c
+--- v2.4.17/kernel/ksyms.c	Tue Jan  1 14:09:35 2002
++++ v2.4.17-pglru/kernel/ksyms.c	Tue Jan  1 14:46:55 2002
+@@ -95,7 +95,6 @@
+ EXPORT_SYMBOL(alloc_pages_node);
+ EXPORT_SYMBOL(__get_free_pages);
+ EXPORT_SYMBOL(get_zeroed_page);
+-EXPORT_SYMBOL(page_cache_release);
+ EXPORT_SYMBOL(__free_pages);
+ EXPORT_SYMBOL(free_pages);
+ EXPORT_SYMBOL(num_physpages);
+diff -urN v2.4.17/mm/page_alloc.c v2.4.17-pglru/mm/page_alloc.c
+--- v2.4.17/mm/page_alloc.c	Mon Nov 26 23:43:08 2001
++++ v2.4.17-pglru/mm/page_alloc.c	Tue Jan  1 14:44:59 2002
+@@ -70,6 +70,12 @@
+ 	struct page *base;
+ 	zone_t *zone;
+ 
++	/* Yes, think what happens when other parts of the kernel take 
++	 * a reference to a page in order to pin it for io. -ben
++	 */
++	if (PageLRU(page))
++		lru_cache_del(page);
++
+ 	if (page->buffers)
+ 		BUG();
+ 	if (page->mapping)
+@@ -426,15 +432,6 @@
+ 	return 0;
+ }
+ 
+-void page_cache_release(struct page *page)
+-{
+-	if (!PageReserved(page) && put_page_testzero(page)) {
+-		if (PageLRU(page))
+-			lru_cache_del(page);
+-		__free_pages_ok(page, 0);
+-	}
+-}
+-
+ void __free_pages(struct page *page, unsigned int order)
+ {
+ 	if (!PageReserved(page) && put_page_testzero(page))

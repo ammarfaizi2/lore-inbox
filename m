@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289813AbSCHWnB>; Fri, 8 Mar 2002 17:43:01 -0500
+	id <S291088AbSCHWzS>; Fri, 8 Mar 2002 17:55:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290919AbSCHWmv>; Fri, 8 Mar 2002 17:42:51 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:19372 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S289813AbSCHWml>;
-	Fri, 8 Mar 2002 17:42:41 -0500
-Date: Fri, 8 Mar 2002 14:40:24 -0800 (PST)
-From: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] stop null ptr deference in __alloc_pages
-In-Reply-To: <37610000.1015624249@flay>
-Message-ID: <Pine.LNX.4.33.0203081356060.18968-100000@dbear.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291214AbSCHWzJ>; Fri, 8 Mar 2002 17:55:09 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:41738 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S291088AbSCHWyw>; Fri, 8 Mar 2002 17:54:52 -0500
+Message-Id: <200203082254.g28MsnO08634@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Dave Jones <davej@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] modularization of i386 setup_arch and mem_init in 2.4.18
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 08 Mar 2002 17:54:49 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Mar 2002, Martin J. Bligh wrote:
+> As a sidenote (sort of related topic) :
+>  An idea being kicked around a little right now is x86 subarch
+>  support for 2.5. With so many of the niche x86 spin-offs appearing
+>  lately, all fighting for their own piece of various files in
+>  arch/i386/kernel/, it may be time to do the same as the ARM folks
+> did,
+>  and have..
 
-> >> I should have also mentioned that:
-> >>
-> >> 1) I shouldn't need the SGI patch, though it might help performance.
-> >
-> > Why shouldn't you need it ? It is NUMA generic, and totally arch
-> > independent.
->
-> I just mean the kernel shouldn't panic if I don't have it.
-That is true...
+>   arch/i386/generic/
+>   arch/i386/numaq/
+>   arch/i386/visws
+>   arch/i386/voyager/
+>   etc..
 
+I'll go for this (although it's probably a 2.5 thing rather than 2.4).  The 
+key to making an effective split is to get the abstractions in the generic 
+part correct.  I suspect that each of the different arch's has slightly 
+different abstraction requirements of the i386 routines, but if we begin the 
+split in one arch and pass it around to the others we'll end up with something 
+that is roughly correct.
 
-> > And it actually helps performance. I also allows the kernel to have a
-> > single memory allocation path. I think it is cleaner than calling _alloc_pages()
-> > from numa.c
-> >
-> >> 2) The kernel panics without my fix, and runs fine with it.
-> > I hope so  :-)
-> > But your fix is at the same time useless and harmless for UMA machines.
->
-> Yup, though I suppose we could shave off a couple of nanoseconds by
-> surrounding my little check with #ifdef CONFIG_NUMA.
->
-> > OTOH, the SGI patch doesn't modify __alloc_pages(). I think I'm a little
-> > too picky here...
->
-> With the #ifdef, I won't really do this either (at least for the code generated).
->
-> The SGI patch is probably a good thing, and I'll pick it up and try it
-> sometime soon. The only real problem is that it's not in the mainline
-> already. Until such time as it gets there, the fix I posted is trivial,
-> and easily seen to be correct (well, I'm biased ;-) ), and should get
-> shoved into the mainline much easier.
-You're right. It's on -aa kernels, so it'll get in mainline soon.
+I'll look at doing at least a generic and voyager in the next week (if I get 
+time).
 
-Cheers,
-Samuel.
-
+James
 
 

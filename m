@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbTJWREu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 13:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTJWREt
+	id S263640AbTJWROo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 13:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTJWROo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 13:04:49 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:46033 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S263636AbTJWREp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 13:04:45 -0400
-Message-ID: <3F980A16.1050309@nortelnetworks.com>
-Date: Thu, 23 Oct 2003 13:04:22 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Thu, 23 Oct 2003 13:14:44 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:24793 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263640AbTJWROl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 13:14:41 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] ide write barrier support
+Date: Thu, 23 Oct 2003 19:20:39 +0200
+User-Agent: KMail/1.5.3
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20031013140858.GU1107@suse.de> <200310231822.36023.phillips@arcor.de> <20031023162310.GQ6461@suse.de>
+In-Reply-To: <20031023162310.GQ6461@suse.de>
 MIME-Version: 1.0
-To: Giuliano Pochini <pochini@shiny.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 005 release
-References: <XFMail.20031023103313.pochini@shiny.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310231920.39888.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Pochini wrote:
+On Thursday 23 October 2003 18:23, Jens Axboe wrote:
+> On Thu, Oct 23 2003, Daniel Phillips wrote:
+> > I'm specifically interested in working out the issues related to stacked
+> > virtual devices, and there are many.  Let me start with an easy one.
+> >
+> > Consider a multipath virtual device that is doing load balancing and
+> > wants to handle write barriers efficiently, not just allow the
+> > downstream queues to drain before allowing new writes.  This device
+> > wants to send a write barrier to each of the downstream devices,
+> > however, we have only one write request to carry the barrier bit.  How
+> > do you recommend handling this situation?
+>
+> That needs something to hold the state in, and a bio per device. As
+> they complete, mark them as such. When they all have completed, barrier
+> is done.
+>
+> That's just an idea, I'm sure there are other ways. Depending on how
+> complex it gets, it might not be a bad idea to just let the queues drain
+> though. I think I'd prefer that approach.
 
-> Just a few dumb questions: Is it possible to make a disk appear
-> always with the same name, regardless the order it is detected in
-> the scsi chain (and possibly its scsi ID) ?
+These are essentially the same, they both rely on draining the downstream 
+queues.  But if we could keep the downstream queues full, bus transfers for 
+post-barrier writes will overlap the media transfers for pre-barrier writes, 
+which would seem to be worth some extra effort.
 
-Please, do some googling before asking, maybe read the OLS paper.  This 
-has all been covered previously.
+To keep the downstream queues full, we must submit write barriers to all the 
+downstream devices and not wait for completion.  That is, as soon as a 
+barrier is issued to a given downstream device we can start passing through 
+post-barrier writes to it.
 
-Chris
+Assuming this is worth doing, how do we issue N barriers to the downstream 
+devices when we have only one incoming barrier write?
 
+Regards,
 
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Daniel
 

@@ -1,84 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUFTORo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265289AbUFTOSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265288AbUFTORo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 10:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUFTORn
+	id S265289AbUFTOSX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 10:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbUFTOSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 10:17:43 -0400
-Received: from pdbn-d9bb9eb6.pool.mediaWays.net ([217.187.158.182]:56588 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S265288AbUFTORl (ORCPT
+	Sun, 20 Jun 2004 10:18:23 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:31398 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S265289AbUFTOSN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 10:17:41 -0400
-Date: Sun, 20 Jun 2004 16:17:34 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
+	Sun, 20 Jun 2004 10:18:13 -0400
+Date: Sun, 20 Jun 2004 16:18:07 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: Kernel 2.6.6 & 2.6.7 sometime hang after much I/O
-Message-ID: <20040620141734.GA28048@citd.de>
-References: <Pine.LNX.4.44.0406201123240.26522-100000@korben.citd.de> <40D56700.2030206@yahoo.com.au> <20040620115908.GA27241@citd.de> <40D58B93.4040304@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40D58B93.4040304@yahoo.com.au>
-User-Agent: Mutt/1.3.27i
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Memory and rsync problem with vanilla 2.6.7
+In-Reply-To: <40D508E8.2050407@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0406201543520.22369@alpha.polcom.net>
+References: <20040426013944.49a105a8.akpm@osdl.org>
+ <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net>
+ <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net>
+ <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org>
+ <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net>
+ <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net>
+ <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org> <40D508E8.2050407@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 20, 2004 at 11:05:23PM +1000, Nick Piggin wrote:
-> Matthias Schniedermeyer wrote:
+On Sun, 20 Jun 2004, Nick Piggin wrote:
+
+> Linus Torvalds wrote:
+> > 
+> > On Sat, 19 Jun 2004, Grzegorz Kulewski wrote:
+> > 
+> >>Is this bug or feature? Is there some wreid memmory leak? Where is my RAM?
+> > 
+> > 
+> > Your memory is apparently in dentry and inode memory:
+> > 
+> > 	ext3_inode_cache   62553  62553   4096		(244MB)
+> > 	dentry_cache       48768  48768   4096		(190MB)
+> > 
+> > and it really looks like you have enabled CONFIG_DEBUG_PAGEALLOC, which 
+> > just eats memory like mad (a dentry is normally ~200 bytes, but then when 
+> > it is rounded up to page-size, it takes 20 times the memory).
+> > 
+> > So don't enable DEBUG_PAGEALLOC unless you really want to debug some 
+> > strange problem.
+> > 
 > 
-> >Here we go.
-> >
-> >Addendum: After some time more and more konsole froze. Up to the point
-> >where i (had to) kill(ed) X(CTRL-ALT-Backspace) and after i couldn't
-> >even log in at the console anymore i rebooted (into 2.6.5). Then i
-> >recompiled 2.6.7 with SYSRQ-support and tried to reproduce the hanging
-> >without X. After 3 runs i "gave up" and started X. Here i had luck and
-> >the process ('cut-movie.pl') froze at first try. Then i killed X and did
-> >the above on the console.
-> >
-> >As the system is currently unsuable enough to reboot, i will reboot in
-> >2.6.5 after this mail, but i can always reboot into 2.6.7 if you need
-> >more input.
-> >
-> >
+> This could be it. But can you check whether your previous well-behaving
+> kernel also has CONFIG_DEBUG_PAGEALLOC on? If so, then it is possible
+> that VM behaviour has regressed.
+
+I always test new kernels with all debug enabled just in case. If 
+everything is ok I recompile them without debuging. And sometimes I use 
+rsync before I recompile and I never experienced such problems so I think 
+something was changed.
+
+
+> Of course, DEBUG_PAGEALLOC is the wrong target to attempt to tune for:
+> without it, those above two items would take up a combined 40 megs.
+
+Yes, of course. Maybe there should be bigger warning in make config about 
+this option? Btw. many debug options have very short help (if any) not 
+saying how bad they interract with speed and memory. Maybe there should be 
+some submenu with "mad" debug options only for insane people :)?
+
+
+> > That said, there might be a memory balancing problem too, and
+> > DEBUG_PAGEALLOC just makes it more obvious.  Nick Piggin reports that an
+> > "obvious fix" by Andrew potentially causes problems, and if you're a BK
+> > user, you could try just backing out this cset:
+> > 
+> > 	ChangeSet@1.1722.88.2, 2004-06-03 07:58:03-07:00, akpm@osdl.org
+> > 	  [PATCH] shrink_all_memory() fixes
+> > 
+> > 	....
+> > 
+> > (check with "bk changes" what the revision is in your tree, and do a
+> > 
+> > 	bk cset -xX.XXX.XX.X
+> > 
+> > to try reverting it. Quite possibly that fix makes the VM much less likely
+> > to throw out the VM caches, which would make the debug problem much 
+> > worse).
 > 
-> The attached trace was with 2.6.7, right?
+> Well it doesn't seem to have caused too much trouble as yet... But it
+> is the obvious candidate if your problems continue. If you are not a
+> bk user, the attached patch will also revert that change.
 
-Yes.
-
-> Can you reproduce the hang, then, as root, do:
-> 
-> 	echo 1024 > /sys/block/sda/queue/nr_requests
-> 
-> Replace sda with whatever devices your hung processes were
-> doing IO to. Do things start up again?
-
-1 try (with X) with unchanged nr_requests. (I was stupid enough to issues the
-command on the wrong HDD :-) )
-(AFAIR i had the same situation with 2.6.6, sometimes the hang didn't happen)
-
-6 tries (with X) with nr_requests=1024 and no hang.
-
-1 try with nr_requests back to 128 and now it hangs.
-now changing to nr_request=1024 doesn't seem to change anyting, my
-konsoles start to freeze.
+Thanks, I will test it soon and I will report results. But I am not saying 
+it is a bug - maybe it is simply change that can lead to problems with 
+insane debug options but itself is good?
 
 
-Don't know if it is relevant but the bytes transfered are always rougly
-around 3000-3400MB (1500-1700 MB read & 1500-1700 MB write. The program
-reads 100MB, then writes 100MB, then issues "sync", the hangs happend
-always about every after 15-17 "rounds")
+Thanks,
 
-
-
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
+Grzegorz Kulewski 
 

@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130072AbQKKIYo>; Sat, 11 Nov 2000 03:24:44 -0500
+	id <S130256AbQKKIaf>; Sat, 11 Nov 2000 03:30:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130123AbQKKIYe>; Sat, 11 Nov 2000 03:24:34 -0500
-Received: from ozone.fmi.fi ([193.166.223.16]:38697 "EHLO ozone.fmi.fi")
-	by vger.kernel.org with ESMTP id <S130072AbQKKIYW>;
-	Sat, 11 Nov 2000 03:24:22 -0500
-From: "Kari E. Hurtta" <Kari.Hurtta@ozone.FMI.FI>
-Message-Id: <200011110823.eAB8Nxc354799@ozone.fmi.fi>
-Subject: [OFF] Load avarage (Re: sendmail fails to deliver mail with attachments
- in /var/spool/mqueue)
-In-Reply-To: <20001110142547.F16213@sendmail.com> "from Claus Assmann at Nov
- 10, 2000 02:25:47 pm"
-To: sendmail <sendmail@sendmail.org>
-Date: Sat, 11 Nov 2000 10:23:58 +0200 (EET)
-CC: David Lang <david.lang@digitalinsight.com>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Reply-To: sendmail <sendmail@sendmail.org>
-X-Mailer: ELM [version 2.4ME+ PL83 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S130245AbQKKIa0>; Sat, 11 Nov 2000 03:30:26 -0500
+Received: from linus.st-and.ac.uk ([138.251.32.11]:35483 "EHLO
+	linus.st-andrews.ac.uk") by vger.kernel.org with ESMTP
+	id <S130232AbQKKIaS>; Sat, 11 Nov 2000 03:30:18 -0500
+Date: Sat, 11 Nov 2000 08:26:07 GMT
+Message-Id: <200011110826.IAA01091@hindleyhome.st-andrews.ac.uk>
+From: Mark Hindley <mh15@st-andrews.ac.uk>
+To: linux-sound@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: opl3 under 2.4.0-test10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Claus Assmann:
-> Why does Linux report a LA of 10 if there are only two processes
-> running?
+I am trying to setup my ALS 110 soundcard under my build of kernel
+2.4.0-test10.
 
-[This goes out of subject]
+I have built in isapnp support and also the sb and opl3 drivers. 
 
-I have learned that load avarage means
+The sb driver works fine other than complaining about a missing 16 bit
+DMA (which I understand is missing from the card anyway). I can play
+and record wav with no problems. I am still missing MIDI.
 
-	"Processes on run queue" + 
-	"process waiting disk (or short-term) I/O"
+However, even though I pass opl3=0x388 on the Kernel command line all
+I get is an isapnp panic.
 
-That was before Linux times.
+Am I doing something silly or is there a bug? Is it a sound driver or
+isapnp or kernel problem?
 
-I have seen a workstation go to show load-average 100.
-That happened when NFS-server (or network) died. These
-workstations were diskless, so all processes ended to
-waiting of "disk" I/O.
+While trying to locate the problem I could not get any response from
+/dev/sndstat.
 
-These were Sun's diskless workstation models.
+% cat /dev/sndstat
+cat: /dev/sndstat: No such device
 
-So it is not new that load average includes something else than
-processes waiting for CPU.
+Is it not supported in 2.4.0? I can't find the same info in the /proc filesystem.
 
-/ Kari Hurtta
 
-(That was on Computer Science department of University of Helsinki.)
+The full dmesg extract that seems relevant is 
+
+Linux version 2.4.0-test10 (root@HindleyHome) (gcc version 2.95.2 20000220 (Debian GNU/Linux)) #26 Fri Nov 3 18:08:00 GMT 2000
+
+YM3812 and OPL-3 driver Copyright (C) by Hannu Savolainen, Rob Hooft 1993-1996
+Soundblaster audio driver Copyright (C) by Hannu Savolainen 1993-1996
+sb: PnP Sound Chip detected
+sb: ALS110 isapnp panic: opl3 device not found
+sb: ISAPnP reports 'PnP Sound Chip' at i/o 0x220, irq 5, dma 3, 1
+SB16: Bad or missing 16 bit DMA channel
+<Sound Blaster 16 (ALS-100) (4.02)> at 0x220 irq 5 dma 3,1
+sb: 1 Soundblaster PnP card(s) found.
+
+Thanks for the help
+
+
+Mark
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

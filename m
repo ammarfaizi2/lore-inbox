@@ -1,278 +1,1353 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265540AbUFUCow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265422AbUFUDI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265540AbUFUCow (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 22:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265994AbUFUCow
+	id S265422AbUFUDI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 23:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUFUDI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 22:44:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51121 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265540AbUFUCom
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 22:44:42 -0400
-Message-ID: <40D64DF7.5040601@pobox.com>
-Date: Sun, 20 Jun 2004 22:54:47 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Sun, 20 Jun 2004 23:08:26 -0400
+Received: from mail.gmx.net ([213.165.64.20]:54247 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265422AbUFUDH1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 23:07:27 -0400
+X-Authenticated: #21910825
+Message-ID: <40D650C4.2040008@gmx.net>
+Date: Mon, 21 Jun 2004 05:06:44 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.7-bk way too fast
+To: Christoph Hellwig <hch@infradead.org>
+CC: Manfred Spraul <manfred@colorfullife.com>,
+       Brian Lazara <blazara@nvidia.com>,
+       Andrew de Quincey <adq@lidskialf.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] new device support for forcedeth.c third try
+References: <40D43DC3.9000909@gmx.net> <40D46758.10304@colorfullife.com> <40D46EC4.9000007@gmx.net> <20040619165606.GA7754@infradead.org>
+In-Reply-To: <20040619165606.GA7754@infradead.org>
 Content-Type: multipart/mixed;
- boundary="------------040506030001090800080302"
+ boundary="------------050308070405050009040201"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------040506030001090800080302
-Content-Type: text/plain; charset=us-ascii; format=flowed
+--------------050308070405050009040201
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
+Christoph Hellwig wrote:
+> On Sat, Jun 19, 2004 at 06:50:12PM +0200, Carl-Daniel Hailfinger wrote:
+> 
+>>The code duplication will be addressed soon. Right now I'd like to change
+>>the union "u" of v1 and v2 structs to an anonymous union for better
+>>readability.
+> 
+> GCC 2.95 doesn't support anonymous unions, so we can't use it for the kernel.
 
-Something is definitely screwy with the latest -bk.  I updated from a 
-kernel ~1 week ago, and all timer-related stuff is moving at a vastly 
-increased rate.  My guess is twice as fast.  Most annoying is the system 
-clock advances at twice normal rate, and keyboard repeat is so sensitive 
-I am spending quite a bit of time typing this message, what with having 
-to delettte (<== example) extra characters.  Double-clicking is also 
-broken :(
+OK, I avoided that. I will probably use some #define magic or similar to
+streamline current code duplication.
 
-dmesg and config attached.
+So far, I have eliminated three duplicated functions. The rest is going to
+be a bit harder because the meaning of the bitfields changed between
+different descriptor versions, but it is doable.
 
-My guess would be someone broke HPET, but maybe not judging from other 
-lkml reports.
+The attached patch is against latest 2.6 and should compile cleanly.
 
-This is the _first_ 2.6 kernel that has been obviously and wildly broken 
-for me :(
+The following issues remain:
+- Use explicit shifts instead of bitfields
+- Check if the changed locking is correct
+- Look again at the driver for general bugs
+- Streamline the code a bit more
 
-	Jeff
+Oh, and the following code was buggy, the patch changed it, but the bug
+remained:
+@@ -1507,9 +1933,16 @@
+        writel(0, base + NvRegWakeUpFlags);
+        np->wolenabled = 0;
+
+-       np->tx_flags =
+cpu_to_le16(NV_TX_LASTPACKET|NV_TX_LASTPACKET1|NV_TX_VALID);
+-       if (id->driver_data & DEV_NEED_LASTPACKET1)
+-               np->tx_flags |= cpu_to_le16(NV_TX_LASTPACKET1);
++       if (np->desc_ver == DESC_VER_1) {
++               np->tx_flags =
+cpu_to_le16(NV_TX_LASTPACKET|NV_TX_LASTPACKET1|NV_TX_VALID);
++               if (id->driver_data & DEV_NEED_LASTPACKET1)
++                       np->tx_flags |= cpu_to_le16(NV_TX_LASTPACKET1);
++       }
++       else {
++               np->tx_flags =
+cpu_to_le32(NV_TX2_LASTPACKET|NV_TX2_LASTPACKET1|NV_TX2_VALID);
++               if (id->driver_data & DEV_NEED_LASTPACKET1)
++                       np->tx_flags |= cpu_to_le32(NV_TX2_LASTPACKET1);
++       }
+        if (id->driver_data & DEV_IRQMASK_1)
+                np->irqmask = NVREG_IRQMASK_WANTED_1;
+        if (id->driver_data & DEV_IRQMASK_2)
 
 
+np->tx_flags = cpu_to_le16(NV_TX_LASTPACKET|NV_TX_LASTPACKET1|NV_TX_VALID);
+if (id->driver_data & DEV_NEED_LASTPACKET1)
+        np->tx_flags |= cpu_to_le16(NV_TX_LASTPACKET1);
 
+As one can easily see the second bitwise OR is a NOP because the bit has
+been set before. I will fix that in the next release.
 
---------------040506030001090800080302
-Content-Type: application/x-bzip2;
- name="config.txt.bz2"
-Content-Transfer-Encoding: base64
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
+
+--------------050308070405050009040201
+Content-Type: text/plain;
+ name="forcedeth_gigabit_try9.txt"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="config.txt.bz2"
+ filename="forcedeth_gigabit_try9.txt"
 
-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
---------------040506030001090800080302
-Content-Type: application/x-bzip2;
- name="dmesg.txt.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="dmesg.txt.bz2"
+===== drivers/net/forcedeth.c 1.9 vs edited =====
+--- 1.9/drivers/net/forcedeth.c	2004-06-17 01:54:01 +02:00
++++ edited/drivers/net/forcedeth.c	2004-06-21 04:13:13 +02:00
+@@ -12,6 +12,9 @@
+  *
+  * Copyright (C) 2003 Manfred Spraul
+  * Copyright (C) 2004 Andrew de Quincey (wol support)
++ * Copyright (C) 2004 Carl-Daniel Hailfinger (invalid MAC handling, insane
++ * 				IRQ rate fixes, cleanups, verification)
++ * Copyright (c) 2004 NVIDIA Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -60,15 +63,17 @@
+  * 	0.19: 29 Nov 2003: Handle RxNoBuf, detect & handle invalid mac
+  * 			   addresses, really stop rx if already running
+  * 			   in nv_start_rx, clean up a bit.
+- * 				(C) Carl-Daniel Hailfinger
+  * 	0.20: 07 Dec 2003: alloc fixes
+  * 	0.21: 12 Jan 2004: additional alloc fix, nic polling fix.
+  *	0.22: 19 Jan 2004: reprogram timer to a sane rate, avoid lockup
+  * 			   on close.
+- * 				(C) Carl-Daniel Hailfinger, Manfred Spraul
+  *	0.23: 26 Jan 2004: various small cleanups
+  *	0.24: 27 Feb 2004: make driver even less anonymous in backtraces
+  *	0.25: 09 Mar 2004: wol support
++ *	0.26: 03 Jun 2004: netdriver specific annotation, sparse-related fixes
++ *	0.27: 21 Jun 2004: Gigabit support, new descriptor rings,
++ *			   added CK804/MCP04 device IDs, code fixes
++ *			   for registers, link status and other minor fixes.
+  *
+  * Known bugs:
+  * We suspect that on some hardware no TX done interrupts are generated.
+@@ -80,7 +85,7 @@
+  * DEV_NEED_TIMERIRQ will not harm you on sane hardware, only generating a few
+  * superfluous timer interrupts from the nic.
+  */
+-#define FORCEDETH_VERSION		"0.25"
++#define FORCEDETH_VERSION		"0.27"
+ #define DRV_NAME			"forcedeth"
+ 
+ #include <linux/module.h>
+@@ -124,6 +129,7 @@
+ #define NVREG_IRQSTAT_MIIEVENT	0x040
+ #define NVREG_IRQSTAT_MASK		0x1ff
+ 	NvRegIrqMask = 0x004,
++#define NVREG_IRQ_RX_ERROR		0x0001
+ #define NVREG_IRQ_RX			0x0002
+ #define NVREG_IRQ_RX_NOBUF		0x0004
+ #define NVREG_IRQ_TX_ERR		0x0008
+@@ -133,7 +139,7 @@
+ #define NVREG_IRQ_TX1			0x0100
+ #define NVREG_IRQMASK_WANTED_1		0x005f
+ #define NVREG_IRQMASK_WANTED_2		0x0147
+-#define NVREG_IRQ_UNKNOWN		(~(NVREG_IRQ_RX|NVREG_IRQ_RX_NOBUF|NVREG_IRQ_TX_ERR|NVREG_IRQ_TX2|NVREG_IRQ_TIMER|NVREG_IRQ_LINK|NVREG_IRQ_TX1))
++#define NVREG_IRQ_UNKNOWN		(~(NVREG_IRQ_RX_ERROR|NVREG_IRQ_RX|NVREG_IRQ_RX_NOBUF|NVREG_IRQ_TX_ERR|NVREG_IRQ_TX2|NVREG_IRQ_TIMER|NVREG_IRQ_LINK|NVREG_IRQ_TX1))
+ 
+ 	NvRegUnknownSetupReg6 = 0x008,
+ #define NVREG_UNKSETUP6_VAL		3
+@@ -160,7 +166,7 @@
+ 
+ 	NvRegOffloadConfig = 0x90,
+ #define NVREG_OFFLOAD_HOMEPHY	0x601
+-#define NVREG_OFFLOAD_NORMAL	0x5ee
++#define NVREG_OFFLOAD_NORMAL	RX_NIC_BUFSIZE
+ 	NvRegReceiverControl = 0x094,
+ #define NVREG_RCVCTL_START	0x01
+ 	NvRegReceiverStatus = 0x98,
+@@ -169,6 +175,8 @@
+ 	NvRegRandomSeed = 0x9c,
+ #define NVREG_RNDSEED_MASK	0x00ff
+ #define NVREG_RNDSEED_FORCE	0x7f00
++#define NVREG_RNDSEED_FORCE2	0x2d00
++#define NVREG_RNDSEED_FORCE3	0x7400
+ 
+ 	NvRegUnknownSetupReg1 = 0xA0,
+ #define NVREG_UNKSETUP1_VAL	0x16070f
+@@ -182,6 +190,9 @@
+ 	NvRegMulticastMaskA = 0xB8,
+ 	NvRegMulticastMaskB = 0xBC,
+ 
++	NvRegPhyInterface = 0xC0,
++#define PHY_RGMII		0x10000000
++
+ 	NvRegTxRingPhysAddr = 0x100,
+ 	NvRegRxRingPhysAddr = 0x104,
+ 	NvRegRingSizes = 0x108,
+@@ -190,12 +201,12 @@
+ 	NvRegUnknownTransmitterReg = 0x10c,
+ 	NvRegLinkSpeed = 0x110,
+ #define NVREG_LINKSPEED_FORCE 0x10000
+-#define NVREG_LINKSPEED_10	10
++#define NVREG_LINKSPEED_10	1000
+ #define NVREG_LINKSPEED_100	100
+-#define NVREG_LINKSPEED_1000	1000
++#define NVREG_LINKSPEED_1000	50
+ 	NvRegUnknownSetupReg5 = 0x130,
+ #define NVREG_UNKSETUP5_BIT31	(1<<31)
+-	NvRegUnknownSetupReg3 = 0x134,
++	NvRegUnknownSetupReg3 = 0x13c,
+ #define NVREG_UNKSETUP3_VAL1	0x200010
+ 	NvRegTxRxControl = 0x144,
+ #define NVREG_TXRXCTL_KICK	0x0001
+@@ -214,15 +225,15 @@
+ 	NvRegAdapterControl = 0x188,
+ #define NVREG_ADAPTCTL_START	0x02
+ #define NVREG_ADAPTCTL_LINKUP	0x04
+-#define NVREG_ADAPTCTL_PHYVALID	0x4000
++#define NVREG_ADAPTCTL_PHYVALID	0x40000
+ #define NVREG_ADAPTCTL_RUNNING	0x100000
+ #define NVREG_ADAPTCTL_PHYSHIFT	24
+ 	NvRegMIISpeed = 0x18c,
+ #define NVREG_MIISPEED_BIT8	(1<<8)
+ #define NVREG_MIIDELAY	5
+ 	NvRegMIIControl = 0x190,
+-#define NVREG_MIICTL_INUSE	0x10000
+-#define NVREG_MIICTL_WRITE	0x08000
++#define NVREG_MIICTL_INUSE	0x08000
++#define NVREG_MIICTL_WRITE	0x00400
+ #define NVREG_MIICTL_ADDRSHIFT	5
+ 	NvRegMIIData = 0x194,
+ 	NvRegWakeUpFlags = 0x200,
+@@ -254,10 +265,20 @@
+ #define NVREG_POWERSTATE_D3		0x0003
+ };
+ 
++/*FIXME big endian */
++
+ struct ring_desc {
+ 	u32 PacketBuffer;
+-	u16 Length;
+-	u16 Flags;
++	union {
++		struct {
++			u16 Length;
++			u16 Flags;
++		} v1;
++		struct {
++			u32 Length:14;
++			u32 Flags:18;
++		} v2;
++	} u;
+ };
+ 
+ #define NV_TX_LASTPACKET	(1<<0)
+@@ -270,9 +291,19 @@
+ #define NV_TX_ERROR		(1<<14)
+ #define NV_TX_VALID		(1<<15)
+ 
++#define NV_TX2_LASTPACKET	(1<<15)
++#define NV_TX2_RETRYERROR	(1<<4)
++#define NV_TX2_LASTPACKET1	(1<<9)
++#define NV_TX2_DEFERRED		(1<<11)
++#define NV_TX2_CARRIERLOST	(1<<12)
++#define NV_TX2_LATECOLLISION	(1<<13)
++#define NV_TX2_UNDERFLOW	(1<<14)
++#define NV_TX2_ERROR		(1<<16)
++#define NV_TX2_VALID		(1<<17)
++
+ #define NV_RX_DESCRIPTORVALID	(1<<0)
+ #define NV_RX_MISSEDFRAME	(1<<1)
+-#define NV_RX_SUBSTRACT1	(1<<3)
++#define NV_RX_SUBSTRACT1	(1<<2)
+ #define NV_RX_ERROR1		(1<<7)
+ #define NV_RX_ERROR2		(1<<8)
+ #define NV_RX_ERROR3		(1<<9)
+@@ -283,6 +314,18 @@
+ #define NV_RX_ERROR		(1<<14)
+ #define NV_RX_AVAIL		(1<<15)
+ 
++#define NV_RX2_DESCRIPTORVALID	(1<<15)
++#define NV_RX2_SUBSTRACT1	(1<<11)
++#define NV_RX2_ERROR1		(1<<4)
++#define NV_RX2_ERROR2		(1<<5)
++#define NV_RX2_ERROR3		(1<<6)
++#define NV_RX2_ERROR4		(1<<7)
++#define NV_RX2_CRCERR		(1<<8)
++#define NV_RX2_OVERFLOW		(1<<9)
++#define NV_RX2_FRAMINGERR	(1<<10)
++#define NV_RX2_ERROR		(1<<16)
++#define NV_RX2_AVAIL		(1<<17)
++
+ /* Miscelaneous hardware related defines: */
+ #define NV_PCI_REGSZ		0x270
+ 
+@@ -310,10 +353,10 @@
+ #define DEFAULT_MTU		1500	/* also maximum supported, at least for now */
+ 
+ #define RX_RING		128
+-#define TX_RING		16
++#define TX_RING		64
+ /* limited to 1 packet until we understand NV_TX_LASTPACKET */
+-#define TX_LIMIT_STOP	10
+-#define TX_LIMIT_START	5
++#define TX_LIMIT_STOP	63
++#define TX_LIMIT_START	62
+ 
+ /* rx/tx mac addr + type + vlan + align + slack*/
+ #define RX_NIC_BUFSIZE		(DEFAULT_MTU + 64)
+@@ -323,6 +366,40 @@
+ #define OOM_REFILL	(1+HZ/20)
+ #define POLL_WAIT	(1+HZ/100)
+ 
++#define DESC_VER_1	0x0
++#define DESC_VER_2	0x02100
++
++/* PHY defines */
++#define PHY_OUI_MARVELL	0x5043
++#define PHY_OUI_CICADA	0x03f1
++#define PHYID1_OUI_MASK	0x03ff
++#define PHYID1_OUI_SHFT	6
++#define PHYID2_OUI_MASK	0xfc00
++#define PHYID2_OUI_SHFT	10
++#define PHY_INIT1	0x0f000
++#define PHY_INIT2	0x0e00
++#define PHY_INIT3	0x01000
++#define PHY_INIT4	0x0200
++#define PHY_INIT5	0x0004
++#define PHY_INIT6	0x02000
++#define PHY_GIGABIT	0x0100
++
++#define PHY_TIMEOUT	0x1
++#define PHY_ERROR	0x2
++
++#define PHY_100	0x1
++#define PHY_1000	0x2
++#define PHY_HALF	0x100
++
++/* FIXME: MII defines that should be added to <linux/mii.h> */
++#define MII_1000BT_CR	0x09
++#define MII_1000BT_SR	0x0a
++#define ADVERTISE_1000FULL	0x0200
++#define ADVERTISE_1000HALF	0x0100
++#define LPA_1000FULL	0x0800
++#define LPA_1000HALF	0x0400
++
++
+ /*
+  * SMP locking:
+  * All hardware access under dev->priv->lock, except the performance
+@@ -346,12 +423,15 @@
+ 	int duplex;
+ 	int phyaddr;
+ 	int wolenabled;
++	unsigned int phy_oui;
++	u16 gigabit;
+ 
+ 	/* General data: RO fields */
+ 	dma_addr_t ring_addr;
+ 	struct pci_dev *pci_dev;
+ 	u32 orig_mac[2];
+ 	u32 irqmask;
++	u32 desc_ver;
+ 
+ 	/* rx specific fields.
+ 	 * Locking: Within irq hander or disable_irq+spin_lock(&np->lock);
+@@ -371,7 +451,7 @@
+ 	unsigned int next_tx, nic_tx;
+ 	struct sk_buff *tx_skbuff[TX_RING];
+ 	dma_addr_t tx_dma[TX_RING];
+-	u16 tx_flags;
++	u32 tx_flags;
+ };
+ 
+ /*
+@@ -422,24 +502,18 @@
+ static int mii_rw(struct net_device *dev, int addr, int miireg, int value)
+ {
+ 	u8 *base = get_hwbase(dev);
+-	int was_running;
+ 	u32 reg;
+ 	int retval;
+ 
+ 	writel(NVREG_MIISTAT_MASK, base + NvRegMIIStatus);
+-	was_running = 0;
+-	reg = readl(base + NvRegAdapterControl);
+-	if (reg & NVREG_ADAPTCTL_RUNNING) {
+-		was_running = 1;
+-		writel(reg & ~NVREG_ADAPTCTL_RUNNING, base + NvRegAdapterControl);
+-	}
++
+ 	reg = readl(base + NvRegMIIControl);
+ 	if (reg & NVREG_MIICTL_INUSE) {
+ 		writel(NVREG_MIICTL_INUSE, base + NvRegMIIControl);
+ 		udelay(NV_MIIBUSY_DELAY);
+ 	}
+ 
+-	reg = NVREG_MIICTL_INUSE | (addr << NVREG_MIICTL_ADDRSHIFT) | miireg;
++	reg = (addr << NVREG_MIICTL_ADDRSHIFT) | miireg;
+ 	if (value != MII_READ) {
+ 		writel(value, base + NvRegMIIData);
+ 		reg |= NVREG_MIICTL_WRITE;
+@@ -467,13 +541,125 @@
+ 		dprintk(KERN_DEBUG "%s: mii_rw read from reg %d at PHY %d: 0x%x.\n",
+ 				dev->name, miireg, addr, retval);
+ 	}
+-	if (was_running) {
+-		reg = readl(base + NvRegAdapterControl);
+-		writel(reg | NVREG_ADAPTCTL_RUNNING, base + NvRegAdapterControl);
+-	}
++
+ 	return retval;
+ }
+ 
++static int phy_reset(struct net_device *dev)
++{
++	struct fe_priv *np = get_nvpriv(dev);
++	u32 miicontrol;
++	unsigned int tries = 0;
++
++	miicontrol = mii_rw(dev, np->phyaddr, MII_BMCR, MII_READ);
++	miicontrol |= BMCR_RESET;
++	if (mii_rw(dev, np->phyaddr, MII_BMCR, miicontrol)) {
++		return -1;
++	}
++
++	/* wait for 500ms */
++	msleep(500);
++
++	/* must wait till reset is deasserted */
++	while (miicontrol & BMCR_RESET) {
++		udelay(NV_MIIBUSY_DELAY);
++		miicontrol = mii_rw(dev, np->phyaddr, MII_BMCR, MII_READ);
++		/* FIXME: 1000 tries seem excessive */
++		if (tries++ > 1000)
++			return -1;
++	}
++	return 0;
++}
++
++static int phy_init(struct net_device *dev)
++{
++	struct fe_priv *np = get_nvpriv(dev);
++	u8 *base = get_hwbase(dev);
++	u32 phyinterface, phy_reserved, mii_status, mii_control, mii_control_1000,reg;
++	unsigned int tries = 0;
++
++	/* set advertise register */
++	reg = mii_rw(dev, np->phyaddr, MII_ADVERTISE, MII_READ);
++	reg |= (ADVERTISE_10HALF|ADVERTISE_10FULL|ADVERTISE_100HALF|ADVERTISE_100FULL|0x800|0x400);
++	if (mii_rw(dev, np->phyaddr, MII_ADVERTISE, reg)) {
++		printk(KERN_INFO "%s: phy write to advertise failed.\n", dev->name);
++		return PHY_ERROR;
++	}
++
++	/* get phy interface type */
++	phyinterface = readl(base + NvRegPhyInterface);
++
++	/* see if gigabit phy */
++	mii_status = mii_rw(dev, np->phyaddr, MII_BMSR, MII_READ);
++	if (mii_status & PHY_GIGABIT) {
++		np->gigabit = PHY_GIGABIT;
++		mii_control_1000 = mii_rw(dev, np->phyaddr, MII_1000BT_CR, MII_READ);
++		mii_control_1000 &= ~ADVERTISE_1000HALF;
++		if (phyinterface & PHY_RGMII)
++			mii_control_1000 |= ADVERTISE_1000FULL;
++		else
++			mii_control_1000 &= ~ADVERTISE_1000FULL;
++
++		if (mii_rw(dev, np->phyaddr, MII_1000BT_CR, mii_control_1000)) {
++			printk(KERN_INFO "%s: phy init failed.\n", dev->name);
++			return PHY_ERROR;
++		}
++	}
++	else
++		np->gigabit = 0;
++
++	/* reset the phy */
++	if (phy_reset(dev)) {
++		printk(KERN_INFO "%s: phy reset failed\n", dev->name);
++		return PHY_ERROR;
++	}
++
++	/* phy vendor specific configuration */
++	if ((np->phy_oui == PHY_OUI_CICADA) && (phyinterface & PHY_RGMII) ) {
++		phy_reserved = mii_rw(dev, np->phyaddr, MII_RESV1, MII_READ);
++		phy_reserved &= ~(PHY_INIT1 | PHY_INIT2);
++		phy_reserved |= (PHY_INIT3 | PHY_INIT4);
++		if (mii_rw(dev, np->phyaddr, MII_RESV1, phy_reserved)) {
++			printk(KERN_INFO "%s: phy init failed.\n", dev->name);
++			return -1;
++		}
++		phy_reserved = mii_rw(dev, np->phyaddr, MII_NCONFIG, MII_READ);
++		phy_reserved |= PHY_INIT5;
++		if (mii_rw(dev, np->phyaddr, MII_NCONFIG, phy_reserved)) {
++			printk(KERN_INFO "%s: phy init failed.\n", dev->name);
++			return PHY_ERROR;
++		}
++	}
++	if (np->phy_oui == PHY_OUI_CICADA) {
++		phy_reserved = mii_rw(dev, np->phyaddr, MII_SREVISION, MII_READ);
++		phy_reserved |= PHY_INIT6;
++		if (mii_rw(dev, np->phyaddr, MII_SREVISION, phy_reserved)) {
++			printk(KERN_INFO "%s: phy init failed.\n", dev->name);
++			return PHY_ERROR;
++		}
++	}
++
++	/* restart auto negotiation */
++	mii_control = mii_rw(dev, np->phyaddr, MII_BMCR, MII_READ);
++	mii_control |= (BMCR_ANRESTART | BMCR_ANENABLE);
++	if (mii_rw(dev, np->phyaddr, MII_BMCR, mii_control)) {
++		return PHY_ERROR;
++	}
++
++	/* check auto negotiation is complete */
++	mii_status = mii_rw(dev, np->phyaddr, MII_BMSR, MII_READ);
++	while (!(mii_status & BMSR_ANEGCOMPLETE)) {
++		udelay(NV_MIIBUSY_DELAY);
++		mii_status = mii_rw(dev, np->phyaddr, MII_BMSR, MII_READ);
++		/* FIXME: 24000 tries seem excessive */
++		if (tries++ > 24000) {
++			printk(KERN_INFO "%s: phy init failed to autoneg.\n", dev->name);
++			return PHY_TIMEOUT;
++		}
++	}
++	return 0;
++}
++
+ static void nv_start_rx(struct net_device *dev)
+ {
+ 	struct fe_priv *np = get_nvpriv(dev);
+@@ -530,13 +716,14 @@
+ 
+ static void nv_txrx_reset(struct net_device *dev)
+ {
++	struct fe_priv *np = get_nvpriv(dev);
+ 	u8 *base = get_hwbase(dev);
+ 
+ 	dprintk(KERN_DEBUG "%s: nv_txrx_reset\n", dev->name);
+-	writel(NVREG_TXRXCTL_BIT2 | NVREG_TXRXCTL_RESET, base + NvRegTxRxControl);
++	writel(NVREG_TXRXCTL_BIT2 | NVREG_TXRXCTL_RESET | np->desc_ver, base + NvRegTxRxControl);
+ 	pci_push(base);
+ 	udelay(NV_TXRX_RESET_DELAY);
+-	writel(NVREG_TXRXCTL_BIT2, base + NvRegTxRxControl);
++	writel(NVREG_TXRXCTL_BIT2 | np->desc_ver, base + NvRegTxRxControl);
+ 	pci_push(base);
+ }
+ 
+@@ -670,9 +857,15 @@
+ 		np->rx_dma[nr] = pci_map_single(np->pci_dev, skb->data, skb->len,
+ 						PCI_DMA_FROMDEVICE);
+ 		np->rx_ring[nr].PacketBuffer = cpu_to_le32(np->rx_dma[nr]);
+-		np->rx_ring[nr].Length = cpu_to_le16(RX_NIC_BUFSIZE);
++		if (np->desc_ver == DESC_VER_1)
++			np->rx_ring[nr].u.v1.Length = cpu_to_le16(RX_NIC_BUFSIZE);
++		else
++			np->rx_ring[nr].u.v2.Length = cpu_to_le16(RX_NIC_BUFSIZE);
+ 		wmb();
+-		np->rx_ring[nr].Flags = cpu_to_le16(NV_RX_AVAIL);
++		if (np->desc_ver == DESC_VER_1)
++			np->rx_ring[nr].u.v1.Flags = cpu_to_le16(NV_RX_AVAIL);
++		else
++			np->rx_ring[nr].u.v2.Flags = cpu_to_le32(NV_RX2_AVAIL);
+ 		dprintk(KERN_DEBUG "%s: nv_alloc_rx: Packet  %d marked as Available\n",
+ 					dev->name, refill_rx);
+ 		refill_rx++;
+@@ -705,13 +898,19 @@
+ 
+ 	np->next_tx = np->nic_tx = 0;
+ 	for (i = 0; i < TX_RING; i++) {
+-		np->tx_ring[i].Flags = 0;
++		if (np->desc_ver == DESC_VER_1)
++			np->tx_ring[i].u.v1.Flags = 0;
++		else
++			np->tx_ring[i].u.v2.Flags = 0;
+ 	}
+ 
+ 	np->cur_rx = RX_RING;
+ 	np->refill_rx = 0;
+ 	for (i = 0; i < RX_RING; i++) {
+-		np->rx_ring[i].Flags = 0;
++		if (np->desc_ver == DESC_VER_1)
++			np->rx_ring[i].u.v1.Flags = 0;
++		else
++			np->rx_ring[i].u.v2.Flags = 0;
+ 	}
+ 	return nv_alloc_rx(dev);
+ }
+@@ -721,7 +920,10 @@
+ 	struct fe_priv *np = get_nvpriv(dev);
+ 	int i;
+ 	for (i = 0; i < TX_RING; i++) {
+-		np->tx_ring[i].Flags = 0;
++		if (np->desc_ver == DESC_VER_1)
++			np->tx_ring[i].u.v1.Flags = 0;
++		else
++			np->tx_ring[i].u.v2.Flags = 0;
+ 		if (np->tx_skbuff[i]) {
+ 			pci_unmap_single(np->pci_dev, np->tx_dma[i],
+ 						np->tx_skbuff[i]->len,
+@@ -738,7 +940,10 @@
+ 	struct fe_priv *np = get_nvpriv(dev);
+ 	int i;
+ 	for (i = 0; i < RX_RING; i++) {
+-		np->rx_ring[i].Flags = 0;
++		if (np->desc_ver == DESC_VER_1)
++			np->rx_ring[i].u.v1.Flags = 0;
++		else
++			np->rx_ring[i].u.v2.Flags = 0;
+ 		wmb();
+ 		if (np->rx_skbuff[i]) {
+ 			pci_unmap_single(np->pci_dev, np->rx_dma[i],
+@@ -770,11 +975,17 @@
+ 					PCI_DMA_TODEVICE);
+ 
+ 	np->tx_ring[nr].PacketBuffer = cpu_to_le32(np->tx_dma[nr]);
+-	np->tx_ring[nr].Length = cpu_to_le16(skb->len-1);
++	if (np->desc_ver == DESC_VER_1)
++		np->tx_ring[nr].u.v1.Length = cpu_to_le16(skb->len-1);
++	else
++		np->tx_ring[nr].u.v2.Length = cpu_to_le16(skb->len-1);
+ 
+ 	spin_lock_irq(&np->lock);
+ 	wmb();
+-	np->tx_ring[nr].Flags = np->tx_flags;
++	if (np->desc_ver == DESC_VER_1)
++		np->tx_ring[nr].u.v1.Flags = np->tx_flags;
++	else
++		np->tx_ring[nr].u.v2.Flags = np->tx_flags;
+ 	dprintk(KERN_DEBUG "%s: nv_start_xmit: packet packet %d queued for transmission.\n",
+ 				dev->name, np->next_tx);
+ 	{
+@@ -793,35 +1004,65 @@
+ 	if (np->next_tx - np->nic_tx >= TX_LIMIT_STOP)
+ 		netif_stop_queue(dev);
+ 	spin_unlock_irq(&np->lock);
+-	writel(NVREG_TXRXCTL_KICK, get_hwbase(dev) + NvRegTxRxControl);
++	writel(NVREG_TXRXCTL_KICK|np->desc_ver, get_hwbase(dev) + NvRegTxRxControl);
+ 	pci_push(get_hwbase(dev));
+ 	return 0;
+ }
+ 
+-/*
+- * nv_tx_done: check for completed packets, release the skbs.
+- *
+- * Caller must own np->lock.
+- */
+-static void nv_tx_done(struct net_device *dev)
++static void nv_tx_done_v1(struct net_device *dev)
+ {
+ 	struct fe_priv *np = get_nvpriv(dev);
+ 
+-	while (np->nic_tx < np->next_tx) {
++	while (np->nic_tx != np->next_tx) {
+ 		struct ring_desc *prd;
+ 		int i = np->nic_tx % TX_RING;
+ 
+ 		prd = &np->tx_ring[i];
+ 
+ 		dprintk(KERN_DEBUG "%s: nv_tx_done: looking at packet %d, Flags 0x%x.\n",
+-					dev->name, np->nic_tx, prd->Flags);
+-		if (prd->Flags & cpu_to_le16(NV_TX_VALID))
++					dev->name, np->nic_tx, prd->u.v1.Flags);
++		if (prd->u.v1.Flags & cpu_to_le16(NV_TX_VALID))
+ 			break;
+-		if (prd->Flags & cpu_to_le16(NV_TX_RETRYERROR|NV_TX_CARRIERLOST|NV_TX_LATECOLLISION|
++		if (prd->u.v1.Flags & cpu_to_le16(NV_TX_RETRYERROR|NV_TX_CARRIERLOST|NV_TX_LATECOLLISION|
+ 						NV_TX_UNDERFLOW|NV_TX_ERROR)) {
+-			if (prd->Flags & cpu_to_le16(NV_TX_UNDERFLOW))
++			if (prd->u.v1.Flags & cpu_to_le16(NV_TX_UNDERFLOW))
+ 				np->stats.tx_fifo_errors++;
+-			if (prd->Flags & cpu_to_le16(NV_TX_CARRIERLOST))
++			if (prd->u.v1.Flags & cpu_to_le16(NV_TX_CARRIERLOST))
++				np->stats.tx_carrier_errors++;
++			np->stats.tx_errors++;
++		} else {
++			np->stats.tx_packets++;
++			np->stats.tx_bytes += np->tx_skbuff[i]->len;
++		}
++		pci_unmap_single(np->pci_dev, np->tx_dma[i],
++					np->tx_skbuff[i]->len,
++					PCI_DMA_TODEVICE);
++		dev_kfree_skb_irq(np->tx_skbuff[i]);
++		np->tx_skbuff[i] = NULL;
++		np->nic_tx++;
++	}
++	if (np->next_tx - np->nic_tx < TX_LIMIT_START)
++		netif_wake_queue(dev);
++}
++static void nv_tx_done_v2(struct net_device *dev)
++{
++	struct fe_priv *np = get_nvpriv(dev);
++
++	while (np->nic_tx != np->next_tx) {
++		struct ring_desc *prd;
++		int i = np->nic_tx % TX_RING;
++
++		prd = &np->tx_ring[i];
++
++		dprintk(KERN_DEBUG "%s: nv_tx_done: looking at packet %d, Flags 0x%x.\n",
++					dev->name, np->nic_tx, prd->u.v2.Flags);
++		if (prd->u.v2.Flags & cpu_to_le32(NV_TX2_VALID))
++			break;
++		if (prd->u.v2.Flags & cpu_to_le32(NV_TX2_RETRYERROR|NV_TX2_CARRIERLOST|NV_TX2_LATECOLLISION|
++						NV_TX2_UNDERFLOW|NV_TX2_ERROR)) {
++			if (prd->u.v2.Flags & cpu_to_le32(NV_TX2_UNDERFLOW))
++				np->stats.tx_fifo_errors++;
++			if (prd->u.v2.Flags & cpu_to_le32(NV_TX2_CARRIERLOST))
+ 				np->stats.tx_carrier_errors++;
+ 			np->stats.tx_errors++;
+ 		} else {
+@@ -840,6 +1081,20 @@
+ }
+ 
+ /*
++ * nv_tx_done: check for completed packets, release the skbs.
++ *
++ * Caller must own np->lock.
++ */
++static void nv_tx_done(struct net_device *dev)
++{
++	struct fe_priv *np = get_nvpriv(dev);
++	if (np->desc_ver == DESC_VER_1)
++		return nv_tx_done_v1(dev);
++	else
++		return nv_tx_done_v2(dev);
++}
++
++/*
+  * nv_tx_timeout: dev->tx_timeout function
+  * Called with dev->xmit_lock held.
+  */
+@@ -873,7 +1128,7 @@
+ 	spin_unlock_irq(&np->lock);
+ }
+ 
+-static void nv_rx_process(struct net_device *dev)
++static void nv_rx_process_v1(struct net_device *dev)
+ {
+ 	struct fe_priv *np = get_nvpriv(dev);
+ 
+@@ -888,9 +1143,9 @@
+ 		i = np->cur_rx % RX_RING;
+ 		prd = &np->rx_ring[i];
+ 		dprintk(KERN_DEBUG "%s: nv_rx_process: looking at packet %d, Flags 0x%x.\n",
+-					dev->name, np->cur_rx, prd->Flags);
++					dev->name, np->cur_rx, prd->u.v1.Flags);
+ 
+-		if (prd->Flags & cpu_to_le16(NV_RX_AVAIL))
++		if (prd->u.v1.Flags & cpu_to_le16(NV_RX_AVAIL))
+ 			break;	/* still owned by hardware, */
+ 
+ 		/*
+@@ -904,7 +1159,7 @@
+ 
+ 		{
+ 			int j;
+-			dprintk(KERN_DEBUG "Dumping packet (flags 0x%x).",prd->Flags);
++			dprintk(KERN_DEBUG "Dumping packet (flags 0x%x).",prd->u.v1.Flags);
+ 			for (j=0; j<64; j++) {
+ 				if ((j%16) == 0)
+ 					dprintk("\n%03x:", j);
+@@ -913,35 +1168,35 @@
+ 			dprintk("\n");
+ 		}
+ 		/* look at what we actually got: */
+-		if (!(prd->Flags & cpu_to_le16(NV_RX_DESCRIPTORVALID)))
++		if (!(prd->u.v1.Flags & cpu_to_le16(NV_RX_DESCRIPTORVALID)))
+ 			goto next_pkt;
+ 
+ 
+-		len = le16_to_cpu(prd->Length);
++		len = le16_to_cpu(prd->u.v1.Length);
+ 
+-		if (prd->Flags & cpu_to_le16(NV_RX_MISSEDFRAME)) {
++		if (prd->u.v1.Flags & cpu_to_le16(NV_RX_MISSEDFRAME)) {
+ 			np->stats.rx_missed_errors++;
+ 			np->stats.rx_errors++;
+ 			goto next_pkt;
+ 		}
+-		if (prd->Flags & cpu_to_le16(NV_RX_ERROR1|NV_RX_ERROR2|NV_RX_ERROR3|NV_RX_ERROR4)) {
++		if (prd->u.v1.Flags & cpu_to_le16(NV_RX_ERROR1|NV_RX_ERROR2|NV_RX_ERROR3|NV_RX_ERROR4)) {
+ 			np->stats.rx_errors++;
+ 			goto next_pkt;
+ 		}
+-		if (prd->Flags & cpu_to_le16(NV_RX_CRCERR)) {
++		if (prd->u.v1.Flags & cpu_to_le16(NV_RX_CRCERR)) {
+ 			np->stats.rx_crc_errors++;
+ 			np->stats.rx_errors++;
+ 			goto next_pkt;
+ 		}
+-		if (prd->Flags & cpu_to_le16(NV_RX_OVERFLOW)) {
++		if (prd->u.v1.Flags & cpu_to_le16(NV_RX_OVERFLOW)) {
+ 			np->stats.rx_over_errors++;
+ 			np->stats.rx_errors++;
+ 			goto next_pkt;
+ 		}
+-		if (prd->Flags & cpu_to_le16(NV_RX_ERROR)) {
++		if (prd->u.v1.Flags & cpu_to_le16(NV_RX_ERROR)) {
+ 			/* framing errors are soft errors, the rest is fatal. */
+-			if (prd->Flags & cpu_to_le16(NV_RX_FRAMINGERR)) {
+-				if (prd->Flags & cpu_to_le16(NV_RX_SUBSTRACT1)) {
++			if (prd->u.v1.Flags & cpu_to_le16(NV_RX_FRAMINGERR)) {
++				if (prd->u.v1.Flags & cpu_to_le16(NV_RX_SUBSTRACT1)) {
+ 					len--;
+ 				}
+ 			} else {
+@@ -966,6 +1221,103 @@
+ 	}
+ }
+ 
++static void nv_rx_process_v2(struct net_device *dev)
++{
++	struct fe_priv *np = get_nvpriv(dev);
++
++	for (;;) {
++		struct ring_desc *prd;
++		struct sk_buff *skb;
++		int len;
++		int i;
++		if (np->cur_rx - np->refill_rx >= RX_RING)
++			break;	/* we scanned the whole ring - do not continue */
++
++		i = np->cur_rx % RX_RING;
++		prd = &np->rx_ring[i];
++		dprintk(KERN_DEBUG "%s: nv_rx_process: looking at packet %d, Flags 0x%x.\n",
++					dev->name, np->cur_rx, prd->u.v2.Flags);
++
++		if (prd->u.v2.Flags & cpu_to_le32(NV_RX2_AVAIL))
++			break;	/* still owned by hardware, */
++
++		/*
++		 * the packet is for us - immediately tear down the pci mapping.
++		 * TODO: check if a prefetch of the first cacheline improves
++		 * the performance.
++		 */
++		pci_unmap_single(np->pci_dev, np->rx_dma[i],
++				np->rx_skbuff[i]->len,
++				PCI_DMA_FROMDEVICE);
++
++		{
++			int j;
++			dprintk(KERN_DEBUG "Dumping packet (flags 0x%x).",prd->u.v2.Flags);
++			for (j=0; j<64; j++) {
++				if ((j%16) == 0)
++					dprintk("\n%03x:", j);
++				dprintk(" %02x", ((unsigned char*)np->rx_skbuff[i]->data)[j]);
++			}
++			dprintk("\n");
++		}
++		/* look at what we actually got: */
++		if (!(prd->u.v2.Flags & cpu_to_le32(NV_RX2_DESCRIPTORVALID)))
++			goto next_pkt;
++
++
++		len = le16_to_cpu(prd->u.v2.Length);
++
++		if (prd->u.v2.Flags & cpu_to_le32(NV_RX2_ERROR1|NV_RX2_ERROR2|NV_RX2_ERROR3|NV_RX2_ERROR4)) {
++			np->stats.rx_errors++;
++			goto next_pkt;
++		}
++		if (prd->u.v2.Flags & cpu_to_le32(NV_RX2_CRCERR)) {
++			np->stats.rx_crc_errors++;
++			np->stats.rx_errors++;
++			goto next_pkt;
++		}
++		if (prd->u.v2.Flags & cpu_to_le32(NV_RX2_OVERFLOW)) {
++			np->stats.rx_over_errors++;
++			np->stats.rx_errors++;
++			goto next_pkt;
++		}
++		if (prd->u.v2.Flags & cpu_to_le32(NV_RX2_ERROR)) {
++			/* framing errors are soft errors, the rest is fatal. */
++			if (prd->u.v2.Flags & cpu_to_le32(NV_RX2_FRAMINGERR)) {
++				if (prd->u.v2.Flags & cpu_to_le32(NV_RX2_SUBSTRACT1)) {
++					len--;
++				}
++			} else {
++				np->stats.rx_errors++;
++				goto next_pkt;
++			}
++		}
++		/* got a valid packet - forward it to the network core */
++		skb = np->rx_skbuff[i];
++		np->rx_skbuff[i] = NULL;
++
++		skb_put(skb, len);
++		skb->protocol = eth_type_trans(skb, dev);
++		dprintk(KERN_DEBUG "%s: nv_rx_process: packet %d with %d bytes, proto %d accepted.\n",
++					dev->name, np->cur_rx, len, skb->protocol);
++		netif_rx(skb);
++		dev->last_rx = jiffies;
++		np->stats.rx_packets++;
++		np->stats.rx_bytes += len;
++next_pkt:
++		np->cur_rx++;
++	}
++}
++
++static void nv_rx_process(struct net_device *dev)
++{
++	struct fe_priv *np = get_nvpriv(dev);
++	if (np->desc_ver == DESC_VER_1)
++		return nv_rx_process_v1(dev);
++	else
++		return nv_rx_process_v2(dev);
++}
++
+ /*
+  * nv_change_mtu: dev->change_mtu function
+  * Called with dev_base_lock held for read.
+@@ -1043,14 +1395,30 @@
+ static int nv_update_linkspeed(struct net_device *dev)
+ {
+ 	struct fe_priv *np = get_nvpriv(dev);
+-	int adv, lpa, newls, newdup;
++	u8 *base = get_hwbase(dev);
++	int adv, lpa;
++	int newls = np->linkspeed;
++	int newdup = np->duplex;
++	u32 control_1000, status_1000, phyreg;
++
++	if (np->gigabit == PHY_GIGABIT) {
++		control_1000 = mii_rw(dev, np->phyaddr, MII_1000BT_CR, MII_READ);
++		status_1000 = mii_rw(dev, np->phyaddr, MII_1000BT_SR, MII_READ);
++
++		if ((control_1000 & ADVERTISE_1000FULL) &&
++			(status_1000 & LPA_1000FULL)) {
++			newls = NVREG_LINKSPEED_FORCE|NVREG_LINKSPEED_1000;
++			newdup = 1;
++			goto set_speed;
++		}
++	}
+ 
+ 	adv = mii_rw(dev, np->phyaddr, MII_ADVERTISE, MII_READ);
+ 	lpa = mii_rw(dev, np->phyaddr, MII_LPA, MII_READ);
+ 	dprintk(KERN_DEBUG "%s: nv_update_linkspeed: PHY advertises 0x%04x, lpa 0x%04x.\n",
+ 				dev->name, adv, lpa);
+ 
+-	/* FIXME: handle parallel detection properly, handle gigabit ethernet */
++	/* FIXME: handle parallel detection properly */
+ 	lpa = lpa & adv;
+ 	if (lpa  & LPA_100FULL) {
+ 		newls = NVREG_LINKSPEED_FORCE|NVREG_LINKSPEED_100;
+@@ -1069,11 +1437,35 @@
+ 		newls = NVREG_LINKSPEED_FORCE|NVREG_LINKSPEED_10;
+ 		newdup = 0;
+ 	}
++
++set_speed:
+ 	if (np->duplex != newdup || np->linkspeed != newls) {
+ 		np->duplex = newdup;
+ 		np->linkspeed = newls;
+-		return 1;
+ 	}
++
++	if (np->gigabit == PHY_GIGABIT) {
++		phyreg = readl(base + NvRegRandomSeed);
++		phyreg &= ~(0x3FF00);
++		if ((np->linkspeed & 0xFFF) == NVREG_LINKSPEED_10)
++			phyreg |= NVREG_RNDSEED_FORCE3;
++		else if ((np->linkspeed & 0xFFF) == NVREG_LINKSPEED_100)
++			phyreg |= NVREG_RNDSEED_FORCE2;
++		else if ((np->linkspeed & 0xFFF) == NVREG_LINKSPEED_1000)
++			phyreg |= NVREG_RNDSEED_FORCE;
++		writel(phyreg, base + NvRegRandomSeed);
++	}
++
++	phyreg = readl(base + NvRegPhyInterface);
++	phyreg &= ~(0x3);
++	if (np->duplex == 0)
++		phyreg |= PHY_HALF;
++	if ((np->linkspeed & 0xFFF) == NVREG_LINKSPEED_100)
++		phyreg |= PHY_100;
++	else if ((np->linkspeed & 0xFFF) == NVREG_LINKSPEED_1000)
++		phyreg |= PHY_1000;
++	writel(phyreg, base + NvRegPhyInterface);
++
+ 	return 0;
+ }
+ 
+@@ -1089,26 +1481,28 @@
+ 	printk(KERN_DEBUG "%s: link change notification, status 0x%x.\n", dev->name, miistat);
+ 
+ 	miival = mii_rw(dev, np->phyaddr, MII_BMSR, MII_READ);
+-	if (miival & BMSR_ANEGCOMPLETE) {
+-		nv_update_linkspeed(dev);
++	if (miistat & NVREG_MIISTAT_LINKCHANGE) {
++		if (miival & BMSR_LSTATUS) {
++			nv_update_linkspeed(dev);
+ 
+-		if (netif_carrier_ok(dev)) {
+-			nv_stop_rx(dev);
++			if (netif_carrier_ok(dev)) {
++				nv_stop_rx(dev);
++			} else {
++				netif_carrier_on(dev);
++				printk(KERN_INFO "%s: link up.\n", dev->name);
++			}
++			writel(NVREG_MISC1_FORCE | ( np->duplex ? 0 : NVREG_MISC1_HD),
++				base + NvRegMisc1);
++			nv_start_rx(dev);
+ 		} else {
+-			netif_carrier_on(dev);
+-			printk(KERN_INFO "%s: link up.\n", dev->name);
+-		}
+-		writel(NVREG_MISC1_FORCE | ( np->duplex ? 0 : NVREG_MISC1_HD),
+-					base + NvRegMisc1);
+-		nv_start_rx(dev);
+-	} else {
+-		if (netif_carrier_ok(dev)) {
+-			netif_carrier_off(dev);
+-			printk(KERN_INFO "%s: link down.\n", dev->name);
+-			nv_stop_rx(dev);
++			if (netif_carrier_ok(dev)) {
++				netif_carrier_off(dev);
++				printk(KERN_INFO "%s: link down.\n", dev->name);
++				nv_stop_rx(dev);
++			}
++			writel(np->linkspeed, base + NvRegLinkSpeed);
++			pci_push(base);
+ 		}
+-		writel(np->linkspeed, base + NvRegLinkSpeed);
+-		pci_push(base);
+ 	}
+ }
+ 
+@@ -1136,7 +1530,7 @@
+ 			spin_unlock(&np->lock);
+ 		}
+ 
+-		if (events & (NVREG_IRQ_RX|NVREG_IRQ_RX_NOBUF)) {
++		if (events & (NVREG_IRQ_RX_ERROR|NVREG_IRQ_RX|NVREG_IRQ_RX_NOBUF)) {
+ 			nv_rx_process(dev);
+ 			if (nv_alloc_rx(dev)) {
+ 				spin_lock(&np->lock);
+@@ -1201,6 +1595,7 @@
+ 	struct fe_priv *np = get_nvpriv(dev);
+ 	u8 *base = get_hwbase(dev);
+ 	int ret, oom, i;
++	int phy_status = 0;
+ 
+ 	dprintk(KERN_DEBUG "nv_open: begin\n");
+ 
+@@ -1211,15 +1606,21 @@
+ 	writel(0, base + NvRegMulticastMaskA);
+ 	writel(0, base + NvRegMulticastMaskB);
+ 	writel(0, base + NvRegPacketFilterFlags);
++
++	writel(0, base + NvRegTransmitterControl);
++	writel(0, base + NvRegReceiverControl);
++
+ 	writel(0, base + NvRegAdapterControl);
++
++	/* 2) initialize descriptor rings */
++	oom = nv_init_ring(dev);
++
+ 	writel(0, base + NvRegLinkSpeed);
+ 	writel(0, base + NvRegUnknownTransmitterReg);
+ 	nv_txrx_reset(dev);
+ 	writel(0, base + NvRegUnknownSetupReg6);
+ 
+-	/* 2) initialize descriptor rings */
+ 	np->in_shutdown = 0;
+-	oom = nv_init_ring(dev);
+ 
+ 	/* 3) set mac address */
+ 	{
+@@ -1233,20 +1634,30 @@
+ 		writel(mac[1], base + NvRegMacAddrB);
+ 	}
+ 
+-	/* 4) continue setup */
++	/* 4) give hw rings */
++	writel((u32) np->ring_addr, base + NvRegRxRingPhysAddr);
++	writel((u32) (np->ring_addr + RX_RING*sizeof(struct ring_desc)), base + NvRegTxRingPhysAddr);
++	writel( ((RX_RING-1) << NVREG_RINGSZ_RXSHIFT) + ((TX_RING-1) << NVREG_RINGSZ_TXSHIFT),
++		base + NvRegRingSizes);
++
++	/* 5) continue setup */
+ 	np->linkspeed = NVREG_LINKSPEED_FORCE|NVREG_LINKSPEED_10;
+ 	np->duplex = 0;
++
++	writel(np->linkspeed, base + NvRegLinkSpeed);
+ 	writel(NVREG_UNKSETUP3_VAL1, base + NvRegUnknownSetupReg3);
+-	writel(0, base + NvRegTxRxControl);
++	writel(np->desc_ver, base + NvRegTxRxControl);
+ 	pci_push(base);
+-	writel(NVREG_TXRXCTL_BIT1, base + NvRegTxRxControl);
++	writel(NVREG_TXRXCTL_BIT1|np->desc_ver, base + NvRegTxRxControl);
+ 	reg_delay(dev, NvRegUnknownSetupReg5, NVREG_UNKSETUP5_BIT31, NVREG_UNKSETUP5_BIT31,
+ 			NV_SETUP5_DELAY, NV_SETUP5_DELAYMAX,
+ 			KERN_INFO "open: SetupReg5, Bit 31 remained off\n");
++
+ 	writel(0, base + NvRegUnknownSetupReg4);
++	writel(NVREG_IRQSTAT_MASK, base + NvRegIrqStatus);
++	writel(NVREG_MIISTAT_MASK2, base + NvRegMIIStatus);
+ 
+-	/* 5) Find a suitable PHY */
+-	writel(NVREG_MIISPEED_BIT8|NVREG_MIIDELAY, base + NvRegMIISpeed);
++	/* 6a) Find a suitable PHY */
+ 	for (i = 1; i < 32; i++) {
+ 		int id1, id2;
+ 
+@@ -1260,13 +1671,13 @@
+ 		spin_unlock_irq(&np->lock);
+ 		if (id2 < 0 || id2 == 0xffff)
+ 			continue;
++
++		id1 = (id1 & PHYID1_OUI_MASK) << PHYID1_OUI_SHFT;
++		id2 = (id2 & PHYID2_OUI_MASK) >> PHYID2_OUI_SHFT;
+ 		dprintk(KERN_DEBUG "%s: open: Found PHY %04x:%04x at address %d.\n",
+ 				dev->name, id1, id2, i);
+ 		np->phyaddr = i;
+-
+-		spin_lock_irq(&np->lock);
+-		nv_update_linkspeed(dev);
+-		spin_unlock_irq(&np->lock);
++		np->phy_oui = id1 | id2;
+ 
+ 		break;
+ 	}
+@@ -1277,9 +1688,25 @@
+ 		goto out_drain;
+ 	}
+ 
+-	/* 6) continue setup */
++	/* 6b) Initialize PHY */
++	spin_lock_irq(&np->lock);
++
++	/* synchronous init */
++	phy_status = phy_init(dev);
++	if (phy_status == PHY_ERROR) {
++		printk(KERN_INFO "%s: open: failing due to PHY Init.\n", dev->name);
++		ret = -EINVAL;
++		spin_unlock_irq(&np->lock);
++		goto out_drain;
++	}
++	else if (phy_status != PHY_TIMEOUT)
++		nv_update_linkspeed(dev);
++
++	spin_unlock_irq(&np->lock);
++
++	/* 7) continue setup */
+ 	writel(NVREG_MISC1_FORCE | ( np->duplex ? 0 : NVREG_MISC1_HD),
+-				base + NvRegMisc1);
++			base + NvRegMisc1);
+ 	writel(readl(base + NvRegTransmitterStatus), base + NvRegTransmitterStatus);
+ 	writel(NVREG_PFF_ALWAYS, base + NvRegPacketFilterFlags);
+ 	writel(NVREG_OFFLOAD_NORMAL, base + NvRegOffloadConfig);
+@@ -1291,17 +1718,12 @@
+ 	writel(NVREG_UNKSETUP2_VAL, base + NvRegUnknownSetupReg2);
+ 	writel(NVREG_POLL_DEFAULT, base + NvRegPollingInterval);
+ 	writel(NVREG_UNKSETUP6_VAL, base + NvRegUnknownSetupReg6);
+-	writel((np->phyaddr << NVREG_ADAPTCTL_PHYSHIFT)|NVREG_ADAPTCTL_PHYVALID,
++	writel((np->phyaddr << NVREG_ADAPTCTL_PHYSHIFT)|NVREG_ADAPTCTL_PHYVALID|NVREG_ADAPTCTL_RUNNING,
+ 			base + NvRegAdapterControl);
++	writel(NVREG_MIISPEED_BIT8|NVREG_MIIDELAY, base + NvRegMIISpeed);
+ 	writel(NVREG_UNKSETUP4_VAL, base + NvRegUnknownSetupReg4);
+ 	writel(NVREG_WAKEUPFLAGS_VAL, base + NvRegWakeUpFlags);
+ 
+-	/* 7) start packet processing */
+-	writel((u32) np->ring_addr, base + NvRegRxRingPhysAddr);
+-	writel((u32) (np->ring_addr + RX_RING*sizeof(struct ring_desc)), base + NvRegTxRingPhysAddr);
+-	writel( ((RX_RING-1) << NVREG_RINGSZ_RXSHIFT) + ((TX_RING-1) << NVREG_RINGSZ_TXSHIFT),
+-			base + NvRegRingSizes);
+-
+ 	i = readl(base + NvRegPowerState);
+ 	if ( (i & NVREG_POWERSTATE_POWEREDUP) == 0)
+ 		writel(NVREG_POWERSTATE_POWEREDUP|i, base + NvRegPowerState);
+@@ -1309,13 +1731,9 @@
+ 	pci_push(base);
+ 	udelay(10);
+ 	writel(readl(base + NvRegPowerState) | NVREG_POWERSTATE_VALID, base + NvRegPowerState);
+-	writel(NVREG_ADAPTCTL_RUNNING, base + NvRegAdapterControl);
+-
+ 
+ 	writel(0, base + NvRegIrqMask);
+ 	pci_push(base);
+-	writel(NVREG_IRQSTAT_MASK, base + NvRegIrqStatus);
+-	pci_push(base);
+ 	writel(NVREG_MIISTAT_MASK2, base + NvRegMIIStatus);
+ 	writel(NVREG_IRQSTAT_MASK, base + NvRegIrqStatus);
+ 	pci_push(base);
+@@ -1337,7 +1755,7 @@
+ 	netif_start_queue(dev);
+ 	if (oom)
+ 		mod_timer(&np->oom_kick, jiffies + OOM_REFILL);
+-	if (mii_rw(dev, np->phyaddr, MII_BMSR, MII_READ) & BMSR_ANEGCOMPLETE) {
++	if (mii_rw(dev, np->phyaddr, MII_BMSR, MII_READ) & BMSR_LSTATUS) {
+ 		netif_carrier_on(dev);
+ 	} else {
+ 		printk("%s: no link during initialization.\n", dev->name);
+@@ -1448,6 +1866,14 @@
+ 		goto out_relreg;
+ 	}
+ 
++	/* handle different descriptor versions */
++	if (pci_dev->device == PCI_DEVICE_ID_NVIDIA_NVENET_1 ||
++		pci_dev->device == PCI_DEVICE_ID_NVIDIA_NVENET_2 ||
++		pci_dev->device == PCI_DEVICE_ID_NVIDIA_NVENET_3)
++		np->desc_ver = DESC_VER_1;
++	else
++		np->desc_ver = DESC_VER_2;
++
+ 	err = -ENOMEM;
+ 	dev->base_addr = (unsigned long) ioremap(addr, NV_PCI_REGSZ);
+ 	if (!dev->base_addr)
+@@ -1507,9 +1933,16 @@
+ 	writel(0, base + NvRegWakeUpFlags);
+ 	np->wolenabled = 0;
+ 
+-	np->tx_flags = cpu_to_le16(NV_TX_LASTPACKET|NV_TX_LASTPACKET1|NV_TX_VALID);
+-	if (id->driver_data & DEV_NEED_LASTPACKET1)
+-		np->tx_flags |= cpu_to_le16(NV_TX_LASTPACKET1);
++	if (np->desc_ver == DESC_VER_1) {
++		np->tx_flags = cpu_to_le16(NV_TX_LASTPACKET|NV_TX_LASTPACKET1|NV_TX_VALID);
++		if (id->driver_data & DEV_NEED_LASTPACKET1)
++			np->tx_flags |= cpu_to_le16(NV_TX_LASTPACKET1);
++	}
++	else {
++		np->tx_flags = cpu_to_le32(NV_TX2_LASTPACKET|NV_TX2_LASTPACKET1|NV_TX2_VALID);
++		if (id->driver_data & DEV_NEED_LASTPACKET1)
++			np->tx_flags |= cpu_to_le32(NV_TX2_LASTPACKET1);
++	}
+ 	if (id->driver_data & DEV_IRQMASK_1)
+ 		np->irqmask = NVREG_IRQMASK_WANTED_1;
+ 	if (id->driver_data & DEV_IRQMASK_2)
+@@ -1570,21 +2003,77 @@
+ static struct pci_device_id pci_tbl[] = {
+ 	{	/* nForce Ethernet Controller */
+ 		.vendor = PCI_VENDOR_ID_NVIDIA,
+-		.device = 0x1C3,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_1,
+ 		.subvendor = PCI_ANY_ID,
+ 		.subdevice = PCI_ANY_ID,
+ 		.driver_data = DEV_IRQMASK_1|DEV_NEED_TIMERIRQ,
+ 	},
+ 	{	/* nForce2 Ethernet Controller */
+ 		.vendor = PCI_VENDOR_ID_NVIDIA,
+-		.device = 0x0066,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_2,
++		.subvendor = PCI_ANY_ID,
++		.subdevice = PCI_ANY_ID,
++		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
++	},
++	{	/* nForce3 Ethernet Controller */
++		.vendor = PCI_VENDOR_ID_NVIDIA,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_3,
++		.subvendor = PCI_ANY_ID,
++		.subdevice = PCI_ANY_ID,
++		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
++	},
++	{	/* nForce3 Ethernet Controller */
++		.vendor = PCI_VENDOR_ID_NVIDIA,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_4,
+ 		.subvendor = PCI_ANY_ID,
+ 		.subdevice = PCI_ANY_ID,
+ 		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
+ 	},
+ 	{	/* nForce3 Ethernet Controller */
+ 		.vendor = PCI_VENDOR_ID_NVIDIA,
+-		.device = 0x00D6,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_5,
++		.subvendor = PCI_ANY_ID,
++		.subdevice = PCI_ANY_ID,
++		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
++	},
++	{	/* nForce3 Ethernet Controller */
++		.vendor = PCI_VENDOR_ID_NVIDIA,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_6,
++		.subvendor = PCI_ANY_ID,
++		.subdevice = PCI_ANY_ID,
++		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
++	},
++	{	/* nForce3 Ethernet Controller */
++		.vendor = PCI_VENDOR_ID_NVIDIA,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_7,
++		.subvendor = PCI_ANY_ID,
++		.subdevice = PCI_ANY_ID,
++		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
++	},
++	{	/* CK804 Ethernet Controller */
++		.vendor = PCI_VENDOR_ID_NVIDIA,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_8,
++		.subvendor = PCI_ANY_ID,
++		.subdevice = PCI_ANY_ID,
++		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
++	},
++	{	/* CK804 Ethernet Controller */
++		.vendor = PCI_VENDOR_ID_NVIDIA,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_9,
++		.subvendor = PCI_ANY_ID,
++		.subdevice = PCI_ANY_ID,
++		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
++	},
++	{	/* MCP04 Ethernet Controller */
++		.vendor = PCI_VENDOR_ID_NVIDIA,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_10,
++		.subvendor = PCI_ANY_ID,
++		.subdevice = PCI_ANY_ID,
++		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
++	},
++	{	/* MCP04 Ethernet Controller */
++		.vendor = PCI_VENDOR_ID_NVIDIA,
++		.device = PCI_DEVICE_ID_NVIDIA_NVENET_11,
+ 		.subvendor = PCI_ANY_ID,
+ 		.subdevice = PCI_ANY_ID,
+ 		.driver_data = DEV_NEED_LASTPACKET1|DEV_IRQMASK_2|DEV_NEED_TIMERIRQ,
+===== include/linux/pci_ids.h 1.167 vs edited =====
+--- 1.167/include/linux/pci_ids.h	2004-06-18 19:06:33 +02:00
++++ edited/include/linux/pci_ids.h	2004-06-21 03:26:39 +02:00
+@@ -1061,21 +1061,33 @@
+ #define PCI_DEVICE_ID_NVIDIA_UVTNT2		0x002D
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE	0x0035
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA	0x0036
++#define PCI_DEVICE_ID_NVIDIA_NVENET_10		0x0037
++#define PCI_DEVICE_ID_NVIDIA_NVENET_11		0x0038
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2	0x003e
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_IDE	0x0053
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA	0x0054
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2	0x0055
++#define PCI_DEVICE_ID_NVIDIA_NVENET_8		0x0056
++#define PCI_DEVICE_ID_NVIDIA_NVENET_9		0x0057
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
++#define PCI_DEVICE_ID_NVIDIA_NVENET_2		0x0066
+ #define PCI_DEVICE_ID_NVIDIA_MCP2_AUDIO		0x006a
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE	0x0085
++#define PCI_DEVICE_ID_NVIDIA_NVENET_4		0x0086
++#define PCI_DEVICE_ID_NVIDIA_NVENET_5		0x008c
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA	0x008e
+ #define PCI_DEVICE_ID_NVIDIA_ITNT2		0x00A0
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE3		0x00d1
+ #define PCI_DEVICE_ID_NVIDIA_MCP3_AUDIO		0x00da
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE3S  		0x00e1
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE	0x00d5
++#define PCI_DEVICE_ID_NVIDIA_NVENET_3		0x00d6
++#define PCI_DEVICE_ID_NVIDIA_MCP3_AUDIO		0x00da
++#define PCI_DEVICE_ID_NVIDIA_NVENET_7		0x00df
++#define PCI_DEVICE_ID_NVIDIA_NFORCE3S		0x00e1
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA	0x00e3
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE	0x00e5
++#define PCI_DEVICE_ID_NVIDIA_NVENET_6		0x00e6
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2	0x00ee
+ #define PCI_DEVICE_ID_NVIDIA_GEFORCE_SDR	0x0100
+ #define PCI_DEVICE_ID_NVIDIA_GEFORCE_DDR	0x0101
+@@ -1103,6 +1115,7 @@
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE		0x01a4
+ #define PCI_DEVICE_ID_NVIDIA_MCP1_AUDIO		0x01b1
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE_IDE		0x01bc
++#define PCI_DEVICE_ID_NVIDIA_NVENET_1		0x01c3
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2		0x01e0
+ #define PCI_DEVICE_ID_NVIDIA_GEFORCE3		0x0200
+ #define PCI_DEVICE_ID_NVIDIA_GEFORCE3_1		0x0201
 
-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
---------------040506030001090800080302--
+--------------050308070405050009040201--

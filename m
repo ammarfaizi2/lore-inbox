@@ -1,60 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263793AbTKRVHY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 16:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263794AbTKRVHY
+	id S263785AbTKRU7H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 15:59:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTKRU7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 16:07:24 -0500
-Received: from sun3.sammy.net ([68.162.198.6]:62472 "HELO sun3.sammy.net")
-	by vger.kernel.org with SMTP id S263793AbTKRVHW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 16:07:22 -0500
-Date: Wed, 19 Nov 2003 17:08:01 -0500 (EST)
-From: Sam Creasey <sammy@sammy.net>
-X-X-Sender: sammy@sun3
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, <netdev@oss.sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: [BK PATCHES] 2.6.x experimental net driver queue
-In-Reply-To: <Pine.GSO.4.21.0311181205460.6448-100000@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.40.0311191703120.6278-100000@sun3>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 18 Nov 2003 15:59:07 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:56754 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263785AbTKRU7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 15:59:00 -0500
+Subject: [BKPATCH] ACPI for 2.4
+From: Len Brown <len.brown@intel.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1069189083.2970.540.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 18 Nov 2003 15:58:03 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Marcelo, please do a 
+
+	bk pull http://linux-acpi.bkbits.net/linux-acpi-release-2.4.23
+
+	Asside from the fixes we discussed, I found some of
+	the ACPI related x86_64 code in need of sync from i386,
+	so I did that and iterated to fix a few broken build configs.
+	Of my standard set, !CONFIG_PCI is still broken,
+	but probably nobody cares.  the pci=noacpi code is
+	updated from 2.6, but both trees needs some cleaning...
+
+	It would be good to get some feedback from those with
+	x86_64 hardware, since I don't currently have any.
+
+thanks,
+-Len
+
+ps. a plain patch is also available here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.4.23-rc1/acpi-20031002-2.4.23-rc1.diff.gz
+
+This will update the following files:
 
 
-On Tue, 18 Nov 2003, Geert Uytterhoeven wrote:
+ Documentation/kernel-parameters.txt |    9 +
+ MAINTAINERS                         |    4 
+ arch/i386/kernel/acpi.c             |   58 ++++++-
+ arch/i386/kernel/dmi_scan.c         |    1 
+ arch/i386/kernel/io_apic.c          |   10 -
+ arch/i386/kernel/mpparse.c          |    4 
+ arch/i386/kernel/setup.c            |    6 
+ arch/x86_64/kernel/Makefile         |    2 
+ arch/x86_64/kernel/acpi.c           |   98 ++++++++++---
+ arch/x86_64/kernel/e820.c           |   10 +
+ arch/x86_64/kernel/io_apic.c        |   20 +-
+ arch/x86_64/kernel/mpparse.c        |    8 -
+ arch/x86_64/kernel/pci-pc.c         |    8 +
+ arch/x86_64/kernel/setup.c          |    4 
+ drivers/acpi/bus.c                  |    4 
+ drivers/acpi/pci_link.c             |  180 ++++++++++++++++++++----
+ drivers/acpi/system.c               |    9 +
+ include/acpi/acpi_bus.h             |    1 
+ include/asm-i386/acpi.h             |   29 +--
+ include/asm-i386/io_apic.h          |   23 ++-
+ include/asm-x86_64/acpi.h           |   28 +--
+ include/asm-x86_64/apic.h           |   13 -
+ include/asm-x86_64/io_apic.h        |   21 ++
+ 23 files changed, 412 insertions(+), 138 deletions(-)
 
-> On Mon, 17 Nov 2003, Geert Uytterhoeven wrote:
-> > On Sun, 16 Nov 2003, Jeff Garzik wrote:
-> > > Yet more updates.  Syncing with Andrew Morton, and more syncing with Al
-> > > Viro.
-> > >
-> > > No users of init_etherdev remain in the tree.  (yay!)
-> >
-> > Here are some (untested, except for cross-gcc) fixes for the m68k-related
-> > drivers:
->
-> I forget to test the Sun-3 drivers:
->   - sun3_82586.c:
->       o add missing casts to iounmap() calls
->       o fix parameter of free_netdev()
->   - sun3lance.c: add missing casts to iounmap() calls
->
-> Note that sun3_82586.c no longer compiles since SUN3_82586_TOTAL_SIZE is not
-> defined. Sammy, is it OK to use PAGE_SIZE for that, since that's what's passed
-> to ioremap()?
+through these ChangeSets:
 
-Should be...  I looked back through a few versions of the code, and I'm
-not even sure what SUN3_82586_TOTAL_SIZE even was (appears I commented
-that line out long ago anyway).  (I'm also amazed just how much of that
-driver I've forgotten in the last year or two :)
+<len.brown@intel.com> (03/11/18 1.1193.1.10)
+   "pci=noacpi" use pci_disable_acpi() instead of touching use_acpi_pci
+directly
 
--- Sam
+<len.brown@intel.com> (03/11/18 1.1063.44.51)
+   [ACPI] sync some i386 ACPI build fixes into x86_64 to fix
+!CONFIG_ACPI build
+
+<len.brown@intel.com> (03/11/18 1.1193.1.8)
+   x86_64 build fix from previous cset
+
+<len.brown@intel.com> (03/11/18 1.1063.44.50)
+   i386 build fix from previous cset
+
+<len.brown@intel.com> (03/11/18 1.1193.1.6)
+   2.4.23 build x86_64 build fixes
+
+<len.brown@intel.com> (03/11/18 1.1063.44.49)
+   [ACPI] fix x86_64 !CONFIG_ACPI build
+
+<len.brown@intel.com> (03/11/18 1.1063.44.48)
+   [ACPI] Maintainer: Andy Grover -> Len Brown
+
+<len.brown@intel.com> (03/11/18 1.1063.44.47)
+   [ACPI] fix x86_64 build errors
+
+<len.brown@intel.com> (03/11/18 1.1063.44.46)
+   [ACPI] 
+     Re-enable IRQ balacning if IOAPIC mode
+     http://bugzilla.kernel.org/show_bug.cgi?id=1440
+   
+     Also allow IRQ balancing in PIC mode if "acpi_irq_balance"
+     http://bugzilla.kernel.org/show_bug.cgi?id=1391
+
+<len.brown@intel.com> (03/11/18 1.1063.44.45)
+   [ACPI ] pci=acpi ineffective fix from i386 2.6 (Thomas Schlichter)
+   http://bugzilla.kernel.org/show_bug.cgi?id=1219
+
+<len.brown@intel.com> (03/11/18 1.1063.44.44)
+   [ACPI] "acpi_pic_sci=edge" in case platform requires Edge Triggered
+SCI
+   http://bugzilla.kernel.org/show_bug.cgi?id=1390
+
+<len.brown@intel.com> (03/11/18 1.1063.44.43)
+   [ACPI] print_IO_APIC() only after it is actually programmed
+   http://bugzilla.kernel.org/show_bug.cgi?id=1177
+
+<len.brown@intel.com> (03/11/17 1.1063.44.42)
+   [ACPI] fix ACPI/legacy interrupt sharing issue ala 2.6
+   http://bugzilla.kernel.org/show_bug.cgi?id=1283
+
+<len.brown@intel.com> (03/11/17 1.1063.44.41)
+   [ACPI] fix poweroff failure ala 2.6 (Ducrot Bruno)
+   http://bugzilla.kernel.org/show_bug.cgi?id=1456
+
+<len.brown@intel.com> (03/11/07 1.1063.44.40)
+   [ACPI] In ACPI mode, delay print_IO_APIC() to make its output valid.
+   http://bugzilla.kernel.org/show_bug.cgi?id=1177
+
+<len.brown@intel.com> (03/11/07 1.1063.44.39)
+   [ACPI] If ACPI is disabled by DMI BIOS date, then
+   turn it off completely, including table parsing for HT.
+   This avoids a crash due to ancient garbled tables.
+   acpi=force is available to over-ride this default.
+   http://bugzilla.kernel.org/show_bug.cgi?id=1434
+
+<len.brown@intel.com> (03/10/30 1.1063.44.38)
+   [ACPI] fix CONFIG_HOTPLUG_PCI_ACPI config (Xose Vazquez Perez)
+
+
 
 

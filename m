@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267119AbRGJTf5>; Tue, 10 Jul 2001 15:35:57 -0400
+	id <S265620AbRGJTvB>; Tue, 10 Jul 2001 15:51:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267112AbRGJTfs>; Tue, 10 Jul 2001 15:35:48 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:8722 "EHLO quark.didntduck.org")
-	by vger.kernel.org with ESMTP id <S265593AbRGJTfi>;
-	Tue, 10 Jul 2001 15:35:38 -0400
-Message-ID: <3B4B58FE.642136EB@didntduck.org>
-Date: Tue, 10 Jul 2001 15:35:26 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, ttabi@interactivesi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: What is the truth about Linux 2.4's RAM limitations?
-In-Reply-To: <200107101812.NAA01171@tomcat.admin.navo.hpc.mil> <3B4B4966.996DD91E@didntduck.org> <20010711064355.F32421@weta.f00f.org>
+	id <S267120AbRGJTuw>; Tue, 10 Jul 2001 15:50:52 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:676 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265620AbRGJTue>;
+	Tue, 10 Jul 2001 15:50:34 -0400
+Date: Tue, 10 Jul 2001 12:49:03 -0700
+From: Jonathan Lahr <lahr@us.ibm.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: io_request_lock patch?
+Message-ID: <20010710124903.H6013@us.ibm.com>
+In-Reply-To: <20010709123936.E6013@us.ibm.com> <20010709214453.U16505@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010709214453.U16505@suse.de>; from axboe@suse.de on Mon, Jul 09, 2001 at 09:44:53PM +0200
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
+Jens Axboe [axboe@suse.de] wrote:
+> On Mon, Jul 09 2001, Jonathan Lahr wrote:
+> > 
+> > I have heard that a patch to reduce io_request_lock contention by
+> > breaking it into per queue locks was released in the past.  Does 
+> > anyone know where I could find this patch if it exists?
 > 
-> On Tue, Jul 10, 2001 at 02:28:54PM -0400, Brian Gerst wrote:
-> 
->     Jesse Pollard wrote:
-> 
->         > If the entire page table were given to a user, then a full cache
->         > flush would have to be done on every context switch and system
->         > call. That would be very slow, but would allow a full 4G address
->         > for the user.
-> 
->     A full cache flush would be needed at every entry into the kernel,
->     including hardware interrupts.  Very poor for performance.
-> 
-> Why would a cache flush be necessary at all? I assume ia32 caches
-> where physically not virtually mapped?
+> I had a patch about a year ago that did it safely for the block layer
+> and IDE at least, and also for selected SCSI hba's. Some of the latter
+> variety are pretty hard and/or tedious to fixup, Eric Y has done some
+> work automating this process almost completely. Until that is done, the
+> general patch has no chance of being integrated.
 
-I meant TLB flush, sorry.
+I am investigating reducing io_request_lock contention in the shorter term
+if possible with smaller incremental modifications.  So I'm first trying to 
+discover any previous work that might have been done toward this purpose.
 
---
+-- 
+Jonathan Lahr
+IBM Linux Technology Center
+Beaverton, Oregon
+lahr@us.ibm.com
+503-578-3385
 
-				Brian Gerst

@@ -1,68 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268975AbUIBUY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268970AbUIBU24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268975AbUIBUY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 16:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268989AbUIBUYt
+	id S268970AbUIBU24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 16:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268985AbUIBU1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 16:24:49 -0400
-Received: from giesskaennchen.de ([83.151.18.118]:22193 "EHLO
-	mail.uni-matrix.com") by vger.kernel.org with ESMTP id S268975AbUIBUXi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 16:23:38 -0400
-Message-ID: <4137815F.6040803@giesskaennchen.de>
-Date: Thu, 02 Sep 2004 22:23:59 +0200
-From: Oliver Antwerpen <olli@giesskaennchen.de>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Build error (objdump fails)
-References: <41377705.9060305@giesskaennchen.de> <20040902201100.GA15298@mars.ravnborg.org>
-In-Reply-To: <20040902201100.GA15298@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-giesskaennchen.de-MailScanner-Information: Die Giesskaennchen verschicken keine Viren!
-X-giesskaennchen.de-MailScanner: Found to be clean
+	Thu, 2 Sep 2004 16:27:34 -0400
+Received: from sp36.amenworld.com ([62.193.200.26]:46050 "EHLO tuxedo-es.org")
+	by vger.kernel.org with ESMTP id S268970AbUIBUWe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 16:22:34 -0400
+Subject: random.c Entropy pool enhancements for external TRNG connection.
+From: Lorenzo Hernandez Garcia-Hierro <lorenzo@gnu.org>
+Reply-To: lorenzo@gnu.org
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2zHm3HOMeZIgI+k0qD1t"
+Message-Id: <1094156314.22241.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 02 Sep 2004 22:18:34 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Thu, Sep 02, 2004 at 09:39:49PM +0200, Oliver Antwerpen wrote:
-> 
->>when compiling the linux kernel (I tried 2.6.8, 2.6.8.1, 2.6.9-rc1) I get:
->>arch/i386/kernel/acpi/boot.o: file not recognized: File truncated
-> 
-> Strange...
-> Try the following:
-> rm arch/i386/kernel/acpi/boot.o
-> make V=1
-> 
-> Since you have tried several versions I assume this file has been rebuild,
-> so it will still fail.
 
-Right. I had tried this before. The gcc-call works just fine, anyway 
-boot.o is truncated.
+--=-2zHm3HOMeZIgI+k0qD1t
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-> Try:
-> nm -p arch/i386/kernel/acpi/boot.o
-> objdump -x arch/i386/kernel/acpi/boot.o
+Hi,
+I'm working together with a friend of my secondary school on a True
+Random Number Generator,following the schemas of Fourmilab HotBits TRNG,
+hardware based and connected by the standard serial connector.
+The idea is to provide a big quality random numbers to inject in the
+kernel entropy pool, receiving all of them by the serial cable.
+I'm trying to modify random.c to implement some of these things but i'm
+a bit stuck (i'm not a C master, i'm just 15 old and learning it since 2
+months).
 
-Both say: File truncated
+This is what i have done yet:
+=3D=3D=3D=3D=3D
+/*******************************************************=20
+ * 		True Random Number Generator (TRNG) routines		     *
+ *******************************************************
+ * Author: Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>
+ * Description:
+ * These routines are intended to make use of an external TRNG device
+ * by the COM1 port (serial conector), adding more strong entropy to the
+ * pool.These routines have been tested using the Fourmilab HotBits
+Atomic
+ * TRNG, which uses a Geiger counter to make true random bits based on
+ * the atoms' (unpredictable) destruction times.
+ */
+=20
+void add_trng_randomless(unsigned char trngflow)
+{
+	[HERE SHOULD COME THE STUFF TO GET THE DATA FROM THE TRNG]
+	add_timer_randomness(&trng_timer_state, trngflowsc);
+}
 
-> Try running the gcc command by hand and see if .o file is still bad.
+/*****************************************************
+ * 	End of True Random Number Generator (TRNG) routines		 *
+ *****************************************************/
 
-Yes, still bad.
+memset(&trng_timer_state, 0, sizeof(struct timer_rand_state));
+=3D=3D=3D=3D
 
+trngflow should be the data that comes from the TRNG, also i want to
+know if i should add the symbols in the end of random.c, for
+add_trng_randomless function as each other (blk,irq,kb,mouse).
 
-I now tried compiling with gcc-3.4 (3.4.1 (Debian 3.4.1-4sarge1)), that 
-works fine.
+Is anybody interested in this project?
+I will appreciate any idea or tip.
 
-I am just compiling 2.6.8 with gcc-3.4. This fails at:
-mm/fremap.o: file not recognized: File truncated
+Best regards,
+--=20
+Lorenzo Hernandez Garcia-Hierro <lorenzo@gnu.org>
 
-Any ideas?
+--=-2zHm3HOMeZIgI+k0qD1t
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
 
-Ollfried
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQBBN4AZDcEopW8rLewRAuylAKDNK0mgSIGF7DkfhyRbuUuatjHp0QCfRC83
+wO6w69eZD6+FuJm27x4o3qs=
+=h/Pv
+-----END PGP SIGNATURE-----
+
+--=-2zHm3HOMeZIgI+k0qD1t--
 

@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263120AbUK0AK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263119AbUK0AK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263120AbUK0AK4 (ORCPT <rfc822;willy@w.ods.org>);
+	id S263119AbUK0AK4 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 26 Nov 2004 19:10:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbUK0AGy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263138AbUK0AHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 19:06:54 -0500
-Received: from web50506.mail.yahoo.com ([206.190.38.82]:64938 "HELO
-	web50506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263120AbUK0AES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 19:04:18 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=pnjKiVrg+JOP+3Kn+aOzS5l0Q5ewB+40K54i7TlMwLmq9j6o91luRDYke+egzc/lKmpZXVQE+3fCIpPVnavCIuWtnbRI0lZbJAo9c6JvTZvOM98w4QoN1SlGok9L0O+kk5LY2QT81kkeisFjk/Wtyo5+M5pEiSzPN6ZBBMYOAPQ=  ;
-Message-ID: <20041127000414.74351.qmail@web50506.mail.yahoo.com>
-Date: Fri, 26 Nov 2004 16:04:14 -0800 (PST)
-From: lan mu <mu8lan2003@yahoo.com>
-Subject: mmap and multiple memory chucks allocated by kmalloc()
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348111ED5FF@mail.esn.co.in>
+	Fri, 26 Nov 2004 19:07:33 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:52171 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S263072AbUK0ACi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 19:02:38 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: member@bellaby.freeserve.co.uk
+Date: Sat, 27 Nov 2004 11:02:24 +1100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16807.50192.233832.966091@cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: RAID10 overwrites partition tables
+In-Reply-To: message from Felix Bellaby on Friday November 26
+References: <10578812.1101490100216.JavaMail.www@wwinf3001>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi experts,
+On Friday November 26, member@bellaby.freeserve.co.uk wrote:
+>    	 mdadm --level 10 does not seem to respect disk partition boundaries.
 
-I have almost 620000 bytes data store in Kernal space
-and would like to pass to user space via mmap.
+Hmmm, yes, thanks.
 
-Can I use the kmalloc to allocate 5 memory chucks
-(4096*30) and then use remap_page_range() to map those
-5 chucks one by one? it not seems to work. Anyone can
-tell me if it's feasible? or I have to use vmalloc?
+I think the following should fix the bug.  It only affects 'resync'
+not normal IO or recovery (after a drive has failed).
 
-Now I only can mmaped the first chuck buffer and make
-it work.
+(I only tested it on whole-drives....)
 
-Since I'm not in the user group list, please send
-directly email to me.
+Please let me know if it helps.
 
-Thanks your help in advance!
-
--Lan
+NeilBrown
 
 
-	
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - You care about security. So do we. 
-http://promotions.yahoo.com/new_mail
+ ----------- Diffstat output ------------
+ ./drivers/md/raid10.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff ./drivers/md/raid10.c~current~ ./drivers/md/raid10.c
+--- ./drivers/md/raid10.c~current~	2004-11-16 16:33:50.000000000 +1100
++++ ./drivers/md/raid10.c	2004-11-27 11:00:06.000000000 +1100
+@@ -1150,6 +1150,7 @@ static void sync_request_write(mddev_t *
+ 		md_sync_acct(conf->mirrors[d].rdev->bdev, tbio->bi_size >> 9);
+ 
+ 		tbio->bi_sector += conf->mirrors[d].rdev->data_offset;
++		tbio->bi_bdev = conf->mirrors[d].rdev->bdev;
+ 		generic_make_request(tbio);
+ 	}
+ 

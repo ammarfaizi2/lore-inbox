@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUEWPtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263138AbUEWPv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbUEWPtX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 11:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUEWPtX
+	id S263138AbUEWPv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 11:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUEWPv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 11:49:23 -0400
-Received: from fdd.com ([64.81.147.80]:14387 "EHLO FDD.COM")
-	by vger.kernel.org with ESMTP id S263095AbUEWPtE (ORCPT
+	Sun, 23 May 2004 11:51:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50641 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263121AbUEWPv4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 11:49:04 -0400
-Date: Sun, 23 May 2004 10:48:59 -0500
-From: Billy Biggs <vektor@dumbterm.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: tvtime and the Linux 2.6 scheduler
-Message-ID: <20040523154859.GC22399@dumbterm.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Sun, 23 May 2004 11:51:56 -0400
+Date: Sun, 23 May 2004 11:51:33 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: 2.6.6-mm5
+In-Reply-To: <1085219162.1628.3.camel@teapot.felipe-alfaro.com>
+Message-ID: <Xine.LNX.4.44.0405231149280.1940-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I am the author of tvtime, a TV application with advanced image
-processing algorithms.  Some users are complaining about poor
-performance under Linux 2.6, and I would like more information about how
-tvtime will be treated by the scheduler.  Here is an example of the
-intended usage:
+On Sat, 22 May 2004, Felipe Alfaro Solana wrote:
 
-  - Program running as root and SCHED_FIFO
-  - NTSC, input ~30 fps, each field processed for an output of ~60 fps
-  - CPU intensive processing, say 9 ms per field on my P3-733
-  - with a typical AGP card, the X driver takes 4 ms to draw
-  - Wait using /dev/rtc set to 1024 Hz
+> On Sat, 2004-05-22 at 10:36, Andrew Morton wrote:
+> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm5/
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm5/
+> > 
+> 
+> Will you included the i586-optimized AES patch from Fruhwirth Clemens to
+> the -mm tree? I find this patch really interesting, as it boost IPSec
+> ESP AES considerably.
 
-  for(;;)
-      9 ms : process frame
-      4 ms : draw frame
-      3 ms : wait until next field time using /dev/rtc
-      9 ms : process frame
-      4 ms : draw frame
-      3 ms : block on /dev/video0 for next frame
-     -----
-     33 ms : time per NTSC frame
+The problem is that we still need some kind of algorithm selection
+mechanism (config time, preferrably), so that the right boxes get the asm
+version loaded.
 
-  The theory is that Linux classifies this as a CPU hog regardless of
-its priority, and preempts tvtime with other processes.  Oswald
-Buddenhagen describes the effect as this:
 
-  "[...] it starts up fine, but after a few seconds (when the scheduler
-gathered some stats) ... well, it looks funny: the scene goes roughly
-exponentially into slow motion, then there is a frame drop and the
-process starts over.  this behaviour can be observed at any priority,
-which is clearly against the claim "no normally priorized interactive
-process will preempt a highly priorized cpu-hog" that i've read
-somewhere.  the xserver priority does not change anything, either;"
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-  Avoiding root/SCHED_FIFO and using usleep() instead of /dev/rtc seems
-to exhibit the same behavior.
-
-  Thoughts?
-
-  -Billy
 

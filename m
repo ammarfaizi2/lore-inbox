@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316434AbSHJAzz>; Fri, 9 Aug 2002 20:55:55 -0400
+	id <S316465AbSHJA6g>; Fri, 9 Aug 2002 20:58:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316503AbSHJAzx>; Fri, 9 Aug 2002 20:55:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19474 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316434AbSHJAzV>;
-	Fri, 9 Aug 2002 20:55:21 -0400
-Message-ID: <3D5464CF.DCD510D6@zip.com.au>
-Date: Fri, 09 Aug 2002 17:56:47 -0700
+	id <S316535AbSHJA6K>; Fri, 9 Aug 2002 20:58:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23058 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316512AbSHJA4B>;
+	Fri, 9 Aug 2002 20:56:01 -0400
+Message-ID: <3D5464F7.179A69A0@zip.com.au>
+Date: Fri, 09 Aug 2002 17:57:27 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 4/12] tunable ext3 commit interval
+Subject: [patch 9/12] sync get_user_pages with 2.4
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,97 +22,135 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-The patch from Stephen Tweedie allows users to modify the journal
-commit interval for the ext3 filesystem.
+Forward port of get_user_pages() change from 2.4.
 
-The commit interval is normally five seconds.  For portable computers
-with spun-down drives it is advantageous to be able to increase the
-commit interval.
+- If the vma is marked as VM_IO area then fail the map.
 
-There may also be advantages in decreasing the commit interval for
-specialised applications such as heavily-loaded NFS servers which are
-using synchronous exports.
+  This prevents kernel deadlocks which occur when applications which
+  have frame buffers mapped try to dump core.  Also prevents a kernel
+  oops when a debugger is attached to a process which has an IO mmap.
 
-The laptop users will also need to increase the pdflush periodic
-writeback interval (/proc/sys/vm/dirty_writeback_centisecs), because
-the `kupdate' activity also forces a commit.
+- Check that the mapped page is inside mem_map[] (pfn_valid).
 
-To specify the commit interval, use
-
-	mount -o commit=30 /dev/hda1 /mnt/whatever
-
-or
-	mount -o remount,commit=30 /dev/hda1
-
-The commit interval is specified in units of seconds.
+- inline follow_page() and remove the preempt_disable()s.  It has
+  only a single callsite and is called under spinloclk.
 
 
+ memory.c |   45 +++++++++++++++++++++++++--------------------
+ 1 files changed, 25 insertions, 20 deletions
 
- super.c |   26 +++++++++++++++++++++++++-
- 1 files changed, 25 insertions, 1 deletion
-
---- 2.5.30/fs/ext3/super.c~ext3-commit-interval	Fri Aug  9 17:36:40 2002
-+++ 2.5.30-akpm/fs/ext3/super.c	Fri Aug  9 17:36:41 2002
-@@ -696,6 +696,11 @@ static int parse_options (char * options
- 				*mount_options &= ~EXT3_MOUNT_DATA_FLAGS;
- 				*mount_options |= data_opt;
- 			}
-+		} else if (!strcmp (this_char, "commit")) {
-+			unsigned long v;
-+			if (want_numeric(value, "commit", &v))
-+				return 0;
-+			sbi->s_commit_interval = (HZ * v);
- 		} else {
- 			printk (KERN_ERR 
- 				"EXT3-fs: Unrecognized mount option %s\n",
-@@ -1260,6 +1265,22 @@ out_fail:
- 	return -EINVAL;
+--- 2.5.30/mm/memory.c~get_user_pages-sync	Fri Aug  9 17:36:46 2002
++++ 2.5.30-akpm/mm/memory.c	Fri Aug  9 17:36:46 2002
+@@ -432,9 +432,11 @@ void zap_page_range(struct vm_area_struc
  }
  
-+/*
-+ * Setup any per-fs journal parameters now.  We'll do this both on
-+ * initial mount, once the journal has been initialised but before we've
-+ * done any recovery; and again on any subsequent remount. 
-+ */
-+static void ext3_init_journal_params(struct ext3_sb_info *sbi, 
-+				     journal_t *journal)
-+{
-+	if (sbi->s_commit_interval)
-+		journal->j_commit_interval = sbi->s_commit_interval;
-+	/* We could also set up an ext3-specific default for the commit
-+	 * interval here, but for now we'll just fall back to the jbd
-+	 * default. */
-+}
-+
-+
- static journal_t *ext3_get_journal(struct super_block *sb, int journal_inum)
+ /*
+- * Do a quick page-table lookup for a single page. 
++ * Do a quick page-table lookup for a single page.
++ * mm->page_table_lock must be held.
+  */
+-static struct page * follow_page(struct mm_struct *mm, unsigned long address, int write) 
++static inline struct page *
++follow_page(struct mm_struct *mm, unsigned long address, int write) 
  {
- 	struct inode *journal_inode;
-@@ -1294,7 +1315,7 @@ static journal_t *ext3_get_journal(struc
- 		printk(KERN_ERR "EXT3-fs: Could not load journal inode\n");
- 		iput(journal_inode);
- 	}
--	
-+	ext3_init_journal_params(EXT3_SB(sb), journal);
- 	return journal;
+ 	pgd_t *pgd;
+ 	pmd_t *pmd;
+@@ -449,19 +451,14 @@ static struct page * follow_page(struct 
+ 	if (pmd_none(*pmd) || pmd_bad(*pmd))
+ 		goto out;
+ 
+-	preempt_disable();
+ 	ptep = pte_offset_map(pmd, address);
+-	if (!ptep) {
+-		preempt_enable();
++	if (!ptep)
+ 		goto out;
+-	}
+ 
+ 	pte = *ptep;
+ 	pte_unmap(ptep);
+-	preempt_enable();
+ 	if (pte_present(pte)) {
+-		if (!write ||
+-		    (pte_write(pte) && pte_dirty(pte))) {
++		if (!write || (pte_write(pte) && pte_dirty(pte))) {
+ 			pfn = pte_pfn(pte);
+ 			if (pfn_valid(pfn))
+ 				return pfn_to_page(pfn);
+@@ -478,13 +475,17 @@ out:
+  * with IO-aperture pages in kiobufs.
+  */
+ 
+-static inline struct page * get_page_map(struct page *page)
++static inline struct page *get_page_map(struct page *page)
+ {
++	if (!pfn_valid(page_to_pfn(page)))
++		return 0;
+ 	return page;
  }
  
-@@ -1371,6 +1392,7 @@ static journal_t *ext3_get_dev_journal(s
- 		goto out_journal;
- 	}
- 	EXT3_SB(sb)->journal_bdev = bdev;
-+	ext3_init_journal_params(EXT3_SB(sb), journal);
- 	return journal;
- out_journal:
- 	journal_destroy(journal);
-@@ -1667,6 +1689,8 @@ int ext3_remount (struct super_block * s
+-int get_user_pages(struct task_struct *tsk, struct mm_struct *mm, unsigned long start,
+-		int len, int write, int force, struct page **pages, struct vm_area_struct **vmas)
++
++int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
++		unsigned long start, int len, int write, int force,
++		struct page **pages, struct vm_area_struct **vmas)
+ {
+ 	int i;
+ 	unsigned int flags;
+@@ -496,14 +497,14 @@ int get_user_pages(struct task_struct *t
+ 	flags = write ? (VM_WRITE | VM_MAYWRITE) : (VM_READ | VM_MAYREAD);
+ 	flags &= force ? (VM_MAYREAD | VM_MAYWRITE) : (VM_READ | VM_WRITE);
+ 	i = 0;
+-	
  
- 	es = sbi->s_es;
+ 	do {
+ 		struct vm_area_struct *	vma;
  
-+	ext3_init_journal_params(sbi, sbi->s_journal);
-+	
- 	if ((*flags & MS_RDONLY) != (sb->s_flags & MS_RDONLY)) {
- 		if (sbi->s_mount_opt & EXT3_MOUNT_ABORT)
- 			return -EROFS;
+ 		vma = find_extend_vma(mm, start);
+ 
+-		if ( !vma || !(flags & vma->vm_flags) )
++		if (!vma || (pages && (vma->vm_flags & VM_IO))
++				|| !(flags & vma->vm_flags))
+ 			return i ? : -EFAULT;
+ 
+ 		spin_lock(&mm->page_table_lock);
+@@ -511,7 +512,7 @@ int get_user_pages(struct task_struct *t
+ 			struct page *map;
+ 			while (!(map = follow_page(mm, start, write))) {
+ 				spin_unlock(&mm->page_table_lock);
+-				switch (handle_mm_fault(mm, vma, start, write)) {
++				switch (handle_mm_fault(mm,vma,start,write)) {
+ 				case VM_FAULT_MINOR:
+ 					tsk->min_flt++;
+ 					break;
+@@ -529,11 +530,14 @@ int get_user_pages(struct task_struct *t
+ 			}
+ 			if (pages) {
+ 				pages[i] = get_page_map(map);
+-				/* FIXME: call the correct function,
+-				 * depending on the type of the found page
+-				 */
+-				if (pages[i])
+-					page_cache_get(pages[i]);
++				if (!pages[i]) {
++					spin_unlock(&mm->page_table_lock);
++					while (i--)
++						page_cache_release(pages[i]);
++					i = -EFAULT;
++					goto out;
++				}
++				page_cache_get(pages[i]);
+ 			}
+ 			if (vmas)
+ 				vmas[i] = vma;
+@@ -543,6 +547,7 @@ int get_user_pages(struct task_struct *t
+ 		} while(len && start < vma->vm_end);
+ 		spin_unlock(&mm->page_table_lock);
+ 	} while(len);
++out:
+ 	return i;
+ }
+ 
 
 .

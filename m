@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264964AbRGSQNy>; Thu, 19 Jul 2001 12:13:54 -0400
+	id <S264877AbRGSQUO>; Thu, 19 Jul 2001 12:20:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264927AbRGSQNp>; Thu, 19 Jul 2001 12:13:45 -0400
-Received: from [208.187.172.194] ([208.187.172.194]:25363 "HELO
-	odin.oce.srci.oce.int") by vger.kernel.org with SMTP
-	id <S264933AbRGSQN3> convert rfc822-to-8bit; Thu, 19 Jul 2001 12:13:29 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Joshua Schmidlkofer <menion@srci.iwpsd.org>
-To: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6 and netboot
-Date: Thu, 19 Jul 2001 10:10:51 -0600
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20010719082650.A26980@animx.eu.org>
-In-Reply-To: <20010719082650.A26980@animx.eu.org>
+	id <S264927AbRGSQTy>; Thu, 19 Jul 2001 12:19:54 -0400
+Received: from phnx1-blk2-hfc-0251-d1db10f1.rdc1.az.coxatwork.com ([209.219.16.241]:56243
+	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S264877AbRGSQTq>; Thu, 19 Jul 2001 12:19:46 -0400
+Message-ID: <00f101c1106e$a119e3c0$6baaa8c0@kevin>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.7-pre7 natsemi network driver random pauses
+Date: Thu, 19 Jul 2001 09:19:47 -0700
+Organization: LSG, Inc.
 MIME-Version: 1.0
-Message-Id: <01071910105102.01826@widmers.oce.srci.oce.int>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thursday 19 July 2001 06:26 am, Wakko Warner wrote:
-> I'm using a kernel that is dd'd to a floppy to net boot linux on random
-> machines.  I noticed that 2.4.6 won't get it's IP from the server (it won't
-> even attempt it).  2.4.4 works
->
-> If any more info is needed, just ask.
+I upgraded two machines here from 2.4.7-pre6 to 2.4.7-pre7 yesterday
+afternoon.
 
-Sine 2.4.4 I have been unable to make ipconfig automagically go, and I think 
-that this configuration is not supported.   At least, with my limited 
-knowledge of how ipconfig works  you must to pass: 'ipconfig=dhcp', or 
-ipconfig='bootp' to the kernel at boot time.  I built a LILO disk, but
-I think that syslinux would work.  Also, I did eventually successfully get an 
-Xterminal running.
+The first machine I upgraded, my workstation, is a 1GHz Athlon on a VIA
+KT133 (not A) motherboard using a NetGear FA312TX network card. This machine
+has always run Linux just fine. After this upgrade, telnetting to my other
+Linux machine (not yet upgraded) and doing long directory listings (or tar
+tzvf linux-2.4.0.tar) exhibits random (and long) pauses in the output.
+Switching back to 2.4.7-pre6 makes the problem disappear. Note that at this
+time only the _client_ end of this connection had been upgraded to -pre7.
 
-After 2.4.4 ipconfig was changed to the ipconfig= style of behaviour.  I 
-don't know why, but someone does.  I think it has to do with implementation 
-cahnges to allow for modularized NIC's to use ipautoconfig.   This seems 
-insane that functionality was cut in order to do this.
+I then upgraded my server as well, which is a 700 MHz Coppermine Celeron on
+an SIS 630 motherboard, also using a NetGear FA312TX network card. Now this
+machine exhibits the same symptoms, even when the telnet client is on a
+Windows machine.
 
-Also, I have been unable to make bootp work for nfsboot, but I suspect my 
-bootp server - not the kernel.
+So, it appears that one of two things happened:
 
-BACK to the point.  Since 2.4.5 I have had to use lilo, and add a line that 
-says 'nfs=[all that stuff] ipconfig=dhcp'
+a) the natsemi driver had changes merged between -pre6 and -pre7 (not listed
+in the changelogs) that had negative effects on my systems
 
-good luck.
+b) something else in the kernel caused irq/softirq/whatever random latency
+to appear
 
-js
+Any ideas where I should start looking?
 

@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262715AbREOJ4C>; Tue, 15 May 2001 05:56:02 -0400
+	id <S262720AbREOKFD>; Tue, 15 May 2001 06:05:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262719AbREOJzw>; Tue, 15 May 2001 05:55:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54542 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262715AbREOJze>; Tue, 15 May 2001 05:55:34 -0400
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: viro@math.psu.edu (Alexander Viro)
-Date: Tue, 15 May 2001 10:51:14 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        neilb@cse.unsw.edu.au (Neil Brown),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.GSO.4.21.0105150532150.21081-100000@weyl.math.psu.edu> from "Alexander Viro" at May 15, 2001 05:49:08 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14zbU2-0002IF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S262719AbREOKEx>; Tue, 15 May 2001 06:04:53 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:57245 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S262718AbREOKEb>; Tue, 15 May 2001 06:04:31 -0400
+Message-Id: <5.1.0.14.2.20010515105633.00a22c10@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 15 May 2001 11:04:30 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Getting FS access events
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0105142357220.23955-100000@penguin.transmeta
+ .com>
+In-Reply-To: <200105150649.f4F6nwD22946@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan, if we are doing that we might as well use saner interface than
-> ioctl(2). In case you've mentioned we don't want "make device SYS$FOO17
-> do special action OP$LOUD$BARF4269". We want "make device rewind the tape".
-> Or "tell us geometry". Or "eject the media". Application doesn't
+At 08:13 15/05/01, Linus Torvalds wrote:
+>On Tue, 15 May 2001, Richard Gooch wrote:
+> > So what happens if I dd from the block device and also from a file on
+> > the mounted FS, where that file overlaps the bnums I dd'ed? Do we get
+> > two copies in the page cache? One for the block device access, and one
+> > for the file access?
+>
+>Yup. And never the two shall meet.
+>
+>Why should they? Why would you ever do something like that, or care about
+>the fact?
 
-Counter argument; We dont want the bloat of making a floppy tape have
-delusions of grandeur in kernel space when mt-st can do it in userspace.
+They shouldn't, but maybe some stupid utility or a typo will do it creating 
+two incoherent copies of the same block on the device. -> Bad Things can 
+happen.
 
-Alan
+Can't we simply stop people from doing it by say having mount lock the 
+device from further opens (and vice versa of course, doing a "dd" should 
+result in lock of device preventing a mount during the duration of "dd"). - 
+Wouldn't this be a good thing, guaranteeing that problems cannot happen 
+while not incurring any overhead except on device open/close? Or is this a 
+matter of "give the user enough rope"? - If proper rw locking is 
+implemented it could allow simultaneous -o ro mount with a dd from the 
+device but do exclusive write locking, for example, for maximum flexibility.
+
+Just my 2p.
+
+Anton
+
+
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129652AbQLEO0R>; Tue, 5 Dec 2000 09:26:17 -0500
+	id <S129772AbQLEO1g>; Tue, 5 Dec 2000 09:27:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129772AbQLEO0G>; Tue, 5 Dec 2000 09:26:06 -0500
-Received: from CPE-61-9-151-208.vic.bigpond.net.au ([61.9.151.208]:61961 "HELO
-	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
-	id <S129652AbQLEOZr>; Tue, 5 Dec 2000 09:25:47 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: "Christian W. Zuckschwerdt" <zany@triq.net>
+	id <S131031AbQLEO10>; Tue, 5 Dec 2000 09:27:26 -0500
+Received: from ausxc07.us.dell.com ([143.166.99.215]:48689 "EHLO
+	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
+	id <S129772AbQLEO1Q>; Tue, 5 Dec 2000 09:27:16 -0500
+Message-ID: <CDF99E351003D311A8B0009027457F1403BF9A32@ausxmrr501.us.dell.com>
+From: Matt_Domsch@Dell.com
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipchains log will show all flags 
-In-Reply-To: Your message of "Tue, 05 Dec 2000 14:22:00 BST."
-             <0012051408110.1526-100000@localhost> 
-Date: Wed, 06 Dec 2000 00:55:09 +1100
-Message-Id: <20001205135519.9747C813F@halfway.linuxcare.com.au>
+Subject: [PATCH] pci_read_bases trivial fixup
+Date: Tue, 5 Dec 2000 07:55:58 -0600 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <0012051408110.1526-100000@localhost> you write:
-> Hi Linus,
-> 
-> This tiny patch extends ipchains logging. This way one can distinguish
-> (plain) connection attempts and (Xmas, Fin,...) scans. E.g.
->  kernel: Packet log: input - lo PROTO=6 127.0.0.1:40326 127.0.0.1:80
->   L=40 S=0x00 I=5808 F=0x0000 T=51 (#1)
->  vs.
->   L=40 S=0x00 I=5808 F=0x0000 T=51 (#1) B=-s--a-
->  and
->   L=40 S=0x00 I=5808 F=0x0000 T=51 (#1) B=fs-p-u
-> 
-> Please comment on the format (B=...) and implementation details (speed).
-> The patch is against 2.2.17's /net/ipv4/ip_fw.c 
+Linus, below is a trivial patch to pci.c, and applies against test12-pre5.
+In -test11, tmp was declared.  Somehow by 12-pre4, it got lost.  This puts
+it back.  It's needed in the BITS_PER_LONG == 64 case.
 
-Looks OK, but CC'ing the maintainer is simple politeness.
+Thanks,
+Matt Domsch
+Dell Enterprise Systems Group
+Linux Development Team
 
-> +	if (ip->protocol == IPPROTO_TCP)
 
-You probably want to insert `&& !(ip->frag_off & htons(IP_OFFSET))'
 
-> +		       tcp-syn ? 's' : '-', tcp->rst ? 'r' : '-',
+diff -burN linux/drivers/pci/pci.c.orig linux/drivers/pci/pci.c
+--- linux/drivers/pci/pci.c.orig        Tue Dec  5 07:49:28 2000
++++ linux/drivers/pci/pci.c     Tue Dec  5 07:49:36 2000
+@@ -540,7 +540,7 @@
+ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int
+rom)
+ {
+        unsigned int pos, reg, next;
+-       u32 l, sz;
++       u32 l, sz, tmp;
+        struct resource *res;
 
-You mean `tcp->syn' not `tcp-syn'.
-
-I like the fact that it doesn't disturb the format, simply appends,
-and it has been a not-uncommon request.
-
-But application is up to Alan Cox, who ruleth the 2.2 series.
-
-Rusty.
---
-Hacking time.
+        for(pos=0; pos<howmany; pos = next) {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131682AbRCUQyP>; Wed, 21 Mar 2001 11:54:15 -0500
+	id <S131622AbRCURGf>; Wed, 21 Mar 2001 12:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131683AbRCUQx4>; Wed, 21 Mar 2001 11:53:56 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14857 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131682AbRCUQxe>; Wed, 21 Mar 2001 11:53:34 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: spinlock usage - ext2_get_block, lru_list_lock
-Date: 21 Mar 2001 08:52:37 -0800
-Organization: Transmeta Corporation
-Message-ID: <99am8l$8mk$1@penguin.transmeta.com>
-In-Reply-To: <20010321180607.A11941@linuxcare.com>
+	id <S131643AbRCURGZ>; Wed, 21 Mar 2001 12:06:25 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35856 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131622AbRCURGT>; Wed, 21 Mar 2001 12:06:19 -0500
+Subject: Re: Alert on LAN for Linux?
+To: terje.malmedal@usit.uio.no (Terje Malmedal)
+Date: Wed, 21 Mar 2001 17:08:14 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E14cvTq-0000oH-00@morgoth> from "Terje Malmedal" at Mar 13, 2001 09:33:18 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14fm5o-0000uT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010321180607.A11941@linuxcare.com>,
-Anton Blanchard  <anton@linuxcare.com.au> wrote:
->
->It was not surprising the BKL was one of the main offenders. Looking at the
->stats ext2_get_block was the bad guy (UTIL is % of time lock was busy for,
->WAIT is time spent waiting for lock):
+> things correctly they have enhanced Wake-on-LAN to allow you to do
+> things like reset the machine, update the BIOS and such by sending
+> magic packets which are interpreted by the network card. Or maybe I am
 
-Actually, I find the BKL fairly surprising - we've whittled down all the
-major non-lowlevel-FS offenders, and I didn't realize that it's still
-there in do_exit().
+Normally 'sending magic packets resets the machine' is considered a feature
+reported to bugtraq. The alert stuff I have seen is more akin to sending SNMP
+traps for things like people opening the lid, or fan failure
 
-And the do_exit() case should be _trivial_ to fix: almost none of the
-code protected by the kernel lock in the exit path actually needs the
-lock. I suspect you could cut down the kernel lock there to much
-smaller.
-
-The big case seems to be ext2_get_block(), we'll fix that early in
-2.5.x. I think Al already has patches for it.
-
-As to lseek, that one should probably get the inode semaphore, not the
-kernel lock. 
-
-		Linus

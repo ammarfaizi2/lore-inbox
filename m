@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278428AbRKVMnb>; Thu, 22 Nov 2001 07:43:31 -0500
+	id <S278584AbRKVMpb>; Thu, 22 Nov 2001 07:45:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278584AbRKVMnV>; Thu, 22 Nov 2001 07:43:21 -0500
-Received: from mx02.uni-tuebingen.de ([134.2.3.12]:21264 "EHLO
-	mx02.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S278428AbRKVMnE>; Thu, 22 Nov 2001 07:43:04 -0500
-Date: Thu, 22 Nov 2001 13:43:03 +0100 (CET)
-From: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>
-To: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
-cc: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: fs/exec.c and binfmt-xxx in 2.4.14
-In-Reply-To: <3BFCE5BB.AD59B011@web-systems.net>
-Message-ID: <Pine.LNX.4.33.0111221341110.1479-100000@bellatrix.tat.physik.uni-tuebingen.de>
+	id <S278587AbRKVMpW>; Thu, 22 Nov 2001 07:45:22 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:40680 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S278584AbRKVMpN>; Thu, 22 Nov 2001 07:45:13 -0500
+Date: Thu, 22 Nov 2001 13:45:07 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Jurriaan on Alpha <thunder7@xs4all.nl>, <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.4.15-pre9: s|linux/malloc.h|linux/slab.h|
+In-Reply-To: <20011122124613.A5067@alpha.of.nowhere>
+Message-ID: <Pine.NEB.4.42.0111221340350.21470-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Nov 2001, Heinz-Ado Arnolds wrote:
+On Thu, 22 Nov 2001, Jurriaan on Alpha wrote:
 
-> Andreas Ferber wrote:
-> >
-> > On Wed, Nov 21, 2001 at 05:58:26PM +0100, Heinz-Ado Arnolds wrote:
-> > >
-> > > When i now try to start an older binary in a.out format, which has a
-> > > magic number of 0x010b0064, it is translated with the 'new' code to a
-> > > request for "binfmt-0064" instead of "binfmt-267" as expected and
-> > > properly handled by modprobe.
-> >
-> > Then add
-> >
-> > alias binfmt-0064 binfmt_aout
-> >
-> > to /etc/modules.conf. Simple, isn't it?
->
-> That's a nice idea but I wouldn't rely on the fact that the third
-> and the fourth byte of a file are sufficient to identify the type.
-> If you look at the magic numbers in /etc/magic, you'll find:
->
->   0x00640107      Linux/i386 impure executable (OMAGIC)
->   0x00640108      Linux/i386 pure executable (NMAGIC)
->   0x0064010b      Linux/i386 demand-paged executable (ZMAGIC)
->   0x006400cc      Linux/i386 demand-paged executable (QMAGIC)
->   =0514           80386 COFF executable
->
-> It's standard to count on the first (and eventually following) bytes.
->
-> And if you look further on in /etc/magic, you'll see that there are
-> other file types having 0x0064 as 3rd and 4th byte.
+> make[3]: Entering directory `/usr/src/linux-2.4.15pre9/drivers/scsi/sym53c8xx_2'
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.15pre9/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-al
+> iasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6  -I.  -c -o sym_fw.o sym_fw.c
+> In file included from sym_glue.h:80,
+>                  from sym_fw.c:56:
+> /usr/src/linux-2.4.15pre9/include/linux/malloc.h:4: warning: #warning linux/malloc.h is deprecated, use linux/slab.h instead.
+>...
 
-Note that the 3rd and 4th byte are not used to identify a binary
-format, but just to auto-load a possibly available module that can
-possibly handle that format. So it doesnt really matter if there are
-multiple filetypes causing the load of the same binary handler module.
 
-Richard.
+This warning is harmless. The patch below fixes the warning in this file
+and in two other files:
 
---
-Richard Guenther <richard.guenther@uni-tuebingen.de>
-WWW: http://www.tat.physik.uni-tuebingen.de/~rguenth/
-The GLAME Project: http://www.glame.de/
+
+--- drivers/scsi/sym53c8xx_2/sym_glue.h.old	Thu Nov 22 13:01:19 2001
++++ drivers/scsi/sym53c8xx_2/sym_glue.h	Thu Nov 22 13:02:41 2001
+@@ -77,7 +77,7 @@
+ #include <linux/errno.h>
+ #include <linux/pci.h>
+ #include <linux/string.h>
+-#include <linux/malloc.h>
++#include <linux/slab.h>
+ #include <linux/mm.h>
+ #include <linux/ioport.h>
+ #include <linux/time.h>
+--- drivers/s390/s390io.c.old	Thu Nov 22 13:07:11 2001
++++ drivers/s390/s390io.c	Thu Nov 22 13:07:33 2001
+@@ -33,7 +33,7 @@
+ #include <linux/signal.h>
+ #include <linux/sched.h>
+ #include <linux/interrupt.h>
+-#include <linux/malloc.h>
++#include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/smp.h>
+ #include <linux/threads.h>
+--- arch/arm/mach-epxa10db/dma.c.old	Thu Nov 22 13:39:23 2001
++++ arch/arm/mach-epxa10db/dma.c	Thu Nov 22 13:39:33 2001
+@@ -19,7 +19,7 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ #include <linux/sched.h>
+-#include <linux/malloc.h>
++#include <linux/slab.h>
+ #include <linux/mman.h>
+ #include <linux/init.h>
+
+
+cu
+Adrian
+
+-- 
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
 

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281204AbRLAAf7>; Fri, 30 Nov 2001 19:35:59 -0500
+	id <S281245AbRLAAht>; Fri, 30 Nov 2001 19:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281245AbRLAAfu>; Fri, 30 Nov 2001 19:35:50 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:43281 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281204AbRLAAfl>;
-	Fri, 30 Nov 2001 19:35:41 -0500
-Date: Fri, 30 Nov 2001 22:35:33 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Larry McVoy <lm@bitmover.com>, Daniel Phillips <phillips@bonn-fries.net>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <3C08057D.48645B56@zip.com.au>
-Message-ID: <Pine.LNX.4.33L.0111302234420.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281248AbRLAAhk>; Fri, 30 Nov 2001 19:37:40 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39923
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281245AbRLAAh1>; Fri, 30 Nov 2001 19:37:27 -0500
+Date: Fri, 30 Nov 2001 16:37:21 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Joe Rice <jrice@bigidea.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Still having problems with eepro100
+Message-ID: <20011130163721.J504@mikef-linux.matchmail.com>
+Mail-Followup-To: Joe Rice <jrice@bigidea.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011130180827.E2265@bigidea.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011130180827.E2265@bigidea.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001, Andrew Morton wrote:
-> Larry McVoy wrote:
-> > Linux isn't there yet
-> > and unless the development model changes somewhat, I'll stand behind my
-> > belief that it is unlikely to ever get there.
+On Fri, Nov 30, 2001 at 06:08:27PM -0600, Joe Rice wrote:
+> 
+> Hello, 
+>   I'm having the same type of problems that was talked
+> about in this thread.  I have seen the same error
+> on kernels 2.4.7 - 2.4.10, which is:
+> 
+> eth0: card reports no resources.
+> __alloc_pages: 0_order allocation failed (gfp=0x20/0) from c012da00
 >
-> I am (genuinely) interested in what changes you think are needed.
+> at which point i see NFS timeouts or the machine hangs
+> and requires a cold reboot.
+>
+> also, I haven't had any luck with the Intel e100 driver.
+>
 
-I'm very interested too, though I'll have to agree with Larry
-that Linux really isn't going anywhere in particular and seems
-to be making progress through sheer luck.
+e100 probably doesn't help because that is a VM issue triggered by nfs and
+networking.
 
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
+> 
+> I'm now testing on 10 of the nodes the 2.4.16 kernel.  They
+> have been under a moderate load and i haven't seen any
+> problems yet.  I still plan on doing a large load test
+> on this newer kernel.
+> 
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Let us know if there's any problems.  And if things are better that wouldn't
+hurt reporting either ;)

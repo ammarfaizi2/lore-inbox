@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310157AbSCFUYc>; Wed, 6 Mar 2002 15:24:32 -0500
+	id <S292503AbSCFU0x>; Wed, 6 Mar 2002 15:26:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310141AbSCFUYX>; Wed, 6 Mar 2002 15:24:23 -0500
-Received: from mnh-1-14.mv.com ([207.22.10.46]:29704 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S310168AbSCFUYL>;
-	Wed, 6 Mar 2002 15:24:11 -0500
-Message-Id: <200203062025.PAA03727@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dwmw2@infradead.org (David Woodhouse), hpa@zytor.com (H. Peter Anvin),
-        bcrl@redhat.com (Benjamin LaHaise), linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages 
-In-Reply-To: Your message of "Wed, 06 Mar 2002 16:50:15 GMT."
-             <E16iecJ-0007Nn-00@the-village.bc.nu> 
-Mime-Version: 1.0
+	id <S310141AbSCFU0n>; Wed, 6 Mar 2002 15:26:43 -0500
+Received: from pat.uio.no ([129.240.130.16]:1711 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S292503AbSCFU0d>;
+	Wed, 6 Mar 2002 15:26:33 -0500
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Patch to pull NFS server address off root_server_path
+In-Reply-To: <E16iSfH-0007W9-00@wagner.rustcorp.com.au>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 06 Mar 2002 21:26:14 +0100
+In-Reply-To: <E16iSfH-0007W9-00@wagner.rustcorp.com.au>
+Message-ID: <shsk7sp4f4p.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 06 Mar 2002 15:25:00 -0500
-From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@lxorguk.ukuu.org.uk said:
-> Doesn't seem to but it looks like madvise might be enough to make that
-> happen.
+>>>>> " " == Rusty Russell <rusty@rustcorp.com.au> writes:
 
-Yeah, MADV_DONTNEED looks right.  UML and Linux/s390 (assuming VM has the
-equivalent of MADV_DONTNEED) would need a hook in free_pages to make that
-happen.
+     > This patch was submitted to the trivial patch daemon.  Looks OK
+     > to me, Trond?
 
-> That BTW is an issue for more than UML - it has a bearing on running
-> lots of Linux instances on any supervisor/virtualising system like S/390
+     > --- linux.orig/net/ipv4/ipconfig.c Tue Feb 26 07:14:51 2002
+     > +++ linux/net/ipv4/ipconfig.c Wed Mar 6 14:01:10 2002
+     > @@ -1197,6 +1197,16 @@
+     >  		ic_dev = ic_first_dev->dev;
+     >  	}
+ 
+     > +#ifdef CONFIG_ROOT_NFS
+     > + {
+     > + extern void __init root_nfs_parse_addr(char *name, u32
+     >  		*addr);
+     > + u32 addr = INADDR_NONE;
+     > + root_nfs_parse_addr(root_server_path, &addr);
+     > + if (root_server_addr == INADDR_NONE)
+     > + root_server_addr = addr;
+     > + }
+     > +#endif +
 
-On a side note, the "unused memory is wasted memory" behavior that UML and 
-Linux/s390 inherit is also less than optimal for the host.
+Erm... Is this __init declaration here correct?
 
-				Jeff
+Wouldn't it really be better to move root_nfs_parse_addr() into the
+ipconfig code? Since, CONFIG_ROOT_NFS depends on CONFIG_IP_PNP being
+set, you could also get rid of your #ifdef above...
 
+Cheers,
+  Trond

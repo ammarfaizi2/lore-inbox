@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVCHRv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVCHRz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVCHRv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 12:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVCHRv1
+	id S261233AbVCHRz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 12:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCHRz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 12:51:27 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38621 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261448AbVCHRvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 12:51:17 -0500
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: David Brownell <david-b@pacbell.net>,
-       <linux-usb-devel@lists.sourceforge.net>,
-       Randy Dunlap <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <fastboot@osdl.org>
-Subject: Re: kexec and IRQ sharing
-References: <Pine.LNX.4.44L0.0503081125580.978-100000@ida.rowland.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 08 Mar 2005 10:48:17 -0700
-In-Reply-To: <Pine.LNX.4.44L0.0503081125580.978-100000@ida.rowland.org>
-Message-ID: <m1fyz6m3ku.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Mar 2005 12:55:29 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:37455 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261233AbVCHRzV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 12:55:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=CiRzfMrezqVp5/bLAYfQdrJZKxqiyt4eHURx6yYSuoVLmr06h1v+kd7p6Ag7hpdX+5bahE0lWK43DyIRHRCGT0KidHgEmb3RiuMNDbpw7D/bybwwluF1fgXssIlLkm5QZ8XxCBZJ1DDUSqYMudXeEhdolz+o8aCbD0x4pEhnJcA=
+Message-ID: <c26b959205030809551b3e9670@mail.gmail.com>
+Date: Tue, 8 Mar 2005 23:25:19 +0530
+From: Imanpreet Arora <imanpreet@gmail.com>
+Reply-To: Imanpreet Arora <imanpreet@gmail.com>
+To: Robert Love <rml@novell.com>
+Subject: Re: Question regarding thread_struct
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1110302922.28921.3.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <c26b959205030809044364b923@mail.gmail.com>
+	 <1110302000.23923.14.camel@betsy.boston.ximian.com>
+	 <c26b959205030809271b8a5886@mail.gmail.com>
+	 <1110302922.28921.3.camel@betsy.boston.ximian.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern <stern@rowland.harvard.edu> writes:
+On Tue, 08 Mar 2005 12:28:42 -0500, Robert Love <rml@novell.com> wrote:
+> On Tue, 2005-03-08 at 22:57 +0530, Imanpreet Arora wrote:
+> 
+> > This has been a doubt for a couple of days, and I am wondering if this
+> > one could also be cleared. When you say kernel stack, can't be resized
+> >
+> >
+> > a)       Does it mean that the _whole_ of the kernel is restricted to
+> > that 8K or 16K of memory?
+> 
+> Actually, 4K or 8K these days for x86.  But, no, it means that EACH
+> PROCESS is constrained to the kernel stack.  The stacks are per-process.
+> The kernel never "runs on its own" -- it is always in the context of a
+> process (which has its own kernel stack) or an interrupt handler (which
+> either shares the previous process's stack or has its own stack,
+> depending on CONFIG_IRQSTACKS).
 
-> I can implement either a shutdown method or a reboot notifier for
-> uhci-hcd.  Note however that the upcoming changes to the PM core include a
-> suspend call (PMSG_FREEZE) that does exactly what you want: quiesce the
-> device, disable IRQ and DMA, but don't necessarily switch the power level.  
-> (See Documentation/power/devices.txt.)  Unfortunately it won't be
-> implemented until another few kernel releases have gone by.
+Thanks again, but if the whole of the kernel is restricted to couple of pages.
+
+Does this mean
+
+a) the whole of the kernel including drivers is restricted to couple of pages.
+
+b) Or with a more probability, I think what you actually mean is that
+whenever there is an interrupt by any driver it runs in either context
+of the current process or depending upon CONFIG_IRQSTACKS.
+
+If you could just quote the chapter, in your book which contains
+information  about this, that would be more than sufficient.
+
+
+> > b)        Or does it mean that a particular stack for a particular
+> > process, can't be resized?
+> 
+> Yes, I just said that in the previous email.  The kernel stack cannot be
+> resized.  It is fixed.  It is one or two pages, depending on configure
+> option.  That is, 4 or 8K.
+> 
+> The _user-space_ stack, what the application actually uses, is
+> dynamically resizable.  But we are not talking about that.
+> 
+> > c)         And for that matter how exactly do we define a kernel stack?
+> 
+> I don't know what you mean.  alloc_thread_info() creates the thread_info
+> structure and stack.
+
+
+Actually what I asked above was "how exactly does one define and
+differentiate kernel stack", as against "user-stack". I think I always
+knew it but couple of clouds were coming over after reading your first
+mail. Also if each thread has a kernel stack how is it allocated at
+first place (alloc_thread_info)(?)
 
 Thanks.
- 
-> The idea of using kexec to recover from a partially-damaged kernel seems 
-> unreliable.  Even attempting to quiesce devices prior to rebooting may 
-> not work because of locks whose owners have crashed.
+-- 
 
-There is still a final bit of feeling our way through the weirdness,
-in that case.  But in that case no devices will be quiesced before
-we start the next kernel.  Basically very little beyond a jump
-jump instruction will be executed at that point.  What is loaded must
-be a very robust kernel capable of handling the few devices it needs
-from an active state.  The irq weirdness you just ran into is
-something that really hasn't been looked at.
-
-In that case I suspect we will probably simply want to specify irqpoll
-on the command line by default.  We are as safe as possible from DMA
-traffic because we run out of a completely reserved area of memory
-that the primary kernel never uses.
-
-And the target is not a complete system recover but rather being able
-to do something useful in the event of a crash like write a core
-dump.
-
-So in the crash dump case with a non-hardened driver that can't cope
-the system may lock up, but I don't see it corrupting your data.
-Which is the important bit.  And with drivers that have been
-sufficiently hardened you will be able to do things like write
-to disk etc.
-
-Eric
+Imanpreet Singh Arora

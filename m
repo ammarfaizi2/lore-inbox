@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262242AbSJFWkc>; Sun, 6 Oct 2002 18:40:32 -0400
+	id <S262950AbSJFWvc>; Sun, 6 Oct 2002 18:51:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262239AbSJFWkc>; Sun, 6 Oct 2002 18:40:32 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:34007 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S262235AbSJFWka>;
-	Sun, 6 Oct 2002 18:40:30 -0400
-Date: Sun, 6 Oct 2002 18:38:32 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Andre Hedrick <andre@pyxtechnologies.com>
-cc: Ben Greear <greearb@candelatech.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
-Subject: Re: Update on e1000 troubles (over-heating!)
-In-Reply-To: <Pine.LNX.4.10.10210052045090.22517-100000@master.linux-ide.org>
-Message-ID: <Pine.GSO.4.30.0210061835350.1861-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262951AbSJFWvb>; Sun, 6 Oct 2002 18:51:31 -0400
+Received: from holomorphy.com ([66.224.33.161]:60631 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262950AbSJFWv3>;
+	Sun, 6 Oct 2002 18:51:29 -0400
+Date: Sun, 6 Oct 2002 15:54:11 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: Gigi Duru <giduru@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021006225411.GI10722@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Aaron Lehmann <aaronl@vitelus.com>, Gigi Duru <giduru@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20021005193650.17795.qmail@web13202.mail.yahoo.com> <20021006004438.GG10722@holomorphy.com> <20021006222433.GB9785@vitelus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021006222433.GB9785@vitelus.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 06, 2002 at 03:24:33PM -0700, Aaron Lehmann wrote:
+> It seems to me that what would be even better than patches is a
+> general awareness of bloat and an attitude discouraging adding any
+> bloat whatsoever to the base kernel. Proactive bloat prevention is a
+> much better solution than asking embedded developers to send fixes
+> whenever someone increases the size of the core kernel unnecessarily.
+> Let's prevent a Mozilla here.
 
+Beware here. The kinds of time/space tradeoffs important to you are
+absolutely *not* apparent from "normal" testing. -You- are the embedded
+developers and users. The onus is on you to find space consumption
+problems visible in embedded environments.
 
-On Sat, 5 Oct 2002, Andre Hedrick wrote:
+Yes, I am highly concerned about space. But that is not enough to
+address your needs. My space consumption concerns are largely
+ZONE_NORMAL consumption and data structure proliferation. This is a
+very different matter from boottime and absolute space consumption.
 
->
-> I have a pair of Compaq e1000's which have never overheated, and I use
-> them for heavy duty iSCSI testing and designing of drivers.  These are
-> massive 66/64 cards but still nothing like what you are reporting.
->
-> I will look some more at the issue soon.
->
+You will not be serviced by my own efforts to combat space consumption.
+You must take action yourselves to provide both problem reports and
+code to address these needs. But this is a valid activity and a
+worthwhile direction to pursue. If you take action, it will be heeded.
 
-It seems like the prerequisite to reproduce it is you beat the NIC heavily
-with a lot of packets/sec and then run it at that sustained rate for at
-least 30 minutes. isci would tend to use MTU sized packets which will
-not be that effective.
-
-cheers,
-jamal
-
-
-
-
+Bill

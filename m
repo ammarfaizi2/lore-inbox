@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272206AbRHWDnB>; Wed, 22 Aug 2001 23:43:01 -0400
+	id <S272208AbRHWDzO>; Wed, 22 Aug 2001 23:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272207AbRHWDmv>; Wed, 22 Aug 2001 23:42:51 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:11280 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S272206AbRHWDmm>; Wed, 22 Aug 2001 23:42:42 -0400
-Date: Thu, 23 Aug 2001 00:42:45 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Andi Kleen <ak@suse.de>
-Cc: "Jens Hoffrichter" <HOFFRICH@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Allocation of sk_buffs in the kernel
-Message-ID: <20010823004245.O5062@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Andi Kleen <ak@suse.de>, "Jens Hoffrichter" <HOFFRICH@de.ibm.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <OF55D2E221.5E62CB41-ONC1256AB0.0052D2D3@de.ibm.com.suse.lists.linux.kernel> <oupd75no4b3.fsf@pigdrop.muc.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <oupd75no4b3.fsf@pigdrop.muc.suse.de>; from ak@suse.de on Thu, Aug 23, 2001 at 05:14:56AM +0200
-X-Url: http://advogato.org/person/acme
+	id <S272209AbRHWDzF>; Wed, 22 Aug 2001 23:55:05 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:36364 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S272208AbRHWDyq>; Wed, 22 Aug 2001 23:54:46 -0400
+Date: Wed, 22 Aug 2001 23:54:58 -0400 (EDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Nicholas Knight <tegeran@home.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,RFC] make ide-scsi more selective
+In-Reply-To: <01082215391200.00490@c779218-a>
+Message-ID: <Pine.LNX.4.33.0108222350170.18397-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Aug 23, 2001 at 05:14:56AM +0200, Andi Kleen escreveu:
-> [1] There may be a few unnormal ones that do; e.g. vendor driver
-> writers seem to frequently try to reuse skbuffs privately because they're
-> used to that from other OS. It is discouraged and somewhat tricky, but
-> possible.
+On Wed, 22 Aug 2001, Nicholas Knight wrote:
 
-The original 802.2 stack from procom, used frame_t all over the core stack,
-with only the entry/exit points manipulating skb's. On entry from the core
-networking stack and from upper protocols (NetBEUI in procom case) they
-allocated a frame_t from a pool and initialited pointers to the mac and llc
-headers and stored the skb type in another frame_t member, pointing to the
-skb memory and used those pointers instead of skb->h and skb->nh.  That
-way, I think, they could use the core for several OSes.
+> Could you elaborate on this? I almost never use modules for my primary 
+> desktop system, SCSI emulation support and SCSI generic driver were both 
+> compiled in, and I had "hdc=ide-scsi" and later also tried "hdc=scsi" and 
 
-Maybe Jens should use something like WAITQUEUE_DEBUG if he want to know
-where alloc_skb and friends were called, see include/linux/wait.h 8)
+Well, hdc=ide-scsi is for 2.2 and hdc=scsi is for 2.4. Yup, yet another of 
+those gratuitious incompatibilities.
 
-- Arnaldo
+> I was unable to read from it with any device, /dev/sr0 /dev/sda /dev/scd0 
+> were all dead-ends, but I was able to WRITE just fine... I just don't 
+> want to reboot every time I want to write to the drive, nor reboot when I 
+> want to READ from it.
+
+I'm not sure why this is happening for you, my CDR drive works for both 
+reading and writing using the ide-scsi driver. But it's a known fact that 
+ide-scsi is not perfect, so that could explain it.
+
+> Disabling ATAPI CD-ROM support, and enabling SCSI CD-ROM (along with SCSI 
+> emulation support and SCSI generic support) worked, and now I just access 
+> both my CD-RW drive and my DVD-ROM drive through /dev/sr0 and /dev/sr1.
+
+So now you're saying it *does* work with ide-scsi? I'm utterly confused...
+
+> My primary concern here is other users who haven't figured this out, I 
+> know at least one ATAPI/IDE CD-R(W) in Linux HOWTO tells the user that 
+> they'll have to use two seperate kernel images, one to allow reading from 
+> their drive and the other for writing, infact that was my original method.
+
+Nope. Ide-scsi should be fine for both reading and writing.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

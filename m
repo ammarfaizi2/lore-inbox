@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbRETCMZ>; Sat, 19 May 2001 22:12:25 -0400
+	id <S261374AbRETCT0>; Sat, 19 May 2001 22:19:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261334AbRETCMQ>; Sat, 19 May 2001 22:12:16 -0400
-Received: from lpce017.lss.emc.com ([168.159.62.17]:12036 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S261333AbRETCME>; Sat, 19 May 2001 22:12:04 -0400
-Date: Sat, 19 May 2001 12:43:27 -0600
-Message-Id: <200105191843.f4JIhRx00343@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andries.Brouwer@cwi.nl
-Cc: andrewm@uow.edu.au, viro@math.psu.edu, bcrl@redhat.com, clausen@gnu.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code inuserspace
-In-Reply-To: <UTC200105191130.NAA53601.aeb@vlet.cwi.nl>
-In-Reply-To: <UTC200105191130.NAA53601.aeb@vlet.cwi.nl>
+	id <S261334AbRETCTH>; Sat, 19 May 2001 22:19:07 -0400
+Received: from mail.ntplx.net ([204.213.176.10]:25026 "EHLO mail.ntplx.net")
+	by vger.kernel.org with ESMTP id <S261356AbRETCTF>;
+	Sat, 19 May 2001 22:19:05 -0400
+Message-ID: <3B072889.1DC9E69A@ntplx.net>
+Date: Sat, 19 May 2001 22:14:33 -0400
+From: Ben Bridgwater <bennyb@ntplx.net>
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Miles Lane <miles@megapathdsl.net>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Brown-paper-bag bug in m68k, sparc, and sparc64 config files
+In-Reply-To: <3B0718AB.7E2FF3A2@ntplx.net> <990323493.13903.0.camel@agate>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer writes:
-> Andrew Morton writes:
+Miles Lane wrote:
 > 
->     > > (2) what about bootstrapping?  how do you find the root device?
->     > > Do you do "root=/dev/hda/offset=63,limit=1235823"?  Bit nasty.
->     > 
->     > Ben's patch makes initrd mandatory.
+> On 19 May 2001 21:06:51 -0400, Benedict Bridgwater wrote:
+> > > This bug unconditionally disables a configuration question -- and it's
+> > > so old that it has propagated across three port files, without either
+> > > of the people who did the cut and paste for the latter two noticing it.
+> > >
+> > > This sort of thing would never ship in CML2, because the compiler
+> > > would throw an undefined-symbol warning on BLK_DEV_ST.  The temptation
+> > > to engage in sarcastic commentary at the expense of people who still
+> > > think CML2 is an unnecessary pain in the butt is great.  But I will
+> > > restrain myself.  This time.
+> >
+> > So a shortcoming of the CML1 tools justifies the CML2 language?
+> >
+> > I guess the next bug found in the Python2 interpreter will justify
+> > writing CML3 in FORTRAN.
 > 
->     Can this be fixed?  I've *never* had to futz with initrd.
->     Probably most systems are the same.  It seems a step
->     backward to make it necessary.
-> 
-> I don't think so. It is necessary, and it is good.
+> IIRC, Eric floated the CML2 idea over a year ago, provided some
+> rudimentary code and requested feedback.  There has seemed, for a long
+> time, to be agreement amoungst most kernel developers that there were
+> serious problems with CML1 and that it needed to be junked. There are
+> many things that CML1 was not going to allow us to do that will be
+> possible with CML2 (subsetting of the code tree, etc). I don't think
+> Eric's statement about this particular brown-paper-bag bug means that he
+> thinks that this alone justifies migrating to CML2. There are a lot of
+> good reasons for the migration. It isn't, perhaps, a perfect solution,
+> but it is one that Eric has implemented with a year's worth of effort,
+> with full knowledge of the kernel development community and with an open
+> invitation for contributions and feedback. To rag on it now seems
+> belated and unhelpful. It would be more useful if you helped Eric
+> improve CML2, since there appears to be agreement that it will be used
+> in 2.5.
 
-It most certainly is not. This attitude of pushing more and more stuff
-out of the kernel and into initrd is really annoying. Initrd is messy,
-nasty and opaque. It makes the boot process more complex. There is no
-way in hell I want to be forced to use it.
+Well if Eric is so concerned about his target audience then he certainly
+doesn't show it through his arrogant comments. CML2 itself may be well
+justified (although not on grounds of a diagnostic that CML1 tools could
+be changed to generate!), but there's no reason the tools utilizing the
+CML2 based rules shouldn't present a *superset* of the existing
+functionality. To present a dumbed down UI targeted for "Aunt Millie" or
+whoever against the protests of the mainstream kernel tool audience
+makes zero sense to me, as don't Eric's repeated antagonistic comments.
 
-Removing N lines from the kernel at the cost of adding N+k lines to
-user-space is a *loss*, not a gain. I want my *system* to be simple
-and transparent.
-
-> But it is easy to make the transition painless.
-
-No, initrd is fundamentally painful. Let go of this ideology of
-removing code from the kernel at all costs. A super-slim kernel which
-requires a more complex to administer user-space is too high a cost.
-The benefits of removing partition support from the kernel are
-basically zero.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Ben

@@ -1,271 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264573AbTLLNaV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 08:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264576AbTLLNaV
+	id S264570AbTLLN2g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 08:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbTLLN2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 08:30:21 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21435 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264573AbTLLN3p
+	Fri, 12 Dec 2003 08:28:36 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:12475 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264570AbTLLN2a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 08:29:45 -0500
+	Fri, 12 Dec 2003 08:28:30 -0500
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
-Subject: Re: [2.6] Modular IDE - problem
-Date: Fri, 12 Dec 2003 14:31:56 +0100
+To: Daniel Tram Lux <daniel@starbattle.com>
+Subject: Re: [patch] ide.c as a module
+Date: Fri, 12 Dec 2003 14:30:36 +0100
 User-Agent: KMail/1.5.4
-References: <Pine.LNX.4.58L.0312121432190.11533@alpha.zarz.agh.edu.pl>
-In-Reply-To: <Pine.LNX.4.58L.0312121432190.11533@alpha.zarz.agh.edu.pl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <20031211202536.GA10529@starbattle.com> <200312112225.14540.bzolnier@elka.pw.edu.pl> <20031212092006.GA13250@starbattle.com>
+In-Reply-To: <20031212092006.GA13250@starbattle.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200312121431.56416.bzolnier@elka.pw.edu.pl>
+Message-Id: <200312121430.36735.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Can you try this patch for 2.6.0-test11?
-
-On Friday 12 of December 2003 14:38, Wojciech 'Sas' Cieciwa wrote:
-> Hi,
-> I try to build kernel 2.6.0-test11 + cset-20031209_2107 with modular IDE.
+On Friday 12 of December 2003 10:20, Daniel Tram Lux wrote:
+> On Thu, Dec 11, 2003 at 10:25:14PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > On Thursday 11 of December 2003 21:25, Daniel Tram Lux wrote:
+> > > Hi,
+> >
+> > Hi,
+> >
+> > > I needed the ide-subsytem as a module on 2.4.23 and noticed (due to the
+> > > missing modprobe on the embedded linux system) that ide.c tries to load
+> > > the module ide-probe-mod which is called ide-detect now. The patch also
+> > > get's rid of the need for ide-probe-mini alias ide-detect, but I don't
+> > > know if that is desired? (it was in my case).
+> >
+> > It is incorrect, it will make most of modules for PCI IDE chipsets fail
+> > due to always calling ide_init() from ide.c:init_module().
 >
-> But I got some wornings/errors and kernel doesn't works.
+> ide_init is called from ide.c:init_module()
+> in the original version:
 >
-> Can anyone look at this and help me ?
+> int init_module (void)
+> {
+> 	parse_options(options);
+> 	return ide_init(); <--------
+> }
+
+I was thinking about ideprobe_init_module() not ide_init() :-).
+
+> > You need to modprobe ide-detect if you are using generic IDE code
+> > (no chipset specific driver - probably the case for your embedded
+> > system).
 >
-> Thanx.
-> 					Sas.
+> I know this, but ide-detect is basically an empty module, only calling
+> ideprobe_init_module() can't this be done right away from ide.c or are
+> there any reasons to delay the call until later at a user defined point of
+> time?
 
- drivers/block/ll_rw_blk.c    |    2 ++
- drivers/ide/Makefile         |   14 +++++++-------
- drivers/ide/ide-probe-mini.c |   23 +++++++++++++++++++++++
- drivers/ide/ide-probe.c      |   20 +++++++++++++-------
- drivers/ide/ide.c            |   32 ++++++--------------------------
- include/linux/ide.h          |    1 -
- 6 files changed, 51 insertions(+), 41 deletions(-)
+YES.  If you have some PCI IDE, you must load PCI chipset module before
+loading ide-detect.o otherwise (you load ide-detect.o before your PCI chipset
+module) generic IDE driver will own your IDE ports and you cannot use your
+specific PCI chipset driver.
 
-diff -puN drivers/block/ll_rw_blk.c~ide-modules drivers/block/ll_rw_blk.c
---- linux-2.6.0-test11-bart1/drivers/block/ll_rw_blk.c~ide-modules	2003-12-12 14:10:29.605600968 +0100
-+++ linux-2.6.0-test11-bart1-root/drivers/block/ll_rw_blk.c	2003-12-12 14:10:50.736388600 +0100
-@@ -145,6 +145,8 @@ void blk_queue_activity_fn(request_queue
- 	q->activity_data = data;
- }
- 
-+EXPORT_SYMBOL(blk_queue_activity_fn);
-+
- /**
-  * blk_queue_prep_rq - set a prepare_request function for queue
-  * @q:		queue
-diff -puN drivers/ide/ide.c~ide-modules drivers/ide/ide.c
---- linux-2.6.0-test11-bart1/drivers/ide/ide.c~ide-modules	2003-12-12 14:10:13.949980984 +0100
-+++ linux-2.6.0-test11-bart1-root/drivers/ide/ide.c	2003-12-12 14:10:13.968978096 +0100
-@@ -189,9 +189,6 @@ int noautodma = 1;
- #endif
- 
- EXPORT_SYMBOL(noautodma);
--EXPORT_SYMBOL(ide_bus_type);
--
--int (*ide_probe)(void);
- 
- /*
-  * This is declared extern in ide.h, for access by other IDE modules:
-@@ -443,21 +440,6 @@ u8 ide_dump_status (ide_drive_t *drive, 
- 
- EXPORT_SYMBOL(ide_dump_status);
- 
--
--
--void ide_probe_module (void)
--{
--	if (!ide_probe) {
--#if defined(CONFIG_KMOD) && defined(CONFIG_BLK_DEV_IDE_MODULE)
--		(void) request_module("ide-probe-mod");
--#endif /* (CONFIG_KMOD) && (CONFIG_BLK_DEV_IDE_MODULE) */
--	} else {
--		(void)ide_probe();
--	}
--}
--
--EXPORT_SYMBOL(ide_probe_module);
--
- static int ide_open (struct inode * inode, struct file * filp)
- {
- 	return -ENXIO;
-@@ -585,8 +567,6 @@ control_region_busy:
- 	return -EBUSY;
- }
- 
--EXPORT_SYMBOL(ide_hwif_request_regions);
--
- /**
-  *	ide_hwif_release_regions - free IDE resources
-  *
-@@ -622,8 +602,6 @@ void ide_hwif_release_regions(ide_hwif_t
- 	}
- }
- 
--EXPORT_SYMBOL(ide_hwif_release_regions);
--
- extern void init_hwif_data(unsigned int index);
- 
- /**
-@@ -992,6 +970,8 @@ void ide_setup_ports (	hw_regs_t *hw,
- 
- EXPORT_SYMBOL(ide_setup_ports);
- 
-+extern int ideprobe_init_module(void);
-+
- /*
-  * Register an IDE interface, specifying exactly the registers etc
-  * Set init=1 iff calling before probes have taken place.
-@@ -1033,7 +1013,10 @@ found:
- 	hwif->chipset = hw->chipset;
- 
- 	if (!initializing) {
--		ide_probe_module();
-+#ifdef MODULE
-+		if (ideprobe_init_module() == -EBUSY)
-+#endif
-+			ideprobe_init();
- #ifdef CONFIG_PROC_FS
- 		create_proc_ide_interfaces();
- #endif
-@@ -1517,8 +1500,6 @@ int ata_attach(ide_drive_t *drive)
- 	return 1;
- }
- 
--EXPORT_SYMBOL(ata_attach);
--
- static int generic_ide_suspend(struct device *dev, u32 state)
- {
- 	ide_drive_t *drive = dev->driver_data;
-@@ -2564,7 +2545,6 @@ EXPORT_SYMBOL(ide_fops);
-  */
- 
- EXPORT_SYMBOL(ide_lock);
--EXPORT_SYMBOL(ide_probe);
- 
- struct bus_type ide_bus_type = {
- 	.name		= "ide",
-diff -puN drivers/ide/ide-probe.c~ide-modules drivers/ide/ide-probe.c
---- linux-2.6.0-test11-bart1/drivers/ide/ide-probe.c~ide-modules	2003-12-12 14:10:13.943981896 +0100
-+++ linux-2.6.0-test11-bart1-root/drivers/ide/ide-probe.c	2003-12-12 14:10:13.964978704 +0100
-@@ -1348,27 +1348,33 @@ int ideprobe_init (void)
- 					ata_attach(&hwif->drives[unit]);
- 		}
- 	}
--	if (!ide_probe)
--		ide_probe = &ideprobe_init;
- 	MOD_DEC_USE_COUNT;
- 	return 0;
- }
- 
- #ifdef MODULE
--int init_module (void)
-+static int ideprobe_done;
-+
-+int ideprobe_init_module(void)
- {
- 	unsigned int index;
--	
-+
-+	if (ideprobe_done)
-+		return -EBUSY;
-+
- 	for (index = 0; index < MAX_HWIFS; ++index)
- 		ide_unregister(index);
- 	ideprobe_init();
- 	create_proc_ide_interfaces();
-+	ideprobe_done = 1;
- 	return 0;
- }
- 
--void cleanup_module (void)
-+EXPORT_SYMBOL_GPL(ideprobe_init_module);
-+
-+void ideprobe_cleanup_module(void)
- {
--	ide_probe = NULL;
- }
--MODULE_LICENSE("GPL");
-+
-+EXPORT_SYMBOL_GPL(ideprobe_cleanup_module);
- #endif /* MODULE */
-diff -puN /dev/null drivers/ide/ide-probe-mini.c
---- /dev/null	2003-01-30 11:24:37.000000000 +0100
-+++ linux-2.6.0-test11-bart1-root/drivers/ide/ide-probe-mini.c	2003-12-12 14:10:13.965978552 +0100
-@@ -0,0 +1,23 @@
-+/*
-+ *  linux/drivers/ide/ide-probe-mini.c	Version 1
-+ *
-+ *  Copyright (C) 1994-1998  Linus Torvalds & authors (see below)
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/types.h>
-+#include <linux/string.h>
-+#include <linux/kernel.h>
-+#include <linux/kmod.h>
-+
-+#ifdef MODULE
-+extern int ideprobe_init_module(void);
-+extern void ideprobe_cleanup_module(void);
-+
-+module_init(ideprobe_init_module);
-+module_exit(ideprobe_cleanup_module);
-+
-+MODULE_LICENSE("GPL");
-+#endif
-diff -puN drivers/ide/Makefile~ide-modules drivers/ide/Makefile
---- linux-2.6.0-test11-bart1/drivers/ide/Makefile~ide-modules	2003-12-12 14:10:13.946981440 +0100
-+++ linux-2.6.0-test11-bart1-root/drivers/ide/Makefile	2003-12-12 14:24:35.073070376 +0100
-@@ -10,22 +10,22 @@
- # First come modules that register themselves with the core
- obj-$(CONFIG_BLK_DEV_IDE)		+= pci/
- 
-+ide-core-objs	:= ide-io.o ide-probe.o ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-default.o
-+
- # Core IDE code - must come before legacy
-+ide-core-$(CONFIG_BLK_DEV_IDEPCI)	+= setup-pci.o
-+ide-core-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
-+ide-core-$(CONFIG_BLK_DEV_IDE_TCQ)	+= ide-tcq.o
-+ide-core-$(CONFIG_PROC_FS)		+= ide-proc.o
- 
--obj-$(CONFIG_BLK_DEV_IDE)		+= ide-io.o ide-probe.o ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-default.o
- obj-$(CONFIG_BLK_DEV_IDEDISK)		+= ide-disk.o
- obj-$(CONFIG_BLK_DEV_IDECD)		+= ide-cd.o
- obj-$(CONFIG_BLK_DEV_IDETAPE)		+= ide-tape.o
- obj-$(CONFIG_BLK_DEV_IDEFLOPPY)		+= ide-floppy.o
- 
--obj-$(CONFIG_BLK_DEV_IDEPCI)		+= setup-pci.o
--obj-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
--obj-$(CONFIG_BLK_DEV_IDE_TCQ)		+= ide-tcq.o
- obj-$(CONFIG_BLK_DEV_IDEPNP)		+= ide-pnp.o
- 
--ifeq ($(CONFIG_BLK_DEV_IDE),y)
--obj-$(CONFIG_PROC_FS)			+= ide-proc.o
--endif
-+obj-$(CONFIG_BLK_DEV_IDE)		+= ide-core.o ide-probe-mini.o
- 
- obj-$(CONFIG_BLK_DEV_IDE)		+= legacy/ ppc/ arm/
- obj-$(CONFIG_BLK_DEV_HD)		+= legacy/
-diff -puN include/linux/ide.h~ide-modules include/linux/ide.h
---- linux-2.6.0-test11-bart1/include/linux/ide.h~ide-modules	2003-12-12 14:10:13.960979312 +0100
-+++ linux-2.6.0-test11-bart1-root/include/linux/ide.h	2003-12-12 14:10:13.969977944 +0100
-@@ -1238,7 +1238,6 @@ typedef struct ide_devices_s {
-  */
- #ifndef _IDE_C
- extern	ide_hwif_t	ide_hwifs[];		/* master data repository */
--extern int (*ide_probe)(void);
- 
- extern ide_devices_t   *idedisk;
- extern ide_devices_t   *idecd;
+> > You are right that ide-probe-mini alias is not needed, ide-probe-mini.c
+> > should be renamed to ide-detect.c (or ide-detect.o to ide-probe-mini.o).
+> >
+> > > --- linux-2.4.23.org/drivers/ide/ide.c  2003-11-28 19:26:20.000000000
+> > > +0100 +++ linux-2.4.23/drivers/ide/ide.c      2004-03-11
+> > > 20:31:51.000000000 +0100 @@ -514,11 +514,7 @@
+> > >
+> > >  void ide_probe_module (int revaldiate)
+> > >  {
+> > > -       if (!ide_probe) {
+> > > -#if  defined(CONFIG_BLK_DEV_IDE_MODULE)
+> > > -               (void) request_module("ide-probe-mod");
+> > > -#endif
+> > > -       } else {
+> > > +       if (ide_probe) {
+> > >                 (void) ide_probe->init();
+> > >         }
+> > >         revalidate_drives(revaldiate);
+> >
+> > You should make this change in ide_register_hw() instead:
+> >
+> > -		ide_probe_module();
+> > +#ifdef MODULE
+> > +		if (ideprobe_init_module() == -EBUSY)
+> > +#endif
+> > +			ideprobe_init();
+>
+> Your patch will (if MODULE is defined) call ideprobe_init() twice,
+> once from ideprobe_init_module() and once from ideprobe_init()
+> should ideprobe_init really not only be called once and only once?
 
-_
+No, think about loading chipset modules.  Some (i.e. ide-cs.o) are
+calling ide_register_hw() and expect that this function will probe drives
+(without need to load ide-detect.o by user).  Change above preserves
+current behavior (note that you may have more than one chipset module).
+
+The same (probing for drives by chipset module) can be done for PCI
+drivers but requires a some more work in case of 2.4.x kernels.
+
+--bart
+
+> > And get rid of ide_probe pointer.
+> >
+> > --bart
 

@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265667AbTBFHbg>; Thu, 6 Feb 2003 02:31:36 -0500
+	id <S265725AbTBFH7y>; Thu, 6 Feb 2003 02:59:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265700AbTBFHbg>; Thu, 6 Feb 2003 02:31:36 -0500
-Received: from packet.digeo.com ([12.110.80.53]:30900 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265667AbTBFHbg>;
-	Thu, 6 Feb 2003 02:31:36 -0500
-Date: Wed, 5 Feb 2003 23:41:39 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Patrick Mau <mau@oscar.ping.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pdflush in D state
-Message-Id: <20030205234139.237887a7.akpm@digeo.com>
-In-Reply-To: <20030205231259.GA5339@oscar.ping.de>
-References: <20030205231259.GA5339@oscar.ping.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Feb 2003 07:41:06.0311 (UTC) FILETIME=[1B724970:01C2CDB3]
+	id <S265736AbTBFH7y>; Thu, 6 Feb 2003 02:59:54 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:17159
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265725AbTBFH7w>; Thu, 6 Feb 2003 02:59:52 -0500
+Date: Thu, 6 Feb 2003 00:08:28 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Nicolas Pitre <nico@cam.org>, andrea.glorioso@binary-only.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Monta Vista software license terms
+In-Reply-To: <20030205181512.A24002@infradead.org>
+Message-ID: <Pine.LNX.4.10.10302060007300.11024-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mau <mau@oscar.ping.de> wrote:
->
-> This goes extremly fast, but after a few seconds pdflush
-> gets stuck in D state and tries to write back dirty pages.
-> The machine is completly unresponsive and "top" reports
-> 75 percent IO wait time. The actual build has not even started.
+
+One of the key arguements against the weakness of GPL!
+Switch the to OSL and then there is legal teeth!
+
+Later,
+
+On Wed, 5 Feb 2003, Christoph Hellwig wrote:
+
+> On Wed, Feb 05, 2003 at 12:57:49PM -0500, Nicolas Pitre wrote:
+> > I find it quite saddening that a lot of people only care about making up shit 
+> > while the company in question is devoting a lot of money in salary to hire 
+> > kernel developers full time whose work has always been merged to community 
+> > trees so far.
+> 
+> Blah.  Why can't mvista put up the source to their products on some ftp
+> server like suse/redhat/caldera/mandrake/etc??  That's the whole point of
+> this discussion.  mvista doesn't do anything illegal, but they certainly
+> don't play nice.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-At a guess, I'd say that a disk device driver has dropped an interrupt and
-I/O completion has not happened.
-
-Check your kernel log and dmesg output for anything untoward, and then try
-invoking sysrq-P and sysrq-T to find out where everythihg is stuck.
+Andre Hedrick
+LAD Storage Consulting Group
 

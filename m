@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUJLNMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUJLNRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUJLNMt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 09:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUJLNMt
+	id S261474AbUJLNRa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 09:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUJLNRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 09:12:49 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:61071 "EHLO vagabond.light.src")
-	by vger.kernel.org with ESMTP id S261426AbUJLNLu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 09:11:50 -0400
-Date: Tue, 12 Oct 2004 15:11:38 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: aq <aquynh@gmail.com>
-Cc: suthambhara nagaraj <suthambhara@gmail.com>,
-       "Dhiman, Gaurav" <gaurav.dhiman@ca.com>,
-       main kernel <linux-kernel@vger.kernel.org>,
-       kernel <kernelnewbies@nl.linux.org>
-Subject: Re: Kernel stack
-Message-ID: <20041012131138.GU703@vagabond>
-References: <577528CFDFEFA643B3324B88812B57FE3055B9@inhyms21.ca.com> <46561a790410112351942e735@mail.gmail.com> <20041012094104.GM703@vagabond> <9cde8bff04101203052a711063@mail.gmail.com> <20041012102731.GQ703@vagabond> <9cde8bff04101205302834206@mail.gmail.com>
+	Tue, 12 Oct 2004 09:17:30 -0400
+Received: from iPass.cambridge.arm.com ([193.131.176.58]:10901 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S262406AbUJLNQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 09:16:20 -0400
+Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
+From: Richard Earnshaw <Richard.Earnshaw@arm.com>
+To: Adrian Cox <adrian@humboldt.co.uk>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       Catalin Marinas <Catalin.Marinas@arm.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>
+In-Reply-To: <1097057299.5332.15.camel@newt>
+References: <20040927210305.A26680@flint.arm.linux.org.uk>
+	 <20041001211106.F30122@flint.arm.linux.org.uk> <tnxllemvgi7.fsf@arm.com>
+	 <1096931899.32500.37.camel@localhost.localdomain>
+	 <loom.20041005T130541-400@post.gmane.org>
+	 <20041005125324.A6910@flint.arm.linux.org.uk>
+	 <1096981035.14574.20.camel@pc960.cambridge.arm.com>
+	 <20041005141452.B6910@flint.arm.linux.org.uk>
+	 <1096983608.14574.32.camel@pc960.cambridge.arm.com>
+	 <20041005145140.E6910@flint.arm.linux.org.uk>
+	 <1097057299.5332.15.camel@newt>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1097586918.23033.24.camel@pc960.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UC+RhZhEc8lcmajv"
-Content-Disposition: inline
-In-Reply-To: <9cde8bff04101205302834206@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 12 Oct 2004 14:15:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-10-06 at 11:08, Adrian Cox wrote:
 
---UC+RhZhEc8lcmajv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Why does the Linux ARM ABI have to have any relation to the ARM EABI?
+> The PowerPC has had two different ABIs for years, and it's not caused us
+> any trouble. Can't we just leave the behaviour of binutils alone when
+> configured for an arm-linux target, and put all feature churn into an
+> arm-eabi target?
 
-On Tue, Oct 12, 2004 at 21:30:54 +0900, aq wrote:
-> > > >From what you all discuss, I can say: kernel memory is devided into 2
-> > > part, and the upper part are shared between processes. The below part
-> > > (the kernel stack, or 8K traditionally) is specifict for each process.
-> > >
-> > > Is that right?
-> >=20
-> > No, it's not. There is just one kernel memory. In it each process has
-> > it's own task_struct + kernel stack (by default 8K). There is no special
-> > address mapping for these, nor are they allocated from a special area.
-> >=20
-> > When a context of some process is entered, esp is pointed to the top of
-> > it's stack. That's exactly all it takes to exchange stacks.
->=20
-> OK, lets say there are 20 processes running in the system. Then the
-> kernel must allocate 20 * 8K =3D 160K just for the stacks of these
-> processes. All of these 160K always occupy the kernel (kernel memory
-> is never swapped out). When a process actives, ESP would switch to
-> point to the corresponding stack (of that process).
+Sorry for the delay replying.  The trouble with going on holiday is that
+you then have to catch up again...
 
-This is correct.
+The primary reason is because we have customers who are asking for it
+[linux conforming to the EABI].
 
-> The remainding memory of kernel therefore is equally accessible to all
-> the processes.
+On a technical front there's a number of reasons why it would be a good
+idea too:
 
-This is not. There is nothing like "remaining memory". **ALL* kernel
-memory is equally accessible to all the processes.
+- Natural endian and alignment of all basic types ( => better
+compatibility with other Linux ports.  Also *very* important on XScale)
 
-There is noting special about the stacks and task-structs. They are
-normal 8K structures somewhere in kernel memory.
+- Better compatibility with Thumb (a major customer demand).
 
-> Is that correct ?
+- No more emulation of floating-point instructions that don't exist in
+the hardware.
 
----------------------------------------------------------------------------=
-----
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+- Future proofing -- the EABI is these days considered at the
+architectural level.
 
---UC+RhZhEc8lcmajv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+- and in C++, an efficient and compact unwinding model.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBa9gKRel1vVwhjGURAmvwAKCbrLePN57H80AKJgilXjIncewwwQCbBlqk
-QaTaf5a33PFcyS18+Zqs3rY=
-=gZGf
------END PGP SIGNATURE-----
-
---UC+RhZhEc8lcmajv--
+R.

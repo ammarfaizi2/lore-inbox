@@ -1,56 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265714AbRFXCyh>; Sat, 23 Jun 2001 22:54:37 -0400
+	id <S265721AbRFXDA2>; Sat, 23 Jun 2001 23:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265715AbRFXCy1>; Sat, 23 Jun 2001 22:54:27 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45325 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S265714AbRFXCyJ>; Sat, 23 Jun 2001 22:54:09 -0400
-Date: Sat, 23 Jun 2001 23:54:06 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <tcm@nac.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Possible freezing bug located after ac13
-In-Reply-To: <20010623222954.A9031@debian>
-Message-ID: <Pine.LNX.4.33L.0106232353100.3161-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265716AbRFXDAT>; Sat, 23 Jun 2001 23:00:19 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:44050 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S265715AbRFXDAE>; Sat, 23 Jun 2001 23:00:04 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: "Mike Jagdis" <mjagdis@kokuacom.com>
+cc: "Alan Chandler" <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org,
+        "Rob Landley" <landley@webofficenow.com>
+Message-ID: <86256A75.00106DD0.00@smtpnotes.altec.com>
+Date: Sat, 23 Jun 2001 21:59:14 -0500
+Subject: RE: Microsoft and Xenix.
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Jun 2001 tcm@nac.net wrote:
 
-> I've recently been going slightly nuts with the fact ac15, 16, and 17
-> all like deadlocking/slowing to a crawl for seconds/minutes on my K6-III
-> with 64MB of ram and a swap space of 128MB...
->
-> Recently I noticed something VERY odd, I'd been keeping an eye on
-> gkrellm while I was doing stupid things to produce the problem (a du
-> as root in X of / generally would always make it pop up) ... And swap
-> was doing I/O at the time *JUST* before when I'd either deadlock or slow
-> down to a crawl, and if it recovered, swap would do more I/O...
->
-> So. I tried unmounting all swap, and suddenly everything worked fine,
-> although I couldn't exactly do everythign I wanted of course.
->
-> I regression tested this, ac 16,15 and even 14 do this. ac 13 does *not*
-> - IMHO I think the dead swap patches introduced into 14 may be related
-> to the problem.
 
-1) the dead swap cache patch should alleviate the problem,
-   if anything
+I have a complete set of the "XENIX System V" manuals and diskettes (User's
+Guide, User's Reference, Runtime Operating System, and Development System) for
+the AT&T Personal Computer 6300.  The slipcases have the AT&T "Death Star" logo
+on the spines, and the manuals have separate copyrights listed for AT&T (1985),
+Microsoft (1983, 1984, 1985), and the Santa Cruz Operation (1984, 1985).  I
+never had a 6300, but I did try booting the install diskette once on a Leading
+Edge Model D (PC/XT clone) and to my surprise it booted OK.
 
-2) does this happen with 2.4.6-pre5 too ?
+Wayne
 
-regards,
 
-Rik
+
+
+"Mike Jagdis" <mjagdis@kokuacom.com> on 06/23/2001 12:57:37 PM
+
+To:   "Alan Chandler" <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
+cc:   "Rob Landley" <landley@webofficenow.com> (bcc: Wayne
+      Brown/Corporate/Altec)
+
+Subject:  RE: Microsoft and Xenix.
+
+
+
+> I hope the following adds a more direct perspective on this, as I
+> was a user at the time.
+
+I was _almost_ at university :-). However I do have a first edition
+of the IBM Xenix Software Development Guide from december 1984. It has
+'84 IBM copyright and '83 MS copyright. The SCO stuff I have goes back
+to '83 - MS copyrights on it go back to '81 but that's probably just
+the compiler and DOS compatibility.
+
+  Basically Xenix was the first MS/IBM attempt at a "real OS" for the
+PC. MS realised that multiuser/multitasking was less important than
+colour graphics for PC owners and decided to pull out of the Xenix business.
+IBM licensed it under their name to keep their desktop computer concept
+alive while the Xenix team emerged from the shake out to form SCO.
+
+                    Mike
+
 --
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+Chief Network Architect       Mobile:    +44 7780 608 368
+Kokua Communications Ltd Office:   +44 20 7292 1680
+52-53 Conduit Street          Fax:       +44 20 7292 1681
+London W1S 2YX
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+
+
 

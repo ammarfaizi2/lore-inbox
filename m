@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263934AbTHVQ42 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 12:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbTHVQ42
+	id S263243AbTHVQ7d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 12:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263892AbTHVQ4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 12:56:28 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:11713 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S263934AbTHVQyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 12:54:47 -0400
-Message-ID: <3F464A3E.2050203@nortelnetworks.com>
-Date: Fri, 22 Aug 2003 12:52:14 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Fri, 22 Aug 2003 12:56:54 -0400
+Received: from evrtwa1-ar2-4-33-045-084.evrtwa1.dsl-verizon.net ([4.33.45.84]:62168
+	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S263784AbTHVQxw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 12:53:52 -0400
+Message-ID: <3F464A96.3070408@candelatech.com>
+Date: Fri, 22 Aug 2003 09:53:42 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nivedita Singhvi <niv@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: help???  trying to trace code path of outgoing udp packet
-References: <3F46356A.804@nortelnetworks.com> <3F46386A.4080009@us.ibm.com>
+To: Patrick Sodre Carlos <klist@i-a-i.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Reinjecting IP Packets
+References: <1061563295.824.4.camel@iai68>	 <3F464177.1020709@candelatech.com> <1061569442.2060.2.camel@iai68>
+In-Reply-To: <1061569442.2060.2.camel@iai68>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nivedita Singhvi wrote:
-> Chris Friesen wrote:
+Patrick Sodre Carlos wrote:
+>    My mistake... I forgot to mention that the packet will be coming from
+> user-space.
 > 
->> ip_finish_output     ip_output.c
->> ip_finish_output2    ip_output.c   dst->neighbour->output
-> 
-> 
-> |
-> V
-> dev_queue_xmit()
-> qdisc_run()
-> qdisc_restart()
-> dev->hard_start_xmit() [driver xmit routine]
-> 
-> this is for the default queuing discipline.
+> Patrick
 
-Thanks.  That should give me enough to track down what I'm looking for.
+Maybe net_queue_xmit() then?
 
-Chris
+If not, you need to explain more where the pkt is coming from, and
+where you want it re-injected into the stack.
+
+Ben
+
+> 
+> On Fri, 2003-08-22 at 12:14, Ben Greear wrote:
+> 
+>>Patrick Sodre Carlos wrote:
+>>
+>>>Hi Guys,
+>>>   I'm trying to figure out what is the best way to reinject IP packets
+>>>into the stack. Does anyone have good/right/left ideas on this?
+>>
+>>Maybe netif_rx() in net/core/dev.c ?
+>>
+>>Ben
+>>
+>>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+
 

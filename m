@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130202AbQLUDIX>; Wed, 20 Dec 2000 22:08:23 -0500
+	id <S130797AbQLUDTu>; Wed, 20 Dec 2000 22:19:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130874AbQLUDIM>; Wed, 20 Dec 2000 22:08:12 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:25147 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S130202AbQLUDHy>; Wed, 20 Dec 2000 22:07:54 -0500
-Message-ID: <3A416CDE.3BC88A45@holly-springs.nc.us>
-Date: Wed, 20 Dec 2000 21:37:18 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.18 i686)
+	id <S130872AbQLUDTk>; Wed, 20 Dec 2000 22:19:40 -0500
+Received: from gear.torque.net ([204.138.244.1]:29710 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S130797AbQLUDTa>;
+	Wed, 20 Dec 2000 22:19:30 -0500
+Message-ID: <3A416F1B.8E2FB200@torque.net>
+Date: Wed, 20 Dec 2000 21:46:51 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test13-pre3 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Michael H. Warfield" <mhw@wittsend.com>, linux-kernel@vger.kernel.org
-Subject: Re: iptables: "stateful inspection?"
-In-Reply-To: <E148tqH-0002JQ-00@the-village.bc.nu>
+To: linux-kernel@vger.kernel.org
+CC: Ian Stirling <root@mauve.demon.co.uk>
+Subject: Re: Laptop system clock slow after suspend to disk. (2.4.0-test9/hinote 
+ VP)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Ian Stirling <root@mauve.demon.co.uk> wrote:
 
-> There have been at least five holes found in pile that _could_ have been
-> [speech]
-> safe is the day you end up hurt.
+> I've not noticed this on earlier kernel versions, is there something
+> silly I'm missing that's making my DEC hinote VP (p100 laptop)s 
+> system clock slow by a factor of five or so after resume?
+> Not the CPU or cmos clock, only the system clock.
+> Thoughts welcome.
 
-Your specific example of an executable (windows) attachment, not buffer
-overflows, etc. what what I was replying to. In general, you are
-correct. Now, how about including that procfs cleanup patch that I sent,
-and maybe the 64-bit printk patch? :)
+I saw something like this on my thinkpad (RH6.2)
+and it turned out to be connected to /etc/adjtime .
+It was cured by changing the large numbers in
+there to zeroes.
 
--M
+Could someone explain the mechanism?
+
+Doug Gilbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263616AbUE2Oav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264296AbUE2OcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263616AbUE2Oav (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 10:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbUE2Oau
+	id S264296AbUE2OcG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 10:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbUE2OcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 10:30:50 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:33041 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263616AbUE2Oar (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 10:30:47 -0400
-Date: Sat, 29 May 2004 16:30:43 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040529143043.GE5175@pclin040.win.tue.nl>
-References: <20040525201616.GE6512@gucio> <20040528194136.GA5175@pclin040.win.tue.nl> <20040528214620.GA2352@gucio> <20040529132320.GC5175@pclin040.win.tue.nl> <20040529134614.GA6420@ucw.cz>
+	Sat, 29 May 2004 10:32:06 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50887 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264297AbUE2Obl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 10:31:41 -0400
+Date: Sat, 29 May 2004 16:31:35 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+Subject: Re: Recommended compiler version
+Message-ID: <20040529143135.GR16099@fs.tum.de>
+References: <20040529111616.A16627@electric-eye.fr.zoreil.com> <20040529115238.A17267@electric-eye.fr.zoreil.com> <200405291330.i4TDUhsN000547@81-2-122-30.bradfords.org.uk> <20040529161247.A19214@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040529134614.GA6420@ucw.cz>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: dmv.com: mailhost.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
+In-Reply-To: <20040529161247.A19214@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 03:46:14PM +0200, Vojtech Pavlik wrote:
+On Sat, May 29, 2004 at 04:12:47PM +0200, Francois Romieu wrote:
+>...
+> It makes no sense to religiously recommended 2.95.3 if it is known broken.
 
-> > Thus, showkeys -s gave a garbage answer.
-> > 
-> > Thanks for the report. It shows that resurrecting raw mode is even
-> > more desirable than I thought at first.
-> 
-> What for?
+In my experience, 2.95.3 isn't more broken than the average 3.3 
+compiler.
 
-As you know, the keyboard/mouse situation in 2.6 is unfortunate.
+> If nobody comes with a better approach, I'll simply submit a patch to
+> remove the 2.95.3 recommendation (+ #error for the driver as suggested by ak).
 
-I get a steady stream with letters from people complaining about
-the keyboard utilities under 2.6. How can I answer and tell them
-what the problem is? I need facts - raw data, so that I can
-trace the path of this raw data through the kernel.
+The common solution in the kernel for such issues is to change the code 
+to compile correctly with all supported compilers.
 
-That is my reason I want a raw mode. Often I have to ask them
-to boot 2.4 first to get reality, so that one afterwards is
-in a better position to understand the fake reality of 2.6.
+This might not be a perfect solution, but otherwise different drivers 
+might require different compiler versions resulting in a chaos.
 
-But apart from such debugging use, there is also the more
-direct use: in order to assign a keycode to an unusual key
-one first asks for the scancode using scancode -s, and then
-assigns the keycode using setkeycodes. If scancode -s lies,
-this fails.
+Whether support for gcc 2.95 should be dropped is a discussion for 2.7.
 
-Andries
+> Ueimor
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

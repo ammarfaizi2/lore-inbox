@@ -1,33 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbTFFMLA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 08:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTFFMLA
+	id S261305AbTFFMRm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 08:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbTFFMRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 08:11:00 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:19730 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S261292AbTFFMK7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 08:10:59 -0400
-Date: Fri, 6 Jun 2003 14:24:31 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: How to turn off ide dma ...
-Message-Id: <20030606142431.7ba80686.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Fri, 6 Jun 2003 08:17:42 -0400
+Received: from daffy.hulpsystems.net ([64.246.21.252]:34188 "EHLO
+	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
+	id S261305AbTFFMRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 08:17:41 -0400
+Message-ID: <1054902687.3ee0899f6f6f7@support.tuxbox.dk>
+Date: Fri,  6 Jun 2003 14:31:27 +0200
+From: Martin List-Petersen <martin@list-petersen.dk>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: uaca@alumni.uv.es, linux-kernel@vger.kernel.org
+Subject: Re: SCO's claims seem empty
+References: <1054512915.1620.2.camel@localhost> <200306020119.h521Jbdv003050@eeyore.valparaiso.cl> <20030602111037.GA32253@pusa.informat.uv.es> <3EDB33F8.9060507@stesmi.com>
+In-Reply-To: <3EDB33F8.9060507@stesmi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2-cvs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-for certain devices as boot-option in kernel 2.4.20 ?
+Citat Stefan Smietanowski <stesmi@stesmi.com>:
 
-E.g. you have three devices and want one of them (not all) to come up PIO
-instead of DMA.
-As using hdparm gives errors and delays for about 20-30 seconds on this device
-it would be better to turn it off right from the beginning.
+> uaca@alumni.uv.es wrote:
+> > Hello everybody
+> > 
+> > 
+> > let me speculate what we will see when SCO shows their "assumed proofs"
+> > 
+> > they will show code of the kernel and they will claim that was previously
+> on
+> > SCO's operating system (and was made by them without a GPL license), 
+> > 
+> > how to refute that?
+> 
+> Take the subsystem which they show code that "look! They stole it from
+> us!" and look at how it has developed over time, including this very
+> mailing list discussions. I mean. Noone pushed in any subsystem into
+> the kernel (except linus) and just let it sit there, most were
+> gradually merged, so should have historical baggage.
+> 
+> "Look here in 2.0, here we did like this and then during 2.1 it was
+> changed and in 2.2 it was rewritten to this gradually in these
+> kernels and in 2.3 we redid it slowly over all of these versions ..."
+> 
+> How can they refute it? The linux kernel and all the historical versions
+> are available on the net including at least some of the discussions
+> behind their incorporation. The other part would in part be discussed
+> over the IRC, I know.
+> 
+
+I agree. 
+
+Besides this article states confirmation on similar code, still i would say: Did
+it come from Linux orginally or did it come from SCO ?
+
+http://informationweek.com/story/showArticle.jhtml?articleID=10300314
 
 Regards,
-Stephan
+Martin List-Petersen
+martin at list-petersen dot dk
+--
+Today is what happened to yesterday.
+

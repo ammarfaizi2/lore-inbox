@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278648AbRJXQh1>; Wed, 24 Oct 2001 12:37:27 -0400
+	id <S278647AbRJXQiR>; Wed, 24 Oct 2001 12:38:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278647AbRJXQhQ>; Wed, 24 Oct 2001 12:37:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3211 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S278643AbRJXQgP>;
-	Wed, 24 Oct 2001 12:36:15 -0400
-Date: Wed, 24 Oct 2001 09:36:27 -0700 (PDT)
-Message-Id: <20011024.093627.68149691.davem@redhat.com>
-To: baggins@sith.mimuw.edu.pl
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: acenic breakage in 2.4.13-pre
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011024180414.A16921@sith.mimuw.edu.pl>
-In-Reply-To: <20011024.082925.68578636.davem@redhat.com>
-	<20011024180414.A16921@sith.mimuw.edu.pl>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S278643AbRJXQhT>; Wed, 24 Oct 2001 12:37:19 -0400
+Received: from etna.trivadis.com ([193.73.126.2]:18680 "EHLO lttit")
+	by vger.kernel.org with ESMTP id <S278646AbRJXQgn>;
+	Wed, 24 Oct 2001 12:36:43 -0400
+Date: Wed, 24 Oct 2001 18:34:26 +0200
+From: Tim Tassonis <timtas@cubic.ch>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
+In-Reply-To: <Pine.LNX.4.33.0110241226020.5558-100000@viper.haque.net>
+In-Reply-To: <E15wQe6-0001wr-00@the-village.bc.nu>
+	<Pine.LNX.4.33.0110241226020.5558-100000@viper.haque.net>
+X-Mailer: Sylpheed version 0.6.3cvs10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15wQz4-0000Hs-00@lttit>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-   Date: Wed, 24 Oct 2001 18:04:14 +0200
+On Wed, 24 Oct 2001 12:28:05 -0400 (EDT)
+"Mohammad A. Haque" <mhaque@haque.net> wrote:
 
-   On Wed, 24 Oct 2001, David S. Miller wrote:
-   
-   > Do you have CONFIG_HIGHMEM enabled?  If so, please try with
-   > it turned off.
-   
-   Nope. No HIGHMEM here.
+> On Wed, 24 Oct 2001, Alan Cox wrote:
+> 
+> > > The latter seems to be the case because Vita Samel (hope I got this
+right)
+> > > just reported that "Booting into 2.4.10-ac10" fixed the problem.
+Perhaps
+> > > it once was fixed and later defixed?
+> >
+> > Sounds like it. I'll have a look some point next week to see if I can
+see
+> > what is up
+> 
+> I'm able fdisk/mke2fs with 2.4.13-pre6 without the error so long as I
+> don't touch the device with hdparm.
 
-Thanks, one more question :-)  What compiler is on your
-machine where this driver was built?  Are you using RH7.1
-or some variant of gcc-3.x by chance?
+Well I do use hdparm -d 1 /dev/hda in init to set dma to 1. I know called
+hdparm -d 0 /dev/hda and tried again, but it still fails. Do you mean
+hdparm should not touch the device at all and a reboot without the hdparm
+-d 1 /dev/hda would do the job? I could live with that for the moment, as
+I don't have to repartition my drive very often...
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Bye
+Tim
 
+> 
+> -- 
+> 
+> =====================================================================
+> Mohammad A. Haque                              http://www.haque.net/
+>                                                mhaque@haque.net
+> 
+>   "Alcohol and calculus don't mix.             Developer/Project Lead
+>    Don't drink and derive." --Unknown          http://wm.themes.org/
+>                                                batmanppc@themes.org
+> =====================================================================
+> 

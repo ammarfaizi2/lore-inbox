@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263219AbTDBXqv>; Wed, 2 Apr 2003 18:46:51 -0500
+	id <S263245AbTDBXw5>; Wed, 2 Apr 2003 18:52:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263245AbTDBXqv>; Wed, 2 Apr 2003 18:46:51 -0500
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:38101 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S263219AbTDBXqu>; Wed, 2 Apr 2003 18:46:50 -0500
-Date: Wed, 02 Apr 2003 17:58:08 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+	id <S263247AbTDBXw5>; Wed, 2 Apr 2003 18:52:57 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:31045 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S263245AbTDBXw4>; Wed, 2 Apr 2003 18:52:56 -0500
+Date: Thu, 3 Apr 2003 01:06:16 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Dave McCracken <dmccr@us.ibm.com>
+cc: Andrew Morton <akpm@digeo.com>, <linux-mm@kvack.org>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH 2.5.66-mm2] Fix page_convert_anon locking issues
-Message-ID: <116640000.1049327888@baldur.austin.ibm.com>
-In-Reply-To: <20030402155220.651a1005.akpm@digeo.com>
-References: <8910000.1049303582@baldur.austin.ibm.com>
- <20030402132939.647c74a6.akpm@digeo.com>
- <80300000.1049320593@baldur.austin.ibm.com>
- <20030402150903.21765844.akpm@digeo.com>
- <102170000.1049325787@baldur.austin.ibm.com>
- <20030402153845.0770ef54.akpm@digeo.com>
- <110950000.1049326945@baldur.austin.ibm.com>
- <20030402155220.651a1005.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+In-Reply-To: <102170000.1049325787@baldur.austin.ibm.com>
+Message-ID: <Pine.LNX.4.44.0304030101430.1279-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---On Wednesday, April 02, 2003 15:52:20 -0800 Andrew Morton
-<akpm@digeo.com> wrote:
-
-> hmmmm.  It also probably needs both compiler barriers and memory barriers.
+On Wed, 2 Apr 2003, Dave McCracken wrote:
+> --On Wednesday, April 02, 2003 15:09:03 -0800 Andrew Morton
+> <akpm@digeo.com> wrote:
+> > 
+> > How about setting PageAnon at the _start_ of the operation? 
+> > page_remove_rmap() will cope with that OK.
 > 
-> It does give me creepy feelings.  I worry that because nobody uses
-> remap_file_pages() yet, we will hit 2.6.25 before discovering that we have
-> fundamental VM locking problems which affect $major$ applications.
+> Hmm... I was gonna say that page_remove_rmap will BUG() if it doesn't find
+> the entry, but it's only under DEBUG and could easily be changed.  Lemme
+> think on this one a bit.  I need to assure myself it's safe to go unlocked
+> in the middle.
 
-It's looking more and more like we should use your other suggestion.  It's
-definitely simpler if we can make it failsafe.  I'll code it up tomorrow.
+Yes, it's an interesting idea, but by no means clear it's safe.
+I'll think about it too, but sorry, no more tonight.
 
-Dave
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+Hugh
 

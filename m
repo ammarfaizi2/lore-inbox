@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263599AbUDMP3c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 11:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbUDMP3c
+	id S263601AbUDMPhq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 11:37:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbUDMPhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 11:29:32 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:39198 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S263599AbUDMP3a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 11:29:30 -0400
-Date: Tue, 13 Apr 2004 17:36:32 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BK] status
-Message-ID: <20040413153631.GA2385@mars.ravnborg.org>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20040413150435.GA12004@work.bitmover.com>
+	Tue, 13 Apr 2004 11:37:45 -0400
+Received: from krl.krl.com ([192.147.32.3]:5770 "EHLO krl.krl.com")
+	by vger.kernel.org with ESMTP id S263606AbUDMPhW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 11:37:22 -0400
+Message-Id: <200404131537.i3DFb8JE004356@p-chan.krl.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
+To: John Cherry <cherry@osdl.org>
+cc: linux-kernel@vger.kernel.org, aardvark@p-chan.krl.com
+Subject: Re: IA32 (2.6.5 - 2004-04-12.22.30) - 2 New warnings (gcc 3.2.2) 
+In-Reply-To: Message from John Cherry <cherry@osdl.org> 
+   of "Tue, 13 Apr 2004 07:31:38 PDT." <200404131431.i3DEVcCg010071@cherrypit.pdx.osdl.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040413150435.GA12004@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+Date: Tue, 13 Apr 2004 11:37:08 -0400
+From: Don Koch <aardvark@krl.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Other than the up/down problems, have any of you noticed bkbits being 
-> slower since the move (which happened Friday or Saturday, it's sort of
-> a blur)?
+> drivers/char/cyclades.c:686: warning: `cy_get_user' defined but not used
+I sent a patch for this to the janitor's list.
 
-I see no slowdown.
-But this morning (something like 8 hours ago) I could not pull from
-linux.bkbits.net - it just silently exited.
+-- 
+Don Koch
+http://www.krl.com/
 
-When trying to access www.bkbits.net I got a full list of projects,
-but when I tried to access one of the projects (when it starts using port
-8080) I after a while got a message that "I had not purchased BKWeb" or
-something similar. I took this as overload but now you ask I report it.
 
-	Sam

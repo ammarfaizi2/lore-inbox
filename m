@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264660AbTF2ThT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 15:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTF2Teh
+	id S264694AbTF2Th7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 15:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTF2ThX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 15:34:37 -0400
-Received: from smtp-out.comcast.net ([24.153.64.116]:53836 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S263152AbTF2TeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 15:34:15 -0400
-Date: Sun, 29 Jun 2003 15:46:28 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: File System conversion -- ideas
-In-reply-to: <20030629194423.GE26258@mail.jlokier.co.uk>
-To: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Message-id: <200306291546280840.021420C4@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
- <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl>
- <200306291445470220.01DC8D9F@smtp.comcast.net> <3EFF3FFA.60806@post.pl>
- <20030629194423.GE26258@mail.jlokier.co.uk>
+	Sun, 29 Jun 2003 15:37:23 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:26248 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264144AbTF2TgU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 15:36:20 -0400
+Date: Sun, 29 Jun 2003 20:50:03 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ricardo Galli <gallir@uib.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dell vs. GPL
+Message-ID: <20030629195003.GF26258@mail.jlokier.co.uk>
+References: <200306291624.47221.gallir@uib.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306291624.47221.gallir@uib.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ricardo Galli wrote:
+> Indeed. Those people don't realise that their "copyright" law is different to 
+> the almost the rest of the world. 
 
+> In most of Europe there in no "The Copyright", but "authors' or
+> moral rights" ("derechos de autor", "droit d'auteur") and
+> "exploitation rights" (or economic rights).
 
-*********** REPLY SEPARATOR  ***********
+> Author/moral rights cannot be jeopardized.
 
-On 6/29/2003 at 8:44 PM Jamie Lokier wrote:
+Except when the work is a computer program.  Check the law sometime!
 
->Leonard Milcin Jr. wrote:
->> >Nrrrg.  Yeah, I've got 80 gig and only CDR's to back up to, and no
->money.
->> >A CDR may read for me the day it's written, and then not work the next
->> >day.  Still a risk.
->> 
->> Say, why you would want to change filesystem type?
->
->I'd like to try reiser4 when it is available because I heard from Hans
->that it is faster...
->
+I recall there is a special exception for computer programs in either
+UK or EU law - I forget which, perhaps both.  This exception means
+that if I compose some music for a publisher, I cannot give up moral
+rights to the work - which means I always have a right to be credited
+as author or something like that, and nobody can take that away.
+However, if I compose a computer program for a publisher, my moral
+right to be credited _is_ taken away.
 
-Me too!  :D  I want reiser4 for its full journaling support
+This _only_ applies to computer programmers.  Bah!
 
->Isn't that a good reason?
->
->-- Jamie
-
-
-
+-- Jamie

@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbUKSOnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUKSOtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbUKSOnY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 09:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUKSOnX
+	id S261431AbUKSOtb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 09:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUKSOtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 09:43:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21947 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261433AbUKSOm2
+	Fri, 19 Nov 2004 09:49:31 -0500
+Received: from zamok.crans.org ([138.231.136.6]:31948 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261431AbUKSOt1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 09:42:28 -0500
-Message-ID: <419E0644.909@pobox.com>
-Date: Fri, 19 Nov 2004 09:42:12 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Fri, 19 Nov 2004 09:49:27 -0500
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Greg KH <greg@kroah.com>,
+       Hotplug Devel <linux-hotplug-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 046 release
+References: <20041118224411.GA10876@kroah.com>
+	<87sm76oz9z.fsf@barad-dur.crans.org>
+	<1100875339.18701.3.camel@localhost.localdomain>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Fri, 19 Nov 2004 15:49:25 +0100
+In-Reply-To: <1100875339.18701.3.camel@localhost.localdomain> (Kay Sievers's
+	message of "Fri, 19 Nov 2004 15:42:19 +0100")
+Message-ID: <87654199my.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>,
-       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: linux-2.4.28 released
-References: <BF571719A4041A478005EF3F08EA6DF05EB481@pcsmail03.pcs.pc.ome.toshiba.co.jp> <20041118111235.GA26216@logos.cnet> <20041119134832.GA9552@havoc.gtf.org> <20041119135452.GA10422@devserv.devel.redhat.com>
-In-Reply-To: <20041119135452.GA10422@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Fri, Nov 19, 2004 at 08:48:32AM -0500, Jeff Garzik wrote:
-> 
->>PATA and SATA (DMA doesn't work for PATA, in split-driver configuration),
->>and there is no split-driver to worry about.
->>
->>I think there may need to be some code to prevent the IDE driver from
->>claiming the legacy ISA ports.
-> 
-> 
-> Its called "request_resource". If you want the resource claim it. IDE will
-> be a good citizen.
+Kay Sievers <kay.sievers@vrfy.org> disait dernièrement que :
 
-That's what the quirk does.  libata still needs to find out who obtained 
-the resource, not blindly grab it (and fail).
+> On Fri, 2004-11-19 at 12:26 +0100, Mathieu Segaud wrote:
+>> seems like these changes broke something in rules applying to eth* devices.
+>> the rules put and still working with udev 045 have no effect, now....
+>> not so inconvenient now that I've got just one card in my box, but I guess
+>> it could be a show-stopper for laptop users.
+>> 
+>> My rules which can be found at the end of /etc/udev/rules.d/50-udev.rules are:
+>> 
+>> KERNEL="eth*", SYSFS{address}="00:10:5a:49:36:d8", NAME="external"
+>> KERNEL="eth*", SYSFS{address}="00:50:04:69:db:56", NAME="private"
+>> KERNEL="eth*", SYSFS{address}="00:0c:6e:e4:2c:81", NAME="dmz"
+>
+> This should fix it.
 
-	Jeff
+will report success as soon as I create the ebuild, test it and I submit it to
+greg-kh.
+btw, thanks for the quick answer.
 
+-- 
+... mindreading equipment is currently classified CIA property at
+best (hello echelon!)
 
+	- Alan Cox on linux-kernel
 

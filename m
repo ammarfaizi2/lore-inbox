@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVDFMhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVDFMmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVDFMhG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 08:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbVDFMhG
+	id S262190AbVDFMmw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 08:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVDFMmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 08:37:06 -0400
-Received: from cpc3-cmbg8-4-0-cust40.cmbg.cable.ntl.com ([82.16.12.40]:49839
-	"EHLO cuddles.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S262192AbVDFMhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 08:37:03 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16979.55221.574028.90931@cuddles.cambridge.redhat.com>
-Date: Wed, 6 Apr 2005 13:36:05 +0100
-From: Andrew Haley <aph@redhat.com>
-To: Christophe Saout <christophe@saout.de>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>, gcc@gcc.gnu.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jakub@redhat.com, Gerold Jury <gerold.ml@inode.at>,
-       Jan Hubicka <hubicka@ucw.cz>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG mm] "fixed" i386 memcpy inlining buggy
-In-Reply-To: <1112789157.32279.13.camel@leto.cs.pocnet.net>
-References: <200503291542.j2TFg4ER027715@earth.phy.uc.edu>
-	<200504021526.53990.vda@ilport.com.ua>
-	<1112718844.22591.15.camel@leto.cs.pocnet.net>
-	<200504061314.27740.vda@port.imtp.ilyichevsk.odessa.ua>
-	<1112789157.32279.13.camel@leto.cs.pocnet.net>
-X-Mailer: VM 7.14 under Emacs 21.3.50.1
+	Wed, 6 Apr 2005 08:42:12 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:2982 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262201AbVDFMj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 08:39:58 -0400
+Date: Wed, 6 Apr 2005 14:39:47 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: It's getting worse: 2.6.12-rc2-mm1 and suspend2ram
+Message-ID: <20050406123947.GA31958@gamma.logic.tuwien.ac.at>
+References: <20050405181628.GB6879@gamma.logic.tuwien.ac.at> <20050405204107.GD1380@elf.ucw.cz> <20050405210041.GA16263@gamma.logic.tuwien.ac.at> <20050405211340.GF1380@elf.ucw.cz> <20050405221903.GA21196@gamma.logic.tuwien.ac.at> <20050405183144.50ed3a9c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050405183144.50ed3a9c.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having a little difficulty understanding what this is for.  Is it
-that gcc's builtin memcpy expander generates bad code, or that older
-versions of gcc generate bad code, or what?  gcc generates too much
-code?
+On Die, 05 Apr 2005, Andrew Morton wrote:
+> > 2.6.12-rc2 suspends and resumes with the very same config file (well,
+> > after running make oldconfig) without any problem.
+> > 
+> > So there is a change in -mm1 which triggers this. Should I start with
+> > backing out bk-acpi? or anything else?
+> 
+> bk-acpi would be a good choice.  It might be easier to start with
+> 2.6.12-rc2 and add stuff, see when it breaks.
 
-Andrew.
+Ok, 
+	2.6.12-rc2		suspend and resumes works
+	   + bk-acpi.patch	immediate reboot at resume.
+
+> bk-acpi and bk-driver-core would be prime suspects.
+
+I didn't try bk-driver-core.
+
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+SCREEB (n.)
+To make the noise of a nylon anorak rubbing against a pair of corduroy
+trousers.
+			--- Douglas Adams, The Meaning of Liff

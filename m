@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263192AbUDAWKB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 17:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263188AbUDAVW2
+	id S263193AbUDAWKA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 17:10:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263192AbUDAVXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 16:22:28 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:22324 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263193AbUDAVNX (ORCPT
+	Thu, 1 Apr 2004 16:23:35 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:26676 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263195AbUDAVNZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 16:13:23 -0500
-Date: Thu, 1 Apr 2004 13:12:43 -0800
+	Thu, 1 Apr 2004 16:13:25 -0500
+Date: Thu, 1 Apr 2004 13:12:35 -0800
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: [Patch 18/23] mask v2 - [7/7] nodemask_t_other_arch_changes
-Message-Id: <20040401131243.7d7cb03a.pj@sgi.com>
+Subject: [Patch 16/23] mask v2 - [5/7] nodemask_t_x86_64_changes
+Message-Id: <20040401131235.2f6ecae7.pj@sgi.com>
 In-Reply-To: <20040401122802.23521599.pj@sgi.com>
 References: <20040401122802.23521599.pj@sgi.com>
 Organization: SGI
@@ -25,509 +25,221 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch_18_of_23 - Matthew Dobson's [PATCH]_nodemask_t_other_arch_changes_[7_7]
-	Changes to other arch-specific code (alpha, arm, mips,
-	sparc64 & sh).  Untested.  Code review & testing requested.
+Patch_16_of_23 - Matthew Dobson's [PATCH]_nodemask_t_x86_64_changes_[5_7]
+        Changes to x86_64 specific code.
+        Untested.  Code review & testing requested.
 
-Diffstat Patch_18_of_23:
- arch/alpha/mm/numa.c             |   12 ++++++------
- arch/arm/mm/init.c               |   33 ++++++++++++++-------------------
- arch/arm/mm/mm-armv.c            |    2 +-
- arch/arm26/mm/init.c             |    3 ++-
- arch/mips/sgi-ip27/ip27-init.c   |   27 +++++++++++++--------------
- arch/mips/sgi-ip27/ip27-klnuma.c |    8 ++++----
- arch/mips/sgi-ip27/ip27-memory.c |    8 ++++----
- arch/mips/sgi-ip27/ip27-nmi.c    |    8 ++++----
- arch/mips/sgi-ip27/ip27-reset.c  |    4 ++--
- arch/mips/sgi-ip27/ip27-smp.c    |   10 +++++-----
- arch/sparc64/mm/hugetlbpage.c    |    9 ++++-----
- include/asm-mips/sn/sn_private.h |    4 ++--
- include/asm-sh/mmzone.h          |    2 +-
- 13 files changed, 62 insertions(+), 68 deletions(-)
+Diffstat Patch_16_of_23:
+ arch/x86_64/kernel/setup64.c   |    6 +++---
+ arch/x86_64/mm/k8topology.c    |   32 +++++++++++++++++---------------
+ arch/x86_64/mm/numa.c          |   16 ++++++----------
+ include/asm-x86_64/mmzone.h    |    1 -
+ include/asm-x86_64/numa.h      |    6 ------
+ 5 files changed, 26 insertions(+), 35 deletions(-)
 
-===================================================================
---- 2.6.4.orig/arch/alpha/mm/numa.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/alpha/mm/numa.c	2004-04-01 04:50:58.000000000 -0800
-@@ -244,7 +244,7 @@
- 	reserve_bootmem_node(NODE_DATA(nid), PFN_PHYS(bootmap_start), bootmap_size);
- 	printk(" reserving pages %ld:%ld\n", bootmap_start, bootmap_start+PFN_UP(bootmap_size));
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/x86_64/kernel/setup64.c linux-2.6.4-nodemask_t-x86_64/arch/x86_64/kernel/setup64.c
+--- linux-2.6.4-vanilla/arch/x86_64/kernel/setup64.c	Wed Mar 10 18:55:24 2004
++++ linux-2.6.4-nodemask_t-x86_64/arch/x86_64/kernel/setup64.c	Thu Mar 11 12:00:36 2004
+@@ -135,11 +135,11 @@ void __init setup_per_cpu_areas(void)
+ 		unsigned char *ptr;
+ 		/* If possible allocate on the node of the CPU.
+ 		   In case it doesn't exist round-robin nodes. */
+-		if (!NODE_DATA(i % numnodes)) { 
+-			printk("cpu with no node %d, numnodes %d\n", i, numnodes);
++		if (!NODE_DATA(i % num_online_nodes())) { 
++			printk("cpu with no node %d, num_online_nodes() %d\n", i, num_online_nodes());
+ 			ptr = alloc_bootmem(size);
+ 		} else { 
+-			ptr = alloc_bootmem_node(NODE_DATA(i % numnodes), size);
++			ptr = alloc_bootmem_node(NODE_DATA(i % num_online_nodes()), size);
+ 		}
+ 		if (!ptr)
+ 			panic("Cannot allocate cpu data for CPU %d\n", i);
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/x86_64/mm/k8topology.c linux-2.6.4-nodemask_t-x86_64/arch/x86_64/mm/k8topology.c
+--- linux-2.6.4-vanilla/arch/x86_64/mm/k8topology.c	Wed Mar 10 18:55:51 2004
++++ linux-2.6.4-nodemask_t-x86_64/arch/x86_64/mm/k8topology.c	Thu Mar 25 17:34:27 2004
+@@ -44,7 +44,7 @@ static __init int find_northbridge(void)
+ int __init k8_scan_nodes(unsigned long start, unsigned long end)
+ { 
+ 	unsigned long prevbase;
+-	struct node nodes[MAXNODE];
++	struct node nodes[MAX_NUMNODES];
+ 	int nodeid, i, nb; 
+ 	int found = 0;
+ 	u32 reg;
+@@ -57,9 +57,10 @@ int __init k8_scan_nodes(unsigned long s
+ 	printk(KERN_INFO "Scanning NUMA topology in Northbridge %d\n", nb); 
  
--	numnodes++;
-+	node_set_online(nid);
- }
+ 	reg = read_pci_config(0, nb, 0, 0x60); 
+-	numnodes =  ((reg >> 4) & 7) + 1; 
++	for(i = 0; i <= ((reg >> 4) & 7); i++)
++		node_set_online(i); 
  
- void __init
-@@ -254,11 +254,11 @@
+-	printk(KERN_INFO "Number of nodes %d (%x)\n", numnodes, reg);
++	printk(KERN_INFO "Number of nodes %d (%x)\n", num_online_nodes(), reg);
  
- 	show_mem_layout();
+ 	memset(&nodes,0,sizeof(nodes)); 
+ 	prevbase = 0;
+@@ -71,11 +72,11 @@ int __init k8_scan_nodes(unsigned long s
  
--	numnodes = 0;
-+	nodes_clear(node_online_map);
- 
- 	min_low_pfn = ~0UL;
- 	max_low_pfn = 0UL;
--	for (nid = 0; nid < MAX_NUMNODES; nid++)
-+	for_each_node(nid)
- 		setup_memory_node(nid, kernel_end);
- 
- #ifdef CONFIG_BLK_DEV_INITRD
-@@ -301,7 +301,7 @@
- 	 */
- 	dma_local_pfn = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
- 
--	for (nid = 0; nid < numnodes; nid++) {
-+	for_each_online_node(nid) {
- 		unsigned long start_pfn = node_bdata[nid].node_boot_start >> PAGE_SHIFT;
- 		unsigned long end_pfn = node_bdata[nid].node_low_pfn;
- 
-@@ -330,7 +330,7 @@
- 	high_memory = (void *) __va(max_low_pfn << PAGE_SHIFT);
- 
- 	reservedpages = 0;
--	for (nid = 0; nid < numnodes; nid++) {
-+	for_each_online_node(nid) {
- 		/*
- 		 * This will free up the bootmem, ie, slot 0 memory
- 		 */
-@@ -370,7 +370,7 @@
- 	printk("\nMem-info:\n");
- 	show_free_areas();
- 	printk("Free swap:       %6dkB\n",nr_swap_pages<<(PAGE_SHIFT-10));
--	for (nid = 0; nid < numnodes; nid++) {
-+	for_each_online_node(nid) {
- 		struct page * lmem_map = node_mem_map(nid);
- 		i = node_spanned_pages(nid);
- 		while (i-- > 0) {
-===================================================================
---- 2.6.4.orig/arch/arm/mm/init.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/arm/mm/init.c	2004-04-01 04:50:58.000000000 -0800
-@@ -69,7 +69,7 @@
- 	show_free_areas();
- 	printk("Free swap:       %6dkB\n",nr_swap_pages<<(PAGE_SHIFT-10));
- 
--	for (node = 0; node < numnodes; node++) {
-+	for_each_online_node(node) {
- 		struct page *page, *end;
- 
- 		page = NODE_MEM_MAP(node);
-@@ -172,7 +172,7 @@
- {
- 	unsigned int i, bootmem_pages = 0, memend_pfn = 0;
- 
--	for (i = 0; i < MAX_NUMNODES; i++) {
-+	for_each_node(i) {
- 		np[i].start = -1U;
- 		np[i].end = 0;
- 		np[i].bootmap_pages = 0;
-@@ -192,18 +192,13 @@
- 
- 		node = mi->bank[i].node;
- 
--		if (node >= numnodes) {
--			numnodes = node + 1;
--
--			/*
--			 * Make sure we haven't exceeded the maximum number
--			 * of nodes that we have in this configuration.  If
--			 * we have, we're in trouble.  (maybe we ought to
--			 * limit, instead of bugging?)
--			 */
--			if (numnodes > MAX_NUMNODES)
--				BUG();
--		}
-+		/*
-+		 * Make sure we haven't exceeded the maximum number of nodes 
-+		 * that we have in this configuration.  If we have, we're in 
-+		 * trouble.
-+		 */
-+		if (!node_online(node) && node_possible(node))
-+			node_set_online(node);
- 
- 		/*
- 		 * Get the start and end pfns for this bank
-@@ -225,7 +220,7 @@
- 	 * Calculate the number of pages we require to
- 	 * store the bootmem bitmaps.
- 	 */
--	for (i = 0; i < numnodes; i++) {
-+	for_each_online_node(i) {
- 		if (np[i].end == 0)
+ 		nodeid = limit & 7; 
+ 		if ((base & 3) == 0) { 
+-			if (i < numnodes) 
++			if (i < num_online_nodes()) 
+ 				printk("Skipping disabled node %d\n", i); 
  			continue;
+ 		} 
+-		if (nodeid >= numnodes) { 
++		if (nodeid >= num_online_nodes()) { 
+ 			printk("Ignoring excess node %d (%lx:%lx)\n", nodeid,
+ 			       base, limit); 
+ 			continue;
+@@ -91,7 +92,7 @@ int __init k8_scan_nodes(unsigned long s
+ 			       nodeid, (base>>8)&3, (limit>>8) & 3); 
+ 			return -1; 
+ 		}	
+-		if ((1UL << nodeid) & nodes_present) { 
++		if (node_online(nodeid)) {
+ 			printk(KERN_INFO "Node %d already present. Skipping\n", 
+ 			       nodeid);
+ 			continue;
+@@ -151,7 +152,7 @@ int __init k8_scan_nodes(unsigned long s
+ 	} 
+ 	printk(KERN_INFO "Using node hash shift of %d\n", memnode_shift); 
  
-@@ -388,8 +383,8 @@
- 	 * (we could also do with rolling bootmem_init and paging_init
- 	 * into one generic "memory_init" type function).
- 	 */
--	np += numnodes - 1;
--	for (node = numnodes - 1; node >= 0; node--, np--) {
-+	np += num_online_nodes() - 1;
-+	for (node = num_online_nodes() - 1; node >= 0; node--, np--) {
- 		/*
- 		 * If there are no pages in this node, ignore it.
- 		 * Note that node 0 must always have some pages.
-@@ -457,7 +452,7 @@
- 	/*
- 	 * initialise the zones within each node
- 	 */
--	for (node = 0; node < numnodes; node++) {
-+	for_each_online_node(node) {
- 		unsigned long zone_size[MAX_NR_ZONES];
- 		unsigned long zhole_size[MAX_NR_ZONES];
- 		struct bootmem_data *bdata;
-@@ -567,7 +562,7 @@
- 		create_memmap_holes(&meminfo);
+-	for (i = 0; i < MAXNODE; i++) { 
++	for_each_node(i) {
+ 		if (nodes[i].start != nodes[i].end)
+ 		setup_node_bootmem(i, nodes[i].start, nodes[i].end); 
+ 	} 
+@@ -161,15 +162,16 @@ int __init k8_scan_nodes(unsigned long s
+ 	   mapping. To avoid this fill in the mapping for all possible
+ 	   CPUs, as the number of CPUs is not known yet. 
+ 	   We round robin the existing nodes. */
+-	rr = 0;
+-	for (i = 0; i < MAXNODE; i++) {
+-		if (nodes_present & (1UL<<i))
+-			continue;
+-		if ((nodes_present >> rr) == 0) 
+-			rr = 0; 
+-		rr = ffz(~nodes_present >> rr); 
++	rr = first_node(node_online_map);
++	for_each_node(i) {
++		if (node_online(i))
++			continue;
++
+ 		node_data[i] = node_data[rr];
+-		rr++; 
++
++		rr = next_node(rr, node_online_map);
++		if (rr >= MAX_NUMNODES)
++			rr = first_node(node_online_map);
+ 	}
  
- 	/* this will put all unused low memory onto the freelists */
--	for (node = 0; node < numnodes; node++) {
-+	for_each_online_node(node) {
- 		pg_data_t *pgdat = NODE_DATA(node);
+ 	if (found == 1) 
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/x86_64/mm/numa.c linux-2.6.4-nodemask_t-x86_64/arch/x86_64/mm/numa.c
+--- linux-2.6.4-vanilla/arch/x86_64/mm/numa.c	Wed Mar 10 18:55:43 2004
++++ linux-2.6.4-nodemask_t-x86_64/arch/x86_64/mm/numa.c	Thu Mar 11 12:00:36 2004
+@@ -16,7 +16,7 @@
  
- 		if (pgdat->node_spanned_pages != 0)
-===================================================================
---- 2.6.4.orig/arch/arm/mm/mm-armv.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/arm/mm/mm-armv.c	2004-04-01 04:50:58.000000000 -0800
-@@ -653,6 +653,6 @@
+ #define Dprintk(x...)
+ 
+-struct pglist_data *node_data[MAXNODE];
++struct pglist_data *node_data[MAX_NUMNODES];
+ bootmem_data_t plat_node_bdata[MAX_NUMNODES];
+ 
+ int memnode_shift;
+@@ -24,8 +24,6 @@ u8  memnodemap[NODEMAPSIZE];
+ 
+ static int numa_off __initdata; 
+ 
+-unsigned long nodes_present; 
+-
+ int __init compute_hash_shift(struct node *nodes)
  {
- 	int node;
+ 	int i; 
+@@ -35,7 +33,7 @@ int __init compute_hash_shift(struct nod
+ 	/* When in doubt use brute force. */
+ 	while (shift < 48) { 
+ 		memset(memnodemap,0xff,sizeof(*memnodemap) * NODEMAPSIZE); 
+-		for (i = 0; i < numnodes; i++) { 
++		for_each_online_node(i) {
+ 			if (nodes[i].start == nodes[i].end) 
+ 				continue;
+ 			for (addr = nodes[i].start; 
+@@ -101,9 +99,6 @@ void __init setup_node_bootmem(int nodei
  
--	for (node = 0; node < numnodes; node++)
-+	for_each_online_node(node)
- 		free_unused_memmap_node(node, mi);
- }
-===================================================================
---- 2.6.4.orig/arch/arm26/mm/init.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/arm26/mm/init.c	2004-04-01 04:50:58.000000000 -0800
-@@ -156,7 +156,8 @@
- {
- 	unsigned int memend_pfn = 0;
+ 	reserve_bootmem_node(NODE_DATA(nodeid), nodedata_phys, pgdat_size); 
+ 	reserve_bootmem_node(NODE_DATA(nodeid), bootmap_start, bootmap_pages<<PAGE_SHIFT);
+-	if (nodeid + 1 > numnodes)
+-		numnodes = nodeid + 1;
+-	nodes_present |= (1UL << nodeid); 
+ 	node_set_online(nodeid);
+ } 
  
+@@ -152,7 +147,8 @@ int __init numa_initmem_init(unsigned lo
+ 	fake_node = 1; 	
+ 	memnode_shift = 63; 
+ 	memnodemap[0] = 0;
 -	numnodes = 1;
 +	nodes_clear(node_online_map);
 +	node_set_online(0);
- 
- 	np->bootmap_pages = 0;
- 
-===================================================================
---- 2.6.4.orig/arch/mips/sgi-ip27/ip27-init.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/mips/sgi-ip27/ip27-init.c	2004-04-01 04:50:58.000000000 -0800
-@@ -10,7 +10,7 @@
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/sched.h>
--#include <linux/mmzone.h>	/* for numnodes */
-+#include <linux/nodemask.h>	/* for node_online_map */
- #include <linux/mm.h>
- #include <linux/cpumask.h>
- #include <asm/cpu.h>
-@@ -56,14 +56,13 @@
- 		return COMPACT_TO_NASID_NODEID(cnode) >> NASID_TO_COARSEREG_SHFT;
- }
- 
--static void gen_region_mask(hubreg_t *region_mask, int maxnodes)
-+static void gen_region_mask(hubreg_t *region_mask)
- {
- 	cnodeid_t cnode;
- 
- 	(*region_mask) = 0;
--	for (cnode = 0; cnode < maxnodes; cnode++) {
-+	for_each_online_node(cnode)
- 		(*region_mask) |= 1ULL << get_region(cnode);
--	}
- }
- 
- static int is_fine_dirmode(void)
-@@ -168,7 +167,7 @@
- 	int port;
- 
- 	/* Figure out which routers nodes in question are connected to */
--	for (cnode = 0; cnode < numnodes; cnode++) {
-+	for_each_online_node(cnode) {
- 		nasid = COMPACT_TO_NASID_NODEID(cnode);
- 
- 		if (nasid == -1) continue;
-@@ -235,9 +234,9 @@
- 		for (col = 0; col < MAX_COMPACT_NODES; col++)
- 			node_distances[row][col] = -1;
- 
--	for (row = 0; row < numnodes; row++) {
-+	for_each_online_node(row) {
- 		nasid = COMPACT_TO_NASID_NODEID(row);
--		for (col = 0; col < numnodes; col++) {
-+		for_each_online_node(col) {
- 			nasid2 = COMPACT_TO_NASID_NODEID(col);
- 			node_distances[row][col] = node_distance(nasid, nasid2);
- 		}
-@@ -257,17 +256,17 @@
- 	printk("************** Topology ********************\n");
- 
- 	printk("    ");
--	for (col = 0; col < numnodes; col++)
-+	for_each_online_node(col)
- 		printk("%02d ", col);
- 	printk("\n");
--	for (row = 0; row < numnodes; row++) {
-+	for_each_online_node(row) {
- 		printk("%02d  ", row);
--		for (col = 0; col < numnodes; col++)
-+		for_each_online_node(col)
- 			printk("%2d ", node_distances[row][col]);
- 		printk("\n");
- 	}
- 
--	for (cnode = 0; cnode < numnodes; cnode++) {
-+	for_each_online_node(cnode) {
- 		nasid = COMPACT_TO_NASID_NODEID(cnode);
- 
- 		if (nasid == -1) continue;
-@@ -323,14 +322,14 @@
- 	init_topology_matrix();
- 	dump_topology();
- 
--	gen_region_mask(&region_mask, numnodes);
-+	gen_region_mask(&region_mask);
- 
--	setup_replication_mask(numnodes);
-+	setup_replication_mask();
- 
- 	/*
- 	 * Set all nodes' calias sizes to 8k
- 	 */
--	for (i = 0; i < numnodes; i++) {
-+	for_each_online_node(i) {
- 		nasid_t nasid;
- 
- 		nasid = COMPACT_TO_NASID_NODEID(i);
-===================================================================
---- 2.6.4.orig/arch/mips/sgi-ip27/ip27-klnuma.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/mips/sgi-ip27/ip27-klnuma.c	2004-04-01 04:50:58.000000000 -0800
-@@ -27,7 +27,7 @@
-  * kernel.  For example, we should never put a copy on a headless node,
-  * and we should respect the topology of the machine.
-  */
--void __init setup_replication_mask(int maxnodes)
-+void __init setup_replication_mask(void)
- {
- 	static int 	numa_kernel_replication_ratio;
- 	cnodeid_t	cnode;
-@@ -44,7 +44,7 @@
- 	numa_kernel_replication_ratio = 1;
- #endif
- 
--	for (cnode = 1; cnode < numnodes; cnode++) {
-+	for (cnode = 1; cnode < num_online_nodes(); cnode++) {
- 		/* See if this node should get a copy of the kernel */
- 		if (numa_kernel_replication_ratio &&
- 		    !(cnode % numa_kernel_replication_ratio)) {
-@@ -92,7 +92,7 @@
- 	memcpy((void *)dest_kern_start, (void *)source_start, kern_size);
- }
- 
--void __init replicate_kernel_text(int maxnodes)
-+void __init replicate_kernel_text(void)
- {
- 	cnodeid_t cnode;
- 	nasid_t client_nasid;
-@@ -103,7 +103,7 @@
- 	/* Record where the master node should get its kernel text */
- 	set_ktext_source(master_nasid, master_nasid);
- 
--	for (cnode = 1; cnode < maxnodes; cnode++) {
-+	for (cnode = 1; cnode < num_online_nodes(); cnode++) {
- 		client_nasid = COMPACT_TO_NASID_NODEID(cnode);
- 
- 		/* Check if this node should get a copy of the kernel */
-===================================================================
---- 2.6.4.orig/arch/mips/sgi-ip27/ip27-memory.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/mips/sgi-ip27/ip27-memory.c	2004-04-01 04:50:58.000000000 -0800
-@@ -137,7 +137,7 @@
- 	pfn_t slot0sz = 0, nodebytes;	/* Hack to detect problem configs */
- 	int ignore;
- 
--	for (node = 0; node < numnodes; node++) {
-+	for_each_online_node(node) {
- 		numslots = node_getnumslots(node);
- 		ignore = nodebytes = 0;
- 		for (slot = 0; slot < numslots; slot++) {
-@@ -183,7 +183,7 @@
- 
- 	num_physpages = szmem();
- 
--	for (node = 0; node < numnodes; node++) {
-+	for_each_online_node(node) {
- 		pfn_t slot_firstpfn = slot_getbasepfn(node, 0);
- 		pfn_t slot_lastpfn = slot_firstpfn + slot_getsize(node, 0);
- 		pfn_t slot_freepfn = node_getfirstfree(node);
-@@ -225,7 +225,7 @@
- 
- 	pagetable_init();
- 
--	for (node = 0; node < numnodes; node++) {
-+	for_each_online_node(node) {
- 		pfn_t start_pfn = slot_getbasepfn(node, 0);
- 		pfn_t end_pfn = node_getmaxclick(node) + 1;
- 
-@@ -245,7 +245,7 @@
- 
- 	high_memory = (void *) __va(num_physpages << PAGE_SHIFT);
- 
--	for (node = 0; node < numnodes; node++) {
-+	for_each_online_node(node) {
- 		unsigned slot, numslots;
- 		struct page *end, *p;
- 	
-===================================================================
---- 2.6.4.orig/arch/mips/sgi-ip27/ip27-nmi.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/mips/sgi-ip27/ip27-nmi.c	2004-04-01 04:50:58.000000000 -0800
-@@ -183,7 +183,7 @@
- {
- 	cnodeid_t	cnode;
- 
--	for(cnode = 0 ; cnode < numnodes; cnode++)
-+	for_each_online_node(cnode)
- 		nmi_node_eframe_save(cnode);
- }
- 
-@@ -214,13 +214,13 @@
- 	 * send NMIs to all cpus on a 256p system.
- 	 */
- 	for (i=0; i < 1500; i++) {
--		for (node=0; node < numnodes; node++)
-+		for_each_online_node(node)
- 			if (NODEPDA(node)->dump_count == 0)
- 				break;
--		if (node == numnodes)
-+		if (node == num_online_nodes())
- 			break;
- 		if (i == 1000) {
--			for (node=0; node < numnodes; node++)
-+			for_each_online_node(node)
- 				if (NODEPDA(node)->dump_count == 0) {
- 					cpu = CNODE_TO_CPU_BASE(node);
- 					for (n=0; n < CNODE_NUM_CPUS(node); cpu++, n++) {
-===================================================================
---- 2.6.4.orig/arch/mips/sgi-ip27/ip27-reset.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/mips/sgi-ip27/ip27-reset.c	2004-04-01 04:50:58.000000000 -0800
-@@ -43,7 +43,7 @@
- 	smp_send_stop();
- #endif
- #if 0
--	for (i = 0; i < numnodes; i++)
-+	for_each_online_node(i)
- 		REMOTE_HUB_S(COMPACT_TO_NASID_NODEID(i), PROMOP_REG,
- 							PROMOP_REBOOT);
- #else
-@@ -59,7 +59,7 @@
- #ifdef CONFIG_SMP
- 	smp_send_stop();
- #endif
--	for (i = 0; i < numnodes; i++)
-+	for_each_online_node(i)
- 		REMOTE_HUB_S(COMPACT_TO_NASID_NODEID(i), PROMOP_REG,
- 							PROMOP_RESTART);
- 	LOCAL_HUB_S(NI_PORT_RESET, NPR_PORTRESET | NPR_LOCALRESET);
-===================================================================
---- 2.6.4.orig/arch/mips/sgi-ip27/ip27-smp.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/mips/sgi-ip27/ip27-smp.c	2004-04-01 04:50:58.000000000 -0800
-@@ -108,18 +108,18 @@
- 	for (i = 0; i < MAXCPUS; i++)
- 		cpuid_to_compact_node[i] = INVALID_CNODEID;
- 
--	numnodes = 0;
-+	nodes_clear(node_online_map);
- 	for (i = 0; i < MAX_COMPACT_NODES; i++) {
- 		nasid_t nasid = gdap->g_nasidtable[i];
- 		if (nasid == INVALID_NASID)
- 			break;
- 		compact_to_nasid_node[i] = nasid;
- 		nasid_to_compact_node[nasid] = i;
--		numnodes++;
-+		node_set_online(i);
- 		highest = do_cpumask(i, nasid, highest);
- 	}
- 
--	printk("Discovered %d cpus on %d nodes\n", highest + 1, numnodes);
-+	printk("Discovered %d cpus on %d nodes\n", highest + 1, num_online_nodes());
- }
- 
- void __init prom_build_cpu_map(void)
-@@ -155,13 +155,13 @@
- {
- 	cnodeid_t	cnode;
- 
--	for (cnode = 0; cnode < numnodes; cnode++)
-+	for_each_online_node(cnode)
- 		intr_clear_all(COMPACT_TO_NASID_NODEID(cnode));
- 
- 	/* Master has already done per_cpu_init() */
- 	install_ipi();
- 
--	replicate_kernel_text(numnodes);
-+	replicate_kernel_text();
- 
- 	/*
- 	 * Assumption to be fixed: we're always booted on logical / physical
-===================================================================
---- 2.6.4.orig/arch/sparc64/mm/hugetlbpage.c	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/arch/sparc64/mm/hugetlbpage.c	2004-04-01 04:50:58.000000000 -0800
-@@ -39,12 +39,11 @@
- 	struct page *page = NULL;
- 
- 	if (list_empty(&hugepage_freelists[nid])) {
--		for (nid = 0; nid < MAX_NUMNODES; ++nid)
-+		for_each_node(nid)
- 			if (!list_empty(&hugepage_freelists[nid]))
- 				break;
- 	}
--	if (nid >= 0 && nid < MAX_NUMNODES &&
--	    !list_empty(&hugepage_freelists[nid])) {
-+	if (node_possible(nid) && !list_empty(&hugepage_freelists[nid])) {
- 		page = list_entry(hugepage_freelists[nid].next,
- 				  struct page, list);
- 		list_del(&page->list);
-@@ -57,7 +56,7 @@
- 	static int nid = 0;
- 	struct page *page;
- 	page = alloc_pages_node(nid, GFP_HIGHUSER, HUGETLB_PAGE_ORDER);
--	nid = (nid + 1) % numnodes;
-+	nid = (nid + 1) % num_online_nodes();
- 	return page;
- }
- 
-@@ -464,7 +463,7 @@
+ 	setup_node_bootmem(0, start_pfn<<PAGE_SHIFT, end_pfn<<PAGE_SHIFT);
+ 	return -1; 
+ } 
+@@ -161,7 +157,7 @@ unsigned long __init numa_free_all_bootm
+ { 
  	int i;
- 	struct page *page;
+ 	unsigned long pages = 0;
+-	for_all_nodes(i) {
++	for_each_online_node(i) {
+ 		pages += free_all_bootmem_node(NODE_DATA(i));
+ 	}
+ 	return pages;
+@@ -170,7 +166,7 @@ unsigned long __init numa_free_all_bootm
+ void __init paging_init(void)
+ { 
+ 	int i;
+-	for_all_nodes(i) { 
++	for_each_online_node(i) { 
+ 		setup_node_zones(i); 
+ 	}
+ } 
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/include/asm-x86_64/mmzone.h linux-2.6.4-nodemask_t-x86_64/include/asm-x86_64/mmzone.h
+--- linux-2.6.4-vanilla/include/asm-x86_64/mmzone.h	Wed Mar 10 18:55:43 2004
++++ linux-2.6.4-nodemask_t-x86_64/include/asm-x86_64/mmzone.h	Thu Mar 11 12:00:36 2004
+@@ -12,7 +12,6 @@
  
--	for (i = 0; i < MAX_NUMNODES; ++i)
-+	for_each_node(i)
- 		INIT_LIST_HEAD(&hugepage_freelists[i]);
+ #include <asm/smp.h>
  
- 	for (i = 0; i < htlbpage_max; ++i) {
-===================================================================
---- 2.6.4.orig/include/asm-mips/sn/sn_private.h	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/include/asm-mips/sn/sn_private.h	2004-04-01 04:50:58.000000000 -0800
-@@ -13,8 +13,8 @@
- extern void per_hub_init(cnodeid_t cnode);
- extern void install_cpu_nmi_handler(int slice);
- extern void install_ipi(void);
--extern void setup_replication_mask(int);
--extern void replicate_kernel_text(int);
-+extern void setup_replication_mask(void);
-+extern void replicate_kernel_text(void);
- extern pfn_t node_getfirstfree(cnodeid_t);
+-#define MAXNODE 8 
+ #define NODEMAPSIZE 0xff
  
- #endif /* __ASM_SN_SN_PRIVATE_H */
-===================================================================
---- 2.6.4.orig/include/asm-sh/mmzone.h	2004-04-01 04:48:46.000000000 -0800
-+++ 2.6.4/include/asm-sh/mmzone.h	2004-04-01 04:50:58.000000000 -0800
-@@ -46,7 +46,7 @@
- {
- 	unsigned int i;
+ /* Simple perfect hash to map physical addresses to node numbers */
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/include/asm-x86_64/numa.h linux-2.6.4-nodemask_t-x86_64/include/asm-x86_64/numa.h
+--- linux-2.6.4-vanilla/include/asm-x86_64/numa.h	Wed Mar 10 18:55:21 2004
++++ linux-2.6.4-nodemask_t-x86_64/include/asm-x86_64/numa.h	Thu Mar 11 12:00:36 2004
+@@ -1,19 +1,13 @@
+ #ifndef _ASM_X8664_NUMA_H 
+ #define _ASM_X8664_NUMA_H 1
  
--	for (i = 0; i < MAX_NUMNODES; i++) {
-+	for_each_node(i) {
- 		if (page >= NODE_MEM_MAP(i) &&
- 		    page < NODE_MEM_MAP(i) + NODE_DATA(i)->node_size)
- 			return 1;
+-#define MAXNODE 8 
+ #define NODEMASK 0xff
+ 
+ struct node { 
+ 	u64 start,end; 
+ };
+ 
+-#define for_all_nodes(x) for ((x) = 0; (x) < numnodes; (x)++) \
+-				if ((1UL << (x)) & nodes_present)
+-
+-
+ extern int compute_hash_shift(struct node *nodes);
+-extern unsigned long nodes_present;
+ 
+ #define ZONE_ALIGN (1UL << (MAX_ORDER+PAGE_SHIFT))
+ 
+
 
 
 -- 

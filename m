@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275798AbRI1CYm>; Thu, 27 Sep 2001 22:24:42 -0400
+	id <S275794AbRI1CWB>; Thu, 27 Sep 2001 22:22:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275797AbRI1CYb>; Thu, 27 Sep 2001 22:24:31 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:26621 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S275795AbRI1CYT>;
-	Thu, 27 Sep 2001 22:24:19 -0400
-Date: Fri, 28 Sep 2001 04:24:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Macaulay <robert_macaulay@dell.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
-        Bob Matthews <bmatthews@redhat.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)]
-Message-ID: <20010928042417.J14277@athlon.random>
-In-Reply-To: <20010928014720.Z14277@athlon.random> <Pine.LNX.4.33.0109272108400.29056-100000@ping.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109272108400.29056-100000@ping.us.dell.com>; from robert_macaulay@dell.com on Thu, Sep 27, 2001 at 09:12:25PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S275795AbRI1CVv>; Thu, 27 Sep 2001 22:21:51 -0400
+Received: from c1123685-a.crvlls1.or.home.com ([65.12.164.15]:16910 "EHLO
+	inbetween.blorf.net") by vger.kernel.org with ESMTP
+	id <S275794AbRI1CVi>; Thu, 27 Sep 2001 22:21:38 -0400
+Date: Thu, 27 Sep 2001 19:21:46 -0700 (PDT)
+From: Jacob Luna Lundberg <kernel@gnifty.net>
+Reply-To: jacob@chaos2.org
+To: Dan Hollis <goemon@anime.net>
+cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: AMD viper chipset and UDMA100
+In-Reply-To: <Pine.LNX.4.30.0109271551400.20621-100000@anime.net>
+Message-ID: <Pine.LNX.4.21.0109271904170.28015-100000@inbetween.blorf.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 27, 2001 at 09:12:25PM -0500, Robert Macaulay wrote:
-> Thanks Andrea. I'll see if we can repeat the 0-page alloc again.
 
-Ok, it is possible the 0-page alloc failed because NOHIGHIO was
-disabled, Linus's fix being less finegrined than mine could also lead
-more easily to 0-page alloc failed.
+On Thu, 27 Sep 2001, Dan Hollis wrote:
+> And Andre's didnt make it into the kernel either it seems :-)
 
-However failing bounce-allocation is not important since we have the
-reserved pool for those allocations. Not having to use the reserved
-pool only allows an higher amount of I/O in parallel. This is why I said
-we could have dropped the NOHIGHIO logic in first place if we wanted to
-go the non finegrined way.
+He hasn't even been updating his patch with taskfile and destroke support
+in it for recent kernels, sadly (sadly because I need destroke).  However,
+I've been trying to bring it forward myself; you can find it at:
+http://chaos2.org/~jacob/code/linux/
 
-Andrea
+I don't know if it's got anything useful to you in it, particularly given
+that there are items like the two below which seem to be help chunks for
+things that have recently made it into the kernel (without help, heh):
+
+
+-AMD7409 chipset support
+-CONFIG_BLK_DEV_AMD7409
+-  This driver ensures (U)DMA support for the AMD756 Viper chipset.
++AMD Viper (7401/7409/7411) chipset support
++CONFIG_BLK_DEV_AMD74XX
++  This driver ensures (U)DMA support for the AMD756/760 Viper chipset.
+
+[and]
+
+-CONFIG_AMD7409_OVERRIDE
++CONFIG_AMD74XX_OVERRIDE
+
+
+At any rate, I don't know if it's applicable for your problems at all
+(it's not a small patch) but you're welcome to a copy of it if you want.
+
+-Jacob
+

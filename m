@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281891AbRLCIvr>; Mon, 3 Dec 2001 03:51:47 -0500
+	id <S281810AbRLCIvl>; Mon, 3 Dec 2001 03:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284378AbRLCItv>; Mon, 3 Dec 2001 03:49:51 -0500
-Received: from smtp-abo-3.wanadoo.fr ([193.252.19.152]:1708 "EHLO
-	andira.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S284761AbRLCEwL>; Sun, 2 Dec 2001 23:52:11 -0500
-Message-ID: <3C0B0489.55482719@wanadoo.fr>
-Date: Mon, 03 Dec 2001 05:50:17 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16-debug i686)
-X-Accept-Language: fr, en
+	id <S284398AbRLCIuD>; Mon, 3 Dec 2001 03:50:03 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58152 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S282995AbRLBWTv>; Sun, 2 Dec 2001 17:19:51 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lm@bitmover.com (Larry McVoy),
+        vonbrand@sleipnir.valparaiso.cl (Horst von Brand),
+        linux-kernel@vger.kernel.org (lkml)
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <E16AeE3-0004ct-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 02 Dec 2001 14:59:32 -0700
+In-Reply-To: <E16AeE3-0004ct-00@the-village.bc.nu>
+Message-ID: <m1pu5xwaez.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Alexander Viro <viro@math.psu.edu>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre5 not easy to boot with devfs
-In-Reply-To: <29283.1007333866@ocs3.intra.ocs.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the point is to force CONFIG_DEBUG_KERNEL CONFIG_DEBUG_SLAB ...
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-DEVFS_DEBUG is quite verbose when enabled by devfs=dall : dmesg shows
-15kb of devfs messages with no room for anything else.
+> > The next incremental step is to get some good distributed and parallel
+> > file systems.  So you can share one filesystem across the cluster.
+> > And there is some work going on in those areas.  luster, gfs,
+> > intermezzo.
+> 
+> gfs went proprietary - you want opengfs
 
+Right.
+ 
+> A lot of good work on the rest of that multi-node clustering is going on
+> already - take a look at the compaq open source site.
 
-Keith Owens wrote:
-> 
-> On Sun, 2 Dec 2001 11:59:34 -0500 (EST),
-> Alexander Viro <viro@math.psu.edu> wrote:
-> >On Sun, 2 Dec 2001, Pierre Rousselet wrote:
-> >
-> >> Here is the final (i hope) verdict of my devfs testbox :
-> >>
-> >> 2.4.16 with devfsd-1.3.18/1.3.20 : OK
-> >> 2.4.17-pre1         "            : Broken
-> >> 2.5.1-pre1          "            : OK
-> >> 2.5.1-pre2 with or without v200  : Broken
-> >> 2.5.1-pre5          "            : Broken
-> >
-> >IOW, merge of new devfs code (2.4.17-pre1 in -STABLE, 2.5.1-pre2 in -CURRENT).
-> >
-> >We really need CONFIG_DEBUG_* forced if CONFIG_DEVFS_FS is set.  Otherwise
-> >we'll be getting tons of bug reports due to silent memory corruption.
-> >
-> >Keith, is there a decent way to do that?  For 2.4.17 it would help a lot...
-> 
-> Against 2.4.17-pre2, untested.  Revert before 2.4.17.
-> 
-> Index: 17-pre2.1/fs/Config.in
-> --- 17-pre2.1/fs/Config.in Tue, 13 Nov 2001 08:45:38 +1100 kaos (linux-2.4/m/b/39_Config.in 1.2.1.2.1.7 644)
-> +++ 17-pre2.1(w)/fs/Config.in Mon, 03 Dec 2001 09:54:58 +1100 kaos (linux-2.4/m/b/39_Config.in 1.2.1.2.1.7 644)
-> @@ -63,7 +63,10 @@ bool '/proc file system support' CONFIG_
-> 
->  dep_bool '/dev file system support (EXPERIMENTAL)' CONFIG_DEVFS_FS $CONFIG_EXPERIMENTAL
->  dep_bool '  Automatically mount at boot' CONFIG_DEVFS_MOUNT $CONFIG_DEVFS_FS
-> -dep_bool '  Debug devfs' CONFIG_DEVFS_DEBUG $CONFIG_DEVFS_FS
-> +if [ "$CONFIG_DEVFS_FS" = "y" ] ; then \
-> +   define_bool CONFIG_DEVFS_DEBUG y
-> +fi
-> +# dep_bool '  Debug devfs' CONFIG_DEVFS_DEBUG $CONFIG_DEVFS_FS
-> 
->  # It compiles as a module for testing only.  It should not be used
->  # as a module in general.  If we make this "tristate", a bunch of people
+Basically my point.
+ 
+> cccluster is more for numa boxes, but it needs the management and SSI views
+> that the compaq stuff offers simply because most programmers won't program
+> for a cccluster or manage one.
 
--- 
-------------------------------------------------
- Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+I've seen a fair number of mpi programs, and if you have a program
+that takes weeks to run on a single system.  There is a lot of
+incentive to work it out.  Plus I have read about a lot of web sites
+that are running on a farm of servers.  Admittedly the normal
+architecture has one fat database server behind the web servers, but
+that brings me back to needing a good distributed storage techniques.
+
+And I really don't care if most programmers won't program for a
+cccluster.  Most programmers don't have one or a problem that needs
+one to solve.  So you really only need those people interested in the
+problem to work on it.
+
+But single system image type projects are useful, but need to be
+watched.  You really need to standardize on how a cluster is put
+together (software wise), and making things easier always helps.  But
+you also need to be very careful because you can easily write code
+that does not scale.  And people doing cluster have wild notions of
+scaling o.k. 64 Nodes worked let's try a thousand...
+
+As far as I can tell the only real difference between a numa box, and
+a normal cluster of machines running connected with fast ethernet is
+that a numa interconnect is a blazingly fast interconnect.  So if you
+can come up with a single system image solution over fast ethernet a
+ccNuma machine just magically works.
+
+Eric

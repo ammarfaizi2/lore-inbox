@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265019AbUELLkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265033AbUELLoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265019AbUELLkw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 07:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265028AbUELLkw
+	id S265033AbUELLoh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 07:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265028AbUELLog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 07:40:52 -0400
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:50064 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S265019AbUELLkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 07:40:49 -0400
-Subject: Re: PROBLEM: compiling NTFS write support
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: andrea.fracasso@infoware-srl.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <27239.194.98.240.35.1084356865.squirrel@mail.infoware-srl.com>
-References: <27239.194.98.240.35.1084356865.squirrel@mail.infoware-srl.com>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service
-Message-Id: <1084362026.16624.14.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 12 May 2004 12:40:27 +0100
-Content-Transfer-Encoding: 7bit
+	Wed, 12 May 2004 07:44:36 -0400
+Received: from fmr99.intel.com ([192.55.52.32]:2760 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S265031AbUELLoe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 07:44:34 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: Who owns those locks ?
+Date: Wed, 12 May 2004 04:43:59 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F013CCAF0@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Who owns those locks ?
+Thread-Index: AcQ4ERoKd1Ag1DAZTvmHPQ4WzXMm4wABIz5g
+From: "Luck, Tony" <tony.luck@intel.com>
+To: <Zoltan.Menyhart@bull.net>
+Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 May 2004 11:44:00.0083 (UTC) FILETIME=[6A862A30:01C43816]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>The first reason to use a shift of 12 bits is:
+>you can see easily what the address of the owner's task structure is.
+>In addition, with page size of 16 Kbytes, you've got only 16 Tbytes
+>in the identity mapped kernel address space any way.
+>Should we move to a page size of 64 Kbytes, you can use a shift of
+>16 bits and you keep the address human readable ;-)
 
-On Wed, 2004-05-12 at 11:14, andrea.fracasso@infoware-srl.com wrote:
-> Hi, I have found a problem compiling te source of kernel 2.6.6, if I
-> enable NTFS write support when i run "make" i get this error:
-> 
-> ....
->   CC      fs/ntfs/inode.o
->   CC      fs/ntfs/logfile.o
-> {standard input}: Assembler messages:
-> {standard input}:683: Error: suffix or operands invalid for `bsf'
-> make[2]: *** [fs/ntfs/logfile.o] Error 1
-> make[1]: *** [fs/ntfs] Error 2
-> make: *** [fs] Error 2
-> 
-> my kernel version is:
-> Linux version 2.6.5-AS1500 (root@ntb-gozzolox) (gcc version 3.3.2 20031022
-> (Red Hat Linux 3.3.2-1)) #3 Thu Apr 15 10:13:11 CEST 2004
-> 
-> my cpu is:
-> 
-> processor       : 0
-> vendor_id       : AuthenticAMD
-> cpu family      : 15
-> model           : 4
-> model name      : AMD Athlon(tm) 64 Processor 3200+
+Human readable is nice.
 
-Thanks for the report.  Yes, this has been reported already to me but I 
-didn't get a response from the other person yet, so perhaps you could
-help...  Note that this works fine on my P4 with SuSE Linux
-(gcc-3.3.3-36 rpm and binutils 2.15.90.0.1.1-26 rpm) and it works fine
-for many other people...
+The identity mapped kernel space is not limited by the pagesize.
+Mappings in region 7[*] are provided by the Alt-dtlb miss handler,
+which just inserts a kernel granule sized mapping into the TLB
+to cover any TLB miss.
 
-Which binutils version do you have (rpm -q binutils)?
+-Tony
 
-Can you type (inside the configured kernel tree):
-
-make fs/ntfs/logfile.s
-
-And email this file to me.  Line 683 of that file should give us a clue
-why this is failing.
-
-Thanks a lot in advance.
-
-Best regards,
-
-	Anton
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ &
-http://www-stu.christs.cam.ac.uk/~aia21/
-
-
+[*] except for the percpu area in the top 64k of region 7 which is
+mapped by a locked entry in a DTR register.

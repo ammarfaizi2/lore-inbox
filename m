@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261411AbSIWVKW>; Mon, 23 Sep 2002 17:10:22 -0400
+	id <S261404AbSIWViG>; Mon, 23 Sep 2002 17:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261410AbSIWVKW>; Mon, 23 Sep 2002 17:10:22 -0400
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:58240 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S261392AbSIWVKV>; Mon, 23 Sep 2002 17:10:21 -0400
-Date: Mon, 23 Sep 2002 14:12:19 -0700
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+	id <S261457AbSIWVhM>; Mon, 23 Sep 2002 17:37:12 -0400
+Received: from twinlark.arctic.org ([208.44.199.239]:43459 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S261404AbSIWVgW>; Mon, 23 Sep 2002 17:36:22 -0400
+Date: Mon, 23 Sep 2002 14:41:33 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: Bill Davidsen <davidsen@tmr.com>, Peter Waechtler <pwaechtler@mac.com>,
+       <linux-kernel@vger.kernel.org>, ingo Molnar <mingo@redhat.com>
 Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020923211219.GB2075@gnuppy.monkey.org>
-References: <20020920215029.GB1527@gnuppy.monkey.org> <Pine.LNX.3.96.1020922093417.6569A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020922093417.6569A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+In-Reply-To: <20020923083004.B14944@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0209231433560.16864-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 22, 2002 at 09:38:52AM -0400, Bill Davidsen wrote:
-> Could you comment on how whell this works (or not) with linuxthreads,
-> Solaris, and NGPT? I realize you probably haven't had time to look at NPTL
-> yet. If an N:M model is really better for your application you might be
-> able to just run NGPT.
+On Mon, 23 Sep 2002, Larry McVoy wrote:
 
-I can't. I'm in a different OS community, FreeBSD, and I deal with issues
-related to threading systems there. There's many variables that could be
-at play for various performance categories.
+> What do you think causes a context switch in
+> a threaded program?  What?  Could it be blocking on I/O?
 
-> Since preempt threads seem a problem, cound a dedicated machine run w/o
-> preempt? I assume when you say "high load" that you would be talking a
-> server, where performance is critical.
+unfortunately java was originally designed with a thread-per-connection
+model as the *only* method of implementing servers.  there wasn't a
+non-blocking network API ... and i hear that such an API is in the works,
+but i've no idea where it is yet.
 
-The JVM itself can has a habit of really stretching the amount of resources
-available in many areas and fringe logic in commonly used systems. I can't
-really say what the problems are until the Blackdown folks start integrating
-the new threading model and then start testing it.
+so while this is I/O, it's certainly less efficient to have thousands of
+tasks blocked in read(2) versus having thousands of entries in <pick your
+favourite poll/select/etc. mechanism>.
 
-However, there is a mutex fast path in the code itself that can be optionally
-used in place of the the OS back version. They felt it was significant to do
-the work for that for some reason, so I'm just going to assume that this is
-important until otherwise noted.
+this is a java problem though... i posted a jvm straw-man proposal years
+ago when IBM posted some "linux threading isn't efficient" paper.  since
+java threads are way less painful to implement than pthreads, i suggested
+the jvm do the M part of M:N.
 
-bill
+-dean
 

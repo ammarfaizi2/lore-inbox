@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVAGAYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVAGAYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVAGAYs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 19:24:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVAGAYc
+	id S261174AbVAGAYt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVAGAUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 19:24:32 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:19377 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261174AbVAGAXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 19:23:48 -0500
-Date: Fri, 7 Jan 2005 00:23:35 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, paulmck@us.ibm.com,
-       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
-       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       greghk@us.ibm.com, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] add feature-removal-schedule.txt documentation
-Message-ID: <20050107002335.GA28865@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	paulmck@us.ibm.com, arjan@infradead.org,
-	linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-	pbadari@us.ibm.com, markv@us.ibm.com, greghk@us.ibm.com,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org> <20050106235633.GA10110@kroah.com>
+	Thu, 6 Jan 2005 19:20:44 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:53436 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262048AbVAGAQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 19:16:11 -0500
+Subject: RE: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP
+	kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tim_T_Murphy@Dell.com
+Cc: rmk+lkml@arm.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4B0A1C17AA88F94289B0704CFABEF1AB0B4D32@ausx2kmps304.aus.amer.dell.com>
+References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4D32@ausx2kmps304.aus.amer.dell.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105052674.24187.288.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106235633.GA10110@kroah.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 06 Jan 2005 23:11:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 03:56:34PM -0800, Greg KH wrote:
-> On Thu, Jan 06, 2005 at 03:26:21PM -0800, Andrew Morton wrote:
-> > Which begs the question "how do we ever get rid of these things when we
-> > have no projected date for Linux-2.8"?
-> > 
-> > I'd propose:
-> > 
-> > a) Create Documentation/feature-removal-schedule.txt which describes
-> >    things which are going away, when, why, who is involved, etc.
+On Iau, 2005-01-06 at 22:47, Tim_T_Murphy@Dell.com wrote:
+> > anything i can do to avoid dropping characters without using 
+> > low_latency, which still hangs SMP kernels?
 > 
-> Ok, I'll bite, here's a patch that does just that.  Look good?
+> this patch fixes the problem for me, but its probably an awful hack -- a
+> brief interrupt storm occurs until tty processes its buffer, but IMHO
+> that's better than dropping characters.
 
-another item:
+On a PCI device you may never get to process the buffer if you do that.
+2.6.10 throws away the other bytes carefully and clears the IRQ.
 
+Presumably this is a device with a fake 8250 that produces sudden large
+bursts of data ? If so then for now you -need- to set low_latency and
+should probably do it by the PCI vendor subid/device id. The problem is
+that the serial layer expects serial data arriving at serial speeds. It
+completely breaks down when it hits an emulation of a generic uart that
+suddenely receives 32Kbytes of data at ethernet speed.
 
-What:	unused exports that don't make sense as general APIs
-When:	as soon as noticed
-Files:	all
-Why:	Unused functions bloat the kernel and wrong exported functions
-	will make external driver authors write code that's buggy and
-	unmaintainable.
-Who:	Christoph Hellwig <hch@lst.de> & others.
+The longer term fix for this is when the flip buffers go away, and the
+same problem gets cleaned up for things like mainframes and some of the
+high performance DMA devices. Until then just set low_latency and
+comment it as "not your fault" 8)
+
+Alan
+

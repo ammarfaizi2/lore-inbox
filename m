@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266464AbSKLKmm>; Tue, 12 Nov 2002 05:42:42 -0500
+	id <S266444AbSKLKqC>; Tue, 12 Nov 2002 05:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266508AbSKLKmm>; Tue, 12 Nov 2002 05:42:42 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:51860 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266464AbSKLKml>;
-	Tue, 12 Nov 2002 05:42:41 -0500
-Date: Tue, 12 Nov 2002 10:46:50 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ian Molton <spyro@f2s.com>
-Cc: Alexander Viro <viro@math.psu.edu>, xavier.bestel@free.fr,
-       linux-kernel@vger.kernel.org
-Subject: Re: devfs
-Message-ID: <20021112104650.GA322@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ian Molton <spyro@f2s.com>, Alexander Viro <viro@math.psu.edu>,
-	xavier.bestel@free.fr, linux-kernel@vger.kernel.org
-References: <1037094221.16831.21.camel@bip> <Pine.GSO.4.21.0211120445570.29617-100000@steklov.math.psu.edu> <20021112102535.1f94f50d.spyro@f2s.com>
+	id <S266461AbSKLKqC>; Tue, 12 Nov 2002 05:46:02 -0500
+Received: from lightning.adam.com.au ([203.2.124.20]:44292 "HELO
+	lightning.adam.com.au") by vger.kernel.org with SMTP
+	id <S266444AbSKLKqB>; Tue, 12 Nov 2002 05:46:01 -0500
+Date: Tue, 12 Nov 2002 21:36:50 +1030
+From: David Lloyd <lloy0076@adam.com.au>
+To: Neale Banks <neale@lowendale.com.au>
+Cc: dlloyd@microbits.com.au, linux-kernel@vger.kernel.org
+Subject: Re: Kernel Memory Errors (Debian Woody 2.4.18-bf2.4)
+Message-Id: <20021112213650.35ce0613.lloy0076@adam.com.au>
+In-Reply-To: <Pine.LNX.4.05.10211122130210.2446-100000@marina.lowendale.com.au>
+References: <20021112094813.602c2dbb.dlloyd@microbits.com.au>
+	<Pine.LNX.4.05.10211122130210.2446-100000@marina.lowendale.com.au>
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021112102535.1f94f50d.spyro@f2s.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 10:25:35AM +0000, Ian Molton wrote:
- > > 	Again, WE ARE IN FEATURE FREEZE.
- > And since when did feature freeze affect, as the guy said, *purely*
- > userspace implementations?
 
- Since it would a *feature* to move it out of kernel space.
- To reiterate : _FEATURE_ _FREEZE_. Nothing[1] new[2]
- should be going into mainline at this point.
+Neale,
 
- We should now be in the stabilising period, where we don't require
- testers to have to upgrade their userspace every fortnight.
+> Probably an X issue that's not relevant here.
+> 
+> What's the video card?
 
-		Dave
+It's an i810 Intel Card on an all-in-one mainly SiS based board...not
+there until tomorrow when I can get more details about it.
 
-[1] Rusty's modules rewrite and whatever else Linus queed up
-    seems to have exemption from this rule. Hopefully there
-    isn't too much of this stuff.
-[2] Where 'new' can also mean 'bloody large reimplementation'
- 
+
+DSL
+
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Angel of Music, why deny me?
+ Turning from true beauty!
+Angel of music, do not shun me,
+ Turn to your strange Angel!

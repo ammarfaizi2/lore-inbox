@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261360AbSJIHcM>; Wed, 9 Oct 2002 03:32:12 -0400
+	id <S261316AbSJIH3B>; Wed, 9 Oct 2002 03:29:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261397AbSJIHcM>; Wed, 9 Oct 2002 03:32:12 -0400
-Received: from [195.20.32.236] ([195.20.32.236]:9112 "HELO euro.verza.com")
-	by vger.kernel.org with SMTP id <S261360AbSJIHcL>;
-	Wed, 9 Oct 2002 03:32:11 -0400
-Date: Wed, 9 Oct 2002 09:37:25 +0200
-From: Alexander Kellett <lypanov@kde.org>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-Message-ID: <20021009073725.GA22778@groucho.verza.com>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <3DA1CF36.19659.13D4209@localhost> <3DA2BD70.14919.2C6951@localhost> <20021008112719.GC6537@pegasys.ws>
-Mime-Version: 1.0
+	id <S261360AbSJIH3B>; Wed, 9 Oct 2002 03:29:01 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:33030 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261316AbSJIH3A>; Wed, 9 Oct 2002 03:29:00 -0400
+Message-ID: <3DA3DC25.F383E92D@aitel.hist.no>
+Date: Wed, 09 Oct 2002 09:35:01 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.40mm1 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: Brad Chapman <jabiru_croc@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [QUESTION] Is 2.5.41 useable?
+References: <20021008105729.79814.qmail@web40019.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021008112719.GC6537@pegasys.ws>
-User-Agent: Mutt/1.4i
-X-Disclaimer: My opinions do not necessarily represent those of my employer
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 04:27:19AM -0700, jw schultz wrote:
-<mid-sentence snip>
-> You might look into something like using the adeos 
-> nano-kernel to host linux and the device controll 
-> software as seperate contexts with a communications 
-> interface between them. 
-<snip>
+Brad Chapman wrote:
+> 
+> Sir,
+> 
+> --- jbradford@dial.pipex.com wrote:
+> > > Is 2.5.41 useable, i.e. will it mostly work without Oopsing or crashing?
+> >
+> > It is way too soon for anybody to be able to say - it's only been released
+> > for a day!
+> 
+> Hmmm. Perhaps I should have asked the question, "Does 2.5.41 contain any code
+> that would be likely to impact performance or stability?"
 
-This talk of adeos reminds me of something that i'd
-"dreamed" of a while back. Whats the feasability of
-having a 70kb kernel that barely even provides support 
-for user space apps and is basically just an hardware 
-abstraction layer for "applications" that can be 
-written as kernel modules?
+Depends on what you use.  Much of 2.5.41 is great, but RAID is
+broken in several ways:
 
-mvg,
-Alex
+1. raid-0 simply doesn't work.  There is an excellent patch 
+   fixing it, but it isn't in 2.5.41.
+2. raid-1 kills the kernel after a minute or so 
+   if it need to resync a array big enough to take that much 
+   time with my 20MB/s disks.
+   If you need a "big" resync, reboot to something safe like 2.5.7
+   or earlier.
+3. raid-1 on the root is always dirty needing a resync after shutdown,
+   so a root-raid1 had better be "small".  Or you can't boot it.
+
+This should not bother you if you don't use software raid.
+
+The nfs client have some trouble too, see the thread called
+"invalidate_inode_pages".  I were unable to reproduce
+my problems on 2.5.41 so perhaps it is fixed and I
+missed the announcement.
+
+Again, nothing to worry about if you don't use a nfs client.
+
+2.5.41 seems just fine otherwise for my uses.
+
+Helge Hafting

@@ -1,221 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbTGAHpR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 03:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTGAHpQ
+	id S261180AbTGAHtg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 03:49:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbTGAHtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 03:45:16 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:25483 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S261168AbTGAHpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 03:45:03 -0400
-Date: Tue, 1 Jul 2003 18:03:55 +1000
-From: CaT <cat@zip.com.au>
-To: Pavel Machek <pavel@suse.cz>
-Cc: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org
-Subject: Re: can't get linux to perform a bios suspend (was: Re: [FIX, please test] Re: 2.5.70-bk16 - nfs interferes with s4bios suspend)
-Message-ID: <20030701080355.GA6404@zip.com.au>
-References: <20030616001141.GA364@zip.com.au> <20030616104710.GA12173@atrey.karlin.mff.cuni.cz> <20030618081600.GA484@zip.com.au> <20030618101728.GA203@elf.ucw.cz> <20030618102602.GA593@zip.com.au> <20030618103528.GB203@elf.ucw.cz> <20030621142400.GB5388@zip.com.au> <20030622151549.GD199@elf.ucw.cz> <20030623005814.GA583@zip.com.au> <20030623095058.GB6158@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Jul 2003 03:49:35 -0400
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:15530 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261180AbTGAHtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 03:49:32 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC/PATCH] Touchpads in absolute mode (synaptics) and mousedev
+Date: Tue, 1 Jul 2003 03:03:51 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-usb-devel@lists.sourceforge.net
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030623095058.GB6158@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307010303.53405.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 11:50:58AM +0200, Pavel Machek wrote:
-> Modification you did is wrong; I'd try
-> 
-> #ifdef CONFIG_SOFTWARE_SUSPEND
->         if ((state == 4) && (state_string[1] != 'b')) {
-> 	        software_suspend();
->                 goto Done;
->         }
-> #endif  
+Hi,
 
-Well I went the brute force way:
+I was trying to teach mousedev to bind to new synaptics driver. This 
+may be useful for gpm and other programs that don't have native event
+processing module written yet. Unfortunately absolute to relative 
+conversion in mousedev only suits for tablets (digitizers) and not for
+touchpads because:
 
-        /*
-#ifdef CONFIG_SOFTWARE_SUSPEND
-        if (state == 4) {
-                software_suspend();
-                goto Done;
-        }
-#endif
-        */
+- touchpads are not precise; when I take my finger off touchpad and then
+  touch it again somewhere else I do not expect my cursor jump anywhere,
+  I only expect cursor to move when I move my finger while pressing 
+  touchpad.
+- synaptics has Y axis reversed from what mousedev expects.
 
-Since it's h/w suspend I cared about, I didn't think it was important
-to retain sw suspend.
+I tried to modify mousedev to account for differences between touchpads 
+in absolute mode and digitizers in absolute mode but all my solutions 
+required ugly flags - brrr... So what if we:
 
-> Does s3 work for you? s3 and s4bios should be really similar.
+1. Modify mousedev so if an input device announces that it generates both
+   relative and absolute events mousedev will discard all absolute axis 
+   events and will rely on device supplied relative events.
+2. Add absolute->relative conversion code to touchpad drivers themselves
+   as drivers should know the best how to do that. If they turn out to be
+   similar across different touchpads then the common module could be 
+   made.
 
-No. They both die in similar and different ways. :) s3 suspends to ram
-(ie laptop goes sleepies) but on resume the kernel is totally hung. s4b
-completely fails to suspend and the kernel doesn't like accepting input.
-It still functions as the mouse generates synaptics errors and there's
-continuous error output re eth0 but otherwise it's a dead duck.
+What you think?
 
-Here is the console output for s3 and s4bios under 2.5.73-bk8:
+Dmitry
 
-s3:
-
-Stopping tasks: XFree86 entered refrigerator
-=klogd entered refrigerator
-=init entered refrigerator
-=khubd entered refrigerator
-=pdflush entered refrigerator
-=pdflush entered refrigerator
-=kswapd0 entered refrigerator
-=pccardd entered refrigerator
-=pccardd entered refrigerator
-=kseriod entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=portmap entered refrigerator
-=rpciod entered refrigerator
-=lockd entered refrigerator
-=syslogd entered refrigerator
-=acpid entered refrigerator
-=gpm entered refrigerator
-=inetd entered refrigerator
-=cupsd entered refrigerator
-=sendmail entered refrigerator
-=sshd entered refrigerator
-=rpc.statd entered refrigerator
-=atd entered refrigerator
-=cron entered refrigerator
-=fetchmail entered refrigerator
-=xdm entered refrigerator
-=getty entered refrigerator
-=getty entered refrigerator
-=xdm entered refrigerator
-=|
-Suspending devices
-Suspending devices
-hda: start_power_step(step: 0)
-hda: start_power_step(step: 1)
-hda: complete_power_step(step: 1, stat: 50, err: 0)
-hda: completing PM request, suspend
-Suspending devices
-Badness in local_bh_enable at kernel/softirq.c:109
-Call Trace:
- [<c011e7b8>] local_bh_enable+0x38/0x60
- [<c0277dc8>] e100_config_wol+0x74/0x78
- [<c0276821>] e100_do_wol+0xd/0x50
- [<c0277283>] e100_suspend+0x2b/0x74
- [<c01f9da7>] pci_device_suspend+0x3f/0x4c
- [<c0262b8b>] device_suspend+0x6b/0xe8
- [<c022597c>] acpi_system_save_state+0x70/0x98
- [<c0225a80>] acpi_suspend+0x58/0xa8
- [<c0225cbf>] acpi_system_write_sleep+0xfb/0x13c
- [<c0145bee>] vfs_write+0x9e/0xd0
- [<c0145ca0>] sys_write+0x30/0x50
- [<c0108d33>] syscall_call+0x7/0xb
-
-Badness in local_bh_enable at kernel/softirq.c:109
-Call Trace:
- [<c011e7b8>] local_bh_enable+0x38/0x60
- [<c0277986>] e100_config+0x9a/0x104
- [<c0276827>] e100_do_wol+0x13/0x50
- [<c0277283>] e100_suspend+0x2b/0x74
- [<c01f9da7>] pci_device_suspend+0x3f/0x4c
- [<c0262b8b>] device_suspend+0x6b/0xe8
- [<c022597c>] acpi_system_save_state+0x70/0x98
- [<c0225a80>] acpi_suspend+0x58/0xa8
- [<c0225cbf>] acpi_system_write_sleep+0xfb/0x13c
- [<c0145bee>] vfs_write+0x9e/0xd0
- [<c0145ca0>] sys_write+0x30/0x50
- [<c0108d33>] syscall_call+0x7/0xb
-
-Badness in local_bh_enable at kernel/softirq.c:109
-Call Trace:
- [<c011e7b8>] local_bh_enable+0x38/0x60
- [<c0274d35>] e100_exec_non_cu_cmd+0x12d/0x1c8
- [<c0277990>] e100_config+0xa4/0x104
- [<c0276827>] e100_do_wol+0x13/0x50
- [<c0277283>] e100_suspend+0x2b/0x74
- [<c01f9da7>] pci_device_suspend+0x3f/0x4c
- [<c0262b8b>] device_suspend+0x6b/0xe8
- [<c022597c>] acpi_system_save_state+0x70/0x98
- [<c0225a80>] acpi_suspend+0x58/0xa8
- [<c0225cbf>] acpi_system_write_sleep+0xfb/0x13c
- [<c0145bee>] vfs_write+0x9e/0xd0
- [<c0145ca0>] sys_write+0x30/0x50
- [<c0108d33>] syscall_call+0x7/0xb
-
-uhci-hcd 0000:00:07.2: suspend to state 3
-
-After this is suspended nicely (laptop led was flashing indicating s2r 
-suspend). The ethernet dirver is the intel eepro100 one.
-
-s4bios:
-
-Stopping tasks: XFree86 entered refrigerator
-=klogd entered refrigerator
-=init entered refrigerator
-=khubd entered refrigerator
-=pdflush entered refrigerator
-=pdflush entered refrigerator
-=kswapd0 entered refrigerator
-=pccardd entered refrigerator
-=pccardd entered refrigerator
-=kseriod entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=kjournald entered refrigerator
-=portmap entered refrigerator
-=rpciod entered refrigerator
-=lockd entered refrigerator
-=syslogd entered refrigerator
-=acpid entered refrigerator
-=gpm entered refrigerator
-=inetd entered refrigerator
-=cupsd entered refrigerator
-=sendmail entered refrigerator
-=sshd entered refrigerator
-=rpc.statd entered refrigerator
-=atd entered refrigerator
-=cron entered refrigerator
-=fetchmail entered refrigerator
-=xdm entered refrigerator
-=getty entered refrigerator
-=xdm entered refrigerator
-=getty entered refrigerator
-=|
-Suspending devices
-Suspending devices
-hda: start_power_step(step: 0)
-hda: completing PM request, suspend
-uhci-hcd 0000:00:07.2: resume
-e100: e100_deisolate_driver: device configuration failed
-e100: eth0: start_ru: wait_scb failed
-hda: Wakeup request inited, waiting for !BSY...
-hda: start_power_step(step: 1000)
-hda: completing PM request, resume
-Devices Resumed
-e100: eth0: e100_wait_exec_simple: failed
-...
-e100: eth0: e100_wait_exec_simple: failed
-Synaptics driver lost sync at 1st byte
-...
-Synaptics driver lost sync at 1st byte
-e100: eth0: e100_wait_exec_simple: failed
-...
-
-The Synaptics driver errors were caused by me moving the mouse. I was testing
-to see if there was any sort of life left in the kernel. The e100 errors
-kept on being produced ed-nauseum at a rate of about 1/second.
-
--- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://www.toledoblade.com/apps/pbcs.dll/artikkel?SearchID=73139162287496&Avis=TO&Dato=20030624&Kategori=NEWS28&Lopenr=106240111&Ref=AR
+diff -urN --exclude-from=/usr/src/exclude 2.5.72-vanilla/drivers/input/mouse/synaptics.c linux-2.5.72/drivers/input/mouse/synaptics.c
+--- 2.5.72-vanilla/drivers/input/mouse/synaptics.c	2003-06-19 20:23:32.000000000 -0500
++++ linux-2.5.72/drivers/input/mouse/synaptics.c	2003-07-01 02:54:34.000000000 -0500
+@@ -244,9 +244,9 @@
+ 	set_bit(BTN_FORWARD, psmouse->dev.keybit);
+ 	set_bit(BTN_BACK, psmouse->dev.keybit);
+ 
+-	clear_bit(EV_REL, psmouse->dev.evbit);
+-	clear_bit(REL_X, psmouse->dev.relbit);
+-	clear_bit(REL_Y, psmouse->dev.relbit);
++	set_bit(EV_REL, psmouse->dev.evbit);
++	set_bit(REL_X, psmouse->dev.relbit);
++	set_bit(REL_Y, psmouse->dev.relbit);
+ 
+ 	return 0;
+ 
+@@ -302,11 +302,14 @@
+ /*
+  *  called for each full received packet from the touchpad
+  */
++#define fx(i)	priv->old_x[(priv->pkt_count - (i)) & 03]
++#define fy(i)	priv->old_y[(priv->pkt_count - (i)) & 03]
+ static void synaptics_process_packet(struct psmouse *psmouse)
+ {
+ 	struct input_dev *dev = &psmouse->dev;
+ 	struct synaptics_data *priv = psmouse->private;
+ 	struct synaptics_hw_state hw;
++	int dx, dy;
+ 
+ 	synaptics_parse_hw_state(priv, &hw);
+ 
+@@ -332,6 +335,21 @@
+ 		}
+ 		if (!w_ok)
+ 			hw.w = 5;
++
++		if (hw.z > SYN_REL_PRESSURE_THRESHOLD) {
++			fx(0) = hw.x;
++			fy(0) = hw.y;
++			if (priv->pkt_count >= 2) {
++				dx = ((fx(0) - fx(1)) / 2 + (fx(1) - fx(2)) / 2) / SYN_REL_DECEL_FACTOR;
++				dy = ((fy(0) - fy(1)) / 2 + (fy(1) - fy(2)) / 2) / SYN_REL_DECEL_FACTOR;
++			      	
++				input_report_rel(dev, REL_X, dx);
++				input_report_rel(dev, REL_Y, -dy);
++			}
++			priv->pkt_count++;
++		} else {
++			priv->pkt_count = 0;
++		}
+ 	}
+ 
+ 	/* Post events */
+diff -urN --exclude-from=/usr/src/exclude 2.5.72-vanilla/drivers/input/mouse/synaptics.h linux-2.5.72/drivers/input/mouse/synaptics.h
+--- 2.5.72-vanilla/drivers/input/mouse/synaptics.h	2003-06-19 20:23:32.000000000 -0500
++++ linux-2.5.72/drivers/input/mouse/synaptics.h	2003-07-01 03:00:43.000000000 -0500
+@@ -72,6 +72,9 @@
+ #define SYN_ID_MINOR(i) 		(((i) >> 16) & 0xff)
+ #define SYN_ID_IS_SYNAPTICS(i)		((((i) >> 8) & 0xff) == 0x47)
+ 
++#define SYN_REL_DECEL_FACTOR		8
++#define SYN_REL_PRESSURE_THRESHOLD	30
++
+ /*
+  * A structure to describe the state of the touchpad hardware (buttons and pad)
+  */
+@@ -100,6 +103,9 @@
+ 	int proto_buf_tail;
+ 
+ 	int old_w;				/* Previous w value */
++	int old_x[4];
++	int old_y[4];
++	int pkt_count;				/* number of packets with pressure above threshold */
+ };
+ 
+ #endif /* _SYNAPTICS_H */
+diff -urN --exclude-from=/usr/src/exclude 2.5.72-vanilla/drivers/input/mousedev.c linux-2.5.72/drivers/input/mousedev.c
+--- 2.5.72-vanilla/drivers/input/mousedev.c	2003-06-14 14:18:33.000000000 -0500
++++ linux-2.5.72/drivers/input/mousedev.c	2003-07-01 00:37:01.000000000 -0500
+@@ -90,25 +90,29 @@
+ 					if (test_bit(BTN_TRIGGER, handle->dev->keybit))
+ 						break;
+ 					switch (code) {
+-						case ABS_X:	
+-							size = handle->dev->absmax[ABS_X] - handle->dev->absmin[ABS_X];
+-							if (size != 0) {
+-								list->dx += (value * xres - list->oldx) / size;
+-								list->oldx += list->dx * size;
+-							} else {
+-								list->dx += value - list->oldx;
+-								list->oldx += list->dx;
++						case ABS_X:
++							if (!test_bit(REL_X, handle->dev->relbit)) {	
++								size = handle->dev->absmax[ABS_X] - handle->dev->absmin[ABS_X];
++								if (size != 0) {
++									list->dx += (value * xres - list->oldx) / size;
++									list->oldx += list->dx * size;
++								} else {
++									list->dx += value - list->oldx;
++									list->oldx += list->dx;
++								}
+ 							}
+ 							break;
+ 
+ 						case ABS_Y:
+-							size = handle->dev->absmax[ABS_Y] - handle->dev->absmin[ABS_Y];
+-							if (size != 0) {
+-								list->dy -= (value * yres - list->oldy) / size;
+-								list->oldy -= list->dy * size;
+-							} else {
+-								list->dy -= value - list->oldy;
+-								list->oldy -= list->dy;
++							if (!test_bit(REL_Y, handle->dev->relbit)) {	
++								size = handle->dev->absmax[ABS_Y] - handle->dev->absmin[ABS_Y];
++								if (size != 0) {
++									list->dy -= (value * yres - list->oldy) / size;
++									list->oldy -= list->dy * size;
++								} else {
++									list->dy -= value - list->oldy;
++									list->oldy -= list->dy;
++								}
+ 							}
+ 							break;
+ 					}

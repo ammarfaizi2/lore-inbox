@@ -1,45 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265253AbUGLSAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266908AbUGLSMC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265253AbUGLSAG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 14:00:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUGLR6J
+	id S266908AbUGLSMC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 14:12:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUGLSMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 13:58:09 -0400
-Received: from hera.kernel.org ([63.209.29.2]:13010 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S266914AbUGLR4k (ORCPT
+	Mon, 12 Jul 2004 14:12:02 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2242 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266898AbUGLSLx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 13:56:40 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: XFS: how to NOT null files on fsck?
-Date: Mon, 12 Jul 2004 17:56:11 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ccujbr$unl$1@terminus.zytor.com>
-References: <20040710184357.GA5014@taniwha.stupidest.org> <E1BjPL3-00076U-00@calista.eckenfels.6bone.ka-ip.net> <20040711215446.GA21443@hh.idb.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1089654971 31478 127.0.0.1 (12 Jul 2004 17:56:11 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 12 Jul 2004 17:56:11 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Mon, 12 Jul 2004 14:11:53 -0400
+Date: Mon, 12 Jul 2004 14:08:11 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Jakub Jelinek <jakub@redhat.com>
+cc: davidm@hpl.hp.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: serious performance regression due to NX patch
+In-Reply-To: <20040711123803.GD21264@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
+References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
+ <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
+ <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
+ <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
+ <20040711123803.GD21264@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040711215446.GA21443@hh.idb.hist.no>
-By author:    Helge Hafting <helgehaf@aitel.hist.no>
-In newsgroup: linux.dev.kernel
-> > 
-> No, it doesn't.
-> 
-> close() will flush the C library buffer.  That means the data
-> moves from theose buffers to the pagacache. The program crashing
-> after that will have no effect on the file.  It can still
-> be lost if the _kernel_ crashes though.
-> If you want the pagecache flushed to disk, use fsync (or sync)
-> 
 
-No it won't, since if you're using file descriptors there *is* no C
-library buffer.  fclose() will, though, and then call close().
+On Sun, 11 Jul 2004, Jakub Jelinek wrote:
 
-	-hpa
+> > --- linux/fs/binfmt_elf.c.orig3	
+> > +++ linux/fs/binfmt_elf.c	
+> > @@ -627,8 +627,14 @@ static int load_elf_binary(struct linux_
+> >  				executable_stack = EXSTACK_DISABLE_X;
+> >  			break;
+> >  		}
+> > +#ifdef __i386_
+> > +	/*
+> > +	 * Legacy x86 binaries have an expectation of executability for
+> > +	 * virtually all their address-space - turn executability on:
+> > +	 */
+> >  	if (i == elf_ex.e_phnum)
+> >  		def_flags |= VM_EXEC | VM_MAYEXEC;
+> > +#endif
+> 
+> This looks incorrect. There are many arches where legacy binaries expect
+> the executability for virtually all their address-space (my guess is all
+> but x86-64 and ia64), and even on those two legacy binaries expected at
+> least stack executable.
+
+so ... this should be #ifndef ia64?
+
+to all the purists: this cannot be done via VM_DATA_DEFAULT_FLAGS, because
+some architectures enforce the X bit, some dont. In fact only ia64 seems
+to enforce it reliably for all binaries.
+
+the #ifdef could be made an arch inline or define. But it's really
+academic as only ia64 seems to have this problem. So i'd suggest the patch
+below.
+
+	Ingo
+
+--- linux/fs/binfmt_elf.c.orig
++++ linux/fs/binfmt_elf.c
+@@ -627,8 +627,14 @@ static int load_elf_binary(struct linux_
+ 				executable_stack = EXSTACK_DISABLE_X;
+ 			break;
+ 		}
++#ifndef __ia64__
++	/*
++	 * Legacy binaries (except ia64) have an expectation of executability
++	 * for virtually all their address-space - turn executability on:
++	 */
+ 	if (i == elf_ex.e_phnum)
+ 		def_flags |= VM_EXEC | VM_MAYEXEC;
++#endif
+ 
+ 	/* Some simple consistency checks for the interpreter */
+ 	if (elf_interpreter) {

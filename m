@@ -1,314 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVAOPzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbVAOQD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbVAOPzn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 10:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVAOPzm
+	id S262293AbVAOQD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 11:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbVAOQD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 10:55:42 -0500
-Received: from smtp08.web.de ([217.72.192.226]:10472 "EHLO smtp08.web.de")
-	by vger.kernel.org with ESMTP id S262291AbVAOPzB (ORCPT
+	Sat, 15 Jan 2005 11:03:29 -0500
+Received: from lug-owl.de ([195.71.106.12]:37043 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S262293AbVAOQDV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 10:55:01 -0500
-Message-ID: <000f01c4fb1a$86a8d6f0$0c00a8c0@amd64>
-From: "Enrico Bartky" <DOSProfi@web.de>
-To: "Martin Mares" <mj@ucw.cz>
-Cc: <linux-kernel@vger.kernel.org>
-References: <003d01c4fa7b$983b21b0$0c00a8c0@amd64> <20050115123554.GA2115@ucw.cz>
-Subject: Re: lspci != scanpci !?
-Date: Sat, 15 Jan 2005 16:54:41 +0100
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_000C_01C4FB22.E7F3A220"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4942.400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4942.400
+	Sat, 15 Jan 2005 11:03:21 -0500
+Date: Sat, 15 Jan 2005 17:03:21 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Cc: Avishay Traeger <atraeger@cs.sunysb.edu>
+Subject: Re: Adding a new system call from a module in 2.6
+Message-ID: <20050115160321.GN28037@lug-owl.de>
+Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>,
+	Avishay Traeger <atraeger@cs.sunysb.edu>
+References: <1105735760.3253.23.camel@avishay.fsl.cs.sunysb.edu> <Pine.LNX.4.61.0501141554530.6747@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="o+ZCuNqY+dEAKBWl"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501141554530.6747@chaos.analogic.com>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_000C_01C4FB22.E7F3A220
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-Here are the outputs. Without H1 there is no 7101 device; with H1 there is a
-7101 device.
-
-Enrico
-
------ Original Message -----
-From: "Martin Mares" <mj@ucw.cz>
-To: "Enrico Bartky" <DOSProfi@web.de>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, January 15, 2005 1:35 PM
-Subject: Re: lspci != scanpci !?
-
-
-> Hello!
->
-> > Now the scanpci command shows the M7101 BUT lspci and /proc/pci,
-> > /proc/bus/pci, /sys/bus/pci NOT. What can I do? Is there anything like a
-> > "update_pci" command?
->
-> What does `lspci -vv -M' and `lspci -vv -M -H1' print?
->
-> (Please Cc to me, I usually read LKML in large batches.)
->
-> Have a nice fortnight
-> --
-> Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-> Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-> Air conditioned environment -- Do not open Windows.
-
-------=_NextPart_000_000C_01C4FB22.E7F3A220
-Content-Type: text/plain;
-	name="lspcivvm.txt"
+--o+ZCuNqY+dEAKBWl
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="lspcivvm.txt"
 
-WARNING: Bus mapping can be reliable only with direct hardware access =
-enabled.=0A=
-=0A=
-00:00.0 Host bridge: ALi Corporation M1541 (rev 04)=0A=
-	Subsystem: ALi Corporation ALI M1541 Aladdin V/V+ AGP System Controller=0A=
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- =
-<TAbort- <MAbort+ >SERR- <PERR-=0A=
-	Latency: 64=0A=
-	Region 0: Memory at e0000000 (32-bit, non-prefetchable)=0A=
-	Capabilities: [b0] AGP version 1.0=0A=
-		Status: RQ=3D28 Iso- ArqSz=3D0 Cal=3D0 SBA+ ITACoh- GART64- HTrans- =
-64bit- FW- AGP3- Rate=3Dx1,x2=0A=
-		Command: RQ=3D1 ArqSz=3D0 Cal=3D0 SBA- AGP- GART64- 64bit- FW- =
-Rate=3D<none>=0A=
-=0A=
-00:01.0 PCI bridge: ALi Corporation M1541 PCI to AGP Controller (rev 04) =
-(prog-if 00 [Normal decode])=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64=0A=
-	Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D64=0A=
-	I/O behind bridge: 0000c000-0000cfff=0A=
-	Memory behind bridge: cde00000-cfefffff=0A=
-	Prefetchable memory behind bridge: bdc00000-cdcfffff=0A=
-	BridgeCtl: Parity+ SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-=0A=
-=0A=
-## 00.01:0 is a bridge from 00 to 01-01=0A=
-00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03) =
-(prog-if 10 [OHCI])=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- =
-Stepping- SERR+ FastB2B-=0A=
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64 (20000ns max), cache line size 08=0A=
-	Interrupt: pin A routed to IRQ 0=0A=
-	Region 0: Memory at dffff000 (32-bit, non-prefetchable)=0A=
-=0A=
-00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV] =
-(rev c3)=0A=
-	Subsystem: ALi Corporation ALI M1533 Aladdin IV ISA Bridge=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort+ <MAbort+ >SERR- <PERR-=0A=
-	Latency: 0=0A=
-=0A=
-00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd. =
-RTL-8139/8139C/8139C+ (rev 10)=0A=
-	Subsystem: D-Link System Inc DRN-32TX=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR+ FastB2B-=0A=
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64 (8000ns min, 16000ns max)=0A=
-	Interrupt: pin A routed to IRQ 11=0A=
-	Region 0: I/O ports at dc00=0A=
-	Region 1: Memory at dfffef00 (32-bit, non-prefetchable)=0A=
-	Capabilities: [50] Power Management version 2=0A=
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D0mA =
-PME(D0-,D1+,D2+,D3hot+,D3cold-)=0A=
-		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-=0A=
-=0A=
-00:09.0 Unknown mass storage controller: Promise Technology, Inc. 20269 =
-(rev 02) (prog-if 85)=0A=
-	Subsystem: Promise Technology, Inc. Ultra133TX2=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64 (1000ns min, 4500ns max), cache line size 08=0A=
-	Interrupt: pin A routed to IRQ 10=0A=
-	Region 0: I/O ports at dff0=0A=
-	Region 1: I/O ports at dfe4=0A=
-	Region 2: I/O ports at dfa8=0A=
-	Region 3: I/O ports at dfe0=0A=
-	Region 4: I/O ports at df90=0A=
-	Region 5: Memory at dfff8000 (32-bit, non-prefetchable)=0A=
-	Expansion ROM at dffe0000=0A=
-	Capabilities: [60] Power Management version 1=0A=
-		Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=3D0mA =
-PME(D0-,D1-,D2-,D3hot-,D3cold-)=0A=
-		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-=0A=
-=0A=
-01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 =
-MX/MX 400] (rev a1) (prog-if 00 [VGA])=0A=
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 4019=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64 (1250ns min, 250ns max)=0A=
-	Interrupt: pin A routed to IRQ 0=0A=
-	Region 0: Memory at ce000000 (32-bit, non-prefetchable)=0A=
-	Region 1: Memory at c0000000 (32-bit, prefetchable)=0A=
-	Capabilities: [60] Power Management version 2=0A=
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA =
-PME(D0-,D1-,D2-,D3hot-,D3cold-)=0A=
-		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-=0A=
-	Capabilities: [44] AGP version 2.0=0A=
-		Status: RQ=3D32 Iso- ArqSz=3D0 Cal=3D0 SBA- ITACoh- GART64- HTrans- =
-64bit- FW+ AGP3- Rate=3Dx1,x2,x4=0A=
-		Command: RQ=3D1 ArqSz=3D0 Cal=3D0 SBA- AGP- GART64- 64bit- FW- =
-Rate=3D<none>=0A=
-=0A=
-=0A=
-Summary of buses:=0A=
-=0A=
-00: Primary host bus=0A=
-	01.0 Bridge to 01-01=0A=
-01: Entered via 00:01.0=0A=
+On Fri, 2005-01-14 16:12:38 -0500, linux-os <linux-os@analogic.com>
+wrote in message <Pine.LNX.4.61.0501141554530.6747@chaos.analogic.com>:
+> On Fri, 14 Jan 2005, Avishay Traeger wrote:
+> >Now that the sys_call_table is no longer exported, what would be the
+> >best way to add a new system call from a module in 2.6?  I have only
 
-------=_NextPart_000_000C_01C4FB22.E7F3A220
-Content-Type: text/plain;
-	name="lspcivvmh1.txt"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="lspcivvmh1.txt"
+Actually, there's no "correct" or good way to do that at all. Currently,
+the system call number is used as an index to a pointer table on most
+archs (with a bit of added complexity possibly because of supported
+different APIs, eg. on MIPS).
 
-00:00.0 Host bridge: ALi Corporation M1541 (rev 04)=0A=
-	Subsystem: ALi Corporation ALI M1541 Aladdin V/V+ AGP System Controller=0A=
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- =
-<TAbort- <MAbort+ >SERR- <PERR-=0A=
-	Latency: 64=0A=
-	Region 0: Memory at e0000000 (32-bit, non-prefetchable)=0A=
-	Capabilities: [b0] AGP version 1.0=0A=
-		Status: RQ=3D28 Iso- ArqSz=3D0 Cal=3D0 SBA+ ITACoh- GART64- HTrans- =
-64bit- FW- AGP3- Rate=3Dx1,x2=0A=
-		Command: RQ=3D1 ArqSz=3D0 Cal=3D0 SBA- AGP- GART64- 64bit- FW- =
-Rate=3D<none>=0A=
-=0A=
-00:01.0 PCI bridge: ALi Corporation M1541 PCI to AGP Controller (rev 04) =
-(prog-if 00 [Normal decode])=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64=0A=
-	Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D64=0A=
-	I/O behind bridge: 0000c000-0000cfff=0A=
-	Memory behind bridge: cde00000-cfefffff=0A=
-	Prefetchable memory behind bridge: bdc00000-cdcfffff=0A=
-	BridgeCtl: Parity+ SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-=0A=
-=0A=
-## 00.01:0 is a bridge from 00 to 01-01=0A=
-00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03) =
-(prog-if 10 [OHCI])=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- =
-Stepping- SERR+ FastB2B-=0A=
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64 (20000ns max), cache line size 08=0A=
-	Interrupt: pin A routed to IRQ 0=0A=
-	Region 0: Memory at dffff000 (32-bit, non-prefetchable)=0A=
-=0A=
-00:03.0 Bridge: ALi Corporation M7101 Power Management Controller [PMU]=0A=
-	Subsystem: ALi Corporation M7101 Power Management Controller [PMU]=0A=
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-=0A=
-00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV] =
-(rev c3)=0A=
-	Subsystem: ALi Corporation ALI M1533 Aladdin IV ISA Bridge=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort+ <MAbort+ >SERR- <PERR-=0A=
-	Latency: 0=0A=
-=0A=
-00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd. =
-RTL-8139/8139C/8139C+ (rev 10)=0A=
-	Subsystem: D-Link System Inc DRN-32TX=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR+ FastB2B-=0A=
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64 (8000ns min, 16000ns max)=0A=
-	Interrupt: pin A routed to IRQ 11=0A=
-	Region 0: I/O ports at dc00=0A=
-	Region 1: Memory at dfffef00 (32-bit, non-prefetchable)=0A=
-	Capabilities: [50] Power Management version 2=0A=
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D0mA =
-PME(D0-,D1+,D2+,D3hot+,D3cold-)=0A=
-		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-=0A=
-=0A=
-00:09.0 Unknown mass storage controller: Promise Technology, Inc. 20269 =
-(rev 02) (prog-if 85)=0A=
-	Subsystem: Promise Technology, Inc. Ultra133TX2=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64 (1000ns min, 4500ns max), cache line size 08=0A=
-	Interrupt: pin A routed to IRQ 10=0A=
-	Region 0: I/O ports at dff0=0A=
-	Region 1: I/O ports at dfe4=0A=
-	Region 2: I/O ports at dfa8=0A=
-	Region 3: I/O ports at dfe0=0A=
-	Region 4: I/O ports at df90=0A=
-	Region 5: Memory at dfff8000 (32-bit, non-prefetchable)=0A=
-	Expansion ROM at dffe0000=0A=
-	Capabilities: [60] Power Management version 1=0A=
-		Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=3D0mA =
-PME(D0-,D1-,D2-,D3hot-,D3cold-)=0A=
-		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-=0A=
-=0A=
-01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 =
-MX/MX 400] (rev a1) (prog-if 00 [VGA])=0A=
-	Subsystem: ASUSTeK Computer Inc.: Unknown device 4019=0A=
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- =
-Stepping- SERR- FastB2B-=0A=
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR-=0A=
-	Latency: 64 (1250ns min, 250ns max)=0A=
-	Interrupt: pin A routed to IRQ 0=0A=
-	Region 0: Memory at ce000000 (32-bit, non-prefetchable)=0A=
-	Region 1: Memory at c0000000 (32-bit, prefetchable)=0A=
-	Capabilities: [60] Power Management version 2=0A=
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA =
-PME(D0-,D1-,D2-,D3hot-,D3cold-)=0A=
-		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-=0A=
-	Capabilities: [44] AGP version 2.0=0A=
-		Status: RQ=3D32 Iso- ArqSz=3D0 Cal=3D0 SBA- ITACoh- GART64- HTrans- =
-64bit- FW+ AGP3- Rate=3Dx1,x2,x4=0A=
-		Command: RQ=3D1 ArqSz=3D0 Cal=3D0 SBA- AGP- GART64- 64bit- FW- =
-Rate=3D<none>=0A=
-=0A=
-=0A=
-Summary of buses:=0A=
-=0A=
-00: Primary host bus=0A=
-	01.0 Bridge to 01-01=0A=
-01: Entered via 00:01.0=0A=
+However, that's not always true. For the VAX port, we've considered
+having structs per syscall, not only a single pointer.
 
-------=_NextPart_000_000C_01C4FB22.E7F3A220--
+Also, adding syscalls somewhere won't lead to a stable API, so you may
+run into problems off the user space...
 
+> >seen the system call table in assembly code (such as in
+> >arch/i386/kernel/entry.S) and do not know how to export it.  I know that
+> >doing this is not recommended, but it would save me a lot of time while
+> >developing new system calls (no need to recompile kernel and reboot for
+> >every change).  Thanks in advance for any suggestions.
+
+For testing purposes, you'd add some dummy entry at the end and register
+(through an exported function you've got to add to the core kernel) your
+function pointer with it.
+
+However, the basic question is: you you *really* need to have new
+syscalls? Just right now, we've already got too many of 'em... So what's
+the main goal you want to achieve with your software?
+
+> Just don't expect this to be put into a standard kernel.
+
+Seconded...
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--o+ZCuNqY+dEAKBWl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFB6T7JHb1edYOZ4bsRAi26AJ45lqglqgVAYLgek+KutP/VfuFqvwCeLMLr
+MFRziIfLwZUXQEovb58YQN8=
+=yf4b
+-----END PGP SIGNATURE-----
+
+--o+ZCuNqY+dEAKBWl--

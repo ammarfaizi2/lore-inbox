@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318541AbSGaXV1>; Wed, 31 Jul 2002 19:21:27 -0400
+	id <S318552AbSGaXgP>; Wed, 31 Jul 2002 19:36:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318561AbSGaXV1>; Wed, 31 Jul 2002 19:21:27 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:46845 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318541AbSGaXV0>; Wed, 31 Jul 2002 19:21:26 -0400
-Subject: Re: [PATCH] 2.5.29: some compilation fixes for irq frenzy [OSS +
-	i8x0 audio]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@suse.de>
-Cc: Andy Pfiffer <andyp@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020801010217.K10436@suse.de>
-References: <1028062608.964.6.camel@andyp>
-	<1028067951.8510.44.camel@irongate.swansea.linux.org.uk>
-	<1028063953.964.13.camel@andyp>
-	<1028069255.8510.46.camel@irongate.swansea.linux.org.uk>
-	<1028152202.964.84.camel@andyp>
-	<1028160492.13008.7.camel@irongate.swansea.linux.org.uk> 
-	<20020801010217.K10436@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 01:41:30 +0100
-Message-Id: <1028162490.13047.30.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318558AbSGaXgP>; Wed, 31 Jul 2002 19:36:15 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:32468 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318552AbSGaXgO>;
+	Wed, 31 Jul 2002 19:36:14 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] automatic module_init ordering 
+In-reply-to: Your message of "Wed, 31 Jul 2002 12:06:52 EST."
+             <Pine.LNX.4.44.0207311201000.19799-100000@chaos.physics.uiowa.edu> 
+Date: Thu, 01 Aug 2002 09:28:19 +1000
+Message-Id: <20020731234108.36C064D62@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 00:02, Dave Jones wrote:
-> Are there any OSS drivers for any particular cards for which we don't have
-> an equivalent ALSA driver ?  If we're ultimately going to be dropping
-> any of the OSS drivers, I'd rather know about it so I don't waste time
-> pushing the ~200kb of patches in that area I'm currently carrying
-> towards Linus.  (Given that most of them don't compile right now due to
-> the collateral damage from the cli() etc changes , I'd *love* to take
-> the lazy^Weasy option and just drop them)
+In message <Pine.LNX.4.44.0207311201000.19799-100000@chaos.physics.uiowa.edu> y
+ou write:
+> On Wed, 31 Jul 2002, Rusty Russell wrote:
+> 
+> > My PARAM code actually maps - to _ in parameter parsing, for exactly
+> > this reason.  And only a complete idiot would put , in a module name,
+> > so I don't care 8)
+> 
+> Tell that to the author of 53c7,8xx.o ;)
 
-ALSA should have complete coverage of everything but some weird corner
-cases like the bose speaker setup. For those its going to be far better
-to fix ALSA (and plugging a new isa card into alsa is really easy) than
-lug the entire OSS mess around for it.
+Consider that done.
 
+> > As it happens, the configuration doesn't allow more than one to be
+> > built in (they can all be modules though), so it's not actually a
+> > problem even after parameter unification.
+> 
+> Hmmh, I think that'll need some testing. It will be fine if only one of 
+> the three is "y", the others being "n/undef". However, it looks like it's 
+> possible to have sth like "m/m/y", which would go wrong with the current 
+> approach.
+
+That's a bug.  That configuration makes no sense (the modules won't
+load).  Hmmm... more Config.in complexity coming up 8(
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

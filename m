@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbTE2BdF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 21:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTE2BdF
+	id S261825AbTE2Bq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 21:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTE2Bq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 21:33:05 -0400
-Received: from holomorphy.com ([66.224.33.161]:60804 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261624AbTE2BdE (ORCPT
+	Wed, 28 May 2003 21:46:26 -0400
+Received: from dp.samba.org ([66.70.73.150]:55728 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261825AbTE2BqZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 21:33:04 -0400
-Date: Wed, 28 May 2003 18:46:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jim Houston <jim.houston@attbi.com>
-Cc: linux-kernel@vger.kernel.org, jim.houston@ccur.com
-Subject: Re: signal queue resource - Posix timers
-Message-ID: <20030529014608.GX8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jim Houston <jim.houston@attbi.com>, linux-kernel@vger.kernel.org,
-	jim.houston@ccur.com
-References: <200305281856.h4SIuFZ02449@linux.local>
+	Wed, 28 May 2003 21:46:25 -0400
+Date: Thu, 29 May 2003 11:59:09 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Matthew Harrell 
+	<mharrell-dated-1054584482.d18b3b@bittwiddlers.com>
+Cc: Gregory Maxwell <greg@xiph.org>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Orinoco_cs module won't unload in 2.5.70
+Message-ID: <20030529015909.GA2058@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Matthew Harrell <mharrell-dated-1054584482.d18b3b@bittwiddlers.com>,
+	Gregory Maxwell <greg@xiph.org>,
+	Kernel List <linux-kernel@vger.kernel.org>
+References: <20030528154125.GA1289@motherfish-II.xiph.org> <20030528200755.GA1460@bittwiddlers.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305281856.h4SIuFZ02449@linux.local>
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030528200755.GA1460@bittwiddlers.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 02:56:15PM -0400, Jim Houston wrote:
-> In the pre-allocated approach, the timer code would allocate a
-> sigqueue structure as part of the timer_create.  I would add new
-> send_sigqueue() and send_group_sigqueue() which would accept the
-> pointer to the pre-allocated sigqueue structure rather than a siginfo
-> pointer. There would also be changes to the code which dequeues the
-> siginfo structure to recognize these preallocated sigqueue structures.
-> In the case of Posix timers using a preallocated siqueue entry also
-> makes handling overruns easier.  If the timer code finds that its
-> sigqueue structure is still queued, it can simply increment the
-> overrun count.
-> The reservation approach would keep a pre-allocated pool of sigqueue
-> structures and a reservation count.  The timer_create would reserve
-> a sigqueue entry which would be place in the pool until it is needed.
-> I wonder if anyone else is interested in this problem.
+On Wed, May 28, 2003 at 04:08:01PM -0400, Matthew Harrell wrote:
+> 
+> Nothing useful.  I've got this problem in a 2.5.65 kernel also.  Really is
+> annoyying since the machine will not soft reboot because it thinks that
+> device is still in use.  I have to physically power it off every time I 
+> want to reboot it change any major pcmcia settings
 
-Well, I've never run into it and it sounds really obscure, but I agree
-in principle that it's better to return an explicit error to userspace
-than to silently fail, at least when it's feasible (obviously the kernel
-can be beaten to death with events faster than it can deliver them, so
-it won't always be feasible).
+Yes, it's a driver bug - one of a number that I've fixed recently.
+I'll retransmit the patch to Linus today.
 
--- wli
+> > Kernel 2.5.70 (and 2.5.69-mm8 before it) on my Dell Latitude C840 is
+> > unable to unload the orinoco_cs driver.
+> > 
+> > I get the following message over and over again while the rmmod hangs:
+> > unregister_netdevice: waiting for eth1 to become free. Usage count = 1
+> > 
+> > Even after ifconfig downing the interface..
+> > 
+> > This is quite annoying because the driver doesn't survive suspend and I
+> > can't cleanly shutdown. :)
+> > 
+> > Suggestions?
+> 
+
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

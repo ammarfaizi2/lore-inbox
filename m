@@ -1,79 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTI3LrH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 07:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbTI3LrH
+	id S261344AbTI3LjT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 07:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTI3LjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 07:47:07 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:65191 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261352AbTI3LrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 07:47:04 -0400
-Date: Tue, 30 Sep 2003 13:44:30 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de>
-To: axboe@suse.de, schilling@fokus.fraunhofer.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel includefile bug not fixed after a year :-(
+	Tue, 30 Sep 2003 07:39:19 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:1030 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261344AbTI3LjR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 07:39:17 -0400
+Date: Tue, 30 Sep 2003 13:39:12 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "David S. Miller" <davem@redhat.com>, bunk@fs.tum.de,
+       acme@conectiva.com.br, netdev@oss.sgi.com, pekkas@netcore.fi,
+       lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] disallow modular IPv6
+Message-ID: <20030930113912.GA1731@mars.ravnborg.org>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	"David S. Miller" <davem@redhat.com>, bunk@fs.tum.de,
+	acme@conectiva.com.br, netdev@oss.sgi.com, pekkas@netcore.fi,
+	lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20030930000302.3e1bf8bb.davem@redhat.com> <1064907572.21551.31.camel@hades.cambridge.redhat.com> <20030930010855.095c2c35.davem@redhat.com> <1064910398.21551.41.camel@hades.cambridge.redhat.com> <20030930013025.697c786e.davem@redhat.com> <1064911360.21551.49.camel@hades.cambridge.redhat.com> <20030930015125.5de36d97.davem@redhat.com> <1064913241.21551.69.camel@hades.cambridge.redhat.com> <20030930022410.08c5649c.davem@redhat.com> <1064916168.21551.105.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1064916168.21551.105.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From axboe@suse.de  Tue Sep 30 13:05:18 2003
+On Tue, Sep 30, 2003 at 11:02:49AM +0100, David Woodhouse wrote:
+> On Tue, 2003-09-30 at 02:24 -0700, David S. Miller wrote:
+> > I think they are the same.  It's module building depending upon the
+> > kernel image being up to date.
+> > 
+> > modules: vmlinux image
+> > 	... blah blah blah
+> > 
+> > or however you want to express it in the makefiles.
+> 
+> In the case of modversions, we are talking about the fact that it may be
+> physically _impossible_ to build a module referencing an in-kernel
+> symbol, if the checksum required for that symbol -- the 'version string'
+> -- is not yet calculated. If the version strings are generated as a
+> side-effect of compiling the files which actually export the symbols in
+> question, then it's necessary to do that before building any module
+> which attempts to use those symbols.
+The version strings are made from info obtained from vmlinux and the *.o
+files.
+So vmlinux is a prerequisite to calculate the version string.
+And to get vmlinux you need to build the kernel.
+And the build system will check all dependencies when it needs vmlinux.
 
->On Tue, Sep 30 2003, Joerg Schilling wrote:
->> A year after I did report this inconsistency, it is still not fixed
->> 
->> If include/scsi/scsi.h is included without __KERNEL__ #defined, then this
->> error message apears.
->> 
->> /usr/src/linux/include/scsi/scsi.h:172: parse error before "u8"
->> /usr/src/linux/include/scsi/scsi.h:172: warning: no semicolon at end of struct 
->> or union
->> /usr/src/linux/include/scsi/scsi.h:173: warning: data definition has no type or 
->> storage class
->> 
->> Is there no interest in user applications for kernel features or is there just
->> no kernel maintainer left over who makes the needed work?
+> Note that it's not actually necessary to provide a vmlinux file, nor to
+> do any linking. It's only necessary to perform those steps which produce
+> the version strings for those symbols actually referenced by the modules
+> which are being built.
 
->/usr/include/scsi/scsi.h looks fine on my system, probably also on
->yours. You should not include kernel headers in your user space program.
+Which require vmlinux and other module.o files.
 
-Looks like you did not understand the background :-(
+> That is the requirement for correctness from the makefiles; nothing
+> more. Of course it's usually considered acceptable for the makefiles to
+> recompile _more_ than is necessary
 
-In order to use kernel interfaces you _need_ to include kernel include files.
+I would like to know if there exists any cases where _more_ (or less)
+is being build.
+Mostly I consider it a bug in such case, but there are a few corner cases.
 
-This is in particular true as long as we are talking about beta/testing kernels.
+[Only commenting on the kbuild side of things - I'm not trying to be 
+involved in the other part of the discussion ;-)]
 
-
-Background: on homogeneous platforms like e.g. Solaris or FreeBSD which are
-	maintained and distributed as whole, an _enduser_ should include
-	files from /usr/include only. 
-
-	This is not even true for people who do Solaris or FreeBSD kernel 
-	development and like to test new features with user level programs.
-	It is definitely not true for compilations against Linux kernel
-	interfaces.
-
-Linux is not a homogeneous system. There is a separately developed kernel and 
-a separate base user level system. People often install a newer kernel and need 
-to recompile software because the kernel/user interfaces are not stable between
-different Linux releases.
-
-These people need to compile against the recent Linux kernel include files if
-they use Linux kernel <-> user level interfaces.
-
--	... why do you believe that #ifdef __KERNEL__ kernel do exist inside 
-	Linux kernel include files if they are not intended for user level 
-	programs?
-
--	How should user level program that depend on kernel interfaces be 
-	compiled if not by using kernel include files?
-
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+	Sam

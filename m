@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbUCRSH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 13:07:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbUCRSH5
+	id S262841AbUCRSLR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 13:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbUCRSLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 13:07:57 -0500
-Received: from mivlgu.ru ([81.18.140.87]:33428 "EHLO master.mivlgu.local")
-	by vger.kernel.org with ESMTP id S262827AbUCRSHs (ORCPT
+	Thu, 18 Mar 2004 13:11:17 -0500
+Received: from smtp02.uc3m.es ([163.117.136.122]:31190 "EHLO smtp02.uc3m.es")
+	by vger.kernel.org with ESMTP id S262838AbUCRSLE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 13:07:48 -0500
-Date: Thu, 18 Mar 2004 21:07:44 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: mlord@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: vmalloc fix buggy again?
-Message-ID: <20040318180744.GE16242@master.mivlgu.local>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hwvH6HDNit2nSK4j"
-Content-Disposition: inline
+	Thu, 18 Mar 2004 13:11:04 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200403181811.i2IIB1f18197@oboe.it.uc3m.es>
+Subject: Re: floppy driver 2.6.3 question
+In-Reply-To: <20040318161647.GT22234@suse.de> from Jens Axboe at "Mar 18, 2004
+ 05:16:48 pm"
+To: Jens Axboe <axboe@suse.de>
+Date: Thu, 18 Mar 2004 19:11:01 +0100 (MET)
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Also sprach Jens Axboe:"
+> > I mean that I thought that if ->flags & REQ_SPECIAL were set, then
+> > we were obliged to flush the driver request queue before treating 
+> > this request, and I also thought that the driver was liable to receive
+> > such things from somewhere else.
+> 
+> I dunno where you get those crazy ideas, REQ_SPECIAL has absolutely
+> nothing to do with that.
 
---hwvH6HDNit2nSK4j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sorry about that. Perhaps I saw it in 2.5.
 
-Hello!
 
-> # ChangeSet
-> #   2004/03/14 13:16:58-03:00 mlord...
-> #   [PATCH] Yet another vmalloc() fixup
-> # 
-> diff -Nru a/mm/vmalloc.c b/mm/vmalloc.c
-> --- a/mm/vmalloc.c	Thu Mar 18 09:44:53 2004
-> +++ b/mm/vmalloc.c	Thu Mar 18 09:44:53 2004
-> @@ -184,7 +184,7 @@
->  	spin_unlock(&init_mm.page_table_lock);
->  	flush_cache_all();
->  	if (address > start)
-> -		vmfree_area_pages((address - start), address - start);
-> +		vmfree_area_pages(address, address - start);
->  	return -ENOMEM;
->  }
->  
+> You may use REQ_SPECIAL bit as you see fit, and ->special as well. You
+> don't have to use them together, must do though. However, as I said
+> earlier, if you push these requests on to someone else request queue,
+> you must not fiddle with REQ_SPECIAL and/or ->special. In that case you
+> cannot touch/use more than what the block layer already does.
 
-Looks like this should be
+Well hooray. All seems to be working fine now that I shifted the burden
+to ->special and stopped playing with ->flags (touch wood). Even
+revalidation is working AOK as far as I can tell. I'll reenable that
+read of the first block a-la-floppy to see if it causes some extra magic.
 
-		vmfree_area_pages(start, address - start);
+Many thanks!
 
--- 
-Sergey Vlasov
 
---hwvH6HDNit2nSK4j
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> > Are you going to say, set REQ_SPECIAL on everything and add all the
+> > real request info and a bit more to ->special? I suspect you are!
+> 
+> That's where to put it, indeed. But if you pass it on...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAWeVwW82GfkQfsqIRAjoBAJ4xLTvj6EmGTca33YYC6JlskYmwJwCfQ8PW
-oDEtqWHlt1Vxe5HiUqjUeoA=
-=hwGb
------END PGP SIGNATURE-----
-
---hwvH6HDNit2nSK4j--
+Peter

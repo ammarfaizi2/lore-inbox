@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271660AbRHUNjQ>; Tue, 21 Aug 2001 09:39:16 -0400
+	id <S271666AbRHUNnG>; Tue, 21 Aug 2001 09:43:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271664AbRHUNjG>; Tue, 21 Aug 2001 09:39:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41373 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271660AbRHUNiu>;
-	Tue, 21 Aug 2001 09:38:50 -0400
-Date: Tue, 21 Aug 2001 06:39:00 -0700 (PDT)
-Message-Id: <20010821.063900.112292626.davem@redhat.com>
-To: jes@sunsite.dk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Qlogic/FC firmware
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <d3elq5a6au.fsf@lxplus015.cern.ch>
-In-Reply-To: <20010821.055856.08326920.davem@redhat.com>
-	<d3elq5a6au.fsf@lxplus015.cern.ch>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S271667AbRHUNm5>; Tue, 21 Aug 2001 09:42:57 -0400
+Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:30993 "EHLO
+	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id <S271666AbRHUNmn>; Tue, 21 Aug 2001 09:42:43 -0400
+From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
+Message-Id: <200108211342.f7LDgo829400@wildsau.idv-edu.uni-linz.ac.at>
+Subject: min/max breaks numerous software
+To: linux-kernel@vger.kernel.org
+Date: Tue, 21 Aug 2001 15:42:49 +0200 (MET DST)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jes Sorensen <jes@sunsite.dk>
-   Date: 21 Aug 2001 15:31:05 +0200
-   
-   Alan did after I pointed out to him that it was incompatible with the
-   GPL (BSD license with advertisement clause). Really hard to fix unless
-   you get QLogic to change the license for you.
 
-And what about the Qlogic,ISP firmware in the tree too?  Those have no
-copyright notice, but I think this is due to omission.  The same
-identical firmware code in Matt Jacob's isp_dist.tar.gz driver has the
-BSD license at the top of every firmware file.
+hi,
 
-You might as well remove all of these drivers in whole, as they are
-basically non-functional without the accompanying firmware.
+2.4.9 three-eyed min/max declarations breaks e.g. latest
+pcmcia-cs-3.1.28 from pcmcia.sourceforge.org.
 
-Later,
-David S. Miller
-davem@redhat.com
+after #undef min/max in one file, compilation would fail in the
+next file. so, instead of changing min/max occurences in pcmcia-cs,
+I #if-0ed it in <linux/kernel.h>
+
+please lets get rid of that ugly declarations. if we indeed need typed
+min/max, let's choose a different name for it then.
+
+/herp
+

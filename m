@@ -1,71 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbTK0Iar (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 03:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbTK0Iar
+	id S264451AbTK0IbN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 03:31:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbTK0Iax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 03:30:47 -0500
-Received: from gw-gaap.adm.nw.ru ([195.19.221.35]:58638 "EHLO cit.aanet.ru")
-	by vger.kernel.org with ESMTP id S264450AbTK0Iao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 03:30:53 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:18174 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S264451AbTK0Iao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 27 Nov 2003 03:30:44 -0500
-SMTP-relay-addr: 195.19.216.60 
-SMTP-relay-host: stud2.aanet.ru 
-Date: Thu, 27 Nov 2003 11:31:38 +0300
-From: Nikita Melnikov <ku3@stud2.aanet.ru>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Jes Sorensen <jes@wildopensource.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: m68k & 2.6.0
-Message-ID: <20031127083138.GA14780@stud2.aanet.ru>
-References: <yq0n0aj74mj.fsf@wildopensource.com> <Pine.GSO.4.21.0311262221510.18863-100000@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0311262221510.18863-100000@waterleaf.sonytel.be>
-User-Agent: Mutt/1.4.1i
+From: David Lang <david.lang@digitalinsight.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Robert White <rwhite@casabyte.com>,
+       "'Jesse Pollard'" <jesse@cats-chateau.net>,
+       "'Florian Weimer'" <fw@deneb.enyo.de>, Valdis.Kletnieks@vt.edu,
+       "'Daniel Gryniewicz'" <dang@fprintf.net>,
+       "'linux-kernel mailing list'" <linux-kernel@vger.kernel.org>
+Date: Thu, 27 Nov 2003 01:15:19 -0800 (PST)
+Subject: Re: OT: why no file copy() libc/syscall ??
+In-Reply-To: <3FC5A7F0.8080507@cyberone.com.au>
+Message-ID: <Pine.LNX.4.58.0311270106430.6400@dlang.diginsite.com>
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAilRHd97CfESTROe2OYd1HQEAAAAA@casabyte.com>
+ <3FC5A7F0.8080507@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 26, 2003 at 10:24:44PM +0100, Geert Uytterhoeven wrote:
+On Thu, 27 Nov 2003, Nick Piggin wrote:
 
-> > Nikita> Hello.  What is the state of 2.6 kernels on m68k architecture?
-> > Nikita> Is it possible to run new kernels on 68040 and other old
-> > Nikita> processors?
-> > 
-> > Hi Nikita,
-> > 
-> > Try asking on linux-m68k@lists.linux-m68k.org
-> 
-> It mainly depends on your hardware. E.g. 2.6.0-test9 works on my Amiga 4000
-> with 68040.
-> 
-> Check out Linux/m68k CVS: http://linux-m68k-cvs.apia.dhs.org/
-> 
-> Patch integration status:
->     http://linux-m68k-cvs.apia.dhs.org/~geert/linux-m68k-2.4.x-merging/
->     http://linux-m68k-cvs.apia.dhs.org/~geert/linux-m68k-2.5.x-merging/
-> 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Robert White wrote:
+>
+> >(Among the other N objections, add things like the lack of any sort of
+> >control or option parameters)
+> >...
+> >N += 1: Sparse Copying (e.g. seeking past blocks of zeros)
+> >N += 1: Unlink or overwrite or what?
+> >N += 1: In-Kernel locking and resolution for pages that are mandatory
+> >lock(ed)
+> >N += 1: No fine-grained control for concurrency issues (multiple writers)
+> >
+> >Start with doing a cp --help and move on from there for an unbounded list of
+> >issues that sys_copy(int fd1, int fd2) does not even come close to
+> >addressing.
+> >
+> >
+>
+> To be fair, sys_copy is never intended to replace cp or try to be
+> very smart. I don't think it is semantically supposed to do much more
+> than replace a read, write loop (of course, the syscall also has an
+> offset and count).
+>
+> sparse copying would be implementation dependant. If cp wanted to do
+> something special it would not use one big copy call. I think unlink
+> / overwrite is irrelevant if its semantically a read write loop.
+>
 
-Thank you for answering, Geert & Jes. I think i can get Apple Macintosh Quadra
-640 soon =)
+actually if this syscall is allowed to do a COW at the filesystem level
+(which I think is one of the better reasons for implementing this) then
+sparse files would produce sparse copies.
+
+if the destination exists it would need to be unlinked (overwrite doesn't
+make sense in the COW context)
+
+I don't understand the in-kernel page locking issues refered to above
+
+the concurrancy issues are a good question, but I would suggest that the
+syscall fully setup the copy and then create the link to it. this would
+make the final creation an atomic operation (or as close to it as a
+particular filesystem allows) and if you have multiple writers doing a
+copy to the same destination then the last one wins, the earlier copies
+get unlinked and deleted
+
+I definantly don't see it being worth it to make a syscall to just
+implement the read/write loop, but a copy syscall designed from the outset
+to do a COW copy that falls back to a read/write loop for filesystems that
+don't do COW has some real benifits
+
+David Lang
+
+
 
 -- 
-Nikita Melnikov
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

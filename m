@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318783AbSIPDiv>; Sun, 15 Sep 2002 23:38:51 -0400
+	id <S318785AbSIPDj0>; Sun, 15 Sep 2002 23:39:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318785AbSIPDiv>; Sun, 15 Sep 2002 23:38:51 -0400
-Received: from fwb.seaplace.org ([209.184.155.45]:34176 "EHLO
-	lynn.dmz.seaplace.org") by vger.kernel.org with ESMTP
-	id <S318783AbSIPDiu>; Sun, 15 Sep 2002 23:38:50 -0400
-Message-ID: <3D85536C.1070108@seaplace.org>
-Date: Sun, 15 Sep 2002 22:43:40 -0500
-From: "Kevin N. Carpenter" <kevinc@seaplace.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ahmed Masud <masud@googgun.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Think 2.4.10 broke my PCI subsystem - resolved.
-References: <200209150529.g8F5Tgh14760@lynn.seaplace.org> <3D8451DD.4050106@googgun.com> <3D847E95.9040602@seaplace.org> <3D850523.70608@googgun.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S318786AbSIPDj0>; Sun, 15 Sep 2002 23:39:26 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19423 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318785AbSIPDjX>;
+	Sun, 15 Sep 2002 23:39:23 -0400
+Date: Sun, 15 Sep 2002 20:35:28 -0700 (PDT)
+Message-Id: <20020915.203528.08097520.davem@redhat.com>
+To: bart.de.schuymer@pandora.be
+Cc: buytenh@math.leidenuniv.nl, linux-kernel@vger.kernel.org
+Subject: Re: bridge-netfilter patch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200209140905.40816.bart.de.schuymer@pandora.be>
+References: <20020913144518.A31318@math.leidenuniv.nl>
+	<20020913.112235.27948638.davem@redhat.com>
+	<200209140905.40816.bart.de.schuymer@pandora.be>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.20-pre7 fixes whatever the problem was.  Kernels between 2.4.10 and 
-2.4.19 were broke for these mobo.
+   From: Bart De Schuymer <bart.de.schuymer@pandora.be>
+   Date: Sat, 14 Sep 2002 09:05:40 +0200
 
-Did notice a new message:  Using IRQ router SIS [1039/0008]
+   On Friday 13 September 2002 20:22, David S. Miller wrote:
+   > First explain to me why the copy is needed for.
+   
+   memcpy(skb2->data - 16, skb->data - 16, 16);
+   
+   This is for purely bridged packets.
 
-Thanks to whomever fixed it!
+Why is it being added, therefore, to ip_queue_xmit() which is only
+ever invoked by TCP output processing?
 
-Kevin C.
-
-Ahmed Masud wrote:
-
-> Kevin N. Carpenter wrote:
->
->> Thats the whole point.  Nothing past 2.4.9 will run on these mobos.
->>
->> Do appreciate the consideration.
->>
->> Kevin C.
->>
->> Ahmed Masud wrote:
->>
->>> Kevin Carpenter wrote:
->>>
->>>> I've recently been okaying around with low cost motherboards and 
->>>> have been
->>>> problems on two of them:  the BIOSTAT micro-ATX mobo M7VKQ, and the 
->>>> ESC L7SOM
->>>> mobos.
->>>>
-> Wait ... you say that already :) sorry....
->
->
+If the patch adds the call somewhere else, please correct me, but
+I specifically remember it being added to ip_queue_xmit() which is
+why I barfed when seeing it :-)
 
 

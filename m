@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVBBUNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVBBUOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262336AbVBBUNu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 15:13:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbVBBUMk
+	id S262493AbVBBUOw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 15:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVBBUM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 15:12:40 -0500
-Received: from pat.uio.no ([129.240.130.16]:27274 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262791AbVBBUIU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 15:08:20 -0500
-Date: Wed, 2 Feb 2005 21:08:10 +0100
-From: Haakon Riiser <haakon.riiser@fys.uio.no>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Accelerated frame buffer functions
-Message-ID: <20050202200810.GA2100@s>
-Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
-References: <20050202133108.GA2410@s> <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com> <20050202142155.GA2764@s> <1107357093.6191.53.camel@gonzales> <20050202154139.GA3267@s> <9e4733910502020825434a477@mail.gmail.com> <20050202174509.GA773@s> <Pine.GSO.4.61.0502022037440.2069@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.61.0502022037440.2069@waterleaf.sonytel.be>
-User-Agent: Mutt/1.5.6i
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.05, required 12,
-	autolearn=disabled, AWL -0.00, FORGED_RCVD_HELO 0.05)
+	Wed, 2 Feb 2005 15:12:26 -0500
+Received: from scl-ims.phoenix.com ([216.148.212.222]:64541 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S262663AbVBBUBY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 15:01:24 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Linux hangs during IDE initialization at boot for 30 sec
+Date: Wed, 2 Feb 2005 12:01:05 -0800
+Message-ID: <5F106036E3D97448B673ED7AA8B2B6B301ACE83D@scl-exch2k.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Linux hangs during IDE initialization at boot for 30 sec
+Thread-Index: AcUJYTPQUqVpLZWHRmGRHLE1sFomzAAAJ4ew
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Michael Brade" <brade@informatik.uni-muenchen.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 02 Feb 2005 20:01:18.0663 (UTC) FILETIME=[F595A570:01C50961]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Geert Uytterhoeven]
+ 
+>-----Original Message-----
+>From: Michael Brade [mailto:brade@informatik.uni-muenchen.de] 
+>Sent: Wednesday, February 02, 2005 11:55 AM
+>To: Aleksey Gorelov
+>Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
+>
+>Hi,
+>
+>> Since you don't care about anything except ide0 & ide1, try to add
+>> the following to the kernel's command line:
+>> ide2=noprobe ide3=noprobe ide4=noprobe ide5=noprobe
+>Awesome! Thanks, booting is finally acceptably fast again :-) 
+>Just strange 
+>that it worked for the last 3 years (in fact, 7 years) with 
+>just about every 
+>kernel version that's out there... but I'm happy with the workaround.
+>
+Was it exact same hardware ?
 
-> mmap() the MMIO registers to userspace, and program the
-> acceleration engine from userspace, like DirectFB (and XF*_FBDev
-> 3.x for Matrox and Mach64) does.
-
-Right, this was how I originally intended to do it.  The reason
-why I started to obsess about the accelerated fb_ops functions was
-that I hoped that, by creating a driver that registered accelerated
-versions of these functions, other frame buffer-using applications
-would instantly take advantage of it, requiring no changes in those
-applications.  I thought the frame buffer device was supposed to
-serve as an an abstraction layer between the graphics card and
-the application, allowing for 2D acceleration without having to
-know anything about the underlying hardware.  But if no one uses the
-frame buffer device in this way, I might as well do as you suggest
-and mmap() the registers to userspace.
-
-Anyway, thanks to everyone who participated in this thread.  Even if
-I didn't get the answers I was hoping for, at least now I can put the
-matter to rest.
-
--- 
- Haakon
+>Cheers,
+>-- 
+>Michael Brade;                 KDE Developer, Student of 
+>Computer Science
+>  |-mail: echo brade !#|tr -d "c oh"|s\e\d 
+>'s/e/\@/2;s/$/.org/;s/bra/k/2'
+>  °--web: http://www.kde.org/people/michaelb.html
+>
+>KDE 3: The Next Generation in Desktop Experience
+>

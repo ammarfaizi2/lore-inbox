@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbTIOTY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 15:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbTIOTY7
+	id S261421AbTIOTUb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 15:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTIOTUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 15:24:59 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33551 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261380AbTIOTY5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 15:24:57 -0400
-Date: Mon, 15 Sep 2003 15:15:49 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: richard.brunner@amd.com
-cc: alan@lxorguk.ukuu.org.uk, zwane@linuxpower.ca,
-       linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-In-Reply-To: <99F2150714F93F448942F9A9F112634C0638B1DE@txexmtae.amd.com>
-Message-ID: <Pine.LNX.3.96.1030915145137.20945F-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Sep 2003 15:20:31 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:22660 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261421AbTIOTUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 15:20:30 -0400
+Date: Mon, 15 Sep 2003 20:34:18 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309151934.h8FJYI84002544@81-2-122-30.bradfords.org.uk>
+To: davidsen@tmr.com, john@grabjohn.com
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       zwane@linuxpower.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Sep 2003 richard.brunner@amd.com wrote:
+> > > I still like the idea of a single config variable to remove all special
+> > > case code for non-configured CPUs, call it NO_BLOAT or MINIMALIST_KERNEL
+> > > or EMBEDDED_HELPER as you will. The embedded folks would then have a good
+> > > handle to do the work and identify sections to be so identified.
+> > 
+> > Removing the code for non-configured CPUs should be the default.  It's
+> > common sense - if you configure a kernel to support Athlons only, why
+> > have PIV workarounds in there, unless you're actually debugging a
+> > kernel problem?
+>
+> If we adopt a bit-per-CPUtype or similar approach maybe. But then you have
+> to go back and test each code section to see if it applies to multiple
+> types. I'm happy to have existing code stay, as long as there's a way to
+> clean it up (or attempt to do so). I don't think making super clean is
+> compatible with stability, and I'd rather see sections marked as
+> architecture specific as the performance and embedded folks look for
+> places to clean up the kernel.
 
-> I think Alan brought up a very good point. Even if you
-> use a generic kernel that avoids prefetch use on Athlon
-> (which I am opposed to), it doesn't solve the problem
-> of user space programs detecting that the ISA supports
-> prefetch and using prefetch instructions and hitting the
-> errata on Athlon.
-> 
-> The user space problem worries me more, because the expectation
-> is that if CPUID says the program can use perfetch, it could
-> and should regardless of what the kernel decided to do here.
-> 
-> Andi's patch solves both the kernel space and the user space
-> issues in a pretty small footprint.
+Yes, you're right, from a stability point of view I was being a bit
+impractical.  Any idea how many developers are actually regularly
+testing code on 386s these days, by the way?
 
-Clearly AMD would like to avoid having PIV and Athlon optimized kernels,
-and to default to adding unnecessary size to the PIV kernel to support
-errata in the Athlon. But fighting against having a config which produces
-a smaller and faster kernel for all non-Athlon users and all embedded or
-otherwise size limited users seems to be just a marketing thing so P4 code
-will seem to work correctly on Athlon.
+> I'm not on a crusade to get the tiny kernel, just to (a) provide a path
+> for future work started by the config "feature removal" menu, and (b)
+> avoid inserting a chunk of very specific code without ifdefs, now that
+> developers have started thinking about putting the kernel on a diet. I
+> don't suggest we do anything which will break existing code, just not
+> introduce new bloat right now.
 
-Vendors will build a kernel which runs as well as possible on as many CPUs
-as possible, but users who build their own kernel want to build a kernel
-for a particular config in most cases and should have the option. There
-should be a "support Athlon prefetch" option as well, which turns on
-the fix only when it's needed, just as there is for P4 thermal throttling,
-F.P. emulation, etc. Why shouldn't this be treated the same way as other
-features already in the config menu?
+Yeah, breaking existing code can wait until 2.7 :-).  Putting the
+hooks in for future code removal is all we need to do - until somebody
+actually feels the need to trim something, it might as well stay.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+John.

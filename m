@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129643AbRCAPWi>; Thu, 1 Mar 2001 10:22:38 -0500
+	id <S129652AbRCAPcA>; Thu, 1 Mar 2001 10:32:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129639AbRCAPW2>; Thu, 1 Mar 2001 10:22:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40454 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129638AbRCAPWI>;
-	Thu, 1 Mar 2001 10:22:08 -0500
-Date: Thu, 1 Mar 2001 16:22:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mario Hermann <ario@eikon.tum.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: report bug: System reboots when accessing a loop-device over a second loop-device with 2.4.2-ac7
-Message-ID: <20010301162200.R21518@suse.de>
-In-Reply-To: <3A9E66BB.70FB0C75@eikon.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A9E66BB.70FB0C75@eikon.tum.de>; from ario@eikon.tum.de on Thu, Mar 01, 2001 at 04:11:55PM +0100
+	id <S129657AbRCAPbk>; Thu, 1 Mar 2001 10:31:40 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:50048 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129652AbRCAPba>; Thu, 1 Mar 2001 10:31:30 -0500
+Date: Thu, 1 Mar 2001 10:31:07 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: God <atm@pinky.penguinpowered.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Stable Version?
+In-Reply-To: <Pine.LNX.4.21.0103011008550.918-100000@scotch.homeip.net>
+Message-ID: <Pine.LNX.3.95.1010301102543.12423A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01 2001, Mario Hermann wrote:
-> Hello!
-> 
-> I tried the following commands with 2.4.2-ac7:
-> 
-> losetup /dev/loop0 test.dat
-> losetup /dev/loop1 /dev/loop0
-> mke2fs /dev/loop1
-> 
-> My System reboots immediatly. I tried it with 2.4.2-ac4,ac5 too -> same
-> effect.
+On Thu, 1 Mar 2001, God wrote:
 
-Oops, will take a look.
+> 
+> Hello,
+> 
+> I'll make this quick as I know how much traffic this list gets.
+> 
+> What version of the 2.4.x kernels is actually stable enough to use?
 
--- 
-Jens Axboe
+I have been running 2.4.1 on 12 SMP machines with minimal problems.
+All these machines are SCSI (no IDE is even enabled in the BIOS).
+SCSI is aic7xxx and BusLogic. Network cards, 3c59x, eepro100, pcnet32.
+All the machines are daily hard-at-word. One is our main name-server.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

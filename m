@@ -1,778 +1,264 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264383AbTLGJ3h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 04:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbTLGJ3h
+	id S264388AbTLGJnU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 04:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbTLGJnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 04:29:37 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:51902 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264383AbTLGJ3R (ORCPT
+	Sun, 7 Dec 2003 04:43:20 -0500
+Received: from postal.usc.edu ([128.125.253.6]:3270 "EHLO postal.usc.edu")
+	by vger.kernel.org with ESMTP id S264388AbTLGJnN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 04:29:17 -0500
-Date: Sun, 7 Dec 2003 10:28:44 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Pavel Machek <pavel@ucw.cz>, Brian Perkins <bperkins@netspace.org>,
-       Karol Kozimor <sziwan@hell.org.pl>
-Subject: Re: [PATCH 2.6 1/3] Take 2: resume support for i8042 (atkbd & psmouse)
-Message-ID: <20031207092844.GA27105@ucw.cz>
-References: <200312070227.21460.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312070227.21460.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.4i
+	Sun, 7 Dec 2003 04:43:13 -0500
+Date: Sun, 07 Dec 2003 01:43:08 -0800
+From: Lee <weifeil@usc.edu>
+Subject: PROBLEM: Can't use mkintrd to make a image file
+To: linux-kernel@vger.kernel.org
+Message-id: <003101c3bca6$89d7f350$0300a8c0@tiger>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+Content-type: text/plain; charset=gb2312
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 07, 2003 at 02:27:49AM -0500, Dmitry Torokhov wrote:
+1. Under kernel 2.6.0-test10, I can't use mkintrd to make a image file.
+2. Unlike under 2.4.x kernel, when I use mkintrd to make a file, it always
+tells me that:"All of your loopback devices are in use" . So I have to
+switch to 2.4.x kernel to make .img file.
+3. Keyword: mkinitrd, loopback devices
+4.Kernel Version:Linux version 2.6.0-test10 (root@king) (gcc version 3.2
+20020903 (Red Hat Linux 8.0 3.2-7)) #1 Wed Nov 26 21:40:32 PST 2003
+5. Oops output: No
+6. Script: "mkintrd 2.6.0  2.6.0-test10"
 
-Hi!
+7.Environment:
 
-These look very good. I'll go over them later today and apply them to my
-tree. Thanks!
 
-> Hi,
-> 
-> Here is the 2nd attempt to implement resume for i8042 using serio_reconnect
-> facility that can be found in -mm kernels. Big thanks to everyone who tested
-> the first version. The changes from the last patch:
-> 
-> i8042:   - now correctly enables keyboard port on resume
-> 	 - switches active multiplexing controller from Legacy mode back
-> 	   to Multiplexing mode (4 AUX ports) on resume
-> 	 - installs resume handlers for both old (pm_dev - APM) and new
->            (driver model) suspend/resume schemes.
->          - convert parameter handling to the new style
-> 
-> psmouse: - psmouse_pm_callback removed as i8042 will request reconnect
->            regardless of whether APM or new PM method is used.
-> 
-> The patched depend on bunch of other changes in input subsystem all of which
-> can be found here:
-> 
-> http://www.geocities.com/dt_or/input
-> 
-> Should apply cleanly to -test11. If patching -mm tree omit patches 1-6 and 8
-> as they are already present there.
-> 
-> Dmitry 
-> 
-> 
-> ===================================================================
-> 
-> 
-> ChangeSet@1.1514, 2003-12-07 01:48:52-05:00, dtor_core@ameritech.net
->   Input: - Implement resume methods using serio_reconnect facility
->          - Register i8042 with sysfs
->          - Register i8042 with older PM scheme to restore keyboard
->            and mouse for APM users
->          - Convert parameter handling to the new style
-> 
-> 
->  i8042.c |  520 +++++++++++++++++++++++++++++++++++++++-------------------------
->  1 files changed, 320 insertions(+), 200 deletions(-)
-> 
-> 
-> ===================================================================
-> 
-> 
-> 
-> diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> --- a/drivers/input/serio/i8042.c	Sun Dec  7 02:17:56 2003
-> +++ b/drivers/input/serio/i8042.c	Sun Dec  7 02:17:56 2003
-> @@ -12,11 +12,14 @@
->  
->  #include <linux/delay.h>
->  #include <linux/module.h>
-> +#include <linux/moduleparam.h>
->  #include <linux/interrupt.h>
->  #include <linux/ioport.h>
->  #include <linux/config.h>
->  #include <linux/reboot.h>
->  #include <linux/init.h>
-> +#include <linux/sysdev.h>
-> +#include <linux/pm.h>
->  #include <linux/serio.h>
->  
->  #include <asm/io.h>
-> @@ -25,19 +28,23 @@
->  MODULE_DESCRIPTION("i8042 keyboard and mouse controller driver");
->  MODULE_LICENSE("GPL");
->  
-> -MODULE_PARM(i8042_noaux, "1i");
-> -MODULE_PARM(i8042_nomux, "1i");
-> -MODULE_PARM(i8042_unlock, "1i");
-> -MODULE_PARM(i8042_reset, "1i");
-> -MODULE_PARM(i8042_direct, "1i");
-> -MODULE_PARM(i8042_dumbkbd, "1i");
-> -
-> -static int i8042_reset;
-> -static int i8042_noaux;
-> -static int i8042_nomux;
-> -static int i8042_unlock;
-> -static int i8042_direct;
-> -static int i8042_dumbkbd;
-> +static unsigned int i8042_noaux;
-> +module_param(i8042_noaux, bool, 0);
-> +
-> +static unsigned int i8042_nomux;
-> +module_param(i8042_nomux, bool, 0);
-> +
-> +static unsigned int i8042_unlock;
-> +module_param(i8042_unlock, bool, 0);
-> +
-> +static unsigned int i8042_reset;
-> +module_param(i8042_reset, bool, 0);
-> +
-> +static unsigned int i8042_direct;
-> +module_param(i8042_direct, bool, 0);
-> +
-> +static unsigned int i8042_dumbkbd;
-> +module_param(i8042_dumbkbd, bool, 0);
->  
->  #undef DEBUG
->  #include "i8042.h"
-> @@ -59,6 +66,9 @@
->  static unsigned char i8042_initial_ctr;
->  static unsigned char i8042_ctr;
->  static unsigned char i8042_mux_open;
-> +static unsigned char i8042_mux_present;
-> +static unsigned char i8042_sysdev_initialized;
-> +static struct pm_dev *i8042_pm_dev;
->  struct timer_list i8042_timer;
->  
->  /*
-> @@ -214,16 +224,41 @@
->  }
->  
->  /*
-> - * i8042_open() is called when a port is open by the higher layer.
-> - * It allocates the interrupt and enables it in the chip.
-> + * i8042_activate_port() enables port on a chip.
->   */
->  
-> -static int i8042_open(struct serio *port)
-> +static int i8042_activate_port(struct serio *port)
->  {
->  	struct i8042_values *values = port->driver;
->  
->  	i8042_flush();
->  
-> +	/* 
-> +	 * Enable port again here because it is disabled if we are
-> +	 * resuming (normally it is enabled already).
-> +	 */
-> +	i8042_ctr &= ~values->disable;
-> +
-> +	i8042_ctr |= values->irqen;
-> +
-> +	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-> +		i8042_ctr &= ~values->irqen;
-> +		return -1;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +
-> +/*
-> + * i8042_open() is called when a port is open by the higher layer.
-> + * It allocates the interrupt and calls i8042_enable_port.
-> + */
-> +
-> +static int i8042_open(struct serio *port)
-> +{
-> +	struct i8042_values *values = port->driver;
-> +
->  	if (values->mux != -1)
->  		if (i8042_mux_open++)
->  			return 0;
-> @@ -234,10 +269,8 @@
->  		goto irq_fail;
->  	}
->  
-> -	i8042_ctr |= values->irqen;
-> -
-> -	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-> -		printk(KERN_ERR "i8042.c: Can't write CTR while opening %s, unregistering the port\n", values->name);
-> +	if (i8042_activate_port(port)) {
-> +		printk(KERN_ERR "i8042.c: Can't activate %s, unregistering the port\n", values->name);
->  		goto ctr_fail;
->  	}
->  
-> @@ -246,7 +279,6 @@
->  	return 0;
->  
->  ctr_fail:
-> -	i8042_ctr &= ~values->irqen;
->  	free_irq(values->irq, i8042_request_irq_cookie);
->  
->  irq_fail:
-> @@ -400,146 +432,80 @@
->  	return IRQ_RETVAL(j);
->  }
->  
-> +
->  /*
-> - * i8042_controller init initializes the i8042 controller, and,
-> - * most importantly, sets it into non-xlated mode if that's
-> - * desired.
-> + * i8042_enable_mux_mode checks whether the controller has an active
-> + * multiplexor and puts the chip into Multiplexed (as opposed to 
-> + * Legacy) mode.
->   */
-> -	
-> -static int __init i8042_controller_init(void)
-> +
-> +static int i8042_enable_mux_mode(struct i8042_values *values, unsigned char *mux_version)
->  {
->  
-> +	unsigned char param;
->  /*
-> - * Test the i8042. We need to know if it thinks it's working correctly
-> - * before doing anything else.
-> + * Get rid of bytes in the queue.
->   */
->  
->  	i8042_flush();
->  
-> -	if (i8042_reset) {
-> -
-> -		unsigned char param;
-> -
-> -		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
-> -			printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
-> -			return -1;
-> -		}
-> -
-> -		if (param != I8042_RET_CTL_TEST) {
-> -			printk(KERN_ERR "i8042.c: i8042 controller selftest failed. (%#x != %#x)\n",
-> -				 param, I8042_RET_CTL_TEST);
-> -			return -1;
-> -		}
-> -	}
-> -
->  /*
-> - * Save the CTR for restoral on unload / reboot.
-> + * Internal loopback test - send three bytes, they should come back from the
-> + * mouse interface, the last should be version. Note that we negate mouseport
-> + * command responses for the i8042_check_aux() routine.
->   */
->  
-> -	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_RCTR)) {
-> -		printk(KERN_ERR "i8042.c: Can't read CTR while initializing i8042.\n");
-> +	param = 0xf0;
-> +	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0x0f)
-> +		return -1;
-> +	param = 0x56;
-> +	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0xa9)
-> +		return -1;
-> +	param = 0xa4;
-> +	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param == 0x5b)
->  		return -1;
-> -	}
-> -
-> -	i8042_initial_ctr = i8042_ctr;
-> -
-> -/*
-> - * Disable the keyboard interface and interrupt. 
-> - */
->  
-> -	i8042_ctr |= I8042_CTR_KBDDIS;
-> -	i8042_ctr &= ~I8042_CTR_KBDINT;
-> +	if (mux_version)
-> +		*mux_version = ~param;
->  
-> -/*
-> - * Handle keylock.
-> - */
-> +	return 0; 
-> +}
->  
-> -	if (~i8042_read_status() & I8042_STR_KEYLOCK) {
-> -		if (i8042_unlock)
-> -			i8042_ctr |= I8042_CTR_IGNKEYLOCK;
-> -		 else
-> -			printk(KERN_WARNING "i8042.c: Warning: Keylock active.\n");
-> -	}
->  
->  /*
-> - * If the chip is configured into nontranslated mode by the BIOS, don't
-> - * bother enabling translating and be happy.
-> + * i8042_enable_mux_ports enables 4 individual AUX ports after
-> + * the controller has been switched into Multiplexed mode
->   */
->  
-> -	if (~i8042_ctr & I8042_CTR_XLATE)
-> -		i8042_direct = 1;
-> -
-> +static int i8042_enable_mux_ports(struct i8042_values *values)
-> +{
-> +	unsigned char param;
-> +	int i;
->  /*
-> - * Set nontranslated mode for the kbd interface if requested by an option.
-> - * After this the kbd interface becomes a simple serial in/out, like the aux
-> - * interface is. We don't do this by default, since it can confuse notebook
-> - * BIOSes.
-> + * Disable all muxed ports by disabling AUX.
->   */
->  
-> -	if (i8042_direct) {
-> -		i8042_ctr &= ~I8042_CTR_XLATE;
-> -		i8042_kbd_port.type = SERIO_8042;
-> -	}
-> -
-> -/*
-> - * Write CTR back.
-> - */
-> +	i8042_ctr |= I8042_CTR_AUXDIS;
-> +	i8042_ctr &= ~I8042_CTR_AUXINT;
->  
->  	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-> -		printk(KERN_ERR "i8042.c: Can't write CTR while initializing i8042.\n");
-> +		printk(KERN_ERR "i8042.c: Failed to disable AUX port, can't use MUX.\n");
->  		return -1;
->  	}
->  
-> -	return 0;
-> -}
-> -
->  /*
-> - * Here we try to reset everything back to a state in which the BIOS will be
-> - * able to talk to the hardware when rebooting.
-> - */
-> -
-> -void i8042_controller_cleanup(void)
-> -{
-> -	int i;
-> -
-> -	i8042_flush();
-> -
-> -/*
-> - * Reset anything that is connected to the ports.
-> - */
-> -
-> -	if (i8042_kbd_values.exists)
-> -		serio_cleanup(&i8042_kbd_port);
-> -
-> -	if (i8042_aux_values.exists)
-> -		serio_cleanup(&i8042_aux_port);
-> -
-> -	for (i = 0; i < 4; i++)
-> -		if (i8042_mux_values[i].exists)
-> -			serio_cleanup(i8042_mux_port + i);
-> -
-> -/*
-> - * Reset the controller.
-> + * Enable all muxed ports.
->   */
->  
-> -	if (i8042_reset) {
-> -		unsigned char param;
-> -
-> -		if (i8042_command(&param, I8042_CMD_CTL_TEST))
-> -			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
-> +	for (i = 0; i < 4; i++) {
-> +		i8042_command(&param, I8042_CMD_MUX_PFX + i);
-> +		i8042_command(&param, I8042_CMD_AUX_ENABLE);
->  	}
->  
-> -/*
-> - * Restore the original control register setting.
-> - */
-> -
-> -	i8042_ctr = i8042_initial_ctr;
-> -
-> -	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-> -		printk(KERN_WARNING "i8042.c: Can't restore CTR.\n");
-> -
-> +	return 0;
->  }
->  
-> +
->  /*
->   * i8042_check_mux() checks whether the controller supports the PS/2 Active
->   * Multiplexing specification by Synaptics, Phoenix, Insyde and
-> @@ -548,66 +514,31 @@
->  
->  static int __init i8042_check_mux(struct i8042_values *values)
->  {
-> -	unsigned char param;
->  	static int i8042_check_mux_cookie;
-> -	int i;
-> +	unsigned char mux_version;
->  
->  /*
->   * Check if AUX irq is available.
->   */
-> -
->  	if (request_irq(values->irq, i8042_interrupt, SA_SHIRQ,
->  				"i8042", &i8042_check_mux_cookie))
->                  return -1;
->  	free_irq(values->irq, &i8042_check_mux_cookie);
->  
-> -/*
-> - * Get rid of bytes in the queue.
-> - */
-> -
-> -	i8042_flush();
-> -
-> -/*
-> - * Internal loopback test - send three bytes, they should come back from the
-> - * mouse interface, the last should be version. Note that we negate mouseport
-> - * command responses for the i8042_check_aux() routine.
-> - */
-> -
-> -	param = 0xf0;
-> -	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0x0f)
-> -		return -1;
-> -	param = 0x56;
-> -	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0xa9)
-> -		return -1;
-> -	param = 0xa4;
-> -	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param == 0x5b)
-> +	if (i8042_enable_mux_mode(values, &mux_version))
->  		return -1;
->  
->  	printk(KERN_INFO "i8042.c: Detected active multiplexing controller, rev %d.%d.\n",
-> -		(~param >> 4) & 0xf, ~param & 0xf);
-> -
-> -/*
-> - * Disable all muxed ports by disabling AUX.
-> - */
-> -
-> -	i8042_ctr |= I8042_CTR_AUXDIS;
-> -	i8042_ctr &= ~I8042_CTR_AUXINT;
-> +		(mux_version >> 4) & 0xf, mux_version & 0xf);
->  
-> -	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-> +	if (i8042_enable_mux_ports(values))
->  		return -1;
->  
-> -/*
-> - * Enable all muxed ports.
-> - */
-> -
-> -	for (i = 0; i < 4; i++) {
-> -		i8042_command(&param, I8042_CMD_MUX_PFX + i);
-> -		i8042_command(&param, I8042_CMD_AUX_ENABLE);
-> -	}
-> -
-> +	i8042_mux_present = 1;
->  	return 0;
->  }
->  
-> +
->  /*
->   * i8042_check_aux() applies as much paranoia as it can at detecting
->   * the presence of an AUX interface.
-> @@ -683,6 +614,7 @@
->  	return 0;
->  }
->  
-> +
->  /*
->   * i8042_port_register() marks the device as existing,
->   * registers it, and reports to the user.
-> @@ -710,52 +642,194 @@
->  	return 0;
->  }
->  
-> +
->  static void i8042_timer_func(unsigned long data)
->  {
->  	i8042_interrupt(0, NULL, NULL);
->  	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
->  }
->  
-> -#ifndef MODULE
-> -static int __init i8042_setup_reset(char *str)
-> -{
-> -	i8042_reset = 1;
-> -	return 1;
-> -}
-> -static int __init i8042_setup_noaux(char *str)
-> -{
-> -	i8042_noaux = 1;
-> -	i8042_nomux = 1;
-> -	return 1;
-> -}
-> -static int __init i8042_setup_nomux(char *str)
-> -{
-> -	i8042_nomux = 1;
-> -	return 1;
-> -}
-> -static int __init i8042_setup_unlock(char *str)
-> +
-> +/*
-> + * i8042_controller init initializes the i8042 controller, and,
-> + * most importantly, sets it into non-xlated mode if that's
-> + * desired.
-> + */
-> +	
-> +static int i8042_controller_init(void)
->  {
-> -	i8042_unlock = 1;
-> -	return 1;
-> +
-> +	if (i8042_noaux)
-> +		i8042_nomux = 1;
-> +/*
-> + * Test the i8042. We need to know if it thinks it's working correctly
-> + * before doing anything else.
-> + */
-> +
-> +	i8042_flush();
-> +
-> +	if (i8042_reset) {
-> +
-> +		unsigned char param;
-> +
-> +		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
-> +			printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
-> +			return -1;
-> +		}
-> +
-> +		if (param != I8042_RET_CTL_TEST) {
-> +			printk(KERN_ERR "i8042.c: i8042 controller selftest failed. (%#x != %#x)\n",
-> +				 param, I8042_RET_CTL_TEST);
-> +			return -1;
-> +		}
-> +	}
-> +
-> +/*
-> + * Save the CTR for restoral on unload / reboot.
-> + */
-> +
-> +	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_RCTR)) {
-> +		printk(KERN_ERR "i8042.c: Can't read CTR while initializing i8042.\n");
-> +		return -1;
-> +	}
-> +
-> +	i8042_initial_ctr = i8042_ctr;
-> +
-> +/*
-> + * Disable the keyboard interface and interrupt. 
-> + */
-> +
-> +	i8042_ctr |= I8042_CTR_KBDDIS;
-> +	i8042_ctr &= ~I8042_CTR_KBDINT;
-> +
-> +/*
-> + * Handle keylock.
-> + */
-> +
-> +	if (~i8042_read_status() & I8042_STR_KEYLOCK) {
-> +		if (i8042_unlock)
-> +			i8042_ctr |= I8042_CTR_IGNKEYLOCK;
-> +		 else
-> +			printk(KERN_WARNING "i8042.c: Warning: Keylock active.\n");
-> +	}
-> +
-> +/*
-> + * If the chip is configured into nontranslated mode by the BIOS, don't
-> + * bother enabling translating and be happy.
-> + */
-> +
-> +	if (~i8042_ctr & I8042_CTR_XLATE)
-> +		i8042_direct = 1;
-> +
-> +/*
-> + * Set nontranslated mode for the kbd interface if requested by an option.
-> + * After this the kbd interface becomes a simple serial in/out, like the aux
-> + * interface is. We don't do this by default, since it can confuse notebook
-> + * BIOSes.
-> + */
-> +
-> +	if (i8042_direct) {
-> +		i8042_ctr &= ~I8042_CTR_XLATE;
-> +		i8042_kbd_port.type = SERIO_8042;
-> +	}
-> +
-> +/*
-> + * Write CTR back.
-> + */
-> +
-> +	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-> +		printk(KERN_ERR "i8042.c: Can't write CTR while initializing i8042.\n");
-> +		return -1;
-> +	}
-> +
-> +	return 0;
->  }
-> -static int __init i8042_setup_direct(char *str)
-> +
-> +
-> +/*
-> + * Here we try to reset everything back to a state in which the BIOS will be
-> + * able to talk to the hardware when rebooting.
-> + */
-> +
-> +void i8042_controller_cleanup(void)
->  {
-> -	i8042_direct = 1;
-> -	return 1;
-> +	int i;
-> +
-> +	i8042_flush();
-> +
-> +/*
-> + * Reset anything that is connected to the ports.
-> + */
-> +
-> +	if (i8042_kbd_values.exists)
-> +		serio_cleanup(&i8042_kbd_port);
-> +
-> +	if (i8042_aux_values.exists)
-> +		serio_cleanup(&i8042_aux_port);
-> +
-> +	for (i = 0; i < 4; i++)
-> +		if (i8042_mux_values[i].exists)
-> +			serio_cleanup(i8042_mux_port + i);
-> +
-> +/*
-> + * Reset the controller.
-> + */
-> +
-> +	if (i8042_reset) {
-> +		unsigned char param;
-> +
-> +		if (i8042_command(&param, I8042_CMD_CTL_TEST))
-> +			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
-> +	}
-> +
-> +/*
-> + * Restore the original control register setting.
-> + */
-> +
-> +	i8042_ctr = i8042_initial_ctr;
-> +
-> +	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-> +		printk(KERN_WARNING "i8042.c: Can't restore CTR.\n");
-> +
->  }
-> -static int __init i8042_setup_dumbkbd(char *str)
-> +
-> +
-> +/*
-> + * Here we try to reset everything back to a state in which suspended
-> + */
-> +
-> +static int i8042_controller_resume(void)
->  {
-> -	i8042_dumbkbd = 1;
-> -	return 1;
-> +	int i;
-> +
-> +	if (i8042_controller_init()) {
-> +		printk(KERN_ERR "i8042: resume failed\n");
-> +		return -1;
-> +	}
-> +
-> +	if (i8042_mux_present)
-> +		if (i8042_enable_mux_mode(&i8042_aux_values, NULL) || 
-> +		    i8042_enable_mux_ports(&i8042_aux_values)) {
-> +			printk(KERN_WARNING "i8042: failed to resume active multiplexor, mouse won't wotk.\n");
-> +		}
-> +
-> +/*
-> + * Reconnect anything that was connected to the ports.
-> + */
-> +
-> +	if (i8042_kbd_values.exists && i8042_activate_port(&i8042_kbd_port) == 0)
-> +		serio_reconnect(&i8042_kbd_port);
-> +
-> +	if (i8042_aux_values.exists && i8042_activate_port(&i8042_aux_port) == 0)
-> +		serio_reconnect(&i8042_aux_port);
-> +
-> +	for (i = 0; i < 4; i++)
-> +		if (i8042_mux_values[i].exists && i8042_activate_port(i8042_mux_port + i) == 0)
-> +			serio_reconnect(i8042_mux_port + i);
-> +
-> +	return 0;
->  }
->  
-> -__setup("i8042_reset", i8042_setup_reset);
-> -__setup("i8042_noaux", i8042_setup_noaux);
-> -__setup("i8042_nomux", i8042_setup_nomux);
-> -__setup("i8042_unlock", i8042_setup_unlock);
-> -__setup("i8042_direct", i8042_setup_direct);
-> -__setup("i8042_dumbkbd", i8042_setup_dumbkbd);
-> -#endif
->  
->  /*
->   * We need to reset the 8042 back to original mode on system shutdown,
-> @@ -777,6 +851,35 @@
->          0
->  };
->  
-> +/*
-> + * Resume handler for the new PM scheme (driver model)
-> + */
-> +static int i8042_resume(struct sys_device *dev)
-> +{
-> +	return i8042_controller_resume();
-> +}
-> +
-> +static struct sysdev_class kbc_sysclass = {
-> +       set_kset_name("i8042"),
-> +       .resume = i8042_resume,
-> +};
-> +
-> +static struct sys_device device_i8042 = {
-> +       .id     = 0,
-> +       .cls    = &kbc_sysclass,
-> +};
-> +
-> +/*
-> + * Resume handler for the old PM scheme (APM)
-> + */
-> +static int i8042_pm_callback(struct pm_dev *dev, pm_request_t request, void *dummy)
-> +{
-> +	if (request == PM_RESUME)
-> +		return i8042_controller_resume();
-> +
-> +	return 0;
-> +}
-> +
->  static void __init i8042_init_mux_values(struct i8042_values *values, struct serio *port, int index)
->  {
->  	memcpy(port, &i8042_aux_port, sizeof(struct serio));
-> @@ -825,6 +928,15 @@
->  	i8042_timer.function = i8042_timer_func;
->  	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
->  
-> +        if (sysdev_class_register(&kbc_sysclass) == 0) {
-> +                if (sys_device_register(&device_i8042) == 0)
-> +			i8042_sysdev_initialized = 1;
-> +		else
-> +			sysdev_class_unregister(&kbc_sysclass);
-> +        }
-> +
-> +	i8042_pm_dev = pm_register(PM_SYS_DEV, PM_SYS_UNKNOWN, i8042_pm_callback);
-> +
->  	register_reboot_notifier(&i8042_notifier);
->  
->  	return 0;
-> @@ -835,6 +947,14 @@
->  	int i;
->  
->  	unregister_reboot_notifier(&i8042_notifier);
-> +
-> +	if (i8042_pm_dev)
-> +		pm_unregister(i8042_pm_dev);
-> +
-> +	if (i8042_sysdev_initialized) {
-> +		sys_device_unregister(&device_i8042);
-> +		sysdev_class_unregister(&kbc_sysclass);
-> +	}
->  
->  	del_timer(&i8042_timer);
->  
+7.1.Software: If some fields are empty or look unusual you may have an old
+version.
+Compare to the current minimal requirements in Documentation/Changes.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Linux king 2.6.0-test10 #1 Wed Nov 26 21:40:32 PST 2003 i686 i686 i386
+GNU/Linux
+
+Gnu C                  3.2
+Gnu make               3.79.1
+util-linux             2.11r
+mount                  2.11r
+module-init-tools      0.9.14
+e2fsprogs              1.34
+jfsutils               1.1.3
+reiserfsprogs          3.6.9
+xfsprogs               2.5.11
+pcmcia-cs              3.1.31
+quota-tools            3.06.
+PPP                    2.4.1
+isdn4k-utils           3.1pre4
+nfs-utils              1.0.5
+Linux C Library        2.2.93
+Dynamic linker (ldd)   2.2.93
+Procps                 3.1.13
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0.12
+Modules Loaded         ide_cd cdrom binfmt_misc autofs parport_pc parport
+hid
+
+
+7.2. Processor: processor : 0
+vendor_id : CyrixInstead
+cpu family : 6
+model  : 2
+model name : M II 3x Core/Bus Clock
+stepping : 8
+cpu MHz  : 250.130
+fdiv_bug : no
+hlt_bug  : no
+f00f_bug : no
+coma_bug : no
+fpu  : yes
+fpu_exception : yes
+cpuid level : 1
+wp  : yes
+flags  : fpu de tsc msr cx8 pge cmov mmx cyrix_arr est
+bogomips : 489.47
+
+7.3. Module Information:  binfmt_misc 9352 0 - Live 0xd287c000
+autofs 14976 1 - Live 0xd284e000
+parport_pc 17928 0 - Live 0xd2848000
+parport 43328 1 parport_pc, Live 0xd283c000
+hid 34240 0 - Live 0xd2882000
+
+7.4. Loaded driver and Hardware information:
+
+>From ioports:
+
+ 0000-001f : dma1
+0020-0021 : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+0cf8-0cff : PCI conf1
+d000-dfff : PCI Bus #01
+  d800-d8ff : 0000:01:00.0
+e800-e81f : 0000:00:07.2
+ea00-eaff : 0000:00:12.0
+  ea00-eaff : 8139too
+ee00-ee07 : 0000:00:13.0
+ffa0-ffaf : 0000:00:07.1
+  ffa0-ffa7 : ide0
+  ffa8-ffaf : ide1
+
+>From iomem:
+
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-11feffff : System RAM
+  00100000-0036b1e3 : Kernel code
+  0036b1e4-004425ff : Kernel data
+11ff0000-11ff7fff : ACPI Tables
+11ff8000-11ffffff : ACPI Non-volatile Storage
+f4800000-f48fffff : PCI Bus #01
+f8000000-fbffffff : 0000:00:00.0
+fca00000-feafffff : PCI Bus #01
+  fd000000-fdffffff : 0000:01:00.0
+  feaff000-feafffff : 0000:01:00.0
+febeff00-febeffff : 0000:00:12.0
+  febeff00-febeffff : 8139too
+febf0000-febfffff : 0000:00:13.0
+fec00000-fec00fff : reserved
+fee00000-fee00fff : reserved
+fffc0000-ffffffff : reserved
+
+7.5. PCI information:
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
+ Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR+
+ Latency: 64
+ Region 0: Memory at f8000000 (32-bit, prefetchable) [size=64M]
+ Capabilities: [a0] AGP version 1.0
+  Status: RQ=7 SBA+ 64bit- FW- Rate=x1
+  Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo
+MVP3/Pro133x AGP] (prog-if 00 [Normal decode])
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort+ >SERR- <PERR-
+ Latency: 0
+ Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+ I/O behind bridge: 0000d000-0000dfff
+ Memory behind bridge: fca00000-feafffff
+ Prefetchable memory behind bridge: f4800000-f48fffff
+ BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
+
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South] (rev
+06)
+ Subsystem: VIA Technologies, Inc. VT82C596/A/B PCI to ISA Bridge
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping+ SERR- FastB2B-
+ Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 0
+
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE
+(rev 06) (prog-if 8a [Master SecP PriP])
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 64
+ Region 4: I/O ports at ffa0 [size=16]
+
+00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 02) (prog-if 00
+[UHCI])
+ Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+ Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 64, cache line size 08
+ Interrupt: pin D routed to IRQ 3
+ Region 4: I/O ports at e800 [size=32]
+
+00:07.3 Bridge: VIA Technologies, Inc. VT82C596 Power Management
+ Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+ Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+
+00:12.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
+ Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 64 (8000ns min, 16000ns max)
+ Interrupt: pin A routed to IRQ 10
+ Region 0: I/O ports at ea00 [size=256]
+ Region 1: Memory at febeff00 (32-bit, non-prefetchable) [size=256]
+ Expansion ROM at febd0000 [disabled] [size=64K]
+ Capabilities: [50] Power Management version 2
+  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA
+PME(D0-,D1+,D2+,D3hot+,D3cold+)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:13.0 Communication controller: Conexant HCF 56k Data/Fax Modem
+(Worldwide) (rev 08)
+ Subsystem: Askey Computer Corp.: Unknown device 1046
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 64
+ Interrupt: pin A routed to IRQ 11
+ Region 0: Memory at febf0000 (32-bit, non-prefetchable) [size=64K]
+ Region 1: I/O ports at ee00 [size=8]
+ Capabilities: [40] Power Management version 2
+  Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC AGP (rev
+7a) (prog-if 00 [VGA])
+ Subsystem: ATI Technologies Inc Rage IIC AGP
+ Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping+ SERR- FastB2B-
+ Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+ Latency: 64 (2000ns min), cache line size 08
+ Region 0: Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+ Region 1: I/O ports at d800 [size=256]
+ Region 2: Memory at feaff000 (32-bit, non-prefetchable) [size=4K]
+ Expansion ROM at feac0000 [disabled] [size=128K]
+ Capabilities: [5c] Power Management version 1
+  Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+7.6. SCSI information: No such file or directory as /proc/scsi
+
+That's   all,
+Thanks a lot!
+Weifei
+

@@ -1,105 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262708AbVDALJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVDALQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262708AbVDALJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 06:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbVDALJ2
+	id S262711AbVDALQb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 06:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVDALQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 06:09:28 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:12182 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262708AbVDALJU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 06:09:20 -0500
-Subject: Re: cn_queue.c
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1112353944.9334.236.camel@uganda>
-References: <20050331173215.49c959a0.akpm@osdl.org>
-	 <1112341236.9334.97.camel@uganda> <20050331235706.5b5981db.akpm@osdl.org>
-	 <1112344811.9334.146.camel@uganda> <20050401004804.52519e17.akpm@osdl.org>
-	 <1112348048.9334.174.camel@uganda> <20050401015027.047783eb.akpm@osdl.org>
-	 <1112351791.9334.208.camel@uganda>  <20050401024312.641946e2.akpm@osdl.org>
-	 <1112353944.9334.236.camel@uganda>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rRTGeHK/sLag9pgjwhJW"
-Organization: MIPT
-Date: Fri, 01 Apr 2005 15:15:45 +0400
-Message-Id: <1112354145.9334.239.camel@uganda>
+	Fri, 1 Apr 2005 06:16:30 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:51622 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262711AbVDALQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 06:16:27 -0500
+Date: Fri, 1 Apr 2005 13:16:22 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Roland Dreier <roland@topspin.com>, Yum Rayan <yum.rayan@gmail.com>,
+       linux-kernel@vger.kernel.org, mvw@planets.elm.net
+Subject: Re: Stack usage tasks
+Message-ID: <20050401111622.GC4107@wohnheim.fh-wedel.de>
+References: <df35dfeb05033023394170d6cc@mail.gmail.com> <20050331150548.GC19294@wohnheim.fh-wedel.de> <20050331203010.GF3185@stusta.de> <52ll83mtqd.fsf@topspin.com> <20050331211941.GJ3185@stusta.de> <20050401101723.GA4107@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 01 Apr 2005 15:09:06 +0400 (MSD)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050401101723.GA4107@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 April 2005 12:17:23 +0200, Jörn Engel wrote:
+> On Thu, 31 March 2005 23:19:41 +0200, Adrian Bunk wrote:
+> > 
+> > Jörn, can you send a list of call paths with a stack usage > 3kB when 
+> > compiling with gcc 3.4 and unit-at-a-time (or tell me how to generate 
+> > these lists)?
+> 
+> I'll do a spin over the weekend.
 
---=-rRTGeHK/sLag9pgjwhJW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Argl!  No, most likely I won't.  My checker currently depends on
+gcc 3.1 (heavily patched).  Porting this to 3.4 or 4.0 is something
+I'd like to avoid.  Sparse would be a better target to port to.
 
-On Fri, 2005-04-01 at 15:12 +0400, Evgeniy Polyakov wrote:
+In any case, it's nothing to do over the weekend.
 
-> > > cn_queue_wrapper() atomically increments cbq->cb->refcnt if runs, so =
-it
-> > > will
-> > > be caught in=20
-> > > while (atomic_read(&cbq->cb->refcnt))=20
-> > >   msleep(1000);
-> > > in cn_queue_free_callback().
-> > > If it does not run, then all will be ok.
-> >=20
-> > But there's a time window on entry to cn_queue_wrapper() where the recs=
-ount
-> > hasn't been incremented yet, and there's no locking.  If
-> > cn_queue_free_callback() inspects the refcount in that window it will f=
-ree
-> > the cn_callback_entry() while cn_queue_wrapper() is playing with it?
->=20
-> If we already run cn_queue_wrapper() [even before refcnt incrementing,
-> probably it is not even needed there], then cancel_delayed_work() will
-> sleep,
-> since appropriate timer will be deleted in del_timer_sync(), which=20
-> will wait untill it is finished on the different CPU.
->=20
-> > > Btw, it looks like comments for del_timer_sync() and cancel_delayed_w=
-ork
-> > > ()
-> > > are controversial - del_timer_sync() says that pending timer
-> > > can not run on different CPU after returning,=20
-> > > but cancel_delayed_work() says, that work to be cancelled still=20
-> > > can run after returning.
-> >=20
-> > Not controversial - the timer can have expired and have been successful=
-ly
-> > deleted but the work_struct which the timer handler scheduled is still
-> > pending, or has just started to run.
->=20
-> Ugh, I see now.
-> There are two levels of work deferring  - into cpu_workqueue_struct,=20
-> and, in case of delayed work, into work->timer.
->=20
->=20
-> Yes, I need to place flush_workqueue() in cn_queue_free_callback();
->=20
+Jörn
 
-That actullay NULLifies above sentence about sleeping in
-cancel_delayed_work().
-
---=20
-        Evgeniy Polyakov
-
-Crash is better than data corruption -- Arthur Grabowski
-
---=-rRTGeHK/sLag9pgjwhJW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCTS1hIKTPhE+8wY0RAvarAKCKwxmo6xH8YFnzz4jrT24QCXBmRgCggUcm
-k0I9fo7SXvE6+tGuL5fr8OM=
-=GLWJ
------END PGP SIGNATURE-----
-
---=-rRTGeHK/sLag9pgjwhJW--
-
+-- 
+And spam is a useful source of entropy for /dev/random too!
+-- Jasmine Strong

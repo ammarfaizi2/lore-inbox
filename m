@@ -1,58 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268416AbRGXSGW>; Tue, 24 Jul 2001 14:06:22 -0400
+	id <S268417AbRGXSKW>; Tue, 24 Jul 2001 14:10:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268414AbRGXSGM>; Tue, 24 Jul 2001 14:06:12 -0400
-Received: from [64.7.140.42] ([64.7.140.42]:18402 "EHLO inet.connecttech.com")
-	by vger.kernel.org with ESMTP id <S268411AbRGXSFy>;
-	Tue, 24 Jul 2001 14:05:54 -0400
-Message-ID: <018501c1146b$d24862e0$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Rik van Riel" <riel@conectiva.com.br>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0107241447440.20326-100000@duckman.distro.conectiva>
+	id <S265754AbRGXSKM>; Tue, 24 Jul 2001 14:10:12 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:48393 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S268419AbRGXSJz>; Tue, 24 Jul 2001 14:09:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: [RFC] Optimization for use-once pages
-Date: Tue, 24 Jul 2001 14:09:45 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Date: Tue, 24 Jul 2001 20:14:36 +0200
+X-Mailer: KMail [version 1.2]
+Cc: <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0107241359180.20326-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0107241359180.20326-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Message-Id: <01072420143600.00520@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-From: "Rik van Riel" <riel@conectiva.com.br>
-> Actually, the length of this interval could be even smaller
-> and is often a point of furious debating.
-
-Which is why I was avoiding flames earlier; I sorta
-figured this might be a hot issue.
-
-> Let me give you an example:
+On Tuesday 24 July 2001 19:04, Rik van Riel wrote:
+> On Tue, 24 Jul 2001, Linus Torvalds wrote:
+> > Hey, this looks _really_ nice. I never liked the special-cases
+> > that you removed (drop_behind in particular), and I have to say
+> > that the new code looks a lot saner, even without your extensive
+> > description and timing analysis.
 >
-> - sequential access of a file
-> - script reads the file in 80-byte segments
->   (parsing some arcane data structure)
-> - these segments are accessed in rapid succession
-> - each 80-byte segment is accessed ONCE
+> Fully agreed, drop_behind is an ugly hack.  The sooner
+> it dies the happier I am ;)
 >
-> In this case, even though the data is accessed only
-> once, each page is touched PAGE_SIZE/80 times, with
-> one 80-byte read() each time.
+> > Please people, test this out extensively - I'd love to integrate
+> > it, but while it looks very sane I'd really like to hear of
+> > different peoples reactions to it under different loads.
+>
+> The one thing which has always come up in LRU/k and 2Q
+> papers is that the "first reference" can really be a
+> series of references in a very short time.
 
-I'd figured that sort of scenario was the basis for counting
-them all as one. What about
+Yes, I thought about that but decided to try to demonstrate the
+concept in its simplest form, and if things worked out, go ahead
+and try to refine it.
 
-- random access of same file
-- script reads one arcane 80 byte struct
-- script updates that struct say PAGE_SIZE/80
-times, with one 80-byte write() each time
+Memory-mapped files have to be handled too.  One possible way to
+go at it is to do the test not against the current page being
+handled by generic_* but against the page already on the head of
+the inactive_dirty list, at the time the *next* page is queued.
+This introduces a slight delay, time enough for several programmed
+IO operations to complete.  It will also work for mmap.  As a
+bonus, the code might even get cleaner because all the use_once
+tests are gathered together into a single place.
 
-If they're all counted as one, would the page age
-correctly, if the script happens to take a few seconds
-break between another flurry of all-as-one updating?
+> Counting only the very first reference will fail if we
+> do eg. sequential IO with non-page aligned read() calls,
+> which doesn't look like it's too uncommon.
 
-..Stu
+Yep.  We should also look at some statistics.  So far I've just
+used a single number: execution time.
 
+> In order to prevent this from happening, either the system
+> counts all first references in a short timespan (complex to
+> implement) or it has the new pages on a special - small fixed
+> size - page list and all references to the page while on that
+> list are ignored.
 
+Yes, those are both possibilities.
+
+--
+Daniel

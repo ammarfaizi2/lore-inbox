@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263432AbTENSSV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 14:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTENSSV
+	id S263467AbTENS1X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 14:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263482AbTENS1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 14:18:21 -0400
-Received: from sc-outsmtp1.homechoice.co.uk ([81.1.65.35]:62475 "HELO
-	sc-outsmtp1.homechoice.co.uk") by vger.kernel.org with SMTP
-	id S263432AbTENSSV convert rfc822-to-8bit (ORCPT
+	Wed, 14 May 2003 14:27:23 -0400
+Received: from [217.157.19.70] ([217.157.19.70]:27398 "EHLO jehova.dsm.dk")
+	by vger.kernel.org with ESMTP id S263467AbTENS1U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 14:18:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
-To: Andreas Schwab <schwab@suse.de>, Nikita Danilov <Nikita@Namesys.COM>
-Subject: Re: inode values in file system driver
-Date: Wed, 14 May 2003 19:31:02 +0100
-User-Agent: KMail/1.4.3
-Cc: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>, linux-kernel@vger.kernel.org
-References: <200305102118.20318.adrian@mcmen.demon.co.uk> <16065.1422.44816.110091@laputa.namesys.com> <jeptmmgaiv.fsf@sykes.suse.de>
-In-Reply-To: <jeptmmgaiv.fsf@sykes.suse.de>
+	Wed, 14 May 2003 14:27:20 -0400
+From: Thomas Horsten <thomas@horsten.com>
+To: Dave Jones <davej@suse.de>
+Subject: Re: [PATCH] 2.5.69 Changes to Kconfig and i386 Makefile to include support for various K7 optimizations
+Date: Wed, 14 May 2003 19:40:10 +0100
+User-Agent: KMail/1.5.1
+Cc: LKML <linux-kernel@vger.kernel.org>, "H . Peter Anvin" <hpa@zytor.com>,
+       Michael Elizabeth Chastain <mec@shout.net>
+References: <200305071834.26789.thomas@horsten.com> <20030514160449.B28115@suse.de>
+In-Reply-To: <20030514160449.B28115@suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200305141931.02928.adrian@mcmen.demon.co.uk>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305141940.10999.thomas@horsten.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 May 2003 15:56, Andreas Schwab wrote:
-> Nikita Danilov <Nikita@Namesys.COM> writes:
+On Wednesday 14 May 2003 15:04, Dave Jones wrote:
 
-
-> |> In other words, readdir(3) will not return dirent for inode with ino 0.
+>  > I made this patch to support the various K7 model-specific
+>  > optimizations that the later GCC compilers can use.
+>  >
+>  > Please have a look, and pass me any comments.
 >
-> I stand corrected.  I was thinking of getdirentries, which does not have
-> this problem.  But this is traditional Unix behaviour.
+> I don't think this is worth the extra complication. The potential wins
+> (if any) outweigh the confusion to users who might have no clue as to
+> what core they have.  Additionally, some gcc's got these options wrong.
+> The athlon4 option was completely wrong for a while for eg.
+
+I think when GCC supports the different cores, it should be supported by the 
+kernel scripts, the differences between the cores are real enough to have 
+potential optimizations at least in theory (as far as I could see the only 
+difference in GCC 3.2 is whether to use SSE, but that could change in the 
+future).
+
+Maybe it should be renamed "Advanced CPU model selection", or something like 
+that, instead of "K7 Model Selection", but the help IMHO makes it clear 
+enough that you should go with the default if you are not sure and that it 
+will work on any core.
+
+I think it's a fairly simple patch that doesn't break anything, and there are 
+certainly options lurking around in Kconfig that are much more obscure than 
+this :)
+
+>  > I also have the same patch for 2.4, if you are interested it's
+>  > available on my Linux page on http://www.infowares.com/linux
 >
+> For 2.4, it's an even worse idea IMO.
 
+I completely agree that this shouldn't go into the stock 2.4 kernel, that's 
+also why I didn't post it here. It's just on my site as a convenience for 
+those who might want to use the XP specific options etc. in an easy way (like 
+I use it myself).
 
-OK. I've worked round this in my driver. It will now list the file, and does 
-so with inode 0 (I have not tinkered with anything outside my driver, so this 
-won't have any impact on any other fs). Is this A Bad Thing?
-
-Adrian
-
+// Thomas

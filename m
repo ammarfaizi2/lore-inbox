@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266161AbUGOJgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUGOJhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266161AbUGOJgN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 05:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUGOJgN
+	id S266169AbUGOJhS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 05:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUGOJhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 05:36:13 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:19100 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266161AbUGOJgM (ORCPT
+	Thu, 15 Jul 2004 05:37:17 -0400
+Received: from cantor.suse.de ([195.135.220.2]:60574 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266169AbUGOJhH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 05:36:12 -0400
-Date: Thu, 15 Jul 2004 15:06:00 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Refcounting of objects part of a lockfree collection
-Message-ID: <20040715093600.GB3952@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714070700.GA12579@kroah.com> <20040714085758.GA4165@obelix.in.ibm.com> <20040714170800.GC4636@kroah.com> <20040715080204.GC1312@obelix.in.ibm.com>
+	Thu, 15 Jul 2004 05:37:07 -0400
+Date: Thu, 15 Jul 2004 11:37:04 +0200
+From: Olaf Hering <olh@suse.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, Stuart_Hayes@Dell.com,
+       whbeers@mbio.ncsu.edu, Gary_Lerhaupt@Dell.com,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
+Message-ID: <20040715093704.GA30351@suse.de>
+References: <7A8F92187EF7A249BF847F1BF4903C046304CF@ausx2kmpc103.aus.amer.dell.com> <20040713145628.27ae43e7@lembas.zaitcev.lan> <40F46A7F.5000703@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20040715080204.GC1312@obelix.in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40F46A7F.5000703@pacbell.net>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 15, 2004 at 01:32:04PM +0530, Ravikiran G Thirumalai wrote:
-> The naming is bad, I agree. But as Dipankar pointed out earlier, there
-> was no kref when I did this.  We (Dipankar and myslef) had a discussion
-> and decided:
-> 1. I will make a patch to shrink kref and feed it to Greg
+ On Tue, Jul 13, David Brownell wrote:
 
-1.5 Convert files_struct to use kref
+> Instead, how about:  (a) longer timeout, 5 seconds to match OHCI's
+> absurdly long default there; (b) change that "handoff failed" message
+> to add "continuing anyway"; and (c) return 0 as you do, which I'm
+> expecting is the key part of that patch.
 
+This patch works for me:
 
-> 2. Add new set kref api for lockfree refcounting --
-> 	kref_lf_xxx.  (kref_lf_get, kref_lf_get_rcu etc.,)
-> 3. Change the fd lookup patch to use kref_lf_xxx api
+diff -purN linux-2.6.8-rc1-bk3.bios-handoff/drivers/usb/host/ehci-hcd.c linux-2.6.8-rc1-bk3/drivers/usb/host/ehci-hcd.c
+--- linux-2.6.8-rc1-bk3.bios-handoff/drivers/usb/host/ehci-hcd.c	2004-07-15 11:24:14.000000000 +0200
++++ linux-2.6.8-rc1-bk3/drivers/usb/host/ehci-hcd.c	2004-07-15 11:32:28.463930957 +0200
+@@ -303,9 +303,11 @@ static int bios_handoff (struct ehci_hcd
+ 			pci_read_config_dword(pdev, where, &cap);
+ 		} while ((cap & (1 << 16)) && msec);
+ 		if (cap & (1 << 16)) {
+-			ehci_err (ehci, "BIOS handoff failed (%d, %04x)\n",
++			ehci_err (ehci, "BIOS handoff failed (%d, %04x)\n"
++				" Devices connected to this controller will not work correctly.\n"
++				" Complain to your BIOS vendor.\n", /* Really! */
+ 				where, cap);
+-			return 1;
++			return 0;
+ 		} 
+ 		ehci_dbg (ehci, "BIOS handoff succeeded\n");
+ 	}
 
-Thanks
-Dipankar
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

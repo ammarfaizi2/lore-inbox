@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVBMSta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVBMTBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVBMSta (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 13:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVBMSta
+	id S261292AbVBMTBr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 14:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVBMTBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 13:49:30 -0500
-Received: from smtpout6.uol.com.br ([200.221.4.197]:47746 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261162AbVBMStZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 13:49:25 -0500
-Date: Sun, 13 Feb 2005 16:49:24 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: linux-kernel@vger.kernel.org
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: [Partially solved] Re: irq 10: nobody cared! (was: Re: 2.6.11-rc3-mm1)
-Message-ID: <20050213184924.GB4614@ime.usp.br>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	B.Zolnierkiewicz@elka.pw.edu.pl
-References: <20050204103350.241a907a.akpm@osdl.org> <20050205224558.GB3815@ime.usp.br> <20050212222104.GA1965@node1.opengeometry.net> <20050212224715.GA8249@ime.usp.br> <20050212232134.GA2242@node1.opengeometry.net> <20050212235043.GA4291@ime.usp.br> <20050213014151.GA2735@node1.opengeometry.net>
+	Sun, 13 Feb 2005 14:01:46 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:3012 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261292AbVBMTBo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 14:01:44 -0500
+Date: Sun, 13 Feb 2005 20:02:16 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kenan Esau <kenan.esau@conan.de>
+Cc: harald.hoyer@redhat.de, lifebook@conan.de, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+Message-ID: <20050213190216.GA4147@ucw.cz>
+References: <20050211201013.GA6937@ucw.cz> <1108227679.12327.24.camel@localhost> <20050212183440.GC8170@ucw.cz> <1108289100.5978.18.camel@localhost> <20050213120100.GB1978@ucw.cz> <1108318484.5978.25.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050213014151.GA2735@node1.opengeometry.net>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1108318484.5978.25.camel@localhost>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 13, 2005 at 07:14:44PM +0100, Kenan Esau wrote:
+> Am Sonntag, den 13.02.2005, 13:01 +0100 schrieb Vojtech Pavlik: 
+> > On Sun, Feb 13, 2005 at 11:05:00AM +0100, Kenan Esau wrote:
+> >  
+> > > > > This
+> > > > > sequence does not always work and there is not something like a "magic
+> > > > > knock sequence".
+> > > > 
+> > > > You mean that the only needed bit is setting the resolution to '7'?
+> > > 
+> > > The lifebook touchscreen has some extensions to the standard protocol:
+> > > 
+> > > 0xe8 0x06: Stop absolute coordinate output 
+> > > 0xe8 0x07: Start absolute coordinate outpout (3-byte packets)
+> > > 0xe8 0x08: Start absolute coord. output with 6-byte packets
+> > 
+> > Are the 6-byte packets carrying any more information than the 3-byte
+> > packets do, for example pressure? Would it be useful to go for the
+> > 6-byte mode instead in the driver?
+> 
+> No the 6-byte mode does not carry any more information. Sorry but no
+> pressure-info... 
 
-Hi, William.
+I wonder what it's good for then - there must be a reason.
 
-On Feb 12 2005, William Park wrote:
-> Your 'dmesg' says
->     Warning: Secondary channel requires an 80-pin cable for operation.
-> I assume it is.
+> > Have you tried whether the controller responds to the GETID (f2),
+> > GETINFO (e9) and POLL (eb) commands? Maybe we could detect it that way.
+> 
+> I have to try those commands and check the response. I know that they
+> are supported but I have never tried them.
+> 
+> [...]
+> 
+> > > If you agree I will take your patch as the basis and make it work. Now I
+> > > know how you want it to look like.
+> > 
+> > That would be very much appreciated.
+> 
+> OK. I'll send you a new patch within the next week.
 
-Well, I just finished compiling the 2.6.11-rc4 kernel and the problem
-persisted. This time, I enabled ACPI debugging and it indeed generates more
-details.
-
-Right after the problem persisted, I turned off the second HD (which was
-the master of the secondary channel of the Promise controller) and the
-problem automagically went away. :-(
-
-One other thing is that the BIOS still configures the drive as UDMA 4, but
-Linux downgrades that to UDMA 2. I'm not sure why.
-
-Using hdparm manually with "hdparm -c1 -u1 -d1 -X udma4 /dev/hde" enables
-things that the kernel doesn't and seems to be working wonderfully.
-
-I don't know what I should do right now. I have put the newer dmesg logs on
-<http://www.ime.usp.br/~rbrito/ide-problem/>. Should I contact anybody else?
-I do need the second drive on, though.
-
-I'm CC'ing Bartlomiej Zolnierkiewicz, as he is listed in the MAINTAINERS
-file as the IDE maintainer.
-
-
-Thanks for any comments and help, Rogério Brito.
+Thanks.
 
 -- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Vojtech Pavlik
+SuSE Labs, SuSE CR

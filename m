@@ -1,52 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270762AbTGVAT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 20:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270763AbTGVAT2
+	id S270763AbTGVA1g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 20:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270764AbTGVA1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 20:19:28 -0400
-Received: from webmail.insa-lyon.fr ([134.214.79.204]:19076 "EHLO
-	mail.insa-lyon.fr") by vger.kernel.org with ESMTP id S270762AbTGVAT0
+	Mon, 21 Jul 2003 20:27:35 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:32212 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S270763AbTGVA1e
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 20:19:26 -0400
-Date: Tue, 22 Jul 2003 02:34:28 +0200
-From: Aurelien Jarno <aurelien@aurel32.net>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with kernel 2.4.21 and bttv
-Message-ID: <20030722003428.GA17392@pc.aurel32>
-Mail-Followup-To: Aurelien Jarno <aurelien@aurel32.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-User-Agent: Mutt/1.5.4i
+	Mon, 21 Jul 2003 20:27:34 -0400
+Message-ID: <3F1C8739.2030707@rackable.com>
+Date: Mon, 21 Jul 2003 17:37:13 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Charles Lepple <clepple@ghz.cc>
+CC: michaelm <admin@www0.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 won't go further than "uncompressing" on a p1/32MB
+      pc
+References: <20030721163517.GA597@www0.org> <32425.216.12.38.216.1058806931.squirrel@www.ghz.cc>
+In-Reply-To: <32425.216.12.38.216.1058806931.squirrel@www.ghz.cc>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Jul 2003 00:42:35.0030 (UTC) FILETIME=[24876360:01C34FEA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Charles Lepple wrote:
 
-I have just switch from kernel 2.4.20 to kernel 2.4.21, and my TV card
-(Miro PC/TV, BT878) stopped to work. I got a lot of the following messages 
-when I try to access /dev/video0:
+>michaelm said:
+>  
+>
+>>That is on a p1 150MMX 32MB PC, specifically an IBM ThinkPad 560E. It
+>>    
+>>
+>
+>I just did a diff between your configuration, and that of my ThinkPad 770
+>(233 MHz Pentium MMX).
+>
+>Note to defconfig maintainers: can these options be enabled by default on
+>i386 (like they were in 2.4)?
+>
+>Things that you might want to enable:
+>
+>CONFIG_ISA=y
+>
+>CONFIG_SERIO=y
+>CONFIG_SERIO_I8042=y
+>CONFIG_INPUT_AT_KEYBOARD=y
+>
+>CONFIG_VT=y
+>CONFIG_VT_CONSOLE=y
+>CONFIG_HW_CONSOLE=y
+>
+Actual the i386 defconfig does this:
+[root@grendel linux-2.6.0-test1]# grep -e VT -e HW_CONSOLE  -e SERIO -e 
+INPUT_AT_KEYBOARD arch/i386/defconfig
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PARKBD is not set
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+[root@grendel linux-2.6.0-test1]#
 
-bttv: vmalloc_32(8519680) failed
-bttv: vmalloc_32(8519680) failed
-...
 
-While grepping vmalloc in the kernel sources, I found the following line
-in include/asm-i386/page.h:
+  However a "make oldconfig" on a 2.4 .config doesn't pick this up.  In 
+fact it appears to be impossible to select  CONFIG_VT  CONFIG_VT_CONSOLE 
+in make menuconfig.
 
-#define __VMALLOC_RESERVE       (128 << 20)
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
-I changed the value to 128 (MBytes I suppose) to 256, and my TV card 
-started to work.
 
-My computer is an AMD Ahtlon XP1800+, with a KT266A chipset and 1 GBytes
-of RAM (and thus HighMem is enabled).
-
-Has anybody the same problem, and is there other solutions to solve the
-problem?
-
-Cheers,
-Aurelien

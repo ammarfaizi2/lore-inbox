@@ -1,46 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131507AbQKQCMT>; Thu, 16 Nov 2000 21:12:19 -0500
+	id <S129659AbQKQCTT>; Thu, 16 Nov 2000 21:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131723AbQKQCMJ>; Thu, 16 Nov 2000 21:12:09 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:24326
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S131507AbQKQCLv>; Thu, 16 Nov 2000 21:11:51 -0500
-Date: Thu, 16 Nov 2000 17:41:33 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sorted - was: How to add a drive to DMA black list?
-In-Reply-To: <5.0.0.25.2.20001117013109.00a5aeb0@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.10.10011161740120.6910-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S129147AbQKQCS7>; Thu, 16 Nov 2000 21:18:59 -0500
+Received: from lsne-cable-1-p21.vtxnet.ch ([212.147.5.21]:11270 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S131723AbQKQCSw>;
+	Thu, 16 Nov 2000 21:18:52 -0500
+Date: Fri, 17 Nov 2000 02:48:47 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: kraxel@goldbach.in-berlin.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] BTTV radio with non-modular 2.4 kernel
+Message-ID: <20001117024847.A21633@almesberger.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000, Anton Altaparmakov wrote:
+This patch for 2.4.0-test11-pre5 allows the use of the FM radio tuner
+on BT848 cards even if the driver is not compiled as a module.
 
-> I am sure you knew this perfectly well already but just in case it is helpful:
-> 
-> the offending code is in:
-> 
-> drivers/ide/piix.c::piix_dmaproc [starts on line 402 in 2.4.0-test11-pre5]
-> 
-> It calls piix_config_drive_for_dma and only then calls ide_dmaproc.
-> 
-> It is ide_dmaproc that does the good/bad test so obviously it is called too 
-> late.
+What it does: it adds the boot command line parameter bt848_radio=,
+which works exactly like the radio= parameter of the bttv module.
 
-Sorry I have not looked at the PIIX code in a long time and forgot that it
-was not complete with the table checks.  But I will get there soon.
+Note: on my system, gtuner does not tune if invoked immediately after
+a reboot, so I have to invoke and terminate xawtv first. This problem
+appears to be unrelated to this patch, but I though I'd mention it
+anyway.
 
-Cheers,
+- Werner
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+---------------------------------- cut here -----------------------------------
 
+--- linux.orig/Documentation/kernel-parameters.txt	Tue Sep  5 22:51:14 2000
++++ linux/Documentation/kernel-parameters.txt	Fri Nov 17 02:21:10 2000
+@@ -43,6 +43,7 @@
+ 	SERIAL	Serial support is enabled.
+ 	SMP 	The kernel is an SMP kernel.
+ 	SOUND	Appropriate sound system support is enabled.
++	V4L	Video For Linux support is enabled.
+ 	VGA 	The VGA console has been enabled.
+ 	VT	Virtual terminal support is enabled.
+ 	XT	IBM PC/XT MFM hard disk support is enabled.
+@@ -115,6 +116,13 @@
+ 			Duplex Mode.
+ 
+ 	bmouse=		[HW,MOUSE,PS2] Bus mouse.
++
++	bt848_radio=	[HW,V4L] Enables the FM radio tuners of BT848 cards.
++			This parameter corresponds to the radio= module
++			parameter if the driver is compiled as such, e.g.
++			bt848_radio=1 enables the radio of the first card,
++			bt848_radio=0,1 enables the radio of the second card,
++			etc.
+ 
+ 	BusLogic=	[HW,SCSI]
+ 
+--- linux.orig/drivers/media/video/bttv-driver.c	Thu Nov 16 23:30:02 2000
++++ linux/drivers/media/video/bttv-driver.c	Fri Nov 17 02:22:13 2000
+@@ -3100,6 +3100,18 @@
+ module_init(bttv_init_module);
+ module_exit(bttv_cleanup_module);
+ 
++#ifndef MODULE
++
++static int __init enable_radio(char *str)
++{
++	(void) get_options(str,BTTV_MAX,radio);
++        return 1;
++}
++
++__setup("bt848_radio=", enable_radio);
++
++#endif /* not MODULE */
++
+ /*
+  * Local variables:
+  * c-basic-offset: 8
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

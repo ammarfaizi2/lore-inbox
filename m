@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbTFYFwj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 01:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbTFYFwi
+	id S262525AbTFYGFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 02:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTFYGFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 01:52:38 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:27111 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261887AbTFYFwh (ORCPT
+	Wed, 25 Jun 2003 02:05:25 -0400
+Received: from dp.samba.org ([66.70.73.150]:56466 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262525AbTFYGFO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 01:52:37 -0400
-Message-Id: <200306250606.h5P66j623244@zeus.kernel.org>
-Reply-To: "Die Lottofee..." <gewinn@lottowahn.de>
-From: "Die Lottofee..." <gewinn@lottowahn.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: 9 von 10 Frauen  =?ISO-8859-1?Q?=20w=FCnschen?= sich...
-Date: Wed, 25 Jun 2003 08:09:37 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Wed, 25 Jun 2003 02:05:14 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [PATCH] fix in-kernel genksyms for parisc symbols 
+In-reply-to: Your message of "23 Jun 2003 18:27:43 EST."
+             <1056410864.1826.57.camel@mulgrave> 
+Date: Wed, 25 Jun 2003 16:02:31 +1000
+Message-Id: <20030625061924.3D1272C28B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <1056410864.1826.57.camel@mulgrave> you write:
+> The problem is that the parisc libgcc.a library contains symbols that
+> look like $$mulI and the like, but genksyms doesn't think $ is legal for
+> a function symbol, so they all get dropped from the output.  This means
+> that inserting almost any module on parisc taints the kernel because
+> these symbols have no version.
+> 
+> The fix (attached below) was to allow $ in an identifier in lex.l (and
+> obviously to update the _shipped files as well, but my flex/bison seem
+> to be rather different from the one they were generated with, so I'll
+> leave that to whomever has the correct versions).
 
-einen größeren finanziellen Spielraum.
-Bei den Männern liegt diese Quote sogar noch höher.
+Looks fine, but my flex is different, too.  Kai?
 
-http://www.tippwahn.de/?refid=24799
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Ein Traumurlaub, eine Eigentumswohnung oder sogar ein eigenes Haus,
-ein toller Wagen oder auch nur endlich den Dispokredit abzahlen... das
-wünscht sich jeder.
-
-Doch die wenigsten wissen, wie einfach es sein kann sich diese Wünsche zu erfüllen!
-
-http://www.tippwahn.de/?refid=24799
-
-Mit einem Lottogewinn mit System! Derzeit spielen nur ca. 25% der regelmässigen Lottospieler
-Systemscheine oder in systematisch optimierten Tippgemeinschaften.
-Allerdings entfallen statistisch gesehen mehr als 40% der 6er auf diese Systemspieler.
-
-Nehmen Sie Ihr Glück selbst in die Hand! Mit System!
-
-Sie können bereits ab 3,- Euro pro Woche Ihre persönliche Chance auf finanzielle Freiheit
-vervielfachen. Bis zu 81,78% Gewinnchance sind computeroptimiert für Sie drin!!!
-
-http://www.tippwahn.de/?refid=24799
-
-Sie sollten sich diese Chancen wirklich nicht entgehen lassen... schon gar nicht zu diesem
-absolut konkurrenzlosen Preis!
-
-Und denken Sie daran: Für den Lottojackpot muss man sich nicht hinten anstellen!
-Vielleicht werden Sie noch diese Woche alle Geldsorgen los....
-
-Und das ganz bequem online... mit nur einem Klick:
-
-http://www.tippwahn.de/?refid=24799
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Sie erhalten diese Email aufgrund Ihrer Mitgliedschaft bei Marketingmaniac oder einem unserer Partner.
-Sollten Sie keine weiteren Emails mehr erhalten wollen, senden Sie eine Blanko-Email mit
-Betreff "unsubscribe" an: unsubscribe@marketingmaniac.de
+===== scripts/genksyms/lex.l 1.2 vs edited =====
+--- 1.2/scripts/genksyms/lex.l	Wed Feb 19 16:42:13 2003
++++ edited/scripts/genksyms/lex.l	Mon Jun 23 17:17:17 2003
+@@ -37,7 +37,7 @@
+ 
+ %}
+ 
+-IDENT			[A-Za-z_][A-Za-z0-9_]*
++IDENT			[A-Za-z_\$][A-Za-z0-9_\$]*
+ 
+ O_INT			0[0-7]*
+ D_INT			[1-9][0-9]*

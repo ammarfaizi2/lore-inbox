@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132606AbRDXAVZ>; Mon, 23 Apr 2001 20:21:25 -0400
+	id <S132607AbRDXAWP>; Mon, 23 Apr 2001 20:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132607AbRDXAVP>; Mon, 23 Apr 2001 20:21:15 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:52752 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S132606AbRDXAU5>;
-	Mon, 23 Apr 2001 20:20:57 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: light weight user level semaphores
-Date: 24 Apr 2001 00:19:46 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9c2gr2$u7s$1@abraham.cs.berkeley.edu>
-In-Reply-To: <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 988071586 30972 128.32.45.153 (24 Apr 2001 00:19:46 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 24 Apr 2001 00:19:46 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S132614AbRDXAWG>; Mon, 23 Apr 2001 20:22:06 -0400
+Received: from waste.org ([209.173.204.2]:25872 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S132607AbRDXAVl>;
+	Mon, 23 Apr 2001 20:21:41 -0400
+Date: Mon, 23 Apr 2001 19:21:36 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Marko Kreen <marko@l-t.ee>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: comments on CML 1.1.0
+In-Reply-To: <20010414164914.A12838@thyrsus.com>
+Message-ID: <Pine.LNX.4.30.0104231911010.21186-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds  wrote:
->Ehh.. I will bet you $10 USD that if libc allocates the next file
->descriptor on the first "malloc()" in user space (in order to use the
->semaphores for mm protection), programs _will_ break.
+On Sat, 14 Apr 2001, Eric S. Raymond wrote:
+
+> > * the colors are hard to see (red/blue on black).  Probably
+> >   matter of terminal settings.  I do not have any productive
+> >   ideas tho...  Probably to get best experience to as much
+> >   people as possible the less colors are used the better.
+> >
+> >   The 'blue: last visited submenu' is unnecessary.  Especially
+> >   because it later turns green...  And the 'red' vs. 'green'
+> >   thing.  I guess the green should be used for 'visited entries'
+> >   too.  Now the red means like 'Doh.  So I should not have
+> >   touched this?'.  Confusing.
+> >
+> >   In other words: if there are too much colors, they become
+> >   a thing that should be separately learned, not a helpful
+> >   aid.
+> >
+> >   All this IMHO ofcourse.  Colors are 'matter of taste' thing
+> >   so there probably is not exact Rigth Thing.
 >
->You want to take the bet?
+> You make good points.  In the 1.1.1, blue and yellow/brown will be gone;
+> it's just green for everything visited.
 
-Good point.  Speaking of which:
-  ioctl(fd, UIOCATTACHSEMA, ...);
-seems to act like dup(fd) if fd was opened on "/dev/usemaclone"
-(see drivers/sgi/char/usema.c).  According to usema(7), this is
-intended to help libraries implement semaphores.
+I haven't had a chance to take a look, but a heads-up about color
+confusion issues. There may be no right thing, but there are plenty of
+wrong things. For instance, for about 4% of people (8% of males), RGB
+FFFF00 and 00FF00 are nearly indistiguishable, as are FF00FF and 0000FF.
 
-Is this a bad coding?  Should the kernel really support an ioctl()
-that can silently allocate the next file descriptor?  This seems
-like asking for trouble.  Or, maybe I just misunderstood something.
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

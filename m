@@ -1,43 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129116AbRCVGLB>; Thu, 22 Mar 2001 01:11:01 -0500
+	id <S131237AbRCVGZO>; Thu, 22 Mar 2001 01:25:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131237AbRCVGKu>; Thu, 22 Mar 2001 01:10:50 -0500
-Received: from [216.18.81.170] ([216.18.81.170]:5640 "EHLO
-	node0.opengeometry.com") by vger.kernel.org with ESMTP
-	id <S129116AbRCVGKo>; Thu, 22 Mar 2001 01:10:44 -0500
-Date: Thu, 22 Mar 2001 01:05:07 -0500
-From: William Park <parkw@better.net>
-To: Brian Dushaw <dushaw@munk.apl.washington.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA vt82c686b  and UDMA(100)
-Message-ID: <20010322010507.A3170@better.net>
-Mail-Followup-To: William Park <parkw@better.net>,
-	Brian Dushaw <dushaw@munk.apl.washington.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0103212029540.3646-100000@munk.apl.washington.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.30.0103212029540.3646-100000@munk.apl.washington.edu>; from dushaw@munk.apl.washington.edu on Wed, Mar 21, 2001 at 08:40:21PM -0800
+	id <S131868AbRCVGZE>; Thu, 22 Mar 2001 01:25:04 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14858 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131237AbRCVGYv>; Thu, 22 Mar 2001 01:24:51 -0500
+Date: Wed, 21 Mar 2001 22:23:53 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: kswapd deadlock 2.4.3-pre6
+In-Reply-To: <Pine.LNX.4.31.0103211223480.9358-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.31.0103212217320.10817-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 21, 2001 at 08:40:21PM -0800, Brian Dushaw wrote:
-> Dear Linux Kernel Wisemen,
->    I have been following the discussion of the VIA vt82c686b chipset
-> and the troubles people have had in getting UDMA(100) to work.  This
-> is to report that I have now tried the 2.4.2-ac20 kernel and the
-> 2.2.18 kernel with Andre's patch (dated March 20) and neither of
-> them get the disk speed up to where it ought to be.  hdparm -t reports
-> back 11 MB/s or so for either kernel.
->    VIA82CXXX enabled, and I also tried the ide0=ata66 flag, in desparation.
->    At boot up both kernels report the disk as UDMA(100) - everything
-> seems to be peachy keen, but for the sluggish disk performance.
-> 
-> Merely a report from the front lines,
 
-Try 'hdparm -d1 -t', and see what you get.
 
-:wq --William Park, Open Geometry Consulting, Linux/Python, 8 CPUs.
+On Wed, 21 Mar 2001, Linus Torvalds wrote:
+>
+> The deadlock implies that somebody scheduled with page_table_lock held.
+> Which would be really bad.
+
+..and it is probably do_swap_page().
+
+Despite the name, "lookup_swap_cache()" does more than a lookup - it will
+wait for the page that it looked up. And we call it with the
+page_table_lock held in do_swap_page().
+
+Ho humm. Does the appended patch fix it for you? Looks obvious enough, but
+this bug is actually hidden on true SMP, and I'm too lazy to test with
+"num_cpus=1" or something..
+
+		Linus
+
+-----
+diff -u --recursive --new-file pre6/linux/mm/memory.c linux/mm/memory.c
+--- pre6/linux/mm/memory.c	Tue Mar 20 23:13:03 2001
++++ linux/mm/memory.c	Wed Mar 21 22:21:27 2001
+@@ -1031,18 +1031,20 @@
+ 	struct vm_area_struct * vma, unsigned long address,
+ 	pte_t * page_table, swp_entry_t entry, int write_access)
+ {
+-	struct page *page = lookup_swap_cache(entry);
++	struct page *page;
+ 	pte_t pte;
+
++	spin_unlock(&mm->page_table_lock);
++	page = lookup_swap_cache(entry);
+ 	if (!page) {
+-		spin_unlock(&mm->page_table_lock);
+ 		lock_kernel();
+ 		swapin_readahead(entry);
+ 		page = read_swap_cache(entry);
+ 		unlock_kernel();
+-		spin_lock(&mm->page_table_lock);
+-		if (!page)
++		if (!page) {
++			spin_lock(&mm->page_table_lock);
+ 			return -1;
++		}
+
+ 		flush_page_to_ram(page);
+ 		flush_icache_page(vma, page);
+@@ -1053,13 +1055,13 @@
+ 	 * Must lock page before transferring our swap count to already
+ 	 * obtained page count.
+ 	 */
+-	spin_unlock(&mm->page_table_lock);
+ 	lock_page(page);
+-	spin_lock(&mm->page_table_lock);
+
+ 	/*
+-	 * Back out if somebody else faulted in this pte while we slept.
++	 * Back out if somebody else faulted in this pte while we
++	 * released the page table lock.
+ 	 */
++	spin_lock(&mm->page_table_lock);
+ 	if (pte_present(*page_table)) {
+ 		UnlockPage(page);
+ 		page_cache_release(page);
+

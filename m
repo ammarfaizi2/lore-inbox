@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269399AbUIIKSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269401AbUIIKWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269399AbUIIKSo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 06:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269401AbUIIKSo
+	id S269401AbUIIKWt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 06:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269404AbUIIKWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 06:18:44 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:35003 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S269399AbUIIKSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 06:18:42 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: swsusp on x86-64 w/ nforce3
-Date: Thu, 9 Sep 2004 12:19:16 +0200
-User-Agent: KMail/1.6.2
-Cc: Tony Lindgren <tony@atomide.com>, pavel@suse.cz, Andi Kleen <ak@suse.de>
-References: <200409061836.21505.rjw@sisk.pl> <200409082252.38350.rjw@sisk.pl> <20040909011802.GN8142@atomide.com>
-In-Reply-To: <20040909011802.GN8142@atomide.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 9 Sep 2004 06:22:49 -0400
+Received: from ozlabs.org ([203.10.76.45]:61623 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S269401AbUIIKWr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 06:22:47 -0400
+Subject: Re: [patch 2/2] cpu hotplug notifier for updating sched domains
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Nathan Lynch <nathanl@austin.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <413E6C49.5080106@cyberone.com.au>
+References: <200409071849.i87Inw3f143238@austin.ibm.com>
+	 <413E55D8.8030608@cyberone.com.au> <1094608996.8015.5.camel@booger>
+	 <413E6C49.5080106@cyberone.com.au>
+Content-Type: text/plain
+Message-Id: <1094725124.25639.18.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 09 Sep 2004 20:18:44 +1000
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409091219.17347.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 of September 2004 03:18, Tony Lindgren wrote:
-> * Rafael J. Wysocki <rjw@sisk.pl> [040908 13:52]:
-> > On Wednesday 08 of September 2004 22:42, Tony Lindgren wrote:
-> > > 
-> > > Just FYI, swsusp works nicely here on my m6805 laptop :)
-> > 
-> > Can you, please, send me your .config?
-> 
-> You can get my current m6805 .config at (I just updated it):
-> 
-> http://www.muru.com/linux/amd64/config
-> 
+On Wed, 2004-09-08 at 12:19, Nick Piggin wrote:
+> Nathan Lynch wrote:
+> >Well, we have to "lie" to arch_init_sched_domains a little bit when
+> >bringing a cpu online, by setting the soon-to-be-online cpu's bit in the
+> >argument mask.  So I think the first patch is still necessary.
 
-Please excuse me, but Is your laptop nforce3-based?  I see that you have set 
-CONFIG_BLK_DEV_VIA82CXXX rather than CONFIG_BLK_DEV_AMD74XX in the .config, 
-which indicates that it's VIA-based.
+I'm still a little surprised that you don't change the domains while the
+machine is frozen (ie in take_cpu_down()).  This should avoid any races,
+since noone can be looking at the domains at this time.
 
-Greets,
-RJW
+> Do you have a theoretical race here? Can we hotplug a CPU before the notifier
+> is registered? (I know we *can't* because it is still earlyish boot).
 
+No, init has so many serial assumptions that this is the least of our
+worries.
+
+Rusty.
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

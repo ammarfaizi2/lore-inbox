@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265854AbTBFJam>; Thu, 6 Feb 2003 04:30:42 -0500
+	id <S265815AbTBFJ3E>; Thu, 6 Feb 2003 04:29:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265863AbTBFJam>; Thu, 6 Feb 2003 04:30:42 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:56582 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S265854AbTBFJak>; Thu, 6 Feb 2003 04:30:40 -0500
-Subject: Re: [Linux-fbdev-devel] Re: New logo code (fwd)
-From: Antonino Daplas <adaplas@pol.net>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0302061017330.3301-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0302061017330.3301-100000@vervain.sonytel.be>
-Content-Type: text/plain
+	id <S265816AbTBFJ3E>; Thu, 6 Feb 2003 04:29:04 -0500
+Received: from geo-resources.xs4all.nl ([213.84.3.109]:29596 "EHLO
+	geo-resources.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S265815AbTBFJ3D>; Thu, 6 Feb 2003 04:29:03 -0500
+Message-ID: <3E423B4A.2020900@xs4all.nl>
+Date: Thu, 06 Feb 2003 11:39:06 +0100
+From: Auke Kok <sofar@xs4all.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030124
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: HPT370 hangs on partition check
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1044437021.1169.64.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Feb 2003 17:24:22 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-02-06 at 17:19, Geert Uytterhoeven wrote:
-> 
-> I always see the logo twice. The first time it's erased by the text (because
-> initially fbcon thinks logo_height = 0), the second time it's displayed
-> correctly.
-> 
-> So I also wondered why it's drawn twice?
 
-I was expecting this behavior because I remember you mentioning it in
-one of your early mails.  In my case, it was only drawn once which
-lasted only for a blink.
+CC: sofar@xs4all.nl (not subscribed - on dialup)
+V:2.4.20
 
-> > Overall, I like it, though it does add some kilobytes to the kernel
-> > image size.
-> 
-> Why would it increase kernel size that much? The logos were there before as
-> well (unless you enable all of them, of course :-).
-> 
-My fault, I accidentally enabled ACPI :-)
+I've got a HPT370 on a adaptec 1200a PCI card that I use as add-on raid 
+controller, which hangs the boot process during the 'partition check' in 
+case there is only one drive (set to cable select) and connected to the 
+secondary ide channel of the HPT370.
 
-Tony
+The system actually hangs on "ide2" which is the primary ide channel of 
+the HPT370, and is empty in my system, during the partition check, so 
+dmesg already displays all availble drives and channels in order.
 
+Putting the drive to 'master' actually resolves the problem.
+
+The fact that the ide system is probing ide2 for partitions while 
+there's no drives attached to it make me wonder if the ide system didn't 
+got told that there was no drive attached to it by the hpt driver. I can 
+only wonder about why the whole system hasn't got the problem when the 
+drive is set to 'master'.
+
+summarized:
+  ide0: hda: HD hdb:CDRW
+  ide1: unused, disabled in onboard mobo
+  ide2: unused
+  ide3: hdg: HD(cable select, therefore master) hdh:empty
+
+Auke Kok
+CC: sofar@xs4all.nl (not subscribed - on dialup)
 

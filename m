@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268458AbTBYVTW>; Tue, 25 Feb 2003 16:19:22 -0500
+	id <S268366AbTBYVOk>; Tue, 25 Feb 2003 16:14:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268463AbTBYVTW>; Tue, 25 Feb 2003 16:19:22 -0500
-Received: from holomorphy.com ([66.224.33.161]:50103 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268458AbTBYVTM>;
-	Tue, 25 Feb 2003 16:19:12 -0500
-Date: Tue, 25 Feb 2003 13:28:10 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225212810.GF10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Larry McVoy <lm@bitmover.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <1046093309.1246.6.camel@irongate.swansea.linux.org.uk> <20030225051956.GA18302@f00f.org> <13760000.1046153824@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <13760000.1046153824@[10.10.2.4]>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S268379AbTBYVOk>; Tue, 25 Feb 2003 16:14:40 -0500
+Received: from home.alltec.com ([66.46.63.194]:62961 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S268366AbTBYVNP>; Tue, 25 Feb 2003 16:13:15 -0500
+Message-ID: <3E5BDECD.40502@alltec.com>
+Date: Tue, 25 Feb 2003 16:23:25 -0500
+From: Mike Sullivan <mike.sullivan@alltec.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduling with Hyperthreading
+References: <Pine.LNX.4.44.0302251616300.31810-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, Chris Wedgewood wrote:
->> It seems to me for small boxes, 2.5.x is margianlly slower at most
->> things than 2.4.x.
+I have tried RH 2.4.18 stock redhat kernels and and 2.4.20 kernels. Both 
+seem to
+do badly.
 
-On Mon, Feb 24, 2003 at 10:17:05PM -0800, Martin J. Bligh wrote:
-> Can you name a benchmark, or at least do something reproducible between
-> versions, and produce a 2.4 vs 2.5 profile? Let's at least try to fix it ...
+Is there somewhere to look to see a history of the schedular work, or do 
+I need
+to puruse all of the changelogs to get an idea of what kernel I should 
+be trying.
 
-Looks like Cliff's got some good data.
 
 
--- wli
+                                                                        
+                                            Regards
+                                                                        
+                                            Mike
+
+Mark Hahn wrote:
+
+>>I would to a quick snap with top, and when I saw 99.9% I assumed the the 
+>>process had
+>>been there during the time top was starting up.
+>>
+>>Looking at /proc/(pid)/cpu, shows that with two jobs running they are 
+>>sticking to cpu 0 and 1
+>>which are siblings
+>>    
+>>
+>
+>ah, sorry if you said this, but which kernel are you running?
+>you need a HT-aware scheduler, for sure.  does your problem go away
+>if you boot with noht?
+>  
+>
+
+-- 
+----------------------------------------------------------------------
+Mike Sullivan                           Director Performance Computing
+@lliance Technologies,                  Voice: (416) 385-3255, 
+18 Wynford Dr, Suite 407                Fax:   (416) 385-1774
+Toronto, ON, Canada, M3C-3S2            Toll Free:1-877-216-3199
+http://www.alltec.com
+
+
+

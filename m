@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264461AbRFOROi>; Fri, 15 Jun 2001 13:14:38 -0400
+	id <S263344AbRFORTS>; Fri, 15 Jun 2001 13:19:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264463AbRFORO2>; Fri, 15 Jun 2001 13:14:28 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:33540 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264461AbRFOROO>; Fri, 15 Jun 2001 13:14:14 -0400
-Date: Fri, 15 Jun 2001 14:05:25 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Petko Manolov <pmanolov@Lnxw.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kmalloc
-Message-ID: <20010615140525.A960@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Petko Manolov <pmanolov@Lnxw.COM>, linux-kernel@vger.kernel.org
-In-Reply-To: <3B2A3F90.799ACAC4@lnxw.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3B2A3F90.799ACAC4@lnxw.com>; from pmanolov@Lnxw.COM on Fri, Jun 15, 2001 at 10:02:08AM -0700
-X-Url: http://advogato.org/person/acme
+	id <S264202AbRFORTI>; Fri, 15 Jun 2001 13:19:08 -0400
+Received: from t111.niisi.ras.ru ([193.232.173.111]:21360 "EHLO
+	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
+	id <S263344AbRFORS6>; Fri, 15 Jun 2001 13:18:58 -0400
+Message-ID: <3B2A42D4.7090004@niisi.msk.ru>
+Date: Fri, 15 Jun 2001 21:16:04 +0400
+From: Alexandr Andreev <andreev@niisi.msk.ru>
+Organization: niisi
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i586; en-US; rv:0.9) Gecko/20010507
+X-Accept-Language: ru, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Using cramfs as root filesystem on diskless machine
+In-Reply-To: <3B2A0F05.6050902@niisi.msk.ru> <14506.992621390@redhat.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Jun 15, 2001 at 10:02:08AM -0700, Petko Manolov escreveu:
-> 	Hi there,
-> 
-> AFAIK there was similar discusion almos a year
-> ago but i can't remember the details.
-> 
-> kmalloc fails to allocate more than 128KB of
-> memory regardless of the flags (GFP_KERNEL/USER/ATOMIC)
-> 
-> Any ideas?
-> 
-> I am not quite sure if this is the expected behavior.
+Hi, David.
+David Woodhouse wrote:
 
-yes, expected behaviour, at most you can allocate 32 contiguous pages with
-kmalloc, if you need more and it is not for DMA, use vmalloc, that will not
-try to use contiguous pages
+>Where does the bootloader get the initrd from?
+>
+Bootloader only jumps to the kernel entry point. The initrd image is 
+compiled
+inside the kernel. ( special section in the ELF kernel binary )
+.config:
+...
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=8192
+CONFIG_BLK_DEV_INITRD=y
+...
+If 'root=/dev/ram' option is set in command line, the root file system 
+will bi in
+RAM. When the linux kernel is booting, it tries to identify_ramdisk_image()
+( at drivers/block/rd.c ). So it can only understand ext2, minix, romfs,
+and gzipped images. But what about cramfs? How can i use a cramfs image 
+to mount
+it as my root file system? Is any patches to the rd.c requiried?
 
-- Arnaldo

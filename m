@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318305AbSHKKrp>; Sun, 11 Aug 2002 06:47:45 -0400
+	id <S318264AbSHKKw7>; Sun, 11 Aug 2002 06:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318312AbSHKKrp>; Sun, 11 Aug 2002 06:47:45 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:55048 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S318305AbSHKKro>; Sun, 11 Aug 2002 06:47:44 -0400
-To: Leopold Gouverneur <lgouv@pi.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3[01] does not boot for me
-References: <20020811081929.GA693@gouv>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 11 Aug 2002 19:51:21 +0900
-In-Reply-To: <20020811081929.GA693@gouv>
-Message-ID: <87it2h7jo6.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S318283AbSHKKw6>; Sun, 11 Aug 2002 06:52:58 -0400
+Received: from codepoet.org ([166.70.99.138]:39646 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S318264AbSHKKw6>;
+	Sun, 11 Aug 2002 06:52:58 -0400
+Date: Sun, 11 Aug 2002 04:56:45 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre1
+Message-ID: <20020811105645.GB19032@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Leopold Gouverneur <lgouv@pi.be> writes:
+On Mon Aug 05, 2002 at 07:40:56PM -0300, Marcelo Tosatti wrote:
+> <achirica@ttd.net> (02/05/31 1.445.1.13)
+> 	airo wireless net driver update:
 
-> 2.5.31 hangs during boot after:
-> 
-> hde 60036480 sectors w/1916 KiB cache CHS=59560/16/63, UDMA(44)
-> hde hde1 hde2 hde3 hde4 <
-> 
-> hde is a  IBM-DTLA-307030 on a HPT366 (Abit BP6) 2.5.29 boot OK
-> Sorry if it is a known problem!
+Doesn't this make more sense?
 
-Sound like the same problem as me. If so, the following patch should
-be solves this problem.
-
-Can you try patch?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-
---- tools/linux-2.5.31/drivers/ide/pcidma.c	2002-08-05 03:01:09.000000000 +0900
-+++ ide_pcidma-2.5.31/drivers/ide/pcidma.c	2002-08-11 18:46:42.000000000 +0900
-@@ -391,22 +391,20 @@
- 	sg = ch->sg_table;
- 	while (i--) {
- 		u32 cur_addr = sg_dma_address(sg);
--		u32 cur_len = sg_dma_len(sg) & 0xffff;
-+		u32 cur_len = sg_dma_len(sg);
- 
- 		/* Delete this test after linux ~2.5.35, as we care
- 		   about performance in this loop. */
- 		BUG_ON(cur_len > ch->max_segment_size);
- 
- 		*table++ = cpu_to_le32(cur_addr);
--		*table++ = cpu_to_le32(cur_len);
-+		*table++ = cpu_to_le32(cur_len & 0xffff);
- 
- 		sg++;
- 	}
- 
--#ifdef CONFIG_BLK_DEV_TRM290
--	if (ch->chipset == ide_trm290)
-+	if (ch->chipset != ide_trm290)
- 		*--table |= cpu_to_le32(0x80000000);
+--- linux/drivers/net/wireless/airo.c.orig	Sun Aug 11 03:59:28 2002
++++ linux/drivers/net/wireless/airo.c	Sun Aug 11 03:59:46 2002
+@@ -191,12 +191,6 @@
+ #ifndef RUN_AT
+ #define RUN_AT(x) (jiffies+(x))
+ #endif
+-#ifndef PDE
+-static inline struct proc_dir_entry *PDE(const struct inode *inode)
+-{
+-	return inode->u.generic_ip;
+-}
 -#endif
  
- 	return ch->sg_nents;
- }
+ 
+ /* These variables are for insmod, since it seems that the rates
+
+diff -urN linux-2.4.19.orig/include/linux/proc_fs.h linux-2.4.19/include/linux/proc_fs.h
+--- linux-2.4.19.orig/include/linux/proc_fs.h	Fri Aug  2 18:39:45 2002
++++ linux-2.4.19/include/linux/proc_fs.h	Sun Aug 11 00:23:55 2002
+@@ -209,4 +209,9 @@
+ 
+ #endif /* CONFIG_PROC_FS */
+ 
++static inline struct proc_dir_entry *PDE(const struct inode *inode)
++{
++	return (struct proc_dir_entry *)inode->u.generic_ip;
++}
++
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbUASSIx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 13:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUASSIx
+	id S261974AbUASSGD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 13:06:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbUASSGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 13:08:53 -0500
-Received: from bgp01038448bgs.sothwt01.mi.comcast.net ([68.43.98.24]:38277
-	"EHLO fire-eyes.dynup.net") by vger.kernel.org with ESMTP
-	id S262131AbUASSIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 13:08:32 -0500
-Message-ID: <400C1D2F.7020503@fire-eyes.dynup.net>
-Date: Mon, 19 Jan 2004 13:08:47 -0500
-From: fire-eyes <sgtphou@fire-eyes.dynup.net>
-Reply-To: sgtphou@fire-eyes.dynup.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.1: atkbd.c errors + mouse errors with a belkin KVM
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jan 2004 13:06:03 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:14481 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S261974AbUASSFg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 13:05:36 -0500
+Date: Mon, 19 Jan 2004 10:05:05 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Miek Gieben <miekg@atoom.net>
+Cc: linux-kernel@vger.kernel.org, Nathan Poznick <kraken@drunkmonkey.org>
+Subject: Re: aacraid and 2.6
+Message-ID: <20040119180505.GS1748@srv-lnx2600.matchmail.com>
+Mail-Followup-To: Miek Gieben <miekg@atoom.net>,
+	linux-kernel@vger.kernel.org,
+	Nathan Poznick <kraken@drunkmonkey.org>
+References: <20040119102647.GA23288@atoom.net> <20040119135228.GA7935@tao.wang-fu.org> <20040119135619.GA32393@atoom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040119135619.GA32393@atoom.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm seeing some strange behavior using kernel 2.6.1 and a Belkin KVM. I 
-have talked to two others who have seen the same problem. This did not 
-happen in 2.6.0 or any 2.4 kernel.
+On Mon, Jan 19, 2004 at 02:56:19PM +0100, Miek Gieben wrote:
+> [On 19 Jan, @14:52, Nathan wrote in "Re: aacraid and 2.6 ..."]
+> > Thus spake Miek Gieben:
+> > > Hello,
+> > > 
+> > > Last week I tried to get aacraid working under 2.6.1, which failed.  In
+> > > http://www.kernel.org/pub/linux/kernel/people/akpm/must-fix/must-fix-7.txt it
+> > > says:
+> > > 
+> > > 	o ideraid hasn't been ported to 2.5 at all yet.
+> > 
+> > However, aacraid is not ideraid.  I'm using the aacraid driver on a Dell
+> > PERC3 controller with no problems so far on 2.6.1-mm4.
+> 
+> hmmm, did you have any luck with 2.6.1?
+> 
+> In this case it's a SATA raid from Adaptec. So, if aacraid if not ide-raid, why
+> doesn't it work? 
 
-When switching ports using the keyboard, that is hitting scroll lock 
-twice and then the port # I want ( 1 - 16), then coming back the same 
-way, I often get the following error:
-
-kernel: atkbd.c: Unknown key released (translated set 2, code 0x7a on 
-isa0060/serio0).
-
-I have also seen this same error while switching from X11 to console, 
-but only once. In that one case, I lost mouse control, and keyboard 
-control, and was unable to regain either. I had to reboot to rectify the 
-situation.
-
-I'm not sure if this happens when pushing the buttons on the front of 
-the kvm.
-
-KVM Information:
-
-Belkin Omniview Matrix2 , Model F1DM216T
-Maufacturer URL: 
-http://catalog.belkin.com/IWCatProductPage.process?Merchant_Id=1&Product_Id=122933
-
-Is there any further information I can submit to help solve this?
+And what errors did you get?

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275172AbSIUAKT>; Fri, 20 Sep 2002 20:10:19 -0400
+	id <S263988AbSIUAHf>; Fri, 20 Sep 2002 20:07:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275175AbSIUAKT>; Fri, 20 Sep 2002 20:10:19 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:64273 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S275172AbSIUAKS>;
-	Fri, 20 Sep 2002 20:10:18 -0400
-Date: Fri, 20 Sep 2002 17:11:24 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-cc: Brad Hards <bhards@bigpond.net.au>, David Brownell <david-b@pacbell.net>,
-       Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
-In-Reply-To: <20020920193642.I1627@sventech.com>
-Message-ID: <Pine.LNX.4.33L2.0209201709570.5885-100000@dragon.pdx.osdl.net>
+	id <S275172AbSIUAHf>; Fri, 20 Sep 2002 20:07:35 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:50596 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S263988AbSIUAHe> convert rfc822-to-8bit; Fri, 20 Sep 2002 20:07:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.20-pre7-ac3{-rmap14b|-preempt}
+Date: Sat, 21 Sep 2002 02:12:19 +0200
+X-Mailer: KMail [version 1.4]
+References: <200209210125.01953.m.c.p@wolk-project.de>
+In-Reply-To: <200209210125.01953.m.c.p@wolk-project.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209210212.19775.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002, Johannes Erdfelt wrote:
+On Saturday 21 September 2002 02:02, you wrote:
 
-| On Sat, Sep 21, 2002, Brad Hards <bhards@bigpond.net.au> wrote:
-| > -----BEGIN PGP SIGNED MESSAGE-----
-| > Hash: SHA1
-| >
-| > On Sat, 21 Sep 2002 06:42, David Brownell wrote:
-| > > >>I wasn't joking about putting back the /proc/bus/usb/drivers file. This
-| > > >> is really going to hurt us in 2.6.
-| > >
-| > > Considering that the main use of that file that I know about was
-| > > implicit (usbfs is available if its files are present, another
-| > > assumption broken in 2.5), I'm not sure I feel any pain... :-)
-| >
-| > OK. Everytime someone goes "I've got usbfs loaded, and here is
-| > /proc/bus/usb/devices, but can't send you /proc/bus/usb/drivers", I'll assume
-| > that you two will answer the question.
-| >
-| > Helping people is hard. Please don't make it harder. :-(
-|
-| Personally, I've never used /proc/bus/usb/drivers. I've always just
-| looked at lsmod.
-|
-| Why should this be any different?
+Hi there,
 
-The only case I know of that's it been useful is to see why
-some USB driver failed registration -- because it's minor number(s)
-were already assigned/registered.  That won't happen with
-just kernel.org stock drivers etc., of course.
+> -----------------------------------------------------------
+> NOTE: Apply the rmap14b patch first and then preempt ontop!
+> -----------------------------------------------------------
+totally bullshit ;( ... Sorry. Ok, follow like this:
+
+1. if you only want rmap14b, apply rmap14b patch
+2. if you want both, rmap14b and preempt, apply rmap14b-preempt patch
+
+Now it's right :) ... Sorry!
 
 -- 
-~Randy
+Kind regards
+        Marc-Christian Petersen
 
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.

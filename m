@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131508AbRDPQj3>; Mon, 16 Apr 2001 12:39:29 -0400
+	id <S131562AbRDPQot>; Mon, 16 Apr 2001 12:44:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131562AbRDPQjW>; Mon, 16 Apr 2001 12:39:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32270 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S131508AbRDPQif>;
-	Mon, 16 Apr 2001 12:38:35 -0400
-Date: Mon, 16 Apr 2001 18:38:12 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mircea Damian <dmircea@kappa.ro>
-Cc: Alexander Viro <viro@math.psu.edu>, Arthur Pedyczak <arthur-p@home.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: loop problems continue in 2.4.3
-Message-ID: <20010416183812.I9539@suse.de>
-In-Reply-To: <20010416104936.B9539@suse.de> <Pine.GSO.4.21.0104160527400.3095-100000@weyl.math.psu.edu> <20010416131023.A19844@linux.kappa.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010416131023.A19844@linux.kappa.ro>; from dmircea@kappa.ro on Mon, Apr 16, 2001 at 01:10:23PM +0300
+	id <S131590AbRDPQok>; Mon, 16 Apr 2001 12:44:40 -0400
+Received: from feeder.cyberbills.com ([64.41.210.81]:61201 "EHLO
+	sjc-smtp1.cyberbills.com") by vger.kernel.org with ESMTP
+	id <S131587AbRDPQoe>; Mon, 16 Apr 2001 12:44:34 -0400
+Date: Mon, 16 Apr 2001 09:44:27 -0700 (PDT)
+From: "Sergey Kubushin" <ksi@cyberbills.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac7
+In-Reply-To: <E14pBgV-0000Vy-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.31ksi3.0104160943360.20561-100000@nomad.cyberbills.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 16 2001, Mircea Damian wrote:
-> But the guy said:
-> "
-> > disappers from cat /proc/mounts output, but the module 'loop' shows as
-> > busy and cannot be removed even though there are no more loop mounts.
-> "
-> 
-> So he has no loop mounts and he can not remove the module. This is a bug!
+On Mon, 16 Apr 2001, Alan Cox wrote:
 
-Ah indeed, I'll take a look.
+> > gcc -D__KERNEL__ -I/tmp/build-kernel/usr/src/linux-2.4.3ac7/include
+> -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
+> -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS
+> -include
+> /tmp/build-kernel/usr/src/linux-2.4.3ac7/include/linux/modversions.h
+> -c -o cycx_x25.o cycx_x25.c
+> > cycx_x25.c: In function `new_if':
+> > cycx_x25.c:364: structure has no member named `port'
+>
+> Fixed in my working tree. The Sangoma patch Linus merged accidentally
+> backed out
+> support for a competing product.
 
--- 
-Jens Axboe
+So we're waiting for ac8 to be out really soon or what?
+
+---
+Sergey Kubushin				Sr. Unix Administrator
+CyberBills, Inc.			Phone:	702-567-8857
+874 American Pacific Dr,		Fax:	702-567-8808
+Henderson, NV 89014
 

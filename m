@@ -1,33 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272137AbRIRPmX>; Tue, 18 Sep 2001 11:42:23 -0400
+	id <S272270AbRIRPpn>; Tue, 18 Sep 2001 11:45:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272270AbRIRPmI>; Tue, 18 Sep 2001 11:42:08 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48134 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272137AbRIRPlj>; Tue, 18 Sep 2001 11:41:39 -0400
-Subject: Re: Deadlock on the mm->mmap_sem
-To: dhowells@redhat.com (David Howells)
-Date: Tue, 18 Sep 2001 16:46:03 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        manfred@colorfullife.com (Manfred Spraul),
-        andrea@suse.de (Andrea Arcangeli),
-        torvalds@transmeta.com (Linus Torvalds), dhowells@redhat.com,
-        Ulrich.Weigand@de.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <6460.1000826771@warthog.cambridge.redhat.com> from "David Howells" at Sep 18, 2001 04:26:11 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S272280AbRIRPpZ>; Tue, 18 Sep 2001 11:45:25 -0400
+Received: from lilly.ping.de ([62.72.90.2]:46350 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id <S272270AbRIRPoS>;
+	Tue, 18 Sep 2001 11:44:18 -0400
+Date: 18 Sep 2001 17:43:02 +0200
+Message-ID: <20010918174302.C6698@planetzork.spacenet>
+From: jogi@planetzork.ping.de
+To: "Andrea Arcangeli" <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-pre11: alsaplayer skiping during kernel build (-pre10 did not)
+In-Reply-To: <20010918171416.A6540@planetzork.spacenet> <20010918172529.A6698@planetzork.spacenet> <20010918173142.G19092@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15jN4V-00018c-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010918173142.G19092@athlon.random>; from andrea@suse.de on Tue, Sep 18, 2001 at 05:31:42PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If you want codd for this its in the older -ac tree. Linus decided it wasnt
-> > justified so it went out
+On Tue, Sep 18, 2001 at 05:31:42PM +0200, Andrea Arcangeli wrote:
+> On Tue, Sep 18, 2001 at 05:25:29PM +0200, jogi@planetzork.ping.de wrote:
+> > On Tue, Sep 18, 2001 at 05:14:16PM +0200, jogi@planetzork.ping.de wrote:
+> > > Hello Andrea,
+> > > 
+> > > I gave your new vm a try and I have to report a problem. System is an
+> > > Athlon 1200 with 256MB memory. Workload:
+> > 
+> > Sorry to follow up on my own. But the problem seems to be worse than I
+> > first thought. Kernel build is the first thing I test when I try a new
+> > kernel :-)
+> > 
+> > So now I logged into X and even during starting of Mozilla or normal
+> > web browsing alsaplayer is skiping *lots*. The system is not into swap
+> > and has about 150MB cached. Just to let you know ...
+> > 
+> > I guess I will go back to -pre10 now. If you want to let me test some
+> > things just let me know.
 > 
-> Arjan said there was such a beast in the -ac stuff, but I guess this explains
-> why I couldn't find it... Do you have any idea which -ac's?
+> just make sure not to renice top at -10. Are you sure you reniced top at
+> -10 also with pre10? Those issues shouldn't really vm related. I also
+> profiled the new vm well and it never showed up in the toplist so I
+> suspect you changed something in userspace. and of course I run xmms all
+> the time too and it didn't skept one sample yet.
 
-It went in with the threaded core dump patch
+Ok, I just killed top. And it still is skiping lots although I do
+not have any reniced jobs running. And yes, I had top running reniced
+too on -pre10. I will boot -pre10 and check if it is skipping because
+alsaplayer is currently skipping as hell (running make -j4 in the
+background). Still no swap used. Strange. I will check xmms also and
+let you know.
+
+Regards,
+
+   Jogi
+
+-- 
+
+Well, yeah ... I suppose there's no point in getting greedy, is there?
+
+    << Calvin & Hobbes >>

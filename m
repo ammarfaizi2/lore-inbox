@@ -1,114 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbTLVMcc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 07:32:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbTLVMcc
+	id S264409AbTLVMu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 07:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264410AbTLVMu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 07:32:32 -0500
-Received: from ping.ovh.net ([213.186.33.13]:46528 "EHLO ping.ovh.net")
-	by vger.kernel.org with ESMTP id S263609AbTLVMc2 (ORCPT
+	Mon, 22 Dec 2003 07:50:56 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:48853 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264409AbTLVMuz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 07:32:28 -0500
-Date: Mon, 22 Dec 2003 13:30:36 +0100
-From: Octave <oles@ovh.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: lot of VM problem with 2.4.23
-Message-ID: <20031222123036.GW12491@ovh.net>
-References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local> <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221184709.GO25043@ovh.net> <20031221185959.GE1494@louise.pinerecords.com> <20031221234350.GD4897@ovh.net> <Pine.LNX.4.58L.0312220921120.2691@logos.cnet>
+	Mon, 22 Dec 2003 07:50:55 -0500
+Date: Mon, 22 Dec 2003 13:51:30 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew McGregor <andrew@indranet.co.nz>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
+Message-ID: <20031222125130.GA13685@elte.hu>
+References: <1071864709.1044.172.camel@localhost> <1071885178.1044.227.camel@localhost> <3FE3B61C.4070204@cyberone.com.au> <200312201355.08116.kernel@kolivas.org> <1071891168.1044.256.camel@localhost> <14897962.1072137278@[192.168.1.249]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0312220921120.2691@logos.cnet>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <14897962.1072137278@[192.168.1.249]>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: SpamAssassin ELTE 1.0
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Octave,
-> 
-> What do you mean with "server is down" ? The OOM killer killed an
-> application ? What were the messages?
-> 
-> Under out of memory, 2.4.22 should also kill a process, but you say it
-> doesnt.
 
-Marcelo,
+* Andrew McGregor <andrew@indranet.co.nz> wrote:
 
-All I have with 
-- 2.4.24-pre1 is
-# echo 1 > /proc/sys/vm/vm_gfp_debug        
-# for i in `seq 1 100`; do ./full.pl &  done
-[1] 849
-[2] 850
-[...]                                                                                                 
-# tail -f /var/log/messages                                                                                                                    
-[...]
+> Hmm.  Gnomemeeting has a history of strange threading issues
+> (actually, all OpenH323 derived projects do).  Is there a threading
+> change that might explain this?
 
-SOFTDOG: Initiating system reboot.
+we tracked down the bug to pwlib's sched_yield() usage. Other code that
+uses sched_yield() to 'sleep a bit' could be affected as well.
 
-LILO:
-
-- 2.4.23 
-Dec 22 13:16:30 u8668 kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)                                                                            
-Dec 22 13:16:30 u8668 kernel: f7465e74 c012e1d8 000001d2 00000000 00000001 c493e120 000003ef 00000000                                                           
-Dec 22 13:16:30 u8668 kernel:        00000018 00000002 c029e998 c029ea94 00000000 000001d2 00000000 c012dd80                                                    
-Dec 22 13:16:30 u8668 kernel:        c1ab6bf0 c0121fe8 f5759d40 00125eac 00000001 c493e120 00000000 0003923f                                                    
-Dec 22 13:16:30 u8668 kernel: Call Trace:    [raw_devices+7128/8192] [raw_devices+6016/8192] [buf.0+40/1024] [log_buf+275/16384] [device_list+2031/2032]        
-Dec 22 13:16:30 u8668 kernel: Call Trace:    [<c012e1d8>] [<c012dd80>] [<c0121fe8>] [<c0122913>] [<c0111707>]                                                   
-Dec 22 13:16:30 u8668 kernel:   [device_list+1636/2032] [dfont_unitable+352/608]                                                                                
-Dec 22 13:16:30 u8668 kernel:   [<c011157c>] [<c0106fa0>]                                                                                                       
-Dec 22 13:16:30 u8668 kernel: VM: killing process full.pl
-Dec 22 13:16:30 u8668 kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)                                                                            
-Dec 22 13:16:30 u8668 kernel: f7465d40 c012e1d8 000001d2 00000000 00000000 f79d79a4 000003ef 00000000                                                           
-Dec 22 13:16:30 u8668 kernel:        00000018 00000002 c029e998 c029ea94 00000000 000001d2 00000000 c012dd80                                                    
-Dec 22 13:16:34 u8668 kernel:        00000000 c012595a f7464000 c0000000 f7465eec 00000000 f7ddb788 00001000                                                    
-Dec 22 13:16:34 u8668 kernel: Call Trace:    [raw_devices+7128/8192] [raw_devices+6016/8192] [log_buf+12634/16384] [log_buf+14106/16384] [log_buf+13724/16384]  
-Dec 22 13:16:34 u8668 kernel: Call Trace:    [<c012e1d8>] [<c012dd80>] [<c012595a>] [<c0125f1a>] [<c0125d9c>]                                                   
-Dec 22 13:16:34 u8668 kernel:   [read_ahead+669/1020] [blk_dev+29672/35712] [blk_dev+31175/35712] [blk_dev+32524/35712] [devpts_root_inode_operations+67/80] [df
-ont_unitable+119/608]                                                                                                                                           
-Dec 22 13:16:35 u8668 kernel:   [<c0135dbd>] [<c013d328>] [<c013d907>] [<c013de4c>] [<c0105ac3>] [<c0106eb7>]
-Dec 22 13:16:35 u8668 kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-Dec 22 13:16:35 u8668 kernel: f729fe14 c012e1d8 000001d2 00128000 00000001 f77ef8e0 000003ef 00000000 
-Dec 22 13:16:35 u8668 kernel:        00000018 00000002 c029e998 c029ea94 00000000 000001d2 00000000 c012dd80 
-Dec 22 13:16:35 u8668 kernel:        00104025 c01225a3 f77ef8e0 00128000 00000001 f7317aa0 f7ce4800 c01226bf 
-Dec 22 13:16:36 u8668 kernel: Call Trace:    [raw_devices+7128/8192] [raw_devices+6016/8192] [printk_buf.1+451/1024] [printk_buf.1+735/1024] [log_buf+232/16384]
-Dec 22 13:16:36 u8668 kernel: Call Trace:    [<c012e1d8>] [<c012dd80>] [<c01225a3>] [<c01226bf>] [<c01228e8>]
-Dec 22 13:16:36 u8668 kernel:   [pidhash+2049/4096] [log_buf+704/16384] [log_buf+3230/16384] [DAC960_MessageLevelMap+30/32] [dfont_unitable+119/608]
-Dec 22 13:16:36 u8668 kernel:   [<c0121781>] [<c0122ac0>] [<c012349e>] [<c010c6be>] [<c0106eb7>]
-Dec 22 13:16:36 u8668 kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-Dec 22 13:16:36 u8668 kernel: f729fe14 c012e1d8 000001d2 00128000 00000001 f77ef8e0 000003ef 00000000 
-Dec 22 13:16:36 u8668 kernel:        00000018 00000002 c029e998 c029ea94 00000000 000001d2 00000000 c012dd80 
-Dec 22 13:16:36 u8668 kernel:        00104025 c01225a3 f77ef8e0 00128000 00000001 f7317aa0 f7ce4800 c01226bf 
-Dec 22 13:16:36 u8668 kernel: Call Trace:    [raw_devices+7128/8192] [raw_devices+6016/8192] [printk_buf.1+451/1024] [printk_buf.1+735/1024] [log_buf+232/16384]
-
-[...]
-
-then nothing more.
-
-- 2.4.22
-
-# echo 1 > /proc/sys/vm/vm_gfp_debug
-bash: /proc/sys/vm/vm_gfp_debug: No such file or directory
-# echo 1 > /proc/sys/vm/            
-bdflush            max-readahead      min-readahead      page-cluster
-kswapd             max_map_count      overcommit_memory  pagetable_cache
-# tail -f /var/log/messages
-Dec 22 13:28:34 u8668 kernel: Out of Memory: Killed process 441 (named).
-Dec 22 13:28:34 u8668 kernel: Out of Memory: Killed process 443 (named).
-Dec 22 13:28:34 u8668 kernel: Out of Memory: Killed process 444 (named).
-Dec 22 13:28:34 u8668 kernel: Out of Memory: Killed process 445 (named).
-Dec 22 13:28:34 u8668 kernel: Out of Memory: Killed process 446 (named).
-Dec 22 13:28:34 u8668 kernel: Out of Memory: Killed process 447 (named).
-Dec 22 13:28:42 u8668 kernel: Out of Memory: Killed process 750 (mysqld).
-Dec 22 13:28:42 u8668 kernel: Out of Memory: Killed process 760 (mysqld).
-Dec 22 13:28:42 u8668 kernel: Out of Memory: Killed process 761 (mysqld).
-Dec 22 13:28:48 u8668 kernel: Out of Memory: Killed process 636 (httpd).
-Dec 22 13:28:57 u8668 kernel: Out of Memory: Killed process 637 (httpd).
-Dec 22 13:29:03 u8668 kernel: Out of Memory: Killed process 638 (httpd).
-Dec 22 13:29:14 u8668 kernel: Out of Memory: Killed process 639 (httpd).
-SOFTDOG: Initiating system reboot.
-
-Thanks for help
-
-Octave
-
+	Ingo

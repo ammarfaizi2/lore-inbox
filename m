@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267577AbRGNFdc>; Sat, 14 Jul 2001 01:33:32 -0400
+	id <S267579AbRGNGD3>; Sat, 14 Jul 2001 02:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267578AbRGNFdW>; Sat, 14 Jul 2001 01:33:22 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11478 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S267577AbRGNFdM>;
-	Sat, 14 Jul 2001 01:33:12 -0400
-Date: Sat, 14 Jul 2001 01:33:06 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Abramo Bagnara <abramo@alsa-project.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        nfs-devel@linux.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: [NFS] [PATCH] Bug in NFS - should init be allowed to set umask???
-In-Reply-To: <15183.53052.826318.795664@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.GSO.4.21.0107140126330.19749-100000@weyl.math.psu.edu>
+	id <S267580AbRGNGDT>; Sat, 14 Jul 2001 02:03:19 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:37550 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S267579AbRGNGDG>; Sat, 14 Jul 2001 02:03:06 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Chuck Winters" <cwinters@atl.lmco.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Number of File descriptors
+Date: Fri, 13 Jul 2001 23:03:07 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMMEMGCHAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010713095934.A6100@atl.lmco.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Hello All,
+> 	My interest has been peaked by a recent email.  At one
+> point, I heard two people speaking
+> about how some database guy wanted to have 2000 open files(or
+> something crazy like that).
+> They said that he must be crazy because the kernel does a
+> sequential search through the open
+> file descriptors.  Anyway, I read a posting an a mail list that
+> someone wanted select to
+> select on 3000 files.  Alright, the question(Finally!):
+> 		To have select() select on 3000 file descriptors,
+> they must be open.  That's 3000 open
+> 		files.  Will select be ultra slow trying to select
+> on 3000 file descriptors?  Also,
+> 		what is the clarification on the kernel doing a
+> sequential search through the open
+> 		file descriptors?
 
-On Sat, 14 Jul 2001, Neil Brown wrote:
+	Using 'select' on 3,000 file descriptors is not a problem. I have used
+'poll' on 12,000 file descriptors with no problems at all. Performance is
+not exactly stellar (you can use threads to improve it) but it's quite good.
 
-> On Friday July 13, torvalds@transmeta.com wrote:
-> > 
-> > On Sat, 14 Jul 2001, Neil Brown wrote:
-> > >
-> > > I've found a 4th option.  We make it so that fs->umask does not affect
-> > > nfsd
-> > 
-> > Me likee.
-> > 
-> > Applied. I'd only like to double-check that you made sure you changed all
-> > callers?
-> 
-> There is just the call to vfs_mknod in net/unix/af_unix.c that I
-> mentioned.  I'm not sure what to do about that one.
-> 
-> A
->     find -name '*.[ch]' | xargs egrep 'vfs_(mkdir|mknod|create)'
-
-RTFM grep(1). \< is your friend...
-
->   2 matches in net/unix/af_unix.c  one is a comment, the other is the
->                                    one in question
-> 
-> To be maximally conservative, you might want to apply this patch,
-> just in case it is important.
-
-It is. Ability to connect == write permissions on AF_UNIX socket. So
-umask matters.
+	DS
 

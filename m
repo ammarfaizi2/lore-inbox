@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265288AbRF0Hw0>; Wed, 27 Jun 2001 03:52:26 -0400
+	id <S265292AbRF0IFm>; Wed, 27 Jun 2001 04:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265290AbRF0HwR>; Wed, 27 Jun 2001 03:52:17 -0400
-Received: from delrom.ro ([193.231.234.28]:47377 "HELO delrom.ro")
-	by vger.kernel.org with SMTP id <S265288AbRF0HwD>;
-	Wed, 27 Jun 2001 03:52:03 -0400
-Date: Wed, 27 Jun 2001 10:52:56 +0300
-From: Silviu Marin-Caea <silviu@delrom.ro>
-To: linux-kernel@vger.kernel.org
-Subject: Realtek 8139 driver or sucky hardware?
-Message-Id: <20010627105256.2e75fdca.silviu@delrom.ro>
-Organization: Delta Romania
-X-Mailer: Sylpheed version 0.4.99cvs3 (GTK+ 1.2.9; i586-pc-linux-gnu)
+	id <S265295AbRF0IFb>; Wed, 27 Jun 2001 04:05:31 -0400
+Received: from pD951F985.dip.t-dialin.net ([217.81.249.133]:47108 "EHLO
+	emma1.emma.line.org") by vger.kernel.org with ESMTP
+	id <S265292AbRF0IFX>; Wed, 27 Jun 2001 04:05:23 -0400
+Date: Wed, 27 Jun 2001 10:05:20 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Silviu Marin-Caea <silviu@delrom.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Realtek 8139 driver or sucky hardware?
+Message-ID: <20010627100520.B18183@emma1.emma.line.org>
+Mail-Followup-To: Silviu Marin-Caea <silviu@delrom.ro>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010627105256.2e75fdca.silviu@delrom.ro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.7.0.1)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20010627105256.2e75fdca.silviu@delrom.ro>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a server that had a Realtek 8139 card that worked nicely under
-normal circumstances.
+On Wed, 27 Jun 2001, Silviu Marin-Caea wrote:
 
-But I made a mistake in a crontab and I had 60 instances of a backup
-script starting one per minute, all of them wishing to create the same
-.tar.gz into a samba mounted share.
+> No matter what stupid things I do on it, I shouldn't be able to take the
+> kernel down, right?
+> 
+> After I replaced the Realtek with a 3com, I could see all of the 60
+> instances fighting like worms in shit, but the server survived.
 
-This crazy situation had the server freeze solid, with only cold boot as
-remedy.
+Did the card share IRQs with another card?
 
-No matter what stupid things I do on it, I shouldn't be able to take the
-kernel down, right?
-
-After I replaced the Realtek with a 3com, I could see all of the 60
-instances fighting like worms in shit, but the server survived.
-
-Kernel 2.4.5 compiled with Red Hat gcc 2.96-81.  With kgcc, it was
-acting the same way.
-
-Please CC me.
-
-Thank you.
-
--- 
-Systems and Network Administrator - Delta Romania
-Phone +4093-267961
+What driver did you use? 8129/8139 or 8139too?

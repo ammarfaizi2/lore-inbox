@@ -1,74 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261426AbSJABYk>; Mon, 30 Sep 2002 21:24:40 -0400
+	id <S261437AbSJABfo>; Mon, 30 Sep 2002 21:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSJABYk>; Mon, 30 Sep 2002 21:24:40 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:50831 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261426AbSJABYj>;
-	Mon, 30 Sep 2002 21:24:39 -0400
-Date: Mon, 30 Sep 2002 18:32:02 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Matt_Domsch@Dell.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: devicefs requests
-In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68C1E8BD@AUSXMPC122.aus.amer.dell.com>
-Message-ID: <Pine.LNX.4.44.0209301821580.18550-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261442AbSJABfl>; Mon, 30 Sep 2002 21:35:41 -0400
+Received: from mnh-1-19.mv.com ([207.22.10.51]:44038 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S261437AbSJABfk>;
+	Mon, 30 Sep 2002 21:35:40 -0400
+Message-Id: <200210010243.VAA05442@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Andrew Morton <akpm@digeo.com>
+cc: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] 2.5.39 - might_sleep() exception - ACPI/APIC, UML compile issues on MP 2000+ 
+In-Reply-To: Your message of "Sat, 28 Sep 2002 01:49:10 MST."
+             <3D956D06.D7370490@digeo.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 30 Sep 2002 21:43:34 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+akpm@digeo.com said:
+> It's strange that this ever worked.  Does this fix? 
 
-> 1)  As new drivers pick up the model, check that all xxx_bus_type objects
-> get EXPORT_SYMBOLd and included in a include/xxxx header somewhere - My BIOS
-> EDD code walks the list of bus types looking for attached devices to compare
-> against (pci, ide, scsi, usb, ...).
-> ide_bus_type is in include/linux/ide.h but isn't EXPORT_SYMBOL;
-> usb_bus_type is in include/linux/usb.h but isn't EXPORT_SYMBOL;
+Yes it does, but it is better to extract the definition from the ifdefs that
+I blindly copied from i386.
 
-Yes, sorry about that. I think I've added most of them, and forgot to 
-export them..
-
-> Alternately, keep the list of registered bus types accessible via a
-> list_for_each type macro.  I like the exported symbols myself, it lets me
-> do:
-
-There is a master bus list: bus_drivers_list in drivers/base/bus.c. It 
-could easily be exportable, and may be a good idea for you firmware 
-people. 
-
-> static const struct edd_known_bus_types_s edd_known_bus_types[] = {
-> 	{bus:&scsi_driverfs_bus_type, edd_type: "SCSI", match:
-> edd_match_scsidev},
-> //	{bus:&ide_bus_type,           edd_type: "ATA",  match: NULL},
-> //	{bus:&usb_bus_type,           edd_type: "USB",  match: NULL},
-> 	{bus:NULL,                    edd_type: NULL,   match: NULL},
-> };
-> 
-> so I can supply my own match functions which match one type of device (e.g.
-> EDD's idea of a SCSI device) to that of the standard device.  I could
-> accomplish the same using well-known names for bus_type I suppose, and doing
-> a list_for_each until I find it.  Just a different thing getting exported, a
-> well-known name and a lookup method rather than the symbol itself.
-
-Don't rely on the name, as it could change. It could, but at least the 
-compiler will warn you..
-
-> 2) bus_for_each_dev() is really restrictive right now due to all the locking
-> mechanisms in place.  In my code I'd like to, given a struct device *, walk
-> a list of devices on a given bus and compare each device with the given
-> device, returning a match, or not.  As it stands, bus_for_each_dev returns
-> either success (the callback worked for each device on the list), or failure
-> (the callback failed for some device on the list), but I don't see a
-> mechanism to return which device failed without excessive abuse of the
-> void*.  For now I've made a private copy of bus_for_each_dev which I've
-> mucked with the return the properly matching device, and wonder if this
-> couldn't be made more generic somehow.
-
-Yes, those helpers are restrictive, and not very useful to you in that 
-case. It's easy to make more complex versions, but I fear the resulting 
-code..
-
-	-pat
+				Jeff
 

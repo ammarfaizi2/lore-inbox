@@ -1,107 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbTEURw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 13:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTEURw1
+	id S262247AbTEUSOw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 14:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbTEUSOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 13:52:27 -0400
-Received: from [208.186.192.194] ([208.186.192.194]:3292 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262231AbTEURwY (ORCPT
+	Wed, 21 May 2003 14:14:52 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:38341 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262247AbTEUSOO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 13:52:24 -0400
-Subject: [DB WORKLOAD]Hyperthreaded runs with DBT2
-From: Mary Edie Meredith <maryedie@osdl.org>
-To: lse-tech <lse-tech@lists.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Open Source Development Lab
-Message-Id: <1053540326.16526.4598.camel@ibm-e.pdx.osdl.net>
+	Wed, 21 May 2003 14:14:14 -0400
+Subject: Re: userspace irq  =?ISO-8859-1?Q?=20balancer=C2=A0?=
+From: Keith Mannthey <kmannth@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: davem@redhat.com, habanero@us.ibm.com, haveblue@us.ibm.com,
+       wli@holomorphy.com, arjanv@redhat.com, pbadari@us.ibm.com,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       gh@us.ibm.com, johnstul@us.ltcfwd.linux.ibm, jamesclv@us.ibm.com,
+       Andrew Morton <akpm@digeo.com>
+Content-Type: multipart/mixed; boundary="=-li6ODuPOH4AyCleuq+1p"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 May 2003 11:28:41 -0700
+Message-Id: <1053541725.16886.4711.camel@dyn9-47-17-180.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 21 May 2003 11:05:26 -0700
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Members of the LTC and OSDL(TM) have been working on a project
-to study Linux (R) 2.5 performance on Hyperthreaded platforms.
 
-We have results from running the OSDL-DBT2 OLTP workloads where
-we compare 2.4.21rc1* to 2.5.68* and 2.5.68* with Ingo's
-sched-2.5.68-B2 patch.  We also investigated HT scaling by
-comparing the metrics with 2.5.68* having hyperthreading turned
-off.
+--=-li6ODuPOH4AyCleuq+1p
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-We see exceptional improvement(64%)comparing 2.5.68 with HT on
-versus HT off with the Cached CPU intensive workload. Surprisingly,
-we also see very good improvement (22-23%) with the non-cached I/O
-intensive workload.
+  Here is the patch to turn kirqd into a config option if it is really
+needed.  I don't see why the noirqbalance functionality isn't enough for
+now.  Is there anything currently keeping a userspace irq balancer from
+working as 2.5 stands today?  It dosen't look like it to me.
 
-This could be because we use the SAPDB parameter MAXCPU set to 8 
-matching the number of user task threads to the number of logical 
-CPUs in the HT case. Although there are many more threads created, 
-these 8 threads are very active.  This scenario may represent the 
-case where CPU affinity and load balancing are at their optimal 
-situation.
-
-We see very little difference between the 2.4 kernel and the 2.5
-kernels having hyperthreading turned on for either workload.  As we
-understand, stock 2.4.21 doesn't have O(1) scheduler, stock 2.5.68
-has O(1) scheduler, and stock 2.5.68+Ingo has hyperthreading patch ...
-when the workload is subjected to those 2 schedulers, neither helps.
-
-Any explanation?  
+Keith      
 
 
+--=-li6ODuPOH4AyCleuq+1p
+Content-Disposition: attachment; filename=config-irq-2.5.68
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=config-irq-2.5.68; charset=UTF-8
 
-Here are the details:
-System:
-Intel(R) Xeon(TM) 4 Physical CPUs CPUs @ 1.50GHz MHz System 4GB memory
-Database: SAP DB 7.0.3.25
+diff -urN linux-2.5.68/arch/i386/Kconfig linux-2.5.68-config-irq/arch/i386/=
+Kconfig
+--- linux-2.5.68/arch/i386/Kconfig	Sat Apr 19 19:48:52 2003
++++ linux-2.5.68-config-irq/arch/i386/Kconfig	Thu Apr 24 17:04:47 2003
+@@ -758,6 +758,14 @@
+=20
+ 	  See <file:Documentation/mtrr.txt> for more information.
+=20
++config IRQBALANCE
++ 	bool "Enable kernel irq balancing"
++	depends on SMP
++	default y
++	help
++ 	  The defalut yes will allow the kernel to do irq load balancing. =20
++	  Saying no will keep the kernel from doing irq load balancing. =09
++
+ config HAVE_DEC_LOCK
+ 	bool
+ 	depends on (SMP || PREEMPT) && X86_CMPXCHG
+diff -urN linux-2.5.68/arch/i386/kernel/io_apic.c linux-2.5.68-config-irq/a=
+rch/i386/kernel/io_apic.c
+--- linux-2.5.68/arch/i386/kernel/io_apic.c	Sat Apr 19 19:49:09 2003
++++ linux-2.5.68-config-irq/arch/i386/kernel/io_apic.c	Thu Apr 24 17:05:30 =
+2003
+@@ -263,7 +263,7 @@
+ 	spin_unlock_irqrestore(&ioapic_lock, flags);
+ }
+=20
+-#if defined(CONFIG_SMP)
++#if defined(CONFIG_IRQBALANCE)=20
+ # include <asm/processor.h>	/* kernel_thread() */
+ # include <linux/kernel_stat.h>	/* kstat */
+ # include <linux/slab.h>		/* kmalloc() */
+@@ -654,8 +654,6 @@
+=20
+ __setup("noirqbalance", irqbalance_disable);
+=20
+-static void set_ioapic_affinity (unsigned int irq, unsigned long mask);
+-
+ static inline void move_irq(int irq)
+ {
+ 	/* note - we hold the desc->lock */
+@@ -667,9 +665,9 @@
+=20
+ __initcall(balanced_irq_init);
+=20
+-#else /* !SMP */
++#else /* !IRQBALANCE */
+ static inline void move_irq(int irq) { }
+-#endif /* defined(CONFIG_SMP) */
++#endif /* defined(IRQBALANCE) */
+=20
+=20
+ /*
 
-
-Cached DBT2 workload, (DATA_CACHE 300,000 8k pages)
-Kernel__________2.4.21rc1  2.5.68  2.5.68Ingo 2.5.68(no HT)
-Phys/Log Procs  8L/4P      8L/4P   8L/4P      4L/4P
-Average         4184       4226    4226       2572.2
-StdDev          46.98      26.95    17.45     146.09
-
-Compare to
-2.4.21rc1 (%)    base(100) 101      101       60.87
-Scaling rel to
-2.5.68 no HT     n/a       1.64     1.64      base(1.0)
-
-Non Cached DBT2 workload, DATA_CACHE 300,000
-Kernel__________2.4.21rc1   2.5.68   2.5.68Ingo 2.5.68(no HT)
-Phys/Log Procs 8L/4P        8L/4P    8L/4P      4L/4P
-Average        2256.25      2297.75  2274.25    1868.33
-StdDev         2.22         10.05     22.74      19.01
-
-Compare to
-2.4.21rc1 (%)   base(100)   101.84    100.8     81.31
-
-Scaling rel to
-2.5.68 no HT     n/a        1.23      1.22       base(1.0)
-
-
-
-Raw Data and vmstat plots, configs, readprofiles :
-http://www.osdl.org/projects/dbt2dev/results/HT/68I/results.html
-
-DBT2 workload information:
-http://www.osdl.org/projects/performance/dbt2-page.html
-
-*All kernels tested include a patch to eliminate bounce buffers
-for the DAC960.
-
-
-Regards,
-
-Mary Edie Meredith (maryedie@osdl.org)
-Mark Wong (mwong@osdl.org)
-Open Source Development Lab
-
-Duc Vianney (dvianney@us.ibm.com)
-Linux Technology Center, IBM(R)
-
+--=-li6ODuPOH4AyCleuq+1p--
 

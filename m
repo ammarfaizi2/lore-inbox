@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318260AbSHKKMk>; Sun, 11 Aug 2002 06:12:40 -0400
+	id <S318277AbSHKKQd>; Sun, 11 Aug 2002 06:16:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318274AbSHKKMj>; Sun, 11 Aug 2002 06:12:39 -0400
-Received: from ns.suse.de ([213.95.15.193]:21522 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318260AbSHKKMb>;
-	Sun, 11 Aug 2002 06:12:31 -0400
-To: Ivan Gyurdiev <ivangurdiev@attbi.com>
+	id <S318266AbSHKKQc>; Sun, 11 Aug 2002 06:16:32 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47075 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S318289AbSHKKPr>;
+	Sun, 11 Aug 2002 06:15:47 -0400
+Date: Sun, 11 Aug 2002 12:19:14 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Adam J. Richter" <adam@yggdrasil.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.31
-References: <200208100551.46142.ivangurdiev@attbi.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 11 Aug 2002 12:16:16 +0200
-In-Reply-To: Ivan Gyurdiev's message of "11 Aug 2002 11:47:58 +0200"
-Message-ID: <p73r8h5itu7.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+Subject: Re: Patch: linux-2.5.31/include/linux/blkdev.h paranethesis problem in BLK__DEFAULT_QUEUE
+Message-ID: <20020811101914.GJ8755@suse.de>
+References: <20020811001659.A25279@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020811001659.A25279@baldur.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Gyurdiev <ivangurdiev@attbi.com> writes:
+On Sun, Aug 11 2002, Adam J. Richter wrote:
+> Hi Jens,
 > 
-> drivers/built-in.o: In function `parport_pc_probe_port':
-> drivers/built-in.o(.text+0x2dbf6): undefined reference to `request_dma'
-> drivers/built-in.o(.text+0x2dc98): undefined reference to `free_dma'
-> drivers/built-in.o: In function `parport_pc_unregister_port':
-> drivers/built-in.o(.text+0x2df94): undefined reference to `free_dma'
-> drivers/built-in.o(.data+0x4c20): undefined reference to `request_dma'
-> drivers/built-in.o(.data+0x4c24): undefined reference to `free_dma'
-> make: *** [vmlinux] Error 1
+> 	The following trivial fix has been in my kernel tree for
+> ages.  It is need for the C compiler to compile statements like
+> the following, which I use in my version of loop.c:
+> 
+> 	BLK_DEFAULT_QUEUE(MAJOR_NR)->queuedata = NULL;
+> 
+> 	Could you please apply it to your tree and forward it to
+> Linus (or let me know if you'd prefer to handle it some other way).
 
-make oldconfig and recompiling should fix that.
+Trivially correct, just go ahead and send it to Linus. Thanks.
 
--Andi
+-- 
+Jens Axboe
+

@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267235AbTBLP2a>; Wed, 12 Feb 2003 10:28:30 -0500
+	id <S267265AbTBLPeX>; Wed, 12 Feb 2003 10:34:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267241AbTBLP2a>; Wed, 12 Feb 2003 10:28:30 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:22799 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267235AbTBLP23>; Wed, 12 Feb 2003 10:28:29 -0500
-Date: Wed, 12 Feb 2003 15:38:18 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.60 (13/34) NIC
-Message-ID: <20030212153818.B10171@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Osamu Tomita <tomita@cinet.co.jp>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>
-References: <20030212131737.GA1551@yuzuki.cinet.co.jp> <20030212134520.GN1551@yuzuki.cinet.co.jp>
+	id <S267252AbTBLPdz>; Wed, 12 Feb 2003 10:33:55 -0500
+Received: from [213.86.99.237] ([213.86.99.237]:65532 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S267254AbTBLPdT>; Wed, 12 Feb 2003 10:33:19 -0500
+Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for
+	i8042?
+From: David Woodhouse <dwmw2@infradead.org>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Adam Belay <ambx1@neo.rr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0302121035420.147-100000@coredump.sh0n.net>
+References: <Pine.LNX.4.44.0302121035420.147-100000@coredump.sh0n.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045064557.19882.46.camel@passion.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030212134520.GN1551@yuzuki.cinet.co.jp>; from tomita@cinet.co.jp on Wed, Feb 12, 2003 at 10:45:20PM +0900
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 12 Feb 2003 15:42:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#ifdef CONFIG_X86_PC9800
-> +#undef __ISAPNP__
-> +#endif
+On Wed, 2003-02-12 at 15:36, Shawn Starr wrote:
 
-Don't do s.th. like that!
+> Interesting, why are we using two interrupts for the i8042 (keyboard).
 
-> +#ifndef CONFIG_X86_PC9800
->  	/* Select an open I/O location at 0x1*0 to do contention select. */
->  	for ( ; id_port < 0x200; id_port += 0x10) {
->  		if (check_region(id_port, 1))
-> @@ -438,6 +447,9 @@
->  		printk(" WARNING: No I/O port available for 3c509 activation.\n");
->  		return -ENODEV;
->  	}
-> +#else
-> +	id_port = 0x71d0;
-> +#endif
+Because the mouse is connected to the i8042 too.
 
-use ifdef, not ifndef here
-
->  	/* Next check for all ISA bus boards by sending the ID sequence to the
+-- 
+dwmw2

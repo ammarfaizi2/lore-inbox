@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbULKVO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbULKVY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbULKVO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 16:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbULKVO3
+	id S262014AbULKVY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 16:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbULKVYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 16:14:29 -0500
-Received: from zork.zork.net ([64.81.246.102]:24487 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S262009AbULKVO1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 16:14:27 -0500
-From: Sean Neakums <sneakums@zork.net>
-To: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
-References: <20041211195133.GA2210@leamonde.no-ip.org>
-Mail-Followup-To: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>,
-	linux-kernel@vger.kernel.org
-Date: Sat, 11 Dec 2004 21:14:15 +0000
-In-Reply-To: <20041211195133.GA2210@leamonde.no-ip.org> (Camilo A. Reyes's
-	message of "Sat, 11 Dec 2004 13:51:33 -0600")
-Message-ID: <6uvfb8leqg.fsf@zork.zork.net>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+	Sat, 11 Dec 2004 16:24:25 -0500
+Received: from cpc1-addl1-4-0-cust135.herm.cable.ntl.com ([81.96.5.135]:640
+	"EHLO kl.asia.com") by vger.kernel.org with ESMTP id S262014AbULKVYV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 16:24:21 -0500
+Subject: Improved UTF-8 support for the Linux kernel
+From: Simos Xenitellis <S.Xenitellis@rhul.ac.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1102769517.3677.38.camel@kl>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 11 Dec 2004 12:51:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Camilo A. Reyes" <camilo@leamonde.no-ip.org> writes:
+Hi All,
+The current UTF-8 keyboard input (for the console) of the Linux kernel
+does not support  "composing" or writing characters with accents. This
+affects quite a few languages that require accents (French, German,
+Danish, Swedish?, Greek, cyrillic-based?, others?.). 
 
-> Not sure if this has been raised before, but I get this error message
-> every time I try to load a module, it is not the modprobe program it self
-> causing the problem since I updated it to version 2.4.9 which is the
-> latest out there...
+In general, UTF-8
+console support is good to display text in different character sets,
+enabling to configure a distribution to use UTF-8 locales for both
+console/Xorg.
 
-For Linux 2.6 you will need the module-init-tools package.
+While looking into the problem, I noticed that there is work to make
+Linux console handle Unicode better.
+
+Two links are of interest
+A. Improved UTF-8 support for the Linux kernel, by Chris Heath
+http://chris.heathens.co.nz/linux/utf8.html
+B. Notes on the Linux console, by Innocenti Maresin
+http://www.comtv.ru/~av95/linux/console/
+
+Discussion on these issues take place at
+http://groups-beta.google.com/group/nlo.lists.linux-utf8
+
+Chris Heath has a set of incremental patches
+(http://chris.heathens.co.nz/linux/utf8.html) to enhance Unicode for the
+console.
+I noticed that he contacted this list in May 2003
+(http://seclists.org/lists/linux-kernel/2003/May/7956.html) but
+unfortunatelly the discussion was diverted to coding styles.
+
+Is there an interest for re-submission of mentioned patches for
+inclusion in the kernel (yeah, provided coding style is normalised)?
+
+Simos
+
+p.s.
+I am not sending this e-mail on behalf of any of the authors, just
+myself.

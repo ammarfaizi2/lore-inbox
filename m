@@ -1,56 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265601AbRF1IsT>; Thu, 28 Jun 2001 04:48:19 -0400
+	id <S265607AbRF1It7>; Thu, 28 Jun 2001 04:49:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265603AbRF1Ir7>; Thu, 28 Jun 2001 04:47:59 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:17833 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S265601AbRF1Irt>; Thu, 28 Jun 2001 04:47:49 -0400
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200106280845.KAA20122@sunrise.pg.gda.pl>
-Subject: Re: [PATCH] 2.4.6-pre6 fix drivers/net/Config.in error
-To: kaos@ocs.com.au (Keith Owens)
-Date: Thu, 28 Jun 2001 10:45:55 +0200 (MET DST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), elenstev@mesatop.com,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <3541.993708852@kao2.melbourne.sgi.com> from "Keith Owens" at Jun 28, 2001 04:14:12 PM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
+	id <S265605AbRF1Itk>; Thu, 28 Jun 2001 04:49:40 -0400
+Received: from sky.irisa.fr ([131.254.60.147]:15337 "EHLO sky.irisa.fr")
+	by vger.kernel.org with ESMTP id <S265603AbRF1Itc>;
+	Thu, 28 Jun 2001 04:49:32 -0400
+Message-ID: <3B3AEF8B.A3EBF2AC@irisa.fr>
+Date: Thu, 28 Jun 2001 10:49:15 +0200
+From: Romain Dolbeau <dolbeau@irisa.fr>
+Organization: IRISA, Campus de Beaulieu, 35042 Rennes Cedex, FRANCE
+X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: James Simmons <jsimmons@transvirtual.com>,
+        Linux Fbdev development list 
+	<Linux-fbdev-devel@lists.sourceforge.net>
+Subject: [PATCH][2.2 & 2.4] fbgen & multiple RGBA, take 3 (no more MIME)
+In-Reply-To: <Pine.LNX.4.10.10106270922550.30940-100000@transvirtual.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> On Thu, 28 Jun 2001 00:07:13 -0400, 
-> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> >Steven Cole wrote:
-> >> -   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
-> >> +   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI $CONFIG_PCI
-> >
-> >See the "EISA" and "VLB" parts in there?  EISA != PCI
-> 
-> Against 2.4.6-pre6.
-> 
-> Index: 6-pre6.1/drivers/net/Config.in
-> --- 6-pre6.1/drivers/net/Config.in Thu, 28 Jun 2001 10:34:32 +1000 kaos (linux-2.4/l/c/9_Config.in 1.1.2.2.1.3.1.8 644)
-> +++ 6-pre6.1(w)/drivers/net/Config.in Thu, 28 Jun 2001 16:07:03 +1000 kaos (linux-2.4/l/c/9_Config.in 1.1.2.2.1.3.1.8 644)
-> @@ -142,7 +142,11 @@ if [ "$CONFIG_NET_ETHERNET" = "y" ]; the
->        tristate '  NE/2 (ne2000 MCA version) support' CONFIG_NE2_MCA
->        tristate '  IBM LAN Adapter/A support' CONFIG_IBMLANA
->     fi
-> -   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
-> +   if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
+James Simmons wrote:
 
-CONFIG_EISA check in this condition is redundant.
-Intentionally ?
+> I will intergrate your changes into my fbgen 2.
 
-> +     bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
+Guess that means it's OK to ask for integration.
+I repost it with proper inlining (sorry about that)
 
-Andrzej
+Description of the patch:
+
+> the attached patch fix a problem with `fbgen' when changing the
+> RGBA components but not the depth ; `fbgen' would not change
+> the colormap in this case, where it should.
+> This patch is for kernel 2.4.x, but can also
+> be applied to kernel 2.2.x (same bug, same fix).
+
+#####
+--- linux/drivers/video/fbgen.c.ORIG	Thu May 17 14:34:54 2001
++++ linux/drivers/video/fbgen.c	Tue Jun 26 10:26:23 2001
+@@ -106,6 +106,7 @@
+     struct fb_info_gen *info2 = (struct fb_info_gen *)info;
+     int err;
+     int oldxres, oldyres, oldbpp, oldxres_virtual, oldyres_virtual,
+oldyoffset;
++    struct fb_bitfield oldred, oldgreen, oldblue;
+ 
+     if ((err = fbgen_do_set_var(var, con == currcon, info2)))
+ 	return err;
+@@ -115,12 +116,18 @@
+ 	oldxres_virtual = fb_display[con].var.xres_virtual;
+ 	oldyres_virtual = fb_display[con].var.yres_virtual;
+ 	oldbpp = fb_display[con].var.bits_per_pixel;
++	oldred = fb_display[con].var.red;
++	oldgreen = fb_display[con].var.green;
++	oldblue = fb_display[con].var.blue;
+ 	oldyoffset = fb_display[con].var.yoffset;
+ 	fb_display[con].var = *var;
+ 	if (oldxres != var->xres || oldyres != var->yres ||
+ 	    oldxres_virtual != var->xres_virtual ||
+ 	    oldyres_virtual != var->yres_virtual ||
+ 	    oldbpp != var->bits_per_pixel ||
++	    (!(memcmp(&oldred, &(var->red), sizeof(struct fb_bitfield)))) || 
++	    (!(memcmp(&oldgreen, &(var->green), sizeof(struct fb_bitfield))))
+||
++	    (!(memcmp(&oldblue, &(var->blue), sizeof(struct fb_bitfield)))) ||
+ 	    oldyoffset != var->yoffset) {
+ 	    fbgen_set_disp(con, info2);
+ 	    if (info->changevar)
+#####
+
+
 -- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+DOLBEAU Romain               | l'histoire est entierement vraie, puisque
+ENS Cachan / Ker Lann        |     je l'ai imaginee d'un bout a l'autre
+dolbeau@irisa.fr             |           -- Boris Vian

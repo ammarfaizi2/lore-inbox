@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261264AbSJQJbV>; Thu, 17 Oct 2002 05:31:21 -0400
+	id <S261224AbSJQJ2q>; Thu, 17 Oct 2002 05:28:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261271AbSJQJbV>; Thu, 17 Oct 2002 05:31:21 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:34297 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261264AbSJQJbU>;
-	Thu, 17 Oct 2002 05:31:20 -0400
-Date: Thu, 17 Oct 2002 11:36:18 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Antonino Daplas <adaplas@pol.net>
-cc: James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] fbdev changes.
-In-Reply-To: <1034813995.563.32.camel@daplas>
-Message-ID: <Pine.GSO.4.21.0210171135300.29253-100000@vervain.sonytel.be>
+	id <S261242AbSJQJ2q>; Thu, 17 Oct 2002 05:28:46 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34940 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261224AbSJQJ2p>; Thu, 17 Oct 2002 05:28:45 -0400
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.5.42+ reboot kills Dell Latitude keyboard
+References: <15790.30657.234936.840909@kim.it.uu.se>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 17 Oct 2002 03:32:11 -0600
+In-Reply-To: <15790.30657.234936.840909@kim.it.uu.se>
+Message-ID: <m1zntd1kdg.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Oct 2002, Antonino Daplas wrote:
-> -	__u8  depth;	/* Dpeth of the image */
-> +	__u8  depth;	               /* Dpeth of the image */
-                                          ^^^^^
-Please kill the spelling errors while re-indenting the code :-)
+Mikael Pettersson <mikpe@csd.uu.se> writes:
 
-Gr{oetje,eeting}s,
+> Dell Latitude CPi laptop. Boot 2.5.42 or .43, then reboot.
+> Shortly after the screen is blanked and the BIOS starts, it
+> prints a "keyboard error" message and requests an F1 or F2
+> response (continue or go into SETUP). Never happened with any
+> other kernel on that machine.
+> 
+> Apparently the 2.5.42+ "let's shut everything down at reboot"
+> change
 
-						Geert
+There was no such change just a discussion of what the kernel
+has been doing since 2.5.8 or so.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> put the keyboard controller in a state which is inconsistent
+> with the BIOS' expections at a warm boot.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+There is a bug in device_suspend.  device_shutdown, and device_suspend
+where merged and the POWER_DOWN case now removes the drivers which
+is a bug.  You may be getting hit with that.
 
+Eric Blade has posed a patch fixing that.
+
+Or else there is a change in the ->remove() method of one your drivers.
+
+> 
+> First the disks-spun-down-at-reboot bug and now this. Sigh.
+
+Someone implemented that in the IDE driver deliberately.  I haven't
+a clue why but it happened.
+
+Eric

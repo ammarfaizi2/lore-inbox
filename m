@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318299AbSHPLT1>; Fri, 16 Aug 2002 07:19:27 -0400
+	id <S318310AbSHPLV7>; Fri, 16 Aug 2002 07:21:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318304AbSHPLT1>; Fri, 16 Aug 2002 07:19:27 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32272
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318299AbSHPLT0>; Fri, 16 Aug 2002 07:19:26 -0400
-Date: Fri, 16 Aug 2002 04:13:57 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: Part 2: Re: 2.5.31 boot failure on pdc20267
-In-Reply-To: <22B231216B8@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.10.10208160411360.12468-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318312AbSHPLV7>; Fri, 16 Aug 2002 07:21:59 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:35087 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S318310AbSHPLV5>; Fri, 16 Aug 2002 07:21:57 -0400
+Date: Fri, 16 Aug 2002 12:25:47 +0100
+To: Jurgen Kramer <gtm.kramer@inter.nl.net>
+Cc: Muli Ben-Yehuda <mulix@actcom.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: sound choking with trident driver (SiS 7018)
+Message-ID: <20020816122547.A5843@computer-surgery.co.uk>
+References: <1029409909.1121.17.camel@paragon.slim> <20020815121602.GI6772@alhambra.actcom.co.il> <1029495244.1294.2.camel@paragon.slim>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1029495244.1294.2.camel@paragon.slim>; from gtm.kramer@inter.nl.net on Fri, Aug 16, 2002 at 12:54:03PM +0200
+From: Roger Gammans <roger@computer-surgery.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Aug 2002, Petr Vandrovec wrote:
 
-> On 16 Aug 02 at 3:23, Andre Hedrick wrote:
-> > Try reading the entire document first before commenting and showing why
-> > people should not believe you.
-> > 
-> > The author went through great lengths to explain and capture what
-> > SFF-8038i defined.  The object is to show the difference.
-> > 
-> > Now carefully look and see that BAR4 in d1510 is not the same as 
-> > BAR 4 for SFF-8038i.
-> 
-> Chapter 5 describes IDE class devices, PCI class 0101. If this chapter 
-> 
-> Chapter 3, ATA Host Adapters, and also document name, ATA Host Adapters
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-ATA class devices, PCI class 0105.
+On Fri, Aug 16, 2002 at 12:54:03PM +0200, Jurgen Kramer wrote:
+> I have just tried the driver from 2.4.20pre2. No change in behavior. The
+> sound still chokes every few seconds. Any ideas what might cause this
+> problem? It doesn't have to be the sound driver.
+>=20
+> I will give 2.5 another go.=20
 
-This what you missed, this what we are debating.  :-/
+Hmm.
 
-Cheers,
+I've seen this behavour on windwows as well. (I don't have any=20
+linux desktops with the chipset atm. Servers yes - but we don't
+normally install sound drivers on severs ;-)).
+
+The machines I see this on are Athlon 1600XP with SIS5513 chipset
+and an AMI bios.
+
+Over in 'dozeland the problem was fixed by turning IDE DMA off, I
+had characterised the problem as being due to I/o bandwidth
+starvation, possibly due to a poorly set up DMAC. But given it
+was doze I couldn't really investigate.
+
+Phaps 2.5 IDE changes are more relavant.
+
+Does information this help? ;-).
 
 
-Andre Hedrick
-LAD Storage Consulting Group
+--=20
+Roger.
+Master of Peng Shui.  (Ancient oriental art of Penguin Arranging)
+GPG Key FPR: CFF1 F383 F854 4E6A 918D  5CFF A90D E73B 88DE 0B3E
 
+--ReaqsoxgOBHFXBhH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9XOE6qQ3nO4jeCz4RAvyGAKCZxhpXn19vXBdFxVz5TuNLVtjGBwCdG/KJ
+naHSlkxZMqvmqXo78KMzAUk=
+=m4ot
+-----END PGP SIGNATURE-----
+
+--ReaqsoxgOBHFXBhH--

@@ -1,89 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVA3LKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVA3LOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbVA3LKs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 06:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVA3LKr
+	id S261677AbVA3LOD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 06:14:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVA3LOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 06:10:47 -0500
-Received: from av7-2-sn4.m-sp.skanova.net ([81.228.10.109]:15023 "EHLO
-	av7-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S261676AbVA3LKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 06:10:36 -0500
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Touchpad problems with 2.6.11-rc2
-References: <20050123190109.3d082021@localhost.localdomain>
-From: Peter Osterlund <petero2@telia.com>
-Date: 30 Jan 2005 12:10:34 +0100
-In-Reply-To: <20050123190109.3d082021@localhost.localdomain>
-Message-ID: <m3acqr895h.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 Jan 2005 06:14:03 -0500
+Received: from rev.193.226.232.37.euroweb.hu ([193.226.232.37]:62639 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261677AbVA3LNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 06:13:48 -0500
+To: lkcl@lkcl.net
+CC: abo@kth.se, openafs-devel@openafs.org, opendce@opengroup.org,
+       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org
+In-reply-to: <20050130033020.GE6357@lkcl.net> (message from Luke Kenneth
+	Casson Leighton on Sun, 30 Jan 2005 03:30:20 +0000)
+Subject: Re: Using fuse for AFS/DFS (was Re: [OpenAFS-devel] openafs / opendfs collaboration)
+References: <Pine.A41.4.31.0501181606230.24934-100000@slickville.cac.psu.edu> <Pine.GSO.4.61-042.0501210900060.15636@johnstown.andrew.cmu.edu> <20050121152803.GB29598@jadzia.bu.edu> <Pine.GSO.4.61-042.0501211222080.15636@johnstown.andrew.cmu.edu> <1106923508.7063.37.camel@tudor.e.kth.se> <20050130033020.GE6357@lkcl.net>
+Message-Id: <E1CvD0q-0006To-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sun, 30 Jan 2005 12:13:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev <zaitcev@redhat.com> writes:
-
-> Since the 2.6.11-rc2, I encounter problems with touchpad and keyboard 
-> on my laptop, Dell Lattitude D600. The following patch appears to be
-> the culprit:
-
-[alps touchpad detection fix patch]
-
-> Without the patch, touchpad is not detected as such. Instead, dmesg shows:
+> > *) Last time I looked at FUSE the security model was: If the current uid
+> > equals the owner of the mountpoint then forward the request to the
+> > userland daemon, without any authentication information like for example
+> > the current uid. This might have or could be changed though.
 > 
-> input: PS/2 Generic Mouse on isa0060/serio1
-> 
-> With this patch, I see this:
-> 
-> ALPS Touchpad (Dualpoint) detected
->   Disabling hardware tapping
-> input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
-> 
-> Looks like detection is correct, however either ALPS specific code doesn't work
-> right, or it sets wrong parameters, I cannot tell. Here's the list of problems,
-> from worst to least annoying:
+>  as of 2.6.7-ish (last time i looked: 2.5 months) there was
+>  no forwarding of security: in fact there was nothing in any of the
+>  APIs about security at all: in fact, root as a user was banned (with
+>  good justification iirc)
 
-I have posted 4 patches to LKML earlier today. Some of them might fix
-some of your problems.
+There are two choices for the security model in FUSE.  The first
+choice is that the userspace filesystem does the permission checking
+in each operation.  Current uid and gid is available, group list is
+presently not.
 
-> - Very often, keyboard stops working after a click. Typing anything has no effect.
->   However, any smallest pointer movement will restore keyboard, and then an
->   application receives all buffered characters. This is very bad.
+The other choice is that the kernel does the normal file mode based
+permission checking.  Obviously in this case the filesystem can still
+implement an additional (stricter) permission policy.
 
-It would be interesting to know at which level the problem appears.
-Can you reproduce the problem using "xev"? If xev works as expected,
-the problem is possibly that the left mouse button gets stuck and
-stops your application from accepting keyboard input. This patch fixes
-the button stuck problem:
+The "root banning" issue is in fact orthogonal to this.  The default
+operation is that only the user who mounted the filesystem is allowed
+to access the contents.  This behavior can be switched off with a
+mount option, to allow access to all users.
 
-        [PATCH 1/4] Make mousedev.c report all events to user space immediately
+>  also, the xattr handling was (is?) non-existant and i had to add
+>  it,
 
-If the keyboard gets stuck also using "xev", the problem is at a lower
-level. Enable i8042_debug in drivers/input/serio/i8042.c to see if the
-keyboards produces any data in the stuck state.
+Looking at the changelog it was added on 2004-03-30, so you must be
+using a pretty outdated version.
 
-> - Double-click sometimes fails to work. I have to wait a second and retry it.
->   Retrying right away is likely not to work again.
+>  but it was unsuitable for selinux, and that's a design mismatch
+>  between fuse's way of communicating with its userspace daemon (err
+>  -512 "please try later") and selinux's requirement for instant
+>  answers (inability to cope with err -512)
 
-Probably fixed by this patch:
+Heh?  Where did you see error value 512 (ERESTARTSYS)?  It's not
+something that the userspace daemon can return.
 
-        [PATCH 2/4] Enable hardware tapping for ALPS touchpads
+>  so i started to look at lufs instead, which appeared to be a much
+>  cleaner design.
 
-> - Slow motion of finger produces no motion, then a jump. So, it's very hard to
->   target smaller UI elements and some web links.
+That's pretty subjective.  Please back up your statement with concrete
+examples, so maybe then I can do something about it.
 
-I see this too when I don't use the X touchpad driver. With the X
-driver there is no problem. I think the problem is that mousedev.c in
-the kernel has to use integer arithmetic, so probably small movements
-are rounded off to 0. I'll try to come up with a fix for this.
+>  lufs expects the userspace daemon to handle and manage inodes,
+>  whereas fuse instead keeps an in-memory cache of inodes in
+>  the userspace daemon, does a hell of a lot of extra fstat'ing
+>  for you in order to guarantee file consistency, that sort of thing.
 
-> P.S. I hate the tap, so keep it disabled by default, please :-)
+Well, how much "hell of a lot" actually is depends on a lot of things.
+E.g. on whether the backed up filesystem is modified externally (not
+just through the kernel).  If not, then it will stay consistent
+without any extra messaging.  This can be set by a timeout parameter
+for each looked up entry.
 
-You can disable tapping by setting the tap_time parameter for
-mousedev.c to 0. The default value is 200ms.
+The extra flexibility offered by an inode based kernel interface
+(FUSE) instead of a path based one (LUFS) I think outweighs the
+disadvantage of having to once look up each path element.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+>  there is an API / library which your userspace daemon is expected to
+>  use: this library handles the communication to the kernel and also it
+>  handles the inode proxy redirection and cacheing for you.
+
+Yes, useful for some filesystems (sshfs, ftpfs) useless for others.  I
+plan to add a generic caching layer to the FUSE library as well.
+
+>  lufs has a heck of a lot more examples available for it than fuse
+>  does.
+
+In the LUFS package yes.  However I bet, currently there are much more
+applications which use FUSE than LUFS.
+
+Thanks,
+Miklos

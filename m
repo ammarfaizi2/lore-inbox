@@ -1,84 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261966AbSIYMg0>; Wed, 25 Sep 2002 08:36:26 -0400
+	id <S261963AbSIYMdZ>; Wed, 25 Sep 2002 08:33:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261968AbSIYMg0>; Wed, 25 Sep 2002 08:36:26 -0400
-Received: from pat.uio.no ([129.240.130.16]:46772 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S261966AbSIYMgZ>;
-	Wed, 25 Sep 2002 08:36:25 -0400
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo, Norway
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: RE: [BUG] NFS in 2.4.20-pre6+ stalls
-Date: Wed, 25 Sep 2002 14:41:37 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_D9VZYEF1K46NR08OQJXY"
-Message-Id: <200209251441.37444.trond.myklebust@fys.uio.no>
+	id <S261966AbSIYMdZ>; Wed, 25 Sep 2002 08:33:25 -0400
+Received: from mailout6-1.nyroc.rr.com ([24.92.226.177]:63036 "EHLO
+	mailout6-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S261963AbSIYMdZ>; Wed, 25 Sep 2002 08:33:25 -0400
+Subject: Re: Polling /proc/apm causes usb hiccups and clock drift
+From: James D Strandboge <jstrand1@rochester.rr.com>
+To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020924162205.GB7775@titan.lahn.de>
+References: <1032873120.3056.7.camel@sirius.strandboge.cxm> 
+	<20020924162205.GB7775@titan.lahn.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 25 Sep 2002 08:39:04 -0400
+Message-Id: <1032957544.18424.5.camel@sirius.strandboge.cxm>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-09-24 at 12:22, Philipp Matthias Hahn wrote:
+> Hi James!
+> 
+> On Tue, Sep 24, 2002 at 09:12:00AM -0400, James D Strandboge wrote:
+> > Disabling the battstat-applet and not touching /proc/apm lets xawtv work
+> > fine without the above errors.  Polling /proc/apm also causes clock
+> > drift.
+> > 
+> > I have a Dell Inspiron 8200 laptop (1.6Ghz Pentium 4).  Using kernel
+> > 2.4.18-686 from debian.  I read that this happened to people in the 2.2
+> > series.  Is this a kernel apm bug or BIOS problem?  Do I just have to
+> > live with it?
+> 
+> This is a known BIOS limitation. Interrupts are disabled during
+> APM-BIOS calls and they may take a long time, during which the kernel
+> might miss some clock interrupts.
+> You can try to enable CONFIG_APM_ALLOW_INTS=y during kernel compile, but
+> your BIOS might not like it.
+> 
+Thanks.  Yes I have this disabled because it has caused problems with
+others using the inspiron 8200.  I will play with it though.  This most
+definitely is a BIOS bug then, and I have to live with it.  Is ACPI any
+better?
 
---------------Boundary-00=_D9VZYEF1K46NR08OQJXY
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+Jamie Strandboge
 
->   Hi, all. Just noticed this with 2.4.20-pre6 (and -pre7): NFS write
-> sometimes (usually) stalls for minutes at a time. This problem wasn't
+-- 
+Email:        jstrand1@rochester.rr.com
+GPG/PGP ID:   26384A3A
+Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
 
-Richard,
-  Does the appended patch make a difference?
-
-Cheers,
-  Trond
-
-
---------------Boundary-00=_D9VZYEF1K46NR08OQJXY
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="resend.dif"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="resend.dif"
-
---- linux/net/sunrpc/xprt.c.orig	Fri Aug 30 20:16:17 2002
-+++ linux/net/sunrpc/xprt.c	Tue Sep 24 00:08:59 2002
-@@ -171,10 +171,10 @@
- 
- 	if (xprt->snd_task)
- 		return;
--	if (!xprt->nocong && RPCXPRT_CONGESTED(xprt))
--		return;
- 	task = rpc_wake_up_next(&xprt->resend);
- 	if (!task) {
-+		if (!xprt->nocong && RPCXPRT_CONGESTED(xprt))
-+			return;
- 		task = rpc_wake_up_next(&xprt->sending);
- 		if (!task)
- 			return;
-@@ -1013,7 +1013,6 @@
- 		}
- 		rpc_inc_timeo(&task->tk_client->cl_rtt);
- 		xprt_adjust_cwnd(req->rq_xprt, -ETIMEDOUT);
--		__xprt_put_cong(xprt, req);
- 	}
- 	req->rq_nresend++;
- 
-@@ -1150,10 +1149,7 @@
- 		req->rq_bytes_sent = 0;
- 	}
-  out_release:
--	spin_lock_bh(&xprt->sock_lock);
--	__xprt_release_write(xprt, task);
--	__xprt_put_cong(xprt, req);
--	spin_unlock_bh(&xprt->sock_lock);
-+	xprt_release_write(xprt, task);
- 	return;
-  out_receive:
- 	dprintk("RPC: %4d xmit complete\n", task->tk_pid);
-
-
-
---------------Boundary-00=_D9VZYEF1K46NR08OQJXY--

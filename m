@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVBOGPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVBOG2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbVBOGPp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 01:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVBOGPp
+	id S261641AbVBOG2m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 01:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVBOG2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 01:15:45 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:62867 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261637AbVBOGPj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 01:15:39 -0500
-Message-ID: <42119380.2080309@why.dont.jablowme.net>
-Date: Tue, 15 Feb 2005 01:15:28 -0500
-From: Jim Crilly <jim@why.dont.jablowme.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ncunningham@cyclades.com
-Cc: Lee Revell <rlrevell@joe-job.com>, Tim Bird <tim.bird@am.sony.com>,
-       Roland Dreier <roland@topspin.com>, Prakash Punnoor <prakashp@arcor.de>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>, Greg KH <gregkh@suse.de>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001
- release)
-References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>	 <20050211011609.GA27176@suse.de>	 <1108354011.25912.43.camel@krustophenia.net>	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>	 <1108422240.28902.11.camel@krustophenia.net>  <524qge20e2.fsf@topspin.com>	 <1108424720.32293.8.camel@krustophenia.net> <42113F6B.1080602@am.sony.com>	 <1108430245.32293.16.camel@krustophenia.net>	 <42116EAF.4070503@why.dont.jablowme.net> <1108446753.3666.28.camel@desktop.cunningham.myip.net.au>
-In-Reply-To: <1108446753.3666.28.camel@desktop.cunningham.myip.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 15 Feb 2005 01:28:42 -0500
+Received: from mail.renesas.com ([202.234.163.13]:46238 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S261641AbVBOG2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 01:28:39 -0500
+Date: Tue, 15 Feb 2005 15:28:28 +0900 (JST)
+Message-Id: <20050215.152828.596522355.takata.hirokazu@renesas.com>
+To: didickman@yahoo.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: asm-m32r/bug.h (was Re: )
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20050213082413.65917.qmail@web14525.mail.yahoo.com>
+References: <20050213082413.65917.qmail@web14525.mail.yahoo.com>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.16 (Corporate Culture)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham said the following:
-> You warmed my heart until...
+Hi,
 
-Good to know someone reads my email =)
+There is no special reason at this moment.
+Please apply this patch.
 
-> Why not? :> I guess you mean to the problem of slow booting in the first
-> place - I would agree with you there, but is there are reason why we
-> should have booting being the norm instead of normally suspending and
-> resuming, and only rebooting for new kernels/hardware/etc.
+Thank you.
 
-Don't get me wrong, I would go nuts without swsusp2 on my notebook and I don't 
-see why that shouldn't be a valid avenue to pursue; even for servers it doesn't 
-seem like a terribly bad idea. But for me it only works on 1 out of my 4 
-machines. The 3 non-working machines have their root and swap on SCSI devices 
-and to top it off 2 of them are non-x86 architectures.
 
-Another issue would be dual-booting, which a lot of people still do for some 
-strange reason. At least I had noticed that Windows tends to have problems when 
-filesystems it had mounted before the hibernation are altered while it's not 
-running. I'm not sure if similar issues would apply to Linux, hell I'm not even 
-sure if it still applies to Windows because that was so long ago that I had 
-noticed.
-
+From: Daniel Dickman <didickman@yahoo.com>
+Date: Sun, 13 Feb 2005 00:24:13 -0800 (PST)
+> For the m32r architecture, is there a reason not to use the generic bug.h
+> definition?
 > 
-> Regards,
+> Signed-off-by: Daniel Dickman <didickman@yahoo.com>
 > 
-> Nigel
+> --- linux-2.6.11-rc4/include/asm-m32r/bug.h     2004-12-24 16:34:01.000000000
+> -0500
+> +++ linux/include/asm-m32r/bug.h        2005-02-13 03:39:39.775236000 -0500
+> @@ -1,22 +1,4 @@
+>  #ifndef _M32R_BUG_H
+>  #define _M32R_BUG_H
+> -
+> -#define BUG()  do { \
+> -       printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+> -} while (0)
+> -
+> -#define PAGE_BUG(page) do { BUG(); } while (0)
+> -
+> -#define BUG_ON(condition) \
+> -       do { if (unlikely((condition)!=0)) BUG(); } while(0)
+> -
+> -#define WARN_ON(condition) do { \
+> -       if (unlikely((condition)!=0)) { \
+> -               printk("Badness in %s at %s:%d\n", __FUNCTION__, \
+> -               __FILE__, __LINE__); \
+> -               dump_stack(); \
+> -       } \
+> -} while (0)
+> -
+> -#endif /* _M32R_BUG_H */
+> -
+> +#include <asm-generic/bug.h>
+> +#endif
 > 
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/
 
-Jim.

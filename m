@@ -1,87 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264493AbTLLHAx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 02:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264497AbTLLHAx
+	id S264497AbTLLHGv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 02:06:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbTLLHGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 02:00:53 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:33446 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264493AbTLLHAv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 02:00:51 -0500
-Message-ID: <3FD9679A.1020404@cyberone.com.au>
-Date: Fri, 12 Dec 2003 18:00:42 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
-Subject: Re: [CFT][RFC] HT scheduler
-References: <20031212052812.E016B2C072@lists.samba.org>
-In-Reply-To: <20031212052812.E016B2C072@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Dec 2003 02:06:51 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:24272 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id S264497AbTLLHGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 02:06:48 -0500
+Date: Fri, 12 Dec 2003 08:01:31 +0100
+From: Harald Welte <laforge@netfilter.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: mukansai@emailplus.org, scott.feldman@intel.com,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: TSO and netfilter (Re: Extremely slow network with e1000 & ip_conntrack)
+Message-ID: <20031212070131.GN15606@sunbeam.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	"David S. Miller" <davem@redhat.com>, mukansai@emailplus.org,
+	scott.feldman@intel.com, netfilter-devel@lists.netfilter.org,
+	linux-kernel@vger.kernel.org
+References: <20031204213030.2B75.MUKANSAI@emailplus.org> <20031205122819.25ac14ab.davem@redhat.com> <20031211110315.GJ22826@sunbeam.de.gnumonks.org> <20031211174136.1ed23e2e.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lR6P3/j+HGelbRkf"
+Content-Disposition: inline
+In-Reply-To: <20031211174136.1ed23e2e.davem@redhat.com>
+User-Agent: Mutt/1.5.4i
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--lR6P3/j+HGelbRkf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rusty Russell wrote:
+On Thu, Dec 11, 2003 at 05:41:36PM -0800, David S. Miller wrote:
+> On Thu, 11 Dec 2003 12:03:15 +0100
+> Harald Welte <laforge@netfilter.org> wrote:
+>=20
+> > The only interesting case is in ip_output.c:ip_queue_xmit(), where
+> > tso_size and tso_segs are calculated, before NF_IP_LOCAL_OUT is run.
+> >=20
+> > But changing the content or the size of the tcp payload should not
+> > affect those calculations.=20
+>=20
+> It changes at least tso_segs, since if you decrease of increase the
+> size of the payload the number of real TCP/IP packets the TSO engine
+> will end up spitting out could be different.
 
->In message <3FD7F1B9.5080100@cyberone.com.au> you write:
->
->>http://www.kerneltrap.org/~npiggin/w26/
->>Against 2.6.0-test11
->>
->>This includes the SMT description for P4. Initial results shows comparable
->>performance to Ingo's shared runqueue's patch on a dual P4 Xeon.
->>
->
->I'm still not convinced.  Sharing runqueues is simple, and in fact
->exactly what you want for HT: you want to balance *runqueues*, not
->CPUs.  In fact, it can be done without a CONFIG_SCHED_SMT addition.
->
->Your patch is more general, more complex, but doesn't actually seem to
->buy anything.  It puts a general domain structure inside the
->scheduler, without putting it anywhere else which wants it (eg. slab
->cache balancing).  My opinion is either (1) produce a general NUMA
->topology which can then be used by the scheduler, or (2) do the
->minimal change in the scheduler which makes HT work well.
->
->Note: some of your changes I really like, it's just that I think this
->is overkill.
->
->I'll produce a patch so we can have something solid to talk about.
->
+I see.  So what about the networking core exporting an [inline] function
+that recalculates tso_segs and tso_size (like the 'Hack zone' code
+fragment in ip_queue_xmit() right now), called skb_tso_recalc() or
+whatever name you prefer.
 
-Thanks for having a look Rusty. I'll try to convince you :)
+Or even better (since I assume TSO can only happen with
+locally-originated datagrams), why don't we move the tso_size/tso_segs
+calculation to happen after the LOCAL_OUT netfilter hook?  This way we
+also get the ip_select_ident_more() right, which we couldn't easily
+update from the proposed skb_tso_recalc() function.
 
-As you know, the domain classes is not just for HT, but can do multi levels
-of NUMA, and it can be built by architecture specific code which is good
-for Opteron, for example. It doesn't need CONFIG_SCHED_SMT either, of 
-course,
-or CONFIG_NUMA even: degenerate domains can just be collapsed (code isn't
-there to do that now).
+yes, in that case we would need to have some fake code like
+	if (skb->len > mtu && (sk->sk_route_caps&NETIF_F_TSO))
+		skb_shinfo(skb)->tso_segs =3D 1;
+in order to make the newly-created check for refragmentation in
+conntrack still work.  Alternatively, create some inline function that=20
+gives a yes/no return if the skb would later become TSO or not.
 
-Shared runqueues I find isn't so flexible. I think it perfectly describes
-the P4 HT architecture, but what happens if (when) siblings get seperate
-L1 caches? What about SMT, CMP, SMP and NUMA levels in the POWER5?
+> The one netfilter module I'm most concerned about is the one that
+> handles non-passive FTP, I remember that one did strange things with
+> the data stream, removed TCP options, and stuff like that.
 
-The large SGI (and I imagine IBM's POWER5s) systems need things like
-progressive balancing backoff and would probably benefit with a more
-heirachical balancing scheme so all the balancing operations don't kill
-the system.
+There are no NAT helper modules as of now that touch the size of the TCP
+header.  We have some experimental stuff in patch-o-matic (like
+IPV3OPTSSTRIP target), but nothing in the stock kernel.  I will put a
+review of those on our TODO list - but for the vanilla kernel there
+shouldn't be a problem.
 
-w26 does ALL this, while sched.o is 3K smaller than Ingo's shared runqueue
-patch on NUMA and SMP, and 1K smaller on UP (although sched.c is 90 lines
-longer). kernbench system time is down nearly 10% on the NUMAQ, so it isn't
-hurting performance either.
+> > Even in the past, when we used to remove SACKPERM from the tcp
+> > header, we just NOP'ed it out instead of resizing the header.
+>=20
+> This may be what I was thinking about.
 
-And finally, Linus also wanted the balancing code to be generalised to
-handle SMT, and Ingo said he liked my patch from a first look.
+We now don't do that anymore and mangle the SACK options accordingly.
+In any way, there is nothing that changes the size of the tcp or udp
+header. =20
 
+> Currently all the TSO supporting drivers set the ip and tcp header
+> checksum values themselves as appropriate, so there are no worries in
+> this area.
 
+good news.
+
+Please get back to me with any comments you might have, thanks.
+
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--lR6P3/j+HGelbRkf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/2WfLXaXGVTD0i/8RAmWOAJ9Er60Kd/D3SvjMTWB2H6f0Q1JZEwCfUTGz
+FPnm0qaY4QGR5xN8TDHwAtY=
+=JwZG
+-----END PGP SIGNATURE-----
+
+--lR6P3/j+HGelbRkf--

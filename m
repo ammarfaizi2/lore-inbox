@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbTFZNXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 09:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbTFZNXY
+	id S261454AbTFZNXo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 09:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTFZNXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 09:23:24 -0400
-Received: from [62.12.131.37] ([62.12.131.37]:41631 "HELO debian")
-	by vger.kernel.org with SMTP id S261365AbTFZNXX (ORCPT
+	Thu, 26 Jun 2003 09:23:43 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:6660 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S261454AbTFZNXl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 09:23:23 -0400
-Date: Thu, 26 Jun 2003 15:37:11 +0200
-From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
-To: linux-kernel@vger.kernel.org
-Subject: eepro100 - solved.
-Message-Id: <20030626153711.7cee5401.zdavatz@ywesee.com>
-Organization: ywesee - intellectual capital connected
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Thu, 26 Jun 2003 09:23:41 -0400
+Date: Thu, 26 Jun 2003 15:38:20 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: rmoser <mlmoser@comcast.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21 pooched?
+Message-Id: <20030626153820.4147ec9a.skraw@ithnet.com>
+In-Reply-To: <200306260006360780.0086B340@smtp.comcast.net>
+References: <200306260006360780.0086B340@smtp.comcast.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got this one by myself. Sorry for the traffic.
+On Thu, 26 Jun 2003 00:06:36 -0400
+rmoser <mlmoser@comcast.net> wrote:
 
-Zeno
+> I'm having serious issues with 2.4.21.  It seems it doesn't like
+> ide-scsi, but panics/oops'es (something, it freezes afterwards
+> and blinks my kb) in ide-iops.c somewhere (ZIP/CDRW on
+> ide-scsi).  Also, the USB code seems to crash the system all
+> the time.  Gnome2 can't even begin to load, and when I kill X,
+> it takes the system down with it.
+> 
+> Everything I do is stable and safe in 2.4.18 through 2.4.20.  I
+> have had absolutely no panics or oopses until now with 2.4
+> series kernels.  I believe that the 2.4.21 kernel may be pooched.
+> Check that out if you haven't already heard of it.
+> 
+> By the way, some people tell me 2.4.21 is stable, and others
+> (more of 'em) tell me it's evil.  I dunno, play with it.
+> 
+> --Bluefox Icy
 
-Hi List
+If you see oopses then we could have a good chance to read them, too?
 
-I am doing a kernel with make-kpkg -rev ywesee.1 kernel_image
-
-And then install it with dpkg -i kernel-image.... .deb
-
-My maschine now boots great on the new 2.4.21 execpt that I do not have any network connection anymore.
-
-I loaded the drivers for my onboard Intel Network eepro100 (plus the other two options below).
-
-With the Debian Kernel bf24-2.4.20 my network connection is great...
-
-Any hints anyone?
-
-Thanks in advance.
-
-Zeno
-
-PS: Linux is great!
+Regards,
+Stephan

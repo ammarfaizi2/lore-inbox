@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282373AbRLQTI6>; Mon, 17 Dec 2001 14:08:58 -0500
+	id <S282378AbRLQTO2>; Mon, 17 Dec 2001 14:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282275AbRLQTIs>; Mon, 17 Dec 2001 14:08:48 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:32765 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S282222AbRLQTId>;
-	Mon, 17 Dec 2001 14:08:33 -0500
-Date: Mon, 17 Dec 2001 12:07:49 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Otto Wyss <otto.wyss@bluewin.ch>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Message-ID: <20011217120749.P855@lynx.no>
-Mail-Followup-To: Otto Wyss <otto.wyss@bluewin.ch>,
-	Alexander Viro <viro@math.psu.edu>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0112161542420.937-100000@weyl.math.psu.edu> <3C1E3E4D.FFCAC861@bluewin.ch>
-Mime-Version: 1.0
+	id <S282400AbRLQTOS>; Mon, 17 Dec 2001 14:14:18 -0500
+Received: from zeke.inet.com ([199.171.211.198]:33190 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S282378AbRLQTOA>;
+	Mon, 17 Dec 2001 14:14:00 -0500
+Message-ID: <3C1E43E7.7E8C525D@inet.com>
+Date: Mon, 17 Dec 2001 13:13:43 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-10enterprise i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1-dj2
+In-Reply-To: <20011217184127.A22952@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3C1E3E4D.FFCAC861@bluewin.ch>; from otto.wyss@bluewin.ch on Mon, Dec 17, 2001 at 07:49:49PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 17, 2001  19:49 +0100, Otto Wyss wrote:
-> > Somebody not attributed wrote:
-> > > Well a simple solution would be if Linux supports the multiple streams
-> > > file format. 
-
-Well "multiple streams file format" is purely a FILESYSTEM issue.  When it
-is outside of the filesystem, it is an ARCHIVE (e.g. tar, cpio, zip, SHA, etc).
-So this whole concept is bogus.
-
-> I don't want to bring in any ...-Design if standard tools are enough! If
-> cpio/tar do suffice, then much better. I don't know if they are simple and
-> fitting enough to be handled by any boot loader and the kernel. Maybe you
-> could elaborate more on this.
+Dave Jones wrote:
 > 
-> You have to admit that a multiple streams file format (regardless which kind)
-> would be a good solution to the booting of a modular kernel. Anyway this
-> format has to be supported by the kernel itself and in some extend by any
-> boot loader.
-> So anybody has to write a kernel module for the cpio/tar format and help with
-> implementing it into  boot loaders. Maybe you could give some help. 
+> Keeping the ball rolling..  Fix up some merge errors, scoop
+> up another bunch of pending fixes, and back out some problem bits
+> for now.
+> 
+> Patch is available from:
+> http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj2.diff.bz2
+> 
+> Some of these fixes still haven't found their way back to Marcelo yet
+> but should show up in 2.4.17-rc2 / 2.4.18pre1 with any luck.
 
-Well, the good news is that this whole discussion is moot.  Al Viro has
-already written a kernel patch which does all of this, and I'm sure he
-is just waiting to get it into the 2.5 kernel.  It creates an "initramfs"
-which is populated from a cpio (or tar, can't remeber) archive attached
-to the kernel image.
+Quick general question since I guess I missed it:  What is the 'charter'
+for the -dj branch?
+Are you accumulating the changes in 2.4 for Linus to merge into 2.5, or
+do you have another purpose?
 
-This does things like BOOTP/DHCP discovery, mount the rootfs, load
-modules, etc, all before the root filesystem is mounted.  This allows
-removing all sorts of junk from the kernel which was there because it
-needed to be done before the root filesystem was mounted.
+TIA,
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Eli 
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

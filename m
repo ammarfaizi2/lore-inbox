@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266618AbRGJPvC>; Tue, 10 Jul 2001 11:51:02 -0400
+	id <S266621AbRGJPvC>; Tue, 10 Jul 2001 11:51:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266621AbRGJPux>; Tue, 10 Jul 2001 11:50:53 -0400
-Received: from weta.f00f.org ([203.167.249.89]:45442 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266620AbRGJPup>;
-	Tue, 10 Jul 2001 11:50:45 -0400
-Date: Wed, 11 Jul 2001 03:50:38 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: "Randy.Dunlap" <rddunlap@osdlab.org>
-Cc: Christoph Hellwig <hch@ns.caldera.de>, linux-kernel@vger.kernel.org,
-        hpa@zytor.com
-Subject: Re: How many pentium-3 processors does SMP support?
-Message-ID: <20010711035038.A32188@weta.f00f.org>
-In-Reply-To: <20010711022509.C31966@weta.f00f.org> <3B4B1E91.A7D75608@osdlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B4B1E91.A7D75608@osdlab.org>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+	id <S266620AbRGJPux>; Tue, 10 Jul 2001 11:50:53 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:64384 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266618AbRGJPui>; Tue, 10 Jul 2001 11:50:38 -0400
+Date: Tue, 10 Jul 2001 11:49:41 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Joe Barr <warthawg@ecpi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Bogomips Replacement
+In-Reply-To: <20010710102935.5b5d6cfb.warthawg@ecpi.com>
+Message-ID: <Pine.LNX.3.95.1010710114618.16575B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2001 at 08:26:09AM -0700, Randy.Dunlap wrote:
+On Tue, 10 Jul 2001, Joe Barr wrote:
+[SNIPPED...]
+> 
+> Oh, one more question before I begin.  It is OK to do kernel patches in
+> Visual RPG, isn't it?
 
-    I have heard of some IBM/Sequent patches that modify the
-    logical vs. physical APIC addressing scheme to make 16-way
-    systems work.
+No! According to the current standard, IEEE-LINUX-2001, patches must
+be submitted in IBM-Selectric, triplicate, of course.
 
-The Unisys machine is actually four quad-CPU machines with shared
-memory, dynamically configurable and other neat stuff.
+Cheers,
+Dick Johnson
 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
-  --cw
 

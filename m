@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270853AbTGPJ6q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 05:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270854AbTGPJ6q
+	id S270856AbTGPKE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 06:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270860AbTGPKE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 05:58:46 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:61934 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S270853AbTGPJ6p convert rfc822-to-8bit
+	Wed, 16 Jul 2003 06:04:57 -0400
+Received: from raq465.uk2net.com ([213.239.56.46]:24075 "EHLO
+	mail.truemesh.com") by vger.kernel.org with ESMTP id S270856AbTGPKE4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 05:58:45 -0400
-Subject: Re: radeonfb and 32bit depth
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jp@angry-pixels.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030715060051.GA5738@darkwood>
-References: <20030715060051.GA5738@darkwood>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1058350410.515.45.camel@gaston>
+	Wed, 16 Jul 2003 06:04:56 -0400
+Date: Wed, 16 Jul 2003 11:13:21 +0100
+From: Paul Nasrat <pauln@truemesh.com>
+To: Il Skurko <a_very@mad.scientist.com>
+Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
+Subject: Re: Thinkpad T23: linux 2.5.x/2.6.0-test won't boot
+Message-ID: <20030716101321.GD1141@raq465.uk2net.com>
+Mail-Followup-To: Paul Nasrat <pauln@truemesh.com>,
+	Il Skurko <a_very@mad.scientist.com>, linux-kernel@vger.kernel.org,
+	davej@codemonkey.org.uk
+References: <20030716100841.48619.qmail@mail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 16 Jul 2003 12:13:31 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030716100841.48619.qmail@mail.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-15 at 08:00, Jacek Pop³awski wrote:
-> I was testing radeonfb in 2.4.22-pre6, my card is Sapphire 9100.
-> 
-> Everything works great in 8bit depth.
-> 
-> But when I use for example following mode:
-> 
-> mode "640x480-100@32"
-> 	geometry 640 480 640 480 32
->         timings 22272 48 32 17 22 128 12
-> endmode
-> 
-> cursor changes to black.
+On Wed, Jul 16, 2003 at 05:08:41AM -0500, Il Skurko wrote:
+ 
+> After selecting the kernel in the grub menu,
+> it only gets as far as to writing "Decompressing kernel...
+> Booting kernel.". Then there is no more text
+> output. The harddisk led indicates it continues
+> with something though, but it does not respond
+> to keyboard input (so I have to swith the computer
+> off).
 
-That's a known problem with fbdev core, the "fix" would be to
-implement HW cursor support in radeonfb...
+This is a known problem, I'd advise you to read the post-halloween doc
+but Dave Jones seems to be rebuilding/upgrading codemonkey :)
 
-Ben.
+The url should be:
 
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+
+Here is the appropriate snippet
+
+Known gotchas.
+~~~~~~~~~~~~~
+Certain known bugs are being reported over and over. Here are the
+workarounds.
+- Blank screen after decompressing kernel?
+  Make sure your .config has
+  CONFIG_INPUT=y, CONFIG_VT=y, CONFIG_VGA_CONSOLE=y and
+CONFIG_VT_CONSOLE=y
+
+Paul

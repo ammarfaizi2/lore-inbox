@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAEUGr>; Fri, 5 Jan 2001 15:06:47 -0500
+	id <S129588AbRAEUMh>; Fri, 5 Jan 2001 15:12:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129588AbRAEUGj>; Fri, 5 Jan 2001 15:06:39 -0500
-Received: from jalon.able.es ([212.97.163.2]:409 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129324AbRAEUG0>;
-	Fri, 5 Jan 2001 15:06:26 -0500
-Date: Fri, 5 Jan 2001 21:06:16 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Module section warning
-Message-ID: <20010105210616.A872@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.1
+	id <S130095AbRAEUM2>; Fri, 5 Jan 2001 15:12:28 -0500
+Received: from guardian.adtran.com ([206.166.249.118]:57871 "HELO
+	guardian.adtran.com") by vger.kernel.org with SMTP
+	id <S129588AbRAEUMM>; Fri, 5 Jan 2001 15:12:12 -0500
+Message-ID: <3A562B03.B5CDAF77@adtran.com>
+Date: Fri, 05 Jan 2001 14:13:55 -0600
+From: Ron Flory <ron.flory@adtran.com>
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0-ac2
+In-Reply-To: <E14Eale-000873-00@the-village.bc.nu> <20010105140246.A838@evaner.penguinpowered.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone.
+Evan Thompson wrote:
+> 
+> Hmm...seems as though Alan released 2.4.0-ac2 1 year ago (check out
+> the time stamps on ftp.kernel.org/pub/linux/kernel/people/alan/2.4/)
 
-As linux-2.4.0/Documentation/canges says, you need:
+ I've seen this before on some Linux FTP servers. 
 
-o  binutils               2.9.1.0.25              # ld -v
-o  modutils               2.4.0                   # insmod -V
+ From what I can tell, some FTP servers return (year -1) for directory
+queries.  It will return the correct year after 24 hrs have elapsed...
 
-and 2.4 uses gas instead of as86 for real mode.
-
-Are not that versions enough to delete the
-
-__asm__(".section .modinfo\n\t.previous");
-
-in module.h ?
-
---
-
-J.A. Magallon                                         $> cd pub
-mailto:jamagallon@able.es                             $> more beer
-
-Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
-
+ron
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

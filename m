@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVCBXMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVCBXRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVCBXMR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 18:12:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVCBXLV
+	id S261201AbVCBXRV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 18:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVCBXOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 18:11:21 -0500
-Received: from mail.kroah.org ([69.55.234.183]:10726 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261298AbVCBXEX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 18:04:23 -0500
-Date: Wed, 2 Mar 2005 15:04:01 -0800
-From: Greg KH <greg@kroah.com>
+	Wed, 2 Mar 2005 18:14:41 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:22144 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261201AbVCBXK7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 18:10:59 -0500
+Subject: Re: RFD: Kernel release numbering
+From: Josh Boyer <jdub@us.ibm.com>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050302230400.GA9394@kroah.com>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.5.8i
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Wed, 02 Mar 2005 17:10:07 -0600
+Message-Id: <1109805008.8290.4.camel@windu.rchland.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/me kills my patchbomb script for now
+On Wed, 2005-03-02 at 14:21 -0800, Linus Torvalds wrote:
+> It seems like a sensible approach, and it's not like the 2.4.x vs 2.5.x
+> kind of even/odd thing didn't _work_, the problems really were an issue of
+> too big granularity making it hard for user and developers alike. So I see
+> this as a tweak of the "let's drop the notion althogether for now"  
+> decision, and just modify it to "even/odd is meaningful at all levels".
 
-On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
-> 
->  - 2.6.<even>: even at all levels, aim for having had minimally intrusive 
->    patches leading up to it (timeframe: a week or two)
-> 
-> with the odd numbers going like:
-> 
->  - 2.6.<odd>: still a stable kernel, but accept bigger changes leading up 
->    to it (timeframe: a month or two).
+I like it, but what about important security fixes or mistakes like
+2.6.8.1?  In those situations, would you release that kernel under the
+next even number and skip the odd number?  Or would you release the fix
+under an odd number and sorta throw off the "meaning"?
 
-Ok, that's acceptable to me, but realize that this puts a bigger burden
-on the maintainers to queue up patches for you.  It's not that big of a
-deal, just something to be aware of.
+I'm not trying to be a pain, I'm really not.
 
-Speaking of which, does this mean I shouldn't hit you with all of my
-pending stuff?  I know some of the other subsystem maintainers have a
-lot of stuff queued up too.  Should we start this new numbering scheme
-as of today?  Or wait until 2.6.13?
+josh
 
-thanks,
-
-greg k-h

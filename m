@@ -1,136 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288221AbSACGKt>; Thu, 3 Jan 2002 01:10:49 -0500
+	id <S288220AbSACGbo>; Thu, 3 Jan 2002 01:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288220AbSACGKj>; Thu, 3 Jan 2002 01:10:39 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:28576 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S288221AbSACGK0>; Thu, 3 Jan 2002 01:10:26 -0500
-Date: Thu, 3 Jan 2002 08:06:53 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix loop BIO breakage (memory corruption)
-Message-ID: <Pine.LNX.4.33.0201030803570.20656-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288222AbSACGbf>; Thu, 3 Jan 2002 01:31:35 -0500
+Received: from runyon.cygnus.com ([205.180.230.5]:12796 "HELO cygnus.com")
+	by vger.kernel.org with SMTP id <S288220AbSACGbT>;
+	Thu, 3 Jan 2002 01:31:19 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: paulus@samba.org
+cc: Momchil Velikov <velco@fadata.bg>, Tom Rini <trini@kernel.crashing.org>,
+        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix 
+Reply-To: law@redhat.com
+From: law@redhat.com
+In-Reply-To: Your message of Thu, 03 Jan 2002 13:51:33 +1100.
+             <15411.50997.394792.638980@argo.ozlabs.ibm.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 02 Jan 2002 23:29:04 -0700
+Message-ID: <1927.1010039344@porcupine.cygnus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
-	I've tracked down what seems to be a case of array out of bounds.
-Doing the following command "mount /dev/cdrom /cdrom -o loop" hard locks
-my machine on 2.5.2-pre5 and no the BUG() check doesn't get displayed on
-neither my serial console or the box's monitor. Now it all makes sense
-that the BUG() check was triggered in 2.5.2-pre2 when we did indeed
-spin_lock_init all the lo devices its because we were exceeding our array
-limits! The only reason why mount /dev/fd0 /floppy -o loop doesn't trigger
-this is because its minor is 0 whilst my cdrom's minor is 64. So we
-weren't sending the loop device's minor but the underlying block device
-due to the bio parameter we passed. Of course once this bug is fixed,
-there still is the ll_rw_blk.c:1365 BUG too which hits straight afterwards
-;)
+  > Now the claim is that RELOC is bad because it adds an offset to a
+  > pointer, and the offset is usually around 0xc0000000, and thus we are
+  > "violating" the C standard.  Thus we are being told that someday this
+  > will break and cause a lot of grief.  My contention is that this will
+  > only break if a pointer becomes something other than a simple address
+  > and pointer arithmetic becomes something other than simple 2's
+  > complement addition, subtraction, etc.  If that happens then C will
+  > have become useless for implementing a kernel, IMHO.
+Well, pointer arithmetic on the HPPA isn't simple 2's complement due to
+the way implicit space register selection works.
 
-Box: 192M UP with HIGHMEM(64G) SMP Kernel (spinlock debugging on)
+For example in an unscaled indexed addressing mode like
+
+ldbx  srcreg1(srcreg2), dstreg
+
+Is not equivalent to
+
+ldbx srcreg2(srcreg1), dstreg
 
 
-Box: 192M UP with HIGHMEM(64G) SMP Kernel (spinlock debugging on)
+ie x + y != y + x for computing an address in a memory operation.
 
-loop.c:loop_init
-<snip>
-	for (i = 0; i < max_loop; i++) {
-		struct loop_device *lo = &loop_dev[i];
-		memset(lo, 0, sizeof(struct loop_device));
-		<snip>
-		lo->lo_number = i;
-		spin_lock_init(&lo->lo_lock);
-		printk(KERN_CRIT __FUNCTION__": lo=%p lo%d->lo_lock = {%d, %#x}\n", lo, lo->lo_number,
-			lo->lo_lock.lock, lo->lo_lock.magic);
-	}
-<snip>
+For the same reason computing an address outside of an object into a 
+register, then using a displacement in a memory operation to generate an
+address that is within the bounds of the object may not work.  ie, you
+can't do something like this and expect it to work:
 
-loop.c:loop_add_bio
-<snip>
-static void loop_add_bio(struct loop_device *lo, struct bio *bio)
+int a[10];
+int *z = a - 10;
+
+foo()
 {
-	unsigned long flags;
-	printk(KERN_CRIT __FUNCTION__": lo=%p\n", lo);
-	spin_lock_irqsave(&lo->lo_lock, flags); <=== we'll send garbage
-here
-<snip>
-
-loop.c
-static int loop_end_io_transfer(struct bio *bio, int nr_sectors)
-{
-	struct loop_device *lo = &loop_dev[MINOR(bio->bi_dev)]; <=== XXX
-	int uptodate = test_bit(BIO_UPTODATE, &bio->bi_flags);
-	<snip>
-	} else {
-		printk(KERN_CRIT __FUNCTION__": lo=%p MINOR(bio->bi_dev)=%d\n", lo,
-			MINOR(bio->bi_dev));
-		for (i=0; i < max_loop; i++)
-			printk(KERN_CRIT __FUNCTION__": &loop_dev[%d]=%p\n", i, &loop_dev[i]);
-		loop_add_bio(lo, bio);
-	}
-	return 0;
+  return z[10];
 }
 
-[root@mondecino linux]#modprobe loop
-loop_init: lo=cb6bd000 lo0->lo_lock = {1, 0xdead4ead}
-loop_init: lo=cb6bd12c lo1->lo_lock = {1, 0xdead4ead}
-loop_init: lo=cb6bd258 lo2->lo_lock = {1, 0xdead4ead}
-loop_init: lo=cb6bd384 lo3->lo_lock = {1, 0xdead4ead}
-loop_init: lo=cb6bd4b0 lo4->lo_lock = {1, 0xdead4ead}
-loop_init: lo=cb6bd5dc lo5->lo_lock = {1, 0xdead4ead}
-loop_init: lo=cb6bd708 lo6->lo_lock = {1, 0xdead4ead}
-loop_init: lo=cb6bd834 lo7->lo_lock = {1, 0xdead4ead}
+And before anyone says the PA is unbelievably strange and nobody else would
+make the same mistakes -- the mn10300 (for which a linux port does exist)
+has the same failings.
 
-all looks good our locks are properly initialised. BUT....
-
-[root@mondecino linux]# mount /dev/cdrom /cdrom -o loop
-loop_end_io_transfer: lo=cb6c1b00 MINOR(bio->bi_dev)=64 <== wrong block
-dev
-loop_end_io_transfer: &loop_dev[0]=cb6bd000
-loop_end_io_transfer: &loop_dev[1]=cb6bd12c
-loop_end_io_transfer: &loop_dev[2]=cb6bd258
-loop_end_io_transfer: &loop_dev[3]=cb6bd384
-loop_end_io_transfer: &loop_dev[4]=cb6bd4b0
-loop_end_io_transfer: &loop_dev[5]=cb6bd5dc
-loop_end_io_transfer: &loop_dev[6]=cb6bd708
-loop_end_io_transfer: &loop_dev[7]=cb6bd834
-loop_add_bio: lo=cb6c1b00 <=== woah!! indexing loop_dev[64]!
-<--BUG() check should be here-->
-<---HARD Lock from here on no sysrq keys--->
-
-Patch tested with read/write losetup type mounts, plain file backed mounts
-and block backed mounts (these fail in ll_rw_blk:1365 BUG check now)
-
---- linux-2.5.2-pre5/drivers/block/loop.c.orig	Sun Dec 31 02:40:17 2000
-+++ linux-2.5.2-pre5/drivers/block/loop.c	Sun Dec 31 02:05:59 2000
-@@ -386,12 +386,11 @@
-  */
- static int loop_end_io_transfer(struct bio *bio, int nr_sectors)
- {
--	struct loop_device *lo = &loop_dev[MINOR(bio->bi_dev)];
-+	struct bio *rbh = bio->bi_private;
-+	struct loop_device *lo = &loop_dev[MINOR(rbh->bi_dev)];
- 	int uptodate = test_bit(BIO_UPTODATE, &bio->bi_flags);
-
- 	if (!uptodate || bio_rw(bio) == WRITE) {
--		struct bio *rbh = bio->bi_private;
--
- 		bio_endio(rbh, uptodate, nr_sectors);
- 		if (atomic_dec_and_test(&lo->lo_pending))
- 			up(&lo->lo_bh_mutex);
-
-
-
-
-Oh and Happy New Year!!
-
-Best Regards.
-	Zwane Mwaikambo
-
+jeff
 

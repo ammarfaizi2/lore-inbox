@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275997AbRI1K1c>; Fri, 28 Sep 2001 06:27:32 -0400
+	id <S276004AbRI1KqM>; Fri, 28 Sep 2001 06:46:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276001AbRI1K1X>; Fri, 28 Sep 2001 06:27:23 -0400
-Received: from mail.spylog.com ([194.67.35.220]:26801 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S275997AbRI1K1T>;
-	Fri, 28 Sep 2001 06:27:19 -0400
-Date: Fri, 28 Sep 2001 14:27:40 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BENCH] Problems with IO throughput and fairness with 2.4.10 and  2.4.9-ac15
-Message-ID: <20010928142740.A3678@spylog.ru>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3BB31F99.941813DD@anu.edu.au> <200109280851.f8S8pKL29417@hal.grips.com>
+	id <S276003AbRI1Kpw>; Fri, 28 Sep 2001 06:45:52 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:17683 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S276002AbRI1Kpq>;
+	Fri, 28 Sep 2001 06:45:46 -0400
+Date: Fri, 28 Sep 2001 12:46:11 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PnP BIOS + 2.4.9-ac16 = no boot
+Message-ID: <20010928124611.H21524@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200109280851.f8S8pKL29417@hal.grips.com>
-User-Agent: Mutt/1.3.22i
-Organization: SpyLOG ltd.
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Gerold Jury,
+Hi,
 
-Once you wrote about "Re: [BENCH] Problems with IO throughput and fairness with 2.4.10 and  2.4.9-ac15":
-> I have tried 2.4.9-xfs against 2.4.10-xfs with dbench.
-> The machine has 384 MB ram.
+When booting a 2.4.9-ac16 kernel on my Sony Vaio C1VE laptop
+the boot process hangs with something like:
+	PnP: PNP BIOS installation structure at 0xc00f8120
+	PnP: PNP BIOS version 1.0, entry ay f0000:b25f, dseg at 400
+	general protection fault: 0000
+	...
+	Code: Bad EIP value
 
- IDE/SCSI/RAID Controller?
+Adding nobiospnp to the kernel boot line solves the problem. The last
+-ac kernel I tried (2.4.9-ac10) does not need exhibit this problem.
 
-> The throughput is roughly the same for both with dbench 2.
-> dbench 32 runs fine on 2.4.9-xfs but does not finish on 2.4.10-xfs.
-> dbench 24 will finish on 2.4.10 but it takes a very very long time.
-> All dbench processes are stuck in D state after 10 seconds.
-> 
-> I am not sure if it is the xfs part, the VM or both.
-> 
-> Can you give the dbench 32 a try ?
+Since this machine's BIOS is crap anyway (almost entirely ACPI - 
+APM suspend doesn't work etc), is it worth investigating this issue
+or should I blame the BIOS structures once again ?
 
-I am run "dbench 32", all test ok.
-Kernel 2.4.10-xfs + 2.4.10.aa1 + preempteble patch.
-File system on test partition ext2.
+Thanks,
 
-Compiled with no highmem support.
-
-Hardware configuration: 
-
-Dell Optiplex G1 (P2-350/256RAM/IDE disk 1Gb)
-
-
+Stelian.
 -- 
-bye.
-Andrey Nekrasov, SpyLOG.
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

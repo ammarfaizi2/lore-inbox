@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVC3CII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVC3CId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbVC3CII (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 21:08:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVC3CII
+	id S261717AbVC3CId (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 21:08:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVC3CId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 21:08:08 -0500
-Received: from main.gmane.org ([80.91.229.2]:26845 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261716AbVC3CID (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 21:08:03 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: [PATCH] embarassing typo
-Date: Wed, 30 Mar 2005 04:07:39 +0200
-Message-ID: <yw1xu0mtzy1g.fsf@ford.inprovide.com>
-References: <1112128584.25954.6.camel@tux.lan> <yw1xd5ti17z6.fsf@ford.inprovide.com>
- <4249CFA1.7050907@tls.msk.ru>
+	Tue, 29 Mar 2005 21:08:33 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:38065 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261717AbVC3CIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 21:08:30 -0500
+Subject: Re: Mac mini sound woes
+From: Lee Revell <rlrevell@joe-job.com>
+To: Marcin Dalecki <martin@dalecki.de>
+Cc: Takashi Iwai <tiwai@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <0683ecb1e5fb577a703689d1962ad113@dalecki.de>
+References: <1111966920.5409.27.camel@gaston>
+	 <1112067369.19014.24.camel@mindpipe>
+	 <4a7a16914e8d838e501b78b5be801eca@dalecki.de>
+	 <1112084311.5353.6.camel@gaston>
+	 <e5141b458a44470b90bfb2ecfefd99cf@dalecki.de>
+	 <s5h7jjqkazy.wl@alsa2.suse.de>
+	 <0683ecb1e5fb577a703689d1962ad113@dalecki.de>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 21:08:28 -0500
+Message-Id: <1112148508.5184.1.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:RIVdTBfWsaSM0A4DFuoDp8Rw0mk=
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev <mjt@tls.msk.ru> writes:
+On Wed, 2005-03-30 at 03:45 +0200, Marcin Dalecki wrote:
+> On 2005-03-29, at 12:22, Takashi Iwai wrote:
+> >
+> > ALSA provides the "driver" feature in user-space because it's more
+> > flexible, more efficient and safer than doing in kernel.  It's
+> > transparent from apps perspective.  It really doesn't matter whether
+> > it's in kernel or user space.
+> 
+> Yes because it's that wonder full linux sound processing sucks in 
+> compare
+> to the other OSs out there doing it in kernel.
 
-> Måns Rullgård wrote:
->> "Ronald S. Bultje" <rbultje@ronald.bitfreak.net> writes:
->>
->>>--- linux-2.6.5/drivers/media/video/zr36050.c.old	16 Sep 2004 22:53:27 -0000	1.2
->>>+++ linux-2.6.5/drivers/media/video/zr36050.c	29 Mar 2005 20:30:23 -0000
->>>@@ -419,7 +419,7 @@
->>> 	dri_data[2] = 0x00;
->>> 	dri_data[3] = 0x04;
->>> 	dri_data[4] = ptr->dri >> 8;
->>>-	dri_data[5] = ptr->dri * 0xff;
->>>+	dri_data[5] = ptr->dri & 0xff;
->> Hey, that's a nice obfuscation of a simple negation.
->
-> It's not a negation.  This statement always assigns zero to
-> dri_data[5] if dri_data is char[].
+What are you taking about?  It's actually quite good.
 
-Sure about that?
+Have you actually tried these other OSes lately?  These devices in
+question (those lacking hardware mixing and volume control) don't
+exactly work great under that OS.
 
-__u16 i;
-char c;
-i = 1; c = i * 255; /* c = 255 = -1 */
-i = 2; c = i * 255; /* c = 510 & 0xff = 254 = -2 */
-...
-
-Looks like negation to me.
-
--- 
-Måns Rullgård
-mru@inprovide.com
+Lee
 

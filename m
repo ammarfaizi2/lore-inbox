@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUKDErT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUKDEsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbUKDErT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 23:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUKDErT
+	id S262062AbUKDEsP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 23:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUKDEsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 23:47:19 -0500
-Received: from mx.inch.com ([216.223.198.27]:8455 "EHLO util.inch.com")
-	by vger.kernel.org with ESMTP id S262060AbUKDErO (ORCPT
+	Wed, 3 Nov 2004 23:48:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31386 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262062AbUKDEsA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 23:47:14 -0500
-Date: Wed, 3 Nov 2004 23:47:13 -0500 (EST)
-From: John McGowan <jmcgowan@inch.com>
-To: Dave Airlie <airlied@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9: i810 video
-In-Reply-To: <21d7e99704110314156bb270de@mail.gmail.com>
-Message-ID: <20041103234045.G92772@shell.inch.com>
-References: <20041102215308.GA3579@localhost.localdomain> 
- <21d7e99704110313583cccde5f@mail.gmail.com>  <20041103170945.V81684@shell.inch.com>
- <21d7e99704110314156bb270de@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Nov 2004 23:48:00 -0500
+Date: Wed, 3 Nov 2004 20:47:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: bjorn.helgaas@hp.com, Robert.Picco@hp.com, venkatesh.pallipadi@intel.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] fix HPET time_interpolator registration
+Message-Id: <20041103204706.1c85d30a.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0411031951110.3414@schroedinger.engr.sgi.com>
+References: <200411031024.43782.bjorn.helgaas@hp.com>
+	<20041103185721.743d9317.akpm@osdl.org>
+	<Pine.LNX.4.58.0411031951110.3414@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004, Dave Airlie wrote:
-
-> >
-> > I tried compiling the kernel without the intel810 framebuffer support
-> > and still, it seems that something writes all over video memory (I did not
-> > try using the fbdev driver in Xorg when I was trying to get 2.6.9 working,
-> > just its i180 driver).
+Christoph Lameter <clameter@sgi.com> wrote:
 >
-> Disable the i810 fb and i810 drm and see does X start properly (I
-> expect it does..)
-> then just add the DRM and see does it run....
+> On Wed, 3 Nov 2004, Andrew Morton wrote:
+> 
+> > Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> > >
+> > >  Fixup after mid-air collision between Christoph adding time_interpolator.mask,
+> > >  and me removing a static time_interpolator struct from hpet.
+> > >
+> > >  Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> > >
+> > >  ===== drivers/char/hpet.c 1.14 vs edited =====
+> > >  --- 1.14/drivers/char/hpet.c	2004-11-02 07:40:42 -07:00
+> > >  +++ edited/drivers/char/hpet.c	2004-11-03 10:05:26 -07:00
+> > >  @@ -712,6 +712,7 @@
+> > >   	ti->addr = &hpetp->hp_hpet->hpet_mc;
+> > >   	ti->frequency = hpet_time_div(hpets->hp_period);
+> > >   	ti->drift = ti->frequency * HPET_DRIFT / 1000000;
+> > >  +	ti->mask = 0xffffffffffffffffLL;
+> > >
+> > >   	hpetp->hp_interpolator = ti;
+> > >   	register_time_interpolator(ti);
+> > >
+> >
+> > ti->mask is u64, and on some architectures u64 is `long'.  Compilers might
+> > whine about this.   I'll make it
+> >
+> > 	ti->mask = -1;
+> >
+> > which just works.
+> 
+> Hmmm... How do you then specify a 64 bit mask without running into issues
+> with the compilers?
 
-I am just a user. I have no idea of what you are talking.
-All I do is use "X" (xorg-x11, version 6.8.1). kernel compiled
-without framebuffer support. Well it was. I got rid of kernel 2.6.9.
-Back to kernel 2.6.7. Dialup. Another two hours to download 2.6.9
-again. Another few hours to recompile and test the kernel.
+Well with 0xffffffff[ffffffff] it's easy: use -1 and sign extension.
 
-I am no programmer. What is drm? How does the i810 driver in
-xorg work? I have no idea.
-
-> What chipset have you got?
-
-An HP 7850 - various motherboards used ... this one has an
-e-machine motherboard. Bios has no controls for the video
-chip. Does FW82810E sound line the chipset? It is mentioned
-somewhere in the motherboard doc I found on some site (not HP's
-so it may or may not be correct).
+The only problem I can see is if you want to propagate a bit pattern across
+the scalar but you don't know its size.  Say 0x5a5a5a5a versus
+0x5a5a5a5a5a5a5a5a.  But nobody ever wants to do that.
 
 
-Regards from:
-
-    John McGowan  |  jmcgowan@inch.com                [Internet Channel]
-                  |  jmcgowan@coin.org                [COIN]
-    --------------+-----------------------------------------------------

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317244AbSEXSm0>; Fri, 24 May 2002 14:42:26 -0400
+	id <S317239AbSEXSmQ>; Fri, 24 May 2002 14:42:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317245AbSEXSmZ>; Fri, 24 May 2002 14:42:25 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:12805 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S317244AbSEXSmX>;
-	Fri, 24 May 2002 14:42:23 -0400
-Date: Fri, 24 May 2002 14:36:25 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: negative dentries wasting ram
-Message-ID: <20020524143625.A25016@mark.mielke.cc>
-In-Reply-To: <Pine.LNX.4.44.0205240927580.11495-100000@home.transmeta.com> <Pine.GSO.4.21.0205241259230.9792-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317244AbSEXSmP>; Fri, 24 May 2002 14:42:15 -0400
+Received: from p50886BFF.dip.t-dialin.net ([80.136.107.255]:57001 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317239AbSEXSmO>; Fri, 24 May 2002 14:42:14 -0400
+Date: Fri, 24 May 2002 12:41:25 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Martin Dalecki <dalecki@evision-ventures.com>, Jan Kara <jack@suse.cz>,
+        Nathan Scott <nathans@sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Quota patches
+In-Reply-To: <E17BHha-0006m7-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0205241237580.15928-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 01:00:14PM -0400, Alexander Viro wrote:
-> > The only think we save is a dentry kfree/kmalloc in this case, nbot a FS
-> > downcall. And I think Andrea is right that it can waste memory for the
-> > likely much more common case where the file just stays removed.
-> ???
-> It's lookup + unlink + lookup + create vs. lookup + unlink + create.
+Hi,
 
-I would rather use kernel memory for far more useful things, such as
-more room for actual dentries/inodes, or negative dentries found from
-failed lookup() calls (i.e. proven useful).
+On Fri, 24 May 2002, Alan Cox wrote:
+>       Add a CONFIG_SMALL where users can pick to have very small hash
+> tables on older systems with little RAM.
 
-The overhead of unlink()/create() probably swamps the rather minimal
-gain from a saved lookup() in this not very common situation.
+On Fri, 24 May 2002, Alan Cox wrote:
+> I'd been thinking about a set of options buried in a config menu item
+> like "Fine tune configuration for small/embedded devices" CONFIG_SMALL
 
-Just the opinion of somebody that doesn't matter... :-)
-mark
+I'd prefer CONFIG_TIGHT_MEMORY. You never know what things in the world 
+might be called small.
 
+Regards,
+Thunder
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+Was it a black who passed along in the sand?
+Was it a white who left his footprints?
+Was it an african? An indian?
+Sand says, 'twas human.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
 
-                           http://mark.mielke.cc/
+
 

@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132393AbQKKUcl>; Sat, 11 Nov 2000 15:32:41 -0500
+	id <S132409AbQKKUeM>; Sat, 11 Nov 2000 15:34:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132374AbQKKUcc>; Sat, 11 Nov 2000 15:32:32 -0500
-Received: from gatekeeper.isltd.insignia.com ([195.217.222.20]:61709 "EHLO
-	gatekeeper.isltd.insignia.com") by vger.kernel.org with ESMTP
-	id <S132351AbQKKUcU>; Sat, 11 Nov 2000 15:32:20 -0500
-Message-ID: <3A0DAD50.8C55A494@insignia.com>
-Date: Sat, 11 Nov 2000 20:34:24 +0000
-From: Stephen Thomas <stephen.thomas@insignia.com>
-Organization: Insignia Solutions
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S132374AbQKKUeC>; Sat, 11 Nov 2000 15:34:02 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:9 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132409AbQKKUdp>; Sat, 11 Nov 2000 15:33:45 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Q: Linux rebooting directly into linux.
+Date: 11 Nov 2000 12:33:15 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8ukaeb$eh6$1@cesium.transmeta.com>
+In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001109113524.C14133@animx.eu.org> <m1g0kycm0x.fsf@frodo.biederman.org>
 MIME-Version: 1.0
-To: Mark Hindley <mh15@st-andrews.ac.uk>
-CC: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: opl3 under 2.4.0-test10
-In-Reply-To: <200011110826.IAA01091@hindleyhome.st-andrews.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hindley wrote:
-> I am trying to setup my ALS 110 soundcard under my build of kernel
-> 2.4.0-test10.
+Followup to:  <m1g0kycm0x.fsf@frodo.biederman.org>
+By author:    ebiederm@xmission.com (Eric W. Biederman)
+In newsgroup: linux.dev.kernel
+> > > 
+> > > The interface is designed to be simple and inflexible yet very
+> > > powerful.  To that end the code just takes an elf binary, and a
+> > > command line.  The started image also takes an environment generated
+> > > by the kernel of all of the unprobeable hardware details.
+> > 
+> > Isn't this what milo does on alpha?
 > 
-> I have built in isapnp support and also the sb and opl3 drivers.
+> Similar milo uses kernel drivers in it's own framework.  
+> This has proved to be a major maintenance problem.  Milo is nearly
+> a kernel fork.  
 > 
-> However, even though I pass opl3=0x388 on the Kernel command line all
-> I get is an isapnp panic.
+> The design is for the long term to get this incorporated into the
+> kernel, and even if not a small kernel patch should be easier to
+> maintain that a harness for calling kernel drivers.
+> 
 
-I'm experiencing what superficially appears to be a related problem
-with an AWE64 card.  I'm building the drivers non-modular (because
-I've yet to find any description of how to configure modular sound
-drivers for 2.4.0).  I believe I'm making the appropriate configuration
-settings - from my .config:
+I'm working on something similiar in "Genesis".  It pretty much is (or
+rather, will be) a kernel *port*, not a fork; the port is such that it
+can run on top of a simple BIOS extender and thus access the boot
+media.
 
-CONFIG_SOUND=y
-CONFIG_SOUND_OSS=y
-CONFIG_SOUND_TRACEINIT=y
-CONFIG_SOUND_DMAP=y
-CONFIG_SOUND_ADLIB=y
-CONFIG_SOUND_VMIDI=y
-CONFIG_SOUND_SB=y
-CONFIG_SOUND_AWE32_SYNTH=y
-CONFIG_SOUND_YM3812=y
+	-hpa
 
-and I'm passing "opl3=0x388" to the driver.  However, if I query
-what synth devices the driver supports, it only reports an
-AWE32-0.4.4 (RAM512k) sample device.  I expect it report an FM synth
-device, too.  I get the same (lack of) effect if I go via the
-adlib_card code, by saying "adlib=0x388".  My investigations so
-far have shown that when opl3_detect() first tries to get the
-signature of the OPL3 device, it gets 0xff from the inb() (line
-195 of drivers/sound/opl3.c in test11pre1), while the corresponding
-code in 2.2.18pre19 gets 0x00.
-
-Stephen Thomas
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

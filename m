@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263460AbTDDFqe (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 00:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTDDFqe (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 00:46:34 -0500
-Received: from cs-ats40.donpac.ru ([217.107.128.161]:60167 "EHLO pazke")
-	by vger.kernel.org with ESMTP id S263460AbTDDFqZ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 00:46:25 -0500
-Date: Fri, 4 Apr 2003 09:57:47 +0400
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>, jsimmons@infradead.org
-Subject: [PATCH] visws framebuffer driver needs mm.h
-Message-ID: <20030404055747.GA964@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>, jsimmons@infradead.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="9amGYk9869ThD9tj"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
-From: Andrey Panin <pazke@orbita1.ru>
+	id S263529AbTDDGJB (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 01:09:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbTDDGJB (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 01:09:01 -0500
+Received: from adsl-b3-72-208.telepac.pt ([213.13.72.208]:17024 "HELO
+	puma-vgertech.no-ip.com") by vger.kernel.org with SMTP
+	id S263529AbTDDGIz (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 01:08:55 -0500
+Message-ID: <3E8D23E8.4060508@vgertech.com>
+Date: Fri, 04 Apr 2003 07:19:20 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+X-Accept-Language: en-us, pt
+MIME-Version: 1.0
+To: erik@hensema.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to fix the ptrace flaw without rebooting
+References: <200304030708_MC3-1-32C2-5A8A@compuserve.com> <slrnb8oaad.j0h.erik@bender.home.hensema.net>
+In-Reply-To: <slrnb8oaad.j0h.erik@bender.home.hensema.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Erik Hensema wrote:
+> 
+> If you can't reboot to apply a security fix, you've got a serious problem.
+> 
+> A better fix in a running system is to simply disable dynamic module
+> loading: echo /no/such/file > /proc/sys/kernel/modprobe
+> At the very least you can be sure your machine won't crash this way ;-)
+> 
 
-Hi,
+IIRC, dynamic module loading is not required to exploit all the bugs 
+present in ptrace. Luckly all the exploits floating around require kmod :)
 
-this trivial patch (2.5.66) fixes visws framebuffer driver which
-needs vm_area_struct from linux/mm.h
+Regards,
+Nuno Silva
 
-Please apply.
-
-Best regards.
-
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
-
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-visws-framebuffer-fix
-
-diff -urN -X /usr/share/dontdiff linux-2.5.66.vanilla/drivers/video/sgivwfb.c linux-2.5.66/drivers/video/sgivwfb.c
---- linux-2.5.66.vanilla/drivers/video/sgivwfb.c	Mon Mar 31 13:37:32 2003
-+++ linux-2.5.66/drivers/video/sgivwfb.c	Mon Mar 31 16:11:01 2003
-@@ -12,6 +12,7 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
-+#include <linux/mm.h>
- #include <linux/errno.h>
- #include <linux/delay.h>
- #include <linux/fb.h>
-
---9amGYk9869ThD9tj--

@@ -1,114 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262834AbTJTVxe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 17:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTJTVxe
+	id S262864AbTJTWEK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 18:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbTJTWEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 17:53:34 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57313 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262834AbTJTVtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 17:49:36 -0400
-Date: Mon, 20 Oct 2003 23:49:27 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Francois Romieu <romieu@fr.zoreil.com>, Donald Becker <becker@scyld.com>,
-       linux-net@vger.kernel.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.4.22 and SMC EtherPower II 9432
-Message-ID: <20031020214927.GV23191@fs.tum.de>
-References: <20031020205933.GS23191@fs.tum.de> <20031020233045.A14712@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031020233045.A14712@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 20 Oct 2003 18:04:10 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:29894 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S262864AbTJTWEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 18:04:00 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.0-test8-mm1
+Date: Tue, 21 Oct 2003 00:01:01 +0200
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20031020020558.16d2a776.akpm@osdl.org> <200310201811.18310.schlicht@uni-mannheim.de> <20031020144836.331c4062.akpm@osdl.org>
+In-Reply-To: <20031020144836.331c4062.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-03=_ksFl/u3rQZn2u7y";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200310210001.08761.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2003 at 11:30:45PM +0200, Francois Romieu wrote:
-> Adrian Bunk <bunk@fs.tum.de> :
-> [...]
-> > on two different machines the ethernet card works with kernel 2.2.20 but 
-> > not with kernel 2.4.22 (both contain machines contain the same card).
-> 
-> Could you display the registers with the utility available at
-> <URL:ftp://ftp.scyld.com/pub/diag/epic-diag.c> ?
 
-(kernel 2.2.20)
+--Boundary-03=_ksFl/u3rQZn2u7y
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_dsFl/vYGfSfRo5V"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-# epic-diag -aa -ee -mm
-epic-diag.c:v2.01 1/6/2000 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-Index #1: Found a SMSC EPIC/100 83c170 adapter at 0xb000.
-The EPIC/100 chip appears to be active, so some registers will not be 
-read.
-To see all register values use the '-f' flag.
-EPIC chip registers at 0xb000
- 0x000: 00000008 00240000 000013bf 00000712 00004831 00000061 00000000 00000000
- 0x020: 00000000 00000000 00000000 00007589 00000610 0000782d 00003816 00003c60
- 0x040: 0000e000 00003d29 00006fe4 00006700 0000ffff 0000ffff 0000ffff 0000ffff
- 0x060: 0000000c ******** ******** ******** 00003c7f 00002003 ******** ********
- 0x080: ******** 0048b810 ******** ******** ******** ******** ******** ********
- 0x0A0: ******** 005a0801 ******** ******** 005a0bfd ******** ******** ********
- 0x0C0: ******** 0048baa0 ******** ******** ******** ******** ******** 0048b900
- 0x0E0: ******** ******** ******** ******** ******** ******** ******** ********
- No interrupt sources are pending.
- Rx state is 'Running', Tx state is 'Idle'.
-  Transmitter: slot time 512 bits, full-duplex mode.
-  Last transmit OK, 0 collisions.
-  Receiver control is 000c, multicast mode.
-  The last Rx frame was 90 bytes, status 1.
-EEPROM contents (size: 64x16):
-  e000 3d29 6fe4 6700 0001 1c08 10b8 a014
-  0000 0000 0000 0000 0000 0000 0000 0000
-  0000 0000 0000 0000 0000 0000 0000 0000
-  0000 0000 0000 0000 0000 0000 0000 0000
-  0010 0000 1980 2100 0000 0000 0003 0000
-  0701 0000 0000 0000 4d53 3943 3334 5432
-  2058 2020 0000 0000 0280 0000 0000 0000
-  0000 0000 0000 0000 0000 0000 0000 0000
- The word-wide EEPROM checksum is 0x536a.
-Parsing the EEPROM of a EPIC/100:
- Station Address 00:E0:29:3D:E4:6F.
- Board name 'SMC9432TX   ', revision 0.
-  Calculated checksum is 00, correct.
- Subsystem ID Vendor/Device 10b8/a014.
- MII PHY found at address 3.
- MII PHY #3 transceiver registers:
-   3000 782d 0181 4401 01e1 45e1 0001 ffff
-   ffff ffff ffff ffff ffff ffff ffff ffff
-   0040 0018 ffff ffff ffff ffff ffff ffff
-   ffff ffff ffff 003e ffff 0048 0000 1dd8.
- MII PHY #3 transceiver registers:
-   3000 782d 0181 4401 01e1 45e1 0001 ffff
-   ffff ffff ffff ffff ffff ffff ffff ffff
-   0040 0018 ffff ffff ffff ffff ffff ffff
-   ffff ffff ffff 003e ffff 0048 0000 1dd8.
- Basic mode control register 0x3000: Auto-negotiation enabled.
- Basic mode status register 0x782d ... 782d.
-   Link status: established.
-   Capable of  100baseTx-FD 100baseTx 10baseT-FD 10baseT.
-   Able to perform Auto-negotiation, negotiation complete.
- Vendor ID is 00:60:51:--:--:--, model 0 rev. 1.
-   Vendor/Part: Quality Semiconductor (unknown type).
- I'm advertising 01e1: 100baseTx-FD 100baseTx 10baseT-FD 10baseT
-   Advertising no additional info pages.
-   IEEE 802.3 CSMA/CD protocol.
- Link partner capability is 45e1: Flow-control 100baseTx-FD 100baseTx 10baseT-FD 10baseT.
-   Negotiation  completed.
-Monitoring the MII transceiver status.
-23:44:07.609  Baseline value of MII BMSR (basic mode status register) is 782d.
+--Boundary-01=_dsFl/vYGfSfRo5V
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+On Monday 20 October 2003 23:48, Andrew Morton wrote:
+> A colleague here has discovered that this crash is repeatable, but goes
+> away when the radeon driver is disabled.
+>
+> Are you using that driver?
 
-> Ueimor
+No, I'm not... I use the vesafb driver. Do you think disabling this could c=
+ure=20
+the Oops?
 
-cu
-Adrian
+Btw. a similar Oops at the same place occours when the uhci-hcd module is=20
+unloaded...
 
--- 
+The attached patch prevents the kernel from Oopsing, so it seems some inode=
+=20
+lists are corrupted (NULL terminated!). Don't know how the FB driver could =
+be=20
+the reason...
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Regards
+   Thomas
 
+--Boundary-01=_dsFl/vYGfSfRo5V
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="hack-invalidate_list.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline;
+	filename="hack-invalidate_list.diff"
+
+=2D-- linux-2.6.0-test8-mm1/fs/inode.c.orig	Mon Oct 20 20:52:26 2003
++++ linux-2.6.0-test8-mm1/fs/inode.c	Mon Oct 20 22:43:52 2003
+@@ -292,14 +292,16 @@
+ 	int busy =3D 0, count =3D 0;
+=20
+ 	next =3D head->next;
+=2D	for (;;) {
+=2D		struct list_head * tmp =3D next;
++	while (next !=3D head) {
+ 		struct inode * inode;
+=2D
+=2D		next =3D next->next;
+=2D		if (tmp =3D=3D head)
++#if 1
++		if (!next) {
++			printk(KERN_ERR "Badness in invalidate_list() !\n");
+ 			break;
+=2D		inode =3D list_entry(tmp, struct inode, i_list);
++		}
++#endif
++		inode =3D list_entry(next, struct inode, i_list);
++		next =3D next->next;
+ 		if (inode->i_sb !=3D sb)
+ 			continue;
+ 		invalidate_inode_buffers(inode);
+
+--Boundary-01=_dsFl/vYGfSfRo5V--
+
+--Boundary-03=_ksFl/u3rQZn2u7y
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/lFskYAiN+WRIZzQRAql1AKCQ0xAdDINpDANJsfhyoeCYz/73rwCdF/Mn
+B++kh++gSrj63mAscziiFJs=
+=B76l
+-----END PGP SIGNATURE-----
+
+--Boundary-03=_ksFl/u3rQZn2u7y--

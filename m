@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275437AbTHIXz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 19:55:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275438AbTHIXz0
+	id S275438AbTHJABv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 20:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275440AbTHJABv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 19:55:26 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:43978 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S275437AbTHIXzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 19:55:24 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy  ...
-Date: Sun, 10 Aug 2003 00:58:16 +0100
-User-Agent: KMail/1.5.3
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com> <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
+	Sat, 9 Aug 2003 20:01:51 -0400
+Received: from fe2-cox.cox-internet.com ([66.76.2.39]:10171 "EHLO
+	fe2.cox-internet.com") by vger.kernel.org with ESMTP
+	id S275438AbTHJABu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 20:01:50 -0400
+Message-ID: <003501c35ed2$a6ff5400$71f14c42@coxinternet.com>
+From: "Matthew Mullins" <mokomull@cox-internet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test3 Makefile
+Date: Sat, 9 Aug 2003 19:02:13 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308100058.16261.phillips@arcor.de>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 09 August 2003 18:47, Mike Galbraith wrote:
-> 1.  SCHED_SOFTRR tasks can disturb (root) SCHED_RR/SCHED_FIFO tasks as is.
+The makefile bundled with 2.6.0-test3 won't install the modules correctly.
+'make modules' compiles the modules to *.o, but 'make modules_install'
+expects to find them as *.ko.
 
-What do you mean by "disturb"?
+If I could find some documentation on the makefiles (or makefiles in
+general), I'd be able to submit a patch.
 
-Regards,
-
-Daniel
+-MrM
 

@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316677AbSGJILX>; Wed, 10 Jul 2002 04:11:23 -0400
+	id <S316896AbSGJIPS>; Wed, 10 Jul 2002 04:15:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316896AbSGJILW>; Wed, 10 Jul 2002 04:11:22 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:7303 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S316677AbSGJILW> convert rfc822-to-8bit;
-	Wed, 10 Jul 2002 04:11:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [2.4 BUFFERING BUG] (was [BUG] 2.4 VM sucks. Again)
-Date: Wed, 10 Jul 2002 10:14:05 +0200
-User-Agent: KMail/1.4.1
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <200205241004.g4OA4Ul28364@mail.pronto.tv> <200207100950.21084.roy@karlsbakk.net> <3D2BEAD9.6D7E62C1@zip.com.au>
-In-Reply-To: <3D2BEAD9.6D7E62C1@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207101014.05059.roy@karlsbakk.net>
+	id <S316961AbSGJIPR>; Wed, 10 Jul 2002 04:15:17 -0400
+Received: from mta3.srv.hcvlny.cv.net ([167.206.5.9]:38386 "EHLO
+	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S316896AbSGJIPQ>; Wed, 10 Jul 2002 04:15:16 -0400
+Date: Wed, 10 Jul 2002 04:18:00 -0400
+From: Bill Darrow <bdarrow@optonline.net>
+Subject: [patch] regards SIS645DX/SIS5513
+To: linux-kernel@vger.kernel.org
+Message-id: <20020710041800.34945f02.bdarrow@optonline.net>
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 July 2002 10:05, Andrew Morton wrote:
-> Roy Sigurd Karlsbakk wrote:
-> > hi
-> >
-> > I've been using the patch below from Andrew for some weeks now, sometimes
-> > under quite heavy load, and find it quite stable.
->
-> Wish we knew why.  I've tried many times to reproduce the problem
-> which you're seeing.  With just two gigs of memory, buffer_heads
-> really cannot explain anything.  It's weird.
+Quick hack to support SiS645dx(646)/961B onboard 5513 family IDE controller for those of you with 645dx boards....
 
-well - firstly, I'm using _1_ gig of memory - highmem (= 900 megs something)
-secondly - I have reproduced it on two different installations, although on 
-the same hardware - standard PC with SiS MB and an extra promise controller, 
-RAID-0 on 4 drives and chunksize 1MB. Given a 30-50 processes each reading a 
-4gig file and sending it over HTTP, everything works fine _if_ and only _if_ 
-the client reads at high speed. If, however, the client reads at normal 
-streaming speed (4,3Mbps), buffers go bOOM.
+diff -c -b -r linuxold/drivers/ide/sis5513.c linux/drivers/ide/sis5513.c
+*** linuxold/drivers/ide/sis5513.c	Wed Jul 10 04:00:48 2002
+--- linux/drivers/ide/sis5513.c	Wed Jul 10 00:03:14 2002
+***************
+*** 177,182 ****
+--- 177,183 ----
+  	{ "SiS730",	PCI_DEVICE_ID_SI_730,	ATA_100a,	SIS5513_LATENCY },
+  	{ "SiS650",	PCI_DEVICE_ID_SI_650,	ATA_100,	SIS5513_LATENCY },
+  	{ "SiS645",	PCI_DEVICE_ID_SI_645,	ATA_100,	SIS5513_LATENCY },
++ 	{ "SiS646",	PCI_DEVICE_ID_SI_646,   ATA_100,	SIS5513_LATENCY },
+  	{ "SiS635",	PCI_DEVICE_ID_SI_635,	ATA_100,	SIS5513_LATENCY },
+  	{ "SiS640",	PCI_DEVICE_ID_SI_640,	ATA_66,		SIS5513_LATENCY },
+  	{ "SiS630",	PCI_DEVICE_ID_SI_630,	ATA_66,		SIS5513_LATENCY },
+diff -c -b -r linuxold/include/linux/pci_ids.h linux/include/linux/pci_ids.h
+*** linuxold/include/linux/pci_ids.h	Wed Jul 10 03:59:40 2002
+--- linux/include/linux/pci_ids.h	Wed Jul 10 00:10:41 2002
+***************
+*** 475,480 ****
+--- 475,481 ----
+  #define PCI_DEVICE_ID_SI_635		0x0635
+  #define PCI_DEVICE_ID_SI_640		0x0640
+  #define PCI_DEVICE_ID_SI_645		0x0645
++ #define PCI_DEVICE_ID_SI_646		0x0646
+  #define PCI_DEVICE_ID_SI_650		0x0650
+  #define PCI_DEVICE_ID_SI_730		0x0730
+  #define PCI_DEVICE_ID_SI_630_VGA	0x6300
 
-> We discussed this in Ottawa - I guess Andrea will add the toss-the-buffers
-> code on the read side (basically the filemap.c stuff).  That may
-> be sufficient, but without an understanding of what is going on,
-> it is hard to predict.
 
-Is there _any_ more data I can give, or any more testing I can do, then I'll 
-do my very best to help
-
-roy
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Bill

@@ -1,153 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268117AbUJHISf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUJHIUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268117AbUJHISf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 04:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUJHISf
+	id S268206AbUJHIUp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 04:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUJHIUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 04:18:35 -0400
-Received: from sicdec1.epfl.ch ([128.178.50.33]:12486 "EHLO sicdec1.epfl.ch")
-	by vger.kernel.org with ESMTP id S268117AbUJHIRu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 04:17:50 -0400
-Message-ID: <1097223461.41664d258d907@imapwww.epfl.ch>
-X-Imap-User: michel.mengis@epfl.ch
-Date: Fri,  8 Oct 2004 10:17:41 +0200
-From: michel.mengis@epfl.ch
+	Fri, 8 Oct 2004 04:20:45 -0400
+Received: from mail.hometree.net ([194.77.152.181]:6573 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S268153AbUJHITE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 04:19:04 -0400
 To: linux-kernel@vger.kernel.org
-Cc: Dominik Brodowski <linux@dominikbrodowski.de>
-Subject: Re: Kernel 2.6.8 and DELL's DOTHAN Processor B0
-References: <20041008073837.GA7413@dominikbrodowski.de>
-In-Reply-To: <20041008073837.GA7413@dominikbrodowski.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.6
-X-Originating-IP: 128.178.9.34
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+Date: Fri, 8 Oct 2004 08:19:02 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <ck5ihm$tbc$1@tangens.hometree.net>
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>	 <35fb2e590410011509712b7d1@mail.gmail.com>  <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <4165A5E3.6050602@nortelnetworks.com> <4165B3A0.3090003@drdos.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1097223542 30060 194.77.152.164 (8 Oct 2004 08:19:02 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 8 Oct 2004 08:19:02 +0000 (UTC)
+X-Copyright: (C) 1996-2005 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dominik,
+"Jeff V. Merkey" <jmerkey@drdos.com> writes:
 
-here the outputs:
-::::::::::::::
-/proc/acpi/processor/CPU0/info
-::::::::::::::
-processor id:            0
-acpi id:                 0
-bus mastering control:   yes
-power management:        yes
-throttling control:      yes
-limit interface:         yes
-::::::::::::::
-/proc/acpi/processor/CPU0/limit
-::::::::::::::
-active limit:            P0:T0
-user limit:              P0:T0
-thermal limit:           P0:T0
-::::::::::::::
-/proc/acpi/processor/CPU0/power
-::::::::::::::
-active state:            C2
-default state:           C1
-bus master activity:     ffffffff
-states:
-    C1:                  promotion[C2] demotion[--] latency[000] usage[00011180]
-   *C2:                  promotion[C3] demotion[C1] latency[050] usage[00390021]
-    C3:                  promotion[--] demotion[C2] latency[050] usage[00004735]
-::::::::::::::
-/proc/acpi/processor/CPU0/throttling
-::::::::::::::
-state count:             8
-active state:            T0
-states:
-   *T0:                  00%
-    T1:                  12%
-    T2:                  25%
-    T3:                  37%
-    T4:                  50%
-    T5:                  62%
-    T6:                  75%
-    T7:                  87%::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq
-::::::::::::::
-600000
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
-::::::::::::::
-1700000
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq
-::::::::::::::
-600000
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
-::::::::::::::
-1700000 1700000 1700000 1400000 1200000 1000000 800000 600000
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors
-::::::::::::::
-userspace
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
-::::::::::::::
-600000
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver
-::::::::::::::
-centrino
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-::::::::::::::
-userspace
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-::::::::::::::
-600000
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-::::::::::::::
-600000
-::::::::::::::
-/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
-::::::::::::::
-600000
+>> For an unlimited use license of the linux tree, $50,000 USD is 
+>> ludicrously tiny.
 
 
-scaling_min_freq, scaling_max_freq, scaling_governor and scaling_setseed are rw.
-but I can write what I want in these files, nothing change.
+>$50,000 per copy -- that's a hell of a pricetag. Windows only goes for 
+>$100.00 a copy.
+>You guys should be flattered.
 
-michel.
+>Let's see, 10,000 companies x $50,000.00 a pop = $500,000,000 / year in 
+>license
 
+Bullshit. Because this "price" would be payed only once. 9999 would
+license the BSD licensed kernel for $ 25.000 from you.
 
-and,
+Jeff, you have done better trolling in the past. This one is really
+ludicrous.
 
-
-
-
-Quoting Dominik Brodowski <linux@dominikbrodowski.de>:
-
-> Hi,
->
-> Can you send me the output of
->
-> cat /acpi/processor/*/performance
->
-> and
->
-> cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-> cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq
->
->
-> Also, is this happening while on AC power or while on battery?
->
->
-> Thirdly, can you disassemble the DSDT and, if it exists, the SSDT, and check
-> for the _PPC method? How to disassemble the DSDT is noted at
-> http://acpi.sourceforge.net , for the SSDT check gspr's post on Sep. 20th,
-> 12:53 at
-> http://forums.gentoo.org/viewtopic.php?t=223411&highlight=ssdt+acpidmp
->
-> 	Dominik
->
+	Regards
+		Henning
 
 
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+RedHat Certified Engineer -- Jakarta Turbine Development  -- hero for hire
+   Linux, Java, perl, Solaris -- Consulting, Training, Development
+
+"Fighting for one's political stand is an honorable action, but re-
+ fusing to acknowledge that there might be weaknesses in one's
+ position - in order to identify them so that they can be remedied -
+ is a large enough problem with the Open Source movement that it
+ deserves to be on this list of the top five problems."
+                       -- Michelle Levesque, "Fundamental Issues with
+                                    Open Source Software Development"

@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVBBS6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262748AbVBBS6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbVBBS6W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 13:58:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVBBS4c
+	id S262748AbVBBS6O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 13:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVBBS4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 13:56:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:1671 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262471AbVBBSwT (ORCPT
+	Wed, 2 Feb 2005 13:56:46 -0500
+Received: from kenga.kmv.ru ([217.13.212.5]:19901 "EHLO kenga.kmv.ru")
+	by vger.kernel.org with ESMTP id S262348AbVBBSy6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 13:52:19 -0500
-Date: Wed, 2 Feb 2005 13:52:18 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Frank klein <frnk_kln@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Copyright / licensing question
-In-Reply-To: <20050202144915.94462.qmail@web42106.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.61.0502021351260.14232@chimarrao.boston.redhat.com>
-References: <20050202144915.94462.qmail@web42106.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 2 Feb 2005 13:54:58 -0500
+Date: Wed, 2 Feb 2005 21:53:39 +0300
+From: "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>
+To: Vasily Averin <vvs@sw.ru>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, Atul Mukker <Atul.Mukker@lsil.com>,
+       Sreenivas Bagalkote <Sreenivas.Bagalkote@lsil.com>
+Subject: Re: [PATCH] Prevent NMI oopser
+Message-ID: <20050202185338.GG19453@kmv.ru>
+References: <41F5FC96.2010103@sw.ru> <20050131231752.GA17126@logos.cnet> <42011EFA.10109@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42011EFA.10109@sw.ru>
+User-Agent: Mutt/1.5.6+20040907i
+X-Data-Status: msg.XXeUZUDa:28661@kenga.kmv.ru
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005, Frank klein wrote:
+Hi Vasily Averin!
 
-> 1. For explaining the internals of a filesystem in
-> detail, I need to take their code from kernel sources
-> 'as it is' in the book. Do I need to take any
-> permissions from the owner/maintainer regarding this ?
-> Will it violate any license if reproduce the driver
-> source code in my book ??
+ On Wed, Feb 02, 2005 at 09:42:02PM +0300, Vasily Averin wrote next:
 
-Reproducing GPL code is legal, though you may want to
-make sure that the copyright notice on the book doesn't
-accidentally try to prohibit your readers from further
-distributing said code ;)
+> Marcelo Tosatti wrote:
+> >On Tue, Jan 25, 2005 at 11:00:22AM +0300, Vasily Averin wrote:
+> >>You should unlock io_request_lock before msleep, like in latest versions
+> >>of megaraid2 drivers.
+> >
+> >Andrey, 
+> >
+> >Can you please update your patch to unlock io_request_lock before sleeping
+> >and locking after coming back? 
+> >
+> >What the driver is doing is indeed wrong.
+> 
+> Marcelo,
+> 
+> This is megaraid2 driver update (2.10.8.2 version, latest 2.4-compatible
+> version that I've seen), 
+Where ? Last version (i see announce + patch from 2.10.3) is 2.10.6. 
+
+> taken from latest RHEL3 kernel update. I believe it should prevent NMI 
+> in abort/reset handler.
+Thnx for patch, I try it on my server at next week.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+ Best regards, TEMHOTA-RIPN aka MJA13-RIPE
+ System Administrator. mailto:temnota@kmv.ru
+

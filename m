@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130157AbRAJAFK>; Tue, 9 Jan 2001 19:05:10 -0500
+	id <S132556AbRAJAFl>; Tue, 9 Jan 2001 19:05:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132799AbRAJAFA>; Tue, 9 Jan 2001 19:05:00 -0500
-Received: from oboe.it.uc3m.es ([163.117.139.101]:28431 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S130157AbRAJAEw>;
-	Tue, 9 Jan 2001 19:04:52 -0500
-From: "Peter T. Breuer" <ptb@oboe.it.uc3m.es>
-Message-Id: <200101100004.f0A04j703901@oboe.it.uc3m.es>
-Subject: Re: wild gettimeofday on smp under 2.2.18
-In-Reply-To: From "(env:" "ptb)" at "Dec 28, 2000 11:26:12 pm"
-To: ptb@it.uc3m.es
-Date: Wed, 10 Jan 2001 01:04:45 +0100 (MET)
-CC: "Alan Cox"@oboe.it.uc3m.es, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S132584AbRAJAFc>; Tue, 9 Jan 2001 19:05:32 -0500
+Received: from iq.sch.bme.hu ([152.66.226.168]:33876 "EHLO iq.rulez.org")
+	by vger.kernel.org with ESMTP id <S132556AbRAJAF0>;
+	Tue, 9 Jan 2001 19:05:26 -0500
+Date: Wed, 10 Jan 2001 01:07:55 +0100 (CET)
+From: Sasi Peter <sape@iq.rulez.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.19pre6aa1 degraded performance for me...
+In-Reply-To: <Pine.LNX.4.30.0101090722580.22161-100000@iq.rulez.org>
+Message-ID: <Pine.LNX.4.30.0101100106160.25024-100000@iq.rulez.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Alan Cox wrote:"
-> Doesnt seem very wild to me, but something did go back 3uS which would imply
-> the CPU tsc's are not synched. 2.2 doesnt like that, Boot with 'notsc' and
-> repeat the experiment
+On Tue, 9 Jan 2001, Sasi Peter wrote:
+> On Tue, 9 Jan 2001, Andrea Arcangeli wrote:
+> > On Mon, Jan 08, 2001 at 10:46:29PM +0100, Sasi Peter wrote:
+> > > What I had w/2.2.18pre19 (+raid+ide):
+> > > ~80MB more in cache and ~80MB swapped out (eg. currently unused notes
+> > > server and squid) There is enough of swap over 3 disks (like the
+> > > raid), so I did not bother disabling squid and notes, since - I thought -
+> > > they would only take up some swap unused.
+> > There are many variables. However I guess the slowdown is because your idle
+> > apps didn't got swapped out in favour of cache as you noticed. An aggressive
+> > aging algorithm would probably fix that but it then would hurt other cases
+> > (after you don't need a frequenty accessed part of filesystem cache anymore it
+> > would take ages before it gets collected potentially causing an unnecessary
+> > swapout storms because the kernel doesn't know you don't need such cache
+> > anymore).  Furthmore if notes and squid are rarely running but they provides
+> > critical services if they would go totally into swap in favour of fs cache you
+> > would get very bad latencies the first time somebody connects to the server. So
+> > the fix I suggest you is to buy more ram or to shutdown squid and notes. Than
+> Oh well I thought 384MB should be enought for everyone aiming at this
+> performance (almost TM ;). At least it would up till now :(
+> > you may as well see a performance improvement compared to 2.2.18pre19
+> > (+raid+ide).  Otherwise you can push the machine low on memory a bit until they
+> > both goes totally into swap (check with `ps v`). Hope this helps.
+> I'll try this, thanks. (so no echo '1 23 456' >/proc/sys/vm/...?)
 
-No change with that, as you already know.  But I just noticed that the
-ekernel was compiled for i386.  I've recompiled 2.2.18 for i686, and
-this comes out of the boot messages:
+I thought it over again. I still have to say it is a nonsense for a kernel
+not to  have _anything_ (zero pages) currently unused swapped out under
+such an I/O load!
 
-  checking TSC synchronization across CPUs: 
-  BIOS BUG: CPU#0 improperly initialized, has 2045320 usecs TSC skew!  FIXED.
-  BIOS BUG: CPU#1 improperly initialized, has -2045320 usecs TSC skew!  FIXED.
-  PCI: PCI BIOS revision 2.10 entry at 0xf0730
+-- 
+SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
 
-This is the ASUS BX dual board with onboard scsi.
 
-But the FIXED above doesn't seem to be true. I still get results like
-those below from gettimeofday calls every five seconds. Clearly two
-mixed sequences ..
-
-  978042124  !
-  978042135    *
-  978042134  !
-  978042139  !
-  978042144  !
-  978042149  !
-  978042158    *
-  978042159  !
-  978042164  !
-  978042169  !
-  978042176
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

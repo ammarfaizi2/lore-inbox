@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131485AbQLMOXU>; Wed, 13 Dec 2000 09:23:20 -0500
+	id <S131462AbQLMOm1>; Wed, 13 Dec 2000 09:42:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131498AbQLMOXK>; Wed, 13 Dec 2000 09:23:10 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:64651 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131485AbQLMOXD>; Wed, 13 Dec 2000 09:23:03 -0500
-From: Christoph Rohland <cr@sap.com>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH,preliminary] cleanup shm handling
-In-Reply-To: <21834.976708267@warthog.cambridge.redhat.com>
-Organisation: SAP LinuxLab
-Date: 13 Dec 2000 14:52:23 +0100
-In-Reply-To: David Howells's message of "Wed, 13 Dec 2000 11:51:07 +0000"
-Message-ID: <qwwvgsoig2w.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131498AbQLMOmS>; Wed, 13 Dec 2000 09:42:18 -0500
+Received: from chaos.ao.net ([205.244.242.21]:65294 "EHLO chaos.ao.net")
+	by vger.kernel.org with ESMTP id <S131462AbQLMOmL>;
+	Wed, 13 Dec 2000 09:42:11 -0500
+Message-Id: <200012131411.eBDEBWo14000@vulpine.ao.net>
+To: linux-kernel@vger.kernel.org
+Subject: IDE hang when using v4l (bttv) on all kernels.
+Date: Wed, 13 Dec 2000 09:11:31 -0500
+From: Dan Merillat <harik@chaos.ao.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
 
-On Wed, 13 Dec 2000, David Howells wrote:
->>> I'm currently writing a Win32 emulation kernel module to help
->>> speed Wine up,
->                                            ^^^^^^^^^^^^^
->> fd = shm_open ("xxx",...)
->> ptr = mmap (NULL, size, ..., fd, offset);
-> 
-> I am doing this from within kernel space. I'd like to avoid doing
-> the full open and mmap if possible. I was wondering if there're some
-> shortcuts I could make use of.
 
-There will be a 
+I've had this problem for a while now, reported it back in 2.3.x somewhere.
+I havn't needed v4l so I ignored it.  Playing with my bttv again and having
+a lot of trouble
 
-struct file *shmem_file_setup(char * name, loff_t size)
+After some (random) amount of frame grabs, my system loses.  Badly.
+ethernet quits forwarding, IDE refuses to respond... All I can do is
+switch VCs and watch errors scroll by.
 
-which gives you an open sruct file to an unlinked file of size
-size. You can then do
+This may be a chipset problem, although I've seen reference to others
+having problems with this driver and IDE in the past.
 
-down(&current->mm->mmap_sem);
-user_addr = (void *) do_mmap (file, addr, size, prot, flags, 0);
-up(&current->mm->mmap_sem);
+Tested with v4l1/2 for all kernels up to 2.4.0-test12
 
-with that struct file. You can look at shmget/shmat in ipc/shm.c. They
-use the same procedure form kernel space. 
 
-All this will only work with my patch.
+Lockup still happens if IDE DMA is disabled.
 
-Greetings
-		Christoph
+Please Cc: me if you want any additional information, I read L-K via
+the web archives.
 
+
+spurious 8259A interrupt: IRQ7.
+Failed to read 258048 bytes, got 0: Success
+ ^^^^^ my v4l program.
+ide_dmaproc: chipset supported ide_dma_losirq func only: 13
+hda: lost interrupt
+ide_dmaproc: chipset supported ide_dma_losirq func only: 13
+hda: lost interrupt
+<repeats forever>
+
+
+
+harik@burned:~$ lspci
+00:00.0 Host bridge: Intel Corporation 430FX - 82437FX TSC [Triton I] (rev 02)
+00:07.0 ISA bridge: Intel Corporation 82371FB PIIX ISA [Triton I] (rev 02)
+00:07.1 IDE interface: Intel Corporation 82371FB PIIX IDE [Triton I] (rev 02)
+00:08.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W [Millennium II]
+00:09.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 21)
+00:0a.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 21)
+00:0b.0 Multimedia video controller: Brooktree Corporation Bt848 (rev 12)
+
+--Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,77 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282786AbRK0E3R>; Mon, 26 Nov 2001 23:29:17 -0500
+	id <S282793AbRK0Ebk>; Mon, 26 Nov 2001 23:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282787AbRK0E3H>; Mon, 26 Nov 2001 23:29:07 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:15370 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S282786AbRK0E3A>; Mon, 26 Nov 2001 23:29:00 -0500
-Date: Mon, 26 Nov 2001 20:39:11 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Robert Love <rml@tech9.net>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] proc-based cpu affinity user interface
-In-Reply-To: <1006834464.842.2.camel@phantasy>
-Message-ID: <Pine.LNX.4.40.0111262026380.1674-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282792AbRK0Eb2>; Mon, 26 Nov 2001 23:31:28 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:35200 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S282791AbRK0EbT>; Mon, 26 Nov 2001 23:31:19 -0500
+Date: Mon, 26 Nov 2001 21:34:38 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Mark Richards <richard@ecf.utoronto.ca>
+Cc: Linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: Multiplexing filesystem
+Message-ID: <20011126213438.A1254@vger.timpanogas.org>
+In-Reply-To: <3C030FB4.C3303BE4@ecf.utoronto.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C030FB4.C3303BE4@ecf.utoronto.ca>; from richard@ecf.utoronto.ca on Mon, Nov 26, 2001 at 10:59:48PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Nov 2001, Robert Love wrote:
 
-> On Mon, 2001-11-26 at 22:52, Davide Libenzi wrote:
-> > As I said in reply to Ingo patch, it'd be better to expose "number" cpu
-> > masks not "logical" ( like cpus_allowed ).
-> > In this way the users can use 0..N-1 ( N == number of cpus phisically
-> > available ) w/out having to know the internal mapping between logical and
-> > number ids.
->
-> Do you mean you don't like using a bitmask ?
+You may want to look at FS filter drivers in Windows 2000 as a good model
+for something like this.  Intermezzo also seems to do something a lot
+like this, but not to the Windows 2000 degree.  W2K has something 
+called a filter driver interface, which is super handy for 
+encryption, and going remote.  
 
-No no, I love binary math :)
+The filter driver idea is pretty cool, and MS has been able to 
+implement some pretty cool stuff with it, like snap in virus 
+detection software across different file systems.  They also
+did something called a "mini-port" file system, which was a
+filter driver on top of their very complex IFS interface which
+made writing remote file systems, like network clients, as lot 
+easier and faster. 
 
+The disadvantage to their approach was that several new 
+and nasty "viruses" showed up as filter drivers and used 
+this interface to trash file systems. 
 
-> 00000001 = first CPU, its not logical, its physical.
+Food for thought.
 
-If You set this directly to cpus_allowed You're going to set the logical
-one.
-This because cpus_allowed is logical, because it's used like, ie:
+:-)
 
-int this_cpu = p->processor;
-
-if (p->cpus_allowed & (1 << this_cpu)) ...
-
-and p->processor is logical.
-Something like :
-
-unsigned long num2log_mask(unsigned long cmsk) {
-	unsigned long msk = 0;
-	int ii;
-
-	for (ii = 0; ii < smp_num_cpus; ii++)
-		if (cmsk & (1 << ii))
-			msk |= (1 << cpu_logical_map(ii));
-	return msk;
-}
-
-unsigned long log2num_mask(unsigned long cmsk) {
-	unsigned long msk = 0;
-	int ii;
-
-	for (ii = 0; ii < smp_num_cpus; ii++)
-		if (cmsk & (1 << ii))
-			msk |= (1 << cpu_number_map(ii));
-	return msk;
-}
-
-You use num2log_mask() on the user input mask to set cpus_allowed and
-log2num_mask() to return the map to the user.
+Jeff  
 
 
 
-
-- Davide
-
-
+On Mon, Nov 26, 2001 at 10:59:48PM -0500, Mark Richards wrote:
+> Quick question, which I suspect has a long answer.
+> 
+> I would like to write a multiplexing filesystem.  The idea is as follows:
+> 
+> The filesystem would ideally wrap another filesystem, such as nfs or smbfs or
+> ext2.  Most operations would just be passed to the native fs call.  However, for
+> some files, selectable at run time by some control singal, would actually reside
+> on another file system.  The other filesystem would have to be mounted.
+> 
+> The idea is for a version controlling filesystem.  The server would be a network
+> server (hence the desire to wrap nfs) which presents a 'view' of the source
+> code.  When the user reserves a file for editing, the file is copied to the
+> local disk.  From that point on, the local file is referred to until the user
+> commits the change or unreserves the file.  Ideally, the local copy of the file
+> could be on any file system, not one that is necessarily local.  And this has to
+> be totally transparent to the user, except for the step where the user
+> 'reserves' the file.
+> 
+> I've thought about two ways to do this.  One is to wrap the 'versioning' file
+> system with a multiplexor that checks fs calls to see if they are referring to a
+> file that is on a different fs.  The other approach is to intercept calls to the
+> VFS to do the same trick.
+> 
+> I'm new to the whole filesystem-coding thing, so bear with me if what i've just
+> said makes no sense.  So, my question (I guess it wasn't quick after all) is:
+> Can it be done, and are either of my two approaches feasible?  Any suggestions
+> or tips?
+> 
+> Thanks,
+> Mark Richards
+> 
+> PS please CC me if possible.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

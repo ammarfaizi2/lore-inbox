@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276393AbRI2BIT>; Fri, 28 Sep 2001 21:08:19 -0400
+	id <S276396AbRI2BJj>; Fri, 28 Sep 2001 21:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276394AbRI2BIJ>; Fri, 28 Sep 2001 21:08:09 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:34805
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S276393AbRI2BH5>; Fri, 28 Sep 2001 21:07:57 -0400
-Date: Fri, 28 Sep 2001 18:08:19 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9-ac16 good perfomer?
-Message-ID: <20010928180819.A29756@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3BB3EBC1.DE9AA505@yahoo.co.uk> <Pine.LNX.4.33L.0109280049380.19147-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0109280049380.19147-100000@imladris.rielhome.conectiva>
-User-Agent: Mutt/1.3.22i
+	id <S276395AbRI2BJa>; Fri, 28 Sep 2001 21:09:30 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:9230 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S276396AbRI2BJR>;
+	Fri, 28 Sep 2001 21:09:17 -0400
+Date: Fri, 28 Sep 2001 18:10:59 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com,
+        padraig@antefacto.com, linux-kernel@vger.kernel.org
+Subject: RE: CPU frequency shifting "problems"
+In-Reply-To: <8FB7D6BCE8A2D511B88C00508B68C2081971E3@orsmsx102.jf.intel.com>
+Message-ID: <Pine.LNX.4.10.10109281807380.26392-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 12:50:21AM -0300, Rik van Riel wrote:
-> On Thu, 27 Sep 2001, Thomas Hood wrote:
+On Fri, 28 Sep 2001, Grover, Andrew wrote:
 > 
-> > Either 2.4.9-ac16 has much improved VM performance over
-> > previous 2.4 kernels (under moderate load, at least), or someone
-> > sneaked in to my apartment last night and upgraded my machine
-> > while I was asleep.  I'm leaning toward the latter explanation.
-> 
-> Now that the -ac VM was stable for a few weeks, I thought
-> it might be time to sneak in some big performance changes,
-> finally.
-> 
-> They seem to work ;)
-> 
+> I agree and have said the very thing internally, but TPTB have determined
+> that the benefit of an open source driver is outweighed by the perceived
+> competitive advantage of keeping it a trade secret. :(
 
-Is it normal to have Inact_target 1/4 of main memory (64MB of 256MB RAM)?
-In previous versions, this value would fluctuate with the load of the system.
+Can you ask them what the competitive advantage is of effectively handing
+the competition a speed advantage by forcing Linux users to not use the
+TSC ?
 
-Is this expected?
+I wonder how that would show up on the benchmarks...
+
+	Gerhard
+
+	
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+
+

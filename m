@@ -1,70 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263922AbUDNGsI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 02:48:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263925AbUDNGsI
+	id S263925AbUDNGzI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 02:55:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbUDNGzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 02:48:08 -0400
-Received: from p4.ensae.fr ([195.6.240.202]:23868 "EHLO pc809.ensae.fr")
-	by vger.kernel.org with ESMTP id S263922AbUDNGsE convert rfc822-to-8bit
+	Wed, 14 Apr 2004 02:55:07 -0400
+Received: from p4.ensae.fr ([195.6.240.202]:34621 "EHLO pc809.ensae.fr")
+	by vger.kernel.org with ESMTP id S263925AbUDNGy7 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 02:48:04 -0400
-From: Guillaume =?iso-8859-15?q?Lac=F4te?= <Guillaume@Lacote.name>
+	Wed, 14 Apr 2004 02:54:59 -0400
+From: Guillaume =?iso-8859-1?q?Lac=F4te?= <Guillaume@Lacote.name>
 Reply-To: Guillaume@Lacote.name
 Organization: Guillaume@Lacote.name
-To: Timothy Miller <miller@techsource.com>
+To: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
 Subject: Re: Using compression before encryption in device-mapper
-Date: Wed, 14 Apr 2004 08:48:00 +0200
+Date: Wed, 14 Apr 2004 08:54:56 +0200
 User-Agent: KMail/1.5.3
 Cc: linux-kernel@vger.kernel.org, Linux@glacote.com
-References: <200404131744.40098.Guillaume@Lacote.name> <407C1BEC.30801@techsource.com>
-In-Reply-To: <407C1BEC.30801@techsource.com>
+References: <200404131744.40098.Guillaume@Lacote.name> <20040413174516.GB1084@wohnheim.fh-wedel.de>
+In-Reply-To: <20040413174516.GB1084@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200404140848.00477.Guillaume@Lacote.name>
+Message-Id: <200404140854.56387.Guillaume@Lacote.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for your prompt answers.
-Le Mardi 13 Avril 2004 18:57, Timothy Miller a écrit :
-[snip]
-> I have a suggestion.  If you're compressing only for the sake of
-> obfuscation, then don't really try to save any space.  Use a fast
-> compression algorithm which doesn't necessarily do a great job.
-I prefer speaking in terms of "entropy-per-bit" and "redundancy" rather than 
-"obfuscation", although you got the idea.
-Actually I plan to use a basic dynamic huffman : the rationale for this is 
-that there is no meta-data (and any meta-data would help an attacker), since 
-the weighted tree is updated along (de)compression. And from J. S. Vitter's 
-article (Design and analysis of Dynamic Huffman Codes) we know that in the 
-worst-case scenario the Huffman encoding will use one additional bit per 
-byte. Thus allocating 9 native blocks for every 8 "compressed" blocks will 
-do, although it is a bit more complicated than the 2-to-1 scheme I had 
-suggested.
+Thank you for your answers.
+Le Mardi 13 Avril 2004 19:45, Jörn Engel a écrit :
+
+>> 0) Has this problem already been adressed, and if yes, where ?
+> Yes, on the filesystems level.  Jffs2 is usable, although not
+> well-suited for disks and similar, ext2compr appears to be unusable.
+> On the device level, I haven't heard of anything yet.
+Thank you, I didn't know about Jffs2; however I believe it is not an 
+implemendation at the device level as I would like.
+
+> > 1) Using dm:
+> I'd go for a dm implementation.
+>
+> > 2) Block I/O boundaries:
+> > 3) Compressed sectors have varying sizes ...
+> > 4) Block allocation on writes: 
+>
+> If you really want to deal with this, you end up with a device that
+> can grow and shrink depending on the data.  Unless you have a strange
+> fetish for pain, you shouldn't even think about it.
+Since space efficiency is _not_ my aim I plan to forcibly allocate 3 physical 
+blocks for every 2 "compressed" blocks (as it should (?) always fit with a 
+dynamic Huffman encoding).
 
 >
-> When you're going to write, compress the block.  If it gets smaller,
-> fine.  Store it in the same space it would have required even if it were
-> uncompressed.  If the block gets bigger, then store it uncompressed.
-> Whether or not the block could be compressed would be stored in metadata
-> (in the inode, I guess).
-Actually I do _not_ want to do that. The reason for that is that I want to add 
-yet another layer before compression, which would interleave real data with 
-random bytes. These random bytes are not drawn uniformly but rather drawn as 
-to make the distribution on huffman trees (and thus on the encodings) 
-uniform. This ensures that in order to decode my real data, an attacker has 
-to decode the random data first; but since all _compressed_ random sequences 
-are made equi-probable, there is (hopefully) no better way for him to do this 
-than brute force. This is the idea I have (successfully ?) implemented in 
-http://jsam.sourceforge.net .
+> > 5) As a workaround to 2,3,4 I plan to systematically allocate 2 sectors
+> > per real sector (space efficiency is _not_ my aim, growing entropy per
+> > bit is) and to use a trivial dynamic huffman compression algorithm. Is
+> > this solution (which means having half less space than physically
+> > available) acceptable ?
+>
+> Makes sense.  One of the zlib developers actually calculated the
+> maximum expansion when zlib-compressing data, so you could even get
+> away with more than 50% net size, but that makes the code more
+> complicated.  Your call.
+Oops ! I thought it was possible to guarantee with the Huffman encoding (which 
+is more basic than Lempev-Zif) that the compressed data use no more than 1 
+bit for every byte (i.e. 12,5% more space).
 
-Thus I still want to "compress" my data even if its size grows.
+>
+> Performance should not be a big issue, as encryption is a performance
+> killer anyway.
+I am not sure that this is good news ;)
+>
+> Whether it is acceptable depends on the user.  Make it optional and
+> let the user decide.
+>
+> > 6) Shall this whole idea of compression be ruled out of dm and only be
+> > implemented at the file-system level (e.g. as a plugin for ReiserFS4) ?
+>
+> Again, depends on the user.  But from experience, there are plenty of
+> users who want something like this.
+Unfortunately I failed to find substantial code/documentation on encryption 
+plugin for Reiser4, for example. Do you know about some ?
 
-The problem I encounter however is that if forcibly allocating more space than 
-required (e.g. 9 plain blocks every 8 compressed blocks) I will need padding. 
-However padding is generally unwise cryptographically speaking ...
-
+>
+> Jörn
+Thank you, Guillaume.
 

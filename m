@@ -1,93 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbUBTSxs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 13:53:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbUBTSxs
+	id S261246AbUBTS6N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 13:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbUBTS6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 13:53:48 -0500
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:21777 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S261237AbUBTSxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 13:53:42 -0500
-Message-ID: <403658D5.1030206@kolumbus.fi>
-Date: Fri, 20 Feb 2004 20:58:29 +0200
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-CC: Andreas Schwab <schwab@suse.de>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH]2.6.3-rc2 MSI Support for IA64
-References: <C7AB9DA4D0B1F344BF2489FA165E5024040580FB@orsmsx404.jf.intel.com>
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E5024040580FB@orsmsx404.jf.intel.com>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 20.02.2004 20:55:58,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 20.02.2004 20:55:04,
-	Serialize complete at 20.02.2004 20:55:04
+	Fri, 20 Feb 2004 13:58:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:35994 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261246AbUBTS6K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 13:58:10 -0500
+Subject: [Announce] New Updates to the Linux Stability Page
+From: Craig Thomas <craiger@osdl.org>
+To: linstab@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1077303504.19386.62.camel@bullpen.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 20 Feb 2004 10:58:25 -0800
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ia64 already has a function ia64_alloc_vector(void) in 
-arch/ia64/kernel/irq_ia64, why the doubling?
+The Linux Stability page continues to post test result data for the
+post 2.6.0 kernels. http://www.osdl.org/projects/26lnxstblztn/results/
 
---Mika
+Below lists some recent changes to the page (in case you haven't visited
+in a while).
+
+1) 2.6.x kernels tested upon release:
+    -mm
+    -rc
+    -bk
+2) Detaild Test Result Links show links to continual updated results to
+   re-aim-7, tiobench, and iozone tests run in STP (1-way, 2-way, 4-way
+   and 8-way, as appopriate)
+3. New links to database performance reports in the Database Performance
+   Reports section (replaces old database section)
+4. New section added to link to various Lilnux kernel test report
+
+If anyone knows of other useful test result information or information
+providing a current state of the Linux kernel that can be linked from
+this page, let me know and I'll add the link.
 
 
-Nguyen, Tom L wrote:
 
->Friday, Feb. 20, 2004 8:55 AM, Andreas Schwab wrote:
->
->  
->
->>>@@ -316,6 +310,19 @@
->>> 	return current_vector;
->>> }
->>> 
->>>+int ia64_alloc_vector(void)
->>>+{
->>>+	static int next_vector = IA64_FIRST_DEVICE_VECTOR;
->>>+
->>>+	if (next_vector > IA64_LAST_DEVICE_VECTOR)
->>>+		/* XXX could look for sharable vectors instead of panic'ing... */
->>>+		panic("ia64_alloc_vector: out of interrupt vectors!");
->>>+
->>>+	nr_alloc_vectors++;
->>>+
->>>+	return next_vector++;
->>>+}
->>>+
->>>      
->>>
->
->  
->
->>IMHO this should be CONFIG_IA64 only.
->>    
->>
->
->To avoid some #ifdef statements as possible, "ia64_platform" 
->defined in the header file "msi.h" is set to TRUE only if 
->setting CONFIG_IA64 to 'Y'. The setting of ia64_platform
->to TRUE will execute function ia64_alloc_vector.
->
->This API is only used in assign_msi_vector()in msi.c:
->
->	vector = (ia64_platform ? ia64_alloc_vector() :
->		assign_irq_vector(MSI_AUTO));
->
->Thanks,
->Long
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+
+-- 
+Craig Thomas
+craiger@osdl.org
 

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312559AbSDEM7m>; Fri, 5 Apr 2002 07:59:42 -0500
+	id <S312570AbSDENHO>; Fri, 5 Apr 2002 08:07:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312562AbSDEM7X>; Fri, 5 Apr 2002 07:59:23 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:59029 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S312559AbSDEM7J>; Fri, 5 Apr 2002 07:59:09 -0500
-Date: Fri, 5 Apr 2002 14:59:00 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: socket write(2) after remote shutdown(2) problem ?
-Message-ID: <20020405125900.GI16595@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020405105509.GE16595@come.alcove-fr> <20020405.030251.28451401.davem@redhat.com> <20020405120054.GF16595@come.alcove-fr> <20020405.040451.127871174.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S312573AbSDENHD>; Fri, 5 Apr 2002 08:07:03 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48388 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S312570AbSDENGx>; Fri, 5 Apr 2002 08:06:53 -0500
+Date: Fri, 5 Apr 2002 08:04:28 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: faster boots?
+In-Reply-To: <20020404220022.F24914@redhat.com>
+Message-ID: <Pine.LNX.3.96.1020405075636.7802B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 05, 2002 at 04:04:51AM -0800, David S. Miller wrote:
+On Thu, 4 Apr 2002, Benjamin LaHaise wrote:
 
->    As you can see, read() doesn't return any error, just 0 to 
->    indicate end-of-file (seems correct interpretation of remote
->    shutdown here), but it doesn't report any error from the 
->    precedent write... Bug ?
-> 
-> Race, wait a bit, the reset will arrive.
+> I find that on heavily scsi systems: one machine spins each of 13 disks 
+> up sequentially.  This makes the initial boot take 3-5 minutes before 
+> init even gets its foot in the door.  If someone made a patch to spin 
+> up scsi disks on the first access, I'd gladly give it a test. ;-)
 
-Ok, I investigated this a bit more using setsockopt(...,SO_ERROR,...)
+  Look at the specs for startup current. Multiply by 13. That's why they
+spin up one at a time, many drives draw far more current getting up to
+speed, and doing all of them at once can be an issue.
 
-After the write in the client (which is done after the server has
-shutdown()'ed it), the error bit is set on the client socket
-(-EPIPE).
+  The initial spin is usually done by the BIOS, if you use RAID and have
+the drives spin down when idle (assuming they are ever idle), they can
+start all at once. I have seen that pop the little breaker in a power
+supply, although it was poorly configured (a manager told me 200w was
+fine, 350 was overkill). Four SCSI in a tower, get a query and reset.
 
-If the client issues a second write, the write fails (correctly)
-setting errno to -EPIPE.
+  That said, I believe you can tune that in some controllers, but I don't
+have a model or example handy. Most of my larger machines don't boot very
+often, so it's not an issue for me.
 
-If the client issues a read, read doesn't return an error. The 
-socket error bit is still there however, even after read() returns.
-
-If the client issues a close, close will return 0 too.
-
-Whether the read() should return the error bit or not is
-debatable, but IMHO close at least should propagate the error.
-
-Stelian.
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

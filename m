@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264989AbRFUO0w>; Thu, 21 Jun 2001 10:26:52 -0400
+	id <S264988AbRFUOj3>; Thu, 21 Jun 2001 10:39:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264988AbRFUO0c>; Thu, 21 Jun 2001 10:26:32 -0400
-Received: from inpbox.inp.nsk.su ([193.124.167.24]:716 "EHLO inpbox.inp.nsk.su")
-	by vger.kernel.org with ESMTP id <S264986AbRFUO0W>;
-	Thu, 21 Jun 2001 10:26:22 -0400
-Date: Thu, 21 Jun 2001 21:20:54 +0700
-From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
-Reply-To: D.A.Fedorov@inp.nsk.su
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is it useful to support user level drivers
-In-Reply-To: <E15D4VG-0001Lw-00@the-village.bc.nu>
-Message-ID: <Pine.SGI.4.10.10106212050430.3193032-100000@Sky.inp.nsk.su>
+	id <S264990AbRFUOjT>; Thu, 21 Jun 2001 10:39:19 -0400
+Received: from ivy.tec.in.us ([168.91.1.1]:48256 "EHLO Otter.ivy.tec.in.us")
+	by vger.kernel.org with ESMTP id <S264988AbRFUOjI>;
+	Thu, 21 Jun 2001 10:39:08 -0400
+From: John Madden <jmadden@ivy.tec.in.us>
+Organization: Ivy Tech State College
+To: Masaru Kawashima <masaru@scji.toshiba-eng.co.jp>,
+        Dionysius Wilson Almeida <dwilson@technolunatic.com>
+Subject: Re: eepro100: wait_for_cmd_done timeout
+Date: Thu, 21 Jun 2001 09:37:47 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010620163134.A22173@technolunatic.com> <20010621231939.757bddd6.masaru@scji.toshiba-eng.co.jp>
+In-Reply-To: <20010621231939.757bddd6.masaru@scji.toshiba-eng.co.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0106210940470C.28098@ycn013>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jun 2001, Alan Cox wrote:
-
-> > Lastly an IRQ kernel module can disable_irq() from interrupt handler
-> > and enable it again only on explicit acknowledge from user.
+> Dionysius Wilson Almeida <Dionysius Wilson Almeida <dwilson@technolunatic.com>> wrote:
+> > Jun 20 16:14:07 debianlap kernel: eepro100: wait_for_cmd_done timeout!
+> > Jun 20 16:14:38 debianlap last message repeated 5 times
 > 
-> No. The IRQ might be shared, and you get a slight problem if you just disabled
-> an IRQ needed to make progress for user space to handle the IRQ
+> I saw the same message.
+> 
+> The comment before wait_for_cmd_done() function in
+> linux/drivers/net/eepro100.c says:
+> /* How to wait for the command unit to accept a command.
+>    Typically this takes 0 ticks. */
+> 
+> And the initial value for the bogus counter, named "wait", is 1000.
+> Is it enough for your machine?
+> 
+> I applied attached patch, eepro100.patch.  After that, I've never seen
+> the message from wait_for_cmd_done().  And, my NIC works fine.
+> 
+> You may want to adjust the initial value for the bogus counter.
+> I don't know the appropriate value for this bogus counter.
 
-Disabling the IRQ till user acknowledge is an option for particular
-device handling.
-Yes, IRQ sharing is impossible with it and IRQ module must reject setup
-requests with this option and SA_SHIRQ flag together.
-However, it is important for rare cases only with "bad" devices
-(their interrupt behaviour is really bad!) and IRQ sharing requirement.
+int wait is set to 20000 in my eepro100.c (stock 2.2.19), and I still get these
+errors.  Think the patch with the udelay() will still work?
 
+John
+
+
+
+
+-- 
+John Madden
+UNIX Systems Engineer
+Ivy Tech State College
+jmadden@ivy.tec.in.us

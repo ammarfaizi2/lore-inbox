@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264928AbTFLS3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 14:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbTFLS3b
+	id S264940AbTFLSdO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 14:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbTFLScV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 14:29:31 -0400
-Received: from ip68-2-19-97.ph.ph.cox.net ([68.2.19.97]:51387 "EHLO
-	dent.deepthot.org") by vger.kernel.org with ESMTP id S264928AbTFLS3a
+	Thu, 12 Jun 2003 14:32:21 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:14540 "EHLO
+	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S264940AbTFLSas
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 14:29:30 -0400
-From: Jay Denebeim <denebeim@deepthot.org>
-X-Newsgroups: dt.kernel
-Subject: lockup on USB event kernel 2.4.20
-Date: Thu, 12 Jun 2003 18:17:38 +0000 (UTC)
-Organization: Deep Thought
-Message-ID: <slrnbehgu2.e60.denebeim@dent.deepthot.org>
-X-Complaints-To: news@deepthot.org
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linuxkernel@deepthot.org
+	Thu, 12 Jun 2003 14:30:48 -0400
+Subject: Re: Broken USB, sound in 2.5.70-mmX series
+From: Michel Alexandre Salim <mas118@york.ac.uk>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200306122002.55017.oliver@neukum.org>
+References: <1055436599.6845.7.camel@bushido>
+	 <1055437375.6143.2.camel@bushido>  <200306122002.55017.oliver@neukum.org>
+Content-Type: text/plain
+Organization: University of York
+Message-Id: <1055443509.6143.15.camel@bushido>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 12 Jun 2003 19:45:09 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My SO's computer works fine under redhat 8 which runs on a 2.4.18
-kernel, however on redhat 9 with a 2.4.20 kernel it locks up.  Also,
-redhat upgraded their kernel to 2.4.20 for rh 8 as well and I saw the
-same behavior.
+On Thu, 2003-06-12 at 19:02, Oliver Neukum wrote:
+> > It is definitely ACPI - I tried booting with ACPI off, everything works
+> > (sound stutters though). Booting with ACPI, the sound driver is not
+> > loaded. Manually loading, sound stuttered then stopped after one second.
+> > Keyboard and mouse (both USB) do not work with ACPI even though the
+> > drivers are loaded.
+> 
+> Do you see irqs for USB if you boot with acpi?
+> 
+Everything's on IRQ 9. That's why sound is broken as well it seems - IRQ
+sharing does not work as well as it should.
 
-Everything works fine until she moves her mouse which is connected to
-the USB, that locks the system.
+Regards,
 
-Is this a known problem?  Any idea how I can debug it?
+Michel
 
-Thanks
-Jay
-
--- 
-* Jay Denebeim  Moderator       rec.arts.sf.tv.babylon5.moderated *
-* newsgroup submission address: b5mod@deepthot.org                *
-* moderator contact address:    b5mod-request@deepthot.org        *
-* personal contact address:     denebeim@deepthot.org             *

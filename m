@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264050AbUDBODu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 09:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264049AbUDBODu
+	id S264054AbUDBOWW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 09:22:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264052AbUDBOWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 09:03:50 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:47369 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264051AbUDBODs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 09:03:48 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4: disabling SCSI support not possible
-Date: Fri, 2 Apr 2004 16:03:05 +0200
-User-Agent: KMail/1.6.1
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Olaf Zaplinski <o.zaplinski@broadnet-mediascape.de>,
-       Greg KH <greg@kroah.com>
-References: <406D65FE.9090001@broadnet-mediascape.de> <6uad1uv7kr.fsf@zork.zork.net> <20040402144216.A12306@flint.arm.linux.org.uk>
-In-Reply-To: <20040402144216.A12306@flint.arm.linux.org.uk>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+	Fri, 2 Apr 2004 09:22:21 -0500
+Received: from host199.200-117-131.telecom.net.ar ([200.117.131.199]:37029
+	"EHLO smtp.bensa.ar") by vger.kernel.org with ESMTP id S264054AbUDBOVt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 09:21:49 -0500
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: tehdely_lkml@metawire.org
+Subject: Re: mm-kernels, 4K stacks, and NVIDIA... am I crazy?
+Date: Fri, 2 Apr 2004 11:21:46 -0300
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <d61dc3fbcc9848976bdd9c3890c55940@localhost.localdomain>
+In-Reply-To: <d61dc3fbcc9848976bdd9c3890c55940@localhost.localdomain>
 MIME-Version: 1.0
 Content-Disposition: inline
-Message-Id: <200404021603.05688@WOLK>
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404021121.46697.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 April 2004 15:42, Russell King wrote:
-
-Hi Russel,
-
-> --- orig/drivers/usb/storage/Kconfig	Sat Mar 20 09:22:45 2004
-> +++ linux/drivers/usb/storage/Kconfig	Fri Apr  2 14:41:05 2004
-> @@ -4,8 +4,7 @@
+Michael Baehr wrote:
+> 06:55:05 <+delysid|~> grep 4K /usr/src/linux/.config
+> CONFIG_4KSTACKS=y
+> 06:55:08 <+delysid|~>
 >
->  config USB_STORAGE
->  	tristate "USB Mass Storage support"
-> -	depends on USB
-> -	select SCSI
-> +	depends on USB && SCSI
->  	---help---
->  	  Say Y here if you want to connect USB mass storage devices to your
->  	  computer's USB port. This is the driver you need for USB floppy drives,
-> @@ -13,6 +12,9 @@ config USB_STORAGE
->  	  similar devices. This driver may also be used for some cameras and
->  	  card readers.
->
-> +	  Please select SCSI support before enabling USB Mass Storage
-> +	  support.
-> +
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called usb-storage.
+> And I have yet to have a single problem.  In fact, everything is
+> working swimmingly!
 
-pretty useless if you do not see "USB Mass Storage support" config options due 
-to disabled SCSI ;)
+Are you sure you are using nvidia's binary driver?
 
-I'd suggest a comment, when SCSI is disabled, that USB Mass Storage is 
-disabled unless you select SCSI. I tried to cook up a simple patch but it 
-seems I don't know kbuild very well. The menu structure messed up after I did 
-it.
+$ dmesg | grep nvidia
+$ grep -i nvidia /var/log/XF*
 
-ciao, Marc
+Regards,
+Norberto
+
+PS: I'm recompiling my kernel with 4KSTACKS, but I doubt it will work.

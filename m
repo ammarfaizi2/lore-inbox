@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbVBYG4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVBYG6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262635AbVBYG4j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 01:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVBYG4j
+	id S262638AbVBYG6o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 01:58:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVBYG6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 01:56:39 -0500
-Received: from h80ad24f0.async.vt.edu ([128.173.36.240]:65031 "EHLO
-	h80ad24f0.async.vt.edu") by vger.kernel.org with ESMTP
-	id S262635AbVBYG4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 01:56:36 -0500
-Message-Id: <200502250656.j1P6uLTS022935@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Stuart MacDonald <stuartm@connecttech.com>
-Cc: "'Greg Folkert'" <greg@gregfolkert.net>,
-       "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: Re: Greg's Decree! (was Re: Linus' decrees?) 
-In-Reply-To: Your message of "Thu, 24 Feb 2005 17:08:33 EST."
-             <002201c51abd$712cf500$294b82ce@stuartm> 
-From: Valdis.Kletnieks@vt.edu
-References: <002201c51abd$712cf500$294b82ce@stuartm>
+	Fri, 25 Feb 2005 01:58:43 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:945 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262638AbVBYG5j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 01:57:39 -0500
+Subject: Re: [PATCH 2.6.11-rc4-mm1] end-of-proces handling for acct-csa
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jay Lan <jlan@sgi.com>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>, kaigai@ak.jp.nec.com,
+       jbarnes@sgi.com
+In-Reply-To: <20050224204646.704680e9.akpm@osdl.org>
+References: <421EA8FF.1050906@sgi.com>
+	 <20050224204646.704680e9.akpm@osdl.org>
+Date: Fri, 25 Feb 2005 07:57:40 +0100
+Message-Id: <1109314660.1738.206.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1109314581_3960P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.0.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 25/02/2005 08:06:36,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 25/02/2005 08:06:37,
+	Serialize complete at 25/02/2005 08:06:37
 Content-Transfer-Encoding: 7bit
-Date: Fri, 25 Feb 2005 01:56:21 -0500
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1109314581_3960P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 2005-02-24 at 20:46 -0800, Andrew Morton wrote:
+> Jay Lan <jlan@sgi.com> wrote:
+> >
+> > Since my idea of providing an accounting framework was considered
+> >  'overkill', here i submit a tiny patch just to allow CSA to
+> >  handle end-of-process (eop) situation by saving off accounting
+> >  data before a task_struct is disposed.
+> > 
+> >  This patch is to modify the acct_process() in acct.c, which is
+> >  invoked from do_exit() to handle eop for BSD accounting. Now
+> >  the acct_process() wrapper will also take care of CSA, if it has
+> >  been loaded. If the CSA module has been loaded, a CSA routine
+> >  will be invoked to construct a CSA job record and to write the
+> >  record to the CSA accounting file.
+> 
+> I really don't want to have to (and shouldn't need to) become an accounting
+> person, but as there seems to be a communication problem somewhere..
+> 
+> Please, you guys are the subject matter experts.  Put your heads together
+> and come up with something.
 
-On Thu, 24 Feb 2005 17:08:33 EST, Stuart MacDonald said:
+I completely agree with that and we will continue this conversation in
+private with Jay and all people involved to come up with an appropriate
+solution.
 
-> So what I'm wondering is, is there a location on the net where Linus'
-> statements about how the kernel is to be are collected? ie, Where the
-> above statements could all be found, with cites.
+Guillaume
 
-Your kernel source came with 3 files in the Documentation/ directory:
-CodingStyle, SubmittingDrivers, and SubmittingPatches.  That's probably
-as close to an official "how the kernel is to be" as you will find.
-
-Remember that Linus has *always* reserved the right to change his mind
-if a "sufficiently good" idea came along.  So it's not as much a "The Emperor
-Penguin Has Decreed" as "Nobody's made a sufficiently convincing case to Linus".
-(And I've never seen Linus claim to be totally consistent on what qualifies as
-"sufficiently" - he can be a lot more stubborn about some things and flexible on
-on others)
-
-And remember that Linus has a source tree, but so do many others. There's
-been lots of stuff that's made appearances elsewhere - the -mm tree has had
-enough different schedulers that totally ripped out the innards of something
-as basic as the scheduler that a 'plugsched' patch showed up.  I'm personally
-convinced we've not seen the last of the reiser4 "file as directory" concept, and
-that somebody will do a sane version at the VFS level where it belongs.  There's
-a whole bunch of other in-flight code that would be totally against a "how the
-kernel shall be" document of just 2 years ago.
-
-Another thread mentioned the kernelnewbies fortunes file:
-http://www.kernelnewbies.org/kernelnewbies-fortunes.tar.gz
-
-That's probably as close to an official document as you're likely to find.
-And the fact that it's in the format of a fortunes file says a lot about
-the mindset of the kernel hacking community, in a Zen koan sort of way.
-
---==_Exmh_1109314581_3960P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCHswVcC3lWbTT17ARAhD4AJ9KPWqOZSwqBRgB391u2cuFJDi6+ACgvoeU
-pbsIfSlk9PW8J7BOrfbulGQ=
-=4NVs
------END PGP SIGNATURE-----
-
---==_Exmh_1109314581_3960P--

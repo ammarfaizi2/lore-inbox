@@ -1,107 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbTIXVux (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 17:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbTIXVux
+	id S261588AbTIXV5U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 17:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbTIXV5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 17:50:53 -0400
-Received: from mail.kroah.org ([65.200.24.183]:3247 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261556AbTIXVuu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 17:50:50 -0400
-Date: Wed, 24 Sep 2003 14:18:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: Does sysfs really provides persistent hardware path to devices?
-Message-ID: <20030924211823.GA11234@kroah.com>
-References: <E19odOM-000NwL-00.arvidjaar-mail-ru@f22.mail.ru> <20030818204218.GA3220@kroah.com> <200308311453.00122.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308311453.00122.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
+	Wed, 24 Sep 2003 17:57:20 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:22486 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261588AbTIXV5O convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 17:57:14 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: HT not working by default since 2.4.22
+Date: Wed, 24 Sep 2003 17:56:57 -0400
+Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC8708@hdsmsx402.hd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: HT not working by default since 2.4.22
+Thread-Index: AcOBb0xRBcZcIEOcQpmli0QiRzF8awBcvVPg
+From: "Brown, Len" <len.brown@intel.com>
+To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com.br>
+Cc: <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Jeff Garzik" <jgarzik@pobox.com>
+X-OriginalArrivalTime: 24 Sep 2003 21:56:58.0529 (UTC) FILETIME=[C6C36910:01C382E6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 31, 2003 at 02:54:06PM +0400, Andrey Borzenkov wrote:
-> On Tuesday 19 August 2003 00:42, Greg KH wrote:
-> > On Mon, Aug 18, 2003 at 10:21:22AM +0400, "Andrey Borzenkov"  wrote:
-> > > just to show what I expected from sysfs - here is entry from Solaris
-> > > /devices:
-> > >
-> > > brw-r-----   1 root     sys       32,240 Jan 24  2002
-> > > /devices/pci@16,4000/scsi@5,1/sd@0,0:a
-> > >
-> > > this entry identifies disk partition 0 on drive with SCSI ID 0, LUN 0
-> > > connected to bus 1 of controller in slot 5 of PCI bus identified
-> > > by 16. Now you can use whatever policy you like to give human
-> > > meaningful name to this entry. And if you have USB it will continue
-> > > further giving you exact topology starting from the root of your
-> > > device tree.
-> > >
-> > > and this path does not contain single logical id so it is not subject
-> > > to change if I add the same controller somewhere else.
-> > >
-> > > hopefully it clarifies what I mean ...
-> >
-> > Hm, a bit.  First, have you looked at what sysfs provides?  Here's one
-> > of my machines and tell me if it has all the info you are looking for:
-> >
-> > $ tree /sys/bus/scsi/
-> > /sys/bus/scsi/
-> >
-> > |-- devices
-> > |   `-- 0:0:0:0 ->
-> > | ../../../devices/pci0000:00/0000:00:1e.0/0000:02:05.0/host0/0:0:0:0
->                                                               ^ ^unstable         
+Okay, so what to do?
 
-Heh, so are the pci ids in that link too :)
+We could make 2.4.23 like 2.4.21 where ACPI code for HT is included in
+the kernel even when CONFIG_ACPI is not set.
 
-> Now I have to ask - do we discuss udev-0.2 (what I currently have) or 
-> udev-as-it-can-be-in-fututure?
+Or we could leave 2.4.23 like 2.4.22 where disabling CONFIG_ACPI really
+does remove all ACPI code in the kernel; and when CONFIG_ACPI is set,
+CONFIG_ACPI_HT_ONLY is available to limit ACPI to just the tables part
+needed for HT.
 
-Either is fine with me.
+I'd prefer the later (doing nothing) because CONFIG_ACPI really should
+exclude all of ACPI.  If we start including bits of ACPI without
+CONFIG_ACPI, where do we stop?
 
-> In udev-0.2 I cannot do it. I can say I want
+I'm not sure how to address "compatibility" and "regression" concepts in
+the face of changing config files.  Make oldconfig will ask you about
+CONFIG_ACPI -- perhaps I should update the help text to emphasize that
+it is necessary for HT, and that if selected, CONFIG_ACPI_HT_ONLY is
+then available?
+
+Is defconfig used?  Does it define "compatibility"?  If so, we could
+define CONFIG_ACPI && CONFIG_ACPI_HT_ONLY in defconfig to get the 2.4.21
+behavior -- then could have our cake and eat it too.
+
+I don't feel strongly about which way to go, but I will want to keep 2.4
+and 2.6 as similar as possible in this area.
+
+Thanks,
+-Len
+
+
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@pobox.com] 
+> Sent: Monday, September 22, 2003 1:55 PM
+> To: Brown, Len
+> Cc: Marcelo Tosatti; linux-kernel@vger.kernel.org; Alan Cox; 
+> Nakajima, Jun
+> Subject: Re: HT not working by default since 2.4.22
 > 
-> TOPOLOGY, BUS="scsi", place="0.0.0.0", NAME="jaz"
 > 
-> but the next time I plug in SCSI card the host number changes. Even after I 
-> unplug USB stick and plug it again it gets new host number.
+> On Mon, Sep 22, 2003 at 01:28:03PM -0400, Brown, Len wrote:
+> > If somebody has a 2.4.22 system where CONFIG_ACPI_HT_ONLY plus zero
+> > cmdline parameters doesn't result in HT running and no ACPI running,
+> > then please forward the details directly to me.
 > 
-> And the same applies to USB, PCI and whatever. Sysfs exports entity numbers as 
-> kernel enumerates them; while Solaris exports persistent device tree leaving 
-> enumeration to user-level tools. Which means that if hardware changes for 
-> whatever reason enumeration changes as well and your config becomes invalid. 
-
-I agree.  That's why topology is only one part of the rules, and is so
-low in the chain of hierarchy of what to match on.  To recap, here is
-the hierarchy:
-	1 - label or serial number
-	2 - bus device number
-	3 - topology on bus
-	4 - replace name
-	5 - kernel name
-
-So, if you do not have something that matches for your device for rules
-1 or 2, then use 3.  But yes, it can change.  So can any of these items,
-that's why we have to be flexible.
-
-And yes, we should add wild card matching for topology rules, it's on
-the todo list, I haven't had much time to work on udev lately.
-
-> > Hope this helps,
-> >
+> The old acpitable.[ch] was unconditionally enabled...  So _not_
+> unconditionally enabling HT was a regression.
 > 
-> Well, we did not move a tiny bit since the beginning of this thread :) You 
-> still did not show me namedev configuration that implements persistent name 
-> for a device based on its physical location :)))
-
-Ok, do you have any other ideas of how to do this?
-
-And patches for udev are always welcome :)
-
-thanks,
-
-greg k-h
+> (just pointing out a fact;  I actually prefer a CONFIG_xxx)
+> 
+> 	Jeff
+> 
+> 
+> 
+> 

@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267852AbRHJNJD>; Fri, 10 Aug 2001 09:09:03 -0400
+	id <S267912AbRHJNKD>; Fri, 10 Aug 2001 09:10:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267912AbRHJNIx>; Fri, 10 Aug 2001 09:08:53 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30223 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267852AbRHJNIg>; Fri, 10 Aug 2001 09:08:36 -0400
-Subject: Re: Writes to mounted devices containing file-systems.
-To: root@chaos.analogic.com
-Date: Fri, 10 Aug 2001 14:07:50 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux kernel)
-In-Reply-To: <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com> from "Richard B. Johnson" at Aug 10, 2001 08:43:58 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S267923AbRHJNJ5>; Fri, 10 Aug 2001 09:09:57 -0400
+Received: from Morgoth.esiway.net ([193.194.16.157]:62732 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S267912AbRHJNJn>; Fri, 10 Aug 2001 09:09:43 -0400
+Date: Fri, 10 Aug 2001 15:09:51 +0200 (CEST)
+From: Marco Colombo <marco@esi.it>
+To: Christoph Hellwig <hch@caldera.de>
+cc: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
+Subject: Re: [ANNOUNCE] Vendor kernels unpakced
+In-Reply-To: <20010810145145.A21564@caldera.de>
+Message-ID: <Pine.LNX.4.33.0108101505070.1282-100000@Megathlon.ESI>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15VC10-0000wF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Aug 10 08:05:18 quark sendmail[66]: rejecting connections on daemon MTA: load average: 16
-> Aug 10 08:05:18 quark sendmail[66]: rejecting connections on daemon MSA: load average: 16
-> Aug 10 08:05:33 quark sendmail[66]: rejecting connections on daemon MTA: load average: 13
-> Aug 10 08:05:33 quark sendmail[66]: rejecting connections on daemon MSA: load average: 13
-> Aug 10 08:05:48 quark sendmail[66]: accepting connections again for daemon MTA
+On Fri, 10 Aug 2001, Christoph Hellwig wrote:
 
-Thats your mailer laughing at someones pitiful attempt to knock it over. 
-Sendmail does load protection. Anyone with effectively equivalent or better
-bandwidth can always DoS a system. Ask yahoo.
+>
+> I'd like to announce a the availability of unpacked vendor kernel RPMs
+> on www.kernelnewbies.org.  We allow taking a look at the specfile and
+> the various patches included in that packages.  Currently the follwing
+> kernel packages are prvovided (others are of course welcome):
+>
+> 	Caldera OpenLinux 3.1 (linux-2.4.2-11)
+> 	Red Hat Linux 7.1 (kernel-2.4.2-2)
+>
+> Please take a look at http://www.kernelnewbies.org/kernels/
 
-> In this company, they hired a "CIO" who thinks that no computers
-> should have any local storage or boot capability. They must all
-> boot from some secure (M$) file-server. They will not be allowed
-> to have local disks and, horrors -- of course no floppy drives or
-> CD-ROMS.
+Please put RH 2.4.3-12 kernel online, instead. I guess that 99% of the
+people out there that read lk and/or understand what you did, have little
+interest on an outdated kernel package. Of course this applies to
+Caldera's kernel updates (if any), too.
 
-Good policy (well maybe not the choice of fileserver OS) in many
-environments. How do you think McDonalds unix based tills run 8) - no
-floppy believe me.
+.TM.
+-- 
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
 
-> He doesn't care that we are in the business of making software-driven
-> machines so we require access to the guts of computers and their
-> operating systems.
-
-Smart people migrate, company or division goes out of business, another large
-company eventually buys small company that the people who left formed
-repeat cycle. 
-
-> So, if it is at all possible to help improve its security without
-> hurting its performance very much, it's really a matter of life-or-
-> death for Linux. Otherwise "they" will get us.
-
-I think not. Look at the fate of companies whose bosses adopted X.400
-because TCP/IP was "some crazy hacker thing" "not industry strength" "had no
-telco support" "couldnt provide the needed QoS" ...
-
-Alan

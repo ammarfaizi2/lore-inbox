@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132011AbRARKEI>; Thu, 18 Jan 2001 05:04:08 -0500
+	id <S133071AbRARKFS>; Thu, 18 Jan 2001 05:05:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132734AbRARKD6>; Thu, 18 Jan 2001 05:03:58 -0500
-Received: from stud3.tuwien.ac.at ([193.170.75.13]:62468 "EHLO
-	stud3.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S132011AbRARKDo> convert rfc822-to-8bit; Thu, 18 Jan 2001 05:03:44 -0500
-Date: Thu, 18 Jan 2001 11:02:19 +0100 (MET)
-From: Stefan Ring <e9725446@student.tuwien.ac.at>
-To: Joel Franco Guzmán <joel@gds-corp.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 128M memory OK, but with 192M sound card es1391 trouble
-In-Reply-To: <Pine.LNX.4.30.0101172037310.1309-100000@thor.gds-corp.com>
-Message-ID: <Pine.HPX.4.10.10101181050260.3561-100000@stud3.tuwien.ac.at>
+	id <S133059AbRARKFI>; Thu, 18 Jan 2001 05:05:08 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:44048
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S132734AbRARKFD>; Thu, 18 Jan 2001 05:05:03 -0500
+Date: Thu, 18 Jan 2001 02:01:45 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: Dan Hollis <goemon@sasami.anime.net>, Martin Mares <mj@suse.cz>,
+        Adam Lackorzynski <al10@inf.tu-dresden.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PCI-Devices and ServerWorks chipset
+In-Reply-To: <Pine.GSO.3.96.1010118092306.8140D-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.10.10101180133460.20569-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Joel Franco Guzmán wrote:
+On Thu, 18 Jan 2001, Maciej W. Rozycki wrote:
 
-> With 128M the problem is not present, but with 192M it is. The only
-> difference is the memory quantity, or in other words, the additional slot
-> occupied by the new memory card.
+> On Wed, 17 Jan 2001, Dan Hollis wrote:
+> 
+> > They require not only an NDA, but that you also do all development on-site
+> > at their santa clara HQ under their direct supervision.
+> 
+>  I haven't went that far -- I'm not going to sign any NDA anytime soon, so
+> I haven't asked them for details.  I recall someone writing here it's
+> restrictive, indeed. 
+> 
+> > The only people who have ever got info out of serverworks are the lm78
+> > guys and (i think) andre hedrick.
 
->    - ASUS P299 (Chipset i440ZX). Note: the i440ZX don't support officially
-> the coppermine processor at 133Mhz FSB.
+I can get any info needed, you just have to define the scope.
+Then will not can and will not give out details on a generic form.
+In short no one person can see the entire design docs or will they get
+them without a NDA.  I have seen why this is the case, cause the toy are
+cool.
 
-I know that increasing the number of DIMMs on your board will require
-speedier RAMs on ASUS boards with some sort of an i440 chipset. This may
-well be the case for just about every other MB, it's only that I don't
-know specifically about these other boards.
+>  I was asking for a few I/O APIC details -- apparently there are problems
+> with 8254 interoperability and we have to use the awkward through-8259A
+> mode for the timer tick.
 
-133MHz is damn fast, and you need really good RAMs to keep up to that.
-In fact, most of the cheap modules sold as "PC133" can't cope with it,
-and you just got PC100. That's asking for trouble! As you add more
-modules, it gets even more critical.
+Narrow the point.
 
-Do extensive testing before actually using such a system. The best testing
-that I know of is compiling large source trees with 2.2.x (I don't know
-about 2.4.x -- I DO know that 2.0.x won't turn up problems as easily
-because the buffer cache grows out of bounds) for hours and hours (10h
-minimum, 48h or more desirable). Make sure that there is enough "free"
-memory at all time (not cached, but really "free"). Also make sure that
-the temperature inside your computer is slightly higher than in actual use
-to put maximum stress on the RAMs.
+> > What magic incantations they chanted, or which mafia thugs they hired to
+> > manage this, I don't know...
+> 
+>  And I don't actually care.  If they want to lose in the Linux area, it's
+> their own choice. 
 
-You may be able to get away by just increasing the SDRAM timings if you
-are running 2-2-2.
+You don't get it, they OEM board designs for Compaq and Dell.
+These guys will work with you on-site but in their sand-box not yours.
+I wish I could say more, but I have something more powerfully than any NDA
+ever written.  I have given my word and a handshake, and that has more
+value to me than any stupid NDA.  The very fact that I value this so much
+and so many in the industry know this about me, I have been shown things
+without NDA's that you never see otherwise.
+
+They are very friendly to Linux, but can we be friendly to them?
+You just can not barge in and demand to see their IP.
+
+Regards,
+
+Andre Hedrick
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135813AbRDZXyv>; Thu, 26 Apr 2001 19:54:51 -0400
+	id <S135923AbRD0AOO>; Thu, 26 Apr 2001 20:14:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135890AbRDZXyl>; Thu, 26 Apr 2001 19:54:41 -0400
-Received: from nrg.org ([216.101.165.106]:4876 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S135813AbRDZXyd>;
-	Thu, 26 Apr 2001 19:54:33 -0400
-Date: Thu, 26 Apr 2001 16:54:32 -0700 (PDT)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: linux-kernel@vger.kernel.org
-Subject: Viewing SCHED_FIFO, SCHED_RR stats in /proc
-Message-ID: <Pine.LNX.4.05.10104261628120.1213-100000@cosmic.nrg.org>
+	id <S135958AbRD0AOE>; Thu, 26 Apr 2001 20:14:04 -0400
+Received: from magician.bunzy.net ([206.245.168.220]:18959 "HELO
+	magician.bunzy.net") by vger.kernel.org with SMTP
+	id <S135923AbRD0ANr>; Thu, 26 Apr 2001 20:13:47 -0400
+Date: Thu, 26 Apr 2001 20:14:08 -0400 (EDT)
+From: tc lewis <tcl@bunzy.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: i2o/dpt/adaptec - SmartRAID V?
+Message-ID: <Pine.LNX.4.33L2.0104262007160.20907-100000@magician.bunzy.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just noticed that the priority and nice values listed in
-/proc/<pid>/stat aren't very useful for SCHED_FIFO or SCHED_RR tasks.
-I'd like to be able to distinguish tasks with these policies from
-SCHED_OTHER tasks, and to view task->rt_priority.
 
-Am I correct that this information is not currently available through
-/proc?
+i saw a few messages in the archive about these, but i'm still unclear on
+the current situation.
 
-Here is one way to expose this information that should be compatible
-with existing tools like top and ps.  For SCHED_OTHER, the values are
-unchanged.  For SCHED_RR and SCHED_FIFO, the priority value displayed is
-(20 + task->rt_priority), which distinguishes them for SCHED_OTHER
-priorities which can't be greater than 20.  And SCHED_FIFO tasks, whose
-nice value is ignored by the scheduler, are distinguished from SCHED_RR
-tasks by begin displayed with a nice value of -99.
+according to /proc/pci, i'm working with a:
+  Bus  0, device   9, function  1:
+    I2O: Distributed Processing Technology SmartRAID V Controller (rev 2).
+      IRQ 9.
+      Master Capable.  Latency=64.  Min Gnt=1.Max Lat=1.
+      Prefetchable 32 bit memory at 0xf8000000 [0xf9ffffff].
 
-diff -u -r1.2 array.c
---- linux/fs/proc/array.c	2001/04/16 23:26:41	1.2
-+++ linux/fs/proc/array.c	2001/04/26 22:37:56
-@@ -336,11 +336,18 @@
- 
- 	collect_sigign_sigcatch(task, &sigign, &sigcatch);
- 
--	/* scale priority and nice values from timeslices to -20..20 */
--	/* to make it look like a "normal" Unix priority/nice value  */
--	priority = task->counter;
--	priority = 20 - (priority * 10 + DEF_COUNTER / 2) / DEF_COUNTER;
--	nice = task->nice;
-+	if (task->policy == SCHED_OTHER) {
-+		/* scale priority and nice values from timeslices to -20..20 */
-+		/* to make it look like a "normal" Unix priority/nice value  */
-+		priority = task->counter;
-+		priority = 20 - (priority * 10 + DEF_COUNTER / 2) / DEF_COUNTER;
-+	} else {
-+		priority = 20 + task->rt_priority;
-+	}
-+	if (task->policy == SCHED_FIFO)
-+		nice = -99;
-+	else
-+		nice = task->nice;
- 
- 	read_lock(&tasklist_lock);
- 	ppid = task->p_opptr->pid;
+in the linux-kernel archive there was a recent message from someone noting
+that the eata driver does not handle this card.  it looks like adaptec has
+drivers for this for use with certain versions of linux 2.2, but not for
+linux 2.4.
 
-Can anyone think of a better way of doing this?
+are these cards supported at all in linux 2.4?
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+i think someone mentioned there were licensing issues on including this
+driver in the kernel tree, but it was available via some other means /
+someone hacked it up from dpt/adaptec for use with 2.4...can i get more
+info on this?  much appreciated.
 
-MontaVista Software                             nigel@mvista.com
+-tcl.
 

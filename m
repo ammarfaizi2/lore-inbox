@@ -1,158 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVBGDE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVBGDHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbVBGDE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 22:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVBGDE6
+	id S261347AbVBGDHp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 22:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVBGDHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 22:04:58 -0500
-Received: from ozlabs.org ([203.10.76.45]:62603 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261344AbVBGDEv (ORCPT
+	Sun, 6 Feb 2005 22:07:45 -0500
+Received: from alt.aurema.com ([203.217.18.57]:32698 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S261348AbVBGDHR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 22:04:51 -0500
-Subject: Re: [linux-usb-devel] 2.6: USB disk unusable level of data
-	corruption
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <200502041241.28029.david-b@pacbell.net>
-References: <1107519382.1703.7.camel@localhost.localdomain>
-	 <200502041241.28029.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Mon, 07 Feb 2005 13:55:22 +1100
-Message-Id: <1107744922.8689.6.camel@localhost.localdomain>
+	Sun, 6 Feb 2005 22:07:17 -0500
+Date: Mon, 7 Feb 2005 14:04:44 +1100
+From: Kingsley Cheung <kingsley@aurema.com>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] relayfs crash
+Message-ID: <20050207030444.GF27268@aurema.com>
+Mail-Followup-To: Tom Zanussi <zanussi@us.ibm.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <41EF4E74.2000304@opersys.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="cmJC7u66zC7hs+87"
+Content-Disposition: inline
+In-Reply-To: <41EF4E74.2000304@opersys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-04 at 12:41 -0800, David Brownell wrote:
-> On Friday 04 February 2005 4:16 am, Rusty Russell wrote:
-> > 
-> > Is USB/SCSI just terminally broken under 2.6?  
-> 
-> I don't think so, but there are problems that appear in some
-> hardware configs and not others.  Many folk report no problems;
-> a (very) few report nothing but.
-> 
-> If you've verified this on 2.6.10, then you certainly have
-> have the ehci-hcd (re)queueing race fix that has made a big
-> difference for some folk.  I don't know of any other issues
-> in that driver that could explain usb-storage problems.
-> 
-> What hardware config do you have?
-> 
->   - Whose EHCI controller and revision?  I've never had
->     good luck with VIA VT6202.  ("lspci -v".)
 
-OK, it's an IBM Thinkpad X31:
+--cmJC7u66zC7hs+87
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-0000:00:1d.7 USB Controller: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB 2.0 EHCI
-Controller (rev 01) (prog-if 20 [EHCI])
-        Subsystem: IBM: Unknown device 052e
-        Flags: bus master, medium devsel, latency 0, IRQ 11
-        Memory at c0000000 (32-bit, non-prefetchable) [size=1K]
-        Capabilities: [50] Power Management version 2
-        Capabilities: [58] #0a [2080]
+Hi Tom,
 
-Kernel messages when plugged in:
-usb 4-3: new high speed USB device using address 5
-scsi3 : SCSI emulation for USB Mass Storage devices
-  Vendor: HTS72606  Model: 0M9AT00           Rev: MH4O
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 117210240 512-byte hdwr sectors (60012 MB)
-sda: assuming drive cache: write through
- /dev/scsi/host3/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 >
-Attached scsi disk sda at scsi3, channel 0, id 0, lun 0
-USB Mass Storage device found at 5
+I've been stress testing a module that uses relayfs on a custom built
+2.6 kernel with relayfs patches in it.  This test simply loaded and
+unloaded the module while a script loaded the system with forks of
+'ls' in the background.  It was conducted on a dual 3.00GHz Xeon box
+(I couldn't reproduce the bug on slower machines I had) and produced
+oopses of the following type:
 
->   - Whose USB storage adapter?  ("lsusb -v", or in this
->     case the /proc/bus/usb/devices entry would be ok.)
->     GeneSys adapters have been the most problematic,
->     but they're hardly the only ones with quirks.
+wembley login: Oops: 0000 [#1]
+SMP
+CPU:    2
+EIP:    0060:[<f9824790>]    Tainted: GF U
+EFLAGS: 00010292   (2.6.5-7.97ZP2-smp)
+EIP is at relayfs_remove_file+0x10/0xc0 [relayfs]
+eax: 00000000   ebx: 00000292   ecx: f0cf3918   edx: c193810c
+esi: 00000000   edi: f0cf391c   ebp: f0cf3000   esp: f7fabf4c
+ds: 007b   es: 007b   ss: 0068
+Process events/2 (pid: 12, threadinfo=f7faa000 task=cdea2730)
+Stack: 00000292 c1938100 f0cf391c c0138cc7 00000000 c180c960 c180c960 c1938120
+       f9822cb0 f7faa000 c193810c ffffffff ffffffff 00000001 00000000 c0122b10
+       00010000 00000000 00fffff0 00000000 00000000 00000000 cdea2730 c0122b10
+Call Trace:
+ [<c0138cc7>] worker_thread+0x187/0x230
+ [<f9822cb0>] remove_rchan_file+0x0/0xb [relayfs]
+ [<c0122b10>] default_wake_function+0x0/0x10
+ [<c0122b10>] default_wake_function+0x0/0x10
+ [<c0138b40>] worker_thread+0x0/0x230
+ [<c013c894>] kthread+0xd4/0x118
+ [<c013c7c0>] kthread+0x0/0x118
+ [<c0107005>] kernel_thread_helper+0x5/0x10
 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0        64
-  idVendor           0x0dc4 Macpower Peripherals, Ltd
-  idProduct          0x00c4
-  bcdDevice            0.02
-  iManufacturer           1 Macpower
-  iProduct                2 2.5HDD
-  iSerial                 3 8000D1
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           32
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          4 Myson 8818
-    bmAttributes         0xc0
-      Self Powered
-    MaxPower               10mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass         8 Mass Storage
-      bInterfaceSubClass      5 SFF-8070i
-      bInterfaceProtocol     80
-      iInterface              5 USB2.0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x03  EP 3 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x84  EP 4 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-Device Qualifier (for other device speed):
-  bLength                10
-  bDescriptorType         6
-  bcdUSB               2.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0        64
-  bNumConfigurations      1
+Code: 8b 58 64 b8 ea ff ff ff 85 db 74 5b 8b 46 0c 0f b7 40 20 25
 
-> Thing is, that driver stack isn't especially thin:  SCSI isn't
-> the top, and it's got usb-storage, usbcore, and a USB HCD under
-> it.  That makes it harder to track down root causes, even when
-> there is just a single one and it's in those drivers (rather
-> than being hardware misbehavior).
+This oops looks like one mentioned in
+http://www.listserv.shafik.org/pipermail/ltt/2004-July/000627.html 
 
-I have some spare partitions on the disk, so I've written a program
-which writes using DIRECT_IO and verifies the results.  It took less
-than an hour under my filesystem load, so I'll see if I can get this to
-trigger it (currently N children writing to separate blocks, but if that
-doesn't trigger it I'll get more sophisticated with readers and
-writers).
+It seems to be the same problem where the rchan work queue is
+scheduled to run, but rchan has already been destroyed when the tries
+it. This still happens in the latest patch against 2.6.10 at
+http://www.opersys.com/ftp/pub/relayfs/patch-relayfs-2.6.10-050113
 
-Thanks for the response,
-Rusty.
+To solve the problem I applied a patch similar to the one you posted
+back in July and it fixed the problem.  Could we consider putting this
+patch into relayfs? Its similar to the one posted in July 2004, except
+it also moves clear_readers() before INIT_WORK in relay_release (is
+that acceptable?).
+
+Thanks,
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+		Kingsley
 
+--cmJC7u66zC7hs+87
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="2.6.5-7.97-relayfs-bug.patch"
+
+--- linux-2.6.5-7.97ZP2/fs/relayfs/relay.c.old	2005-02-02 18:43:24.918844376 +1100
++++ linux-2.6.5-7.97ZP2/fs/relayfs/relay.c	2005-02-02 18:44:33.725384192 +1100
+@@ -184,6 +184,7 @@
+ 	struct rchan *rchan = (struct rchan *)private;
+ 
+ 	relayfs_remove_file(rchan->dentry);
++	kfree(rchan);
+ }
+  
+ 
+@@ -212,12 +213,10 @@
+ 		goto exit;
+ 
+ 	rchan_free_id(rchan->id);
++	clear_readers(rchan);
+ 
+ 	INIT_WORK(&rchan->work, remove_rchan_file, rchan);
+ 	schedule_delayed_work(&rchan->work, 1);
+-
+-	clear_readers(rchan);
+-	kfree(rchan);
+ exit:
+ 	return err;
+ }
+
+--cmJC7u66zC7hs+87--

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129445AbRBRTeR>; Sun, 18 Feb 2001 14:34:17 -0500
+	id <S129391AbRBRTh7>; Sun, 18 Feb 2001 14:37:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129940AbRBRTeI>; Sun, 18 Feb 2001 14:34:08 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:31239 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129445AbRBRTdz>;
-	Sun, 18 Feb 2001 14:33:55 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102181933.WAA27194@ms2.inr.ac.ru>
+	id <S129394AbRBRTht>; Sun, 18 Feb 2001 14:37:49 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:55313 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S129391AbRBRThf>; Sun, 18 Feb 2001 14:37:35 -0500
+Date: Sun, 18 Feb 2001 19:37:33 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: <kuznet@ms2.inr.ac.ru>
+cc: <linux-kernel@vger.kernel.org>, <davem@redhat.com>
 Subject: Re: SO_SNDTIMEO: 2.4 kernel bugs
-To: chris@scary.beasts.org (Chris Evans)
-Date: Sun, 18 Feb 2001 22:33:44 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <Pine.LNX.4.30.0102181843200.21465-100000@ferret.lmh.ox.ac.uk> from "Chris Evans" at Feb 18, 1 07:25:53 pm
-X-Mailer: ELM [version 2.4 PL24]
+In-Reply-To: <200102181933.WAA27194@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.30.0102181935130.31140-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> So the actual timeout would be 2 * SO_SNDTIMEO.
+On Sun, 18 Feb 2001 kuznet@ms2.inr.ac.ru wrote:
 
-It will timeout if write of some page blocks for SO_SNDTIMEO.
-If transmission of any page never takes more than SO_SNDTIMEO it never
-times out.
+> Hello!
+>
+> > So the actual timeout would be 2 * SO_SNDTIMEO.
+>
+> It will timeout if write of some page blocks for SO_SNDTIMEO.
 
-You can think about sendfile() as subroutine doing:
+.. unless that page was partially written, in which case a short write
+count is returned (rather than a timeout error), and the loop goes around
+again.
 
-	for (;;) {
-		read(4K from fdin);
-		write(4K to fdout);
-	}
+> If transmission of any page never takes more than SO_SNDTIMEO it never
+> times out.
 
-All the options apply to each read()/write() separetely, so that... alas.
+Which is good, because SO_SNDTIMEO is an inactivity monitor.
 
-Alexey
+Cheers
+Chris
+

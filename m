@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbUDSPho (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 11:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264466AbUDSPho
+	id S264256AbUDSPiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 11:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbUDSPiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 11:37:44 -0400
-Received: from node249-201.sim.db.erau.edu ([155.31.249.201]:27776 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263713AbUDSPhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 11:37:41 -0400
-Subject: How to make Linux route multicast traffic bi-directionly between
-	multible subnets
-From: John Pesce <pescej@sprl.db.erau.edu>
-Reply-To: pescej@sprl.db.erau.edu
-To: linux-kernel@vger.kernel.org
-Cc: pescej@sprl.db.erau.edu
+	Mon, 19 Apr 2004 11:38:16 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:2434 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264256AbUDSPiJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 11:38:09 -0400
+Subject: Re: NFS and kernel 2.6.x
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040418232230.GA11064@mail.shareable.org>
+References: <1082079061.7141.85.camel@lade.trondhjem.org>
+	 <20040415185355.1674115b.akpm@osdl.org>
+	 <20040416090331.GC22226@mail.shareable.org>
+	 <1082130906.2581.10.camel@lade.trondhjem.org>
+	 <20040416184821.GA25402@mail.shareable.org>
+	 <1082142401.2581.131.camel@lade.trondhjem.org>
+	 <20040416193914.GA25792@mail.shareable.org>
+	 <1082241169.3930.14.camel@lade.trondhjem.org>
+	 <20040418032638.GA1786@mail.shareable.org>
+	 <1082271815.3619.104.camel@lade.trondhjem.org>
+	 <20040418232230.GA11064@mail.shareable.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1082389059.1982.15.camel@inferno>
+Message-Id: <1082389088.2559.34.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 19 Apr 2004 11:37:39 -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 19 Apr 2004 11:38:08 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using kernel 2.4.20-8.
+On Sun, 2004-04-18 at 19:22, Jamie Lokier wrote:
 
-I have a Linux box multi-homed on three subnets using three NICs in
-order to route TCP and UDP traffic between them.
+> I agree, but would still prefer more consistent behaviour if it is
+> easy -- and I explained how to do it, it's an easy algorithm.
 
-I would like to also like route specific multicast group traffic between
-them. I've read the multicast-howto and crawled the popular search
-engines but I can not find any documentation to do it.
-I have three NICs on subnets A,B and C.
-Any multicast traffic arriving from any one of them needs to be
-forwarded to the other two so the clients can received it.
+The reason I don't like it is that it continues to tie the major timeout
+to the resend timeouts. You've convinced me that they should not be the
+same thing.
 
-The only thing I have been able to do is set a default multicast route
-to subnet A. This forwards traffic incoming from B and C to A, but what
-about the other ways?
+The other reason is that it only improves matters for the first request.
+Once we reset the RTO, all those other outstanding requests are anyway
+going to see an immediate discontinuity as their basic timeout jumps
+from 1ms to 700ms. So why go to all that trouble just for 1 request?
 
-Some pages refer to something called mrouted but it is all dated like
-1996. Did multicast routing die off into the realm of hardware routers
-??
+> You don't respond to the other question: the doubling stopping at
+> 3.2s.  Is it intended?  It goes againt a basic principle of congestion
+> control.
 
-I see on bootup a kernel message about 0.96 PIM-SM. Can I somehow use
-that?
+I can put it back in.
 
-Please help.
+It was partly another "consistency" issue that initially worried me,
+partly in order to avoid problems with overflow:
+If you have more than one outstanding request, then those that get
+scheduled after the first major timeout (when we reset the RTO
+estimator) will see a "jump". If the "retries" variable is too large,
+they will either jump straight over 60 seconds, and thus trigger the cap
+or they will end up at zero due to 32-bit overflow.
 
-I'm not on the mailing list so please CC me personally.
+I agree, though, that this is less of an issue.
 
-Thank you,
-John
+Cheers,
+  Trond

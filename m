@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282213AbSAGRU1>; Mon, 7 Jan 2002 12:20:27 -0500
+	id <S281916AbSAGRWh>; Mon, 7 Jan 2002 12:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281916AbSAGRUS>; Mon, 7 Jan 2002 12:20:18 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22792 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281809AbSAGRUE>; Mon, 7 Jan 2002 12:20:04 -0500
+	id <S282690AbSAGRW3>; Mon, 7 Jan 2002 12:22:29 -0500
+Received: from ns.suse.de ([213.95.15.193]:58637 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S282684AbSAGRWT>;
+	Mon, 7 Jan 2002 12:22:19 -0500
+Date: Mon, 7 Jan 2002 18:22:17 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christoph Hellwig <hch@ns.caldera.de>, Jaroslav Kysela <perex@suse.cz>,
+        <sound-hackers@zabbo.net>, <linux-sound@vger.rutgers.edu>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: ALSA patch for 2.5.2pre9 kernel
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 7 Jan 2002 17:31:08 +0000 (GMT)
-Cc: hch@ns.caldera.de (Christoph Hellwig), perex@suse.cz (Jaroslav Kysela),
-        sound-hackers@zabbo.net, linux-sound@vger.rutgers.edu,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201070858150.6450-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 07, 2002 09:02:39 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <Pine.LNX.4.33.0201070858150.6450-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0201071818310.16327-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Ndc4-0001sW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Or we could just have a really _deep_ hierarchy, and put everything under
-> "linux/drivers/sound/..", but I'd rather break cleanly with the old.
+On Mon, 7 Jan 2002, Linus Torvalds wrote:
 
-Christoph has an interesting point. Networking is
+> So we could have a net-based setup, where there would be a totally
+> separate "linux/sound" and "linux/drivers/sound". Which doesn't seem to
+> make much sense either.
 
-	net/[protocol]/
-	drivers/net/[driver]
+If I want to find the code for an emu10k1 driver, intuition tells me
+its a sound _driver_, so drivers/ would be the first place I (and no
+doubt others) would look.
 
-so by that logic we'd have
+'core' sound stuff in linux/sound, with _driver_ specifics in
+drivers/sound sounds perfectly sensible to me.
 
-	sound/soundcore.c
-	sound/alsa/alsalibcode
-	sound/oss/osscore
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 
-	sound/drivers/cardfoo.c
-
-which would also be much cleaner since the supporting crap would be seperate
-from the card drivers

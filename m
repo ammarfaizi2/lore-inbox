@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268223AbTBSBVr>; Tue, 18 Feb 2003 20:21:47 -0500
+	id <S268236AbTBSBXl>; Tue, 18 Feb 2003 20:23:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268226AbTBSBVr>; Tue, 18 Feb 2003 20:21:47 -0500
-Received: from out006pub.verizon.net ([206.46.170.106]:61157 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP
-	id <S268223AbTBSBVp>; Tue, 18 Feb 2003 20:21:45 -0500
-Message-ID: <3E52DE8B.6040002@verizon.net>
-Date: Tue, 18 Feb 2003 20:31:55 -0500
-From: Stephen Wille Padnos <stephen.willepadnos@verizon.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: a really annoying feature of the config menu structure
-References: <Pine.LNX.4.44.0302181604310.23007-100000@dell>	 <3E52B4CE.7040009@verizon.net> <1045619804.25795.14.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1045619804.25795.14.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [64.223.82.122] at Tue, 18 Feb 2003 19:31:42 -0600
+	id <S268233AbTBSBXl>; Tue, 18 Feb 2003 20:23:41 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:57355 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S268236AbTBSBXk>;
+	Tue, 18 Feb 2003 20:23:40 -0500
+Date: Wed, 19 Feb 2003 02:21:11 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, Simon Kirby <sim@netnation.com>,
+       Maciej Rozycki <macro@ds2.pg.gda.pl>
+Subject: Re: [Nearly Solved]: APIC routing broken on ASUS P2B-DS
+Message-ID: <20030219012111.GB1770@alpha.home.local>
+References: <20030128004906.GA3439@netnation.com> <20030128060629.GA19346@alpha.home.local> <20030202012820.GB19346@alpha.home.local> <3E51DC90.6030004@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E51DC90.6030004@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Tue, Feb 18, 2003 at 02:11:12AM -0500, Jeff Garzik wrote:
+> Willy Tarreau wrote:
+> >If I compile my kernel for an SMP K7, only CPU0 gets the interrupts. But if
+> >I enable CONFIG_X86_CLUSTERED_APIC by enabling either CONFIG_X86_NUMAQ or
+> >CONFIG_X86_SUMMIT (CONFIG_X86_NUMA alone isn't enough), then I get my 
+> >interrupts
+> >distributed across both CPUs. This is on an Asus A7M266D with 2 Athlon XP 
+> >1800+.
+> 
+> 
+> did you ever get a response on this?
 
->On Tue, 2003-02-18 at 22:33, Stephen Wille Padnos wrote:
->  
->
->>[snip]
->>
->>    
->>
->>> as i see it, this can only get worse.  the current
->>>erratic and disorganized structure of the config menus
->>>is proof of that.
->>>
->>> comments?
->>>
->>>      
->>>
->>I think the problem with the "Multimedia" menu is that it's misnamed.  
->>It should actually be the "tuners" menu - it's there for audio, digital 
->>video, and video tuners.  The same could be said of the networking menu, 
->>and presumably others.
->>    
->>
->
->It covers lots of tunerless mpeg and mjpeg stuff. Eg the DVB stuff will
->eventually include the Margi PCMCIA DVD player and we already have other
->pure mpeg or pure webcam stuff in there
->
+Well, Maciej Rozycki replied to me privately saying that he would look at the
+problem though he didn't have time right now. I can't blame him, I didn't
+either...
+ 
+> The answer is a big fat "don't do that" ;-)
+> 
+> Summit and Numa are two things your box definitely does not have... 
+> don't enable those options.  If you still have problems with those 
+> options disabled, please re-post...
 
-It seems that the mjpeg stuff will be in the wrong place when it starts 
-being used by non-DVB modules.  I see the two (DVB and mjpeg) as 
-distinct entities - like ethernet drivers and ipv4.  (DVB drivers should 
-let you change channels and whatnot, mjpeg drivers should allow you to 
-decode data streams from any available source.)
+If I manage to get a few hours, I might compare the initialization code between
+these different modes and try to determine what should be added or removed in
+the classical code to make it work. Unfortunately, I'm fairly busy right now,
+and trying to understand this unknown area will take some time :-(
 
-- Steve
-
+Willy
 

@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbUDAGsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 01:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbUDAGsJ
+	id S262750AbUDAGuW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 01:50:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUDAGuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 01:48:09 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:46209 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262732AbUDAGsF (ORCPT
+	Thu, 1 Apr 2004 01:50:22 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:56795 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262750AbUDAGuP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 01:48:05 -0500
-Date: Thu, 1 Apr 2004 08:48:06 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: who is merlin.fit.vutbr.cz?
-Message-ID: <20040401064806.GA445@ucw.cz>
-References: <200403290108.i2T18T8d024595@work.bitmover.com>
+	Thu, 1 Apr 2004 01:50:15 -0500
+Date: Thu, 1 Apr 2004 08:50:13 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] multiple namespaces
+Message-ID: <20040401065013.GA16648@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Albert Cahalan <albert@users.sf.net>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1080800087.1490.14.camel@cube>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200403290108.i2T18T8d024595@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1080800087.1490.14.camel@cube>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 28, 2004 at 05:08:29PM -0800, Larry McVoy wrote:
+On Thu, Apr 01, 2004 at 01:14:47AM -0500, Albert Cahalan wrote:
 
-> Folks, I need your help.
-> 
-> I can't tell if this is a DOS attack or someone with a REALLY slow net
-> connection.  Whoever this is has been cloning the linux 2.6 (aka 2.5)
-> tree on bkbits so slowly that the tree is locked for days and can't
-> be updated.  About once a day I go kill the clone because stracing it
-> shows it doing nothing.
+> root 0 ~# PS1='\D:\w> '
+> C:~> subst D: /mnt/cdrom
+> C:~> D
+> D:~> ls -og
+> total 38292
+> -rw-r--r--    1  2557952 Apr  1  2004 ADrives-Abort_Retry_Fail.mp3
 
-[snip]
+Very good, now I can do away with mdir and friends, I've been longing to
+just type 'A' again and know that I'm on my trusty floppy drive.
 
-> Anyway, we've suffered more than enough bad press so before I
-> assume that this host is a rogue and filter them, does anyone know who
-> merlin.fit.vutbr.cz is?  If they really have that slow of a connection
-> we'll burn a CD and Fedex it to them, nobody should suffer that much.
-> But if this is just a DOS, we'll nuke 'em.
+Perhaps I'll whip up something that monitors /dev/log and can return the
+sanity of Abort/Retry/Ignore to Linux. This should be integrated with bash
+but as your namespace patches need some work in that area too, that should
+not be a problem.
 
-.cz: 	Czech Republic
-.vutbr:	Technical University of Brno
-.fit:	Faculty of Information Technology
-merlin:	a Linux server serving home directories and login accounts to
-        students
-
-So it's likely a student doing the 'bk clone'.
-
-What's surprising is that merlin shouldn't have a slow network
-connection - quite the opposite - it's near the academic backbone of the
-Czech Republic (a 2.5 gbit/sec pipe).
-
-But maybe something doesn't work correctly - some NAT or MTU problem
-stopping the communication ...
-
-Or it's indeed an evil student.
-
-The administrative contact for that machine is linux@fit.vutbr.cz.
-
-I hope this helps.
+Thanks Albert!
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

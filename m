@@ -1,48 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVCALwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVCALw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbVCALwT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 06:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVCALwT
+	id S261882AbVCALw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 06:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbVCALww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 06:52:19 -0500
-Received: from styx.suse.cz ([82.119.242.94]:44502 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261881AbVCALwQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 06:52:16 -0500
-Date: Tue, 1 Mar 2005 12:54:32 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: David Ford <david+challenge-response@blue-labs.org>
-Cc: "Ian E. Morgan" <imorgan@webcon.ca>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ALPS tapping disabled. WHY?
-Message-ID: <20050301115432.GA5598@ucw.cz>
-References: <Pine.LNX.4.62.0502241822310.8449@light.int.webcon.net> <200502242208.16065.dtor_core@ameritech.net> <20050227075041.GA1722@ucw.cz> <Pine.LNX.4.62.0502281721210.21033@light.int.webcon.net> <422454A5.7070206@blue-labs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422454A5.7070206@blue-labs.org>
-User-Agent: Mutt/1.5.6i
+	Tue, 1 Mar 2005 06:52:52 -0500
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:35522 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261882AbVCALwi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 06:52:38 -0500
+Message-Id: <200503012252.34807.kernel@kolivas.org>
+Date: Tue, 1 Mar 2005 22:52:30 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050223)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ck kernel <ck@vds.kolivas.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.10-ck7
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+X-Length: 2380
+Content-Type: multipart/signed;
+  boundary="nextPart1125445.0lXeL1ozGd";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 06:40:21AM -0500, David Ford wrote:
-> I would also appreciate the return of good resolution.  Blocky mouse 
-> startup moves make graphic editing rather difficult.  No mouse movement 
-> until I have moved my finger a significant distance then the mouse all 
-> of a sudden jumps a dozen pixels before it "smoothly" glides along.
-> 
-> I would also love to see the sync issues go away. :/  Whatever this 
-> patch(es) was supposed to accomplish, it introduced some rather 
-> undesirable side effects.  a) sync issues, b) tapping, c) fine grain 
-> movements, d) loss of scroll sliding as well (moving your finger along 
-> the side/bottom of the glidepoint).
-> 
-> Not griping, just providing feedback.
- 
-Can you check with a current -mm kernel whether any of the issues is
-still there? Everything seems to work smoothly with my ALPS.
+--nextPart1125445.0lXeL1ozGd
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+These are patches designed to improve system responsiveness. It is=20
+configurable to any workload but the default ck* patch is aimed at the=20
+desktop and ck*-server is available with more emphasis on serverspace.
+
+This is a maintenance release and is identical to 2.6.10-ck6 apart from=20
+using 2.6.10-as6 with it's updated security and bugfixes for 2.6.10=20
+(thanks to Andres Salomon for maintaining this).
+
+http://ck.kolivas.org/patches/2.6/2.6.10/2.6.10-ck7/
+
+
+=46ull patchlist:
+patch-2.6.10-as6
+2.6.10_to_staircase9.2.diff
+schedrange.diff
+schedbatch2.6.diff
+schediso2.8.diff
+mwII.diff
+1g_lowmem1_i386.diff
+defaultcfq.diff
+2.6.10-mingoll.diff
+cddvd-cmdfilter-drop.patch
+vm-pageout-throttling.patch
+nvidia_6111-6629_compat2.diff
+fix-ll-resume.diff
+s9.2_s9.3.diff
+i2.8_i2.9.diff
+s9.3_s9.4.diff
+i2.9_i2.10.diff
+b2.6_b2.7.diff
+s9.4_s10.diff
+s10_test1.diff
+s10_s10.1.diff
+s10.1_s10.2.diff
+s10.2_s10.3.diff
+1504_vmscan-writeback-pages.patch
+s10.3_s10.4.diff
+s10.4_s10.5.diff
+2610ck7-version.diff
+
+and available separately:
+supermount-ng208-10ck5.diff
+
+Cheers,
+Con
+
+--nextPart1125445.0lXeL1ozGd
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCJFeCZUg7+tp6mRURAkUKAJ9rQQO6jY6SATokJLhgVSNL3Y1SxgCgjBYH
+ZN3y4cmphJOAjWnBTxUBu6g=
+=5x29
+-----END PGP SIGNATURE-----
+
+--nextPart1125445.0lXeL1ozGd--

@@ -1,86 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318812AbSH1NK2>; Wed, 28 Aug 2002 09:10:28 -0400
+	id <S318814AbSH1NKa>; Wed, 28 Aug 2002 09:10:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318814AbSH1NK1>; Wed, 28 Aug 2002 09:10:27 -0400
-Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:52874 "HELO
-	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id <S318812AbSH1NKZ>; Wed, 28 Aug 2002 09:10:25 -0400
-Message-ID: <20020828131445.25959.qmail@thales.mathematik.uni-ulm.de>
-From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Date: Wed, 28 Aug 2002 15:14:45 +0200
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: MM patches against 2.5.31
-References: <3D644C70.6D100EA5@zip.com.au> <E17jQB8-0002Zi-00@starship> <20020826205858.6612.qmail@thales.mathematik.uni-ulm.de> <E17jjWN-0002fo-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17jjWN-0002fo-00@starship>
-User-Agent: Mutt/1.3.25i
+	id <S318816AbSH1NKa>; Wed, 28 Aug 2002 09:10:30 -0400
+Received: from pD9E23990.dip.t-dialin.net ([217.226.57.144]:20161 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318814AbSH1NK3>; Wed, 28 Aug 2002 09:10:29 -0400
+Date: Wed, 28 Aug 2002 07:14:00 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Pavel Machek <pavel@suse.cz>
+cc: Matthew Dobson <colpatch@us.ibm.com>, Andrew Morton <akpm@zip.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Martin Bligh <mjbligh@us.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [patch] SImple Topology API v0.3 (1/2)
+In-Reply-To: <20020827143115.B39@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0208280711390.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 06:48:50PM +0200, Daniel Phillips wrote:
-> On Monday 26 August 2002 22:58, Christian Ehrhardt wrote:
-> > > Nope, still don't see it.  Whoever hits put_page_testzero frees the page,
-> > > secure in the knowlege that there are no other references to it.
-> > 
-> > Well yes, but we cannot remove the page from the lru atomatically
-> > at page_cache_release time if we follow your proposal. If you think we can,
-> > show me your implementation of page_cache_release and I'll show
-> > you where the races are (unless you do everything under the lru_lock
-> > of course).
+Hi,
+
+On Tue, 27 Aug 2002, Pavel Machek wrote:
+> > -   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
+> > +   bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
 > 
-> void page_cache_release(struct page *page)
-> {
-> 	spin_lock(&pagemap_lru_lock);
-> 	if (PageLRU(page) && page_count(page) == 2) {
-> 		__lru_cache_del(page);
-> 		atomic_dec(&page->count);
-> 	}
-> 	spin_unlock(&pagemap_lru_lock);
-> 	if (put_page_testzero(page))
-> 		__free_pages_ok(page, 0);
-> }
->
-> This allows the following benign race, with initial page count = 3:
-> [ ...]
-> Neither holder of a page reference sees the count at 2, and so the page
-> is left on the lru with count = 1.  This won't happen often and such
-> pages will be recovered from the cold end of the list in due course.
+> Why not simply CONFIG_NUMA?
 
-Ok, agreed. I think this will work but taking the lru lock each time
-is probably not a good idea.
+Because NUMA is subordinate to X86, and another technology named NUMA 
+might appear? Nano-uplinked micro-array... No Ugliness Munched Archive? 
+Whatever...
 
-> We could also do this:
-> 
-> void page_cache_release(struct page *page)
-> {
-> 	if (page_count(page) == 2) {
-> 		spin_lock(&pagemap_lru_lock);
-> 		if (PageLRU(page) && page_count(page) == 2) {
-> 			__lru_cache_del(page);
-> 			atomic_dec(&page->count);
-> 		}
-> 		spin_unlock(&pagemap_lru_lock);
-> 	}
-> 	if (put_page_testzero(page))
-> 		__free_pages_ok(page, 0);
-> }
-> 
-> Which avoids taking the lru lock sometimes in exchange for widening the
-> hole through which pages can end up with count = 1 on the lru list.
-
-This sounds like something that is worth trying. I missed that one.
-
-
-Side note: The BUG in __pagevec_lru_del seems strange. refill_inactive
-or shrink_cache could have removed the page from the lru before
-__pagevec_lru_del acquired the lru lock.
-
-     regards   Christian
-
+			Thunder
 -- 
-THAT'S ALL FOLKS!
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

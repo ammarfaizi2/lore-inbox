@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbUKPOXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbUKPOYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbUKPOXu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 09:23:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbUKPOXt
+	id S261985AbUKPOYr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 09:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbUKPOX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 09:23:49 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:25028 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261980AbUKPOJr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 09:09:47 -0500
-Date: Tue, 16 Nov 2004 19:36:17 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [patch 3/4] Cleanup file_count usage: Redundant check based on file_count
-Message-ID: <20041116140617.GD23257@impedimenta.in.ibm.com>
-References: <20041116135200.GA23257@impedimenta.in.ibm.com>
+	Tue, 16 Nov 2004 09:23:57 -0500
+Received: from irulan.endorphin.org ([212.13.208.107]:42253 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S261967AbUKPOIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 09:08:38 -0500
+Subject: GPL version, "at your option"?
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZgbU1IA0NBQcWB+ozpVk"
+Date: Tue, 16 Nov 2004 15:08:35 +0100
+Message-Id: <1100614115.16127.16.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041116135200.GA23257@impedimenta.in.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The file_count check below seems to be redundant. Getting rid of it.
 
-Signed-off-by: Ravikiran Thirumalai <kiran@in.ibm.com>
----
-diff -ruN -X dontdiff2 linux-2.6.9/fs/super.c f_count-2.6.9/fs/super.c
---- linux-2.6.9/fs/super.c	2004-10-19 03:24:07.000000000 +0530
-+++ f_count-2.6.9/fs/super.c	2004-11-15 14:52:06.000000000 +0530
-@@ -503,7 +503,7 @@
- 
- 	file_list_lock();
- 	list_for_each_entry(f, &sb->s_files, f_list) {
--		if (S_ISREG(f->f_dentry->d_inode->i_mode) && file_count(f))
-+		if (S_ISREG(f->f_dentry->d_inode->i_mode))
- 			f->f_mode &= ~FMODE_WRITE;
- 	}
- 	file_list_unlock();
+--=-ZgbU1IA0NBQcWB+ozpVk
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Standard template for GPL licensing:
+
+"This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version."
+
+As the text says, the licensee can choose the GPL version at his option,
+and he is likely to choose the one with better conditions. So, newer
+version can never limit the licensee's right, because he is always free
+to choose version 2. Therefore, successor versions can only remove
+limitations.=20
+
+The institution to decide, how the new versions look like, is FSF. Being
+totally paranoid, assume the FSF decision makers are infected by a SCO
+designed virus to make them publish a new GPL version giving SCO the
+right to exploit GPL covered intellectual property. And there is a lot
+of the latter. Would be a classical "Duh!" situation.
+
+I'm about to submit a patch for a new cipher mode called LRW, adding new
+code/files to the crypto tree. My question is, especially to the
+maintainers: Are you going to accept code covered by the terms:
+
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 2 of the License.
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+
+--=-ZgbU1IA0NBQcWB+ozpVk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBmgniW7sr9DEJLk4RAheJAKCJHV6E0pMmHRJfgQPfVG104jZ9xQCgjgT4
+aFJtglRx7crdQKegeIL9in0=
+=ZLUj
+-----END PGP SIGNATURE-----
+
+--=-ZgbU1IA0NBQcWB+ozpVk--

@@ -1,34 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261526AbSJCXls>; Thu, 3 Oct 2002 19:41:48 -0400
+	id <S261481AbSJCXhU>; Thu, 3 Oct 2002 19:37:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261527AbSJCXls>; Thu, 3 Oct 2002 19:41:48 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:38157 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261526AbSJCXlr>;
-	Thu, 3 Oct 2002 19:41:47 -0400
-Date: Thu, 3 Oct 2002 16:44:30 -0700
-From: Greg KH <greg@kroah.com>
-To: Mark Peloquin <peloquin@us.ibm.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net
-Subject: Re: [PATCH] add safe version of list_for_each_entry() to list.h
-Message-ID: <20021003234430.GG2289@kroah.com>
-References: <OF9EDF8472.CDE2D9D8-ON85256C47.0080772B@pok.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF9EDF8472.CDE2D9D8-ON85256C47.0080772B@pok.ibm.com>
-User-Agent: Mutt/1.4i
+	id <S261484AbSJCXhU>; Thu, 3 Oct 2002 19:37:20 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:4076 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S261481AbSJCXhT>; Thu, 3 Oct 2002 19:37:19 -0400
+Message-ID: <3D9CD647.7000806@snapgear.com>
+Date: Fri, 04 Oct 2002 09:44:07 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.40-ac1
+References: <Pine.LNX.4.44L.0210031614030.1909-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 06:42:09PM -0500, Mark Peloquin wrote:
-> Please consider adding the following patch to list.h.
+Hi Rik,
 
-This patch had the tabs mangled and would not apply.
+Rik van Riel wrote:
+> On Thu, 3 Oct 2002, Christoph Hellwig wrote:
+> 
+>>On Thu, Oct 03, 2002 at 10:20:03AM -0400, Alan Cox wrote:
+> 
+> 
+>>>The two are so different I think that keeping it seperate is actually the
+>>>right idea personally.
+>>
+>>Did you actually take a look?  Many files are basically the same and other
+>>are just totally stubbed out in nommu.
+> 
+> 
+> So how about having one mm/ directory with:
+> 
+> 1) the common stuff
+> 2) the MMU stuff
+> 3) the NOMMU stuff
+> 
+> ... and some magic in Makefile to select which .c files to
+> compile ?
+> 
+> That should keep code duplication to a minimum.
 
-Yeah, Notes sucks for sending patches...
+Easy done. Would it bother anyone having a few files
+named XYZ-nommu.c in there?
 
-thanks,
+Although the sticking point may be the common files that
+still contain a lot of ifdefs.
 
-greg k-h
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbUAXVSD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 16:18:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbUAXVSD
+	id S261909AbUAXVPp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 16:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUAXVPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 16:18:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11972 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261931AbUAXVR5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 16:17:57 -0500
-Date: Sat, 24 Jan 2004 13:17:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Audit 2.6 set_pte users
-Message-Id: <20040124131755.5336c8a5.akpm@osdl.org>
-In-Reply-To: <20040124042225.GO11236@krispykreme>
-References: <20040124042225.GO11236@krispykreme>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 24 Jan 2004 16:15:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32228 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261909AbUAXVPm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 16:15:42 -0500
+Message-ID: <4012E071.2080704@pobox.com>
+Date: Sat, 24 Jan 2004 16:15:29 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: grundler@parisc-linux.org, jgarzik@redhat.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [PATCH] 2.6.1 tg3 DMA engine test failure
+References: <20040124013614.GB1310@colo.lackof.org>	<20040123.210023.74723544.davem@redhat.com>	<20040124073032.GA7265@colo.lackof.org> <20040123.233241.59493446.davem@redhat.com>
+In-Reply-To: <20040123.233241.59493446.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> wrote:
->
-> 
-> Hi,
-> 
-> I went through all the users of set_pte to check if they flush the
-> current pte if it is present. Below is a summary of the audit,
-> everything looks good except for a failure case in
-> dup_mmap->copy_page_range.
+David,
 
-I was hoping this might fix the "missing TLB flush" which Martin
-Schwidefsky believes is there, and which is causing him grief.
+There were two separate components to Grant's patch (hint ggg... split 
+up your patches).
 
-> --- 1.154/kernel/fork.c	Tue Jan 20 10:38:15 2004
-> +++ edited/kernel/fork.c	Sat Jan 24 14:17:00 2004
-> @@ -347,6 +347,7 @@
->  fail_nomem:
->  	retval = -ENOMEM;
->  fail:
-> +	flush_tlb_mm(current->mm);
->  	vm_unacct_memory(charge);
->  	goto out;
->  }
+What do you think about GRC-resets-sub-components part?
 
-But look:
+That appears valid (and probably wise) to me, but correct me if I'm wrong...
 
- 	retval = 0;
- 	build_mmap_rb(mm);
- 
- out:
- 	flush_tlb_mm(current->mm);
- 	up_write(&oldmm->mmap_sem);
- 	return retval;
- fail_nomem:
- 	retval = -ENOMEM;
- fail:
-+	flush_tlb_mm(current->mm);
- 	vm_unacct_memory(charge);
- 	goto out;
- }
+	Jeff
 
 
-There is no missing flush here.
+
+

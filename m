@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268312AbUIJGVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268313AbUIJGWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268312AbUIJGVk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 02:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUIJGVk
+	id S268313AbUIJGWd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 02:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUIJGVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 02:21:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12215 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268312AbUIJGUx (ORCPT
+	Fri, 10 Sep 2004 02:21:45 -0400
+Received: from gate.crashing.org ([63.228.1.57]:23247 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268313AbUIJGVk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 02:20:53 -0400
-Date: Thu, 9 Sep 2004 23:18:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
-Message-Id: <20040909231858.770ab381.akpm@osdl.org>
-In-Reply-To: <41413F64.40504@bigpond.net.au>
-References: <413FA9AE.90304@bigpond.net.au>
-	<20040909010610.28ca50e1.akpm@osdl.org>
-	<4140EE3E.5040602@bigpond.net.au>
-	<20040909171450.6546ee7a.akpm@osdl.org>
-	<4141092B.2090608@bigpond.net.au>
-	<20040909200650.787001fc.akpm@osdl.org>
-	<41413F64.40504@bigpond.net.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 10 Sep 2004 02:21:40 -0400
+Subject: [PATCH] ppc: fix sungem NAPI (#2)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1094797225.2667.124.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 10 Sep 2004 16:20:26 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams <pwil3058@bigpond.net.au> wrote:
->
-> > Grab the latest Linus snapshot and apply them in this order:
-> > 
-> > 1-1911-3-2.patch
-> 
-> Still there with this one PLUS I now get a whole bunch of "scheduling 
-> while atomic" errors when I do "make install" which fails due to a 
-> segmentation fault while doing the mkinitrd bit.
+Hi !
 
-Yup, one or two of these patches are "fix up the previous patch" things.
+(Resent with proper signed-off line after ack from David)
 
-> > 1-1901-1-17.patch
-> > 1-1860-1-29.patch
-> > 1-1860-1-28.patch
+The recent sungem NAPI change introduced a bug: dev_kfree_skb() is called
+within the spinlock, thus triggers all sort of WARN_ON's later on down the
+stack.
 
-Please keep going ;)
+This patch changes it to dev_kfree_skb_any(), I hope that is fine
+as we aren't really in interrupt, are we ? (I don't know in what
+context NAPI polling occurs, is it a timer IRQ ?)
+
+Ben.
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+--- 1.59/drivers/net/sungem.c	2004-09-08 06:17:59 +10:00
++++ edited/drivers/net/sungem.c	2004-09-10 13:44:18 +10:00
+@@ -651,7 +651,7 @@
+ 		}
+ 
+ 		gp->net_stats.tx_packets++;
+-		dev_kfree_skb(skb);
++		dev_kfree_skb_any(skb);
+ 	}
+ 	gp->tx_old = entry;
+ 
+
+

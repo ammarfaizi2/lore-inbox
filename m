@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272952AbRIMKHX>; Thu, 13 Sep 2001 06:07:23 -0400
+	id <S272971AbRIMKQd>; Thu, 13 Sep 2001 06:16:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272953AbRIMKHN>; Thu, 13 Sep 2001 06:07:13 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33803 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S272952AbRIMKG4>; Thu, 13 Sep 2001 06:06:56 -0400
-Date: Thu, 13 Sep 2001 12:07:06 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Edgar Toernig <froese@gmx.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        vojtech@ucw.cz, Hamera Erik <HAMERAE@cs.felk.cvut.cz>
-Subject: Re: Booting linux using Novell NetWare Remote Program Loader
-Message-ID: <20010913120706.C25204@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010909220921.A19145@bug.ucw.cz> <20010909170206.A3245@redhat.com> <20010909230920.A23392@atrey.karlin.mff.cuni.cz> <9nh5p0$3qt$1@cesium.transmeta.com> <20010911005318.C822@bug.ucw.cz> <3BA04514.D65EDF98@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3BA04514.D65EDF98@gmx.de>; from froese@gmx.de on Thu, Sep 13, 2001 at 07:33:08AM +0200
+	id <S272970AbRIMKQX>; Thu, 13 Sep 2001 06:16:23 -0400
+Received: from pc-62-31-69-129-ed.blueyonder.co.uk ([62.31.69.129]:18956 "EHLO
+	darkfox.thenorth.org") by vger.kernel.org with ESMTP
+	id <S272964AbRIMKQN>; Thu, 13 Sep 2001 06:16:13 -0400
+From: "Alistair Phipps" <aphipps@thenorth.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: [GOLDMINE!!!] Athlon optimisation bug (was Re: Duron kernel crash)
+Date: Thu, 13 Sep 2001 11:20:10 +0100
+Message-ID: <000e01c13c3d$ac011bf0$0200000a@alistair>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20010912214430.A2866@zed.dlitz.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> >Today I updated the BIOS of my motherboard, a ABIT KT7A (VIA Apollo
+KT133A
+> >chipset). The kernel I had (2.4.9) started crashing on boot with an
+> >invalid page fault, usually right after starting init. I tryed a i686
+> >kernel and noticed it works OK, so I recompiled my crashy kernel only
+> >switching the processor type and it also worked. changed it back to
+> >Athlon/K7/Duron and it starts crashing.
+> >
+> >Anyone else experiencing this?
+>
+> BINGO!
+>
+> This problem is known about, but this is the first report we've had
+> of it on a Duron (as opposed to Athlon), and you've successfully
+> tracked it down to the updated BIOS.
+>
+> We need the versions of your old and new BIOSes, as accurately as you
+> can make it.
 
-> > I found out I can boot it after little games with mars netware
-> > emulator. However I have problems booting anything else than
-> > freedos. Trying to boot zImage directly results in crc errors or in
-> > errors in compressed data. Too much failures and too repeatable
-> > (althrough ram seems flakey) for me to believe its hw.
-> 
-> I bet that's the same problem I had booting a zImage directly from an
-> El-Torito CD.  The problem was the autoprobing for the floppy type
-> performed by the boot loader.  It detected a 2.88 drive and issued
-> corresponding read requests (track x, 36 blocks; track x+1, 36 blocks;
-> ...).  The bios performs these request, but it emulates a 1.44 disk so
-> the last 18 blocks of track x are actually the blocks from track x+1.
-> In my case I did not even got a crc error but an immediate reboot.
-> 
-> I removed the autoprobing from bootsect.S and fixed it to 1.44MB format
-> et voila, it worked perfectly.
+I don't know if this is relevant, but on the Abit KT7 w/Duron 700 I'm using
+right now, I upgraded from the -ZT BIOS to the -3R BIOS, and immediately had
+problems booting.  I ran memtest86 (www.memtest86.com) and found that on
+test 5 I was getting many errors at a particular address range (there had
+been no errors with the previous BIOS).  I tried turning down the RAM speed
+settings in the BIOS, but none helped - then I tried setting the "MD driving
+strength" to "Lo" instead of "Hi" (Hi had been the default) and suddenly got
+complete stability and no memory errors with memtest86, even at the high
+performance RAM settings.
 
-Do you have patch to do that?
-								Pavel
+I can't test if this is related to the i686 vs Athlon "kernel" bug as I'm
+not running Linux right now (long story - this isn't my own machine) but it
+might be something worth checking.  The crashing occuring may actually be
+caused by memory problems - I suggest everyone experiencing this test their
+system with memtest86 - particularly tests 5 and 6.  It takes a long time
+but may be worth it to rule out problematic RAM / BIOS settings for RAM.
 
--- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+- Alistair Phipps
+

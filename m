@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261639AbRFOU5e>; Fri, 15 Jun 2001 16:57:34 -0400
+	id <S262468AbRFOVJR>; Fri, 15 Jun 2001 17:09:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262564AbRFOU5Y>; Fri, 15 Jun 2001 16:57:24 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:56753 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S261639AbRFOU5K>;
-	Fri, 15 Jun 2001 16:57:10 -0400
-Message-ID: <3B2A76A8.9F79082F@sun.com>
-Date: Fri, 15 Jun 2001 13:57:12 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S264035AbRFOVJH>; Fri, 15 Jun 2001 17:09:07 -0400
+Received: from ss03.nc.us.ibm.com ([32.97.136.233]:59598 "EHLO
+	ddstreet.raleigh.ibm.com") by vger.kernel.org with ESMTP
+	id <S262468AbRFOVIy>; Fri, 15 Jun 2001 17:08:54 -0400
+Date: Fri, 15 Jun 2001 17:03:38 -0400 (EDT)
+From: Dan Streetman <ddstreet@us.ibm.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ps2 keyboard filter hook
+In-Reply-To: <OF08385BE5.529A6C1C-ON85256A6C.0070A351@raleigh.ibm.com>
+Message-ID: <Pine.LNX.4.10.10106151630400.27370-100000@ddstreet.raleigh.ibm.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: EEPRO100/S support
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
-I just had an eepro/100 S delivered to me.  I haven't dug through specs
-yet, but has anyone looke at this?  Supposedly has a 3DES ASIC built in to
-the core.
 
-Any way we can use it?
+>Didn't we just conclude a discussion here on linux-kernel, which said
+>that patches which simply add hooks allowing proprietary extensions are
+>not accepted into the kernel?
+
+Yes (I assume you mean the whole 'sockreg' register/unregister thread(s)...;-)
+
+I never intended to get that patch in.  In fact I would be shocked (and a bit
+horrified) if it was accepted.
+
+But management doesn't listen to me when I say it will never get accepted so I
+had to make a token effort of submitting it to prove it won't get accepted.
+
+And I did try hard to convince them to release the actual driver but it didn't
+work.
 
 -- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
+Dan Streetman
+ddstreet@us.ibm.com
+----------------------------------------
+186,282 miles per second:
+It isn't just a good idea, it's the law!
+
+
+

@@ -1,82 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266435AbTBLEPF>; Tue, 11 Feb 2003 23:15:05 -0500
+	id <S266686AbTBLETJ>; Tue, 11 Feb 2003 23:19:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266645AbTBLEPF>; Tue, 11 Feb 2003 23:15:05 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17169 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266435AbTBLEPD>; Tue, 11 Feb 2003 23:15:03 -0500
-Date: Tue, 11 Feb 2003 20:21:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roland McGrath <roland@redhat.com>
-cc: Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: another subtle signals issue
-In-Reply-To: <200302120350.h1C3ofQ19892@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.44.0302111955460.3490-100000@home.transmeta.com>
+	id <S266735AbTBLETJ>; Tue, 11 Feb 2003 23:19:09 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49505 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S266686AbTBLETI>; Tue, 11 Feb 2003 23:19:08 -0500
+To: Corey Minyard <cminyard@mvista.com>
+Cc: suparna@in.ibm.com, Kenneth Sumrall <ken@mvista.com>,
+       linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
+Subject: Re: Kexec, DMA, and SMP
+References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org>
+	<3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org>
+	<20030210174243.B11250@in.ibm.com>
+	<m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com>
+	<20030211191027.A2999@in.ibm.com> <3E490374.1060608@mvista.com>
+	<20030211201029.A3148@in.ibm.com> <3E4914CA.6070408@mvista.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Feb 2003 21:28:32 -0700
+In-Reply-To: <3E4914CA.6070408@mvista.com>
+Message-ID: <m1of5ixgun.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Corey Minyard <cminyard@mvista.com> writes:
 
-On Tue, 11 Feb 2003, Roland McGrath wrote:
+> Suparna Bhattacharya wrote:
 > 
-> I'm not talking about reading from pipes, that was your example.
+> |On Tue, Feb 11, 2003 at 08:06:44AM -0600, Corey Minyard wrote:
+> |
+> |>|
+> |>|We could just reserve a memory area of reasonable size (how
+> |>|much ?) which would be used by the new kernel for all its
+> |>|allocations. We already have the infrastructure to tell the
+> |>|new kernel which memory areas not to use, so its simple
+> |>|enough to ask it exclude all but the reserved area.
+> |>|By issuing the i/o as early as possible during bootup
+> |>|(for lkcd all we need is the block device to be setup for
+> |>|i/o requests), we can minimize the amount of memory to
+> |>|reserve in this manner.
+> |>
+> |>DMA can occur almost anywhere.  If you restrict the area of DMA, that
+> |>means you have to copy the contents to the final destination.  I don't think
+> |>we want to do that in many cases.
+> |
+> |
+> |The scope here was just the case that Eric seemed to be
+> |trying to address, the way I understood it, and hence a much
+> |simpler subset of the problem at hand, since it is not really
+> |tackling the rouge/buggy cases. There is no restriction on
+> |where DMA can happen, just a block of memory area set aside
+> |for the dormant kernel to use when it is instantiated.
+> |So this is an area that the current kernel will not use or
+> |touch and not specify as a DMA target during "regular"
+> |operation.
+> 
+> You don't understand.  You don't *want* to set aside a block of memory that's
+> reserved for DMA.  You want to be able to DMA directly into any user address.
+> Consider demand paging.  The performance would suck if you DMA into some
+> fixed region then copied to the user address.  Plus you then have another
+> resource you have to manage in the kernel.  And you still have to change all
+> the drivers, buffer management, etc. to add a flag that says "I'm going to use
+> this for DMA" to allocations.  You might as well add the quiesce function, it's
+> probably easier to do.  And it doesn't help if you DMA to static memory
+> addresses.
+> 
+> I, too, would like a simpler solution.  I just don't think this is it.
 
-The reason I harp on pipes is that I remember something like that breaking 
-real programs in the past, which is a lot more important.
+You have it backwards.  It is not about reserving a block of memory
+for DMA.  It is about reserving a block of memory to not do DMA in.
+Something like 4MB or so.  
 
-(Thinking about it, it can't have been pipe reading, it must have been
-writing. Reading a pipe always returns partial results early if it is
-successful.  Writing doesn't. Trivial test-case appended, see what happens
-when you ^Z it.  And realize that more programs care about this than about
-timed semaphore operations).
+The idea is not to let the original kernel touch the reserved block at all.
+We just put the kernel that kexec will start in that block of memory.
 
->								  I was
-> talking about calls with timeouts, like semop, whose interface do not
-> permit partial results.
-
-And I have multiple times said that as far as Linux is concerned, ^Z is, 
-has always been, and certainly for the 2.6.x timeframe _will_ be a signal 
-that the kernel considers "caught".
-
-Another way of saying it: just leave the system calls alone. If they
-aren't restartable, they have to return -EINTR. And if you think that
-disagrees with POSIX, and if RH really wants certification, then you
-should advice RH to document the difference as just that - a difference.  
-And push it through as such.
-
-Anyway, try out the following test-program in an xterm. Resize the xterm 
-and see what happens. Press ^Z and see what happens. I'm saying that the 
-^Z behaviour is something Linux always has done (and as such not something 
-you should worry about overmuch), while the SIGWINCH behaviour is new with 
-the new signal handling code and _is_ worrysome, since that can break old 
-programs (but I think your patch fixes it, so I'm not worried).
-
-To recap:
- - common functions are a lot more important than uncommon ones (which is 
-   why the pipe thing is interesting)
- - old behaviour is a lot more important than POSIX (existing binaries 
-   have all been tested with old behaviour).
-
-Considering that the SIGCHLD:SIG_IGN change to child reaping apparently 
-broke at least one existing program, I hope you can see my point. At some 
-point it just doesn't _matter_ what POSIX says. 
-
-		Linus
-
----
-#include <signal.h>
-#include <stdio.h>
-
-#define SIZE 131072
-
-int main(void)
-{
-	char buffer[SIZE];
-	int fd[2];
-
-	pipe(fd);
-	write(fd[1], buffer, SIZE);
-}
-
+Eric

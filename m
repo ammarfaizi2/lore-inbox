@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267159AbRG0PCS>; Fri, 27 Jul 2001 11:02:18 -0400
+	id <S267295AbRG0PF2>; Fri, 27 Jul 2001 11:05:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267317AbRG0PCM>; Fri, 27 Jul 2001 11:02:12 -0400
-Received: from d122251.upc-d.chello.nl ([213.46.122.251]:41484 "EHLO
-	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
-	id <S267159AbRG0PCB>; Fri, 27 Jul 2001 11:02:01 -0400
-From: bvermeul@devel.blackstar.nl
-Date: Fri, 27 Jul 2001 17:04:48 +0200 (CEST)
-To: Hans Reiser <reiser@namesys.com>
-cc: kernel <linux-kernel@vger.kernel.org>
+	id <S267602AbRG0PFS>; Fri, 27 Jul 2001 11:05:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31752 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267643AbRG0PFE>; Fri, 27 Jul 2001 11:05:04 -0400
 Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <3B617F34.FE1EE755@namesys.com>
-Message-ID: <Pine.LNX.4.33.0107271653210.12396-100000@devel.blackstar.nl>
+To: reiser@namesys.com (Hans Reiser)
+Date: Fri, 27 Jul 2001 16:06:16 +0100 (BST)
+Cc: menion@srci.iwpsd.org (Joshua Schmidlkofer),
+        linux-kernel@vger.kernel.org (kernel)
+In-Reply-To: <no.id> from "Hans Reiser" at Jul 27, 2001 06:55:09 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Q9Bw-0005q5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Fri, 27 Jul 2001, Hans Reiser wrote:
+> Don't use RedHat with ReiserFS, they screw things up so many ways.....
+> For instance, they compile it with the wrong options set, their boot scripts are wrong, they just
+> shovel software onto the CD.
 
-> we all have different usage patterns and different needs.  I find it
-> extremely convenient to not be using ext2 when my dell laptop with its
-> poor linux power management crashes frequently, or the kernel crashes.
-> I have never had any problem with data corruption.  Many users I know
-> have also had good experiences with leaving behind ext2 and going to
-> reiserfs on their laptops.  For your needs and patterns though, it
-> sounds like you need ext3.
+Sorry Hans you can rant all you like but you know you are wrong on most
+of that. RH did weeks of stress testing on multiple systems up to 8Gb 8 way
+and didn't ship until we stopped seeing corruption problems with the mm/fs
+code. 
 
-The point is, this can happen every time the kernel crashes, and reiserfs
-wrote something to it's metadata logs (or so I gather from your and Alan's
-explanation). And apart from my source files getting randomly distributed,
-reiserfs works like a charm (I have a Dell as well, and it used to crash a
-lot, which was the main reason for me to switch to reiserfs in the first
-place), is fast, and stable. I like it a lot, but not on a machine where I
-do my development on, nor a machine without a UPS. It just doesn't help
-not knowing if/when a file gets corrupted/wrongly distributed/written
-back/whatever.
+That test suite caught bugs in kernel revisions other vendors shipped
+blindly to their customers without fixing.
 
-It looks to me (with all my ignorance) that reiserfs shuffles it's blocks
-a lot when writing back, and that bites when something interrupts it.
-I can't back that up with code, put my finger to it or anything else, but
-that's my take on my problems.
+That is hardly shovelling software onto the CD.
 
-Bas Vermeulen
+> Actually, I am curious as to exactly how they manage to make ReiserFS boot longer than ext2.  Do
+> they run fsck or what?
 
--- 
-"God, root, what is difference?"
-	-- Pitr, User Friendly
+No. The only thing I can think of that might slow it is that we build with
+the reiserfs paranoia/sanity checks on. Thats because at the time 7.1 was
+done the kernel list was awash with reiserfs bug reports and Chris Mason
+tail recursion bug patch of the week.
 
-"God is more forgiving."
-	-- Dave Aronson
+That might be something to check to get a fair comparison
 
+Alan

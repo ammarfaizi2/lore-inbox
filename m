@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269223AbTCBOlT>; Sun, 2 Mar 2003 09:41:19 -0500
+	id <S269224AbTCBOoz>; Sun, 2 Mar 2003 09:44:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269224AbTCBOlT>; Sun, 2 Mar 2003 09:41:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56836 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269223AbTCBOlT>;
-	Sun, 2 Mar 2003 09:41:19 -0500
-Date: Sun, 2 Mar 2003 14:51:43 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.63: Hang on reboot
-Message-ID: <20030302145143.GA745@gallifrey>
+	id <S269225AbTCBOoz>; Sun, 2 Mar 2003 09:44:55 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:15530 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S269224AbTCBOoz>; Sun, 2 Mar 2003 09:44:55 -0500
+From: David Woodhouse <dwmw2@infradead.org>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Dan Kegel <dank@kegel.com>, Matthias Schniedermeyer <ms@citd.de>,
+       Joe Perches <joe@perches.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca
+In-Reply-To: <1046612993.7527.472.camel@spc1.mesatop.com>
+References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de>
+	 <3E6101DE.5060301@kegel.com> <1046546305.10138.415.camel@spc1.mesatop.com>
+	 <3E6167B1.6040206@kegel.com>  <3E617428.3090207@kegel.com>
+	 <1046578585.2544.451.camel@spc1.mesatop.com>
+	 <1046604117.12947.16.camel@imladris.demon.co.uk>
+	 <1046612993.7527.472.camel@spc1.mesatop.com>
+Organization: 
+Message-Id: <1046616908.12947.27.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 14:49:03 up 3 min,  1 user,  load average: 0.04, 0.11, 0.05
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4.dwmw2) 
+Date: 02 Mar 2003 14:55:08 +0000
+Subject: Re: [PATCH] kernel source spellchecker
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  2.5.63 on Tyan S2460 motherboard (Dual Athlon MP, 760 chipset), discs on
-both the internal controller and a promise TX100.
+On Sun, 2003-03-02 at 13:49, Steven Cole wrote:
 
-  If I'm in 2.4.18 and tell it to reboot, the BIOS does its stuff and
-I land in grub and I can tell it to boot into 2.5.63 etc.
+> > It might also be worth adding a list of 'suspect' spellings -- which
+> > require human intervention.
 
-  If I'm in 2.5.63 and tell it to reboot, the BIOS seems to do all its
-stuff, the Promise BIOS runs, and it gets to the point just before
-GRUB would normally appear and then stops.
+> In my first pass through the tree, it looks like there are quite a few
+> _correct_ uses of errata, but there indeed some of these:
+> 
+> ./drivers/net/tulip/de2104x.c:  /* Avoid a chip errata by prefixing a dummy entry. */
+> 
+> I think the errata/erratum issue requires careful editing.
 
-  I guess this is either the BIOS being unhappy or 2.5.63 leaving
-some of the hardware in an unhappy state.
+Indeed -- that's my point. It's 'suspect' but not necessarily wrong.
+Likewise 'indexes' which can be permissible too, when used as a verb,
+but is more likely to just be a thinko for 'indices'.
 
-Dave
+-- 
+dwmw2
 
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/

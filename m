@@ -1,87 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315928AbSHaETc>; Sat, 31 Aug 2002 00:19:32 -0400
+	id <S316070AbSHaE74>; Sat, 31 Aug 2002 00:59:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315946AbSHaETc>; Sat, 31 Aug 2002 00:19:32 -0400
-Received: from cttsv008.ctt.ne.jp ([210.166.4.137]:38573 "EHLO
-	cttsv008.ctt.ne.jp") by vger.kernel.org with ESMTP
-	id <S315928AbSHaETb> convert rfc822-to-8bit; Sat, 31 Aug 2002 00:19:31 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Gabor Kerenyi <wom@tateyama.hu>
-To: linux-kernel@vger.kernel.org
-Subject: extended file permissions based on LSM
-Date: Sat, 31 Aug 2002 06:16:04 +0200
-User-Agent: KMail/1.4.2
-Cc: Chris Wright <chris@wirex.com>
+	id <S316088AbSHaE74>; Sat, 31 Aug 2002 00:59:56 -0400
+Received: from grace.speakeasy.org ([216.254.0.2]:40463 "HELO
+	grace.speakeasy.org") by vger.kernel.org with SMTP
+	id <S316070AbSHaE7y>; Sat, 31 Aug 2002 00:59:54 -0400
+Date: Sat, 31 Aug 2002 00:04:20 -0500 (CDT)
+From: Mike Isely <isely@pobox.com>
+X-X-Sender: isely@grace.speakeasy.net
+Reply-To: Mike Isely <isely@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-pre4-ac1 trashed my system
+In-Reply-To: <Pine.LNX.4.44.0208300206140.9431-100000@grace.speakeasy.net>
+Message-ID: <Pine.LNX.4.44.0208310002030.23964-100000@grace.speakeasy.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200208310616.04709.wom@tateyama.hu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I'm looking around the LSM module and I know it has got some
-functions for the filesystem part. Well, it looks good, but the
-permission thing is not enough. In fact it's enough to check
-the permission of an inode, but I'd like to check permissions
-for a dentry AND its inode at the same place and time.
 
-I don't know why the dentry can't be passed to the permission
-function along with the inode in the VFS.
-When a user opens a file it may be useful in some cases
-to decide whether a user can access an inode for the
-requested operation according to it's the dentry (and
-to the parent dentry)
+> OK, I have some good news and some bad news.
+>
+> The bad news is that I replicated the corruption.
+>
+> The good news is that I replicated the corruption.  Oh, and I can
+> cause it on demand, and not lose my system in the process.  I can
+> provide LOTS and LOTS of details now.  What do you want to know?
+>
 
-In this case you could specify rights for the directory
-too affecting the files' permissions belonging to that dir.
-like how Novell does.
-Before it starts a flame: I don't say  I would like to
-have such a default feature in the kernel, but I'd like to
-have the possibility to write a LSM.
+   [...]
 
-In this case we could have some very interesting (useful
-or not who knows) features. For example if there are two
-hardlinks for an inode in two different directories, the user
-could get different rights for the file depending on the
-path he reaches it.
+I've done some more tests and have more information now.  No smoking
+gun yet, but a few more clues.
 
-I've got some reports that people switching from Windows
-(not mentioning those who would like to switch from Novell)
-don not find the current file permission system satisfying
-even with ACL.
-I think there is a demand for an extended file access
-feature. This could be done filesystem independent way
-storing additional information in a database (at file level).
+1. I moved the 160GB drive away from the Promise controller and
+   reattached it to the motherboard chipset's controller ("VIA
+   Technologies, Inc. Bus Master IDE (rev 06)", by the way according
+   to lspci).  Then I booted 2.4.20-pre4-ac1 (the "bad" kernel) and
+   fsck'ed the big partition again.  It passed.  Then I moved the
+   drive back to the Promise controller, booted the same OS and
+   fsck'ed again.  Failure.
 
-As I've been thinking for 2 days I think at least the
-following modificatoins would be necessary:
+2. I booted 2.4.19-ac4 with the 160GB drive attached to the Promise
+   controller and watched the kernel log output.  There's no message
+   about any missing 80 pin cable.  This is different than
+   2.4.20-pre4-ac1 which complains that I allegedly don't have an 80
+   pin cable plugged.  However the cable is there but the driver
+   downshifts the interface to 33MHz anyway.  I described this
+   observation before and now today I noticed another poster on the
+   lkml bringing up the same issue with his Promise 20269 controller
+   (but in -pre5-ac1 instead - look for subject "2.4.20-pre5-ac1
+   PDC20269 80-pin acble misdetection" [sic]).
 
-int vfs_permission(struct inode *inode, int mask, struct dentry *dentry);
-int permission(struct inode *inode, int mask, struct dentry *dentry);
-and in the LSM the same.
+3. Still looking for the low-hanging fruit, I extracted lots of other
+   info from the system.  I grabbed fdisk -l output, dmesg output, the
+   kernel source .config file and a bunch of stuff out of /proc/ide,
+   once apiece for each kernel version (while the 160GB drive remained
+   on the Promise controller).  I then diff'ed it all.  I have all
+   this saved, but in the spirit of not wasting more bandwidth, I am
+   not including the raw data here.  However here's a summary of the
+   the differences I found:
 
-The current permission checking method could be left
-untouched and if there are some cases when the dentry
-can be NULL it wouldn't hurt. But on the other hand
-we could build something more complex in LSM if needed.
+   o Lots of dmesg differences, but nothing I saw really relevant
+     beyond the thing about the 80 pin cable.
 
-To be honest I'd welcome if the whole file permisssion
-part were moved to LSM. It would allow us to override the
-currently implemented default behavior easily.
-Now the LSM is only an extension and if the vfs_permission
-(or the i_ops->permission) fails then the security_ops->permission
-can't override it.
-If we also pass the "retval" to the LSM's permission
-fn. then it can decide whether it wants to override the
-previously failed perm. check or just returns the "retval".
+   o fdisk -l output was unchanged between the kernel versions, so I
+     guess at least disk geometry hasn't been messed up.
 
-We could get more control of these if the may_* functions
-were moved to LSM as well.
+   o hdparm output is different between the kernel versions.  This
+     should not be a big surprise since the 2.4.20-pre4-ac1 driver is
+     downshifting the bus speed.  hdparm -i (and -I) reports udma2 for
+     the suspect kernel while I get udma5 for the stable kernel.  I
+     did see one other alarming(?) change however; hdparm -I is
+     reporting different configurations:
 
-Any thoughts about these?
+     2.4.19-ac4:
+	Configuration:
+		Logical		max	current
+		cylinders	16383	65535
+		heads		16	1
+		sectors/track	63	63
+		bytes/track:	0		(obsolete)
+		bytes/sector:	0		(obsolete)
+		current sector capacity: 4128705
+		LBA user addressable sectors = 268435455
 
-Gabor
+     2.4.20-pre4-ac1:
+	Configuration:
+		Logical		max	current
+		cylinders	16383	16383
+		heads		16	16
+		sectors/track	63	63
+		bytes/track:	0		(obsolete)
+		bytes/sector:	0		(obsolete)
+		current sector capacity: 16514064
+		LBA user addressable sectors = 268435455
+
+     Note the different sector capacity, cylinder counts, and head
+     counts.  And yes, the entry reporting the _larger_ capacity is
+     the suspect kernel (double-checked).  Is this significant?
+
+   o Timings (hdparm -t -T output) are also different.  The "bad"
+     kernel (2.4.20-pre4-ac1) is only getting 30MB/sec off the device
+     while 2.4.19-ac4 is reading 35MB/sec.  Not exactly a fantastic
+     difference, but 35MB/sec exceeds UDMA33 rate so that would
+     suggest that 2.4.19-ac4 really is running the Promise controller
+     at something better than udma2.
+
+   o Output from /proc/ide/pdc202xx is identical between the kernels.
+
+   o There are differences in the files in /proc/ide/ide2/hde/*
+     between the kernels but the differences are too cryptic for me to
+     decipher in any meaningful way (but if you want the data, ask).
+
+   o The two kernel source .config files have more differences than I
+     expected.  Notably, I see a new CONFIG_PDC202XX_* options that
+     weren't there before.  For CONFIG_BLK_DEV_PDC202XX has _OLD and
+     _NEW variants now (both are set).  Also CONFIG_PDC202XX_FORCE is
+     new (and not set).  And CONFIG_PDC202XX_BURST was previously set
+     but for some unexplained reason I have it not set in the "bad"
+     kernel.  For the record, here are the currently enabled
+     CONFIG_IDE* settings (same for both kernels):
+
+	CONFIG_IDE=y
+	CONFIG_IDEDISK_MULTI_MODE=y
+	CONFIG_IDEDISK_STROKE=y
+	CONFIG_IDEDMA_AUTO=y
+	CONFIG_IDEDMA_ONLYDISK=y
+	CONFIG_IDEDMA_PCI_AUTO=y
+	CONFIG_IDEPCI_SHARE_IRQ=y
+	CONFIG_IDE_CHIPSETS=y
+	CONFIG_IDE_TASKFILE_IO=y
+	CONFIG_IDE_TASK_IOCTL=y
+
+
+I'll build another 2.4.20-pre4-ac1 instance with CONFIG_PDC202XX_BURST
+turned on and see if that makes a difference.  Any advice on the
+...PDC202XX_OLD vs ...PDC202XX_NEW settings?  Turn one of them off?
+What's the difference?  (Don't answer that last one; I haven't checked
+the Configure help yet for it.)
+
+Another thing I can try is to force the driver to downshift to udma2
+in 2.4.19-ac4 and see if then the problem appears there.
+
+I'll can also build a new kernel from the newest sources and see if
+the problem still exists.
+
+Is there anything else I should try?  Advice on a better direction?
+Should I sit down and shut up already?  Are you all still reading this
+far down the message?
+
+  -Mike
+
+
+                        |         Mike Isely          |     PGP fingerprint
+    POSITIVELY NO       |                             | 03 54 43 4D 75 E5 CC 92
+ UNSOLICITED JUNK MAIL! |   isely @ pobox (dot) com   | 71 16 01 E2 B5 F5 C1 E8
+                        |   (spam-foiling  address)   |
 

@@ -1,86 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318165AbSG3BNm>; Mon, 29 Jul 2002 21:13:42 -0400
+	id <S317602AbSG3BMi>; Mon, 29 Jul 2002 21:12:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318175AbSG3BNm>; Mon, 29 Jul 2002 21:13:42 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:9376 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318165AbSG3BNk>;
-	Mon, 29 Jul 2002 21:13:40 -0400
-Date: Tue, 30 Jul 2002 11:12:03 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
-Subject: Re: Serial core problems on embedded PPC
-Message-ID: <20020730011203.GL2351@zax>
-Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
-	linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
-References: <20020729040824.GA2351@zax> <20020729100009.A23843@flint.arm.linux.org.uk>
+	id <S318165AbSG3BMh>; Mon, 29 Jul 2002 21:12:37 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:25798 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S317602AbSG3BMg>; Mon, 29 Jul 2002 21:12:36 -0400
+Date: Mon, 29 Jul 2002 18:15:52 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, binutils@sources.redhat.com
+Subject: Re: Compiling kernel with -g may confuse binutils
+Message-ID: <20020729181552.A21941@lucon.org>
+References: <16624.1027989316@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020729100009.A23843@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16624.1027989316@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Tue, Jul 30, 2002 at 10:35:16AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 10:00:10AM +0100, Russell King wrote:
-> On Mon, Jul 29, 2002 at 02:08:24PM +1000, David Gibson wrote:
-> > I've been trying to get the new serial core stuff working on a PPC 4xx
-> > machine (an EP405 board, specifically).  This is proving more
-> > difficult than I expected.
+On Tue, Jul 30, 2002 at 10:35:16AM +1000, Keith Owens wrote:
+> Building the kernel with -g confuses binutils 2.12.90.0.1-4.  This
+> error message (reported by Ramesh Panuganty)
 > 
-> It's vital that you mention the kernel version you're using; some of
-> these problems sound like 2.5.28.
-
-Sorry.  I'm working off the linuxppc-2.5 BK tree, which is currently
-at 2.5.29.
-
-> > In 8250.c, it appears that in order for a port to be used for the
-> > serial console it must be defined "old style" with SERIAL_PORT_DFNS,
-> > rather than being registered with register_serial() (because
-> > serial8250_console_setup() indexs into the serial8250_ports array)).
-> > This presents a small problem for 4xx, since it's serial ports are
-> > memory mapped and the new old_serial_port structure can't represent
-> > these.
+> drivers/built-in.o: In function `isapnp_peek':
+> /usr/src/linux-2.5.28/drivers/pnp/isapnp.c:267: undefined reference to
+> `local symbols in discarded section .text.exit'
 > 
-> There is no easy solution for this.  Alan said we must not drop support
-> for serial console initialisation early on in the kernel setup, which
-> means before the memory subsystems are initialised.
+> was really caused by de_remove_one() in drivers/net/tulip/de2104x.c.
+
+Please show how to exactly reproduce it with gcc 3.1.1.
+
 > 
-> > I added support for these into 8250.c, but ran into further troubles.
+> Building with -g also generates false positives in my script that homes
+> in on which object is causing the problem.  New version of
+> reference_discarded.pl below, run it when you get 'discarded section'
+> messages.
 > 
-> I suspect a 2.5.28 kernel; please confirm and we'll that it from there.
-
-2.5.29 based BK, actually.
-
-> > The current plethora of similar-but-not-the-same structures describing
-> > serial ports (serial_state, serial_struct, uart_port, old_serial_port)
-> > is also rather confusing.  I'm guessing some of these are deprecated
-> > and remain only as an aid to transition, but I'm not sure which.
+> #!/usr/bin/perl -w
+> #
+> # reference_discarded.pl (C) Keith Owens 2001 <kaos@ocs.com.au>
+> #
+> # List dangling references to vmlinux discarded sections.
 > 
-> I don't see there being an easy way to kill this off:
+> use strict;
+> die($0 . " takes no arguments\n") if($#ARGV >= 0);
 > 
-> 1. serial_struct is a userspace API.
-
-Ok.
-
-> 2. old_serial_port glues asm/serial.h into 8250.c; asm/serial.h can't be
->    changed because (mainly) ppc uses it elsewhere.  Other architectures
->    seem to do the same sort of thing.
-
-I think PPC's use of asm/serial.h in the bootloader needs to go away
-anyway.  Could old_serial_port at least change base_baud to baud_base
-to match serial_struct and serial_state.  That way a designated
-initializer will work in either context.
-
-> Unless ppc and others are willing to put up with major breakage when I
-> change asm/serial.h, I don't see this getting cleaned up.  Comments on
-> this area welcome.
-
-Well, the machines I'm working on are totally broken now, so...
-
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+> my %object;
+> my $object;
+> my $line;
+> my $ignore;
+> 
+> $| = 1;
+> 
+> printf("Finding objects, ");
+> open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
+> while (defined($line = <OBJDUMP_LIST>)) {
+> 	chomp($line);
+> 	if ($line =~ /:\s+file format/) {
+> 		($object = $line) =~ s/:.*//;
+> 		$object{$object}->{'module'} = 0;
+> 		$object{$object}->{'size'} = 0;
+> 		$object{$object}->{'off'} = 0;
+> 	}
+> 	if ($line =~ /^\s*\d+\s+\.modinfo\s+/) {
+> 		$object{$object}->{'module'} = 1;
+> 	}
+> 	if ($line =~ /^\s*\d+\s+\.comment\s+/) {
+> 		($object{$object}->{'size'}, $object{$object}->{'off'}) = (split(' ', $line))[2,5]; 
+> 	}
+> }
+> close(OBJDUMP_LIST);
+> printf("%d objects, ", scalar keys(%object));
+> $ignore = 0;
+> foreach $object (keys(%object)) {
+> 	if ($object{$object}->{'module'}) {
+> 		++$ignore;
+> 		delete($object{$object});
+> 	}
+> }
+> printf("ignoring %d module(s)\n", $ignore);
+> 
+> # Ignore conglomerate objects, they have been built from multiple objects and we
+> # only care about the individual objects.  If an object has more than one GCC:
+> # string in the comment section then it is conglomerate.  This does not filter
+> # out conglomerates that consist of exactly one object, can't be helped.
+> 
+> printf("Finding conglomerates, ");
+> $ignore = 0;
+> foreach $object (keys(%object)) {
+> 	if (exists($object{$object}->{'off'})) {
+> 		my ($off, $size, $comment, $l);
+> 		$off = hex($object{$object}->{'off'});
+> 		$size = hex($object{$object}->{'size'});
+> 		open(OBJECT, "<$object") || die "cannot read $object";
+> 		seek(OBJECT, $off, 0) || die "seek to $off in $object failed";
+> 		$l = read(OBJECT, $comment, $size);
+> 		die "read $size bytes from $object .comment failed" if ($l != $size);
+> 		close(OBJECT);
+> 		if ($comment =~ /GCC\:.*GCC\:/m) {
+> 			++$ignore;
+> 			delete($object{$object});
+> 		}
+> 	}
+> }
+> printf("ignoring %d conglomerate(s)\n", $ignore);
+> 
+> printf("Scanning objects\n");
+> foreach $object (keys(%object)) {
+> 	my $from;
+> 	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
+> 	while (defined($line = <OBJDUMP>)) {
+> 		chomp($line);
+> 		if ($line =~ /RELOCATION RECORDS FOR /) {
+> 			($from = $line) =~ s/.*\[([^]]*).*/$1/;
+> 		}
+> 		if (($line =~ /\.text\.exit$/ ||
+> 		     $line =~ /\.data\.exit$/ ||
+> 		     $line =~ /\.exitcall\.exit$/) &&
+> 		    ($from !~ /\.text\.exit$/ &&
+> 		     $from !~ /\.data\.exit$/ &&
+> 		     $from !~ /\.exitcall\.exit$/ &&
+> 		     $from !~ /\.stab$/)) {
+> 			printf("Error: %s %s refers to %s\n", $object, $from, $line);
+> 		}
+> 	}
+> 	close(OBJDUMP);
+> }
+> printf("Done\n");
+> 

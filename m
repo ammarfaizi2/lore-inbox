@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265037AbTBEWGl>; Wed, 5 Feb 2003 17:06:41 -0500
+	id <S265051AbTBEWKp>; Wed, 5 Feb 2003 17:10:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265063AbTBEWGl>; Wed, 5 Feb 2003 17:06:41 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:37895
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S265037AbTBEWGk>; Wed, 5 Feb 2003 17:06:40 -0500
-Message-ID: <3E418CDF.7020001@rackable.com>
-Date: Wed, 05 Feb 2003 14:14:55 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S265063AbTBEWKp>; Wed, 5 Feb 2003 17:10:45 -0500
+Received: from ldap.somanetworks.com ([216.126.67.42]:30652 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S265051AbTBEWKo>; Wed, 5 Feb 2003 17:10:44 -0500
+Date: Wed, 5 Feb 2003 17:20:15 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Greg KH <greg@kroah.com>
+cc: Rusty Lynch <rusty@linux.co.intel.com>, Patrick Mochel <mochel@osdl.org>,
+       Stanley Wang <stanley.wang@linux.co.intel.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5.59-bk]Sysfs interface for ZT5550 Redundant Host
+ Controller
+In-Reply-To: <20030205220956.GB21652@kroah.com>
+Message-ID: <Pine.LNX.4.44.0302051718120.29820-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-To: Paul Larson <plars@linuxtestproject.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Cerberus
-References: <1044475584.30331.135.camel@plars>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Feb 2003 22:16:07.0547 (UTC) FILETIME=[2E3564B0:01C2CD64]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Larson wrote:
+On Wed, 5 Feb 2003, Greg KH wrote:
 
->I saw a comment late last week that someone was seeing cerberus crash
->instantaneously with 2.5 on UP machines, so I decided to try to
->reproduce this problem.  I got the latest version of ceerbuerus and put
->it on a single processor pIII-866 256MB ram, linux-2.5.59 kernel. 
->Newburn has been running for just under 5 days now without so much as a
->hiccup.
->
->1. Has anyone had first hand experience with this instability?
->
->2. If so, were you just running the default newburn, or something else? 
->Please let me know if you did something different that caused it to
->crash.
->  
->
+> On Wed, Feb 05, 2003 at 04:14:10PM -0500, Scott Murray wrote:
+> > On 5 Feb 2003, Rusty Lynch wrote:
+> > 
+> > > Here is a second version of the zt5550 reduncant host controller sysfs
+> > > interface patch.  I have first of all removed several of the more advanced
+> > > (and therefore more dangerous) chip features, and also moved the root
+> > > of these files to the 'zt5550_hc' directory that was already being created
+> > > in bus/pci/drivers/ so that the directory view now looks like:
+> > 
+> > I'll likely poke around a bit more, but I can probably live with something 
+> > along these lines.
+> 
+> Does that mean you want me to add this patch to the kernel tree?
 
-  I've run Cerberus on a number of smp 2.5 kernels without issue.  You 
-might try "./newburn -t -p 2".  Remember that you can fine tune your 
-test by editing the newburn.tcf file.
+If you're happy with the sysfs changes, feel free to apply.  I've got some
+other fixes in hand, but I can remerge the ZT5550 driver ones later.
+
+Scott
+
 
 -- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
-
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 

@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSJVDTF>; Mon, 21 Oct 2002 23:19:05 -0400
+	id <S262070AbSJVDdv>; Mon, 21 Oct 2002 23:33:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262070AbSJVDTF>; Mon, 21 Oct 2002 23:19:05 -0400
-Received: from mail.cscoms.net ([202.183.255.13]:6153 "EHLO csmail.cscoms.com")
-	by vger.kernel.org with ESMTP id <S262067AbSJVDTC>;
-	Mon, 21 Oct 2002 23:19:02 -0400
-Date: Tue, 22 Oct 2002 10:24:45 +0700
-From: Alain Fauconnet <alain@cscoms.net>
-To: kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org, lve@ns.aanet.ru
-Subject: Re: UPD: Frequent/consistent panics in 2.4.19 at ip_route_input_slow, in_dev_get(dev)
-Message-ID: <20021022102444.C2361@cscoms.net>
-References: <20021021100207.E302@cscoms.net> <200210211640.UAA07235@sex.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262079AbSJVDdu>; Mon, 21 Oct 2002 23:33:50 -0400
+Received: from mta02ps.bigpond.com ([144.135.25.134]:39917 "EHLO
+	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262070AbSJVDdt>; Mon, 21 Oct 2002 23:33:49 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Haizhi Xu <hxu02@ecs.syr.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-14smp sys_call_table not found by the LKM loader
+Date: Tue, 22 Oct 2002 13:31:20 +1000
+User-Agent: KMail/1.4.5
+References: <1035256996.3db4c4a484a23@webmail.ecs.syr.edu>
+In-Reply-To: <1035256996.3db4c4a484a23@webmail.ecs.syr.edu>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210211640.UAA07235@sex.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Mon, Oct 21, 2002 at 08:40:16PM +0400
+Message-Id: <200210221331.20778.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 08:40:16PM +0400, kuznet@ms2.inr.ac.ru wrote:
-> Hello!
-> 
-> > much   yet).   My   next   plan is to implement LKCD on the 2.4.17 box
-> > (not available for 2.4.19 yet as it  seems)  and  capture  a  complete
-> > crash dump. Would that help tracking down?
-> 
-> I do not think that this will help.
-> 
-> Try better to enable slab poisoning in slab.h. If it that thing
-> which I think of, it would provoke crash.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks for your reply,
+On Tue, 22 Oct 2002 13:23, Haizhi Xu wrote:
+> Is it true that I can NOT reference sys_call_table[] from a kernel loadable
+> module in 2.4.18-14smp or higher version kernels? Then if I need to
+> intercept system calls, how should I do it?
+Yes it is true.
+You should intercept system calls like everyone else - source code patch into 
+mainline.
 
-Does that mean just enabling CONFIG_DEBUG_SLAB  in  kernel  config  or
-more?
+Brad
+- -- 
+http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-I see:
+iD8DBQE9tMaIW6pHgIdAuOMRAj/5AKC5Hh98df8uQswKyNzjPIYb5eS+GQCeI9TW
+lSPs+qDuFUNQ09NzlGeVrSw=
+=vF/t
+-----END PGP SIGNATURE-----
 
-#define SLAB_POISON             0x00000800UL    /* Poison objects */
-
-in slab.h, but there's nothing settable in there.
-
-Anyway I've recompiled the 2.4.19 kernel with CONFIG_DEBUG_SLAB=y.
-Let's see what happens.
-
-Greets,
-_Alain_

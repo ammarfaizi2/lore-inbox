@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbUKDSZC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbUKDSUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbUKDSZC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 13:25:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbUKDSYw
+	id S262343AbUKDSUK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbUKDSR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 13:24:52 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:56795 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262358AbUKDSWV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 13:22:21 -0500
-Date: Thu, 4 Nov 2004 19:24:44 +0100
-From: DervishD <lkml@dervishd.net>
-To: Paul Slootman <paul+nospam@wurtel.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-Message-ID: <20041104182444.GC24522@DervishD>
-Mail-Followup-To: Paul Slootman <paul+nospam@wurtel.net>,
-	linux-kernel@vger.kernel.org
-References: <20041103194226.GA23379@DervishD> <418965E0.8070508@tmr.com> <20041104102655.GB23673@DervishD> <cmde0g$l20$1@news.cistron.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cmde0g$l20$1@news.cistron.nl>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 4 Nov 2004 13:17:57 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:31367 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S262349AbUKDSRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 13:17:21 -0500
+Date: Thu, 4 Nov 2004 12:17:01 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+In-Reply-To: <418A603A.3030806@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.58.0411041216240.1229@gradall.private.brainfood.com>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
+ <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+ <418A603A.3030806@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Paul :)
+On Thu, 4 Nov 2004, Chris Friesen wrote:
 
- * Paul Slootman <paul+nospam@wurtel.net> dixit:
-> >    If init is the parent, all works ok, just wait a bit and all
-> >those zombies will really die ;)
-> I recently had a system with serial console where some some reason the
-> serial port was stopped. This meant that init blocked while writing some
-> message (e.g. "respawning too rapidly"), and that meant it stopped
-> reaping those zombie processes. The list of these zombie processes with
-> PPID == 1 was amazing. The only thing that helped was rebooting after
-> replacing the serial console cable.
+> Adam Heath wrote:
+>
+> > I didn't deny the speed difference of older and newer compilers.
+> >
+> > But why is this an issue when compiling a kernel?  How often do you compile
+> > your kernel?
+>
+> You're posting to the kernel development list--many people here recompile dozens
+> of times a day.
 
-    It looks like a bug in sysvinit: it shouldn't print anything on
-the console but use syslog and specify that the console NEVER shall
-be used to print anything even when there is no syslogd running. I'll
-make sure that it doesn't happen in my VCinit.
-
-    Thanks for the information :)
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
+So find the fastest computer you have, and use that.  There is no need to
+compile a kernel on the machine it will be run on.

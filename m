@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130414AbQKAVyx>; Wed, 1 Nov 2000 16:54:53 -0500
+	id <S129103AbQKIRQC>; Thu, 9 Nov 2000 12:16:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131651AbQKAVyn>; Wed, 1 Nov 2000 16:54:43 -0500
-Received: from usuario1-37-133-99.dialup.uni2.es ([62.37.133.99]:11012 "HELO
-	menzoberrazan.net.dhis.org") by vger.kernel.org with SMTP
-	id <S130414AbQKAVya>; Wed, 1 Nov 2000 16:54:30 -0500
-Date: Tue, 31 Oct 2000 01:03:31 +0100
-From: drizzt.dourden@iname.com
-To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-Cc: linux-kernel@vger.kernel.org, saw@saw.sw.com.sg
-Subject: Re: eepro100: card reports no resources [was VM-global...]
-Message-ID: <20001031010331.A32094@menzoberrazan>
-In-Reply-To: <20001026193508.A19131@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20001026193508.A19131@niksula.cs.hut.fi>; from vherva@mail.niksula.cs.hut.fi on Thu, Oct 26, 2000 at 07:35:08PM +0300
+	id <S129159AbQKIRPw>; Thu, 9 Nov 2000 12:15:52 -0500
+Received: from smarty.smart.net ([207.176.80.102]:19482 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S129103AbQKIRPj>;
+	Thu, 9 Nov 2000 12:15:39 -0500
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200011091715.MAA24229@smarty.smart.net>
+Subject: Incorrectness for fun and profit
+To: linux-kernel@vger.kernel.org
+Date: Thu, 9 Nov 100 12:15:19 -0500 (EST)
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Decía Ville Herva:
-> Markus Pfeiffer <profmakx@profmakx.de> wrote:
-> > 
-> > > Oct 26 11:24:13 ns29 kernel: eth0: card reports no resources.
-> > > Oct 26 11:24:15 ns29 kernel: eth0: card reports no resources.
-> > > Oct 26 12:22:21 ns29 kernel: eth0: card reports no resources.
-> > > Oct 26 16:16:59 ns29 kernel: eth0: card reports no resources.
-> > > Oct 26 16:28:37 ns29 kernel: eth0: card reports no resources.
-> > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
 
-I have this problem with the integrated card in a i810E chipset. I cured
-reserving the last mega of RAM of the machine ( I have see this in the Redhat
-tips for 6.2). 
+In 2.4 init/main.c we have...
 
-append="mem=sizeof(mem)-1"
+ * Versions of gcc older than that listed below may actually compile
+ * and link okay, but the end product can have subtle run time bugs.
+ * To avoid associated bogus bug reports, we flatly refuse to compile
+ * with a gcc that is known to be too old from the very beginning.
+ */
+#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 1)
+#error Sorry, your GCC is too old. It builds incorrect kernels.
+#endif
 
-I don't why this work.
+Note that I've elided the 9 from the minor version number. I also tweaked
+the #define asmlinkage in whereveritis.h to look a bit more like 2.2, got
+rid of the arch=bla switch to gcc, and built the kernel I'm using at the
+moment with gcc 2.7.2.3. I'm looking for "subtle run time bugs". OK, I'm
+desparate for entertainment. That's a given. Where should I look?
+Everything I'm cognizant of so far is real pretty. I WANT BUGS! WHERE ARE
+THE BUGS?
 
-Saludos
-Drizzt
--- 
-... El dinero no da la felicidad, pero la imita perfectamente.
-____________________________________________________________________________
-Drizzt Do'Urden                Three rings for the Elves Kings under the Sky   
-drizzt.dourden@iname.com       Seven for the Dwarf_lords in their  
-                               hall of stone
-                               Nine for the Mortal Men doomed to die 
+This is not a bogus bug report. This is a repeatable bug request.
+
+
+Incorrectly yours,
+
+Rick Hohensee
+:; cLIeNUX0 /dev/tty12  12:43:36   /
+:;get /Linux/version
+Linux version 2.4.0-test10 (@cLIeNUX) (gcc version 2.7.2.3) #10 Thu Nov 9
+03:11:45 2000
+:; cLIeNUX0 /dev/tty12  13:03:02   /
+:;
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

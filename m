@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264829AbRFXWOb>; Sun, 24 Jun 2001 18:14:31 -0400
+	id <S264812AbRFXWSA>; Sun, 24 Jun 2001 18:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264828AbRFXWOV>; Sun, 24 Jun 2001 18:14:21 -0400
-Received: from dial-10-194-apx-01.btvt.together.net ([209.91.3.194]:30082 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S264829AbRFXWOE>; Sun, 24 Jun 2001 18:14:04 -0400
-Date: Sun, 24 Jun 2001 18:11:34 -0400 (EDT)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: <wstearns@sparrow.websense.net>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: John Nilsson <pzycrow@hotmail.com>,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Some experience of linux on a Laptop
-In-Reply-To: <E15EHkU-0000Wu-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106241806460.3807-100000@sparrow.websense.net>
+	id <S264813AbRFXWRv>; Sun, 24 Jun 2001 18:17:51 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:36616 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264812AbRFXWRf>; Sun, 24 Jun 2001 18:17:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rob Landley <landley@webofficenow.com>
+Subject: [OT] Re: Microsoft and Xenix.
+Date: Mon, 25 Jun 2001 00:20:40 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15DZbq-0008D8-00@roo.home> <m1ofrebnkx.fsf@frodo.biederman.org> <01062406364601.01519@localhost.localdomain>
+In-Reply-To: <01062406364601.01519@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0106250020400D.00430@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, John, Alan,
-
-On Sun, 24 Jun 2001, Alan Cox wrote:
-
-> > 4: make bzImage && make modules && make modules install && cp
-> > arch/i386/boot/bzImage /boot/'uname -r' something inside make menuconfig
+On Sunday 24 June 2001 12:36, Rob Landley wrote:
+> On Saturday 23 June 2001 22:47, Eric W. Biederman wrote:
+> > GEM was a gui from Digital Research I believe.
+> > Geoworks/Geos was a seperate entity.
 >
-> So really you want an outside GUI tool that lets you reconfigure build and
-> install kernels. Yeah I'd agree with that. Someone just needs to write the
-> killer gnome/kde config tool. I've got C code for parsing/loading config.in
+> Ah, the DR-DOS answer to dosshell/windows.  Cool.  (I used Dr. Dos byt
+> never tried its gui.)
 
-	Buildkernel, at http://buildkernel.stearns.org .  It handles the
-entire build process, from finger to lilo.
-	Not a gui, alas, but certainly reduces the amount of effort
-involved.
-	Cheers,
-	- Bill
+GEM had its moment of glory when Xerox used it for the gui of Ventura 
+Publisher.
 
----------------------------------------------------------------------------
-	"She worked with a subdued intensity... She once told me that the
-only way to know when you have done something truly great is when your
-spine tingles."
-	- on Alice Kober, cryptanalist, in The Code Book, Simon Singh.
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
-
-
+--
+Daniel

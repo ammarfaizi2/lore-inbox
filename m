@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264666AbSKDMkA>; Mon, 4 Nov 2002 07:40:00 -0500
+	id <S264661AbSKDMfS>; Mon, 4 Nov 2002 07:35:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265225AbSKDMkA>; Mon, 4 Nov 2002 07:40:00 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:56975 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264666AbSKDMj7>; Mon, 4 Nov 2002 07:39:59 -0500
-Subject: Re: [lkcd-general] Re: What's left over.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: linux@horizon.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <15813.58257.283506.424581@wombat.chubb.wattle.id.au>
-References: <15813.58257.283506.424581@wombat.chubb.wattle.id.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Nov 2002 13:08:03 +0000
-Message-Id: <1036415283.1106.13.camel@irongate.swansea.linux.org.uk>
+	id <S264665AbSKDMfS>; Mon, 4 Nov 2002 07:35:18 -0500
+Received: from p508B7C3B.dip.t-dialin.net ([80.139.124.59]:32946 "EHLO
+	p508B7C3B.dip.t-dialin.net") by vger.kernel.org with ESMTP
+	id <S264661AbSKDMfR>; Mon, 4 Nov 2002 07:35:17 -0500
+Date: Mon, 4 Nov 2002 13:41:48 +0100
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, trivial@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: linux/bug.h and asm/bug.h
+Message-ID: <20021104134148.B19377@bacchus.dhis.org>
+References: <20021104022350.DB97A2C0C0@lists.samba.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021104022350.DB97A2C0C0@lists.samba.org>; from rusty@rustcorp.com.au on Mon, Nov 04, 2002 at 01:22:45PM +1100
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-04 at 03:03, Peter Chubb wrote:
-> >>>>> "linux" == linux  <linux@horizon.com> writes:
-> 
-> 
-> linux> While a crash dump to just half of one of those mirrors is
-> linux> fine, finding it might be a little bit tricky.  And the fact
-> linux> that the kernel reassembles the mirrors automatically on boot
-> linux> might make retrieving the data a little bit tricky, too.
-> 
-> What most other unices do is crash dump to a dedicated swap
-> partition.   LKCD appears to be able to do this.  So the setup of MD
-> etc., isn't going to affect anything.
+On Mon, Nov 04, 2002 at 01:22:45PM +1100, Rusty Russell wrote:
 
-I have raid1 swap. That does make a difference to the problem space.
-When we get into encrypted raid5 swap over nbd (the security paranoia
-dept - store all my swap crypted split into 4 disks in four
-jurisdictions...) it gets really fun.
+> As the number of bug-related macros grows, this makes sense.
+> 
+> 1) Introduce linux/bug.h and #include it from linux/kernel.h so noone
+>    breaks.
+> 2) Move BUG() macro from asm*/page.h to asm*/bug.h, and #include it.
 
-For the normal cases it doesn't seem a problem, even for raid0 swap
-since before crash time you can generate a list of device/blocknumber
-values and store it in the signed area
+Great, people were talking about the mess caused by this just last night.
+Just one request, move the BUG_ON definition into <asm/bug.h> also.  This
+permits the use of conditional trap instructions for those architecture
+that have them.
 
+  Ralf

@@ -1,74 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266218AbTAOKj3>; Wed, 15 Jan 2003 05:39:29 -0500
+	id <S266175AbTAOKhN>; Wed, 15 Jan 2003 05:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266224AbTAOKj3>; Wed, 15 Jan 2003 05:39:29 -0500
-Received: from pluvier.ens-lyon.fr ([140.77.167.5]:2006 "EHLO
-	mailhost.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id <S266218AbTAOKj2>; Wed, 15 Jan 2003 05:39:28 -0500
-Date: Wed, 15 Jan 2003 11:48:14 +0100
-From: Brice Goglin <bgoglin@ens-lyon.fr>
-To: linux-kernel@vger.kernel.org
-Cc: john stultz <johnstul@us.ibm.com>
-Subject: Dealing with 2.5.x subarch headers
-Message-ID: <20030115104814.GA4734@ens-lyon.fr>
-References: <20030109163208.GG30490@ens-lyon.fr> <1042139980.1050.182.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S266186AbTAOKhN>; Wed, 15 Jan 2003 05:37:13 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:468 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S266175AbTAOKhM>; Wed, 15 Jan 2003 05:37:12 -0500
+Date: Wed, 15 Jan 2003 23:43:58 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Mikael Pettersson <mikpe@csd.uu.se>, voytech@ucw.cz
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Dell Latitude CPi keyboard problems since 2.5.42
+Message-ID: <481480000.1042627438@localhost.localdomain>
+In-Reply-To: <15909.13901.284523.220804@harpo.it.uu.se>
+References: <15909.13901.284523.220804@harpo.it.uu.se>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1042139980.1050.182.camel@w-jstultz2.beaverton.ibm.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Possibly related:
 
-I am working on a module for 2.5.x. My module requires
-something like irq_vectors.h.
-Due do previous messages about this and John Stultz'
-subarch cleanup patch (merged in 2.5.53), I finally
-added "-Iinclude/asm/mach-default" to gcc options.
+Dell Inspiron 8000s won't warm reboot either.  They just freeze with a 
+blinking cursor at the point where the bootloader would ordinarily load. 
+Have to power off or reset.
 
-Talking to John about a way to find an easy solution
-for module developers to get the good -I options, he
-proposed to add something like this to the Makefile.
+Consistent in various versions from 2.5.44 to .55.  Have not tested 
+earlier, nor yet later.
 
-#Subarch selection
-mflags-$(CONFIG_X86_VOYAGER)    := -Iinclude/asm-i386/mach-voyager
-mflags-$(CONFIG_X86_VISWS)      := -Iinclude/asm-i386/mach-visws
-mflags-$(CONFIG_X86_NUMAQ)      := -Iinclude/asm-i386/mach-numaq
-# default subarch .h files
-mflags-y += -Iinclude/asm-i386/mach-default
-CFLAGS += $(mflags-y)
-AFLAGS += $(mflags-y)
+Andrew
 
-I was wondering if a easiest way could be found.
-Forcing module developers to add something like this looks
-to much complicated for me.
+--On Wednesday, January 15, 2003 11:22:05 +0100 Mikael Pettersson 
+<mikpe@csd.uu.se> wrote:
 
-The way the "asm" symbolic link hides kernel arch config
-looks pretty.
-Maybe we could hide subarch config with a symbolic link
-pointing to the good asm/mach-xyz.
+> Vojtech,
+>
+> On October 17, I wrote to LKML:
+>> Dell Latitude CPi laptop. Boot 2.5.42 or .43, then reboot.
+>> Shortly after the screen is blanked and the BIOS starts, it
+>> prints a "keyboard error" message and requests an F1 or F2
+>> response (continue or go into SETUP). Never happened with any
+>> other kernel on that machine.
+>
+> (see http://marc.theaimsgroup.com/?t=103484432100001&r=1&w=2
+> for the full thread)
+>
+> This problem is still present in 2.5.58. Any ideas what might
+> be causing it? I've tried a few obvious tweaks (forcing
+> atkbd_reset=1, making atkbd_cleanup() do nothing), but none
+> has helped.
+>
+> Kernel 2.5.41 and older, and current 2.4/2.2 kernels, don't
+> cause this problem, so obviously the input driver must be doing
+> _something_ the HW or BIOS doesn't like.
+>
+> I have CONFIG_{SERIO_I8042,KEYBOARD_ATKBD,INPUT_MOUSEDEV_PSAUX,
+> MOUSE_PS2,INPUT_PCSKR} enabled.
+>
+> /Mikael
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-But the current i386 subarch organization requires to include
-both the generic asm-i386/mach-default and a specific
-asm-i386/mach-xyz (voyager or ...).
 
-A solution could be to create a symbolic link "mach-specific"
-pointing the specific "mach-xyz" and then include both
-asm/mach-default and asm/mach-specific.
-(Yes, it would require a few updates in all other archs
-which do not have any subarch).
-
-Any simple idea ?
-Maybe the subarch organization needs some more cleanups ?
-
-Regards
-
-Brice Goglin
-==============================================
-Ph.D Student
-Laboratoire de l'Informatique du Parallélisme
-ENS Lyon - France

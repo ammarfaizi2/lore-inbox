@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275743AbRJQLsF>; Wed, 17 Oct 2001 07:48:05 -0400
+	id <S275734AbRJQMKG>; Wed, 17 Oct 2001 08:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275750AbRJQLrq>; Wed, 17 Oct 2001 07:47:46 -0400
-Received: from apexmail.kih.net ([209.209.190.216]:2291 "EHLO apexmail.kih.net")
-	by vger.kernel.org with ESMTP id <S275743AbRJQLrj>;
-	Wed, 17 Oct 2001 07:47:39 -0400
-Date: Wed, 17 Oct 2001 06:45:11 -0500 (CDT)
-From: grouch <grouch@apex.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: VIA chipset
-Message-ID: <Pine.LNX.4.30.0110151840000.13866-100000@paq.edgers.org>
+	id <S275758AbRJQMJ5>; Wed, 17 Oct 2001 08:09:57 -0400
+Received: from zero.aec.at ([195.3.98.22]:42766 "HELO zero.aec.at")
+	by vger.kernel.org with SMTP id <S275734AbRJQMJk>;
+	Wed, 17 Oct 2001 08:09:40 -0400
+To: Katsuyuki Yumoto <yumoto@jpn.hp.com>
+cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: New virtual ethernet driver submitting...
+In-Reply-To: <200110170417.f9H4H9g23739@hpujffg8.jpn.hp.com>
+From: Andi Kleen <ak@muc.de>
+Date: 17 Oct 2001 14:10:11 +0200
+In-Reply-To: Katsuyuki Yumoto's message of "Wed, 17 Oct 2001 13:17:09 +0900"
+Message-ID: <k2k7xuii1o.fsf@zero.aec.at>
+User-Agent: Gnus/5.0700000000000003 (Pterodactyl Gnus v0.83) Emacs/20.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First, my apologies to the list subscribers and to the person responding
-privately to my questions. I assumed that person was posting to the list
-and CC'ing replies to me, since I am not subscribed to the list. My
-replies were CC'ed to the list because of that. The assumption was
-wrong and the result is that I was rudely posting my half of a private
-conversation to this public mailing list. Sorry.
+In article <200110170417.f9H4H9g23739@hpujffg8.jpn.hp.com>,
+Katsuyuki Yumoto <yumoto@jpn.hp.com> writes:
+>>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-Second, the system lockups appear to be cured! It appears to be a
-problem with using Ultra ATA/100 drives on an Award BIOS + VIA chipset
-motherboard that only supports up to Ultra ATA/33 drives. Note that even
-the tests I ran with the BIOS set to disable UDMA and the kernel
-configured to not use UDMA resulted in system hangs.
+>> From: Katsuyuki Yumoto <yumoto@jpn.hp.com>
+>> Date: Wed, 17 Oct 2001 11:47:07 +0900
+   
+>> I've already written new two drivers of virtual ethernet. These
+>> aggregate(bundle) plural physical or virtual ethernet devices to
+>> single.
 
-First clue came from a single line about (of all things, Windows 95) on
-page 51 of this document from IBM: djna-dpta-dtla_digw.pdf . It warns of
-system hangs when a UDMA 100 or UDMA 66 drive is used on some UDMA 33 or
-lower motherboards.
+>> How is this different to, or more beneficial than, what
+>> drivers/net/bonding.c is doing?
 
-Using the IBM Drive Feature Tool at
-http://service.boulder.ibm.com/storage/hddtech/ibmftool-install-img.bin
-I set the IBM-DTLA-305040 drive to report and use UDMA 33. This utility
-http://www.wdc.com/service/ftp/dlgtools/dlgmaker.exe was used to do the
-same for a WDC AC26400R drive.
+> Yes. I think what to want to do is same between bonding.c and veth
+> (link aggregation).  But veth has link aggretation maintenance
+> functionality(LACP) and TCP/UDP port number based distributing
+> algorithm. Of course, such things are optional features...
 
-I've only tested it for a night, shuffling a few G's of data around, but
-much less was needed to lock the system under 2.4.x before. I have no
-clue why it never locked using the default Debian 2.2.18pre21 kernel,
-why it locked quickly with any 2.4.x kernel, why it locked only
-occasionally with a 2.2.x kernel with ext3, nor why it appears stable
-now.
+This is the fifth link bundling implementation for linux now
+(TEQL, bonding, EQL, multipath routing are all in tree and do similar things)
 
-Maybe this will save someone else some frustration. Then again, maybe
-it's a fluke caused by the phase of the moon when the mobo was made.
+TEQL, EQL do not know about streams, so they're not too useful. There
+are some patches for the bonding device to add probalistic stream balancing,
+which will likely make it equivalent to your code.
 
-Terry Vessels
+I personally prefer the fourth because it is the cleanest and most flexible.
+
+> On the other hand, purpose of lr(link redundancy) is different of
+> yours and veth. It's a new link redundant technology rather than
+> aggregation.
+
+> By the way, it seems that your code don't have incoming packet handler
+> code, right? My drivers contains packet handler for incoming
+> packets. If your incoming packet handling method is better than mine,
+> I'd like to follow it. (I'm not sure its method yet.)
+
+multipath routing supports load balancing for incoming connections using
+the arp filter. Basically it'll filter arp responses based on the outgoing
+filter and this leads to an automatic distribution of incoming traffic.
+
+It distributes routes (IP<->IP,TOS) pairs, not L3 streams however; but that
+seems to be sufficient for most usages. It's also very easy to do 802.3ad on 
+top of it.
+
+If you wanted to do it for streams I think it would be better to use
+the existing infrastructure for it -- this is netfilter connection
+tracking -- and make it generate multiple routes.
+It also provides failover BTW with some support from user space (e.g. an
+OSPF daemon) 
+
+-Andi
 

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264948AbSJPHZ0>; Wed, 16 Oct 2002 03:25:26 -0400
+	id <S264946AbSJPH0N>; Wed, 16 Oct 2002 03:26:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264949AbSJPHZ0>; Wed, 16 Oct 2002 03:25:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:63661 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264948AbSJPHZ0>;
-	Wed, 16 Oct 2002 03:25:26 -0400
-Date: Wed, 16 Oct 2002 00:24:08 -0700 (PDT)
-Message-Id: <20021016.002408.78874810.davem@redhat.com>
-To: jw@pegasys.ws
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021016072345.GE7844@pegasys.ws>
-References: <20021015165947.50642.qmail@web13801.mail.yahoo.com>
-	<aoi6bb$309$1@cesium.transmeta.com>
-	<20021016072345.GE7844@pegasys.ws>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S264949AbSJPH0N>; Wed, 16 Oct 2002 03:26:13 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:20133 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S264946AbSJPH0L>;
+	Wed, 16 Oct 2002 03:26:11 -0400
+Date: Wed, 16 Oct 2002 09:31:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.43
+Message-ID: <20021016073154.GF4827@suse.de>
+References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: jw schultz <jw@pegasys.ws>
-   Date: Wed, 16 Oct 2002 00:23:45 -0700
-   
-   i distinctly remember the working
-   with the newest R400x in 1993 which was still 32bit.
+On Tue, Oct 15 2002, Linus Torvalds wrote:
+> 
+> A huge merging frenzy for the feature freeze, although I also spent a few
+> days getting rid of the need for ide-scsi.c and the SCSI layer to burn
+> CD-ROM's with the IDE driver (it still needs an update to cdrecord, I sent 
+> those off to the maintainer).
 
-You remember wrong, R400x can run happily in either 32-bit or 64-bit
-mode.
+I put cdrecord rpms up here:
+
+*.kernel.org/pub/linux/kernel/people/axboe/tools
+
+The binary rpms are built on SuSE 8.1, there's a source rpm there too
+though. This is 1.11a37 with Linus patch that allows you do to
+
+	cdrecord -dev=/dev/hdc -data -....
+
+and burn without die-scsi.
+
+-- 
+Jens Axboe
+

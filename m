@@ -1,84 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131025AbRCTWH4>; Tue, 20 Mar 2001 17:07:56 -0500
+	id <S131028AbRCTWKq>; Tue, 20 Mar 2001 17:10:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131028AbRCTWHr>; Tue, 20 Mar 2001 17:07:47 -0500
-Received: from nrg.org ([216.101.165.106]:5224 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S131025AbRCTWHb>;
-	Tue, 20 Mar 2001 17:07:31 -0500
-Date: Tue, 20 Mar 2001 14:06:46 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Roger Larsson <roger.larsson@norran.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <01032019253200.01487@jeloin>
-Message-ID: <Pine.LNX.4.05.10103201333590.26772-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131056AbRCTWKg>; Tue, 20 Mar 2001 17:10:36 -0500
+Received: from logger.gamma.ru ([194.186.254.23]:21004 "EHLO logger.gamma.ru")
+	by vger.kernel.org with ESMTP id <S131028AbRCTWKa>;
+	Tue, 20 Mar 2001 17:10:30 -0500
+To: linux-kernel@vger.kernel.org
+Path: pccross!not-for-mail
+From: crosser@average.org (Eugene Crosser)
+Newsgroups: linux.kernel
+Subject: [2.4.2] APM unwanted wakeup from standby (kreiserfsd?)
+Date: 21 Mar 2001 00:45:22 +0300
+Organization: Average
+Message-ID: <998j1i$hs5$1@pccross.average.org>
+Mime-Version: 1.0
+X-Newsreader: knews 0.9.8
+Content-Type: text/plain; charset=koi8-r
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Mar 2001, Roger Larsson wrote:
-> One little readability thing I found.
-> The prev->state TASK_ value is mostly used as a plain value
-> but the new TASK_PREEMPTED is or:ed together with whatever was there.
-> Later when we switch to check the state it is checked against TASK_PREEMPTED
-> only. Since TASK_RUNNING is 0 it works OK but...
+Gentlemen,
 
-Yes, you're right.  I had forgotten that TASK_RUNNING is 0 and I think I
-was assuming that there could be (rare) cases where a task was preempted
-while prev->state was in transition such that no other flags were set.
-This is, of course, impossible given that TASK_RUNNING is 0.  So your
-change makes the common case more obvious (to me, at least!)
+this might be somewhat offtopic but I could not find answers on the Net
+and "official" APM page seems dramatically out of date...
 
-> --- sched.c.nigel       Tue Mar 20 18:52:43 2001
-> +++ sched.c.roger       Tue Mar 20 19:03:28 2001
-> @@ -553,7 +553,7 @@
->  #endif
->                         del_from_runqueue(prev);
->  #ifdef CONFIG_PREEMPT
-> -               case TASK_PREEMPTED:
-> +               case TASK_RUNNING | TASK_PREEMPTED:
->  #endif
->                 case TASK_RUNNING:
->         }
-> 
-> 
-> We could add all/(other common) combinations as cases 
-> 
-> 	switch (prev->state) {
-> 		case TASK_INTERRUPTIBLE:
-> 			if (signal_pending(prev)) {
-> 				prev->state = TASK_RUNNING;
-> 				break;
-> 			}
-> 		default:
-> #ifdef CONFIG_PREEMPT
-> 			if (prev->state & TASK_PREEMPTED)
-> 				break;
-> #endif
-> 			del_from_runqueue(prev);
-> #ifdef CONFIG_PREEMPT
-> 		case TASK_RUNNING		| TASK_PREEMPTED:
-> 		case TASK_INTERRUPTIBLE	| TASK_PREEMPTED:
-> 		case TASK_UNINTERRUPTIBLE	| TASK_PREEMPTED:
-> #endif
-> 		case TASK_RUNNING:
-> 	}
-> 
-> 
-> Then the break in default case could almost be replaced with a BUG()...
-> (I have not checked the generated code)
+I recently bought Casio Fiva mini notebook that has APM BIOS 1.2,
+Linux APM support partly works.  "Hibernate" does not work at all,
+but let it be.  "Standby" ("apm -S") puts the box in standby mode
+but after 10..30 seconds it inevitably awakes with a message like
+"Normal resume from standby".  This happens even if there are no
+processes that would initiate disk/screen/whatever activity (single
+user mode).
 
-The other cases are not very common, as they only happen if a task is
-preempted during the short time that it is running while in the process
-of changing state while going to sleep or waking up, so the default case
-is probably OK for them; and I'd be happier to leave the default case
-for reliability reasons anyway.
+My suspect is kreiserfsd.  If I am right, could it be modified to
+honor standby mode and stop disk access?  If I am wrong, does
+anyone have suggestions/advice/ideas how to make standby mode work?
+(advice on making hibernate work is also welcome)
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
-MontaVista Software                             nigel@mvista.com
-
+Eugene

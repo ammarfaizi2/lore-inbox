@@ -1,77 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVCCJxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVCCJ5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbVCCJxj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 04:53:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVCCJxi
+	id S262075AbVCCJ5g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 04:57:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVCCJ5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 04:53:38 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37813 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261862AbVCCJvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 04:51:25 -0500
-Subject: Re: RFD: Kernel release numbering
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@davemloft.net>,
-       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050303094240.GC9796@ip68-4-98-123.oc.oc.cox.net>
-References: <42265A6F.8030609@pobox.com>
-	 <20050302165830.0a74b85c.davem@davemloft.net> <422674A4.9080209@pobox.com>
-	 <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
-	 <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
-	 <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
-	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
-	 <20050303094240.GC9796@ip68-4-98-123.oc.oc.cox.net>
-Content-Type: text/plain
-Date: Thu, 03 Mar 2005 10:51:13 +0100
-Message-Id: <1109843474.6298.91.camel@laptopd505.fenrus.org>
+	Thu, 3 Mar 2005 04:57:36 -0500
+Received: from router.activetools.si ([213.250.28.33]:60823 "EHLO vafel.at.lan")
+	by vger.kernel.org with ESMTP id S262075AbVCCJ5K convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 04:57:10 -0500
+Subject: [PATCH] trivial fix for 2.6.11, initializing a few spin locks
+From: Jaka =?iso-8859-2?Q?Mo=E8nik?= <jaka@activetools.si>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 03 Mar 2005 10:57:05 +0100
+Message-Id: <1109843825.29455.17.camel@x.at.lan>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-03 at 01:42 -0800, Barry K. Nathan wrote:
-> On Thu, Mar 03, 2005 at 02:52:21AM -0500, Jeff Garzik wrote:
-> > even/odd means that certain releases (even ones) are more magical than 
-> > others.  That's weird, since users aren't used to that sort of thing in 
->                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > any other project.
-> 
-> Actually, we are:
-> 
-> Red Hat Linux 7.2:            not magical
-> Red Hat Enterprise Linux 2.1:     magical
-> Red Hat Linux 7.3:            not magical
-> Red Hat Linux 8.0:            not magical
-> Red Hat Linux 9:              not magical
-> Red Hat Enterprise Linux 3.0:     magical
-> Fedora Core 1:                not magical
-> Fedora Core 2:                not magical
-> Fedora Core 3:                not magical
-> Red Hat Enterprise Linux 4.0:     magical
-> Fedora Core 4:                not magical
-> ...
-> 
-> Sure, Red Hat changes the name as well as the version number whenever they
-> make a magical release, but it's really the same concept.
+this patch for 2.6.11 simply initializes a few spin locks that are being
+reported as accessed prior to initalization on an embedded ppc system.
 
-it's actually not. Red Hat Enterprise Linux is magical in that you get
-actual support for it (in various degrees, depending on for what level
-you want to pay). That is what sets it appart, not the actual bits.
+--- cut here ---
+--- linux-2.6.11/drivers/serial/cpm_uart/cpm_uart_core.c	2004-12-24 22:35:27.000000000 +0100
++++ linux-2.6.11-sgn/drivers/serial/cpm_uart/cpm_uart_core.c	2005-03-03 10:08:02.000000000 +0100
+@@ -864,11 +864,12 @@
+ 			.irq		= SMC1_IRQ,
+ 			.ops		= &cpm_uart_pops,
+ 			.iotype		= SERIAL_IO_MEM,
++			.lock		= SPIN_LOCK_UNLOCKED,
+ 		},
+ 		.flags = FLAG_SMC,
+ 		.tx_nrfifos = TX_NUM_FIFO,
+ 		.tx_fifosize = TX_BUF_SIZE,
+-		.rx_nrfifos = RX_NUM_FIFO, 
++		.rx_nrfifos = RX_NUM_FIFO,
+ 		.rx_fifosize = RX_BUF_SIZE,
+ 		.set_lineif = smc1_lineif,
+ 	},
+@@ -877,11 +878,12 @@
+ 			.irq		= SMC2_IRQ,
+ 			.ops		= &cpm_uart_pops,
+ 			.iotype		= SERIAL_IO_MEM,
++			.lock		= SPIN_LOCK_UNLOCKED,
+ 		},
+ 		.flags = FLAG_SMC,
+ 		.tx_nrfifos = TX_NUM_FIFO,
+ 		.tx_fifosize = TX_BUF_SIZE,
+-		.rx_nrfifos = RX_NUM_FIFO, 
++		.rx_nrfifos = RX_NUM_FIFO,
+ 		.rx_fifosize = RX_BUF_SIZE,
+ 		.set_lineif = smc2_lineif,
+ #ifdef CONFIG_SERIAL_CPM_ALT_SMC2
+@@ -893,10 +895,11 @@
+ 			.irq		= SCC1_IRQ,
+ 			.ops		= &cpm_uart_pops,
+ 			.iotype		= SERIAL_IO_MEM,
++			.lock		= SPIN_LOCK_UNLOCKED,
+ 		},
+ 		.tx_nrfifos = TX_NUM_FIFO,
+ 		.tx_fifosize = TX_BUF_SIZE,
+-		.rx_nrfifos = RX_NUM_FIFO, 
++		.rx_nrfifos = RX_NUM_FIFO,
+ 		.rx_fifosize = RX_BUF_SIZE,
+ 		.set_lineif = scc1_lineif,
+ 	},
+@@ -905,10 +908,11 @@
+ 			.irq		= SCC2_IRQ,
+ 			.ops		= &cpm_uart_pops,
+ 			.iotype		= SERIAL_IO_MEM,
++			.lock		= SPIN_LOCK_UNLOCKED,
+ 		},
+ 		.tx_nrfifos = TX_NUM_FIFO,
+ 		.tx_fifosize = TX_BUF_SIZE,
+-		.rx_nrfifos = RX_NUM_FIFO, 
++		.rx_nrfifos = RX_NUM_FIFO,
+ 		.rx_fifosize = RX_BUF_SIZE,
+ 		.set_lineif = scc2_lineif,
+ 	},
+@@ -917,10 +921,11 @@
+ 			.irq		= SCC3_IRQ,
+ 			.ops		= &cpm_uart_pops,
+ 			.iotype		= SERIAL_IO_MEM,
++			.lock		= SPIN_LOCK_UNLOCKED,
+ 		},
+ 		.tx_nrfifos = TX_NUM_FIFO,
+ 		.tx_fifosize = TX_BUF_SIZE,
+-		.rx_nrfifos = RX_NUM_FIFO, 
++		.rx_nrfifos = RX_NUM_FIFO,
+ 		.rx_fifosize = RX_BUF_SIZE,
+ 		.set_lineif = scc3_lineif,
+ 	},
+@@ -929,10 +934,11 @@
+ 			.irq		= SCC4_IRQ,
+ 			.ops		= &cpm_uart_pops,
+ 			.iotype		= SERIAL_IO_MEM,
++			.lock		= SPIN_LOCK_UNLOCKED,
+ 		},
+ 		.tx_nrfifos = TX_NUM_FIFO,
+ 		.tx_fifosize = TX_BUF_SIZE,
+-		.rx_nrfifos = RX_NUM_FIFO, 
++		.rx_nrfifos = RX_NUM_FIFO,
+ 		.rx_fifosize = RX_BUF_SIZE,
+ 		.set_lineif = scc4_lineif,
+ 	},
+--- linux-2.6.11/drivers/net/gianfar.c	2005-03-03 10:36:51.000000000 +0100
++++ linux-2.6.11-sgn/drivers/net/gianfar.c	2005-03-03 10:36:38.822996013 +0100
+@@ -377,6 +377,8 @@
+ 			ADVERTISED_1000baseT_Full);
+ 	mii_info->autoneg = 1;
+ 
++	spin_lock_init(&mii_info->mdio_lock);
++
+ 	mii_info->mii_id = priv->einfo->phyid;
+ 
+ 	mii_info->dev = dev;
+--- cut here ---
 
+Signed-off-by: Jaka Močnik <jaka@activetools.si>
+
+regards,
+	jaKa
+
+-- 
+
+w3: http://fish.homeunix.org/people/jaka
+email: jaka@activetools.si
 

@@ -1,87 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbULAX6C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbULAX6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbULAX6C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 18:58:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbULAXzu
+	id S261531AbULAX6E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 18:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbULAXzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 18:55:50 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:48288 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261509AbULAXob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 18:44:31 -0500
-Date: Wed, 1 Dec 2004 15:44:26 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: page fault scalability patch V12 [5/7]: atomic pte operations for
- x86_64
-In-Reply-To: <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0412011543580.5721@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
- <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Dec 2004 18:55:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7321 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261515AbULAXwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 18:52:06 -0500
+Date: Wed, 1 Dec 2004 15:51:59 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, maneesh@in.ibm.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Delete sysfs_dirent.s_count, saving ~100kB on my system
+Message-ID: <20041201155159.N14339@build.pdx.osdl.net>
+References: <200412011856.iB1IuAc21682@adam.yggdrasil.com> <20041201130703.79a3f3b5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041201130703.79a3f3b5.akpm@osdl.org>; from akpm@osdl.org on Wed, Dec 01, 2004 at 01:07:03PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-        * Provide atomic pte operations for x86_64
+* Andrew Morton (akpm@osdl.org) wrote:
+> That's all well and good, but sysfs_new_dirent() should be using a
+> standalone slab cache for allocating sysfs_dirent instances.  That way, we
+> use 36 bytes for each one rather than 64.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Reasonable, here's a patch (lightly tested).  Without, size-64 looks
+like so:
 
-Index: linux-2.6.9/include/asm-x86_64/pgalloc.h
-===================================================================
---- linux-2.6.9.orig/include/asm-x86_64/pgalloc.h	2004-10-18 14:54:30.000000000 -0700
-+++ linux-2.6.9/include/asm-x86_64/pgalloc.h	2004-11-23 10:59:01.000000000 -0800
-@@ -7,16 +7,26 @@
- #include <linux/threads.h>
- #include <linux/mm.h>
+size-64             4064   4108     76   52    1 : tunables   32   16 8 : slabdata     79     79      0 : globalstat    4263   4079    79    0 0    0   84    0 : cpustat  15986    337  12286      3
 
-+#define PMD_NONE 0
-+#define PGD_NONE 0
-+
- #define pmd_populate_kernel(mm, pmd, pte) \
- 		set_pmd(pmd, __pmd(_PAGE_TABLE | __pa(pte)))
- #define pgd_populate(mm, pgd, pmd) \
- 		set_pgd(pgd, __pgd(_PAGE_TABLE | __pa(pmd)))
-+#define pgd_test_and_populate(mm, pgd, pmd) \
-+		(cmpxchg((int *)pgd, PGD_NONE, _PAGE_TABLE | __pa(pmd)) == PGD_NONE)
+And with:
 
- static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
+size-64             1196   1196     76   52    1 : tunables   32   16 8 : slabdata     23     23      0 : globalstat    1297   1196    23    0 0    0   84    0 : cpustat  12418    108  11349      1
+sysfs_dir_cache     2862   2916     48   81    1 : tunables   32   16 8 : slabdata     36     36      0 : globalstat    2931   2874    36    0 0    0  113    0 : cpustat   2756    216    110      0
+
+
+Allocate sysfs_dirent structures from their own slab.
+
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+
+===== fs/sysfs/dir.c 1.31 vs edited =====
+--- 1.31/fs/sysfs/dir.c	2004-11-17 16:00:00 -08:00
++++ edited/fs/sysfs/dir.c	2004-12-01 13:29:11 -08:00
+@@ -36,7 +36,7 @@
  {
- 	set_pmd(pmd, __pmd(_PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)));
+ 	struct sysfs_dirent * sd;
+ 
+-	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
++	sd = kmem_cache_alloc(sysfs_dir_cachep, GFP_KERNEL);
+ 	if (!sd)
+ 		return NULL;
+ 
+===== fs/sysfs/sysfs.h 1.14 vs edited =====
+--- 1.14/fs/sysfs/sysfs.h	2004-10-30 06:15:11 -07:00
++++ edited/fs/sysfs/sysfs.h	2004-12-01 13:58:42 -08:00
+@@ -1,5 +1,6 @@
+ 
+ extern struct vfsmount * sysfs_mount;
++extern kmem_cache_t *sysfs_dir_cachep;
+ 
+ extern struct inode * sysfs_new_inode(mode_t mode);
+ extern int sysfs_create(struct dentry *, int mode, int (*init)(struct inode *));
+@@ -74,7 +75,7 @@
+ 		kobject_put(sl->target_kobj);
+ 		kfree(sl);
+ 	}
+-	kfree(sd);
++	kmem_cache_free(sysfs_dir_cachep, sd);
  }
-
-+static inline int pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
-+{
-+	return cmpxchg((int *)pmd, PMD_NONE, _PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)) == PMD_NONE;
-+}
-+
- extern __inline__ pmd_t *get_pmd(void)
+ 
+ static inline struct sysfs_dirent * sysfs_get(struct sysfs_dirent * sd)
+===== fs/sysfs/mount.c 1.11 vs edited =====
+--- 1.11/fs/sysfs/mount.c	2004-10-30 06:10:49 -07:00
++++ edited/fs/sysfs/mount.c	2004-12-01 14:43:44 -08:00
+@@ -16,6 +16,7 @@
+ 
+ struct vfsmount *sysfs_mount;
+ struct super_block * sysfs_sb = NULL;
++kmem_cache_t *sysfs_dir_cachep;
+ 
+ static struct super_operations sysfs_ops = {
+ 	.statfs		= simple_statfs,
+@@ -76,7 +77,13 @@
+ 
+ int __init sysfs_init(void)
  {
- 	return (pmd_t *)get_zeroed_page(GFP_KERNEL);
-Index: linux-2.6.9/include/asm-x86_64/pgtable.h
-===================================================================
---- linux-2.6.9.orig/include/asm-x86_64/pgtable.h	2004-11-22 15:08:43.000000000 -0800
-+++ linux-2.6.9/include/asm-x86_64/pgtable.h	2004-11-23 10:59:01.000000000 -0800
-@@ -437,6 +437,10 @@
- #define	kc_offset_to_vaddr(o) \
-    (((o) & (1UL << (__VIRTUAL_MASK_SHIFT-1))) ? ((o) | (~__VIRTUAL_MASK)) : (o))
-
+-	int err;
++	int err = -ENOMEM;
 +
-+#define ptep_cmpxchg(__vma,__addr,__xp,__oldval,__newval) (cmpxchg(&(__xp)->pte, pte_val(__oldval), pte_val(__newval)) == pte_val(__oldval))
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
-+
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
- #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
-
-
++	sysfs_dir_cachep = kmem_cache_create("sysfs_dir_cache",
++					      sizeof(struct sysfs_dirent),
++					      0, 0, NULL, NULL);
++	if (!sysfs_dir_cachep)
++		goto out;
+ 
+ 	err = register_filesystem(&sysfs_fs_type);
+ 	if (!err) {
+@@ -85,7 +92,13 @@
+ 			printk(KERN_ERR "sysfs: could not mount!\n");
+ 			err = PTR_ERR(sysfs_mount);
+ 			sysfs_mount = NULL;
++			goto out_err;
+ 		}
+-	}
++	} else
++		goto out_err;
++out:
+ 	return err;
++out_err:
++	kmem_cache_destroy(sysfs_dir_cachep);
++	goto out;
+ }

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132684AbRC2IO3>; Thu, 29 Mar 2001 03:14:29 -0500
+	id <S132683AbRC2IFT>; Thu, 29 Mar 2001 03:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132689AbRC2IOT>; Thu, 29 Mar 2001 03:14:19 -0500
-Received: from bart.one-2-one.net ([195.94.80.12]:40712 "EHLO
+	id <S132684AbRC2IFA>; Thu, 29 Mar 2001 03:05:00 -0500
+Received: from bart.one-2-one.net ([195.94.80.12]:34054 "EHLO
 	bart.one-2-one.net") by vger.kernel.org with ESMTP
-	id <S132684AbRC2IOE>; Thu, 29 Mar 2001 03:14:04 -0500
-Date: Thu, 29 Mar 2001 10:14:53 +0200 (CEST)
+	id <S132683AbRC2IEt>; Thu, 29 Mar 2001 03:04:49 -0500
+Date: Thu, 29 Mar 2001 10:04:28 +0200 (CEST)
 From: Martin Diehl <home@mdiehl.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.2-ac27
 In-Reply-To: <E14iKvx-0006Eq-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0103291013140.7191-100000@notebook.diehl.home>
+Message-ID: <Pine.LNX.4.21.0103290059580.7191-100000@notebook.diehl.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,10 +34,10 @@ the lack of valid f_op->mmap (because the test was moved behind the len==0
 check). The point is sed(1) first tries to mmap(2) the file and falls back
 to read(2) in case of -ENODEV (and probably other errors too). This is
 important for /proc since most files there are stat'ed size=0 but return
-stuff when reading. Not getting error for mmap len=0 file makes sed assume
-EOF. Anyway, reverting it was not addressed to cases where f_op->mmap is
-valid but request is to mmap len=0 - we still return the startaddr 
-parameter in that case:
+stuff when reading. Not getting error for mmap len=0 file makes sed behave
+like at EOF. Anyway, reverting it was not addressed to cases where
+f_op->mmap is valid but request is to mmap len=0 - we still return the 
+startaddr parameter in that case:
 
 $ touch nullfile
 $ strace sed 's/./X/' nullfile

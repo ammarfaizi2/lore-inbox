@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135659AbREBR3E>; Wed, 2 May 2001 13:29:04 -0400
+	id <S135672AbREBRhG>; Wed, 2 May 2001 13:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135670AbREBR2y>; Wed, 2 May 2001 13:28:54 -0400
-Received: from chicago.cheek.com ([64.16.171.55]:12810 "EHLO chicago.cheek.com")
-	by vger.kernel.org with ESMTP id <S135659AbREBR2w>;
-	Wed, 2 May 2001 13:28:52 -0400
-Message-ID: <3AF0438E.2090709@cheek.com>
-Date: Wed, 02 May 2001 10:27:42 -0700
-From: Joseph Cheek <joseph@cheek.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; 0.8.1) Gecko/20010403
-X-Accept-Language: en
+	id <S135673AbREBRgz>; Wed, 2 May 2001 13:36:55 -0400
+Received: from anime.net ([63.172.78.150]:38663 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S135672AbREBRgl>;
+	Wed, 2 May 2001 13:36:41 -0400
+Date: Wed, 2 May 2001 10:36:27 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Seth Goldberg <bergsoft@home.com>
+cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: DISCOVERED! Cause of Athlon/VIA KX133 Instability
+In-Reply-To: <3AEF6F71.A75D478F@home.com>
+Message-ID: <Pine.LNX.4.30.0105021035580.18489-100000@anime.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: bug: can't mount -o loop or -t nfs in 2.4.4, 2.4.4-ac2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.4-pre7 worked fine.
+On Tue, 1 May 2001, Seth Goldberg wrote:
+> > >   The other thing i was gunna try is to dump my chipset registers using
+> > > WPCREDIT and WPCRSET and compare them with other people on this list
+> > why resort to silly windows tools, when lspci under Linux does it for you?
+>   Because lspci does not display all 256 bytes of pci configuration
+> information.
 
-situation:
+Say what?
 
-mounting a remote nfs share or a loopback local filesystems doesn't 
-work.  it doesn't crash the system, the userspace process just hangs on 
-the mount() call.
+Try lspci -vvxxx
 
-all of these hang:
-
-# mount -o loop /my/ext2/image /mnt/ext2
-# mount -o loop /my/fat16/image /mnt/fat16
-# mount -o loop /my/iso9660/image /mnt/iso
-# mount other.system:/export /import
-
-mounting local drives works fine, as long as it isn't nfs - i can mount 
-my ext2 and vfat drives, but not a local export on the same local machine.
-
-i can give strace output if desired.  please help!
-
-thanks!
-
-joe
+-Dan
 

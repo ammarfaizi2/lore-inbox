@@ -1,137 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265050AbTIDOb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 10:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbTIDObZ
+	id S265033AbTIDOWl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 10:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265034AbTIDOWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 10:31:25 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:46135 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S265050AbTIDOa3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 10:30:29 -0400
-Subject: [PATCH] synclinkmp.c 2.4.23-pre3
-From: Paul Fulghum <paulkf@microgate.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062685785.2181.5.camel@diemos>
+	Thu, 4 Sep 2003 10:22:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:27566 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265033AbTIDOVw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 10:21:52 -0400
+Date: Thu, 4 Sep 2003 07:12:11 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: paulus@samba.org, rmk@arm.linux.org.uk, hch@lst.de, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix ppc ioremap prototype
+Message-Id: <20030904071211.24d4fa58.davem@redhat.com>
+In-Reply-To: <20030904071535.A22822@home.com>
+References: <20030903203231.GA8772@lst.de>
+	<16214.34933.827653.37614@nanango.paulus.ozlabs.org>
+	<20030904071334.GA14426@lst.de>
+	<20030904083007.B2473@flint.arm.linux.org.uk>
+	<16215.1054.262782.866063@nanango.paulus.ozlabs.org>
+	<20030904023624.592f1601.davem@redhat.com>
+	<20030904104801.A7387@flint.arm.linux.org.uk>
+	<16215.14133.352143.660688@nanango.paulus.ozlabs.org>
+	<20030904060139.5ef43d71.davem@redhat.com>
+	<20030904071535.A22822@home.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Sep 2003 09:29:45 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* fix arbitration between net open and tty open
-* add MODULE_LICENSE() macro
-* use time_after() macro
+On Thu, 4 Sep 2003 07:15:35 -0700
+Matt Porter <mporter@kernel.crashing.org> wrote:
 
-Please apply
+> The global space method doesn't allow for proper resource management
+> in systems with a small floating physical address window but a huge
+> bus address space to be accessed.  MPC8245's DAC scheme is a good
+> example of this as well as numerous Xscale PCI implementations.
+> Paul's suggestion would allow the removal of lots of ugly hacks.
 
--- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
---- linux-2.4.23-pre3/drivers/char/synclinkmp.c	2002-11-28 17:53:12.000000000 -0600
-+++ linux-2.4.23-pre3-mg/drivers/char/synclinkmp.c	2003-06-19 08:27:19.000000000 -0500
-@@ -1,5 +1,5 @@
- /*
-- * $Id: synclinkmp.c,v 3.17 2002/04/22 16:05:39 paulkf Exp $
-+ * $Id: synclinkmp.c,v 3.21 2003/06/18 21:02:26 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink Multiport
-  * high speed multiprotocol serial adapter.
-@@ -504,7 +504,7 @@
- MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICES) "i");
- 
- static char *driver_name = "SyncLink MultiPort driver";
--static char *driver_version = "$Revision: 3.17 $";
-+static char *driver_version = "$Revision: 3.21 $";
- 
- static int __devinit synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
- static void __devexit synclinkmp_remove_one(struct pci_dev *dev);
-@@ -515,6 +515,10 @@
- };
- MODULE_DEVICE_TABLE(pci, synclinkmp_pci_tbl);
- 
-+#ifdef MODULE_LICENSE
-+MODULE_LICENSE("GPL");
-+#endif
-+
- static struct pci_driver synclinkmp_pci_driver = {
- 	name:		"synclinkmp",
- 	id_table:	synclinkmp_pci_tbl,
-@@ -748,12 +752,8 @@
- 	info = synclinkmp_device_list;
- 	while(info && info->line != line)
- 		info = info->next_device;
--	if ( !info ){
--		printk("%s(%d):%s Can't find specified device on open (line=%d)\n",
--			__FILE__,__LINE__,info->device_name,line);
-+	if (sanity_check(info, tty->device, "open"))
- 		return -ENODEV;
--	}
--
- 	if ( info->init_error ) {
- 		printk("%s(%d):%s device is not allocated, init error=%d\n",
- 			__FILE__,__LINE__,info->device_name,info->init_error);
-@@ -762,8 +762,6 @@
- 
- 	tty->driver_data = info;
- 	info->tty = tty;
--	if (sanity_check(info, tty->device, "open"))
--		return -ENODEV;
- 
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("%s(%d):%s open(), old ref count = %d\n",
-@@ -825,6 +823,8 @@
- 
- cleanup:
- 	if (retval) {
-+		if (tty->count == 1)
-+			info->tty = 0; /* tty layer will release tty struct */
- 		if(MOD_IN_USE)
- 			MOD_DEC_USE_COUNT;
- 		if(info->count)
-@@ -841,14 +841,17 @@
- {
- 	SLMP_INFO * info = (SLMP_INFO *)tty->driver_data;
- 
--	if (!info || sanity_check(info, tty->device, "close"))
-+	if (sanity_check(info, tty->device, "close"))
- 		return;
- 
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("%s(%d):%s close() entry, count=%d\n",
- 			 __FILE__,__LINE__, info->device_name, info->count);
- 
--	if (!info->count || tty_hung_up_p(filp))
-+	if (!info->count)
-+		return;
-+
-+	if (tty_hung_up_p(filp))
- 		goto cleanup;
- 
- 	if ((tty->count == 1) && (info->count != 1)) {
-@@ -1203,7 +1206,7 @@
- 			schedule_timeout(char_time);
- 			if (signal_pending(current))
- 				break;
--			if (timeout && ((orig_jiffies + timeout) < jiffies))
-+			if (timeout && time_after(jiffies, orig_jiffies + timeout))
- 				break;
- 		}
- 	} else {
-@@ -1214,7 +1217,7 @@
- 			schedule_timeout(char_time);
- 			if (signal_pending(current))
- 				break;
--			if (timeout && ((orig_jiffies + timeout) < jiffies))
-+			if (timeout && time_after(jiffies, orig_jiffies + timeout))
- 				break;
- 		}
- 	}
-
-
-
+There is nothing that cannot be represented with a big integer.
+Encode the "window" in the upper bits, or whatever, get creative.

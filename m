@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268893AbRG0Rrj>; Fri, 27 Jul 2001 13:47:39 -0400
+	id <S268908AbRG0RvJ>; Fri, 27 Jul 2001 13:51:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268912AbRG0Rr3>; Fri, 27 Jul 2001 13:47:29 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:46086 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S268893AbRG0RrZ>; Fri, 27 Jul 2001 13:47:25 -0400
-Message-ID: <3B61A8A3.72EC132F@namesys.com>
-Date: Fri, 27 Jul 2001 21:45:07 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S268912AbRG0Ru7>; Fri, 27 Jul 2001 13:50:59 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40202 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268908AbRG0Ruq>; Fri, 27 Jul 2001 13:50:46 -0400
+Subject: Re: ext3-2.4-0.9.4
+To: leg+@andrew.cmu.edu (Lawrence Greenfield)
+Date: Fri, 27 Jul 2001 18:52:07 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Lawrence Greenfield" at Jul 27, 2001 01:41:40 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Joshua Schmidlkofer <menion@srci.iwpsd.org>,
-        kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>,
-        "Gryaznova E." <grev@namesys.botik.ru>,
-        "Vladimir V. Saveliev" <monstr@namesys.com>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl>,
-						<Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl> <0107270818120A.06707@widmers.oce.srci.oce.int> <3B619956.6AA072F9@zip.com.au> <3B619D63.9989F9F@namesys.com> <3B61A4A5.41E7B891@zip.com.au>
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15QBmR-00069y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Andrew Morton wrote:
-> 
-> Hans Reiser wrote:
-> >
-> > Andrew, can you do this such that there is no disruption of our
-> > disk format, and make a mount option
-> > out of it, and probably we should use this patch....
-> 
-> I'll defer to Chris :)
+> These are tangential issues.  Not everybody uses IDE disks.  I'm not
+> asking for things that are impossible.  Just because sometimes the
 
-Yes, I'll let him think carefully through the details of how it affects ordering of the writes.
+Actually if I remember rightly the problem is mathematically insoluble
 
+> The application can avoid the wrong file problem by zeroing out data
+> before releasing it to the OS to reallocate.
 
-> 
-> There's no disruption to disk format - it just simulates
-> the user typing `sync' at the right time.  I think the
-> concept is sound, and I'm sure Chris can find a more efficient
-> way...
+When you zero out the data what order do you want those writes in relative
+to the rename
 
-Oops, sorry, you changed the in-ram not the on-disk sb....
+> An async fsync allows me to issue multiple fsyncs and then wait for
+> all of them to complete, hopefully in the same framework that I would
+> do async I/O (but that's an argument for another day).
 
-> 
-> > After you make a mount option out of it, grev will benchmark
-> > it for us using the usual suite of benchmarks.
-> >
-> 
-> Ordered-data is a funny thing.  Under heavy loads it tends
-> to make a significant throughput difference - on ext3 it
-> almost halves throughput wrt writeback mode.
-> 
-> But this by no means indicates that writes are half as slow;
-> what happens is that metadata-intensive workloads fill the
-> journal up quickly, so the `sync' happens more frequently.
-> Under normal workloads, or less metadata-intense workloads
-> the difference is very small.
-> 
-> During testing of that little patch I noted that the
-> disk went crunch every thirty seconds or so, which is good.
-> Presumably the reiserfs journal is larger, or more space-efficient.
-> 
-> -
+Ok.. right that makes more sense. So you actually want 'begin_fsync' and
+'wait_fsync_all' type stuff
 
-Thanks Andrew
+>    Doing reliabile transactions on disk is a hard problem. That is why oracle
+>    and friends have spent many man years of research on this kind of problem. 
+>    Current unix mailers do the smoke mirrors and prayer bit to reduce the
+>    probability a little that is all, regardless of fs and os.
+> 
+> Isn't the point of the operating system to try to make it as easy as
+> possible to do these things correctly?
+
+The OS doesnt have enough information. To do transactions you must know the
+entire material that corresponds to the transaction and bound it. That isnt
+something the kernel has the knowledge about.
+
+The job of the OS is to make the simple things easy, and the hard possible.
+Not to burden the simple with the cost of the hard. That why the chattr +S
+is such a nice solution in many ways
+
+Alan

@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318257AbSHZWoU>; Mon, 26 Aug 2002 18:44:20 -0400
+	id <S318283AbSHZW5s>; Mon, 26 Aug 2002 18:57:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318258AbSHZWoU>; Mon, 26 Aug 2002 18:44:20 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:19568 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S318257AbSHZWoT>; Mon, 26 Aug 2002 18:44:19 -0400
-Date: Tue, 27 Aug 2002 00:49:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Pavel Machek <pavel@elf.ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Mikael Pettersson <mikpe@csd.uu.se>, john stultz <johnstul@us.ibm.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
-       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
-Subject: Re: [PATCH] tsc-disable_B9
-Message-ID: <20020826224946.GW9899@dualathlon.random>
-References: <20020815165617.GE14394@dualathlon.random> <1029496559.31487.48.camel@irongate.swansea.linux.org.uk> <15708.64483.439939.850493@kim.it.uu.se> <20020821131223.GB1117@dualathlon.random> <1029939024.26425.49.camel@irongate.swansea.linux.org.uk> <20020821143323.GF1117@dualathlon.random> <1029942115.26411.81.camel@irongate.swansea.linux.org.uk> <20020821161317.GI1117@dualathlon.random> <20020826161031.GA479@elf.ucw.cz> <159220000.1030387536@flay>
+	id <S318289AbSHZW5s>; Mon, 26 Aug 2002 18:57:48 -0400
+Received: from soul.math.tau.ac.il ([132.67.192.131]:55181 "EHLO tau.ac.il")
+	by vger.kernel.org with ESMTP id <S318283AbSHZW5r>;
+	Mon, 26 Aug 2002 18:57:47 -0400
+Date: Tue, 27 Aug 2002 02:02:01 +0300
+From: Yedidyah Bar-David <didi@tau.ac.il>
+To: linux-kernel@vger.kernel.org
+Subject: Re: updating the partition table of a busy drive
+Message-ID: <20020827020201.A20702@soul.math.tau.ac.il>
+References: <20020827005254.A20617@soul.math.tau.ac.il> <20020826220238.GE19435@clusterfs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <159220000.1030387536@flay>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020826220238.GE19435@clusterfs.com>; from adilger@clusterfs.com on Mon, Aug 26, 2002 at 04:02:38PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 11:45:36AM -0700, Martin J. Bligh wrote:
-> >> And following your argument that these apps have been silenty broken
-> >> since 1999, if there's no broken app out there, nobody will ever get the
-> >> instruction fault. If there's any app broken out there we probably like
+On Mon, Aug 26, 2002 at 04:02:38PM -0600, Andreas Dilger wrote:
+> On Aug 27, 2002  00:52 +0300, Yedidyah Bar-David wrote:
+> > Currently, any change to a partition table of a busy drive is
+> > practically delayed to the next reboot. Even things trivial as
+> > changing the type of an unmounted partition do not work, if
+> > another partition on that drive is mounted (or swapped to, etc.).
 > > 
-> > No. rdtsc is still usefull if you are clever and statistically filter
-> > out. Also rdtsc provides you number of cycles, so if you want to know
-> > how many cycles mov %eax,%ebx takes, you can do that even on
-> > speedstep. Anything that correlates rdtsc to real time is broken, however.
+> > On a side note, about a year and a half ago, there was a thread
+> > on lkml with the subject 'Partition IDs in the New World TM', in
+> > which a 'parttab' file was mentioned. I grepped and STFWed a lot,
+> > and could not find any relevant mention anywhere, besides this
+> > thread. Is this parttab implemented? Documented? Perhaps under
+> > a different name? Is this case it is quite hard to find
+> > (google search for 'linux parttab' has 37 results, but for
+> > e.g. 'linux partition table initrd' 11400 results).
 > 
-> It's not correlating it to real time that's the problem. It's getting resceduled
-> inbetween calls that hurts. Take your example.
-> 
-> rdtsc
-> mov %eax,%ebx
-> 			<- get rescheduled here
-> rdtsc
-> 
-> Broken. May even take negative "time".
+> Please see partx (util-linux) and/or GNU parted for tools which can
+> change partitions on mounted disks.  I believe the kernel has supported
+> this since 2.4.0, but not many tools do.
 
-you need to save %edx too, then it would be perfectly safe on a
-synchronized TSC hardware (as far as the reschedule doesn't take more
-than 2^64 ticks).
+Thanks a lot! I am right off to adding a small note on my home
+page for google searches to find. Tools help, but information
+even more.
+I tried partx and it works just fine. parted will probably be even
+better, but is a bit more complicated (or so it seems).
 
-Andrea
+> 
+> Cheers, Andreas
+> --
+> Andreas Dilger
+> http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> http://sourceforge.net/projects/ext2resize/
+
+Again, Thanks!
+
+	Didi
+

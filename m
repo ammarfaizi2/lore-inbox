@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131392AbRC0QUN>; Tue, 27 Mar 2001 11:20:13 -0500
+	id <S131386AbRC0QUN>; Tue, 27 Mar 2001 11:20:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131393AbRC0QUD>; Tue, 27 Mar 2001 11:20:03 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17427 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131392AbRC0QTq>; Tue, 27 Mar 2001 11:19:46 -0500
-Subject: Re: URGENT : System hands on "Freeing unused kernel memory: "
-To: puckwork@madz.net (Thomas Foerster)
-Date: Tue, 27 Mar 2001 17:21:45 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010327064904Z130600-406+4294@vger.kernel.org> from "Thomas Foerster" at Mar 27, 2001 08:48:08 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131392AbRC0QUE>; Tue, 27 Mar 2001 11:20:04 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:7309 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S131386AbRC0QTo>;
+	Tue, 27 Mar 2001 11:19:44 -0500
+Message-ID: <3AC0BD77.295FEDF0@mandrakesoft.com>
+Date: Tue, 27 Mar 2001 11:19:03 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-20mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Santiago Romero <sromero@servicom2000.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD PCnet32 driver does not compile on 2.4.x
+In-Reply-To: <20010327132202.A17371@servicom2000.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14hwE9-0003rW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Freeing unused kernel memory: xxk freed
-> 
-> So we took the box home and tried to boot it from a bootdisk (generated as we installed the box,
-> redhat 7.0). The SAME problem occurs ... 
-> 
-> Freeing unused kernel memory: xxk freed
-> 
-> The system hangs (i've tried 2.2.18 AND 2.4.2-ac20, 2.2.16 is on our bootdisk). I thought
-> it could be the swap-partition ... so we inserted an IDE Disk, installed a small system so that
-> i was able to mount the SCSI-Disks. So i rebuild the swap-parition with
-> mkswap /dev/sda5 and activated it via swapon /dev/sda5 ... worked.
-> 
-> So i tried to boot it again from the SCSI-Disks ... nothing! The same odd failure ...
+Santiago Romero wrote:
+>  Sorry for the "private" message... I'm testing some machines
+>  (real and virtual) under 2.4.3pre8, that have a AMD PCNET32
+>  ethernet driver. This cards works PERFECTLY under 2.2.x, but if
+>  I compile 2.4.x, I get a error on pcnet32.c about a function
+>  not defined: is_valid_etherdevice().
 
-Boot off the ide disk and fsck the scsi disks. See if that helps
+hmmm.  I just tested a vanilla 2.4.3-pre8, with the drivers/net/Makefile
+fix, and I don't see this at all.
 
-
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

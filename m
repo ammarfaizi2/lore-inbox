@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262192AbREQWFe>; Thu, 17 May 2001 18:05:34 -0400
+	id <S262191AbREQWEY>; Thu, 17 May 2001 18:04:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262194AbREQWFY>; Thu, 17 May 2001 18:05:24 -0400
-Received: from [213.96.224.204] ([213.96.224.204]:50958 "HELO manty.net")
-	by vger.kernel.org with SMTP id <S262192AbREQWFN>;
-	Thu, 17 May 2001 18:05:13 -0400
-Date: Fri, 18 May 2001 00:04:50 +0200
-From: Santiago Garcia Mantinan <manty@udc.es>
-To: linux-kernel@vger.kernel.org
-Cc: Jens David <dg1kjd@afthd.tu-darmstadt.de>
-Subject: 8139too on 2.2.19 doesn't close file descriptors
-Message-ID: <20010518000450.A3755@man.beta.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S262192AbREQWEO>; Thu, 17 May 2001 18:04:14 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:28344 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S262191AbREQWEA>;
+	Thu, 17 May 2001 18:04:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Franck <afranck@gmx.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mike Galbraith <mikeg@wen-online.de>
+Subject: Re: oops in 2.4.4-ac9 (mm/slab.c)
+Date: Thu, 17 May 2001 23:59:35 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <E150BVu-0004ja-00@the-village.bc.nu>
+In-Reply-To: <E150BVu-0004ja-00@the-village.bc.nu>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01051723593500.06477@dg1kfa>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Alan Cox wrote: 
 
-I was tracking down a problem with Debian installation freezing when doing
-the ifconfig of the 8139too driver on 2.2.19 kernel, and found that this was
-caused by 8139too for 2.2.19 not closing it's file descriptors.
+> Its a deliberate debugging trap.
+>
+> > #if DEBUG
+> >         if (cachep->flags & SLAB_POISON)
+> >                 if (kmem_check_poison_obj(cachep, objp))
+> >                         BUG();
+> > 			^^^^^^ This one is triggered
+>
+> Someone freed memory and then scribbled on it.
+>
+> The first thing useful here is to know which drivers you were using shortly
+> before the oops
 
-The original code by Jeff for the 2.4 series is ok, and searching for the
-cause of the problem I have found a difference in the way rtl8139_thread
-exits on both versions:
+Sorry, I really can't reproduce it; as I said, it was nothing unusual I did 
+(with respect to loaded drivers, which I always have quite a lot of), and it 
+happened while doing some editing in vi, which surely doesn't have any bad 
+impact, I hope dearly :-)
 
-2.2 version:
-        up (&tp->thr_exited);
-        return 0;
+But it might as well have been some cron job or so, I'll try to check better 
+when this happens again. Any more debugging hints you could give me?
 
-2.4 version:
-        up_and_exit (&tp->thr_exited, 0);
+Mike Galbraith wrote:
+> blogd?
 
-I think the problem must be there, not doing the do_exit on the 2.2 version,
-but I may be wrong, can anybody look this up?
+It's SuSE-specific I think, something to log boot messages to a console. 
+This SHOULD have finished at this point, however - it's only needed during 
+the boot process, so I don't know why this is there... 
 
-Thanks in advance!
+> In any case, one thing you can do is to disable the BUG() and
+> see if whoever scribbled on the freed area has a reference to
+> it still and trips over the damage poison or the new owner did
+> to what he thinks is his data.
 
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
+Can you explain that in more detail, what I should do and what is expected to 
+happen then?
+
+Greetings,
+Andreas

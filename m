@@ -1,77 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262690AbSJBXaf>; Wed, 2 Oct 2002 19:30:35 -0400
+	id <S262671AbSJBXom>; Wed, 2 Oct 2002 19:44:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262691AbSJBXaf>; Wed, 2 Oct 2002 19:30:35 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:31482 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S262690AbSJBXae>; Wed, 2 Oct 2002 19:30:34 -0400
-Message-ID: <3D9B8363.6030806@snapgear.com>
-Date: Thu, 03 Oct 2002 09:38:11 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262678AbSJBXom>; Wed, 2 Oct 2002 19:44:42 -0400
+Received: from mail-4.tiscali.it ([195.130.225.150]:39401 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id <S262671AbSJBXom>;
+	Wed, 2 Oct 2002 19:44:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Alessandro Amici <alexamici@tiscali.it>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: Re: 2.5.37+ i386 arch split broke external module builds
+Date: Thu, 3 Oct 2002 01:49:37 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <200210022209.g92M9kh02253@localhost.localdomain>
+In-Reply-To: <200210022209.g92M9kh02253@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@redhat.com>
-Subject: Re: Linux 2.5.40-ac1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021002234937.57C711EA78@alan.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 03 October 2002 00:09, James Bottomley wrote:
+> alexamici@tiscali.it said:
+> > comments are welcome,
+>
+> -#include "irq_vectors.h"
+> +#ifdef CONFIG_VISWS
+> +#include <asm/mach-visws/irq_vectors.h>
+> +#else
+> +#include <asm/mach-generic/irq_vectors.h>
+> +#endif
+>
+> I'm afraid the whole purpose of the code was to get away from this type of
+> #ifdef problem.  If you do this, every new mach-type added to i386 has to
+> modify a bunch of kernel headers.
 
-Hi Alan,
+as i said, that was just a rough example, it is possible to do it in a much 
+cleaner way. if we can agree on this being important enough i can prepare a 
+nicer patch myself.
 
-> Linux 2.5.40-ac1
-[snip]
-> o	Merge most of ucLinux stuff			(Greg Ungerer)
+> dwmw2@infradead.org said:
+> >  make -C /lib/modules/`uname -r`/build SUBDIRS=`pwd` modules
+>
+> This looks like a clean solution to me, since most kernel packages install
+> this module build directory.
 
-Woohoo!
+i do agree with you and dwmw2. that one is The Right Way.
 
+my problem is: current distributions (i know debian for sure, and suse from 
+second hand experiance) are not prepared. if 2.6-3.0 will be released as it 
+is _now_ and if distribution don't change policy, we will have no other 
+choice than ask the users to compile and run a castom kernel, in order to use 
+our driver. which means: cutting our future user base to a third (i'm 
+optimistic :).
 
-> 	| It needs putting somewhere so we can pick over the
-> 	| hard bits left
-> 	| Q: Wouldn't drivers/char/mem-nommu.c be better
+in this particular case i think a clean-enough workaround can be found, so 
+i'd like to see it going in. if people agree on the general principle that 
+external modules are better off using the kernel build system, thats fine 
+with me. but then we need a clear statement on _what exactly_ is required for 
+external module building, and distributions need to start follwing such an 
+advise.
 
-OK, that is easy to do...
-
-
-> 	| Q: How to do the procfs stuff tidily
-
-Yes. I need to spend some time on this one. Just lots
-of little differences...
-
-
-> 	| Q: Wouldn't it be nicer to move all mm or mmnommu specific ksyms
-> 	|    int the relevant mm/*.c file area instead of kernel/ksyms
-
-OK, I have a new patch today that cleans all this up.
-I made all the existing ksysms symbols present. It turns out
-many where already there in my more recent patches anyway.
-A couple needed to be stubbed. The next patch has no diffs
-to ksyms at all.
-
-
-> 	| Q: Why ifdef out overcommit -  its even easier to account on 
-> 	|    MMUless and useful info
-
-I was looking over this yesterday too. Should be able to clean this
-up a bit.
-
-What do you think about the separate mm/mmnommu directories
-at the top level?  Should the mmnommu be merged into mm?
-
-Do you want me to CC you when I put new patches up?
-
-Thanks
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+alessandro
 

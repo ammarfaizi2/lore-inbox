@@ -1,64 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135589AbREIGA2>; Wed, 9 May 2001 02:00:28 -0400
+	id <S135612AbREIG0u>; Wed, 9 May 2001 02:26:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135867AbREIGAS>; Wed, 9 May 2001 02:00:18 -0400
-Received: from otter.mbay.net ([206.40.79.2]:48399 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S135589AbREIGAH> convert rfc822-to-8bit;
-	Wed, 9 May 2001 02:00:07 -0400
-From: jalvo@mbay.net (John Alvord)
-To: Larry McVoy <lm@bitmover.com>
-Cc: Marty Leisner <leisner@rochester.rr.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Wow! Is memory ever cheap!
-Date: Wed, 09 May 2001 05:59:41 GMT
-Message-ID: <3b13d85d.102553842@mail.mbay.net>
-In-Reply-To: <lm@bitmover.com> <200105090424.AAA05768@soyata.home> <20010508222210.B14758@work.bitmover.com>
-In-Reply-To: <20010508222210.B14758@work.bitmover.com>
-X-Mailer: Forte Agent 1.5/32.451
+	id <S135867AbREIG0l>; Wed, 9 May 2001 02:26:41 -0400
+Received: from waulogy.Stanford.EDU ([128.12.53.47]:30731 "EHLO
+	waulogy.stanford.edu") by vger.kernel.org with ESMTP
+	id <S135612AbREIG01>; Wed, 9 May 2001 02:26:27 -0400
+Date: Tue, 8 May 2001 23:24:50 -0700 (PDT)
+From: david chan <cat@waulogy.stanford.edu>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        <emu10k1-devel@opensource.creative.com>,
+        Ed Okerson <eokerson@quicknet.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fixes for Incorrect kmalloc() Sizes
+Message-ID: <Pine.LNX.4.30.0105082303170.23207-100000@waulogy.stanford.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 May 2001 22:22:10 -0700, Larry McVoy <lm@bitmover.com>
-wrote:
->
->Just to make sure you understand:  I think ECC is a fine thing.  If I'm
->running systems with no other integrity checks, I'll take ECC and like it.
->However, having ECC does not mean that I trust that my data is safe,
->that is most certainly not a true statement.  The bus, the disks, the
->disk controller, the disk driver, the buffer cache, etc, can all corrupt
->the data.   Oh, yeah, let's not forget NFS.  I have seen each and every
->one of those things corrupt data.
+Hi,
 
-This is an interesting observation of a truth that was well known in
-the second generation computers of the 1950s and 1960s. I first worked
-at John Hancock... they had a bunch of 7074 machines. All those
-systems made use of programmed checksums in each tape block and in
-each full file. The reason was that those machines did not have ECC...
-they did have parity checking if I remember right. With IBM's third
-generation computers (S/360s) and probably other manufacturers, ECC
-became a standard feature. Parity checking was added through different
-data paths such as channel memory, buffer memory, etc. There was so
-much protection added that the programmed checksums became
-superfluous.
+These two patches fix silly kmalloc errors that allocate too little space.
 
-There were still odd moments. I remember working on an Amdahl computer
-problem where some internal data paths... where the contents of one
-register moved to an internal storage area... and the path did not
-have parity. There was a machine fault... the path was electrically
-open, so the contents of the register always became zero. But since it
-wasn't parity checked, there was no machine check. I remember another
-problem on the IBM 3033. Cosmic rays (really) caused one bit errors in
-channel memory. That was parity but not ECC so you got a weird channel
-check. Back at the diagnosis ranch, the board looked good. It was only
-when someone noticed that the rate of such problems was proportional
-to the height above sea level that the light bulb went on.
 
-The lesson is that when paths are not checked, hardware or software,
-data being held or transformed can change. Old lesson but a good one
-to know.
+Thank you,
+David Chan
 
-john alvord
+
+---snip---
+--- drivers/sound/emu10k1/midi.c.orig	Fri Feb  9 11:30:23 2001
++++ drivers/sound/emu10k1/midi.c	Tue May  8 19:43:43 2001
+@@ -56,7 +56,7 @@
+ {
+ 	struct midi_hdr *midihdr;
+
+-	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct midi_hdr
+*), GFP_KERNEL)) == NULL) {
++	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct
+midi_hdr), GFP_KERNEL)) == NULL) {
+ 		ERROR();
+ 		return -EINVAL;
+ 	}
+@@ -328,7 +328,7 @@
+ 	if (!access_ok(VERIFY_READ, buffer, count))
+ 		return -EFAULT;
+
+-	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct midi_hdr
+*), GFP_KERNEL)) == NULL)
++	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct
+midi_hdr), GFP_KERNEL)) == NULL)
+ 		return -EINVAL;
+
+ 	midihdr->bufferlength = count;
+---snip---
+
+---snip---
+--- drivers/telephony/ixj.c.orig	Tue May  8 20:00:07 2001
++++ drivers/telephony/ixj.c	Tue May  8 20:00:25 2001
+@@ -4475,7 +4475,7 @@
+ {
+ 	IXJ_FILTER_CADENCE *lcp;
+
+-	lcp = kmalloc(sizeof(IXJ_CADENCE), GFP_KERNEL);
++	lcp = kmalloc(sizeof(IXJ_FILTER_CADENCE), GFP_KERNEL);
+ 	if (lcp == NULL)
+ 		return -ENOMEM;
+ 	if (copy_from_user(lcp, (char *) cp, sizeof(IXJ_FILTER_CADENCE)))
+---snip---
+
+
+
+

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTFCTnu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 15:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTFCTnu
+	id S263365AbTFCTk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 15:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTFCTk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 15:43:50 -0400
-Received: from router.emperor-sw2.exsbs.net ([208.254.201.37]:55470 "EHLO
-	sade.emperorlinux.com") by vger.kernel.org with ESMTP
-	id S263861AbTFCTnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 15:43:49 -0400
-From: Josh Litherland <fauxpas@sade.emperorlinux.com>
-To: Mike Dresser <mdresser_l@windsormachine.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux and IBM : "unauthorized" mini-PCI : TCPA updates
-In-Reply-To: <Pine.LNX.4.33.0306031538590.10095-100000@router.windsormachine.com>
-X-Newsgroups: mlist.linux-kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.21-pre5-ac3 (i686))
-Message-Id: <20030603200213.1AE076207B@sade.emperorlinux.com>
-Date: Tue,  3 Jun 2003 16:02:13 -0400 (EDT)
+	Tue, 3 Jun 2003 15:40:27 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:38106 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S263365AbTFCTk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 15:40:26 -0400
+Date: Tue, 3 Jun 2003 14:54:21 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Jocelyn Mayer <jma@netgem.com>
+Cc: Georg Nikodym <georgn@somanetworks.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] ieee1394 sbp2 driver is broken for kernel >= 2.4.21-rc2
+Message-ID: <20030603185421.GB10102@phunnypharm.org>
+References: <1054582582.4967.48.camel@jma1.dev.netgem.com> <20030602163443.2bd531fb.georgn@somanetworks.com> <1054588832.4967.77.camel@jma1.dev.netgem.com> <20030603113636.GX10102@phunnypharm.org> <1054663917.4967.99.camel@jma1.dev.netgem.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1054663917.4967.99.camel@jma1.dev.netgem.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0306031538590.10095-100000@router.windsormachine.com> you wrote:
+> First, I never trust hotplug or other tools like this:
+> I do all insmod by hand, so I know all drivers have been loaded.
+> What is hotplug supposed to do (but wasn't in previous driver
+> version...) ?
 
-> There was a thread here(i think) recently about wirless causing problems
-> with other frequencies, and that you could only broadcast in a specific
-> set of frequencies.  I assume this is related to what IBM has done.
+I didn't say CONFIG_HOTPLUG, I said hotplug. Basically SCSI in 2.4 will
+not let recognize devices that were not present when the scsi-host was
+initially registered with the SCSI stack. You have to run
+rescan-scsi-bus.sh (or manually send the add/remove commands via
+procfs).
 
-The cards we were testing were 11b, so they wouldn't fall under the
-banner of any evil frequency hopping device.  Crippling the PCI slot to
-prevent use of a card that could potentially break FCC regs provided
-someone uses nonexistant published specs to develop an as-yet
-nonexistant driver seems a might rash, don'tcha think ?
+Please read the linux-kernel and/or linux1394-devel mailing list
+archives. I really hate dredging this all up again.
+
 
 -- 
-Josh Litherland (josh@emperorlinux.com)
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261522AbTC3Tbn>; Sun, 30 Mar 2003 14:31:43 -0500
+	id <S261520AbTC3Tbe>; Sun, 30 Mar 2003 14:31:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261526AbTC3Tbn>; Sun, 30 Mar 2003 14:31:43 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:15620 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261522AbTC3Tbl>;
-	Sun, 30 Mar 2003 14:31:41 -0500
-Date: Sat, 29 Mar 2003 00:12:48 +0100
+	id <S261521AbTC3Tbe>; Sun, 30 Mar 2003 14:31:34 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:10500 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261520AbTC3Tbe>;
+	Sun, 30 Mar 2003 14:31:34 -0500
+Date: Fri, 28 Mar 2003 12:19:45 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Erik Hensema <erik@hensema.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Delaying writes to disk when there's no need
-Message-ID: <20030328231248.GH5147@zaurus.ucw.cz>
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: Justin Cormack <justin@street-vision.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ENBD for 2.5.64
+Message-ID: <20030328111945.GC5147@zaurus.ucw.cz>
+References: <1048623613.25914.14.camel@lotte> <200303252053.h2PKrRn09596@oboe.it.uc3m.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
+In-Reply-To: <200303252053.h2PKrRn09596@oboe.it.uc3m.es>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> In all kernels I've tested writes to disk are delayed a long time even when
-> there's no need to do so.
-> 
-> A very simple test shows this: on an otherwise idle system, create a tar of
-> a NFS-mounted filesystem to a local disk. The kernel starts writing out the
-> data after 30 seconds, while a slow and steady stream would be much nicer
-> to the system, I think.
-> 
+>   9) it drops into a mode where it md5sums both ends and skips writes
+>   of equal blocks, if that's faster. It moves in and out of this mode
+>   automatically. This helps RAID resyncs (2* overspeed is common on
+>   100BT nets, that is 20MB/s.).
 
-Well, doing writeback sooner when disks
-are idle might be good idea; detecting
-if disk is idle might not be too easy, through.
-
-OTOH, raid resync already has some
-such detection?
+Great way to find md5 collisions, I guess
+:-).
 				Pavel
 -- 
 				Pavel

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261407AbRETEHH>; Sun, 20 May 2001 00:07:07 -0400
+	id <S261408AbRETELh>; Sun, 20 May 2001 00:11:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261408AbRETEG6>; Sun, 20 May 2001 00:06:58 -0400
-Received: from mx3.sac.fedex.com ([199.81.208.11]:59662 "EHLO
-	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S261407AbRETEGj>; Sun, 20 May 2001 00:06:39 -0400
-Date: Sun, 20 May 2001 12:06:44 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] ide-pci.c for 2.4.5-pre4
-Message-ID: <Pine.LNX.4.33.0105201205200.7794-100000@boston.corp.fedex.com>
+	id <S261409AbRETEL1>; Sun, 20 May 2001 00:11:27 -0400
+Received: from www.wen-online.de ([212.223.88.39]:25618 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261408AbRETELT>;
+	Sun, 20 May 2001 00:11:19 -0400
+Date: Sun, 20 May 2001 06:10:58 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: CML2 <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: Brown-paper-bag bug in m68k, sparc, and sparc64 config files
+In-Reply-To: <20010519181026.A23730@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0105200607330.698-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 19 May 2001, Eric S. Raymond wrote:
 
-There's an error in ide-pci.c that prevented it from compiling 2.4.5-pre4.
+> This bug unconditionally disables a configuration question -- and it's
+> so old that it has propagated across three port files, without either
+> of the people who did the cut and paste for the latter two noticing it.
+>
+> This sort of thing would never ship in CML2, because the compiler
+> would throw an undefined-symbol warning on BLK_DEV_ST.  The temptation
+> to engage in sarcastic commentary at the expense of people who still
+> think CML2 is an unnecessary pain in the butt is great.  But I will
+> restrain myself.  This time.
 
-Try this.
+Erm.. if this bug is _that old_ and nobody noticed, isn't the right
+fix to just delete the dead option?
 
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
-
-
---- drivers/ide/ide-pci.c	Sun May 20 11:56:48 2001
-+++ drivers/ide/ide-pci.c.new	Sun May 20 11:56:45 2001
-@@ -708,7 +708,7 @@
- 				/*
-  	 			 * Set up BM-DMA capability (PnP BIOS should have done this)
-  	 			 */
--		    		if (!IDE_PCI_DEVID_EQ(d->devid, DEVID_CS5530)
-+		    		if (!IDE_PCI_DEVID_EQ(d->devid, DEVID_CS5530))
- 					hwif->autodma = 0;	/* default DMA off if we had to configure it here */
- 				(void) pci_write_config_word(dev, PCI_COMMAND, pcicmd | PCI_COMMAND_MASTER);
- 				if (pci_read_config_word(dev, PCI_COMMAND, &pcicmd) || !(pcicmd & PCI_COMMAND_MASTER)) {
+	-Mike
 

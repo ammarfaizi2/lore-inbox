@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVA1R75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVA1SEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVA1R75 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 12:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVA1R4b
+	id S261491AbVA1SEN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 13:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVA1Rxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 12:56:31 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:18384 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261491AbVA1Ryb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 12:54:31 -0500
-To: jgarzik@pobox.com
-CC: linux-kernel@vger.kernel.org, mkrikis@yahoo.com
-Subject: [RFC PATCH 2.4] ata_piix on ich6r in RAID mode
-From: Martins Krikis <mkrikis@yahoo.com>
-Date: 28 Jan 2005 12:54:08 -0500
-Message-ID: <87acqte8xr.fsf@yahoo.com>
-MIME-Version: 1.0
+	Fri, 28 Jan 2005 12:53:39 -0500
+Received: from cantor.suse.de ([195.135.220.2]:5869 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261506AbVA1RqO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 12:46:14 -0500
+Date: Fri, 28 Jan 2005 18:46:13 +0100
+From: Andi Kleen <ak@suse.de>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Andi Kleen <ak@suse.de>, Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Add CONFIG_X86_APIC_OFF for i386/UP
+Message-ID: <20050128174613.GP6703@wotan.suse.de>
+References: <20050128133927.GC6703@wotan.suse.de> <Pine.LNX.4.61.0501281421410.7109@goblin.wat.veritas.com> <20050128143010.GE6703@wotan.suse.de> <Pine.LNX.4.61.0501281506100.7207@goblin.wat.veritas.com> <20050128151839.GI6703@wotan.suse.de> <Pine.LNX.4.61.0501281038480.22906@montezuma.fsmlabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501281038480.22906@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+On Fri, Jan 28, 2005 at 10:43:42AM -0700, Zwane Mwaikambo wrote:
+> On Fri, 28 Jan 2005, Andi Kleen wrote:
+> 
+> > > Forgive me for not wading through the code, but it really needs to
+> > > be spelt out in the comments: what's wrong with the existing kernel,
+> > > with "noapic nolapic" in the distro's bootstring by default?
+> > 
+> > It's harder to explain and traditionally in LILO you couldn't remove
+> > any options (in grub you can now). I think it makes much more sense
+> > to have an positive option for this too, not a negative one. 
+> 
+> Well new distributions with 2.6 most probably aren't using LILO and if 
+> you're running 2.6 with some ancient distro you can add commandline 
+> options yourself.
 
-You might have come across this hack before, but I figured I should
-remind you that it is still very useful for ata_piix...
+Ok, thanks for the constructive feedback. I withdraw the patch then
+and will continue to maintain it in private.
 
-Without this patch, if the BIOS of an ICH6R box has IDE set to "RAID"
-mode then ata_piix will not find any SATA disks because it incorrectly
-tries the legacy mode. With the patch all 4 SATA drives become visible.
-I don't think it would break any other vendor's SATA, but you can be
-the judge of that. If so, perhaps we can restrict the test some more
-by checking vendor/device IDs.
-
-  Martins Krikis
-  Storage Components Division
-  Intel Massachusetts
-
-
-
---- linux-2.4.29/drivers/scsi/libata-core.c	2005-01-28 12:07:56.000000000 -0500
-+++ linux-2.4.29-iswraid/drivers/scsi/libata-core.c	2005-01-28 12:14:43.000000000 -0500
-@@ -3605,6 +3605,9 @@ int ata_pci_init_one (struct pci_dev *pd
- 			legacy_mode = (1 << 3);
- 	}
- 
-+	if ((pdev->class >> 8) == PCI_CLASS_STORAGE_RAID)
-+		legacy_mode = 0;
-+
- 	/* FIXME... */
- 	if ((!legacy_mode) && (n_ports > 1)) {
- 		printk(KERN_ERR "ata: BUG: native mode, n_ports > 1\n");
-
-
-
+-Andi

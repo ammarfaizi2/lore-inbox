@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267173AbSLTAQT>; Thu, 19 Dec 2002 19:16:19 -0500
+	id <S267654AbSLTAVL>; Thu, 19 Dec 2002 19:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267374AbSLTAQS>; Thu, 19 Dec 2002 19:16:18 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57049 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267173AbSLTAQR>; Thu, 19 Dec 2002 19:16:17 -0500
-Date: Thu, 19 Dec 2002 19:24:19 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dedicated kernel bug database
-Message-ID: <20021219192419.A11997@devserv.devel.redhat.com>
-References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <mailman.1040338801.24520.linux-kernel2news@redhat.com> <200212192359.gBJNxUI09113@devserv.devel.redhat.com> <62590000.1040343543@w-hlinder>
+	id <S267659AbSLTAVL>; Thu, 19 Dec 2002 19:21:11 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:15123
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267654AbSLTAVJ>; Thu, 19 Dec 2002 19:21:09 -0500
+Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
+From: Robert Love <rml@tech9.net>
+To: Con Kolivas <conman@kolivas.net>
+Cc: Andrew Morton <akpm@digeo.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200212201122.59691.conman@kolivas.net>
+References: <200212200850.32886.conman@kolivas.net>
+	 <3E025E1A.EA32918A@digeo.com> <1040343306.2519.85.camel@phantasy>
+	 <200212201122.59691.conman@kolivas.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040344153.2521.92.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <62590000.1040343543@w-hlinder>; from hannal@us.ibm.com on Thu, Dec 19, 2002 at 04:19:03PM -0800
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 19 Dec 2002 19:29:14 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Thu, 19 Dec 2002 16:19:03 -0800
-> From: Hanna Linder <hannal@us.ibm.com>
+On Thu, 2002-12-19 at 19:22, Con Kolivas wrote:
 
-> >> Why are bugs automatically assigned to owners? 
-> >> 	If there was an unassigned category that would make it 
-> >> 	easy to query.
-> > 
-> > Query for "NEW" status for a component and do not put anything
-> > into "owner" fireld.
-> 
-> 	If there was a NEW field that would be exactly what I was 
-> asking for. When I do a query the only options I see are: OPEN, 
-> ASSIGNED, RESOLVED, APPROVED, REJECTED, DEFERRED, CLOSED. 
-> Where is the NEW? Is there somewhere else to do queries?
+> Is it just because the base timeslices are longer than the old scheduler?
 
-OK, I'm sorry. This is a little different from what we have at
-bugizlla.redhat.com. I suspect OSDL's OPEN roughly corresponds
-to NEW. They appear to use Bugzilla which closely resembles the
-mother of all them at Mozilla.
+Could be.  The default timeslice was around 50ms in 2.4.  The default in
+2.5 with a min of 10 and a max of 300 is about 100ms.
 
-> >> Also a list of people who arent maintainers but are available to help 
-> >> 	could be useful for the owners to assign bugs to.
-> > 
-> > That's putting a cart in front of a horse. Such people have
-> > to execute a simple Bugzilla to get lists, then select bugs
-> > which they like. This way the overhead of maintaining such
-> > lists disappears instantly.
-> 
-> Im trying to help make it easier for such people to get a list
-> of bugs to start working on. If it looks like everything already
-> has an owner it looks like there is nothing to do. Im just trying
-> to figure out how to use it and hopefully help other people
-> do the same thing.
+It could be that without the priority boost, 100ms is too long and
+capable of starving tasks (which, without the priority boost, are all at
+the same level and thus scheduled round-robin).
 
-I see the point. I would say, having an owner does not mean
-much. Owner is just a person who makes sure bugs do not get lost.
-You can work on my bugs if you'd like :)
+	Robert Love
 
-I understand now that I carry a whole load of misconceptions
-caused by extensive use of a slighly different process at Red Hat.
-Perhaps we ought to tap into Mozilla people expirience.
-
--- Pete

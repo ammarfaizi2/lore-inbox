@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267472AbTB1E6b>; Thu, 27 Feb 2003 23:58:31 -0500
+	id <S267473AbTB1FXn>; Fri, 28 Feb 2003 00:23:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267473AbTB1E6b>; Thu, 27 Feb 2003 23:58:31 -0500
-Received: from [202.109.126.231] ([202.109.126.231]:62718 "HELO
-	www.support-smartpc.com.cn") by vger.kernel.org with SMTP
-	id <S267472AbTB1E6a>; Thu, 27 Feb 2003 23:58:30 -0500
-Message-ID: <3E5EEDF9.5906D73E@mic.com.tw>
-Date: Fri, 28 Feb 2003 13:04:57 +0800
-From: "rain.wang" <rain.wang@mic.com.tw>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.21-pre4 i686)
-X-Accept-Language: zh, en, zh-TW, zh-CN
+	id <S267478AbTB1FXn>; Fri, 28 Feb 2003 00:23:43 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:48807 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267473AbTB1FXm>; Fri, 28 Feb 2003 00:23:42 -0500
+Date: Thu, 27 Feb 2003 21:33:53 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: maneesh@in.ibm.com
+cc: Andrew Morton <akpm@digeo.com>, Dipankar Sarma <dipankar@in.ibm.com>,
+       trond.myklebust@fys.uio.no, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Oops in rpc_depopulate with 2.5.62
+Message-ID: <2160000.1046410432@[10.10.2.4]>
+In-Reply-To: <20030228050700.GA1134@in.ibm.com>
+References: <25140000.1045901377@[10.10.2.4]>
+ <20030222004930.0240738b.akpm@digeo.com> <20030224121442.GA1103@in.ibm.com>
+ <7620000.1046277387@[10.10.2.4]> <20030228050700.GA1134@in.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: system hang on HDIO_DRIVE_RESET! help!
-References: <3E5CEF17.4C014A4C@mic.com.tw> <1046288652.9837.18.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Feb 2003 05:01:39.0078 (UTC) FILETIME=[7A04E260:01C2DEE6]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> Hi Martin,
+> 
+> Trond has the correct fix for this. The patch is as follows:
+> 
+> --- linux-2.5.61-up/net/sunrpc/clnt.c.orig      2003-02-15
+> 21:05:02.000000000 ++0100
+> +++ linux-2.5.61-up/net/sunrpc/clnt.c   2003-02-17 19:39:20.000000000
+> +0100 @@ -208,7 +208,8 @@
+>                 rpcauth_destroy(clnt->cl_auth);
+>                 clnt->cl_auth = NULL;
+>         }
+> -       rpc_rmdir(clnt->cl_pathname);
+> +       if (clnt->cl_pathname[0])
+> +               rpc_rmdir(clnt->cl_pathname);
+>         if (clnt->cl_xprt) {
+>                 xprt_destroy(clnt->cl_xprt);
+>                 clnt->cl_xprt = NULL;
 
-> On Wed, 2003-02-26 at 16:45, rain.wang wrote:
-> > Hi,
-> >     I did HDIO_DRIVE_RESET ioctl, but system hung without any response,
-> > only printed some mesages from kernel(v2.4.20):
-> >
-> > hda: DMA disabled
-> > hda: ide_set_handler: handler not null; old=c01ce300, new=c01d4400
-> > bug: kernel timer added twice at c01ce102
-> >
-> >      would you please help me with it?
->
-> Does this still occur on 2.4.21pre. It should be fixed now
+Cool - I picked this up from LKML, it's in 63-mjb1 ...
 
-I had tested 'hdparm -w /dev/hda' under 2.4.21-pre4, but problem sill exist,
+Thanks to everyone for the help with this one.
 
-just same message as in 2.4.20.
-
-rain.w
-
+M.
 

@@ -1,122 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262428AbUKQQyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbUKQQnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262428AbUKQQyt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 11:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbUKQQxM
+	id S262407AbUKQQnL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 11:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbUKQQku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 11:53:12 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:11934 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262419AbUKQQvt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 11:51:49 -0500
-Subject: [patch] add class_device to miscdevice
-From: Robert Love <rml@novell.com>
-To: greg@kroah.com
-Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org
+	Wed, 17 Nov 2004 11:40:50 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:62180 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262404AbUKQQjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 11:39:32 -0500
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
+	 <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
+	 <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
+	 <84144f0204111602136a9bbded@mail.gmail.com>
+	 <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
+	 <20041116120226.A27354@pauline.vellum.cz>
+	 <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
 Content-Type: text/plain
-Date: Wed, 17 Nov 2004 11:48:59 -0500
-Message-Id: <1100710140.5009.6.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1100705768.419.41.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 17 Nov 2004 15:36:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg, et al.
+On Maw, 2004-11-16 at 14:01, Miklos Szeredi wrote:
+> > "fuse/version" you have in /proc while it belongs to /proc
+> > "fuse/dev"     you have in /proc while it belongs to /dev
+> 
+> Well, 'Documentation/devices.txt' says:
+> 
+>   THE DEVICE REGISTRY IS OFFICIALLY FROZEN FOR LINUS TORVALDS' KERNEL
+>   TREE.  At Linus' request, no more allocations will be made official
+>   for Linus' kernel tree; the 3 June 2001 version of this list is the
+>   official final version of this registry.
 
-Currently misc_register() throws away the return from
-class_simple_device_add().  This makes it impossible to get to the
-class_device of the directories in /sys/class/misc and, for example,
-thus impossible to add attributes to those directories.
+This is just to keep Linus happy, every vendor on the planet ignores it
+and co-operates with LANANA so that we have a single unified cross
+vendor namespace and numbering scheme. The numbering matters a lot less
+now with udev but the naming is critical to all the poor app and config
+tool authors.
 
-Attached patch adds a class_device structure to the miscdevice structure
-and assigns to it the value returned from class_simple_device_add() in
-misc_register(), thus caching the value and allowing us to f.e. later
-call class_device_create_file().
-
-We need this for inotify, but I can see plenty of other misc. devices
-wanting this and consider it missing but required functionality.
-
-Thanks,
-
-	Robert Love
-
-
-Add the class_device structure to miscdevice so that we can add sysfs
-attributes to /sys/class/misc/foo
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- drivers/char/misc.c        |   14 ++++++--------
- include/linux/miscdevice.h |    5 +++--
- 2 files changed, 9 insertions(+), 10 deletions(-)
-
-diff -urN linux-2.6.10-rc2/drivers/char/misc.c linux/drivers/char/misc.c
---- linux-2.6.10-rc2/drivers/char/misc.c	2004-10-18 17:55:21.000000000 -0400
-+++ linux/drivers/char/misc.c	2004-11-16 14:11:17.164542312 -0500
-@@ -207,10 +207,9 @@
- int misc_register(struct miscdevice * misc)
- {
- 	struct miscdevice *c;
--	struct class_device *class;
- 	dev_t dev;
- 	int err;
--	
-+
- 	down(&misc_sem);
- 	list_for_each_entry(c, &misc_list, list) {
- 		if (c->minor == misc->minor) {
-@@ -224,8 +223,7 @@
- 		while (--i >= 0)
- 			if ( (misc_minors[i>>3] & (1 << (i&7))) == 0)
- 				break;
--		if (i<0)
--		{
-+		if (i<0) {
- 			up(&misc_sem);
- 			return -EBUSY;
- 		}
-@@ -240,10 +238,10 @@
- 	}
- 	dev = MKDEV(MISC_MAJOR, misc->minor);
- 
--	class = class_simple_device_add(misc_class, dev,
--					misc->dev, misc->name);
--	if (IS_ERR(class)) {
--		err = PTR_ERR(class);
-+	misc->class = class_simple_device_add(misc_class, dev,
-+					      misc->dev, misc->name);
-+	if (IS_ERR(misc->class)) {
-+		err = PTR_ERR(misc->class);
- 		goto out;
- 	}
- 
-diff -urN linux-2.6.10-rc2/include/linux/miscdevice.h linux/include/linux/miscdevice.h
---- linux-2.6.10-rc2/include/linux/miscdevice.h	2004-10-18 17:54:32.000000000 -0400
-+++ linux/include/linux/miscdevice.h	2004-11-16 14:09:04.345733840 -0500
-@@ -2,6 +2,7 @@
- #define _LINUX_MISCDEVICE_H
- #include <linux/module.h>
- #include <linux/major.h>
-+#include <linux/device.h>
- 
- #define PSMOUSE_MINOR  1
- #define MS_BUSMOUSE_MINOR 2
-@@ -32,13 +33,13 @@
- 
- struct device;
- 
--struct miscdevice 
--{
-+struct miscdevice  {
- 	int minor;
- 	const char *name;
- 	struct file_operations *fops;
- 	struct list_head list;
- 	struct device *dev;
-+	struct class_device *class;
- 	char devfs_name[64];
- };
- 
+So LANANA is authoritative except for Linus computer 8)
 
 

@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263672AbUDMSbv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 14:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263662AbUDMSbv
+	id S263675AbUDMShz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 14:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263671AbUDMShz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 14:31:51 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32963 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263673AbUDMSbe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 14:31:34 -0400
-Message-ID: <407C31F4.9070800@pobox.com>
-Date: Tue, 13 Apr 2004 14:31:16 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Egger <degger@fhm.edu>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: [NET] net driver updates
-References: <4072CD01.6070408@pobox.com> <FE87A41F-8809-11D8-8F2A-000A9597297C@fhm.edu>
-In-Reply-To: <FE87A41F-8809-11D8-8F2A-000A9597297C@fhm.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 13 Apr 2004 14:37:55 -0400
+Received: from ns.suse.de ([195.135.220.2]:52445 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263662AbUDMShw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 14:37:52 -0400
+Date: Tue, 13 Apr 2004 20:37:50 +0200
+From: Andi Kleen <ak@suse.de>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       tom.l.nguyen@intel.com
+Subject: Re: [PATCH] PCI MSI Kconfig consolidation
+Message-Id: <20040413203750.01fac421.ak@suse.de>
+In-Reply-To: <200404131041.06275.bjorn.helgaas@hp.com>
+References: <200404131041.06275.bjorn.helgaas@hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Egger wrote:
-> On 06.04.2004, at 17:30, Jeff Garzik wrote:
+On Tue, 13 Apr 2004 10:41:06 -0600
+Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+
+> This consolidates the PCI MSI configuration into drivers/pci/Kconfig,
+> removing it from the i386, x86_64, and ia64 Kconfig.
 > 
->> * Francois work on r8169, epic100, sis190: PCI DMA, NAPI, other minor 
->> fixes and cleanups
-> 
-> 
-> r8169 seems to work though it is not even a tad bit faster
-> than plain 2.6.5.
+> It also changes the default for ia64 from "y" to "n".  The default on
+> i386 is "n" already, and I'm not sure why ia64 should be different.
 
-Francois is still trying to fix all the vendor-created bugs, so 
-performance is a secondary consideration.
+Looks good to me. Hopefully the indexed support on x86-64 can be fixed
+soon, then even the !X86_64 will be unnecessary.
 
-RTL8169 is a nice chipset, though.  Robert Ollsson had some nice pktgen 
-numbers for it, IIRC.
-
-
-> Those cards are really driving me nuts. Between two r8169 cards, one
-> on Athlon with kernel 2.4.24, one on Athlon with 2.6.5 or 2.4.24, I
-> get 90Mbit/s in one direction and 39Mbit/s in the other using iperf and
-> TCP. With iperf and UDP they deliver 100Mbit/s resp. 230Mbit/s depending
-> on the direction. Crosschecking with my PowerBook (OS X) shows that I can
-> get 844Mbit/s (UDP) or 572Mbit/s (TCP) to one host and 844Mbit/s (UDP) but
-> only 88Mbit/s (TCP) to the other.
-> 
-> The environment is switched and changing cables and/or ports doesn't
-> improve the results.
-> 
-> Ideas? (Yeah, I'll get Intel NICs RSN...)
-
-Yeah -- I plan to kill r8169, and use 8139cp.c to drive it instead :)
-
-	Jeff
-
-
-
+-Andi

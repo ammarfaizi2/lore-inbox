@@ -1,78 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317163AbSEXTEj>; Fri, 24 May 2002 15:04:39 -0400
+	id <S317151AbSEXTGG>; Fri, 24 May 2002 15:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317166AbSEXTEi>; Fri, 24 May 2002 15:04:38 -0400
-Received: from smtp.cogeco.net ([216.221.81.25]:26365 "EHLO fep3.cogeco.net")
-	by vger.kernel.org with ESMTP id <S317163AbSEXTEg>;
-	Fri, 24 May 2002 15:04:36 -0400
-Subject: Re: Reset PCI card
-From: "Nix N. Nix" <nix@go-nix.ca>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3CEE2670.4010701@p4all.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 24 May 2002 15:04:34 -0400
-Message-Id: <1022267074.27864.4.camel@tux>
+	id <S317190AbSEXTGE>; Fri, 24 May 2002 15:06:04 -0400
+Received: from ns.snowman.net ([63.80.4.34]:528 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S317151AbSEXTFz>;
+	Fri, 24 May 2002 15:05:55 -0400
+Date: Fri, 24 May 2002 15:01:50 -0400
+From: Stephen Frost <sfrost@snowman.net>
+To: Austin Gonyou <austin@digitalroadkill.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 Kernel Perf discussion [Was Re: [BUG] 2.4 VM sucks. Again]
+Message-ID: <20020524190150.GA9802@ns>
+Mail-Followup-To: Austin Gonyou <austin@digitalroadkill.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E17BHiQ-0006mJ-00@the-village.bc.nu> <423360000.1022257916@flay> <1022261405.9617.39.camel@UberGeek> <433620000.1022262234@flay> <1022263434.9591.60.camel@UberGeek> <435570000.1022263849@flay> <1022264970.10464.12.camel@UberGeek>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SmTdBPAXX0a3WoW0"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.2.16 (i686)
+X-Uptime: 14:53:00 up 198 days, 15:53, 13 users,  load average: 1.06, 1.10, 1.06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-05-24 at 07:39, Michael Dunsky wrote:
-> Hi!
-> 
-> The "svgalib" has a tool named "reset_vga". It completely resets your
-> VGA-card . You may try it... but it's only a workaround at the cause and 
-> not at the symptom.
 
-That package doesn't have a nice automake/autconf installer, so I didn't
-run across the reset_vga thingy at first.  I did, however, make it work
-with mode3:
+--SmTdBPAXX0a3WoW0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-1. SSH in
-2. init 3
-3. mode3
-4. init 5
-5. Close SSH
-6. Walk over to the box
-7. Log into all the text mode ttys (tty[1-6]), type "clear" and log out.
+* Austin Gonyou (austin@digitalroadkill.net) wrote:
+> As soon as I can get time on their systems to do 4/8-way testing, I'll
+> make my benches available. Should be good stuff. :)
 
-You're right though.  This shouldn't be happening in the first place.
+  I may be getting an opportunity in the next weeks/months to play with
+  a 16-way SparcCenter 2000 w/ 85mhz procs and 3GB of ram.  I realize
+  this machine is rather pokey but I was wondering if it might be useful
+  to help test the kernel with a large number of processors.  So, if you
+  or anyone else have some test you'd like me to run (assuming I get the
+  machine all set up and running Linux) let me know and I'd be happy to
+  try some things.
 
-> 
-> I used it a longer time ago with a similar problem (only slightly 
-> similar - programmed the VGA-card "by hand", and needed to clear the 
-> scrambled output I produced :-) ).
-> 
-> ciao
-> 
-> Michael
-> 
-> 
-> Nix N. Nix wrote:
->  > The symptom:
->  >
->  > Sometimes, when I switch between virtual terminals, (away from X ==
->  > tty7), instead of getting my usual login prompt, the picture I've had
->  > during my X session (or the picture of the display manager) stays on
->  > the screen, albeit with some of the colours screwed up (as if it were
->  > a 256 colour palette-based display, even though it's 24 bit colour -
->  > you know, like in Windows, when you have 256 colours and you switch
->  > from one app to another and the colours in your background picture get
->  > all frelled up).  The terminal does switch over to the appropriate tty
->  > because I can log in and type whatever (blindly though) and it does
->  > work.
->  >
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+  	Stephen
 
-Thanks for all the help.
+--SmTdBPAXX0a3WoW0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE87o4drzgMPqB3kigRAkQtAJwO00CI2FQSoX4MOtDhKo4UYAF/1QCfXs7b
+cRQEsyOTml0KRRdeDZB0lI4=
+=iGey
+-----END PGP SIGNATURE-----
+
+--SmTdBPAXX0a3WoW0--

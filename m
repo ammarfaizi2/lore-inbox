@@ -1,88 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267427AbUHSUzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266763AbUHSUxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267427AbUHSUzH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 16:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUHSUzH
+	id S266763AbUHSUxI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 16:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUHSUxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 16:55:07 -0400
-Received: from pegasus.allegientsystems.com ([208.251.178.236]:7172 "EHLO
-	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
-	id S267442AbUHSUya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 16:54:30 -0400
-Message-ID: <41251385.9040907@optonline.net>
-Date: Thu, 19 Aug 2004 16:54:29 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: stefandoesinger@gmx.at
-CC: acpi-devel@lists.sourceforge.net, len.brown@intel.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "Li, Shaohua" <shaohua.li@intel.com>
-Subject: Re: [ACPI] [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
-References: <41103F22.4090303@optonline.net> <200408192224.08271.stefandoesinger@gmx.at>
-In-Reply-To: <200408192224.08271.stefandoesinger@gmx.at>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 19 Aug 2004 16:53:08 -0400
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:18379 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S266763AbUHSUxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 16:53:04 -0400
+Date: Thu, 19 Aug 2004 22:53:01 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: GNU make alleged of "bug" (was: PATCH: cdrecord: avoiding scsi device numbering for ide devices)
+Message-ID: <20040819205301.GA12251@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Joerg Schilling <schilling@fokus.fraunhofer.de>
+References: <200408191600.i7JG0Sq25765@tag.witbe.net> <200408191341.07380.gene.heskett@verizon.net> <20040819194724.GA10515@merlin.emma.line.org> <20040819220553.GC7440@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040819220553.GC7440@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Dösinger wrote:
->>This patch should fix multiple user-visible problems with the ACPI IRQ
->>routing after S3 resume:
->>
->>"irq x: nobody cared"
->>"my interrupts are gone"
->>
->>It probably applies to multiple bugzilla entries and mailing list posts.
->>
->>Tested on my machine, which is experiencing similar problems. Seems to
->>work - although I get some non-fatal "nobody cared" messages that might
->>be caused by the i8042 driver.
->>
->>Comments?
->>Stefan, can you test this?
+On Fri, 20 Aug 2004, Sam Ravnborg wrote:
+
+> On Thu, Aug 19, 2004 at 09:47:24PM +0200, Matthias Andree wrote:
+> > # BEGIN Makefile
+> > all:    hello
+> > hello.d:
+> >         makedepend -f- hello.c >$@
+> > include hello.d
+> > # END Makefile
+> > 
+> > You'll get at "make" time:
+> > 
+> > Makefile:5: hello.d: No such file or directory
+> > makedepend -f- hello.c >hello.d
+> > cc   hello.o   -o hello
+> > 
+> > and a working hello program.
 > 
-> Sorry for the very late reply.
-> 
-> I tested with 2.6.8.1(I think your patch it included there) with strange 
-> results.
-> 
-> *It works fine if I unload ipw2100 before suspend and load it later
+> Using:
+> -include hello.d
+> will result in a silent make.
 
-I can't find anything named "ipw2100" in my kernel source tree...
+Indeed it will. However, Solaris' /usr/ccs/bin/make doesn't understand
+the "-include" form:
 
-> *In single user mode with ipw2100 loaded while S3, IRQ 11 is disabled on 
-> resume, IRQ is not disabled
+make: Fatal error in reader: Makefile, line 5: Unexpected end of line seen
 
-Huh? IRQ(what) is not disabled?
+include without leading "-" is fine. BSD make doesn't understand either
+form.
 
-Please attach dmesg.
+Jörg, how about Sam's suggestion? It seems compatible with smake.
 
-> *When the system is fully booted up, everything seems to work fine.
+-- 
+Matthias Andree
 
-What do you mean by this? If you suspend when more drivers are loaded, 
-things work fine, but don't work when less drivers are loaded?
-
-> 
-> I'll test a little bit more and report the results.
-
-Thanks for testing.
-Nathan
-
-> 
-> Cheers,
-> Stefan
-> 
-> 
-> -------------------------------------------------------
-> SF.Net email is sponsored by Shop4tech.com-Lowest price on Blank Media
-> 100pk Sonic DVD-R 4x for only $29 -100pk Sonic DVD+R for only $33
-> Save 50% off Retail on Ink & Toner - Free Shipping and Free Gift.
-> http://www.shop4tech.com/z/Inkjet_Cartridges/9_108_r285
-> _______________________________________________
-> Acpi-devel mailing list
-> Acpi-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/acpi-devel
-> 
-
+NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)

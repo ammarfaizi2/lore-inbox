@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265099AbSKNRiK>; Thu, 14 Nov 2002 12:38:10 -0500
+	id <S265097AbSKNRiL>; Thu, 14 Nov 2002 12:38:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbSKNRgi>; Thu, 14 Nov 2002 12:36:38 -0500
-Received: from dp.samba.org ([66.70.73.150]:57580 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265096AbSKNRgQ>;
+	id <S265108AbSKNRgf>; Thu, 14 Nov 2002 12:36:35 -0500
+Received: from dp.samba.org ([66.70.73.150]:57836 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265097AbSKNRgQ>;
 	Thu, 14 Nov 2002 12:36:16 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: David Brownell <david-b@pacbell.net>
+To: Andrey Panin <pazke@orbita1.ru>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.47bk2 + current modutils == broken hotplug 
-In-reply-to: Your message of "Thu, 14 Nov 2002 08:19:20 -0800."
-             <3DD3CD08.7080003@pacbell.net> 
-Date: Fri, 15 Nov 2002 04:42:11 +1100
-Message-Id: <20021114174310.8CFAC2C2A2@lists.samba.org>
+Subject: Re: [PATCH] Module parameters reimplementation 0/4 
+In-reply-to: Your message of "Thu, 14 Nov 2002 18:03:42 +0300."
+             <20021114150325.GA313@pazke.ipt> 
+Date: Fri, 15 Nov 2002 04:35:57 +1100
+Message-Id: <20021114174310.91F402C2A5@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DD3CD08.7080003@pacbell.net> you write:
-> Consider two instances of such a device.  Hotplug one, the driver
-> is loaded, refcount zero since it's not opened.  Then rmmod on
-> unplug would be appropriate:  the hardware is gone.
+In message <20021114150325.GA313@pazke.ipt> you write:
 > 
-> But instead of unplugging it, plug in a second.  Now rmmod is no
-> longer an appropriate default policy on unplug, even though the
-> module "refcount" is still zero, since the user could still try
-> access the other device.  (Maybe they were plugging in devices
-> until they found the one with the data they were after, and just
-> hadn't looked at that the other one yet.)
+> --BwCQnh7xodEAoBMC
+> Content-Type: text/plain; charset=utf-8
+> Content-Disposition: inline
+> Content-Transfer-Encoding: quoted-printable
+> 
+> On =D0=A7=D1=82=D0=B2, =D0=9D=D0=BE=D1=8F 14, 2002 at 03:23:00 +1100, Rusty=
+>  Russell wrote:
+> > Types "short", "ushort", "int", "ulong", "bool", "invbool" etc are
+> > implemented pre-canned.  You can define your own, see linux/params.h
+> > for how.
 
-Hmmm, interesting problem.  Perhaps your idea of having drivers hold a
-refcount for every device they control makes sense in this case, but
-as you point out, it's a significant departure from current policy.
+> Why not u8, u16, u32 etc ?
 
-With "rmmod -f" it's not quite reboot time, though.
-
-Anyway, I don't think this is a battle I want to fight 8)
+I could have, but in practice that doesn't seem to be how people use
+them.  But that may be a legacy of MODULE_PARM().  If I guessed wrong,
+more can be added trivially.
 
 Cheers,
 Rusty.

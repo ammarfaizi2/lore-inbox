@@ -1,42 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316204AbSGGREz>; Sun, 7 Jul 2002 13:04:55 -0400
+	id <S316187AbSGGRIp>; Sun, 7 Jul 2002 13:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316187AbSGGREy>; Sun, 7 Jul 2002 13:04:54 -0400
-Received: from ftp.realnet.co.sz ([196.28.7.3]:35022 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316204AbSGGREy>; Sun, 7 Jul 2002 13:04:54 -0400
-Date: Sun, 7 Jul 2002 19:25:27 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ata_special_intr, ide_do_drive_cmd deadlock
-In-Reply-To: <Pine.LNX.4.44.0207071916040.1441-100000@linux-box.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0207071922350.1441-100000@linux-box.realnet.co.sz>
+	id <S316210AbSGGRIo>; Sun, 7 Jul 2002 13:08:44 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:50077 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S316187AbSGGRIo>;
+	Sun, 7 Jul 2002 13:08:44 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200207071709.VAA17085@sex.inr.ac.ru>
+Subject: Re: [PATCH] simplify networking fcntl
+To: willy@debian.ORG (Matthew Wilcox)
+Date: Sun, 7 Jul 2002 21:09:02 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020707171555.L27706@parcelfarce.linux.theplanet.co.uk> from "Matthew Wilcox" at Jul 7, 2 08:15:01 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jul 2002, Zwane Mwaikambo wrote:
+Hello!
 
-> > If it was IDE 95, or IDE 95 on atapi device it is known, noted in 95's
-> > changelog and fixed in 96...
-> 
-> On ATA disk, with 2.5.25 stock and the deadlock is still there (visual 
-> inspection) in IDE 97
+> sock_no_fcntl is only called for F_SETOWN, so it can stand some
+> simplification.
 
-Sorry perhaps let me elaborate, i was doing a dd if=/dev/hdX of=file then 
-the drive dropped down to PIO, thats when i reckon i hit do_recalibrate. 
-This was on 2.5.25.
+sk->proc. Sorry, generic F_SETOWN does not handle SIGURG.
 
-Thanks,
-	Zwane Mwaikambo
-
--- 
-function.linuxpower.ca
-
-
+Alexey
 

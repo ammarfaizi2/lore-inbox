@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291247AbSBSLSE>; Tue, 19 Feb 2002 06:18:04 -0500
+	id <S291251AbSBSLUY>; Tue, 19 Feb 2002 06:20:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291248AbSBSLRy>; Tue, 19 Feb 2002 06:17:54 -0500
-Received: from holomorphy.com ([216.36.33.161]:11926 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S291247AbSBSLRn>;
-	Tue, 19 Feb 2002 06:17:43 -0500
-Date: Tue, 19 Feb 2002 03:13:32 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Samium Gromoff <root@ibe.miee.ru>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Ess Solo-1 interrupt behaviour
-Message-ID: <20020219111332.GJ3511@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Samium Gromoff <root@ibe.miee.ru>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16d81Q-00008y-00@the-village.bc.nu> <200202191344.g1JDiUP12170@ibe.miee.ru>
+	id <S291253AbSBSLUT>; Tue, 19 Feb 2002 06:20:19 -0500
+Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:11763 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S291251AbSBSLT6>;
+	Tue, 19 Feb 2002 06:19:58 -0500
+Date: Tue, 19 Feb 2002 04:19:52 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Q: use of new modules in old kernel
+Message-ID: <20020219041952.K24428@lynx.adilger.int>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020219090253.CD89D67ED@penelope.materna.de> <1014116037.2019.7.camel@stinky.pussy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <200202191344.g1JDiUP12170@ibe.miee.ru>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1014116037.2019.7.camel@stinky.pussy>; from NyQuist@ntlworld.com on Tue, Feb 19, 2002 at 10:53:57AM +0000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, Samium Gromoff wrote:
->>>         I`ve recently spotted that a solo1 pci soundcard generates
->>> 16000+ interrupts/second with esd started idling.
+On Tue, 2002-02-19 at 09:02, Tobias Wollgam wrote:
+> how is it possible to use modules of newer kernels in an old kernel 
+> system?
+> 
+> To use new drivers, we want not recompile the kernel.
+> 
+> I tried to load the module 8139too from 2.4.17 into a 2.4.9 kernel with 
+> modprobe, but there are many unresolved symbols. 
+> 
+> The flag "Set version information on all module symbols" is set.
 
-"  Alan Cox wrote:"
->> Thats an esd bug. ESD tries to use ridiculously small fragment sizes
+Note that you will basically never be able to just move the compiled module
+from one kernel version to another and expect it to work.  At the very
+minimum you should copy the needed files from the new kernel source into
+the old kernel source and recompile.  Practically, this may also not work
+(depending on the driver and the kernel) because while there is often
+backwards compatibility in newer kernels, the newer driver code may not
+compile (properly) with the older kernel (it depends on what part of the
+kernel the driver is in, though).
 
-I'm not sure what it is, but I traded in esd, the sound card, and the
-scheduler upon gaining greater insight into this.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-On Tue, Feb 19, 2002 at 04:44:28PM +0300, Samium Gromoff wrote:
->   Wait, wait, but my ISA Vibra 16 generates 20+ times less interrupts, with the
->   _same_ esd! 
-
-A lot of it is the hardware. I haven't looked very hard at the drivers,
-but my time/money tradeoff seemed to scream "just get new hardware you
-don't have time to look at the code down there". Maybe someone else does...
-
-Any volunteers? I'd at least be willing to run tests. I've seen this too.
-
-Cheers,
-Bill

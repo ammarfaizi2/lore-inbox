@@ -1,106 +1,227 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291531AbSCXOYL>; Sun, 24 Mar 2002 09:24:11 -0500
+	id <S293314AbSCXOcB>; Sun, 24 Mar 2002 09:32:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293314AbSCXOYB>; Sun, 24 Mar 2002 09:24:01 -0500
-Received: from charger.oldcity.dca.net ([207.245.82.76]:25314 "EHLO
-	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id <S291531AbSCXOXw>; Sun, 24 Mar 2002 09:23:52 -0500
-Date: Sun, 24 Mar 2002 09:25:45 -0500
-From: christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-To: Greg KH <greg@kroah.com>
-Cc: Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
-        christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 3c59x and resume
-Message-ID: <20020324142545.GC20703@ufies.org>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Robert Love <rml@tech9.net>,
-	Andrew Morton <akpm@zip.com.au>,
-	christophe =?iso-8859-15?Q?barb=E9?= <christophe.barbe.ml@online.fr>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9CCBEB.D39465A6@zip.com.au> <1016914030.949.20.camel@phantasy> <20020323224433.GB11471@ufies.org> <20020324080729.GD16785@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WplhKdTI2c8ulnbP"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: debian SID Gnu/Linux 2.4.19-pre4 on i586
+	id <S293348AbSCXObw>; Sun, 24 Mar 2002 09:31:52 -0500
+Received: from smtp.comcast.net ([24.153.64.2]:54209 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S293314AbSCXObn>;
+	Sun, 24 Mar 2002 09:31:43 -0500
+Date: Sun, 24 Mar 2002 09:28:16 -0500
+From: Mike Farrell <gcckain@comcast.net>
+Subject: Bug Report (paging request)
+To: linux-kernel@vger.kernel.org
+Message-id: <0GTH00H0EF0QUJ@mtaout03.icomcast.net>
+MIME-version: 1.0
+X-Mailer: KMail [version 1.3.2]
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sometimes when I'm using my computer normally, all of my programs will 
+segfault usually resulting in a kernel lockup (no alt+printscr response).
 
---WplhKdTI2c8ulnbP
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am using "Linux 2.4.7 #7 SMP Wed Feb 13 15:20:25 EST 2002 i686"
+and I have had NO other problems with this kernel until now.  I have recently 
+added 256 mb of ram to my system but I don't think that should cause a 
+problem since the system runs it well.
 
-On Sun, Mar 24, 2002 at 12:07:29AM -0800, Greg KH wrote:
-> On Sat, Mar 23, 2002 at 05:44:33PM -0500, christophe barb=E9 wrote:
-> > With the 'everything is module' and 'everything is hotplug' approach in
-> > mind (which is a appealing way and IMHO this is the way we are going),
-> > I see two part for this problem:
-> >=20
-> > . Persistence after plug out/plug in=20
-> >=20
-> > . Persistence after suspend/resume
-> >=20
-> > The first one is a userland problem. The card identification could be
-> > based on the MAC address (for NICs at least, in the case of cardbus the
-> > bus position has no real signification). This should then be the
-> > responsibility of the userspace tool (hotplug) to indicate the correct
-> > option for this card. The problem is when the module is already loaded,
-> > the userspace tool has no way to indicate this option.
->=20
-> Untrue.  See
-> 	http://www.kroah.com/linux/hotplug/ols_2001_hotplug_talk/html/mgp00014.h=
-tml
-> for a 6 line version of /sbin/hotplug that always assigns the same
-> "ethX" value to the same MAC address.  I think the patch to nameif has
-> gone in to support this, but I'm not sure.
+Here is the output of the kernel:
 
-Untrue what ? The persistence after plug out/in ?
-The problem here is not to give the same interface to a given NIC. The
-problem is to give the same options to a given NIC. But a solution can
-simply be to set the option from hotplug using the proc interface. The
-3c59x doesn't support that for wol but that can be changed.
+================kernel log output========================
 
-> And why is there a limitation of only 8 devices?  Why not do what all
-> USB drivers do, and just create the structure that you need to use at
-> probe() time, and destroy it at remove() time?
+Mar 24 08:52:21 darkbox kernel: Unable to handle kernel paging request at 
+virtual address 0000ef08
+Mar 24 08:52:21 darkbox kernel:  printing eip:
+Mar 24 08:52:21 darkbox kernel: c0130c1e
+Mar 24 08:52:21 darkbox kernel: *pde = 00000000
+Mar 24 08:52:21 darkbox kernel: Oops: 0000
+Mar 24 08:52:21 darkbox kernel: CPU:    0
+Mar 24 08:52:21 darkbox kernel: EIP:    0010:[fput+6/212]
+Mar 24 08:52:21 darkbox kernel: EFLAGS: 00010297
+Mar 24 08:52:21 darkbox kernel: eax: 0000ef00   ebx: 0000ef00   ecx: ca4723ac
+edx: ca0023ac
+Mar 24 08:52:21 darkbox kernel: esi: c7bea000   edi: c7bea008   ebp: ca487f74
+esp: ca487f20
+Mar 24 08:52:21 darkbox kernel: ds: 0018   es: 0018   ss: 0018
+Mar 24 08:52:21 darkbox kernel: Process kdeinit (pid: 581, stackpage=ca487000)
+Mar 24 08:52:21 darkbox kernel: Stack: c7bea050 c7bea000 c7bea008 ca487f74 
+c013f29b 00000000 cc52ef00 00000080
+Mar 24 08:52:21 darkbox kernel:        c013f5cf ca487f6c 00000004 00000001 
+c7f51a58 00000001 00000304 ca486000
+Mar 24 08:52:21 darkbox kernel:        00000049 00000008 00000000 00000000 
+c7bea000 00000000 c013f950 00000008
+Mar 24 08:52:21 darkbox kernel: Call Trace: [poll_freewait+43/68] 
+[do_select+491/516] [sys_select+832/1148] [system_call+51/56]
+Mar 24 08:52:21 darkbox kernel:
+Mar 24 08:52:21 darkbox kernel: Code: 8b 6b 08 8b 73 0c 8b 7d 08 f0 ff 4b 14 
+0f 94 c0 84 c0 0f 84
+Mar 24 08:52:21 darkbox kernel: Unable to handle kernel paging request at 
+virtual address 00006000
+Mar 24 08:52:21 darkbox kernel:  printing eip:
+Mar 24 08:52:21 darkbox kernel: c0110923
+Mar 24 08:52:21 darkbox kernel: *pde = 00000000
+Mar 24 08:52:21 darkbox kernel: Oops: 0000
+Mar 24 08:52:21 darkbox kernel: CPU:    0
+Mar 24 08:52:21 darkbox kernel: EIP:    0010:[__wake_up+67/200]
+Mar 24 08:52:21 darkbox kernel: EFLAGS: 00010087
+Mar 24 08:52:21 darkbox kernel: eax: c7bea03c   ebx: cd00f5e4   ecx: 00006000
+edx: 00000001
+Mar 24 08:52:21 darkbox kernel: esi: ca472460   edi: cdbdf5e0   ebp: ca487d98
+esp: ca487d78
+Mar 24 08:52:21 darkbox kernel: ds: 0018   es: 0018   ss: 0018
+Mar 24 08:52:21 darkbox kernel: Process kdeinit (pid: 581, stackpage=ca487000)
+Mar 24 08:52:21 darkbox kernel: Stack: cdbdf5e0 ca472460 ca472460 c7bea03c 
+cdbdf5e4 00000001 00000282 00000001
+Mar 24 08:52:21 darkbox kernel:        ca78c760 c013a099 cc52e540 c1444f00 
+c013a0ce ca472460 00000000 00000001
+Mar 24 08:52:21 darkbox kernel:        c0130c51 ca472460 cc52e540 cc52e540 
+00000006 00000000 00000001 c012fbf2
+Mar 24 08:52:21 darkbox kernel: Call Trace: [pipe_release+117/136] 
+[pipe_write_release+14/20] [fput+57/212] [filp_close+178/188] 
+[put_files_struct+79/184] [do_exit+296/632] [die+86/88]
+Mar 24 08:52:21 darkbox kernel:        [do_page_fault+883/1164] 
+[do_page_fault+0/1164] [sock_def_readable+54/96] 
+[unix_stream_sendmsg+630/824] [schedule+926/1448] [error_code+52/60] 
+[fput+6/212] [poll_freewait+43/68]
+Mar 24 08:52:21 darkbox kernel:        [do_select+491/516] 
+[sys_select+832/1148] [system_call+51/56]
+Mar 24 08:52:21 darkbox kernel:
+Mar 24 08:52:21 darkbox kernel: Code: 8b 01 85 45 fc 74 66 31 c0 9c 5e fa f0 
+fe 0d 00 e4 33 c0 0f
+Mar 24 08:54:46 darkbox kernel: Bad swap offset entry 00c60000
+Mar 24 08:54:46 darkbox kernel: swap_free: offset exceeds max
+Mar 24 08:54:49 darkbox kernel: swap_free: offset exceeds max
+Mar 24 08:55:59 darkbox su: (to root) kain on /dev/pts/1
+Mar 24 08:56:05 darkbox kernel: VM: Bad swap entry 000a0000
+Mar 24 08:56:05 darkbox kernel: VM: Bad swap entry 00050000
+Mar 24 08:56:09 darkbox kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 00000008
+Mar 24 08:56:09 darkbox kernel:  printing eip:
+Mar 24 08:56:09 darkbox kernel: c0110923
+Mar 24 08:56:09 darkbox kernel: *pde = 00000000
+Mar 24 08:56:09 darkbox kernel: Oops: 0000
+Mar 24 08:56:09 darkbox kernel: CPU:    0
+Mar 24 08:56:09 darkbox kernel: EIP:    0010:[__wake_up+67/200]
+Mar 24 08:56:09 darkbox kernel: EFLAGS: 00010087
+Mar 24 08:56:09 darkbox kernel: eax: ca0023a4   ebx: 0012a1c0   ecx: 00000008
+edx: 00000001
+Mar 24 08:56:09 darkbox kernel: esi: ca8d5b00   edi: ca4723a8   ebp: cbbd5ee4
+esp: cbbd5ec4
+Mar 24 08:56:09 darkbox kernel: ds: 0018   es: 0018   ss: 0018
+Mar 24 08:56:09 darkbox kernel: Process ksmserver (pid: 576, 
+stackpage=cbbd5000)Mar 24 08:56:09 darkbox kernel: Stack: ca4723a8 ca8d5b00 
+ca8d5b54 ca0023a4 ca4723ac 00000001 00000282 00000001
+Mar 24 08:56:09 darkbox kernel:        ca8d5b00 c021cf02 c9c01160 00000010 
+c02502ae ca8d5b00 00000010 cbbd5f48
+Mar 24 08:56:09 darkbox kernel:        cbbd5f80 cbbd5f48 ca4721ac c72c83a0 
+00000000 ca8d5b00 ca8d57c0 00000000
+Mar 24 08:56:09 darkbox kernel: Call Trace: [sock_def_readable+54/96] 
+[unix_stream_sendmsg+630/824] [sock_sendmsg+105/136] [sock_write+178/188] 
+[sys_write+143/196] [system_call+51/56]
+Mar 24 08:56:09 darkbox kernel:
+Mar 24 08:56:09 darkbox kernel: Code: 8b 01 85 45 fc 74 66 31 c0 9c 5e fa f0 
+fe 0d 00 e4 33 c0 0f
 
-This is an implementation issue which is not really important. It comes
-from Donald Becker. Your dynamic structure doesn't solve the problem
-'which options for which cards', does it ?=20
+====================Output of ver_linux script=============
 
-> Just my $0.02
->=20
-> thanks,
->=20
-> greg k-h
+Gnu C                  2.95.2
+Gnu make               3.79.1
+binutils               2.9.5.0.24
+util-linux             2.10m
+mount                  2.10m
+modutils               2.4.6
+e2fsprogs              1.18
+pcmcia-cs              3.1.17
+PPP                    2.3.11
+isdn4k-utils           3.1pre1a
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.6
+Net-tools              1.56
+Kbd                    0.99
+Sh-utils               2.0
+Modules Loaded         snd-pcm-oss snd-pcm-plugin snd-mixer-oss NVdriver 
+snd-seq-midi snd-seq-midi-event snd-seq snd-card-ens1371 snd-ens1371 snd-pcm 
+snd-timer
+snd-rawmidi snd-seq-device snd-ac97-codec snd-mixer snd tulip hid
 
-Thanks,
-Christophe
+============Other misc information===============
 
---=20
-Christophe Barb=E9 <christophe.barbe@ufies.org>
-GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 3
+cpu MHz         : 730.917
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
+pat pse36 mmx fxsr sse
+bogomips        : 1458.17
 
-There's no sense in being precise when you don't even know what you're
-talking about. -- John von Neumann
+==========
 
---WplhKdTI2c8ulnbP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+snd-pcm-oss            18176   1 (autoclean)
+snd-pcm-plugin         15664   0 (autoclean) [snd-pcm-oss]
+snd-mixer-oss           4768   1 (autoclean) [snd-pcm-oss]
+NVdriver              723584  17 (autoclean)
+snd-seq-midi            3280   0 (unused)
+snd-seq-midi-event      3440   0 [snd-seq-midi]
+snd-seq                42176   0 [snd-seq-midi snd-seq-midi-event]
+snd-card-ens1371        2176   2 (autoclean)
+snd-ens1371            10288   0 (autoclean) [snd-card-ens1371]
+snd-pcm                32544   0 (autoclean) [snd-pcm-oss snd-pcm-plugin 
+snd-ens1371]
+snd-timer               9088   0 (autoclean) [snd-seq snd-pcm]
+snd-rawmidi            10464   0 (autoclean) [snd-seq-midi snd-ens1371]
+snd-seq-device          4032   0 (autoclean) [snd-seq-midi snd-seq 
+snd-rawmidi]
+snd-ac97-codec         23840   0 (autoclean) [snd-ens1371]
+snd-mixer              24432   0 (autoclean) [snd-mixer-oss snd-ens1371 
+snd-ac97-codec]
+snd                    35104   1 [snd-pcm-oss snd-pcm-plugin snd-mixer-oss 
+snd-seq-midi snd-seq-midi-event snd-seq snd-card-ens1371 snd-ens1371 snd-pcm 
+snd-timer snd-rawmidi snd-seq-device snd-ac97-codec snd-mixer]
+tulip                  37760   1 (autoclean)
+hid                    11872   0 (unused)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
+======================
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-0ffbffff : System RAM
+  00100000-0026875e : Kernel code
+  0026875f-002fadbf : Kernel data
+0ffc0000-0fff7fff : ACPI Tables
+0fff8000-0fffffff : ACPI Non-volatile Storage
+f0600000-f06fffff : PCI Bus #01
+f0700000-f47fffff : PCI Bus #02
+  f2000000-f3ffffff : nVidia Corporation Vanta [NV6]
+f8000000-fbffffff : PCI device 8086:1130 (Intel Corporation)
+fc900000-fc9fffff : PCI Bus #01
+  fc9efc00-fc9efcff : Lite-On Communications Inc LNE100TX
+    fc9efc00-fc9efcff : tulip
+  fc9f0000-fc9fffff : PCI device 14f1:1036 (CONEXANT)
+fca00000-feafffff : PCI Bus #02
+  fd000000-fdffffff : nVidia Corporation Vanta [NV6]
+ffb80000-ffbfffff : reserved
+fff00000-ffffffff : reserved
 
-iD8DBQE8neHpj0UvHtcstB4RAirIAJ4yKOQImbsb8wizgHGFp1+qLrGoNgCgh7g6
-5zf9uoj1j0ZHSIyRWt4yO/E=
-=vjZF
------END PGP SIGNATURE-----
 
---WplhKdTI2c8ulnbP--
+
+
+
+Ok, thanks for looking at this and good luck with your kernel development .
+
+~Mike Farrell

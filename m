@@ -1,47 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262800AbUCRRhU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 12:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUCRRhU
+	id S262807AbUCRRjK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 12:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbUCRRjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 12:37:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1683 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262800AbUCRRhS (ORCPT
+	Thu, 18 Mar 2004 12:39:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:9619 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262807AbUCRRjC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 12:37:18 -0500
-Message-Id: <200403181737.i2IHbCE09261@mail.osdl.org>
-Date: Thu, 18 Mar 2004 09:37:08 -0800 (PST)
-From: markw@osdl.org
-Subject: Re: 2.6.4-mm2
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040314172809.31bd72f7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+	Thu, 18 Mar 2004 12:39:02 -0500
+Date: Thu, 18 Mar 2004 09:39:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: mjy@geizhals.at, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PREEMPT and server workloads
+Message-Id: <20040318093902.3513903e.akpm@osdl.org>
+In-Reply-To: <20040318145129.GA2246@dualathlon.random>
+References: <40591EC1.1060204@geizhals.at>
+	<20040318060358.GC29530@dualathlon.random>
+	<20040318015004.227fddfb.akpm@osdl.org>
+	<20040318145129.GA2246@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry I'm falling behind...  I see about a 10% decrease in throughput
-with our dbt2 workload when comparing 2.6.4-mm2 to 2.6.3.  I'm wondering
-if this might be a result of the changes to the pagecache, radix-tree
-and writeback code since you mentioned it could affect i/o scheduling in
-2.6.4-mm1.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> > > Worst of all we're now taking spinlocks earlier than needed,
+> > 
+> > Where?  CPU scheduler?
+> 
+> Everywhere, see the kmaps, we spinlock before instead of spinlock after,
+> the scheduler, lots of places. I mean, people don't call
+> 
+> 	preempt_disable()
+> 	kmap_atomic
+> 	spin_lock
+> 
+> they do:
+> 
+> 	spin_lock
+> 	kmap_atomic
 
-PostgreSQL is using 8KB blocks and the characteristics of the i/o should
-be that one lvm2 volume is experiencing mostly sequential writes, while
-another has random reading and writing.  Both these volumes are using
-ext2.  I'll summarize the throughput results here, with the lvm2 stripe
-width varying across the columns:
+They do?   kmap_atomic() disables preemption anyway.
 
-kernel          16 kb   32 kb   64 kb   128 kb  256 kb  512 kb
-2.6.3                           2308    2335    2348    2334
-2.6.4-mm2       2028    2048    2074    2096    2082    2078
+> so they're effectively optimizing for PREEMPT=y and I don't think this
+> is optimal for the long term. One can aruge the microscalability
+> slowdown isn't something to worry about, I certainly don't worry about
+> it too much either, it's more a bad coding habit to spinlock earlier
+> than needed to avoid preempt_disable.
+> 
+> > > and the preempt_count stuff isn't optmized away by PREEMPT=n,
+> > 
+> > It should be.  If you see somewhere where it isn't, please tell us.
+> 
+> the counter is definitely not optimized away, see:
+> 
+> #define inc_preempt_count() \
+> do { \
+> 	preempt_count()++; \
+> } while (0)
+> 
+> #define dec_preempt_count() \
+> do { \
+> 	preempt_count()--; \
+> } while (0)
+> 
+> #define preempt_count()	(current_thread_info()->preempt_count)
+> 
+> those are running regardless of PREEMPT=n.
 
-Here's a page with links to profile, oprofile, etc of each result:
-	http://developer.osdl.org/markw/linux/2.6-pagecache.html
+The macros are needed for kmap_atomic().
 
-Comparing one pair of readprofile results, I find it curious that
-dm_table_unplug_all and dm_table_any_congested show up near the top of a
-2.6.4-mm2 profile when they haven't shown up before in 2.6.3.
+The task->preempt field is also used for tracking the hardirq and softirq
+depths (in_interrupt(), in_irq(), in_softirq()) so it cannot be removed
+with CONFIG_PREEMPT=n.
 
-Mark
+> > We unconditionally bump the preempt_count in kmap_atomic() so that we can
+> > use atomic kmaps in read() and write().  This is why four concurrent
+> > write(fd, 1, buf) processes on 4-way is 8x faster than on 2.4 kernels.
+> 
+> sorry, why should the atomic kmaps read the preempt_count? Are those ++
+> -- useful for anything more than debugging PREEMPT=y on a kernel
+> compiled with PREEMPT=n? I thought it was just debugging code with
+> PREEMPT=n.
+> 
+> I know why the atomic kmaps speedup write but I don't see how can
+> preempt_count help there when PREEMPT=n, the atomic kmaps are purerly
+> per-cpu and one can't schedule anyways while taking those kmaps (no
+> matter if inc_preempt_count or not).
+
+We run inc_prempt_count() in kmap_atomic() so that we can perform
+copy_*_user() while holding an atomic kmap in read() and write(). 
+do_page_fault() will detect the elevated preempt count and will return a
+short copy.
+
+This could be implemented with a separate task_struct field but given that
+preempt_count is always there and the infrastructure exists anyway, using
+preempt_count() is tidier.
+

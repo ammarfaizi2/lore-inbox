@@ -1,115 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTLDBYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 20:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbTLDBYg
+	id S262940AbTLDB2O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 20:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTLDB2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 20:24:36 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:50950 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262844AbTLDBYZ
+	Wed, 3 Dec 2003 20:28:14 -0500
+Received: from smtp11.eresmas.com ([62.81.235.111]:40394 "EHLO
+	smtp11.eresmas.com") by vger.kernel.org with ESMTP id S262940AbTLDB2J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 20:24:25 -0500
-Date: Wed, 3 Dec 2003 17:24:20 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-ID: <20031204012420.GE4420@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20031202135423.GB13388@conectiva.com.br> <Pine.LNX.4.58.0312021508470.21855@moje.vabo.cz> <bql9kk$iq1$1@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	Wed, 3 Dec 2003 20:28:09 -0500
+Message-ID: <3FCE8D7C.4070704@wanadoo.es>
+Date: Thu, 04 Dec 2003 02:27:24 +0100
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: XFS for 2.4
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bql9kk$iq1$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: Unauthorised duplication and storage of this email is a violation of international copyright law and is subject to prosecution.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 03, 2003 at 06:22:12PM +0000, bill davidsen wrote:
-> In article <Pine.LNX.4.58.0312021508470.21855@moje.vabo.cz>,
-> Tomas Konir  <moje@vabo.cz> wrote:
-> | On Tue, 2 Dec 2003, Arnaldo Carvalho de Melo wrote:
-> | 
-> | > Em Tue, Dec 02, 2003 at 02:38:54PM -0500, Tomas Konir escreveu:
-> | > > On Tue, 2 Dec 2003, Arnaldo Carvalho de Melo wrote:
-> | > > 
-> | > > > Em Tue, Dec 02, 2003 at 02:06:34PM -0500, Tomas Konir escreveu:
-> | > > > > On Tue, 2 Dec 2003, Arnaldo Carvalho de Melo wrote:
-> | > > > > 
-> | > > > > > Em Tue, Dec 02, 2003 at 12:54:36PM +0100, Ionut Georgescu escreveu:
-> | > > > > > > I can only second that. We've been using XFS here since the days of
-> | > > > > > > 2.4.0-testxx and the only problems we've had were sitting between the
-> | > > > > > > chair and the keyboard.
-> | > > > > > 
-> | > > > > > So if there is no problems at all using it as a patch why add this to a
-> | > > > > > kernel that is phasing out?
-> | > > > > 
-> | > > > > Because me and others are wasting our time when merging xfs with other 
-> | > > > > patches such as grsecurity. XFS in kernel can save our time. The question 
-> | > > > > is, that if JFS and other FS's are in kernel, why not XFS ?
-> | > > > 
-> | > > > Why not ReiserFS4? Or DRBD? Or... :-)
-> | > > 
-> | > > ReiserFS4 is stable ? very new information for me.
-> 
-> Therein is a fair question. There are a lot more people using XFS than
-> JFS, or at least if people are using JFS they are not talking about it
+davidsen wrote:
 
-Perhaps because we aren't having many problems with it.
+> Larry McVoy wrote:
 
-> much. And XFS has been around and stable for a long time, probably
-> longer than stable JFS (and some would argue Reiser ;-). I don't think
-> new FS should be added indefinitely, but since XFS has seniority, a
-> larger user base than some FS in the kernel, neither of which will ever
-> be argued again for another FS, it seems possible to add XFS without
-> setting foot on some hypothetical slippery slope.
+>> It is also not unreasonable to reject a set of changes right before
+>> freezing 2.4.  2.4 is supposed to be dead.  Add XFS and what's next?
+>> Who's pet feature needs to go in?
 
-Probably more to the point is that not only is XFS used by
-many but has been part of distro kernels for some time.
+> Now that is bullshit and you know it! This is not a pet feature, this
+> is code which has has been stable for years. There just aren't any
+> other candidates, all the other FS stuff went in with less testing and
+> have fewer users now (JFS as example). This is also not code offered
+> "right before a freeze" this code has been offered version by version
+> for two bleepin' years, has it not? There's no slippery slope, there
+> are no other major features which have proven long-term stability. Fell
+> free to name them if I'm wrong...
 
-> As a stability issue, since people are using XFS, it would probably be
-> better to have it in than as a patch added and possibly modified by each
-> vendor.
+Really XFS code is not the big problem. But the changes in other parts [1]
+are really problematic when 2.4 is a *must be stable* .
+Is so hard to understand ?
 
-The fewer patches, particularly feature patches the distros
-have to add the less painful it would be to try a different
-kernel or change distros.
+If Marcelo believes that XFS changes, or any other feature or code,
+must not be in 2.4.24, is god's word and End Of Thread.
 
-That said, if XFS is wanted in Linux it should become a
-Linux native and not be dependant on IRIX APIs just so SGI
-engineers can use an unmodified common codebase.  I agree
-wholeheartedly with Marcello on that point.
-
-<OT>
-As a datapoint i'm running ext2, reiserfs, JFS and XFS each
-for different reasons.
-
-	ext2 -- boot (i'm stodgy) and 2kb blocks for archive CDs
-
-	reiserfs3 -- filesystems not exported nfs (no
-	historical version level that i can confirm whether
-	i have or not will namesys assert is reliable over
-	nfs)
-
-	jfs -- most nfs exported filesystems, decent
-	performance and solid but i don't use if for home
-	because in SuSE's 2.4.18 (i know it is ancient but
-	solid for me) jfs doesn't update mtime of
-	directories unless the block allocation changes
-	breaking maildir update detection.
-
-	xfs -- home (because of the jfs bug) Earlier tests
-	of xfs gave me horrible performance and i haven't
-	gotten around to testing since then.  If this is
-	fixed without tuning i might drop jfs.  Then again i
-	may drop xfs in the next upgrade if i change distros
-	and xfs isn't in-kernel.
+Christoph Hellwig is reviewing the XFS code, and we will see ...
 
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+[1] http://marc.theaimsgroup.com/?l=linux-xfs&m=107025984901582&w=2
 
-		Remember Cernan and Schmitt

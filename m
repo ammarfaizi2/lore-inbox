@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbTI3P3u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 11:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbTI3P3u
+	id S261607AbTI3Pst (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 11:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbTI3Pst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 11:29:50 -0400
-Received: from peabody.ximian.com ([141.154.95.10]:57994 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261582AbTI3P3r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 11:29:47 -0400
-Subject: Re: make install problems
-From: Kevin Breit <mrproper@ximian.com>
-Reply-To: mrproper@ximian.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030930081459.01f447bf.rddunlap@osdl.org>
-References: <1064927778.1575.0.camel@localhost.localdomain>
-	 <20030930081459.01f447bf.rddunlap@osdl.org>
+	Tue, 30 Sep 2003 11:48:49 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:39174
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S261607AbTI3PsY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 11:48:24 -0400
+Subject: Re: -mregparm=3 (was Re: [PATCH] i386 do_machine_check() is
+	redundant.
+From: Robert Love <rml@tech9.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309301437.h8UEbSvl017305@turing-police.cc.vt.edu>
+References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org>
+	 <1064775868.5045.4.camel@laptop.fenrus.com>
+	 <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz>
+	 <20030929202604.GA23344@nevyn.them.org>
+	 <Pine.LNX.4.58.0309292309050.7824@artax.karlin.mff.cuni.cz>
+	 <200309300449.h8U4nSvl002308@turing-police.cc.vt.edu>
+	 <1064897712.4568.32.camel@localhost>
+	 <200309301437.h8UEbSvl017305@turing-police.cc.vt.edu>
 Content-Type: text/plain
-Organization: Ximian, Inc.
-Message-Id: <1064935781.1575.5.camel@localhost.localdomain>
+Message-Id: <1064936898.4568.34.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 30 Sep 2003 11:29:42 -0400
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
+Date: Tue, 30 Sep 2003 11:48:19 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-30 at 11:14, Randy.Dunlap wrote:
-> On Tue, 30 Sep 2003 09:16:19 -0400 Kevin Breit <mrproper@ximian.com> wrote:
-> 
-> | Hey,
-> | 	I setup a test6 kernel without module support.  I did a make install
-> | and got:
-> | 
-> | Kernel: arch/i386/boot/bzImage is ready
-> | sh /usr/src/linux-2.6.0-test6/arch/i386/boot/install.sh 2.6.0-test6
-> | arch/i386/boot/bzImage System.map ""
-> | /lib/modules/2.6.0-test6 is not a directory.
-> | mkinitrd failed
-> | 
-> | How can I fix this?
-> 
-> We've seen this before, and I thought that we had determined that
-> it was a tools problem.  Is "depmod" in $PATH the depmod from
-> modutils or the one from module-init-tools?
-> I.e., what does 'depmod -V' say?
+On Tue, 2003-09-30 at 10:37, Valdis.Kletnieks@vt.edu wrote:
 
-modutils-2.4.22-8
+> Well, abs() is the only one I tripped over in my config.  I'm sure there's others
+> lurking elsewhere in the kernel tree.
 
-[root@kbreit linux-2.6.0-test6]# depmod -V
-depmod version 2.4.22
+There are not _too_ many builtins.  abs, strcpy, et cetera ...
 
+> The bigger question is whether a patch to support -ffreestanding would be a
+> good idea - with proper use of the __builtin_* stuff it *should* work, and it will
+> hopefully cause better kernel code hygiene..
 
-> and what execs mkinitrd?  I don't find it with a quick grep.
+I agree.  We should go for it.
 
-No clue
+	Robert Love
 
-Thanks
-
-Kevin
 

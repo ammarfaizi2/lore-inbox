@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319283AbSIFR1R>; Fri, 6 Sep 2002 13:27:17 -0400
+	id <S319294AbSIFR3k>; Fri, 6 Sep 2002 13:29:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319282AbSIFR1R>; Fri, 6 Sep 2002 13:27:17 -0400
-Received: from B5294.pppool.de ([213.7.82.148]:24254 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S319274AbSIFR1Q>; Fri, 6 Sep 2002 13:27:16 -0400
-Subject: Re: ide drive dying?
-From: Daniel Egger <degger@fhm.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1031326689.9861.45.camel@irongate.swansea.linux.org.uk>
-References: <200209061713.51387.devilkin-lkml@blindguardian.org> 
-	<1031326689.9861.45.camel@irongate.swansea.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-obfOzg4ODD0QEHqbhdwK"
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 06 Sep 2002 19:33:23 +0200
-Message-Id: <1031333604.11356.7.camel@sonja.de.interearth.com>
+	id <S319295AbSIFR3k>; Fri, 6 Sep 2002 13:29:40 -0400
+Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:11140 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S319294AbSIFR3i>; Fri, 6 Sep 2002 13:29:38 -0400
+Date: Fri, 6 Sep 2002 18:34:15 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: linux-kernel@vger.kernel.org, Marius Gedminas <mgedmin@centras.lt>
+Cc: ext2-devel@lists.sourceforge.net, Stephen Tweedie <sct@redhat.com>
+Subject: Re: ext3 corruption on 2.4.18 (LVM, vt82c586b, no DMA)
+Message-ID: <20020906183415.B7946@redhat.com>
+References: <20020904102605.GB8576@gintaras>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020904102605.GB8576@gintaras>; from mgedmin@centras.lt on Wed, Sep 04, 2002 at 12:26:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-obfOzg4ODD0QEHqbhdwK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Wed, Sep 04, 2002 at 12:26:06PM +0200, Marius Gedminas wrote:
+> There's an old Compaq Deskpro 2000 (Pentium MMX 166 MHz, 384M RAM)
+> that's being used as an Internet gateway (NAT) and FTP server for about
+> 200 users.  It was previously running that other operating system, and I
+> helped convert it to Linux (Debian 3.0).
 
-Am Fre, 2002-09-06 um 17.38 schrieb Alan Cox:
+> About 20 hours after mke2fs the first erros started cropping up:
+> 
+>   kernel: EXT3-fs error (device lvm(58,0)): ext3_add_entry: bad entry in directory #8568833: rec_len %% 4 != 0 - offset=0, inode=1104134607, rec_len=16847, name_len=207
 
-> Get the IBM disk tools, upgrade the firmware and see what the ibm tools
-> have to say. IBM drives have had some problems with spontaneous bad
-> blocks appearing that go away with new firmware and a run of the disk
-> tools.
+Well, there are a couple of ext3 fixes that have just been merged into
+Marcelo's bk tree, so you could try that and see if it helps.
+However, I suspect it won't, because:
 
-The "run of the disk tools" that does away with the badblocks is a
-lowlevel format; a tedious way to spent ones' time on a harddrive
-that will die anyway soon.
+> Unfortunately I noticed this only two days later.  e2fsck found *lots*
+> of errors, and it keeps restarting from the beginning for some reason.
+> I'm starting to have doubts if it will ever finish.
 
-> More importantly if thats the problem with the firmware update
-> they dont come back until the drive really dies.
+This suggests that e2fsck is finding new corruption each time it is
+scanning the disk.  That sounds as if a hardware or driver-level
+problem is more likely.  What sorts of errors are you getting from the
+fsck passes?
 
-Right, which is probably shortly after. Especially on a two years
-old drive I wouldn't go through all the troubles to backup 60GB
-data, lowlevel format the drive, restore the data and hope the
-problems are gone; instead I'd rather get a new drive within the
-warranty and cross fingers.
+> Is this an unfortunate interaction between ext3 and LVM, or should I
+> suspect flaky hardware?  RAM, disks, IDE cable?  There were problems
+> with /dev/hdd earlier that hinted a broken cable (borken model name in
+> hdparm -i), and the cable was replaced with a new one.
 
-BTW: I did the backup way exactly once and the drive got back to me
-with new errors two weeks after.
+One thing that would help would be to try a surface scan which writes
+stuff to the disk and verifies it.  The "badblocks" code from e2fsck
+can do that, but the most effective form of "badblocks" for such a
+case is highly destructive to your data, so it's only useful if you
+don't need to preserve the data already on the filesystem.
 
---=20
-Servus,
-       Daniel
+> I gather from Configure.help that DMA is broken on Via VP2, but it is
+> turned off here.
 
---=-obfOzg4ODD0QEHqbhdwK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+Unfortunately, if you disable UDMA mode, you also lose the checksums
+between drive and controller which can detect cable data corruption.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9eObjchlzsq9KoIYRAp2MAJwKB2vsCxN8Uo4sHGjndrVRqqCGvQCdFO0p
-tmsOiRQC4NCd8H606+P1RBE=
-=yLzW
------END PGP SIGNATURE-----
-
---=-obfOzg4ODD0QEHqbhdwK--
-
+Cheers,
+ Stephen

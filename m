@@ -1,49 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264588AbTLGXZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 18:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264589AbTLGXZ5
+	id S264589AbTLHA3t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 19:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264593AbTLHA3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 18:25:57 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:46313 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264588AbTLGXZ4
+	Sun, 7 Dec 2003 19:29:49 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:59558 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S264589AbTLHA3r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 18:25:56 -0500
-Message-ID: <3FD3B221.1060200@cyberone.com.au>
-Date: Mon, 08 Dec 2003 10:05:05 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Sun, 7 Dec 2003 19:29:47 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "John Bradford" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Additional clauses to GPL in network drivers
+Date: Sun, 7 Dec 2003 16:29:42 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKCEJMIIAA.davids@webmaster.com>
 MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Markus_H=E4stbacka?= <midian@ihme.org>
-CC: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's scheduler v19a
-References: <3FB62608.4010708@cyberone.com.au>	 <1069361130.13479.12.camel@midux>  <3FBD4F6E.3030906@cyberone.com.au>	 <1069395102.16807.11.camel@midux>  <3FBDAE99.9050902@cyberone.com.au>	 <1069405566.18362.5.camel@midux>  <3FBDD790.5060401@cyberone.com.au>	 <1070468086.17208.4.camel@midux>  <3FCE6073.7040503@cyberone.com.au> <1070833955.3572.2.camel@midux>
-In-Reply-To: <1070833955.3572.2.camel@midux>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-Markus Hästbacka wrote:
-
->Hi again Nick, I ported the patch forward to -bk1>, the problem was
->here:
-><snip>
->-                       if (sync)
-><snip>
+> Many network drivers in the current 2.6 tree include the following
+> licensing condition/clarification, in addition to being placed under
+> the GPL:
 >
->That should be:
-><snip>
->-                       if (sync && (task_cpu(p) == smp_processor_id()))
-><snip>
->when patchin kernel/sched.c
->Is this right?
+> "This file is not a complete program and may only be used when the
+> entire operating system is licensed under the GPL".
 >
+> as
+> grep -C 1 "only be used when"
+>
+> in drivers/net will confirm.
 
-Hi Markus,
-Yep thats correct.
+	If this adds any restriction on use that is not part of the GPL, then this
+'license' is not compatible with the GPL. If this reflects the author's
+understanding of the GPL, then it's grossly incorrect.
+
+> 2. Is code licensed under this extra term actually compatible with
+> code placed under the GPL alone?
+
+	Only if the term is meaningless. I suspect that it's legally meaningless
+and simply erroneous, but it does create the risk that someone might argue
+that it's an additional restriction.
+
+> 3. I haven't tried to trace the history of this code, but if these
+> drivers were based on, and include, other developer's purely GPL'ed
+> code, applying this extra condition is presumably not valid, (unless
+> specific permission was sought to do so).
+
+	Correct. Most likely this is the case, so it reflects license hijacking on
+the part of the person who did it. To take someone else's GPL'd code, modify
+it, and release the modified code under a license that is more restrictive
+than the GPL is despicable conduct.
+
+> 4. The obvious issue concerning binary modules - does loading a binary
+> module which is not licensed under the GPL invalidate your license to
+> use these network drivers?  Note that I personally have no interest
+> whatsoever in using such binary modules, but whatever ends up being
+> decided for the GPL'ed parts of the kernel, this extra clause suggests
+> to me that it specifically isn't OK whilst using these network
+> drivers.
+
+	I think this is just one way of showing that the clause is erroneous.
+
+	DS
 
 

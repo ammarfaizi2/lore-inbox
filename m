@@ -1,43 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264842AbTGGVVX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 17:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264844AbTGGVVX
+	id S264487AbTGGV1K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 17:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTGGV1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 17:21:23 -0400
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:28677 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S264842AbTGGVVP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 17:21:15 -0400
-Date: Mon, 7 Jul 2003 23:35:04 +0200 (CEST)
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: Chris Mason <mason@suse.com>
-cc: linux-kernel@vger.kernel.org, Bartlomiej Solarz <solarz@wsisiz.edu.pl>
-Subject: Re: Linux 2.4.22-pre3
-In-Reply-To: <1057608615.20903.1361.camel@tiny.suse.com>
-Message-ID: <Pine.LNX.4.53.0307072332380.4192@lt.wsisiz.edu.pl>
-References: <200307071934.h67JYxdk003733@lt.wsisiz.edu.pl>
- <1057608615.20903.1361.camel@tiny.suse.com>
+	Mon, 7 Jul 2003 17:27:10 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:19631 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S264487AbTGGV1H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 17:27:07 -0400
+Date: Mon, 7 Jul 2003 17:41:40 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       devfs@oss.sgi.com
+Subject: Re: [PATCH][2.5.74] devfs lookup deadlock/stack corruption combined
+ patch
+In-Reply-To: <200307072306.15995.arvidjaar@mail.ru>
+Message-ID: <Pine.LNX.4.56.0307071725400.11643@marabou.research.att.com>
+References: <E198K0q-000Am8-00.arvidjaar-mail-ru@f23.mail.ru>
+ <20030706120315.261732bb.akpm@osdl.org> <20030706175405.518f680d.akpm@osdl.org>
+ <200307072306.15995.arvidjaar@mail.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jul 2003, Chris Mason wrote:
+On Mon, 7 Jul 2003, Andrey Borzenkov wrote:
 
-> The changes in -pre3 won't cut down on the load reported by top/ps.  The
-> goal is to cut down on latencies on the box as a whole.  So the load
-> will still be as high, but you'll still be able to do an ls without
-> waiting indefinitely for the results.
+> To reproduce (2.5.74 UP or SMP - does not matter, single CPU system)
+>
+> ls /dev/foo & rm -f /dev/foo &
+>
+> or possibly in a loop but then it easily fills up process table. In my case it
+> hangs 100% reliably - on 2.5 OR 2.4.
 
-How long can i wait 1-5 minutes?
+I've done some testing too.  I was using this script:
 
-> So, if you are still seeing bad response times, I can send you a patch
-> to try in private mail (it has been posted here a few times already).
+while :; do ls /dev/foo & rm -f /dev/foo & done
 
-Please send, Thank You!
+On Linux 2.5.74-bk5 without patches, running this script on a local
+virtual console makes the system very slow.  I could not even login on
+another virtual console.  However, I could interrupt the script by Ctrl-C.
+After that I had a large number of processes in the D state.  Here's an
+excerpt from the output of "ps ax":
+
+31011 vc/1     D      0:00 ls /dev/foo
+31012 vc/1     D      0:00 rm -f /dev/foo
+31013 vc/1     D      0:00 ls /dev/foo
+31014 vc/1     D      0:00 rm -f /dev/foo
+
+I couldn't reboot the system cleanly.  My guess is that no new processes
+could be run.
+
+Linux 2.5.74-bk5 with the "combined" patch is OK.  Running the test
+script doesn't prevent new logins.  There are no hanging processes after
+interrupting the script.
+
+> I have already sent the patch for 2.4 two times - please, could somebody
+> finally either apply it or explain what is wrong with it. Richard is out of
+> reach apparently and the bug is real and seen by many people.
+
+I confirm seeing the bug on two systems with recent 2.4.x kernels with
+probability over 50%.  Upgrading both systems to 2.5.x cured the problem
+(of course, it's just a race condition that stopped happening).
+
+Yes, it's an important problem to fix, and maybe we could remove the
+"experimental" mark from CONFIG_DEVFS once it's done.  Maybe it's better
+to have the patch accepted in the 2.5 series first just for "methodical"
+reasons, but in practical terms, it's 2.4 kernels that need the deadlock
+fix very badly.
 
 -- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+Regards,
+Pavel Roskin

@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132574AbRDHRVt>; Sun, 8 Apr 2001 13:21:49 -0400
+	id <S132573AbRDHRbl>; Sun, 8 Apr 2001 13:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132573AbRDHRVj>; Sun, 8 Apr 2001 13:21:39 -0400
-Received: from colorfullife.com ([216.156.138.34]:10000 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S132574AbRDHRVX>;
-	Sun, 8 Apr 2001 13:21:23 -0400
-Message-ID: <001301c0c050$69f69be0$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <kuznet@ms2.inr.ac.ru>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200104081658.UAA15180@ms2.inr.ac.ru>
-Subject: Re: softirq buggy [Re: Serial port latency]
-Date: Sun, 8 Apr 2001 19:21:54 +0200
+	id <S132576AbRDHRbb>; Sun, 8 Apr 2001 13:31:31 -0400
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:26271 "EHLO
+	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S132573AbRDHRbU>; Sun, 8 Apr 2001 13:31:20 -0400
+Message-ID: <3AD0A029.C17C3EFC@rcn.com>
+Date: Sun, 08 Apr 2001 12:30:17 -0500
+From: Marvin Stodolsky <stodolsk@rcn.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Russell King <rmk@arm.linux.org.uk>
+CC: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+Subject: Re: build -->/usr/src/linux
+In-Reply-To: <3AD079EA.50DA97F3@rcn.com> <20010408161620.A21660@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: <kuznet@ms2.inr.ac.ru>
-> Hello!
->
-> > + if (softirq_active(smp_processor_id()) &
-softirq_mask(smp_processor_id())) {
-> > + do_softirq();
-> > + return 0;
->
-> BTW you may delete do_softirq()... schedule() will call this.
->
+Russell
 
-But with a huge overhead. I'd prefer to call it directly from within the
-idle functions, the overhead of schedule is IMHO too high.
+Thanks for responding.  But I would still like to understand what the
+functionality is of the build --> /usr/src/linuc.  Is it dispensable,
+once the module tree has been installed? 
 
->
-> > + *
-> > + * Isn't this identical to default_idle with the 'no-hlt' boot
-> > + * option? <manfred@colorfullife.com>
->
-> Seeems, it is not. need_resched=-1 avoids useless IPIs.
->
-I already wondered why need_resched is set to -1 ;-)
+Incidentally, per below, my own modutils is current, though some of the
+folks using our ltmodem.o compiler/installer kits may indeed need to
+update. 
+> You need to update your modutils package - there have been a number of
+> important bug fixes, including some which allow it to work properly with
+> 2.4 kernels.
 
-I'll remove that comment and repost the patch.
+# insmod -V
+insmod version 2.4.2
+# grep " # " /usr/src/linux-2.4.3/Documentation/Changes
+o  Gnu C                  2.91.66                 # gcc --version
+o  Gnu make               3.77                    # make --version
+o  binutils               2.9.1.0.25              # ld -v
+o  util-linux             2.10o                   # fdformat --version
+o  modutils               2.4.2                   # insmod -V
+etc.
 
---
-    Manfred
+MarvS
 
+
+> Russell King wrote:
+> 
+> On Sun, Apr 08, 2001 at 09:47:06AM -0500, Marvin Stodolsky wrote:
+> > It's presence has required some gymnastics, per below, during module
+> > installation for the Winmodem driver, ltmodem.o requiring a subsequent
+> > "depmod -a"
+> 
+> You need to update your modutils package - there have been a number of
+> important bug fixes, including some which allow it to work properly with
+> 2.4 kernels.
+> 
+> --
+> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+>              http://www.arm.linux.org.uk/personal/aboutme.html

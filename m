@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbUJWWTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbUJWXDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbUJWWTM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 18:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbUJWWTM
+	id S261330AbUJWXDu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 19:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbUJWXDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 18:19:12 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:26758 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261312AbUJWWTD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 18:19:03 -0400
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Kevin Puetz <puetzk@puetzk.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <417A8EC2.7070505@keyaccess.nl>
-References: <4176E08B.2050706@techsource.com>
-	 <41785D8D.5070808@keyaccess.nl> <clcqrr$u5o$1@sea.gmane.org>
-	 <417A8EC2.7070505@keyaccess.nl>
-Content-Type: text/plain
-Date: Sat, 23 Oct 2004 18:19:00 -0400
-Message-Id: <1098569940.29081.5.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Oct 2004 19:03:50 -0400
+Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:22440 "EHLO
+	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261330AbUJWXDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 19:03:42 -0400
+Message-ID: <417AE332.6090300@kolivas.org>
+Date: Sun, 24 Oct 2004 09:03:14 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Javier Marcet <javier@marcet.info>, linux-kernel@vger.kernel.org
+Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
+References: <20041023125948.GC9488@marcet.info> <20041023123323.04b59353.akpm@osdl.org>
+In-Reply-To: <20041023123323.04b59353.akpm@osdl.org>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig28ED3D53887F7505506B965B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-23 at 19:02 +0200, Rene Herman wrote:
-> I see from unichrome.sf.net that they are piecing together register info 
-> from drivers they got VIA to release...
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig28ED3D53887F7505506B965B
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-They are not "piecing it together".  They have signed NDA with VIA to
-get docs.  Many vendors have no objection to open source drivers, they
-just want to know who has their chip documentation. 
+Andrew Morton wrote:
+> Javier Marcet <javier@marcet.info> wrote:
+> 
+>>I've been following quite closely the development of 2.6.9, testing
+>> every -rc release and a lot of -bk's.
+>>
+>> Upon changing from 2.6.9-rc2 to 2.6.9-rc3 I began experiencing random
+>> oom kills whenever a high memory i/o load took place.
+> 
+> 
+> Do you have swap online?
 
-Anyway the 3D support is somewhat lacking, not for lack of information
-but for lack of developers.  Maybe if you want to improve the 3D driver
-then VIA would work with you.
+When he first reported it he said no swap.
 
-Lee 
+> What sort of machine is it, and how much memory has it?
 
+Ditto - 1Gb ram.
+
+Con
+
+--------------enig28ED3D53887F7505506B965B
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBeuMyZUg7+tp6mRURAiLFAJ93nfYIGCRkThjG4V2eCBxG1/nN4gCfZiqy
+TR6KYjofMcA33itCuwy5XO0=
+=JdZJ
+-----END PGP SIGNATURE-----
+
+--------------enig28ED3D53887F7505506B965B--

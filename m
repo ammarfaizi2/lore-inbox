@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131407AbRDJKLU>; Tue, 10 Apr 2001 06:11:20 -0400
+	id <S131386AbRDJKBU>; Tue, 10 Apr 2001 06:01:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132963AbRDJKLK>; Tue, 10 Apr 2001 06:11:10 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:58866 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S131407AbRDJKLI>;
-	Tue, 10 Apr 2001 06:11:08 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200104101011.DAA29579@csl.Stanford.EDU>
-Subject: [CHECKER] amusing copy_from_user bug
-To: linux-kernel@vger.kernel.org
-Date: Tue, 10 Apr 2001 03:11:05 -0700 (PDT)
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131407AbRDJKBL>; Tue, 10 Apr 2001 06:01:11 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:2063 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S131386AbRDJKBB>;
+	Tue, 10 Apr 2001 06:01:01 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104101000.f3AA0nZ517534@saturn.cs.uml.edu>
+Subject: Re: No 100 HZ timer !
+To: mj@suse.cz (Martin Mares)
+Date: Tue, 10 Apr 2001 06:00:49 -0400 (EDT)
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010410113309.A16825@atrey.karlin.mff.cuni.cz> from "Martin Mares" at Apr 10, 2001 11:33:09 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-copy_from_user should probably have something like
-                (sizeof(agp_segment) * reserve.seg_count)
-as it's size argumenbt rather than
-		GFP_KERNEL 
+Martin Mares writes:
+> [lost]
 
-/u2/engler/mc/oses/linux/2.4.3/drivers/char/agp/agpgart_fe.c:882:agpioc_reserve_
-wrap: ERROR:SIZE-CHECK:882:882: segment = 'copy_from_user'(7 bytes), need 12
+>> Just how would you do kernel/user CPU time accounting then ?
+>> It's currently done on every timer tick, and doing it less
+>> often would make it useless.
+>
+> Except for machines with very slow timers we really should account time
+> to processes during context switch instead of sampling on timer ticks.
+> The current values are in many situations (i.e., lots of processes
+> or a process frequently waiting for events bound to timer) a pile
+> of random numbers.
 
-                agp_segment *segment;
-
-                segment = kmalloc((sizeof(agp_segment) * reserve.seg_count),
-                                  GFP_KERNEL);
-
-                if (segment == NULL) {
-                        return -ENOMEM;
-                }
-                if (copy_from_user(segment, (void *) reserve.seg_list,
-                                   GFP_KERNEL)) {
-                        kfree(segment);
-                        return -EFAULT;
-                }
-
-As a side question: is it still true that verify_area's must be done before
-any use of __put_user/__get_user/__copy_from_user/etc?
+Linux should maintain some sort of per-process decaying average.
+This data is required for a Unix98-compliant ps program. (for %CPU)
+Currently ps is using total CPU usage over the life of the process.

@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbUAIQTU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 11:19:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUAIQTU
+	id S262355AbUAIQa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 11:30:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUAIQa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 11:19:20 -0500
-Received: from tench.street-vision.com ([212.18.235.100]:19334 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id S262128AbUAIQTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 11:19:19 -0500
-Subject: Re: kernel 2.4.24 - weird priorities for RAID processes
-From: Justin Cormack <justin@street-vision.com>
-To: Konstantin Kudin <konstantin_kudin@yahoo.com>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040109161047.46078.qmail@web21204.mail.yahoo.com>
-References: <20040109161047.46078.qmail@web21204.mail.yahoo.com>
-Content-Type: text/plain
+	Fri, 9 Jan 2004 11:30:58 -0500
+Received: from pop.gmx.net ([213.165.64.20]:33417 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262355AbUAIQa4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 11:30:56 -0500
+X-Authenticated: #4512188
+Message-ID: <3FFED73D.8020502@gmx.de>
+Date: Fri, 09 Jan 2004 17:30:53 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.1-mm1
+References: <20040109014003.3d925e54.akpm@osdl.org>
+In-Reply-To: <20040109014003.3d925e54.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 09 Jan 2004 16:19:19 +0000
-Message-Id: <1073665160.1766.23.camel@lotte.street-vision.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update your procps utils.
+Hi,
 
+could it be that you took out /or forgot to insterst the work-around for 
+nforce2+apic? At least I did a test with cpu disconnect on and booted 
+kernel and it hang. (I also couldn't find the work-around in the 
+sources.) I remember an earlier mm kernel had that workaround inside.
 
-On Fri, 2004-01-09 at 16:10, Konstantin Kudin wrote:
->  The 2.4.24 kernel reports weird priorities for
-> certain processes.
-> 
-> 
-> kiev:~>cat /proc/version
-> Linux version 2.4.24 (root@kiev.somewhere.EDU) (gcc
-> version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)) #1 SMP
-> Thu
-> Jan 8 16:47:09 EST 2004
-> 
-> 
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM
->   TIME CPU COMMAND
->     6 root       9   0     0    0     0 SW    0.0  0.0
->   0:00   0 bdflush
->     7 root       9   0     0    0     0 SW    0.0  0.0
->   0:00   0 kupdated
->     8 root     18446744073709551615 -20     0    0    
-> 0 SW<   0.0  0.0   0:00   1 mdrecoveryd
->    16 root     18446744073709551615 -20     0    0    
-> 0 SW<   0.0  0.0   0:00   0 raid1d
-> 
-> 
-> 
-> 
-> 
-> __________________________________
-> Do you Yahoo!?
-> Yahoo! Hotjobs: Enter the "Signing Bonus" Sweepstakes
-> http://hotjobs.sweepstakes.yahoo.com/signingbonus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+bye,
 
-
+Prakash

@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVCPWML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262832AbVCPWTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbVCPWML (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 17:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbVCPWMK
+	id S262832AbVCPWTc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 17:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVCPWTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 17:12:10 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:39555
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262827AbVCPWJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 17:09:40 -0500
-Date: Wed, 16 Mar 2005 14:07:37 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: <shenkel@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix unaligned accesses in tcp_input_parse
-Message-Id: <20050316140737.7325f9fb.davem@davemloft.net>
-In-Reply-To: <16952.4619.28663.456755@gargle.gargle.HOWL>
-References: <16952.4619.28663.456755@gargle.gargle.HOWL>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 16 Mar 2005 17:19:32 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:37866 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262832AbVCPWT3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 17:19:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=XdVwI9elPywcq1TAxHXOT5vLRe8O5A9IImP8AVto/GQSilimamAuoQqfaxII5j+GzRjH8f/2Hecgn0Bw4DgviDuBWJdU0FtXoQiAOAXE2Daahxz0LLr2A+gMKy6rnWDpdZ5RtuNQPWgKK1qt3a/6md57k0FArzuNYgy5SzFBDn4=
+Message-ID: <d120d50005031614194a3bc41a@mail.gmail.com>
+Date: Wed, 16 Mar 2005 17:19:29 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: linux-os@analogic.com
+Subject: Re: Locking changes to the driver-model core
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
+In-Reply-To: <Pine.LNX.4.61.0503161602530.6525@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.44L0.0503161422440.639-100000@ida.rowland.org>
+	 <Pine.LNX.4.61.0503161602530.6525@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Mar 2005 12:01:31 +0100
-<shenkel@gmail.com> wrote:
+On Wed, 16 Mar 2005 16:10:11 -0500 (EST), linux-os
+<linux-os@analogic.com> wrote:
+> 
+> Thought experiment:
+> Suppose you had a kernel-thread whos duty it was to handle the
+> shutdown and restarting of devices on such busses. Since it
+> is the only thing that would touch such code, wouldn't things
+> be a lot simpler and not subject to deadlocks?
+> 
 
-> TCP options are not guaranteed to be aligned at all, so we should use
-> get_unaligned when accessing u16- or u32-values in the TCP
-> options header to avoid alignment errors on some platforms. The patch
-> applies to vanilla 2.6.11.
+You'd still have to mind devices that were added/removed from
+probe/remove handlers while walking lists.
 
-Applied, thanks.
+-- 
+Dmitry

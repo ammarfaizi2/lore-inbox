@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317931AbSHSEgC>; Mon, 19 Aug 2002 00:36:02 -0400
+	id <S318067AbSHSErz>; Mon, 19 Aug 2002 00:47:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318019AbSHSEgC>; Mon, 19 Aug 2002 00:36:02 -0400
-Received: from pa13.bydgoszcz.sdi.tpnet.pl ([213.25.7.13]:18954 "HELO
-	pa13.bydgoszcz.sdi.tpnet.pl") by vger.kernel.org with SMTP
-	id <S317931AbSHSEgB>; Mon, 19 Aug 2002 00:36:01 -0400
-Date: Mon, 19 Aug 2002 06:39:41 +0200
-From: "Tomasz Torcz, BG" <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4 and full ipv6 - will it happen?
-Message-ID: <20020819043941.GA31158@irc.pl>
-Mail-Followup-To: "Tomasz Torcz, BG" <zdzichu@irc.pl>,
-	linux-kernel@vger.redhat.com
+	id <S318072AbSHSErz>; Mon, 19 Aug 2002 00:47:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1245 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318067AbSHSEry>;
+	Mon, 19 Aug 2002 00:47:54 -0400
+Date: Sun, 18 Aug 2002 21:37:19 -0700 (PDT)
+Message-Id: <20020818.213719.117777405.davem@redhat.com>
+To: zdzichu@irc.pl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and full ipv6 - will it happen?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020819043941.GA31158@irc.pl>
+References: <20020819043941.GA31158@irc.pl>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: "Tomasz Torcz, BG" <zdzichu@irc.pl>
+   Date: Mon, 19 Aug 2002 06:39:41 +0200
+   
+   Linux still has superior networking, but protocol of the future is IPv6.
 
-Some time ago Linux was first OS to have full RFC complaint IPv4 stack.
-Linux still has superior networking, but protocol of the future is IPv6.
-IPv6 stack in mainline is currently far from perfect. There is a hope,
-however. Full IPv6 stack is beeing mantained by USAGI project. It's
-clear, that USAGI's project will be integrated into mainline kernel.
-What worries me - it's planned for 2.7, what is _BAD_ and late.
-IMO, it can be included in any time. The sooner is better.
-Marcelo - would you include full IPv6 stack in 2.4.20 if you get patches?
-Please - it's important for Linux to be network OS choice in future.
-It's barely possible with current IPv6 implementation.
+That is your opinion.  This is what people have been saying since some
+6 or 7 years ago, and ipv6 has not moved much further out of
+experimental state since then.
 
-My another concern is that Linux on Sparc machines is very unstable,
-and main polish 6bone router - beeing a sparc machine - is not very
-reliable. But that's another story.
+   Full IPv6 stack is beeing mantained by USAGI project.
 
--- 
-Tomasz Torcz           Zjadanie martwych dzieci
-zdzichu@irc.pl           jest barbarzynstwem!
+Yes, and based upon previous attempts to get them to merge their work
+into the mainline, we believe at this point that they actually enjoy
+being a totally seperate project and not merging completely is a
+feature for them.
+
+USAGI may only accept that comment, and the only way they may
+disprove it is to merge their code to us as we have continually
+requested them to do so.
+
+In my opinion, USAGI has been given more than adequate opportunities
+to merge their entire work into the mainline.  Alexey Kuznetsov has
+asked them repeatedly over the years to merge with him, yet they
+always fail to do so completely.  Occaisionally one or two trivially
+bug fixes they are able to merge, but otherwise their efforts always
+fall short.
+
+They claim they wish to merge so badly, yet act in opposite manner.
+It is almost disgraceful and I am so tired of this continual public
+propaganda that tries to make it look as if Alexey and myself are to
+blame for this.

@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbUC0K2m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 05:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUC0K2m
+	id S261718AbUC0Kjt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 05:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUC0Kjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 05:28:42 -0500
-Received: from mail.shareable.org ([81.29.64.88]:11154 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261672AbUC0K2k
+	Sat, 27 Mar 2004 05:39:49 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:60841 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261718AbUC0Kjr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 05:28:40 -0500
-Date: Sat, 27 Mar 2004 10:28:28 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040327102828.GA21884@mail.shareable.org>
-References: <20040321125730.GB21844@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com> <20040321181430.GB29440@wohnheim.fh-wedel.de> <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com> <20040325174942.GC11236@mail.shareable.org> <m1ekrgyf5y.fsf@ebiederm.dsl.xmission.com> <20040325194303.GE11236@mail.shareable.org> <m1ptb0zjki.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1ptb0zjki.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 27 Mar 2004 05:39:47 -0500
+To: Ben Collins <bcollins@debian.org>
+Cc: Johan FISCHER <linux@fischaz.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Panic] ieee1394 HD when moving files
+X-PGP-KeyID: 0xF22A794E
+X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
+From: Vincent Bernat <bernat@free.fr>
+In-Reply-To: <20040324105457.GZ2255@phunnypharm.org> (Ben Collins's message
+ of "Wed, 24 Mar 2004 05:54:57 -0500")
+References: <20040324195300.1q8sc0gcckooc4os@webmail.fischaz.com>
+	<20040324105457.GZ2255@phunnypharm.org>
+Organization: Khabale Inc
+Date: Sat, 27 Mar 2004 11:39:45 +0100
+Message-ID: <m3u10a3766.fsf@neo.loria>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> It is easy to add something like a cowstat or a readcowlink and teach
-> the few programs that care (i.e. diff, tar,...) how to use it.  So I
-> would rather concentrate on making cow links look like a separate copy
-> than early optimizations.
+OoO En cette fin de  matinée radieuse du  mercredi 24 mars 2004,  vers
+11:54, Ben Collins <bcollins@debian.org> disait:
 
-I agree, having each cowlink look like a separate copy, with separate
-inode numbers, is best.  That _is_ POSIX compatible -- the sharing is
-just a storage optimisation, and programs which only use the POSIX API
-won't see the difference.
+>> When moving a file >300Mo to my external Hard drive (connected to the ieee1394
+>> port), The kernel sytematically panic and crashed with the same error.
+>> 
+>> The problem seems to come from the DMA part of the OHCI1394 driver and affect
+>> the kernel above version 2.6.2 (i'll try the 2.6.3 if I have some times but I'm
+>> almost sure the 2.6.2 is the last version to work).
 
-I have no problem with adding cowstat() to diff, and I'm sure other
-people will eventually extend rsync and tar to use it, if it becomes
-widely used.
+> This is fixed if you use 2.6.5-rc2 + our SVN repo.
 
-It's not the simplest solution, though.  The filesystem changes are
-non-trivial.  (The simplest solution is just an ext2 attribute which
-says you can't write to the file if it has >1 links).
+I have a similar problem on Linux PPC. With a 2.6.5-rc2 + your SVN
+repo, I get :
 
--- Jamie
+,----
+| ieee1394: sbp2: aborting sbp2 command
+| 0x2a 00 02 d5 5f 60 00 00 80 00 
+| ieee1394: sbp2: aborting sbp2 command
+| 0x2a 00 02 d5 62 e0 00 00 80 00 
+| ieee1394: sbp2: sbp2util_node_write_no_wait failed
+| ieee1394: sbp2: sbp2util_node_write_no_wait failed
+| ieee1394: sbp2: sbp2util_node_write_no_wait failed
+| ieee1394: sbp2: sbp2util_node_write_no_wait failed
+| ieee1394: sbp2: sbp2util_node_write_no_wait failed
+| ieee1394: sbp2: sbp2util_node_write_no_wait failed
+| ieee1394: sbp2: sbp2util_node_write_no_wait failed
+| ieee1394: sbp2: sbp2util_node_write_no_wait failed
+| ieee1394: sbp2: sbp2util_node_write_no_wait failed
+`----
+
+The machine is almost freezed then after one minute totally
+freezed. All was fine with 2.6.3-ben2 (which was merged in 2.6.4).
+
+It is 100% reproducible. I can enter in the debugger and get a
+backtrace. I have to found how to supply System.map since it does not
+find it.
+-- 
+Don't stop with your first draft.
+            - The Elements of Programming Style (Kernighan & Plaugher)
+

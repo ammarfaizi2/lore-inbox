@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132822AbRDQTLq>; Tue, 17 Apr 2001 15:11:46 -0400
+	id <S132830AbRDQTVK>; Tue, 17 Apr 2001 15:21:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132824AbRDQTLg>; Tue, 17 Apr 2001 15:11:36 -0400
-Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:30990 "EHLO
-	mail.compro.net") by vger.kernel.org with ESMTP id <S132822AbRDQTL1>;
-	Tue, 17 Apr 2001 15:11:27 -0400
-Message-ID: <3ADC957A.4EC55BFA@compro.net>
-Date: Tue, 17 Apr 2001 15:11:54 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S132827AbRDQTVB>; Tue, 17 Apr 2001 15:21:01 -0400
+Received: from maniola.plus.net.uk ([195.166.135.195]:35457 "HELO
+	mail.plus.net.uk") by vger.kernel.org with SMTP id <S132826AbRDQTUs>;
+	Tue, 17 Apr 2001 15:20:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "D.W.Howells" <dhowells@astarte.free-online.co.uk>
+To: andrea@suse.de
+Subject: Re: generic rwsem [Re: Alpha "process table hang"]
+Date: Tue, 17 Apr 2001 20:18:57 +0100
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: amiga affs support broken in 2.4.x kernels??
-In-Reply-To: <3AD59EB9.35F3A535@compro.net> <3AD9FEDD.2B636582@linux-m68k.org> <3ADAEA9B.D70DC130@compro.net> <3ADB1837.A0AE3020@linux-m68k.org> <3ADC3262.C97B475@compro.net> <3ADC85A1.4755C87F@linux-m68k.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01041720185700.01003@orion.ddi.co.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> 
-> Could you try the attached patch? I forgot to initialize a variable
-> correctly.
-> (I also put a new version at
-> http://www.xs4all.nl/~zippel/affs.010417.tar.gz)
-> 
-> > I beleive the filesystem is ffs
-> > but not exactly sure. How do I tell?
-> 
-> It's printed if you mount with '-overbose', but it shouldn't be needed
-> anymore. :)
-> 
-> bye, Roman
-> 
->   ------------------------------------------------------------------------
->                 Name: affs.diff
->    affs.diff    Type: Plain Text (text/plain)
->             Encoding: 7bit
-Roman,
- That seems to have done it. I'm now able to mount,read,and write to
-affs
-file systems. With an scsi zip drive with 3 affs partitions on it and an
-affs hardfile(loop) that I use with UAE occasionally. Looks good to me.
-I'll be using this functionality quite a bit so I'll notify you of any
-anomalies if it's ok. Thank you for your efforts.
+Andrea,
 
-Regards
-Mark Hounschell
-markh@compro.net
+> As said the design of the framework to plugin per-arch rwsem implementation 
+> isn't flexible enough and the generic spinlocks are as well broken, try to 
+> use them if you can (yes I tried that for the alpha, it was just a mess and 
+> it was more productive to rewrite than to fix).
+
+Having thought about the matter a bit, I know what the problem is:
+
+As stated in the email with the latest patch, I haven't yet extended this to 
+cover any architecture but i386. That patch was actually put up for comments, 
+though it got included anyway.
+
+Therefore, all other archs use the old (and probably) broken implementations!
+
+I'll quickly knock up a patch to fix the other archs. This should also fix 
+the alpha problem.
+
+As for making the stuff I had done less generic, and more specific, I only 
+made it more generic because I got asked to by a number of people. It was 
+suggested that I move the contention functions into lib/rwsem.c and make them 
+common.
+
+As far as using atomic_add_return() goes, the C compiler cannot make the 
+fastpath anywhere near as efficient, because amongst other things, I can make 
+use of the condition flags set in EFLAGS and the compiler can't.
+
+> And it's also more readable and it's not bloated code, 65+110 lines
+> compared to 156+148+174 lines. 
+
+You do my code an injustice there... I've put comments in mine.
+
+David

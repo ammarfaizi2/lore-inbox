@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264495AbTF0O5C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 10:57:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTF0O4I
+	id S264507AbTF0O6O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 10:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbTF0O5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 10:56:08 -0400
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:14747 "EHLO
-	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S264465AbTF0Ox1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 10:53:27 -0400
-Date: Fri, 27 Jun 2003 17:06:29 +0200
+	Fri, 27 Jun 2003 10:57:51 -0400
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:38531 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S264476AbTF0Owu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 10:52:50 -0400
+Date: Fri, 27 Jun 2003 17:05:52 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (4/7): dasd driver.
-Message-ID: <20030627150629.GE3591@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (3/7): common i/o layer.
+Message-ID: <20030627150552.GD3591@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,573 +21,613 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Simplify long busy condition handling, add quiesce/resume ioctl.
-- Add sense data area to reserve/release/steal_lock ccw-chains.
+- Make ccwgroup online attribute consistent with ccw online attribute.
+- Add link incident record handling to channel subsystem code.
+- Do path grouping only if the device driver explicitly requests it.
+- Fix multicast or broadcast flood ping hand on HiperSockets.
 
 diffstat:
- drivers/s390/block/dasd.c          |   43 +++++--------------------
- drivers/s390/block/dasd_3990_erp.c |   21 +++++-------
- drivers/s390/block/dasd_eckd.c     |   62 +++++++++++++------------------------
- drivers/s390/block/dasd_erp.c      |   51 ++++++++++--------------------
- drivers/s390/block/dasd_int.h      |   10 ++++-
- drivers/s390/block/dasd_ioctl.c    |   54 ++++++++++++++++++++++++++++++++
- include/asm-s390/dasd.h            |   14 ++------
- 7 files changed, 124 insertions(+), 131 deletions(-)
+ drivers/s390/block/dasd_eckd.c |    8 ++-
+ drivers/s390/block/dasd_fba.c  |   10 +++
+ drivers/s390/char/tape_core.c  |    6 +-
+ drivers/s390/cio/ccwgroup.c    |   10 ++-
+ drivers/s390/cio/chsc.c        |   54 +++++++++++++++-----
+ drivers/s390/cio/css.h         |    2 
+ drivers/s390/cio/device.c      |   35 +++++++------
+ drivers/s390/cio/device.h      |    2 
+ drivers/s390/cio/device_fsm.c  |  109 ++++++++++++++++++++++++-----------------
+ drivers/s390/cio/device_ops.c  |    1 
+ drivers/s390/cio/device_pgid.c |    6 --
+ drivers/s390/cio/qdio.h        |   12 +++-
+ include/asm-s390/ccwdev.h      |    2 
+ 13 files changed, 169 insertions(+), 88 deletions(-)
 
-diff -urN linux-2.5/drivers/s390/block/dasd.c linux-2.5-s390/drivers/s390/block/dasd.c
---- linux-2.5/drivers/s390/block/dasd.c	Sun Jun 22 20:32:43 2003
-+++ linux-2.5-s390/drivers/s390/block/dasd.c	Fri Jun 27 16:04:39 2003
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
-  *
-- * $Revision: 1.99 $
-+ * $Revision: 1.101 $
-  */
- 
- #include <linux/config.h>
-@@ -32,7 +32,7 @@
- /*
-  * SECTION: Constant definitions to be used within this file
-  */
--#define DASD_CHANQ_MAX_SIZE 5
-+#define DASD_CHANQ_MAX_SIZE 4
- 
- /*
-  * SECTION: exported variables of dasd.c
-@@ -803,24 +803,18 @@
-  *  2) delayed start of request where start_IO failed with -EBUSY
-  *  3) timeout for missing state change interrupts
-  * The head of the ccw queue will have status DASD_CQR_IN_IO for 1),
-- * DASD_CQR_QUEUED for 2) and DASD_CQR_PENDING for 3).
-+ * DASD_CQR_QUEUED for 2) and 3).
-  */
- static void
- dasd_timeout_device(unsigned long ptr)
- {
- 	unsigned long flags;
- 	struct dasd_device *device;
--	struct dasd_ccw_req *cqr;
- 
- 	device = (struct dasd_device *) ptr;
- 	spin_lock_irqsave(get_ccwdev_lock(device->cdev), flags);
- 	/* re-activate first request in queue */
--	if (!list_empty(&device->ccw_queue)) {
--		cqr = list_entry(device->ccw_queue.next,
--				 struct dasd_ccw_req, list);
--		if (cqr->status == DASD_CQR_PENDING)
--			cqr->status = DASD_CQR_QUEUED;
--	}
-+        device->stopped &= ~DASD_STOPPED_PENDING;
- 	spin_unlock_irqrestore(get_ccwdev_lock(device->cdev), flags);
- 	dasd_schedule_bh(device);
- }
-@@ -861,10 +855,6 @@
- 
- /*
-  *   Handles the state change pending interrupt.
-- *   Search for the device related request queue and check if the first
-- *   cqr in queue in in status 'DASD_CQR_PENDING'.
-- *   If so the status is set to 'DASD_CQR_QUEUED' to reactivate
-- *   the device.
-  */
- static void
- do_state_change_pending(void *data)
-@@ -874,29 +864,12 @@
- 		struct dasd_device *device;
- 	} *p;
- 	struct dasd_device *device;
--	struct dasd_ccw_req *cqr;
- 
- 	p = data;
- 	device = p->device;
- 	DBF_EVENT(DBF_NOTICE, "State change Interrupt for bus_id %s",
- 		  device->cdev->dev.bus_id);
--
--	spin_lock_irq(get_ccwdev_lock(device->cdev));
--	/* re-activate first request in queue */
--	if (!list_empty(&device->ccw_queue)) {
--		cqr = list_entry(device->ccw_queue.next,
--				 struct dasd_ccw_req, list);
--		if (cqr == NULL) {
--			MESSAGE (KERN_DEBUG,
--				 "got state change pending interrupt on"
--				 "an idle device: bus_id %s",
--				 device->cdev->dev.bus_id);
--			return;
--		}
--		if (cqr->status == DASD_CQR_PENDING)
--			cqr->status = DASD_CQR_QUEUED;
--	}
--	spin_unlock_irq(get_ccwdev_lock(device->cdev));
-+	device->stopped &= ~DASD_STOPPED_PENDING;
- 	dasd_schedule_bh(device);
- 	dasd_put_device(device);
- 	kfree(p);
-@@ -1036,7 +1009,8 @@
- 		if (cqr->list.next != &device->ccw_queue) {
- 			next = list_entry(cqr->list.next,
- 					  struct dasd_ccw_req, list);
--			if (next->status == DASD_CQR_QUEUED) {
-+			if ((next->status == DASD_CQR_QUEUED) &&
-+			    (!device->stopped)) {
- 				if (device->discipline->start_IO(next) == 0)
- 					expires = next->expires;
- 				else
-@@ -1264,7 +1238,8 @@
- 	if (list_empty(&device->ccw_queue))
- 		return;
- 	cqr = list_entry(device->ccw_queue.next, struct dasd_ccw_req, list);
--	if (cqr->status == DASD_CQR_QUEUED) {
-+	if ((cqr->status == DASD_CQR_QUEUED) &&
-+	    (!device->stopped)) {
- 		/* try to start the first I/O that can be started */
- 		rc = device->discipline->start_IO(cqr);
- 		if (rc == 0)
-diff -urN linux-2.5/drivers/s390/block/dasd_3990_erp.c linux-2.5-s390/drivers/s390/block/dasd_3990_erp.c
---- linux-2.5/drivers/s390/block/dasd_3990_erp.c	Sun Jun 22 20:33:12 2003
-+++ linux-2.5-s390/drivers/s390/block/dasd_3990_erp.c	Fri Jun 27 16:04:39 2003
-@@ -5,7 +5,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 2000, 2001
-  *
-- * $Revision: 1.24 $
-+ * $Revision: 1.25 $
-  */
- 
- #include <linux/timer.h>
-@@ -221,13 +221,6 @@
-  *   Block the given device request queue to prevent from further
-  *   processing until the started timer has expired or an related
-  *   interrupt was received.
-- *
-- *  PARAMETER
-- *   erp		request to be blocked
-- *   expires		time to wait until restart (in jiffies) 
-- *
-- * RETURN VALUES
-- *   void		
-  */
- static void
- dasd_3990_erp_block_queue(struct dasd_ccw_req * erp, int expires)
-@@ -238,7 +231,9 @@
- 	DEV_MESSAGE(KERN_INFO, device,
- 		    "blocking request queue for %is", expires);
- 
--	erp->status = DASD_CQR_PENDING;
-+	device->stopped |= DASD_STOPPED_PENDING;
-+	erp->status = DASD_CQR_QUEUED;
-+
- 	dasd_set_timer(device, expires);
- }
- 
-@@ -453,9 +448,11 @@
- 
- 		if (sense[25] == 0x1D) {	/* state change pending */
- 
--			DEV_MESSAGE(KERN_INFO, device, "%s",
--				    "waiting for state change pending " "int");
--
-+			DEV_MESSAGE(KERN_INFO, device, 
-+				    "waiting for state change pending "
-+				    "interrupt, %d retries left",
-+				    erp->retries);
-+			
- 			dasd_3990_erp_block_queue(erp, 30*HZ);
- 
- 		} else {
 diff -urN linux-2.5/drivers/s390/block/dasd_eckd.c linux-2.5-s390/drivers/s390/block/dasd_eckd.c
---- linux-2.5/drivers/s390/block/dasd_eckd.c	Fri Jun 27 16:04:39 2003
-+++ linux-2.5-s390/drivers/s390/block/dasd_eckd.c	Fri Jun 27 16:04:39 2003
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
-  *
-- * $Revision: 1.42 $
-+ * $Revision: 1.46 $
-  */
- 
- #include <linux/config.h>
-@@ -210,7 +210,7 @@
-                 data->ep_sys_time = get_clock ();
-                 
-                 de_ccw->count = sizeof (struct DE_eckd_data);
--                de_ccw->flags = CCW_FLAG_SLI;  
-+                de_ccw->flags |= CCW_FLAG_SLI;  
-         }
- 
-         return;
-@@ -287,19 +287,11 @@
- 	/* check for sequential prestage - enhance cylinder range */
- 	if (data->attributes.operation == DASD_SEQ_PRESTAGE ||
- 	    data->attributes.operation == DASD_SEQ_ACCESS) {
--
--		if (end.cyl + private->attrib.nr_cyl < geo.cyl) {
-+		
-+		if (end.cyl + private->attrib.nr_cyl < geo.cyl) 
- 			end.cyl += private->attrib.nr_cyl;
--			DBF_DEV_EVENT(DBF_NOTICE, device,
--				      "Enhanced DE Cylinder from  %x to %x",
--				      (totrk / geo.head), end.cyl);
--		} else {
-+		else
- 			end.cyl = (geo.cyl - 1);
--			DBF_DEV_EVENT(DBF_NOTICE, device,
--				      "Enhanced DE Cylinder from  %x to "
--				      "End of device %x",
--				      (totrk / geo.head), end.cyl);
--		}
- 	}
- 
- 	data->beg_ext.cyl = beg.cyl;
-@@ -518,12 +510,6 @@
- 		    private->rdc_data.cu_type,
- 		    private->rdc_data.cu_model.model);
- 	return 0;
--
--        /* get characteristis via diag to determine the kind of
--	 * minidisk under VM needed beacause XRC is not support
--	 * by VM (jet). Can be removed as soon as VM supports XRC
--	 * FIXME: TBD ??? HUM
--	 */
- }
- 
- static struct dasd_ccw_req *
-@@ -1136,13 +1122,16 @@
- 		return -ENODEV;
- 
- 	cqr = dasd_smalloc_request(dasd_eckd_discipline.name,
--				   1, 0, device);
-+				   1, 32, device);
- 	if (cqr == NULL) {
- 		MESSAGE(KERN_WARNING, "%s",
- 			"No memory to allocate initialization request");
- 		return -ENOMEM;
- 	}
- 	cqr->cpaddr->cmd_code = DASD_ECKD_CCW_RELEASE;
-+        cqr->cpaddr->flags |= CCW_FLAG_SLI;
-+        cqr->cpaddr->count = 32;
-+	cqr->cpaddr->cda = (__u32)(addr_t) cqr->data;
- 	cqr->device = device;
- 	cqr->retries = 0;
- 	cqr->expires = 10 * HZ;
-@@ -1151,14 +1140,14 @@
- 
- 	rc = dasd_sleep_on_immediatly(cqr);
- 
--	dasd_kfree_request(cqr, cqr->device);
-+	dasd_sfree_request(cqr, cqr->device);
- 	return rc;
- }
- 
- /*
-  * Reserve device ioctl.
-  * Options are set to 'synchronous wait for interrupt' and
-- * 'timeout the request'. This leads to an terminate IO if 
-+ * 'timeout the request'. This leads to a terminate IO if 
-  * the interrupt is outstanding for a certain time. 
-  */
+--- linux-2.5/drivers/s390/block/dasd_eckd.c	Sun Jun 22 20:32:28 2003
++++ linux-2.5-s390/drivers/s390/block/dasd_eckd.c	Fri Jun 27 16:04:38 2003
+@@ -80,7 +80,13 @@
  static int
-@@ -1176,14 +1165,16 @@
- 		return -ENODEV;
- 
- 	cqr = dasd_smalloc_request(dasd_eckd_discipline.name,
--				   1, 0, device);
--
-+				   1, 32, device);
- 	if (cqr == NULL) {
- 		MESSAGE(KERN_WARNING, "%s",
- 			"No memory to allocate initialization request");
- 		return -ENOMEM;
- 	}
- 	cqr->cpaddr->cmd_code = DASD_ECKD_CCW_RESERVE;
-+        cqr->cpaddr->flags |= CCW_FLAG_SLI;
-+        cqr->cpaddr->count = 32;
-+	cqr->cpaddr->cda = (__u32)(addr_t) cqr->data;
- 	cqr->device = device;
- 	cqr->retries = 0;
- 	cqr->expires = 10 * HZ;
-@@ -1192,11 +1183,7 @@
- 
- 	rc = dasd_sleep_on_immediatly(cqr);
- 
--	if (rc == -EIO) {
--		/* Request got an error or has been timed out. */
--		dasd_eckd_release(bdev, no, args);
--	}
--	dasd_kfree_request(cqr, cqr->device);
-+	dasd_sfree_request(cqr, cqr->device);
- 	return rc;
- }
- 
-@@ -1220,13 +1207,16 @@
- 		return -ENODEV;
- 
- 	cqr = dasd_smalloc_request(dasd_eckd_discipline.name,
--				   1, 0, device);
-+				   1, 32, device);
- 	if (cqr == NULL) {
- 		MESSAGE(KERN_WARNING, "%s",
- 			"No memory to allocate initialization request");
- 		return -ENOMEM;
- 	}
- 	cqr->cpaddr->cmd_code = DASD_ECKD_CCW_SLCK;
-+        cqr->cpaddr->flags |= CCW_FLAG_SLI;
-+        cqr->cpaddr->count = 32;
-+	cqr->cpaddr->cda = (__u32)(addr_t) cqr->data;
- 	cqr->device = device;
- 	cqr->retries = 0;
- 	cqr->expires = 10 * HZ;
-@@ -1235,11 +1225,7 @@
- 
- 	rc = dasd_sleep_on_immediatly(cqr);
- 
--	if (rc == -EIO) {
--		/* Request got an error or has been timed out. */
--		dasd_eckd_release(bdev, no, args);
--	}
--	dasd_kfree_request(cqr, cqr->device);
-+	dasd_sfree_request(cqr, cqr->device);
- 	return rc;
- }
- 
-@@ -1336,17 +1322,13 @@
- 
- 	private = (struct dasd_eckd_private *) device->private;
- 
--	DBF_DEV_EVENT(DBF_ERR, device,
--		      "cache operation mode got "
--		      "%x (%i cylinder prestage)",
--		      attrib.operation, attrib.nr_cyl);
--
- 	private->attrib = attrib;
- 
- 	DBF_DEV_EVENT(DBF_ERR, device,
- 		      "cache operation mode set to "
- 		      "%x (%i cylinder prestage)",
- 		      private->attrib.operation, private->attrib.nr_cyl);
-+	
- 	return 0;
- }
- 
-diff -urN linux-2.5/drivers/s390/block/dasd_erp.c linux-2.5-s390/drivers/s390/block/dasd_erp.c
---- linux-2.5/drivers/s390/block/dasd_erp.c	Sun Jun 22 20:32:33 2003
-+++ linux-2.5-s390/drivers/s390/block/dasd_erp.c	Fri Jun 27 16:04:39 2003
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
-  *
-- * $Revision: 1.9 $
-+ * $Revision: 1.10 $
-  */
- 
- #include <linux/config.h>
-@@ -86,48 +86,31 @@
- 	atomic_dec(&device->ref_count);
- }
- 
-+
- /*
-- * DESCRIPTION
-- *   sets up the default-ERP struct dasd_ccw_req, namely one, which performs
-- *   a TIC to the original channel program with a retry counter of 16
-- *
-- * PARAMETER
-- *   cqr		failed CQR
-- *
-- * RETURN VALUES
-- *   erp		CQR performing the ERP
-+ * dasd_default_erp_action just retries the current cqr
-  */
- struct dasd_ccw_req *
- dasd_default_erp_action(struct dasd_ccw_req * cqr)
+ dasd_eckd_probe (struct ccw_device *cdev)
  {
- 	struct dasd_device *device;
--	struct dasd_ccw_req *erp;
+-	return dasd_generic_probe (cdev, &dasd_eckd_discipline);
++	int ret;
++
++	ret = dasd_generic_probe (cdev, &dasd_eckd_discipline);
++	if (ret)
++		return ret;
++	ccw_device_set_options(cdev, CCWDEV_DO_PATHGROUP);
++	return 0;
+ }
  
--	MESSAGE(KERN_DEBUG, "%s", "Default ERP called... ");
- 	device = cqr->device;
--	erp = dasd_alloc_erp_request((char *) &cqr->magic, 1, 0, device);
--	if (IS_ERR(erp)) {
--		DEV_MESSAGE(KERN_ERR, device, "%s",
--			    "Unable to allocate request for default ERP");
--		cqr->status = DASD_CQR_FAILED;
--		cqr->stopclk = get_clock();
--		return cqr;
--	}
--
--	erp->cpaddr->cmd_code = CCW_CMD_TIC;
--	erp->cpaddr->cda = (__u32) (addr_t) cqr->cpaddr;
--	erp->function = dasd_default_erp_action;
--	erp->refers = cqr;
--	erp->device = device;
--	erp->magic = cqr->magic;
--	erp->retries = 16;
--	erp->status = DASD_CQR_FILLED;
--
--	list_add(&erp->list, &device->ccw_queue);
--	erp->status = DASD_CQR_QUEUED;
--
--	return erp;
- 
-+        /* just retry - there is nothing to save ... I got no sense data.... */
-+        if (cqr->retries > 0) {
-+                DEV_MESSAGE (KERN_DEBUG, device, 
-+                             "default ERP called (%i retries left)",
-+                             cqr->retries);
-+		cqr->status = DASD_CQR_QUEUED;
-+        } else {
-+                DEV_MESSAGE (KERN_WARNING, device, "%s",
-+			     "default ERP called (NO retry left)");
-+		
-+		cqr->status = DASD_CQR_FAILED;
-+		cqr->stopclk = get_clock ();
-+        }
-+        return cqr;
- }				/* end dasd_default_erp_action */
- 
- /*
-diff -urN linux-2.5/drivers/s390/block/dasd_int.h linux-2.5-s390/drivers/s390/block/dasd_int.h
---- linux-2.5/drivers/s390/block/dasd_int.h	Sun Jun 22 20:33:01 2003
-+++ linux-2.5-s390/drivers/s390/block/dasd_int.h	Fri Jun 27 16:04:39 2003
-@@ -6,7 +6,7 @@
+ static int
+diff -urN linux-2.5/drivers/s390/block/dasd_fba.c linux-2.5-s390/drivers/s390/block/dasd_fba.c
+--- linux-2.5/drivers/s390/block/dasd_fba.c	Sun Jun 22 20:32:58 2003
++++ linux-2.5-s390/drivers/s390/block/dasd_fba.c	Fri Jun 27 16:04:38 2003
+@@ -4,7 +4,7 @@
   * Bugreports.to..: <Linux390@de.ibm.com>
   * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
   *
-- * $Revision: 1.40 $
-+ * $Revision: 1.42 $
+- * $Revision: 1.29 $
++ * $Revision: 1.30 $
   */
  
- #ifndef DASD_INT_H
-@@ -188,7 +188,6 @@
- #define DASD_CQR_DONE     0x03	/* request is completed successfully */
- #define DASD_CQR_ERROR    0x04	/* request is completed with error */
- #define DASD_CQR_FAILED   0x05	/* request is finally failed */
--#define DASD_CQR_PENDING  0x06  /* request is waiting for interrupt - ERP only */ 
- 
- /* Signature for error recovery functions. */
- typedef struct dasd_ccw_req *(*dasd_erp_fn_t) (struct dasd_ccw_req *);
-@@ -279,6 +278,7 @@
- 
- 	/* Device state and target state. */
- 	int state, target;
-+	int stopped;		/* device (ccw_device_start) was stopped */
- 
- 	/* Open and reference count. */
-         atomic_t ref_count;
-@@ -306,6 +306,12 @@
- #endif
- };
- 
-+/* reasons why device (ccw_device_start) was stopped */
-+#define DASD_STOPPED_NOT_ACC 1         /* not accessible */
-+#define DASD_STOPPED_QUIESCE 2         /* Quiesced */
-+#define DASD_STOPPED_PENDING 4         /* long busy */
+ #include <linux/config.h>
+@@ -57,7 +57,13 @@
+ static int
+ dasd_fba_probe(struct ccw_device *cdev)
+ {
+-	return  dasd_generic_probe (cdev, &dasd_fba_discipline);
++	int ret;
 +
-+
- void dasd_put_device_wake(struct dasd_device *);
++	ret = dasd_generic_probe (cdev, &dasd_fba_discipline);
++	if (ret)
++		return ret;
++	ccw_device_set_options(cdev, CCWDEV_DO_PATHGROUP);
++	return 0;
+ }
  
+ static int
+diff -urN linux-2.5/drivers/s390/char/tape_core.c linux-2.5-s390/drivers/s390/char/tape_core.c
+--- linux-2.5/drivers/s390/char/tape_core.c	Sun Jun 22 20:32:37 2003
++++ linux-2.5-s390/drivers/s390/char/tape_core.c	Fri Jun 27 16:04:38 2003
+@@ -372,6 +372,8 @@
+ 	device->cdev = cdev;
+ 	cdev->handler = tape_do_irq;
+ 
++	ccw_device_set_options(cdev, CCWDEV_DO_PATHGROUP);
++
+ 	return 0;
+ }
+ 
+@@ -903,7 +905,7 @@
+ {
+ 	tape_dbf_area = debug_register ( "tape", 1, 2, 3*sizeof(long));
+ 	debug_register_view(tape_dbf_area, &debug_sprintf_view);
+-	DBF_EVENT(3, "tape init: ($Revision: 1.25 $)\n");
++	DBF_EVENT(3, "tape init: ($Revision: 1.26 $)\n");
+ 	tape_proc_init();
+ 	tapechar_init ();
+ 	tapeblock_init ();
+@@ -928,7 +930,7 @@
+ MODULE_AUTHOR("(C) 2001 IBM Deutschland Entwicklung GmbH by Carsten Otte and "
+ 	      "Michael Holzheu (cotte@de.ibm.com,holzheu@de.ibm.com)");
+ MODULE_DESCRIPTION("Linux on zSeries channel attached "
+-		   "tape device driver ($Revision: 1.25 $)");
++		   "tape device driver ($Revision: 1.26 $)");
+ 
+ module_init(tape_init);
+ module_exit(tape_exit);
+diff -urN linux-2.5/drivers/s390/cio/ccwgroup.c linux-2.5-s390/drivers/s390/cio/ccwgroup.c
+--- linux-2.5/drivers/s390/cio/ccwgroup.c	Sun Jun 22 20:32:55 2003
++++ linux-2.5-s390/drivers/s390/cio/ccwgroup.c	Fri Jun 27 16:04:38 2003
+@@ -1,7 +1,7 @@
  /*
-diff -urN linux-2.5/drivers/s390/block/dasd_ioctl.c linux-2.5-s390/drivers/s390/block/dasd_ioctl.c
---- linux-2.5/drivers/s390/block/dasd_ioctl.c	Sun Jun 22 20:32:56 2003
-+++ linux-2.5-s390/drivers/s390/block/dasd_ioctl.c	Fri Jun 27 16:04:39 2003
-@@ -169,6 +169,58 @@
+  *  drivers/s390/cio/ccwgroup.c
+  *  bus driver for ccwgroup
+- *   $Revision: 1.6 $
++ *   $Revision: 1.7 $
+  *
+  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
+  *                       IBM Corporation
+@@ -196,10 +196,12 @@
+ 
+ 	value = simple_strtoul(buf, 0, 0);
+ 
+-	if (value)
++	if (value == 1)
+ 		ccwgroup_set_online(gdev);
+-	else
++	else if (value == 0)
+ 		ccwgroup_set_offline(gdev);
++	else
++		return -EINVAL;
+ 
+ 	return count;
+ }
+@@ -211,7 +213,7 @@
+ 
+ 	online = (to_ccwgroupdev(dev)->state == CCWGROUP_ONLINE);
+ 
+-	return sprintf(buf, online ? "1\n" : "0\n");
++	return sprintf(buf, online ? "yes\n" : "no\n");
+ }
+ 
+ static DEVICE_ATTR(online, 0644, ccwgroup_online_show, ccwgroup_online_store);
+diff -urN linux-2.5/drivers/s390/cio/chsc.c linux-2.5-s390/drivers/s390/cio/chsc.c
+--- linux-2.5/drivers/s390/cio/chsc.c	Sun Jun 22 20:32:55 2003
++++ linux-2.5-s390/drivers/s390/cio/chsc.c	Fri Jun 27 16:04:38 2003
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/chsc.c
+  *   S/390 common I/O routines -- channel subsystem call
+- *   $Revision: 1.69 $
++ *   $Revision: 1.73 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *			      IBM Corporation
+@@ -322,10 +322,6 @@
+ 	sprintf(dbf_txt, "chpr%x", chpid);
+ 	CIO_TRACE_EVENT(2, dbf_txt);
+ 
+-	/*
+-	 * TODO: the chpid may be not the chpid with the link incident,
+-	 * but the chpid the report came in through. How to handle???
+-	 */
+ 	clear_bit(chpid, chpids);
+ 	if (!test_and_clear_bit(chpid, chpids_known))
+ 		return;	 /* we didn't know the chpid anyway */
+@@ -469,9 +465,40 @@
+ 	free_page((unsigned long)page);
+ }
+ 
++static int
++__get_chpid_from_lir(void *data)
++{
++	struct lir {
++		u8  iq;
++		u8  ic;
++		u16 sci;
++		/* incident-node descriptor */
++		u32 indesc[28];
++		/* attached-node descriptor */
++		u32 andesc[28];
++		/* incident-specific information */
++		u32 isinfo[28];
++	} *lir;
++
++	lir = (struct lir*) data;
++	if (!(lir->iq&0x80))
++		/* NULL link incident record */
++		return -EINVAL;
++	if (!(lir->indesc[0]&0xc0000000))
++		/* node descriptor not valid */
++		return -EINVAL;
++	if (!(lir->indesc[0]&0x10000000))
++		/* don't handle device-type nodes - FIXME */
++		return -EINVAL;
++	/* Byte 3 contains the chpid. Could also be CTCA, but we don't care */
++
++	return (u16) (lir->indesc[0]&0x000000ff);
++}
++
+ static void
+ do_process_crw(void *ignore)
+ {
++	int chpid;
+ 	struct {
+ 		struct chsc_header request;
+ 		u32 reserved1;
+@@ -487,10 +514,8 @@
+ 		u16 rsid;	/* reporting source id */
+ 		u32 reserved5;
+ 		u32 reserved6;
+-		u32 ccdf;	/* content-code dependent field */
+-		u32 reserved7;
+-		u32 reserved8;
+-		u32 reserved9;
++		u32 ccdf[96];	/* content-code dependent field */
++		/* ccdf has to be big enough for a link-incident record */
+ 	} *sei_area;
+ 
+ 	/*
+@@ -560,9 +585,14 @@
+ 		case 1: /* link incident*/
+ 			CIO_CRW_EVENT(4, "chsc_process_crw: "
+ 				      "channel subsystem reports link incident,"
+-				      " source is chpid %x\n", sei_area->rsid);
+-			
+-			s390_set_chpid_offline(sei_area->rsid);
++				      " reporting source is chpid %x\n",
++				      sei_area->rsid);
++			chpid = __get_chpid_from_lir(sei_area->ccdf);
++			if (chpid < 0)
++				CIO_CRW_EVENT(4, "%s: Invalid LIR, skipping\n",
++					      __FUNCTION__);
++			else
++				s390_set_chpid_offline(chpid);
+ 			break;
+ 			
+ 		case 2: /* i/o resource accessibiliy */
+diff -urN linux-2.5/drivers/s390/cio/css.h linux-2.5-s390/drivers/s390/cio/css.h
+--- linux-2.5/drivers/s390/cio/css.h	Sun Jun 22 20:33:37 2003
++++ linux-2.5-s390/drivers/s390/cio/css.h	Fri Jun 27 16:04:38 2003
+@@ -72,9 +72,9 @@
+ 	struct {
+ 		unsigned int fast:1;	/* post with "channel end" */
+ 		unsigned int repall:1;	/* report every interrupt status */
++		unsigned int pgroup:1;  /* do path grouping */
+ 	} __attribute__ ((packed)) options;
+ 	struct {
+-		unsigned int pgid_supp:1;   /* "path group ID" supported */
+ 		unsigned int pgid_single:1; /* use single path for Set PGID */
+ 		unsigned int esid:1;        /* Ext. SenseID supported by HW */
+ 		unsigned int dosense:1;	    /* delayed SENSE required */
+diff -urN linux-2.5/drivers/s390/cio/device.c linux-2.5-s390/drivers/s390/cio/device.c
+--- linux-2.5/drivers/s390/cio/device.c	Sun Jun 22 20:33:04 2003
++++ linux-2.5-s390/drivers/s390/cio/device.c	Fri Jun 27 16:04:38 2003
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/device.c
+  *  bus driver for ccw devices
+- *   $Revision: 1.54 $
++ *   $Revision: 1.57 $
+  *
+  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
+  *			 IBM Corporation
+@@ -298,20 +298,19 @@
+ online_store (struct device *dev, const char *buf, size_t count)
+ {
+ 	struct ccw_device *cdev = to_ccwdev(dev);
+-	unsigned int value;
++	int i;
++	char *tmp;
+ 
+ 	if (!cdev->drv)
+ 		return count;
+ 
+-	sscanf(buf, "%u", &value);
+-
+-	if (value) {
+-		if (cdev->drv->set_online)
+-			ccw_device_set_online(cdev);
+-	} else {
+-		if (cdev->drv->set_offline)
+-			ccw_device_set_offline(cdev);
+-	}
++	i = simple_strtoul(buf, &tmp, 16);
++	if (i == 0 && cdev->drv->set_online)
++		ccw_device_set_online(cdev);
++	else if (i == 1 && cdev->drv->set_offline)
++		ccw_device_set_offline(cdev);
++	else
++		return -EINVAL;
+ 
+ 	return count;
+ }
+@@ -405,11 +404,14 @@
+  * This allows to trigger an unconditional reserve ccw to eckd dasds
+  * (if the device is something else, there should be no problems more than
+  * a command reject; we don't have any means of finding out the device's
+- * type if it was boxed at ipl/attach).
++ * type if it was boxed at ipl/attach for older devices and under VM).
+  */
+ void
+-ccw_device_add_stlck(struct ccw_device *cdev)
++ccw_device_add_stlck(void *data)
+ {
++	struct ccw_device *cdev;
++
++	cdev = (struct ccw_device *)data;
+ 	device_create_file(&cdev->dev, &dev_attr_steal_lock);
+ }
+ 
+@@ -470,6 +472,8 @@
+ 	if (ret)
+ 		printk(KERN_WARNING "%s: could not add attributes to %04x\n",
+ 		       __func__, sch->irq);
++	if (cdev->private->state == DEV_STATE_BOXED)
++		device_create_file(&cdev->dev, &dev_attr_steal_lock);
+ out:
+ 	put_device(&sch->dev);
+ }
+@@ -493,6 +497,8 @@
+ 		if (cdev->dev.release)
+ 			cdev->dev.release(&cdev->dev);
+ 		break;
++	case DEV_STATE_BOXED:
++		/* Device did not respond in time. */
+ 	case DEV_STATE_OFFLINE:
+ 		/* 
+ 		 * We can't register the device in interrupt context so
+@@ -502,9 +508,6 @@
+ 			  io_subchannel_register, (void *) cdev);
+ 		queue_work(ccw_device_work, &cdev->private->kick_work);
+ 		break;
+-	case DEV_STATE_BOXED:
+-		/* Device did not respond in time. */
+-		break;
+ 	}
+ 	if (atomic_dec_and_test(&ccw_device_init_count))
+ 		wake_up(&ccw_device_init_wq);
+diff -urN linux-2.5/drivers/s390/cio/device.h linux-2.5-s390/drivers/s390/cio/device.h
+--- linux-2.5/drivers/s390/cio/device.h	Sun Jun 22 20:33:07 2003
++++ linux-2.5-s390/drivers/s390/cio/device.h	Fri Jun 27 16:04:38 2003
+@@ -95,7 +95,7 @@
+ 
+ void ccw_device_call_handler(struct ccw_device *);
+ 
+-void ccw_device_add_stlck(struct ccw_device *);
++void ccw_device_add_stlck(void *);
+ int ccw_device_stlck(struct ccw_device *);
+ 
+ /* qdio needs this. */
+diff -urN linux-2.5/drivers/s390/cio/device_fsm.c linux-2.5-s390/drivers/s390/cio/device_fsm.c
+--- linux-2.5/drivers/s390/cio/device_fsm.c	Sun Jun 22 20:32:46 2003
++++ linux-2.5-s390/drivers/s390/cio/device_fsm.c	Fri Jun 27 16:04:38 2003
+@@ -132,11 +132,11 @@
+ 		CIO_DEBUG(KERN_WARNING, 2,
+ 			  "SenseID : boxed device %04X on subchannel %04X\n",
+ 			  sch->schib.pmcw.dev, sch->irq);
+-		ccw_device_add_stlck(cdev);
+ 		break;
+ 	}
+ 	io_subchannel_recog_done(cdev);
+-	wake_up(&cdev->private->wait_q);
++	if (state != DEV_STATE_NOT_OPER)
++		wake_up(&cdev->private->wait_q);
  }
  
  /*
-+ * Quiesce device.
+@@ -159,22 +159,65 @@
+ }
+ 
+ /*
++ * Finished with online/offline processing.
 + */
-+static int
-+dasd_ioctl_quiesce(struct block_device *bdev, int no, long args)
++static void
++ccw_device_done(struct ccw_device *cdev, int state)
 +{
-+	struct dasd_device *device;
-+	unsigned long flags;
-+	
-+	if (!capable (CAP_SYS_ADMIN))
-+		return -EACCES;
-+	
-+	device = bdev->bd_disk->private_data;
-+	if (device == NULL)
-+		return -ENODEV;
-+	
-+	DEV_MESSAGE (KERN_DEBUG, device, "%s",
-+		     "Quiesce IO on device");
-+	spin_lock_irqsave(get_ccwdev_lock(device->cdev), flags);
-+	device->stopped |= DASD_STOPPED_QUIESCE;
-+	spin_unlock_irqrestore(get_ccwdev_lock(device->cdev), flags);
-+	return 0;
-+}
++	struct subchannel *sch;
++
++	sch = to_subchannel(cdev->dev.parent);
++
++	if (state != DEV_STATE_ONLINE)
++		cio_disable_subchannel(sch);
++
++	/* Reset device status. */
++	memset(&cdev->private->irb, 0, sizeof(struct irb));
++
++	cdev->private->state = state;
 +
 +
-+/*
-+ * Quiesce device.
-+ */
-+static int
-+dasd_ioctl_resume(struct block_device *bdev, int no, long args)
-+{
-+	struct dasd_device *device;
-+	unsigned long flags;
-+	
-+	if (!capable (CAP_SYS_ADMIN)) 
-+		return -EACCES;
++	if (state == DEV_STATE_BOXED) {
++		CIO_DEBUG(KERN_WARNING, 2,
++			  "Boxed device %04X on subchannel %04X\n",
++			  sch->schib.pmcw.dev, sch->irq);
++		INIT_WORK(&cdev->private->kick_work,
++			  ccw_device_add_stlck, (void *) cdev);
++		queue_work(ccw_device_work, &cdev->private->kick_work);
++	}
 +
-+	device = bdev->bd_disk->private_data;
-+	if (device == NULL)
-+		return -ENODEV;
++	wake_up(&cdev->private->wait_q);
 +
-+	DEV_MESSAGE (KERN_DEBUG, device, "%s",
-+		     "resume IO on device");
-+	
-+	spin_lock_irqsave(get_ccwdev_lock(device->cdev), flags);
-+	device->stopped &= ~DASD_STOPPED_QUIESCE;
-+	spin_unlock_irqrestore(get_ccwdev_lock(device->cdev), flags);
-+
-+	dasd_schedule_bh (device);
-+	return 0;
++	if (state != DEV_STATE_ONLINE)
++		put_device (&cdev->dev);
 +}
 +
 +/*
-  * performs formatting of _device_ according to _fdata_
-  * Note: The discipline's format_function is assumed to deliver formatting
-  * commands to format a single unit of the device. In terms of the ECKD
-@@ -438,6 +490,8 @@
- {
- 	{ BIODASDDISABLE, dasd_ioctl_disable },
- 	{ BIODASDENABLE, dasd_ioctl_enable },
-+	{ BIODASDQUIESCE, dasd_ioctl_quiesce },
-+	{ BIODASDRESUME, dasd_ioctl_resume },
- 	{ BIODASDFMT, dasd_ioctl_format },
- 	{ BIODASDINFO, dasd_ioctl_information },
- 	{ BIODASDINFO2, dasd_ioctl_information },
-diff -urN linux-2.5/include/asm-s390/dasd.h linux-2.5-s390/include/asm-s390/dasd.h
---- linux-2.5/include/asm-s390/dasd.h	Sun Jun 22 20:32:34 2003
-+++ linux-2.5-s390/include/asm-s390/dasd.h	Fri Jun 27 16:04:39 2003
-@@ -8,16 +8,8 @@
-  * any future changes wrt the API will result in a change of the APIVERSION reported
-  * to userspace by the DASDAPIVER-ioctl
-  *
-- * $Revision: 1.3 $
-+ * $Revision: 1.4 $
-  *
-- * History of changes (starts July 2000)
-- * 05/04/01 created by moving the kernel interface to drivers/s390/block/dasd_int.h
-- * 12/06/01 DASD_API_VERSION 2 - binary compatible to 0 (new BIODASDINFO2)
-- * 01/23/02 DASD_API_VERSION 3 - added BIODASDPSRD (and BIODASDENAPAV) IOCTL
-- * 02/15/02 DASD_API_VERSION 4 - added BIODASDSATTR IOCTL
-- * ##/##/## DASD_API_VERSION 5 - added boxed dasd support TOBEDONE
-- * 21/06/02 DASD_API_VERSION 6 - fixed HDIO_GETGEO: geo.start is in sectors!
-- *         
+  * Function called from device_pgid.c after sense path ground has completed.
   */
+ void
+ ccw_device_sense_pgid_done(struct ccw_device *cdev, int err)
+ {
++	struct subchannel *sch;
++
++	sch = to_subchannel(cdev->dev.parent);
+ 	switch (err) {
+ 	case 0:
+-		cdev->private->state = DEV_STATE_SENSE_ID;
+-		ccw_device_sense_id_start(cdev);
++		/* Start Path Group verification. */
++		sch->vpm = 0;	/* Start with no path groups set. */
++		cdev->private->state = DEV_STATE_VERIFY;
++		ccw_device_verify_start(cdev);
+ 		break;
+ 	case -ETIME:		/* Sense path group id stopped by timeout. */
+ 	case -EUSERS:		/* device is reserved for someone else. */
+-		ccw_device_recog_done(cdev, DEV_STATE_BOXED);
++		ccw_device_done(cdev, DEV_STATE_BOXED);
++		break;
++	case -EOPNOTSUPP: /* path grouping not supported, just set online. */
++		cdev->private->options.pgroup = 0;
++		ccw_device_done(cdev, DEV_STATE_ONLINE);
+ 		break;
+ 	default:
+-		ccw_device_recog_done(cdev, DEV_STATE_NOT_OPER);
++		ccw_device_done(cdev, DEV_STATE_NOT_OPER);
+ 		break;
+ 	}
+ }
+@@ -198,11 +241,15 @@
+ 	ccw_device_set_timeout(cdev, 60*HZ);
  
- #ifndef DASD_H
-@@ -226,6 +218,10 @@
- #define BIODASDSLCK    _IO(DASD_IOCTL_LETTER,4) /* steal lock */
- /* reset profiling information of a device */
- #define BIODASDPRRST   _IO(DASD_IOCTL_LETTER,5)
-+/* Quiesce IO on device */
-+#define BIODASDQUIESCE _IO(DASD_IOCTL_LETTER,6) 
-+/* Resume IO on device */
-+#define BIODASDRESUME  _IO(DASD_IOCTL_LETTER,7) 
+ 	/*
+-	 * First thing we should do is a sensePGID in order to find out how
+-	 * we can proceed with the recognition process.
++	 * We used to start here with a sense pgid to find out whether a device
++	 * is locked by someone else. Unfortunately, the sense pgid command
++	 * code has other meanings on devices predating the path grouping
++	 * algorithm, so we start with sense id and box the device after an
++	 * timeout (or if sense pgid during path verification detects the device
++	 * is locked, as may happen on newer devices).
+ 	 */
+-	cdev->private->state = DEV_STATE_SENSE_PGID;
+-	ccw_device_sense_pgid_start(cdev);
++	cdev->private->state = DEV_STATE_SENSE_ID;
++	ccw_device_sense_id_start(cdev);
+ 	return 0;
+ }
  
+@@ -218,29 +265,6 @@
+ 		ccw_device_set_timeout(cdev, 3*HZ);
+ }
  
- /* retrieve API version number */
+-/*
+- * Finished with online/offline processing.
+- */
+-static void
+-ccw_device_done(struct ccw_device *cdev, int state)
+-{
+-	struct subchannel *sch;
+-
+-	sch = to_subchannel(cdev->dev.parent);
+-
+-	if (state != DEV_STATE_ONLINE)
+-		cio_disable_subchannel(sch);
+-
+-	/* Reset device status. */
+-	memset(&cdev->private->irb, 0, sizeof(struct irb));
+-
+-	cdev->private->state = state;
+-
+-	wake_up(&cdev->private->wait_q);
+-
+-	if (state != DEV_STATE_ONLINE)
+-		put_device (&cdev->dev);
+-}
+ 
+ void
+ ccw_device_verify_done(struct ccw_device *cdev, int err)
+@@ -276,16 +300,15 @@
+ 		dev_fsm_event(cdev, DEV_EVENT_NOTOPER);
+ 		return -ENODEV;
+ 	}
+-	/* Is Set Path Group supported? */
+-	if (!cdev->private->flags.pgid_supp) {
++	/* Do we want to do path grouping? */
++	if (!cdev->private->options.pgroup) {
+ 		/* No, set state online immediately. */
+ 		ccw_device_done(cdev, DEV_STATE_ONLINE);
+ 		return 0;
+ 	}
+-	/* Start Path Group verification. */
+-	sch->vpm = 0;	/* Start with no path groups set. */
+-	cdev->private->state = DEV_STATE_VERIFY;
+-	ccw_device_verify_start(cdev);
++	/* Do a SensePGID first. */
++	cdev->private->state = DEV_STATE_SENSE_PGID;
++	ccw_device_sense_pgid_start(cdev);
+ 	return 0;
+ }
+ 
+@@ -321,8 +344,8 @@
+ 	}
+ 	if (sch->schib.scsw.actl != 0)
+ 		return -EBUSY;
+-	/* Is Set Path Group supported? */
+-	if (!cdev->private->flags.pgid_supp) {
++	/* Are we doing path grouping? */
++	if (!cdev->private->options.pgroup) {
+ 		/* No, set state offline immediately. */
+ 		ccw_device_done(cdev, DEV_STATE_OFFLINE);
+ 		return 0;
+@@ -643,9 +666,9 @@
+ 		[DEV_EVENT_VERIFY]	ccw_device_nop,
+ 	},
+ 	[DEV_STATE_SENSE_PGID] {
+-		[DEV_EVENT_NOTOPER]	ccw_device_recog_notoper,
++		[DEV_EVENT_NOTOPER]	ccw_device_online_notoper,
+ 		[DEV_EVENT_INTERRUPT]	ccw_device_sense_pgid_irq,
+-		[DEV_EVENT_TIMEOUT]	ccw_device_recog_timeout,
++		[DEV_EVENT_TIMEOUT]	ccw_device_onoff_timeout,
+ 		[DEV_EVENT_VERIFY]	ccw_device_nop,
+ 	},
+ 	[DEV_STATE_SENSE_ID] {
+diff -urN linux-2.5/drivers/s390/cio/device_ops.c linux-2.5-s390/drivers/s390/cio/device_ops.c
+--- linux-2.5/drivers/s390/cio/device_ops.c	Sun Jun 22 20:33:04 2003
++++ linux-2.5-s390/drivers/s390/cio/device_ops.c	Fri Jun 27 16:04:38 2003
+@@ -37,6 +37,7 @@
+ 		return -EINVAL;
+ 	cdev->private->options.fast = (flags & CCWDEV_EARLY_NOTIFICATION) != 0;
+ 	cdev->private->options.repall = (flags & CCWDEV_REPORT_ALL) != 0;
++	cdev->private->options.pgroup = (flags & CCWDEV_DO_PATHGROUP) != 0;
+ 	return 0;
+ }
+ 
+diff -urN linux-2.5/drivers/s390/cio/device_pgid.c linux-2.5-s390/drivers/s390/cio/device_pgid.c
+--- linux-2.5/drivers/s390/cio/device_pgid.c	Sun Jun 22 20:32:55 2003
++++ linux-2.5-s390/drivers/s390/cio/device_pgid.c	Fri Jun 27 16:04:38 2003
+@@ -84,7 +84,6 @@
+ 	cdev->private->state = DEV_STATE_SENSE_PGID;
+ 	cdev->private->imask = 0x80;
+ 	cdev->private->iretry = 5;
+-	cdev->private->flags.pgid_supp = 0;
+ 	memset (&cdev->private->pgid, 0, sizeof (struct pgid));
+ 	ret = __ccw_device_sense_pgid_start(cdev);
+ 	if (ret)
+@@ -165,14 +164,13 @@
+ 	switch (__ccw_device_check_sense_pgid(cdev)) {
+ 	/* 0, -ETIME, -EOPNOTSUPP, -EAGAIN, -EACCES or -EUSERS */
+ 	case 0:			/* Sense Path Group ID successful. */
+-		cdev->private->flags.pgid_supp = 1;
+ 		opm = sch->schib.pmcw.pim &
+ 			sch->schib.pmcw.pam &
+ 			sch->schib.pmcw.pom;
+ 		for (i=0;i<8;i++) {
+ 			if (opm == (0x80 << i)) {
+ 				/* Don't group single path devices. */
+-				cdev->private->flags.pgid_supp = 0;
++				cdev->private->options.pgroup = 0;
+ 				break;
+ 			}
+ 		}
+@@ -181,7 +179,7 @@
+ 			       sizeof(struct pgid));
+ 		/* fall through. */
+ 	case -EOPNOTSUPP:	/* Sense Path Group ID not supported */
+-		ccw_device_sense_pgid_done(cdev, 0);
++		ccw_device_sense_pgid_done(cdev, -EOPNOTSUPP);
+ 		break;
+ 	case -ETIME:		/* Sense path group id stopped by timeout. */
+ 		ccw_device_sense_pgid_done(cdev, -ETIME);
+diff -urN linux-2.5/drivers/s390/cio/qdio.h linux-2.5-s390/drivers/s390/cio/qdio.h
+--- linux-2.5/drivers/s390/cio/qdio.h	Sun Jun 22 20:32:36 2003
++++ linux-2.5-s390/drivers/s390/cio/qdio.h	Fri Jun 27 16:04:38 2003
+@@ -1,7 +1,7 @@
+ #ifndef _CIO_QDIO_H
+ #define _CIO_QDIO_H
+ 
+-#define VERSION_CIO_QDIO_H "$Revision: 1.16 $"
++#define VERSION_CIO_QDIO_H "$Revision: 1.17 $"
+ 
+ //#define QDIO_DBF_LIKE_HELL
+ 
+@@ -21,7 +21,15 @@
+ #define QDIO_TIMER_POLL_VALUE 1
+ #define IQDIO_TIMER_POLL_VALUE 1
+ 
+-#define IQDIO_FILL_LEVEL_TO_POLL (QDIO_MAX_BUFFERS_PER_Q*4/3)
++/*
++ * unfortunately this can't be (QDIO_MAX_BUFFERS_PER_Q*4/3) or so -- as
++ * we never know, whether we'll get initiative again, e.g. to give the
++ * transmit skb's back to the stack, however the stack may be waiting for
++ * them... therefore we define 4 as threshold to start polling (which
++ * will stop as soon as the asynchronous queue catches up)
++ * btw, this only applies to the asynchronous HiperSockets queue
++ */
++#define IQDIO_FILL_LEVEL_TO_POLL 4
+ 
+ #define IQDIO_THININT_ISC 3
+ #define IQDIO_DELAY_TARGET 0
+diff -urN linux-2.5/include/asm-s390/ccwdev.h linux-2.5-s390/include/asm-s390/ccwdev.h
+--- linux-2.5/include/asm-s390/ccwdev.h	Sun Jun 22 20:33:15 2003
++++ linux-2.5-s390/include/asm-s390/ccwdev.h	Fri Jun 27 16:04:38 2003
+@@ -115,6 +115,8 @@
+ #define CCWDEV_EARLY_NOTIFICATION	0x0001
+ /* Report all interrupt conditions. */
+ #define CCWDEV_REPORT_ALL	 	0x0002
++/* Try to perform path grouping. */
++#define CCWDEV_DO_PATHGROUP             0x0004
+ 
+ /*
+  * ccw_device_start()

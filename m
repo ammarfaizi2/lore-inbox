@@ -1,64 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbUEBKRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUEBKkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbUEBKRf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 06:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbUEBKRf
+	id S262972AbUEBKkY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 06:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbUEBKkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 06:17:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39951 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262960AbUEBKRd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 06:17:33 -0400
-Date: Sun, 2 May 2004 11:17:29 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>, vandrove@vc.cvut.cz, cw@f00f.org,
-       koke@amedias.org, linux-kernel@vger.kernel.org
-Subject: Re: strange delays on console logouts (tty != 1)
-Message-ID: <20040502111729.D9605@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, vandrove@vc.cvut.cz,
-	cw@f00f.org, koke@amedias.org, linux-kernel@vger.kernel.org
-References: <20040430195351.GA1837@amedias.org> <20040501214617.GA6446@taniwha.stupidest.org> <20040501232448.GA4707@vana.vc.cvut.cz> <20040501180347.31f85764.akpm@osdl.org> <20040502090059.A9605@flint.arm.linux.org.uk> <20040502011337.2b0b3ca3.akpm@osdl.org> <20040502091751.B9605@flint.arm.linux.org.uk> <20040502103721.C9605@flint.arm.linux.org.uk>
+	Sun, 2 May 2004 06:40:24 -0400
+Received: from bay18-f56.bay18.hotmail.com ([65.54.187.106]:56338 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262972AbUEBKkO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 06:40:14 -0400
+X-Originating-IP: [67.22.169.122]
+X-Originating-Email: [jpiszcz@hotmail.com]
+From: "Justin Piszcz" <jpiszcz@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux Kernel 2.6.5 - Severe Bug(s) With DVD Read Support For Burned DVD-R's?
+Date: Sun, 02 May 2004 10:40:13 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040502103721.C9605@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sun, May 02, 2004 at 10:37:21AM +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY18-F56Q86EZvLohp000028d9@hotmail.com>
+X-OriginalArrivalTime: 02 May 2004 10:40:13.0888 (UTC) FILETIME=[D9CDA400:01C43031]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 02, 2004 at 10:37:21AM +0100, Russell King wrote:
-> On Sun, May 02, 2004 at 09:17:51AM +0100, Russell King wrote:
-> > > If so, how is tty_hangup() getting involved?
-> > 
-> > The only way it could be invoked is via SAK, which obviously isn't
-> > happening here.
-> > 
-> > However, login _does_ call sys_vhangup() which in turn calls tty_vhangup()
-> > so I suspect that the statement "tty hangup is scheduled for work_queue"
-> > is based on the _assumption_ that sys_vhangup() calls tty_hangup()
-> > rather than the function it actually does.
-> 
-> Ok, the VT_OPENQRY crap is a debian modification to agetty.  As far as
-> I can see, there is no code in agetty which calls sys_vhangup().
+I used a Plextor 8X +/- DVD/RW to burn two DVD-R's at a speed of 2x.
+1] 3 files adding up to 4.2GB (no file is > 2.0GB however)
+2] Many > 1000 files totaling 2.2GB.
 
-And a further follow-up...
+I used growisofs to burn the the ISO's.
+With the following command:
+growisofs -dvd-compat -Z /dev/scd0=dvd1.iso
 
-Looking in the debian bug system reveals these two bugs:
+As a control, I used a professionally burned DVD
 
-     * #216658: getty: opens tty without checking if something else is there,
-       killing keyboard input
-     * #226443: util-linux: [getty] Logout is really long with kernel 2.6
+I have the same DVD-READER in all my machines (4-5).
+hdd: TOSHIBA DVD-ROM SD-M1712, ATAPI CD/DVD-ROM drive
 
-The first one is of particular note, because it is the cause of the GROSS
-hack in agetty, which according to the comments is also in gdm.
+I have tried with DMA on and DMA off, I get the following errors in DMESG:
+hdd: DMA disabled
+ISO 9660 Extensions: Microsoft Joliet Level 3
+ISO 9660 Extensions: RRIP_1991A
+Here is some DEBUG information:
+It copies 4.0GB out of the 4.0GB and then, from dmesg:
+hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdd: media error (bad sector): error=0x30
+hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdd: media error (bad sector): error=0x30
+hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdd: media error (bad sector): error=0x30
+end_request: I/O error, dev hdd, sector 8173440
+hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdd: media error (bad sector): error=0x30
+end_request: I/O error, dev hdd, sector 8173444
+hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdd: media error (bad sector): error=0x30
+end_request: I/O error, dev hdd, sector 8173448
+hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdd: media error (bad sector): error=0x30
+end_request: I/O error, dev hdd, sector 8173452
+hdd: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdd: media error (bad sector): error=0x30
+end_request: I/O error, dev hdd, sector 8173456
 
-I wonder really if the problem was elsewhere, and if Debian wanted to
-take care of this problem, why they didn't just take the serial line
-locking solution (really: s/serial line/tty/) and apply it to
-agetty / gdm.
+$ df -k
+/dev/hdd               4132960   4132960         0 100% /mnt
+$ du -ack *pgp
+4093288 total
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Therefore, it _almost_ copies the entire DVD, but then it sh*ts the bed, any 
+idea what is going on here?
+I have the _exact_ drive also as a slave in another box running Windows 2000 
+Professional which copies the DVD with no errors at all.
+
+This is a serious problem as I can never copy a DVD-R (that I burned) on 
+Linux (to a Linux box), does anyone have any clue to why this occurs?
+
+This is where it gets interesting though, concerning the professionally 
+burned DVD, I am not sure if it is DVD+R or DVD-R, but it copied the entire 
+disc just fine:
+
+# mkdir /tmp/dvd; cp -r /mnt/* /tmp/dvd
+#
+
+491.83GB/d   20985.00MB/h     349.75MB/m    5969.06KB/s
+532.37GB/d   22714.80MB/h     378.58MB/m    6461.13KB/s
+591.67GB/d   25245.00MB/h     420.75MB/m    7180.80KB/s
+622.74GB/d   26570.40MB/h     442.84MB/m    7557.96KB/s
+670.07GB/d   28590.00MB/h     476.50MB/m    8132.26KB/s
+726.25GB/d   30987.00MB/h     516.45MB/m    8814.20KB/s
+756.56GB/d   32280.00MB/h     538.00MB/m    9181.86KB/s
+
+With good speeds as well.
+
+On the Plextor 8X from which I burned it (under 2.4.x) kernel, (2.4.25/26), 
+I can copy the entire DVD to anywhere without a single error (on the box 
+that I burned it from).
+
+[root@l2 root]# mkdir /x/d
+[root@l2 root]# mount /dev/scd0 /mnt
+mount: block device /dev/scd0 is write-protected, mounting read-only
+[root@l2 root]# cp /mnt/* /x/d
+[root@l2 root]# du -sh /x/d
+4.0G    /x/d
+[root@l2 root]# du -sk /x/d
+4136932 /x/d
+[root@l2 root]#
+
+
+Is it a problem with the drive, or something with the media not being 
+supported under Linux, or are there some other factors at work here?
+
+_________________________________________________________________
+Express yourself with the new version of MSN Messenger! Download today - 
+it's FREE! http://messenger.msn.com/go/onm00200471ave/direct/01/
+

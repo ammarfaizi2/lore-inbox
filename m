@@ -1,74 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266688AbRGFNfL>; Fri, 6 Jul 2001 09:35:11 -0400
+	id <S266689AbRGFNib>; Fri, 6 Jul 2001 09:38:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266689AbRGFNfB>; Fri, 6 Jul 2001 09:35:01 -0400
-Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:6787
-	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S266688AbRGFNet>; Fri, 6 Jul 2001 09:34:49 -0400
-Message-ID: <3B45BE6C.5DBE4F35@nortelnetworks.com>
-Date: Fri, 06 Jul 2001 09:34:36 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S266690AbRGFNiV>; Fri, 6 Jul 2001 09:38:21 -0400
+Received: from t111.niisi.ras.ru ([193.232.173.111]:11073 "EHLO
+	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
+	id <S266689AbRGFNiH>; Fri, 6 Jul 2001 09:38:07 -0400
+Message-ID: <3B463013.8070405@niisi.msk.ru>
+Date: Fri, 06 Jul 2001 17:39:31 -0400
+From: Alexandr Andreev <andreev@niisi.msk.ru>
+Organization: niisi
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.6 i686; en-US; rv:0.9) Gecko/20010507
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: are ioctl calls supposed to take this long?
-Content-Type: text/plain; charset=us-ascii
+To: Catalin BOIE <util@deuroconsult.ro>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: What flash disks are supported?
+In-Reply-To: <Pine.LNX.4.20.0106121041390.10815-100000@marte.Deuroconsult.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Catalin BOIE wrote:
 
-I am using the following snippet of code to find out some information about the
-MII PHY interface of my ethernet device (which uses the tulip driver).  When I
-did some timing measurements with gettimeofday() I found that the ioctl call
-takes a bit over a millisecond to complete.  This seems to me to be an awfully
-long time for what should be (as far as I can see) a very simple operation.
-
-Is this the normal amount of time that this should take, and if so then why in
-the world does it take so long?  If not, then does anyone have any idea why it's
-taking so long?
-
-Thanks,
-
-Chris
+>Hi, guys!
+>
+>Please, can you tell me your (in)success stories about some flash disks?
+>Thanks!
+>
+A MTD flash device database is now available at:
+http://www.embeddedlinuxworks.com/db.html
 
 
-
-// code follows //
-
-
-int skfd;
-struct ifreq ifr;
-ifname = "eth1";
-   
-if ((skfd = socket(AF_INET, SOCK_DGRAM,0)) < 0)
-{
-   perror("socket");
-   exit(-1);
-}
-   
-strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-   
-if (ioctl(skfd, SIOCDEVPRIVATE, &ifr) < 0)
-{
-   fprintf(stderr, "SIOCDEVPRIVATE, on %s failed: %s\n", ifname,
-strerror(errno));
-   close(skfd);
-   exit(-1);
-}
-
-
-
-
-
-
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

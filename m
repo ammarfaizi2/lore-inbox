@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267150AbSLKNkx>; Wed, 11 Dec 2002 08:40:53 -0500
+	id <S267163AbSLKNso>; Wed, 11 Dec 2002 08:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267163AbSLKNjz>; Wed, 11 Dec 2002 08:39:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60170 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S267150AbSLKNjq>; Wed, 11 Dec 2002 08:39:46 -0500
-Date: Wed, 11 Dec 2002 14:47:31 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IBM spamms me with error messages
-Message-ID: <20021211134730.GD3575@atrey.karlin.mff.cuni.cz>
-References: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz> <20021210224325.GE32122@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021210224325.GE32122@mea-ext.zmailer.org>
-User-Agent: Mutt/1.3.28i
+	id <S267164AbSLKNso>; Wed, 11 Dec 2002 08:48:44 -0500
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:34833 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S267163AbSLKNsn>;
+	Wed, 11 Dec 2002 08:48:43 -0500
+Message-ID: <3DF74436.80807@mvista.com>
+Date: Wed, 11 Dec 2002 07:57:10 -0600
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: vamsi@in.ibm.com
+CC: Stephen Hemminger <shemminger@osdl.org>,
+       Kernel List <linux-kernel@vger.kernel.org>,
+       lkcd-devel@lists.sourceforge.net, ak@suse.de, vamsi_krishna@in.ibm.com
+Subject: Re: [PATCH] Notifier for significant events on i386
+References: <1039471369.1055.161.camel@dell_ss3.pdx.osdl.net> <20021211165153.A17546@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Vamsi Krishna S . wrote:
 
-> > I replied to some mail on l-k and IBM spammed me with 20+ error
-> > messages. Now it is apparently going to do that again.
-> 
->    Still/again ?
+>Andi,
+>
+>Isn't this a problem on x86_64 too? What is there to prevent a
+>handler from being removed from the notifier list while it
+>is being used to call the handler on another CPU?
+>
+>I am considering using a RCU-based list for notifier chains.
+>Corey has done some work on these lines to add NMI notifier
+>chain, I think it should be generalised on for all notifiers.
+>
+>Thoughts? Comments?
+>  
+>
+This is probably a good idea.  I won't be able to work on it for a 
+while, but you can grab
+my patch at http://sourceforge.net/projects/openipmi/, look under the 
+2.5 releases for
+the most current linux-nmi-2.5.xx-vyy.diff.
 
-Hehe, I replied to this, and got error, again.
+-Corey
 
-								Pavel
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.

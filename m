@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129144AbRBTRFj>; Tue, 20 Feb 2001 12:05:39 -0500
+	id <S129307AbRBTRK7>; Tue, 20 Feb 2001 12:10:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129307AbRBTRF3>; Tue, 20 Feb 2001 12:05:29 -0500
-Received: from nas13-208.wms.club-internet.fr ([213.44.40.208]:44527 "EHLO
-	microsoft.com") by vger.kernel.org with ESMTP id <S129144AbRBTRFQ>;
-	Tue, 20 Feb 2001 12:05:16 -0500
-Message-Id: <200102201704.SAA13364@microsoft.com>
-Subject: Re: Is this the ultimate stack-smash fix?
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Jeremy Jackson <jeremy.jackson@sympatico.ca>
-Cc: Andreas Bombe <andreas.bombe@munich.netsurf.de>,
-        Eric "W." Biederman <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A929DF2.CDA7F949@sympatico.ca>
-In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca>    
-	<m1lmr98c5t.fsf@frodo.biederman.org> <3A8ADA30.2936D3B1@sympatico.ca>    
-	<m1hf1w8qea.fsf@frodo.biederman.org> <3A8BF5ED.1C12435A@colorfullife.com>   
-	 <m1k86s6imn.fsf@frodo.biederman.org> <20010217084330.A17398@cadcamlab.org> 
-	  <m1y9v4382r.fsf@frodo.biederman.org>  <20010220021012.A1481@storm.local>  
-	<200102200909.KAA12190@microsoft.com>  <3A929DF2.CDA7F949@sympatico.ca>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution (0.8 - Preview Release)
-Date: 20 Feb 2001 18:04:12 +0100
-Mime-Version: 1.0
+	id <S129406AbRBTRKt>; Tue, 20 Feb 2001 12:10:49 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:51466 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S129307AbRBTRKe>;
+	Tue, 20 Feb 2001 12:10:34 -0500
+Envelope-To: <linux-kernel@vger.kernel.org>
+Date: Tue, 20 Feb 2001 17:03:23 +0000 (GMT)
+From: James Stevenson <mistral@stev.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: /dev/netlink/tap0
+Message-ID: <Pine.LNX.4.21.0102201646270.6033-100000@cyrix.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 20 Feb 2001 11:40:18 -0500, Jeremy Jackson a écrit :
-> Xavier Bestel wrote:
-> 
-> > Le 20 Feb 2001 02:10:12 +0100, Andreas Bombe a écrit :
-> > >
-> > > An array is a word that contains the address of the first element.
-> >
-> > No. Exercise 3: compile and run this:
-> > file a.c:
-> > char array[] = "I'm really an array";
-> >
-> > file b.c:
-> > extern char* array;
-> > main() { printf("array = %s\n", array); }
-> >
-> 
-> try file b.c
-> extern char array;
-> main() { printf("array= %s\n", &array); }
 
-So ?
+Hi
 
+if i have a valid tap0 device i should be able to
+read write to /dev/netlink/tap0 but for some reson
+only as root should it be like this ?
+
+eg i would think that is the file permissions are like
+crw-rw-rw-  /dev/netlink/tap0
+
+anyone should be able to open it.
+is it meant to be like this if it is it seems very misleading
+from what i can tell it calls
+ethertap_open then it calls
+etlink_kernel_create then it calls
+sock_create where i think it is failing because it does not
+have CAP_NET_RAW
+
+
+thanks
+	James
+
+-- 
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+  4:40pm  up 19 days, 25 min,  6 users,  load average: 0.08, 0.12, 0.42
 

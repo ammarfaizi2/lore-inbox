@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262147AbSKMRkk>; Wed, 13 Nov 2002 12:40:40 -0500
+	id <S262020AbSKMRsQ>; Wed, 13 Nov 2002 12:48:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262020AbSKMRkk>; Wed, 13 Nov 2002 12:40:40 -0500
-Received: from mailout.zma.compaq.com ([161.114.64.105]:30729 "EHLO
-	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
-	id <S262147AbSKMRkj>; Wed, 13 Nov 2002 12:40:39 -0500
-From: Bruce Walker <bruce@kahuna.lax.cpqcorp.net>
-Message-Id: <200211131747.gADHlSs03356@kahuna.lax.cpqcorp.net>
-Subject: Re: [SSI] Re: Distributed Linux
-In-Reply-To: <1037164404.16105.12.camel@satan.xko.dec.com> from "Aneesh Kumar K.V" at "Nov 13, 2002 10:43:24 am"
-To: aneesh.kumar@digital.com (Aneesh Kumar K.V)
-Date: Wed, 13 Nov 2002 09:47:28 -0800 (PST)
-Cc: prasad_s@gdit.iiit.net, linux-kernel@vger.kernel.org (linux-kernel),
-       ssic-linux-devel@lists.sourceforge.net (ssic-linux-devel)
-X-Mailer: ELM [version 2.4ME+ PL54 (25)]
+	id <S262224AbSKMRsQ>; Wed, 13 Nov 2002 12:48:16 -0500
+Received: from fw-az.mvista.com ([65.200.49.158]:62196 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S262020AbSKMRsP>; Wed, 13 Nov 2002 12:48:15 -0500
+Message-ID: <3DD29239.2080505@mvista.com>
+Date: Wed, 13 Nov 2002 10:56:09 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Joel Becker <Joel.Becker@oracle.com>
+CC: Lars Marowsky-Bree <lmb@suse.de>,
+       Brian Jackson <brian-kernel-list@mdrx.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: md on shared storage
+References: <20021113002529.7413.qmail@escalade.vistahp.com> <20021113114641.GI19811@marowsky-bree.de> <3DD28914.3050107@mvista.com> <20021113172530.GF806@nic1-pc.us.oracle.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > As a graduation project i intended to make linux distributed 
+Waiting to start a failed-over node doesn't work for booting raid 1 
+mds...  Since autostart is required.
 
-snip
-> 
-> >The guest system (where the process originated) would
-> >however have a pseudo process running on it, which would not take much
-> >resources but would help in handling various signals/
-> 
-> SSI support cluster wide signaling. That means you can send signal to a
-> process running on other node( you have cluster wide PID )
-> 
-The openSSI process model is quite different than Bproc or Mosix or
-your "guest system" proposal.  In the openSSI model, there is no
-pseudo or shadow process at the processes creation node;  after
-a processes migrates, all its system calls are executed on the new
-node and signalling to the process is done directly to the process on
-the new node.  Besides the obvious performance advantages this can
-give, it can also provide availability advantages because the 
-creation node can go down without taking the process down with it.
+Joel Becker wrote:
 
-bruce
-
-
-> 
-> -aneesh 
-> 
-> 
-> 
-> 
-> 
-> -------------------------------------------------------
-> This sf.net email is sponsored by: 
-> To learn the basics of securing your web site with SSL, 
-> click here to get a FREE TRIAL of a Thawte Server Certificate: 
-> http://www.gothawte.com/rd522.html
-> _______________________________________________
-> ssic-linux-devel mailing list
-> ssic-linux-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/ssic-linux-devel
+>On Wed, Nov 13, 2002 at 10:17:08AM -0700, Steven Dake wrote:
+>  
+>
+>>Another method is to lock an md array to a specific host.  This method 
+>>requires no DLM (since there is no shared write to the same array 
+>>capability).
+>>    
+>>
+>
+>	But the entire point is to share access.  Otherwise it is pretty
+>uninteresting.
+>	If you want a failover setup, there is no need for md locking
+>either.  Simply have the backup node not start the md until the failover
+>happens.
+>
+>Joel
+>
+>  
+>
 

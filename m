@@ -1,70 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290512AbSAYUcX>; Fri, 25 Jan 2002 15:32:23 -0500
+	id <S290514AbSAYUjE>; Fri, 25 Jan 2002 15:39:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290514AbSAYUcU>; Fri, 25 Jan 2002 15:32:20 -0500
-Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:27810 "HELO
-	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S290512AbSAYUcI>; Fri, 25 Jan 2002 15:32:08 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Ed Sweetman <ed.sweetman@wmich.edu>,
-        Daniel Nofftz <nofftz@castor.uni-trier.de>
-Subject: Re: acpi-rouble/amd disconnect patch
-Date: Fri, 25 Jan 2002 21:32:00 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        preining@logic.at, ttonino@users.sourceforge.net,
-        moffe@amagerkollegiet.dk, timothy.covell@ashavan.org,
-        nitrax@giron.wox.org, mpet@bigfoot.de, lkml@sigkill.net, pavel@suse.cz,
-        vandrove@vc.cvut.cz, hpj@urpla.net, whitney@math.berkeley.edu
-In-Reply-To: <Pine.LNX.4.40.0201251248090.30265-100000@hades.uni-trier.de> <1011968738.22709.29.camel@psuedomode>
-In-Reply-To: <1011968738.22709.29.camel@psuedomode>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020125203210Z290512-13996+12129@vger.kernel.org>
+	id <S290745AbSAYUiy>; Fri, 25 Jan 2002 15:38:54 -0500
+Received: from [24.64.71.161] ([24.64.71.161]:41974 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S290514AbSAYUik>;
+	Fri, 25 Jan 2002 15:38:40 -0500
+Date: Fri, 25 Jan 2002 13:38:14 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        John Levon <movement@marcelothewonderpenguin.com>,
+        linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
+Message-ID: <20020125133814.U763@lynx.adilger.int>
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	John Levon <movement@marcelothewonderpenguin.com>,
+	linux-kernel@vger.kernel.org, davej@suse.de
+In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com> <20020125204911.A17190@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020125204911.A17190@wotan.suse.de>; from ak@suse.de on Fri, Jan 25, 2002 at 08:49:11PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 25. January 2002 15:25, Ed Sweetman wrote:
-> It sounds like you'll have to make the patch work just for Athlon XP's
-> ...  unless of course you're not expecting it to be included in the
-> kernel ever.
+On Jan 25, 2002  20:49 +0100, Andi Kleen wrote:
+> @@ -810,11 +832,8 @@
+>  		struct list_head *p;
+>  
+>  		list_for_each(p, &cache_chain) {
+> -			kmem_cache_t *pc = list_entry(p, kmem_cache_t, next);
+> -
+> -			/* The name field is constant - no lock needed. */
+> -			if (!strcmp(pc->name, name))
+> -				BUG();
+> +			kmem_cache_t *pc;
+> +			pc = list_entry(p, kmem_cache_t, next);
+>  		}
+>  	}
+>  
 
-Nonsense!
+So, what exactly does the above do now (hint: p and pc are both local
+so they cannot be referenced anywhere else)?  It used to check that you
+weren't trying to add two caches with the same name.  This isn't
+possible with caches from broken modules anymore as they have no name.
 
-I had seen more than 2500 Athlon/Duron system since 26. August 1999.
-Most system can handle it.
+In the end, it is mostly irrelevant if we have duplicate names in the
+slab cache, because you can't "attach" to a cache by name (you can
+only "create" a cache and access it via a pointer).  We may as well
+just remove the whole loop above, since it doesn't do anything anymore.
 
-Best case today, again. Even better than ever.
+> +		name = cachep->name; 
+> +		{
+> +		char tmp; 
+> +		if (get_user(tmp, name)) 
+> +			name = "broken"; 
+> +		} 	
 
-1.2 GHz Athlon TB (133 FSB, 9.0 multiplier)
-MSI MS-6330 v3.0 (K7T Turbo-R, KT133A, 686B)
+When calling kmem_cache_destroy() on a non-empty slab we should just
+malloc some memory with the old cache name + "_leaked" for the name
+pointer.  At least then we have a sane chance of figuring out what caused
+the problem, instead of having a bunch of "broken" entries in the table,
+and remove the above "broken" check entirely (we will always have a name).
 
-open case
-Win98SE with full VCool 1.7.2 active
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-BIOS CPU max. 84°C!!!
-Then starting Winbloze
-drop from 74°C to 23°C CPU, 23°C system temperature
-even the cooler was "cool"
-
-During DVD playback
-~56°C than down to 23°C, again
-
-And did you forget?
-It _is_ an option. --- You can try it and disable it when it fails for you.
-
-
-Just my 0.02 ¤.
-
--Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de

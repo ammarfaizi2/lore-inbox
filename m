@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265015AbTFRABn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 20:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265019AbTFRABm
+	id S265019AbTFRAH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 20:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265020AbTFRAH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 20:01:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43157 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265015AbTFRABl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 20:01:41 -0400
-Date: Wed, 18 Jun 2003 01:15:34 +0100
-From: Joel Becker <jlbec@evilplan.org>
-To: John Myers <jgmyers@netscape.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: [PATCH 2.5.71-mm1] aio process hang on EINVAL
-Message-ID: <20030618001534.GJ7895@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	John Myers <jgmyers@netscape.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"linux-aio@kvack.org" <linux-aio@kvack.org>
-References: <1055810609.1250.1466.camel@dell_ss5.pdx.osdl.net> <3EEE6FD9.2050908@netscape.com> <20030617085408.A1934@in.ibm.com> <1055884008.1250.1479.camel@dell_ss5.pdx.osdl.net> <3EEFAC58.905@netscape.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EEFAC58.905@netscape.com>
-User-Agent: Mutt/1.4.1i
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+	Tue, 17 Jun 2003 20:07:29 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:31980 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S265019AbTFRAH2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 20:07:28 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [BK PATCH] 2.4 ACPI update
+Date: Tue, 17 Jun 2003 17:21:21 -0700
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A2F6@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BK PATCH] 2.4 ACPI update
+Thread-Index: AcM1JmPOoFth9MqOR5qZDNP5ACBOdQAAwQ5w
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: "lkml" <linux-kernel@vger.kernel.org>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+X-OriginalArrivalTime: 18 Jun 2003 00:21:21.0679 (UTC) FILETIME=[8B81F1F0:01C3352F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 05:03:36PM -0700, John Myers wrote:
-> >I prefer getting the error on io_submit.
-> > 
-> >
-> I prefer getting the error on io_getevents().  The code that handles the 
+> From: Marcelo Tosatti [mailto:marcelo@conectiva.com.br] 
+> Andrew,
+> 
+> I've changed my mind with respect to the ACPI merge in 2.4.22.
+> 
+> I'm willing to do it in .22 timeline.
+> 
+> I feel its better if we do the merge in separate parts, not in a huge
+> patch.
+> 
+> What you think ?
 
-POSIX 1003.1 says this about aio_read() and aio_write():
+Hi Marcelo,
 
-	If an error condition is encountered during queuing, the function
-	call shall return without having initiated or queued the request.
+Great!
 
-If you intend to ever allow a POSIX wrapper to these interfaces (I have
-one, for instance), you need to return EINVAL, EBADF, and the like from
-io_submit().  Note that io_submit() has read-like semantics, so an
-additional call may be necessary if some iocbs were successfully queued.
+I've been maintaining the ACPI branch in a bk tree for the past year, so
+there are 100+ changesets nicely commented. Just doing a bk pull from
+that would be the best way to maintain checkin comments. bk pull
+http://linux-acpi.bkbits.net/linux-2.4-acpi .
 
-A user has to handle EAGAIN, so io_submit() cannot return void, and you
-already have error handling logic here.
+I can also export the changesets if you'd like to review them, but they
+won't apply cleanly to the tip, since they originally were against a
+much older version.
 
-Joel
+Another option would be to take the raw .diff and re-carve it by files
+modified - the arch/i386 changes, the interpreter changes, the old ospm
+removal, the new ospm addition, all the headers moving to include/acpi.
+I'm certainly willing to do that but that would lose the changelogs and
+patch attributions.
 
-
--- 
-
-"Born under a bad sign.
- I been down since I began to crawl.
- If it wasn't for bad luck,
- I wouldn't have no luck at all."
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+Thanks -- Regards -- Andy

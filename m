@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271789AbRICTqi>; Mon, 3 Sep 2001 15:46:38 -0400
+	id <S271788AbRICT6t>; Mon, 3 Sep 2001 15:58:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271788AbRICTq2>; Mon, 3 Sep 2001 15:46:28 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:46857 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S271817AbRICTqO>; Mon, 3 Sep 2001 15:46:14 -0400
-Message-ID: <3B93DE17.92CF408E@delusion.de>
-Date: Mon, 03 Sep 2001 21:46:31 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac7 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Parallel Port doesn't detect EPP
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271792AbRICT6k>; Mon, 3 Sep 2001 15:58:40 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:58554 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S271788AbRICT6f>; Mon, 3 Sep 2001 15:58:35 -0400
+Date: Mon, 3 Sep 2001 13:57:38 -0600
+Message-Id: <200109031957.f83Jvc927318@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Per Niva <pna@mendosus.org>
+Cc: <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Added devfs support for i386 msr/cpuid driver
+In-Reply-To: <Pine.LNX.4.33.0108271621410.22199-100000@subcentral.mendosus.org>
+In-Reply-To: <200108271452.f7REqjT15752@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.33.0108271621410.22199-100000@subcentral.mendosus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Per Niva writes:
+> On Mon, 27 Aug 2001, Richard Gooch wrote:
+> > The reason it's wrong is because he put #ifdef's in there. The
+> > functions should just be called unconditionally. The #ifdef's are in
+> > the header.
+> 
+> I actually pondered a while on this, and settled on
+> the cut'n'paste-from-mtrr.c version. There is no error
+> check there, and I just overlooked it.
+> 
+> The defence for the #ifdefs is that I didn't see
+> register_chrdev() being aware of devfs, and I thought
+> we'd be better off just not calling register_chrdev()
+> at all if we have devfs.
 
-Hi,
+No, even if CONFIG_DEVFS_FS=y, doesn't mean the user wants to
+mount/use devfs, so you shouldn't disable register_chrdev().
 
-I have just two questions regarding parallel port support with my
-Via686a chipset:
+> It's not like I personally like #ifdefs, but it seemed
+> justified to my inexperienced eyes at that point. And
+> there's a #ifdef CONFIG_DEVFS_FS around the call in
+> mtrr.c too, and I thought it safe to do like what's
+> already in the official tree.
 
-#1) EPP is no longer listed as supported transfer mode, but it used
-    to be.
+The #ifdef in mtrr.c is there for historical reasons (at one point,
+neither the mtrr or devfs patches were in the kernel, but I wanted
+mtrr to use devfs if available, hence the #ifdef). The #ifdef can be
+safely taken out (and should be).
 
-#2) What is that "Can't probe parallel port" message?
+> In microcode.c however, is the new-style without #ifdef
+> (or rather with the #ifdef in the headers instead)
+> and with error checking, but microcode_init() doesn't
+> use register_chrdev() anyway, even if devfs is not
+> supported.
+> 
+> Please enlighten me!
 
-Regards,
-Udo.
+The microcode patch went in after devfs was in the kernel, IIRC, and
+thus could unconditionally reference devfs_register().
 
-PnPBIOS: Parport found PNPBIOS PNP0401 at io=0378,0778 irq=7 dma=3
-0x378: FIFO is 16 bytes
-0x378: writeIntrThreshold is 8
-0x378: readIntrThreshold is 8
-0x378: PWord is 8 bits
-0x378: Interrupts are ISA-Pulses
-0x378: ECP port cfgA=0x10 cfgB=0x00
-0x378: ECP settings irq=<none or set by other means> dma=<none or set by other means>
-parport0: PC-style at 0x378 (0x778), irq 7, dma 3 [PCSPP,TRISTATE,COMPAT,ECP,DMA]
-parport0: cpp_daisy: aa5500ff(88)
-parport0: assign_addrs: aa5500ff(88)
-parport0: Printer, Hewlett-Packard HP LaserJet 6L
-parport_pc: Strange, can't probe Via 686A parallel port: io=0x378, irq=7, dma=3
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

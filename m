@@ -1,84 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbTFSTzg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 15:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265921AbTFSTzf
+	id S265416AbTFSUEv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 16:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbTFSUEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 15:55:35 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:46572 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265909AbTFSTze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 15:55:34 -0400
-Date: Thu, 19 Jun 2003 13:10:34 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Steven Pratt <slpratt@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 umount hangs
-Message-Id: <20030619131034.5be8232b.akpm@digeo.com>
-In-Reply-To: <3EF20E86.3030102@austin.ibm.com>
-References: <3EF1EC73.4070305@austin.ibm.com>
-	<20030619105817.51613df2.akpm@digeo.com>
-	<3EF20E86.3030102@austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Jun 2003 20:09:33.0874 (UTC) FILETIME=[B3615920:01C3369E]
+	Thu, 19 Jun 2003 16:04:50 -0400
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:26017 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP id S265416AbTFSUEn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 16:04:43 -0400
+From: Erik Hensema <erik@hensema.net>
+Subject: Re: Troll Tech [was RE: Sco vs. IBM]
+Date: Thu, 19 Jun 2003 20:18:40 +0000 (UTC)
+Message-ID: <slrnbf46kv.lbe.erik@bender.home.hensema.net>
+References: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com> <03061913583400.25866@tabby> <200306192108.13032.thorstenkoerner@123tkshop.org> <03061914300200.25966@tabby>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Pratt <slpratt@austin.ibm.com> wrote:
->
-> Here is the trace of the hung process:
+Jesse Pollard (jesse@cats-chateau.net) wrote:
+> On Thursday 19 June 2003 14:08, Thorsten Körner wrote:
+>> Did they ?!? No they didn't
+>> They are talking about old Unix-Licenses, not about Linux. And SCO also has
+>> not licensed Unix to IBM themselves.
 > 
->  umount        D 00000001 290213268 18747  18746                     (NOTLB)
->  Call Trace:
->   [<c01a1ae8>] journal_kill_thread+0xa8/0xe0
+> It was my understanding that you could download SCO Linux up until about a 
+> month after they started the lawsuit. By that time, all/most of the contested
+> code had to already be in the kernel. Since SCO was supplying it, it was 
+> released (my opinion).
 
-whoops.  I bet you're seeing this when using some script which does the
-unmount.
+Not conciously. I'm not familiar with USA laws, but under Dutch laws, you
+have to consiously be aware of your actions. SCO can claim they are tricked
+into distributing (not releasing) propietary code under the GPL.
+> 
+> IMHO IBM AIX doesn't owe anything to SCO. Sure in the early days, IBM did 
+> consider using System V... but it had so many problems being ported that they
+> completely dropped it, and continued with AIX development instead.
 
-Might this help?
+Please remember that this is a *legal* issue, and most of us here are
+coders. We may *think* we understand the issues, but we (at least I am) are
+looking at it as coders, not lawyers.
 
+> I've used both.. and believe me, AIX doesn't work ANYTHING like System V. no
+> virtualization (disks), no partitioning (systems), no distributed operations, 
+> minimal networking, no Power support... (this was a 202e prototype at the 
+> time I believe...
 
-diff -puN fs/jbd/journal.c~kjournald-shutdown-fix fs/jbd/journal.c
---- 25/fs/jbd/journal.c~kjournald-shutdown-fix	2003-06-19 12:58:43.000000000 -0700
-+++ 25-akpm/fs/jbd/journal.c	2003-06-19 12:58:43.000000000 -0700
-@@ -161,7 +161,7 @@ loop:
- 		del_timer_sync(journal->j_commit_timer);
- 		journal_commit_transaction(journal);
- 		spin_lock(&journal->j_state_lock);
--		goto loop;
-+		goto end_loop;
- 	}
- 
- 	wake_up(&journal->j_wait_done_commit);
-@@ -210,7 +210,7 @@ loop:
- 		journal->j_commit_request = transaction->t_tid;
- 		jbd_debug(1, "woke because of timeout\n");
- 	}
--
-+end_loop:
- 	if (!(journal->j_flags & JFS_UNMOUNT))
- 		goto loop;
- 
-@@ -230,12 +230,16 @@ static void journal_start_thread(journal
- 
- static void journal_kill_thread(journal_t *journal)
- {
-+	spin_lock(&journal->j_state_lock);
- 	journal->j_flags |= JFS_UNMOUNT;
- 
- 	while (journal->j_task) {
- 		wake_up(&journal->j_wait_commit);
-+		spin_unlock(&journal->j_state_lock);
- 		wait_event(journal->j_wait_done_commit, journal->j_task == 0);
-+		spin_lock(&journal->j_state_lock);
- 	}
-+	spin_unlock(&journal->j_state_lock);
- }
- 
- /*
+Doesn't matter. SCO claims that relatively tiny portions of their unix were
+copied into Linux.
 
-_
-
+-- 
+Erik Hensema <erik@hensema.net>

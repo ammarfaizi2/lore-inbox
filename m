@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290482AbSARS0h>; Fri, 18 Jan 2002 13:26:37 -0500
+	id <S290586AbSARSd1>; Fri, 18 Jan 2002 13:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290588AbSARS03>; Fri, 18 Jan 2002 13:26:29 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:60120 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S290482AbSARS0M>; Fri, 18 Jan 2002 13:26:12 -0500
-Message-ID: <3C4868C3.5050107@redhat.com>
-Date: Fri, 18 Jan 2002 13:26:11 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jean-Marc Valin <valj01@gel.usherb.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Full-duplex not working with i810_audio
-In-Reply-To: <1011369443.1395.15.camel@idefix.homelinux.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290588AbSARSdI>; Fri, 18 Jan 2002 13:33:08 -0500
+Received: from willow.seitz.com ([207.106.55.140]:47115 "EHLO willow.seitz.com")
+	by vger.kernel.org with ESMTP id <S290586AbSARSc5>;
+	Fri, 18 Jan 2002 13:32:57 -0500
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Fri, 18 Jan 2002 13:32:53 -0500
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+Message-ID: <20020118133253.A14488@willow.seitz.com>
+In-Reply-To: <20020115145324.A5772@thyrsus.com> <20020115152643.A6846@willow.seitz.com> <20020115230211.A5177@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020115230211.A5177@thyrsus.com>; from esr@thyrsus.com on Tue, Jan 15, 2002 at 11:02:11PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean-Marc Valin wrote:
+Eric,
 
-> I can't get full-duplex audio to work on my laptop with 2.4.17 (using
-> the i810_audio sound driver). I know my card (ADI 188x WDM) supports it
-> because it works fine with the commercial OSS. 
-> 
-> In the sample code:
->    fd = open("/dev/dsp", O_RDWR);
->    ioctl(fd, SNDCTL_DSP_SETDUPLEX, 0)
-> I get:
-> SNDCTL_DSP_SETDUPLEX: Invalid argument
+Finally got around to trying 2.1.6 - everything works great, and I'm really
+impressed!  Looks like killer stuff.  Two things:
 
+1) I noticed you've been pining the lists for EISA information.  I don't know a
+whole lot about EISA systems or anything, but I do have a 486 EISA board and
+an EISA network card I'd be willing to send you if you wanted a system to play
+around with.  I don't use it anymore and it's just gathering dust in my
+basement.
 
-That ioctl is not supported in the base i810 sound driver.
+2) It seems that searching is broken.  I didn't see anything in TODO and
+couldn't find any bug reports on linux-kernel or kbuild-devel.  Pressing '/' to
+search on any screen, for any text results in the following crash:
 
+Traceback (most recent call last):
+  File "cml2/cmlconfigure.py", line 3312, in ?
+    main(options, arguments)
+  File "cml2/cmlconfigure.py", line 3218, in main
+    curses.wrapper(curses_style_menu, config, banner)
+  File "/usr/lib/python2.0/curses/wrapper.py", line 44, in wrapper
+    res = apply(func, (stdscr,) + rest)
+  File "cml2/cmlconfigure.py", line 1154, in __init__
+    self.interact(config)
+  File "cml2/cmlconfigure.py", line 1782, in interact
+    recompute = self.symbol_menu_command(cmd, sel_symbol)
+  File "cml2/cmlconfigure.py", line 1535, in symbol_menu_command
+    configuration.debug_emit(1, "hits: " + str(hits))
+  File "cml2/cmlsystem.py", line 134, in _newstr
+    if symbol.frozen():
+  File "cml2/cmlsystem.py", line 154, in _frozen
+    if symbol.iced:
+AttributeError: 'ConfigSymbol' instance has no attribute 'iced'
+make: *** [menuconfig] Error 1
 
-> Also, when using the "rec" (based on sox) utility, my kernel crashes
-> completely (no panic, no oops, nothing else happens).
-
-
-Download the updated i810_audio.c file from my web site and let me know if 
-basic recording still crashes for you 
-(http://people.redhat.com/dledford/i810_audio.c.gz)
-
-
-> My setup is:
-> Compaq Presario 1720CA
-> PIII mobile 1 GHz / 256 MB RAM
-> ATI Mobility Radeon M6 / 8 MB
-> ADI 188x WDM sound chip (on-board)
-> RedHat 7.2/2.4.17
-> 
-> Can anyone help me? 
-> 
-> 	Jean-Marc
-> 
-> P.S. Please CC to me, as I am not subscribed to the list
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Other than that, this look really awesome!
 
 
-
--- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
-
+Thanks,
+	Ross Vandegrift
+	ross@willow.seitz.com

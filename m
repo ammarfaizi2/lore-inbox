@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315736AbSECWlI>; Fri, 3 May 2002 18:41:08 -0400
+	id <S315738AbSECW7N>; Fri, 3 May 2002 18:59:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315738AbSECWlI>; Fri, 3 May 2002 18:41:08 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:20701 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S315736AbSECWlH>;
-	Fri, 3 May 2002 18:41:07 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 4 May 2002 00:40:56 +0200 (MEST)
-Message-Id: <UTC200205032240.g43Meuf15031.aeb@smtp.cwi.nl>
-To: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
-Subject: IDE
+	id <S315739AbSECW7N>; Fri, 3 May 2002 18:59:13 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:22918 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S315738AbSECW7M>; Fri, 3 May 2002 18:59:12 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, bruce.holzrichter@monster.com
+Subject: Re: my slab cache broken on sparc64
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A781780F2@nocmail101.ma.tmpw.net> <20020503.140507.89264790.davem@redhat.com>
+From: Andi Kleen <ak@muc.de>
+Date: 04 May 2002 00:58:55 +0200
+Message-ID: <m38z70kfdc.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-< Recap >
+"David S. Miller" <davem@redhat.com> writes:
+> 
+> It would work if the access was surrounded by:
+> 
+> 	old_fs = get_fs();
+> 	set_fs(KERNEL_DS);
+> 	... get_user(kernel_pointer) ...
+> 	set_fs (old_fs);
+> 
+> But it is not.
 
-== I have had problems with 2.5.10 (first few blocks of the root
-== filesystem overwritten) and then went back to 2.5.8 that I had
-== used for a while already, but then also noticed corruption there.
-== Back at 2.4.17 today..
+It was supposed to be. I think we discussed it some time ago, but for 
+some reason it was never changed. Will submit a patch in a jiffie.
 
-< Optimistic reply >
+-Andi (to blame for that code) 
 
-= It could very well be that the recent changes could have cured this.
-
-< Reality of today >
-
-Booted a vanilla 2.5.12. It did not succeed in mounting the root
-filesystem, but instead wrote zeros over the superblock.
-
-	hdb: task_out_intr: error=0x04 { DriveStatusError }
-
-Will try 2.5.13 later.
-
-Andries
-
-
-[So, 2.5.8 causes very slow corruption, and can be used for
-several hours, sometimes days, before something bad happens.
-And bad things only happen to disks on HPT366.
-On the other hand, 2.5.10 and 2.5.12 fail directly at boot
-in precisely the same way and with a disk on the mb.]
-
-% grep _IDE .config | grep -v '#'
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_STROKE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_IDEDMA=y

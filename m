@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261487AbSJAFCn>; Tue, 1 Oct 2002 01:02:43 -0400
+	id <S261486AbSJAFKC>; Tue, 1 Oct 2002 01:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261485AbSJAFCn>; Tue, 1 Oct 2002 01:02:43 -0400
-Received: from packet.digeo.com ([12.110.80.53]:9679 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261487AbSJAFCm>;
-	Tue, 1 Oct 2002 01:02:42 -0400
-Message-ID: <3D992DB0.9A8942D@digeo.com>
-Date: Mon, 30 Sep 2002 22:08:00 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
-X-Accept-Language: en
+	id <S261488AbSJAFKC>; Tue, 1 Oct 2002 01:10:02 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:61316 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261486AbSJAFKB>;
+	Tue, 1 Oct 2002 01:10:01 -0400
+Date: Tue, 1 Oct 2002 07:24:18 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: george@mvista.com, <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, <wli@holomorphy.com>,
+       <dipankar@in.ibm.com>, <kuznet@ms2.inr.ac.ru>
+Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
+In-Reply-To: <20020930.211848.131274580.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0210010723460.5969-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: David Gibson <david@gibson.dropbear.id.au>
-CC: David Miller <davem@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
-Subject: Re: [PATCH,RFC] Add gfp_mask to get_vm_area()
-References: <20021001044226.GS10265@zax>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Oct 2002 05:08:01.0639 (UTC) FILETIME=[84148F70:01C26908]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote:
-> 
-> Dave, please consider this patch.  It renames get_vm_area() to
-> __get_vm_area() and adds a gfp_mask parameter which is passed on to
-> kmalloc().  get_vm_area(size,flags) is then defined as as
-> __get_vm_area(size,flags,GFP_KERNEL) to avoid messing with existing
-> callers.
-> 
-> We need this in order to sanely make pci_alloc_consistent() (and other
-> consistent allocation functions) obey the DMA-mapping.txt rules on PPC
-> embedded machines (specifically the requirement that it be callable
-> from interrupt context).
-> 
 
-I can look after that for you.  But I'd prefer that you just add the
-extra gfp_flags argument to get_vm_area() and update the 16 callers.
+On Mon, 30 Sep 2002, David S. Miller wrote:
 
-You cannot call get_vm_area() from interrupt context at present;
-it does write_lock(&vmlist_lock) unsafely.
+> I did some thinking, and I don't understand how this old code can be
+> legal.  Doesn't this make do_gettimeofday() inaccurate?
 
-It would be a bit sad to make vmlist_lock interrupt-safe for this.  Is
-there no alternative?
+it's a mostly bogus comment, dont think about it too much.
 
-(And what the hell is arch/alpha/mm/init.c:callback_init() doing rewriting
-vmlist?  Somebody shoot that code)
+	Ingo
+

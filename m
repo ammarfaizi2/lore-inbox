@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317862AbSGKRFo>; Thu, 11 Jul 2002 13:05:44 -0400
+	id <S317864AbSGKRJK>; Thu, 11 Jul 2002 13:09:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317863AbSGKRFn>; Thu, 11 Jul 2002 13:05:43 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:20486 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317862AbSGKRFm> convert rfc822-to-8bit; Thu, 11 Jul 2002 13:05:42 -0400
-Message-ID: <3D2DBB7B.9020600@evision-ventures.com>
-Date: Thu, 11 Jul 2002 19:08:11 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: "Grover, Andrew" <andrew.grover@intel.com>, "'CaT'" <cat@zip.com.au>,
-       Benjamin LaHaise <bcrl@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-       Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-References: <59885C5E3098D511AD690002A5072D3C02AB7F94@orsmsx111.jf.intel.com> <3D2CF4FB.5030600@mandrakesoft.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S317866AbSGKRJJ>; Thu, 11 Jul 2002 13:09:09 -0400
+Received: from ns.tzone.it ([212.97.49.90]:21515 "HELO tzone.it")
+	by vger.kernel.org with SMTP id <S317864AbSGKRJI>;
+	Thu, 11 Jul 2002 13:09:08 -0400
+Message-ID: <20020711171157.97045.qmail@tzone.it>
+From: elv@openbeer.it
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Linux kernels DoSable by file-max limit
+Date: Thu, 11 Jul 2002 17:11:57 GMT
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Jeff Garzik napisa³:
-> Grover, Andrew wrote:
-> 
->> So, a changing tick *can* be done. If Linux does the same thing, seems 
->> like
->> everyone is happy. What are the obstacles to this for Linux? If code is
->> based on the assumption of a constant timer tick, I humbly assert that 
->> the
->> code is broken.
-> 
-> 
-> Unfortunately code in Linux has traditionally compiled in a constant HZ 
-> all over the place, and jiffies instead of real time units are at the 
-> heart of all Linux timer-related activities.
-> 
-> I don't see that making 'HZ' a variable is really an option, because 
-> many drivers and scheduler-related code will be wildly inaccurate as 
-> soon as HZ actually changes values.
-> 
-> So that leaves us with the option of changing all the code related to 
-> waiting to be based on msecs and usecs.  Which I would love to do, but 
-> that's a lot of work, both code- and audit-wise.
+hi, 
 
-vmstat.c:
+in the previous patch a line was missed 
 
-hz = sysconf(_SC_CLK_TCK);	/* get ticks/s from system */
-
-And yes I know the libproc is *evil* in this area.
-The rest should be an implementation detail of sysconf().
-Changing this value during the runtime of vmstat is interresting story
-anyway, but it should be up to the sysadmin to do this kind
-of stuff only at runtlevel 1.
-sysconf can be indeed imeplemented as a single global
-file containing configuration data. But sysctl is another story
-of course.
+ --- ../patches/linux/fs/file_table.c	Mon Sep 17 20:16:30 2001
++++ fs/file_table.c	Thu Jul 11 19:01:40 2002
+@@ -51,9 +51,13 @@
+		return f;
+	}
+	/*
+ -	 * Use a reserved one if we're the superuser
++	 * Use one of the first 16 reserved fds if we have euid == 0
++	 * and one of the second 16 reserved fds if we're the superuser
+	 */
+ -	if (files_stat.nr_free_files && !current->euid)
++	if (files_stat.nr_free_files > NR_RESERVED_FILES/2 && !current->euid)
++		goto used_one;
++	else if (files_stat.nr_free_files <= NR_RESERVED_FILES/2 && !current->uid
++		&& files_stat.nr_free_files != 0)
+		goto used_one;
+	/*
+	 * Allocate a new one if we're below the limit. 
 
 
+ --- /usr/src/linux/include/linux/fs.h   Mon Jul  1 14:48:44 2002
++++ /usr/src/linux/include/linux/fs.h   Tue Jul  9 00:07:06 2002
+@@ -65,7 +65,7 @@
+extern int leases_enable, dir_notify_enable, lease_break_time; 
 
+#define NR_FILE  8192   /* this can well be larger on a larger system */
+ -#define NR_RESERVED_FILES 10 /* reserved for root */
++#define NR_RESERVED_FILES 32 /* first 16 for euid == 0 processes and second 
+16 only for root */
+#define NR_SUPER 256 
+
+#define MAY_EXEC 1 
+
+
+elv

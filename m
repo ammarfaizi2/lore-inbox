@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262639AbVCXQnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVCXQpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262639AbVCXQnr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 11:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbVCXQnr
+	id S262633AbVCXQpY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 11:45:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbVCXQpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 11:43:47 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:43736 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S262639AbVCXQno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 11:43:44 -0500
-Date: Thu, 24 Mar 2005 11:43:13 -0500
-To: Asfand Yar Qazi <ay1204@qazi.f2s.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: How's the nforce4 support in Linux?
-Message-ID: <20050324164313.GL17865@csclub.uwaterloo.ca>
-References: <3Lxis-5a0-29@gated-at.bofh.it> <3Lxis-5a0-31@gated-at.bofh.it> <3Lxis-5a0-33@gated-at.bofh.it> <3Lxis-5a0-27@gated-at.bofh.it> <3LxBD-5wd-9@gated-at.bofh.it> <4242975F.1030203@qazi.f2s.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4242975F.1030203@qazi.f2s.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Thu, 24 Mar 2005 11:45:24 -0500
+Received: from smtp2.netcabo.pt ([212.113.174.29]:4464 "EHLO
+	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262633AbVCXQpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 11:45:14 -0500
+Message-ID: <4242EEC3.2000605@netcabo.pt>
+Date: Thu, 24 Mar 2005 16:45:55 +0000
+From: redoubtable <redoubtable@netcabo.pt>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: undisclosed-recipients:;
+Subject: fork() 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Mar 2005 16:45:13.0139 (UTC) FILETIME=[D970A830:01C53090]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 10:33:03AM +0000, Asfand Yar Qazi wrote:
-> No, but I do need NCQ
+Hey,
 
-Perhaps a stupid question... but: Why do you _need_ NCQ?  If you need it
-that badly (not sure why anyone would), you could always get SCSI or a
-3ware controller.
+I read a document on securityfocus about fork bombinb a linux system. 
+Although they didn't speak about the effectiveness of resource limits I 
+guess that should be discussed because it's possible to make a linux 
+machine extremely slow (compared to FreeBSD for instance) even with well 
+configured resource limits.
+I revised kernel/fork.c and I found a way to prevent this problem by 
+removing all associated processes with the parent, but that's far from 
+portable and should not be used for the sake of compatibilities. I guess 
+the function fork() should be revised.
+And what about creating a 'maxprocs' sysctl var (even if left high) when 
+the resource limits problem is fixed? It would help security when it is 
+needed and wouldn't bother other applications. RLIMITs on login are not 
+trustworthy. It should exist a global limit in case someone could spawn 
+a shell without limits through some flawed application.
 
-NCQ is a nice feature, but hardly essential.
+Thanks, and please advise.
 
-Len Sorensen

@@ -1,103 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265371AbUAPK7P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 05:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbUAPK7P
+	id S265374AbUAPL2n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 06:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUAPL2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 05:59:15 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:8848 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S265371AbUAPK7M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 05:59:12 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16391.50173.379099.96560@gargle.gargle.HOWL>
-Date: Fri, 16 Jan 2004 05:59:09 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, jbarnes@sgi.com, jeremy@sgi.com
-Subject: [patch] 2.6.1-mm4 sgiioc4.c cleanup weak symbol and error numbers
-X-Mailer: VM 7.03 under Emacs 21.2.1
-From: Jes Sorensen <jes@trained-monkey.org>
+	Fri, 16 Jan 2004 06:28:43 -0500
+Received: from play.smurf.noris.de ([192.109.102.42]:6849 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S265374AbUAPL2l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 06:28:41 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: Raw I/O Problems with inb()
+Date: Fri, 16 Jan 2004 12:27:47 +0100
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.01.16.11.27.43.359172@smurf.noris.de>
+References: <20040115215243.39fcb0fd.aftli@optonline.net>
+NNTP-Posting-Host: pd951dc4d.dip.t-dialin.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: play.smurf.noris.de 1074252469 25555 217.81.220.77 (16 Jan 2004 11:27:49 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Fri, 16 Jan 2004 11:27:49 +0000 (UTC)
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi, Brett Gmoser wrote:
 
-The included patch removes the usage of weak symbols from sgiioc4.c now
-that we have the Kconfig issue sorted as well as cleans up the error no
-handling (instead of return 1 on error) and adds a check for the return
-value on snia_pci_endian_set as suggested by Christoph.
+> Thanks in advance for any insight you all may be able to give me
 
-Cheers,
-Jes
+Reading port registers directly doesn't make sense. No USB keyboards, no
+remote use, ... you need to drop your DOS programming mentaility. Fast.
 
---- orig/linux-2.6.1-mm4/drivers/ide/pci/sgiioc4.c	Sun Jan 11 07:00:35 2004
-+++ linux-2.6.1-mm4/drivers/ide/pci/sgiioc4.c	Fri Jan 16 02:54:10 2004
-@@ -23,7 +23,6 @@
-  * http://oss.sgi.com/projects/GenInfo/NoticeExplan
-  */
- 
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/types.h>
- #include <linux/pci.h>
-@@ -686,7 +685,7 @@
- 			"0x%p to 0x%p ALREADY in use\n",
- 		       __FUNCTION__, hwif->name, (void *) base,
- 		       (void *) base + IOC4_CMD_CTL_BLK_SIZE);
--		return 1;
-+		return -ENOMEM;
- 	}
- 
- 	if (hwif->io_ports[IDE_DATA_OFFSET] != base) {
-@@ -726,20 +725,21 @@
- 	PCIDMA_ENDIAN_BIG,
- 	PCIDMA_ENDIAN_LITTLE
- } pciio_endian_t;
--pciio_endian_t __attribute__ ((weak)) snia_pciio_endian_set(struct pci_dev
--					    *pci_dev, pciio_endian_t device_end,
--					    pciio_endian_t desired_end);
-+pciio_endian_t snia_pciio_endian_set(struct pci_dev
-+				     *pci_dev, pciio_endian_t device_end,
-+				     pciio_endian_t desired_end);
- 
- static unsigned int __init
- pci_init_sgiioc4(struct pci_dev *dev, ide_pci_device_t * d)
- {
- 	unsigned int class_rev;
-+	pciio_endian_t endian_status;
- 
- 	if (pci_enable_device(dev)) {
- 		printk(KERN_ERR
- 		       "Failed to enable device %s at slot %s\n",
- 		       d->name, dev->slot_name);
--		return 1;
-+		return -ENODEV;
- 	}
- 	pci_set_master(dev);
- 
-@@ -751,18 +751,17 @@
- 		printk(KERN_ERR "Skipping %s IDE controller in slot %s: "
- 			"firmware is obsolete - please upgrade to revision"
- 			"46 or higher\n", d->name, dev->slot_name);
--		return 1;
-+		return -ENODEV;
- 	}
- 
- 	/* Enable Byte Swapping in the PIC... */
--	if (snia_pciio_endian_set) {
--		snia_pciio_endian_set(dev, PCIDMA_ENDIAN_LITTLE,
--				      PCIDMA_ENDIAN_BIG);
--	} else {
-+	endian_status = snia_pciio_endian_set(dev, PCIDMA_ENDIAN_LITTLE,
-+					      PCIDMA_ENDIAN_BIG);
-+	if (endian_status != PCIDMA_ENDIAN_BIG) {
- 		printk(KERN_ERR
- 		       "Failed to set endianness for device %s at slot %s\n",
- 		       d->name, dev->slot_name);
--		return 1;
-+		return -ENODEV;
- 	}
- 
- 	return sgiioc4_ide_setup_pci_device(dev, d);
+You can use a PTY approach like script(1), or you can write a small kernel
+module like evbug (see the kernel source, drivers/input/evbug.c) which
+monitors everything the user is doing.
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+There are two distinct sorts of what we call bashfulness; this, the
+awkwardness of a booby, which a few steps into the world will convert into the
+pertness of a cox comb; that, a consciousness, which the most delicate
+feelings produce, and the most extensive knowledge cannot always remove.
+					-- Mackenzie
+

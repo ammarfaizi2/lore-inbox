@@ -1,109 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132301AbQLHRHn>; Fri, 8 Dec 2000 12:07:43 -0500
+	id <S132355AbQLHRIm>; Fri, 8 Dec 2000 12:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132356AbQLHRHe>; Fri, 8 Dec 2000 12:07:34 -0500
-Received: from d06lmsgate.uk.ibm.com ([195.212.29.1]:34229 "EHLO
-	d06lmsgate.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S132355AbQLHRHP>; Fri, 8 Dec 2000 12:07:15 -0500
-From: richardj_moore@uk.ibm.com
-X-Lotus-FromDomain: IBMGB
-To: root@chaos.analogic.com
-cc: Brian Gerst <bgerst@didntduck.org>, Andi Kleen <ak@suse.de>,
-        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+	id <S132347AbQLHRIc>; Fri, 8 Dec 2000 12:08:32 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:28171 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132355AbQLHRHi>;
+	Fri, 8 Dec 2000 12:07:38 -0500
+Date: Fri, 8 Dec 2000 17:37:09 +0100
+From: Andi Kleen <ak@suse.de>
+To: Fabien Ribes <fribes@capgemini.fr>
+Cc: "David S. Miller" <davem@redhat.com>, Andi Kleen <ak@suse.de>,
         linux-kernel@vger.kernel.org
-Message-ID: <802569AF.005B3839.00@d06mta06.portsmouth.uk.ibm.com>
-Date: Fri, 8 Dec 2000 16:34:52 +0000
-Subject: Re: Why is double_fault serviced by a trap gate?
+Subject: Re: Networking: RFC1122 and 1123 status for kernel 2.4
+Message-ID: <20001208173709.A21397@gruyere.muc.suse.de>
+In-Reply-To: <3A30F463.2EE04F4E@capgemini.fr> <200012081454.GAA02632@pizda.ninka.net> <20001208163154.A20038@gruyere.muc.suse.de> <3A310A12.446E2C4A@capgemini.fr>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A310A12.446E2C4A@capgemini.fr>; from fribes@capgemini.fr on Fri, Dec 08, 2000 at 05:19:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 08, 2000 at 05:19:30PM +0100, Fabien Ribes wrote:
+> Andi Kleen a écrit :
+> > 
+> > On Fri, Dec 08, 2000 at 06:54:28AM -0800, David S. Miller wrote:
+> > >    Date:      Fri, 08 Dec 2000 15:46:59 +0100
+> > >    From: Fabien Ribes <fribes@capgemini.fr>
+> > >
+> > >    Looking at Linux kernel sources, I've found RFC1122 status splitted in
+> > >    each file. Is there a complete document showing RFC1122 status as a
+> > >    whole for a given kernel version ?
+> > >
+> > > No, unfortunately nobody has the time to do this.
+> > 
+> > The RFC evaluation is also out of date and should be either redone or removed.
+> 
+> Indeed, what I need is some kind of paper insurance of interoperability
+> ... so I believe grepping the sources for compliances will do the trick.
 
+It would be nice if you could contribute a new evaluation in this case
+(preferable as an external document for Documentation/) 
 
-Actually what you are pointing out here is the differing needs for
-differing uses. Real-time, embedded systems etc have different requirements
-or at lest different priorities to enterprise usage. I'm coming from the
-enterprise server angle - the Linux/390 type of use and high end IA32
-Server.
-
-I'll certainly add the double-fault hander to my list of RAS stuff. I'm not
-so convinced about NMI being a task gate.
-
-Richard
-
-
-Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
-
-http://oss.software.ibm.com/developerworks/opensource/linux
-Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
-IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
-
-
-"Richard B. Johnson" <root@chaos.analogic.com> on 08/12/2000 15:04:19
-
-Please respond to root@chaos.analogic.com
-
-To:   Richard J Moore/UK/IBM@IBMGB
-cc:
-Subject:  Re: Why is double_fault serviced by a trap gate?
-
-
-
-
-On Fri, 8 Dec 2000 richardj_moore@uk.ibm.com wrote:
-
->
->
-> I really think you're taking very negative position - I have seen this
-> technique deployed on onther Intel based operating systems. I don't see
-why
-> Linux shouldn't step up to that. If one is careful the double-fault can
-be
-> handled to the extent that other kernel services (or a subset of them)
-are
-> callable and we may be even take a crash dump. I agree that the current
-> thread will die and possibly the system will may have to be closed down.
->
->
-> Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
->
-
-If you have a "survival patch" for some recent kernel, or if you
-develop one, I will certainly try to help getting it to work. However,
-I have been in the "been there, done that.." position trying to
-keep a critical system (CAT Scanner) up long enough to complete
-a scan after a HV Arc caused bad things to happen (a few single-bit
-errors in memory). And I didn't have to worry about all the tasks
-that exist in a desktop OS. My OS for the scanner had tasks that were
-known at compile-time!
-
-The solution found was checkpointed task code (for restarting where
-it left off), and restarting the kernel by:
-
-o    Get paging OFF
-o    Fix up a temporary flat-mode environment.
-o    Get new kernel code from NVRAM.
-o    Reload/restart kernel
-o    Start tasks.
-
-What I learned might be helpful.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
-
-
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

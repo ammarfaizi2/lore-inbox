@@ -1,84 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263060AbTLIFhu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 00:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTLIFhu
+	id S263102AbTLIFx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 00:53:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbTLIFx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 00:37:50 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:28891 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S263060AbTLIFhs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 00:37:48 -0500
-Message-ID: <3FD55F9D.9070203@zytor.com>
-Date: Mon, 08 Dec 2003 21:37:33 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv, es, fr
+	Tue, 9 Dec 2003 00:53:59 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:38073 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263102AbTLIFx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 00:53:57 -0500
+Message-ID: <3FD56330.6040506@yahoo.es>
+Date: Tue, 09 Dec 2003 00:52:48 -0500
+From: Roberto Sanchez <rcsanchez97@yahoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Nikita Danilov <Nikita@Namesys.COM>, Arnd Bergmann <arnd@arndb.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: const versus __attribute__((const))
-References: <200312081646.42191.arnd@arndb.de> <3FD4B9E6.9090902@zytor.com> <16340.49791.585097.389128@laputa.namesys.com> <3FD4C375.2060803@zytor.com> <20031209025952.GA26439@mail.shareable.org> <3FD53FC6.5080103@zytor.com> <20031209034935.GA26987@mail.shareable.org>
-In-Reply-To: <20031209034935.GA26987@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6.0-testX show stoppers
+References: <3FD498A0.9080802@yahoo.es> <1070898030.2098.146.camel@athlonxp.bradney.info> <3FD4B250.8010402@nishanet.com>
+In-Reply-To: <3FD4B250.8010402@nishanet.com>
+X-Enigmail-Version: 0.81.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig167B16ED25EC5FFD32B5A2B8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> H. Peter Anvin wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig167B16ED25EC5FFD32B5A2B8
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Bob wrote:
+> Craig Bradney wrote:
 > 
->>>It would be nice to have a way to declare an asm like "pure" not
->>>"const", so that it's allowed to read memory but multiple calls can be
->>>eliminated; I don't know of a way to express that.
->>
->>Just specify memory input operands.
+>> For the Athlon, keep in touch with the nforce thread on here.. There are
+>> patches due to timing issues with the nforce chipset.
+>> For me, so far, just using this one works:
+>> http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-apic.patch 
+[SNIP]
+> The patch works for a lot of people. I've seen those drive
+> errors, irq7 disabled, spurious 8259a messages with a
+> bios and acpi and apic and lapic and linux acpi handling
+> conflict usually related to nforce2 and amd cpu's are
+> usually involved.
 > 
-> 
-> Thanks.  That's even more useful than "pure" because it implies the
-> asm only reads the explicitly passed memory operands.
-> 
-> Memory input operands don't work if you want the asm to read arbitrary
-> memory not mentioned in the inputs (like "pure" allows) or traverse
-> linked lists.
-> 
-> (A long time ago there was a question about whether GCC could ever
-> copy the value associated with an "m" operand to a stack slot, and
-> pass the address of the stack slot.  After all, GCC _will_ copy the
-> value if the operand is an "r", and presumably gives mixed results
-> with "rm".  We seem to have concluded that it never will).
-> 
+> My nforce2 amd system got to working with apic and lapic
+> and acpi when I did a bios flash update.
 
-Sure it will:
+I also tried flashing the BIOS, but that was a complete disaster.
+I have a BioStar motherboard (M7NCD Pro), and when I flashed to the 1007
+BIOS, I started getting segfaults during init, was unable to log in most
+times, and the machine was generally unusable.
 
+When I reflashed to the (old) 0630 BIOS, the above patch worked its
+magic.
 
-int foo(int x)
-{
-   int y, z;
+Incidentally, everyone should stay away from the 1007 BIOS for the
+M7NCD Pro.
 
-   asm("movl %1,%0" : "=r" (y) : "r" (x));
-   asm("movl %1,%0" : "=r" (z) : "m" (y));
+-Roberto
 
-   return z;
-}
+--------------enig167B16ED25EC5FFD32B5A2B8
+Content-Type: application/pgp-signature
 
-: smyrno 21 ; gcc -O2 -c testme.c
-: smyrno 22 ; objdump -dr testme.o
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-testme.o:     file format elf32-i386
+iD8DBQE/1WMwTfhoonTOp2oRAp7TAJ9PLbrC1DqyHuLlekxOblEgNXWTmwCfQvtk
+s+v0Noeh8hoXAtrTWNHAdOE=
+=SVsM
+-----END PGP SIGNATURE-----
 
-Disassembly of section .text:
-
-00000000 <foo>:
-    0:   55                      push   %ebp			; Make stack frame
-    1:   89 e5                   mov    %esp,%ebp		; d:o
-    3:   50                      push   %eax			; Allocate stack slot
-    4:   8b 45 08                mov    0x8(%ebp),%eax		; Copy to register
-    7:   89 c0                   mov    %eax,%eax		; First asm()
-    9:   89 45 fc                mov    %eax,0xfffffffc(%ebp) 	; Copy to stack slot
-    c:   8b 45 fc                mov    0xfffffffc(%ebp),%eax	; Second asm()
-    f:   c9                      leave				; Destroy stack frame
-   10:   c3                      ret
-
+--------------enig167B16ED25EC5FFD32B5A2B8--
 

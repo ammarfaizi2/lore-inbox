@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbULNWul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbULNWxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbULNWul (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWtP
+	id S261726AbULNWxI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:53:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:49:15 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:17865 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261711AbULNWri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:47:38 -0500
-Date: Tue, 14 Dec 2004 23:47:06 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
-Message-ID: <20041214224706.GA26853@elte.hu>
-References: <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com> <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com> <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random> <41BC1BF9.70701@colorfullife.com> <20041212121546.GM16322@dualathlon.random> <1103060437.14699.27.camel@krustophenia.net> <20041214222307.GB22043@elte.hu>
+	Tue, 14 Dec 2004 17:50:54 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:36029 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261709AbULNWuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 17:50:21 -0500
+Subject: Re: dynamic-hz
+From: Lee Revell <rlrevell@joe-job.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <cone.1103064011.405603.25531.502@pc.kolivas.org>
+References: <20041211142317.GF16322@dualathlon.random>
+	 <20041212163547.GB6286@elf.ucw.cz>
+	 <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
+	 <1103063312.14699.54.camel@krustophenia.net>
+	 <cone.1103064011.405603.25531.502@pc.kolivas.org>
+Content-Type: text/plain
+Date: Tue, 14 Dec 2004 17:50:19 -0500
+Message-Id: <1103064619.14699.73.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041214222307.GB22043@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> indeed, there could be a connection, and it's certainly a fun race.
-> The proper fix is Manfred's suggestion: check whether the EIP is a
-> kernel text address, and if yes, whether it's a HLT instruction - and
-> if yes then increase EIP by 1. I've included the fix in the -33-02 -RT
-> patch. Andrew, Linus: upstream fix is below - i think it's post-2.6.10
-> stuff. Tested it on SMP and UP x86, using both the IO-APIC and the
-> local-APIC based NMI watchdog.
+On Wed, 2004-12-15 at 09:40 +1100, Con Kolivas wrote:
+> Lee Revell writes:
 > 
-> i think x64 needs a similar fix as well.
+> > On Mon, 2004-12-13 at 10:36 +1100, Con Kolivas wrote:
+> >> The performance benefit, if any, is often lost in noise during 
+> >> benchmarks and when there, is less than 1%.
+> > 
+> > I have measured 2.1-2.3% residency for the timer ISR on my 600Mhz VIA
+> > C3.  And this is a desktop - you have many many embedded systems that
+> > are slower.  For these systems the difference is very real.
+> 
+> Could you explain residency and it's relevance to throughput please? I've 
+> not heard this term before.
+> 
 
-find the correct patch below. I've tested it with an NMI watchdog
-frequency artificially increased to 10 KHz, and i've instrumented the
-new branch in the NMI handler, but even under heavy IRQ load i was not
-able to trigger the branch. Maybe newer CPUs handle this case somehow
-and make sti;hlt truly atomic? I tried this on an old Celeron
-(Mendocino) and on an Athlon64.
+It means 2.1-2.3% of wallclock time is spent running the timer interrupt
+handler.  IOW, it runs for 21-23 usecs, 1000x per second.
 
-	Ingo
+Lee 
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/arch/i386/kernel/traps.c.orig
-+++ linux/arch/i386/kernel/traps.c
-@@ -670,6 +670,18 @@ fastcall void do_nmi(struct pt_regs * re
- 
- 	cpu = smp_processor_id();
- 
-+	/*
-+	 * Fix up obscure CPU behavior: if we interrupt safe_hlt() via
-+	 * the NMI then we might miss a reschedule if an interrupt is
-+	 * posted to the CPU and executes before the HLT instruction.
-+	 *
-+	 * We check whether the EIP is kernelspace, and if yes, whether
-+	 * the instruction is HLT:
-+	 */
-+	if (__kernel_text_address(regs->eip) &&
-+					*(unsigned char *)regs->eip == 0xf4)
-+		regs->eip++;
-+
- #ifdef CONFIG_HOTPLUG_CPU
- 	if (!cpu_online(cpu)) {
- 		nmi_exit();

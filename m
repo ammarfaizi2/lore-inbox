@@ -1,31 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135324AbRDLVOu>; Thu, 12 Apr 2001 17:14:50 -0400
+	id <S135328AbRDLVVJ>; Thu, 12 Apr 2001 17:21:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135325AbRDLVOj>; Thu, 12 Apr 2001 17:14:39 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61959 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135324AbRDLVOa>; Thu, 12 Apr 2001 17:14:30 -0400
-Subject: Re: 8139too: defunct threads
-To: andrewm@uow.edu.au (Andrew Morton)
-Date: Thu, 12 Apr 2001 22:15:56 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        stewart@dystopia.lab43.org (Rod Stewart), linux-kernel@vger.kernel.org,
-        jgarzik@mandrakesoft.com (Jeff Garzik)
-In-Reply-To: <3AD60D7F.1682DC7C@uow.edu.au> from "Andrew Morton" at Apr 12, 2001 01:18:07 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135330AbRDLVVA>; Thu, 12 Apr 2001 17:21:00 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:14090 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S135328AbRDLVUj>;
+	Thu, 12 Apr 2001 17:20:39 -0400
+Date: Thu, 12 Apr 2001 23:20:36 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: linux-kernel@vger.kernel.org
+Cc: kernel-janitor-discuss@lists.sourceforge.net
+Subject: [upatch #11] 2.4.3-ac5 - static const char *foo to static char foo[]
+Message-ID: <20010412232036.K16102@se1.cogenit.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14noRa-0001VL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Plus it would mean that the kernel requires, for its
-> correct operation, that process "1" is a child reaper.
-> Is this a good thing?
+Hello,
 
-That is already required. The rest of the reparenting functionality is also
-in kernel/exit.c already
+  it compiles fine and there is no MAINTAINER entry for it nor specific
+email address in the source file.
 
+diff -u --recursive linux-2.4.3-ac5.orig/drivers/char/keyboard.c linux-2.4.3-ac5/drivers/char/keyboard.c
+--- linux-2.4.3-ac5.orig/drivers/char/keyboard.c	Thu Apr 12 20:23:06 2001
++++ linux-2.4.3-ac5/drivers/char/keyboard.c	Thu Apr 12 21:10:37 2001
+@@ -632,8 +632,8 @@
+ 
+ static void do_pad(unsigned char value, char up_flag)
+ {
+-	static const char *pad_chars = "0123456789+-*/\015,.?()";
+-	static const char *app_map = "pqrstuvwxylSRQMnnmPQ";
++	static char pad_chars[] = "0123456789+-*/\015,.?()";
++	static char app_map[] = "pqrstuvwxylSRQMnnmPQ";
+ 
+ 	if (up_flag)
+ 		return;		/* no action, if this is a key release */
+@@ -689,7 +689,7 @@
+ 
+ static void do_cur(unsigned char value, char up_flag)
+ {
+-	static const char *cur_chars = "BDCA";
++	static char cur_chars[] = "BDCA";
+ 	if (up_flag)
+ 		return;
+ 
+
+-- 
+Ueimor

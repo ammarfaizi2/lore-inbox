@@ -1,71 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVAAPiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVAAPi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVAAPiA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 10:38:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVAAPiA
+	id S261697AbVAAPi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 10:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVAAPi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 10:38:00 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:2027 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S261367AbVAAPhv (ORCPT
+	Sat, 1 Jan 2005 10:38:57 -0500
+Received: from quechua.inka.de ([193.197.184.2]:26290 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261697AbVAAPit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 10:37:51 -0500
-Subject: [PATCH] Fix broken RST handling in ip_conntrack
-From: Martin Josefsson <gandalf@netfilter.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Netfilter-devel@tux.rsn.bth.se, linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-B4MWPshc24Htjg8G4FGs"
-Date: Sat, 01 Jan 2005 16:37:47 +0100
-Message-Id: <1104593867.3821.36.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Sat, 1 Jan 2005 10:38:49 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: initramfs: is it supposed to work?
+Date: Sat, 01 Jan 2005 16:40:13 +0100
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Message-Id: <pan.2005.01.01.15.40.12.264342@dungeon.inka.de>
+References: <41D4A2A6.3060607@tls.msk.ru> <cr319b$31b$1@terminus.zytor.com>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-B4MWPshc24Htjg8G4FGs
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+run-init seems to mount the new root, rm files in the old root,
+mount, chroot, open the console, exec. any reason we can't do
+that in shell script commands?
+ 
+> You don't pivot_root initramfs, because initramfs *IS* rootfs.
+> 
+> Instead, use the run-init program
 
-Hi Linus, Andrew
-(Sending this mail to you since Davem is on vacation)
+ok, but still: is it ok for the kernel to die?
+after all pivot_root works fine, unless /initrd is unmounted.
+what exactly is the kernel internal that makes pivot_root special?
 
-Here's a patch that fixes a pretty serious bug introduced by a recent
-"bugfix". The problem is that RST packets are ignored if they follow an
-ACK packet, this means that the timeout of the connection isn't
-decreased, so we get lots of old connections lingering around until the
-timeout expires, the default timeout for state ESTABLISHED is 5 days.
+Regards, Andreas
 
-This needs to go into -bk as soon as possible. The bug is present in
-2.6.10 as well.
-
---- linux-2.6.10-rc3-bk14/net/ipv4/netfilter/ip_conntrack_proto_tcp.c.orig	=
-2004-12-30 19:48:33.000000000 +0100
-+++ linux-2.6.10-rc3-bk14/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	2004-=
-12-30 19:49:46.000000000 +0100
-@@ -906,7 +906,8 @@ static int tcp_packet(struct ip_conntrac
- 		if (index =3D=3D TCP_RST_SET
- 		    && ((test_bit(IPS_SEEN_REPLY_BIT, &conntrack->status)
- 		         && conntrack->proto.tcp.last_index <=3D TCP_SYNACK_SET)
--		        || conntrack->proto.tcp.last_index =3D=3D TCP_ACK_SET)
-+		        || (!test_bit(IPS_ASSURED_BIT, &conntrack->status)
-+			 && conntrack->proto.tcp.last_index =3D=3D TCP_ACK_SET))
- 		    && after(ntohl(th->ack_seq),
- 		    	     conntrack->proto.tcp.last_seq)) {
- 			/* Ignore RST closing down invalid SYN or ACK
-
---=20
-/Martin
-
---=-B4MWPshc24Htjg8G4FGs
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBB1sPLWm2vlfa207ERAqRTAKCJ8j1g0MCYiksRDLJTid1xCIYz9wCfRHw+
-QZDTC/eNyI++VISmQBh4oMo=
-=sV0B
------END PGP SIGNATURE-----
-
---=-B4MWPshc24Htjg8G4FGs--

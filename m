@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282129AbRL0O5V>; Thu, 27 Dec 2001 09:57:21 -0500
+	id <S282080AbRL0Oyk>; Thu, 27 Dec 2001 09:54:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282187AbRL0O5L>; Thu, 27 Dec 2001 09:57:11 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:55568 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S282129AbRL0O5H>;
-	Thu, 27 Dec 2001 09:57:07 -0500
-Date: Thu, 27 Dec 2001 12:57:10 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Eliezer@conectiva.com.br, dos@conectiva.com.br, Santos@conectiva.com.br,
-        =?iso-8859-1?Q?Magalh=E3es_=3Cmagalhaes=40intime-ne?=@conectiva.com.br,
-        =?iso-8859-1?B?dC5jb20uYnI+?=@conectiva.com.br
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: writing device drivers
-Message-ID: <20011227125710.C29178@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Eliezer@conectiva.com.br, dos@conectiva.com.br,
-	Santos@conectiva.com.br,
-	=?iso-8859-1?Q?Magalh=E3es_=3Cmagalha?=@conectiva.com.br,
-	=?iso-8859-1?B?ZXNAaW50aW1lLW5ldC5jb20uYnI+?=@conectiva.com.br,
-	<linux-kernel@vger.kernel.org>
-In-Reply-To: <F68qvDuJhqFo9iLG7c500010b4e@hotmail.com> <01c301c18e45$6e2dd6b0$6400000a@cyber> <20011226174157.A14542@havoc.gtf.org> <006901c18ee6$bcacad60$6400000a@cyber>
+	id <S282099AbRL0Oya>; Thu, 27 Dec 2001 09:54:30 -0500
+Received: from fepC.post.tele.dk ([195.41.46.147]:28567 "EHLO
+	fepC.post.tele.dk") by vger.kernel.org with ESMTP
+	id <S282080AbRL0OyQ>; Thu, 27 Dec 2001 09:54:16 -0500
+Date: Thu, 27 Dec 2001 15:54:03 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Stodden <stodden@in.tum.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+Message-ID: <20011227155403.A1730@suse.de>
+In-Reply-To: <E16I8j1-0000ah-00@the-village.bc.nu> <Pine.LNX.4.10.10112231200500.12646-100000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <006901c18ee6$bcacad60$6400000a@cyber>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+In-Reply-To: <Pine.LNX.4.10.10112231200500.12646-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Dec 27, 2001 at 12:56:58PM -0200, Eliezer dos Santos Magalhães escreveu:
-> No , it was just an example , I would like to take a source of a device
-> drive , and study the code ... well , I have got that book ... I think I
-> need to read it very slowly ... thank for the help ...
+On Sun, Dec 23 2001, Andre Hedrick wrote:
+> the content is primarily the FS.  Should an APP close a file but it is
+> still in buffer_cache, there is no way to notify the app or the user or
+> anything associated with the creation/closing of that file, if a write
+> error occurs.
+> 
+> So we have user-space believing it is success.
 
-Some tips: there's some IRC channels that you may find interesting, namely:
+We have a buggy user-space app believing it is a success -- do you
+really believe programs like eg mta's ignorantly closes a file and just
+hopes for the best? fsync.
 
-#kernelnewbies and #kernel-br, both at irc.openprojects.net, go there and
-you'll find plenty of helpful people willing to help you to get into this
-kernel hacking journey, join us! :)
+> FS doing an initial ACK of success.
+> BLOCK generating the request to the low_level.
+> LOW_LEVEL goes OH CRAP, I am having a problem and can not complete.
+> 
+> LOW_LEVEL goes, HEY BLOCK we have a problem.
+> BLOCK, that is nice whatever ....
 
-- Arnaldo
+What does this _mean_?
+
+> This is a bad model, an worse is
+> 
+> LOW_LEVEL goes, HEY BLOCK we have a problem.
+> BLOCK goes, HEY FS we have an annoying LOW_LEVEL asking for reissue.
+> FS, duh which way did the rabbit go ...
+
+retries belong at the low level, once you pass up info of failure to the
+upper layers it's fatal. time for FS to shut down.
+
+> > Incidentally the EVMS IBM volume manager code does support bad block
+> > remapping in some situations.
+> 
+> Well managing badblock can be a major pain, but it is the right thing to
+> do.  Now what is the cost, since there is surge in journaling FS's that
+> have logs.  The cost is coming up w/ a sane way to manage the mess.
+> Even before we get to managing the mess, we have to be able to reissue the
+> request to a reallocated location, and make all kinds of noise that we are
+> doing heroic attempts to save the data.  These may include --
+
+Irk, software managed bad block remapping is horrible.
+
+> The issue is we are doing nothing to address the point, and it is arrogant
+> for the maintainers of the various storage classes and the supported upper
+> layers not willing to address this issue.
+
+How about showing solutions in form of patches instead bitching about
+this again and again? Frankly, I'm pretty sick of just seeing pointless
+talk about the issue.
+
+-- 
+Jens Axboe
+

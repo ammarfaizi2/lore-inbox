@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUCaCaP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 21:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUCaCaP
+	id S261693AbUCaCeA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 21:34:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbUCaCeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 21:30:15 -0500
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:55133 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261680AbUCaCaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 21:30:12 -0500
-Message-ID: <406A2D2E.3010601@yahoo.com.au>
-Date: Wed, 31 Mar 2004 12:30:06 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Tue, 30 Mar 2004 21:34:00 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57747 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261710AbUCaCdQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 21:33:16 -0500
+Message-ID: <406A2DDE.8050001@pobox.com>
+Date: Tue, 30 Mar 2004 21:33:02 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, Erich Focht <efocht@hpce.nec.com>,
-       mbligh@aracnet.com, ak@suse.de, jun.nakajima@intel.com,
-       ricklind@us.ibm.com, linux-kernel@vger.kernel.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net
-Subject: Re: [patch] new-context balancing, 2.6.5-rc3-mm1
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <200403300030.25734.efocht@hpce.nec.com> <4069384B.9070108@yahoo.com.au> <200403301204.14303.efocht@hpce.nec.com> <20040330030242.56221bcf.akpm@osdl.org> <20040330161438.GA2257@elte.hu> <20040330161910.GA2860@elte.hu> <20040330162514.GA2943@elte.hu> <20040330210312.GA6706@elte.hu>
-In-Reply-To: <20040330210312.GA6706@elte.hu>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Petr Sebor <petr@scssoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [sata] libata update
+References: <4064E691.2070009@pobox.com> <200403310139.36003.bzolnier@elka.pw.edu.pl> <406A0704.7060706@pobox.com> <200403310228.54580.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200403310228.54580.bzolnier@elka.pw.edu.pl>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i've attached sched-balance-context.patch, which is the current version
-> of fork()/clone() balancing, against 2.6.5-rc3-mm1.
+Bartlomiej Zolnierkiewicz wrote:
+> On Wednesday 31 of March 2004 01:47, Jeff Garzik wrote:
 > 
-> Changes:
+>>Bartlomiej Zolnierkiewicz wrote:
+>>
+>>>On Wednesday 31 of March 2004 01:16, Jeff Garzik wrote:
+>>>
+>>>>Petr Sebor wrote:
+>>>>
+>>>>>Hi Jeff,
+>>>>>
+>>>>>I have upgraded from 2.6.3 to 2.6.5-rc3 and can't see the secondary
+>>>>>sata drive anymore...
+>>>>>
+>>>>>I am seeing this:
+>>>>>-------------------------------------------------------------------
+>>>>>libata version 1.02 loaded.
+>>>>>sata_via version 0.20
+>>>>>sata_via(0000:00:0f.0): routed to hard irq line 11
+>>>>>ata1: SATA max UDMA/133 cmd 0xC400 ctl 0xC802 bmdma 0xD400 irq 20
+>>>>>ata2: SATA max UDMA/133 cmd 0xCC00 ctl 0xD002 bmdma 0xD408 irq 20
+>>>>>ata1: dev 0 cfg 49:2f00 82:346b 83:7f21 84:4003 85:3469 86:3c01 87:4003
+>>>>>88:203f
+>>>>>ata1: dev 0 ATA, max UDMA/100, 488397168 sectors (lba48)
+>>>>>ata1: dev 0 configured for UDMA/100
+>>>>>scsi0 : sata_via
+>>>>>ata2: no device found (phy stat 00000000)
+>>>>>ata2: thread exiting
+>>>>>scsi1 : sata_via
+>>>>
+>>>>oh, and are both disks SATA?
+>>>>
+>>>>Or is the 37G drive a PATA drive on a PATA->SATA adapter (a.k.a. bridge)?
+>>>
+>>>   Vendor: ATA       Model: WDC WD360GD-00FN  Rev: 1.00
+>>>   Type:   Direct-Access                      ANSI SCSI revision: 05
+>>>
+>>>WD Raptor electronics includes PATA->SATA bridge.
+>>
+>>Yes, a lot of drives do.
+>>
+>>I meant outside the drive, an adapter/bridge the user plugs into the
+>>device, that allows it to pretend it is a SATA device.
 > 
->  - only balance CLONE_VM threads
 > 
->  - take ->cpus_allowed into account when balancing.
-> 
-> i've checked kernel recompiles and while they didnt hurt from fork()
-> balancing on an 8-way SMP box, i implemented the thread-only balancing
-> nevertheless.
+> Is there any difference (except cabling and power) ?
 
-You'd probably want to be testing on a NUMA to bring out any
-problems.
+Most drives use the well-known Marvell phy chip, while adapters are a 
+bit more random...
+
+	Jeff
+
+
+
+

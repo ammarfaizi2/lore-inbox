@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278205AbRJWTZd>; Tue, 23 Oct 2001 15:25:33 -0400
+	id <S278197AbRJWTaY>; Tue, 23 Oct 2001 15:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278197AbRJWTZY>; Tue, 23 Oct 2001 15:25:24 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:48917 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S278207AbRJWTZN>; Tue, 23 Oct 2001 15:25:13 -0400
-Date: Tue, 23 Oct 2001 15:25:47 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Tim Hockin <thockin@sun.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HPT370/366 testers needed
-Message-ID: <20011023152547.E27797@redhat.com>
-In-Reply-To: <3BD5A007.C07388ED@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BD5A007.C07388ED@sun.com>; from thockin@sun.com on Tue, Oct 23, 2001 at 09:51:19AM -0700
+	id <S278203AbRJWTaO>; Tue, 23 Oct 2001 15:30:14 -0400
+Received: from newssvr17-ext.news.prodigy.com ([207.115.63.157]:28881 "EHLO
+	newssvr17.news.prodigy.com") by vger.kernel.org with ESMTP
+	id <S278197AbRJWTaF>; Tue, 23 Oct 2001 15:30:05 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+Newsgroups: linux.dev.kernel
+Subject: Re: time tells all about kernel VM's
+In-Reply-To: <3BD51F02.92B9B7F3@idb.hist.no>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: davidsen@deathstar.prodigy.com (Bill Davidsen)
+Message-ID: <uzjB7.3848$MX4.655317120@newssvr17.news.prodigy.com>
+NNTP-Posting-Host: 192.168.192.240
+X-Complaints-To: abuse@prodigy.net
+X-Trace: newssvr17.news.prodigy.com 1003865434 000 192.168.192.240 (Tue, 23 Oct 2001 15:30:34 EDT)
+NNTP-Posting-Date: Tue, 23 Oct 2001 15:30:34 EDT
+Date: Tue, 23 Oct 2001 19:30:34 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23, 2001 at 09:51:19AM -0700, Tim Hockin wrote:
-> All,
-> 
-> We have this (attached) large patch for the HighPoint driver. 
-> Specifically, it deals with HPT370 controllers, and should make them MUCH
-> more stable (Adrian spent weeks on the phone with HighPoint).
-> 
-> What I'd like is for people to test this patch on other systems with
-> HighPoint 370 controllers.  Also, I need people with HPT366 chips to test,
-> and find any problems - we don't have HPT366 here to test.
+In article <3BD51F02.92B9B7F3@idb.hist.no>,
+Helge Hafting <helgehaf@idb.hist.no> wrote:
 
-> Volunteers?
+| Any VM with paging _can_ be forced into a trashing situation where
+| a keypress takes hours to process.  A better VM will take more pressure
+| before it gets there and performance will degrade more gradually.
+| But any VM can get into this situation.
 
-I don't have any HighPoint controllers here, but I did spot a bug in 
-the patch that's easy to fix:
+So far I agree, and that implies that the VM needs to identify and
+correct the situation.
 
-> -#if 0
-> -	if (test != 0x08)
-> -		pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, 0x08);
-> -#else
->  	if (test != (L1_CACHE_BYTES / 4))
->  		pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, (L1_CACHE_BYTES / 4));
-> -#endif
+| Swapping out whole processes can help this, but it will merely
+| move the point where you get stuck.  A load control system that
+| kills processes when response is too slow is possible, but
+| the problem here is that you can't get people to agree
+| on how bad is too bad.  It is sometimes ok to leave the machine 
+| alone crunching a big problem over the weekend.  And sometimes
+| you _need_ response much faster.
+| 
+| And what app to kill in such a situation?
+| You had a single memory pig, but it aint necessarily so.
 
-This isn't correct on current Athlon and P4 machines running kernels 
-compiled for i686.  One approach is to only set the cache line size if 
-the bios set it to something less than we expect it to, or to leave 
-this kind of pci hackery to the generic pci layer.  It's important to
-note that quite a few drivers share this bug at present.  Cheers,
+I think the problem is not killing the wrong thing, but not killing
+anything... We can argue any old factors for selection, but I would
+first argue that the real problem is that nothing was killed because the
+problem was not noticed.
 
-		-ben
+One possible way to recognize the problem is to identify the ratio of
+page faults to time slice used and assume there is trouble in River City
+if that gets high and stays high. I leave it to the VM gurus to define
+"high," but processes which continually block for page fault as opposed
+to i/o of some kind are an indication of problems, and likely to be a
+factor in deciding what to kill.
+
+I think it gives a fair indication of getting things done or not, and I
+have said before I like per-process page fault rates as a datam to be
+included in VM decisions.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

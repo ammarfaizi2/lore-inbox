@@ -1,125 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263786AbUEGU7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263752AbUEGVKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbUEGU7O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 16:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbUEGU7O
+	id S263752AbUEGVKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 17:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbUEGVKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 16:59:14 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:62114 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263786AbUEGU7J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 16:59:09 -0400
-Subject: Re: [Jfs-discussion] [CHECKER] Return Error code gets treated as
-	dir_table index, resulting losses of other dir entries (JFS2.4, kernel
-	2.4.19)
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       mc@cs.Stanford.EDU, Madanlal S Musuvathi <madan@stanford.edu>,
-       "David L. Dill" <dill@cs.Stanford.EDU>
-In-Reply-To: <Pine.GSO.4.44.0404301521130.14155-100000@elaine24.Stanford.EDU>
-References: <Pine.GSO.4.44.0404301521130.14155-100000@elaine24.Stanford.EDU>
-Content-Type: text/plain
-Message-Id: <1083963526.11272.18.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 07 May 2004 15:58:46 -0500
+	Fri, 7 May 2004 17:10:25 -0400
+Received: from vhost-13-248.vhosts.internet1.de ([62.146.13.248]:47001 "EHLO
+	spotnic.de") by vger.kernel.org with ESMTP id S263752AbUEGVKW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 17:10:22 -0400
+In-Reply-To: <540670000.1083946935@[10.10.2.4]>
+References: <20040507085312.3247d70d@dell_ss3.pdx.osdl.net> <540670000.1083946935@[10.10.2.4]>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-33-430209947"
+Message-Id: <AFF4F99A-A06A-11D8-BC48-000A958E35DC@axiros.com>
 Content-Transfer-Encoding: 7bit
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+From: Daniel Egger <de@axiros.com>
+Subject: Re: Distributions vs kernel development
+Date: Fri, 7 May 2004 23:08:28 +0200
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-04-30 at 17:23, Junfeng Yang wrote:
-> static function add_index can fail by return -EPERM (and it is declared to
-> return a unsigned 4-byte integer).  This error gets ignored by the caller,
-> dtInsertEntry, which will treat the returned error code (u32)(-EPERM) as
-> an index to dir_table.  This causes losses of directory entries in the
-> same parent directory.
 
-This patch makes the situation better.  Instead of returning -EPERM, it
-returns zero.  It also cleans up behind itself to leave the index table
-consistent.  At the time add_index is called, completely aborting the
-operation is difficult, and jfs does attempt to deal with an invalid
-index.  It will attempt to add a valid index table entry on subsequent
-lookups.
+--Apple-Mail-33-430209947
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-===== jfs_dtree.c 1.29 vs edited =====
---- 1.29/fs/jfs/jfs_dtree.c	Fri May  7 10:32:20 2004
-+++ edited/jfs_dtree.c	Fri May  7 10:38:37 2004
-@@ -342,7 +342,6 @@
- 	struct metapage *mp;
- 	s64 offset;
- 	uint page_offset;
--	int rc;
- 	struct tlock *tlck;
- 	s64 xaddr;
- 
-@@ -396,11 +395,11 @@
- 		 * Allocate the first block & add it to the xtree
- 		 */
- 		xaddr = 0;
--		if ((rc =
--		     xtInsert(tid, ip, 0, 0, sbi->nbperpage,
--			      &xaddr, 0))) {
-+		if (xtInsert(tid, ip, 0, 0, sbi->nbperpage, &xaddr, 0)) {
- 			jfs_warn("add_index: xtInsert failed!");
--			return -EPERM;
-+			memcpy(&jfs_ip->i_dirtable, temp_table,
-+			       sizeof (temp_table));
-+			goto clean_up;
- 		}
- 		ip->i_size = PSIZE;
- 		ip->i_blocks += LBLK2PBLK(sb, sbi->nbperpage);
-@@ -408,7 +407,9 @@
- 		if ((mp = get_index_page(ip, 0)) == 0) {
- 			jfs_err("add_index: get_metapage failed!");
- 			xtTruncate(tid, ip, 0, COMMIT_PWMAP);
--			return -EPERM;
-+			memcpy(&jfs_ip->i_dirtable, temp_table,
-+			       sizeof (temp_table));
-+			goto clean_up;
- 		}
- 		tlck = txLock(tid, ip, mp, tlckDATA);
- 		llck = (struct linelock *) & tlck->lock;
-@@ -438,12 +439,9 @@
- 		 * This will be the beginning of a new page
- 		 */
- 		xaddr = 0;
--		if ((rc =
--		     xtInsert(tid, ip, 0, blkno, sbi->nbperpage,
--			      &xaddr, 0))) {
-+		if (xtInsert(tid, ip, 0, blkno, sbi->nbperpage, &xaddr, 0)) {
- 			jfs_warn("add_index: xtInsert failed!");
--			jfs_ip->next_index--;
--			return -EPERM;
-+			goto clean_up;
- 		}
- 		ip->i_size += PSIZE;
- 		ip->i_blocks += LBLK2PBLK(sb, sbi->nbperpage);
-@@ -457,7 +455,7 @@
- 
- 	if (mp == 0) {
- 		jfs_err("add_index: get/read_metapage failed!");
--		return -EPERM;
-+		goto clean_up;
- 	}
- 
- 	lock_index(tid, ip, mp, index);
-@@ -472,6 +470,12 @@
- 	release_metapage(mp);
- 
- 	return index;
-+
-+      clean_up:
-+
-+	jfs_ip->next_index--;
-+
-+	return 0;
- }
- 
- /*
+On 07.05.2004, at 18:22, Martin J. Bligh wrote:
 
--- 
-David Kleikamp
-IBM Linux Technology Center
+> Testing is very solid too, has 2.6 support out of the box, and more 
+> updated
+> desktop stuff (I run that on my laptop). Unstable seems more stable 
+> than most
+> vendors shipped distros to me, but changes more rapidly. They also 
+> seem to
+> break serial console occasionally in unstable by loading fonts into it
+> (idiots!), but that's trivial to fix.
+
+I'm running Debian stable, Debian stable/testing (mix) and Debian 
+unstable
+with both customized 2.4 and 2.6 as well as stock 2.4 and 2.6 kernels
+without any sign of problems. Of course lm-sensors on top of a stock 2.4
+kernel will not fly but everything else works quite fine.
+
+I might also add that I can test quite a few combinations because many
+of my machines are netbooting and thus picking up a different version
+is a easy as relinking a directory and this always needs a selfcompiled
+kernel because of the nfsroot and ip autoconfiguration settings. The
+downside is that I needed to make slight modifications to the systems
+to have partly separated temp dirs without the need for one complete
+installation per machine.
+
+Servus,
+       Daniel
+
+--Apple-Mail-33-430209947
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iQEVAwUBQJv6zDBkNMiD99JrAQLomggAsBuI8XZcbLCwXzVWkT6+BSjv7fa3dTHK
+I2xhWY4KXNbm3cU+y/9n+9E1JR4hsp0AofqzYVyK6bSML0Boj6Islr5CGWC26jCm
+Sh3vHNVTBCLzPWxHnLJlAbTI0Lk5AGK+89PcUX0mSJgHVZNIYQq9p2Rmo93FrUvR
+gHXN+ayAYfvLmzMfKKWW4iCf8qhcHAwSpb8RMZuuBKVR9hNyFFHieONM89CTvrdf
+VpOLQRRo2p0AqJpbwJuz4+vYQBckXhGwX0Rm2mi93S+z8V7pj1k43tKanQuodhz5
++c2i8cAKkN/8KQ0JlHwH9Qe16KTGjGFLucGKvTvMNTrSjZ5fdyxL0w==
+=IPjV
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-33-430209947--
 

@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136470AbRD3HaS>; Mon, 30 Apr 2001 03:30:18 -0400
+	id <S136471AbRD3HjV>; Mon, 30 Apr 2001 03:39:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136471AbRD3HaI>; Mon, 30 Apr 2001 03:30:08 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:50188 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136470AbRD3HaB>; Mon, 30 Apr 2001 03:30:01 -0400
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Message-ID: <3AED145F.84E95D8D@transmeta.com>
-Date: Mon, 30 Apr 2001 00:29:35 -0700
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-In-Reply-To: <3AEBF782.1911EDD2@mandrakesoft.com>
-		<Pine.LNX.4.33.0104290914260.14261-100000@twinlark.arctic.org> <15085.3587.865614.360094@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136472AbRD3HjK>; Mon, 30 Apr 2001 03:39:10 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:46997 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S136471AbRD3HjD>;
+	Mon, 30 Apr 2001 03:39:03 -0400
+Date: Mon, 30 Apr 2001 09:38:46 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200104300738.JAA40861.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, mdharm-kernel@one-eyed-alien.net
+Subject: Re: Dane-Elec PhotoMate Combo
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        mailhot@enst.fr, markus@schlup.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> dean gaudet writes:
->  > i was kind of solving a different problem with the code page though -- the
->  > ability to use rdtsc on SMP boxes with processors of varying speeds and
->  > synchronizations.
-> 
-> A better way to solve that problem is the way UltraSPARC-III do and
-> future ia64 systems will, by way of a "system tick" register which
-> increments at a constant rate regardless of how the cpus are clocked.
-> 
-> The "system tick" pulse goes into the processor, so it's still a local
-> cpu register being accessed.  Think of it as a system bus clock cycle
-> counter.
-> 
-> Granted, you probably couldn't make changes to the hardware you were
-> working on at the time :-)
-> 
+>>> This config option is considered so immature that it's not ready for
+>>> kernel config, even as an EXPERIMENTAL.  Use it at your own risk.
 
-RDTSC in Crusoe processors does basically this.
+>> Of course. But the choice is simple. Without it, one has a non-functional
+>> device. With it, one has a device that works beautifully.
 
-	-hpa
+> I would seriously argue with the "works beautifully" part of that.
+> The DPCM code relies on the SDDR09 code, which is horrendously buggy.
+> I can crash it at will with relatively simple operations.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Let me be more precise then.
+The commands
+	blockdev --rereadpt /dev/sdb
+	mount /dev/sdb1 /f -t msdos
+	mv /f/dcim/100mlt01/* .
+	umount /f
+copy the digital camera images written by a Minolta from a Compact Flash
+card to the current directory and empty the card. This is the part that
+works beautifully (since it works).
+
+(One of these days I must look more at the rereadpt part of this.
+After removing the card, I still have the partition /dev/sdb1,
+which is an error.)
+
+Andries

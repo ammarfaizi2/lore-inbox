@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269731AbUJMQJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269738AbUJMQLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269731AbUJMQJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 12:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUJMQJ1
+	id S269738AbUJMQLk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 12:11:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269742AbUJMQLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 12:09:27 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:48073 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269731AbUJMQJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 12:09:25 -0400
-Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: Martijn Sipkema <martijn@entmoot.nl>
-Cc: Sven Dietrich <sdietrich@mvista.com>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Thomas Gleixner <tglx@linutronix.de>, dwalker@mvista.com,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       amakarov@ru.mvista.com, ext-rt-dev@mvista.com,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <027e01c4b12a$188fda40$161b14ac@boromir>
-References: <20041012211201.GA28590@nietzsche.lynx.com>
-	 <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com>
-	 <20041012225706.GC30966@nietzsche.lynx.com>
-	 <027e01c4b12a$188fda40$161b14ac@boromir>
-Content-Type: text/plain
-Message-Id: <1097682969.6538.5.camel@krustophenia.net>
+	Wed, 13 Oct 2004 12:11:40 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:8481 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269745AbUJMQLU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 12:11:20 -0400
+Message-ID: <265e388f0410130911fe6df0d@mail.gmail.com>
+Date: Wed, 13 Oct 2004 11:11:19 -0500
+From: Vx Glenn <VxGlenn@gmail.com>
+Reply-To: Vx Glenn <VxGlenn@gmail.com>
+To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: select, jiffies, and SIGALRM
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 13 Oct 2004 11:56:10 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-13 at 09:39, Martijn Sipkema wrote:
-> As you are mentioning TimeSys; they are distributing a modified kernel
-> with added realtime features, but do they also make the source available?
-> I know that they used to extend the kernel using a proprietary kernel
-> module; a clear violation of the GPL.
+Hi all,
 
-OK, obvious troll, but I'll bite...
+I am seeing an issue relating to the jiffies counter wrapping around
+at 0x7FFFFFFF.
 
-How is this any different from what the Nvidia module does?
+This is a legacy application, and when it runs on 32-bit Unix-Like
+OS's, the application silently dies without leaving core after 248
+days.
 
-Lee
+I was able to manipulate the jiffies counter and run the application.
+I was able to reproduce the problem. I captured an strace log, and I
+see that SIGALRM (alarm clock) is raised after select times out
+(because of no data).
 
+I can add a signal handler to intercept the SIGALRM. But my question
+is, why should the signal be raised?
+
+---[ strace.log ]---
+select(1024, [3 4 5 6], NULL, NULL, {0, 320000}) = 0 (Timeout)
+getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 684895}}) = 0
+adjtimex({modes=32769, offset=0, freq=0, maxerror=16384000,
+esterror=16384000, status=64, constant=2, precision=1,
+tolerance=33554432, time={1097551596, 43475}}) = 5
+getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 684895}}) = 0
+select(1024, [3 4 5 6], NULL, NULL, {1, 0}) = ? ERESTARTNOHAND (To be restarted)
+--- SIGALRM (Alarm clock) @ 0 (0) ---
+Process 4881 detached
+---[ eof strace.log ]---
+
+
+Anyone have any ideas?
+
+
+-- 
+You're not your Job; 
+You're not the contents of your wallet.
+You're the all singing all dancing crap of the world

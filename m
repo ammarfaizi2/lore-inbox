@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVBORPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVBORPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbVBORPj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 12:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBORPh
+	id S261795AbVBORPD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 12:15:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVBORLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 12:15:37 -0500
-Received: from mx1.mail.ru ([194.67.23.121]:39484 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S261797AbVBORNW (ORCPT
+	Tue, 15 Feb 2005 12:11:55 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:47250 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261795AbVBORJL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 12:13:22 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: [PATCH] ext3: Fix sparse -Wbitwise warnings.
-Date: Tue, 15 Feb 2005 20:13:21 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Andreas Dilger <adilger@clusterfs.com>,
-       ext3-users@redhat.com, linux-kernel@vger.kernel.org
-References: <200502151246.06598.adobriyan@mail.ru> <1108476729.3363.9.camel@sisko.sctweedie.blueyonder.co.uk>
-In-Reply-To: <1108476729.3363.9.camel@sisko.sctweedie.blueyonder.co.uk>
-MIME-Version: 1.0
+	Tue, 15 Feb 2005 12:09:11 -0500
+Date: Tue, 15 Feb 2005 18:09:44 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kenan Esau <kenan.esau@conan.de>
+Cc: dtor_core@ameritech.net, harald.hoyer@redhat.de,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+Message-ID: <20050215170944.GB1568@ucw.cz>
+References: <20050211201013.GA6937@ucw.cz> <1108457880.2843.5.camel@localhost> <20050215134308.GE7250@ucw.cz> <d120d500050215064357fa60c@mail.gmail.com> <1108487008.2843.21.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200502152013.21556.adobriyan@mail.ru>
-X-Spam: Not detected
+In-Reply-To: <1108487008.2843.21.camel@localhost>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 February 2005 16:12, Stephen C. Tweedie wrote:
-> On Tue, 2005-02-15 at 10:46, Alexey Dobriyan wrote:
-> 
-> > -			if ((ret = EXT3_HAS_RO_COMPAT_FEATURE(sb,
-> > -					~EXT3_FEATURE_RO_COMPAT_SUPP))) {
-> > +			if ((ret = le32_to_cpu(EXT3_HAS_RO_COMPAT_FEATURE(sb,
-> > +					~EXT3_FEATURE_RO_COMPAT_SUPP)))) {
-> 
-> NAK.
+On Tue, Feb 15, 2005 at 06:03:28PM +0100, Kenan Esau wrote:
 
-Argh... stupid me. super.c part should be just:
+> All B-Series Lifebooks have the same touchscreen-hardware. But Dmitri's
+> concern is correct -- at the moment I would enforce the LBTOUCH-protocol
+> on external mice...
+> 
+> I have to fix this. I will additionally to the DMI stuff use "Status
+> Request". On a "Request ID"-Command the Device always answers with a
+> 0x00 -- could this also be helpfull?
 
---- linux-2.6.11-rc4/fs/ext3/super.c.orig	2005-02-15 20:01:52.000000000 +0200
-+++ linux-2.6.11-rc4/fs/ext3/super.c	2005-02-15 20:02:47.000000000 +0200
-@@ -2106,6 +2106,7 @@ static int ext3_remount (struct super_bl
- 			ext3_mark_recovery_complete(sb, es);
- 		} else {
- 			__le32 ret;
-+			int ret1;
- 			if ((ret = EXT3_HAS_RO_COMPAT_FEATURE(sb,
- 					~EXT3_FEATURE_RO_COMPAT_SUPP))) {
- 				printk(KERN_WARNING "EXT3-fs: %s: couldn't "
-@@ -2122,8 +2123,8 @@ static int ext3_remount (struct super_bl
- 			 */
- 			ext3_clear_journal_err(sb, es);
- 			sbi->s_mount_state = le16_to_cpu(es->s_state);
--			if ((ret = ext3_group_extend(sb, es, n_blocks_count)))
--				return ret;
-+			if ((ret1 = ext3_group_extend(sb, es, n_blocks_count)))
-+				return ret1;
- 			if (!ext3_setup_super (sb, es, 0))
- 				sb->s_flags &= ~MS_RDONLY;
- 		}
+No. That's the standard response for common PS/2 mice.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

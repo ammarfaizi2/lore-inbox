@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVCCK1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVCCK1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262404AbVCCK1D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 05:27:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbVCCK1D
+	id S262471AbVCCK1x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 05:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbVCCK1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 05:27:03 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:28340 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S262404AbVCCK06 (ORCPT
+	Thu, 3 Mar 2005 05:27:52 -0500
+Received: from gate.firmix.at ([80.109.18.208]:43909 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S262414AbVCCK1e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 05:26:58 -0500
-Date: Thu, 3 Mar 2005 11:26:55 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, greg@kroah.com, torvalds@osdl.org,
-       rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303102655.GC31559@wiggy.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Jeff Garzik <jgarzik@pobox.com>, greg@kroah.com, torvalds@osdl.org,
-	rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-References: <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com> <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org> <20050303081958.GA29524@kroah.com> <4226CCFE.2090506@pobox.com> <20050303090106.GC29955@kroah.com> <4226D655.2040902@pobox.com> <20050303021506.137ce222.akpm@osdl.org>
+	Thu, 3 Mar 2005 05:27:34 -0500
+Subject: Re: [Fwd: United States Patent: 6,862,609]
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: "Jeff V. Merkey" <jmerkey@utah-nac.org>
+Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+In-Reply-To: <4226927A.6010107@utah-nac.org>
+References: <4226781B.7080302@utah-nac.org>
+	 <200503022227.40614.gene.heskett@verizon.net>
+	 <4226927A.6010107@utah-nac.org>
+Content-Type: text/plain; charset=iso-8859-15
+Organization: Firmix Software GmbH
+Message-Id: <1109845583.28561.19.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050303021506.137ce222.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
+X-Mailer: Ximian Evolution 1.5.5 
+Date: Thu, 03 Mar 2005 11:26:24 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Andrew Morton wrote:
-> I'd say that mainline kernel.org for the past couple of years has been a
-> technology, not a product.
+On Wed, 2005-03-02 at 21:28 -0700, Jeff V. Merkey wrote:
+> Gene Heskett wrote:
+> >On Wednesday 02 March 2005 21:36, Jeff V. Merkey wrote:
+> >>Another Linux patent.....
 
-If you consider mainline a technology and distributions your main users,
-what is the use of a stable release every months or two months? No
-distribution is going to updates its release that often. Looking at the
-Debian kernel packages it took at least a month just to get a single
-release ready for distro use. Needless to say, Debian (or any other
-distro) is not going to go through that for every release.
+... and another - AFAICS obvious - trivial ("prior art") patent (but I'm
+not fluent in patent quak, I'm just a simple systems engineer).
 
-We already saw that with 2.0, 2.2 and 2.4 kernels: distributions rarely
-used the last mainline release but older released with (a sometimes
-huge amount of) patches.
+And one more reason to sent the European software patent directive
+simply to hell, clarify in §52.2 to not patentability of "software"
+discarding the word play of the patent attorneys and offices and get
+into the head of the folks of the EPO (with whatever means are
+necessary).
 
-So continueing that thought pattern; why not go for something like 6
-month release cycles? That seems to fit with a distro release cycles.
+> >And that pretty much says it.  Assigned to the Canopy Group.  So SCO 
+> >will have yet another lawsuit to threaten us with.  If they survive 
 
-> So I'd suspect that on average, kernel releases are getting more stable. 
-> But the big big problem we have is that even though we fixed ten things for
-> each one thing we broke, those single breakages tend to be prominent, and
-> people get upset.  It's fairly bad PR that Dell Inspiron keyboards don't
-> work in 2.6.11, for example...
+Apparently Canopy Group/SCO/... are not of the front of innovation since
+"what is new on a RAID system in any way in 2005"?
 
-same for latitude keyboards after a resume I just discovered :(
+> >the thrashing I've Been Moved will give them at the end of the day.
+> >
+> The way to fight the patents is for Linux developers to file their own 
+> and start putting down stakes.
 
-Wichert.
+Or simply drop the whole patent system as such. Apparently it is only
+abused to make money of the inventions of others and for sure does not
+help innovation as such in any way (it may help the lawyers, offices and
+companies in that area - patent utilisation - to get rich but that area
+has nothing to do with innovation).
 
+	Bernd
 -- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

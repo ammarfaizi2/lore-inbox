@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317470AbSFKSTf>; Tue, 11 Jun 2002 14:19:35 -0400
+	id <S317475AbSFKSVf>; Tue, 11 Jun 2002 14:21:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317471AbSFKSTe>; Tue, 11 Jun 2002 14:19:34 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:46322 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317470AbSFKSTe>; Tue, 11 Jun 2002 14:19:34 -0400
-Subject: Re: [PATCH] CONFIG_NR_CPUS, redux
-From: Robert Love <rml@tech9.net>
+	id <S317488AbSFKSVe>; Tue, 11 Jun 2002 14:21:34 -0400
+Received: from ivimey.org ([194.106.52.201]:17191 "EHLO gatemaster.ivimey.org")
+	by vger.kernel.org with ESMTP id <S317475AbSFKSVd>;
+	Tue, 11 Jun 2002 14:21:33 -0400
+Date: Tue, 11 Jun 2002 19:21:18 +0100 (BST)
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+X-X-Sender: ruthc@sharra.ivimey.org
 To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
+cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>,
+        <akpm@zip.com.au>
+Subject: Re: [PATCH] CONFIG_NR_CPUS, redux
 In-Reply-To: <Pine.LNX.4.33L2.0206111102110.2449-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 11 Jun 2002 11:19:34 -0700
-Message-Id: <1023819574.22156.258.camel@sinai>
-Mime-Version: 1.0
+Message-ID: <Pine.LNX.4.44.0206111917310.3521-100000@sharra.ivimey.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-06-11 at 11:09, Randy.Dunlap wrote:
+On Tue, 11 Jun 2002, Randy.Dunlap wrote:
 
-> I don't know what is "typical" for non-x86, but for x86, why not
-> use something more like a 'typical' NR_CPUS for SMP, like 8 (?)...
-> why still waste all of that memory?
+>On 11 Jun 2002, Robert Love wrote:
+>
+>| Here are the defaults I picked:
+>|
+>| CONFIG_NR_CPUS=32: i386, mips, parisc, ppc, sparc
+>
+>I don't know what is "typical" for non-x86, but for x86, why not
+>use something more like a 'typical' NR_CPUS for SMP, like 8 (?)...
+>why still waste all of that memory?
 
-Well right now we set it to 32...
+Perhaps it's just because I'm coming in late, but I cannot understand why
+NR_CPUS cannot be as low as 4 by default, for all archs, and then in the
+kernel boot messages, should more be found than is configured for a message is
+emitted to say "reconfigure your kernel", and continue with the number it was
+configured for. I personally only rarely see 2-way boxes, 4-way is pretty
+rare, and anything more must surely count as very specialized.
 
-I think out-of-the-box Linux, with SMP set, should support the maximum
-number of CPUs.  While we do save some memory I do not think it is going
-to be huge with 8 vs 32.
+Let the defaults be reasonable for 99% of users (IMO 99.9%), and let the rest 
+have to think about config options...
 
-But whatever you, Linus, and the arch maintainers say... all my boxen
-are 2-way so I don't care ;)
+Ruth
 
-> What was this problem?  I missed it but would like to see it.
-> (or do you know what the Subject: was?)
-
-Not sure to be honest.  The subject was "[patch] CONFIG_NR_CPUS"
-
-Or ask Andrew...
-
-> One spello (typo) below.
-> 
-> | +  mimimum value which makes sense is 2.
-
-(cough) someone else wrote that ;)
-
-Fixed, thanks.
-
-	Robert Love
-
+-- 
+Ruth Ivimey-Cook
+Software engineer and technical writer.
 

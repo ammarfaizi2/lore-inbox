@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVAUGnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVAUGre@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbVAUGnz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 01:43:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVAUGnz
+	id S262285AbVAUGre (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 01:47:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbVAUGrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 01:43:55 -0500
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:55307 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262283AbVAUGnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 01:43:42 -0500
-Date: Fri, 21 Jan 2005 07:46:24 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Nicolas Pitre <nico@cam.org>
-Cc: LM Sensors <sensors@Stimpy.netroedge.com>,
-       lkml <linux-kernel@vger.kernel.org>, Jonas Munsin <jmunsin@iki.fi>,
-       Simone Piunno <pioppo@ferrara.linux.it>, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
-Message-Id: <20050121074624.3db5af6a.khali@linux-fr.org>
-In-Reply-To: <Pine.LNX.4.61.0501201536240.5315@localhost.localdomain>
-References: <s62KuN6T.1106238493.8706410.khali@localhost>
-	<Pine.LNX.4.61.0501201536240.5315@localhost.localdomain>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 21 Jan 2005 01:47:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22455 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262285AbVAUGrO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 01:47:14 -0500
+Date: Thu, 20 Jan 2005 22:46:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: OOM fixes 2/5
+Message-Id: <20050120224645.3351d22c.akpm@osdl.org>
+In-Reply-To: <1106289375.5171.7.camel@npiggin-nld.site>
+References: <20050121054840.GA12647@dualathlon.random>
+	<20050121054916.GB12647@dualathlon.random>
+	<20050120222056.61b8b1c3.akpm@osdl.org>
+	<1106289375.5171.7.camel@npiggin-nld.site>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nicolas,
-
-> I confirm that 0x7f is full speed.
-
-So at least the polarity bit is correct, and Gigabyte isn't to blame.
-
-> > Once you know if the polarity is correct, you can try different
-> > values of PWM between 0x00 and 0x7F and see how exactly your fan
-> > reacts to them.
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> On Thu, 2005-01-20 at 22:20 -0800, Andrew Morton wrote:
+> > Andrea Arcangeli <andrea@suse.de> wrote:
+> > >
+> > >  This is the forward port to 2.6 of the lowmem_reserved algorithm I
+> > >  invented in 2.4.1*, merged in 2.4.2x already and needed to fix workloads
+> > >  like google (especially without swap) on x86 with >1G of ram, but it's
+> > >  needed in all sort of workloads with lots of ram on x86, it's also
+> > >  needed on x86-64 for dma allocations. This brings 2.6 in sync with
+> > >  latest 2.4.2x.
+> > 
+> > But this patch doesn't change anything at all in the page allocation path
+> > apart from renaming lots of things, does it?
+> > 
+> > AFAICT all it does is to change the default values in the protection map. 
+> > It does it via a simplification, which is nice, but I can't see how it
+> > fixes anything.
+> > 
+> > Confused.
 > 
-> That's where things get really really interesting.  As mentioned
-> above 0x7f drives the fan full speed (2596 RPM).  Now lowering that
-> value slows the CPU fan gradually down to a certain point.  With a
-> value of 0x3f the fan turns at 1041 RPM.  But below 0x3f the fan
-> starts speeding up again to reach a peak of 2280 RPM with a value
-> of 0x31, then it slows  down again toward 0 RPM as the register
-> value is decreased down to 0.
 > 
-> Bit 3 of register 0x14, when set, only modifies the curve so the
-> first minimum is instead reached at 0x30 then the peak occurs at 0x1d
-> before dropping to 0.
+> It does turn on lowmem protection by default. We never reached
+> an agreement about doing this though, but Andrea has shown that
+> it fixes trivial OOM cases.
 > 
-> Changing the PWM base clock select has no effect.
+> I think it should be turned on by default. I can't recall what
+> your reservations were...?
+> 
 
-Wow! Unexpected, to say the least. First time I see such a behavior.
+Just that it throws away a bunch of potentially usable memory.  In three
+years I've seen zero reports of any problems which would have been solved
+by increasing the protection ratio.
 
-Could it be that your CPU fan isn't a simple passive device but one of
-these high-tech models with an embedded thermal sensor and automatic
-speed adjustment? This would possibly interact with the motherboard PWM
-capability and could explain the strange speed curve your obtained.
-
-I would also like you to try a similar test with your case fan. Enable
-"smart guardian" mode for this one (by writing 0x73 to register 0x13),
-then scan the 0x7f-0x00 range (register 0x16) like you did for your CPU
-fan. I wonder if you will obtain the same kind of result or a standard
-linear curve.
-
-(Note that PWM2 might not be wired at all on your motherboard, so don't
-be surprised if the case fan speed doesn't change at all.)
-
-Thanks,
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+Thus empirically, it appears that the number of machines which need a
+non-zero protection ratio is exceedingly small.  Why change the setting on
+all machines for the benefit of the tiny few?  Seems weird.  Especially
+when this problem could be solved with a few-line initscript.  Ho hum.

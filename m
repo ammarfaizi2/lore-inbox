@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285498AbRL0DCW>; Wed, 26 Dec 2001 22:02:22 -0500
+	id <S285963AbRL0DIw>; Wed, 26 Dec 2001 22:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285634AbRL0DCN>; Wed, 26 Dec 2001 22:02:13 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:26382 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S285498AbRL0DBx>;
-	Wed, 26 Dec 2001 22:01:53 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: Guido Guenther <agx@sigxcpu.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17]: oops in usbcore during suspend 
-In-Reply-To: Your message of "Wed, 26 Dec 2001 10:03:53 -0800."
-             <20011226100353.D3460@kroah.com> 
+	id <S285634AbRL0DIn>; Wed, 26 Dec 2001 22:08:43 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:57988 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S285073AbRL0DIl>;
+	Wed, 26 Dec 2001 22:08:41 -0500
+Date: Wed, 26 Dec 2001 22:08:40 -0500
+From: Legacy Fishtank <garzik@havoc.gtf.org>
+To: Pavel Roskin <proski@gnu.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: readdir() loses entries on ramfs and tmpfs
+Message-ID: <20011226220840.A32612@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.43.0112261932350.26802-100000@marabou.research.att.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 27 Dec 2001 14:01:39 +1100
-Message-ID: <11170.1009422099@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.43.0112261932350.26802-100000@marabou.research.att.com>; from proski@gnu.org on Wed, Dec 26, 2001 at 07:50:11PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Dec 2001 10:03:53 -0800, 
-Greg KH <greg@kroah.com> wrote:
->On Wed, Dec 26, 2001 at 06:00:21PM +0100, Guido Guenther wrote:
->> Call Trace: [usbcore:usb_devfs_handle_Re9c5f87f+174345/197882743] [usbcore:usb_devfs_handle_Re9c5f87f+174855/197882233] [pci_pm_suspend_device+32/36] [pci_pm_suspend_bus+82/104] [pci_pm_suspend+35/68] 
->
->These aren't valid symbols :)
->It looks like something is messing with your oops output before you run
->it through ksymoops.  Can you take the raw values from 'dmesg'?
+On Wed, Dec 26, 2001 at 07:50:11PM -0500, Pavel Roskin wrote:
+> I got a report that GNU Midnight Commander fails to erase some directories 
+> on tmpfs from the first attempt.  However, it succeeds the next time.
+[...]
+>     while ((d = readdir(dir)) != NULL) {
+> 	printf("%s\n", d->d_name);
+> 	rmdir(d->d_name);
+>     }
+[...]
+> I'm sorry, I cannot elaborate more, but the issue seems to be very 
+> serious.
 
-Looks like the completely broken code in klogd, I do not understand why
-distributors still ship with it turned on.  Always run klogd as klogd -x,
-change /etc/rc.d/init.d/syslogd, restart syslogd and reproduce the
-problem.
+If Midnight Commander does similar to the above it's pretty silly...
+
+In Perl I normally do something like this in a loop (with a max-loops
+limiter):
+
+	opendir
+	@dirs = readdir(FOO);
+	closedir
+	last unless @dirs;
+	&remove_the_dirs(@dirs);
+
+Clearly that's slack since you could have a million files in a
+directory, but you see the point.  readdir(2) and getdents(2)
+are inherently racy.  If your code does not assume such and take
+appropriate action, it's broken.
+
+	Jeff
+
 

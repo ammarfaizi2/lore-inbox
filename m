@@ -1,207 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbUKPNBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbUKPNDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbUKPNBp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 08:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbUKPNA3
+	id S261971AbUKPNDv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 08:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbUKPNCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 08:00:29 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:20444 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261968AbUKPM7i (ORCPT
+	Tue, 16 Nov 2004 08:02:13 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:2351 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261973AbUKPNBL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 07:59:38 -0500
-Date: Tue, 16 Nov 2004 12:32:09 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch, 2.6.10-rc2] sched: fix ->nr_uninterruptible handling bugs
-Message-ID: <20041116113209.GA1890@elte.hu>
+	Tue, 16 Nov 2004 08:01:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Qtn5ZRpFy1kOMlWf1Gw2tsvo0fni28lvfmgQm78hxiqygWswdxaarloTfyFnbBwz6Iqzje5o4PsqCSMvcRSBk7ArI/c9AG9HM1xbs3WbB85KGM689rwznc+sEI+nO+6jHKTaFC0bJTSI/2/hsRbO0ZG69shDXXx+hUXBZAsxS6k=
+Message-ID: <58cb370e04111605019fc1df8@mail.gmail.com>
+Date: Tue, 16 Nov 2004 14:01:10 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+Subject: Re: [BUG] Kernel disables DMA on RICOH CD-R/RW
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20041116124656.82075.qmail@web52601.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041116124656.82075.qmail@web52601.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 16 Nov 2004 23:46:56 +1100 (EST), Srihari Vijayaraghavan
+<sriharivijayaraghavan@yahoo.com.au> wrote:
+> As of 2.6.9-rc4 (I have verified this to be case all
+> the way up to 2.6.10-rc2), kernel displays this
+> message:
+> 
+> Uniform Multi-Platform E-IDE driver Revision:
+> 7.00alpha2
+> ide: Assuming 33MHz system bus speed for PIO modes;
+> override with idebus=xx
+> VP_IDE: IDE controller at PCI slot 0000:00:0f.1
+> ACPI: PCI interrupt 0000:00:0f.1[A] -> GSI 20 (level,
+> low) -> IRQ 20
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> VP_IDE: VIA vt8237 (rev 00) IDE UDMA133 controller on
+> pci0000:00:0f.1
+>     ide0: BM-DMA at 0xcc00-0xcc07, BIOS settings:
+> hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xcc08-0xcc0f, BIOS settings:
+> hdc:DMA, hdd:DMA
+> Probing IDE interface ide0...
+> hda: ST3120026A, ATA DISK drive
+> Using anticipatory io scheduler
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> Probing IDE interface ide1...
+> hdc: Pioneer DVD-ROM ATAPIModel DVD-113 0113, ATAPI
+> CD/DVD-ROM drive
+> hdd: RICOH CD-R/RW MP7083A, ATAPI CD/DVD-ROM drive
+> hdd: Disabling (U)DMA for RICOH CD-R/RW MP7083A
+> (blacklisted)
+> 
+> The kernel disables DMA on the CD-R/RW (/dev/hdd) and
+> of course it would not let me enable it manually
+> either. Up until 2.6.9-rc3 the drive worked in DMA
+> mode just fine.
+> 
+> (I have been using this drive for more than 4 years. I
+> have used it under 2.2.x, 2.4.x, >=2.5.50 in DMA mode
+> just fine. Although I have changed everything else in
+> the computer in those long years: CPU, M/B, RAM, HDD
+> etc., save this great CD-R/RW drive, which has been
+> working fine.)
+> 
+> So the question is: why?
+> (And what can I do to enable DMA again?)
 
-PREEMPT_RT on SMP systems triggered weird (very high) load average
-values rather easily, which turned out to be a mainline kernel
-->nr_uninterruptible handling bug in try_to_wake_up().
+Previously VIA IDE driver ignored DMA blacklists completely
+(which was of course wrong), it was fixed.
 
-the following code:
+Probably this drive should be removed from the blacklist.
+Does anybody remember why was it added there?
 
-        if (old_state == TASK_UNINTERRUPTIBLE) {
-                old_rq->nr_uninterruptible--;
-
-potentially executes with old_rq potentially being != rq, and hence
-updating ->nr_uninterruptible without the lock held. Given a
-sufficiently concurrent preemption workload the count can get out of
-whack and updates might get lost, permanently skewing the global count. 
-Nothing except the load-average uses nr_uninterruptible() so this
-condition can go unnoticed quite easily.
-
-the fix is to update ->nr_uninterruptible always on the runqueue where
-the task currently is. (this is also a tiny performance plus for
-try_to_wake_up() as a stackslot gets freed up.)
-
-while fixing this bug i found three other ->nr_uninterruptible related
-bugs:
-
- - the update should be moved from deactivate_task() into schedule(),
-   beacause e.g. setscheduler() does deactivate_task()+activate_task(),
-   which in turn may result in a -1 counter-skew if setscheduler() is
-   done on a task asynchronously, which task is still on the runqueue
-   but has already set ->state to TASK_UNINTERRUPTIBLE. 
-
-   sys_sched_setscheduler() is used rarely, but the bug is real. (The
-   fix is also a small performance enhancement.)
-
-   The rules for ->nr_uninterruptible updating are the following: it
-   gets increased by schedule() only, when a task is moved off the
-   runqueue and it has a state of TASK_UNINTERRUPTIBLE. It is decreased
-   by try_to_wake_up(), by the first wakeup that materially changes the
-   state from TASK_UNINTERRUPTIBLE back to TASK_RUNNING, and moves the
-   task to the runqueue.
-
- - on CPU-hotplug down we might zap a CPU that has a nonzero counter. 
-   Due to the fuzzy nature of the global counter a CPU might hold a 
-   nonzero ->nr_uninterruptible count even if it has no tasks anymore. 
-   The solution is to 'migrate' the counter to another runqueue.
-
- - we should not return negative counter values from the
-   nr_uninterruptible() function, since it accesses them without taking
-   the runqueue locks, so the total sum might be slightly above or
-   slightly below the real count.
-
-i tested the attached patch on x86 SMP and it solves the load-average
-problem. (I have tested CPU_HOTPLUG compilation but not functionality.) 
-I think this is a must-have for 2.6.10, because there are apps that go
-berzerk if load-average is too high (e.g. sendmail).
-
-	Ingo
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/kernel/sched.c.orig
-+++ linux/kernel/sched.c
-@@ -217,7 +217,16 @@ struct runqueue {
- 	unsigned long cpu_load;
- #endif
- 	unsigned long long nr_switches;
--	unsigned long expired_timestamp, nr_uninterruptible;
-+
-+	/*
-+	 * This is part of a global counter where only the total sum
-+	 * over all CPUs matters. A task can increase this counter on
-+	 * one CPU and if it got migrated afterwards it may decrease
-+	 * it on another CPU. Always updated under the runqueue lock:
-+	 */
-+	unsigned long nr_uninterruptible;
-+
-+	unsigned long expired_timestamp;
- 	unsigned long long timestamp_last_tick;
- 	task_t *curr, *idle;
- 	struct mm_struct *prev_mm;
-@@ -762,8 +771,6 @@ static void activate_task(task_t *p, run
- static void deactivate_task(struct task_struct *p, runqueue_t *rq)
- {
- 	rq->nr_running--;
--	if (p->state == TASK_UNINTERRUPTIBLE)
--		rq->nr_uninterruptible++;
- 	dequeue_task(p, p->array);
- 	p->array = NULL;
- }
-@@ -983,14 +990,14 @@ static int try_to_wake_up(task_t * p, un
- 	int cpu, this_cpu, success = 0;
- 	unsigned long flags;
- 	long old_state;
--	runqueue_t *rq, *old_rq;
-+	runqueue_t *rq;
- #ifdef CONFIG_SMP
- 	unsigned long load, this_load;
- 	struct sched_domain *sd;
- 	int new_cpu;
- #endif
- 
--	old_rq = rq = task_rq_lock(p, &flags);
-+	rq = task_rq_lock(p, &flags);
- 	schedstat_inc(rq, ttwu_cnt);
- 	old_state = p->state;
- 	if (!(old_state & state))
-@@ -1085,7 +1092,7 @@ out_set_cpu:
- out_activate:
- #endif /* CONFIG_SMP */
- 	if (old_state == TASK_UNINTERRUPTIBLE) {
--		old_rq->nr_uninterruptible--;
-+		rq->nr_uninterruptible--;
- 		/*
- 		 * Tasks on involuntary sleep don't earn
- 		 * sleep_avg beyond just interactive state.
-@@ -1415,6 +1422,13 @@ unsigned long nr_uninterruptible(void)
- 	for_each_cpu(i)
- 		sum += cpu_rq(i)->nr_uninterruptible;
- 
-+	/*
-+	 * Since we read the counters lockless, it might be slightly
-+	 * inaccurate. Do not allow it to go below zero though:
-+	 */
-+	if (unlikely((long)sum < 0))
-+		sum = 0;
-+
- 	return sum;
- }
- 
-@@ -2581,8 +2595,11 @@ need_resched_nonpreemptible:
- 		if (unlikely((prev->state & TASK_INTERRUPTIBLE) &&
- 				unlikely(signal_pending(prev))))
- 			prev->state = TASK_RUNNING;
--		else
-+		else {
-+			if (prev->state == TASK_UNINTERRUPTIBLE)
-+				rq->nr_uninterruptible++;
- 			deactivate_task(prev, rq);
-+		}
- 	}
- 
- 	cpu = smp_processor_id();
-@@ -3914,6 +3931,26 @@ static void move_task_off_dead_cpu(int d
- 	__migrate_task(tsk, dead_cpu, dest_cpu);
- }
- 
-+/*
-+ * While a dead CPU has no uninterruptible tasks queued at this point,
-+ * it might still have a nonzero ->nr_uninterruptible counter, because
-+ * for performance reasons the counter is not stricly tracking tasks to
-+ * their home CPUs. So we just add the counter to another CPU's counter,
-+ * to keep the global sum constant after CPU-down:
-+ */
-+static void migrate_nr_uninterruptible(runqueue_t *rq_src)
-+{
-+	runqueue_t *rq_dest = cpu_rq(any_online_cpu(CPU_MASK_ALL));
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	double_rq_lock(rq_src, rq_dest);
-+	rq_dest->nr_uninterruptible += rq_src->nr_uninterruptible;
-+	rq_src->nr_uninterruptible = 0;
-+	double_rq_unlock(rq_src, rq_dest);
-+	local_irq_restore(flags);
-+}
-+
- /* Run through task list and migrate tasks from the dead cpu. */
- static void migrate_live_tasks(int src_cpu)
- {
-@@ -4048,6 +4085,7 @@ static int migration_call(struct notifie
- 		__setscheduler(rq->idle, SCHED_NORMAL, 0);
- 		migrate_dead_tasks(cpu);
- 		task_rq_unlock(rq, &flags);
-+		migrate_nr_uninterruptible(rq);
- 		BUG_ON(rq->nr_running != 0);
- 
- 		/* No need to migrate the tasks: it was best-effort if
+Bartlomiej

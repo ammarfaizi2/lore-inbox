@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbTEaRty (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 13:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTEaRty
+	id S264389AbTEaRzF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 13:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264387AbTEaRzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 13:49:54 -0400
-Received: from tag.witbe.net ([81.88.96.48]:10765 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S261773AbTEaRtx (ORCPT
+	Sat, 31 May 2003 13:55:05 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:18861 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S264389AbTEaRzE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 13:49:53 -0400
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Mikael Pettersson'" <mikpe@csd.uu.se>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.70] - APIC error on CPU0: 00(40)
-Date: Sat, 31 May 2003 20:03:13 +0200
-Message-ID: <00ae01c3279e$e7bb3e70$2101a8c0@witbe>
+	Sat, 31 May 2003 13:55:04 -0400
+Date: Sat, 31 May 2003 20:08:19 +0200 (CEST)
+From: manfred@colorfullife.com
+X-X-Sender: manfred@dbl.q-ag.de
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix sysenter crash with enabled nmi oopser
+Message-ID: <Pine.LNX.4.44.0305311959120.27965-100000@dbl.q-ag.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <1054388239.27311.3.camel@dhcp22.swansea.linux.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Linus,
 
-> On Sad, 2003-05-31 at 11:52, mikpe@csd.uu.se wrote:
-> > Received illegal vector errors. Your boot log reveals that you're 
-> > using ACPI and IO-APIC on a SiS chipset. Disable those and 
-> try again 
-> > -- I wouldn't bet on ACPI+IO-APIC working on SiS.
-> 
-> 2.5.x has the needed code to handle SiS APIC. Does Linus 
-> 2.5.70 also have the fixes to not re-route the SMI pins ?
+below is again my patch to the nmi entry point: without it, I can't boot
+RH9 with both nmi oopser and page unmapping enabled.
 
-Where should this code be located ?
+Background:
 
-I'm ready to check my source tree, and compare with 2.5.69,
-and try to make a patch ...
+The nmi handler must detect the combination of nmi+syscall+debug fault. It
+does that by reading from (%esp)16. This can crash, if it's a "normal" nmi
+and (%esp)16 doesn't exist - either above end-of-memory, or the page that
+follows behind the stack is unmapped for AGP GART. RH9 crashes on every
+boot with page unmap debugging enabled, the interrupted %eip is
+sysenter_past_esp.
 
-Paul
+Could you apply the patch to your tree? I would prefer a symbolic constant
+instead of 0x1fff (THREAD_SIZE-1) and 0x1fec
+(THREAD_SIZE-3*sizeof(unsigned long)), but the current definitions are not
+compatible with the assembler.
+
+--
+	Manfred
+<<<
+--- 2.5/arch/i386/kernel/entry.S	2003-05-24 07:56:36.000000000 +0200
++++ build-2.5/arch/i386/kernel/entry.S	2003-05-25 22:56:18.000000000 +0200
+@@ -534,6 +534,15 @@
+ ENTRY(nmi)
+ 	cmpl $sysenter_entry,(%esp)
+ 	je nmi_stack_fixup
++	pushl %eax
++	movl %esp,%eax
++	/* Do not access memory above the end of our stack page,
++	 * it might not exist.
++	 */
++	andl $0x1fff,%eax
++	cmpl $0x1fec,%eax
++	popl %eax
++	jae nmi_stack_correct
+ 	cmpl $sysenter_entry,12(%esp)
+ 	je nmi_debug_stack_check
+ nmi_stack_correct:
+<<<
 

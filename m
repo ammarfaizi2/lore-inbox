@@ -1,76 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265311AbUAEUDn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbUAEUDn
+	id S265445AbUAEUHS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 15:07:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbUAEUHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:03:43 -0500
-Received: from marcet.info ([213.60.139.160]:20116 "EHLO mail.marcet.info")
-	by vger.kernel.org with ESMTP id S265311AbUAEUDg (ORCPT
+	Mon, 5 Jan 2004 15:07:18 -0500
+Received: from bolt.sonic.net ([208.201.242.18]:55262 "EHLO bolt.sonic.net")
+	by vger.kernel.org with ESMTP id S265445AbUAEUHP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:03:36 -0500
-Date: Mon, 5 Jan 2004 21:03:33 +0100
-From: Javier Marcet <lists@marcet.info>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: linux-kernel@vger.kernel.org, usb-storage@one-eyed-alien.net,
-       linux-usb-users@lists.sourceforge.net
-Subject: Re: usb-storage && iRIVER flash player problem
-Message-ID: <20040105200333.GA11318@hiroshi>
-Reply-To: Javier Marcet <javier@marcet.info>
-References: <20040105125948.GA9257@hiroshi> <20040105190204.GA4547@one-eyed-alien.net>
+	Mon, 5 Jan 2004 15:07:15 -0500
+Date: Mon, 5 Jan 2004 12:07:07 -0800
+From: David Hinds <dhinds@sonic.net>
+To: linux-kernel@vger.kernel.org
+Cc: Amit <mehrotraamit@yahoo.co.in>, Russell King <rmk@arm.linux.org.uk>
+Subject: PCI memory allocation bug with CONFIG_HIGHMEM
+Message-ID: <20040105120707.A18107@sonic.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="/04w6evG8XlLl3ft"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040105190204.GA4547@one-eyed-alien.net>
-X-Editor: Vim http://www.vim.org/
-X-Operating-System: Gentoo GNU/Linux 1.4 / 2.6.1-rc1-mm1 i686 AMD Athlon(TM) XP 2000+ AuthenticAMD
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+In arch/i386/kernel/setup.c we have:
 
-* Matthew Dharm <mdharm-kernel@one-eyed-alien.net> [040105 20:02]:
+	/* Tell the PCI layer not to allocate too close to the RAM area.. */
+	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
+	if (low_mem_size > pci_mem_start)
+		pci_mem_start = low_mem_size;
 
->It looks like your device is choking over the ALLOW_MEDIUM_REMOVAL command
->-- I've never seen a device broken in this particular way before.
+which is meant to round up pci_mem_start to the nearest 1 MB boundary
+past the top of physical RAM.  However this does not consider highmem.
+Should this just be using max_pfn rather than max_low_pfn?
 
->If you edit drivers/scsi/sd.c to remove the sending of that command (it's
->normally used to lock the media-eject button on devices that support it),
->we should be able to test this theory.  If this is the case, then we may
->need to modify the SCSI layer to only send that command if the RMB bit is
->set.
+(I have a report of this failing on a laptop with a highmem kernel,
+causing a PCI memory resource to be allocated on top of a RAM area)
 
-That did it, with this fix I have no problems. fdisk still reports
-mangled partitions, parted OTOH reports one partition filling the whole
-device. I can mount either /dev/sda or /dev/sda4 and get the same
-correct results.
-
-Thanks a lot :) You've made me happy for the coming days ;)
-Until your message I was messing around with unusual_devs.h to no
-avail...
-
-
--- 
-Javier Marcet <javier@marcet.info>
-
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-storage_ifpdev_fix.patch"
-
---- linux/drivers/scsi/scsi_ioctl.c.orig	2004-01-01 09:12:20.000000000 +0100
-+++ linux/drivers/scsi/scsi_ioctl.c	2004-01-05 20:42:03.979349544 +0100
-@@ -156,7 +156,7 @@
- 	if (!sdev->removable || !sdev->lockable)
- 	       return 0;
- 
--	scsi_cmd[0] = ALLOW_MEDIUM_REMOVAL;
-+	scsi_cmd[0] = 0;
- 	scsi_cmd[1] = 0;
- 	scsi_cmd[2] = 0;
- 	scsi_cmd[3] = 0;
-
---/04w6evG8XlLl3ft--
+-- Dave

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbTILWov (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 18:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTILWov
+	id S261937AbTILWvu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 18:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTILWvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 18:44:51 -0400
-Received: from aneto.able.es ([212.97.163.22]:16076 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S261838AbTILWou (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 18:44:50 -0400
-Date: Sat, 13 Sep 2003 00:44:47 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Xose Vazquez Perez <xose@wanadoo.es>
-Cc: Tosatti <marcelo@cyclades.com.br>,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pci.ids 2.4.23-pre3
-Message-ID: <20030912224447.GA3917@werewolf.able.es>
-References: <3F61FF67.7080504@wanadoo.es>
+	Fri, 12 Sep 2003 18:51:50 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51960 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261937AbTILWvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 18:51:47 -0400
+Date: Sat, 13 Sep 2003 00:51:39 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: davej@redhat.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Message-ID: <20030912225138.GU27368@fs.tum.de>
+References: <200309122009.h8CK9KZp006128@harpo.it.uu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3F61FF67.7080504@wanadoo.es>; from xose@wanadoo.es on Fri, Sep 12, 2003 at 19:16:23 +0200
-X-Mailer: Balsa 2.0.14
+In-Reply-To: <200309122009.h8CK9KZp006128@harpo.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 09.12, Xose Vazquez Perez wrote:
-> hi,
+On Fri, Sep 12, 2003 at 10:09:20PM +0200, Mikael Pettersson wrote:
+>...
+> > > - Which CPUs exactly need X86_ALIGNMENT_16?
+> >
+> >Unsure. This could use testing on a few systems.
 > 
-> here it goes a sync patch against latest pciids.sourceforge.net
-> (Daily snapshot on Thu 2003-05-29 10:00:04)
-> 
+> K7s and P5s (and 486s too if I remember correctly) strongly prefer
+> code entry points and loop labels to be 16-byte aligned. This is
+> due to the way code is fetched from L1.
+>...
 
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o gen-devlist gen-devlist.c
-./gen-devlist <pci.ids
-Line 1345: Device name too long
-SiS650/651/M650/740 PCI/AGP VGA Display Adapter
+Hm, that's pretty different from the definition in -test5:
 
-Line 3081: Device name too long
-VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE
+config X86_ALIGNMENT_16
+        bool
+        depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || 
+          MELAN || MK6 || M586MMX || M586TSC || M586 || M486 || MVIAC3_2
+        default y
 
-Changed to
 
-    6325  SiS65x/M65x/740 PCI/AGP VGA Display Adapter
 
-    0571  VT82C586x/C686x/33x/35 PIPC Bus Master IDE
+> /Mikael
 
+cu
+Adrian
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.23-pre2-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

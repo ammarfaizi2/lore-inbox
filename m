@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVCUWob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVCUWk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbVCUWob (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVCUWlJ
+	id S262142AbVCUWk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 17:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVCUWgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:41:09 -0500
-Received: from fire.osdl.org ([65.172.181.4]:45256 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262016AbVCUWhF (ORCPT
+	Mon, 21 Mar 2005 17:36:43 -0500
+Received: from itbox2.apcinc.com ([12.5.87.41]:28073 "EHLO itbox2.apcinc.com")
+	by vger.kernel.org with ESMTP id S261947AbVCUWcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:37:05 -0500
-Date: Mon, 21 Mar 2005 14:36:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Richard Fuchs <richard.fuchs@inode.info>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: slab corruption in skb allocs
-Message-Id: <20050321143648.4608a912.akpm@osdl.org>
-In-Reply-To: <42283093.7040405@inode.info>
-References: <42283093.7040405@inode.info>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Mar 2005 17:32:35 -0500
+Subject: 2.4.22 High Memory Support for Pentium M
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF0CFCB9A5.D3A8907F-ON86256FCB.007B4D6C@mail.apcinc.com>
+From: Keith LeMay <keith.lemay@ultra-ats.com>
+Date: Mon, 21 Mar 2005 16:32:31 -0600
+X-MIMETrack: Serialize by Router on APC1/APC(Release 6.5|September 26, 2003) at 03/21/2005
+ 04:32:28 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-AntiVirus: checked by AntiVir Milter (version: 1.1; AVE: 6.30.0.7; VDF: 6.30.0.36; host: itbox2.apcinc.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Fuchs <richard.fuchs@inode.info> wrote:
->
-> he memory allocation debugger gives me the following messages under a
-> vanilla 2.6.10 and 2.6.11 kernel when doing
-> 
-> 1) hdparm -d0 on my hard disk
-> 2) tar c / > /dev/null
-> 3) sending lots of network traffic to the machine (e.g. close to 100
-> mbit/s udp packets)
-> 
 
-We ended up deciding that this was a bug in the e100 NAPI implementation.
 
-I have a not-very-official patch in -mm, at
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm1/broken-out/e100-napi-state-machine-fix.patch.
-Would you be able to test that?
 
-AFAIK there has been no official fix for this yet.
+
+I'm porting code from a Pentium III processor to a Pentium M processor
+using kernel version 2.4.22.  Both processors contain 1.5Gig of RAM.  I
+noticed High Memory Support must be disabled on the Pentium M platform due
+to a bug that was fixed in kernel version 2.4.26.  Does anyone know how the
+bug was fixed and what changes I need to port back into kernel version
+2.4.22?  For various reasons, upgrading my system to kernel version 2.4.26
+is not an option.  Please respond to keith.lemay@ultra-ats.com.
+

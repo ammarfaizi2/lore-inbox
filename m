@@ -1,68 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317096AbSHGHrh>; Wed, 7 Aug 2002 03:47:37 -0400
+	id <S317282AbSHGHvZ>; Wed, 7 Aug 2002 03:51:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317110AbSHGHrh>; Wed, 7 Aug 2002 03:47:37 -0400
-Received: from mail-fe71.tele2.ee ([212.107.32.235]:22495 "HELO everyday.com")
-	by vger.kernel.org with SMTP id <S317096AbSHGHrg> convert rfc822-to-8bit;
-	Wed, 7 Aug 2002 03:47:36 -0400
-Date: Wed, 7 Aug 2002 09:51:06 +0200
-Message-Id: <200208070751.g777p6Z10076@eday-fe6.tele2.ee>
-From: "Thomas Munck Steenholdt" <tmus@get2net.dk>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-To: "Jeff Chua" <jchua@fedex.com>
-Subject: Sv: i810 sound broken...
-MIME-Version: 1.0
-X-EdMessageId: 0d43161c5611571443555b421e10414b505c635e5c44105049185541554b4c55511886
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S317283AbSHGHvZ>; Wed, 7 Aug 2002 03:51:25 -0400
+Received: from h-64-105-137-176.SNVACAID.covad.net ([64.105.137.176]:37039
+	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317282AbSHGHvZ>; Wed, 7 Aug 2002 03:51:25 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 7 Aug 2002 00:54:54 -0700
+Message-Id: <200208070754.AAA08086@adam.yggdrasil.com>
+To: nick.orlov@mail.ru
+Subject: Re: [PATCH] pdc20265 problem.
+Cc: davidsen@tmr.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Wed, 7 Aug 2002, Thomas Munck Steenholdt wrote:
-> 
-> > >> I'm afraid even that didn't help much - Only now I get a different
-> kind
-> > >> of error... Before, trying to play a sound, the operation would
-> just
-> > >> fisish immediatelyand a few noises were heard in the speakers...
-> Now
-> the
-> > >> operation never finishes - still no sound... and I found these
-> error
-> > >> messages in dmesg..
-> > >
-> > >one last try ...
-> > >
-> > >unload all network, scsi, modems. Bare minimum and see if the sound
-> alone
-> > >would work. Again, use "aumix" before playing anything.
-> > >
-> > >Jeff
-> > >
-> >
-> > Same situation with nothing loaded but the essential modules... heck I
-> > even unloaded the cdrom module and it's exactly the same as before...
-> > :-(
-> 
-> Really don't know what to do next. Alan, what do you think?
-> 
-> Another person got a similar problem, but he removed the network card,
-> and
-> the problem went away.
-> 
-> Also, have you tried hard boot, boot straight into Linux without booting
-> Windows at all?
-> 
-> 
-> Jeff
-> 
+Nick Orlov writes:
+>But wouldn't it be a cleaner solution if we will have _compile_ time
+>option that by default is turned on in order to handle rare cases,
+>and _can_ be turned off in order to handle _most_ cases without any
+>boot-time options?
 
-Tried removing my network adaptor just to make sure - never booted from windows into linux, always hard boot into linux, and it still doesn't work... always aumix before trying anything, tried using playwave to test and also tried cat'ing a .wav to /dev/dsp... always the same result - hang and a couple of times the dma error shows up...
+	You might not see them on linux-kenrel, but there are
+lots of Linux users that are not comfortable compiling a custom
+kernel (or even competent to do so), but are a bit more willing
+to edit files and rerun a boot configuration utility like lilo.
 
-Thomas
+	Linux users in the "I'm not a sysadmin" crowd (?) probably
+don't care about the scan order of the pdc20265 IDE controller,
+but people in the "I'm a sysadmin, not a programmer" crowd
+may have legitimiate reasons to.
 
--- Send gratis SMS og brug gratis e-mail på Everyday.com -- 
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

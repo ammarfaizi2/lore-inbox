@@ -1,70 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVCPC4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVCPDSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbVCPC4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 21:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVCPC4Z
+	id S262484AbVCPDSY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 22:18:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbVCPDSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 21:56:25 -0500
-Received: from ns1.flexabit.net ([64.198.230.130]:31936 "EHLO ns1.flexabit.net")
-	by vger.kernel.org with ESMTP id S262482AbVCPC4P (ORCPT
+	Tue, 15 Mar 2005 22:18:24 -0500
+Received: from sta.galis.org ([66.250.170.210]:54925 "HELO sta.galis.org")
+	by vger.kernel.org with SMTP id S262484AbVCPDSP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 21:56:15 -0500
-From: Tom Felker <tfelker2@uiuc.edu>
-To: linux-os@analogic.com
-Subject: Re: Bogus buffer length check in linux-2.6.11  read()
-Date: Tue, 15 Mar 2005 20:56:16 -0600
-User-Agent: KMail/1.7.2
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0503151257450.12264@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0503151257450.12264@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 22:18:15 -0500
+From: "George Georgalis" <george@galis.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+  supervision@list.skarnet.org
+Date: Tue, 15 Mar 2005 22:18:14 -0500
+To: supervision@list.skarnet.org
+Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: a problem with linux 2.6.11 and sa
+Message-ID: <20050316031814.GB1315@ixeon.local>
+References: <20050303214023.GD1251@ixeon.local> <6.2.1.2.0.20050303165334.038f32a0@192.168.50.2> <20050303224616.GA1428@ixeon.local> <871xaqb6o0.fsf@amaterasu.srvr.nix> <20050308165814.GA1936@ixeon.local> <871xap9dfg.fsf@amaterasu.srvr.nix> <20050309152958.GB4042@ixeon.local> <m3is40z9dy.fsf@multivac.cwru.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503152056.16287.tfelker2@uiuc.edu>
+In-Reply-To: <m3is40z9dy.fsf@multivac.cwru.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 March 2005 11:59 am, linux-os wrote:
-> The attached file shows that the kernel thinks it's doing
-> something helpful by checking the length of the input
-> buffer for a read(). It will return "Bad Address" until
-> the length is 1632 bytes.  Apparently the kernel thinks
-> 1632 is a good length!
+On Wed, Mar 09, 2005 at 06:28:35PM -0500, Paul Jarc wrote:
+>"George Georgalis" <george@galis.org> wrote:
+>> It (Gerrit Pape's technique) very defiantly stopped working a few revs
+>> back (2.6.7?). I'm seeing a similar failed read from /dev/rtc and
+>> mplayer with 2.6.10, now too.
 >
-> Did anybody consider the overhead necessary to do this
-> and the fact that the kernel has no way of knowing if
-> the pointer to the buffer is valid until it actually
-> does the write. What was wrong with copy_to_user()?
-> Why is there the additional bogus check?
+>The /proc/kmsg problem happens because the kernel now checks for
+>permission at read() instead of open().  The /dev/rtc problem seems to
+>be a different beast.
 
-I don't think that's what's happening.  The kernel is perfectly happy to read 
-data into any virtual address range that your process can legally write to - 
-this includes any part of the heap and any part of the stack.  The kernel 
-can't check whether writing to the given address would clobber the stack or 
-heap - it's your memory, you manage it.  The kernel's notion of an "invalid 
-address" is very simple, and doesn't include every address that you would 
-consider invalid from a C perspective.
+Thanks for the kmsg clairfication, Paul.
 
-So what's probably happening is that your stack is (1632+256) bytes tall, 
-including the buffer you allocated.  (Stack grows downward on i386.)  So 
-ideally you read less than 256 bytes.  If you read more than 256 but less 
-than 1888 bytes, the read would damage other elements on the stack, but it is 
-OK as far as the kernel is concerned.  But if you read more than that, you're 
-asking the kernel to write to an address that is higher than the highest 
-address of the stack (the address of the bottom element), and this address 
-isn't mapped into your process, so you get EINVAL.
+>> while read file; do mplayer $file ; done <mediafiles.txt
+>>
+>> Failed to open /dev/rtc: Permission denied
+>>
+>> for file in `cat mediafiles.txt`; do mplayer $file ; done
+>>
+>> works.
+>
+>To simplify, what about these two:
+>mplayer foo.mpg
+>mplayer foo.mpg < mediafiles.txt
+>
+>You might try strace'ing both cases and see how they compare.
 
-If you were to type more than 256 (but less than 1888) characters before 
-pressing enter, the read would silently overflow the buffer, thus clobbering 
-the stack, including the return address of main().  So when main tried to 
-return, you'd get a segfault.  Somebody with assembly skills could probably 
-craft a string which, when your program reads it, would take control of the 
-program.
+The particular host does not have X support so mpg is out.
+I'm not sure that that test would work as mplayer requires filenames
+as command arguments not stdin (exclusivly, I think); my guess
+is mplayer would try to decode stdin.
+
+this works fine
+mplayer `cat zz.mtest `
+
+Then I tried
+mplayer /dev/stdin <zz.mtest
+
+I got
+Failed to open /dev/rtc: Permission denied (it should be readable by the user.)
+
+so what the heck, I changed it...
+$ ls -l /dev/rtc 
+crw-rw----    1 root     root      10, 135 Mar 14  2002 /dev/rtc
+chmod o+r /dev/rtc
+
+Then I tried
+while read file; do mplayer "$file" ; done <zz.mtest
+
+and got
+Linux RTC init error in ioctl (rtc_irqp_set 1024): Permission denied
+Try adding "echo 1024 > /proc/sys/dev/rtc/max-user-freq" to your system startup 
+scripts.
+
+the file almost played though...
+Playing /usr/nfs/sandbox/media/audio/_the-party-has-just-begun/Lebanese_Blonde.ogg.
+Ogg file format detected.
+...
+
+But it seemed to take keyboard commands from the binary
+No bind found for key _                                                         
+A:   0.1 (00.1) ??,?%                                                           
+No bind found for key R                         
+A:   0.8 (00.8)  4.2%                                                           
+
+and quit.  I tried the sysctl suggestion, no change, whenever a file list
+is redirected to stdin, and a filename argument is given to mplayer, eg
+
+while read file; do mplayer "$file" ; done <zz.mtest
+
+now I don't have rtc errors but mplayer is getting strange input it
+doesn't grok.
+
+Once again, this works fine without the changed rtc perms or the sysctl
+echo:
+
+mplayer `cat zz.mtest`
+
+I've not had a chance to properly test - I still think there is a new
+kernel bug/feature but cant find time to properly track it down.
+
+// George
+
 
 -- 
-Tom Felker, <tcfelker@mtco.com>
-<http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
-
-No army can withstand the strength of an idea whose time has come.
+George Georgalis, systems architect, administrator Linux BSD IXOYE
+http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org

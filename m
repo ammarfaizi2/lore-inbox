@@ -1,35 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263182AbTDBWr2>; Wed, 2 Apr 2003 17:47:28 -0500
+	id <S262964AbTDBW6S>; Wed, 2 Apr 2003 17:58:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263194AbTDBWr2>; Wed, 2 Apr 2003 17:47:28 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:17661
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S263182AbTDBWr1>; Wed, 2 Apr 2003 17:47:27 -0500
-Date: Wed, 2 Apr 2003 17:53:11 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-cc: Adam Belay <ambx1@neo.rr.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5] OSS opl3sa2: bring in sync with 2.4
-In-Reply-To: <200303292040.15091.daniel.ritz@gmx.ch>
-Message-ID: <Pine.LNX.4.50.0304021751490.26002-100000@montezuma.mastecende.com>
-References: <200303292040.15091.daniel.ritz@gmx.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263177AbTDBW6S>; Wed, 2 Apr 2003 17:58:18 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:2310 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id <S262964AbTDBW6R>;
+	Wed, 2 Apr 2003 17:58:17 -0500
+Date: Wed, 2 Apr 2003 15:09:03 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.66-mm2] Fix page_convert_anon locking issues
+Message-Id: <20030402150903.21765844.akpm@digeo.com>
+In-Reply-To: <80300000.1049320593@baldur.austin.ibm.com>
+References: <8910000.1049303582@baldur.austin.ibm.com>
+	<20030402132939.647c74a6.akpm@digeo.com>
+	<80300000.1049320593@baldur.austin.ibm.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Apr 2003 23:09:36.0592 (UTC) FILETIME=[EE14CD00:01C2F96C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Mar 2003, Daniel Ritz wrote:
+Dave McCracken <dmccr@us.ibm.com> wrote:
+>
+> The sequence is the following:
 
-> hi adam
+Boy you owe me a big fat comment on top of this one.
+
+> 1.  take a copy of the reference to the page (the pgd or pmd entry)
+> 2.  validate the copy
+> 3.  establish a pointer into the page
+> 4.  pull the data from the page (pmd or pte entry)
+> 5.  validate the original reference again
+> 6.  use the data
 > 
-> for your oss-2.5 tree. this patch brings sound/oss/opl3sa2.c in sync with 2.4.
-> compiles and works (testes on my toshiba tecra 8000). against 2.5.66-bk
+> This guarantees that the data is from a page that's still valid, since the
+> pgd or pmd entry are cleared when the page is released.  We're helped by
+> the fact that for an invalid page we can simply return failure.
 
-Firstly thank you very much for getting this done. Do you happen to use 
-isapnp for configuration?
++	if (page_to_pfn(page) != pte_pfn(*pte))
++		goto out_unmap;
++
++	if (addr)
++		*addr = address;
++
 
-Thanks,
-	Zwane
+	==>munmap here
+
++	return pte;
+
+i_shared_sem won't stop that.  The pte points into thin air, and may now
+point at a value which looks like our page.
+
+> > But then again, why is it not possible to just do:
+> > 
+> > 	list_for_each_entry(vma, &mapping->i_mmap, shared) {
+> > 		if (!pte_chain)
+> > 			pte_chain = pte_chain_alloc(GFP_KERNEL);
+> > 		spin_lock(&mm->page_table_lock);
+> > 		pte = find_pte(vma, page, NULL);
+> > 		if (pte)
+> > 			pte_chain = page_add_rmap(page, pte, pte_chain);
+> > 		spin_unlock(&mm->page_table_lock);
+> > 	}
+> > 
+> > 	pte_chain_free(pte_chain);
+> > 	up(&mapping->i_shared_sem);
+> > 
+> > ?
+> 
+> Because the page is in transition from !PageAnon to PageAnon.
+
+These are file-backed pages.  So what does PageAnon really mean?
+
+> We have to
+> hold the pte_chain lock during the entire transition in case someone else
+> tries to do something like page_remove_rmap, which would break.
+
+How about setting PageAnon at the _start_ of the operation? 
+page_remove_rmap() will cope with that OK.
 

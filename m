@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbSLTRFS>; Fri, 20 Dec 2002 12:05:18 -0500
+	id <S262807AbSLTRJ5>; Fri, 20 Dec 2002 12:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbSLTRFS>; Fri, 20 Dec 2002 12:05:18 -0500
-Received: from holomorphy.com ([66.224.33.161]:37318 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262796AbSLTRFR>;
-	Fri, 20 Dec 2002 12:05:17 -0500
-Date: Fri, 20 Dec 2002 09:12:43 -0800
+	id <S262824AbSLTRJ5>; Fri, 20 Dec 2002 12:09:57 -0500
+Received: from holomorphy.com ([66.224.33.161]:39878 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262807AbSLTRJ4>;
+	Fri, 20 Dec 2002 12:09:56 -0500
+Date: Fri, 20 Dec 2002 09:16:58 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Andreas Schwab <schwab@suse.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, bjorn_helgaas@hp.com
-Subject: Re: [PATCH] Fix CPU bitmask truncation
-Message-ID: <20021220171243.GD9704@holomorphy.com>
+To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Martin Bligh <mbligh@us.ibm.com>, John Stultz <johnstul@us.ibm.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+Subject: Re: [PATCH][2.4]  generic cluster APIC support for systems with m ore than 8 CPUs
+Message-ID: <20021220171658.GE9704@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andreas Schwab <schwab@suse.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, bjorn_helgaas@hp.com
-References: <200212161213.29230.bjorn_helgaas@hp.com> <20021220103028.GB9704@holomorphy.com> <je7ke4yje3.fsf@sykes.suse.de>
+	"Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	James Cleverdon <jamesclv@us.ibm.com>,
+	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Martin Bligh <mbligh@us.ibm.com>, John Stultz <johnstul@us.ibm.com>,
+	"Nakajima, Jun" <jun.nakajima@intel.com>,
+	"Mallick, Asit K" <asit.k.mallick@intel.com>,
+	"Saxena, Sunil" <sunil.saxena@intel.com>,
+	"Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+References: <3FAD1088D4556046AEC48D80B47B478C0101F55D@usslc-exch-4.slc.unisys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <je7ke4yje3.fsf@sykes.suse.de>
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C0101F55D@usslc-exch-4.slc.unisys.com>
 User-Agent: Mutt/1.3.25i
 Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> writes:
-|> ===== include/linux/init_task.h 1.19 vs edited =====
-|> --- 1.19/include/linux/init_task.h	Sun Sep 29 07:02:55 2002
-|> +++ edited/include/linux/init_task.h	Fri Dec 20 02:22:04 2002
-|> @@ -63,7 +63,7 @@
-|>  	.prio		= MAX_PRIO-20,					\
-|>  	.static_prio	= MAX_PRIO-20,					\
-|>  	.policy		= SCHED_NORMAL,					\
-|> -	.cpus_allowed	= -1,						\
-|> +	.cpus_allowed	= ~0UL,						\
+On Fri, Dec 20, 2002 at 09:46:19AM -0600, Van Maren, Kevin wrote:
+> I mostly work on our 16-32p IA64 machines.  Natalie or someone else will
+> have to comment on the clustered-apic code.
 
-On Fri, Dec 20, 2002 at 01:17:24PM +0100, Andreas Schwab wrote:
-> This is useless.  Assigning -1 to any unsigned type is garanteed to give
-> you all bits one, and with two's complement this also holds for any signed
-> type.
-
-Not so on all gcc versions. The rest of the world can figure out what
-to do about the versions that do not.
+Okay, that's not too big a deal. I didn't expect you'd field it directly.
 
 
+On Fri, Dec 20, 2002 at 09:46:19AM -0600, Van Maren, Kevin wrote:
+> Also, as a clarification, our 32-processor systems are NOT NUMA: there
+> is a full non-blocking crossbar to memory.  So clustered APIC support
+> should not be dependant on NUMA.
+
+That one's easy to fix (and apparently for you to spot despite not
+actually working on the things).
+
+
+Thanks,
 Bill

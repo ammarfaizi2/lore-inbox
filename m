@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVCQUJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVCQUR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVCQUJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 15:09:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVCQUJS
+	id S261886AbVCQUR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 15:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVCQUR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 15:09:18 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:41560 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261834AbVCQUIA (ORCPT
+	Thu, 17 Mar 2005 15:17:27 -0500
+Received: from everest.2mbit.com ([24.123.221.2]:28817 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S261922AbVCQUNV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 15:08:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=QdTlRgCnX9eucyvkVSBkvvPRTJT1g1O0lAyCBx7o8ZhloGy/k82PYJIVg+eVln7/BAueb0JiKoYKx/+3GidqAsZyNFH1HHmoMZrJ3r89vLaKYq/PXEbHil+TUlpz4rr+nyFTcrna0xIWVRz9Qmmvgu3tdsBhxwTs04Ot6eOCjqM=
-Message-ID: <5a2cf1f605031712062bc90d09@mail.gmail.com>
-Date: Thu, 17 Mar 2005 21:06:59 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-Reply-To: jerome lacoste <jerome.lacoste@gmail.com>
-To: Junio C Hamano <junkio@cox.net>
-Subject: Re: [PATCH][1/2] SquashFS
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7vmzt4pdf9.fsf@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 17 Mar 2005 15:13:21 -0500
+Message-ID: <4239E4CC.7050007@lovecn.org>
+Date: Fri, 18 Mar 2005 04:13:00 +0800
+From: Coywolf Qi Hunt <coywolf@lovecn.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-os@analogic.com
+CC: "Peter W. Morreale" <peter_w_morreale@hotmail.com>,
+       linux-kernel@vger.kernel.org
+References: <BAY101-F3858D9AE9F3222CAB9AB3CC1490@phx.gbl> <Pine.LNX.4.61.0503171401030.22694@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0503171401030.22694@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <4235BAC0.6020001@lougher.demon.co.uk>
-	 <20050315003802.GH3163@waste.org> <42363EAB.3050603@yahoo.com.au>
-	 <20050315004759.473f6a0b.pj@engr.sgi.com>
-	 <42370442.7020401@lougher.demon.co.uk>
-	 <20050315172724.GO32638@waste.org>
-	 <42370B14.50608@lougher.demon.co.uk>
-	 <20050315110632.07fc8d09.pj@engr.sgi.com>
-	 <7vmzt4pdf9.fsf@assigned-by-dhcp.cox.net>
+X-Broken-Reverse-DNS: no host name for for IP address 221.201.199.142
+X-Scan-Signature: 0c1945f502a06f7766c9348c347b6b03
+X-SA-Exim-Connect-IP: 221.201.199.142
+X-SA-Exim-Mail-From: coywolf@lovecn.org
+Subject: Re: Kernel memory limits?
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+	*  4.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
+	*      [221.201.199.142 listed in cnkrbl.ahbl.org]
+X-SA-Exim-Version: 4.2 (built Sun, 13 Feb 2005 18:23:43 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005 17:50:02 -0800, Junio C Hamano <junkio@cox.net> wrote:
-> >>>>> "PJ" == Paul Jackson <pj@engr.sgi.com> writes:
+linux-os wrote:
+> On Thu, 17 Mar 2005, Peter W. Morreale wrote:
 > 
-> PJ> There is not a concensus (nor a King Penguin dictate) between the
-> PJ> "while(1)" and "for(;;)" style to document.
+>> (I did not see this addressed in the FAQs...)
+>>
+>> How much physical memory can the 2.4.26 kernel address in kernel 
+>> context on x86?
+>>
 > 
-> FWIW, linux-0.01 has four uses of "while (1)" and two uses of
-> "for (;;)" ;-).
+> All of it.
 > 
-> ./fs/inode.c:   while (1) {
-> ./fs/namei.c:   while (1) {
-> ./fs/namei.c:   while (1) {
-> ./kernel/sched.c:       while (1) {
+>> What about DMA memory?
+>>
 > 
-> ./init/main.c:  for(;;) pause();
-> ./kernel/panic.c:       for(;;);
+> All of it, too. The old DMA controller(s) could only address 16 MB
+> because that's all the page-registers allowed. Bus-mastering DMA
+> off the PCI/Bus has no such limitation. Most have DMA controllers
+> that use scatter-lists so RAM doesn't even have to be contiguous,
+> only properly allocated (in pages) and nailed down with no caching.
 > 
-> What is interesting here is that the King Penguin used these two
-> constructs with consistency.  The "while (1)" form was used with
-> normal exit routes with "if (...) break" inside; while the
-> "for(;;)" form was used only in unusual "the thread of control
-> should get stuck here forever" cases.
-> 
-> So, Phillip's decision to go back to his original while(1) style
-> seems to be in line with the style used in the original Linux
-> kernel ;-).
 
-After the Pinguin janitors, now comes the Pinguin archeologists.
+Kernel Image itself resides at physical address 1M. Is this kernel image
+area a hole to the old DMA range? Thanks.
 
-This starts to be lemmingesque :)
 
-J
+	Coywolf
+
+

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262496AbRENVKm>; Mon, 14 May 2001 17:10:42 -0400
+	id <S262490AbRENVFm>; Mon, 14 May 2001 17:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262499AbRENVKc>; Mon, 14 May 2001 17:10:32 -0400
-Received: from ns.suse.de ([213.95.15.193]:13066 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S262496AbRENVKS>;
-	Mon, 14 May 2001 17:10:18 -0400
-Date: Mon, 14 May 2001 23:09:54 +0200
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010514230954.A4305@gruyere.muc.suse.de>
-In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com> <Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, May 14, 2001 at 01:29:51PM -0700
+	id <S262496AbRENVFc>; Mon, 14 May 2001 17:05:32 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:60905 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262490AbRENVFR>;
+	Mon, 14 May 2001 17:05:17 -0400
+Date: Mon, 14 May 2001 23:05:13 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105142105.XAA09291.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
+Subject: Re: Minor numbers
+Cc: R.E.Wolff@bitwizard.nl, aqchen@us.ibm.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 14, 2001 at 01:29:51PM -0700, Linus Torvalds wrote:
-> Big device numbers are _not_ a solution. I will accept a 32-bit one, but
-> no more, and I will _not_ accept a "manage by hand" approach any more. The
-> time has long since come to say "No". Which I've done. If you can't make
-> it manage the thing automatically with a script, you won't get a hardcoded
-> major device number just because you're lazy.
+> Im very interested in 32bit dev_t or at least implementing
+> the 'lots of majors' half of it because we are probably
+> going to need it in the 2.5 years before we have a 2.6
 
-As far as I can see it just needs a /proc/devices that also outputs
-minor ranges with names, and a small program similar to scsidev to 
-generate nodes in /dev based on that on the fly on early bootup.
+Yes, a larger dev_t has been desirable for a long time,
+and more and more kludges are invented to work around its lack.
+Still, changing this is fairly simple.
 
-Is that what you have in mind?
+I firmly believe that we want to go to 64-bit. In case there
+is an intermediate step, that means that it would have to be 16+16,
+in order not to introduce complications later.
 
--Andi
+>> The system call itself cannot easily be changed to take a larger dev_t,
+>> mostly because under old glibc the high order part would be random.
+
+> Is that true or is it always happening to be clear ?
+
+I wrote that talking about 64-bit dev_t. For 32-bit one might be
+slightly more optimistic. The C calling conventions will widen a
+short to an int, I suppose.
+It is true however that older glibc does its best to make sure
+the kernel doesnt see more than 16 bits:
+
+  int
+  __xmknod (int vers, const char *path, mode_t mode, dev_t *dev) {
+	unsigned short int k_dev;
+	k_dev = ((major (*dev) & 0xff) << 8) | (minor (*dev) & 0xff);
+	return __syscall_mknod (path, mode, k_dev);
+  }
+
+Andries

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262045AbRETPhx>; Sun, 20 May 2001 11:37:53 -0400
+	id <S262040AbRETPem>; Sun, 20 May 2001 11:34:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262046AbRETPhn>; Sun, 20 May 2001 11:37:43 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:60908 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S262045AbRETPhf>; Sun, 20 May 2001 11:37:35 -0400
-Date: Sun, 20 May 2001 17:32:52 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
-Message-ID: <20010520173252.Q754@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.21.0105191840250.5531-100000@imladris.rielhome.conectiva> <Pine.LNX.4.33.0105200509130.488-100000@mikeg.weiden.de>
+	id <S262045AbRETPec>; Sun, 20 May 2001 11:34:32 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:19979 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262040AbRETPeQ>;
+	Sun, 20 May 2001 11:34:16 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: esr@thyrsus.com
+cc: David Woodhouse <dwmw2@infradead.org>,
+        Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: CML2 design philosophy heads-up 
+In-Reply-To: Your message of "Sun, 20 May 2001 11:18:56 -0400."
+             <20010520111856.C3431@thyrsus.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.33.0105200509130.488-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Sun, May 20, 2001 at 05:29:49AM +0200
+Date: Mon, 21 May 2001 01:34:09 +1000
+Message-ID: <5800.990372849@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 20, 2001 at 05:29:49AM +0200, Mike Galbraith wrote:
-> I'm not sure why that helps.  I didn't put it in as a trick or
-> anything though.  I put it in because it didn't seem like a
-> good idea to ever have more cleaned pages than free pages at a
-> time when we're yammering for help.. so I did that and it helped.
+On Sun, 20 May 2001 11:18:56 -0400, 
+"Eric S. Raymond" <esr@thyrsus.com> wrote:
+>David Woodhouse <dwmw2@infradead.org>:
+>>                              The dependencies in CML1 are (supposed to
+>> be) absolute - the 'advisory' dependencies you're adding are arguably a
+>> useful feature, but please don't make it possible to confuse the two, and
+>> please do make sure it's possible to disable the latter form.
+>
+>I don't understand this request.  I have no concept of `advisory' dependencies.
+>What are you talking about?   Is my documentation horribly unclear?
 
-The rationale for this is easy: free pages is wasted memory,
-clean pages is hot, clean cache. The best state a cache can be in.
+People read documentation?  No chance.
 
-Regards
+Some people have got it into their heads that the "Aunt Tillie" method
+of configuration will be the only one allowed.  They do not realise
+that this is the novice method, experts can still do what they like.
+For dwm's "advisory dependencies", read novice mode, and of course it
+can be overridden by people who know what they are doing.
 
-Ingo Oeser
--- 
-To the systems programmer,
-users and applications serve only to provide a test load.

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132630AbRAJBQW>; Tue, 9 Jan 2001 20:16:22 -0500
+	id <S129406AbRAJBSM>; Tue, 9 Jan 2001 20:18:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132668AbRAJBQM>; Tue, 9 Jan 2001 20:16:12 -0500
-Received: from mail-out1.apple.com ([17.254.0.52]:32470 "EHLO
-	mail-out1.apple.com") by vger.kernel.org with ESMTP
-	id <S132630AbRAJBQD>; Tue, 9 Jan 2001 20:16:03 -0500
-Date: Tue, 9 Jan 2001 17:14:33 -0800 (PST)
-From: Dave Zarzycki <dave@zarzycki.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <Pine.LNX.4.30.0101091638130.4491-100000@e2>
-Message-ID: <Pine.LNX.4.30.0101091708410.1796-100000@batman.zarzycki.org>
+	id <S129431AbRAJBSC>; Tue, 9 Jan 2001 20:18:02 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:47116 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129406AbRAJBRy>;
+	Tue, 9 Jan 2001 20:17:54 -0500
+Date: Wed, 10 Jan 2001 02:17:35 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Hubert Mantel <mantel@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Change of policy for future 2.2 driver submissions
+In-Reply-To: <20010110020320.P29904@athlon.random>
+Message-ID: <Pine.LNX.4.30.0101100216310.12305-100000@e2>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Ingo Molnar wrote:
 
-> then you'll love the zerocopy patch :-) Just use sendfile() or specify
-> MSG_NOCOPY to sendmsg(), and you'll see effective memory-to-card
-> DMA-and-checksumming on cards that support it.
+On Wed, 10 Jan 2001, Andrea Arcangeli wrote:
 
-I'm confused.
+> > [ the only category impacted are people who are still using the
+> > RAID1/RAID4,5 code in the stock 2.2 kernel - i do believe the number of
+> 			^^^^^^^^^^^^^^^^^^^^
+> That's the category Hubert was talking about indeed.
 
-In user space, how do you know when its safe to reuse the buffer that was
-handed to sendmsg() with the MSG_NOCOPY flag? Or does sendmsg() with that
-flag block until the buffer isn't needed by the kernel any more? If it
-does block, doesn't that defeat the use of non-blocking I/O?
+i understand now - well, there is no reliable RAID1/RAID5 support in the
+stock 2.2 kernel indeed, you need the 0.90 patch.
 
-davez
-
--- 
-Dave Zarzycki
-http://thor.sbay.org/~dave/
-
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263436AbTEMJoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 05:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbTEMJoZ
+	id S263389AbTEMKlP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 06:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbTEMKlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 05:44:25 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:17847 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263436AbTEMJoY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 05:44:24 -0400
-Date: Tue, 13 May 2003 11:57:02 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: cosmos <cosmos@wired-net.gr>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Documentation/linu-logo-HOWTO.txt
-In-Reply-To: <000d01c31932$1e534a20$362205d5@carlos>
-Message-ID: <Pine.GSO.4.21.0305131156420.20323-100000@vervain.sonytel.be>
+	Tue, 13 May 2003 06:41:15 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:18913 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S263389AbTEMKlO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 06:41:14 -0400
+Message-ID: <3EC0CEC2.706@namesys.com>
+Date: Tue, 13 May 2003 14:53:54 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: WinFS delayed, this probably means more time for semi-structured
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 May 2003, cosmos wrote:
-> i have written a doc for the hack of the bootup linux logo.The document
-> contains the main program that produces the linux-logo.h header file and the
-> aquired measurements for the WIDTH & HEIGHT for the fbcon.c file.
-> Can this doc be included in the Documentation of the kernel.
+ WinFS delayed, this probably means more time for semi-structured query languages
+ to establish themselves instead of SQL
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I guess this is for 2.4.x?
+SQL would be just terrible for FS semantics to standardize on, and
+hopefully we will be able to deploy a semi-structured querying language
+alternative (www.namesys.com/whitepaper.html) before they ship.  I was
+sort of expecting that they would be late, as they don't yet have a good
+technical foundation in their FS storage layer for adding database
+functionality, and we surely know that's a lot of work to create;-).
 
-Where are the patches?
+http://www.theregister.co.uk/content/4/30670.html
 
-Gr{oetje,eeting}s,
+-- 
+Hans
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
 

@@ -1,218 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268544AbUJPScb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268681AbUJPSiW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268544AbUJPScb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 14:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268681AbUJPScb
+	id S268681AbUJPSiW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 14:38:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268799AbUJPSiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 14:32:31 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:36803 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S268544AbUJPScW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 14:32:22 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.9-rc4: missing patches for swsusp
-Date: Sat, 16 Oct 2004 20:34:00 +0200
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+	Sat, 16 Oct 2004 14:38:22 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:47493 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S268681AbUJPSiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 14:38:19 -0400
+Date: Sat, 16 Oct 2004 13:38:15 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+In-Reply-To: <20041016075635.GA462@elte.hu>
+Message-ID: <Pine.LNX.4.58.0410161322400.1219@gradall.private.brainfood.com>
+References: <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
+ <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+ <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+ <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+ <20041015102633.GA20132@elte.hu> <Pine.LNX.4.58.0410152157030.1219@gradall.private.brainfood.com>
+ <20041016075635.GA462@elte.hu>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_YmWcBhpU0s7BLF4"
-Message-Id: <200410162034.00516.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 16 Oct 2004, Ingo Molnar wrote:
 
---Boundary-00=_YmWcBhpU0s7BLF4
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>
+> * Adam Heath <doogie@debian.org> wrote:
+>
+> > On Fri, 15 Oct 2004, Ingo Molnar wrote:
+> >
+> > >
+> > > i have released the -U3 PREEMPT_REALTIME patch:
+> > >
+> > >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U3
+> >
+> > scheduling while atomic: postmaster/0x04000002/3175
+> > caller is cond_resched+0x53/0x70
+> >  [<c01069f7>] dump_stack+0x17/0x20
+> >  [<c027b457>] schedule+0x517/0x550
+> >  [<c027b9c3>] cond_resched+0x53/0x70
+> >  [<c012cdc7>] _mutex_lock+0x17/0x40
+> >  [<c012ce18>] _mutex_lock_irqsave+0x8/0x10
+> >  [<c01b21ae>] avc_has_perm_noaudit+0x2e/0x180
+> >  [<c01b2335>] avc_has_perm+0x35/0x68
+> >  [<c01b79ca>] ipc_has_perm+0x6a/0x80
+> >  [<c01ab716>] semctl_main+0xa6/0x410
+> >  [<c01abcad>] sys_semctl+0xad/0xb0
+> >  [<c010bafd>] sys_ipc+0xad/0x250
+> >  [<c0105bff>] syscall_call+0x7/0xb
+>
+> thanks - that's the IPC code that is not converted over from RCU yet.
+>
+> a suggestion for future testing: please enable PREEMPT_TIMING for the
+> next kernels you build, it will print such entries at the end of
+> stacktraces:
 
-Hi,
+adam@gradall:~/kernel/gradall/linux-2.6.9-rc4-mm1-U3$ grep PREEMPT /boot/config-2.6.9-rc4-mm1-vp-u3
+CONFIG_PREEMPT_TIMING=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_PREEMPT_VOLUNTARY=y
+CONFIG_PREEMPT_SOFTIRQS=y
+CONFIG_PREEMPT_HARDIRQS=y
+CONFIG_PREEMPT_REALTIME=y
+CONFIG_DEBUG_PREEMPT=y
+adam@gradall:~/kernel/gradall/linux-2.6.9-rc4-mm1-U3$ grep LATENCY /boot/config-2.6.9-rc4-mm1-vp-u3
+# CONFIG_LATENCY_TRACE is not set
 
-AFAICT, the two attached Pavel's patches are missing from 2.6.9-rc4.  Please 
-consider including them into the final 2.6.9, especially 
-x86-64-do-not-use-memory-in-copy-loop.patch which seems to be necessary to 
-prevent random crashes on AMD64.
+So, it must not be working.
 
-Greets,
-RJW
+I'm recompiling now to enable LATENCY_TRACE, however.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+>  preempt count: 2
+>  entry 1: cpu_idle+0x38/0x90 / (start_kernel+0x1ac/0x1f0)
+>  entry 2: _spin_lock+0x22/0x80 / (timer_interrupt+0x1b/0x130)
 
---Boundary-00=_YmWcBhpU0s7BLF4
-Content-Type: text/x-diff;
-  charset="iso-8859-2";
-  name="x86-64-do-not-use-memory-in-copy-loop.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="x86-64-do-not-use-memory-in-copy-loop.patch"
+There were no preempt count lines anywhere.
 
-Hi!
-
-In assembly code, there are some problems with "nosave" section
-(linker was doing something stupid, like duplicating the section). We
-attempted to fix it, but fix was worse then first problem. This fixes
-is for good: We no longer use any memory in the copy loop. (Plus it
-fixes indentation and uses meaningfull labels.)
-
-Patch is against 2.6.9-rc3. -mm has sligtly different version, with
-more text on ".section .data.nosave" line. Those lines should really
-be removed.
-								Pavel
-
---- clean/arch/x86_64/kernel/suspend_asm.S	2004-10-01 00:30:08.000000000 +0200
-+++ linux/arch/x86_64/kernel/suspend_asm.S	2004-10-02 18:35:04.000000000 +0200
-@@ -39,29 +39,28 @@
- 	/* set up cr3 */	
- 	leaq	init_level4_pgt(%rip),%rax
- 	subq	$__START_KERNEL_map,%rax
--	movq %rax,%cr3
-+	movq	%rax,%cr3
- 
- 	movq	mmu_cr4_features(%rip), %rax
- 	movq	%rax, %rdx
--	
- 	andq	$~(1<<7), %rdx	# PGE
--	movq %rdx, %cr4;  # turn off PGE     
--	movq %cr3, %rcx;  # flush TLB        
--	movq %rcx, %cr3;                     
--	movq %rax, %cr4;  # turn PGE back on 
-+	movq	%rdx, %cr4;  # turn off PGE     
-+	movq	%cr3, %rcx;  # flush TLB        
-+	movq	%rcx, %cr3;                     
-+	movq	%rax, %cr4;  # turn PGE back on 
- 
- 	movl	nr_copy_pages(%rip), %eax
- 	xorl	%ecx, %ecx
--	movq	$0, loop(%rip)
-+	movq	$0, %r10
- 	testl	%eax, %eax
--	je	.L108
-+	jz	done
- .L105:
- 	xorl	%esi, %esi
--	movq	$0, loop2(%rip)
-+	movq	$0, %r11
- 	jmp	.L104
- 	.p2align 4,,7
--.L111:
--	movq	loop(%rip), %rcx
-+copy_one_page:
-+	movq	%r10, %rcx
- .L104:
- 	movq	pagedir_nosave(%rip), %rdx
- 	movq	%rcx, %rax
-@@ -71,27 +70,26 @@
- 	movzbl	(%rsi,%rax), %eax
- 	movb	%al, (%rsi,%rcx)
- 
--	movq %cr3, %rax;  # flush TLB 
--	movq %rax, %cr3;              
-+	movq	%cr3, %rax;  # flush TLB 
-+	movq	%rax, %cr3;              
- 
--	movq	loop2(%rip), %rax
-+	movq	%r11, %rax
- 	incq	%rax
- 	cmpq	$4095, %rax
- 	movq	%rax, %rsi
--	movq	%rax, loop2(%rip)
--	jbe	.L111
--	movq	loop(%rip), %rax
-+	movq	%rax, %r11
-+	jbe	copy_one_page
-+	movq	%r10, %rax
- 	incq	%rax
- 	movq	%rax, %rcx
--	movq	%rax, loop(%rip)
-+	movq	%rax, %r10
- 	mov	nr_copy_pages(%rip), %eax
- 	cmpq	%rax, %rcx
- 	jb	.L105
--.L108:
--	.align 4
-+done:
- 	movl	$24, %eax
--
--	movl %eax, %ds
-+	movl	%eax, %ds
-+	
- 	movq saved_context_esp(%rip), %rsp
- 	movq saved_context_ebp(%rip), %rbp
- 	movq saved_context_eax(%rip), %rax
-@@ -111,10 +109,3 @@
- 	pushq saved_context_eflags(%rip) ; popfq
- 	call	swsusp_restore
- 	ret
--
--	.section .data.nosave
--loop:
--	.quad 0
--loop2:	
--	.quad 0		
--	.previous
-
-
--- 
-
---Boundary-00=_YmWcBhpU0s7BLF4
-Content-Type: text/x-diff;
-  charset="iso-8859-2";
-  name="fix-process-start-times-after-resume.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="fix-process-start-times-after-resume.patch"
-
-Hi!
-
-Currently, process start times change after swsusp (because they are
-derived from jiffies and current time, oops). This should fix
-it. Please apply,
-
-								Pavel
-
-Index: linux/arch/i386/kernel/time.c
-===================================================================
---- linux.orig/arch/i386/kernel/time.c	2004-10-01 12:24:26.000000000 +0200
-+++ linux/arch/i386/kernel/time.c	2004-10-01 00:53:07.000000000 +0200
-@@ -319,7 +319,7 @@
- 	return retval;
- }
- 
--static long clock_cmos_diff;
-+static long clock_cmos_diff, sleep_start;
- 
- static int time_suspend(struct sys_device *dev, u32 state)
- {
-@@ -328,6 +328,7 @@
- 	 */
- 	clock_cmos_diff = -get_cmos_time();
- 	clock_cmos_diff += get_seconds();
-+	sleep_start = get_cmos_time();
- 	return 0;
- }
- 
-@@ -335,10 +336,13 @@
- {
- 	unsigned long flags;
- 	unsigned long sec = get_cmos_time() + clock_cmos_diff;
-+	unsigned long sleep_length = get_cmos_time() - sleep_start;
-+
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	xtime.tv_sec = sec;
- 	xtime.tv_nsec = 0;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
-+	jiffies += sleep_length * HZ;
- 	return 0;
- }
- 
- 
--- 
-
---Boundary-00=_YmWcBhpU0s7BLF4--

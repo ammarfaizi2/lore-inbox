@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271199AbTGWTRU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 15:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271229AbTGWTPW
+	id S271227AbTGWTV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 15:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271236AbTGWTSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 15:15:22 -0400
-Received: from H-135-207-24-16.research.att.com ([135.207.24.16]:30606 "EHLO
-	linux.research.att.com") by vger.kernel.org with ESMTP
-	id S271224AbTGWTOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 15:14:08 -0400
-Date: Wed, 23 Jul 2003 15:29:03 -0400 (EDT)
-From: Glenn Fowler <gsf@research.att.com>
-Message-Id: <200307231929.PAA77754@raptor.research.att.com>
-Organization: AT&T Labs Research
-X-Mailer: mailx (AT&T/BSD) 9.9 2003-01-17
+	Wed, 23 Jul 2003 15:18:47 -0400
+Received: from verein.lst.de ([212.34.189.10]:23187 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S271235AbTGWTRq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 15:17:46 -0400
+Date: Wed, 23 Jul 2003 21:32:46 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: uClinux development list <uclinux-dev@uclinux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase
+Message-ID: <20030723193246.GA836@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>,
+	uClinux development list <uclinux-dev@uclinux.org>,
+	linux-kernel@vger.kernel.org
+References: <200307232046.46990.bernie@develer.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-References: <200307231428.KAA15254@raptor.research.att.com>  <20030723074615.25eea776.davem@redhat.com>  <200307231656.MAA69129@raptor.research.att.com>  <20030723100043.18d5b025.davem@redhat.com>  <200307231724.NAA90957@raptor.research.att.com>  <20030723103135.3eac4cd2.davem@redhat.com>  <200307231814.OAA74344@raptor.research.att.com>  <20030723112307.5b8ae55c.davem@redhat.com>  <200307231854.OAA90112@raptor.research.att.com>  <20030723120457.206dc02d.davem@redhat.com>  <200307231911.PAA35164@raptor.research.att.com> <20030723121436.10d53965.davem@redhat.com>
-To: davem@redhat.com, gsf@research.att.com
-Subject: Re: kernel bug in socketpair()
-Cc: dgk@research.att.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Content-Disposition: inline
+In-Reply-To: <200307232046.46990.bernie@develer.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -5 () EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MUTT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 23, 2003 at 08:46:46PM +0200, Bernardo Innocenti wrote:
+> Hello,
+> 
+> code bloat can be very harmful on embedded targets, but it's
+> generally inconvenient for any platform. I've measured the
+> code increase between 2.4.21 and 2.6.0-test1 on a small
+> kernel configuration for ColdFire:
+> 
+>    text    data     bss     dec     hex filename
+>  640564   39152  134260  813976   c6b98 linux-2.4.x/linux
+>  845924   51204   78896  976024   ee498 linux-2.5.x/vmlinux
+> 
+> I could provide the exact .config file for both kernels to
+> anybody interested. They are almost the same: no filesystems
+> except JFFS2, IPv4 and a bunch of small drivers. I have no
+> SMP, security, futexes, modules and anything else not
+> strictly needed to execute processes.
 
-On Wed, 23 Jul 2003 12:14:36 -0700 David S. Miller wrote:
-> I missed the reason why you can't use pipes and bash
-> is able to, what is it?
+Yes, we need to get this down again.  What compiler and compiler
+flags are you using?  Could you retry with the following ripped
+from include/linux/compiler.h:
 
-we have some applications, ksh included, with semantics that require
-stdin be read at most one line at a time; an inefficient implementation
-of this does 1 byte read()s until newline is read; an efficient
-implementation does a peek read (without advancing the read/seek offset),
-determines how many chars to read up to and including the newline,
-and then read()s that much
+#if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
+#define inline          __inline__ __attribute__((always_inline))
+#define __inline__      __inline__ __attribute__((always_inline))
+#define __inline        __inline__ __attribute__((always_inline))
+#endif
 
-linux has ioctl(I_PEEK) for stream devices and recv() for sockets,
-and neither of these work on pipes; if there is a linux alternative
-for pipes then we'd be glad to use it
+I'd especially be interested in the fs/ numbers after this.
 
-we switched from pipe() to socketpair() to take advantage of the linux
-recv() peek read
-
+Also -Os on both would be quite cool.

@@ -1,51 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271383AbTHRKPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 06:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271384AbTHRKPZ
+	id S271362AbTHRKYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 06:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271375AbTHRKYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 06:15:25 -0400
-Received: from dp.samba.org ([66.70.73.150]:12210 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S271383AbTHRKPY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 06:15:24 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use simple_strtoul for unsigned kernel parameters 
-In-reply-to: Your message of "Mon, 18 Aug 2003 01:46:18 +0100."
-             <20030818004618.GA5094@mail.jlokier.co.uk> 
-Date: Mon, 18 Aug 2003 20:13:33 +1000
-Message-Id: <20030818101524.5B12D2C019@lists.samba.org>
+	Mon, 18 Aug 2003 06:24:16 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:14977
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271362AbTHRKYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 06:24:14 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Apurva Mehta <apurva@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] O16int for interactivity
+Date: Mon, 18 Aug 2003 20:30:52 +1000
+User-Agent: KMail/1.5.3
+References: <200308160149.29834.kernel@kolivas.org> <20030818100853.GA1326@home.woodlands>
+In-Reply-To: <20030818100853.GA1326@home.woodlands>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308182030.52787.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030818004618.GA5094@mail.jlokier.co.uk> you write:
-> The largest "unsigned int" value doesn't fit in a "long", on many machines.
-> So we should use simple_strtoul, not simple_strtol, to decode these values.
+Thanks for report.
 
-Half right.  The second part is fine, the first part is redundant
-AFAICT.
+On Mon, 18 Aug 2003 20:08, Apurva Mehta wrote:
+> * Con Kolivas <kernel@kolivas.org> [15-08-2003 22:21]:
+> [snip]
+>
+> > Those who experienced starvation could you please test this patch.
+>
+> O16.1int on top of 2.6.0-test3-mm1 is an improvement over O15int but
+> it still has some issues. Sound skips and general unresponsiveness
+> occur under relatively light load. For example, scrolling a PDF in
+> acrobat sometimes results in 2-3 second skips in sound. Also, the PDF
+> continues to scroll long after I have left the scroll button. While
+> scrolling, if I try to switch to Firebird or some other relatively
+> heavy app, there is a noticeable delay before it comes up. Sometimes
+> even an xterm running mutt takes a second to show while a PDF is
+> scrolling.
 
-Rusty.
+Ah well acrobat reader does some very strange things, even stranger when it's 
+a plugin in mozilla. A kernel profile while running it (like yours) shows mad 
+virtual memory activity, not just rescheduling so apart from starving acrobat 
+reader forcibly (or mozilla when acroread is the plugin) the scheduler can't 
+help it an awful lot. Try opening pdfs in another pdf viewer and you'll see 
+what I mean. 
 
-> Enjoy,
-> -- Jamie
-> 
-> --- orig-2.5.75/kernel/params.c	2003-07-08 21:44:26.000000000 +0100
-> +++ laptop-2.5.75/kernel/params.c	2003-08-17 03:17:40.116594605 +0100
-> @@ -165,9 +165,9 @@
->  	}
->  
->  STANDARD_PARAM_DEF(short, short, "%hi", long, simple_strtol);
-> -STANDARD_PARAM_DEF(ushort, unsigned short, "%hu", long, simple_strtol);
-> +STANDARD_PARAM_DEF(ushort, unsigned short, "%hu", unsigned long, simple_strtoul);
->  STANDARD_PARAM_DEF(int, int, "%i", long, simple_strtol);
-> -STANDARD_PARAM_DEF(uint, unsigned int, "%u", long, simple_strtol);
-> +STANDARD_PARAM_DEF(uint, unsigned int, "%u", unsigned long, simple_strtoul);
->  STANDARD_PARAM_DEF(long, long, "%li", long, simple_strtol);
->  STANDARD_PARAM_DEF(ulong, unsigned long, "%lu", unsigned long, simple_strtoul);
->  
+> I was doing a `make htmldocs` while scrolling the pdf. That is all. In
+> O15int, the same behaviour would occur even if there was _nothing_
+> else running (except the browser window and xmms ofcourse). That is
+> the only improvement I have noticed.
+>
+> I am attaching some numbers that were requested (vmstat, top and
+> readprofile outputs). These are generated from a script that was
+> posted here a few days ago. I am attaching the script so it is clear
+> what was done.
+>
+> While this script was running, I was basically scrolling a PDF and one
+> long skip in sound was heard while doing so. I also kept switching
+> between application windows.
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+The (priority inversion) starvation issue is being actively attended to in a 
+different way at the moment but acroread is a different beast again, and we 
+shall see.
+
+> Hope this helps.
+
+Of course; any report contributes to the pool of information; thank you.
+
+Con
+

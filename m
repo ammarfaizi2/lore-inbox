@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270715AbTGVKf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 06:35:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270752AbTGVKf2
+	id S270487AbTGVKbT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 06:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270493AbTGVKbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 06:35:28 -0400
-Received: from main.gmane.org ([80.91.224.249]:5256 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270715AbTGVKfV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 06:35:21 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas =?ISO-8859-15?Q?B=E4urle?= <a.baeurle@web.de>
-Subject: Re: XP vfat partitions
-Date: Tue, 22 Jul 2003 12:46:16 +0200
-Message-ID: <bfj4r3$1nh$1@main.gmane.org>
-References: <bfechu$tse$1@main.gmane.org> <20030721175147.GD1158@matchmail.com> <bfhp94$1cr$1@main.gmane.org> <3F1CB567.5050103@cox.net>
+	Tue, 22 Jul 2003 06:31:19 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:32221 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S270487AbTGVKbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 06:31:18 -0400
+Date: Tue, 22 Jul 2003 11:09:37 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Catalin BOIE <util@deuroconsult.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB flash disk on 2 machines exclusiv
+Message-ID: <20030722110937.P639@nightmaster.csn.tu-chemnitz.de>
+References: <Pine.LNX.4.53.0307221026120.2214@hosting.rdsbv.ro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8Bit
-X-Complaints-To: usenet@main.gmane.org
-Mail-Copies-To: a.baeurle@web.de
-User-Agent: KNode/0.7.2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.53.0307221026120.2214@hosting.rdsbv.ro>; from util@deuroconsult.ro on Tue, Jul 22, 2003 at 10:31:15AM +0300
+X-Spam-Score: -5.0 (-----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19euez-0003D8-00*HesRnILJBjE*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yuliy Pisetsky wrote:
+Hi Catalin,
 
-> andreas baeurle wrote:
+On Tue, Jul 22, 2003 at 10:31:15AM +0300, Catalin BOIE wrote:
+> The disk is recognized by both machines as sda1.
 > 
->>Mike Fedyk wrote:
->>
->>  
->>
->>>On Sun, Jul 20, 2003 at 05:27:03PM +0200, andreas wrote:
->>>    
->>>
->>>>My question is howto mount a Xp-vfat partition with 2.6 kernel.
->>>>In my fstab is following entry:
->>>>/dev/hda2       /windows/C      vfat
->>>>users,gid=users,umask=0002,iocharset=iso8859-1 code=437 0 0
->>>>      
->>>>
->>>Yes?
->>>
->>>And what is your error message, and why do you think it's not working
->>>anymore?
->>>    
->>>
->>I have 3 Partitions with vfat
->>the error message is:
->><3>FAT: Unrecognized mount option code
->><3>FAT: Unrecognized mount option code
->><3>FAT: Unrecognized mount option code
->>in boot.msg
->>I have testet lsmod it shows me one vfat module loaded but not used
->>
->>thanks
->>andreas
->>
-> hmmm... why is the code=437 separate? Try replacing the space before
-> code=437 with a comma.
-> -Yuliy Pisetsky
-there is a comma I have it lost with copy & paste in kmail!?
-@Andries Brouwer 
-I will test it with codepage
+> I do a mkreiserfs /dev/sda1, mount it and everything works on machine 1.
+> If I go to machine 2, the kernel cannot recognise a valid reiserfs on the
+> flash. If I do a mkreiserfs, I can work with it, but when I move to
+> machine 1, same problem (reiserfs not recognized).
 
-Andreas Bäurle
+Did you try other file systems? Does it work with other Linux
+file systems like ext2 or ext3? Does it work with VFAT?
 
+Please try these to tell, whether it's FS specific.
+
+Thanks & Regards
+
+Ingo Oeser, just trying to be helpful

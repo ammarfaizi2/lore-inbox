@@ -1,47 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbUANDAD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 22:00:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265965AbUANDAD
+	id S266289AbUANDQR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 22:16:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266290AbUANDQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 22:00:03 -0500
-Received: from mail1.cluenet.de ([195.20.121.7]:59010 "EHLO mail1.cluenet.de")
-	by vger.kernel.org with ESMTP id S264374AbUANDAB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 22:00:01 -0500
-Date: Wed, 14 Jan 2004 04:00:00 +0100
-From: Daniel Roesen <dr@cluenet.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Message-ID: <20040114040000.A27701@homebase.cluenet.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040108214240.GD467@openzaurus.ucw.cz> <Pine.LNX.4.44.0401130012100.12912-100000@poirot.grange> <20040113003908.GB4752@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jan 2004 22:16:17 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:27071 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S266289AbUANDQO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 22:16:14 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Nuno Silva <nuno.silva@vgertech.com>, linux-kernel@vger.kernel.org
+Subject: Re: ANother debugging Q
+Date: Tue, 13 Jan 2004 22:16:10 -0500
+User-Agent: KMail/1.5.1
+References: <200401131243.27614.gene.heskett@verizon.net> <200401131817.44856.gene.heskett@verizon.net> <400494FB.7040709@vgertech.com>
+In-Reply-To: <400494FB.7040709@vgertech.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040113003908.GB4752@elf.ucw.cz>; from pavel@suse.cz on Tue, Jan 13, 2004 at 01:39:08AM +0100
+Message-Id: <200401132216.10149.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.56.190] at Tue, 13 Jan 2004 21:16:13 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 01:39:08AM +0100, Pavel Machek wrote:
-> > Hm, as long as we are already on this - can you give me a hint / pointer
-> > how does TCP _detect_ a congestion? Does it adjust packet sizes, some
-> > other parameters? Just for the curiousity sake.
-> 
-> If TCP sees packets are lost, it says "oh, congestion", and starts
-> sending packets   more   slowly   ie       introduces          delays
-> between          packets.     When    they   no longer  get lost, it
-> speeds up to full speed.
+On Tuesday 13 January 2004 20:01, Nuno Silva wrote:
+>Gene Heskett wrote:
+>> Unforch, that seems to shut down the opening of the error advisory
+>> window.  It just sits there showing a blank (data wise) screen.
+>> And extensive scrolling back thru about 5 megs of the output
+>> doesn't disclose a missing file that I can see.  How would I go
+>> about redirecting that output to grep, it seems to bypass an
+>>
+>>  "strace -f ksysguard|grep open"
+>
+>Do "man strace" again :-)
+>
+>Then see the -o option or the -e option.
+>
+>(Or "man bash" and read about output redirection 2>&1 )
+>
+I did that last, almost automaticly, and got nothing, not even an 
+invocation of ksysguard.  I think I should have.  However in another 
+day or so I should have enough of kde-3.2-beta built to switch and 
+see if that works.
 
-You missed the important part... TCP measures latency and adjusts to
-that. TCP overreacts on sudden unexpected packetloss by shrinking window
-down.
+However, this finally spit out something, but I don't know what to do 
+about it:
+----------------------
+[root@coyote usr]# strace -f -e trace=network ksysguard
+[pid 23529] socket(PF_UNIX, SOCK_STREAM, 0) = 3
+[pid 23529] connect(3, {sin_family=AF_UNIX, path="/tmp/.X11-unix/X0"}, 
+19) = 0
+Xlib:  extension "GLX" missing on display ":0.0".
+Xlib:  extension "GLX" missing on display ":0.0".
+[pid 23529] socket(PF_UNIX, SOCK_STREAM, 0) = 5
+[pid 23529] connect(5, {sin_family=AF_UNIX, 
+path="/tmp/.ICE-unix/1367"}, 21) = 0
+[pid 23529] socket(PF_UNIX, SOCK_STREAM, 0) = 10
+[pid 23529] connect(10, {sin_family=AF_UNIX, 
+path="/var/run/.nscd_socket"}, 110) = -1 ENOENT (No        such file 
+or directory)
+[pid 23529] socket(PF_UNIX, SOCK_STREAM, 0) = 10
+[pid 23529] connect(10, {sin_family=AF_UNIX, 
+path="/tmp/.ICE-unix/dcop1326-1073910398"}, 37) = 0
+[pid 23529] getsockopt(10, SOL_SOCKET, SO_PEERCRED, [1326], [12]) = 0
+socketpair(PF_UNIX, SOCK_STREAM, 0, [4, 11]) = 0
+socketpair(PF_UNIX, SOCK_STREAM, 0, [12, 13]) = 0
+socketpair(PF_UNIX, SOCK_STREAM, 0, [14, 15]) = 0
+[pid 23530] setsockopt(13, SOL_SOCKET, SO_LINGER, [0], 8) = 0
+[pid 23530] setsockopt(15, SOL_SOCKET, SO_LINGER, [0], 8) = 0
+[pid 23530] getpeername(0, {sin_family=AF_UNIX, path="ÿ¿/"}, [2]) = 0
+[pid 23532] socket(PF_UNIX, SOCK_STREAM, 0) = 3
+[pid 23532] connect(3, {sin_family=AF_UNIX, 
+path="/var/run/.nscd_socket"}, 110) = -1 ENOENT (No        such file 
+or directory)
+[pid 23534] socket(PF_UNIX, SOCK_STREAM, 0) = 3
+[pid 23534] connect(3, {sin_family=AF_UNIX, 
+path="/var/run/.nscd_socket"}, 110) = -1 ENOENT (No        such file 
+or directory)
+--- SIGPIPE (Broken pipe) ---
+[root@coyote usr]#
+-------------------
+I closed the ksysguard window, which made the broken pipe.
+AFAIK, nscd is not running, and hasn't in years, I'm using a hosts 
+file on this teeny network.
 
-This is why traffic "policing" sucks for TCP, and "shaping" (queuing)
-works much better (as latency rises when limit is reached, and TCP
-sender adapts by sending slower, thus preventing packet loss).
+Also, changing it to look at opens, libsensors.so.1 failed, but it 
+hasn't existed since lm_sensors-2.7.0 was fresh.  Thats at least 
+collecting social security by now.  I have lots of libsensors.so.3's 
+though :)
 
+>Regards,
+>Nuno Silva
 
-Regards,
-Daniel
+-- 
+Cheers & thanks Nuno, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+

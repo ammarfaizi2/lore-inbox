@@ -1,35 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265022AbUD2Wvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265020AbUD2Wuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265022AbUD2Wvq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:51:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbUD2Wu7
+	id S265020AbUD2Wuy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbUD2Wuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:50:59 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8070
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265019AbUD2Wtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:49:32 -0400
-Date: Fri, 30 Apr 2004 00:49:36 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, jmoyer@redhat.com,
-       carson@taltos.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       davem@redhat.com
-Subject: Re: kernel BUG at page_alloc.c:98 -- compiling with distcc
-Message-ID: <20040429224936.GT29954@dualathlon.random>
-References: <382320000.1082759593@taltos.ny.ficc.gs.com> <16527.4259.174536.629347@segfault.boston.redhat.com> <20040429210951.GB20453@logos.cnet> <20040429142807.1fa4c5ea.akpm@osdl.org>
+	Thu, 29 Apr 2004 18:50:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57868 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265020AbUD2Wtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:49:53 -0400
+Date: Thu, 29 Apr 2004 23:49:45 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Ian Campbell <icampbell@arcom.com>, stefan.eletzhofer@eletztrick.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] 2.6 I2C epson 8564 RTC chip
+Message-ID: <20040429234945.M16407@flint.arm.linux.org.uk>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Ian Campbell <icampbell@arcom.com>, stefan.eletzhofer@eletztrick.de,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
+References: <20040429120250.GD10867@gonzo.local> <1083242482.26762.30.camel@icampbell-debian> <20040429135408.G16407@flint.arm.linux.org.uk> <20040429224007.GA15265@smtp.west.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040429142807.1fa4c5ea.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040429224007.GA15265@smtp.west.cox.net>; from trini@kernel.crashing.org on Thu, Apr 29, 2004 at 03:40:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 02:28:07PM -0700, Andrew Morton wrote:
-> just to exercise that code path a bit more.
+On Thu, Apr 29, 2004 at 03:40:07PM -0700, Tom Rini wrote:
+> A generic one for i2c rtcs or another generic rtc driver?  There's
+> already drivers/char/genrtc.c...
 
-what's the point of exercising that code path more? are you worried that
-there are bugs in it?
+genrtc.c lacks several features ARM needs, the big one being wakeup
+timers.  It also only provides either (configurable) emulation or no
+support of various RTC features, rather than allowing a real RTC to
+provide them if it can - and you need to know the details of your RTC
+at kernel configuration time.
+
+It provides no support for translating "RTC" time into seconds and
+vice versa which is needed for second-counter based RTCs found in
+PXA, StrongARM, and other ARM SoC platforms.
+
+IOW, its fairly restrictive in what it provides and what it allows
+architectures to provide.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

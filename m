@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130111AbRB1IpK>; Wed, 28 Feb 2001 03:45:10 -0500
+	id <S130127AbRB1JKF>; Wed, 28 Feb 2001 04:10:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130126AbRB1IpB>; Wed, 28 Feb 2001 03:45:01 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2310 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S130111AbRB1Ioq>; Wed, 28 Feb 2001 03:44:46 -0500
-Date: Wed, 28 Feb 2001 03:58:39 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4
-In-Reply-To: <Pine.LNX.4.33.0102280556040.972-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0102280209160.7315-100000@freak.distro.conectiva>
+	id <S130130AbRB1JJ4>; Wed, 28 Feb 2001 04:09:56 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:11961 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S130126AbRB1JJq>; Wed, 28 Feb 2001 04:09:46 -0500
+Date: Wed, 28 Feb 2001 10:09:27 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Michal Jaegermann <michal@harddata.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Via-rhine is not finding its interrupts under 2.2.19pre14
+In-Reply-To: <20010227164259.B23026@mail.harddata.com>
+Message-ID: <Pine.LNX.4.30.0102280945580.8425-100000@cola.teststation.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 27 Feb 2001, Michal Jaegermann wrote:
 
-
-On Wed, 28 Feb 2001, Mike Galbraith wrote:
-
-> On Tue, 27 Feb 2001, Marcelo Tosatti wrote:
 > 
-> > On Tue, 27 Feb 2001, Mike Galbraith wrote:
-> >
-> > > What the patch does is simply to push I/O as fast as we can.. we're
-> > > by definition I/O bound and _can't_ defer it under any circumstance,
-> > > for in this direction lies constipation.  The only thing in the world
-> > > which will make it better is pushing I/O.
-> >
-> > In your I/O bound case, yes. But not in all cases.
+> After I booted 2.2.19pre14 on a system with two via-rhine cards I see the
+> following:
 > 
-> That's one reason I tossed it out.  I don't _think_ it should have any
-> negative effect on other loads, but a test run might find otherwise.
+> via-rhine.c:v1.08b-LK1.0.0 12/14/2000  Written by Donald Becker
+>   http://www.scyld.com/network/via-rhine.html
+> eth0: VIA VT3043 Rhine at 0x9400, 00:50:ba:c1:64:d9, IRQ 0.
+> eth0: MII PHY found at address 8, status 0x7809 advertising 05e1 Link 0000.
+> eth1: VIA VT3043 Rhine at 0x8800, 00:50:ba:ab:60:64, IRQ 0.
+> eth1: MII PHY found at address 8, status 0x782d advertising 05e1 Link 0000.
+> 
+> and a network does not work due to these IRQ 0, I guess.
 
-Writes are more expensive than reads. Apart from the aggressive read
-caching on the disk, writes have limited caching or no caching at all if
-you need security (journalling, for example). (I'm not sure about write
-caching details, any harddisk expert?)
+I assume this worked in 2.2.18 or some earlier 2.2.x?
 
-On read intensive loads, doing IO to free memory (writing pages out) will
-be horribly harmful for these reads (which you can free easily), so its
-better to avoid the writes as much as possible.
+Hmm, I'll have to test 2.2.19pre14 (16?) myself tonight. It did work for
+me in earlier 2.2.19pre versions, and the code is "identical" to other
+drivers here.
 
-I remember Matthew Dillon (FreeBSD VM guy) had a read intensive case were
-using 20:1 clean/flush ratio to free pages in FreeBSD's launder routine
-(at that time, IIRC, their launder routine was looping twice the inactive
-dirty list looking for clean pages to throw away, and only on the third
-loop it would do IO) was still being a problem for disk performance
-because of the writes. Yes, it sounds weird.
+This page suggests possible bios problems.
+http://www.scyld.com/expert/irq-conflict.html
 
-I suppose you're running dbench. 
+You could also try Donalds original via-rhine module. The largest
+difference between that and the one in the kernel is how it does pci
+probing.
+http://www.scyld.com/network/ethercard.html
+
+/Urban
 

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130105AbRBJRe7>; Sat, 10 Feb 2001 12:34:59 -0500
+	id <S130497AbRBJRgT>; Sat, 10 Feb 2001 12:36:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131607AbRBJRew>; Sat, 10 Feb 2001 12:34:52 -0500
-Received: from pikachu.3ti.org ([212.204.216.221]:2564 "EHLO pikachu.3ti.org")
-	by vger.kernel.org with ESMTP id <S130105AbRBJRee>;
-	Sat, 10 Feb 2001 12:34:34 -0500
-Date: Sat, 10 Feb 2001 18:34:29 +0100 (CET)
-From: Dag Wieers <dag@mind.be>
-X-X-Sender: <dag@pikachu.3ti.org>
-To: <linux-kernel@vger.kernel.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Unresolved symbols for wavelan_cs in 2.4.1-ac9
-Message-ID: <Pine.LNX.4.32.0102101819490.11777-100000@pikachu.3ti.org>
-User-Agent: Mutt/1.2i
-X-Mailer: Evolution 1.0 (Stable release)
-Organization: Mind Linux Solutions in Leuven/Belgium - http://mind.be/
-X-Extra: If you can read this and Linux is your thing. Work for us !
+	id <S131622AbRBJRf7>; Sat, 10 Feb 2001 12:35:59 -0500
+Received: from www.wen-online.de ([212.223.88.39]:44814 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131607AbRBJRfu>;
+	Sat, 10 Feb 2001 12:35:50 -0500
+Date: Sat, 10 Feb 2001 18:35:30 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.1-ac7
+In-Reply-To: <Pine.LNX.4.21.0102101030000.2378-100000@duckman.distro.conectiva>
+Message-ID: <Pine.Linu.4.10.10102101805380.562-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+On Sat, 10 Feb 2001, Rik van Riel wrote:
 
-I noticed a single unresolved symbol in wavelan_cs.o and I fixed it as
-described below.
+> On Sat, 10 Feb 2001, Marcelo Tosatti wrote:
+> > On Sat, 10 Feb 2001, Mike Galbraith wrote:
+> > 
+> > > This change makes my box swap madly under load.
+> > 
+> > Swapped out pages were not being counted in the flushing limitation.
+> > 
+> > Could you try the following patch? 
+> 
+> Marcelo's patch should do the trick wrt. to making page_launder()
+> well-behaved again.  It should fix the problems some people have
+> seen with bursty swap behaviour.
 
-(For those in favor of .lost+found/, raise your hand ;))
+It's still reluctant to shrink cache.  I'm hitting I/O saturation
+at 20 jobs vs 30 with ac5.  (difference seems to be the delta in
+space taken by cache.. ~same space shows as additional swap volume).
 
---- drivers/net/pcmcia/wavelan_cs.c.orig        Sat Feb 10 18:19:13 2001
-+++ drivers/net/pcmcia/wavelan_cs.c     Sat Feb 10 18:18:01 2001
-@@ -4821,5 +4821,7 @@
- #endif
- }
-
-+EXPORT_SYMBOL(__bad_udelay);
-+
- module_init(init_wavelan_cs);
- module_exit(exit_wavelan_cs);
-
---  dag wieers, <dag@mind.be>, http://mind.be/  --
-            Out of swap, out of luck.
+	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,83 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbTGBJVO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 05:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbTGBJVO
+	id S264806AbTGBJVq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 05:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbTGBJVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 05:21:14 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:61969 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S262165AbTGBJVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 05:21:12 -0400
-Date: Wed, 2 Jul 2003 19:35:16 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Thomas Spatzier <TSPAT@de.ibm.com>
-cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: Re: crypto API and IBM z990 hardware support
-In-Reply-To: <OF1BACB1D3.F4409038-ONC1256D57.00247A0A-C1256D57.002701D8@de.ibm.com>
-Message-ID: <Mutt.LNX.4.44.0307021913540.31308-100000@excalibur.intercode.com.au>
+	Wed, 2 Jul 2003 05:21:46 -0400
+Received: from 65-124-64-15.rdsl.ktc.com ([65.124.64.15]:12672 "EHLO
+	csi.csimillwork.com") by vger.kernel.org with ESMTP id S264806AbTGBJVn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 05:21:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: joe briggs <jbriggs@briggsmedia.com>
+Organization: BMS
+To: dmeyer@dmeyer.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 IDE problems (lost interrupt, bad DMA status)
+Date: Wed, 2 Jul 2003 06:34:42 -0400
+User-Agent: KMail/1.4.3
+References: <20030630224726.GA22579@jhereg.dmeyer.net>
+In-Reply-To: <20030630224726.GA22579@jhereg.dmeyer.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200307020634.42705.jbriggs@briggsmedia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jul 2003, Thomas Spatzier wrote:
+Can anyone tell me what the -ac patches do with respect to this problem?  
+Also, what functionality is lost when CONFIG_X86_IO_APIC is not set, and 
+should it improve this hd timeout/lost interrupt problem?
 
-> Hello James,
-> 
-> I'm currently looking at the crypto API and considering adding support for
-> new hardware instructions implemented in the IBM z990 architecture. Since I
-> found your name in most of the files I find it appropriate to ask for your
-> opinion on how to integrate the new code (from a design point of view).
-> z990 provides hardware support for AES, DES and SHA. The problem is, that
-> the respective instructions might not be implemented on all z990 systems
-> (export restrictions etc). Hence, a check must be run to test whether the
-> instruction set is present, and if not, a fall-back to the current software
-> implementation must be taken.
+Thanks!
 
-Are there any details available on how all of this is implemented?  Are 
-these instructions synchronous?
+On Monday 30 June 2003 06:47 pm, dmeyer@dmeyer.net wrote:
+> In article <20030630221542.GA17416@alf.amelek.gda.pl> you write:
+> > Hi,
+> >
+> > After upgrading the kernel from 2.4.20 to 2.4.21, sometimes I see
+> > the following messages:
+> >
+> > hda: dma_timer_expiry: dma status == 0x24
+> > hda: lost interrupt
+> > hda: dma_intr: bad DMA status (dma_stat=30)
+> > hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+> >
+> > It happens especially when there is a lot of disk I/O (which stops
+> > for a few seconds when these messages appear), with three different
+> > disks (very unlikely they all decided to die at the same time...),
+> > one old ATA33 (QUANTUM FIREBALL SE8.4A) and two newer ATA100 disks
+> > (WDC WD300BB-32CCB0, ST340015A).  IDE controller: VIA VT82C686B
+> > on a MSI MS-6368L motherboard.
+> >
+> > I don't remember seeing anything like that in any earlier 2.4.x
+> > kernels.  Is this a known problem?  Is this anything dangerous -
+> > should I disable UDMA for now to play it safe?
+>
+> I never saw any corruption when I had it.  I've seen this with stock
+> kernels since 2.4.18 or so with ACPI and APIC enabled; with ac kernels
+> I never get it (I'm suspecting the old ACPI in the stock kernels is
+> the problem).
+>
+> So my suggestion is either turn off ACPI and/or APIC, or try
+> 2.4.21-ac.
 
-> I basically have two solutions in mind: (1)
-> to integrate the new code into the current crypto files; add some #ifdef s
-> to prevent the code from being compiled when building a non-z990 kernel;
-> add some ifs for runtime check.
-
-No, the core crypto code should not be altered with #ifdefs to handle some 
-arch specific issue.
-
-> (2) include the new code into an arch/s390/crypto directory. The
-> advantage of (1) is that there are no seperate crypto directories, the
-> code doesn't drift apart. Furthermore, it's probably the best solution
-> with respect to the kernel module loader. On the other hand, the
-> hardware support is very arch-specific, which would fit in option (2).
-> (2) however has the disadvantage that there are multiple crypto modules;
-> the user has to select one to load -> must have different names for one
-> algorithm. What is your opinion on this subject?
-
-The plan is to provide crypto/arch/ subdirectories where arch optimized 
-versions of the crypto algorithms are implemented, and built automatically 
-(via configuration defaults) instead of the generic C versions.
-
-So, there might be:
-
-crypto/aes.c
-crypto/arch/i386/aes.s
-
-where on i386, aes.s would be built into aes.o and aes.c would not be 
-built.
-
-The simple solution for you might be something like:
-
-crypto/aes.c -> aes.o
-crypto/arch/s390/aes_z990.c -> aes_z990.o
-
-and the administrator of the system could configure modprobe.conf to alias 
-aes to aes_z990 if the latter is supported in hardware.
-
-
-- James
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
+Joe Briggs
+Briggs Media Systems
+105 Burnsen Ave.
+Manchester NH 01304 USA
+TEL 603-232-3115 FAX 603-625-5809 MOBILE 603-493-2386
+www.briggsmedia.com

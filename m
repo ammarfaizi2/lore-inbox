@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130289AbRBKUz4>; Sun, 11 Feb 2001 15:55:56 -0500
+	id <S130378AbRBKVFj>; Sun, 11 Feb 2001 16:05:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130436AbRBKUzq>; Sun, 11 Feb 2001 15:55:46 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:36102 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130289AbRBKUzf>;
-	Sun, 11 Feb 2001 15:55:35 -0500
-Message-ID: <3A86FC24.46744862@mandrakesoft.com>
-Date: Sun, 11 Feb 2001 15:55:00 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre3 i686)
-X-Accept-Language: en
+	id <S130401AbRBKVF3>; Sun, 11 Feb 2001 16:05:29 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:56073 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S130378AbRBKVFJ>; Sun, 11 Feb 2001 16:05:09 -0500
+Date: Sun, 11 Feb 2001 21:05:07 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: Andi Kleen <ak@suse.de>
+cc: <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: BUG: SO_LINGER + shutdown() does not block?
+In-Reply-To: <20010211215133.A11396@gruyere.muc.suse.de>
+Message-ID: <Pine.LNX.4.30.0102112103530.25011-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Philip Blundell <philb@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: small patch for unsigned char breakage in rtl8129 driver
-In-Reply-To: <E14S39a-0004wd-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > -     char phys[4];                                           /* MII device addresses. */
-> > +     signed char phys[4];                            /* MII device addresses. */
-> 
-> 8129 is deprecated for the current 8139too driver which is the only stable
-> driver for it. Does 8139too (from current -ac) work on ARM ?
 
-I've gotten at least one report that it does
+On Sun, 11 Feb 2001, Andi Kleen wrote:
 
-	Jeff
+> On Sun, Feb 11, 2001 at 08:41:04PM +0000, Chris Evans wrote:
+> >
+> > [cc: Andi]
+>
+> Missing context..
 
+[...]
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+> What do you exactly think is wrong?
+
+man socket(7) says that setting SO_LINGER on a socket will make shutdown()
+and close() block. That's incorrect; only close() blocks.
+
+Sorry for the missing context.
+
+Cheers
+Chris
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,30 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316010AbSEJOzu>; Fri, 10 May 2002 10:55:50 -0400
+	id <S316011AbSEJO56>; Fri, 10 May 2002 10:57:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316011AbSEJOzt>; Fri, 10 May 2002 10:55:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:14016 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316010AbSEJOzt>;
-	Fri, 10 May 2002 10:55:49 -0400
-Date: Fri, 10 May 2002 07:43:43 -0700 (PDT)
-Message-Id: <20020510.074343.35536226.davem@redhat.com>
-To: chen_xiangping@emc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Tcp/ip offload card driver
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A42@srgraham.eng.emc.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316012AbSEJO55>; Fri, 10 May 2002 10:57:57 -0400
+Received: from mx1out.umbc.edu ([130.85.253.51]:11263 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S316011AbSEJO54>;
+	Fri, 10 May 2002 10:57:56 -0400
+Date: Fri, 10 May 2002 10:57:51 -0400
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Dave Vehrs <davidv@aspsys.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI Status
+In-Reply-To: <JJENLKMBHIDDLNLGOILOKEKCCAAA.davidv@aspsys.com>
+Message-ID: <Pine.SGI.4.31L.02.0205101057260.799816-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "chen, xiangping" <chen_xiangping@emc.com>
-   Date: Fri, 10 May 2002 10:48:23 -0400
+On Fri, 10 May 2002, Dave Vehrs wrote:
 
-   Is there any TCP offload (TOE) card driver available on Linux?
-   
-Why do you want it?  There is no proven performance benefit.
+> Quick question, does anyone know where I can find out more about the status
+> of ACPI development in the kernel?  Is there a seperate mailing list?
 
-PCI bandwidth is the limiting factor for networking performance.
+http://www.sourceforge.net/projects/acpi/
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- User Error #2361: Please insert coffee and try again.
+

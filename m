@@ -1,70 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267159AbTBXR5x>; Mon, 24 Feb 2003 12:57:53 -0500
+	id <S267261AbTBXR6w>; Mon, 24 Feb 2003 12:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267257AbTBXR5x>; Mon, 24 Feb 2003 12:57:53 -0500
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:21711 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S267159AbTBXR5v>; Mon, 24 Feb 2003 12:57:51 -0500
-Subject: Re: 2.5.62-mm3 won't mount root
-From: Steven Cole <elenstev@mesatop.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <20030223230023.365782f3.akpm@digeo.com>
-References: <20030223230023.365782f3.akpm@digeo.com>
-Content-Type: text/plain
+	id <S267289AbTBXR6w>; Mon, 24 Feb 2003 12:58:52 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:2534 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267261AbTBXR6r>; Mon, 24 Feb 2003 12:58:47 -0500
+Date: Mon, 24 Feb 2003 10:08:52 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.62-mjb3 (scalability / NUMA patchset)
+Message-ID: <16170000.1046110132@[10.10.2.4]>
+In-Reply-To: <6490000.1045713212@[10.10.2.4]>
+References: <6490000.1045713212@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 24 Feb 2003 11:04:24 -0700
-Message-Id: <1046109864.6615.153.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-24 at 00:00, Andrew Morton wrote:
-> 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.62/2.5.62-mm3/
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-2.5.62-mm3 won't mount root for me.
-2.5.62-bk-current (as of 2 hours ago) works fine.
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-I get this right after setting the hostname:
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.62/patch-2.5.62-mjb
+3.bz2
 
-Checking root filesystem
-/dev/hda1
-The superblock could not be read or does not describe a correct ext2
-filesystem.  If the device is valid and it really contains an ext2
-filesystem (and not swap or ufs or something else), then the superblock
-is corrupt, and you might try running e2fsck with an alternate superblock.
-   e2fsck -b 8193 <device>
+additional:
 
-fsck.ext3 : No such file or directory while trying to open /dev/hda1
-Failed to check filesystem.  Do you want to repair the errors? (Y/N)
-(beware, you can lose data)
+http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
 
-Even though this is just a test box, I chickened out and reset the box.
+Since 2.5.62-mjb2 (~ = changed, + = added, - = dropped)
 
-/def/hda1 is ext3:
+Notes: Fixes some critical scheduler hangs.
 
-[steven@spc1 steven]$ df -T
-Filesystem    Type    Size  Used Avail Use% Mounted on
-/dev/hda1     ext3    236M  138M   87M  62% /
-/dev/hda9     ext3     20G   13G  6.7G  67% /home
-/dev/hda11     jfs    3.9G  2.7G  1.3G  68% /share_jfs
-/dev/hda10
-          reiserfs    4.0G  254M  3.7G   7% /share_reiser
-/dev/hda12     xfs    4.8G  290M  4.5G   6% /share_xfs
-/dev/hda8     ext3    236M  4.8M  219M   3% /tmp
-/dev/hda6     ext3    2.9G  1.5G  1.3G  54% /usr
-/dev/hda7     ext3    479M   66M  389M  15% /var
+- discontig_x440				Pat Gaughen / IBM NUMA team
++ early_ioremap					Dave Hansen
++ x440disco_A0					Pat Gaughen / IBM NUMA team
++ fix_was_sched					Ingo / wli / Rick Lindsley
++ no_kirq					Martin J. Bligh
++ auto_disable_tsc				John Stultz
++ cleaner_inodes				Andrew Morton
 
-I tried to build 2.5.62-mm2, but couldn't do to this:
+Pending:
+scheduler callers profiling (Anton)
+PPC64 NUMA patches (Anton)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Non-PAE aligned kernel splits (Dave Hansen)
+Update the lost timer ticks code
+Ingo scheduler updates
 
-fs/devfs/fs.c: In function `devfs_event':
-fs/devfs/fs.c:63: too few arguments to function `call_usermodehelper'
-make[2]: *** [fs/devfs/fs.o] Error 1
+Present in this patch:
 
-Steven
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
 
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
 
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+vmalloc_stats					Dave Hansen
+	Expose useful vmalloc statistics
+
+local_pgdat					William Lee Irwin
+	Move the pgdat structure into the remapped space with lmem_map
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+notsc						Martin Bligh
+	Enable notsc option for NUMA-Q (new version for new config system)
+
+mpc_apic_id					Martin J. Bligh
+	Fix null ptr dereference (optimised away, but ...)
+
+doaction					Martin J. Bligh
+	Fix cruel torture of macros and small furry animals in io_apic.c
+
+kgdb						Andrew Morton / Various People
+	The older version of kgdb, synched with 2.5.54-mm1
+
+noframeptr					Martin Bligh
+	Disable -fomit_frame_pointer
+
+ingosched					Ingo Molnar
+	Modify NUMA scheduler to have independant tick basis.
+
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/stat
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+early_ioremap					Dave Hansen
+	Provide ioremap in very early boot when we only have 8Mb address space
+
+x440disco_A0					Pat Gaughen / IBM NUMA team
+	SLIT/SRAT parsing for x440 discontigmem
+
+acpi_x440_hack					Anonymous Coward
+	Stops x440 crashing, but owner is ashamed of it ;-)
+
+numa_pci_fix					Dave Hansen
+	Fix a potential error in the numa pci code from Stanford Checker
+
+pfn_to_nid					William Lee Irwin
+	Turn pfn_to_nid into a macro
+
+kprobes						Vamsi Krishna S
+	Add kernel probes hooks to the kernel
+
+dmc_exit1					Dave McCracken
+	Speed up the exit path, pt 1.
+
+dmc_exit2					Dave McCracken
+	Speed up the exit path, pt 1.
+
+shpte						Dave McCracken
+	Shared pagetables (as a config option)
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+fix_kgdb					Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+lkcd						LKCD team
+	Linux kernel crash dump support
+
+percpu_loadavg					Martin J. Bligh
+	Provide per-cpu loadaverages, and real load averages
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+kirq_clustered_fix				Dave Hansen / Martin J. Bligh
+	Fix kirq for clustered apic systems (eg x440)
+
+fix_was_sched					Ingo / wli / Rick Lindsley
+	Fix scheduler hangs from deadlocks
+
+no_kirq						Martin J. Bligh
+	Allow disabling of kirq to work properly
+
+auto_disable_tsc				John Stultz
+	Automatically disable the TSC for NUMA-Q
+
+cleaner_inodes					Andrew Morton
+	Make noatime filesystems more efficient
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
 

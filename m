@@ -1,36 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261891AbTCQVAW>; Mon, 17 Mar 2003 16:00:22 -0500
+	id <S261945AbTCQVEj>; Mon, 17 Mar 2003 16:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261899AbTCQVAW>; Mon, 17 Mar 2003 16:00:22 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:6883 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S261891AbTCQVAV> convert rfc822-to-8bit; Mon, 17 Mar 2003 16:00:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: FileSystem XFS vs RiserFS vs ext3
-Date: Mon, 17 Mar 2003 22:11:13 +0100
-User-Agent: KMail/1.4.3
-References: <E18uq2v-0004P7-00@calista.inka.de>
-In-Reply-To: <E18uq2v-0004P7-00@calista.inka.de>
+	id <S261954AbTCQVEj>; Mon, 17 Mar 2003 16:04:39 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:16005 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261945AbTCQVEh>; Mon, 17 Mar 2003 16:04:37 -0500
+Date: Mon, 17 Mar 2003 16:33:08 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Ed Vance <EdV@macrolink.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Linux-2.4.20 modem control
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33DE6@EXCHANGE>
+Message-ID: <Pine.LNX.4.53.0303171617440.23874@chaos>
+References: <11E89240C407D311958800A0C9ACF7D1A33DE6@EXCHANGE>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303172211.13078.hpj@urpla.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 March 2003 09:32, Bernd Eckenfels wrote:
+On Mon, 17 Mar 2003, Ed Vance wrote:
 
-> NFS is a bit tricky. Reiser used to be broken on it, and at least from
-> large XFS NFS Servers I know that they tend to be unstable, still.
+> On Mon, Mar 17, 2003 at 8:19 AM, Richard B. Johnson wrote:
+> > Hello any tty gurus,
+> >
+> > If a modem is connected to /dev/ttyS0 and a getty (actually agetty)
+> > is associated with that device, one can log-in using that modem.
+> >
+> > This is how we've operated for many years. But, Linux version 2.4.20
+> > presents a new problem.
+> >
+> > When a logged-in caller logs out, it is mandatory for the modem
+> > to disconnect. This has previously been done automatically when
+> > the terminal is closed. The closing of the tasks file-descriptors
+> > will eventually call tty_hangup() and the modem would (previously)
+> > hang up.
+> >
+> > Something has changed so that the hang-up sequence doesn't happen if
+> > agetty has already opened the terminal for another possible
+> > connection.
+> > It used to be that the caller, calling close(), did not get control
+> > back until the modem had been hung up. This prevented another agetty
+> > from opening that terminal for I/O because the previous task had not
+> > completed its exit procedure until the terminal was hung up.
+> >
+> > Now, the hang-up sequence appears to be queued. It can (and does)
+> > happen after the previous terminal owner has expired and another
+> > owner has opened the device. This makes /dev/ttyS0 useless for remote
+> > log-ins.
+> >
+> > It needs to be, that a 'close()' of a terminal, configured as a modem,
+> > cannot return to the caller until after the DTR has been lowered, and
+> > preferably, after waiting a few hundred milliseconds. Without this,
+> > once logged in, the modem will never disconnect so a new caller
+> > can't log in.
+> >
+> > With faster machines, it is not sufficient to just lower DTR. One
+> > needs to lower DTR and then wait. This is because the next task
+> > can open that terminal in a few hundred microseconds, raising
+> > DTR again. This is not enough time for the modem to hang up because
+> > there is "glitch-filtering" on all modem-control leads. The hang-up
+> > event won't even be seen by the modem.
+> >
+> > So, either the modem control needs to be reverted to its previous
+> > functionality or `agetty` needs to hang up its terminal when it
+> > starts, which seems backwards. In other words, the user of kernel
+> > services should not have to compensate for a defect in the logic
+> > of that service.
+> >
+> > I have temporarily "fixed" this problem by modifying `agetty`.
+> > Can the kernel please be fixed instead?
+> >
+> Hi Richard,
+>
+> Is the HUPCL cflags option (termio hang-up-on-close) asserted
+> when the close happens?
+>
+> The "drop DTR and then wait a bit" behavior is requested by the
+> HUPCL termio option. Otherwise, if CLOCAL is off, it is supposed
+> to just drop DTR with no guarantee of holding it low for any
+> particular amount of time.
+>
+> cheers,
+> Ed
 
-The last big problems with NFS on big ReiserFS shares where fixed with 
-2.4.19 (IIRC). Since then, at least I haven't experienced any logic 
-induced failures in this area with my heavily used diskless setups on 
-up to 80 GB ReiserFS, shared with NFS. I enjoy this configuration a lot.
+Well I didn't want to have to re-write agetty. Upon boot, before
+init spawns an agetty, I initialize the modem in 'raw' mode like
+this......
 
-Bye,
-Pete
+    /*
+     * Set to dumb RAW mode with no echo and no character interpretation.
+     */
+    memset(&io_mod, 0x00, sizeof(io_mod));      /* bzero() is obsolete  */
+    io_mod.c_cflag     = B57600|CS8|CREAD|CLOCAL;
+    io_mod.c_iflag     = IGNBRK|IGNPAR;
+    io_mod.c_cc[VMIN]  = (cc_t) 1;
+    io_mod.c_cc[VTIME] = (cc_t) 1;
+    if(ioctl(fd, TCSETS, &io_mod) < 0)
+    {
+        fprintf(stderr, "ioctl of %s failed setting parameters (%s)\n",
+                         argv[1], strerror(errno));
+        ERROR_EXIT;
+    }
+    (void)hangup(fd, buffer);
+
+Hangup just sets the baud-rate to B0 while keeing all other parameters
+the same. It waits a second, then restores the c_clag variables.
+
+This program then sends initialization strings to the modem, reads
+any echo, then closes. This makes sure that agetty gets connected
+to a modem that will actually answer a call. Agetty sleeps in open()
+because it attempts to open the terminal in blocking mode. That way
+agetty will only wake up after a connection is made. Agetty then
+sets its own parameters which include HUPCL Line 1116:
+           tp->c_cflag = CS8|HUPCL|CREAD| op->speeds[FIRST_SPEED];
+Later on, it sets CRTSCTS when it examines the device parameters.
+
+So, although my initialization program didn't set HUPCL, agetty did.
+
+The problem is that agetty execs (does not fork and exec) so it becomes
+/bin/login. /bin/login execs and becomes /bin/bash. There is no
+program waiting to restore modem parameters. When /bin/bash exits,
+/sbin/init will spawn another agetty task and the process repeats.
+If, when /bin/bash exits, the close doesn't lower DTR long enough,
+the modem will not hang up.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

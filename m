@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287838AbSBMQ43>; Wed, 13 Feb 2002 11:56:29 -0500
+	id <S287699AbSBMQ63>; Wed, 13 Feb 2002 11:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287840AbSBMQ4L>; Wed, 13 Feb 2002 11:56:11 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:57865 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S287838AbSBMQzt>; Wed, 13 Feb 2002 11:55:49 -0500
-Message-ID: <3C6A9A7F.8020601@evision-ventures.com>
-Date: Wed, 13 Feb 2002 17:55:27 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: torvalds@transmeta.com, jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
-In-Reply-To: <3C6A5D79.33C31910@mandrakesoft.com>	<Pine.LNX.4.33.0202131028130.13632-100000@home.transmeta.com> <20020213.084952.68037450.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287840AbSBMQ6T>; Wed, 13 Feb 2002 11:58:19 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:35680 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S287699AbSBMQ6G>;
+	Wed, 13 Feb 2002 11:58:06 -0500
+Date: Wed, 13 Feb 2002 09:55:02 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020213095502.F25535@lynx.turbolabs.com>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Alexander Viro <viro@math.psu.edu>,
+	Rob Landley <landley@trommello.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020212190834.W9826@lynx.turbolabs.com> <Pine.LNX.4.33.0202131300500.16151-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0202131300500.16151-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Feb 13, 2002 at 01:07:11PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+On Feb 13, 2002  13:07 +0100, Ingo Molnar wrote:
+> On Tue, 12 Feb 2002, Andreas Dilger wrote:
+> > Is this using "bk clone -l" or just "bk clone"?  I would _imagine_
+> > that since the rmap changes are fairly localized that you would only
+> > get multiple copies of a limited number of files, and it wouldn't
+> > increase the size of each repository very much.
+> 
+> the problem is, i'd like to see all these changes in a single tree, and
+> i'd like to be able to specify whether two changesets have semantic
+> dependencies on each other or not.
 
->   From: Linus Torvalds <torvalds@transmeta.com>
->   Date: Wed, 13 Feb 2002 10:30:48 -0800 (PST)
->   
->   Basic rule: it's up to _other_ architectures to fix drivers that don't
->   work for them. Always has been. Because there's no way you can get the
->   people who just want to have something working to care.
->
->And if nobody else ends up doing it, you are right it will be people
->like Jeff and myself doing it.
->
->So what we are asking is to allow a few weeks for that and not crap up
->the tree meanwhile.  This is so that the cases that need to be
->converted are harder to find.
->
-If you try to use them, then they are not hard to find - things just 
-break for you and you fix tem.
-If you are fixing things for the "store" Linus is right that indeed it's 
-just a waiste of time on your behalf.
+Oh, I agree.  My response was only to Rik's mention that his multiple trees
+take up too much space.  I would personally also want to be able to separate
+independent changes out of my tree rather than having many repositories.
 
->Actually, you're only half right in one regard.  Most people I've
->pointed to Documentation/DMA-mapping.txt have responded "Oh, never saw
->that before, that looks easy to do.  Thanks I'll fix it up properly
->for you."
->
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,53 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbUDYMEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbUDYNDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbUDYMEN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 08:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUDYMEN
+	id S262109AbUDYNDy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 09:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUDYNDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 08:04:13 -0400
-Received: from tan7.ncr.com ([192.127.94.7]:44405 "EHLO ncrhub2.NCR.COM")
-	by vger.kernel.org with ESMTP id S261615AbUDYMEL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 08:04:11 -0400
-Date: Sun, 25 Apr 2004 08:04:11 -0400 (EDT)
-From: Mail Delivery Subsystem <MAILER-DAEMON@ncrhub2.NCR.COM>
-Message-Id: <200404251204.i3PC4BKZ008507@ncrhub2.NCR.COM>
-To: <linux-kernel@vger.kernel.org>
-Subject: Returned mail: see transcript for details
-Auto-Submitted: auto-generated (failure)
+	Sun, 25 Apr 2004 09:03:54 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:35214 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S262109AbUDYNDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Apr 2004 09:03:53 -0400
+Date: Sun, 25 Apr 2004 23:03:38 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5-rc3-mm4 tmpfs, free and free memory reporting
+Message-ID: <20040425130338.GB2011@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The original message was received at Sun, 25 Apr 2004 08:04:10 -0400 (EDT)
-from localhost [127.0.0.1]
+I noticed that the OoM killer was being rather brutal to my tasks
+even though free was reporting that I had 150meg of ram left. It wasn't
+until much later that I realise that I have tmpfs being used as /tmp
+and I checked that. Once I cleaned that up a big all was well. The
+hassle was, the memory used by tmpfs was being reported as being used
+by the cache. That may be so internally but shouldn't it be reported
+as actually used ram as it cannot be dumped for processes like a normal
+disk cache can and therefore cannot be considered to be 'free' ram.
 
-   ----- The following addresses had permanent fatal errors -----
-<james.bottomley@columbiasc.ncr.com>
-
-   ----- Transcript of session follows -----
-No directory entries found similar to 'james.bottomley@columbiasc.ncr.com'
-Please check the address and try again.
-550 5.1.1 <james.bottomley@columbiasc.ncr.com>... User unknown
-
-   ----- Message header follows -----
-
-Return-Path: <linux-kernel@vger.kernel.org>
-Received: from ncrgw1.NCR.COM (localhost [127.0.0.1])
-	by ncrhub2.NCR.COM (8.12.10/8.12.10) with ESMTP id i3PC49KZ008496
-	for <james.bottomley@columbiasc.ncr.com>; Sun, 25 Apr 2004 08:04:10 -0400 (EDT)
-Received: from columbiasc.ncr.com ([219.82.108.52])
-	by ncrgw1.NCR.COM (8.12.10/8.12.10) with ESMTP id i3PC45ea022726
-	for <james.bottomley@columbiasc.ncr.com>; Sun, 25 Apr 2004 08:04:07 -0400 (EDT)
-Message-Id: <200404251204.i3PC45ea022726@ncrgw1.NCR.COM>
-From: linux-kernel@vger.kernel.org
-To: james.bottomley@columbiasc.ncr.com
-Subject: fake?
-Date: Sun, 25 Apr 2004 20:04:02 +0800
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0012_000042F4.00001FB9"
-X-Priority: 3
-X-MSMail-Priority: Normal
-
-   ----- Message body suppressed -----
-
+-- 
+    Red herrings strewn hither and yon.

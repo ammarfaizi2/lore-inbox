@@ -1,69 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbTGMQTj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 12:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270266AbTGMQTj
+	id S270256AbTGMQIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 12:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270255AbTGMQIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 12:19:39 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39102
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264030AbTGMQTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 12:19:36 -0400
-Subject: Re: TCP IP Offloading Interface
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roland Dreier <roland@topspin.com>
-Cc: "David S. Miller" <davem@redhat.com>, Alan Shih <alan@storlinksemi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Sun, 13 Jul 2003 12:08:16 -0400
+Received: from webmail.hamiltonfunding.la ([12.162.17.40]:33127 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S270252AbTGMQH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 12:07:56 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Alan Shih" <alan@storlinksemi.com>, linux-kernel@vger.kernel.org,
        linux-net@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <52u19qwg53.fsf@topspin.com>
+Subject: Re: TCP IP Offloading Interface
 References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
-	 <20030713004818.4f1895be.davem@redhat.com>  <52u19qwg53.fsf@topspin.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058113895.554.7.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Jul 2003 17:31:35 +0100
+	<20030713004818.4f1895be.davem@redhat.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 13 Jul 2003 09:22:32 -0700
+In-Reply-To: <20030713004818.4f1895be.davem@redhat.com>
+Message-ID: <52u19qwg53.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 13 Jul 2003 16:22:34.0890 (UTC) FILETIME=[F7BF4EA0:01C3495A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-07-13 at 17:22, Roland Dreier wrote:
-> Your ideas are certainly very interesting, and I would be happy to see
-> hardware that supports flow identification.  But the Usenix paper
-> you're citing completely disagrees with you!  For example, Mogul writes:
+    David> TOE is evil, read this:
 
-Take a look at who holds the official internet land speed record. Its
-not a TOE using system. 
+    David> http://www.usenix.org/events/hotos03/tech/full_papers/mogul/mogul.pdf
 
->  "Nevertheless, copy-avoidance designs have not been widely adopted,
->   due to significant limitations. For example, when network maximum
->   segment size (MSS) values are smaller than VM page sizes, which is
->   often the case, page-remapping techniques are insufficient (and
->   page-remapping often imposes overheads of its own.)"
+    David> TOE is exactly suboptimal for the very things performance
+    David> matters, high connection rates.
 
-Page remapping is adequate for send of data when the MSS is below the
-VM page size since you don't have to send all of the page you pinned
-or set COW/SOW (sleep on write)
+    David> Your return is also absolutely questionable.  Servers
+    David> "serve" data and we offload all of the send side TCP
+    David> processing that can reasonably be done (segmentation,
+    David> checksumming).
 
-For receive if your hardware can do demux from the tcp headers and
-expecting sequence then page remapping isn't needed either.
+    David> I've never seen an impartial benchmark showing that TCP
+    David> send side performance goes up as a result of using TOE
+    David> vs. the usual segmentation + checksum offloading offered
+    David> today.
 
-Finally if you are streaming objects by non mapped references (eg
-sendfile or see LM's paper from long ago on splice()) then the problem
-goes away.
+    David> On receive side, clever RX buffer flipping tricks are the
+    David> way to go and require no protocol changes and nothing gross
+    David> like TOE or weird buffer ownership protocols like RDMA
+    David> requires.
 
+    David> I've made postings showing how such a scheme can work using
+    David> a limited flow cache on the networking card.  I don't have
+    David> a reference handy, but I suppose someone else does.
 
+Your ideas are certainly very interesting, and I would be happy to see
+hardware that supports flow identification.  But the Usenix paper
+you're citing completely disagrees with you!  For example, Mogul writes:
 
-> In fact, his conclusion is:
-> 
->  "However, as hardware trends change the feasibility and economics of
->   network-based storage connections, RDMA will become a significant
->   and appropriate justification for TOEs."
-> 
->  - Roland
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ "Nevertheless, copy-avoidance designs have not been widely adopted,
+  due to significant limitations. For example, when network maximum
+  segment size (MSS) values are smaller than VM page sizes, which is
+  often the case, page-remapping techniques are insufficient (and
+  page-remapping often imposes overheads of its own.)"
+
+In fact, his conclusion is:
+
+ "However, as hardware trends change the feasibility and economics of
+  network-based storage connections, RDMA will become a significant
+  and appropriate justification for TOEs."
+
+ - Roland

@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTD0W4N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 18:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbTD0W4N
+	id S261928AbTD0XDg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 19:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbTD0XDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 18:56:13 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:27408 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id S261916AbTD0W4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 18:56:12 -0400
-Date: Mon, 28 Apr 2003 00:08:25 +0100 (BST)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-X-X-Sender: <matthew@sphinx.mythic-beasts.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sun, 27 Apr 2003 19:03:35 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23051 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261928AbTD0XDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 19:03:32 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-In-Reply-To: <1051480586.15478.23.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0304280002190.17059-100000@sphinx.mythic-beasts.com>
+Date: 27 Apr 2003 16:15:37 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b8hoap$b21$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030427165959.GC6820@work.bitmover.com> <yw1xy91vzvv3.fsf@zaphod.guide> <m13ck3de5b.fsf@orchid.mirar.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Apr 2003, Alan Cox wrote:
+Followup to:  <m13ck3de5b.fsf@orchid.mirar.org>
+By author:    Mirar <mirar+linuxkernel@mirar.org>
+In newsgroup: linux.dev.kernel
+> 
+> Xerox. (Yes, same X as in X11, if I understand correctly.) 
+> I think they gave the idea away freely to Apple.
+> 
 
-[ playing John Humphries today ]
+X was named so because it was the successor to a windowing system
+named W.
 
-> > But you are still missing the point.  As long as the feeling is that
-> > it is OK to reverse engineer by staring at the file formats, the
-> > corporations will respond by encrypting the data you want to stare at.
->
-> And government if it is smart will reply by enforcing reverse
-> engineering rights *for compatibility* (not cloning), or business (the
-> surviving bits anyway) will figure it out and do it themselves.
-
-Alan -- could you please explain what you see as the real
-differences between reverse engineering for "compatibility"
-and for "cloning"?
-
-It isn't obvious to me that there is a line-in-the-sand.
-For example, a Word document extractor like "wv" is not
-nearly as useful without an attached word processor (be it
-or not that your intention is to save in that format).
-
-> > In other words, it's pretty much hopeless to try and catch up that way,
-> > you might as well go try and build something better from the start.
->
-> You have to interoperate to do that.
-
-Is that really true?  It may make sense for a lot of
-consumer applications, but does it really apply to source
-control?
-
-Isn't it the case that sometimes features are more compelling
-than compatibility?
-
-Matthew.
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

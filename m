@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269437AbRHGUzk>; Tue, 7 Aug 2001 16:55:40 -0400
+	id <S269434AbRHGU4A>; Tue, 7 Aug 2001 16:56:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269435AbRHGUza>; Tue, 7 Aug 2001 16:55:30 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7041 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S269434AbRHGUzP>; Tue, 7 Aug 2001 16:55:15 -0400
-Date: Tue, 7 Aug 2001 16:55:08 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Igmar Palsenberg <maillist@jdimedia.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x VM problems thread
-In-Reply-To: <Pine.LNX.4.33.0108072240300.3714-200000@jdi.jdimedia.nl>
-Message-ID: <Pine.LNX.3.95.1010807165314.13578A-100000@chaos.analogic.com>
+	id <S269433AbRHGUzu>; Tue, 7 Aug 2001 16:55:50 -0400
+Received: from athena.intergrafix.net ([206.245.154.69]:65460 "HELO
+	athena.intergrafix.net") by vger.kernel.org with SMTP
+	id <S269434AbRHGUzj>; Tue, 7 Aug 2001 16:55:39 -0400
+Date: Tue, 7 Aug 2001 16:55:50 -0400 (EDT)
+From: Admin Mailing Lists <mlist@intergrafix.net>
+To: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] eepro100.c - Add option to disable power saving in
+ 2.4.7-ac7
+In-Reply-To: <3B6EBC34.9578EA4E@TeraPort.de>
+Message-ID: <Pine.LNX.4.10.10108071655190.4770-100000@athena.intergrafix.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, Igmar Palsenberg wrote:
 
-> 
+On Mon, 6 Aug 2001, Martin Knoblauch wrote:
+
 > Hi,
 > 
-> I've followed the 2.4.x VM thread stuff. Someone mentioned he will
-> wite a test program. Attached program kills all boxen within 1 minute,
-> it's not hard to see what it does.
+>  after realizing that my first attempt for this patch was to
+> enthusiastic, I have no a somewhat stripped down version. Compiles
+> against 2.4.7-ac7.
 > 
-> I'm willing to test experimental stuff if needed.
+>  The patch adds the option "power_save" to eepro100. If "1" (default),
+> power save handling is done as normal. If "0", no power saving is done.
+> This is to workaround some flaky eepro100 adapters that do not survive
+> D0->D2-D0 transitions.
 > 
-> 	Regards,
 
-Wow a memory-mapped fork bomb! Now what on earth did you expect?
-Run it from a user-account with ulimits enabled for slightly less
-than the total system resources. Then complain.
+i'm assuming if APM isn't configured in the kernel, these options dont
+matter?
 
+-Tony
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Anthony J. Biacco                       Network Administrator/Engineer
+thelittleprince@asteroid-b612.org       Intergrafix Internet Services
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+    "Dream as if you'll live forever, live as if you'll die today"
+http://www.asteroid-b612.org                http://www.intergrafix.net
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
 

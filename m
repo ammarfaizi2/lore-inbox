@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267085AbSLDVJ4>; Wed, 4 Dec 2002 16:09:56 -0500
+	id <S267094AbSLDVUQ>; Wed, 4 Dec 2002 16:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267086AbSLDVJ4>; Wed, 4 Dec 2002 16:09:56 -0500
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:17093 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S267085AbSLDVJz>; Wed, 4 Dec 2002 16:09:55 -0500
-Message-ID: <3DEE70C4.5D74A8B3@attbi.com>
-Date: Wed, 04 Dec 2002 16:16:52 -0500
-From: "George G. Davis" <davis_g@attbi.com>
-Reply-To: davis_g@attbi.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-17.7.x i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Jim Van Zandt <jrv@vanzandt.mv.com>, device@lanana.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why does the Comtrol Rocketport card not have a major assigned?
-References: <20021204205525.GE2544@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii
+	id <S267096AbSLDVUQ>; Wed, 4 Dec 2002 16:20:16 -0500
+Received: from x101-201-249-dhcp.reshalls.umn.edu ([128.101.201.249]:9349 "EHLO
+	arashi.yi.org") by vger.kernel.org with ESMTP id <S267094AbSLDVUP>;
+	Wed, 4 Dec 2002 16:20:15 -0500
+Date: Wed, 4 Dec 2002 15:27:43 -0600
+From: Matt Reppert <arashi@arashi.yi.org>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is this patch okay?
+Message-Id: <20021204152743.2f5c28fd.arashi@arashi.yi.org>
+In-Reply-To: <Pine.LNX.4.44.0212042140540.4031-100000@dns.toxicfilms.tv>
+References: <Pine.LNX.4.44.0212042140540.4031-100000@dns.toxicfilms.tv>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
+On Wed, 4 Dec 2002 21:46:54 +0100 (CET)
+Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
+
+> Hello,
 > 
-> Perhaps it's a silly question but I'd like to know why it is the way it
-> is:
+> i downloaded 2.5.50, started compiling it, and it bailed out with an error
+> in drivers/pci/quirks.c, that sis_apic_bug is not defined.
+> I did a quick grep around the source and found a file to include.
 > 
-> The 2.2, 2.4 and 2.5 kernels include a driver for the Comtrol Rocketport
-> card (drivers/char/dtlk.c) which uses a local major (it does a
->   "register_chrdev(0, "dtlk", &dtlk_fops);
-> ). Is there a reason why it doesn't have a fixed major assigned?
-
-Huh?:
-
-	dtlk.c - DoubleTalk PC driver for Linux
-
-That doesn't look like the Comtrol Rocketport (drivers/char/rocket.c)
-driver to me. : )
-
-Meanwhile 2.4.19 Documentation/devices.txt shows:
-
- 46 char        Comtrol Rocketport serial card
-                  0 = /dev/ttyR0        First Rocketport port
-                  1 = /dev/ttyR1        Second Rocketport port
-                    ...
-
---
-Regards,
-George
-
-> TIA
-> Adrian
+> Basically, this is what i did.
 > 
-> --
+> *** linux-2.5.50.old/drivers/pci/quirks.c       Wed Nov 27 23:35:48 2002
+> --- linux-2.5.50/drivers/pci/quirks.c   Wed Dec  4 21:40:44 2002
+> ***************
+> *** 18,23 ****
+> --- 18,24 ----
+>   #include <linux/pci.h>
+>   #include <linux/init.h>
+>   #include <linux/delay.h>
+> + #include <asm/io_apic.h>
 > 
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
+>   #undef DEBUG
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Is it okay to include it like that?
+> Or should it be fixed some other way? I am just getting around the kernel,
+> though the kernel has one my small patch, i am definitelly no guru.
+
+Hi, the fix in the -ac tree for this is to put "extern int sis_apic_bug;"
+directly before its usage. Including <asm/io_apic.h> is incorrect because
+while this file will compile on several platforms, io_apic.h only exists
+on i386 and x86_64, so this would break on, say, Alpha.
+
+Matt

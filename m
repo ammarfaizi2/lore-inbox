@@ -1,74 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263617AbTDDBaR (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 20:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTDDBaR (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 20:30:17 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:56571
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S263617AbTDDBaF (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 20:30:05 -0500
-Date: Thu, 3 Apr 2003 20:37:04 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] smp_call_function needs mb() - oopsable
-In-Reply-To: <Pine.LNX.4.44.0304030937360.27631-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.50.0304031951180.30262-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0304030937360.27631-100000@home.transmeta.com>
+	id S263611AbTDDCAP (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 21:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbTDDCAP (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 21:00:15 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:62971 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S263611AbTDDB74 (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 20:59:56 -0500
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@digeo.com>, "David S. Miller" <davem@redhat.com>,
+       Jes Sorensen <jes@trained-monkey.org>, Ralf Baechle <ralf@gnu.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] flush flush_page_to_ram
+References: <Pine.LNX.4.44.0304031741130.2047-100000@localhost.localdomain>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 04 Apr 2003 11:11:10 +0900
+In-Reply-To: <Pine.LNX.4.44.0304031741130.2047-100000@localhost.localdomain>
+Message-ID: <buo3ckzdnb5.fsf@mcspd15.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Apr 2003, Linus Torvalds wrote:
+Hugh Dickins <hugh@veritas.com> writes:
+> This patch removes the long deprecated flush_page_to_ram.
+...
+> All architectures are updated, but the only ones where it amounts
+> to more than deleting a line or two are m68k, mips, mips64 and v850.
 
-> On Thu, 3 Apr 2003, Zwane Mwaikambo wrote:
-> >
-> > I have a 3 Processor Pentium 133 system w/ 512k external cache which is 
-> > oopsing reliably in the exact same location.
+I recently changed the v850's nb85e_cache.h to make flush_page_to_ram a
+nop anyway (however since Linus hasn't applied my patch, I guess you won't
+have seen that change ... HEY LINUS, PLEASE APPLY MY PATCHES!  Ahem.).
+
+What's in the old version of nb85e_cache.h is incorrect anyway; until
+recently I didn't have any working hardware, so it's basically all just
+random cruft.
+
+[To be honest, I'm not sure my new version is correct either -- just
+_exactly_* what's expected from these macros is very hard to guess from the
+documentation, and only a little more clear from perusing the source --
+however it does seem to work in practice, unlike the old version.
+* I could just make all of them flush everything, but that's very inefficient.]
+
+> I followed a prescription from DaveM (though not to the letter), that
+> those arches with non-nop flush_page_to_ram need to do what it did
+> in their clear_user_page and copy_user_page and flush_dcache_page.
 > 
-> Whee. What a piece of "interesting hardware".
+> Dave is consterned that, in the v850 nb85e case, this patch leaves its
+> flush_dcache_page as was, uses it in clear_user_page and copy_user_page,
+> instead of making them all flush icache as well.
 
-Yep, it appears to have PCI bus funnies too..
+The v850 has no MMU, and thus only one address-space, so in these cases,
+it's only necessary to make sure the dcache is written back, and clear the
+icache (i.e., the dcache needn't be cleared).
 
-> I really think that your patch is a bit questionable. The wmb() on the 
-> sender side looks correct as-is, and to me it looks like it is the 
-> _receiver_ side that might need a read-barrier before it reads 
-> call_data(). 
+However, it seems extra-ordinarily inefficient to do these things on a
+per-page basis, as the nb85e hardware only allows one to flush the entire
+icache, and doing so takes about 600 cycles!  It would be much better if
+one could just wait until after all copying/clearing/whatever had been
+done, and then give one big flush command.
 
-I'm compiling with rmb before the APIC EOI, which is after the local 
-variable assignments (i'll post the results in a bit, slow build box).
+My current hardware has a non-working dcache, so I'm only using the
+icache at present; anyway, here's the flush routines I'm using now, which
+at least seems to work:
 
-> I really thought that the interrupt should be a serializing event, but I 
-> can't find that in the intel databooks (they make "iret" a serializing 
-> instruction, but not _taking_ an interrupt, unless I missed something).
-> 
-> Can you check if you get the right behaviour if you have a read barrier in 
-> the receive path? I actually think we need a full mb() on _both_ paths, 
-> since the current wmb() only guarantees that writes will be seen "in 
-> order wrt other writes", and while the IPI generation really _is_ a write 
-> in itself, I wonder if the Intel CPU's might not consider it something 
-> special..
+   void inline nb85e_cache_flush_all (void)
+   {
+           clear_icache ();
+           clear_dcache ();
+   }
 
-I haven't actually seen anything mentioning writing to ICR 
-having a serializing side effect. However the forced read around write 
-with family < P6 (CONFIG_X86_GOOD_APIC) in Linux should ensure that no 
-reads or writes pass the APIC/ICR write due to the xchg, however wether 
-'implied' lock ensures that it's treated the same as implicit lock i don't 
-know.
+   void nb85e_cache_flush_mm (struct mm_struct *mm)
+   {
+           /* nothing */
+   }
 
-> I'm not opposed to your patch per se, but I really do believe that it is 
-> potentially wrong. If we have no serialization on the read side, your 
-> patch might not actually fully plug the real bug, only hide it. I'd like 
-> to know if a read barrier on the read side (without the full barrier on 
-> the write side) is sufficient. It _should_ be (but see my worry about the 
-> APIC write maybe being considered "outside the scope" of the normal cache 
-> coherency protocols).
+   void nb85e_cache_flush_range (struct mm_struct *mm,
+                                 unsigned long start, unsigned long end)
+   {
+           /* nothing */
+   }
 
-Wouldn't APIC writes be then treated differently on a P4 (which uses the 
-system bus) and the P5/P6 which has it's own serial bus? Imo we should not 
-rely on APIC loads/stores which is why i added an rmb after the APIC EOI 
-for the rmb in smp_call_function_interrupt test.
+   void nb85e_cache_flush_page (struct vm_area_struct *vma,
+                                unsigned long page_addr)
+   {
+           /* nothing */
+   }
 
-	Zwane
+   void nb85e_cache_flush_dcache_page (struct page *page)
+   {
+           /* nothing */
+   }
+
+   void nb85e_cache_flush_icache (void)
+   {
+           cache_exec_after_store ();
+   }
+
+   void nb85e_cache_flush_icache_range (unsigned long start, unsigned long end)
+   {
+           cache_exec_after_store ();
+   }
+
+   void nb85e_cache_flush_icache_page (struct vm_area_struct *vma,
+                                       struct page *page)
+   {
+           cache_exec_after_store ();
+   }
+
+   void nb85e_cache_flush_icache_user_range (struct vm_area_struct *vma,
+                                             struct page *page,
+                                             unsigned long adr, int len)
+   {
+           cache_exec_after_store ();
+   }
+
+   void nb85e_cache_flush_sigtramp (unsigned long addr)
+   {
+           cache_exec_after_store ();
+   }
+
+-Miles
 -- 
-function.linuxpower.ca
+"Whatever you do will be insignificant, but it is very important that
+ you do it."  Mahatma Ghandi

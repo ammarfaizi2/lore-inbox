@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbTCPAyM>; Sat, 15 Mar 2003 19:54:12 -0500
+	id <S261885AbTCPAzC>; Sat, 15 Mar 2003 19:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261874AbTCPAyM>; Sat, 15 Mar 2003 19:54:12 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:25728 "EHLO
+	id <S261907AbTCPAzC>; Sat, 15 Mar 2003 19:55:02 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:26496 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261868AbTCPAx4>; Sat, 15 Mar 2003 19:53:56 -0500
-Date: Sun, 16 Mar 2003 10:04:02 +0900
+	id <S261885AbTCPAys>; Sat, 15 Mar 2003 19:54:48 -0500
+Date: Sun, 16 Mar 2003 10:04:54 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Complete support PC-9800 for 2.5.64-ac4 (3/11) DMA
-Message-ID: <20030316010402.GC1592@yuzuki.cinet.co.jp>
+Subject: Complete support PC-9800 for 2.5.64-ac4 (4/11) IDE
+Message-ID: <20030316010454.GD1592@yuzuki.cinet.co.jp>
 References: <20030316001622.GA1061@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,329 +22,217 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.64-ac4. (3/11)
+against 2.5.64-ac4. (4/11)
 
-DMA support for PC98.
-For fix differences of IO port assign and memory addressing.
-PC98 has 'page register' to expand DMA accesible address.
+PC98 standard IDE I/F support.
+ - Change default IO port address and IRQ.
+ - Add chipset "ide_pc9800".
+ - Add IDE0/1 select function becase PC98 uses common IO port to access them.
+ - Request region exactly for other optional cards.
+ - Get BIOS C/H/S parameter for PC98.
 
-diff -Nru linux/include/asm-i386/dma.h linux98/include/asm-i386/dma.h
---- linux/include/asm-i386/dma.h	2002-07-21 04:52:59.000000000 +0900
-+++ linux98/include/asm-i386/dma.h	2002-08-17 22:15:06.000000000 +0900
-@@ -10,6 +10,9 @@
+diff -Nru linux-2.5.64-ac3/drivers/ide/ide-disk.c linux98-2.5.64-ac3/drivers/ide/ide-disk.c
+--- linux-2.5.64-ac3/drivers/ide/ide-disk.c	2003-03-08 12:13:46.000000000 +0900
++++ linux98-2.5.64-ac3/drivers/ide/ide-disk.c	2003-03-08 12:29:29.000000000 +0900
+@@ -1574,6 +1574,71 @@
  
- #include <linux/config.h>
- #include <linux/spinlock.h>	/* And spinlocks */
+ 	(void) probe_lba_addressing(drive, 1);
+ 
 +#ifdef CONFIG_X86_PC9800
-+#include <asm/pc9800_dma.h>
-+#else /* !CONFIG_X86_PC9800 */
- #include <asm/io.h>		/* need byte IO */
- #include <linux/delay.h>
- 
-@@ -72,8 +75,10 @@
- 
- #define MAX_DMA_CHANNELS	8
- 
-+#ifndef CONFIG_X86_PC9800
- /* The maximum address that we can perform a DMA transfer to on this platform */
- #define MAX_DMA_ADDRESS      (PAGE_OFFSET+0x1000000)
-+#endif
- 
- /* 8237 DMA controllers */
- #define IO_DMA1_BASE	0x00	/* 8 bit slave DMA, channels 0..3 */
-@@ -295,4 +300,6 @@
- #define isa_dma_bridge_buggy 	(0)
- #endif
- 
-+#endif /* CONFIG_X86_PC9800 */
++	/* XXX - need more checks */
++	if (!drive->nobios && !drive->scsi && !drive->removable) {
++		/* PC-9800's BIOS do pack drive numbers to be continuous,
++		   so extra work is needed here.  */
 +
- #endif /* _ASM_DMA_H */
-diff -Nru linux/include/asm-i386/pc9800_dma.h linux98/include/asm-i386/pc9800_dma.h
---- linux/include/asm-i386/pc9800_dma.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/include/asm-i386/pc9800_dma.h	2002-08-17 21:15:01.000000000 +0900
-@@ -0,0 +1,238 @@
-+/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
-+ * linux/include/asm/dma.h: Defines for using and allocating dma channels.
-+ * Written by Hennus Bergman, 1992.
-+ * High DMA channel support & info by Hannu Savolainen
-+ * and John Boyd, Nov. 1992.
-+ */
++		/* drive information passed from boot/setup.S */
++		struct drive_info_struct {
++			u16 cyl;
++			u8 sect, head;
++			u16 ssize;
++		} __attribute__ ((packed));
++		extern struct drive_info_struct drive_info[];
 +
-+#ifndef _ASM_PC9800_DMA_H
-+#define _ASM_PC9800_DMA_H
++		/* this pointer must be advanced only when *DRIVE is
++		   really hard disk. */
++		static struct drive_info_struct *info = drive_info;
 +
-+#include <linux/config.h>
-+#include <asm/io.h>		/* need byte IO */
-+#include <linux/delay.h>
-+
-+
-+#ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
-+#define dma_outb	outb_p
-+#else
-+#define dma_outb	outb
-+#endif
-+
-+#define dma_inb		inb
-+
-+/*
-+ * NOTES about DMA transfers:
-+ *
-+ *  controller 1: channels 0-3, byte operations, ports 00-1F
-+ *  controller 2: channels 4-7, word operations, ports C0-DF
-+ *
-+ *  - ALL registers are 8 bits only, regardless of transfer size
-+ *  - channel 4 is not used - cascades 1 into 2.
-+ *  - channels 0-3 are byte - addresses/counts are for physical bytes
-+ *  - channels 5-7 are word - addresses/counts are for physical words
-+ *  - transfers must not cross physical 64K (0-3) or 128K (5-7) boundaries
-+ *  - transfer count loaded to registers is 1 less than actual count
-+ *  - controller 2 offsets are all even (2x offsets for controller 1)
-+ *  - page registers for 5-7 don't use data bit 0, represent 128K pages
-+ *  - page registers for 0-3 use bit 0, represent 64K pages
-+ *
-+ * DMA transfers are limited to the lower 16MB of _physical_ memory.  
-+ * Note that addresses loaded into registers must be _physical_ addresses,
-+ * not logical addresses (which may differ if paging is active).
-+ *
-+ *  Address mapping for channels 0-3:
-+ *
-+ *   A23 ... A16 A15 ... A8  A7 ... A0    (Physical addresses)
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *   P7  ...  P0  A7 ... A0  A7 ... A0   
-+ * |    Page    | Addr MSB | Addr LSB |   (DMA registers)
-+ *
-+ *  Address mapping for channels 5-7:
-+ *
-+ *   A23 ... A17 A16 A15 ... A9 A8 A7 ... A1 A0    (Physical addresses)
-+ *    |  ...  |   \   \   ... \  \  \  ... \  \
-+ *    |  ...  |    \   \   ... \  \  \  ... \  (not used)
-+ *    |  ...  |     \   \   ... \  \  \  ... \
-+ *   P7  ...  P1 (0) A7 A6  ... A0 A7 A6 ... A0   
-+ * |      Page      |  Addr MSB   |  Addr LSB  |   (DMA registers)
-+ *
-+ * Again, channels 5-7 transfer _physical_ words (16 bits), so addresses
-+ * and counts _must_ be word-aligned (the lowest address bit is _ignored_ at
-+ * the hardware level, so odd-byte transfers aren't possible).
-+ *
-+ * Transfer count (_not # bytes_) is limited to 64K, represented as actual
-+ * count - 1 : 64K => 0xFFFF, 1 => 0x0000.  Thus, count is always 1 or more,
-+ * and up to 128K bytes may be transferred on channels 5-7 in one operation. 
-+ *
-+ */
-+
-+#define MAX_DMA_CHANNELS	4
-+
-+/* The maximum address that we can perform a DMA transfer to on this platform */
-+#define MAX_DMA_ADDRESS      (~0UL)
-+
-+/* 8237 DMA controllers */
-+#define IO_DMA_BASE		0x01
-+
-+/* DMA controller registers */
-+#define DMA_CMD_REG			((IO_DMA_BASE)+0x10) /* command register (w) */
-+#define DMA_STAT_REG		((IO_DMA_BASE)+0x10) /* status register (r) */
-+#define DMA_REQ_REG			((IO_DMA_BASE)+0x12) /* request register (w) */
-+#define DMA_MASK_REG		((IO_DMA_BASE)+0x14) /* single-channel mask (w) */
-+#define DMA_MODE_REG		((IO_DMA_BASE)+0x16) /* mode register (w) */
-+#define DMA_CLEAR_FF_REG	((IO_DMA_BASE)+0x18) /* clear pointer flip-flop (w) */
-+#define DMA_TEMP_REG		((IO_DMA_BASE)+0x1A) /* Temporary Register (r) */
-+#define DMA_RESET_REG		((IO_DMA_BASE)+0x1A) /* Master Clear (w) */
-+#define DMA_CLR_MASK_REG	((IO_DMA_BASE)+0x1C) /* Clear Mask */
-+#define DMA_MASK_ALL_REG	((IO_DMA_BASE)+0x1E) /* all-channels mask (w) */
-+
-+#define DMA_PAGE_0			0x27	/* DMA page registers */
-+#define DMA_PAGE_1			0x21
-+#define DMA_PAGE_2			0x23
-+#define DMA_PAGE_3			0x25
-+
-+#define DMA_Ex_PAGE_0		0xe05	/* DMA Extended page reg base */
-+#define DMA_Ex_PAGE_1		0xe07
-+#define DMA_Ex_PAGE_2		0xe09
-+#define DMA_Ex_PAGE_3		0xe0b
-+
-+#define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
-+#define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */
-+#define DMA_AUTOINIT	0x10
-+
-+extern spinlock_t  dma_spin_lock;
-+
-+static __inline__ unsigned long claim_dma_lock(void)
-+{
-+	unsigned long flags;
-+	spin_lock_irqsave(&dma_spin_lock, flags);
-+	return flags;
-+}
-+
-+static __inline__ void release_dma_lock(unsigned long flags)
-+{
-+	spin_unlock_irqrestore(&dma_spin_lock, flags);
-+}
-+
-+/* enable/disable a specific DMA channel */
-+static __inline__ void enable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr,  DMA_MASK_REG);
-+}
-+
-+static __inline__ void disable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr | 4,  DMA_MASK_REG);
-+}
-+
-+/* Clear the 'DMA Pointer Flip Flop'.
-+ * Write 0 for LSB/MSB, 1 for MSB/LSB access.
-+ * Use this once to initialize the FF to a known state.
-+ * After that, keep track of it. :-)
-+ * --- In order to do that, the DMA routines below should ---
-+ * --- only be used while holding the DMA lock ! ---
-+ */
-+static __inline__ void clear_dma_ff(unsigned int dmanr)
-+{
-+	dma_outb(0,  DMA_CLEAR_FF_REG);
-+}
-+
-+/* set mode (above) for a specific DMA channel */
-+static __inline__ void set_dma_mode(unsigned int dmanr, char mode)
-+{
-+	dma_outb(mode | dmanr,  DMA_MODE_REG);
-+}
-+
-+/* Set only the page register bits of the transfer address.
-+ * This is used for successive transfers when we know the contents of
-+ * the lower 16 bits of the DMA current address register, but a 64k boundary
-+ * may have been crossed.
-+ */
-+static __inline__ void set_dma_page(unsigned int dmanr, unsigned int pagenr)
-+{
-+	unsigned char low=pagenr&0xff;
-+	unsigned char hi=pagenr>>8;
-+
-+	switch(dmanr) {
-+		case 0:
-+			dma_outb(low, DMA_PAGE_0);
-+			dma_outb(hi, DMA_Ex_PAGE_0);
-+			break;
-+		case 1:
-+			dma_outb(low, DMA_PAGE_1);
-+			dma_outb(hi, DMA_Ex_PAGE_1);
-+			break;
-+		case 2:
-+			dma_outb(low, DMA_PAGE_2);
-+			dma_outb(hi, DMA_Ex_PAGE_2);
-+			break;
-+		case 3:
-+			dma_outb(low, DMA_PAGE_3);
-+			dma_outb(hi, DMA_Ex_PAGE_3);
-+			break;
++		if (info < &drive_info[4] && info->cyl) {
++			drive->cyl  = drive->bios_cyl  = info->cyl;
++			drive->head = drive->bios_head = info->head;
++			drive->sect = drive->bios_sect = info->sect;
++			++info;
++		}
 +	}
-+}
 +
-+/* Set transfer address & page bits for specific DMA channel.
-+ * Assumes dma flipflop is clear.
-+ */
-+static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
-+{
-+	set_dma_page(dmanr, a>>16);
-+	dma_outb( a & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
-+	dma_outb( (a>>8) & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
-+}
++	/* =PC98 MEMO=
++	   physical capacity =< 65535*8*17 sect. : H/S=8/17 (fixed)
++	   physical capacity > 65535*8*17 sect. : use physical geometry
++	   (65535*8*17 = 8912760 sectors)
++	*/
++	printk("%s: CHS: physical %d/%d/%d, logical %d/%d/%d, BIOS %d/%d/%d\n",
++	       drive->name,
++	       id->cyls,	id->heads,	id->sectors,
++	       id->cur_cyls,	id->cur_heads,	id->cur_sectors,
++	       drive->bios_cyl,	drive->bios_head,drive->bios_sect);
++	if (!drive->cyl || !drive->head || !drive->sect) {
++		drive->cyl     = drive->bios_cyl  = id->cyls;
++		drive->head    = drive->bios_head = id->heads;
++		drive->sect    = drive->bios_sect = id->sectors;
++		printk("%s: not BIOS-supported device.\n",drive->name);
++	}
++	/* calculate drive capacity, and select LBA if possible */
++	init_idedisk_capacity(drive);
 +
++	/*
++	 * if possible, give fdisk access to more of the drive,
++	 * by correcting bios_cyls:
++	 */
++	capacity = idedisk_capacity(drive);
++	if (capacity < 8912760 &&
++	   (drive->head != 8 || drive->sect != 17)) {
++		drive->head = drive->bios_head = 8;
++		drive->sect = drive->bios_sect = 17;
++		drive->cyl  = drive->bios_cyl  =
++			capacity / (drive->bios_head * drive->bios_sect);
++		printk("%s: Fixing Geometry :: CHS=%d/%d/%d to CHS=%d/%d/%d\n",
++			   drive->name,
++			   id->cur_cyls,id->cur_heads,id->cur_sectors,
++			   drive->bios_cyl,drive->bios_head,drive->bios_sect);
++		id->cur_cyls    = drive->bios_cyl;
++		id->cur_heads   = drive->bios_head;
++		id->cur_sectors = drive->bios_sect;
++	}
++#else /* !CONFIG_X86_PC9800 */
+ 	/* Extract geometry if we did not already have one for the drive */
+ 	if (!drive->cyl || !drive->head || !drive->sect) {
+ 		drive->cyl     = drive->bios_cyl  = id->cyls;
+@@ -1607,6 +1672,8 @@
+ 	if ((capacity >= (drive->bios_cyl * drive->bios_sect * drive->bios_head)) &&
+ 	    (!drive->forced_geom) && drive->bios_sect && drive->bios_head)
+ 		drive->bios_cyl = (capacity / drive->bios_sect) / drive->bios_head;
++#endif  /* CONFIG_X86_PC9800 */
 +
-+/* Set transfer size (max 64k for DMA1..3, 128k for DMA5..7) for
-+ * a specific DMA channel.
-+ * You must ensure the parameters are valid.
-+ * NOTE: from a manual: "the number of transfers is one more
-+ * than the initial word count"! This is taken into account.
-+ * Assumes dma flip-flop is clear.
-+ * NOTE 2: "count" represents _bytes_ and must be even for channels 5-7.
-+ */
-+static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
-+{
-+	count--;
-+	dma_outb( count & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
-+	dma_outb( (count>>8) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
-+}
-+
-+
-+/* Get DMA residue count. After a DMA transfer, this
-+ * should return zero. Reading this while a DMA transfer is
-+ * still in progress will return unpredictable results.
-+ * If called before the channel has been used, it may return 1.
-+ * Otherwise, it returns the number of _bytes_ left to transfer.
-+ *
-+ * Assumes DMA flip-flop is clear.
-+ */
-+static __inline__ int get_dma_residue(unsigned int dmanr)
-+{
-+	/* using short to get 16-bit wrap around */
-+	unsigned short count;
-+
-+	count = 1 + dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE);
-+	count += dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE) << 8;
-+	
-+	return count;
-+}
-+
-+
-+/* These are in kernel/dma.c: */
-+extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
-+extern void free_dma(unsigned int dmanr);	/* release it again */
-+
-+/* From PCI */
-+
-+#ifdef CONFIG_PCI
-+extern int isa_dma_bridge_buggy;
-+#else
-+#define isa_dma_bridge_buggy 	(0)
+ 	printk (KERN_INFO "%s: %ld sectors", drive->name, capacity);
+ 
+ 	/* Give size in megabytes (MB), not mebibytes (MiB). */
+diff -Nru linux-2.5.64-ac4/drivers/ide/ide-probe.c linux98-2.5.64-ac4/drivers/ide/ide-probe.c
+--- linux-2.5.64-ac4/drivers/ide/ide-probe.c	2003-03-15 01:15:41.000000000 +0900
++++ linux98-2.5.64-ac4/drivers/ide/ide-probe.c	2003-03-15 01:42:31.000000000 +0900
+@@ -669,7 +669,7 @@
+ 
+ 	if (hwif->mmio == 2)
+ 		return 0;
+-	addr_errs  = hwif_check_region(hwif, hwif->io_ports[IDE_DATA_OFFSET], 1);
++	addr_errs  = hwif_check_region(hwif, hwif->io_ports[IDE_DATA_OFFSET], pc98 ? 2 : 1);
+ 	for (i = IDE_ERROR_OFFSET; i <= IDE_STATUS_OFFSET; i++)
+ 		addr_errs += hwif_check_region(hwif, hwif->io_ports[i], 1);
+ 	if (hwif->io_ports[IDE_CONTROL_OFFSET])
+@@ -718,7 +718,9 @@
+ 	}
+ 
+ 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++)
+-		hwif_request_region(hwif->io_ports[i], 1, hwif->name);
++		hwif_request_region(hwif->io_ports[i],
++					(pc98 && i == IDE_DATA_OFFSET) ? 2 : 1,
++					hwif->name);
+ }
+ 
+ //EXPORT_SYMBOL(hwif_register);
+@@ -806,6 +808,9 @@
+ #if CONFIG_BLK_DEV_PDC4030
+ 	    (hwif->chipset != ide_pdc4030 || hwif->channel == 0) &&
+ #endif /* CONFIG_BLK_DEV_PDC4030 */
++#if CONFIG_BLK_DEV_IDE_PC9800
++	    (hwif->chipset != ide_pc9800 || !hwif->mate->present) &&
 +#endif
-+
-+#endif /* _ASM_PC9800_DMA_H */
-diff -Nru linux/include/asm-i386/scatterlist.h linux98/include/asm-i386/scatterlist.h
---- linux/include/asm-i386/scatterlist.h	2002-04-15 04:18:52.000000000 +0900
-+++ linux98/include/asm-i386/scatterlist.h	2002-04-17 10:37:22.000000000 +0900
-@@ -1,6 +1,8 @@
- #ifndef _I386_SCATTERLIST_H
- #define _I386_SCATTERLIST_H
+ 	    (hwif_check_regions(hwif))) {
+ 		u16 msgout = 0;
+ 		for (unit = 0; unit < MAX_DRIVES; ++unit) {
+@@ -1158,7 +1163,7 @@
+ 	/* all CPUs; safe now that hwif->hwgroup is set up */
+ 	spin_unlock_irqrestore(&ide_lock, flags);
  
-+#include <linux/config.h>
-+
- struct scatterlist {
-     struct page		*page;
-     unsigned int	offset;
-@@ -8,6 +10,10 @@
-     unsigned int	length;
- };
+-#if !defined(__mc68000__) && !defined(CONFIG_APUS) && !defined(__sparc__)
++#if !defined(__mc68000__) && !defined(CONFIG_APUS) && !defined(__sparc__) && !defined(CONFIG_X86_PC9800)
+ 	printk("%s at 0x%03lx-0x%03lx,0x%03lx on irq %d", hwif->name,
+ 		hwif->io_ports[IDE_DATA_OFFSET],
+ 		hwif->io_ports[IDE_DATA_OFFSET]+7,
+@@ -1168,6 +1173,11 @@
+ 		hwif->io_ports[IDE_DATA_OFFSET],
+ 		hwif->io_ports[IDE_DATA_OFFSET]+7,
+ 		hwif->io_ports[IDE_CONTROL_OFFSET], __irq_itoa(hwif->irq));
++#elif defined(CONFIG_X86_PC9800)
++	printk("%s at 0x%03lx-0x%03lx,0x%03lx on irq %d", hwif->name,
++		hwif->io_ports[IDE_DATA_OFFSET],
++		hwif->io_ports[IDE_DATA_OFFSET]+15,
++		hwif->io_ports[IDE_CONTROL_OFFSET], hwif->irq);
+ #else
+ 	printk("%s at %x on irq 0x%08x", hwif->name,
+ 		hwif->io_ports[IDE_DATA_OFFSET], hwif->irq);
+diff -Nru linux-2.5.64-ac3/drivers/ide/ide.c linux98-2.5.64-ac3/drivers/ide/ide.c
+--- linux-2.5.64-ac3/drivers/ide/ide.c	2003-03-08 12:13:46.000000000 +0900
++++ linux98-2.5.64-ac3/drivers/ide/ide.c	2003-03-08 12:29:29.000000000 +0900
+@@ -549,7 +549,8 @@
+ 	}
+ 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
+ 		if (hwif->io_ports[i]) {
+-			hwif_release_region(hwif->io_ports[i], 1);
++			hwif_release_region(hwif->io_ports[i],
++					(pc98 && i == IDE_DATA_OFFSET) ? 2 : 1);
+ 		}
+ 	}
+ }
+@@ -2089,6 +2090,12 @@
+ 	}
+ #endif /* CONFIG_BLK_DEV_IDEPCI */
  
-+#ifdef CONFIG_X86_PC9800
-+#define ISA_DMA_THRESHOLD (0xffffffff)
-+#else
- #define ISA_DMA_THRESHOLD (0x00ffffff)
++#ifdef CONFIG_BLK_DEV_IDE_PC9800
++	{
++		extern void ide_probe_for_pc9800(void);
++		ide_probe_for_pc9800();
++	}
 +#endif
- 
- #endif /* !(_I386_SCATTERLIST_H) */
-diff -Nru linux/kernel/dma.c linux98/kernel/dma.c
---- linux/kernel/dma.c	2002-08-11 10:41:22.000000000 +0900
-+++ linux98/kernel/dma.c	2002-08-21 09:53:59.000000000 +0900
-@@ -9,6 +9,7 @@
-  *   [It also happened to remove the sizeof(char *) == sizeof(int)
-  *   assumption introduced because of those /proc/dma patches. -- Hennus]
+ #ifdef CONFIG_ETRAX_IDE
+ 	{
+ 		extern void init_e100_ide(void);
+diff -Nru linux/include/linux/hdreg.h linux98/include/linux/hdreg.h
+--- linux/include/linux/hdreg.h	2003-02-15 08:51:42.000000000 +0900
++++ linux98/include/linux/hdreg.h	2003-02-20 10:18:37.000000000 +0900
+@@ -5,11 +5,29 @@
+  * This file contains some defines for the AT-hd-controller.
+  * Various sources.
   */
 +#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
-@@ -62,10 +63,12 @@
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 },
-+#ifndef CONFIG_X86_PC9800
- 	{ 1, "cascade" },
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 }
-+#endif
- };
  
+ /* ide.c has its own port definitions in "ide.h" */
+ 
+ #define HD_IRQ		14
+ 
++#ifdef CONFIG_X86_PC9800
++/* Hd controller regs. for NEC PC-9800 */
++#define HD_DATA		0x640	/* _CTL when writing */
++#define HD_ERROR	0x642	/* see err-bits */
++#define HD_NSECTOR	0x644	/* nr of sectors to read/write */
++#define HD_SECTOR	0x646	/* starting sector */
++#define HD_LCYL		0x648	/* starting cylinder */
++#define HD_HCYL		0x64a	/* high byte of starting cyl */
++#define HD_CURRENT	0x64c	/* 101dhhhh , d=drive, hhhh=head */
++#define HD_STATUS	0x64e	/* see status-bits */
++#define HD_FEATURE	HD_ERROR	/* same io address, read=error, write=feature */
++#define HD_PRECOMP	HD_FEATURE	/* obsolete use of this port - predates IDE */
++#define HD_COMMAND	HD_STATUS	/* same io address, read=status, write=cmd */
++
++#define HD_CMD		0x74c	/* used for resets */
++#define HD_ALTSTATUS	0x74c	/* same as HD_STATUS but doesn't clear irq */
++#else /* !CONFIG_X86_PC9800 */
+ /* Hd controller regs. Ref: IBM AT Bios-listing */
+ #define HD_DATA		0x1f0		/* _CTL when writing */
+ #define HD_ERROR	0x1f1		/* see err-bits */
+@@ -25,6 +43,7 @@
+ 
+ #define HD_CMD		0x3f6		/* used for resets */
+ #define HD_ALTSTATUS	0x3f6		/* same as HD_STATUS but doesn't clear irq */
++#endif /* CONFIG_X86_PC9800 */
+ 
+ /* remainder is shared between hd.c, ide.c, ide-cd.c, and the hdparm utility */
  

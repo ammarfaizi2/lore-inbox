@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267752AbTAMB3H>; Sun, 12 Jan 2003 20:29:07 -0500
+	id <S267710AbTAMBay>; Sun, 12 Jan 2003 20:30:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267753AbTAMB3H>; Sun, 12 Jan 2003 20:29:07 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:126 "EHLO
-	mail.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S267752AbTAMB3G>; Sun, 12 Jan 2003 20:29:06 -0500
-Message-ID: <3E22183D.3090907@blue-labs.org>
-Date: Sun, 12 Jan 2003 20:37:01 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030110
-X-Accept-Language: en-us, en
+	id <S267743AbTAMBay>; Sun, 12 Jan 2003 20:30:54 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:11682 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id <S267710AbTAMBax>; Sun, 12 Jan 2003 20:30:53 -0500
+Date: Sun, 12 Jan 2003 17:26:48 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: Rob Wilkens <robw@optonline.net>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*?
+In-Reply-To: <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+Message-ID: <Pine.LNX.4.44.0301121717140.30519-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.56 panics PostgreSQL
-References: <3E21B839.4060902@blue-labs.org>	 <200301121137.07735.akpm@digeo.com>  <3E21C794.6070606@blue-labs.org> <1042420508.31100.1180.camel@tiny.suse.com>
-In-Reply-To: <1042420508.31100.1180.camel@tiny.suse.com>
-X-Enigmail-Version: 0.71.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> I've only compiled (and haven't tested this code), but it should be much
+> faster than the original code.  Why?  Because we're eliminating an extra
+> "jump" in several places in the code every time open would be called.
+> Yes, it's more code, so the kernel is a little bigger, but it should be
+> faster at the same time, and memory should be less of an issue nowadays.
 
-Just for clarification, the kernel isn't OOPSing, PostgreSQL is the one 
-having fits and shutting down/starting up left and right.
+Rob, one thing you may not have noticed since you haven't been following
+the list for a while is that with the current generation of computers size
+frequently translates directly into speed and a lot of the time honored
+performance tricks that trade size for fewer commands executed end up
+being losses.
 
-The NMI is the only kernel indication that something is odd.  Which 
-never happens under 2.4.
+this can be seen by compiling code with -O2 and with -Os and frequently
+the -Os will actually be faster.
 
-David
+This is becouse not all memory is equal, main memory is very slow compared
+to the CPU cache, so code that is slightly larger can cause more cache
+misses and therefor be slower, even if significantly fewer commands are
+executed.
 
-Chris Mason wrote:
+in addition frequently the effect isn't direct (i.e. no noticable
+difference on the code you are changing, but instead the change makes
+other code slower as it gets evicted from the cache)
 
->On Sun, 2003-01-12 at 14:52, David Ford wrote:
->  
->
->>-----BEGIN PGP SIGNED MESSAGE-----
->>Hash: SHA1
->>
->>Reiserfs.  Postgres is the only program that had problems, but it's also
->>the one that does 99% of all the activity on the system.
->>    
->>
->
->Do you still have any of the oopsen?
->
->-chris
->
->  
->
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+unfortunantly while this effect is known the rules of when to optimize for
+space and when to optimize for fewer cpu cycles for code execution are not
+clear and vary from CPU to CPU frequently within variations of the same
+family)
 
-iD8DBQE+Ihg974cGT/9uvgsRAqaRAKCD3JLmwwOEpoDBebPyDs2QWGZSGgCff7yN
-+g3+aIX6Y8DHkcj3ZFPpivI=
-=86PN
------END PGP SIGNATURE-----
+if you google for -Os you should find one of the several discussions on
+the list in the last year on the subject.
 
+David Lang

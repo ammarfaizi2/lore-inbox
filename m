@@ -1,136 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318158AbSGWRo2>; Tue, 23 Jul 2002 13:44:28 -0400
+	id <S318143AbSGWRrn>; Tue, 23 Jul 2002 13:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318147AbSGWRo1>; Tue, 23 Jul 2002 13:44:27 -0400
-Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:22111 "EHLO
-	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
-	id <S318158AbSGWRo0>; Tue, 23 Jul 2002 13:44:26 -0400
-Message-ID: <EE83E551E08D1D43AD52D50B9F511092E114A4@ntserver2>
-From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-To: "'Andi Kleen'" <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Problem with msync system call
-Date: Tue, 23 Jul 2002 20:45:07 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C23279.111B0410"
+	id <S318147AbSGWRrm>; Tue, 23 Jul 2002 13:47:42 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:36124 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318143AbSGWRrR>; Tue, 23 Jul 2002 13:47:17 -0400
+Date: Tue, 23 Jul 2002 19:51:00 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19rc3aa1
+Message-ID: <20020723175100.GC1117@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+URL:
 
-------_=_NextPart_000_01C23279.111B0410
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc3aa1.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc3aa1/
 
->Do a F_SETFL lock/unlock on the file  That should act as a 
->full NFS write barrier and flush all buffers. Best is if you synchronize 
->between the various writers with the full lock.
+Changelog:
 
-Do you mean F_SETLK? If so, this didn't help (the source is attached).
-If you meant something else, could you be more specific, please? 
+Only in 2.4.19rc3aa1: 00_net-softirq-1
 
-Thanks in advance.
-Giga
+	Lower AF_UNIX(/and similar local tranfers) latency.
 
+Only in 2.4.19rc2aa1: 00_poll-speedup-1
+Only in 2.4.19rc3aa1: 00_poll-speedup-2
 
-------_=_NextPart_000_01C23279.111B0410
-Content-Type: application/octet-stream;
-	name="mmap.cc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="mmap.cc"
+	Return exporting a few methods (get_fd_set/zero_fd_set).
 
-#include <stdio.h>=0A=
-#include <unistd.h>=0A=
-#include <sys/mman.h>=0A=
-#include <string.h>=0A=
-#include <sys/types.h>=0A=
-#include <sys/stat.h>=0A=
-#include <fcntl.h>=0A=
-=0A=
-int main (int argc, char* argv []) =0A=
-{=0A=
-    char buffer [BUFSIZ];=0A=
-    char* pMap;=0A=
-=0A=
-    int fd =3D open ("MAPPED.FILE", O_CREAT | O_RDWR | O_SYNC, =
-0666);=0A=
-    if (fd =3D=3D -1) {=0A=
-	perror ("open");=0A=
-	return -1;=0A=
-    }=0A=
-=0A=
-    if (lseek (fd, BUFSIZ - 1, SEEK_SET) =3D=3D -1) {=0A=
-	perror ("lseek");=0A=
-	return -1;=0A=
-    }=0A=
-    write (fd, "\0", 1);=0A=
-    if (lseek (fd, 0, SEEK_SET) =3D=3D -1) {=0A=
-	perror ("lseek");=0A=
-	return -1;=0A=
-    }=0A=
-=0A=
-    pMap =3D (char*) mmap (NULL, BUFSIZ, PROT_READ | PROT_WRITE, =0A=
-			 MAP_SHARED, fd, 0);=0A=
-    if ((size_t) pMap =3D=3D -1) {=0A=
-	perror ("mmap");=0A=
-	return -1;=0A=
-    }=0A=
-    =0A=
-    while (1) {=0A=
-	fprintf (stderr, "<Press ENTER to read> OR <Enter string to write> $ =
-");=0A=
-	fgets (buffer, sizeof (buffer) - 1, stdin);=0A=
-=0A=
-#if 0=0A=
-	if (munmap (pMap, BUFSIZ)) {=0A=
-	    perror ("munmap");=0A=
-	    return -1;=0A=
-	}=0A=
-	pMap =3D (char*) mmap (NULL, BUFSIZ, PROT_READ | PROT_WRITE, =0A=
-				   MAP_SHARED, fd, 0);=0A=
-	if ((size_t) pMap =3D=3D -1) {=0A=
-	    perror ("mmap");=0A=
-	    return -1;=0A=
-	}=0A=
-#endif=0A=
-	struct flock lck =3D { =0A=
-	    F_WRLCK,  /* Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK    */=0A=
-	    SEEK_SET, /* Where `l_start' is relative to (like `lseek') */=0A=
-	    0,        /* Offset where the lock begins                  */=0A=
-	    0,        /* Size of the locked area; zero means until EOF */=0A=
-	    getpid () /* Process holding the lock                      */=0A=
-	};=0A=
-=0A=
-	if (fcntl (fd, F_SETLK, &lck)) {=0A=
-	    perror ("fcntl");=0A=
-	    return -1;=0A=
-	}=0A=
-=0A=
-	if (buffer [0] =3D=3D '\n') {=0A=
-	    fprintf (stderr, "Mapped file contents: %s\n", pMap);=0A=
-	} else {=0A=
-	    strncpy (pMap, buffer, strlen (buffer) - 1);=0A=
-	    fprintf (stderr, "Written to mapped file: %s\n", pMap);=0A=
-	}=0A=
-=0A=
- 	if (msync (pMap, BUFSIZ, MS_SYNC | MS_INVALIDATE)) {=0A=
- 	    perror ("msync");=0A=
- 	    return -1;=0A=
- 	}=0A=
-=0A=
-	lck.l_type =3D F_UNLCK;=0A=
-	if (fcntl (fd, F_SETLK, &lck)) {=0A=
-	    perror ("fcntl");=0A=
-	    return -1;=0A=
-	}=0A=
-    }=0A=
-=0A=
-    return 0;=0A=
-}=0A=
+Only in 2.4.19rc3aa1: 00_relax-timer-sync-1
 
-------_=_NextPart_000_01C23279.111B0410--
+	Use rep;nop while waiting a timer to go away from the cpu.
+
+Only in 2.4.19rc3aa1: 00_sched-O1-aa-2.4.19rc3-1.gz
+Only in 2.4.19rc2aa1: 00_sched-O1-rml-2.4.19-pre9-2.gz
+Only in 2.4.19rc2aa1: 02_sched-19pre8ac5-1
+Only in 2.4.19rc2aa1: 02_sched-alpha-1
+Only in 2.4.19rc2aa1: 02_sched-sparc64-1
+Only in 2.4.19rc2aa1: 02_sched-x86-1
+Only in 2.4.19rc2aa1: 10_o1-sched-64-cpu-1
+Only in 2.4.19rc2aa1: 10_o1-sched-fixes-2
+Only in 2.4.19rc2aa1: 10_o1-sched-updates-A4-3
+
+	Synchronized with sched-2.4.19-rc2-A3 from Ingo, I didn't merge
+	the new features, just the bugfixes. The major ones
+	are my proposed change to sched_yield to just move sched_yield
+	tasks directly into the expired queues that should fix
+	sched_yield related hangs like with tomcat during java
+	garbage collection, and various important performance fixes like the
+	load_balancing that was completely broken in the previous
+	implementations, and other fixes from Ingo like the wakeup_sync that
+	was not honouring cpus_allowed and various minor optimizations.
+
+Only in 2.4.19rc2aa1: 08_qlogicfc-template-aa-2
+Only in 2.4.19rc3aa1: 08_qlogicfc-template-aa-3
+
+	Deleted one more line during merging.
+
+Only in 2.4.19rc2aa1: 10_parent-timeslice-10
+
+	Now part of O1 sched, except Ingo apparently forgot a place
+	in exit.c, that is included into 00_sched-O1-aa-2.4.19rc3-1.gz
+	(with that fix added, it's completely equivalent to the previous
+	parent-timeslice-10).
+
+Only in 2.4.19rc3aa1: 50_uml-patch-2.4.18-41.gz
+Only in 2.4.19rc3aa1: 50_uml-patch-2.4.18-42.gz
+
+	Latest updates from Jeff.
+
+Only in 2.4.19rc2aa1: 51_uml-o1-1
+Only in 2.4.19rc3aa1: 51_uml-o1-2
+
+	Merged some new bit from the 2.5 uml port to fix o1 sched hangs under
+	uml.
+
+Only in 2.4.19rc2aa1: 88_x86_64-poll-1
+
+	Return using the exported symbols.
+
+Only in 2.4.19rc2aa1: 90_buddyinfo-1
+Only in 2.4.19rc3aa1: 90_buddyinfo-2
+
+	New implementation from William Lee Irwin III.
+
+Only in 2.4.19rc2aa1: 90_proc-mapped-base-1
+Only in 2.4.19rc3aa1: 90_proc-mapped-base-2
+
+	Show /proc/<pid>/mapped_base only on archs where it is significant.
+	Enabled for x86 and s390 only so far. Wonder what to do on the 32/64
+	bit archs like x86-64, s390x, ppc64, ia64, sparc64 where I cannot
+	generally inherit the mapped base from a 64bit parent to a 32bit child.
+	I guess it's ok that the /proc/<pid>/mapped_base isn't there so in
+	32bit compatility mode the app will just use the default, since the
+	whole point of those archs is to run those user apps in 64bit mode
+	where mapped_base won't need to be dynamic.
+
+Only in 2.4.19rc3aa1: 90_s390-aa-1
+
+	Make it compile on s390.
+
+Only in 2.4.19rc2aa1: 94_discontigmem-meminfo-1
+Only in 2.4.19rc3aa1: 94_discontigmem-meminfo-2
+
+	Fix meminfo node reporting.
+
+Only in 2.4.19rc2aa1: 96_inode_read_write-atomic-1
+Only in 2.4.19rc3aa1: 96_inode_read_write-atomic-2
+
+	Use two sequence numbers for 486/386 SMP compiles and in general
+	for SMP compiles of 32bit archs not providing (or not yet implementing :)
+	64bit atomic get/set. (also renamed read_64bit to get_64bit for
+	symmetry with set_64bit) Added some comment about preempt significant
+	only for the 2.5 port of it.
+
+Andrea

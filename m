@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266649AbUBDWVc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 17:21:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266651AbUBDWVc
+	id S266637AbUBDWT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 17:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266640AbUBDWT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 17:21:32 -0500
-Received: from gprs148-146.eurotel.cz ([160.218.148.146]:53120 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S266649AbUBDWV2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 17:21:28 -0500
-Date: Wed, 4 Feb 2004 23:21:13 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: Huw Rogers <count0@localnet.com>, linux-kernel@vger.kernel.org,
-       ncunningham@users.sourceforge.net, linux-laptop@mobilix.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: APM good, ACPI bad (2.6.2-rc1 / p4 HT / Uniwill N258SA0)
-Message-ID: <20040204222113.GA425@elf.ucw.cz>
-References: <3ACA40606221794F80A5670F0AF15F8401CBB670@PDSMSX403.ccr.corp.intel.com>
+	Wed, 4 Feb 2004 17:19:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11754 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266637AbUBDWTW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 17:19:22 -0500
+Date: Wed, 4 Feb 2004 22:19:19 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [patch] Fix block device inode list corruptions
+Message-ID: <20040204221919.GB21151@parcelfarce.linux.theplanet.co.uk>
+References: <1075908464.1998.189.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8401CBB670@PDSMSX403.ccr.corp.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1075908464.1998.189.camel@sisko.scot.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > [Do *not* enable suspend on SMP for mainline, unless you are willing
-> > to audit that code...]
+On Wed, Feb 04, 2004 at 03:27:44PM +0000, Stephen C. Tweedie wrote:
+> Hi,
 > 
-> When do you want to have SMP support ? This is a laptop having HT.
+> I've been chasing a weird SELinux bug which shows up mostly when doing
+> installs of a dev-* rpm (ie. creating and overwriting lots of block
+> device inodes), but which I've also seen when doing mkinitrd.
+> 
+> It turned out not to be an SELinux problem at all, but a core VFS
+> S_ISBLK bug.  It seems that SELinux simply widens the race window.
+> 
+> The code at fault is fs/fs-writeback.c:__mark_inode_dirty():
+> 
+> 		/*
+> 		 * Only add valid (hashed) inodes to the superblock's
+> 		 * dirty list.  Add blockdev inodes as well.
+> 		 */
+> 		if (!S_ISBLK(inode->i_mode)) {
+> 			if (hlist_unhashed(&inode->i_hash))
+> 				goto out;
+> 			if (inode->i_state & (I_FREEING|I_CLEAR))
+> 				goto out;
+> 		}
+> 
+> The "I_FREEING|I_CLEAR" condition was added after the ISBLK/unhashed
+> tests were already in the source, but I can't see any reason why we'd
+> want the I_FREEING test not to apply to block devices.  And indeed, this
+> results in all sorts of inode list corruptions.  Simply moving the
+> I_FREEING|I_CLEAR test out of the protection of the S_ISBLK() condition
+> fixes things entirely.  
 
-Well, when _my_ laptop has HT, I guess :-)))))).
-
-[Or when patrick/nigel gets to it, or when cpu hotplug is merged;
-whichever comes sooner].
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+ACK.

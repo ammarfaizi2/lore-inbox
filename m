@@ -1,91 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVBDF6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVBDGDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVBDF6o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 00:58:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263372AbVBDF6j
+	id S262583AbVBDGDL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 01:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVBDGDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 00:58:39 -0500
-Received: from mproxy.gmail.com ([216.239.56.249]:9233 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263405AbVBDF5v (ORCPT
+	Fri, 4 Feb 2005 01:03:11 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:63132 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S263234AbVBDGCv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 00:57:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=F5Xdt3QSLnEjCedODUWcPi/6qaRn2pR7Z4sTUubCntPBr/MzCiva/PB9cKc0J//hUr6yNZvAIZnTuvES5hrymep1Z8JL2L5KZL+G9jNljYN31SOo/9aXh70Z67fUJUo463yksaByTAkEZc3z6USblJsSx3e31kMj1bGFmlx8L3M=
-Message-ID: <21d7e997050203215715f32c3@mail.gmail.com>
-Date: Fri, 4 Feb 2005 16:57:50 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: 2.6.10 dies when X uses G550
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Andreas Hartmann <andihartmann@01019freenet.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050204034304.GA24195@hh.idb.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Feb 2005 01:02:51 -0500
+Date: Fri, 04 Feb 2005 15:02:54 +0900
+From: Itsuro Oda <oda@valinux.co.jp>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [Fastboot] Re: kdump on non-boot cpu
+Cc: Vivek Goyal <vgoyal@in.ibm.com>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <m1fz0d9mag.fsf@ebiederm.dsl.xmission.com>
+References: <20050204082358.18ED.ODA@valinux.co.jp> <m1fz0d9mag.fsf@ebiederm.dsl.xmission.com>
+Message-Id: <20050204144438.18F9.ODA@valinux.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-References: <fa.ks44mbo.ljgao4@ifi.uio.no>
-	 <41F21FA4.1040304@pD9F8757A.dip0.t-ipconnect.de>
-	 <21d7e99705012205012c95665@mail.gmail.com> <41F76B4D.8090905@hist.no>
-	 <20050130111634.GA9269@hh.idb.hist.no>
-	 <21d7e9970501300322ffdabe0@mail.gmail.com>
-	 <9e473391050130070520631901@mail.gmail.com>
-	 <20050130163241.GA18036@hh.idb.hist.no>
-	 <9e473391050130090532067a5f@mail.gmail.com>
-	 <20050204034304.GA24195@hh.idb.hist.no>
+X-Mailer: Becky! ver. 2.10.04 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The logs with secondary radeon used to end like this:
-> (II) LoadModule: "int10"
-> (II) Reloading /usr/X11R6/lib/modules/linux/libint10.a
-> (II) RADEON(0): initializing int10
-> (**) RADEON(0): Option "InitPrimary" "on"
-> (II) Truncating PCI BIOS Length to 53248
-> 
-> The logs for secondary G550 ends like this, with or without int10
-> (--) MGA(0): Pseudo-DMA transfer window at 0xF3000000
-> (==) MGA(0): BIOS at 0xC0000
-> (WW) MGA(0): Video BIOS info block not detected!
-> (II) MGA(0): MGABios.RamdacType = 0x0
-> (==) MGA(0): Write-combining range (0xf0000000,0x2000000)
-> (--) MGA(0): VideoRAM: 2048 kByte
-> (II) Loading sub module "ddc"
-> (II) LoadModule: "ddc"
-> (II) Reloading /usr/X11R6/lib/modules/libddc.a
-> (II) Loading sub module "i2c"
-> (II) LoadModule: "i2c"
-> (II) Loading /usr/X11R6/lib/modules/libi2c.a
-> (II) Module i2c: vendor="The XFree86 Project"
->         compiled for 4.3.0.1, module version = 1.2.0
->         ABI class: XFree86 Video Driver, version 0.6
-> (==) MGA(0): Write-combining range (0xf0000000,0x200000)
-> (II) MGA(0): vgaHWGetIOBase: hwp->IOBase is 0x03d0, hwp->PIOOffset is 0x0000
-> (II) MGA(0): I2C bus "DDC" initialized.
-> (II) MGA(0): I2C device "DDC:ddc2" registered at address 0xA0.
-> (II) MGA(0): I2C device "DDC:ddc2" removed.
-> (II) MGA(0): I2C Monitor info: (nil)
-> (II) MGA(0): end of I2C Monitor info
-> 
-> The video bios is apparently not detected at all, and therefore not run.
-> 
-> The kernel doesn't actually hang, only X gets stuck.  sysrq+T
-> dumped stack traces for all tasks except the xserver.  For X,
-> there was only one line identifying the xserver process and the fact
-> that it was Running.  No stack dump.  I managed to kill all tasks
-> and have init proceeding into init 2.
-> 
-> So I wonder - is Debians X 4.3.0.1 buggy, or the kernel?
-> The fact remains that the newer kernels locks up while trying to use the
-> secondary radeon, while it actually works with 2.6.8.1.
+Hi,
 
-I've had some luck in reproducing this, however I've had to retask my
-test machine to find some hangs in my real life application (can run
-for 5 or 6 days without crashing :-), so I might get back to looking
-for this at some stage but when is anybodys guess, all I did was take
-a Radeon AGP card, and a  PCI SiS crappy card and ran X on 2.6.10 and
-it hung....
+> The reason I was asking and assuming you had a 32bit kernel is that
+> you were quoting pieces of arch/i386/kernel/crash.c instead of
+> arch/x86_64/kernel/crash.c
 
-Dave.
+Using "arch/i386/kernel/crash.c" is just for explanation how we avoid
+the hang. (I found x86_64 kdump is not supported in 2.6.11-rc2-mm1 :-))
+
+The attached log is a log of running mkdump (it supports x86_64). not kdump.
+The basic procedure before jumping new kernel is almost same as kdump.
+So I inform this infromation to you since I think it may be helpfull 
+for kdump development.
+
+> Ok. Thanks.  This is a legitimate bug.  And it is probably the reason
+> I even care about the non-SMP interrupt case some days.  The problem
+> is that the kernel just assumes interrupts are setup in non-APIC mode
+> when it starts booting, and quite possibly only the bootstrap cpu can
+> see those interrupts. 
+> 
+> So I believe the fix needs to be to enable apics before we calibrate
+> the delay timer.  I'm not certain off the top of my head what that
+> patch will look like but it should not be fundamentally hard.  
+> With that code in place we also don't need to do any APIC shutdown
+> as the kernel knows enough to completely setup the apics.
+
+I see. Thank you for your explanation.
+
+Thanks.
+-- 
+Itsuro ODA <oda@valinux.co.jp>
+

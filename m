@@ -1,53 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263469AbTDIOdR (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 10:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbTDIOdR (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 10:33:17 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:5294 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263469AbTDIOdN (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 10:33:13 -0400
-Date: Wed, 09 Apr 2003 07:07:25 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 560] New: Wacom driver isn't working
-Message-ID: <179750000.1049897245@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id S263475AbTDIOiT (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 10:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263476AbTDIOiT (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 10:38:19 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:41375 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S263475AbTDIOiS convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 10:38:18 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.4.20-ck5
+Date: Thu, 10 Apr 2003 00:50:40 +1000
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
+Message-Id: <200304100051.05470.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=560
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-           Summary: Wacom driver isn't working
-    Kernel Version: 2.5.66
-            Status: NEW
-          Severity: normal
-             Owner: vojtech@suse.cz
-         Submitter: simon@ulsnes.dk
+I've posted an update to my patchset:
 
+http://kernel.kolivas.org
 
-Distribution: Gentoo 1.4r2 
- 
-Hardware Environment: AMD Athlon 650 MHz, VIA KT133 motherboard 
- 
-Software Environment: XFree 4.3.0, KDE 3.1.1 
- 
-Problem Description: The wacom driver simply doesn't work. Everything _looks_ ok, 
-but the tablet (a USB Graphire2) doesn't respond. The driver is loaded OK and 
-XFree reports that the tablet is found (on /dev/input/event1), so does the kernel 
-when the driver is compiled in. 
-On kernels 2.4.18 through 2.4.20, everything worked OK with similar kernel 
-configurations. 
-Please, I need my tablet! (and I need 2.5.x :) 
- 
-Steps to reproduce: 
-1. Connect your Wacom Graphire2 tablet to your USB-port. (haven't tried the 
-Intous series) 
-2. Compile kernel 2.5.x with Wacom Tablet support either as a module or 
-compiled-in. 
-3. Modify /etc/X11/XF86Config to match your tablet. 
-4. Realize that nothing works... :-( 
- 
+O(1) scheduler
+Interactivity backport
+Preempt
+Low Latency
+AA VM
+Read Latency2
+Supermount
+XFS 1.2
+ACPI
+CD/DVD Packet Writing
+Variable HZ
+Scheduler Tunables
+Desktop Tuning
++/- Rmap15e
+
+Significant updates:
+The interactivity changes to the O(1) scheduler by Mingo have been 
+incorporated.
+Supermount has had a minor touch up to remove annoying warnings on shutdown.
+XFS has been updated to the latest snapshot.
+Hz may be set at config time again
+Scheduler tunables has been backported from 2.5
+Rmap has been updated to 15e
+
+It became clear that even with the interactivity changes audio skipping could 
+occur so I've added some more desktop tuning to this version far less drastic 
+than the previous kernels. The desktop tuning patch just changes a few of the 
+default settings and these are all able to be modified at config or after 
+boot if so desired. The options chosen were:
+
+Hz set to 500
+Min timeslice set to 2ms
+Max Timeslice set to 40ms
+
+A FAQ on NOT renicing X with this kernel has been added to my homepage.
+
+Please feel free to send me comments, queries, suggestions, bug reports, 
+patches etc.
+
+Enjoy!
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+lDNAF6dfvkL3i1gRAqVSAJ4v6YMFE4OH0hN/EeOM5xssu7JrqwCglp3t
+DXDZ8zNH90jxivl7I4nKee8=
+=TZkg
+-----END PGP SIGNATURE-----
 

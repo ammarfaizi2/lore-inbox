@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbVCHMJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVCHMWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbVCHMJP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 07:09:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVCHMHn
+	id S261456AbVCHMWW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 07:22:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVCHMWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 07:07:43 -0500
-Received: from mail1.skjellin.no ([80.239.42.67]:52913 "EHLO mx1.skjellin.no")
-	by vger.kernel.org with ESMTP id S262026AbVCHMA6 (ORCPT
+	Tue, 8 Mar 2005 07:22:22 -0500
+Received: from smtpout.mac.com ([17.250.248.87]:3554 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261456AbVCHMWS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 07:00:58 -0500
-Message-ID: <422D93FB.2030103@tomt.net>
-Date: Tue, 08 Mar 2005 13:00:59 +0100
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11-ac1
-References: <1110231261.3116.90.camel@localhost.localdomain>
-In-Reply-To: <1110231261.3116.90.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 8 Mar 2005 07:22:18 -0500
+In-Reply-To: <20050308123714.07d68b90@zanzibar.2ka.mipt.ru>
+References: <11102278521318@2ka.mipt.ru> <1FA9E37C-8F90-11D9-A2CF-000393ACC76E@mac.com> <20050308123714.07d68b90@zanzibar.2ka.mipt.ru>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <ACAE2383-8FCC-11D9-A2CF-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
+       cryptoapi@lists.logix.cz, David Miller <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Fruhwirth Clemens <clemens@endorphin.org>,
+       Andrew Morton <akpm@osdl.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel 2.6
+Date: Tue, 8 Mar 2005 07:22:01 -0500
+To: johnpol@2ka.mipt.ru
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-<snip>
-> Functionality
-> o	PWC USB camera driver
-> o	Working ULI526X support (added to base in .11 but broken)
-> o	ATP88x support
-> o	Intelligent misrouted IRQ handlers
-> o	Fix PCI boxes that take minutes IDE probing
-> o	Remove bogus confusing XFree86 keyboard message
-> o	Support fibre AMD pcnet32
-> o	Runtime configurable clock
-> 	| So you can run laptops usefully. Set 100Hz to fix
-> 	| the power drain, clock sliding and other problems
-> 	| 1000Hz causes
-> o	Fix token ring locking so token ring can be used again
-> o	x86_64/32 cross build fixes
-> o	NetROM locking fixes (so NetROM actually works!)
-> o	SUID dumpable support
-> o	Don't log pointless CD messages
-> o	Minimal stallion driver functionality
+On Mar 08, 2005, at 04:37, Evgeniy Polyakov wrote:
+>>
+>> Did you include support for the new key/keyring infrastructure
+>> introduced a couple versions ago by David Howells?  It allows
+>> user-space to create and manage various sorts of "keys" in
+>> kernel-space.  If you create and register a few keytypes for
+>> various symmetric and asymmetric ciphers, you could then take
+>> advantage of its support for securely passing keys around in
+>> and out of userspace.
+>
+> As far as I know, it has different destination - for example
+> asynchronous block device, which uses acrypto in one of it's
+> filters, may use it.
 
-Incomplete list? Seems like there is quite a bit of changes in the diff 
-not mentioned "changelog" - HPT, generic ide, ide_dma rename, serio 
-"spank" stuff, pci ids
+I'm not exactly familiar with asynchronous block device, but I'm
+guessing that it would need to get its crypto keys from the user
+somehow, no?  If so, then the best way of managing them is via
+the key/keyring infrastructure.  From the point of view of other
+kernel systems, it's basically a set of BLOB<=>task associations
+that supports a reasonable inheritance and permissions model.
 
--- 
-Mvh,
-André Tomt
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

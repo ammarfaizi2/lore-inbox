@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282976AbRL0XE0>; Thu, 27 Dec 2001 18:04:26 -0500
+	id <S283003AbRL0XT5>; Thu, 27 Dec 2001 18:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282979AbRL0XEP>; Thu, 27 Dec 2001 18:04:15 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:64267 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S282976AbRL0XEL>;
-	Thu, 27 Dec 2001 18:04:11 -0500
-Message-Id: <200112272304.AAA05151@webserver.ithnet.com>
-Cc: "James Stevenson" <mistral@stev.org>, jlladono@pie.xtec.es,
-        linux-kernel@vger.kernel.org
-Date: Fri, 28 Dec 2001 00:04:01 +0100
-Subject: Re: 2.4.x kernels, big ide disks and old bios
-To: Guest section DW <dwguest@win.tue.nl>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S283012AbRL0XTr>; Thu, 27 Dec 2001 18:19:47 -0500
+Received: from [62.47.19.152] ([62.47.19.152]:12930 "HELO twinny.dyndns.org")
+	by vger.kernel.org with SMTP id <S283003AbRL0XTd>;
+	Thu, 27 Dec 2001 18:19:33 -0500
+Message-ID: <3C2BAAA3.4BAC6751@webit.com>
+Date: Fri, 28 Dec 2001 00:11:31 +0100
+From: Thomas Winischhofer <tw@webit.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
 MIME-Version: 1.0
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-In-Reply-To: <20011227234104.B4528@win.tue.nl>
-From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] sis drm module
+Content-Type: multipart/mixed;
+ boundary="------------C247268508FF5BB8974018B3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Dec 27, 2001 at 07:51:01PM +0100, Stephan von Krawczynski   
-wrote:                                                                
->                                                                     
-> > I don't know. I tried once with                                   
-> >                                                                   
-> > 00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
-(rev d0)                                                              
-> >                                                                   
-> > and it did not work. I could definitely not write beyond the 32 GB
-border. I                                                             
-> > replaced the mobo then.                                           
->                                                                     
-> Did you try setmax?                                                 
-                                                                      
-unfortunately not, I did not even know it existed before this thread. 
-I must admit I have still not had a look at it, but on the other hand:
-if it makes big IDE drives work on old mobo & bios, it may be a good  
-idea to include its intelligence into the kernel, or not?             
-Yes, I know that people nowadays tend to strip down _old_ stuff from  
-the current sources, but I guess it is not a big loss in code size    
-either, is it?                                                        
-knock, knock .. hello IDE maintainer, how about a Xmas present ?      
-:-)                                                                   
-                                                                      
-Regards,                                                              
-Stephan                                                               
-                                                                      
-                                                                      
+This is a multi-part message in MIME format.
+--------------C247268508FF5BB8974018B3
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+
+Hi,
+
+without this patch, only root can execute DRI applications under X.
+Users can't and just receive a (incorrect) "out of video memory" error,
+which is basically a "permission denied".
+
+Please apply.
+
+Thomas
+
+-- 
+Thomas Winischhofer
+Vienna/Austria
+mailto:tw@webit.com              *** http://www.webit.com/tw
+--------------C247268508FF5BB8974018B3
+Content-Type: text/plain; charset=us-ascii;
+ name="sis_patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sis_patch"
+
+--- /usr/src/linux/drivers/char/drm/sis_drv_old.c	Thu Dec 27 23:52:11 2001
++++ /usr/src/linux/drivers/char/drm/sis_drv.c	Thu Dec 27 23:45:48 2001
+@@ -40,8 +40,8 @@
+ #define DRIVER_PATCHLEVEL  0
+ 
+ #define DRIVER_IOCTLS \
+-        [DRM_IOCTL_NR(SIS_IOCTL_FB_ALLOC)]   = { sis_fb_alloc,	  1, 1 }, \
+-        [DRM_IOCTL_NR(SIS_IOCTL_FB_FREE)]    = { sis_fb_free,	  1, 1 }, \
++        [DRM_IOCTL_NR(SIS_IOCTL_FB_ALLOC)]   = { sis_fb_alloc,	  1, 0 }, \
++        [DRM_IOCTL_NR(SIS_IOCTL_FB_FREE)]    = { sis_fb_free,	  1, 0 }, \
+         /* AGP Memory Management */					  \
+         [DRM_IOCTL_NR(SIS_IOCTL_AGP_INIT)]   = { sisp_agp_init,	  1, 1 }, \
+         [DRM_IOCTL_NR(SIS_IOCTL_AGP_ALLOC)]  = { sisp_agp_alloc,  1, 1 }, \
+
+--------------C247268508FF5BB8974018B3--
+

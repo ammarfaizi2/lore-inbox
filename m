@@ -1,84 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289018AbSAUDDW>; Sun, 20 Jan 2002 22:03:22 -0500
+	id <S289022AbSAUDJV>; Sun, 20 Jan 2002 22:09:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289017AbSAUDDL>; Sun, 20 Jan 2002 22:03:11 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:6928 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S289020AbSAUDCw>; Sun, 20 Jan 2002 22:02:52 -0500
-Message-ID: <3C4B8362.8B249698@zip.com.au>
-Date: Sun, 20 Jan 2002 18:56:34 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S289021AbSAUDJL>; Sun, 20 Jan 2002 22:09:11 -0500
+Received: from fe1.rdc-kc.rr.com ([24.94.163.48]:35340 "EHLO mail1.kc.rr.com")
+	by vger.kernel.org with ESMTP id <S289017AbSAUDJC>;
+	Sun, 20 Jan 2002 22:09:02 -0500
+To: vic <zandy@cs.wisc.edu>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] ptrace on stopped processes (2.4)
+In-Reply-To: <m3adwc9woz.fsf@localhost.localdomain>
+	<87g0632lzw.fsf@mathdogs.com> <m3advcq5jv.fsf@localhost.localdomain>
+Date: 20 Jan 2002 21:09:00 -0600
+In-Reply-To: <m3advcq5jv.fsf@localhost.localdomain>
+Message-ID: <87665wbdtf.fsf@mathdogs.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.1
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: Your message of "Sun, 20 Jan 2002 18:04:00 -0800."
-	             <3C4B7710.6C518006@zip.com.au> <324.1011579918@kao2.melbourne.sgi.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: "Mike Coleman" <mkc+dated+1012446540.067c74@mathdogs.com>
+X-Delivery-Agent: TMDA/0.44 (Python 2.1.1; linux-i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+vic <zandy@cs.wisc.edu> writes:
+> From: Mike Coleman <mkc@mathdogs.com>:
+> > Also, is this something that used to work?  Or would this be a change in the
+> > semantics of ptrace?
 > 
-> On Sun, 20 Jan 2002 18:04:00 -0800,
-> Andrew Morton <akpm@zip.com.au> wrote:
-> >ksymoops doesn't know what modules were loaded at the time
-> >of the crash, and it doesn't know where they were loaded.
+> This is a change of semantics at least going back to 2.2.
+
+Okay.  Is it at least backward compatible?  Or are some tools expected to
+break?
+
+> > Unless I'm missing something (frequently the case), there are two cases here:
+> > (1) the tracer wants to leave the tracee stopped, and (2) the tracer wants the
+> > process to continue running in as natural a way as possible, meaning without
+> > sending it a SIGCONT (which can cause the SIGCONT signal handler to execute).
+> > As things currently stand, we have behavior (2), and (1) is not possible.
+> > With your change, we'd have behavior (1), and (2) would not be possible.
 > 
-> /var/log/ksymoops.  man insmod and look for ksymoops assistance.
+> I agree that the ability to do (2) should be preserved, but I don't
+> see how this patch breaks it; do you have an example?
 
-Oh I have, extensively, when trying to get kgdb to play with
-modules.  I did what any sensible person would do: gave up and went
-for a static link.
+No, I was just going by reading the kernel code.  Can you describe how each of
+(1) and (2) are accomplished by the ptracing program (with your patch)?
 
-I'm not aware of anyone getting kgdb working fully with modules.
-
-> >The `klogd -x' problem has been with us for *years* and
-> >distributors still persist in turning it on.
-> 
-> Tell me about it :(.
-> 
-> >It assumes too much.  Arjan has a kksymoops thingy which does the symbol
-> >resolution at crash-time.
-> 
-> It can only get symbols that are in /proc/ksyms, i.e. the exported
-> symbols.  Proper crash analysis needs the full symbol table.
-
-Proper crash analysis needs to know the load address of each module
-at the time of the crash.  We should print them out at Oops time.
-
-> >It also
-> >handles the common case where the running vmlinux/System.map/etc no longer
-> >exist.
-> 
-> So does ksymoops, with reduced detail because it only has exported
-> symbols.
-> 
-> >I would prefer that all this become easier, simpler and more reliable.
-> >We need a damn good reason for deprecating statically linked kernels
-> >and certainly none has been presented yet.
-> 
-> That is a different problem.  Saying that modular kernels cause
-> problems for debugging is not a good enough reason to deprecate modular
-> kernels, all the problems have been solved.
-
-They are patently *not* solved, because we continue to get a
-stream of partially and competely useless oops reports.  It
-is my empirical observation that this problem is worse when
-modules are involved.  It is my personal experience that
-modular code is harder to debug.
-
-It is also my personal experience that the refusal of sbp2.o to
-work correctly when statically linked was a complete pain in the
-ass when trying to diagnose its deadlock and module refcount
-problems.  It was only when I worked out that I could link it
-statically and then get it to play via rescan-scsi-bus.sh that
-I was able to make reasonably-paced progress in finding the bugs.
-
-We don't want this to happen to every damn driver in the kernel.
-
--
+Mike

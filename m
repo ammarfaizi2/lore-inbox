@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbTIFNgp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 09:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbTIFNgp
+	id S261196AbTIFNh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 09:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbTIFNh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 09:36:45 -0400
-Received: from lucidpixels.com ([66.45.37.187]:40878 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261238AbTIFNgo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 09:36:44 -0400
-Date: Sat, 6 Sep 2003 09:36:42 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p500
-To: linux-kernel@vger.kernel.org
-Subject: CONFIG_AGP_INTEL Question.
-Message-ID: <Pine.LNX.4.56.0309060935320.10980@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 6 Sep 2003 09:37:27 -0400
+Received: from madrid10.amenworld.com ([217.174.194.138]:36363 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S261196AbTIFNhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 09:37:24 -0400
+Date: Sat, 6 Sep 2003 15:40:29 +0200
+From: DervishD <raul@pleyades.net>
+To: Ch & Ph Drapela <pcdrap@bluewin.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hardware supported by the kernel
+Message-ID: <20030906134029.GE69@DervishD>
+References: <3F59DF81.8000407@bluewin.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3F59DF81.8000407@bluewin.ch>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering when/how often do updates take place to this driver?
-I have an Intel i875 chipset and was wondering when it would be possible
-to use AGPGART/etc (to use GLX/3D stuff).
+    Hi Yannick :)
 
+ * Ch & Ph Drapela <pcdrap@bluewin.ch> dixit:
+> - a pentium 4 2.8 GHz with hyprthreading
 
-CONFIG_AGP_INTEL:
+    I think that it is...
 
-This option gives you AGP support for the GLX component of the
-XFree86 4.x on Intel 440LX/BX/GX, 815, 820, 830, 840, 845, 850 and 860
-chipsets.
+> - an ATI Gapiccard
 
-You should say Y here if you use XFree86 3.3.6 or 4.x and want to
-use GLX or DRI.  If unsure, say N.
+    I have an ATI card (128 LT Pro) and it's fully supported. IMHO
+all ATI cards are.
+
+> - the other things should work (DVD-Rom and CD RW)
+
+    Y have a Plextor Premium CDrecorder and it works. Any ATAPI DVD
+should be supported. See the cdrecord homepage to see supported and
+unsupported CD-recorders. I recommend Plextor, anyway.
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

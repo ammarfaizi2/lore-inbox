@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTEHRDa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 13:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTEHRDa
+	id S261879AbTEHRO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 13:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTEHRO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 13:03:30 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:27014 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261893AbTEHRD3 (ORCPT
+	Thu, 8 May 2003 13:14:29 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:37536 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261879AbTEHRO1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 13:03:29 -0400
-Date: Thu, 8 May 2003 10:12:48 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: top stack (l)users for 2.5.69
-Message-Id: <20030508101248.13be1f4c.rddunlap@osdl.org>
-In-Reply-To: <20030508171042.V626@nightmaster.csn.tu-chemnitz.de>
-References: <20030507132024.GB18177@wohnheim.fh-wedel.de>
-	<Pine.LNX.4.53.0305070933450.11740@chaos>
-	<1052332566.752437@palladium.transmeta.com>
-	<3EB95BD7.8060700@pobox.com>
-	<20030507133856.02748f4e.rddunlap@osdl.org>
-	<20030508171042.V626@nightmaster.csn.tu-chemnitz.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 8 May 2003 13:14:27 -0400
+To: <linux-kernel@vger.kernel.org>
+Cc: Jamie Lokier <jamie@shareable.org>
+Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
+References: <20030506164252.GA5125@mail.jlokier.co.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 08 May 2003 13:11:00 +0200
+In-Reply-To: <20030506164252.GA5125@mail.jlokier.co.uk>
+Message-ID: <m3llxhlmm3.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 May 2003 17:10:42 +0200 Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> wrote:
+Jamie Lokier <jamie@shareable.org> writes:
 
-| On Wed, May 07, 2003 at 01:38:56PM -0700, Randy Dunlap wrote:
-| > I've written a few of the stack reduction patches.  Lots of ioctl functions
-| > need work, so gcc handling it better would be good to have.
-| > 
-| > I have mostly used kmalloc/kfree, but using automatic variables is certainly
-| > cleaner to write (code).  One of the patches that I did just made each ioctl
-| > cmd call a separate function, and then each separate function was able to use
-| > automatic variables on the stack instead of kmalloc/kfree.  I prefer this
-| > method when it's feasible (and until gcc can handle these cases).
-| 
-| Wouldn't be a explicit union a better solution for the
-| switch-statement-issue? 
-| 
-| That way you still can use stack, are using even less of it and
-| have still all cases in place.
+> I was mulling over a commercial project proposal, and this question
+> came up:
+> 
+> What's the position of kernel developers towards using the GPL'd Linux
+> kernel modules - that is, device drivers, network stack, filesystems
+> etc. - with a binary-only, closed source kernel that is written
+> independently of Linux?
 
-Sure, that's a good solution too.  Better one is the gcc solution.
+IANAL, but Linux drivers are usually licensed under the GPL and not LGPL.
+> 
+> I realise that linking the modules directly with the binary kernel is
+> a big no no, but what if they are dynamically loaded?
 
---
-~Randy
+You mean one big file versus many small fragments? I don't think there
+is a difference. LGPL would permit that (in fact, it seems to be the
+difference between GPL and LGPL).
+
+> There seems to be a broad agreement, and I realise it isn't unanimous,
+> that dynamically loading binary-only modules into the Linux kernel is
+> ok.
+
+That's different, the modules are not (generally) derivatives of the
+kernel. The (running) kernel is a derivative of both the GPL code and
+binary drivers (all parts are linked at run time) - and while you can't
+distribute such a beast at all, you usually don't want to.
+(which makes me wonder if "distributing" a running machine with binary
+drivers linked to the kernel is legal :-) )
+
+>  Furthermore, there are some funny rules about which interfaces a
+> binary-only module may use and which it may not, before it's
+> considered a derivative work of the kernel.
+
+IMHO it's independent problem, not related to the license, but rather
+to source code symbol names (a technical and not legal issue - something
+like copy-protection mechanisms).
+
+> So, as dynamic loading is ok between parts of Linux and binary-only
+> code, that seems to imply we could build a totally different kind of
+> binary-only kernel which was able to make use of all the Linux kernel
+> modules.
+
+Build - sure. However, distributing such a system (with GPLed parts)
+would be illegal, unless the GPLed code is not a part of the system,
+and rather an "independent and separate work" (i.e. the system does not
+"depend" on GPL part).
+-- 
+Krzysztof Halasa
+Network Administrator

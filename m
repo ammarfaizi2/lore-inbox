@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264844AbSKIMtc>; Sat, 9 Nov 2002 07:49:32 -0500
+	id <S264934AbSKINEA>; Sat, 9 Nov 2002 08:04:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264895AbSKIMtc>; Sat, 9 Nov 2002 07:49:32 -0500
-Received: from dialin-145-254-146-236.arcor-ip.net ([145.254.146.236]:2432
-	"HELO schottelius.net") by vger.kernel.org with SMTP
-	id <S264844AbSKIMtb>; Sat, 9 Nov 2002 07:49:31 -0500
-Date: Thu, 7 Nov 2002 07:28:54 +0100
-From: Nico Schottelius <schottelius@wdt.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Steven Newbury <lkml@ntlworld.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUGS 2.5.45]
-Message-ID: <20021107062854.GB341@schottelius.org>
-References: <3DCADCD1.8010406@ntlworld.com> <Pine.GSO.4.21.0211081039450.23267-100000@vervain.sonytel.be>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XF85m9dhOBO43t/C"
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0211081039450.23267-100000@vervain.sonytel.be>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.4.19
+	id <S265091AbSKINEA>; Sat, 9 Nov 2002 08:04:00 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:3712 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S264934AbSKIND7> convert rfc822-to-8bit; Sat, 9 Nov 2002 08:03:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
+Date: Sun, 10 Nov 2002 00:09:40 +1100
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       marcelo@conectiva.com.br, Andrea Arcangeli <andrea@suse.de>
+References: <200211091300.32127.conman@kolivas.net> <200211091612.08718.conman@kolivas.net> <20021109112135.GB31134@suse.de>
+In-Reply-To: <20021109112135.GB31134@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211100009.55844.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---XF85m9dhOBO43t/C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Geert Uytterhoeven [Fri, Nov 08, 2002 at 10:40:28AM +0100]:
-> On Thu, 7 Nov 2002, Steven Newbury wrote:
-> > I was also surprised to notice that there is no support in X for FBDev=
-=20
-> > with mach64 cards.  I was under the impression that they used to be=20
-> > common on older powermacs where the fbdev was essential.
->=20
-> The XFree86 Mach64 maintainer doesn't like fbdev.
+>On Sat, Nov 09 2002, Con Kolivas wrote:
+>> >You're showing a big shift in behaviour between 2.4.19 and 2.4.20-rc1.
+>> >Maybe it doesn't translate to worsened interactivity.  Needs more
+>> >testing and anaysis.
+>>
+>> Sounds fair enough. My resources are exhausted though. Someone else have
+>> any thoughts?
+>
+>Try setting lower elevator passover values. Something ala
+>
+># elvtune -r 64 /dev/hda
+>
+>(or whatever your drive is)
 
-I don't like it not working. Some XFree people (which I respect) seem to di=
-slike
-things happening on the console...
-At least this might explain why I never had any success to contact the XFree
-mouse maintainer to coordinate work with him..
+Heres some more data:
 
-Nico
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.20-rc1 [2]          1142.2  6       90      10      16.00
+2420rc1r64 [3]          575.0   12      43      10      8.05
 
---=20
-Changing mail address: please forget all known @pcsystems.de addresses.
+That's it then. Should I run a family of different values and if so over what 
+range?
 
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-
---XF85m9dhOBO43t/C
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
+Cheers,
+Con
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-iD8DBQE9yggmtnlUggLJsX0RAu1cAKCFUHflR4Si0db+fbb5ALyyFOfhcgCePaLq
-JUldB7cnpFA8xm9hnnUU4sI=
-=Dwvr
+iD8DBQE9zQkXF6dfvkL3i1gRAggJAKCOAWzrTxFlnPbOftzMAXPnvI7KVQCfWqUC
+iDVmD1UcPDNPWCfQmlBF9yk=
+=Q299
 -----END PGP SIGNATURE-----
 
---XF85m9dhOBO43t/C--

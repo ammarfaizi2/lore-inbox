@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUFRVjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbUFRVoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUFRVjO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 17:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbUFRVjL
+	id S263020AbUFRVoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 17:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbUFRVha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 17:39:11 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:18907 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264540AbUFRVie (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 17:38:34 -0400
-Date: Fri, 18 Jun 2004 23:38:30 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618213830.GT20632@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <40D33C58.1030905@am.sony.com> <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com> <20040618200848.GL20632@lug-owl.de> <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org> <20040618211000.GP20632@lug-owl.de> <20040618211352.GC7404@suse.de>
+	Fri, 18 Jun 2004 17:37:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52741 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263020AbUFRVU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 17:20:27 -0400
+Date: Fri, 18 Jun 2004 22:20:14 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, tony@atomide.com,
+       David Brownell <david-b@pacbell.net>, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-ID: <20040618222014.D17516@flint.arm.linux.org.uk>
+Mail-Followup-To: James Bottomley <James.Bottomley@steeleye.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>,
+	Greg KH <greg@kroah.com>, tony@atomide.com,
+	David Brownell <david-b@pacbell.net>, joshua@joshuawise.com
+References: <1087582845.1752.107.camel@mulgrave> <20040618193544.48b88771.spyro@f2s.com> <1087584769.2134.119.camel@mulgrave> <40D340FB.3080309@hp.com> <1087589651.8210.288.camel@gaston> <1087590286.2135.161.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kAHtB+q+uXx2ka66"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040618211352.GC7404@suse.de>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1087590286.2135.161.camel@mulgrave>; from James.Bottomley@steeleye.com on Fri, Jun 18, 2004 at 03:24:45PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 18, 2004 at 03:24:45PM -0500, James Bottomley wrote:
+> On Fri, 2004-06-18 at 15:14, Benjamin Herrenschmidt wrote:
+> > I wanted to do just that a while ago, and ended up doing things a bit
+> > differently, but still, I agree that would help. The thing is, you
+> > can do that in your platform code. just use the platform data pointer
+> > in struct device to stuff a ptr to the structure with your "ops"
+> 
+> Yes, we do this on parisc too.  We actually have a hidden method pointer
+> (per platform) and cache the iommu (we have more than one) accessors in
+> platform_data.
 
---kAHtB+q+uXx2ka66
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Except that platform_data already has multiple other uses, especially for
+platform devices.
 
-On Fri, 2004-06-18 23:13:53 +0200, Jens Axboe <axboe@suse.de>
-wrote in message <20040618211352.GC7404@suse.de>:
-> On Fri, Jun 18 2004, Jan-Benedict Glaw wrote:
-
-> > Hope the CE Forum will show some engagement there. Or OSDL. Or IBM.
-> > Or ...  But usually, that's hot air. No direct income :--<
->=20
-> Come on people, not everything is counted in dollars or euros. Lots of
-> people enjoy doing auxiliary work in their spare time and get loads
-> done. If it doesn't work for you, then maybe you are not the right for
-> the job or maybe you are doing something wrong.
-
-Well, sometimes I actually do some nice work to put on the table, but
-keeping an eye on a good number of vendor trees is IMHO *far* beyond
-what you'd actually do at some late evening at the weekends. That's way
-more than a good full-time job. At least, I think so.
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---kAHtB+q+uXx2ka66
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA02DWHb1edYOZ4bsRAiMeAKCNJ9bhXhh4PjkoJqyFCV0sQtzduwCePVII
-dmWNmNU8xI9FRKMmff0HOPE=
-=nW67
------END PGP SIGNATURE-----
-
---kAHtB+q+uXx2ka66--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

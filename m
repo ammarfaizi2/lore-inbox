@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262656AbSJHCZI>; Mon, 7 Oct 2002 22:25:08 -0400
+	id <S262685AbSJHCbl>; Mon, 7 Oct 2002 22:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbSJHCZI>; Mon, 7 Oct 2002 22:25:08 -0400
-Received: from ool-182fa350.dyn.optonline.net ([24.47.163.80]:20871 "EHLO
-	nikolas.hn.org") by vger.kernel.org with ESMTP id <S262656AbSJHCZH>;
-	Mon, 7 Oct 2002 22:25:07 -0400
-Date: Mon, 7 Oct 2002 22:30:36 -0400
-From: Nick Orlov <nick.orlov@mail.ru>
-To: Bruce Lowekamp <lowekamp@CS.WM.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre8 swaps ide controller order on A7V266-E
-Message-ID: <20021008023036.GA14477@nikolas.hn.org>
-Mail-Followup-To: Bruce Lowekamp <lowekamp@CS.WM.EDU>,
-	linux-kernel@vger.kernel.org
-References: <15570000.1033586626@chorus.cs.wm.edu>
+	id <S262713AbSJHCbl>; Mon, 7 Oct 2002 22:31:41 -0400
+Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:53890 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S262685AbSJHCbk>;
+	Mon, 7 Oct 2002 22:31:40 -0400
+Date: Mon, 7 Oct 2002 19:36:54 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Daniel Phillips <phillips@arcor.de>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 -  (NUMA))
+Message-ID: <20021008023654.GA29076@netnation.com>
+References: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE> <1281002684.1033892373@[10.10.2.3]> <E17ybuZ-0003tz-00@starship> <3DA1D30E.B3255E7D@digeo.com> <3DA1D969.8050005@nortelnetworks.com> <3DA1E250.1C5F7220@digeo.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15570000.1033586626@chorus.cs.wm.edu>
+In-Reply-To: <3DA1E250.1C5F7220@digeo.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 07, 2002 at 12:36:48PM -0700, Andrew Morton wrote:
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-
-On Wed, Oct 02, 2002 at 03:23:46PM -0400, Bruce Lowekamp wrote:
+> Block allocators are fertile grounds for academic papers.  It's
+> complex.  There is a risk that you can do something which is
+> cool in testing, but ends up exploding horridly after a year's
+> use.  By which time we have ten million deployed systems running like
+> dogs, damn all we can do about it.
 > 
-> Starting with 2.4.19 and continuing in 2.4.20-pre8, the order the kernel 
-> associates with the two IDE controllers (one VIA vt8233 and one PDC20265 
-> intended for RAID use) on the A7V266-E has been reversed.  The BIOS and 
-> GRUB consider the VIA to be first, so root(hd0,0) loads the kernel from the 
-> first device on the VIA controller.  Prior to 2.4.19, the OS then booted 
-> with that drive identified as hda.  Beginning with 2.4.19, however, the 
-> kernel instead identifies the PDC as ide0 and ide1, and puts the VIA at 
-> ide2 and ide3, resulting in the boot drive being hde.
+> The best solution is to use first-fit and online defrag to fix the
+> long-term fragmentation.  It really is.  There has been no appreciable
+> progress on this.
 > 
-> I found an earlier mention of this on the mailing list, but no solution or 
-> workaround was suggested.  We are using a workaround where 2.4.19 and later 
-> kernels are booted with root=/dev/hde1 and earlier with hda1, and fstab 
-> lists both hda2 and hde2 as swap partitions, simply failing to insert one. 
-> This works, but the general ugliness and maintenance headaches since this 
-> is different than the typical machine config we use around here make it 
-> difficult to use in the long run.
-> 
-> I'm not sure what the process of identifying order of controllers involves, 
-> but the discrepancy between the BIOS, older kernels, and newer kernels 
-> seems like something that should be fixed if possible.
-> 
-> Thanks for any help,
-> Bruce Lowekamp
+> A *practical* solution is to keep a spare partition empty and do
+> a `cp -a' from one partition onto another once per week and
+> swizzle the mountpoints.  Because the big copy will unfragment
+> everything.
 
-You can apply this tiny patch.
-Works for me just fine.
+Having seen fragmentation issues build up on (mbox) mail spools over
+several years first hand, I can say that mail spools definitely show the
+need for a defragmentation tool.  I remember actually doing the "cp -a"
+trick just to restore the mail server to decent performance (which
+worked amazingly well, for another few months).  (This was before we
+switched to hashed directories and a POP3 server which caches mbox
+messages offsets/UIDLs/states.)
 
-I have another version of patch - slightly bigger. It introduces new
-config option CONFIG_PDC20265_PRIMARY. But peoples here don't like those
-solutions. I was fighting a little bit and then gave up.
+Being able to defragment online would be very useful.  I've seen some
+people talk about this every so often.  How far away is it?
 
-Hope it helps.
+Simon-
 
--- 
-With best wishes,
-	Nick Orlov.
-
-
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: attachment; filename="pdc20265.patch"
-
---- linux/drivers/ide/ide-pci.c.orig	2002-08-01 21:41:29.000000000 -0400
-+++ linux/drivers/ide/ide-pci.c	2002-08-01 21:10:27.000000000 -0400
-@@ -405,7 +405,7 @@
- #ifndef CONFIG_PDC202XX_FORCE
-         {DEVID_PDC20246,"PDC20246",	PCI_PDC202XX,	NULL,		INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	16 },
-         {DEVID_PDC20262,"PDC20262",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
--        {DEVID_PDC20265,"PDC20265",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	ON_BOARD,	48 },
-+        {DEVID_PDC20265,"PDC20265",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
-         {DEVID_PDC20267,"PDC20267",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
- #else /* !CONFIG_PDC202XX_FORCE */
- 	{DEVID_PDC20246,"PDC20246",	PCI_PDC202XX,	NULL,		INIT_PDC202XX,	NULL,		{{0x50,0x02,0x02}, {0x50,0x04,0x04}}, 	OFF_BOARD,	16 },
-
---qMm9M+Fa2AknHoGS--
+[        Simon Kirby        ][        Network Operations        ]
+[     sim@netnation.com     ][     NetNation Communications     ]
+[  Opinions expressed are not necessarily those of my employer. ]

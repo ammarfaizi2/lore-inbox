@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbTD3TTY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 15:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbTD3TTY
+	id S262359AbTD3TPt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 15:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTD3TPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 15:19:24 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:34944 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262374AbTD3TTW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 15:19:22 -0400
-Date: Wed, 30 Apr 2003 20:31:38 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Gabriel Paubert <paubert@iram.es>, Andi Kleen <ak@suse.de>,
-       joe briggs <jbriggs@briggsmedia.com>, linux-kernel@vger.kernel.org
-Subject: Re: software reset
-Message-ID: <20030430193138.GA15981@mail.jlokier.co.uk>
-References: <200304291037.13598.jbriggs@briggsmedia.com.suse.lists.linux.kernel> <p73vfwx2uw8.fsf@oldwotan.suse.de> <20030430075004.GB13859@mail.jlokier.co.uk> <m1llxsfdpg.fsf@frodo.biederman.org> <20030430161525.GA3834@iram.es> <m1he8fgbpq.fsf@frodo.biederman.org>
+	Wed, 30 Apr 2003 15:15:49 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:26802 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262341AbTD3TPs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 15:15:48 -0400
+Date: Wed, 30 Apr 2003 21:28:09 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: P?l Halvorsen <paalh@ifi.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sendfile
+Message-ID: <20030430192809.GA8961@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	P?l Halvorsen <paalh@ifi.uio.no>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.51.0304301604330.12087@sondrio.ifi.uio.no> <20030430165103.GA3060@outpost.ds9a.nl> <Pine.SOL.4.51.0304302102300.12387@ellifu.ifi.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1he8fgbpq.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.SOL.4.51.0304302102300.12387@ellifu.ifi.uio.no>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> > On Wed, Apr 30, 2003 at 05:04:59AM -0600, Eric W. Biederman wrote:
-> > > 
-> > > And as an interesting data point all a triple fault does on a modern
-> > > system is to put the cpu in a weird stopped state.  Some hardware
-> > > usually the southbridge then detects this and if properly configured
-> > > will trigger the reset line.
-> > > 
-> > > I believe this may actually go back into history as far as the 486 but
-> > > I have not done the researched to see how far back this behavior goes.
-> > 
-> > Try 286. It was the fastest (actually only) way to make a 286 switch back
-> > from protected to real mode.
-> 
-> A triple fault would put a 286 into coma mode?  And the hardware had to
-> reset the chip?
+On Wed, Apr 30, 2003 at 09:12:17PM +0200, P?l Halvorsen wrote:
 
-And then, after the reset, a flag would tell the BIOS to jump directly
-to application's real mode code instead of booting as usual.
+> It could be useful for applications like streaming video where other
+> protocols on top provide additional functionality or in a multicast
+> session where TCP migth not be appropriate.
 
--- Jamie
+sendfile on UDP would try to send gigabits per second over ppp0...
+
+> But should not the 2.4.X kernels have support for chained sk_buffs (like
+> the BSD mbufs) meaning that support for scatter-gatter I/O from the NIC
+> should be unneccessary to support zero-copy (i.e., NO in-memory data
+> copy operations)?
+
+No clue what you mean over here. Zero copy means different things to
+different people. Sendfile eliminates the 'read(to buffer);write(buffer to
+network);' copy. 
+
+Some network drivers again may eliminate the 'copy_with_checksum()' step,
+allowing minus-one-copy, in zerocopy reference frame.
+
+Regards,
+
+bert
+
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

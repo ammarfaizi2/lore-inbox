@@ -1,84 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131625AbRDFNYy>; Fri, 6 Apr 2001 09:24:54 -0400
+	id <S131643AbRDFOH5>; Fri, 6 Apr 2001 10:07:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131629AbRDFNYp>; Fri, 6 Apr 2001 09:24:45 -0400
-Received: from [166.70.28.69] ([166.70.28.69]:42063 "EHLO flinx.biederman.org")
-	by vger.kernel.org with ESMTP id <S131625AbRDFNYj>;
-	Fri, 6 Apr 2001 09:24:39 -0400
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        James Simmons <jsimmons@linux-fbdev.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
-In-Reply-To: <Pine.GSO.3.96.1010405150444.21134E-100000@delta.ds2.pg.gda.pl> <m17l0zw6mx.fsf@frodo.biederman.org> <20010406140920.A4866@jurassic.park.msu.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Apr 2001 07:19:09 -0600
-In-Reply-To: Ivan Kokshaysky's message of "Fri, 6 Apr 2001 14:09:20 +0400"
-Message-ID: <m13dbmw4he.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S131657AbRDFOHr>; Fri, 6 Apr 2001 10:07:47 -0400
+Received: from pix-d1ca88f6.exodus.optigrab.com ([209.202.151.246]:31751 "EHLO
+	peabody.ops.endeca.com") by vger.kernel.org with ESMTP
+	id <S131643AbRDFOHb>; Fri, 6 Apr 2001 10:07:31 -0400
+Date: Fri, 6 Apr 2001 10:06:47 -0400 (EDT)
+From: majer@endeca.com
+To: linux-kernel@vger.kernel.org
+Subject: memory allocation problems
+Message-ID: <Pine.LNX.4.21.0104061001280.9562-300000@caffeine.ops.endeca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: MULTIPART/MIXED; BOUNDARY="717328-1042021635-986565913=:9562"
+Content-ID: <Pine.LNX.4.21.0104061005160.9562@caffeine.ops.endeca.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> On Thu, Apr 05, 2001 at 12:20:22PM -0600, Eric W. Biederman wrote:
-> > The point is on the Alpha all ram is always cached, and i/o space is
-> > completely uncached.  You cannot do write-combing for video card
-> > memory.
-> 
-> Incorrect. Alphas have write buffers - 6x32 bytes on ev5 and
-> 4x64 on ev6, IIRC. So alphas do write up to 32 or 64 bytes
-> in a single pci transaction.
+--717328-1042021635-986565913=:9562
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.21.0104061005161.9562@caffeine.ops.endeca.com>
 
-Sorry I was thinking the current alpha the ev6.  So what I'm saying
-doesn't apply to the alpha architecture in general just it's current
-specific implementation.   
 
-Yes for the ev6 you have write buffers but can't say just use the
-write buffers,  on an arbitrary area of memory. 
- 
-> >  Memory barriers are a separate issue.  On the alpha the
-> > natural way to implement it would be in the page table fill code.
-> > Memory barriers are o.k. but the really don't help the case when what
-> > you want to do is read the latest value out of a pci register.  
-> 
-> You don't need memory barrier for that. "Write memory barriers" are
-> used to ensure correct write order, and "memory barriers" are used
-> to ensure that all pending reads/writes will complete before next read
-> or write.
 
-100% Agreed. That is what I was saying.  What the ev6 doesn't have
-is the ability to say this: I am using this area of the memory address
-space in a particular way: don't cache it but do write combing on it.
+  Hi. Im hoping someone on here can help me out. I posted something
+  similar to this back in June 2000 when I was on the 2.2.X line and
+  was waiting to see if the 2.4 kernel would provide a fix.
 
-Theoretically you could use memory barrier instructions for this but
-it would require an I/O bus that supported a cache coherency
-protocol.  At which point the problem moves down to your PCI bus
-controller.
+  Essentially, the problem can be summarized to be that on a machine
+  with ample ram (2G, 4G, etc), I am unable to malloc a gig if I ask 
+  for the memory in small ( <= 128k) chunks. I've enclosed some results 
+  and a little program which was put together to demonstrate the problems
+  we're having.  All of the failures seem to occur around 930MB.
 
-I recall on the ev6 all memory accesses to locations with bit 40 set 
-are always to IO space are never cached and are never write buffered.
-Accesses to memory locations with bit 40 clear are always to RAM are
-always cached and always write buffered. 
+  I'm more than happy to try any tunings, patches, etc and my 
+  time is at your disposal.
 
-With the high I/O bus speeds unless you are trying to push things to
-the absolute limit you are unlikely to see the IO accesses being the
-bottleneck in or out to a PCI device.  At which point DMA probably
-already compensates, for most devices.
+  Thanks,
 
-IIRC For PCI card IO regions where you need maximum IO speed through
-the memory address space (like frame buffers) the ev6 falls down.
+  Karl
 
-I really like the alpha this is why this gals me so much about the
-ev6.  I hope they have it fixed for the ev7 or ev8.  If those chips
-ever actually arrive.  But as the ev7 is just supposed to be the ev6
-core with an on chip cache I don't have much hope.
+----
+        Karl Majer                          majer@endeca.com                 
+        Sr Systems Architect                617 577 7999 xt 251                
 
-Eric
+ "Think for yourselves and let others enjoy the privilege to do so, too."
+						     --Voltaire
+
+--717328-1042021635-986565913=:9562
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=results
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0104061005130.9562@caffeine.ops.endeca.com>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME=results
+
+ICBUaGUgZmllbGRzIGFyZTogDQogIEl0ZXJhdGlvbiwgQWRkciBvZiBwdHIs
+IEFkZHIgc3RvcmVkIGJ5IHB0ciwgYWxsb2MnZCBtZW0NCg0KICBzaXplOiA0
+MDk2DQogICMyMjg4NTIgKDQwMUYwN0Q4KSAoM0ZGRkM5NDgpIGFsbG9jYXRl
+ZCA5MzczODE4ODggYnl0ZXMgdG90YWwuDQogICMyMjg4NTMgKDQwMUYwN0RD
+KSAoM0ZGRkQ5NTApIGFsbG9jYXRlZCA5MzczODU5ODQgYnl0ZXMgdG90YWwu
+DQogIG1hbGxvYyBlcnJvciBDYW5ub3QgYWxsb2NhdGUgbWVtb3J5DQogIA0K
+ICBzaXplOiA4MTkyDQogICMxMTQ1MzYgKDQwMTgwREE4KSAoM0ZGRjk0RTgp
+IGFsbG9jYXRlZCA5MzgyODcxMDQgYnl0ZXMgdG90YWwuDQogICMxMTQ1Mzcg
+KDQwMTgwREFDKSAoM0ZGRkI0RjApIGFsbG9jYXRlZCA5MzgyOTUyOTYgYnl0
+ZXMgdG90YWwuDQogIG1hbGxvYyBlcnJvciBDYW5ub3QgYWxsb2NhdGUgbWVt
+b3J5DQogICANCiAgc2l6ZTogMTYzODQNCiAgIzU3Mjk0ICg0MDE0OEY0MCkg
+KDNGRkYxODE4KSBhbGxvY2F0ZWQgOTM4NzIxMjgwIGJ5dGVzIHRvdGFsLg0K
+ICAjNTcyOTUgKDQwMTQ4RjQ0KSAoM0ZGRjU4MjApIGFsbG9jYXRlZCA5Mzg3
+Mzc2NjQgYnl0ZXMgdG90YWwuDQogIG1hbGxvYyBlcnJvciBDYW5ub3QgYWxs
+b2NhdGUgbWVtb3J5DQogIA0KICBzaXplOiAzMjc2OA0KICAjMjg2NTMgKDQw
+MTJDRkJDKSAoM0ZGRTk5MTApIGFsbG9jYXRlZCA5Mzg5MzQyNzIgYnl0ZXMg
+dG90YWwuDQogICMyODY1NCAoNDAxMkNGQzApICgzRkZGMTkxOCkgYWxsb2Nh
+dGVkIDkzODk2NzA0MCBieXRlcyB0b3RhbC4NCiAgbWFsbG9jIGVycm9yIENh
+bm5vdCBhbGxvY2F0ZSBtZW1vcnkNCiAgDQogIHNpemU6IDY1NTM2DQogICMx
+NDMyNSAoODA1Nzk3QykgKDNGRkM1OTU4KSBhbGxvY2F0ZWQgOTM4ODY4NzM2
+IGJ5dGVzIHRvdGFsLg0KICAjMTQzMjYgKDgwNTc5ODApICgzRkZENTk2MCkg
+YWxsb2NhdGVkIDkzODkzNDI3MiBieXRlcyB0b3RhbC4NCiAgIzE0MzI3ICg4
+MDU3OTg0KSAoM0ZGRTU5NjgpIGFsbG9jYXRlZCA5Mzg5OTk4MDggYnl0ZXMg
+dG90YWwuDQogIG1hbGxvYyBlcnJvciBDYW5ub3QgYWxsb2NhdGUgbWVtb3J5
+DQogIA0KICBzaXplOiAxMzEwNzINCiAgIzgxODYgKDgwNTE5OTApICgzRkY5
+Rjk4MCkgYWxsb2NhdGVkIDEwNzMwODY0NjQgYnl0ZXMgdG90YWwuDQogICM4
+MTg3ICg4MDUxOTk0KSAoM0ZGQkY5ODgpIGFsbG9jYXRlZCAxMDczMjE3NTM2
+IGJ5dGVzIHRvdGFsLg0KICBtYWxsb2MgZXJyb3IgQ2Fubm90IGFsbG9jYXRl
+IG1lbW9yeQ0KICANCiAgc2l6ZTogMjYyMTQ0DQogICM0MDk0ICg4MDREOUEw
+KSAoMzdGRDM5QTApIGFsbG9jYXRlZCAxMDczNDc5NjgwIGJ5dGVzIHRvdGFs
+Lg0KICAjNDA5NSAoODA0RDlBNCkgKDM4MDEzOUE4KSBhbGxvY2F0ZWQgMTA3
+Mzc0MTgyNCBieXRlcyB0b3RhbC4NCiAgc3VjY2Vzcw0KICAgDQo=
+--717328-1042021635-986565913=:9562
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="memgrab.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0104061005131.9562@caffeine.ops.endeca.com>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="memgrab.c"
+
+I2luY2x1ZGU8c3RkaW8uaD4NCiNpbmNsdWRlPHVuaXN0ZC5oPg0KI2luY2x1
+ZGU8c3RkbGliLmg+DQojaW5jbHVkZTxlcnJuby5oPg0KDQp1bnNpZ25lZCBp
+bnQgaSxudW0sYml0ZXMsdG90YWwsZGVsYXk9MDsNCmNoYXIgKiptZW1ob2c7
+DQoNCmludCBtYWluKGludCBhcmdjLGNoYXIgKmFyZ3ZbXSl7DQoNCiAgaWYo
+YXJnYyE9NCl7DQogICAgZnByaW50ZihzdGRlcnIsInVzYWdlOiAlcyBbIyBv
+ZiBjaHVua3NdIFtieXRlcyBwZXIgY2h1bmtdIFtkZWxheSBpbiBzZWNdXG4i
+LGFyZ3ZbMF0pOw0KICAgIHJldHVybigxKTsNCiAgfSANCg0KICBudW09YXRv
+aShhcmd2WzFdKTsNCiAgYml0ZXM9YXRvaShhcmd2WzJdKTsNCiAgZGVsYXk9
+YXRvaShhcmd2WzNdKTsNCg0KICBtZW1ob2c9bWFsbG9jKHNpemVvZihjaGFy
+KikgKiBudW0pOyANCiAgaWYoIW1lbWhvZyl7DQogICAgZnByaW50ZihzdGRl
+cnIsIm1hbGxvYyBlcnJvciAlc1xuIixzdHJlcnJvcihlcnJubykpOyAgDQog
+ICAgZXhpdCgxKTsNCiAgfQ0KDQogIGZvcihpPTA7aTxudW07aSsrKXsNCiAg
+ICAqbWVtaG9nPW1hbGxvYyhiaXRlcyk7DQogICAgaWYoISptZW1ob2cpew0K
+ICAgICAgZnByaW50ZihzdGRlcnIsIm1hbGxvYyBlcnJvciAlc1xuIixzdHJl
+cnJvcihlcnJubykpOyAgDQogICAgICBleGl0KDEpOw0KICAgIH0NCiAgICB0
+b3RhbCs9Yml0ZXM7DQogICAgcHJpbnRmKCIjJXUgKCVYKSAoJVgpIGFsbG9j
+YXRlZCAldSBieXRlcyB0b3RhbC5cbiIsaSxtZW1ob2csKm1lbWhvZyx0b3Rh
+bCk7DQogICAgbWVtaG9nKys7DQogICAgc2xlZXAoZGVsYXkpOw0KICB9ICAN
+Cg0KIHJldHVybigwKTsNCn0gDQogIA0KDQo=
+--717328-1042021635-986565913=:9562--

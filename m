@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285692AbSCRQJO>; Mon, 18 Mar 2002 11:09:14 -0500
+	id <S287817AbSCRQNf>; Mon, 18 Mar 2002 11:13:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285850AbSCRQJF>; Mon, 18 Mar 2002 11:09:05 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:62174 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S285692AbSCRQI4>; Mon, 18 Mar 2002 11:08:56 -0500
-Date: Mon, 18 Mar 2002 09:08:53 -0700
-Message-Id: <200203181608.g2IG8ri19443@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua,
-        Felix Braun <Felix.Braun@mail.McGill.ca>, linux-kernel@vger.kernel.org
-Subject: Re: devfs mounted twice in linux 2.4.19-pre3
-In-Reply-To: <Pine.GSO.4.21.0203181057050.14280-100000@weyl.math.psu.edu>
+	id <S288071AbSCRQNZ>; Mon, 18 Mar 2002 11:13:25 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:56850 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S287817AbSCRQNP>;
+	Mon, 18 Mar 2002 11:13:15 -0500
+Date: Mon, 18 Mar 2002 08:12:48 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Nayyer Tiger <tigerkhan_1@hotmail.com>
+cc: <faheemullahkhan101@aol.com>, <zohair420@hotmail.com>,
+        <danish4000@hotmail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
+In-Reply-To: <F184dEXWU5oIvIZZwmo0000bd87@hotmail.com>
+Message-ID: <Pine.LNX.4.33L2.0203180809120.2434-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> On Mon, 18 Mar 2002, Richard Gooch wrote:
-> 
-> > No, I don't think that's the problem. I now also have two devfs
-> > entries in /proc/mounts with 2.4.19-pre3. My boot scripts don't mount
-> > devfs. I'm looking into the problem. It seems to have something to do
-> > with Al's changes to the boot sequence code.
-> 
-> It has and it will go away when the next series is merged.
+On Mon, 18 Mar 2002, Nayyer Tiger wrote:
 
-Are you talking about this patch:
-+++ linux.19pre3-ac1/init/do_mounts.c   Thu Mar 14 23:01:31 2002
-@@ -375,7 +375,7 @@
- done:
-        putname(fs_names);
-        if (do_devfs)
--               sys_umount(".", 0);
-+               sys_umount(".", MNT_DETACH);
- }
- 
- #ifdef CONFIG_BLK_DEV_INITRD
+| I see that in the very latest Configure.help version, 2.76, available at
+| http:/www.tuxedo.org/~esr/cml2/
+| Eric has decided to follow the following standard:
+| IEC 60027-2, Second edition, 2000-11, Letter symbols to be used in
+| electrical technology - Part 2: Telecommunications and electronics.
+| and has changed all the abbreviations for Kilobyte (KB) to KiB, Megabyte
+| (MB) to MiB, etc, etc.
+|
+| Now, granted that this is the "standard", should there be some discussion
+| related to this
+| change, or is everyone comfortable with this?  It certainly made me do a
+| double take.
 
-I tried that and it didn't fix the problem.
+Either decision will be disliked.  I don't care for the new/standard
+abbreviations, but I can get used to them, and I expect that most
+people can.
 
-				Regards,
+Let's get over it and back to the good stuff.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+~Randy
+
+and who are all these anon. people you copied?!?
+
+| Here is a snippet from the diff between versions 2.75 and 2.76 of
+| Configure.help:
+|
+| @@ -344,8 +344,8 @@
+|    If you are compiling a kernel which will never run on a machine with
+|    more than 960 megabytes of total physical RAM, answer "off" here
+|    (default choice and suitable for most users). This will result in a
+| -  "3GB/1GB" split: 3GB are mapped so that each process sees a 3GB
+| -  virtual memory space and the remaining part of the 4GB virtual memory
+| +  "3GiB/1GiB" split: 3GiB are mapped so that each process sees a 3GiB
+| +  virtual memory space and the remaining part of the 4GiB virtual memory
+|    space is used by the kernel to permanently map as much physical memory
+|    as possible.
+

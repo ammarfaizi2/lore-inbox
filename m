@@ -1,65 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262239AbTCWDMR>; Sat, 22 Mar 2003 22:12:17 -0500
+	id <S262241AbTCWDMT>; Sat, 22 Mar 2003 22:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262243AbTCWDMR>; Sat, 22 Mar 2003 22:12:17 -0500
-Received: from [65.39.167.210] ([65.39.167.210]:12563 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S262239AbTCWDMO>;
-	Sat, 22 Mar 2003 22:12:14 -0500
-Date: Sat, 22 Mar 2003 22:23:18 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Alan Cox <alan@redhat.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.65-ac3
-In-Reply-To: <200303230044.h2N0i9r32560@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0303222221400.13256-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262243AbTCWDMS>; Sat, 22 Mar 2003 22:12:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9948 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262241AbTCWDMQ>;
+	Sat, 22 Mar 2003 22:12:16 -0500
+Date: Sun, 23 Mar 2003 03:23:18 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
+Subject: Re: [Linux-ia64] Announce: modutils 2.4.24 is available
+Message-ID: <20030323032318.GD31008@parcelfarce.linux.theplanet.co.uk>
+References: <8449.1048389361@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8449.1048389361@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How close are IDE and vt switching to working with preempt ?
+On Sun, Mar 23, 2003 at 02:16:01PM +1100, Keith Owens wrote:
+> This version of modutils is functionally identical to 2.4.23 except for
+> those architectures that have function descriptors, i.e. ia64 and
+> ppc64.
 
-	Gerhard
+parisc also has function descriptors.  what needs to happen for us?
 
-
-On Sat, 22 Mar 2003, Alan Cox wrote:
-
-> Date: Sat, 22 Mar 2003 19:44:09 -0500 (EST)
-> From: Alan Cox <alan@redhat.com>
-> To: Jeff Garzik <jgarzik@pobox.com>
-> Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-> Subject: Re: Linux 2.5.65-ac3
->
-> > Once your tty and ide bits are merged, what's left on the plate (in your
-> > opinion) before 2.6.0-test1?
->
-> 32bit dev_t is a showstopper
->
-> then
->
-> Debugging, debugging, and more debugging
-> Driver porting
-> Driver resyncs with 2.4
-> Finding the remaining scsi bugs
-> A ton more IDE work before I am happy
-> Fixing the pci api hotplug races
-> DRM 4.3 cleaned up and working
->
->
-> I think the dev_t one is the only stopper now before we go into
-> stop futzing with core code and fix bugs mode
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,60 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268990AbTCATJP>; Sat, 1 Mar 2003 14:09:15 -0500
+	id <S269005AbTCATU2>; Sat, 1 Mar 2003 14:20:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268998AbTCATJP>; Sat, 1 Mar 2003 14:09:15 -0500
-Received: from virtisp1.zianet.com ([216.234.192.105]:51728 "HELO
-	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S268990AbTCATJO>; Sat, 1 Mar 2003 14:09:14 -0500
-Subject: Re: [PATCH] kernel source spellchecker
-From: Steven Cole <elenstev@mesatop.com>
+	id <S269006AbTCATU2>; Sat, 1 Mar 2003 14:20:28 -0500
+Received: from pdbn-d9bb8750.pool.mediaWays.net ([217.187.135.80]:39951 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id <S269005AbTCATUZ>;
+	Sat, 1 Mar 2003 14:20:25 -0500
+Date: Sat, 1 Mar 2003 20:30:36 +0100 (CET)
+From: Matthias Schniedermeyer <ms@citd.de>
 To: Dan Kegel <dank@kegel.com>
-Cc: Matthias Schniedermeyer <ms@citd.de>, Joe Perches <joe@perches.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca
+cc: Joe Perches <joe@perches.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <mike@aiinc.ca>
+Subject: Re: [PATCH] kernel source spellchecker
 In-Reply-To: <3E6101DE.5060301@kegel.com>
-References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de> 
-	<3E6101DE.5060301@kegel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 01 Mar 2003 12:18:23 -0700
-Message-Id: <1046546305.10138.415.camel@spc1.mesatop.com>
-Mime-Version: 1.0
+Message-ID: <Pine.LNX.4.44.0303012026410.31670-101000@korben.citd.de>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811740-31657548-1046547036=:31670"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-01 at 11:54, Dan Kegel wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> 
-> I suggest we remove the entries
->   broken=borken
->   brain-damaged=dain-bramaged,dain bramaged
-> as we're not trying to remove humor from the comments.
-> 
-> Also, the words 'controllen' and 'callin',  are not typos, so
->   calling=callin
-> should be removed, and
->   controller=controler,controllen
-> should be just
->   controller=controler
-> 
-> The above examples make me think the list of corrections will have
-> to be very carefully vetted before we turn this thing loose.
-> - Dan
+---1463811740-31657548-1046547036=:31670
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Once you've loosed your beast upon the tree, I'd suggest that you
-very carefully look through the resulting diff for inappropriate
-corrections and redact the unnecessary hunks.  In the spelling fixes
-which I sent to Linus, I redacted hunks which didn't need fixing.  For
-example, Linus making fun of Sun folks' ability to spell, etc. and some
-comments in French or German for which the spelling was correct in those
-languages.
+Hi
 
-In addition to making fixes in the comments in the source, all of
-Documentation should be fair game.
 
-Then you'll have to contend with the folks whose out-of-tree patches
-you've borked.
 
-Steven
 
+> Matthias Schniedermeyer wrote:
+> > I've no spelling knowledge, so the list of spellcorrections must be made
+> > by someone else. But i can volunteer the perl-snippet to correct the
+> > files. :-)
+>
+> Smashing!  However, it should probably avoid correcting spellings
+> in anything but C comments.
+
+Here we go.
+
+Take 1.10
+
+This versions defaults to only correct words within a comment.
+
+> Perhaps my C comment parser should be converted to perl and
+
+No need to make any hasled.
+
+// Comments are easy(tm). "Everything after // until line-end".
+
+and /* ... */ are easy(tm) too because gcc doesn't support to nest them.
+
+Only a handfull of lines were needed to handle this. :-)
+
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
+
+
+---1463811740-31657548-1046547036=:31670
+Content-Type: APPLICATION/x-perl; name="spell-fix.pl"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0303012030360.31670@korben.citd.de>
+Content-Description: 
+Content-Disposition: attachment; filename="spell-fix.pl"
+
+IyEvdXNyL2Jpbi9wZXJsIC13Cgp1c2Ugc3RyaWN0Owp1c2UgR2V0b3B0OjpM
+b25nOwp1c2UgdmFycyBxdyAoCgkgICAgICRkZWJ1ZwoJICAgICAlc3BlbGwg
+JHNwZWxsX3JlCgkgICAgICRzcGVsbF9maWxlCgkgICAgIEBpbnB1dF9maWxl
+cyAkaW5wdXRfZmlsZQoJICAgICBAaW5wdXRfZGlycyAgJGlucHV0X2RpcgoJ
+ICAgICAkb25seWNvbW1lbnRzCgkgICAgICRkaXIgJHBhdGggJGZpeGVkCgkg
+ICAgKTsKdXNlIHN1YnMgcXcgKAoJICAgICBpbml0X2NvbW1hbmRsaW5lIHVz
+YWdlCgkgICAgKTsKc3ViIGNoZWNrX2ZpbGUoJCk7CnN1YiBjaGVja19jb250
+ZW50KCQkKTsKCmluaXRfY29tbWFuZGxpbmU7CgojIFNlZSBpZiB0aGUgc3Bl
+bGwtZmlsZSBpcyBmb3VuZCBpbiB0aGUgY3VycmVudC1kaXIKIyBvdGhlcndp
+c2UgbG9vayBpbiB0aGUgZGlyIGZyb20gd2hlcmUgd2Ugd2VyZSBzdGFydGVk
+CmlmICghIC1mICRzcGVsbF9maWxlKSB7CiAgbXkgJGRpciA9ICQwOwogICRk
+aXIgPX4gcy9cL1teXC9dKyQvXC8vOwoKICBpZiAoLWYgIiRkaXIvJHNwZWxs
+X2ZpbGUiKSB7CiAgICAkc3BlbGxfZmlsZSA9ICIkZGlyLyRzcGVsbF9maWxl
+IjsKICB9Cn0KCiMgLS0gUmVhZCBmaWxlIHdpdGggdGhlIHNwZWxsaW5ncyAt
+LQojIEZpbGUtRm9ybWF0CiMgY29ycmVjdC13b3JkPWZhbHNlLGZhbHNlLGZh
+bHNlLi4uCm9wZW4gKEZJLCAkc3BlbGxfZmlsZSkgb3IgZGllICgiQ2FuJ3Qg
+b3BlbiBcIiRzcGVsbF9maWxlXCIiKTsKd2hpbGUgKDxGST4pIHsKICBzL1wj
+LiokLy87CiAgY2hvbXA7CiAgaWYgKCRfKSB7CiAgICBwcmludCAiSW5wdXQt
+TGluZTogJF9cbiIgaWYgKCRkZWJ1Zyk7CiAgICBteSAoJGNvcnJlY3QsICRm
+YWxzZV9zKSA9IHNwbGl0ICgvXHMqPVxzKi8sICRfLCAyKTsKICAgICRjb3Jy
+ZWN0ID1+IHMvXlxzKy8vOwogICAgJGNvcnJlY3QgPX4gcy9ccyskLy87CiAg
+ICBmb3JlYWNoIG15ICRmYWxzZSAoc3BsaXQgKC9ccyosXHMqLywgJGZhbHNl
+X3MpKSB7CiAgICAgICRmYWxzZSA9fiBzL15ccysvLzsKICAgICAgJGZhbHNl
+ID1+IHMvXHMrJC8vOwogICAgICBpZiAoJGZhbHNlIG5lICRjb3JyZWN0KSB7
+CglwcmludCAiRml4OiBcIiRmYWxzZVwiIC0+IFwiY29ycmVjdFwiXG4iIGlm
+ICgkZGVidWcpOwoJJHNwZWxseyRmYWxzZX0gPSAkY29ycmVjdDsKICAgICAg
+fQogICAgICBlbHNlIHsKCXdhcm4gKCJFcnJvciBpbiBTcGVsbC1maWxlOiBc
+IiRzcGVsbF9maWxlXCIgTGluZTogJC4gXCIkY29ycmVjdFwiIGlzIHRoZSBz
+YW1lIGZvciBmYWxzZSAmIGNvcnJlY3QiKTsKICAgICAgfQogICAgfQogIH0K
+fQpjbG9zZSAoRkkpOwojIC0tIEVuZCAtLQoKIyAtLSBDcmVhdGUgdGhlIHJl
+Z3VsYXIgZXhwcmVzc2lvbiAtLQpteSBAdGVtcF9zcGVsbDsKZm9yZWFjaCBt
+eSAka2V5IChzb3J0IHskYiBjbXAgJGF9IGtleXMgJXNwZWxsKSB7CiAgIyBG
+b3Iga2V5cyBlbmRpZyB3aXRoIGEgIlx3Im9yZC1jaGFyYWN0YXIgd2UgYWRk
+IGEgIlxiIm91bmRhcnkuCiAgIyBPdGhlcndpc2Ugd2UgZ2V0IGludG8gdHJv
+dWJsZSB3aXRoIHdvcmRzIHRoYXQgYmVnaW4gdGhlIHNhbWUgYnV0IGFyZSBs
+b25nZXIKICBteSAkcG9zdGZpeCA9ICRrZXkgPX4gL1x3JC8gPyAnXGInIDog
+Jyc7CgogIHB1c2ggQHRlbXBfc3BlbGwsICJcUSRrZXlcRSRwb3N0Zml4Igp9
+CiRzcGVsbF9yZSA9IGpvaW4gKCJcfCIsIEB0ZW1wX3NwZWxsKTsKcHJpbnQg
+IlNwZWxsX3JlOiAkc3BlbGxfcmVcbiIgaWYgKCRkZWJ1Zyk7CiMgLS0gRW5k
+IC0tCgojIENoZWNrIGZpbGVzLCBpZiBzcGVjaWZpZWQKaWYgKCQjaW5wdXRf
+ZmlsZXMgPj0gMCkgewogIGZvcmVhY2ggJGlucHV0X2ZpbGUgKEBpbnB1dF9m
+aWxlcykgewogICAgcHJpbnQgIkNoZWNraW5nIGZpbGU6IFwiJGlucHV0X2Zp
+bGVcIlxuIiBpZiAoJGRlYnVnKTsKICAgIGNoZWNrX2ZpbGUgKCRpbnB1dF9m
+aWxlKTsKICB9Cn0KCiMgQ2hlY2sgZGlycywgaWYgc3BlY2lmaWVkCmlmICgk
+I2lucHV0X2RpcnMgPj0gMCkgewogIGZvcmVhY2ggJGlucHV0X2RpciAoQGlu
+cHV0X2RpcnMpIHsKICAgIHByaW50ICJDaGVja2luZyBkaXI6IFwiJGlucHV0
+X2RpclwiXG4iIGlmICgkZGVidWcpOwogICAgJnRyYXZlcnNlKCRpbnB1dF9k
+aXIpOwogIH0KfQoKIyBXaGVuIHRoZXJlIHdhcyBubyBmaWxlIGFuZC9vciBk
+aXIgYXJndW1lbnQocykgdGhlbiBwcm9jZXNzIGV2ZXJ5dGhpbmcgZnJvbSBj
+dXJyZW50IGRpcgppZiAoJCNpbnB1dF9maWxlcyA9PSAtMSAmJiAkI2lucHV0
+X2RpcnMgLTEpIHsKICBwcmludCAiTm8gZGlyL2ZpbGVzIHNwZWNpZmVkIGNo
+ZWNraW5nIGFsbCBmaWxlcyBpbiB0aGUgZGlyIGFuZCBzdWJkaXJzXG4iIGlm
+ICgkZGVidWcpOwogICZ0cmF2ZXJzZSgiLiIpOwp9CgpzdWIgaW5pdF9jb21t
+YW5kbGluZSB7CiAgbXkgJGhlbHBvcHQgICA9IDA7CiAgJGRlYnVnICAgICAg
+ICA9IDA7CiAgJHNwZWxsX2ZpbGUgICA9ICJzcGVsbC1maXgudHh0IjsKICBA
+aW5wdXRfZmlsZXMgID0gKCk7CiAgQGlucHV0X2RpcnMgICA9ICgpOwogICRv
+bmx5Y29tbWVudHMgPSAxOwoKICBteSAkcmVzdWx0ID0gR2V0T3B0aW9ucygK
+CQkJICAnaGVscCEnICAgICAgICAgID0+IFwkaGVscG9wdCwKCQkJICAnc3Bl
+bGwtZmlsZT1zJyAgID0+IFwkc3BlbGxfZmlsZSwKCQkJICAnZmlsZT1zJyAg
+ICAgICAgID0+IFxAaW5wdXRfZmlsZXMsCgkJCSAgJ2Rpcj1zJyAgICAgICAg
+ICA9PiBcQGlucHV0X2RpcnMsCgkJCSAgJ29ubHktY29tbWVudHMhJyA9PiBc
+JG9ubHljb21tZW50cywKCQkJICAnZGVidWchJyAgICAgICAgID0+IFwkZGVi
+dWcsCgkJCSApOwoKICB1c2FnZSgpIGlmICRoZWxwb3B0Owp9CgpzdWIgdXNh
+Z2UgewogIHByaW50IDw8IkVPRiI7ClVzYWdlOiAkMCA8b3B0aW9ucz4sIHdo
+ZXJlIHZhbGlkIG9wdGlvbnMgYXJlCiAgICAtLWhlbHAgICAgICAgICAgICAg
+ICMgdGhpcyBtZXNzYWdlIDotKQogICAgLS1zcGVsbC1maWxlICAgICAgICAj
+IEZpbGUgd2l0aCB0aGUgY29ycmVjdGlvbi1saXN0CiAgICAtLWZpbGUgPGZp
+bGU+ICAgICAgICMgRmlsZShzKSB0byBiZSBjaGVja2VkCiAgICAtLWRpciA8
+ZGlyPiAgICAgICAgICMgRGlyZWN0b3J5KHMpIHRvIGJlIGNoZWNrZWQgKHJl
+Y3Vyc2l2ZSEpCiAgICAtLVtub11vbmx5LWNvbW1lbnRzICMgT25seSBmaXgg
+d29yZHMgaW5zaWRlIGEgY29tbWVudAogICAgLS1kZWJ1ZyAgICAgICAgICAg
+ICAjIERlYnVnZ2luZy1NZXNzYWdlcwpFT0YKICBleGl0KDApOwp9CgpzdWIg
+dHJhdmVyc2UgewogIGxvY2FsKCRkaXIpID0gc2hpZnQ7CiAgbG9jYWwoJHBh
+dGgpOwoKICB1bmxlc3MgKG9wZW5kaXIoRElSLCAkZGlyKSkgewogICAgd2Fy
+biAiQ2FuJ3Qgb3BlbiAkZGlyXG4iOwogICAgY2xvc2VkaXIoRElSKTsKICAg
+IHJldHVybjsKICB9CiAgZm9yZWFjaCAocmVhZGRpcihESVIpKSB7CiAgICBu
+ZXh0IGlmICRfIGVxICcuJyB8fCAkXyBlcSAnLi4nOwogICAgJHBhdGggPSAi
+JGRpci8kXyI7CiAgICBpZiAoLWQgJHBhdGgpIHsgICAgICAgICAjIGEgZGly
+ZWN0b3J5CiAgICAgICZ0cmF2ZXJzZSgkcGF0aCk7CiAgICB9CiAgICBlbHNp
+ZiAoLWYgXykgeyAgICAgICAgIyBhIHBsYWluIGZpbGUKICAgICAgY2hlY2tf
+ZmlsZSAoJHBhdGgpOwogICAgfQogIH0KICBjbG9zZWRpcihESVIpOwp9Cgpz
+dWIgY2hlY2tfZmlsZSgkKSB7CiAgbXkgJGZpbGUgPSBzaGlmdDsKICBteSAk
+Y29udGVudDsKICAkZml4ZWQgPSAwOwoKICBvcGVuIChGSSwgJGZpbGUpIG9y
+IHJldHVybjsKICAkY29udGVudCA9IGpvaW4gKCIiLCA8Rkk+KTsKICBjbG9z
+ZSAoRkkpOwoKICBpZiAoJGRlYnVnKSB7CiAgICB3aGlsZSAoJGNvbnRlbnQg
+PX4gL1xiKCRzcGVsbF9yZSkvZykgewogICAgICBwcmludCAiRmFsc2UtU3Bl
+bGxpbmc6IFwiJDFcIiAtPiBcIiRzcGVsbHskMX1cIlxuIjsKICAgIH0KICB9
+CgogICMgQ29ycmVjdCBzcGVsbGluZy4gWWVzIHRoZSAiY29yZSIgaXMgb25s
+eSBhIHNpbmdsZSBzdWJzdGl0dXRpb24uIDotKQogIGlmICgkb25seWNvbW1l
+bnRzKSB7CiAgICAjIFRha2UgSSAiLy8iLUNvbW1lbnRzCiAgICAkY29udGVu
+dCA9fiBzISgvLykoLispJCFjaGVja19jb250ZW50KCQxLCQyKSFlZ207CiAg
+ICAjIFRha2UgSUkgIi8qIC4uLiAqLyItQ29tbWVudHMKICAgICRjb250ZW50
+ID1+IHMhKC9cKikoLis/KVwqLyFjaGVja19jb250ZW50KCQxLCQyKSFlZ3M7
+CiAgfQogIGVsc2UgewogICAgaWYgKCRjb250ZW50ID1+IHMvXGIoJHNwZWxs
+X3JlKS8kc3BlbGx7JDF9L2VnKSB7CiAgICAgICRmaXhlZCA9IDE7CiAgICB9
+CiAgfQoKICBpZiAoJGZpeGVkKSB7CiAgICBwcmludCAiRmFsc2Ugc3BlbGxp
+bmdzIGZvdW5kLiBGaWxlOiBcIiRmaWxlXCJcbiIgaWYgKCRkZWJ1Zyk7CiAg
+ICAjIEFuZCB3cml0ZSBiYWNrIHRoZSBmaWxlLgogICAgb3BlbiAoRk8sICI+
+JGZpbGUudG1wIikgb3IgZGllICgiQ2FuJ3Qgb3BlbiBmaWxlIFwiJGZpbGUu
+dG1wXCIgZm9yIHdyaXRpbmciKTsKICAgIHByaW50IEZPICRjb250ZW50Owog
+ICAgY2xvc2UgKEZPKTsKCiAgICByZW5hbWUgKCIkZmlsZSIsICIkZmlsZS50
+bXAyIikgb3IgZGllICgiQ2FuJ3QgcmVuYW1lIFwiJGZpbGVcIiAtPiBcIiRm
+aWxlLnRtcDJcIiIpOwogICAgcmVuYW1lICgiJGZpbGUudG1wIiwgIiRmaWxl
+Iikgb3IgZGllICgiQ2FuJ3QgcmVuYW1lIFwiJGZpbGUudG1wXCIgLT4gXCIk
+ZmlsZVwiIik7CiAgICB1bmxpbmsgKCIkZmlsZS50bXAyIikgb3IgZGllICgi
+Q2FuJ3QgdW5saW5rIFwiJGZpbGUudG1wMlwiIik7CiAgfQogIGVsc2Ugewog
+ICAgcHJpbnQgIk5vIGZhbHNlIHNwZWxsaW5ncyBmb3VuZC4gRmlsZTogXCIk
+ZmlsZVwiXG4iIGlmICgkZGVidWcpOwogIH0KfQoKc3ViIGNoZWNrX2NvbnRl
+bnQoJCQpIHsKICBteSAkY29tbWVudCA9IHNoaWZ0OwogIG15ICRjb250ZW50
+ID0gc2hpZnQ7CgogIHByaW50ICJDb21tZW50OiAkY29tbWVudFxuIjsKICBw
+cmludCAiY29udGVudDogJGNvbnRlbnRcbiI7CgogIGlmICgkY29udGVudCA9
+fiBzL1xiKCRzcGVsbF9yZSkvJHNwZWxseyQxfS9lZykgewogICAgJGZpeGVk
+ID0gMTsKICB9CgogIGlmICgkY29tbWVudCBlcSAiLy8iKSB7CiAgICByZXR1
+cm4gIi8vJGNvbnRlbnQiOwogIH0KICBlbHNlIHsKICAgIHJldHVybiAiLyok
+Y29udGVudCovIjsKICB9Cn0K
+---1463811740-31657548-1046547036=:31670--

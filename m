@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267455AbUHSWEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUHSWER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267455AbUHSWEb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 18:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUHSWEa
+	id S267451AbUHSWER (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 18:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUHSWER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 18:04:30 -0400
-Received: from mail-out.m-online.net ([212.18.0.9]:4742 "EHLO
-	mail-out.m-online.net") by vger.kernel.org with ESMTP
-	id S267455AbUHSWEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 18:04:20 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: jmerkey@comcast.net, root@chaos.analogic.com, linux-kernel@vger.kernel.org,
-       jmerkey@drdos.com
-Subject: Re: kallsyms 2.6.8 address ordering
-References: <081920041927.27479.4124FF1B00008D3A00006B572200751150970A059D0A0306@comcast.net>
-	<20040819124211.2e4d57e4.davem@redhat.com>
-From: Julien Oster <usenet-20040502@usenet.frodoid.org>
-Organization: FRODOID.ORG
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	jmerkey@comcast.net, root@chaos.analogic.com,
-	linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Date: Fri, 20 Aug 2004 00:07:00 +0200
-In-Reply-To: <20040819124211.2e4d57e4.davem@redhat.com> (David S. Miller's
- message of "Thu, 19 Aug 2004 12:42:11 -0700")
-Message-ID: <87llgaok8r.fsf@killer.ninja.frodoid.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+	Thu, 19 Aug 2004 18:04:17 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:18571 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S267451AbUHSWEE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 18:04:04 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Terence Ripperda <tripperda@nvidia.com>
+Subject: Re: 2.6.8.1-mm2 (nvidia breakage)
+Date: Thu, 19 Aug 2004 16:03:55 -0600
+User-Agent: KMail/1.6.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Michael Geithe <warpy@gmx.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040819092654.27bb9adf.akpm@osdl.org> <1092938035.28370.13.camel@localhost.localdomain> <20040819215124.GA6114@hygelac>
+In-Reply-To: <20040819215124.GA6114@hygelac>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408191603.55327.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+On Thursday 19 August 2004 3:51 pm, Terence Ripperda wrote:
+> the original bug report was during module load time, when we're
+> probing our devices via the pci_driver's probe callback. this is well
+> before we hook up interrupts or do anything in our closed source code.
+> 
+> I'm attaching a trimmed down version of our driver that pretty much
+> only does this probe (complete source is included). I don't know if
+> this will reproduce the original bug or not.
 
-Hello David,
+Thanks, this is enough to show the problem:
 
->> jmerkey@drdos.com is blocked from posting to this list.  I have
->> verified it though smtp, so I use my comcast.net account instead.
->> David Miller **WONT** respond to emails or the other list
->> maintainers.
+	nv_kern_probe(struct pci_dev *dev, ...)
+	{
+		...
+		nv->interrupt_line = dev->irq;
+		...
+		if (pci_enable_device(dev) != 0)
 
-> Well, you're not in the by-hand SPAM filter, so it must be something else.
+The driver is looking at dev->irq before calling pci_enable_device().
+But dev->irq is not necessarily initialized before pci_enable_device().
 
-> ? egrep drdos /opt/mail/db/smtp-policy.spam.manual
-> ? egrep jmerkey /opt/mail/db/smtp-policy.spam.manual
-
-> What message do you get back from direct smtp tests?
-
-My messages also won't get through if I send them directly using
-postfix from my workstation (with dynamic IP). I switched to using a
-smarthost and now everything seems ok.
-
-I thought it might be spam prevention. However, the SMTP server lkml
-is attached to accepted the messages perfectly and just dropped it
-silentily. It really should give an error when it's preventing spam,
-otherwise you might not even notice that your message got dropped.
-
-At least one message really didn't get anywhere while the SMTP server
-said that everything is fine. Or maybe it's a bug somewhere that drops
-messages unintendedly? Drop me a line if you need the log entry.
-
-However, I never suspected that I was dropped on purpose, and I still
-don't think so right now.
-
-Regards,
-Julien
+I'm not a PCI expert, but I'm not sure you should be looking at
+all the other dev->resource[] stuff before pci_enable_device()
+either.  Most of the "modern" drivers in the tree seem to do
+pci_enable_device() very early in the probe() function, i.e., 
+see tg3.c.

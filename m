@@ -1,59 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317909AbSGWBrQ>; Mon, 22 Jul 2002 21:47:16 -0400
+	id <S317902AbSGWBpr>; Mon, 22 Jul 2002 21:45:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317910AbSGWBrQ>; Mon, 22 Jul 2002 21:47:16 -0400
-Received: from ns.suse.de ([213.95.15.193]:40204 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317909AbSGWBrP>;
-	Mon, 22 Jul 2002 21:47:15 -0400
-Date: Mon, 22 Jul 2002 23:31:19 +0200
-From: Dave Jones <davej@suse.de>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       Rik van Riel <riel@conectiva.com.br>
-Subject: Re: bug database/webpage
-Message-ID: <20020722233119.R27749@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	Rik van Riel <riel@conectiva.com.br>
-References: <Pine.LNX.4.44.0207221547360.19736-100000@dad.molina>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317907AbSGWBpr>; Mon, 22 Jul 2002 21:45:47 -0400
+Received: from 205-158-62-37.outblaze.com ([205.158.62.37]:1551 "HELO
+	ws1-9.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317902AbSGWBpq>; Mon, 22 Jul 2002 21:45:46 -0400
+Message-ID: <20020723014850.80864.qmail@mail.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0207221547360.19736-100000@dad.molina>; from tmolina@cox.net on Mon, Jul 22, 2002 at 03:59:01PM -0500
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Ana Yuseepi" <anayuseepi@asia.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 22 Jul 2002 20:48:50 -0500
+Subject: Re: ATA with SMART
+X-Originating-Ip: 210.159.65.4
+X-Originating-Server: ws1-9.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 03:59:01PM -0500, Thomas Molina wrote:
- > 
- > In a conversation with Guillaume Boissiere it was mentioned that setting 
- > up a bug/problem report database for later in the 2.5 development cycle.  
- > Cox won't let me run an Apache web server from home with a bugzilla-type 
- > database (my preference), but I have been playing around with a simplistic 
- > web page problem report tracking available at 
- > http://members.cox.net/tmolina
- > 
- > Would something like this be sufficient, or would a full-fledged server be 
- > required?  Feedback/comments are welcome
+Hello, first of all, thank you for your replies.. :)
 
-Quite nice. It's a more organised version of what I had, but as the
-number of reports gets higher and higher, it could end up being as much a
-maintainence nightmare as the log I was updating.
+All of the reply I received asked me to take a look at the smartsuite program. I have already taken a look at those, but those doesn't help my problem. It had a support for RETURN_SMART_STATUS command, but only the status_register is returned. The value in cylinder_high and cylinder_low is not returned. So, this is of no use to me.
 
-Talking with a few folks about this problem at the summit, a few times
-jitterbug was mentioned. My faded memory doesn't recall too much about
-those days, but ultimatly it didn't work out.
+Any other idea? 
 
-I'm wondering how such a system would work out today.
-There's even possibilites for neat things like checking
-bitkeeper to automatically update status when Linus applies
-a patch, which before required interaction from Linus.
+Thanks a lot,
 
-        Dave
+-Ana
+
+
+
+
+
+----- Original Message -----
+From: Dima Brodsky <dima@cs.ubc.ca>
+Date: Mon, 22 Jul 2002 07:44:06 -0700
+To: Ana Yuseepi <anayuseepi@asia.com>
+Subject: Re: ATA with SMART
+
+
+> Hi,
+> 
+> Take a look at the smartsuite set of utilities:
+> 
+> http://sourceforge.net/projects/smartsuite/
+> 
+> They are used to control the SMART functionality of a
+> drive.  There is probably example code there to do what
+> you want.
+> 
+> ttyl
+> Dima
+> 
+> On Mon, Jul 22, 2002 at 01:24:02AM -0500, Ana Yuseepi wrote:
+> > Hello everyone,
+> >  
+> > I would like to send some SMART commands in linux. One of the command I'd like to send is return_smart_status and I needed some extra data that the device would return in Cylinder_Low and Cylinder_High registers. 
+> >  
+> > I have tried to use the HDIO_DRIVE_CMD, but I think this can't help me with the above operation.
+> >  
+> > I tried using the inw_p and outw_p, inb_p, outb_p, but with these, i usually receive the "lost interrupt" message.
+> >  
+> > Does anyone here have suggestions on what i should do?
+> > 
+> > Please reply, and thank you for your time,
+> > 
+> > -Ana
+> 
+> 
+> -- 
+> Dima Brodsky                                   dima@cs.ubc.ca
+>                                                http://www.cs.ubc.ca/~dima
+> 201-2366 Main Mall                             (604) 822-9156 (Office)
+> Department of Computer Science                 (604) 822-2895 (DSG Lab)
+> University of British Columbia, Canada         (604) 822-5485 (FAX)
+> 
+> "The price of reliability is the pursuit of the utmost simplicity.
+>  It is a price which the very rich find the most hard to pay."
+> 						  (Sir Antony Hoare, 1980)
+> 
+> 
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+Save up to $160 by signing up for NetZero Platinum Internet service.
+http://www.netzero.net/?refcd=N2P0602NEP8
+

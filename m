@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266626AbUBQXfM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 18:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUBQXfM
+	id S266771AbUBQXnU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 18:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266775AbUBQXnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 18:35:12 -0500
-Received: from gate.crashing.org ([63.228.1.57]:59299 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266626AbUBQXfE (ORCPT
+	Tue, 17 Feb 2004 18:43:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32194 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266771AbUBQXnK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 18:35:04 -0500
-Subject: Re: Linux 2.6.3-rc4 Massive strange corruption with new radeonfb
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Charles Johnston <cjohnston@networld.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <40329B57.9060901@networld.com>
-References: <403274D2.4020407@networld.com>
-	 <1077055997.1076.23.camel@gaston>  <40329B57.9060901@networld.com>
-Content-Type: text/plain
-Message-Id: <1077060699.1078.38.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 18 Feb 2004 10:31:39 +1100
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Feb 2004 18:43:10 -0500
+Date: Tue, 17 Feb 2004 15:43:00 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: tridge@samba.org
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: UTF-8 and case-insensitivity
+In-Reply-To: <16434.41376.453823.260362@samba.org>
+Message-ID: <Pine.LNX.4.58.0402171531570.2154@home.osdl.org>
+References: <16433.38038.881005.468116@samba.org> <Pine.LNX.4.58.0402162034280.30742@home.osdl.org>
+ <16433.47753.192288.493315@samba.org> <Pine.LNX.4.58.0402170704210.2154@home.osdl.org>
+ <16434.41376.453823.260362@samba.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Ok, it worked fine with that line commented out.  I can switch vt's, be 
-> in X, etc. no problems.
 
-Can you send me the dmesg log still please ?
+On Wed, 18 Feb 2004 tridge@samba.org wrote:
+> 
+> I think you're making it sound much harder than it really is.
 
-> The only issue I see is when I do a 'clear' on the vt, it doesn't clear 
-> the text, but blanks every nth row of pixels.  Switching vt's and back 
-> clears the screen.
+I think I'm just making the mistake of assuming that anybody would care to 
+do it "right", while everybody really only cares to get it be compatible 
+with Windows.
 
-Does this happen even without using XFree ? There is a known problem
-with clears when switching _from_ XFree... I'm working on a fix.
+For example, if you only want to be compatible with Windows, you don't 
+have to worry about UCS-4, you only have the UCS-2 part, which means that 
+you can do a silly array-lookup based thing or something.
 
-> There are also a few rows of garbage pixels at the bottom that linger 
-> across vt switches.
+> We just add a VFS hook in the filesystems. The filesystem chooses the
+> encoding specific comparison function. If the filesystem doesn't
+> provide one then don't do case insensitivity. If the filesystem does
+> provide one (for example NTFS, JFS) then use it. Then all I need to do
+> is convince one of the filesystem maintainers to add a mount time
+> option to specify the case table (for example by specifying the name
+> of a file in the filesystem that holds it).
 
-Yes, same as above afaik
+Ugh. What a horrible kludge, and it won't work without "preparing" the 
+filesystem at mount-time. I'd much rather leave the translation table in 
+user space, and just give it as an argument to the "look up case 
+insensitive" special thing.
 
+That would mean that we can hold the directory semaphore over the whole 
+thing, which would simplify _my_ kludge, since there would be no need to 
+worry about user space having separate stages.
 
+The hard part would be negative dentries. We'd have to invalidate all
+"case-insensitive" negative dentries when creating any new file in a
+directory, and that would be something the generic VFS layer would have to 
+know about, and that might be unacceptable to Al.
+
+		Linus

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbTFSP4U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 11:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265825AbTFSP4U
+	id S265829AbTFSQAD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 12:00:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265832AbTFSQAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 11:56:20 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:9106 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265824AbTFSP4Q (ORCPT
+	Thu, 19 Jun 2003 12:00:03 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:12956 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S265829AbTFSQAA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 11:56:16 -0400
-Subject: 2.5.72: wall-clock time advancing too rapidly?
-From: Andy Pfiffer <andyp@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056039012.3879.5.camel@andyp.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 19 Jun 2003 09:10:12 -0700
+	Thu, 19 Jun 2003 12:00:00 -0400
+Message-ID: <3EF1E136.40305@colorfullife.com>
+Date: Thu, 19 Jun 2003 18:13:42 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ray Bryant <raybry@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Bug in __pollwait() can cause select() and poll() to
+ hang in
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a uniproc P3-800 system running 2.5.72, and time (from that
-system's point of view) is racing ahead rapidly.
+Hi Ray,
 
-By "racing ahead rapidly", I mean this:
+your bug description seems to be correct, but the fix is wrong:
+If the allocation is for the 2nd page of wait queue heads, then 
+"current->state = TASK_INTERRUPTIBLE" can lead to lost wakeups, if an fd 
+that is stored in the first page gets ready during the allocation. 
+Setting the state to interruptible is only permitted if a full scan of 
+all file descriptors happens before calling schedule(). This is 
+expensive and should be avoided.
 
-	% date ; sleep 60 ; date
-	Thu Jun 19 09:04:29 PDT 2003
-	Thu Jun 19 09:05:29 PDT 2003
-	%
+The correct fix is current->state = TASK_RUNNING just before calling 
+yield() in the rebalance code.
 
-returns in 35 seconds (measured with my eyeballs and cheap wristwatch).
-
-Has anyone else seen this?
-
-Regards,
-Andy
-
+--
+    Manfred
 

@@ -1,89 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbUCSRmw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 12:42:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263042AbUCSRmw
+	id S262345AbUCSRs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 12:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263031AbUCSRs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 12:42:52 -0500
-Received: from d594e5dc.dsl.concepts.nl ([213.148.229.220]:16402 "HELO
-	netscape1197.com") by vger.kernel.org with SMTP id S263037AbUCSRmt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 12:42:49 -0500
-From: abudul karim <abudukarim55@netscape.net>
-To: linux-kernel@vger.kernel.org
-Reply-To: abudukarim55@netscape.net
-Subject: i need your urgent assistance.
-Date: Fri, 19 Mar 2004 18:42:12 +0100
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="ea5fc458-42f0-491d-ac10-3cc45941794f"
-Message-Id: <S263037AbUCSRmt/20040319174249Z+8196@vger.kernel.org>
+	Fri, 19 Mar 2004 12:48:28 -0500
+Received: from galileo.bork.org ([66.11.174.156]:23713 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S262345AbUCSRs1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 12:48:27 -0500
+Date: Fri, 19 Mar 2004 12:48:26 -0500
+From: Martin Hicks <mort@wildopensource.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Exporting physical topology information
+Message-ID: <20040319174826.GC19428@localhost>
+References: <20040317213714.GD23195@localhost> <20040318232139.GA17586@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040318232139.GA17586@kroah.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format
---ea5fc458-42f0-491d-ac10-3cc45941794f
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Thu, Mar 18, 2004 at 03:21:39PM -0800, Greg KH wrote:
+> On Wed, Mar 17, 2004 at 04:37:14PM -0500, Martin Hicks wrote:
+> > 
+> > Hi,
+> > 
+> > If we could physically locate a PCI bus, then it would be much easier
+> > to (for example) locate our defective SCSI disk that is target4 on the
+> > SCSI controller that is on pci bus 0000:20.
+> 
+> Um, what's wrong with the current /sys/class/pci_bus/*/cpuaffinity files
+> for determining this topology information?  That is why it was added.
 
-Dear friend, 
+This gives us more logical topology information.  It still doesn't tell
+us where in the room the specific piece of equipment is.
 
-As you read this, I don't want you to feel sorry for
-me, because, I 
-believe everyone will die someday. y name is Abdul
-Karim, a merchant in Dubai, in the U.A.E.I have been 
-diagnosed with lung cancer. It has defiled all forms
-of medical treatment, and right now I have only about
-a few months to live, according to medical experts.
+mh
 
-I have not particularly lived my life so well, as I
-never really cared or anyone (not even myself) but my
-business. Though I am very rich, I as never generous,
-I was always hostile to people and only focused on y
-business as that was the only thing I cared for. But
-now I regret all this as I now know that there is more
-to life than just wanting to have or make all the
-money in the world.
-
-I believe when God gives me a second chance to come to
-this world I would live my life a different way from
-how I have lived it. Now that God as called me, I have
-willed and given most of my property and assets of my
-immediate and extended family members as well as a few
-close 
-friends. I want God to be merciful to me and accept my
-soul so, I have decided to give alms to charity
-organizations, as I want this to be one of he last
-good deeds I do on earth. So far, I have distributed
-money to charity organizations in the U.A.E, Algeria
-and Malaysia.
-
-Now that my health has deteriorated so badly, I cannot
-do this myself nymore.
-
-I once asked members of my family to close one of my
-accounts and distribute the money which I have there
-to charity organization in Bulgaria and Pakistan; they
-refused and kept the money to themselves. Hence, I do
-not trust hem anymore, as they seem not to be
-contended with what I have left or them.
-
-The last of my money, which no one knows of, is the
-huge cash deposit  of twenty four million US dollar
-US$24,000,000), that I have with a secret Bank abroad.
-Acknowledge his message so that I can instruct the
-deposit bank to wire the funds into your account. I
-will want you to help me collect this deposit cash and
-use it for charity organizations.
-
-For this reason kindly furnish your contact
-information, that is your address, personal telephone
-and fax umber for confidential purpose.
-
-God be with you.
-
-Abdul Karim
-
-  
---ea5fc458-42f0-491d-ac10-3cc45941794f--
-
+-- 
+Martin Hicks                Wild Open Source Inc.
+mort@wildopensource.com     613-266-2296

@@ -1,55 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUEQPVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbUEQPVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbUEQPVI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 11:21:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUEQPVI
+	id S261611AbUEQPVe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 11:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUEQPVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 11:21:08 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:5033 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261628AbUEQPVF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 11:21:05 -0400
-Date: Mon, 17 May 2004 08:20:56 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, Wayne Scott <wscott@bitmover.com>,
-       akpm@osdl.org, torvalds@osdl.org, elenstev@mesatop.com, lm@bitmover.com,
-       wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com, scole@lanl.gov,
-       support@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: 1352 NUL bytes at the end of a page?
-Message-ID: <20040517152056.GC30695@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Theodore Ts'o <tytso@mit.edu>, Wayne Scott <wscott@bitmover.com>,
-	akpm@osdl.org, torvalds@osdl.org, elenstev@mesatop.com,
-	lm@bitmover.com, wli@holomorphy.com, hugh@veritas.com,
-	adi@bitmover.com, scole@lanl.gov, support@bitmover.com,
-	linux-kernel@vger.kernel.org
-References: <200405162136.24441.elenstev@mesatop.com> <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org> <20040516231120.405a0d14.akpm@osdl.org> <20040517.085640.30175416.wscott@bitmover.com> <20040517151738.GA4730@thunk.org>
+	Mon, 17 May 2004 11:21:34 -0400
+Received: from cantor.suse.de ([195.135.220.2]:46490 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261611AbUEQPV2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 11:21:28 -0400
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
+	s->tree' failed: The saga continues.)
+From: Chris Mason <mason@suse.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Larry McVoy <lm@bitmover.com>, Steven Cole <elenstev@mesatop.com>,
+       Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>, hugh@veritas.com,
+       adi@bitmover.com, scole@lanl.gov, support@bitmover.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0405170758260.25502@ppc970.osdl.org>
+References: <200405132232.01484.elenstev@mesatop.com>
+	 <20040517022816.GA14939@work.bitmover.com>
+	 <Pine.LNX.4.58.0405161936490.25502@ppc970.osdl.org>
+	 <200405162136.24441.elenstev@mesatop.com>
+	 <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org>
+	 <20040517141427.GD29054@work.bitmover.com>
+	 <Pine.LNX.4.58.0405170717080.25502@ppc970.osdl.org>
+	 <20040517145217.GA30695@work.bitmover.com>
+	 <Pine.LNX.4.58.0405170758260.25502@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1084807424.20437.60.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040517151738.GA4730@thunk.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 17 May 2004 11:23:44 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 17, 2004 at 11:17:38AM -0400, Theodore Ts'o wrote:
-> On Mon, May 17, 2004 at 08:56:40AM -0500, Wayne Scott wrote:
-> > From: Andrew Morton <akpm@osdl.org>
-> > > Well we can stop right there, because the only way someone can get some
-> > > more non-zero user data into this page before we memset and write it is by
-> > > locking the page beforehand, and block_write_full_page() has the page lock.
-> > > (Or they can write stuff into it via mmap, but writing to the page outside
-> > > i_size is an application bug).
+On Mon, 2004-05-17 at 11:02, Linus Torvalds wrote:
+> On Mon, 17 May 2004, Larry McVoy wrote:
 > > 
-> > BTW: BitKeeper never opens a writable mmap to a file.  The files are
-> > read with mmap() and written by fwriting to a tmp file and then
-> > renaming over the target.  And since we run on Windows, no process has
-> > the file open when we are updating it.
+> > > And at some point earlier in the process you did an fflush(), or somebody
+> > > else had written a header of n*PAGE_SIZE + 0x4ff bytes, or something like
+> > > that. Since this was the ChangeSet file, I suspect that the "header" is 
+> > > the checkin-comment section at the beginning, and the "second phase" is 
+> > > the actual key list thing. You know how you write the ChangeSet file 
+> > > better than I do.
+> > 
+> > I don't think we flush along the way but let me look.  Whoops, you're right,
+> > we do.  Right where you thought too.  But that doesn't explain there being
+> > 3 blocks of nulls (there should NEVER be a null in the s.ChangeSet file, we
+> > don't compress that, it's always ascii).
 > 
-> Note though that the stdio library uses a writeable mmap to implement
-> fwrite.
+> No, no, I'm not claiming that _you_ are writing the NUL bytes. I'm
+> claiming the kernel has a bug that triggers with non-page-aligned starting
+> offsets of writes (because we clear the bytes after "i_size", and we don't
+> synchronize those clears sufficiently), and concurrent flushes. There's
+> probably some other trigger needed too (CONFIG_PREEMPT being just the
+> thing that uncovers the race).
+> 
+> > But the bigger problem is that you are missing the point that I mentioned
+> > elsewhere, we are writing to a tmp file, the tmp file is NOT mmapped.
+> 
+> No, the mmap thing was Andrew's theory. My theory is that regular
+> "write()" calls can trigger it through the "commit_write()" function.
+> 
+> Of course, my theory also depended on a page unlock happening in a place
+> where it didn't actually happen, so the exact details of my theory are
+> crap. I'll need to re-think that part.
 
-That's news to me.  And we use fwrite.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+You've described it correctly for reiserfs though, we unlock the page
+too soon.  I'll fix the page locking for reiserfs_file_write.  Steven,
+we need to figure out why you're seeing this on ext3.  
+
+The two filesystems don't share much code for the normal write path, and
+I don't see how you can trigger this on ext3 without truncate jumping
+into the fun.
+
+-chris
+
+

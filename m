@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbTJWTzX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 15:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTJWTyO
+	id S261750AbTJWT74 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 15:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbTJWT74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 15:54:14 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:4050 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S261749AbTJWTxY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 15:53:24 -0400
-Message-ID: <3F982FDF.9070007@rackable.com>
-Date: Thu, 23 Oct 2003 12:45:35 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ananda Bhattacharya <anandab@cabm.rutgers.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: HyperThreading and AMD Opteron
-References: <Pine.LNX.4.44.0310222243360.4517-100000@puma.cabm.rutgers.edu>
-In-Reply-To: <Pine.LNX.4.44.0310222243360.4517-100000@puma.cabm.rutgers.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Oct 2003 19:53:22.0642 (UTC) FILETIME=[50879B20:01C3999F]
+	Thu, 23 Oct 2003 15:59:56 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:43484 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261750AbTJWT7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 15:59:55 -0400
+Date: Thu, 23 Oct 2003 21:59:45 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       dbrownell@users.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net
+Subject: 2.4.23-pre8: link error with multiple USB Gadget drivers
+Message-ID: <20031023195945.GJ11807@fs.tum.de>
+References: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ananda Bhattacharya wrote:
-> Just wanted to check on the status of AMD Opteron support on 
-> Linux and also Hyperthreading, will all this be avaialable 
-> on the 2.6 kernel series, and will there be some available 
-> on the 2.4 kernel series too. 
-> 
+I'm getting the following link error when trying to compile multiple 
+Gadget drivers statically into the kernel:
 
-   If your question is does the linux support hyperthreading on the 
-Opteron.  Then the answers is the Opteron doesn't support hyperthreading.
+<--  snip  -->
 
+...
+ld -m elf_i386  -r -o built-in.o net2280.o g_zero.o g_ether.o
+g_ether.o(.text+0x1a60): In function `usb_gadget_get_string':
+: multiple definition of `usb_gadget_get_string'
+g_zero.o(.text+0xe50): first defined here
+make[3]: *** [built-in.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.23-pre8-full/drivers/usb/gadget'
 
-   Otherwise the answer is yes, but the degree that things work varys.
+<--  snip  -->
+
+IIRC this issue was fixed many months ago in 2.6, and a similar fix 
+(disallowing multiple Gatget drivers) is also needed in 2.4 .
+
+cu
+Adrian
 
 -- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

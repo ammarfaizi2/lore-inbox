@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbUAYASA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 19:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUAYASA
+	id S261733AbUAYAMf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 19:12:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbUAYAMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 19:18:00 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:37098 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263522AbUAYAR6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 19:17:58 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 25 Jan 2004 01:17:47 +0100 (MET)
-Message-Id: <UTC200401250017.i0P0Hlc09374.aeb@smtp.cwi.nl>
-To: akpm@osdl.org, torvalds@osdl.org
-Subject: [uPATCH] refuse plain ufs mount
-Cc: linux-kernel@vger.kernel.org
+	Sat, 24 Jan 2004 19:12:35 -0500
+Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:4224
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261733AbUAYAM3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 19:12:29 -0500
+Date: Sat, 24 Jan 2004 19:10:47 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: [PATCH][2.6-mm] Fix CONFIG_SMT oops on UP
+In-Reply-To: <20040124153910.2421e35a.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0401241907120.643@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0401241303070.26103@montezuma.fsmlabs.com>
+ <20040124153910.2421e35a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Installed some machine with a reiserfs rootfs.
-The boot messages contain a lot of garbage spouted by Intermezzo
-and ufs_read_super caused by the fact that the kernel tried lots
-of other filesystems before hitting on reiserfs.
+On Sat, 24 Jan 2004, Andrew Morton wrote:
 
-On the one hand this is solved by "rootfstype=reiserfs".
+> Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+> >
+> > +	cpu_sibling_map[0] = CPU_MASK_NONE;
+>
+> alas, this will not compile with NR_CPUS > 4*BITS_PER_LONG because this:
+>
+> 	#define CPU_MASK_NONE   { {[0 ... CPU_ARRAY_SIZE-1] =  0UL} }
+>
+> is not a suitable rhs - it can only be used for initalisers.  Fixing this
+> would be appreciated.
+>
+> Meanwhile, I'll use cpus_clear() in there.
 
-But on the other hand, the kernel should not complain about the
-guessing it does itself. There is a parameter "silent" for this
-purpose, but in this case I think it cleaner just to remove the
-complaint and tighten the requirement.
+There was actually other breakage too, so how about;
 
-Andries
+Index: linux-2.6.2-rc1-mm2/arch/i386/kernel/smpboot.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.2-rc1-mm2/arch/i386/kernel/smpboot.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 smpboot.c
+--- linux-2.6.2-rc1-mm2/arch/i386/kernel/smpboot.c	23 Jan 2004 22:22:46 -0000	1.1.1.1
++++ linux-2.6.2-rc1-mm2/arch/i386/kernel/smpboot.c	24 Jan 2004 18:46:41 -0000
+@@ -951,6 +951,8 @@ static void __init smp_boot_cpus(unsigne
 
---- /linux/2.6/linux-2.6.1/linux/fs/ufs/super.c	2003-12-18 03:57:57.000000000 +0100
-+++ super.c	2004-01-25 01:05:47.000000000 +0100
-@@ -516,14 +516,10 @@
- 		printk("wrong mount options\n");
- 		goto failed;
- 	}
--	if (!(sbi->s_mount_opt & UFS_MOUNT_UFSTYPE)) {
--		printk("You didn't specify the type of your ufs filesystem\n\n"
--		"mount -t ufs -o ufstype="
--		"sun|sunx86|44bsd|old|hp|nextstep|netxstep-cd|openstep ...\n\n"
--		">>>WARNING<<< Wrong ufstype may corrupt your filesystem, "
--		"default is ufstype=old\n");
--		ufs_set_opt (sbi->s_mount_opt, UFSTYPE_OLD);
--	}
-+
-+	/* "old" used to be default - now: always specify type */
-+	if (!(sbi->s_mount_opt & UFS_MOUNT_UFSTYPE))
-+		goto failed;
- 
- 	sbi->s_uspi = uspi =
- 		kmalloc (sizeof(struct ufs_sb_private_info), GFP_KERNEL);
+ 	current_thread_info()->cpu = 0;
+ 	smp_tune_scheduling();
++	cpus_clear(cpu_sibling_map[0]);
++	cpu_set(0, cpu_sibling_map[0]);
+
+ 	/*
+ 	 * If we couldn't find an SMP configuration at boot time,
+@@ -1083,7 +1085,7 @@ static void __init smp_boot_cpus(unsigne
+ 	 * efficiently.
+ 	 */
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++)
+-		cpu_sibling_map[cpu] = CPU_MASK_NONE;
++		cpus_clear(cpu_sibling_map[cpu]);
+
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+ 		int siblings = 0;
+@@ -1273,7 +1275,7 @@ __init void arch_init_sched_domains(void
+ 		for_each_cpu_mask(j, cpu_domain->span) {
+ 			struct sched_group *cpu = &sched_group_cpus[j];
+
+-			cpu->cpumask = CPU_MASK_NONE;
++			cpus_clear(cpu->cpumask);
+ 			cpu_set(j, cpu->cpumask);
+
+ 			if (!first_cpu)

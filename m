@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263593AbUEPNJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263603AbUEPNTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263593AbUEPNJp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 09:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUEPNJp
+	id S263603AbUEPNTU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 09:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUEPNTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 09:09:45 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:14865 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263593AbUEPNJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 09:09:43 -0400
-Date: Sun, 16 May 2004 14:09:40 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>
-Subject: Re: alpha fp-emu vs module refcounting
-Message-ID: <20040516140940.A16850@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>
-References: <20040507110217.GA11366@lst.de> <20040507183208.A3283@jurassic.park.msu.ru> <20040507143512.GA14338@lst.de> <20040508023717.A3960@jurassic.park.msu.ru> <20040507224104.GA21153@lst.de> <20040508025142.A4330@jurassic.park.msu.ru> <20040516100435.GD16301@infradead.org> <20040516164420.A950@den.park.msu.ru>
+	Sun, 16 May 2004 09:19:20 -0400
+Received: from wingding.demon.nl ([82.161.27.36]:40321 "EHLO wingding.demon.nl")
+	by vger.kernel.org with ESMTP id S263605AbUEPNTS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 09:19:18 -0400
+Date: Sun, 16 May 2004 15:20:20 +0200
+From: Rutger Nijlunsing <rutger.nijlunsing@nospam.com>
+To: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org, moqua@kurtenba.ch
+Subject: Re: cpufreq and p4 prescott
+Message-ID: <20040516132020.GA14608@nospam.com>
+Reply-To: linux-kernel@tux.tmfweb.nl
+References: <20040513173946.GA8238@dominikbrodowski.de> <20040514214751.GA8433@nospam.com> <20040515064434.GB8572@dominikbrodowski.de> <20040515105200.GA8095@nospam.com> <20040515194124.GA8212@dominikbrodowski.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040516164420.A950@den.park.msu.ru>; from ink@jurassic.park.msu.ru on Sun, May 16, 2004 at 04:44:20PM +0400
+In-Reply-To: <20040515194124.GA8212@dominikbrodowski.de>
+Organization: M38c
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 16, 2004 at 04:44:20PM +0400, Ivan Kokshaysky wrote:
-> On Sun, May 16, 2004 at 12:04:35PM +0200, Christoph Hellwig wrote:
-> > Well, still false positives in grep.  What about this patch to simply
-> > remove any traces of CONFIG_MATHEMU and modular math emulation?
+> > The only thing I could find in Intel's documentation is the max. time
+> > of throttling is 3 microseconds (p.67; 5.2.1 of Prescott
+> > datasheet). So this 3 microseconds should correspond to 5600 ticks or
+> > so...
 > 
-> Personally, I'm fine with it.
+> Can't find it in the datasheets right now, but did find an interesting
+> comment in section 13.15.3 of 24547212.pdf which explains the strange
+> behaviour we're seeing.
+
+Hm, 13.16.3 in my version, but indeed: all logical processors should
+be put asleep in the same way ;)
+
 > 
-> Yet another simple solution would be just to remove refcounting and
-> only allow modular build of math-emu when CONFIG_SMP=n, which is
-> safe vs module unload and still fine for debugging.
+> > I know this is not P4 specific, but motherboard specific, but do
+> > you know of modules which use motherboard specific knowledge to scale
+> > the processor?
+> No.
+> > If the BIOS can do it, so should we be able to do it.
+> 
+> Dynamic frequency scaling is (probably) way different from setting a
+> frequency at boot (which is what the BIOS does). Timing issues, settling
+> times, etc. are way too complicated, AFAICS. Even trying to do this might
+> result in severe non-recoverable hardware failures.
 
-UP is not safe vs module unloading per se.  Especially not with
-CONFIG_PREEMPT.  I'd say just apply the patch and if someone badly needs
-modular mathemu for debugging he/she can apply some local hack.
+Probably true for some motherboards, but Asus got a WinXP program
+called 'AiBooster' which is a program to under/overclock from -50% to
++33% runtime (butt-ugly UI can be seen in
+http://www.asuscom.de/pub/ASUS/mb/sock478/p4p800/AIBooster_u.pdf). Could
+Wine be used (given the right permissions) to run or disect such a
+utility to make underclocking reality under Linux?
 
+*hopeful* Or has Asus released the specification of its motherboard?
+
+-- 
+Rutger Nijlunsing ---------------------------- rutger ed tux tmfweb nl
+never attribute to a conspiracy which can be explained by incompetence
+----------------------------------------------------------------------

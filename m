@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbULGFpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbULGFwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbULGFpY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 00:45:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbULGFpX
+	id S261760AbULGFwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 00:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbULGFwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 00:45:23 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:5061 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S261756AbULGFpO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 00:45:14 -0500
-Date: Mon, 6 Dec 2004 21:48:40 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Phil Oester <kernel@linuxace.com>
-Cc: shemminger@osdl.org, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Recent select() handling change breaks Poptop
-Message-ID: <20041207054840.GD61527@gaz.sfgoth.com>
-References: <20041207003525.GA22933@linuxace.com> <20041207025218.GB61527@gaz.sfgoth.com> <20041207045302.GA23746@linuxace.com>
+	Tue, 7 Dec 2004 00:52:16 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:46831 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261760AbULGFwK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 00:52:10 -0500
+Date: Tue, 7 Dec 2004 11:23:48 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kprobes: dont steal interrupts from vm86
+Message-ID: <20041207055348.GA1305@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru> <20041117131552.GA11053@in.ibm.com> <41B1FD4B.9000208@aknet.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041207045302.GA23746@linuxace.com>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Mon, 06 Dec 2004 21:48:41 -0800 (PST)
+In-Reply-To: <41B1FD4B.9000208@aknet.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(adding netdev to cc:)
+Hi Stas,
 
-Phil Oester wrote:
-> >   2. a "tcpdump -nvv" of its udp traffic (ideally captured from a seperate
-> >      server, but from the server would probably be OK too)
-> 
-> PPTP uses TCP 1723 and GRE (proto 47), so there is no udp traffic involved.
-> I suspect the change was made to all datagram traffic with the assumption 
-> that UDP was the only protocol impacted.  Perhaps GRE was not considered?
+> I've found yet another bug in this
+> very same piece of code. Now I can
+> reproduce the interrupt theft without
+> using either vm86() or modify_ldt().
 
-Yeah, it looks like the problem for sure.  The patch modifies the
-structure "inet_dgram_ops" to use udp_poll(), but looking farther down:
+The patch below should fix this problem. Please
+let me know if you any issues.
 
-static struct inet_protosw inetsw_array[] =
-[...]
-                .type =       SOCK_DGRAM,
-                .protocol =   IPPROTO_UDP,
-                .prot =       &udp_prot,
-                .ops =        &inet_dgram_ops,
-[...]
-               .type =       SOCK_RAW,
-               .protocol =   IPPROTO_IP,        /* wild card */
-               .prot =       &raw_prot,
-               .ops =        &inet_dgram_ops,
-[...]
+Regards
+Prasanna
 
-so it looks like udp_poll() will end up getting used for both SOCK_DGRAM
-and SOCK_RAW inet sockets; obviously Poptop is using the latter and failing
-as a result.  No need for the strace/tcpdump data I guess.
 
-The fix is to just make a copy of the inet_dgram_ops called inet_udp_ops
-and make the udp_poll() change only in that one (and obviously change the
-SOCK_DGRAM case there to use &inet_udp_ops).  I don't have time right this
-second to spin a patch, but could you try that out and see if it fixes
-your problem.
 
--Mitch
+Stas repoted that kprobes steals int3 exceptions when not in 
+virtual-8086 mode. This patch fixes the problem by returning 0,
+if the int3 exceptions does not belong to kprobes.
+
+Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+
+
+---
+
+ linux-2.6.10-rc3-prasanna/arch/i386/kernel/kprobes.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -puN arch/i386/kernel/kprobes.c~kprobes-steals-int3 arch/i386/kernel/kprobes.c
+--- linux-2.6.10-rc3/arch/i386/kernel/kprobes.c~kprobes-steals-int3	2004-12-07 11:20:33.000000000 +0530
++++ linux-2.6.10-rc3-prasanna/arch/i386/kernel/kprobes.c	2004-12-07 11:20:34.000000000 +0530
+@@ -127,10 +127,10 @@ static inline int kprobe_handler(struct 
+ 			 * The breakpoint instruction was removed right
+ 			 * after we hit it.  Another cpu has removed
+ 			 * either a probepoint or a debugger breakpoint
+-			 * at this address.  In either case, no further
+-			 * handling of this interrupt is appropriate.
++			 * at this address. In either case, kprobes
++			 * need not handle it.
+ 			 */
+-			ret = 1;
++			ret = 0;
+ 		}
+ 		/* Not one of ours: let kernel handle it */
+ 		goto no_kprobe;
+
+_
+-- 
+
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

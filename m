@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278566AbRKHV23>; Thu, 8 Nov 2001 16:28:29 -0500
+	id <S278509AbRKHV2t>; Thu, 8 Nov 2001 16:28:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278584AbRKHV2T>; Thu, 8 Nov 2001 16:28:19 -0500
-Received: from sweetums.bluetronic.net ([66.57.88.6]:935 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S278566AbRKHV2J>; Thu, 8 Nov 2001 16:28:09 -0500
-Date: Thu, 8 Nov 2001 16:28:02 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-In-Reply-To: <964381385.1005245622@[195.224.237.69]>
-Message-ID: <Pine.GSO.4.33.0111081612240.17287-100000@sweetums.bluetronic.net>
+	id <S278587AbRKHV2k>; Thu, 8 Nov 2001 16:28:40 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S278584AbRKHV2e>; Thu, 8 Nov 2001 16:28:34 -0500
+Date: Thu, 8 Nov 2001 16:28:14 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Cotte@de.ibm.com, linux-kernel@vger.kernel.org, Linux390@de.ibm.com
+Subject: Re: if (a & X || b & ~Y) in dasd.c
+In-Reply-To: <20011108155749.A24023@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.3.95.1011108162237.192A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Nov 2001, Alex Bligh - linux-kernel wrote:
->For instance, take the /proc/mounts type example, where
+On Thu, 8 Nov 2001, Pete Zaitcev wrote:
 
-(bad example as /proc/mounts is supposed to be a substiture for /etc/mtab.)
+It looks okay, but it sure is hard to read. I will simplify...
 
->each row is a sequence of binary values. Someone decides
->to add another column, which assuming it is a DWORD^W__u64,
->does exactly this, inserts a DWORD^W__u64 between the
->end of one record and the start of the next as far a
->poorly written parser is concerned.
+> Carsten and others:
+> 
+> this code in 2.2.14 looks suspicious to me:
+> 
+> ./drivers/s390/block/dasd.c:
+>         /* first of all lets try to find out the appropriate era_action */
+>         if (stat->flag & DEVSTAT_FLAG_SENSE_AVAIL ||
 
-Then make it hard ("impossible") to write a poor parser; include a record
-size in the data format.  The first __u32 read is the number of bytes per
-record.  You then know exactly how much data to read.  Adding more crap on
-the end doesn't break anything.
+          if (value & MASK ||
 
-People who think binary data formats are bad and hard to work with should
-take a few minutes to look at various implementation using binary data
-structures.  For example, RADIUS.
+>             stat->dstat & ~(DEV_STAT_CHN_END | DEV_STAT_DEV_END)) {
 
->The brokenness is not due to the distinction between ASCII
->and binary. The brokenness is due the ill-defined nature
->of the format, and poor change control. (so for instance
->the ASCII version could consistently use (say) quoted strings,
->with spaces between fields, and \n between records, just
->as the binary version could have a record length entry at the
->head of each record, and perhaps field length and identifier
->versions by each field - two very similar solutions to the
->problem above).
+              another_value & ANOTHER_MASK )
 
-Correct.  The issue is not which is easier to work with, or endian friendly.
-A properly designed structure, which we still don't have, is the key.  It's
-just as straight forward to tokenize binary fields as text fields.  Then you
-have to do something with the data in the fields.  Binary is far more
-efficient in almost all cases.
+		(if ether of these are TRUE)
 
-People should not shit a brick at the suggestion of doing _some_ things
-as binary structures.  The parts of /proc that really are intended for humans
-(ie. driver "debug" information... /proc/slabinfo, /proc/drivers/rd/..., etc.)
-don't make sense in binary.  However, there are loads of things that DO make
-sense in binary format -- too many things reference them for further processing
-requiring conversion from/to text multiple times.  The number of people
-who do:
- % grep -l foo /proc/[0-9]*/cmdline
-instead of:
- % ps auxwww | grep foo
-are very VERY low.
+... etc.
+ Don't confuse & with &&....
 
---Ricky
+> Are you sure any parenthesises are not needed here?
+
+No, but they sure would help to make the code readable by humans
+as well as compilers.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

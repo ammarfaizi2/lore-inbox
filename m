@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267892AbRGROvT>; Wed, 18 Jul 2001 10:51:19 -0400
+	id <S267834AbRGRPMz>; Wed, 18 Jul 2001 11:12:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267897AbRGROvJ>; Wed, 18 Jul 2001 10:51:09 -0400
-Received: from pricie.ccl.kuleuven.ac.be ([134.58.128.16]:55194 "EHLO
-	pricie.ccl.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id <S267892AbRGROu5>; Wed, 18 Jul 2001 10:50:57 -0400
-Date: Wed, 18 Jul 2001 16:50:51 +0200 (CEST)
-From: Bert de Bruijn <bob@ccl.kuleuven.ac.be>
-To: <linux-kernel@vger.kernel.org>
-cc: David HM Spector <spector@zeitgeist.com>
-Subject: Re: PCI hiccup installing Lucent/Orinoco carbus PCI adapter
-In-Reply-To: <200107181443.QAA01801@ace.ulyssis.org>
-Message-ID: <Pine.LNX.4.33.0107181644150.7821-100000@pricie.ccl.kuleuven.ac.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267854AbRGRPMp>; Wed, 18 Jul 2001 11:12:45 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:65289 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267839AbRGRPMi>; Wed, 18 Jul 2001 11:12:38 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Wed, 18 Jul 2001 08:10:22 -0700
+Message-Id: <200107181510.f6IFAMW03662@penguin.transmeta.com>
+To: ja@himel.com, linux-kernel@vger.kernel.org
+Subject: Re: cpuid_eax damages registers (2.4.7pre7)
+Newsgroups: linux.dev.kernel
+In-Reply-To: <Pine.LNX.4.10.10107181347030.16710-100000@l>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jul 2001 David HM Spector <spector@zeitgeist.com> wrote in
- Message-ID: <200107171706.f6HH63S05993@thx1138.ny.zeitgeist.com> :
-
-> Hi,  included is a bug-report that seems to be a PCI oops that affects the
-> intallation of a Lucent PCI CardBus adapter.
+In article <Pine.LNX.4.10.10107181347030.16710-100000@l> you write:
 >
-> [1.] One line summary of the problem:
->
->      PCI Drivers fail to allocate interrrupt for Lucent Cardbus bridge
->
-> [2.] Full description of the problem/report:
->
-> The 2.4.3 kernel recognizes the card but failts to allocate an
-> interrupt for it.  This is the Lucent Oinoco PCI Carbus bridge product
-> which is based on the TI1410 chip.  In talking with Dave Hinds about
-> the problem, he looked at the enclose outbut and suggested that it
-> looks like a kernel/PCI problem.
->
-> Moving PCI cards arong, removing other from the system etc has no affect.
+>	I don't know whether cpuid_eax (2.4.7pre) should preserve the
+>registers changed from cpuid
 
-I got my Lucent PCI-to-PCMCIA adapter to work on my dual Intel box, but
-win2k had some problems with it (slow booting, IIRC). I put the card in my
-Alpha (Miata), but it has never worked there, with symptoms similar to the
-ones you describe. The PCI initialisation apparently never allocates
-(enough) resources to the card. But that PCI initialisation is
-arch-dependant AFAIK.
+It should. It has the proper "this instruction assigned values to these
+registers" stuff, so gcc should know which ones change.
 
+>			 but I have an oops on boot with 2.4.7pre7 in
+>squash_the_stupid_serial_number where cpuid_eax changes ebx and the
+>parameter "c" is loaded with "Genu". The following change fixes the
+>problem:
 
--- 
-/* Bert de Bruijn        E-mail@home: bert @ debruijn.be         */
-/* Linux specialist              web: http://bert.debruijn.be/   */
-/* * * * *  I'm not lost, but I still want to be found.  * * * * */
+Interesting. Can you do the following:
 
+ - tell us your compiler version
+
+ - do a "make arch/i386/kernel/setup.s" both ways, and show what
+   squash_the_stupid_serial_number() looks like.
+
+ - fix _all_ the "cpuid*()" functions to have
+
+	:"0" (op)
+
+   instead of their current incorrect
+
+	:"a" (op)
+
+   (we're supposed to explicitly tell the compiler that the first input
+   is the same as the first output)
+
+ - see if that makes any difference to the assembler output.
+
+In any case it does sound like a compiler bug, but it would be good to
+have a workaround. But it would also be good to have a more complete
+dump of the oops in question to see more about what is going on..
+
+		Thanks,
+			Linus

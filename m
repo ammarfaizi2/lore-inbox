@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbULPNum@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262663AbULPNxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbULPNum (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 08:50:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbULPNul
+	id S262663AbULPNxP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 08:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbULPNxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 08:50:41 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:386 "EHLO
+	Thu, 16 Dec 2004 08:53:15 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:3202 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261385AbULPNuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 08:50:37 -0500
-Subject: Re: Time goes crazy in 2.6.9 after long cli [was Re: USB making
-	time drift]
+	id S262663AbULPNxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 08:53:11 -0500
+Subject: Re: USB making time drift [was Re: dynamic-hz]
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Pavel Machek <pavel@suse.cz>, Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041216111343.GI28286@dualathlon.random>
-References: <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com>
-	 <20041213112853.GS16322@dualathlon.random>
-	 <20041213124313.GB29426@atrey.karlin.mff.cuni.cz>
-	 <20041213125844.GY16322@dualathlon.random>
-	 <20041213191249.GB1052@elf.ucw.cz>
-	 <20041214023651.GT16322@dualathlon.random>
-	 <20041214095939.GC1063@elf.ucw.cz>
-	 <20041214152558.GB16322@dualathlon.random>
-	 <20041214220239.GA19221@elf.ucw.cz> <20041216011549.GD6285@elf.ucw.cz>
-	 <20041216111343.GI28286@dualathlon.random>
+To: gene.heskett@verizon.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>
+In-Reply-To: <200412152059.52292.gene.heskett@verizon.net>
+References: <20041213002751.GP16322@dualathlon.random>
+	 <200412151144.38785.gene.heskett@verizon.net>
+	 <20041215182012.GH16322@dualathlon.random>
+	 <200412152059.52292.gene.heskett@verizon.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1103201365.3804.2.camel@localhost.localdomain>
+Message-Id: <1103201437.3804.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Dec 2004 12:49:27 +0000
+Date: Thu, 16 Dec 2004 12:50:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-12-16 at 11:13, Andrea Arcangeli wrote:
-> Well, I was pretty sure it was reproducible since the PIT and TSC are
-> standard hw in all machines, it's just the excessive usb irq latency
+On Iau, 2004-12-16 at 01:59, Gene Heskett wrote:
+> Unforch, I was not able to find that in the .config file, so where is
+> that particular option set?
 
-TSC is not by any means standard hw in all machines and it has a whole
-pile of issues on some of them with the way it varies rate and/or stops.
-
-> My suggestion is that first we fix the accuracy of this, and *then* we
-> consider switching to a one-short timer.
-
-Agreed - one shot timers are going to be nearly impossible to use for
-system time accounting because we keep losing time resetting it.
-
-
+Base 2.6.9 hardcodes it, 2.6.9-ac has it in the configuration for x86
 

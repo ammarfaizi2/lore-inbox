@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272966AbRIMKRx>; Thu, 13 Sep 2001 06:17:53 -0400
+	id <S272980AbRIMKel>; Thu, 13 Sep 2001 06:34:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272970AbRIMKRn>; Thu, 13 Sep 2001 06:17:43 -0400
-Received: from t2.redhat.com ([199.183.24.243]:12030 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S272966AbRIMKRY>; Thu, 13 Sep 2001 06:17:24 -0400
-Message-ID: <3BA087CA.3BD1D557@redhat.com>
-Date: Thu, 13 Sep 2001 11:17:46 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6.4smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+	id <S273069AbRIMKec>; Thu, 13 Sep 2001 06:34:32 -0400
+Received: from chfdns02.ch.intel.com ([143.182.246.25]:37312 "EHLO
+	melete.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S272980AbRIMKeW>; Thu, 13 Sep 2001 06:34:22 -0400
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B2731C@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'David Woodhouse'" <dwmw2@infradead.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stomping on Athlon bug
-In-Reply-To: <17613305632.20010913121304@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: RE: find struct pci_dev from struct net_device 
+Date: Thu, 13 Sep 2001 13:34:39 +0300
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-VDA wrote:
-> 
-> Hi. Below is a modified printout of lspci -vvvxxx
-> made on VIA KT133A based mainboard with BIOS version 3R flashed in
-> (this system is exhibiting Athlon bug) and on the same system
-> with BIOS version YH (which do not trigger bug).
-> Each chipset config register which is changed between these two BIOSes
-> is underlined with carets "^" with programming details immediately below.
-> Each register is then commented with:
-> *** 3R BIOS: settings made by 3R BIOS
-> *** YH BIOS: settings made by YH BIOS
-> *** TODO: is this relevant and what to do
-> 
-> Anyone interested in trying to pin down the bug might
-> try to reprogram this chipset along the lines:
->     ...
->     struct pci_dev *dev;
->     dev = pci_find_device(PCI_VENDOR_ID_VIA, 0x0305, NULL);
->     if(dev) {
->         printk("Trying to stomp on Athlon bug...\n");
->         u8 v;
->         pci_read_config_byte(dev, 0x52, &v);
->         /* set 52.7: Disconnect Enable When STPGNT Detected */
->         v |= 0x80;
->         pci_write_config_byte(dev, 0x52, v);
->         ...
->     }
->     ...
-> I'm not sure where exactly this piece of code should go.
-> Anyway, compile K7 optimized kernel with this fix
-> and give it a try.
+Just trying to repent by contributing something good back to the community
+;-)
 
-Interesting; This is exactly the bit that the athlon cool thingy that
-popped up
-here a while ago changed; everybody agreed that it was WAAAAY too
-dangerous
-back then, because PSU's and voltage regulators wouldn't be able to
-cope......
+Actually, I'm using this exact code and in an open source project too (we
+have those too you know).
+
+-----Original Message-----
+From: David Woodhouse [mailto:dwmw2@infradead.org]
+Sent: Thursday, September 13, 2001 12:42 PM
+To: Hen, Shmulik
+Cc: 'Sebastian Heidl'; linux-kernel@vger.kernel.org
+Subject: Re: find struct pci_dev from struct net_device 
+
+
+
+shmulik.hen@intel.com said:
+> Take the value of dev->base_addr, mask it's lowest 4 bits, do a scan
+> of all PCI net devices and in each PCI device try to match to each of
+> the 6 address regs: 
+
+We have to assume this isn't a deliberate attempt to mislead, and that you 
+really do things like this in your own code.
+
+I suspect that whatever chance there was of someone trying to help out some
+poor user unfortunate or ignorant enough to use the binary-only modules that
+you are working on has just bitten the dust. 
+
+--
+dwmw2
+

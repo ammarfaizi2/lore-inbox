@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316992AbSEWTbE>; Thu, 23 May 2002 15:31:04 -0400
+	id <S316993AbSEWTeC>; Thu, 23 May 2002 15:34:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316993AbSEWTbD>; Thu, 23 May 2002 15:31:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25357 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316992AbSEWTbD>;
-	Thu, 23 May 2002 15:31:03 -0400
-Message-ID: <3CED432F.E0150C06@zip.com.au>
-Date: Thu, 23 May 2002 12:29:51 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S316994AbSEWTeB>; Thu, 23 May 2002 15:34:01 -0400
+Received: from wsip68-14-236-254.ph.ph.cox.net ([68.14.236.254]:41871 "EHLO
+	mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S316993AbSEWTeB>; Thu, 23 May 2002 15:34:01 -0400
+Message-ID: <02c401c20290$cd7813a0$6aaca8c0@kpfhome>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <trond.myklebust@fys.uio.no>
+Subject: [PATCH] patch for 2.4.19-pre8 nfsroot.c to compile
+Date: Thu, 23 May 2002 12:34:06 -0700
+Organization: Laboratory Systems Group, Inc.
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] include buffer_head.h in actual users instead of fs.h (6/10)
-In-Reply-To: <20020523132700.G24361@infradead.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> 
-> Make the 7 file that need it in mm/ include buffer_head.h directly.
-> Once again most files shouln't need it and want fixing.
+The patch below is required for fs/nfs/nfsroot.c to compile in 2.4.19-pre8:
 
-Yup.  In fact, some declarations need to be moved out of
-buffer_head.h.
+diff -X dontdiff -urN linux/fs/nfs/nfsroot.c linux-nfsroot/fs/nfs/nfsroot.c
+--- linux/fs/nfs/nfsroot.c Thu May 23 12:04:17 2002
++++ linux-nfsroot/fs/nfs/nfsroot.c Thu May 23 12:10:11 2002
+@@ -344,7 +344,7 @@
+  struct sockaddr_in sin;
+ 
+  printk(KERN_NOTICE "Looking up port of RPC %d/%d on %s\n",
+-  program, version, in_ntoa(servaddr));
++  program, version, NIPQUAD(servaddr));
+  set_sockaddr(&sin, servaddr, 0);
+  return rpc_getport_external(&sin, program, version, proto);
+ }
 
-> --- 1.91/mm/filemap.c   Sun May 19 13:49:50 2002
-> +++ edited/mm/filemap.c Thu May 23 13:19:05 2002
-> @@ -20,6 +20,16 @@
->  #include <linux/iobuf.h>
->  #include <linux/hash.h>
->  #include <linux/writeback.h>
-> +/*
-> + * This is needed for the following functions:
-> + *  - try_to_release_page
 
-This isn't buffer-specific; should be in mm.h or similar.
-
-> + *  - block_flushpage
-
-Should never be called - all callers should call
-call a_ops->flushpage() (and rename it to
-invalidatepage, for heavens sake)
-
-> + *  - page_has_buffers
-
-well hopefully we can do something a little tidier than
-all the invalidate_foo2() functions.  But that's in fact
-a happens-to-not-matter bug. Should be using PagePrivate()
-in invalidate_this_page2()
-
-> + *  - generic_osync_inode
-
-Sigh.  Needs to be pushed out to generic_file_write()
-callers, I suspect.
-
-etc...
-
--

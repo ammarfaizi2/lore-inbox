@@ -1,53 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267847AbTBYTTv>; Tue, 25 Feb 2003 14:19:51 -0500
+	id <S267187AbTBYTSa>; Tue, 25 Feb 2003 14:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267927AbTBYTTv>; Tue, 25 Feb 2003 14:19:51 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:44164 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267847AbTBYTSx>; Tue, 25 Feb 2003 14:18:53 -0500
-Date: Tue, 25 Feb 2003 14:31:48 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: atomic_t (24 bits???)
-In-Reply-To: <20030225191711.GA25331@nevyn.them.org>
-Message-ID: <Pine.LNX.3.95.1030225143137.20279B-100000@chaos>
+	id <S267123AbTBYTSa>; Tue, 25 Feb 2003 14:18:30 -0500
+Received: from donna.siteprotect.com ([64.41.120.44]:12769 "EHLO
+	donna.siteprotect.com") by vger.kernel.org with ESMTP
+	id <S267187AbTBYTS1>; Tue, 25 Feb 2003 14:18:27 -0500
+Date: Tue, 25 Feb 2003 14:28:29 -0500 (EST)
+From: John Clemens <john@deater.net>
+X-X-Sender: john@pianoman.cluster.toy
+To: Pavel Machek <pavel@suse.cz>
+cc: Dominik Brodowski <linux@brodo.de>, <cpufreq@www.linux.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: cpufreq: allow user to specify voltage
+In-Reply-To: <20030225190949.GM12028@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.44.0302251419290.12073-100000@pianoman.cluster.toy>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Feb 2003, Daniel Jacobowitz wrote:
+On Tue, 25 Feb 2003, Pavel Machek wrote:
 
-> On Tue, Feb 25, 2003 at 02:11:11PM -0500, Richard B. Johnson wrote:
-> > 
-> > In ../linux/include/asm/atomic.h, for versions 2.4.18 and
-> > above as far as I've checked, there are repeated warnings
-> > "Note that the guaranteed useful range of an atomic_t is
-> > only 24 bits."
-> > 
-> > I fail to see any reason why as atomic_t is typdefed to a
-> > volatile int which, on ix86 seems to be 32 bits.
-> > 
-> > Does anybody know if this is just some old comments from a
-> > previous atomic_t type of, perhaps, char[3]?  
-> 
-> There are other platforms where you can't reliably use the whole word. 
-> Some ARM atomic_t implementations are like this, although I don't know
-> if the one in the kernel is.
-> 
-> -- 
-> Daniel Jacobowitz
-> MontaVista Software                         Debian GNU/Linux Developer
-> 
-Okay. Thanks.
+> Hi!
+>
+> > > But I agree that hacking proc_intf is not the right thing to do. I did
+> > > not see that sysfs access. Where is it?
+> >
+> > kernel/cpufreq.c
+>
+> Okay, I see.
+>
+> > > > - selecting the voltage manually is something which is only valid for some
+> > > >   very few drivers - so let's only export one sysfs file[*] for these
+> > > >   drivers.
+> > >
+> > > Very few drivers? It should be common for at least Intel and AMD, no?
+> > No. Intel doesn't let you select the exact voltage. IIRC, only vew
+> > VIA/Cyrix-longhaul-capable processors and, of course, powernow-k7 are vaild
+> > targets for such a patch.
+>
+> So I guess adding /sys/bus/system/devices/cpu0/voltage? Should code to
+> do that be in kernel/cpufreq.c or is it possible to do sysfs from
+> powernow-k7 [it does not seem easy]?
+ 								Pavel
+I agree, there shoul dbe a way to add sysfs files from a cpufreq driver
+module.  I told dave I was looking into overriding the powernow tables,
+but I can't seem to get enough time away from my day job right now.
 
+for the powernow driver, and the userspace governor, I'd like to export a
+file "current_setting" or something that contains:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+<frequency> <voltage> <fsb? maybe for other drivers>
+
+A write to this file of one, two, or three values would result in changing
+the frequency to the closest standard table match we have.  Unless, the
+user specifies an "override" flag as a module parameter.  If the override
+flag is set, then writing to that file will set the speed and voltage to
+exactly what you specify (within the min/max hardware limits), and
+basically ignore the standard BIOS table.
+
+simple, elegant, gives standard default behavior....but allows one to
+override the tables if they -swear- they know better.  But it's really
+tough to do without a way to add sysfs files from the driver itself.
+
+john.c
+
+-- 
+John Clemens          http://www.deater.net/john
+john@deater.net     ICQ: 7175925, IM: PianoManO8
+      "I Hate Quotes" -- Samuel L. Clemens
 
 

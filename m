@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271707AbTHDMPv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 08:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271710AbTHDMPv
+	id S271710AbTHDMZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 08:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271712AbTHDMZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 08:15:51 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:43185 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271707AbTHDMPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 08:15:50 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 4 Aug 2003 14:15:48 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: FS: hardlinks on directories
-Message-Id: <20030804141548.5060b9db.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 4 Aug 2003 08:25:26 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:17171 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id S271710AbTHDMZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 08:25:26 -0400
+Message-Id: <200308041215.h74CFLj12258@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "Heikki Tuuri" <Heikki.Tuuri@innodb.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-mm3 and mysql
+Date: Mon, 4 Aug 2003 15:24:52 +0300
+X-Mailer: KMail [version 1.3.2]
+References: <009201c3599f$04ff05c0$322bde50@koticompaq> <20030803022723.760f6451.akpm@osdl.org> <00b901c359ac$0c7fe0a0$322bde50@koticompaq>
+In-Reply-To: <00b901c359ac$0c7fe0a0$322bde50@koticompaq>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On 3 August 2003 13:43, Heikki Tuuri wrote:
+> > Well there's a problem.  We're kernel people, not database people.  I, for
+> > one, would not have a clue how to set such a thing up.
+> >
+> > If someone could prepare a simple-enough-for-kernel-people description of
+> > how to get such a test up and running, then we might make some progress.
+> 
+> ok :).
+> 
+> 1. Download
 
-although it is very likely I am entering (again :-) an ancient discussion I
-would like to ask why hardlinks on directories are not allowed/no supported fs
-action these days. I can't think of a good reason for this, but can think of
-many good reasons why one would like to have such a function, amongst those:
+[4 screenfuls snipped]
 
-- restructuring of the fs to meet different sorting criterias (kind of a
-database view onto the fs)
-- relinking of the fs for export to other hosts via nfs or the like (enhanced
-security through artificially constructed, exported trees)
-
-Would a feature like that be seen as "big action" or rather small enhancement
-to the fs-layer?
-Are there any supporters for this feature out there?
-
-Regards,
-Stephan
+That's a hell of a setup work, and kernel folks will always get slightly
+different setups. Can database folks make a fully configured chrootable
+tarball for mysql stress testing?
+--
+vda

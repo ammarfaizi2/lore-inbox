@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268910AbTGJE2U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 00:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268912AbTGJE2U
+	id S268912AbTGJEta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 00:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbTGJEta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 00:28:20 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:21775 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S268910AbTGJE2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 00:28:19 -0400
-Date: Thu, 10 Jul 2003 14:42:44 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Jim Keniston <jkenisto@us.ibm.com>
-cc: LKML <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Randy Dunlap <rddunlap@osdl.org>
-Subject: Re: [PATCH - RFC] [1/2] 2.6 must-fix list - kernel error reporting
-In-Reply-To: <3F0AFFE6.E85FF283@us.ibm.com>
-Message-ID: <Mutt.LNX.4.44.0307101419080.15602-100000@excalibur.intercode.com.au>
+	Thu, 10 Jul 2003 00:49:30 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:48066 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268912AbTGJEt3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 00:49:29 -0400
+Message-ID: <33376.4.4.25.4.1057813446.squirrel@www.osdl.org>
+Date: Wed, 9 Jul 2003 22:04:06 -0700 (PDT)
+Subject: Re: [PATCH] add seq file helpers from 2.5 (fwd)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <marcelo@conectiva.com.br>
+In-Reply-To: <Pine.LNX.4.55L.0307100000100.6316@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307100000100.6316@freak.distro.conectiva>
+X-Priority: 3
+Importance: Normal
+Cc: <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>, <kernel@infidigm.net>
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jul 2003, Jim Keniston wrote:
+Marcelo,
 
-+       kerror_nl = netlink_kernel_create(NETLINK_KERROR, kerror_netlink_rcv);
-+       if (kerror_nl == NULL)
-+               panic("kerror_init: cannot initialize kerror_nl\n");
+I didn't apply and build it, but it looks very much like the
+patch that I sent to you on 2003-04-17 [1], to which you replied: [2]
+  Saved to 2.4.22-pre folder.
 
-You can simply use NULL instead of passing the dummy kerror_netlink_rcv
-function.
+I suggest that you apply it.  :)
 
-+struct kern_log_entry {
-+       __u16   log_kmagic;     /* always LOGREC_KMAGIC */
-+       __u16   log_kversion;   /* which version of this struct? */
-+       char    log_facility[FACILITY_MAXLEN];  /* e.g., driver name */
+~Randy
 
-These fields should generally be specified in ascending order to help with 
-alignment.
-
-It may also be worth looking at how the ULOG code batches messages to 
-improve peformance.
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=105061808602830&w=2
+[2] http://marc.theaimsgroup.com/?l=linux-kernel&m=105094575909669&w=2
 
 
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+> Viro,
+>
+> I think you are the right person to review that.
+>
+> Would you do me the favour?
+>
+> ---------- Forwarded message ----------
+> Date: Wed, 09 Jul 2003 20:16:54 -0400
+> From: Jeff Muizelaar <kernel@infidigm.net>
+> To: Marcelo Tosatti <marcelo@conectiva.com.br>
+> Subject: [PATCH] add seq file helpers from 2.5
+>
+> Marcelo,
+>
+> The attached patch adds the single_* helpers that have been in 2.5 since May
+> 2002, it also adds some missing includes that are in 2.5.
+>
+> -Jeff
 
 
 

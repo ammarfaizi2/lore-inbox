@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270275AbUJTBNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270261AbUJTBNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270275AbUJTBNu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 21:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270274AbUJTBJO
+	id S270261AbUJTBNv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 21:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270271AbUJTBIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 21:09:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49794 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266465AbUJTBGd (ORCPT
+	Tue, 19 Oct 2004 21:08:49 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:25517 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S270261AbUJTBHe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 21:06:33 -0400
-Date: Tue, 19 Oct 2004 18:04:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Werner Almesberger <werner@almesberger.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] boot parameters: quoting of environment variables
- revisited
-Message-Id: <20041019180440.1ff780c5.akpm@osdl.org>
-In-Reply-To: <20041019192336.K18873@almesberger.net>
-References: <20041019192336.K18873@almesberger.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 19 Oct 2004 21:07:34 -0400
+Date: Tue, 19 Oct 2004 18:07:33 -0700
+To: "David S. Miller" <davem@davemloft.net>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6 IrDA] Stir driver usb reset fix
+Message-ID: <20041020010733.GJ12932@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <werner@almesberger.net> wrote:
->
-> When passing boot parameters, they can be quoted as follows:
->  param="value"
-> 
->  Unfortunately, when passing environment variables this way, the
->  quoting causes confusion: in 2.6.7 (etc.), only the variable name
->  was placed in the environment, which caused it to be ignored.
+irXXX_stir_reset.diff :
+~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Stephen Hemminger>
+	o [CORRECT] stir4200 - get rid of reset on speed change
+The Sigmatel 4200 doesn't accept the address setting which gets done on
+USB reset.  The USB core recently changed to resend address (or
+something like that), so usb_reset_device is failing.
 
-Bummer.
+The device works without doing the USB reset on speed change, it just
+will be less robust in recovering when things get wedged (like coming
+out of FIR mode).
 
->  I've sent a patch that adjusted the name, but this patch was
->  dropped. Instead, apparently a different fix was attempted in
->  2.6.9, but this now yields param="value in the environment (note
->  the embeded double quote), which isn't much better.
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
 
-Yes, Len's patch purported to fix the same thing.  I should have got you to
-review&test that change.  Didn't think of it, sorry.
 
->  I've attached a patch for 2.6.9 that fixes this. This time, I'm
->  shifting the value. Maybe you like it better this way :-)
+diff -Nru a/drivers/net/irda/stir4200.c b/drivers/net/irda/stir4200.c
+--- a/drivers/net/irda/stir4200.c	2004-10-08 14:01:29 -07:00
++++ b/drivers/net/irda/stir4200.c	2004-10-08 14:01:29 -07:00
+@@ -520,11 +520,6 @@
+  found:
+ 	pr_debug("speed change from %d to %d\n", stir->speed, speed);
+ 
+-	/* sometimes needed to get chip out of stuck state */
+-	err = usb_reset_device(stir->usbdev);
+-	if (err)
+-		goto out;
+-
+ 	/* Reset modulator */
+ 	err = write_reg(stir, REG_CTRL1, CTRL1_SRESET);
+ 	if (err)
 
-hm.  The environment string handling and the "command line" string handling
-appear to be identical in there.  How come only one of them has the
-problem?  That function makes my eyes bleed.
 

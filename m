@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285828AbRLTCkT>; Wed, 19 Dec 2001 21:40:19 -0500
+	id <S285841AbRLTCo3>; Wed, 19 Dec 2001 21:44:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285831AbRLTCkK>; Wed, 19 Dec 2001 21:40:10 -0500
-Received: from pat.uio.no ([129.240.130.16]:52200 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S285828AbRLTCju>;
-	Wed, 19 Dec 2001 21:39:50 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15393.20331.862567.47007@charged.uio.no>
-Date: Thu, 20 Dec 2001 03:39:39 +0100
-To: David Chow <davidchow@rcn.com.hk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: nfsroot dead slow with redhat 7.2
-In-Reply-To: <1008812943.16827.1.camel@star9.planet.rcn.com.hk>
-In-Reply-To: <3C2131FC.6040209@rcn.com.hk>
-	<shs6672n25h.fsf@charged.uio.no>
-	<1008812943.16827.1.camel@star9.planet.rcn.com.hk>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	id <S285835AbRLTCoT>; Wed, 19 Dec 2001 21:44:19 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:13025 "EHLO
+	VL-MS-MR001.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S285841AbRLTCoM>; Wed, 19 Dec 2001 21:44:12 -0500
+Date: Wed, 19 Dec 2001 21:43:41 -0500
+From: Jean-Francois Levesque <jfl@jfworld.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: UDMA problem with Maxtor 7200rpm disk
+Message-Id: <20011219214341.66b6b83e.jfl@jfworld.net>
+In-Reply-To: <20011219203804.4c68f1ee.jfl@jfworld.net>
+In-Reply-To: <20011219151636.50e930ac.jfl@jfworld.net>
+	<w53k7viy91z.wl@megaela.fe.dis.titech.ac.jp>
+	<20011219203804.4c68f1ee.jfl@jfworld.net>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == David Chow <davidchow@rcn.com.hk> writes:
+I tried the 2.4.17-rc2 kernel and I was able to boot. (but I'm not with 2.4.9, 2.4.12-ac5 and 2.4.16)
 
-     > The network is fine. It is so slow that an ls -l at the rootfs
-     > takes more than 2 minutes. The readdir() seems alright because
-     > the ls immediate counts the number of records says "total
-     > blahbalh" but when doing individual lookup calls, it seems slow
-     > like hell. We have other production i686smp servers 2.4.14
+Unfortunately, when I try hdparm -d1 /dev/hda, I get the same errors 
 
-As I said: 'tcpdump' ought to show you what is going on.
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: DMA disabled
+ide0: reset: success
 
-     > serving diskless i686 clients using
-     > 2.4.13 kernels works great. Is there any difference in nfsroot
-     >        with
-     > normal nfsmounts? And can we configure the nfsroot use a v3
 
-Nope: no differences. NFSroot uses the exact same code as standard
-NFS.
+What can influence the DMA on the BIOS else than the disk configuration?
 
-     > mount?  becaus now it defaults to v2 always.
+I always get this PCI bus warning : 
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
 
-As I said in my previous mail: use the mount option 'v3' on the kernel
-boot line if you want NFSv3.
+Maybe I have somthing wrong with PCI bus that change everything???
 
- e.g. nfsroot="10.0.0.1:/bar,v3"
+Jean-François
 
-Cheers,
-   Trond
+PS: I have the lastest asus BIOS update (1003).

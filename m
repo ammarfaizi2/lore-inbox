@@ -1,53 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVAGUFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVAGT4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbVAGUFt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 15:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVAGUEl
+	id S261560AbVAGT4F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 14:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVAGTyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 15:04:41 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:11752 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261581AbVAGUEK (ORCPT
+	Fri, 7 Jan 2005 14:54:06 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:55438 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S261554AbVAGTvA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 15:04:10 -0500
-Date: Fri, 7 Jan 2005 12:02:13 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Martin Hicks <mort@wildopensource.com>
-cc: Marco Cipullo <cipullo@libero.it>, linux-kernel@vger.kernel.org
-Subject: Re: From last __GFP_ZERO changes
-In-Reply-To: <20050107193354.GT18461@localhost>
-Message-ID: <Pine.LNX.4.58.0501071200280.28689@schroedinger.engr.sgi.com>
-References: <200501061243.58968.cipullo@libero.it> <20050107193354.GT18461@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 Jan 2005 14:51:00 -0500
+Subject: [PATCH] use modern format for PCI->APIC IRQ transform printks
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 07 Jan 2005 12:50:52 -0700
+Message-Id: <1105127452.25267.35.camel@eeyore>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jan 2005, Martin Hicks wrote:
+Use pci_name() rather than "(B%d,I%d,P%d)" when printing PCI
+IRQ information.  Compiled but untested.
 
->
-> On Thu, Jan 06, 2005 at 12:43:58PM +0100, Marco Cipullo wrote:
-> > From last __GFP_ZERO changes:
-> >
-> > --- a/drivers/block/pktcdvd.c	2005-01-06 03:27:45 -08:00
-> > +++ b/drivers/block/pktcdvd.c	2005-01-06 03:27:45 -08:00
-> > @@ -135,12 +135,10 @@
-> >  		goto no_bio;
-> >
-> >  	for (i = 0; i < PAGES_PER_PACKET; i++) {
-> > -		pkt->pages[i] = alloc_page(GFP_KERNEL);
-> > +		pkt->pages[i] = alloc_page(GFP_KERNEL|| __GFP_ZERO);
-> >
-> > Is this OK?
-> >
-> > Or should be
-> >
-> >  	for (i = 0; i < PAGES_PER_PACKET; i++) {
-> > -		pkt->pages[i] = alloc_page(GFP_KERNEL);
-> > +		pkt->pages[i] = alloc_page(GFP_KERNEL| __GFP_ZERO);
->
-> It definitely should be the latter.
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-Correct. Please submit the patch. I see a patch that fixes a pktcdvd.c
-issue in Andrews tree so it was likely already fixed without me hearing of
-it.
+===== arch/i386/pci/irq.c 1.53 vs edited =====
+--- 1.53/arch/i386/pci/irq.c	2004-12-30 16:22:56 -07:00
++++ edited/arch/i386/pci/irq.c	2005-01-07 11:11:11 -07:00
+@@ -735,7 +735,7 @@
+ 	if (!pirq_table)
+ 		return 0;
+ 	
+-	DBG("IRQ for %s:%d", pci_name(dev), pin);
++	DBG("IRQ for %s[%c]", pci_name(dev), 'A' + pin);
+ 	info = pirq_get_info(dev);
+ 	if (!info) {
+ 		DBG(" -> not found in routing table\n");
+@@ -892,16 +892,16 @@
+ 					irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
+ 							PCI_SLOT(bridge->devfn), pin);
+ 					if (irq >= 0)
+-						printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
+-							bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
++						printk(KERN_WARNING "PCI: using PPB %s[%c] to get irq %d\n", 
++							pci_name(bridge), 'A' + pin, irq);
+ 				}
+ 				if (irq >= 0) {
+ 					if (use_pci_vector() &&
+ 						!platform_legacy_irq(irq))
+ 						irq = IO_APIC_VECTOR(irq);
+ 
+-					printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
+-						dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
++					printk(KERN_INFO "PCI->APIC IRQ transform: %s[%c] -> IRQ %d\n",
++						pci_name(dev), 'A' + pin, irq);
+ 					dev->irq = irq;
+ 				}
+ 			}
+@@ -1051,8 +1051,8 @@
+ 					irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
+ 							PCI_SLOT(bridge->devfn), pin);
+ 					if (irq >= 0)
+-						printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
+-							bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
++						printk(KERN_WARNING "PCI: using PPB %s[%c] to get irq %d\n", 
++							pci_name(bridge), 'A' + pin, irq);
+ 					dev = bridge;
+ 				}
+ 				dev = temp_dev;
+@@ -1061,8 +1061,8 @@
+ 					if (!platform_legacy_irq(irq))
+ 						irq = IO_APIC_VECTOR(irq);
+ #endif
+-					printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
+-						dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
++					printk(KERN_INFO "PCI->APIC IRQ transform: %s[%c] -> IRQ %d\n",
++						pci_name(dev), 'A' + pin, irq);
+ 					dev->irq = irq;
+ 					return 0;
+ 				} else
+
+

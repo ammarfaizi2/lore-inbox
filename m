@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbUKIVbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbUKIVgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbUKIVbq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 16:31:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbUKIVbq
+	id S261703AbUKIVgh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 16:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUKIVgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 16:31:46 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:44931 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261695AbUKIVbj (ORCPT
+	Tue, 9 Nov 2004 16:36:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:17537 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261703AbUKIVgd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 16:31:39 -0500
-Message-ID: <41913737.8080309@g-house.de>
-Date: Tue, 09 Nov 2004 22:31:35 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] kobject: fix double kobject_put() in error path of kobject_add()
-References: <418F6E33.8080808@g-house.de> <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org> <418FDE1F.7060804@g-house.de> <419005F2.8080800@g-house.de> <41901DF0.8040302@g-house.de> <84144f02041108234050d0f56d@mail.gmail.com> <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de> <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org> <20041109190420.GA2498@kroah.com> <20041109190809.GA2628@kroah.com>
-In-Reply-To: <20041109190809.GA2628@kroah.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+	Tue, 9 Nov 2004 16:36:33 -0500
+Date: Tue, 9 Nov 2004 13:40:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au
+Subject: Re: balance_pgdat(): where is total_scanned ever updated?
+Message-Id: <20041109134032.124b55fa.akpm@osdl.org>
+In-Reply-To: <20041109180223.GG7632@logos.cnet>
+References: <200411061418_MC3-1-8E17-8B6C@compuserve.com>
+	<20041106161114.1cbb512b.akpm@osdl.org>
+	<20041109104220.GB6326@logos.cnet>
+	<20041109113620.16b47e28.akpm@osdl.org>
+	<20041109180223.GG7632@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> > > > I had a patch which fixes it in -mm for a while.  It does increase the
+> > > > number of pages which are reclaimed via direct reclaim and decreases the
+> > > > number of pages which are reclaimed by kswapd.  As one would expect from
+> > > > throttling kswapd.  This seems undesirable.
+> > > 
+> > > Hi Andrew,
+> > > 
+> > > Do you have any numbers to backup the claim "It does increase the
+> > > number of pages which are reclaimed via direct reclaim and decreases the
+> > > number of pages which are reclaimed by kswapd", please?
+> > 
+> > Run a workload and watch /proc/vmstat.  iirc, the one-line total_scanned
+> > fix takes the kswapd-vs-direct reclaim rate from 1:1 to 1:3 or thereabouts.
+> 
+> You're talking about laptop_mode ONLY, then?
 
-Greg KH schrieb:
-> lately.  I'd appreciate it if you could test it out and let me know if
-> it solves your problem, with CONFIG_EDD enabled, or if it doesn't help
-> at all.
+No, not at all.
 
-please ignore my first mail (the part about not being able to patch), it's
-already in BK i can see now, sorry.
+If we restore the total_scanned logic then kswapd will throttle itself, as
+designed.  Regardless of laptop_mode.  I did that, and monitored the page
+scanning and reclaim rates under various workloads.  I observed that with
+the fix in place, kswapd performed less page reclaim and direct-reclaim
+performed more reclaim.  And I wasn't able to demonstrate any benchmark
+improvements with the fix in place, so things are left as they are.
 
-compiling now...
+> How can that have any effect if may_writepage is ignored if !laptop_mode? 
 
-- --
-BOFH excuse #22:
+This is to do with kswapd throttling.  If we put kswapd to sleep more
+often, it does less scanning and reclaiming.
 
-monitor resolution too high
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> About /proc/vmstat - each output is huge - do you actually read those?
 
-iD8DBQFBkTc3+A7rjkF8z0wRAl7LAJ9/mXV4/uFet5aqpJB/02+J/654bACbBz/k
-Px9muqjJ+e7OiRPDHbmyS1s=
-=Q+hA
------END PGP SIGNATURE-----
+yup.
+
+	cat /proc/vmstat > /tmp/1
+	run workload
+	cat /proc/vmstat > /tmp/2
+	analyse /tmp/1 and /tmp/2
+
+> We need a vmstat like tool for that information to be readable.
+
+Would be nice.
+
+> > > Because linux-2.6.10-rc1-mm2 (and 2.6.9) completly ignores sc->may_writepage 
+> > > under normal operation, its only used when laptop_mode is on:
+> > > 
+> > > 		if (laptop_mode && !sc->may_writepage)
+> > > 			goto keep_locked;
+> > > 
+> > > Is this intentional ???
+> > 
+> > yup.  In laptop mode we try to scan further to find a clean page rather
+> > than spinning up the disk for a writepage.
+> 
+> It might be interesting to use sc->may_writepage independantly of
+> laptop mode (ie make kswapd only writeout pages if the reclaim ratio 
+> is low).
+
+sure.
+

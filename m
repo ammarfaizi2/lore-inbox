@@ -1,94 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbULGOif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbULGOyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbULGOif (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 09:38:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbULGOif
+	id S261819AbULGOyY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 09:54:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbULGOyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 09:38:35 -0500
-Received: from apollo.nbase.co.il ([194.90.137.2]:46343 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP id S261818AbULGOib
+	Tue, 7 Dec 2004 09:54:24 -0500
+Received: from embeddededge.com ([209.113.146.155]:53774 "EHLO
+	penguin.netx4.com") by vger.kernel.org with ESMTP id S261819AbULGOyP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 09:38:31 -0500
-Message-ID: <41B5C038.1090501@mrv.com>
-Date: Tue, 07 Dec 2004 16:37:44 +0200
-From: emann@mrv.com (Eran Mann)
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-2
-References: <OFD07DEEA4.7C243C76-ON86256F5F.007976EC@raytheon.com> <20041204175636.GA3115@elte.hu>
-In-Reply-To: <20041204175636.GA3115@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 7 Dec 2004 09:54:15 -0500
+In-Reply-To: <48C50EC3-480D-11D9-8A5A-000393DBC2E8@freescale.com>
+References: <48C50EC3-480D-11D9-8A5A-000393DBC2E8@freescale.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <CC280DE6-485F-11D9-AEAC-003065F9B7DC@embeddededge.com>
+Content-Transfer-Encoding: 7bit
+Cc: Linux/PPC Development <linuxppc-dev@ozlabs.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Embedded PPC Linux list <linuxppc-embedded@ozlabs.org>
+From: Dan Malek <dan@embeddededge.com>
+Subject: Re: Second Attempt: Driver model usage on embedded processors
+Date: Tue, 7 Dec 2004 09:53:46 -0500
+To: Kumar Gala <kumar.gala@freescale.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-...
 
-> i've implemented the 'tracing follows the task' logic in the -32-2
-> patch, available from the usual place:
-> 
->     http://redhat.com/~mingo/realtime-preempt/
-> 
-> i've also added a CPU# field and i've reworked latency_trace format, to
-> make it more readable. Whenever preempt_wakeup_timing is enabled,
-> user-tracing will follow the traced task, if it's disabled then tracing
-> will stay on the CPU. No other changes.
-...
-> 	Ingo
+On Dec 7, 2004, at 12:03 AM, Kumar Gala wrote:
 
-On my machine, disabling CONFIG_LATENCY_TRACE causes the kernel to stop 
-reporting preempt latencies. After
-# echo 1 > /proc/sys/kernel/preempt_max_latency
+> The intent was that I would use the platform_data pointer to pass 
+> board specific information to the driver.  We would have board 
+> specific code which would fill in the information.  The question I 
+> have is how to handle the device variant information which is really 
+> static?
 
-/proc/sys/kernel/preempt_max_latency always shows 1 no matter what load 
-is on the machine. I´ve seen this behavior since the first time I tried 
-to disable CONFIG_LATENCY_TRACE, around V0.7.31.something.
+Why don't you just use the feature_call() model like we currently
+use for PowerPC on the PMac?  Isolate those places in the driver
+that need that information and call the function with a 
+selector/information
+request (and varargs) to get it.  This seems much more flexible
+because we don't have to ensure the data structure contains all possible
+information for all platforms, we don't have to invent a list of
+functions to call that just return that information, and worse, have
+to go back and update everyone when we realize we forgot a
+piece of necessary information for one particular implementation.
 
-Below is the exact diff between the 2 configs (the one that shows 
-latencies and the one that doesn´t). Note that the only intentional 
-change is turning off CONFIG_LATENCY_TRACE.
-=======================================================
---- /tmp/config-2.6.10-rc2-mm3-V0.7.32-2.lat    2004-12-07 
-16:25:03.000000000 +0200
-+++ /tmp/config-2.6.10-rc2-mm3-V0.7.32-2.no_lat 2004-12-07 
-11:06:19.000000000 +0200
-@@ -1,7 +1,7 @@
-  #
-  # Automatically generated make config: don't edit
-  # Linux kernel version: 2.6.10-rc2-mm3-V0.7.32-2
--# Tue Dec  7 11:07:07 2004
-+# Mon Dec  6 20:24:09 2004
-  #
-  CONFIG_X86=y
-  CONFIG_MMU=y
-@@ -137,6 +137,7 @@
-  CONFIG_MTRR=y
-  # CONFIG_EFI is not set
-  CONFIG_HAVE_DEC_LOCK=y
-+# CONFIG_REGPARM is not set
+There can be a standard list of information requests, it can easily
+be extended for boards that may need to do some special processing
+either to enable or retrieve such information, and the driver can
+determine an appropriate course of action if the function returns a
+status that it can't handle the request.
 
-  #
-  # Performance-monitoring counters support
-@@ -1711,12 +1712,12 @@
-  CONFIG_CRITICAL_IRQSOFF_TIMING=y
-  CONFIG_CRITICAL_TIMING=y
-  CONFIG_LATENCY_TIMING=y
--CONFIG_LATENCY_TRACE=y
--CONFIG_MCOUNT=y
-+# CONFIG_LATENCY_TRACE is not set
-  # CONFIG_RT_DEADLOCK_DETECT is not set
-  # CONFIG_DEBUG_KOBJECT is not set
-  CONFIG_DEBUG_BUGVERBOSE=y
-  # CONFIG_DEBUG_INFO is not set
-+CONFIG_USE_FRAME_POINTER=y
-  CONFIG_FRAME_POINTER=y
-  CONFIG_EARLY_PRINTK=y
-  # CONFIG_DEBUG_STACKOVERFLOW is not set
-=======================================================
--- 
-Eran Mann
+> The issue I've got with #2 is that some of these devices (and therefor 
+> drivers) will end up existing on various parts from Freescale that 
+> might have an ARM core or PPC core.
+
+If the configuration options are truly static, we can do just like we 
+do today
+with processor cores that share similar peripherals.  Just #define 
+those things
+that are constants and compile them into the driver.  These could be 
+address
+offsets, functional support (like RMON), and so on.  There are examples
+of these drivers that work fine today and could work even better with 
+minor
+touch ups of the configuration options.  You have already #define'd this
+stuff in the board/processor configuration files.  Why put them into a 
+static
+data structure and then find some complex method to access it?  These
+are embedded systems, after all, that want to minimize overhead.
+
+For those things that are dynamic or based upon a particular set of
+drivers selected (either as loadable modules or static linked), you can
+use the feature_call() (or whatever we want to name it).  For example,
+a driver could:
+
+feature_call(SOC_FTR, Fast_Ethernet1, INIT_IO_PINS);
+
+to configure the IO pins associated with the device, then it could:
+
+feature_call(SOC_FTR, Fast_Ethernet1, GET_CLKS, &txclk, &rxclk);
+
+to get the routing for the transmit and receive clocks, and finally:
+
+feature_call(SOC_FTR, Fast_Ethernet1, GET_PHY_IRQ, &phy_irq);
+
+to get the external interrupt number associated with the PHY.
+
+If the feature_call() returns a status that the request couldn't be 
+processed,
+the driver can choose a default course of action.  This could be to
+simply bail out with an error, or it could choose some common and
+reasonable default configuration.  In the case of a PHY interrupt,
+it could simply enter a polled mode if an interrupt is not provided.
+
+Using the call out function doesn't place any restrictions on the driver
+data structure formats.  The board can choose how it wishes to represent
+the data, which it could fetch from flash, from a command line argument,
+from some start up configuration, whatever it wishes.  It can also 
+perform
+any board specific operation necessary to enable/activate the 
+peripheral.
+For example, as part of INIT_IO_PINS, it could also configure some board
+control register if there is external routing of signals through a 
+logic device
+or to enable power to the PHY.  It also allows "extending" the driver if
+some board/processor needs an additional set up or control that others
+don't.  The board/processors that don't need that function can simply
+return from the call doing nothing, so no harm done (and requiring no
+software updates to existing board ports), while this new 
+board/processor
+gets the needed function call.
+
+Thanks.
+
+
+	-- Dan
 

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289834AbSAKCs0>; Thu, 10 Jan 2002 21:48:26 -0500
+	id <S289842AbSAKC6i>; Thu, 10 Jan 2002 21:58:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289840AbSAKCsR>; Thu, 10 Jan 2002 21:48:17 -0500
-Received: from nrg.org ([216.101.165.106]:58162 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S289834AbSAKCsB>;
-	Thu, 10 Jan 2002 21:48:01 -0500
-Date: Thu, 10 Jan 2002 18:47:45 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rob Landley <landley@trommello.org>, Andrew Morton <akpm@zip.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16OkSV-0005EZ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0201101840470.5213-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289843AbSAKC62>; Thu, 10 Jan 2002 21:58:28 -0500
+Received: from zero.tech9.net ([209.61.188.187]:26381 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289842AbSAKC6T>;
+	Thu, 10 Jan 2002 21:58:19 -0500
+Subject: Re: [patch] O(1) scheduler, -H4 - 2.4.17 problems
+From: Robert Love <rml@tech9.net>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Ed Tomlinson <tomlins@cam.org>, Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0201101841430.1493-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.40.0201101841430.1493-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 10 Jan 2002 22:00:16 -0500
+Message-Id: <1010718017.1027.8.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, Alan Cox wrote:
-> The fun below 1mS comes from
->
-> 	1.	APM bios calls where the bios decides to take >1mS to have
-> 		a chat with your batteries
-> 	2.	Video cards pulling borderline legal PCI tricks to get
-> 		better benchmarketing by stalling the entire bus
+On Thu, 2002-01-10 at 21:42, Davide Libenzi wrote:
 
-Don't forget the embedded space, where the hardware vendor can ensure
-that their hardware is well-behaved.  Even on a PC, it is possible for
-someone who cares about realtime to spec a reasonable system.
+> Look in init/main.c, if kernel_thread() is called before init_idle().
 
-On good hardware, we can easily do much better than 1ms latency with a
-preemptible kernel and a spinlock cleanup.  I don't think the
-limitations of some PC hardware should limit our goals for Linux.
+init is started via kernel_thread prior to init_idle ...
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+	Robert Love
 

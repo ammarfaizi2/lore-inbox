@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUDVUHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264661AbUDVUZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264652AbUDVUHy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 16:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264661AbUDVUHy
+	id S264661AbUDVUZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 16:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264663AbUDVUZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 16:07:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15232 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264652AbUDVUFy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 16:05:54 -0400
-Date: Thu, 22 Apr 2004 13:05:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@mac.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] coredump - as root not only if euid switched
-In-Reply-To: <1082663036.2592.1.camel@picklock.adams.family>
-Message-ID: <Pine.LNX.4.58.0404221259510.19703@ppc970.osdl.org>
-References: <2899705.1082626850875.JavaMail.pwaechtler@mac.com> 
- <20040422025638.0bf86599.akpm@osdl.org> <1082663036.2592.1.camel@picklock.adams.family>
+	Thu, 22 Apr 2004 16:25:26 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264661AbUDVUZZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 16:25:25 -0400
+Date: Thu, 22 Apr 2004 16:25:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Willy Tarreau <w@w.ods.org>
+cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: tcp vulnerability?  haven't seen anything on it here...
+In-Reply-To: <20040422141848.GA6986@alpha.home.local>
+Message-ID: <Pine.LNX.4.53.0404221621130.610@chaos>
+References: <XFMail.20040422102359.pochini@shiny.it> <Pine.LNX.4.53.0404220734330.8039@chaos>
+ <20040422131704.GA6839@alpha.home.local> <Pine.LNX.4.53.0404220929500.8745@chaos>
+ <20040422141848.GA6986@alpha.home.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 22 Apr 2004, Willy Tarreau wrote:
 
-
-On Thu, 22 Apr 2004, Peter Wächtler wrote:
+> Richard,
 >
-> > hm, OK.  There's a window in which someone can come in and recreate the
-> > file, but the open is using O_EXCL|O_CREATE so that seems safe enough.
-> 
-> So here is the updated patch with an open coded call to sys_unlink
+> you are confusing several thinks, stateful vs stateless protocols. A ping
+> doesn't need a session on the remote host to be interpreted. A TCP segment
+> whose flags don't show a SYN need a session to be interpreted. Please note
+> that I'm not arguing that you won't crash a linux box with an RST addressed
+> to a broadcast address, I'm saying that there's absolutely no reason why
+> this should reset all connections, as you proposed it. Someone would have
+> had to code this explicitly, it cannot be a simple side effect.
+>
+> Imagine that each packet which enters the system is presented to a hash
+> table containing the sessions, and that its session is looked for into
+> this hash table. You agree that in such code, there's no reason to find
+> anything that runs through all sessions and kill everyone, since this
+> code has no use there, and has no reason to be implemented on purpose !
+>
+> Look at functions such as tcp_v4_lookup() in net/ipv4/tcp_ipv4.c for
+> example. When it reaches tcp_v4_lookup_established(), you find this :
+>
+>         for(sk = head->chain; sk; sk = sk->next) {
+>                 if(TCP_IPV4_MATCH(sk, acookie, saddr, daddr, ports, dif))
+>                         goto hit; /* You sunk my battleship! */
+>         }
+>
+> You cannot match more than once.
 
-Aughr. 
+[SNIPPED...]
 
-Wouldn't it be much nicer to just refuse to overwrite files owned by 
-anybody else?
+So you are sure an attacker will fire only one bullet?
 
-In other words, I'd much rather see a patch that is a much simpler one, 
-which just says: if we opened an existing file, we won't touch it if we 
-weren't the owners of it.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-That should be safe for root _and_ it should be safe for people who 
-already had a file descriptor open previously (hey, if the previous 
-root-owned core-file was world readable, then what else is new?)
 
-Tell me why this isn't simpler?
-
-		Linus
-
----
---- 1.111/fs/exec.c	Wed Apr 21 02:11:57 2004
-+++ edited/fs/exec.c	Thu Apr 22 13:03:27 2004
-@@ -1378,6 +1378,8 @@
- 	inode = file->f_dentry->d_inode;
- 	if (inode->i_nlink > 1)
- 		goto close_fail;	/* multiple links - don't dump */
-+	if (inode->i_uid != current->euid || inode->i_gid != current->egid)
-+		goto close_fail;
- 	if (d_unhashed(file->f_dentry))
- 		goto close_fail;
- 

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbTENHcR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 03:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTENHcR
+	id S262196AbTENHd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 03:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbTENHd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 03:32:17 -0400
-Received: from barbados.bluemug.com ([63.195.182.101]:31503 "EHLO
-	barbados.bluemug.com") by vger.kernel.org with ESMTP
-	id S262192AbTENHcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 03:32:16 -0400
-Date: Wed, 14 May 2003 00:44:03 -0700
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Yoav Weiss <ml-lkml@unpatched.org>, linux-kernel@vger.kernel.org
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030514074403.GA18152@bluemug.com>
-Mail-Followup-To: Chuck Ebbert <76306.1226@compuserve.com>,
-	Yoav Weiss <ml-lkml@unpatched.org>, linux-kernel@vger.kernel.org
-References: <200305130556_MC3-1-389D-DEBF@compuserve.com>
+	Wed, 14 May 2003 03:33:59 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:31118 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262196AbTENHd6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 03:33:58 -0400
+Date: Wed, 14 May 2003 09:46:26 +0200
+From: Jens Axboe <axboe@suse.de>
+To: fab@tlen.pl
+Cc: linux-kernel@vger.kernel.org, petero2@telia.com
+Subject: Re: Mount Rainier and kernel 2.6
+Message-ID: <20030514074626.GA17033@suse.de>
+References: <20030514063216.2018C6EE92@rekin4.o2.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305130556_MC3-1-389D-DEBF@compuserve.com>
-X-PGP-Key: http://web.bluemug.com/~miket/OpenPGP/5C09BB33.asc
-X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
-From: Mike Touloumtzis <miket@bluemug.com>
+In-Reply-To: <20030514063216.2018C6EE92@rekin4.o2.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 05:52:17AM -0400, Chuck Ebbert wrote:
-> > cat >/sbin/swapoff
-> > #!/bin/sh
-> > /sbin/swapoff.real
-> > /sbin/wipeswap
-> > ^D
-> > chmod +x /sbin/swapoff
-> 
->   OK...
-> 
->  # rpm --freshen mount-2.11n-12.rpm
-> 
->    swapoff get silently replaced AFAICT.
+On Wed, May 14 2003, fab@tlen.pl wrote:
+> I would like to ask if support for Mount Rainier is inluded in 2.6 
+> kernel (as it was written in artice info on page 
+> http://kt.zork.net/kernel-traffic/kt20021021_189.html#3)
 
-Your arguments for swap wiping in the kernel aren't making sense.
-It's the distribution that must be made secure, not just the kernel.
-And a secure distribution wouldn't nuke its own version of swapoff.
+No it isn't, at least not yet. As it just happens, my mt rainier drive
+is mounted in the 2.5 testbox though. If I get the time, I don't see any
+reason it can't make it into 2.6. It's a pretty simple addition now,
+ide-cd has write support etc.
 
-Of course, as others have already noted, you really want encrypted
-swap rather than swap wiping at shutdown time.
+-- 
+Jens Axboe
 
-miket

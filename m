@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316456AbSEaS3A>; Fri, 31 May 2002 14:29:00 -0400
+	id <S316544AbSEaS3G>; Fri, 31 May 2002 14:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSEaS27>; Fri, 31 May 2002 14:28:59 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:38666 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316456AbSEaS26>; Fri, 31 May 2002 14:28:58 -0400
-Message-ID: <3CF7B339.3000406@evision-ventures.com>
-Date: Fri, 31 May 2002 19:30:33 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
-CC: Vojtech Pavlik <vojtech@suse.cz>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
-Subject: Re: [PATCH] Artop update
-In-Reply-To: <200205311951.35809@enzo.bigblue.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316574AbSEaS3F>; Fri, 31 May 2002 14:29:05 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:34784 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316544AbSEaS3D>; Fri, 31 May 2002 14:29:03 -0400
+Date: Fri, 31 May 2002 11:28:47 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Ian Collinson <icollinson@imerge.co.uk>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
+Message-ID: <20020531112847.B1529@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <C0D45ABB3F45D5118BBC00508BC292DB09C992@imgserv04>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Franz Sirl wrote:
-> Hi,
+On Thu, May 30, 2002 at 06:54:46PM +0100, Ian Collinson wrote:
 > 
-> finally I was able to test the new driver and except for the "return 0 instead 
-> of dev-irq" typo all was fine. I added a few minor changes based on the 
-> discussion with Vojtech though.
+> 	We're having problems with realtime scheduling (SCHED_RR and
+> SCHED_FIFO), on 2.4 kernels >= 2.4.10 (built for i386, no SMP).  We have an
+> app that uses real-time scheduled threads. To aid debugging, in case of
+> realtime threads spinning and locking the system, we always keep a bash
+> running on a (text) console, at SCHED_RR, priority 99 (a higher priority
+> than any threads in our app).  We test that this is a valid approach by
+> running a lower priority realtime app, on another console, that sits in an
+> infinite busy loop.  This has always worked, and we've been able to
+> successfully use the high-priority bash to run gdb, and so on.  This is also
+> what the man page for sched_setscheduler suggests, to avoid total system
+> lock up.
 
-Hey cool!
+<snip>
 
-> The hunk to main.c is needed to be able to boot with DEVFS enabled.
+> 	Then I switch back to the first console, with its priority 99 bash.
+> I am able to type away for 10 seconds, until the priority 50 process starts,
+> at which point the shell locks up.   I can get the same effect on one
+> console with:
+> 
+> 	> ( sleep 10; realtime -rr 50 eat_cpu ) & realtime -rr 99 bash
+> 
+> 	Previously, the high-priority shell would never lock up.  Now it
+> does.
 
-Better just don't do devfs :-). But anyway...
+This works fine for me on 2.4.17 with a SERIAL console.  Could this
+be related to some differences (new features) in the VGA console?
+I am totally ignorant of how the consoles work.
 
-Well I'm planing to add kernel version tagging of fstab line enties
-to util-linux. This seems to be the only way to make major/minor
-transitions (and the more I think about it the more I'm convinced
-that they will be unevitable at some not so distant point in time!)
-
-Something along the lines of:
-
-cat /etc/fstab:
-
-/dev/hdc                /                       ext3    v2.4,defaults    1 1
-/dev/sda1 
-         /                       ext3    v2.5,defaults    1 1
-LABEL=/boot             /boot                   ext3    defaults        1 2
-/dev/fd0                /mnt/floppy             auto    noauto,owner    0 0
-# /dev/loop1            /mnt/1                  auto    noauto,owner    0 0
-# /dev/loop2            /mnt/2                  auto    noauto,owner    0 0
-none                    /proc                   proc    defaults        0 0
-none                    /tmp                    tmpfs   defaults        0 0
-none                    /dev/pts                devpts  gid=5,mode=620  0 0
-/dev/hda6               swap                    swap    defaults        0 0
-
-
-Would be *very* convenient for this purpose and solve 99.9999% percent
-of portability problems. Well the above syntax may be the esiest to
-imeplement however the below syntax would be perhaps more palatable:
-
-2.5:/dev/sda1 
-		/		ext3 ....
-
-Opinnions?
-
-perhaps a similar adjustments would be required for the kernel root parameter of 
-course.
-
-With something along
-root=2.5:/dev/sda1,2.4:/dev/hdc
-one could be living with... The respecive kernel would just pick the entry
-which is matching it's version and be fine.
-
+-- 
+Mike

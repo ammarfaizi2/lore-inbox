@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263154AbSJBQdQ>; Wed, 2 Oct 2002 12:33:16 -0400
+	id <S263178AbSJBQll>; Wed, 2 Oct 2002 12:41:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263155AbSJBQdQ>; Wed, 2 Oct 2002 12:33:16 -0400
-Received: from [212.3.242.3] ([212.3.242.3]:3314 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id <S263154AbSJBQdP>;
-	Wed, 2 Oct 2002 12:33:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bodge up serial support in 2.5.40
-Date: Wed, 2 Oct 2002 18:37:38 +0200
-User-Agent: KMail/1.4.1
-References: <200210021636.g92GaWEp000312@darkstar.example.net>
-In-Reply-To: <200210021636.g92GaWEp000312@darkstar.example.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210021837.39020.devilkin-lkml@blindguardian.org>
+	id <S263179AbSJBQll>; Wed, 2 Oct 2002 12:41:41 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:28666 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S263178AbSJBQlj>; Wed, 2 Oct 2002 12:41:39 -0400
+Date: Wed, 2 Oct 2002 09:46:36 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Dereferencing semaphores and atomic_t's
+Message-ID: <20021002164636.GB1317@beaverton.ibm.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+References: <20021002111625.B24770@flint.arm.linux.org.uk> <1033564868.23758.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1033564868.23758.2.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 October 2002 18:36, jbradford@dial.pipex.com wrote:
-> Standard 8250/16550 UART support is broken in 2.5.40, and I needed it, so
-> following a bit of advice from Russell King, I've prepared this patch.
->
+Alan Cox [alan@lxorguk.ukuu.org.uk] wrote:
+> On Wed, 2002-10-02 at 11:16, Russell King wrote:
+> > drivers/scsi/scsi_error.c:
+> > 
+> >         SCSI_LOG_ERROR_RECOVERY(3, printk("Wake up parent %d\n",
+> >                                           shost->eh_notify->count.counter));
+> > 
+> 
+> This is already fixed in 2.4 - just forward port the fixes
 
-Actually, they work fine in 2.5.40. Well, my serial mouse works fine. So i 
-guess the serial port must work fine too.
+I added sem_getcount to my scsi_error.c update and my scsi_hosts update
+patch. I should have these out soon.
 
-DK
--- 
-Living your life is a task so difficult, it has never been attempted
-before.
+Sorry Russell that it has taken longer than I said to get the updated
+scsi_error patch out. I am still investigating an issue with getting
+door lock to work post fault insertion.
+
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

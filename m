@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292328AbSBUKwu>; Thu, 21 Feb 2002 05:52:50 -0500
+	id <S292332AbSBUKxU>; Thu, 21 Feb 2002 05:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292329AbSBUKwk>; Thu, 21 Feb 2002 05:52:40 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:56260 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S292328AbSBUKwY>; Thu, 21 Feb 2002 05:52:24 -0500
-From: Christoph Rohland <cr@sap.com>
-To: "Nadav Har'El" <nyh@math.technion.ac.il>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Elieser =?iso-8859-8-i?Q?Le=E3o?= <elieser@quatro.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Lucent WinModem
-In-Reply-To: <3C73DC99.4030405@quatro.com.br>
-	<E16daoj-0004D4-00@the-village.bc.nu>
-	<20020221095513.GA7782@leeor.math.technion.ac.il>
-Organisation: SAP LinuxLab
-Date: Thu, 21 Feb 2002 11:51:26 +0100
-In-Reply-To: <20020221095513.GA7782@leeor.math.technion.ac.il> ("Nadav
- Har'El"'s message of "Thu, 21 Feb 2002 11:55:13 +0200")
-Message-ID: <m3r8nfqf9t.fsf@linux.wdf.sap-ag.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Artificial
- Intelligence, i386-suse-linux)
+	id <S292331AbSBUKxP>; Thu, 21 Feb 2002 05:53:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40974 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292329AbSBUKxE>;
+	Thu, 21 Feb 2002 05:53:04 -0500
+Message-ID: <3C74D18D.FCCFEA83@mandrakesoft.com>
+Date: Thu, 21 Feb 2002 05:53:01 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
+In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C737F29.7070105@evision-ventures.com> <3C74C03C.4060403@evision-ventures.com>
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nadav,
+> @@ -2929,7 +2928,6 @@
+>         capacity:               ide_cdrom_capacity,
+>         special:                NULL,
+>         proc:                   NULL,
+> -       driver_init:            ide_cdrom_init,
+>         driver_reinit:          ide_cdrom_reinit,
+>  };
+>  
+> @@ -2967,7 +2965,7 @@
+>         DRIVER(drive)->busy--;
+>         failed--;
+>  
+> -       ide_register_module(&ide_cdrom_driver);
+> +       revalidate_drives();
+>         MOD_DEC_USE_COUNT;
+>         return 0;
+>  }
 
-On Thu, 21 Feb 2002, Nadav Har'El wrote:
-> On Wed, Feb 20, 2002, Alan Cox wrote about "Re: Lucent WinModem":
-> Actually, I think that Lucent's driver has been open source (I
-> didn't check how "free" their license is) for at least a year
-> now. No more of these ugly binary drivers that you had to apply
-> binary patches (aggh!) to on every kernel version.
+hum, I'm not sure that removing ->driver_init is a good idea.
 
-Nope, in the archive you will find a file ltmdmobj.o. The rest is a
-wrapper for this binary only driver.
+Seems like a loss of flexibility to me, not a cleanup, and I wonder if
+you have thought through all the paths that wind up calling
+->driver_init.
 
-Greetings
-		Christoph
+	Jeff
 
 
+
+-- 
+Jeff Garzik      | "Why is it that attractive girls like you
+Building 1024    |  always seem to have a boyfriend?"
+MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
+                 |             - BBC TV show "Coupling"

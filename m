@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274255AbRJEWRW>; Fri, 5 Oct 2001 18:17:22 -0400
+	id <S274248AbRJEWYM>; Fri, 5 Oct 2001 18:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274249AbRJEWRM>; Fri, 5 Oct 2001 18:17:12 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:44008 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S274248AbRJEWRF>; Fri, 5 Oct 2001 18:17:05 -0400
-Date: Fri, 5 Oct 2001 23:17:32 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: jamey.hicks@compaq.com, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.11-pre4/drivers/mtd/bootldr.c does not compile
-Message-ID: <20011005231732.B19985@flint.arm.linux.org.uk>
-In-Reply-To: <200110052048.NAA19993@baldur.yggdrasil.com>
-Mime-Version: 1.0
+	id <S274249AbRJEWYD>; Fri, 5 Oct 2001 18:24:03 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17419 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274248AbRJEWXn>; Fri, 5 Oct 2001 18:23:43 -0400
+Subject: Re: Context switch times
+To: george@mvista.com (george anzinger)
+Date: Fri, 5 Oct 2001 23:29:09 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), bcrl@redhat.com (Benjamin LaHaise),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <3BBDF290.E3988F49@mvista.com> from "george anzinger" at Oct 05, 2001 10:49:04 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110052048.NAA19993@baldur.yggdrasil.com>; from adam@yggdrasil.com on Fri, Oct 05, 2001 at 01:48:42PM -0700
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15pdSv-0007qX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 05, 2001 at 01:48:42PM -0700, Adam J. Richter wrote:
-> 	Attempting to compile linux-2.4.11-pre4/drivers/mtd/bootldr.c
-> fails with a bunch of compiler errors, including a complaint that
-> "struct tag" is not defined anywhere.  Presumably this is the result
-> of an incompletely applied patch.
+> Let me see if I have this right.  Task priority goes to max on any (?)
+> sleep regardless of how long.  And to min if it doesn't sleep for some
+> period of time.  Where does the time slice counter come into this, if at
+> all?  
+> 
+> For what its worth I am currently updating the MontaVista scheduler so,
+> I am open to ideas.
 
-Firstly, its ARM only.  Secondly, Compaq decided that a partition table in
-flash isn't a good idea, so they're passing it from the boot loader, which
-is a set of tagged lists.
+The time slice counter is the limit on the amount of time you can execute,
+the priority determines who runs first.
 
-Unfortunately, they haven't even sent me a patch to add the entries into
-the ARM tree, so even I have to reverse this from my MTD update. ;(
+So if you used your cpu quota you will get run reluctantly. If you slept
+you will get run early and as you use time slice count you will drop
+priority bands, but without pre-emption until you cross a band and there
+is another task with higher priority.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+This damps down task thrashing a bit, and for the cpu hogs it gets the
+desired behaviour - which is that the all run their full quantum in the
+background one after another instead of thrashing back and forth

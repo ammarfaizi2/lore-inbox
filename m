@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264970AbUFVPjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264928AbUFVPjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264970AbUFVPjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 11:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264977AbUFVPfT
+	id S264928AbUFVPjK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 11:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbUFVPcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 11:35:19 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:5102 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264970AbUFVPe5 (ORCPT
+	Tue, 22 Jun 2004 11:32:47 -0400
+Received: from holomorphy.com ([207.189.100.168]:34691 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264656AbUFVPQp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 11:34:57 -0400
-From: "Garreth Jeremiah" <gin@ginandtonic.ca>
-To: "'Jeff Garzik'" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Don't want to share interrupts
-Date: Tue, 22 Jun 2004 11:30:21 -0400
-Message-ID: <000001c4586d$d5076e10$0c501709@IBM3B3C778F126>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <40D83EE8.6090700@pobox.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 22 Jun 2004 11:16:45 -0400
+To: linux-kernel@vger.kernel.org
+From: William Lee Irwin III <wli@holomorphy.com>
+Subject: [profile]: [3/23] mips profiling cleanups
+Message-ID: <0406220816.5aMbHbKb0a3a3a1aMbLbIb2a3a0a4aKb3a5aLb2aWaMbZa3aZaLb0a3aXa1aYa2a15250@holomorphy.com>
+In-Reply-To: <0406220816.LbZaYa4aYaZaYa0a5aHb4a0a3aHb4aYaIbJb5aMbXa3a5a1aZaKbZa3aIb4aHb0a15250@holomorphy.com>
+CC: rddunlap@osdl.org
+Date: Tue, 22 Jun 2004 08:16:44 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Jeff (quick response)
+Convert MIPS to use profiling_on() and profile_tick().
 
-> > IRQs are assigned by firmware.  Try turning on/off io-apic or ACPI.
-
-If IRQ's are assigned by firmware then why does Windows 2K3 assign an
-IRQ per port and Linux not?
-
-If I can get Linux to assign 1 IRQ per Ethernet port then my system will
-magically work (it does under Win2K3).
-
-So, I am asking if there is a way to assign 1 IRQ per Ethernet port in
-the same manner as Windows? 
-
-I have a service call in with IBM to see if there is a way I can change
-from MP1.4 to MP1.1 as suggested in the SMP-HOWTO (there is no menu
-option for this) and then I can use the noapic/acpi=no options, but I'd
-rather not as this will limit the number of IRQ's available.
-
-Many thanks,
-
-(FYI no additional information has been posted because I can not get
-into the machine across the network without these interfaces in order to
-retrieve the files suggested in REPORTING-BUGS) and there is no floppy
-permitted.
-
-
+Index: prof-2.6.7/arch/mips/kernel/time.c
+===================================================================
+--- prof-2.6.7.orig/arch/mips/kernel/time.c	2004-06-15 22:19:22.000000000 -0700
++++ prof-2.6.7/arch/mips/kernel/time.c	2004-06-22 07:25:45.377264776 -0700
+@@ -24,6 +24,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
++#include <linux/profile.h>
+ 
+ #include <asm/bootinfo.h>
+ #include <asm/cpu.h>
+@@ -417,22 +418,8 @@
+  */
+ void local_timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+-	if (!user_mode(regs)) {
+-		if (prof_buffer && current->pid) {
+-			unsigned long pc = regs->cp0_epc;
+-
+-			pc -= (unsigned long) _stext;
+-			pc >>= prof_shift;
+-			/*
+-			 * Dont ignore out-of-bounds pc values silently,
+-			 * put them into the last histogram slot, so if
+-			 * present, they will show up as a sharp peak.
+-			 */
+-			if (pc > prof_len - 1)
+-				pc = prof_len - 1;
+-			atomic_inc((atomic_t *)&prof_buffer[pc]);
+-		}
+-	}
++	if (!user_mode(regs) && profiling_on() && current->pid)
++		profile_tick(regs->cp0_epc);
+ 
+ #ifdef CONFIG_SMP
+ 	/* in UP mode, update_process_times() is invoked by do_timer() */

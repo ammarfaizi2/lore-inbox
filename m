@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266423AbSKGJPn>; Thu, 7 Nov 2002 04:15:43 -0500
+	id <S266413AbSKGJLo>; Thu, 7 Nov 2002 04:11:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266419AbSKGJOh>; Thu, 7 Nov 2002 04:14:37 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:10642 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S266417AbSKGJOB>; Thu, 7 Nov 2002 04:14:01 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 7 Nov 2002 11:19:36 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel List <linux-kernel@vger.kernel.org>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [patch] 01_v4l2-api-fix
-Message-ID: <20021107101936.GA1939@bytesex.org>
+	id <S266414AbSKGJLo>; Thu, 7 Nov 2002 04:11:44 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:52420 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S266413AbSKGJLn>;
+	Thu, 7 Nov 2002 04:11:43 -0500
+Date: Thu, 7 Nov 2002 10:18:22 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: randy.dunlap@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: Silly advise in bridge Configure help
+Message-ID: <20021107091822.GA21030@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	"David S. Miller" <davem@redhat.com>, randy.dunlap@verizon.net,
+	linux-kernel@vger.kernel.org
+References: <3DC9EA2A.142559AA@verizon.net> <20021107.011526.120464470.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20021107.011526.120464470.davem@redhat.com>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On Thu, Nov 07, 2002 at 01:15:26AM -0800, David S. Miller wrote:
+>    From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+>    Date: Wed, 06 Nov 2002 20:20:58 -0800
+>    
+>    Sounds good, so here's the patch to 2.5.46 Kconfig to do that
+>    if you want it.
+> 
+> I had a similar patch in my queue from Lennert Buytenhek (written by
+> Bart De Schuyer) which I'm about to send to Linus.
 
-This patch fixes a ioctl numbering flaw of the new v4l2 API,
-found by davem.
+The one by Lennert is lots better. Dave, I'm about to explode with IPSEC
+anxiety, any hints on where we stand? Should I start looking at Racoon yet
+:-)
 
-Without this we get compile errors because tables based upon
-ioctl number end up having duplicate entries.
+Regards,
 
-Please apply,
-
-  Gerd
-
---- linux-2.5.46/include/linux/videodev2.h	2002-11-07 09:20:16.000000000 +0100
-+++ linux/include/linux/videodev2.h	2002-11-07 09:22:16.000000000 +0100
-@@ -819,7 +819,7 @@
- #define VIDIOC_G_JPEGCOMP	_IOR  ('V', 61, struct v4l2_jpegcompression)
- #define VIDIOC_S_JPEGCOMP	_IOW  ('V', 62, struct v4l2_jpegcompression)
- #define VIDIOC_QUERYSTD      	_IOR  ('V', 63, v4l2_std_id)
--#define VIDIOC_TRY_FMT      	_IOWR ('V', 63, struct v4l2_format)
-+#define VIDIOC_TRY_FMT      	_IOWR ('V', 64, struct v4l2_format)
- 
- #define BASE_VIDIOC_PRIVATE	192		/* 192-255 are private */
- 
+bert
 
 -- 
-You can't please everybody.  And usually if you _try_ to please
-everybody, the end result is one big mess.
-				-- Linus Torvalds, 2002-04-20
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

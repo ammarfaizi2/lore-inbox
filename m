@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130102AbRBZBaI>; Sun, 25 Feb 2001 20:30:08 -0500
+	id <S130105AbRBZBjj>; Sun, 25 Feb 2001 20:39:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130105AbRBZB37>; Sun, 25 Feb 2001 20:29:59 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12036 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130102AbRBZB3m>; Sun, 25 Feb 2001 20:29:42 -0500
-Subject: Re: 64GB option broken in 2.4.2
-To: rico@patrec.com (Rico Tudor)
-Date: Mon, 26 Feb 2001 01:32:27 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010226012112.9698.qmail@pc7.prs.nunet.net> from "Rico Tudor" at Feb 26, 2001 01:21:12 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130109AbRBZBja>; Sun, 25 Feb 2001 20:39:30 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:17133 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130105AbRBZBjX>;
+	Sun, 25 Feb 2001 20:39:23 -0500
+Date: Sun, 25 Feb 2001 20:39:21 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: Werner.Almesberger@epfl.ch, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+In-Reply-To: <UTC200102260114.CAA10722.aeb@vlet.cwi.nl>
+Message-ID: <Pine.GSO.4.21.0102252022540.26808-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14XCWa-0000Hc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hypothesis:
-> 	Code to handle PAE has buggy spinlock management.
 
-Hypthesis#2 The bounce buffer code in the Linus tree is known to be
-imperfect. Does 2.4.2ac3 do the same ?
 
-Alan
+On Mon, 26 Feb 2001 Andries.Brouwer@cwi.nl wrote:
+
+> > BTW, we probably want to add mount --move <old> <new> - atomically moving
+> > a subtree from one place to another. Code is there, we just need to
+> > decide on API. Andries?
+> 
+> Since we already have "mount --bind olddir newdir" this is not
+> an unreasonable extension of the mount(8) syntax.
+> And since the kernel is no longer so interested in coeds as
+> some former mount author, we have lots of free bits.
+
+/me scratches head and tries to figure out waht does "coed" mean...
+<looking into webster>
+C|N>K
+<adding l-k to the "don't drink coffee while reading that" list>
+
+> There are even old bits.
+> 
+> #define MS_MOVE	0x2000
+
+Works for me...
+							Cheers,
+								Al
 

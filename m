@@ -1,303 +1,474 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVCYKFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVCYKNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVCYKFN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 05:05:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVCYKFN
+	id S261579AbVCYKNF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 05:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVCYKNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 05:05:13 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:35211 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261584AbVCYKDm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 05:03:42 -0500
-Subject: [patch 1/2] fork_connector: add a fork connector
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Jay Lan <jlan@engr.sgi.com>,
-       Erich Focht <efocht@hpce.nec.com>, Ram <linuxram@us.ibm.com>,
-       Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>
-Date: Fri, 25 Mar 2005 11:03:30 +0100
-Message-Id: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
+	Fri, 25 Mar 2005 05:13:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51864 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261579AbVCYKMj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 05:12:39 -0500
+Date: Fri, 25 Mar 2005 11:11:49 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: pm_message_t becoming struct
+Message-ID: <20050325101149.GA1301@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 25/03/2005 11:13:11,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 25/03/2005 11:13:13,
-	Serialize complete at 25/03/2005 11:13:13
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This patch adds a fork connector in the do_fork() routine. It sends a
-netlink datagram when enabled. The message can be read by a user space
-application. By this way, the user space application is alerted when a
-fork occurs.
+Hi!
 
-  It uses the userspace <-> kernelspace connector that works on top of
-the netlink protocol. The fork connector is enabled or disabled by
-sending a message to the connector. This operation should be done by
-only one application. Such application can be downloaded from
-http://cvs.sourceforge.net/viewcvs.py/elsa/elsa_project/utils/fcctl.c
+pm_message_t is becoming typedefed into struct with single field,
+"event" real soon now. If you do anything that wants to look inside
+pm_message_t, please base it on this patch.
 
-  The unique sequence number of messages can be used to check if a
-message is lost. This sequence number is relative to a CPU.
+[Patrick and David would like to pass struct pm_message * instead of
+pm_message_t, but that just does not fly. Original code passed u32
+there (ouch), and it is not easy to replace u32 with struct pm_message
+* and not breaking the whole tree. Plus you do not get enough
+typechecking that way.]
 
-  The lmbench shows that the overhead (the construction and the sending
-of the message) in the fork() routine is around 7%.
+Len, please do something with platform_pci_choose_state(). I guess
+right way is to make it return pci_power_t and add
 
-  This patch applies to 2.6.12-rc1-mm3. Some other patches are needed
-that fix problems in the connector.c file. At least, you need to apply
-the patch provided in the second email. 
+#define PCI_POWER_ERROR -1...
 
-Signed-off-by: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
---- 
+Patch is relative to 2.6.12-rc1-mm3, and works okay here.
 
- drivers/connector/Kconfig   |   11 ++++
- drivers/connector/Makefile  |    1
- drivers/connector/cn_fork.c |  104 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/connector.h   |    8 +++
- kernel/fork.c               |   44 ++++++++++++++++++
- 5 files changed, 168 insertions(+)
+								Pavel
 
 
-Index: linux-2.6.12-rc1-mm3-cnfork/drivers/connector/Kconfig
-===================================================================
---- linux-2.6.12-rc1-mm3-cnfork.orig/drivers/connector/Kconfig	2005-03-25 09:47:09.000000000 +0100
-+++ linux-2.6.12-rc1-mm3-cnfork/drivers/connector/Kconfig	2005-03-25 10:14:21.000000000 +0100
-@@ -10,4 +10,15 @@ config CONNECTOR
- 	  Connector support can also be built as a module.  If so, the module
- 	  will be called cn.ko.
+--- clean-mm/drivers/base/power/resume.c	2005-03-25 09:56:42.000000000 +0100
++++ linux-mm/drivers/base/power/resume.c	2005-03-25 08:47:16.000000000 +0100
+@@ -45,7 +45,7 @@
+ 		list_add_tail(entry, &dpm_active);
  
-+config FORK_CONNECTOR
-+	bool "Enable fork connector"
-+	depends on CONNECTOR=y
-+	default y
-+	---help---
-+	  It adds a connector in kernel/fork.c:do_fork() function. When a fork
-+	  occurs, netlink is used to transfer information about the parent and 
-+	  its child. This information can be used by a user space application.
-+	  The fork connector can be enable/disable by sending a message to the
-+	  connector with the corresponding group id.
-+	  
- endmenu
-Index: linux-2.6.12-rc1-mm3-cnfork/drivers/connector/Makefile
-===================================================================
---- linux-2.6.12-rc1-mm3-cnfork.orig/drivers/connector/Makefile	2005-03-25 09:47:09.000000000 +0100
-+++ linux-2.6.12-rc1-mm3-cnfork/drivers/connector/Makefile	2005-03-25 10:14:21.000000000 +0100
-@@ -1,2 +1,3 @@
- obj-$(CONFIG_CONNECTOR)		+= cn.o
-+obj-$(CONFIG_FORK_CONNECTOR)	+= cn_fork.o 
- cn-objs		:= cn_queue.o connector.o
-Index: linux-2.6.12-rc1-mm3-cnfork/drivers/connector/cn_fork.c
-===================================================================
---- linux-2.6.12-rc1-mm3-cnfork.orig/drivers/connector/cn_fork.c	2003-01-30 11:24:37.000000000 +0100
-+++ linux-2.6.12-rc1-mm3-cnfork/drivers/connector/cn_fork.c	2005-03-25 10:14:21.000000000 +0100
-@@ -0,0 +1,104 @@
-+/*
-+ * 	cn_fork.c
-+ * 
-+ * 2005 Copyright (c) Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-+ * All rights reserved.
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+
-+#include <linux/connector.h>
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Guillaume Thouvenin <guillaume.thouvenin@bull.net>");
-+MODULE_DESCRIPTION("Enable or disable the usage of the fork connector");
-+
-+int cn_fork_enable = 0;
-+struct cb_id cb_fork_id = { CN_IDX_FORK, CN_VAL_FORK };
-+
-+static inline void cn_fork_send_status(void)
-+{
-+	/* TODO */
-+	printk(KERN_INFO "cn_fork_enable == %d\n", cn_fork_enable);
-+}
-+
-+/**
-+ * cn_fork_callback - enable or disable the fork connector
-+ * @data: message send by the connector 
-+ *
-+ * The callback allows to enable or disable the sending of information
-+ * about fork in the do_fork() routine. To enable the fork, the user 
-+ * space application must send the integer 1 in the data part of the 
-+ * message. To disable the fork connector, it must send the integer 0.
-+ */
-+static void cn_fork_callback(void *data) 
-+{
-+	struct cn_msg *msg = (struct cn_msg *)data;
-+	int action;
-+
-+	if (cn_already_initialized && (msg->len == sizeof(cn_fork_enable))) {
-+		memcpy(&action, msg->data, sizeof(cn_fork_enable));
-+		switch(action) {
-+			case FORK_CN_START:
-+				cn_fork_enable = 1;
-+				break;
-+			case FORK_CN_STOP:
-+				cn_fork_enable = 0;
-+				break;
-+			case FORK_CN_STATUS:
-+				cn_fork_send_status();
-+				break;
-+		}
-+	}
-+}
-+
-+/**
-+ * cn_fork_init - initialization entry point
-+ *
-+ * This routine will be run at kernel boot time because this driver is
-+ * built in the kernel. It adds the connector callback to the connector 
-+ * driver.
-+ */
-+static int cn_fork_init(void)
-+{
-+	int err;
-+	
-+	err = cn_add_callback(&cb_fork_id, "cn_fork", &cn_fork_callback);
-+	if (err) {
-+		printk(KERN_WARNING "Failed to register cn_fork\n");
-+		return -EINVAL;
-+	}	
-+		
-+	printk(KERN_NOTICE "cn_fork is registered\n");
-+	return 0;
-+}
-+
-+/**
-+ * cn_fork_exit - exit entry point
-+ *
-+ * As this driver is always statically compiled into the kernel the
-+ * cn_fork_exit has no effect.
-+ */
-+static void cn_fork_exit(void)
-+{
-+	cn_del_callback(&cb_fork_id);
-+}
-+
-+module_init(cn_fork_init);
-+module_exit(cn_fork_exit);
-Index: linux-2.6.12-rc1-mm3-cnfork/include/linux/connector.h
-===================================================================
---- linux-2.6.12-rc1-mm3-cnfork.orig/include/linux/connector.h	2005-03-25 09:47:11.000000000 +0100
-+++ linux-2.6.12-rc1-mm3-cnfork/include/linux/connector.h	2005-03-25 10:14:21.000000000 +0100
-@@ -28,10 +28,16 @@
- #define CN_VAL_KOBJECT_UEVENT		0x0000
- #define CN_IDX_SUPERIO			0xaabb  /* SuperIO subsystem */
- #define CN_VAL_SUPERIO			0xccdd
-+#define CN_IDX_FORK			0xfeed  /* fork events */
-+#define CN_VAL_FORK			0xbeef
- 
-
- #define CONNECTOR_MAX_MSG_SIZE 	1024
- 
-+#define FORK_CN_STOP	0
-+#define FORK_CN_START	1
-+#define FORK_CN_STATUS	2
-+
- struct cb_id
+ 		up(&dpm_list_sem);
+-		if (!dev->power.prev_state)
++		if (!dev->power.prev_state.event)
+ 			resume_device(dev);
+ 		down(&dpm_list_sem);
+ 		put_device(dev);
+--- clean-mm/drivers/base/power/runtime.c	2005-01-12 11:07:39.000000000 +0100
++++ linux-mm/drivers/base/power/runtime.c	2005-03-25 08:47:16.000000000 +0100
+@@ -13,10 +13,10 @@
+ static void runtime_resume(struct device * dev)
  {
- 	__u32			idx;
-@@ -133,6 +139,8 @@ struct cn_dev
- };
+ 	dev_dbg(dev, "resuming\n");
+-	if (!dev->power.power_state)
++	if (!dev->power.power_state.event)
+ 		return;
+ 	if (!resume_device(dev))
+-		dev->power.power_state = 0;
++		dev->power.power_state = PMSG_ON;
+ }
  
- extern int cn_already_initialized;
-+extern int cn_fork_enable;
-+extern struct cb_id cb_fork_id;
  
- int cn_add_callback(struct cb_id *, char *, void (* callback)(void *));
- void cn_del_callback(struct cb_id *);
-Index: linux-2.6.12-rc1-mm3-cnfork/kernel/fork.c
-===================================================================
---- linux-2.6.12-rc1-mm3-cnfork.orig/kernel/fork.c	2005-03-25 09:47:11.000000000 +0100
-+++ linux-2.6.12-rc1-mm3-cnfork/kernel/fork.c	2005-03-25 10:14:21.000000000 +0100
-@@ -41,6 +41,7 @@
- #include <linux/profile.h>
- #include <linux/rmap.h>
- #include <linux/acct.h>
-+#include <linux/connector.h>
+@@ -49,10 +49,10 @@
+ 	int error = 0;
  
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -63,6 +64,47 @@ DEFINE_PER_CPU(unsigned long, process_co
+ 	down(&dpm_sem);
+-	if (dev->power.power_state == state)
++	if (dev->power.power_state.event == state.event)
+ 		goto Done;
  
- EXPORT_SYMBOL(tasklist_lock);
+-	if (dev->power.power_state)
++	if (dev->power.power_state.event)
+ 		runtime_resume(dev);
  
-+#ifdef CONFIG_FORK_CONNECTOR
-+
-+#define CN_FORK_INFO_SIZE	64
-+#define CN_FORK_MSG_SIZE 	(sizeof(struct cn_msg) + CN_FORK_INFO_SIZE)
-+
-+static DEFINE_PER_CPU(unsigned long, fork_counts);
-+
-+static inline void fork_connector(pid_t parent, pid_t child)
-+{
-+	if (cn_fork_enable) {
-+		struct cn_msg *msg;
-+		__u8 buffer[CN_FORK_MSG_SIZE];	
-+
-+		msg = (struct cn_msg *)buffer;
-+			
-+		memcpy(&msg->id, &cb_fork_id, sizeof(msg->id));
-+		
-+		msg->ack = 0; /* not used */
-+		msg->seq = get_cpu_var(fork_counts)++;
-+		
-+		/* 
-+		 * size of data is the number of characters 
-+		 * printed plus one for the trailing '\0'
-+		 */
-+		memset(msg->data, '\0', CN_FORK_INFO_SIZE);
-+		msg->len = scnprintf(msg->data, CN_FORK_INFO_SIZE-1, 
-+				    "%i %i %i", 
-+				    smp_processor_id(), parent, child) + 1;
-+		
-+		put_cpu_var(fork_counts);
-+
-+		cn_netlink_send(msg, CN_IDX_FORK);
-+	}
-+}
-+#else
-+static inline void fork_connector(pid_t parent, pid_t child) 
-+{
-+	return; 
-+}
-+#endif /* CONFIG_FORK_CONNECTOR */
-+
- int nr_processes(void)
+ 	if (!(error = suspend_device(dev, state)))
+--- clean-mm/drivers/base/power/shutdown.c	2004-08-15 19:14:55.000000000 +0200
++++ linux-mm/drivers/base/power/shutdown.c	2005-03-25 08:47:16.000000000 +0100
+@@ -29,7 +29,8 @@
+ 			dev->driver->shutdown(dev);
+ 		return 0;
+ 	}
+-	return dpm_runtime_suspend(dev, dev->detach_state);
++	/* FIXME we now pass single state for "runtime PM", but that's ok, it never really worked anyway  */
++	return dpm_runtime_suspend(dev, PMSG_FREEZE);
+ }
+ 
+ 
+--- clean-mm/drivers/base/power/suspend.c	2005-03-25 09:56:42.000000000 +0100
++++ linux-mm/drivers/base/power/suspend.c	2005-03-25 08:47:47.000000000 +0100
+@@ -43,7 +43,7 @@
+ 
+ 	down(&dev->sem);
+ 	dev->power.prev_state = dev->power.power_state;
+-	if (dev->bus && dev->bus->suspend && !dev->power.power_state)
++	if (dev->bus && dev->bus->suspend && (!dev->power.power_state.event))
+ 		error = dev->bus->suspend(dev, state);
+ 	up(&dev->sem);
+ 	return error;
+--- clean-mm/drivers/base/power/sysfs.c	2004-08-15 19:14:55.000000000 +0200
++++ linux-mm/drivers/base/power/sysfs.c	2005-03-25 08:47:16.000000000 +0100
+@@ -26,19 +26,19 @@
+ 
+ static ssize_t state_show(struct device * dev, char * buf)
  {
- 	int cpu;
-@@ -1253,6 +1295,8 @@ long do_fork(unsigned long clone_flags,
- 			if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
- 				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
+-	return sprintf(buf, "%u\n", dev->power.power_state);
++	return sprintf(buf, "%u\n", dev->power.power_state.event);
+ }
+ 
+ static ssize_t state_store(struct device * dev, const char * buf, size_t n)
+ {
+-	u32 state;
++	pm_message_t state;
+ 	char * rest;
+ 	int error = 0;
+ 
+-	state = simple_strtoul(buf, &rest, 10);
++	state.event = simple_strtoul(buf, &rest, 10);
+ 	if (*rest)
+ 		return -EINVAL;
+-	if (state)
++	if (state.event)
+ 		error = dpm_runtime_suspend(dev, state);
+ 	else
+ 		dpm_runtime_resume(dev);
+Only in linux-mm/drivers/char: consolemap_deftbl.c
+--- clean-mm/drivers/ide/ide.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/ide/ide.c	2005-03-25 08:47:16.000000000 +0100
+@@ -1390,7 +1390,7 @@
+ 	rq.special = &args;
+ 	rq.pm = &rqpm;
+ 	rqpm.pm_step = ide_pm_state_start_suspend;
+-	rqpm.pm_state = state;
++	rqpm.pm_state = state.event;
+ 
+ 	return ide_do_drive_cmd(drive, &rq, ide_wait);
+ }
+@@ -1409,7 +1409,7 @@
+ 	rq.special = &args;
+ 	rq.pm = &rqpm;
+ 	rqpm.pm_step = ide_pm_state_start_resume;
+-	rqpm.pm_state = 0;
++	rqpm.pm_state = PM_EVENT_ON;
+ 
+ 	return ide_do_drive_cmd(drive, &rq, ide_head_wait);
+ }
+--- clean-mm/drivers/pci/pci.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/pci/pci.c	2005-03-25 08:49:24.000000000 +0100
+@@ -376,14 +376,12 @@
+ 	if (!pci_find_capability(dev, PCI_CAP_ID_PM))
+ 		return PCI_D0;
+ 
+-	if (platform_pci_choose_state) {
+-		ret = platform_pci_choose_state(dev, state);
+-		if (ret >= 0)
+-			state = ret;
+-	}
+-	switch (state) {
+-	case 0: return PCI_D0;
+-	case 3: return PCI_D3hot;
++	switch (state.event) {
++	case PM_EVENT_ON:
++		return PCI_D0;
++	case PM_EVENT_FREEZE:
++	case PM_EVENT_SUSPEND:
++		return PCI_D3hot;
+ 	default:
+ 		printk("They asked me for state %d\n", state);
+ 		BUG();
+--- clean-mm/drivers/usb/core/hub.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/usb/core/hub.c	2005-03-25 08:51:25.000000000 +0100
+@@ -1568,7 +1568,7 @@
+ 			struct usb_driver	*driver;
+ 
+ 			intf = udev->actconfig->interface[i];
+-			if (state <= intf->dev.power.power_state)
++			if (state.event <= intf->dev.power.power_state.event)
+ 				continue;
+ 			if (!intf->dev.driver)
+ 				continue;
+@@ -1576,11 +1576,11 @@
+ 
+ 			if (driver->suspend) {
+ 				status = driver->suspend(intf, state);
+-				if (intf->dev.power.power_state != state
++				if (intf->dev.power.power_state.event != state.event
+ 						|| status)
+ 					dev_err(&intf->dev,
+ 						"suspend %d fail, code %d\n",
+-						state, status);
++						state.event, status);
+ 			}
+ 
+ 			/* only drivers with suspend() can ever resume();
+@@ -1593,7 +1593,7 @@
+ 			 * since we know every driver's probe/disconnect works
+ 			 * even for drivers that can't suspend.
+ 			 */
+-			if (!driver->suspend || state > PM_SUSPEND_MEM) {
++			if (!driver->suspend || state.event > PM_EVENT_FREEZE) {
+ #if 1
+ 				dev_warn(&intf->dev, "resume is unsafe!\n");
+ #else
+@@ -1614,7 +1614,7 @@
+ 	 * policies (when HNP doesn't apply) once we have mechanisms to
+ 	 * turn power back on!  (Likely not before 2.7...)
+ 	 */
+-	if (state > PM_SUSPEND_MEM) {
++	if (state.event > PM_EVENT_FREEZE) {
+ 		dev_warn(&udev->dev, "no poweroff yet, suspending instead\n");
+ 	}
+ 
+@@ -1731,7 +1731,7 @@
+ 			struct usb_driver	*driver;
+ 
+ 			intf = udev->actconfig->interface[i];
+-			if (intf->dev.power.power_state == PMSG_SUSPEND)
++			if (intf->dev.power.power_state.event == PM_EVENT_SUSPEND)
+ 				continue;
+ 			if (!intf->dev.driver) {
+ 				/* FIXME maybe force to alt 0 */
+@@ -1745,11 +1745,11 @@
+ 
+ 			/* can we do better than just logging errors? */
+ 			status = driver->resume(intf);
+-			if (intf->dev.power.power_state != PMSG_ON
++			if (intf->dev.power.power_state.event != PM_EVENT_ON
+ 					|| status)
+ 				dev_dbg(&intf->dev,
+ 					"resume fail, state %d code %d\n",
+-					intf->dev.power.power_state, status);
++					intf->dev.power.power_state.event, status);
  		}
-+		
-+		fork_connector(current->pid, p->pid);
- 	} else {
- 		free_pidmap(pid);
- 		pid = PTR_ERR(p);
+ 		status = 0;
+ 
+@@ -1932,7 +1932,7 @@
+ 	unsigned		port1;
+ 	int			status;
+ 
+-	if (intf->dev.power.power_state == PM_SUSPEND_ON)
++	if (intf->dev.power.power_state.event == PM_EVENT_ON)
+ 		return 0;
+ 
+ 	for (port1 = 1; port1 <= hdev->maxchild; port1++) {
+--- clean-mm/drivers/usb/core/usb.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/usb/core/usb.c	2005-03-25 08:47:16.000000000 +0100
+@@ -1376,7 +1376,7 @@
+ 	driver = to_usb_driver(dev->driver);
+ 
+ 	/* there's only one USB suspend state */
+-	if (intf->dev.power.power_state)
++	if (intf->dev.power.power_state.event)
+ 		return 0;
+ 
+ 	if (driver->suspend)
+--- clean-mm/drivers/usb/host/ehci-dbg.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/usb/host/ehci-dbg.c	2005-03-25 08:47:16.000000000 +0100
+@@ -641,7 +641,7 @@
+ 
+ 	spin_lock_irqsave (&ehci->lock, flags);
+ 
+-	if (bus->controller->power.power_state) {
++	if (bus->controller->power.power_state.event) {
+ 		size = scnprintf (next, size,
+ 			"bus %s, device %s (driver " DRIVER_VERSION ")\n"
+ 			"SUSPENDED (no register access)\n",
+--- clean-mm/drivers/usb/host/ohci-dbg.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/usb/host/ohci-dbg.c	2005-03-25 08:47:16.000000000 +0100
+@@ -625,7 +625,7 @@
+ 		hcd->self.controller->bus_id,
+ 		hcd_name);
+ 
+-	if (bus->controller->power.power_state) {
++	if (bus->controller->power.power_state.event) {
+ 		size -= scnprintf (next, size,
+ 			"SUSPENDED (no register access)\n");
+ 		goto done;
+--- clean-mm/drivers/usb/host/sl811-hcd.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/usb/host/sl811-hcd.c	2005-03-25 08:47:16.000000000 +0100
+@@ -1781,9 +1781,9 @@
+ 	if (phase != SUSPEND_POWER_DOWN)
+ 		return retval;
+ 
+-	if (state <= PM_SUSPEND_MEM)
++	if (state.event == PM_EVENT_FREEZE)
+ 		retval = sl811h_hub_suspend(hcd);
+-	else
++	else if (state.event == PM_EVENT_SUSPEND)
+ 		port_power(sl811, 0);
+ 	if (retval == 0)
+ 		dev->power.power_state = state;
+@@ -1802,14 +1802,14 @@
+ 	/* with no "check to see if VBUS is still powered" board hook,
+ 	 * let's assume it'd only be powered to enable remote wakeup.
+ 	 */
+-	if (dev->power.power_state > PM_SUSPEND_MEM
++	if (dev->power.power_state.event == PM_EVENT_SUSPEND
+ 			|| !hcd->can_wakeup) {
+ 		sl811->port1 = 0;
+ 		port_power(sl811, 1);
+ 		return 0;
+ 	}
+ 
+-	dev->power.power_state = PM_SUSPEND_ON;
++	dev->power.power_state = PMSG_ON;
+ 	return sl811h_hub_resume(hcd);
+ }
+ 
+--- clean-mm/drivers/video/aty/atyfb_base.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/video/aty/atyfb_base.c	2005-03-25 08:47:16.000000000 +0100
+@@ -2071,12 +2071,12 @@
+ 	struct fb_info *info = pci_get_drvdata(pdev);
+ 	struct atyfb_par *par = (struct atyfb_par *) info->par;
+ 
+-	if (pdev->dev.power.power_state == 0)
++	if (pdev->dev.power.power_state.event == PM_EVENT_ON)
+ 		return 0;
+ 
+ 	acquire_console_sem();
+ 
+-	if (pdev->dev.power.power_state == 2)
++	if (pdev->dev.power.power_state.event == 2)
+ 		aty_power_mgmt(0, par);
+ 	par->asleep = 0;
+ 
+--- clean-mm/drivers/video/aty/radeon_pm.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/video/aty/radeon_pm.c	2005-03-25 09:39:47.000000000 +0100
+@@ -2520,8 +2520,6 @@
+ }
+ 
+ 
+-static/*extern*/ int susdisking = 0;
+-
+ int radeonfb_pci_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+         struct fb_info *info = pci_get_drvdata(pdev);
+@@ -2529,24 +2527,19 @@
+ 	u8 agp;
+ 	int i;
+ 
+-	if (state == pdev->dev.power.power_state)
++	if (state.event == pdev->dev.power.power_state.event)
+ 		return 0;
+ 
+ 	printk(KERN_DEBUG "radeonfb (%s): suspending to state: %d...\n",
+-	       pci_name(pdev), state);
++	       pci_name(pdev), state.event);
+ 
+ 	/* For suspend-to-disk, we cheat here. We don't suspend anything and
+ 	 * let fbcon continue drawing until we are all set. That shouldn't
+ 	 * really cause any problem at this point, provided that the wakeup
+ 	 * code knows that any state in memory may not match the HW
+ 	 */
+-	if (state != PM_SUSPEND_MEM)
+-		goto done;
+-	if (susdisking) {
+-		printk("radeonfb (%s): suspending to disk but state = %d\n",
+-		       pci_name(pdev), state);
++	if (state.event == PM_EVENT_FREEZE)
+ 		goto done;
+-	}
+ 
+ 	acquire_console_sem();
+ 
+@@ -2638,7 +2631,7 @@
+         struct radeonfb_info *rinfo = info->par;
+ 	int rc = 0;
+ 
+-	if (pdev->dev.power.power_state == 0)
++	if (pdev->dev.power.power_state.event == PM_EVENT_ON)
+ 		return 0;
+ 
+ 	if (rinfo->no_schedule) {
+@@ -2648,7 +2641,7 @@
+ 		acquire_console_sem();
+ 
+ 	printk(KERN_DEBUG "radeonfb (%s): resuming from state: %d...\n",
+-	       pci_name(pdev), pdev->dev.power.power_state);
++	       pci_name(pdev), pdev->dev.power.power_state.event);
+ 
+ 
+ 	if (pci_enable_device(pdev)) {
+@@ -2659,7 +2652,7 @@
+ 	}
+ 	pci_set_master(pdev);
+ 
+-	if (pdev->dev.power.power_state == PM_SUSPEND_MEM) {
++	if (pdev->dev.power.power_state.event == PM_EVENT_SUSPEND) {
+ 		/* Wakeup chip. Check from config space if we were powered off
+ 		 * (todo: additionally, check CLK_PIN_CNTL too)
+ 		 */
+--- clean-mm/drivers/video/i810/i810_main.c	2005-03-25 09:56:43.000000000 +0100
++++ linux-mm/drivers/video/i810/i810_main.c	2005-03-25 08:54:42.000000000 +0100
+@@ -1492,18 +1492,18 @@
+ /***********************************************************************
+  *                         Power Management                            *
+  ***********************************************************************/
+-static int i810fb_suspend(struct pci_dev *dev, u32 state)
++static int i810fb_suspend(struct pci_dev *dev, pm_message_t state)
+ {
+ 	struct fb_info *info = pci_get_drvdata(dev);
+ 	struct i810fb_par *par = (struct i810fb_par *) info->par;
+ 	int blank = 0, prev_state = par->cur_state;
+ 
+-	if (state == prev_state)
++	if (state.event == prev_state)
+ 		return 0;
+ 
+-	par->cur_state = state;
++	par->cur_state = state.event;
+ 
+-	switch (state) {
++	switch (state.event) {
+ 	case 1:
+ 		blank = VESA_VSYNC_SUSPEND;
+ 		break;
+@@ -1538,7 +1538,7 @@
+ 		return 0;
+ 
+ 	pci_restore_state(dev);
+-	pci_set_power_state(dev, 0);
++	pci_set_power_state(dev, PCI_D0);
+ 	pci_enable_device(dev);
+ 	agp_bind_memory(par->i810_gtt.i810_fb_memory,
+ 			par->fb.offset);
+--- clean-mm/include/linux/pm.h	2005-03-25 09:56:45.000000000 +0100
++++ linux-mm/include/linux/pm.h	2005-03-25 08:47:16.000000000 +0100
+@@ -185,7 +185,10 @@
+ 
+ struct device;
+ 
+-typedef u32 __bitwise pm_message_t;
++typedef struct pm_message {
++	int event;
++	int flags;
++} pm_message_t;
+ 
+ /*
+  * There are 4 important states driver can be in:
+@@ -205,9 +208,15 @@
+  * or something similar soon.
+  */
+ 
+-#define PMSG_FREEZE	((__force pm_message_t) 3)
+-#define PMSG_SUSPEND	((__force pm_message_t) 3)
+-#define PMSG_ON		((__force pm_message_t) 0)
++#define PM_EVENT_ON 0
++#define PM_EVENT_FREEZE 1
++#define PM_EVENT_SUSPEND 2
++
++#define PFL_RUNTIME 1
++
++#define PMSG_FREEZE	({struct pm_message m; m.event = PM_EVENT_FREEZE; m.flags = 0; m; })
++#define PMSG_SUSPEND	({struct pm_message m; m.event = PM_EVENT_SUSPEND; m.flags = 0; m; })
++#define PMSG_ON		({struct pm_message m; m.event = PM_EVENT_ON; m.flags = 0; m; })
+ 
+ struct dev_pm_info {
+ 	pm_message_t		power_state;
 
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

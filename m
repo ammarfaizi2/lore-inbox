@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbUEKJHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbUEKJD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbUEKJHp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 05:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbUEKJGu
+	id S262425AbUEKJD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 05:03:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUEKJDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 05:06:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13196 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262648AbUEKJEl (ORCPT
+	Tue, 11 May 2004 05:03:23 -0400
+Received: from styx.suse.cz ([82.208.2.94]:8070 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S262768AbUEKJAT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 05:04:41 -0400
-Date: Tue, 11 May 2004 02:04:36 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, torvalds@osdl.org, marcelo.tosatti@cyclades.com
-Subject: [PATCH 11/11] adjust default mqueue sizes
-Message-ID: <20040511020436.J21045@build.pdx.osdl.net>
-References: <20040511014524.Z21045@build.pdx.osdl.net> <20040511014639.A21045@build.pdx.osdl.net> <20040511014833.B21045@build.pdx.osdl.net> <20040511015015.C21045@build.pdx.osdl.net> <20040511015219.D21045@build.pdx.osdl.net> <20040511015357.E21045@build.pdx.osdl.net> <20040511015658.F21045@build.pdx.osdl.net> <20040511015833.G21045@build.pdx.osdl.net> <20040511020002.H21045@build.pdx.osdl.net> <20040511020252.I21045@build.pdx.osdl.net>
+	Tue, 11 May 2004 05:00:19 -0400
+Date: Tue, 11 May 2004 11:01:02 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] New set of input patches
+Message-ID: <20040511090102.GA28867@ucw.cz>
+References: <200405110124.14948.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040511020252.I21045@build.pdx.osdl.net>; from chrisw@osdl.org on Tue, May 11, 2004 at 02:02:53AM -0700
+In-Reply-To: <200405110124.14948.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lower default sizes for POSIX mqueue allocation now that rlimits are in
-place.
+On Tue, May 11, 2004 at 01:24:14AM -0500, Dmitry Torokhov wrote:
+> Hi Vojtech,
+> 
+> I have some more input patches. Nothing too intresting, most of the important
+> stuff has been posted on LKML before. Here they are:
 
---- 2.6-rlimit/ipc/mqueue.c~mqueue_rlimit	2004-05-10 22:28:43.137833864 -0700
-+++ 2.6-rlimit/ipc/mqueue.c	2004-05-10 22:30:44.530379392 -0700
-@@ -43,10 +43,10 @@
- #define CTL_MSGSIZEMAX 	4
- 
- /* default values */
--#define DFLT_QUEUESMAX	64	/* max number of message queues */
--#define DFLT_MSGMAX 	40	/* max number of messages in each queue */
-+#define DFLT_QUEUESMAX	256	/* max number of message queues */
-+#define DFLT_MSGMAX 	10	/* max number of messages in each queue */
- #define HARD_MSGMAX 	(131072/sizeof(void*))
--#define DFLT_MSGSIZEMAX 16384	/* max message size */
-+#define DFLT_MSGSIZEMAX 8192	/* max message size */
- 
- #define NOTIFY_COOKIE_LEN	32
- 
+All look good. Thanks!
 
+> I did merge with Linus' tree to resolve conflicts with Eric's latest
+> changes to logips2pp (hope he does not mind). Please do:
+> bk pull bk://dtor.bkbits.net/input
+
+That's very nice. So the MX700 support is still in? (Well, I'll pull and
+see).
+
+> The following patches are against your tree rather then Linis' and I will
+> not post whitespace fixing patches as they are too boring...
+> 
+> There is also a cumulative patch agains Linus' tree at:
+> http://www.geocities.com/dt_or/input/2_6_6/input-cumulative.patch.gz
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

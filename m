@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTKOVyk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 16:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTKOVyk
+	id S262061AbTKOVsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 16:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTKOVsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 16:54:40 -0500
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:45699 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S262101AbTKOVyi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 16:54:38 -0500
-Date: Sat, 15 Nov 2003 21:54:41 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@einstein.homenet
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Harald Welte <laforge@netfilter.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: seq_file and exporting dynamically allocated data
-In-Reply-To: <20031115213342.GR24159@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0311152135370.743-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 15 Nov 2003 16:48:09 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:48658 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S262061AbTKOVsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 16:48:07 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: ramon.rey@hispalinux.es, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test9-BK20] [ALSA] Unable to handle kernel paging request	at virtual address d08a7000
+Organization: Core
+In-Reply-To: <1068928939.1127.2.camel@debian>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.4.22-1-686-smp (i686))
+Message-Id: <E1AL8Gk-0000Nr-00@gondolin.me.apana.org.au>
+Date: Sun, 16 Nov 2003 08:47:50 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Nov 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Sat, Nov 15, 2003 at 08:50:55PM +0000, Tigran Aivazian wrote:
->  
-> > Looking at mm/slab.c implementation I see that it just walks the integer 
-> > distance from the head of the list. Simple but not 100% correct, I think. 
-> > I.e. it can miss an entry if the list has changed between two read(2)s.
+Ram?n Rey Vicente <rrey@ranty.pantax.net> wrote:
 > 
-> Define "miss".  What sort of warranties do you expect there?
+> Running mplayer, I get this:
+> 
+> Unable to handle kernel paging request at virtual address d08a7000
+> printing eip:
+> d0947964
+> *pde = 013f0067
+> *pte = 00000000
+> Oops: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[<d0947964>]    Not tainted
+> EFLAGS: 00210202
+> EIP is at resample_expand+0x2e4/0x320 [snd_pcm_oss]
 
-Ok, suppose the list of entries consists of elements:
-
-A -> B -> C -> D ->( A )
-
-where "->" is a "next" pointer and the last element points back to A, i.e. 
-circular list.
-
-Suppose each element requires 2040 bytes of data to be passed to the user 
-app.
-
-Now, the user application issues a call:
-
-struct elem elem[10];
-
-len = read(fd, elem, 10*sizeof(struct elem));
-
-(small digression about PAGE_SIZE Now, if you just strace dd
-if=/proc/slabinfo bs=8192 you will see that a read for 8192 bytes returned
-only 4056 bytes and then the next read for 8192 bytes returned 66 bytes.
-This is why I was saying that a single read is limited to a single page.)
-
-Now, back to our abstract list. The normal (intuitive, e.g. seq_printf())  
-->show() implementation will manage to pack A and B into m->buf but
-hitting the element C it will have to return -1 (otherwise the kernel will
-oops because m->buf isn't large enough). So, the userspace got back A and
-B in a single read, i.e. 4080 bytes. On the next read() the ->start()
-routine will try to arrive at the element with offset 2 (I think it
-counted from 0). And since ->stop()  routine was called we dropped the
-spinlock guarding the list. So, which element is now at distance 2 from A?
-It's not necessarily C because it could have been unlinked. But this is OK
-because if C was unlinked then we don't want to see it anyway. The bad
-case is if the element B was unlinked then the element at distance 2 would
-be D and we would "miss" C.  This is the sense in which we can "miss" an
-element.
-
-Is there any error in the above?
-
-Kind regards
-Tigran
-
+It's a gcc bug.  Until that's fixed, apply this patch.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+Index: kernel-source-2.5/sound/core/oss/Makefile
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/sound/core/oss/Makefile,v
+retrieving revision 1.1.1.3
+retrieving revision 1.2
+diff -u -r1.1.1.3 -r1.2
+--- kernel-source-2.5/sound/core/oss/Makefile	24 Feb 2003 19:05:06 -0000	1.1.1.3
++++ kernel-source-2.5/sound/core/oss/Makefile	11 Nov 2003 10:30:10 -0000	1.2
+@@ -10,3 +10,5 @@
+ 
+ obj-$(CONFIG_SND_MIXER_OSS) += snd-mixer-oss.o
+ obj-$(CONFIG_SND_PCM_OSS) += snd-pcm-oss.o
++
++CFLAGS_rate.o := -fno-omit-frame-pointer

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292674AbSBURmS>; Thu, 21 Feb 2002 12:42:18 -0500
+	id <S292678AbSBURu0>; Thu, 21 Feb 2002 12:50:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292673AbSBURmK>; Thu, 21 Feb 2002 12:42:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50695 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292675AbSBURlK>; Thu, 21 Feb 2002 12:41:10 -0500
-Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Thu, 21 Feb 2002 17:50:30 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <3C752F41.4050303@evision-ventures.com> from "Martin Dalecki" at Feb 21, 2002 06:32:49 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292680AbSBURuS>; Thu, 21 Feb 2002 12:50:18 -0500
+Received: from boink.boinklabs.com ([162.33.131.250]:48400 "EHLO
+	boink.boinklabs.com") by vger.kernel.org with ESMTP
+	id <S292678AbSBURuA>; Thu, 21 Feb 2002 12:50:00 -0500
+Date: Thu, 21 Feb 2002 12:49:59 -0500
+From: Charlie Wilkinson <cwilkins@boinklabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hard lock-ups on RH7.2 install - Via Chipset?
+Message-ID: <20020221124959.A12456@boink.boinklabs.com>
+In-Reply-To: <20020221110156.B9728@boink.boinklabs.com> <Pine.LNX.4.33.0202211106340.16271-100000@coffee.psychology.mcmaster.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16dxMU-0007eZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.33.0202211106340.16271-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Thu, Feb 21, 2002 at 11:07:11AM -0500
+X-Home-Sweet-Home: RedHat 6.0 / Linux 2.2.12 on an AMD K6-225
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In esp using a CardBus ide adapter will give you after first
-> plug: /dev/hdc, after second plug /dev/hde and so on... on 2.4.17.
+On Thu, Feb 21, 2002 at 11:07:11AM -0500, Mark Hahn waxed eloquent:
+[...]
+> > Hi Mark,
+> > Yeah, Alan suggested his latest pre 2.4.18 kernel *might* work.  Tried it,
+> > still no joy. :/
+> 
+> but HOW?
 
-Just tried that - its working for me in 2.4.18pre - do you know what
-triggers that ?
+How did I try it, or how no joy?  ;)
 
-> I'm just rying to clarify the code-flow before stuff like the above
-> can be cleaned up.
+On the former, I didn't run any really exhaustive tests, and Alan
+didn't suggest using or avoiding certain options.  I built a relatively
+conservative kernel and then beat on all four drives with concurrent dd's.
+I also did an hdparm -tT.  hdparm killed the box in a matter of a second
+or two.  dd took about 30 seconds.  It seems safe to assume that hdparm
+is able to create a higher load.
 
-The problem is if you keep cleaning up stuff which was there ready to
-merge new stuff, then its impossible to merge new stuff. At the moment
-there are two many cooks involved in that code. It all needs to go via one
-person and in an ordered way - even if it isnt Andre since Linus and Andre
-aren't the most compatible people 8)
+On the latter, the box just freezes up solid.  No magic SysRq, no nothing.
+A very frustrating state to try and troubleshoot.  Any suggestions?
+
+-cw-

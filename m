@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266233AbTAOLi4>; Wed, 15 Jan 2003 06:38:56 -0500
+	id <S266210AbTAOLgM>; Wed, 15 Jan 2003 06:36:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266243AbTAOLi4>; Wed, 15 Jan 2003 06:38:56 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:13074 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S266233AbTAOLiz>; Wed, 15 Jan 2003 06:38:55 -0500
-Date: Wed, 15 Jan 2003 12:28:31 +0100
-From: DervishD <raul@pleyades.net>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Changing argv[0] under Linux.
-Message-ID: <20030115112831.GB66@DervishD>
-References: <20030114185934.GA49@DervishD> <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com> <b020vm$bpm$1@ncc1701.cistron.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <b020vm$bpm$1@ncc1701.cistron.net>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	id <S266228AbTAOLgM>; Wed, 15 Jan 2003 06:36:12 -0500
+Received: from tomts19.bellnexxia.net ([209.226.175.73]:56561 "EHLO
+	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S266210AbTAOLgL>; Wed, 15 Jan 2003 06:36:11 -0500
+Date: Wed, 15 Jan 2003 06:44:51 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: display bug in "make xconfig" in 2.5.58
+Message-ID: <Pine.LNX.4.44.0301150638170.24623-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Miquel :))
 
-> >Last time I checked argv[0] was 512 bytes. Many daemons overwrite
-> >it with no problem.
-> No cigar. This stuff is all set up by the kernel on the stack;
+  (aside:  i do realize that the "make xconfig" graphical
+config screen doesn't represent the actual, underlying logistics
+for kernel configuration, so i'm going to spend more time
+concentrating on the underlying kbuild language.  but here's
+a fairly obvious flaw in make xconfig anyway.)
 
-    Thanks a lot for your help :)) FYI, this question is related to
-the virtual-console-only init clone that I wrote some time ago (I
-used sysvinit for inspiration and good advice), I think I wrote you
-about this. Anyway, you are in the acknowledgement list doubly, now
-;))) I'm going to release this init in a week or so, after having
-using it for more than a year at home without problems.
+  "make xconfig" will not display simple config entries at
+the top menu level.
 
-> If you want to modify argv[0] etc, loop over argv[], count howmuch
-> space there is (strlen(argv[0] + 1 + strlen(argv[1] + 1 ... etc)
-> and make sure you do NOT write a string longer than that. Also
-> make sure that you end the string with a double \0
+  granted, at the moment, there *are* none of these, but if
+you examine arch/i386/Kconfig, it's clear that such things are
+at least possible -- X86, MMU, SWAP and so on.  (i deduce that,
+if a config entry has no label on its type attribute, it is
+not to be displayed, right?)
 
-    How about portability? Not that worries me, since this code will
-go to a Linux-only program, just curiosity. Other OSes do the same
-stack layout?
+  if you add a bogus label to the "bool" line for, say, the
+X86 entry, that selection appears properly as a checkbox in
+"make menuconfig", but is never displayed for "make xconfig".
 
-    Raúl
+rday
+
+p.s.  and, no, i don't know enough about Qt to devise a patch
+for this.  some day, maybe ...
+

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267157AbSLQVal>; Tue, 17 Dec 2002 16:30:41 -0500
+	id <S267167AbSLQVb7>; Tue, 17 Dec 2002 16:31:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267160AbSLQVal>; Tue, 17 Dec 2002 16:30:41 -0500
-Received: from to-velocet.redhat.com ([216.138.202.10]:28657 "EHLO
+	id <S267169AbSLQVb7>; Tue, 17 Dec 2002 16:31:59 -0500
+Received: from to-velocet.redhat.com ([216.138.202.10]:35057 "EHLO
 	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S267157AbSLQVak>; Tue, 17 Dec 2002 16:30:40 -0500
-Date: Tue, 17 Dec 2002 16:38:38 -0500
+	id <S267167AbSLQVb4>; Tue, 17 Dec 2002 16:31:56 -0500
+Date: Tue, 17 Dec 2002 16:39:54 -0500
 From: Benjamin LaHaise <bcrl@redhat.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
        Linus Torvalds <torvalds@transmeta.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hpa@transmeta.com
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021217163838.C10781@redhat.com>
-References: <Pine.LNX.4.44.0212170948380.2702-100000@home.transmeta.com> <3DFF6D4B.3060107@redhat.com> <1040153186.20780.11.camel@irongate.swansea.linux.org.uk> <3DFF7399.40708@redhat.com>
+Message-ID: <20021217163954.D10781@redhat.com>
+References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com> <Pine.LNX.4.50.0212162241150.26163-100000@twinlark.arctic.org> <3DFF76D7.2050403@transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DFF7399.40708@redhat.com>; from drepper@redhat.com on Tue, Dec 17, 2002 at 10:57:29AM -0800
+In-Reply-To: <3DFF76D7.2050403@transmeta.com>; from hpa@transmeta.com on Tue, Dec 17, 2002 at 11:11:19AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 17, 2002 at 10:57:29AM -0800, Ulrich Drepper wrote:
-> But this is exactly what I expect to happen.  If you want to implement
-> gettimeofday() at user-level you need to modify the page.  Some of the
-> information the kernel has to keep for the thread group can be stored in
-> this place and eventually be used by some uerlevel code  executed by
-> jumping to 0xfffff000 or whatever the address is.
+On Tue, Dec 17, 2002 at 11:11:19AM -0800, H. Peter Anvin wrote:
+> > against 0xfffffxxx and "rollback" (or complete) any incomplete
+> > gettimeofday call prior to saving a task's state.  but i bet that test is
+> > undesirable on all interrupt paths.
+> > 
+> 
+> Exactly.  This is a real problem.
 
-You don't actually need to modify the page, rather the data for the user 
-level gettimeofday needs to be in a shared page and some register (like 
-%tr) must expose the current cpu number to index into the data.  Either 
-way, it's an internal implementation detail for the kernel to take care 
-of, with multiple potential solutions.
+No, just take the number of context switches before and after the attempt 
+to read the time of day.
 
 		-ben
 -- 

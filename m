@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291281AbSAaUil>; Thu, 31 Jan 2002 15:38:41 -0500
+	id <S291278AbSAaUhD>; Thu, 31 Jan 2002 15:37:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291283AbSAaUig>; Thu, 31 Jan 2002 15:38:36 -0500
-Received: from smtp3.vol.cz ([195.250.128.83]:31750 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S291281AbSAaUiT>;
-	Thu, 31 Jan 2002 15:38:19 -0500
-Date: Thu, 31 Jan 2002 12:49:43 +0000
+	id <S291280AbSAaUgv>; Thu, 31 Jan 2002 15:36:51 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:4357 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S291278AbSAaUgl>;
+	Thu, 31 Jan 2002 15:36:41 -0500
+Date: Tue, 29 Jan 2002 13:05:51 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: mochel@osdl.org, linux-usb-devel@lists.sourceforge.net,
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Andrea Arcangeli <andrea@suse.de>, rwhron@earthlink.net,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driverfs support for USB - take 2
-Message-ID: <20020131124942.A37@toy.ucw.cz>
-In-Reply-To: <20020130002418.GB21784@kroah.com>
+Subject: Re: 2.4.18pre4aa1
+Message-ID: <20020129130550.B47@toy.ucw.cz>
+In-Reply-To: <20020124002342.A630@earthlink.net> <E16VIO8-0000CO-00@starship.berlin> <20020129004001.F1309@athlon.random> <E16VLvU-0000Du-00@starship.berlin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020130002418.GB21784@kroah.com>; from greg@kroah.com on Tue, Jan 29, 2002 at 04:24:18PM -0800
+In-Reply-To: <E16VLvU-0000Du-00@starship.berlin>; from phillips@bonn-fries.net on Tue, Jan 29, 2002 at 01:15:04AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
->  static int __init device_init_root(void)
->  {
-> -	/* initialize parent bus lists */
-> -	return iobus_register(&device_root);
-> +	device_root = kmalloc(sizeof(*device_root),GFP_KERNEL);
-> +	if (!device_root)
-> +		return -ENOMEM;
-> +	memset(device_root,0,sizeof(*device_root));
-> +	strcpy(device_root->bus_id,"root");
-> +	strcpy(device_root->name,"System Root");
-> +	return device_register(device_root);
->  }
+> > I've also to say I always mke2fs first when I run my benchmarks,
+> 
+> Yes, and it would be nice if we had an operation to squeeze cache down to
+> its minimum size (whatever that means) just for running benchmarks
+> accurately without rebooting.
 
-Why don't you leave device_root allocated statically?
-
-> @@ -1430,9 +1419,11 @@
->  		return NULL;
->  	list_add_tail(&b->node, &pci_root_buses);
->  
-> -	sprintf(b->iobus.bus_id,"pci%d",bus);
-> -	strcpy(b->iobus.name,"Host/PCI Bridge");
-> -	iobus_register(&b->iobus);
-> +	b->dev = kmalloc(sizeof(*(b->dev)),GFP_KERNEL);
-Uff...				~~~~~~~~~ would not "struct device" (or
-what should it be) look better?
-
-> +	memset(b->dev,0,sizeof(*(b->dev)));
-
-								Pavel
+Take a look at swsusp -- it frees as much memory as possible before
+doing anything.
+								Pavel 
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311613AbSCNNOb>; Thu, 14 Mar 2002 08:14:31 -0500
+	id <S311611AbSCNNNm>; Thu, 14 Mar 2002 08:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311614AbSCNNOX>; Thu, 14 Mar 2002 08:14:23 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:17139 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S311613AbSCNNOO>; Thu, 14 Mar 2002 08:14:14 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.33.0203141219180.1643-100000@einstein.homenet> 
-In-Reply-To: <Pine.LNX.4.33.0203141219180.1643-100000@einstein.homenet> 
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Gerd Knorr <kraxel@bytesex.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Kernel List <linux-kernel@vger.kernel.org>, arjan@fenrus.demon.nl
-Subject: Re: [patch] vmalloc_to_page() backport for 2.4 
+	id <S311613AbSCNNNc>; Thu, 14 Mar 2002 08:13:32 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:16119 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S311611AbSCNNNV>; Thu, 14 Mar 2002 08:13:21 -0500
+Date: Thu, 14 Mar 2002 18:46:09 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+Message-ID: <20020314184609.D15394@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020313085217.GA11658@krispykreme> <460695164.1016001894@[10.10.2.3]> <20020314112725.GA2008@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 14 Mar 2002 13:13:12 +0000
-Message-ID: <25104.1016111592@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020314112725.GA2008@krispykreme>; from anton@samba.org on Thu, Mar 14, 2002 at 10:27:26PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 14, 2002 at 10:27:26PM +1100, Anton Blanchard wrote:
+>  
+> > >    554 .d_lookup                               
+> > 
+> > Did you try the dcache patches?
+> 
+> Not for this, I did do some benchmarking of the RCU dcache patches a
+> while ago which I should post.
 
-tigran@veritas.com said:
-> And, as such, it suggests that the _GPL bit in the export clause is
-> not justified and should be removed. There is no reason whatsoever why
-> Linux base kernel should allow some useful functionality to GPL
-> modules and disallow the same to non-GPL ones.
+Please do ;-) This shows why we need to ease the pressure on dcache_lock.
 
-You offer no reason why the routine in question _should_ be exported for use
-by binary-only modules. EXPORT_SYMBOL_GPL() was invented to allow authors of
-code to make their intentions clear; if you disagree with the decision in
-this case then either take it up in private with the author of this code, or
-switch to BSD, which doesn't suffer from this pesky GPL-thingy.
+> 
+> > Can you publish lockmeter stats?
+> 
+> I didnt get a chance to run lockmeter, I tend to use the kernel profiler
+> and use a hacked readprofile (originally from tridge) that displays
+> profile hits vs assembly instruction. Thats usually good enough to work
+> out which spinlocks are a problem.
 
---
-dwmw2
+Is this a PPC only hack ? Also, where can I get it ?
 
-
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

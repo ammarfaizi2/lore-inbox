@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277945AbRJRSbl>; Thu, 18 Oct 2001 14:31:41 -0400
+	id <S277946AbRJRSgV>; Thu, 18 Oct 2001 14:36:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277924AbRJRSbW>; Thu, 18 Oct 2001 14:31:22 -0400
-Received: from web1.guha.com ([140.174.164.125]:51974 "HELO alpiri.com")
-	by vger.kernel.org with SMTP id <S277933AbRJRSbR>;
-	Thu, 18 Oct 2001 14:31:17 -0400
-Message-ID: <3BCF209A.7010609@robm.com>
-Date: Thu, 18 Oct 2001 11:34:02 -0700
-From: Rob McCool <robm@robm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S277951AbRJRSgL>; Thu, 18 Oct 2001 14:36:11 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:55048 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S277949AbRJRSf4>; Thu, 18 Oct 2001 14:35:56 -0400
+Message-ID: <3BCF207F.DF01BBB8@zip.com.au>
+Date: Thu, 18 Oct 2001 11:33:36 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12-ac3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: disk lockup after suspend with RH 2.4.9-0.18 and 2.4.12
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+CC: "Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>,
+        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+Subject: Re: Kernel performance in reference to 2.4.5pre1
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D57B@xfc01.fc.hp.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an Acer Travelmate 721 laptop on which I was running kernel 2.2.18, and have 
-upgraded first to Red Hat's rawhide 2.4.9-0.18 kernel, and then to 2.4.12 from the 
-sources. I put it back to 2.4.9 for the moment. I've been seeing the same behavior on both 
-kernels, which I hadn't seen under 2.2.
+"DICKENS,CARY (HP-Loveland,ex2)" wrote:
+> 
+> 2.4.5pre1 is the base for comparison,
+> 
+> [ figures showing that more recent kernels suck ]
+> 
 
-After the disk goes into standby or sleep mode, the system gets into a wedged state. If I 
-do something that hits the drive, I can hear it spin up again, but the kernel doesn't seem 
-to notice. At that point, any process that tries to access the disk gets wedged. This is 
-reproducible by either doing an APM suspend/resume, or by using hdparm -S1 ..., or by 
-using hdparm -y ... and doing something to awaken it. After awakening, processes which 
-only access the CPU are fine but anything which accesses the disk wedges. This means 
-things like new network connections are accepted (but not acted upon), shell processes 
-run, and the X server works for a while, but eventually all hang.
+SFS is a rather specialised workload, and synchronous NFS exports
+are not a thing which gets a lot of attention.  It could be one
+small, hitherto unnoticed change which caused this performance
+regression.  And it appears that the change occurred between 2.4.5
+and 2.4.7.
 
-I've tried changing configuration options in the APM module, including the ones related to 
-interrupts during APM operations, but nothing seems to help. I have a copy of 2.4.2 lying 
-around which I didn't use because I needed the Orinoco driver, so I don't know yet if this 
-problem happens with 2.4.2.
+We don't know whether this slowdown is caused by changes in the VM,
+the filesystem, the block device layer, nfsd or networking. For example,
+ksoftirqd was introduced between 2.4.5 and 2.4.7.  Could it be that?
 
-Does anybody know what might cause this, or have any pointers of how I can narrow this 
-down further? If someone can point me to which part of the kernel this may be happening 
-in, or give any suggestions about what might be happening and how specifically to diagnose 
-it, it would help.
+For all these reasons it would be really helpful if you could
+go back and test the 2.4.6-preX and 2.4.7-preX kernels (binary search)
+and tell us if there was a particular release which caused this decrease in
+throughput.
 
-Thanks, Rob
-
+If it can be pinned down to a particular patch then there's a good
+chance that it can be fixed.

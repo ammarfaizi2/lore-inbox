@@ -1,78 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262826AbSK3Vnu>; Sat, 30 Nov 2002 16:43:50 -0500
+	id <S264644AbSK3VqL>; Sat, 30 Nov 2002 16:46:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264644AbSK3Vnu>; Sat, 30 Nov 2002 16:43:50 -0500
-Received: from [64.4.123.13] ([64.4.123.13]:14480 "HELO paul.hn.org")
-	by vger.kernel.org with SMTP id <S262826AbSK3Vnt>;
-	Sat, 30 Nov 2002 16:43:49 -0500
-Message-ID: <20021130215119.30256.qmail@paul.hn.org>
-From: wrightws@paul.hn.org
-Subject: [PATCH] drivers/net/Makefile fixes smc91c92 module linkage, kernel 2.4.20
-To: linux-kernel@vger.kernel.org
-Date: Sat, 30 Nov 2002 16:51:19 -0500 (EST)
-Cc: marcelo@freak.distro.conectiva
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.30099.1038693079--%"
+	id <S265333AbSK3VqL>; Sat, 30 Nov 2002 16:46:11 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:16644 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264644AbSK3VqK>;
+	Sat, 30 Nov 2002 16:46:10 -0500
+Date: Sat, 30 Nov 2002 20:49:34 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Andrew Grover <andrew.grover@intel.com>
+Subject: 2.5.50: echo > /proc/acpi/sleep b0rken
+Message-ID: <20021130194934.GA141@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---%--multipart-mixed-boundary-1.30099.1038693079--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+I believe this is needed, otherwise echo > /proc/acpi/sleep does not
+work. I'm not 200% sure this is correct fix, through, and it
+definitely needs to be fixed at *way* more places.
+								Pavel
 
-modprobe on smc91c92.o seems to be missing linked mii related functions.
-Add CONFIG_PCMCIA_SMC91C92 entry containing mii.o to drivers/net/Makefile
-so that things link together properly.
+--- clean/drivers/acpi/sleep.c	2002-11-29 21:16:34.000000000 +0100
++++ linux-swsusp/drivers/acpi/sleep.c	2002-11-30 00:27:14.000000000 +0100
+@@ -674,7 +675,7 @@
+ 			ACPI_SYSTEM_FILE_SLEEP));
+ 	else {
+ 		entry->proc_fops = &acpi_system_sleep_fops;
+-		entry->write_proc = acpi_system_write_sleep;
++		entry->proc_fops->write = acpi_system_write_sleep;
+ 	}
+ 
+ 	/* 'alarm' [R/W] */
 
--- Wes
-
-
-*** linux-2.4.20/drivers/net/Makefile   2002-11-28 18:53:13.000000000 -0500
---- linux-2.4.20-ww1/drivers/net/Makefile       2002-11-30 16:26:32.000000000 -0500
-***************
-*** 122,127 ****
---- 122,128 ----
-  obj-$(CONFIG_MAC8390) += daynaport.o 8390.o
-  obj-$(CONFIG_APNE) += apne.o 8390.o
-  obj-$(CONFIG_PCMCIA_PCNET) += 8390.o
-+ obj-$(CONFIG_PCMCIA_SMC91C92) += mii.o
-  obj-$(CONFIG_SHAPER) += shaper.o
-  obj-$(CONFIG_SK_G16) += sk_g16.o
-  obj-$(CONFIG_HP100) += hp100.o
-
---%--multipart-mixed-boundary-1.30099.1038693079--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Description: ASCII text
-Content-Disposition: attachment; filename="README"
-
-modprobe on smc91c92.o seems to be missing linked mii related functions.
-Add CONFIG_PCMCIA_SMC91C92 entry containing mii.o to drivers/net/Makefile
-so that things link together properly.
-
-Wes Wright
-wes@paul.hn.org
-
---%--multipart-mixed-boundary-1.30099.1038693079--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Description: 'diff' output text
-Content-Disposition: attachment; filename="fix_pcmcia_smc91c92_link.patch"
-
-*** linux-2.4.20/drivers/net/Makefile	2002-11-28 18:53:13.000000000 -0500
---- linux-2.4.20-ww1/drivers/net/Makefile	2002-11-30 16:26:32.000000000 -0500
-***************
-*** 122,127 ****
---- 122,128 ----
-  obj-$(CONFIG_MAC8390) += daynaport.o 8390.o
-  obj-$(CONFIG_APNE) += apne.o 8390.o
-  obj-$(CONFIG_PCMCIA_PCNET) += 8390.o
-+ obj-$(CONFIG_PCMCIA_SMC91C92) += mii.o
-  obj-$(CONFIG_SHAPER) += shaper.o
-  obj-$(CONFIG_SK_G16) += sk_g16.o
-  obj-$(CONFIG_HP100) += hp100.o
-
---%--multipart-mixed-boundary-1.30099.1038693079--%--
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

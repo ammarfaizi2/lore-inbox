@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273446AbRIULtV>; Fri, 21 Sep 2001 07:49:21 -0400
+	id <S273450AbRIULvw>; Fri, 21 Sep 2001 07:51:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273450AbRIULtL>; Fri, 21 Sep 2001 07:49:11 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61714 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273446AbRIULtF>; Fri, 21 Sep 2001 07:49:05 -0400
-Subject: Re: probable hardware bug: clock timer configuration lost
-To: bcrl@redhat.com (Benjamin LaHaise)
-Date: Fri, 21 Sep 2001 12:54:14 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        wolfy@nobugconsulting.ro (lonely wolf), linux-kernel@vger.kernel.org
-In-Reply-To: <20010920221610.A14451@redhat.com> from "Benjamin LaHaise" at Sep 20, 2001 10:16:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S273462AbRIULvm>; Fri, 21 Sep 2001 07:51:42 -0400
+Received: from edu.joroinen.fi ([195.156.135.125]:9737 "HELO edu.joroinen.fi")
+	by vger.kernel.org with SMTP id <S273455AbRIULvd> convert rfc822-to-8bit;
+	Fri, 21 Sep 2001 07:51:33 -0400
+Date: Fri, 21 Sep 2001 14:51:50 +0300 (EEST)
+From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
+X-X-Sender: <pk@edu.joroinen.fi>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Module-loading problem with 4MB of ram
+In-Reply-To: <E15jKYe-0000sT-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0109211451190.4235-100000@edu.joroinen.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15kOso-000878-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Odd, I just got this during booting of my ALi based boards (never had seen 
-> it before).  Are we certain the test is correct?
+On Tue, 18 Sep 2001, Alan Cox wrote:
 
-Not entirely thats why I havent sent that specific change on to Linus.
-(He has the quiet early fix one which is vital to boot some old VIA boxes
- but not that one)
+> > ptr =3D dmalloc(size, GFP_ATOMIC);
+> > is there any way to reserve some memory for the driver-module?
+>
+> Since its very unlikely the firmware is DMA transfered into the card (check
+> that obviously) I suspect using vmalloc/vfree instead of kmalloc/kfree will
+> do the trick
+>
 
-If you have a box with he thing triggering and a moment of time, tweak the
-code to read "low1, high, low2, high2" and take min(low1,low2), with high1
-as the test.
+Thank you. This really worked!
 
-Alan
+
+- Pasi Kärkkäinen
+
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.
+

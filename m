@@ -1,54 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUIAI14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUIAI20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUIAI14 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 04:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUIAI1z
+	id S263795AbUIAI20 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 04:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUIAI20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 04:27:55 -0400
-Received: from launch.server101.com ([216.218.196.178]:5848 "EHLO
-	mail-pop3-1.server101.com") by vger.kernel.org with ESMTP
-	id S263024AbUIAI1x convert rfc822-to-8bit (ORCPT
+	Wed, 1 Sep 2004 04:28:26 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:19503 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263795AbUIAI2P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 04:27:53 -0400
-From: Tim Fairchild <tim@bcs4me.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: K3b and 2.6.9?
-Date: Wed, 1 Sep 2004 18:27:42 +1000
-User-Agent: KMail/1.6.1
-Cc: ismail =?iso-8859-1?q?d=F6nmez?= <ismail.donmez@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200408301047.06780.tim@bcs4me.com> <2a4f155d04083113162c2759ea@mail.gmail.com> <Pine.LNX.4.58.0408311332410.2295@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0408311332410.2295@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200409011827.42576.tim@bcs4me.com>
+	Wed, 1 Sep 2004 04:28:15 -0400
+Message-ID: <2dc3ece804090101283ea96cc6@mail.gmail.com>
+Date: Wed, 1 Sep 2004 10:28:15 +0200
+From: Peder Stray <peder.stray@gmail.com>
+Reply-To: Peder Stray <peder.stray@gmail.com>
+To: "Li, Shaohua" <shaohua.li@intel.com>
+Subject: Re: problem with ACPI and suspend
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Brown, Len" <len.brown@intel.com>
+In-Reply-To: <B44D37711ED29844BEA67908EAF36F03B0DA18@pdsmsx401.ccr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <B44D37711ED29844BEA67908EAF36F03B0DA18@pdsmsx401.ccr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 Sep 2004 06:33, Linus Torvalds wrote:
-> On Tue, 31 Aug 2004, ismail dönmez wrote:
-> > Checked k3b on CVS and it does this now :
-> >
-> >   int flags = O_NONBLOCK;
-> >   if( write )
-> >     flags |= O_RDWR;
-> >   else
-> >     flags |= O_RDONLY;
-> > .....
-> >   fd = ::open( name, flags );
-> >
-> > which already fixes the issue. Right?
->
-> I assume so, assuming that the "write" flag is set correctly. Somebody
-> would need to test whether it actually works for them ;)
+On Wed, 1 Sep 2004 15:35:11 +0800, Li, Shaohua <shaohua.li@intel.com> wrote:
+> Did you load ACPI button driver?
 
-I can't seem to easily get the cvs to compile on my box at the moment, but 
-making these changes to the k3b-0.11.14 code seems to be working here, tho 
-k3b seems to always open as write now. Haven't looked at latest dvd+rw-tools 
-but they would be similar I guess...
+The botton module is loaded at all times yes. Otherwis i guess it
+wouldn't have worked at all. When i close the lid the first time, my
+laptop suspends as it should, the second time it also suspends ass it
+should, but when it wakes up from this suspend it gets the message i
+orignially stated and no more messages are passed so the
+resume-scripts won't get called ever again until i reboot, and thus it
+won't suspend by closing the lid either.
 
-tim
+list of modules loaded:
+
+Module                  Size  Used by
+parport_pc             21249  1 
+lp                      9133  0 
+parport                35977  2 parport_pc,lp
+autofs4                20677  0 
+ds                     12869  4 
+yenta_socket           15937  1 
+pcmcia_core            51336  2 ds,yenta_socket
+sunrpc                141861  1 
+xircom_cb              10177  0 
+microcode               5601  0 
+md5                     3905  1 
+ipv6                  217349  10 
+vfat                   12481  1 
+fat                    39393  1 vfat
+uhci_hcd               28505  0 
+button                  4825  0 
+battery                 7117  0 
+asus_acpi               9177  0 
+ac                      3533  0 
+ext3                   96937  4 
+jbd                    66521  1 ext3
+dm_mod                 47317  5 
+
+
+> >-----Original Message-----
+> >From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+> >owner@vger.kernel.org] On Behalf Of Peder Stray
+> >Sent: Wednesday, September 01, 2004 3:00 AM
+> >To: linux-kernel@vger.kernel.org
+> >Subject: problem with ACPI and suspend
+> >
+> >ACPI works quite ok on my laptop, currently running 2.6.8, but when i
+> >resume from suspend the second time after a boot i get the following
+> >message:
+> >
+> >    ACPI-0286: *** Error: No installed handler for fixed event
+> [00000002]
+> >
+> >and the acpi subsystems seem to stop sending events, as no scripts
+> >gets called after this. Anyone had similar problems? I really would
+> >like to have working suspend/resume more than once after each reboot
+> >;)
+> >
+> >--
+> >  Peder Stray
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+-- 
+  Peder Stray

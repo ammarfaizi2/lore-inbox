@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129784AbQLNRr0>; Thu, 14 Dec 2000 12:47:26 -0500
+	id <S129345AbQLNRuI>; Thu, 14 Dec 2000 12:50:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130125AbQLNRrH>; Thu, 14 Dec 2000 12:47:07 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:60151 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129784AbQLNRqz>; Thu, 14 Dec 2000 12:46:55 -0500
-Date: Thu, 14 Dec 2000 15:16:06 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Jussi Laako <jussi.laako@imagesoft.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory subsystem error and freeze on 2.4.0-test12
-In-Reply-To: <3A38A825.DE416521@imagesoft.fi>
-Message-ID: <Pine.LNX.4.21.0012141515070.1437-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129771AbQLNRt5>; Thu, 14 Dec 2000 12:49:57 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:45585
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S129345AbQLNRtp>; Thu, 14 Dec 2000 12:49:45 -0500
+Date: Thu, 14 Dec 2000 12:28:28 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Leslie Donaldson <donaldlf@i-55.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Major Failure  2.4.0-test12 Alpha
+Message-ID: <20001214122828.A30815@animx.eu.org>
+In-Reply-To: <3A38E509.1030402@i-55.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <3A38E509.1030402@i-55.com>; from Leslie Donaldson on Thu, Dec 14, 2000 at 09:19:37AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2000, Jussi Laako wrote:
-
-> Is this normal:
+> Hello,
+>   Just writing in to report a bug in 2.4.0-test12.
+> Hardware:
+>   PCI-Matrox_Mill
+>   PCI-Adaptec 39160 / 160M scsi card
+>   PCI-Generic TNT-2 card
+>   PCI-Sound blaster -128 (es1370)
 > 
-> Dec 14 12:33:32 alien kernel: __alloc_pages: 2-order allocation failed.
+> CPU 21164a - Alpha
+> 
+> Problem:
+>   There is a race condition in the aic7xxxx driver that causes the 
+> kernel to lock up.
+> I don't have a kernel dump yet as the machine reported by it'self..
+> This problem has been easy to reproduce. ergo about 3 crashes a day.
+> 
+> Solution:
+>   Sync often and pray.
+> 
+> Misc:
+>   As soon as I get a real dump I will post a followup to this message.
 
-This means that somebody tried to allocate a physically 
-contiguous area of 2^2 = 8 pages, but such an area
-wasn't available.
+Just to add my 2 bits, I have an AlphaServer 1000A that has a pci-pci
+bridge.  I put an adaptec 2940UW on the primary pci bus.  After attempts to
+mke2fs on a raid0 set (using 2.2.17 /w and w/o raid patches), it would just
+lock and I'd have to reboot the machine.  I was able (IIRC) to remount r/o
+the other disk that I had.
 
-> System deadlocked about one minute later.
-
-Any idea which part of the kernel deadlocked? Was it
-the network driver, the VM subsystem, .... ?
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275347AbTHSE6x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 00:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275335AbTHSE6x
+	id S275348AbTHSFGG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 01:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275350AbTHSFGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 00:58:53 -0400
-Received: from fep02-svc.mail.telepac.pt ([194.65.5.201]:50374 "EHLO
-	fep02-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id S275347AbTHSE6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 00:58:52 -0400
-Message-ID: <3F41AE34.1060600@vgertech.com>
-Date: Tue, 19 Aug 2003 05:57:24 +0100
-From: Nuno Silva <nuno.silva@vgertech.com>
-Organization: VGER, LDA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en-us, pt
-MIME-Version: 1.0
-To: "Anthony R." <russo.lutions@verizon.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: cache limit
-References: <3F41AA15.1020802@verizon.net>
-In-Reply-To: <3F41AA15.1020802@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 19 Aug 2003 01:06:06 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:34248 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S275348AbTHSFGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 01:06:03 -0400
+Subject: Re: scheduler interactivity: timeslice calculation seem wrong
+From: Eric St-Laurent <ericstl34@sympatico.ca>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1061267367.3f41a7a70f007@kolivas.org>
+References: <1061261666.2094.15.camel@orbiter>
+	 <200308191413.00135.kernel@kolivas.org> <1061267029.2900.54.camel@orbiter>
+	 <1061267367.3f41a7a70f007@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1061269559.5853.7.camel@orbiter>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 19 Aug 2003 01:06:00 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-Anthony R. wrote:
+> There's a scheduler implementation dating pre 1970 that does this and I am led
+> to believe someone is working on an implementation for perhaps 2.7
 
-[..snip..]
+The first implementation is in 1962 with CTSS if i remember correctly.
+Multics initially had something like that too.
 
-> With 2GB on a system, I should never page out, but I consistently do and I
+ http://www.multicians.org/mult-sched.html
 
-One, very easy, solution is to do:
-# swapoff -a
+Anyway that's pretty standard CS stuff. Multi-level Queues with
+feedback, exponentially longer timeslices with lower priority.
 
-FWIW, I'd like an option to limit the cache size to a maximum amount... 
-Say: echo 500000 > /proc/sys/vm/max_disk_cache
+I was reading this recently, that's why i wondered why linux calculate
+timeslice "inversed" versus what is proposed in theory.
 
-But, AFAIK, that's not going to happen.
-
-Regards,
-Nuno Silva
 
 

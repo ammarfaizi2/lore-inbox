@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVAYAJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVAYAJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVAYAJs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 19:09:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVAYAHg
+	id S261787AbVAYAJu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 19:09:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVAYAGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 19:07:36 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:17111 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261703AbVAYAEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 19:04:53 -0500
-Message-ID: <41F58D25.1000203@comcast.net>
-Date: Mon, 24 Jan 2005 19:04:53 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: undefined references
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jan 2005 19:06:45 -0500
+Received: from speedy.student.utwente.nl ([130.89.163.131]:4334 "EHLO
+	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
+	id S261742AbVAYADl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 19:03:41 -0500
+Date: Tue, 25 Jan 2005 01:03:39 +0100
+From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: fuse patch needs new libs
+Message-ID: <20050125000339.GA610@speedy.student.utwente.nl>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Andrew,
 
-icebox linux-2.6.10-grs # make
-  CHK     include/linux/version.h
-make[1]: `arch/x86_64/kernel/asm-offsets.s' is up to date.
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-fs/built-in.o(.text+0xe413): In function `link_path_walk':
-: undefined reference to `gr_inode_follow_link'
-fs/built-in.o(.text+0xe933): In function `link_path_walk':
-: undefined reference to `gr_inode_follow_link'
-fs/built-in.o(.text+0x10c28): In function `sys_link':
-: undefined reference to `gr_inode_hardlink'
-fs/built-in.o(.text+0x10c52): In function `sys_link':
-: undefined reference to `gr_inode_handle_create'
-make: *** [.tmp_vmlinux1] Error 1
+On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
+> fuse-transfer-readdir-data-through-device.patch
+>   fuse: transfer readdir data through device
+It is great that this is fixed, don't remove it, but it does require the fuse
+libs to be updated at the same time, or opening dirs for listings will break
+like this:
 
-What would cause this kind of error?
+open(".", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = -1 ENOSYS (Function
+not implemented)
 
-I'm messing with reimplementing LSM from scratch and have a patch for
-what I'm doing if anyone wants to communicate on this; it's pretty much
-an academic endeavor (learn to code in the kernel, learn how lsm was
-created, learn how GrSecurity's codebase works).
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+As I personally like for my ls to keep on working, and I assume others will,
+too, I would appreciate it if you could add a warning to your announcements the
+following one or two weeks or so, so that people can remove this patch if they
+don't want to update their libs.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Thank you.
 
-iD8DBQFB9Y0lhDd4aOud5P8RAmGxAJ9XZESD1nHO7mEIA7Bw0YCC/ns3KACfSgLF
-4XRkAjHoayXprZR1Ma/0doI=
-=LqFc
------END PGP SIGNATURE-----
+    Sytse

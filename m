@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbUK2M1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbUK2M2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbUK2M1A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 07:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbUK2M1A
+	id S261707AbUK2M2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 07:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUK2M12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 07:27:00 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39698 "HELO
+	Mon, 29 Nov 2004 07:27:28 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40722 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261696AbUK2M01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 07:26:27 -0500
-Date: Mon, 29 Nov 2004 13:26:25 +0100
+	id S261698AbUK2M03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 07:26:29 -0500
+Date: Mon, 29 Nov 2004 13:26:27 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: tim@cyberelk.net, linux-parport@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/block/paride/ cleanups
-Message-ID: <20041129122625.GF9722@stusta.de>
+To: linux-kernel@vger.kernel.org, iss_storagedev@hp.com
+Subject: [2.6 patch] misc drivers/block/cciss* cleanups
+Message-ID: <20041129122627.GG9722@stusta.de>
 References: <20041124231055.GN19873@stusta.de> <20041125101220.GC29539@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,294 +23,153 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below does the following cleanups in each if the five changed 
-C files:
-- #ifndef MODULE: remove unused setup function
-- make a needlessly global struct static
+The patch below contains the following changes:
+- make some needlessly global code static
+- fold init_cciss_module into init_cciss (there's no need for two
+  separate functions)
+- remove the unused global function cciss_scsi_info
 
-After this cleanup, setup.h is completely unuse and therefore removed.
 
-
-diffstat output:
- drivers/block/paride/setup.h |   70 -----------------------------------
- drivers/block/paride/pcd.c   |   22 -----------
- drivers/block/paride/pd.c    |   23 -----------
- drivers/block/paride/pf.c    |   23 -----------
- drivers/block/paride/pg.c    |   21 ----------
- drivers/block/paride/pt.c    |   23 -----------
- 6 files changed, 5 insertions(+), 177 deletions(-)
+ drivers/block/cciss.c      |   18 +++++++-----------
+ drivers/block/cciss_scsi.c |   35 ++++-------------------------------
+ drivers/block/cciss_scsi.h |    1 -
+ 3 files changed, 11 insertions(+), 43 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc2-mm3-full/drivers/block/paride/pcd.c.old	2004-11-24 23:45:49.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/drivers/block/paride/pcd.c	2004-11-24 23:46:42.000000000 +0100
-@@ -142,26 +142,6 @@
+--- linux-2.6.10-rc1-mm3-full/drivers/block/cciss.c.old	2004-11-06 19:45:19.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/block/cciss.c	2004-11-06 20:23:11.000000000 +0100
+@@ -61,7 +61,7 @@
+ #include <linux/cciss_ioctl.h>
  
- static spinlock_t pcd_lock;
+ /* define the PCI info for the cards we can control */
+-const struct pci_device_id cciss_pci_device_id[] = {
++static const struct pci_device_id cciss_pci_device_id[] = {
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISS,
+ 			0x0E11, 0x4070, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSB,
+@@ -2908,21 +2908,17 @@
+  *  This is it.  Register the PCI driver information for the cards we control
+  *  the OS will call our registered routines when it finds one of our cards. 
+  */
+-int __init cciss_init(void)
++static int __init init_cciss(void)
+ {
++	register_cciss_ioctl32();
++
+ 	printk(KERN_INFO DRIVER_NAME "\n");
  
--#ifndef MODULE
--
--#include "setup.h"
--
--static STT pcd_stt[6] = {
--	{"drive0", 6, drive0},
--	{"drive1", 6, drive1},
--	{"drive2", 6, drive2},
--	{"drive3", 6, drive3},
--	{"disable", 1, &disable},
--	{"nice", 1, &nice}
--};
--
--void pcd_setup(char *str, int *ints)
+ 	/* Register for our PCI devices */
+ 	return pci_module_init(&cciss_pci_driver);
+ }
+ 
+-static int __init init_cciss_module(void)
 -{
--	generic_setup(pcd_stt, 6, str);
+-	register_cciss_ioctl32();
+-	return ( cciss_init());
 -}
 -
--#endif
--
- MODULE_PARM(verbose, "i");
- MODULE_PARM(major, "i");
- MODULE_PARM(name, "s");
-@@ -218,7 +198,7 @@
- 	struct gendisk *disk;
- };
+-static void __exit cleanup_cciss_module(void)
++static void __exit cleanup_cciss(void)
+ {
+ 	int i;
  
--struct pcd_unit pcd[PCD_UNITS];
-+static struct pcd_unit pcd[PCD_UNITS];
+@@ -2941,5 +2937,5 @@
+ 	remove_proc_entry("cciss", proc_root_driver);
+ }
  
- static char pcd_scratch[64];
- static char pcd_buffer[2048];	/* raw block buffer */
---- linux-2.6.10-rc2-mm3-full/drivers/block/paride/pd.c.old	2004-11-24 23:46:42.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/drivers/block/paride/pd.c	2004-11-24 23:46:55.000000000 +0100
-@@ -157,27 +157,6 @@
+-module_init(init_cciss_module);
+-module_exit(cleanup_cciss_module);
++module_init(init_cciss);
++module_exit(cleanup_cciss);
+--- linux-2.6.10-rc1-mm3-full/drivers/block/cciss_scsi.c.old	2004-11-06 19:48:45.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/block/cciss_scsi.c	2004-11-06 20:30:38.000000000 +0100
+@@ -53,9 +53,7 @@
+ 	int cmd_type);
  
- static spinlock_t pd_lock = SPIN_LOCK_UNLOCKED;
  
--#ifndef MODULE
+-const char *cciss_scsi_info(struct Scsi_Host *sa);
 -
--#include "setup.h"
+-int cciss_scsi_proc_info(
++static int cciss_scsi_proc_info(
+ 		struct Scsi_Host *sh,
+ 		char *buffer, /* data buffer */
+ 		char **start, 	   /* where data in buffer starts */
+@@ -63,7 +61,7 @@
+ 		int length, 	   /* length of data in buffer */
+ 		int func);	   /* 0 == read, 1 == write */
+ 
+-int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
++static int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
+ 		void (* done)(struct scsi_cmnd *));
+ 
+ static struct cciss_scsi_hba_t ccissscsi[MAX_CTLR] = {
+@@ -712,8 +710,6 @@
+ 	return 1;
+ }
+ 
+-static void __exit cleanup_cciss_module(void);
 -
--static STT pd_stt[7] = {
--	{"drive0", 8, drive0},
--	{"drive1", 8, drive1},
--	{"drive2", 8, drive2},
--	{"drive3", 8, drive3},
--	{"disable", 1, &disable},
--	{"cluster", 1, &cluster},
--	{"nice", 1, &nice}
--};
--
--void pd_setup(char *str, int *ints)
+ static void
+ cciss_unmap_one(struct pci_dev *pdev,
+ 		CommandList_struct *cp,
+@@ -1114,7 +1110,7 @@
+ }
+ 
+ 
+-int
++static int
+ cciss_scsi_proc_info(struct Scsi_Host *sh,
+ 		char *buffer, /* data buffer */
+ 		char **start, 	   /* where data in buffer starts */
+@@ -1149,29 +1145,6 @@
+ 			buffer, length);	
+ } 
+ 
+-/* this is via the generic proc support */
+-const char *
+-cciss_scsi_info(struct Scsi_Host *sa)
 -{
--	generic_setup(pd_stt, 7, str);
+-	static char buf[300];
+-	ctlr_info_t *ci;
+-
+-	/* probably need to work on putting a bit more info in here... */
+-	/* this is output via the /proc filesystem. */
+-
+-	ci = (ctlr_info_t *) sa->hostdata[0];
+-
+-	sprintf(buf, "%s %c%c%c%c\n",
+-		ci->product_name, 
+-		ci->firm_ver[0],
+-		ci->firm_ver[1],
+-		ci->firm_ver[2],
+-		ci->firm_ver[3]);
+-
+-	return buf; 
 -}
 -
--#endif
 -
- MODULE_PARM(verbose, "i");
- MODULE_PARM(major, "i");
- MODULE_PARM(name, "s");
-@@ -255,7 +234,7 @@
- 	struct gendisk *gd;
- };
+ /* cciss_scatter_gather takes a struct scsi_cmnd, (cmd), and does the pci 
+    dma mapping  and fills in the scatter gather entries of the 
+    cciss command, cp. */
+@@ -1225,7 +1198,7 @@
+ }
  
--struct pd_unit pd[PD_UNITS];
-+static struct pd_unit pd[PD_UNITS];
  
- static char pd_scratch[512];	/* scratch block buffer */
+-int 
++static int 
+ cciss_scsi_queue_command (struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *))
+ {
+ 	ctlr_info_t **c;
+--- linux-2.6.10-rc1-mm3-full/drivers/block/cciss_scsi.h.old	2004-11-06 19:54:18.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/block/cciss_scsi.h	2004-11-06 19:54:41.000000000 +0100
+@@ -39,7 +39,6 @@
+ #define SCSI_CCISS_CAN_QUEUE 2
  
---- linux-2.6.10-rc2-mm3-full/drivers/block/paride/pf.c.old	2004-11-24 23:46:55.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/drivers/block/paride/pf.c	2004-11-24 23:47:06.000000000 +0100
-@@ -156,27 +156,6 @@
+ /* 
+-	info:           	cciss_scsi_info,		\
  
- static spinlock_t pf_spin_lock;
- 
--#ifndef MODULE
--
--#include "setup.h"
--
--static STT pf_stt[7] = {
--	{"drive0", 7, drive0},
--	{"drive1", 7, drive1},
--	{"drive2", 7, drive2},
--	{"drive3", 7, drive3},
--	{"disable", 1, &disable},
--	{"cluster", 1, &cluster},
--	{"nice", 1, &nice}
--};
--
--void pf_setup(char *str, int *ints)
--{
--	generic_setup(pf_stt, 7, str);
--}
--
--#endif
--
- MODULE_PARM(verbose, "i");
- MODULE_PARM(major, "i");
- MODULE_PARM(name, "s");
-@@ -256,7 +235,7 @@
- 	struct gendisk *disk;
- };
- 
--struct pf_unit units[PF_UNITS];
-+static struct pf_unit units[PF_UNITS];
- 
- static int pf_identify(struct pf_unit *pf);
- static void pf_lock(struct pf_unit *pf, int func);
---- linux-2.6.10-rc2-mm3-full/drivers/block/paride/pg.c.old	2004-11-24 23:47:06.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/drivers/block/paride/pg.c	2004-11-24 23:47:19.000000000 +0100
-@@ -165,25 +165,6 @@
- 
- #include <asm/uaccess.h>
- 
--#ifndef MODULE
--
--#include "setup.h"
--
--static STT pg_stt[5] = {
--	{"drive0", 6, drive0},
--	{"drive1", 6, drive1},
--	{"drive2", 6, drive2},
--	{"drive3", 6, drive3},
--	{"disable", 1, &disable}
--};
--
--void pg_setup(char *str, int *ints)
--{
--	generic_setup(pg_stt, 5, str);
--}
--
--#endif
--
- MODULE_PARM(verbose, "i");
- MODULE_PARM(major, "i");
- MODULE_PARM(name, "s");
-@@ -235,7 +216,7 @@
- 	char name[PG_NAMELEN];	/* pg0, pg1, ... */
- };
- 
--struct pg devices[PG_UNITS];
-+static struct pg devices[PG_UNITS];
- 
- static int pg_identify(struct pg *dev, int log);
- 
---- linux-2.6.10-rc2-mm3-full/drivers/block/paride/pt.c.old	2004-11-24 23:47:19.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/drivers/block/paride/pt.c	2004-11-24 23:47:30.000000000 +0100
-@@ -149,26 +149,6 @@
- 
- #include <asm/uaccess.h>
- 
--#ifndef MODULE
--
--#include "setup.h"
--
--static STT pt_stt[5] = {
--	{"drive0", 6, drive0},
--	{"drive1", 6, drive1},
--	{"drive2", 6, drive2},
--	{"drive3", 6, drive3},
--	{"disable", 1, &disable}
--};
--
--void
--pt_setup(char *str, int *ints)
--{
--	generic_setup(pt_stt, 5, str);
--}
--
--#endif
--
- MODULE_PARM(verbose, "i");
- MODULE_PARM(major, "i");
- MODULE_PARM(name, "s");
-@@ -246,7 +226,7 @@
- 
- static int pt_identify(struct pt_unit *tape);
- 
--struct pt_unit pt[PT_UNITS];
-+static struct pt_unit pt[PT_UNITS];
- 
- static char pt_scratch[512];	/* scratch block buffer */
- 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---- linux-2.6.10-rc1-mm3-full/drivers/block/paride/setup.h	2004-10-18 23:55:27.000000000 +0200
-+++ /dev/null	2004-08-23 02:01:39.000000000 +0200
-@@ -1,69 +0,0 @@
--/*
--	setup.h	   (c) 1997-8   Grant R. Guenther <grant@torque.net>
--		                Under the terms of the GNU General Public License.
--
--        This is a table driven setup function for kernel modules
--        using the module.variable=val,... command line notation.
--
--*/
--
--/* Changes:
--
--	1.01	GRG 1998.05.05	Allow negative and defaulted values
--
--*/
--
--#include <linux/ctype.h>
--#include <linux/string.h>
--
--struct setup_tab_t {
--
--	char	*tag;	/* variable name */
--	int	size;	/* number of elements in array */
--	int	*iv;	/* pointer to variable */
--};
--
--typedef struct setup_tab_t STT;
--
--/*  t 	  is a table that describes the variables that can be set
--	  by gen_setup
--    n	  is the number of entries in the table
--    ss	  is a string of the form:
--
--		<tag>=[<val>,...]<val>
--*/
--
--static void generic_setup( STT t[], int n, char *ss )
--
--{	int	j,k, sgn;
--
--	k = 0;
--	for (j=0;j<n;j++) {
--		k = strlen(t[j].tag);
--		if (strncmp(ss,t[j].tag,k) == 0) break;
--	}
--	if (j == n) return;
--
--	if (ss[k] == 0) {
--		t[j].iv[0] = 1;
--		return;
--	}
--
--	if (ss[k] != '=') return;
--	ss += (k+1);
--
--	k = 0;
--	while (ss && (k < t[j].size)) {
--		if (!*ss) break;
--		sgn = 1;
--		if (*ss == '-') { ss++; sgn = -1; }
--		if (!*ss) break;
--		if (isdigit(*ss))
--		  t[j].iv[k] = sgn * simple_strtoul(ss,NULL,0);
--		k++; 
--		if ((ss = strchr(ss,',')) != NULL) ss++;
--	}
--}
--
--/* end of setup.h */
--
-
-
+ Note, cmd_per_lun could give us some trouble, so I'm setting it very low.
+ Likewise, SCSI_CCISS_CAN_QUEUE is set very conservatively.
 

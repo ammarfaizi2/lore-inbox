@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVCKQjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVCKQlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVCKQjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 11:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVCKQjZ
+	id S261197AbVCKQlf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 11:41:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVCKQld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 11:39:25 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:31714 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261194AbVCKQjR (ORCPT
+	Fri, 11 Mar 2005 11:41:33 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:32973 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261197AbVCKQj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 11:39:17 -0500
-Message-ID: <4231C9B2.5020202@us.ltcfwd.linux.ibm.com>
-Date: Fri, 11 Mar 2005 11:39:14 -0500
-From: Wen Xiong <wendyx@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Fri, 11 Mar 2005 11:39:59 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: AGP bogosities
+Date: Fri, 11 Mar 2005 08:39:15 -0800
+User-Agent: KMail/1.7.2
+Cc: Paul Mackerras <paulus@samba.org>, werner@sgi.com,
+       Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <200503102002.47645.jbarnes@engr.sgi.com> <1110515459.32556.346.camel@gaston>
+In-Reply-To: <1110515459.32556.346.camel@gaston>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Wen Xiong <wendyx@us.ibm.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ patch 3/5] drivers/serial/jsm: new serial device driver
-References: <20050228063954.GB23595@kroah.com>	 <4228CE41.2000102@us.ltcfwd.linux.ibm.com>	 <20050304220116.GA1201@kroah.com> <422CD9DB.10103@us.ltcfwd.linux.ibm.com>	 <20050308064424.GF17022@kroah.com>	 <422DF525.8030606@us.ltcfwd.linux.ibm.com>	 <20050308235807.GA11807@kroah.com>	 <422F1A8A.4000106@us.ltcfwd.linux.ibm.com>	 <20050309163518.GC25079@kroah.com>	 <422F2FDD.4050908@us.ltcfwd.linux.ibm.com>	 <20050309185800.GA27268@kroah.com>	 <4231BB5D.8020400@us.ltcfwd.linux.ibm.com> <1110556428.9917.31.camel@laptopd505.fenrus.org>
-In-Reply-To: <1110556428.9917.31.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503110839.15995.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Thursday, March 10, 2005 8:30 pm, Benjamin Herrenschmidt wrote:
+> On Thu, 2005-03-10 at 20:02 -0800, Jesse Barnes wrote:
+> > On Thursday, March 10, 2005 6:38 pm, Benjamin Herrenschmidt wrote:
+> > > That one is even worse... from what I see in your lspci output, you
+> > > have no bridge with AGP capability at all, and the various AGP devices
+> > > are all siblings...
+> >
+> > Both of the video cards are sitting on agp busses in agp slots hooked up
+> > to host to agp bridges.
+> >
+> > > Are you sure there is any real AGP slot in there ?
+> >
+> > Yes :)
+>
+> Well, according to your lspci, none of the bridges exposes a device with
+> AGP capabilities...
 
->On Fri, 2005-03-11 at 10:38 -0500, Wen Xiong wrote:
->
->  
->
->>+static void neo_set_cts_flow_control(struct jsm_channel *ch)
->>+{
->>+	u8 ier = readb(&ch->ch_neo_uart->ier);
->>+	u8 efr = readb(&ch->ch_neo_uart->efr);
->>+
->>    
->>
->...
->  
->
->>+
->>+	writeb(ier, &ch->ch_neo_uart->ier);
->>+}
->>    
->>
->
->
->Hi,
->
->have you ever audited this driver for PCI posting errors? On very first
->sight it looks like the driver doesn't do this correctly but it might
->just be very subtle...
->
->
->  
->
-Jeff pointed out several PCI posting errors last time.  Before we used 
-udelay and now we changed to readb/readl instead of udelay this time.
-But we only used PCI posting when we think maybe delay there.
-So we have to do PCI posting on every writeb? Do you have some rules for 
-doing PCI posting while writeb? depends on what kind of registers?
+There are no bridges listed in my lspci output, that's probably why. :)
+
+> It looks like you aren't exposing the host "self" 
+> device on the bus. Do you have an AGP driver ? If yes, it certainly
+> can't use any of the generic code anyway ...
+
+Right, it's a special agp driver, sgi-agp.c.
+
+> I still think that the matching between a bridge and a card should be a
+> bridge callback (with eventually a generic one that works for whatever
+> x86 are around) so that the bridge driver can deal with funky layouts. I
+> have no time to toy with this at the moment though ;)
+
+Mike, does this sound ok?  Maybe you could hack something together?
 
 Thanks,
-wendy
-
+Jesse

@@ -1,68 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267483AbRGSIsR>; Thu, 19 Jul 2001 04:48:17 -0400
+	id <S267486AbRGSJCL>; Thu, 19 Jul 2001 05:02:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267486AbRGSIsI>; Thu, 19 Jul 2001 04:48:08 -0400
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:28767 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267483AbRGSIsA>; Thu, 19 Jul 2001 04:48:00 -0400
-Date: Thu, 19 Jul 2001 08:47:40 +0000
-From: "Roeland Th. Jansen" <bengel@grobbebol.xs4all.nl>
-To: bug-sh-utils@gnu.org
-Cc: linux-kernel@vger.kernel.org
-Subject: who command misses tty1..kernel or sh-utils ?
-Message-ID: <20010719084740.A3717@grobbebol.xs4all.nl>
-Reply-To: roel@grobbebol.xs4all.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S267495AbRGSJCC>; Thu, 19 Jul 2001 05:02:02 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:62989 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S267486AbRGSJBn>; Thu, 19 Jul 2001 05:01:43 -0400
+Date: Thu, 19 Jul 2001 04:30:40 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Inclusion of zoned inactive/free shortage patch 
+In-Reply-To: <Pine.LNX.4.33.0107181801320.7602-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0107190419280.9510-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-who (GNU sh-utils) 2.0
-Written by Joseph Arceneaux and David MacKenzie.
 
-Copyright (C) 1999 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+On Wed, 18 Jul 2001, Linus Torvalds wrote:
+
+> 
+> On Wed, 18 Jul 2001, Marcelo Tosatti wrote:
+> > >
+> > > Wait. Don't you mean:
+> 
+> Yes. Just ignore me when I show extreme signs of Alzheimers.
+
+Ok.
+
+Well, here is a patch on top of -ac5 (which already includes the first
+zoned based approach patch).
+
+I changed inactive_plenty() to use "zone->size / 3" instead "zone->size /
+2".
+
+Under _my_ tests using half of the perzone total pages as the inactive
+target was too high.
+
+I also changed refill_inactive_scan() to return the number of deactivated
+pages for the zone which we are scanning (if perzone scanning is being
+done at all, of course). This avoids miscalculations of the number of
+deactivated pages.
+
+I'm still using a zone pointer as a boolean in try_to_swap_out(). Reason:
+Its 6am in the morning, I already generated the patch, and the cab is down
+there waiting.
 
 
-who seems to loose interest in the fact that tty1 is also being used.
+Comments?
 
-initially i's shown after a restart but after a while it is missed.
-maybe a kernel problem, maybe not :
+diff -Nur --exclude-from=/home/marcelo/exclude linux.orig/include/linux/swap.h linux/include/linux/swap.h
+--- linux.orig/include/linux/swap.h	Thu Jul 19 05:40:34 2001
++++ linux/include/linux/swap.h	Wed Jul 18 23:19:05 2001
+@@ -131,6 +131,7 @@
+ 
+ extern unsigned int zone_free_shortage(zone_t *zone);
+ extern unsigned int zone_inactive_shortage(zone_t *zone);
++extern unsigned int zone_inactive_plenty(zone_t *zone);
+ 
+ /* linux/mm/page_io.c */
+ extern void rw_swap_page(int, struct page *);
+diff -Nur --exclude-from=/home/marcelo/exclude linux.orig/mm/page_alloc.c linux/mm/page_alloc.c
+--- linux.orig/mm/page_alloc.c	Thu Jul 19 05:40:34 2001
++++ linux/mm/page_alloc.c	Thu Jul 19 05:41:39 2001
+@@ -707,6 +707,20 @@
+ 	return sum;
+ }
+ 
++unsigned int zone_inactive_plenty(zone_t *zone)
++{
++	int inactive;
++
++	if (!zone->size)
++		return 0;
++		
++	inactive = zone->inactive_dirty_pages;
++	inactive += zone->inactive_clean_pages;
++	inactive += zone->free_pages;
++
++	return (inactive > (zone->size / 3));
++
++}
+ unsigned int zone_inactive_shortage(zone_t *zone) 
+ {
+ 	int sum = 0;
+diff -Nur --exclude-from=/home/marcelo/exclude linux.orig/mm/vmscan.c linux/mm/vmscan.c
+--- linux.orig/mm/vmscan.c	Thu Jul 19 05:40:34 2001
++++ linux/mm/vmscan.c	Thu Jul 19 05:48:18 2001
+@@ -46,7 +46,7 @@
+ 	 * touch pages from zones which don't have a 
+ 	 * shortage.
+ 	 */
+-	if (zone && !zone_inactive_shortage(page->zone))
++	if (zone_inactive_plenty(page->zone))
+ 		return;
+ 
+ 	/* Don't look at this pte if it's been accessed recently. */
+@@ -637,8 +637,7 @@
+ 	 * loads, flush out the dirty pages before we have to wait on
+ 	 * IO.
+ 	 */
+-	if (CAN_DO_IO && !launder_loop && (free_shortage() 
+-				|| (zone && zone_free_shortage(zone)))) {
++	if (CAN_DO_IO && !launder_loop && total_free_shortage()) {
+ 		launder_loop = 1;
+ 		/* If we cleaned pages, never do synchronous IO. */
+ 		if (cleaned_pages)
+@@ -718,11 +717,11 @@
+ 		}
+ 
+ 		/*
+-		 * If we are doing zone-specific scanning, ignore
+-		 * pages from zones without shortage.
++		 * Do not deactivate pages from zones which 
++		 * have plenty inactive pages.
+ 		 */
+ 
+-		if (zone && !zone_inactive_shortage(page->zone)) {
++		if (zone_inactive_plenty(page->zone)) {
+ 			page_active = 1;
+ 			goto skip_page;
+ 		}
+@@ -756,12 +755,13 @@
+ 		 * to the other end of the list. Otherwise we exit if
+ 		 * we have done enough work.
+ 		 */
+-skip_page:
+ 		if (page_active || PageActive(page)) {
++skip_page:
+ 			list_del(page_lru);
+ 			list_add(page_lru, &active_list);
+ 		} else {
+-			nr_deactivated++;
++			if (!zone || (zone && (zone == page->zone)))
++				nr_deactivated++;
+ 			if (target && nr_deactivated >= target)
+ 				break;
+ 		}
 
-grobbebol:~ $ w
-  8:42am  up 4 days,  4:42,  6 users,  load average: 0.34, 0.18, 0.06
-USER     TTY      FROM              LOGIN@   IDLE   JCPU   PCPU  WHAT
-root     tty2     -                Mon 9am 38.00s  0.82s  0.69s  -bash
-bengel   tty3     -                Sun10pm  0.00s  7.21s  0.04s  w
-bengel   tty4     -                Sun 4am 11.00s  0.45s  0.12s  mutt
-bengel   tty5     -                Sun11pm  1:59  26.06s 25.88s  tin
-bengel   tty6     -                Mon 9am  7:24   0.24s  0.15s  -bash
-roel     tty8     -                Sun10pm 23:39m  4.33s  4.17s  mutt
-
-grobbebol:~ $ who
-root     tty2     Jul 16 09:01
-bengel   tty3     Jul 15 22:46
-bengel   tty4     Jul 15 04:13
-bengel   tty5     Jul 15 23:01
-bengel   tty6     Jul 16 09:19
-roel     tty8     Jul 15 22:31
-
-I have seen this with many, if not all 2.4 kernels. this is 2.4.6.
-tty1 _is_ active :
-
-[....]
-root      3857  0.0  0.4  2812 1120 tty1     R    08:46   0:00 ps aux
-
-so.. kernel problem or sh-utils ?
-
-Linux grobbebol 2.4.6 #1 SMP Wed Jul 4 18:13:45 GMT 2001 i686 unknown
-
--- 
-Grobbebol's Home                     |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel         | Use your real e-mail address   /\
-Linux 2.4.6.(apic) SMP 466MHz/256 MB |        on Usenet.             _\_v  

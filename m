@@ -1,143 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269157AbUHaUdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267652AbUHaUhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269157AbUHaUdB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 16:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269162AbUHaUc6
+	id S267652AbUHaUhH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 16:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269173AbUHaUgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 16:32:58 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:4814 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S269157AbUHaU0t (ORCPT
+	Tue, 31 Aug 2004 16:36:04 -0400
+Received: from gprs214-69.eurotel.cz ([160.218.214.69]:36738 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S268800AbUHaUdF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 16:26:49 -0400
-Message-ID: <4134DEFB.2070607@colorfullife.com>
-Date: Tue, 31 Aug 2004 22:26:35 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Roger Luethi <rl@hellgate.ch>
-Subject: [PATCH] fix f_version optimization for get_tgid_list
-Content-Type: multipart/mixed;
- boundary="------------090000040807070005090109"
+	Tue, 31 Aug 2004 16:33:05 -0400
+Date: Tue, 31 Aug 2004 22:32:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040831203226.GB16110@elf.ucw.cz>
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl> <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090000040807070005090109
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Hi,
+> > You do need extra tools anyway, placing them in the kernel is cheating (and
+> > absolutely pointless, IMHO).
+> 
+> I agree.
+> 
+> There's no point to having the kernel export information that is already 
+> inherent in the main stream.
+> 
+> I've seen all these examples of exposing MP3 ID information as a "side 
+> stream", and that's TOTALLY POINTLESS! The information is already there, 
+> it's in a standard format, and exporting it as a stream buys you 
+> absolutely nothing.
 
-the kernel contains an optimization that skips the linked list walk in 
-get_tgid_list for the common case of sequential accesses.
-Unfortunately the optimization is buggy (missing NULL pointer check for 
-the result of find_task_by_pid) and broken (actually - broken twice: the 
-tgid value that is stored in f_version is always 0 because tgid is 
-overwritten when the string is created and additionally the common case 
-is not filldir < 0, it's running out of nr_tgids).
+It buys me caching. I do quite often
 
-The attached patch fixes these bugs.
+bzcat patch.2.6.8.bz2 | less (read the patch)
+(sometimes repeat that few times because I hit ^c when I should not
+have etc).
+cd ...clean; bzcat patch.2.6.8.bz2 | patch -Esp1
+cd ...linux; bzcat patch.2.6.8.bz2 | patch -Esp1
 
-Roger: could you run your 100k processes test against a kernel with this 
-fix applied? I'm just interested how much it helps. One obvious result 
-are fewer getdents64 syscalls: instead of returning 20 entries (480 
-bytes) the new code fills the user space buffer completely (42 
-entries/syscall).
+Now... that's total waste of cpu. bzip2 decompression takes quite some
+time. 
 
-Andrew, could you add the patch to your -mm tree?
+I could do
 
-Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
+bzcat patch.2.6.8.bz2 > /tmp/delete.me.when.you.are.done
 
---------------090000040807070005090109
-Content-Type: text/plain;
- name="patch-tgid-bugfixes"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-tgid-bugfixes"
+...but I'd probably forget to delete that one and anyway, it requires
+me to think about it. Nicest way would be
 
---- 2.6/fs/proc/base.c	2004-08-20 19:59:19.000000000 +0200
-+++ build-2.6/fs/proc/base.c	2004-08-31 21:42:28.000000000 +0200
-@@ -1689,7 +1689,7 @@ static int get_tgid_list(int index, unsi
- 	p = NULL;
- 	if (version) {
- 		p = find_task_by_pid(version);
--		if (!thread_group_leader(p))
-+		if (p && !thread_group_leader(p))
- 			p = NULL;
- 	}
- 
-@@ -1752,6 +1752,7 @@ int proc_pid_readdir(struct file * filp,
- 	char buf[PROC_NUMBUF];
- 	unsigned int nr = filp->f_pos - FIRST_PROCESS_ENTRY;
- 	unsigned int nr_tgids, i;
-+	int next_tgid;
- 
- 	if (!nr) {
- 		ino_t ino = fake_ino(0,PROC_TGID_INO);
-@@ -1761,26 +1762,45 @@ int proc_pid_readdir(struct file * filp,
- 		nr++;
- 	}
- 
--	/*
--	 * f_version caches the last tgid which was returned from readdir
-+	/* f_version caches the tgid value that the last readdir call couldn't
-+	 * return. lseek aka telldir automagically resets f_version to 0.
- 	 */
--	nr_tgids = get_tgid_list(nr, filp->f_version, tgid_array);
--
--	for (i = 0; i < nr_tgids; i++) {
--		int tgid = tgid_array[i];
--		ino_t ino = fake_ino(tgid,PROC_TGID_INO);
--		unsigned long j = PROC_NUMBUF;
--
--		do
--			buf[--j] = '0' + (tgid % 10);
--		while ((tgid /= 10) != 0);
--
--		if (filldir(dirent, buf+j, PROC_NUMBUF-j, filp->f_pos, ino, DT_DIR) < 0) {
--			filp->f_version = tgid;
-+	next_tgid = filp->f_version;
-+	filp->f_version = 0;
-+	for (;;) {
-+		nr_tgids = get_tgid_list(nr, next_tgid, tgid_array);
-+		if (!nr_tgids) {
-+			/* no more entries ! */
- 			break;
- 		}
--		filp->f_pos++;
-+		next_tgid = 0;
-+
-+		/* do not use the last found pid, reserve it for next_tgid */
-+		if (nr_tgids == PROC_MAXPIDS) {
-+			nr_tgids--;
-+			next_tgid = tgid_array[nr_tgids];
-+		}
-+		
-+		for (i=0;i<nr_tgids;i++) {
-+			int tgid = tgid_array[i];
-+			ino_t ino = fake_ino(tgid,PROC_TGID_INO);
-+			unsigned long j = PROC_NUMBUF;
-+
-+			do
-+				buf[--j] = '0' + (tgid % 10);
-+			while ((tgid /= 10) != 0);
-+
-+			if (filldir(dirent, buf+j, PROC_NUMBUF-j, filp->f_pos, ino, DT_DIR) < 0) {
-+				/* returning this tgid failed, save it as the first
-+				 * pid for the next readir call */
-+				filp->f_version = tgid_array[i];
-+				goto out;
-+			}
-+			filp->f_pos++;
-+			nr++;
-+		}
- 	}
-+out:
- 	return 0;
- }
- 
+cat patch.2.6.8.bz2/ubz | less
+cd ...clean; cat patch.2.6.8.bz2/ubz | patch -Esp1
+cd ...linux; cat patch.2.6.8.bz2/ubz | patch -Esp1
 
---------------090000040807070005090109--
+with kernel intelligently caching uncompressed data. I believe this
+can not be done completely in userspace.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

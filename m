@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288763AbSAIRJq>; Wed, 9 Jan 2002 12:09:46 -0500
+	id <S288661AbSAIRH0>; Wed, 9 Jan 2002 12:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288645AbSAIRJg>; Wed, 9 Jan 2002 12:09:36 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:55818 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S288606AbSAIRJX>; Wed, 9 Jan 2002 12:09:23 -0500
-Date: Wed, 9 Jan 2002 13:56:02 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] [PATCH] Suppress compilation warnings on big
- endian platform for reiserfs
-In-Reply-To: <20020109200340.A2123@namesys.com>
-Message-ID: <Pine.LNX.4.21.0201091353230.20977-100000@freak.distro.conectiva>
+	id <S288763AbSAIRHV>; Wed, 9 Jan 2002 12:07:21 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22031 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288661AbSAIRGh>; Wed, 9 Jan 2002 12:06:37 -0500
+Subject: Re: Difficulties in interoperating with Windows
+To: pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard)
+Date: Wed, 9 Jan 2002 17:17:16 +0000 (GMT)
+Cc: aia21@cam.ac.uk, pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard),
+        lkml@andyjeffries.co.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <200201091648.KAA19440@tomcat.admin.navo.hpc.mil> from "Jesse Pollard" at Jan 09, 2002 10:48:47 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16OMLk-0001kh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 9 Jan 2002, Oleg Drokin wrote:
-
-> Hello!
+> > the same input and output which often requires the exact same algorithm 
+> > otherwise you cannot achieve the same input/output...
 > 
->    Sure, I can. Reason for sending small patches, is because Linus have requested people to send stuff in that way.
->
->    BTW, do you mean you won't accept any more patches until 2.4.19-pre1? (or what -pre1 do you mean?)
+> Yup - and then you hit the "trade secrets" problem.
 
-No, I'm just saying that you should send me non-bugfixes patches on
--pre1 kernels.
+In the EU generally not. For hardware the normal approach is
+to use patented interfaces to ensure for example that nobody can sell
+replacement ink cartridges for your printer. For software its trickier
+and corporations are still working on schemes
 
-Thanks.
+Trade secrets really only become a problem if you've seen the original for
+other reasons. A microsoft employee leaving MS who spends the next month
+writing an ntfs for unix is likely to get into some trouble 8)
 

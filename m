@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274484AbRITNc1>; Thu, 20 Sep 2001 09:32:27 -0400
+	id <S274482AbRITNdh>; Thu, 20 Sep 2001 09:33:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274482AbRITNcH>; Thu, 20 Sep 2001 09:32:07 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:60304 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S274481AbRITNbz>;
-	Thu, 20 Sep 2001 09:31:55 -0400
-Date: Thu, 20 Sep 2001 15:31:05 +0200 (CEST)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Jan Harkes <jaharkes@cs.cmu.edu>, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix page aging (2.4.9-ac12)
-In-Reply-To: <20010920132504Z16271-2758+295@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.21.0109201529280.16139-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+	id <S274488AbRITNd2>; Thu, 20 Sep 2001 09:33:28 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:14856 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S274486AbRITNdQ>; Thu, 20 Sep 2001 09:33:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: broken VM in 2.4.10-pre9
+Date: Thu, 20 Sep 2001 15:40:55 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        ebiederm@xmission.com (Eric W. Biederman),
+        rfuller@nsisoftware.com (Rob Fuller), linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+In-Reply-To: <E15k3O2-0005Fr-00@the-village.bc.nu>
+In-Reply-To: <E15k3O2-0005Fr-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010920133330Z16274-2757+894@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Sep 2001, Daniel Phillips wrote:
-
-[snip]
-> > Perhaps the following would be better, just in case anyone sets
-> > PAGE_AGE_DECL to something other than 1.
+On September 20, 2001 02:57 pm, Alan Cox wrote:
+> > On September 20, 2001 12:04 am, Alan Cox wrote:
+> > > Reverse mappings make linear aging easier to do but are not critical (we
+> > > can walk all physical pages via the page map array). 
 > > 
-> >     static inline void age_page_down(struct page *page)
-> >     {
-> > 	unsigned long age = page->age;
-> > 	if (age > PAGE_AGE_DECL)
-> > 		age -= PAGE_AGE_DECL;
-> > 	else
-> > 		age = 0;
-> > 	page->age = age;
-> >     }
+> > But you can't pick up the referenced bit that way, so no up aging, only
+> > down.
 > 
-> 
->      static inline void age_page_down(struct page *page)
->      {
->  	page->age = max((int) (age - PAGE_AGE_DECL), 0);
-                               ^^^
->      }
+> #1 If you really wanted to you could update a referenced bit in the page
+> struct in the fault handling path.
 
-static inline void age_page_down(struct page *page)
-{
-	page->age = max((int) (page->age - PAGE_AGE_DECL), 0);
-}
+Right, we probably should do that.  But consider that any time this happens a 
+reverse map would have eliminated the fault because we wouldn't need to unmap 
+the page until we're actually going to free it.
 
+> #2 If a page is referenced multiple times by different processes is the
+> behaviour of multiple upward aging actually wrong.
 
-/Martin
+With rmap it's easy to do it either way: either treat the ref bits as if 
+they're all or'd together or, perhaps more sensibly, age up by an amount that 
+depends on the number of ref bits set, but not as much as UP_AGE * refs.
 
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
-
+--
+Daniel

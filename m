@@ -1,49 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbTFCWcz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 18:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbTFCWcz
+	id S261624AbTFCWfU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 18:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTFCWfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 18:32:55 -0400
-Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:49168
-	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id S261773AbTFCWcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 18:32:20 -0400
-Message-ID: <11E89240C407D311958800A0C9ACF7D1A33EB7@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Cc: "'linux-serial'" <linux-serial@vger.kernel.org>,
-       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>
-Subject: [PATCH] serial.c 2.4.20 - ST16654 xmit data loss
-Date: Tue, 3 Jun 2003 15:45:47 -0700 
+	Tue, 3 Jun 2003 18:35:20 -0400
+Received: from post-21.mail.nl.demon.net ([194.159.73.20]:62470 "EHLO
+	post-21.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id S261624AbTFCWfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 18:35:18 -0400
+Message-ID: <3EDD25A0.1040602@maatwerk.net>
+Date: Wed, 04 Jun 2003 00:48:00 +0200
+From: Mauk van der Laan <mauk.lists@maatwerk.net>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: siimage slow on 2.4.21-rc6-ac2
+References: <3EDD1C87.5090906@maatwerk.net> <1054675355.9233.73.camel@dhcp22.swansea.linux.org.uk> <3EDD2260.20200@maatwerk.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixes transmit FIFO overrun that affects ST16654 UART only.
-Bug found by William King [William.King@dadaboom.com]
-Symptom: random loss of transmit data, worse at low baud rates.
-Cause: on 16654 UART, default transmit FIFO trigger level is 8
-       instead of zero, so full FIFO depth is not available 
-       when transmit interrupt arrives. Race between UART 
-       transmitting last 8 bytes still in TX FIFO and driver 
-       writing full FIFO length of new data to TX FIFO.
+He! I just did
 
-diff -Naur -X dontdiff.txt linux-2.4.20/drivers/char/serial.c
-patched-2.4.20/drivers/char/serial.c
---- linux-2.4.20/drivers/char/serial.c	Thu Nov 28 15:53:12 2002
-+++ patched-2.4.20/drivers/char/serial.c	Tue May 27 15:14:58 2003
-@@ -306,8 +306,8 @@
- 	{ "TI16750", 64, UART_CLEAR_FIFO | UART_USE_FIFO},
- 	{ "Startech", 1, 0},	/* usurped by cyclades.c */
- 	{ "16C950/954", 128, UART_CLEAR_FIFO | UART_USE_FIFO},
--	{ "ST16654", 64, UART_CLEAR_FIFO | UART_USE_FIFO |
--		  UART_STARTECH }, 
-+	{ "ST16654", 64-8, UART_CLEAR_FIFO | UART_USE_FIFO |
-+		  UART_STARTECH },	/* ST16654 xmit trigger lvl = 8 */
- 	{ "XR16850", 128, UART_CLEAR_FIFO | UART_USE_FIFO |
- 		  UART_STARTECH },
- 	{ "RSA", 2048, UART_CLEAR_FIFO | UART_USE_FIFO }, 
+# hdparm -d1 -X66 /dev/hdX
+# echo "max_kb_per_request:15" > /proc/.ide/hdX/settings
+
+on BOTH sata drives and everything works fine!
+Is it possible that they influence each other?
+
+Mauk
+
+Mauk van der Laan wrote:
+
+> Alan Cox wrote:
+>
+>> On Maw, 2003-06-03 at 23:09, Mauk van der Laan wrote:
+>>  
+>>
+>>> I just tested the siimage driver in 2.4.21-rc6-ac2. The errors i get 
+>>> in -rc6 have disappeared but
+>>> the computer becomes unresponsive (20 seconds between screen 
+>>> switches) when I run bonnie
+>>> and the disk is very slow:
+>>>   
+>>
+>>
+>> Sounds like your system has switched back to PIO.
+>>
+>>  
+>>
+> Yes, it did. Nothing in the log, though.
+>
+> Still having problems:
+> hdparm -d1 -X66 /dev/hdg
+> mke2fs /dev/hdg1
+>
+> See the empty lines and the funny r 18 line?
+>
+> Jun  4 00:28:56 debby kernel: blk: queue c0407c34, I/O limit 4095Mb 
+> (mask 0xffffffff)
+> Jun  4 00:29:42 debby kernel: hdg: dma_timer_expiry: dma status == 0x21
+> Jun  4 00:29:52 debby kernel: hdg: dma timeout retry: status=0xd8 { 
+> Busy }
+> Jun  4 00:29:52 debby kernel:
+> Jun  4 00:29:52 debby kernel: hdg: DMA disabled
+> Jun  4 00:29:52 debby kernel: ide3: reset phy, status=0x00000113, 
+> siimage_reset
+> Jun  4 00:30:22 debby kernel: ide3: reset timed-out, status=0xd8
+> Jun  4 00:30:22 debby kernel: hdg: status timeout: status=0xd8 { Busy }
+> Jun  4 00:30:22 debby kernel:
+> Jun  4 00:30:22 debby kernel: ide3: reset phy, status=0x00000113, 
+> siimage_reset
+> Jun  4 00:30:52 debby kernel: r 18
+> Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
+> sector 20
+> Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
+> sector 22
+> Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
+> sector 4088
+> Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
+> sector 4090
+> (lots more of these)
+>
+> Mauk
+>
+
+

@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261545AbSIZVeP>; Thu, 26 Sep 2002 17:34:15 -0400
+	id <S261519AbSIZVaK>; Thu, 26 Sep 2002 17:30:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261546AbSIZVeP>; Thu, 26 Sep 2002 17:34:15 -0400
-Received: from B52dc.pppool.de ([213.7.82.220]:50565 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261545AbSIZVeM>; Thu, 26 Sep 2002 17:34:12 -0400
-Subject: Re: Serious Problems with diskless clients
-From: Daniel Egger <degger@fhm.edu>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: Marco Schwarz <marco.schwarz@gmx.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020926071847.A12878@animx.eu.org>
-References: <20020926095957.GC42048@niksula.cs.hut.fi>
-	<3489.1033036000@www51.gmx.net>  <20020926071847.A12878@animx.eu.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-HT02xNdZAU8KVzYEmk6I"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Sep 2002 22:58:00 +0200
-Message-Id: <1033073881.23327.8.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S261522AbSIZVaK>; Thu, 26 Sep 2002 17:30:10 -0400
+Received: from host.greatconnect.com ([209.239.40.135]:33036 "EHLO
+	host.greatconnect.com") by vger.kernel.org with ESMTP
+	id <S261519AbSIZVaJ>; Thu, 26 Sep 2002 17:30:09 -0400
+Message-ID: <3D937ED7.8070105@rackable.com>
+Date: Thu, 26 Sep 2002 14:40:39 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx support for aic7902?
+References: <A5974D8E5F98D511BB910002A50A66470580D20D@hdsmsx103.hd.intel.com > <1338716224.1032976056@aslan.btc.adaptec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Justin T. Gibbs wrote:
 
---=-HT02xNdZAU8KVzYEmk6I
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>>Justin,
+>>
+>>I've seen a special U320 driver aic79xx v1.10, but I suppose that the new
+>>U320 controllers will be folded into a new version of your aic7xxx driver
+>>(?).
+>>    
+>>
+>
+>Nope.  The U320 chips will never be supported in the aic7xxx driver due
+>to their very different architecture.  aic79xx v1.1.0 (or 1.1.1 which
+>includes the port to the 2.5.X kernels) is what you want.
+>
 
-Am Don, 2002-09-26 um 13.18 schrieb Wakko Warner:
 
-> --- net/ipv4/ipconfig-orig.c	2001-11-19 20:48:35.000000000 -0500
-> +++ net/ipv4/ipconfig.c	2001-11-19 20:56:21.000000000 -0500
-> @@ -1105,7 +1105,11 @@
->         proc_net_create("pnp", 0, pnp_get_info);
->  #endif /* CONFIG_PROC_FS */
-> =20
-> -	if (!ic_enable)
-> +	if (!ic_enable
-> +#if defined(IPCONFIG_DYNAMIC) && defined(CONFIG_ROOT_NFS)
-> +	    && ROOT_DEV !=3D MKDEV(UNNAMED_MAJOR, 255)
-> +#endif
-> +	   )
-> 		return 0;
+  Where can I find the v1.1.0 patch?
 
-This together with the nfs-root-path-patch would be a nice addition to
-the kernels I think, I find myself forgetting to add a few options every
-now and then which is really nasty time-wise.
-=20
---=20
-Servus,
-       Daniel
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
---=-HT02xNdZAU8KVzYEmk6I
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9k3TYchlzsq9KoIYRAoUHAJ9+lHwF51rEjrZc5T6bqvSJdWVCXgCg1vA/
-HZPVk8GzqYsZmhPJC+xoLaY=
-=4mfC
------END PGP SIGNATURE-----
-
---=-HT02xNdZAU8KVzYEmk6I--
 

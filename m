@@ -1,86 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVBFLPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVBFL04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVBFLPh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 06:15:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVBFLPh
+	id S261170AbVBFL04 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 06:26:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVBFL04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 06:15:37 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:3297 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S261179AbVBFLPU (ORCPT
+	Sun, 6 Feb 2005 06:26:56 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:57534 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S261183AbVBFL0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 06:15:20 -0500
-Date: Sun, 6 Feb 2005 12:15:16 +0100
-From: Michelle Konzack <linux4michelle@freenet.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: msdos/vfat defaults are annoying
-Message-ID: <20050206111516.GS16853@freenet.de>
-References: <4205AC37.3030301@comcast.net>
+	Sun, 6 Feb 2005 06:26:32 -0500
+Date: Sun, 6 Feb 2005 20:26:28 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: bzolnier@gmail.com, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: [PATCH 2.6.11-rc2] ide: driver updates, series 3
+Message-ID: <20050206112628.GA31274@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cPMp7S/WMqx7uRDV"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4205AC37.3030301@comcast.net>
-X-Message-Flag: Improper configuration of Outlook is a breeding ground for viruses. Please take care your Client is configured correctly. Greetings Michelle.
-X-Disclaimer-DE: Eine weitere Verwendung oder die Veroeffentlichung dieser Mail oder dieser Mailadresse ist nur mit der Einwilligung des Autors gestattet.
-Organisation: Michelle's Selbstgebrautes
-X-Operating-System: Linux samba3.private 2.4.27-1-386
-X-Uptime: 12:11:27 up 6 days, 19:48,  5 users,  load average: 0.22, 0.28, 0.26
-X-Homepage: http://www.debian.tamay-dogan.homelinux.net/
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ Hello, Bartlomiej.
 
---cPMp7S/WMqx7uRDV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ Here are four patches which implement taskfile handling functions and
+merge flagged_taskfile() into do_rw_taskfile().
 
-Hello John,
+ I didn't implement separate writing function for flagged taskfile,
+rationale being...
 
-Am 2005-02-06 00:33:43, schrieb John Richard Moser:
+ 1. A single function which properly handles both unflagged and
+    flagged cases has simpler semantics and, accordingly, less
+    likely to cause bugs.
 
-> So I've noticed, again, much annoyed, that if I rely on -t auto,
-> horrible horrible things happen.
+    If there were two separate functions ide_write_taskfile() and
+    ide_write_flagged_taskfile(), when somebody tries to add custom
+    in/out flags to a piece of code which uses unflagged taskfile and
+    ide_write_taskfile(), it would be easy to set in/out flags but
+    forget to call ide_write_flagged_taskfile() instead.
 
-Maybe you add the file
+ 2. There virtually is no overhead.
 
-  __( '/etc/filesystems' )______________________________________________
- /
-|       ext3
-|       ext2
-|       minix
-|       vfat
-|       msdos
-|       iso9660
-|       hfsplus
-|       hfs
-| nodev	proc
- \______________________________________________________________________
 
-and if you use 'mount -t auto ...' it
-will try the filesystems in this order.
+ In #03, I moved taskfile reading part of ide_end_drive_cmd() into a
+separate function named ide_read_taskfile(), so that taskfile handling
+codes can live side-by-side in ide-taskfile.c.
 
-Greetings
-Michelle
+ Also, I didn't use any of HWIF, IDE_*_REG macros, as they should go
+away.  Please tell me what you think about the new referencing style.
 
---=20
-Linux-User #280138 with the Linux Counter, http://counter.li.org/=20
-Michelle Konzack   Apt. 917                  ICQ #328449886
-                   50, rue de Soultz         MSM LinuxMichi
-0033/3/88452356    67100 Strasbourg/France   IRC #Debian (irc.icq.com)
 
---cPMp7S/WMqx7uRDV
-Content-Type: application/pgp-signature; name="signature.pgp"
-Content-Description: Digital signature
-Content-Disposition: inline
+[ Start of patch descriptions ]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+01_ide_write_taskfile.patch
+	: ide_write_taskfile() implemented.
 
-iD8DBQFCBfxEC0FPBMSS+BIRAnOcAJ46W9jWAR5Oq5n8Zm1vDqYWsHsGHgCghDFk
-HQR0hNTdd905R4MoaU5vhx4=
-=jx1o
------END PGP SIGNATURE-----
+	ide_write_taskfile(), which writes the content of a ide_task_t
+	into the IDE taskfile registers, is implemented, and
+	do_rw_taskfile() and flagged_taskfile() are converted to use
+	ide_write_taskfile().  Behavior changes are
+	- flagged taskfile now honors HOB feature register.
+	- No do_rw_taskfile() HIHI check on select register.  Except
+	  for the DEV bit, all bits are honored.
 
---cPMp7S/WMqx7uRDV--
+02_ide_do_rw_disk_use_write_taskfile.patch
+	: __ide_do_rw_disk() rewritten ide_write_taskfile().
+
+	__ide_do_rw_disk() rewritten using ide_write_taskfile().
+
+03_ide_read_taskfile.patch
+	: ide_read_taskfile() implemented.
+
+	Status reading part of ide_end_drive_cmd() is moved into
+	a separate function ide_read_taskfile().
+
+04_ide_merge_rw_and_flagged_taskfile.patch
+	: merge flagged_taskfile() into do_rw_taskfile()
+
+	Merged flagged_taskfile() into do_rw_taskfile().  During the
+	merge, the following change took place.
+	- Uses taskfile->data_phase to determine if dma trasfer is
+	  requested.  (previously, do_rw_taskfile() directly switched
+	  on taskfile->command for all dma commands)
+
+[ End of patch descriptions ]
+
+
+Thanks a lot.  :-)
+
+--
+tejun
+

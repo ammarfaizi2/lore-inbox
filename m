@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129507AbRAEG5N>; Fri, 5 Jan 2001 01:57:13 -0500
+	id <S129610AbRAEG7Q>; Fri, 5 Jan 2001 01:59:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129610AbRAEG5D>; Fri, 5 Jan 2001 01:57:03 -0500
-Received: from sd.skjellin.com ([194.19.28.170]:16402 "HELO sd.skjellin.com")
-	by vger.kernel.org with SMTP id <S129507AbRAEG4x>;
-	Fri, 5 Jan 2001 01:56:53 -0500
-From: "Andre Tomt" <andre@tomt.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Change of policy for future 2.2 driver submissions
-Date: Fri, 5 Jan 2001 07:57:06 +0100
-Message-ID: <OPECLOJPBIHLFIBNOMGBIEGLCHAA.andre@tomt.net>
+	id <S130745AbRAEG7G>; Fri, 5 Jan 2001 01:59:06 -0500
+Received: from 209.102.21.2 ([209.102.21.2]:37391 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S129610AbRAEG6v>;
+	Fri, 5 Jan 2001 01:58:51 -0500
+Message-ID: <3A55403C.39E4A48B@goingware.com>
+Date: Fri, 05 Jan 2001 03:32:12 +0000
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-prerelease-ac5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <002201c076c7$76cab720$8d19b018@c779218a>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to Power off with ACPI/APM?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was in your position, I feel it may be a mistake.
-> I personaly do not trust the 2.4.x kernel entirely yet, and would
-> prefer to
-> wait for 2.4.1 or 2.4.2 before upgrading from 2.2.18 to ensure last-minute
-> wrinkles have been completely ironed out, and I know there are people who
-> share my viewpoint, and would rather use 2.2.XX for a while yet, and I'm
-> afraid that this may partialy criple 2.2 driver development.
+As suggested, I added:
 
-I would wait for at least 2.4.10 on production systems (servers in
-particular). Not to start a flame or anything (yeah, right), but 2.2.x was
-not usable on such systems before it reached 2.2.16 IMHO.
+apm=power-off
 
-So, I guess, the "crippling" of driver submissions could hurt me bit, in
-theory, which I don't like. ;-)
+to the kernel line of my grub menu.lst file and now I can power off. I almost
+jumped when the machine snapped off - my bloody monitor doesn't go dark when it
+loses signal it lights up with an RGB test pattern (TTX - don't buy one).
 
---
-André. Alfred?
-http://www.tomt.net
+I think the real reason it wasn't working was that, although I'm using a
+one-processor machine with a motherboard that only allows for one processor, I
+had enabled SMP in the kernel, and this disables APM.
 
+In my own work I mostly do multithreaded software development and I just sort of
+felt like it would be good karma to enable it even if my machine didn't support
+it.  Go figure.  So this was mostly a user error, although I guess I've been
+helpful in discovering the current interaction of ACPI and APM.
+
+I'll read up a bit more on ACPI and see what I can do with that later on.
+
+Thanks for the help.  If you're in the neighborhood, stop by:
+
+http://linuxquality.sunsite.dk
+
+Mike
+-- 
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
+
+   Tilting at Windmills for a Better Tomorrow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

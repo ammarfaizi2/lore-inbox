@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266939AbTGGJpp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 05:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266942AbTGGJpp
+	id S264862AbTGGJuv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 05:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266942AbTGGJuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 05:45:45 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:42891 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S266939AbTGGJpo (ORCPT
+	Mon, 7 Jul 2003 05:50:51 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:39181 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S264862AbTGGJuu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 05:45:44 -0400
-Date: Mon, 7 Jul 2003 11:00:14 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: 2.5.74-mm1
-In-Reply-To: <200307060414.34827.phillips@arcor.de>
-Message-ID: <Pine.LNX.4.53.0307071042470.743@skynet>
-References: <20030703023714.55d13934.akpm@osdl.org> <200307060010.26002.phillips@arcor.de>
- <20030706012857.GA29544@mail.jlokier.co.uk> <200307060414.34827.phillips@arcor.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Jul 2003 05:50:50 -0400
+Date: Mon, 7 Jul 2003 12:06:16 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre3 and reiserfs boot problem
+Message-Id: <20030707120616.5b9b5285.skraw@ithnet.com>
+In-Reply-To: <1057515223.20904.1315.camel@tiny.suse.com>
+References: <20030706183453.74fbfaf2.skraw@ithnet.com>
+	<1057515223.20904.1315.camel@tiny.suse.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jul 2003, Daniel Phillips wrote:
+Hello Chris,
 
-> > > What are you going to do if you have one
-> > > application you want to take priority, re-nice the other 50?
-> >
-> > Is that effective?  It might be just the trick.
->
-> Point.
->
-
-Alternatively, how about using PAM to grant the CAP_SYS_NICE capability to
-known interactive users that require it. Presumably the number of users
-that require it is very small (in the case of the music player, only one)
-so it wouldn't be a major security issue.
-
-There is something along these lines at http://www.pamcap.org but it
-requires some patching to the kernel (only available against 2.4.18
-currently) to inherit capabilities across exec and, from what I gather at
-a quick glance, to allow capabilities to be set for a process group.
-
+I have to correct myself regarding the problem. It does _not_ arise on
+aic-driven scsi-disk, but on 3ware-driven RAID5 with 320 GB data. I tried to
+mount it by hand, but that does not work either. It does not look like there is
+a lot of work going on on the hds while mounting (no LEDs). 
+Can anyone reproduce with equal setup?
+I try to come up with further information...
 -- 
-Mel Gorman
+Regards,
+Stephan

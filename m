@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318470AbSHEOD7>; Mon, 5 Aug 2002 10:03:59 -0400
+	id <S318469AbSHEOCe>; Mon, 5 Aug 2002 10:02:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318487AbSHEOD7>; Mon, 5 Aug 2002 10:03:59 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:3569 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318470AbSHEOD5>; Mon, 5 Aug 2002 10:03:57 -0400
-Subject: Re: [PATCH] 2.5.30 Maestro3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: martin@dalecki.de
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <3D4E831B.30000@evision.ag>
-References: <3D4E831B.30000@evision.ag>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 05 Aug 2002 16:25:55 +0100
-Message-Id: <1028561156.18478.53.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318487AbSHEOCe>; Mon, 5 Aug 2002 10:02:34 -0400
+Received: from mta03bw.bigpond.com ([139.134.6.86]:24276 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S318469AbSHEOCd>; Mon, 5 Aug 2002 10:02:33 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Tyler Longren <tyler@captainjack.com>, kiza@gmx.net
+Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
+Date: Tue, 6 Aug 2002 00:00:55 +1000
+User-Agent: KMail/1.4.5
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <20020805003427.7e7fc9f4.tyler@captainjack.com> <200208052114.15020.bhards@bigpond.net.au>
+In-Reply-To: <200208052114.15020.bhards@bigpond.net.au>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200208060001.07546.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-05 at 14:52, Marcin Dalecki wrote:
-> The attached patch is updating the Maestro3 OSS sound chip driver to
-> 
-> 1. The changes in IRQ handline.
-> 
-> 2. C99 standard conformant initializers.
-> 
-> Plese apply. (I happen to use such a chip...)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-How about fixing it first ?
+On Mon, 5 Aug 2002 21:14, Brad Hards wrote:
+> On Mon, 5 Aug 2002 15:34, Tyler Longren wrote:
+> > Just to let you know, this problem isn't just happening to you.
+> >
+> > I compiled 2.4.19 using the same config file I used for 2.4.18 (yes, I
+> > also turned on CONFIG_USB_HIDINPUT).  Needless to say, the mouse didn't
+> > work on reboot.  I saw your post and compiled everything into the
+> > kernel, and everything worked great on reboot.  So, I think this is
+> > probably a real 2.4.19 problem.  Not something specific to you.
+>
+> I'm taking a look now.
+I can't duplicate this problem yet.
 
+> Could you (and anyone else with the same problem), mail me the
+> lines from .config that matches CONFIG_USB for a configuration
+> that fails to work. Off list would be best.
+One issue that did come up was the handling of the no-HIDDEV case.
 
->      /* must be a better way.. */
-> -    save_flags(flags);
-> -    cli();
-> +    local_irq_save(flags);
+Greg: I think this was one of your patches, associated with the 
+HIDINPUT patch. It looks like the return value is wrong. See 
+below.
 
-This is insufficient. It has to lock against card interrupts and other
-arbitary ill defined (in 2.4 anyway) suspend things. Assuming the PM
-layer can mind its own business nowdays you are at least going to want
-to take the card lock. I think thats mostly sufficient for the maestro
-case. There is a long standing question about whether the resume code
-should end by calling the irq handler to fake any missed IRQ pending
-over the suspend of the card - but thats also true in the 2.4 case.
+- --- include/linux/hiddev.h.orig Mon Aug  5 23:19:54 2002
++++ include/linux/hiddev.h      Mon Aug  5 23:56:34 2002
+@@ -183,7 +183,7 @@
+ int __init hiddev_init(void);
+ void __exit hiddev_exit(void);
+ #else
+- -static inline void *hiddev_connect(struct hid_device *hid) { return NULL; }
++static inline void *hiddev_connect(struct hid_device *hid) { return -1; }
+ static inline void hiddev_disconnect(struct hid_device *hid) { }
+ static inline void hiddev_hid_event(struct hid_device *hid, unsigned int usage, int value) { }
+ static inline int hiddev_init(void) { return 0; }
 
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9ToUbW6pHgIdAuOMRAvrRAJwOdrWv4FEHyW7cwMiC+CrMM/kXrgCbBHGR
+Kq110ZnHc98yN4YPJJAuCIU=
+=ck4u
+-----END PGP SIGNATURE-----
 

@@ -1,122 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbTJHRVm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 13:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbTJHRVm
+	id S261601AbTJHRyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 13:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTJHRyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 13:21:42 -0400
-Received: from postman2.arcor-online.net ([151.189.0.188]:54676 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S261344AbTJHRVf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 13:21:35 -0400
-From: Christian.Fertig@gmx.de (Christian Fertig)
-Subject: Problem: 2.4.22[-ac4] Hangup with SB AWE32 (isa-pnp)
-Organization: FuF
-User-Agent: tin/1.5.16-20030125 ("Bubbles") (UNIX) (Linux/2.4.21 (i686))
-Message-ID: <rqld51-js9.ln1@fertig-50273.user.cis.dfn.de>
-Date: Wed, 08 Oct 2003 15:07:41 -0000
-Apparently-To: <fertig@fufnet.de>
+	Wed, 8 Oct 2003 13:54:15 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:15757 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S261601AbTJHRyI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 13:54:08 -0400
+From: Gabriel Paubert <paubert@iram.es>
+Date: Wed, 8 Oct 2003 19:50:59 +0200
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Time precision, adjtime(x) vs. gettimeofday
+Message-ID: <20031008175059.GA31743@iram.es>
+References: <1065619951.25818.15.camel@gaston> <20031008154846.GA29868@iram.es> <1065630178.26943.54.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1065630178.26943.54.camel@gaston>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-To: unlisted-recipients:; (no To-header on input)
 
-Hi,
+On Wed, Oct 08, 2003 at 06:22:58PM +0200, Benjamin Herrenschmidt wrote:
+> 
+> > Well, it it affects gettimeofday which has a precision of 1 part in
+> > 10000 (100 ppm), it means that our boot time timebase calibration was
+> > not very good to start with, on my set of running VME machines I have
+> > the following (values in ppm):
+> >
+> > ../..
+> 
+> Boot time calibration can't be perfect... 
 
-I've got a reproducable kernel hangup (no oops, no sysrq-key etc.
-anymore) with 2.4.22 and 2.4.22-ac4 on my NMC-7vax (Athlon, [Slot]).
-The sb-Modules uses a wrong Interrupt (7 instead of 5). The problem
-doesn't arise with earlier versions of the kernel. I'm using the kernel
-oss module.
+No, indeed.
 
-Hardware before 'modprobe sb'
+> I depends very much on the quality of what your are calibrating against, 
+> and the bus path to it.
 
-metropolis:/ # cat /proc/interrupts 
-           CPU0       
-  0:      29838          XT-PIC  timer
-  1:          2          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  4:          2          XT-PIC  serial
-  8:          4          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:       7806          XT-PIC  usb-uhci, eth0
- 14:      10907          XT-PIC  ide0
- 15:          3          XT-PIC  ide1
-NMI:          0 
-LOC:      29799 
-ERR:        107
-MIS:          0
+At the time you it is performed, most devices should not be active
+(no long DMA bursts) so the variations should be rather small.
+Another solution is to increase the measurement period. I have to 
+use one second on some machines because I don't have anything else
+reliable (only the RTC which changes every second and its interrupt
+pin is not routed), even a 1 to 2 second delay does not significantly
+affect boot times.
 
-metropolis:/ # lspci 
-00:00.0 Host bridge: VIA Technologies, Inc. VT8371 [KX133] (rev 02)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 21)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus Master IDE (rev 10)
-00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 10)
-00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-00:09.0 Multimedia controller: Philips Semiconductors SAA7146 (rev 01)
-00:0b.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0c)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
+> 
+> On most pmacs, I'm calibrating either against a VIA timer which isn't
+> _that_ good or on OF value (which are themselves calibrated, I think,
+> against the KeyLargo timer).
 
-metropolis:/ # lsmod
-Module                  Size  Used by    Not tainted
-nfsd                   72848   8  (autoclean)
-autofs                 10996   2  (autoclean)
-usb-uhci               23280   0  (unused)
-usbcore                63148   0  [usb-uhci]
-ide-scsi               10544   0 
-parport_pc             27624   0  (autoclean) (unused)
-lp                      6752   0  (autoclean)
-parport                25992   0  (autoclean) [parport_pc lp]
-binfmt_misc             5960   1  (autoclean)
-nls_iso8859-15          3388   1  (autoclean)
-nls_cp850               3612   1  (autoclean)
-i2c-matroxfb            2612   0  (unused)
-i2c-algo-bit            7464   3  [i2c-matroxfb]
-i2c-core               13508   0  [i2c-algo-bit]
-matroxfb_proc           1784   0  (unused)
-mga                    95100   0  (unused)
-e100                   48232   1 
+On the Macs I have around here, the ntp drift values are:
+- on a PB G3/400: +8ppm
+- on a PM G4/466: -6ppm
 
-metropolis:/ # modprobe isa-pnp
-isapnp: Scanning for PnP cards...
-isapnp: SB audio device quirk - increasing port range
-isapnp: AWE32 quirk - adding two ports
-isapnp: Card 'Creative SB32 PnP'
-isapnp: 1 Plug & Play card detected total
+that's not _that_ bad (I believe these come from OF). 
 
+10 ppm of a 10ms jiffy is 0.1 microseconds. Increasing HZ can only 
+improve this figure, although it is stupid to run the correction loop 
+that often IMNSHO.
 
-metropolis:/proc # cat isapnp 
-Card 1 'CTL0044:Creative SB32 PnP' PnP version 1.0 Product version 1.0
-  Logical device 0 'CTL0031:Audio'
-    Device is not active
-    Resources 0
-      Priority preferred
-      Port 0x220-0x220, align 0x0, size 0x10, 16-bit address decoding
-      Port 0x330-0x330, align 0x0, size 0x2, 16-bit address decoding
-      Port 0x388-0x3f8, align 0x0, size 0x4, 16-bit address decoding
-      IRQ 5 High-Edge
-      DMA 1 8-bit byte-count compatible
-      DMA 5 16-bit word-count compatible
-      Alternate resources 0:1
-      [..]
-      [allways suggests IRQ 5,7,10 High-Edge]
-      [..]
+I repeat the question: what are the values of drift on the machines
+that encounter the problem ? Is this drift stable or unstable? 
 
-The above settings are right (irq 5, low dma 1, high dma 5, port 0x220 etc.). 
+> 
+> On all cases, those will drift some way from what the NTP server will
+> give, either a lot or not, it will. So we may end up adjusting our
+> kernel rate and thus opening a window for the problem.
 
-If I now type 'modprobe sb', or even 'insmod sb irq=5', the machine dies.
+The worst variations of drift I've seen are a few ppm for a given
+machine, barring the occasional boot-time calibration problems that
+I have encountered.
 
-Soundblaster audio driver CR (c) Hannu Savolainen
-sb: Creative SB32 PnP detected
-sb: ISAPnP reports 'Creative SB32 PnP' at i/o 0x220, irq 7, dma 1, 5
-SB 4.13 detected OK (220).
-
-I've even tried the "old method" with /etc/isapnp.conf, no chance.
-
-I think this is a bug in >2.4.22 isa-pnp-Management. Any suggestions?
-
-Christian
-
--- 
-The feature you'd like to have is probably already installed on your
-Linux system.
+	Gabriel

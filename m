@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266331AbUAHWaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 17:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUAHWaY
+	id S266337AbUAHWjN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 17:39:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUAHWjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 17:30:24 -0500
-Received: from mail4.bluewin.ch ([195.186.4.74]:42674 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S266331AbUAHWaU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 17:30:20 -0500
-Date: Thu, 8 Jan 2004 23:28:08 +0100
-To: Hans Ulrich Niedermann <linux-kernel@n-dimensional.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.1-rc3] Canonically reference files in Documentation/, code comments part
-Message-ID: <20040108222808.GC785@mars>
-References: <86ad4y70n2.fsf@n-dimensional.de>
+	Thu, 8 Jan 2004 17:39:13 -0500
+Received: from pD9E5711F.dip.t-dialin.net ([217.229.113.31]:57612 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id S266337AbUAHWjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 17:39:09 -0500
+Date: Thu, 8 Jan 2004 22:46:02 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Relocation overflow with modules on Alpha
+Message-ID: <20040108224602.D7797@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+	linux-kernel@vger.kernel.org
+References: <yw1xy8sn2nry.fsf@ford.guide> <20040106004435.A3228@Marvin.DL8BCU.ampr.org> <20040108181502.B9562@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86ad4y70n2.fsf@n-dimensional.de>
-User-Agent: Mutt/1.5.4i
-From: a.othieno@bluewin.ch (Arthur Othieno)
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20040108181502.B9562@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Thu, Jan 08, 2004 at 06:15:02PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 08, 2004 at 07:31:29PM +0100, Hans Ulrich Niedermann wrote:
-> diff -Nru a/drivers/usb/misc/tiglusb.c b/drivers/usb/misc/tiglusb.c
-> --- a/drivers/usb/misc/tiglusb.c	Thu Jan  8 18:48:58 2004
-> +++ b/drivers/usb/misc/tiglusb.c	Thu Jan  8 18:48:58 2004
-> @@ -10,7 +10,7 @@
->   *
->   * Based on dabusb.c, printer.c & scanner.c
->   *
-> - * Please see the file: linux/Documentation/usb/SilverLink.txt
-> + * Please see the file: Documentation/usb/SilverLink.txt
+On Thu, Jan 08, 2004 at 06:15:02PM +0300, Ivan Kokshaysky wrote:
+> On Tue, Jan 06, 2004 at 12:44:35AM +0000, Thorsten Kranzkowski wrote:
+> > : relocation truncated to fit: BRADDR .init.text
+> > init/built-in.o(.text+0xf10): In function `inflate_codes':
+> 
+> Looks like it's a GCC-3.3 bug.
 
-Documentation/silverlink.txt
+will try 3.3.2 soon.
 
-> diff -Nru a/fs/hfs/FAQ.txt b/fs/hfs/FAQ.txt
-> --- a/fs/hfs/FAQ.txt	Thu Jan  8 18:48:58 2004
-> +++ b/fs/hfs/FAQ.txt	Thu Jan  8 18:48:58 2004
-> @@ -264,7 +264,7 @@
->    mount option.  More information is provided in the ``afpd'' subsection
->    of the ``Mount Options'' section of the HFS documentation (HFS.txt if
->    you have the stand-alone HFS distribution or
-> -  linux/Documentation/filesystems/hfs.txt if HFS is in your kernel
-> +  Documentation/filesystems/hfs.txt if HFS is in your kernel
->    source tree.)
+> I'm thinking about some __init tricks in lib/inflate.c.
+> What about this patch? It has a nice side effect - the "inflate"
+> code gets freed after init is done.
 
-Ok, these are not in Documentation/ like they should be (funny how they
-reference themselves there :) but rather in fs/hfs/.
+seems this patch gets rid of the issue - I just successfully booted
+rc1 with your patch and sound enabled. It even plays mp3's :)
 
-> diff -Nru a/sound/oss/via82cxxx_audio.c b/sound/oss/via82cxxx_audio.c
-> --- a/sound/oss/via82cxxx_audio.c	Thu Jan  8 18:48:58 2004
-> +++ b/sound/oss/via82cxxx_audio.c	Thu Jan  8 18:48:58 2004
-> @@ -10,7 +10,7 @@
->   * NO WARRANTY
->   *
->   * For a list of known bugs (errata) and documentation,
-> - * see via-audio.pdf in linux/Documentation/DocBook.
-> + * see via-audio.pdf in Documentation/DocBook.
->   * If this documentation does not exist, run "make pdfdocs".
->   */
+> Ivan.
 
-True only if we did `make pdfdocs'. Perhaps this should be via-audio.tmpl?
-
-Great work.
-
-	Arthur
+Thanks,
+Thorsten (advancing to rc3 and examining dmesg closer ....)
+ 
 -- 
-Linux is a true multitasking system. Are you?
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

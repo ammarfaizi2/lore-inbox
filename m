@@ -1,66 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263510AbTKQKM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 05:12:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263517AbTKQKM3
+	id S263453AbTKQKfj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 05:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbTKQKfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 05:12:29 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:17133 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263510AbTKQKMZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 05:12:25 -0500
-Date: Mon, 17 Nov 2003 11:08:47 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Thomas Habets <thomas@habets.pp.se>, "David S. Miller" <davem@redhat.com>
-Cc: Henrik Storner <henrik@hswn.dk>, linux-kernel@vger.kernel.org,
-       Holger Kiehl <Holger.Kiehl@dwd.de>, linux-net@vger.kernel.org
-Subject: Re: PROBLEM: Memory leak in -test9?
-Message-ID: <20031117100847.GB21285@wohnheim.fh-wedel.de>
-References: <E1AJahk-00011D-00@reptilian.maxnet.nu> <20031111162734.GA29454@wohnheim.fh-wedel.de> <E1AJcJZ-0008Ts-00@reptilian.maxnet.nu>
+	Mon, 17 Nov 2003 05:35:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23523 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263453AbTKQKfh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 05:35:37 -0500
+Date: Mon, 17 Nov 2003 10:35:36 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: seq_file and exporting dynamically allocated data
+Message-ID: <20031117103536.GW24159@parcelfarce.linux.theplanet.co.uk>
+References: <20031117095528.GV24159@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0311171005160.1384-100000@einstein.homenet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E1AJcJZ-0008Ts-00@reptilian.maxnet.nu>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0311171005160.1384-100000@einstein.homenet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 November 2003 18:27:12 +0100, Thomas Habets wrote:
+On Mon, Nov 17, 2003 at 10:08:45AM +0000, Tigran Aivazian wrote:
+> On Mon, 17 Nov 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > EOF had been reached when read() returns 0.  Until then read() returns
+> > an arbitrary amount of bytes between 1 and 'size' argument.  Since you
+> > are using read(2) directly, use it correctly...
 > 
-> On Tuesday 11 November 2003 17:27, Jörn Engel wrote:
-> > Looks familiar.  Can you recreate and send the output from
-> > /proc/slabinfo?
-> 
-> Oh, I didn't notice that file. :-)
-> Recreating is just booting and waiting for a week, but the box is still up.
-> 
-> This is the line that stands out (complete file attached, 137 lines).
-> 
-> tcp6_sock         111663 111664    960    4    1 : tunables   54   27    0 : 
-> slabdata  27916  27916      0
-> 
-> I seem to remember a changelog mentioning a leak being fixed in ipv6 code, 
-> but it looks like there may be another one? The only ipv6 service running is 
-> sshd, and the mrtg-sshs that go off every 5 minutes are NOT over ipv6. 
-> netstat -na shows nothing interesting. Only the ssh I connect with uses a bit 
-> of ipv6 (ffff:1.2.3.4). So, one listening socket, and one established.
+> I know that for read(2) in general but I thought that the whole point of 
+> using "sequential record" files (aka seq_file) is that they guarantee 
+> read(2) to return a number of fixed-size records, hence the name 
+> "sequential record". Especially since the ->show() function is packing 
+> those records into m->buf as "whole" entities, not in "halves" or such.
 
-Holger Kiehl found a similar leak somewhere in the ipv4 code, possibly
-route.c.  We couldn't nail the problem down yet and it could still be
-inside a seperate device driver (GPL, outside of kernel tree).
+No.  What you are guaranteed is that continuous reading from the stream
+will not give you broken entries.  IOW, if read() gets a part of record,
+subsequent reads will get the rest of _that_ _record_.
 
-Holger's problem is independent of the one found by the stanford
-checker some weeks ago, so there seem to be or have been at least
-three memory leaks in the network code.  Could be a single developer
-that is simply not careful enough wrt. resource leaks.
+Note that behaviour you are asking for would break a *lot* of things.
+Consider the following code:
 
-David, can you think of an easy way to find all of those leaks?
-Easier than waiting for bug reports and hunting them one by one?
+	for (left = BUFSIZE; left; left -= n) {
+		n = read(fd, buf + BUFSIZE - left, left);
+		if (n <= 0)
+			break;
+	}
 
-Jörn
+IOW, fill the buffer from file, until EOF/error/buffer becoming full.
 
--- 
-Fantasy is more important than knowlegde. Knowlegde is limited,
-while fantasy embraces the whole world.
--- Albert Einstein
+With your semantics we are fscked - as soon as we have less than one
+"record" left in a buffer, we are in a hopeless situation.  read()
+can't return an entire record (no place to put it); it can't return
+0 (that would be impossible to distinguish from EOF) and there is
+no acceptable error value that would indicate such situation.  read(2)
+is not getdents(2) - there we *do* have an error value for situation
+like that ("buffer too small").
+
+Pretty much anything that does buffered IO (e.g. stdio code) contains
+equivalents of the above.
+
+_If_ you want datagrams - implement datagrams and don't expect grep/cat/etc. 
+to work on them.
+ 
+> I believe you of course (as you wrote seq_file) but it still seems that as 
+> long as the implementation (i.e. my module) is working with whole records 
+> it is ok to assume that read() will return them as whole, i.e. not break a 
+> record between two calls to read(2). Is this really not true?
+
+It's really not true.
+
+*NOTE*: in your case I would consider putting a cursor into task list
+and moving it around on ->start() and ->stop().  That can give you
+more or less accurate snapshot with multiple read(2).
+
+However, it's not obvious that the thing is worth the effort (you'd need
+to make sure that no other code scanning the list will be disturbed when
+it sees your cursor).
+
+What is *not* acceptable (regardless of the implementation, be it done via
+seq_file or not): ability to get the entire list of processes in single
+read(2).  User-exploitable OOM is not a good thing.  No matter how you
+implement read(2), you would have to get sufficient amount of memory locked
+in core - you need to hold a spinlock to generate the contents, to start
+with, so no "copy to userland in chunks" scheme would work.

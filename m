@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317402AbSGTOUX>; Sat, 20 Jul 2002 10:20:23 -0400
+	id <S317409AbSGTOX7>; Sat, 20 Jul 2002 10:23:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317404AbSGTOUW>; Sat, 20 Jul 2002 10:20:22 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:15878 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317402AbSGTOUV>; Sat, 20 Jul 2002 10:20:21 -0400
-Date: Sat, 20 Jul 2002 11:22:51 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Craig Kulesa <ckulesa@as.arizona.edu>
-cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
-Subject: Re: [PATCH 6/6] Updated VM statistics patch
-In-Reply-To: <Pine.LNX.4.44.0207200645360.6298-100000@loke.as.arizona.edu>
-Message-ID: <Pine.LNX.4.44L.0207201122220.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317410AbSGTOX7>; Sat, 20 Jul 2002 10:23:59 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:51616 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317409AbSGTOX6>; Sat, 20 Jul 2002 10:23:58 -0400
+Date: Sat, 20 Jul 2002 16:26:41 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Impressions of IDE 98?
+In-Reply-To: <Pine.LNX.4.44.0207192249500.3378-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.SOL.4.30.0207201623001.11951-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jul 2002, Craig Kulesa wrote:
-> On Sat, 20 Jul 2002, Rik van Riel wrote:
->
-> > Except for the fact that you'll count every new page allocation
-> > as an activation, which isn't quite the intended behaviour ;)
->
-> *thwaps forehead*   Ohhh, quite right.  Darn.  :)
->
-> Hmmm.  Does it sound acceptable to still increment pgdeactivate in
-> mm_inline.h, and explicitly put hooks for pgactivate in the select
-> places where pages really _are_ being 'reactivated'?
 
-Acceptable, sure ... but probably not worth it as Linus merged
-the VM statistics into his tree yesterday afternoon.
+IDE 98 is just compilation of 94, 95, 96, 97, 98-pre plus some minor
+fixes. Runs fine for me.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+And once again: vanilla 2.5.25 on IDE is bad for your health.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Regards
+--
+Bartlomiej
+
+On Fri, 19 Jul 2002, Thunder from the hill wrote:
+
+> Hi,
+>
+> I don't have any IDE machines handy, and since these problems that IDE had
+> in the last days, I wonder what's become of it. Has anyone been so brave
+> as to try out 2.5.26 w/the included IDE (IDE 98)? How is it?
+>
+> 							Regards,
+> 							Thunder
+> --
+> (Use http://www.ebb.org/ungeek if you can't decode)
+> ------BEGIN GEEK CODE BLOCK------
+> Version: 3.12
+> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+> e++++ h* r--- y-
+> ------END GEEK CODE BLOCK------
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

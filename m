@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129399AbRA2SQJ>; Mon, 29 Jan 2001 13:16:09 -0500
+	id <S131525AbRA2STK>; Mon, 29 Jan 2001 13:19:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbRA2SQA>; Mon, 29 Jan 2001 13:16:00 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:64785 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S129399AbRA2SPr>; Mon, 29 Jan 2001 13:15:47 -0500
-Message-ID: <3A75B34C.E3B43B86@Hell.WH8.TU-Dresden.De>
-Date: Mon, 29 Jan 2001 19:15:40 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
-X-Accept-Language: en, de-DE
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 - Linux vs. FreeBSD
-In-Reply-To: <Pine.LNX.4.31ksi3.0101290957530.25829-100000@nomad.cyberbills.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132119AbRA2STA>; Mon, 29 Jan 2001 13:19:00 -0500
+Received: from dsl081-080-099-lax1.dsl-isp.net ([64.81.80.99]:46333 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id <S131525AbRA2SS5>; Mon, 29 Jan 2001 13:18:57 -0500
+To: "Michael H. Warfield" <mhw@wittsend.com>
+Cc: John Jasen <jjasen@datafoundation.com>,
+        Mike Pontillo <mike_p@polaris.wox.org>, linux-kernel@vger.kernel.org
+Subject: Re: Support for 802.11 cards?
+In-Reply-To: <Pine.LNX.4.21.0101281344040.12805-100000@polaris.wox.org> <Pine.LNX.4.30.0101281704050.2343-100000@flash.datafoundation.com> <20010128182358.F23716@alcove.wittsend.com>
+X-Horoscope: Your telephone will be turning in the next several days.  Two other
+   people put together will think of you as the man.  Discuss life
+   with RMS with the help of God.  You'll often be tall.
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+Date: 29 Jan 2001 10:18:52 -0800
+In-Reply-To: "Michael H. Warfield"'s message of "Sun, 28 Jan 2001 18:23:58 -0500"
+Message-ID: <87wvbekyr7.fsf@pelerin.serpentine.com>
+X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Channel Islands"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Kubushin wrote:
-> 
-> The older chips (e.g. 82557) work fine. The problem arises when you have the
-> newer 82559's. They do work, however, if the power management for eepro100
-> is enabled in kernel config. It definitely means that those chips are
-> underinitialized (or overinitialized :)) when it's not.
+m> The ISA bridge also works on the 2.4 kernels but I have not
+m> retested the PCI bridge on 2.4.
 
-Andrey posted a patch last week, which obviously fixes the 82559 problems.
-It's in Linus' latest 2.4.1-pre release too. I have an 82559 and with the
-patch there've been no issues here yet - so things are looking good so far.
+The Lucent PCI-to-Cardbus bridge only works on machines that have a
+recent PCI BIOS.  Any motherboard more than about 16 months old simply
+won't find the bridge card, and hence neither will Linux.
 
-I suggest that instead of having 3 drivers (eepro100, e100, freebsd), people
-should just work together, look at the goodies of each driver and merge them
-into one perfect driver.
-
-Regards,
--Udo.
+	<b
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

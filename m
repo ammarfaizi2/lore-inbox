@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286889AbRLWNjZ>; Sun, 23 Dec 2001 08:39:25 -0500
+	id <S282655AbRLWNfZ>; Sun, 23 Dec 2001 08:35:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286885AbRLWNjP>; Sun, 23 Dec 2001 08:39:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7439 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286884AbRLWNjC>; Sun, 23 Dec 2001 08:39:02 -0500
-Subject: Re: Booting a modular kernel through a multiple streams file
-To: dcinege@psychosis.com
-Date: Sun, 23 Dec 2001 13:48:31 +0000 (GMT)
-Cc: otto.wyss@bluewin.ch,
-        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org'),
-        rusty@rustcorp.com.au (Rusty Russell)
-In-Reply-To: <E16HwC0-0001k4-00@schizo.psychosis.com> from "Dave Cinege" at Dec 22, 2001 07:08:46 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S286884AbRLWNfQ>; Sun, 23 Dec 2001 08:35:16 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:10253 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S282655AbRLWNfI>;
+	Sun, 23 Dec 2001 08:35:08 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Christoph Hellwig <hch@caldera.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DRM 4.0 support for kernel 2.4.17 
+In-Reply-To: Your message of "Sun, 23 Dec 2001 13:54:17 BST."
+             <20011223135417.A24968@caldera.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16I8zQ-0000d9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 24 Dec 2001 00:34:55 +1100
+Message-ID: <24365.1009114495@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Basically what Grub does is loads the kernel modules from disk
-> into memory, and 'tells' the kernel the memory location to load
-> them from, very similar to how an initrd file is loaded. The problem
-> is Linux, is not MBS compilant and doesn't know to look for and load
-> the modules. 
+On Sun, 23 Dec 2001 13:54:17 +0100, 
+Christoph Hellwig <hch@caldera.de> wrote:
+>On Sun, Dec 23, 2001 at 10:48:36AM +1100, Keith Owens wrote:
+>> needs the separate copy of drmlib.  I will not maintain that crud into
+>> kbuild 2.5.
+>
+>ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.17/linux-2.4.17-drm40-1.patch.bz2
+>
+>Is a version that is (build-) tested and very similar to your versions, based
+>on my 2.4.0-test Makefile.
+>
+>> Some of the code in $(drmlib-4.0-objs) will need EXPORT_SYMBOLS to work
+>> when drm 4.0 drivers are compiled as modules.
+>
+>I don't consider that a good use of drm 4.0.  If someone wants to fix it
+>anyway he/she should do it.  I don't think this compatiblity code needs
+>so much attention.
 
-And vendors who've shipped GRUB still have to ship Lilo because Grub plain
-doesn't work on some machines. Lilo has the virtue that its extremely simple
-in what it does and how it does it. It works in a suprisingly large number
-of cases and can handle interesting setups that GRUB really struggles with.
+Looks good to me.  The first person who wants drm-4.0 support as a
+module has some work to do.  ia64 defconfig has drm-4.0 tdfx built in,
+no problem there.
+

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293634AbSCPBEn>; Fri, 15 Mar 2002 20:04:43 -0500
+	id <S293635AbSCPBLn>; Fri, 15 Mar 2002 20:11:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293635AbSCPBEd>; Fri, 15 Mar 2002 20:04:33 -0500
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:31738 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S293634AbSCPBEX>; Fri, 15 Mar 2002 20:04:23 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 15 Mar 2002 18:02:36 -0700
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-        Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 and BitKeeper
-Message-ID: <20020316010236.GB424@turbolinux.com>
-Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020315111022.S29887@work.bitmover.com> <Pine.LNX.4.33.0203151110130.29289-100000@penguin.transmeta.com> <20020315113001.W29887@work.bitmover.com> <20020316013134.A31470@devcon.net>
+	id <S293637AbSCPBLe>; Fri, 15 Mar 2002 20:11:34 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:10747
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S293635AbSCPBLX>; Fri, 15 Mar 2002 20:11:23 -0500
+Date: Fri, 15 Mar 2002 17:12:03 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Luigi Genoni <kernel@Expansa.sns.it>,
+        Thunder from the hill <thunder@ngforever.de>,
+        linux-kernel@vger.kernel.org, Martin Eriksson <nitrax@giron.wox.org>
+Subject: Re: HPT370 RAID-1 or Software RAID-1, what's "best"?
+Message-ID: <20020316011203.GB363@matchmail.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Luigi Genoni <kernel@Expansa.sns.it>,
+	Thunder from the hill <thunder@ngforever.de>,
+	linux-kernel@vger.kernel.org,
+	Martin Eriksson <nitrax@giron.wox.org>
+In-Reply-To: <Pine.LNX.4.44.0203151716120.30388-100000@Expansa.sns.it> <E16lvju-0004Bj-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020316013134.A31470@devcon.net>
+In-Reply-To: <E16lvju-0004Bj-00@the-village.bc.nu>
 User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 16, 2002  01:31 +0100, Andreas Ferber wrote:
-> I'm certainly not a "vim genius", but somehow I managed to write some
-> vim autocmds that do this ;-)
+On Fri, Mar 15, 2002 at 05:43:38PM +0000, Alan Cox wrote:
+> > Hardware RAID is indeed better, but what you get using HPT370 IDE
+> > controlelr is not hardware raid at all. Just read the code of the driver.
+> > You get a software raid, period.
 > 
-> You can get the vim script from
+> Its not always that simple either.
 > 
->     http://www.myipv6.de/vim/extensions/bk.vim
+> Software raid on aic7xxx totally blows away the Dell/AMI megaraid card I
+> have, to the point the megaraid now resides in my testing bucket. The promise
+> Supertrak 100 (now superceded by the SX6000) is also slower than the
+> software IDE raid, but does use less CPU in RAID5 mode.
 > 
-> Simply source it from your .vimrc. I tested it with vim 6.0 only,
-> although it should also work with prior versions.
-> 
-> On open, it tries to checkout a file from bitkeeper if it isn't
-> already checked out (doing "bk get" if you open it readonly and "bk
-> edit" otherwise), and it "bk edit"s the file if you start making
-> changes to a readonly bitkeeper controlled file.
-> 
-> Unfortunately, vim doesn't trigger the FileChangedRO autocmd if you do
-> a ":set readonly!" to go from readonly to read/write, so it doesn't
-> handle this case (AFAIK there is no way to intercept this command).
+> Some hardware raid cards do seem to be winners. The Dell Perc2/QC aacraid
+> based boards (233Mhz ARM etc) really shift. When I've had the chance to
+> borrow the disks to test I've seen it running over 100Mbytes/second. It
+> also supports nice stuff like online reconfiguration of active volumes.
+> [$$stupid from Dell $$notalot from ebay ;)]
 
-Well, you shouldn't be going from read-write to readonly in this way
-anyways, so I don't think it is a problem.
+Yep, but the aacraid controllers based on i960 don't do so well.  I was able
+to double my throughput after switching to software raid (it acts like an
+aic7xxx in scsi mode, even using the adaptec driver instead of aacraid).
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+Mike

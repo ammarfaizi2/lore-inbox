@@ -1,76 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbUL3Spb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbUL3TJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbUL3Spb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 13:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUL3Spb
+	id S261532AbUL3TJY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 14:09:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUL3TJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 13:45:31 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:45747 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261696AbUL3SpX
+	Thu, 30 Dec 2004 14:09:24 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:49075 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261532AbUL3TJQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 13:45:23 -0500
-To: YhLu <YhLu@tyan.com>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, Matt_Domsch@dell.com
-Subject: Re: 256 apic id for amd64
-References: <3174569B9743D511922F00A0C943142307290EEE@TYANWEB>
+	Thu, 30 Dec 2004 14:09:16 -0500
+To: Vincent ETIENNE <ve@vetienne.net>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: AMD64-AGP pb with AGP APERTURE on IWILL DK8N
+References: <200412282049.48616.ve@vetienne.net>
 From: Andi Kleen <ak@muc.de>
-Date: Thu, 30 Dec 2004 19:45:22 +0100
-In-Reply-To: <3174569B9743D511922F00A0C943142307290EEE@TYANWEB> (YhLu@tyan.com's
- message of "Tue, 28 Dec 2004 20:43:47 -0800")
-Message-ID: <m1d5wrlj5p.fsf@muc.de>
+Date: Thu, 30 Dec 2004 20:09:14 +0100
+In-Reply-To: <200412282049.48616.ve@vetienne.net> (Vincent ETIENNE's message
+ of "Tue, 28 Dec 2004 20:49:48 +0000")
+Message-ID: <m13bxnli1x.fsf@muc.de>
 User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-YhLu <YhLu@tyan.com> writes:
+Vincent ETIENNE <ve@vetienne.net> writes:
 
-> Can someone who maintains the x86-64 io_apic.c look at my patch about 256
-> apic id for amd64?
 
-First in general if you want patches submitted look up the maintainer
-in the MAINTAINERS file in the source tree and send it directly
-to the appropiate person and mailing list.
+> IOMMU reports a 128MB aperture for CPU0 ( that's the value i used in my bios) 
+> at F0000000 but only 32MB at 4000000 for CPU1 and declare i have no valid 
+> aperture as show in this dmesg extract. 
 
-Just curious - how many IO-APICs does your system have?
 
-Then I don't like your patch very much, since it doesnt handle 
-Intel systems. The best fix is probably to 
+First you should complain to your BIOS vendor because it is just another
+kind of BIOS bug (of which there seems to be an infinite supply ...) 
 
-i386 also has a different (but Intel specific fix) - uses either
-0xf or 0xff based on the APIC version. Just dropping it seems
-better to me though. I suppose Matt (cc'ed) who apparently
-wrote this code originally used it to work around some BIOS
-bug, and at least we can hope for now that there are no 
-EM64T boxes with that particular BIOS bug.
+> +  if ( last_aper_order )
+> + {
+> +   if ( aper_order != last_aper_order )
+> +   {
 
-I will add this patch.
+> +    printk("Aperture size changed!! use old one (%x,%x)", last_aper_order, 
+> last_aper_base );
+> +    write_pci_config(0, num, 3, 0x90, last_aper_order<<1);
+> +    write_pci_config(0, num, 3, 0x94, last_aper_base>>25);
+> +    aper_order = last_aper_order;
+> +    aper_base = last_aper_base;
+> +    aper_size = (32 * 1024 * 1024) << aper_order;
+> +   }
+
+There is already code to do this at the end of the function. A better
+patch would be the attached one.
+
+This would also handle the case of a wrong aper_base.
+
+Untested, uncompiled right now.
+
+Can you test if that works on your board? If yes I can add it.
 
 -Andi
 
-Remove check that limited max number of IO-APIC to 8.
+Based on debugging&code from Vincent ETIENNE <ve@vetienne.net>
 
-The original check was apparently to work around some old BIOS
-bugs and we just assume x86-64 machines don't have this class of
-problems.
+>>
+I have some problem with AGP initialization with my board : IWILL DK8N (Bi
+opteron chipset NFORCE3 ). I use kernel 2.6.10-rc3-mm1, but i have try with
+different kernel always with the same result :
+
+IOMMU reports a 128MB aperture for CPU0 ( that's the value i used in my bios)
+at F0000000 but only 32MB at 4000000 for CPU1
+<<
+
+This patch checks for this condition and fixes the other CPUs up.
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
-diff -u linux-2.6.10/arch/x86_64/kernel/io_apic.c-o linux-2.6.10/arch/x86_64/kernel/io_apic.c
---- linux-2.6.10/arch/x86_64/kernel/io_apic.c-o	2004-12-24 22:34:45.000000000 +0100
-+++ linux-2.6.10/arch/x86_64/kernel/io_apic.c	2004-12-30 19:41:08.000000000 +0100
-@@ -1160,13 +1160,6 @@
- 		
- 		old_id = mp_ioapics[apic].mpc_apicid;
+diff -u linux-2.6.10/arch/x86_64/kernel/aperture.c-o linux-2.6.10/arch/x86_64/kernel/aperture.c
+--- linux-2.6.10/arch/x86_64/kernel/aperture.c-o	2004-12-24 22:35:23.000000000 +0100
++++ linux-2.6.10/arch/x86_64/kernel/aperture.c	2004-12-30 19:56:22.000000000 +0100
+@@ -200,8 +200,8 @@
+ void __init iommu_hole_init(void) 
+ { 
+ 	int fix, num; 
+-	u32 aper_size, aper_alloc = 0, aper_order;
+-	u64 aper_base; 
++	u32 aper_size, aper_alloc = 0, aper_order, last_aper_order = 0;
++	u64 aper_base, last_aper_base = 0; 
+ 	int valid_agp = 0;
  
--		if (mp_ioapics[apic].mpc_apicid >= 0xf) {
--			apic_printk(APIC_QUIET,KERN_ERR "BIOS bug, IO-APIC#%d ID is %d in the MPC table!...\n",
--				apic, mp_ioapics[apic].mpc_apicid);
--			apic_printk(APIC_QUIET,KERN_ERR "... fixing up to %d. (tell your hw vendor)\n",
--				reg_00.bits.ID);
--			mp_ioapics[apic].mpc_apicid = reg_00.bits.ID;
--		}
+ 	if (iommu_aperture_disabled || !fix_aperture)
+@@ -230,7 +230,15 @@
+ 		if (!aperture_valid(name, aper_base, aper_size)) { 
+ 			fix = 1; 
+ 			break; 
+-		} 
++		}
++
++		if ((last_aper_order && aper_order != last_aper_order) ||
++		    (last_aper_base && aper_base != last_aper_base)) {
++			fix = 1; 
++			break;
++		}
++		last_aper_order = aper_order;
++		last_aper_base = aper_base;
+ 	} 
  
- 		printk(KERN_INFO "Using IO-APIC %d\n", mp_ioapics[apic].mpc_apicid);
- 
+ 	if (!fix && !fallback_aper_force) 

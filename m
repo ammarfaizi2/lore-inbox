@@ -1,44 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315358AbSEQMZa>; Fri, 17 May 2002 08:25:30 -0400
+	id <S315427AbSEQM00>; Fri, 17 May 2002 08:26:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSEQMZa>; Fri, 17 May 2002 08:25:30 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39690 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315358AbSEQMYg>; Fri, 17 May 2002 08:24:36 -0400
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Fri, 17 May 2002 13:17:25 +0100 (BST)
-Cc: davem@redhat.com (David S. Miller), torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E178eMm-0000NO-00@wagner.rustcorp.com.au> from "Rusty Russell" at May 17, 2002 07:49:40 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315374AbSEQM0Z>; Fri, 17 May 2002 08:26:25 -0400
+Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:39367 "EHLO
+	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S315427AbSEQMZp> convert rfc822-to-8bit; Fri, 17 May 2002 08:25:45 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: mark.gross@intel.com
+Subject: Re: PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
+Date: Fri, 17 May 2002 14:26:00 +0200
+X-Mailer: KMail [version 1.4]
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>,
+        Daniel Jacobowitz <dan@debian.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E178gfl-0006Ip-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200205171426.00502.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I would much rather fix these instances than add yet another
-> > interface.
+> The original question was:
+> Couldn't the TCore patch deadlock in elf_core_dump on a semiphore held by a
+> sleeping process that gets placed onto the phantom runque?
 > 
-> I'll accept that if someone's volunteering to audit the kernel for
-> them every six months.
+> So far I can't tell the problem is real or not, but I'm worried :(
 > 
-> Sorry I wasn't clear: I'm saying *replace*, not add,
+> I haven't hit any such deadlocks in my stress testing, such as it is. In my
+> review of the code I don't see any obviouse problems dispite the fact that
+> the mmap_sem is explicitly grabbed by elf_core_dump.
+> 
+> --mgross
 
-Replace requires you audit every single use, and then work out how to
-handle those that do care about the length and the point it faulted. From
-what I've seen of the stuff that has been fixed we have a mix of the
-following
+Here are two different examples:
+ - some ps [1] does __down_read(mm->mmap_sem).
+ - meanwhile one of the soon crashing threads [2] does sys_mmap(),
+   calls __down_write(current->mmap_sem), gets on the wait queue
+   because the semaphore is currently used by ps.
+ - another thread [3] crashes and wants to dump core, sends [2] to
+   the phantom rq, calls __down_read(current->mmap_sem) and waits.
+ - [1] finishes the job, calls __up_read(mm->mmap_sem), activates
+   [2] on the phantom rq, exits.
+deadlock
 
-1.	Misports of ancient verify_* code - eg the serial ones
-2.	Not checking the return code - 100% legal and standards compliant
+Or:
+ - thread [2] does sys_mmap(), calls __down_write(current->mmap_sem),
+   gets the semaphore.
+ - thread [2] is preempted, taken off the cpu
+ - meanwhile thread [3] crashes, etc...
 
-I've seen very few that have other screwups. In fact I've seen far more
-incorrect uses of kmalloc with a user passed input field, kmalloc with
-maths overflows, copy*user with maths overflows and the like
+I think the problem only occurs if one of the related threads calls
+__down_write() for one of the semaphores we need to get inside
+elf_core_dump (which are these?). So maybe we could do two things:
 
-Alan
+ - remeber the task which _has_ the write lock (add a "task_t sem_writer;"
+variable to the semaphore structure)
+
+ - inside elf_core_dump use a special version of __down_read() which
+checks whether any related thread is enqueued and waiting for this
+semaphore or whether sem_writer points to a member of the own thread
+group. The phantom rq lock should be held. This new __down_read()
+could wait until only related threads are enqueued and waiting and just
+deal as if the semaphore is free (temporarilly set the value to zero),
+and add its original value at the end, when calling __up_read().
+
+Just some thoughts... any opinions?
+
+Regards,
+Erich
+
+-- 
+Dr. Erich Focht                                <efocht@ess.nec.de>
+NEC European Supercomputer Systems, European HPC Technology Center
+

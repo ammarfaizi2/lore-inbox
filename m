@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264800AbUDUE5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264908AbUDUFWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264800AbUDUE5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 00:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUDUE5Q
+	id S264908AbUDUFWX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 01:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264909AbUDUFWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 00:57:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50590 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264800AbUDUE5O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 00:57:14 -0400
-Date: Tue, 20 Apr 2004 21:57:20 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Romain Lievin <lkml@lievin.net>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tiglusb: bug fixes (usb_clear_halt, usb_sndbulkpipe)
-Message-Id: <20040420215720.4843421d.zaitcev@redhat.com>
-In-Reply-To: <20040414183402.GA24976@lievin.net>
-References: <20040414183402.GA24976@lievin.net>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 21 Apr 2004 01:22:23 -0400
+Received: from diplo.antw.online.be ([62.112.0.10]:23378 "EHLO
+	diplo.antw.online.be") by vger.kernel.org with ESMTP
+	id S264908AbUDUFWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 01:22:22 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: vger.kernel.org is listed by spamcop
+Date: Wed, 21 Apr 2004 07:22:32 +0200
+User-Agent: KMail/1.6.2
+Cc: majordomo-owner@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404210722.32253.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Apr 2004 20:34:02 +0200
-Romain Lievin <lkml@lievin.net> wrote:
+Hello List,
 
-> the first set of 2 patches (2.4 & 2.6) fixes 2 bugs:
->[...]
-> ==========================[ src24 ]=============================
+Since I don't know who the admin is (I thought Larry?) of vger.kernel.org, I'm 
+sending this mail here.
 
-OK, this looks fine, but next time please do not mix 2.4 and 2.6
-patches. I do not like to edit e-mails before applying.
+Since yesterday eve, 19PM GMT+2, I stopped receiving emails from linux-kernel. 
+Today, I investigated on the issue, and found (using mxverify) out that 
+vger.kernel.org has been listed in the blacklist of spamcop.
 
--- Pete
+http://www.spamcop.net/w3m?action=blcheck&ip=67.72.78.212
+
+Unfortunately, all the email addresses I have are 'spamcopped' by the 
+respective ISP's.
+
+Can action be undertaken by the admin so that all the world can once again 
+have the full gory^Wglory of LKML (and the other mailling lists @ vger)?
+
+Thanks,
+
+Jan
+-- 
+What did Mickey Mouse get for Christmas?
+
+A Dan Quayle watch.
+
+-- heard from a Mike Dukakis field worker

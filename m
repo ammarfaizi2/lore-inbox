@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbTIKWuU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 18:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbTIKWuU
+	id S261573AbTIKWot (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 18:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTIKWos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 18:50:20 -0400
-Received: from users.linvision.com ([62.58.92.114]:6101 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id S261575AbTIKWuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 18:50:14 -0400
-Date: Fri, 12 Sep 2003 00:50:08 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Oleg Drokin <green@namesys.com>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
-Subject: Re: Reiser3/4 & Ext2/3 was: First impressions of reiserfs4
-Message-ID: <20030912005007.B11566@bitwizard.nl>
-References: <20030908113304.A28123@bitwizard.nl> <20030908094825.GD10487@namesys.com> <20030908120531.A28937@bitwizard.nl> <20030908101704.GE10487@namesys.com> <20030908222457.GB17441@matchmail.com> <20030909070421.GJ10487@namesys.com> <20030909191044.GB28279@matchmail.com> <20030911102938.GE29357@namesys.com> <20030911171513.GA18399@matchmail.com> <20030911172740.GK29357@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Sep 2003 18:44:48 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:33699 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261573AbTIKWor
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 18:44:47 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andries.Brouwer@cwi.nl
+Subject: Re: [PATCH] Re: [PATCH][IDE] update qd65xx driver
+Date: Fri, 12 Sep 2003 00:46:58 +0200
+User-Agent: KMail/1.5
+References: <UTC200309112151.h8BLpcb14069.aeb@smtp.cwi.nl>
+In-Reply-To: <UTC200309112151.h8BLpcb14069.aeb@smtp.cwi.nl>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030911172740.GK29357@namesys.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+Message-Id: <200309120046.58467.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 09:27:40PM +0400, Oleg Drokin wrote:
-> > > as are superblock, journal and journal header.
-> > How many superblocks are there in reiser3?  Also, the bitmap locations are
-> 
-> One superblock.
+On Thursday 11 of September 2003 23:51, Andries.Brouwer@cwi.nl wrote:
+> That reminds me, did I ever send you this?
+>
+> Andries
 
-As we've experienced that it's possible to lose the one-and-only 
-superblock, I would recommend that you build a backup superblock
-in the future. Of course you're going to argue that some parameters
-constantly change in the superblock so that it would mean a performance
-penalty to have two of them. Well, the backup superblock should
-be marked and used as such: It will allow a more "easy" recovery
-of the filesystem parameters, should the primary be "gone", but 
-it should not interfere with "normal operation". So, feel free to
-only update it once every ten minutes or so. Or just initialize
-it and only write it when the fs is unmouted. Or don't update it 
-at all. But no backup superblock, is just plain wrong. 
+No, only similar patch for hpt366.c.
 
-			Roger. 
+I think the (almost) correct scheme is following (some drivers get it wrong):
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+config_chipset_pio() style functions are used for driver auto-tuning
+and  "255, pio" is used to find best PIO mode supported by device.
+"pio" argument should be set to highest mode allowed by controller.
+
+tune_proc()/tune_drive() style functions are used for direct mode setting
+and "pio, max_pio" is used to set desired mode.
+"pio" is desired mode, "max_pio" is max mode supported by controller.
+
+It's almost correct because we should also check if desired PIO mode
+is supported by device, currently we let user shoot herself/himself.
+
+IDE driver itself calls ->tuneproc() with argument == 255, so always
+highest supported PIO mode is chosen.  User-space can call ->tuneproc()
+with smaller argument.  With you patch smaller than highest possible
+PIO mode can't be chosen.
+
+Your patch for hpt366.c has also this side effect that you can now only
+set highest possible PIO mode.  You should revert this change
+and fix hpt3xx_tune_drive() call inside hpt366_config_drive_xfer_rate()
+to pass 255 instead of 5.
+
+--bartlomiej
+
+> diff -u --recursive --new-file -X /linux/dontdiff
+> a/drivers/ide/legacy/qd65xx.c b/drivers/ide/legacy/qd65xx.c ---
+> a/drivers/ide/legacy/qd65xx.c	Mon Sep  8 23:44:59 2003
+> +++ b/drivers/ide/legacy/qd65xx.c	Thu Sep 11 23:20:26 2003
+> @@ -261,7 +261,7 @@
+>  	int recovery_time = 415; /* worst case values from the dos driver */
+>
+>  	if (drive->id && !qd_find_disk_type(drive, &active_time, &recovery_time))
+> { -		pio = ide_get_best_pio_mode(drive, pio, 255, &d);
+> +		pio = ide_get_best_pio_mode(drive, 255, pio, &d);
+>  		pio = IDE_MIN(pio,4);
+>
+>  		switch (pio) {
+

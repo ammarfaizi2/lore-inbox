@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263663AbUECMlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUECMr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263663AbUECMlV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 08:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263673AbUECMlV
+	id S263664AbUECMr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 08:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263671AbUECMr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 08:41:21 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:21734 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263663AbUECMlG (ORCPT
+	Mon, 3 May 2004 08:47:29 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:40325 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263664AbUECMr1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 08:41:06 -0400
-Date: Mon, 3 May 2004 14:41:05 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Reading from file in module fails
-Message-ID: <20040503124105.GS29503@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040503105041.GA12023@Loki> <20040503113500.GB31513@harddisk-recovery.com> <20040503114316.GA22732@Loki>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="f5XwDZYQieeN6n9K"
-Content-Disposition: inline
-In-Reply-To: <20040503114316.GA22732@Loki>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 3 May 2004 08:47:27 -0400
+Message-Id: <200405030004.i4304mY7009198@eeyore.valparaiso.cl>
+To: Marc Boucher <marc@linuxant.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Tim Connors <tconnors+linuxkernel1083378452@astro.swin.edu.au>,
+       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license 
+In-Reply-To: Message from Marc Boucher <marc@linuxant.com> 
+   of "Sat, 01 May 2004 15:12:18 -0400." <772768DC-9BA3-11D8-B83D-000A95BCAC26@linuxant.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Sun, 02 May 2004 20:04:48 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marc Boucher <marc@linuxant.com> said:
+> On May 1, 2004, at 1:07 AM, Martin J. Bligh wrote:
+> 
+> >> All bugs can be debugged or fixed, it's a matter of how hard it is
+> >> to do (generally easier with open-source) and *who* is responsible
+> >> for doing it (i.e. supporting the modules).
+> >
+> > Yes, exactly. The tainted mechanism is there to tell us that it's not
+> > *our* problem to support it. And you deliberately screwed that up,
+> > which is why everybody is pissed at you.
+> 
+> It was already screwed up, and causing unnecessary support burdens
+> both on the community ("help! what does tainted mean")
 
---f5XwDZYQieeN6n9K
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+A minor annoyance, no head hacker did ever respond to that on LKML.
 
-On Mon, 2004-05-03 13:43:16 +0200, Libor Vanek <libor@conet.cz>
-wrote in message <20040503114316.GA22732@Loki>:
-> It's not bad design - what I'm doing is writing snapshots for VFS as my d=
-iploma thesis. And I need to create copy of file before it's changed (copy-=
-on-write). There is no other way how to do it in kernel-space (and user-spa=
-ce solutions like using LUFS are really slow)
+>                                                        and vendors.
 
-That can all be done in userspace.
+... got what was comming to them. A-OK.
 
-$ export LD_PRELOAD=3Dlibcopyfilesbeforemodify.so
+> This thread and previous ones have shown ample evidence of that.
 
-You just need to program a library that provides all functions that
-modify files (eg. write, open with O_CREAT, ...) and you're done - 100%
-in userspace.
+Of your stubborness, clearly.
 
-MfG, JBG
+> Let's deal with the root problem and fix the messages, as Rik van Riel
+> has suggested.
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---f5XwDZYQieeN6n9K
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAlj3hHb1edYOZ4bsRAlhlAJ9bODmUvI/i7UNtsLQaJvPHGKPYSgCfbLIX
-sfWjt3a+/m1FQYvyOCzvG38=
-=3PTN
------END PGP SIGNATURE-----
-
---f5XwDZYQieeN6n9K--
+Your help is welcome.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,73 +1,328 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262513AbUKWCZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbUKWDKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbUKWCZh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 21:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbUKWCXh
+	id S262543AbUKWDKg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 22:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbUKWDHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 21:23:37 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:2577 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261212AbUKWCWL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 21:22:11 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] problem of cont_prepare_write()
-References: <877joexjk5.fsf@devron.myhome.or.jp>
-	<20041122024654.37eb5f3d.akpm@osdl.org>
-	<87ekimw1uj.fsf@devron.myhome.or.jp>
-	<20041122134344.3b2cb489.akpm@osdl.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 23 Nov 2004 11:22:01 +0900
-In-Reply-To: <20041122134344.3b2cb489.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 22 Nov 2004 13:43:44 -0800")
-Message-ID: <87k6sdwbhy.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 22 Nov 2004 22:07:44 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:3727 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262560AbUKWDFJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 22:05:09 -0500
+Date: Tue, 23 Nov 2004 12:05:06 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: greg@kroah.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc2 4/4] module sysfs: module parameters reimplemented using attr group
+Message-ID: <20041123030506.GE7326@home-tj.org>
+References: <20041123024537.GA7326@home-tj.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041123024537.GA7326@home-tj.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-
->> Umm... however, if ->i_size is updated before ->commit_write(),
->> doesn't it allow access to those pages, before all write() work is
->> successful?
->
-> That's OK.  A thread which is read()ing that page will either
->
-> a) decide that the page is outside i_size, and won't read it anyway or
->
-> b) decide that the page is inside i_size and will read the page's contents.
->
-> Still, I'd be inclined to update i_size after running ->commit_write.  It
-> looks like we can simply replace the call to __block_commit_write() with a
-> call to generic_commit_write().
-
-If ->prepare_write() failed, I thought we should restore the ->i_size
-by vmtruncate() before running ->prepare_write().
-
-But, it's not required... yes?
-
-Anyway, fixed patch is the following.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+> 04_module_paramters_attr_grp.patch 
+> 	Reimplement parameter attributes using attribute group.
+> 	Ditto.
 
 
+Signed-off-by: Tejun Heo <tj@home-tj.org>
 
- fs/buffer.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
 
-diff -puN fs/buffer.c~cont_prepare_write-fix fs/buffer.c
---- linux-2.6.10-rc2/fs/buffer.c~cont_prepare_write-fix	2004-11-23 11:10:10.000000000 +0900
-+++ linux-2.6.10-rc2-hirofumi/fs/buffer.c	2004-11-23 11:10:10.000000000 +0900
-@@ -2224,8 +2224,7 @@ int cont_prepare_write(struct page *page
- 		memset(kaddr+zerofrom, 0, PAGE_CACHE_SIZE-zerofrom);
- 		flush_dcache_page(new_page);
- 		kunmap_atomic(kaddr, KM_USER0);
--		__block_commit_write(inode, new_page,
--				zerofrom, PAGE_CACHE_SIZE);
-+		generic_commit_write(NULL, new_page, zerofrom, PAGE_CACHE_SIZE);
- 		unlock_page(new_page);
- 		page_cache_release(new_page);
+Index: linux-export/include/linux/module.h
+===================================================================
+--- linux-export.orig/include/linux/module.h	2004-11-23 11:32:28.000000000 +0900
++++ linux-export/include/linux/module.h	2004-11-23 11:32:41.000000000 +0900
+@@ -238,7 +238,7 @@ struct module_sect_attrs
+ 	struct module_sect_attr attrs[0];
+ };
+ 
+-struct param_kobject;
++struct module_param_attrs;
+ 
+ struct module
+ {
+@@ -252,7 +252,7 @@ struct module
+ 
+ 	/* Sysfs stuff. */
+ 	struct module_kobject mkobj;
+-	struct param_kobject *params_kobject;
++	struct module_param_attrs *param_attrs;
+ 
+ 	/* Exported symbols */
+ 	const struct kernel_symbol *syms;
+Index: linux-export/kernel/params.c
+===================================================================
+--- linux-export.orig/kernel/params.c	2004-11-23 11:32:13.000000000 +0900
++++ linux-export/kernel/params.c	2004-11-23 11:32:41.000000000 +0900
+@@ -357,26 +357,23 @@ extern struct kernel_param __start___par
+ 
+ struct param_attribute
+ {
+-	struct attribute attr;
++	struct module_attribute mattr;
+ 	struct kernel_param *param;
+ };
+ 
+-struct param_kobject
++struct module_param_attrs
+ {
+-	struct kobject kobj;
+-
+-	unsigned int num_attributes;
+-	struct param_attribute attr[0];
++	struct attribute_group grp;
++	struct param_attribute attrs[0];
+ };
+ 
+-#define to_param_attr(n) container_of(n, struct param_attribute, attr);
++#define to_param_attr(n) container_of(n, struct param_attribute, mattr);
+ 
+-static ssize_t param_attr_show(struct kobject *kobj,
+-			       struct attribute *attr,
+-			       char *buf)
++static ssize_t param_attr_show(struct module_attribute *mattr,
++			       struct module *mod, char *buf)
+ {
+ 	int count;
+-	struct param_attribute *attribute = to_param_attr(attr);
++	struct param_attribute *attribute = to_param_attr(mattr);
+ 
+ 	if (!attribute->param->get)
+ 		return -EPERM;
+@@ -390,12 +387,12 @@ static ssize_t param_attr_show(struct ko
+ }
+ 
+ /* sysfs always hands a nul-terminated string in buf.  We rely on that. */
+-static ssize_t param_attr_store(struct kobject *kobj,
+-				struct attribute *attr,
++static ssize_t param_attr_store(struct module_attribute *mattr,
++				struct module *owner,
+ 				const char *buf, size_t len)
+ {
+  	int err;
+-	struct param_attribute *attribute = to_param_attr(attr);
++	struct param_attribute *attribute = to_param_attr(mattr);
+ 
+ 	if (!attribute->param->set)
+ 		return -EPERM;
+@@ -406,27 +403,6 @@ static ssize_t param_attr_store(struct k
+ 	return err;
+ }
+ 
+-
+-static struct sysfs_ops param_sysfs_ops = {
+-	.show = param_attr_show,
+-	.store = param_attr_store,
+-};
+-
+-static void param_kobj_release(struct kobject *kobj)
+-{
+-	kfree(container_of(kobj, struct param_kobject, kobj));
+-}
+-
+-static struct kobj_type param_ktype = {
+-	.sysfs_ops =	&param_sysfs_ops,
+-	.release =	&param_kobj_release,
+-};
+-
+-static struct kset param_kset = {
+-	.subsys =	&module_subsys,
+-	.ktype =	&param_ktype,
+-};
+-
+ #ifdef CONFIG_MODULES
+ #define __modinit
+ #else
+@@ -434,54 +410,6 @@ static struct kset param_kset = {
+ #endif
+ 
+ /*
+- * param_add_attribute - actually adds an parameter to sysfs
+- * @mod: owner of parameter
+- * @pk: param_kobject the attribute shall be assigned to.
+- *      One per module, one per KBUILD_MODNAME.
+- * @kp: kernel_param to be added
+- * @skip: offset where the parameter name start in kp->name.
+- * Needed for built-in modules
+- *
+- * Fill in data into appropriate &pk->attr[], and create sysfs file.
+- */
+-static __modinit int param_add_attribute(struct module *mod,
+-					 struct param_kobject *pk,
+-					 struct kernel_param *kp,
+-					 unsigned int skip)
+-{
+-	struct param_attribute *a;
+-	int err;
+-
+-	a = &pk->attr[pk->num_attributes];
+-	a->attr.name = (char *) &kp->name[skip];
+-	a->attr.owner = mod;
+-	a->attr.mode = kp->perm;
+-	a->param = kp;
+-	err = sysfs_create_file(&pk->kobj, &a->attr);
+-	if (!err)
+-		pk->num_attributes++;
+-	return err;
+-}
+-
+-/*
+- * param_sysfs_remove - remove sysfs support for one module or KBUILD_MODNAME
+- * @pk: struct param_kobject which is to be removed
+- *
+- * Called when an error in registration occurs or a module is removed
+- * from the system.
+- */
+-static __modinit void param_sysfs_remove(struct param_kobject *pk)
+-{
+-	unsigned int i;
+-	for (i = 0; i < pk->num_attributes; i++)
+-		sysfs_remove_file(&pk->kobj,&pk->attr[i].attr);
+-
+-	/* Calls param_kobj_release */
+-	kobject_unregister(&pk->kobj);
+-}
+-
+-
+-/*
+  * param_sysfs_setup - setup sysfs support for one module or KBUILD_MODNAME
+  * @mk: struct module_kobject (contains parent kobject)
+  * @kparam: array of struct kernel_param, the actual parameter definitions
+@@ -492,15 +420,17 @@ static __modinit void param_sysfs_remove
+  * in sysfs. A pointer to the param_kobject is returned on success,
+  * NULL if there's no parameter to export, or other ERR_PTR(err).
+  */
+-static __modinit struct param_kobject *
++static __modinit struct module_param_attrs *
+ param_sysfs_setup(struct module_kobject *mk,
+ 		  struct kernel_param *kparam,
+ 		  unsigned int num_params,
+ 		  unsigned int name_skip)
+ {
+-	struct param_kobject *pk;
++	struct module_param_attrs *mp;
+ 	unsigned int valid_attrs = 0;
+-	unsigned int i;
++	unsigned int i, size[2];
++	struct param_attribute *pattr;
++	struct attribute **gattr;
+ 	int err;
+ 
+ 	for (i=0; i<num_params; i++) {
+@@ -511,42 +441,39 @@ param_sysfs_setup(struct module_kobject 
+ 	if (!valid_attrs)
+ 		return NULL;
+ 
+-	pk = kmalloc(sizeof(struct param_kobject)
+-		     + sizeof(struct param_attribute) * valid_attrs,
+-		     GFP_KERNEL);
+-	if (!pk)
++	size[0] = ALIGN(sizeof(*mp) +
++			valid_attrs * sizeof(mp->attrs[0]),
++			sizeof(mp->grp.attrs[0]));
++	size[1] = (valid_attrs + 1) * sizeof(mp->grp.attrs[0]);
++
++	mp = kmalloc(size[0] + size[1], GFP_KERNEL);
++	if (!mp)
+ 		return ERR_PTR(-ENOMEM);
+-	memset(pk, 0, sizeof(struct param_kobject)
+-	       + sizeof(struct param_attribute) * valid_attrs);
+ 
+-	err = kobject_set_name(&pk->kobj, "parameters");
+-	if (err)
+-		goto out;
+-
+-	pk->kobj.kset = &param_kset;
+-	pk->kobj.parent = &mk->kobj;
+-	err = kobject_register(&pk->kobj);
+-	if (err)
+-		goto out;
++	mp->grp.name = "parameters";
++	mp->grp.attrs = (void *)mp + size[0];
+ 
++	pattr = &mp->attrs[0];
++	gattr = &mp->grp.attrs[0];
+ 	for (i = 0; i < num_params; i++) {
+-		if (kparam[i].perm) {
+-			err = param_add_attribute(mk->mod, pk,
+-						  &kparam[i], name_skip);
+-			if (err)
+-				goto out_unreg;
++		struct kernel_param *kp = &kparam[i];
++		if (kp->perm) {
++			pattr->param = kp;
++			pattr->mattr.show = param_attr_show;
++			pattr->mattr.store = param_attr_store;
++			pattr->mattr.attr.name = (char *)&kp->name[name_skip];
++			pattr->mattr.attr.owner = mk->mod;
++			pattr->mattr.attr.mode = kp->perm;
++			*(gattr++) = &(pattr++)->mattr.attr;
+ 		}
  	}
-_
++	*gattr = NULL;
+ 
+-	return pk;
+-
+-out_unreg:
+-	param_sysfs_remove(pk);
+-	return ERR_PTR(err);
+-
+-out:
+-	kfree(pk);
+-	return ERR_PTR(err);
++	if ((err = sysfs_create_group(&mk->kobj, &mp->grp))) {
++		kfree(mp);
++		return ERR_PTR(err);
++	}
++	return mp;
+ }
+ 
+ 
+@@ -565,13 +492,13 @@ int module_param_sysfs_setup(struct modu
+ 			     struct kernel_param *kparam,
+ 			     unsigned int num_params)
+ {
+-	struct param_kobject *pk;
++	struct module_param_attrs *mp;
+ 
+-	pk = param_sysfs_setup(&mod->mkobj, kparam, num_params, 0);
+-	if (IS_ERR(pk))
+-		return PTR_ERR(pk);
++	mp = param_sysfs_setup(&mod->mkobj, kparam, num_params, 0);
++	if (IS_ERR(mp))
++		return PTR_ERR(mp);
+ 
+-	mod->params_kobject = pk;
++	mod->param_attrs = mp;
+ 	return 0;
+ }
+ 
+@@ -584,9 +511,13 @@ int module_param_sysfs_setup(struct modu
+  */
+ void module_param_sysfs_remove(struct module *mod)
+ {
+-	if (mod->params_kobject) {
+-		param_sysfs_remove(mod->params_kobject);
+-		mod->params_kobject = NULL;
++	if (mod->param_attrs) {
++		sysfs_remove_group(&mod->mkobj.kobj,
++				   &mod->param_attrs->grp);
++		/* We are positive that no one is using any param
++		 * attrs at this point.  Deallocate immediately. */
++		kfree(mod->param_attrs);
++		mod->param_attrs = NULL;
+ 	}
+ }
+ #endif
+@@ -722,8 +653,6 @@ decl_subsys(module, &module_ktype, NULL)
+ static int __init param_sysfs_init(void)
+ {
+ 	subsystem_register(&module_subsys);
+-	kobject_set_name(&param_kset.kobj, "parameters");
+-	kset_init(&param_kset);
+ 
+ 	param_sysfs_builtin();
+ 

@@ -1,46 +1,906 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262901AbSKDCEG>; Sun, 3 Nov 2002 21:04:06 -0500
+	id <S264626AbSKDCRa>; Sun, 3 Nov 2002 21:17:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264618AbSKDCEG>; Sun, 3 Nov 2002 21:04:06 -0500
-Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:56336 "EHLO
-	net.cc.swin.edu.au") by vger.kernel.org with ESMTP
-	id <S262901AbSKDCEG>; Sun, 3 Nov 2002 21:04:06 -0500
-Date: Mon, 4 Nov 2002 13:10:36 +1100 (EST)
-From: Tim Connors <tconnors@astro.swin.edu.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: small memory machine, large reserved memory
-Message-ID: <Pine.LNX.4.33.0211041304010.16003-100000@hexane.ssi.swin.edu.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264624AbSKDCRa>; Sun, 3 Nov 2002 21:17:30 -0500
+Received: from dp.samba.org ([66.70.73.150]:30154 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S264626AbSKDCRR>;
+	Sun, 3 Nov 2002 21:17:17 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com, trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: linux/bug.h and asm/bug.h
+Date: Mon, 04 Nov 2002 13:22:45 +1100
+Message-Id: <20021104022350.DB97A2C0C0@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In light of the recent discussions about config_tiny, etc, I decided to
-install 2.4.19 on my old 8MB 486, to see whether it performed any better
-than my previous attempts with 2.2.* and 2.4.*
+As the number of bug-related macros grows, this makes sense.
 
-The strange thing is, the memory init line at bootup (eg Memory:
-255296k/261996k available (1584k kernel code, 5972k reserved, 1353k data
-, 108k init, 0k highmem)) says that only about 5 or 6MB are availabel,
-with a whopping 2.x MB reserved. I have done a web search, and the only
-answer I have come up with is that the top 384kb of the 1MB lower
-portion of RAM should be here, but what else could be eating up all my
-RAM?
+1) Introduce linux/bug.h and #include it from linux/kernel.h so noone
+   breaks.
+2) Move BUG() macro from asm*/page.h to asm*/bug.h, and #include it.
 
-There is nothgin suspicious in the BIOS - all BIOS and video caching is
-turned off. The machine only (natually) has ISA slots in it, most are
-empty. What else could possibly be wrong?
+Thanks,
+Rusty.
 
-Is there something I can hack in the kernel to get it to use that, or can
-anyone give me pointers as to what else I can change? I would really love
-to regain that 2MB - its a pain when the shell gets swapped out after
-doing an `ls` :)
-
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-
-            Computer screens simply ooze buckets of yang.
-    To balance this, place some women around the corners of the room.
-                                        -- Kaz Cooke, Dumb Feng Shui
-
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/linux/bug.h working-2.5.45-bug/include/linux/bug.h
+--- linux-2.5.45/include/linux/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/linux/bug.h	2002-11-04 12:54:55.000000000 +1100
+@@ -0,0 +1,21 @@
++#ifndef _LINUX_BUG_H
++#define _LINUX_BUG_H
++#include <linux/compiler.h> /* likely/unlikely */
++#include <asm/bug.h> /* BUG() */
++
++extern void dump_stack(void);
++
++#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
++#define WARN_ON(condition) do { \
++	if (unlikely((condition)!=0)) { \
++		printk("Badness in %s at %s:%d\n", __FUNCTION__, __FILE__, __LINE__); \
++		dump_stack(); \
++	} \
++} while (0)
++
++/* Fail at build-time (condition must be a constant expression:
++   BUILD_BUG does not exist). */
++extern void BUILD_BUG(void);
++#define BUILD_BUG_ON(condition) do { if (condition) BUILD_BUG(); } while(0)
++
++#endif /* _LINUX_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/linux/kernel.h working-2.5.45-bug/include/linux/kernel.h
+--- linux-2.5.45/include/linux/kernel.h	2002-10-19 17:48:10.000000000 +1000
++++ working-2.5.45-bug/include/linux/kernel.h	2002-11-04 13:20:21.000000000 +1100
+@@ -11,7 +11,7 @@
+ #include <linux/linkage.h>
+ #include <linux/stddef.h>
+ #include <linux/types.h>
+-#include <linux/compiler.h>
++#include <linux/bug.h>
+ #include <asm/byteorder.h>
+ 
+ /* Optimization barrier */
+@@ -103,8 +103,6 @@ extern const char *print_tainted(void);
+ #define TAINT_FORCED_MODULE		(1<<1)
+ #define TAINT_UNSAFE_SMP		(1<<2)
+ 
+-extern void dump_stack(void);
+-
+ #if DEBUG
+ #define pr_debug(fmt,arg...) \
+ 	printk(KERN_DEBUG fmt,##arg)
+@@ -199,17 +197,6 @@ struct sysinfo {
+ 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
+ };
+ 
+-#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
+-#define WARN_ON(condition) do { \
+-	if (unlikely((condition)!=0)) { \
+-		printk("Badness in %s at %s:%d\n", __FUNCTION__, __FILE__, __LINE__); \
+-		dump_stack(); \
+-	} \
+-} while (0)
+-
+-extern void BUILD_BUG(void);
+-#define BUILD_BUG_ON(condition) do { if (condition) BUILD_BUG(); } while(0)
+-
+ /* Trap pasters of __FUNCTION__ at compile-time */
+ #if __GNUC__ > 2 || __GNUC_MINOR__ >= 95
+ #define __FUNCTION__ (__func__)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-alpha/bug.h working-2.5.45-bug/include/asm-alpha/bug.h
+--- linux-2.5.45/include/asm-alpha/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-alpha/bug.h	2002-11-04 12:57:38.000000000 +1100
+@@ -0,0 +1,11 @@
++#ifndef _ALPHA_BUG_H
++#define _ALPHA_BUG_H
++#include <asm/pal.h>
++
++/* ??? Would be nice to use .gprel32 here, but we can't be sure that the
++   function loaded the GP, so this could fail in modules.  */
++#define BUG() \
++  __asm__ __volatile__("call_pal %0  # bugchk\n\t"".long %1\n\t.8byte %2" \
++		       : : "i" (PAL_bugchk), "i"(__LINE__), "i"(__FILE__))
++
++#endif /* _ALPHA_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-alpha/page.h working-2.5.45-bug/include/asm-alpha/page.h
+--- linux-2.5.45/include/asm-alpha/page.h	2002-08-11 15:31:42.000000000 +1000
++++ working-2.5.45-bug/include/asm-alpha/page.h	2002-11-04 12:57:04.000000000 +1100
+@@ -2,6 +2,7 @@
+ #define _ALPHA_PAGE_H
+ 
+ #include <asm/pal.h>
++#include <asm/bug.h>
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT	13
+@@ -59,12 +60,6 @@ typedef unsigned long pgprot_t;
+ 
+ #endif /* STRICT_MM_TYPECHECKS */
+ 
+-/* ??? Would be nice to use .gprel32 here, but we can't be sure that the
+-   function loaded the GP, so this could fail in modules.  */
+-#define BUG() \
+-  __asm__ __volatile__("call_pal %0  # bugchk\n\t"".long %1\n\t.8byte %2" \
+-		       : : "i" (PAL_bugchk), "i"(__LINE__), "i"(__FILE__))
+-
+ #define PAGE_BUG(page)	BUG()
+ 
+ /* Pure 2^n version of get_order */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-arm/bug.h working-2.5.45-bug/include/asm-arm/bug.h
+--- linux-2.5.45/include/asm-arm/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-arm/bug.h	2002-11-04 12:59:30.000000000 +1100
+@@ -0,0 +1,20 @@
++#ifndef _ASMARM_BUG_H
++#define _ASMARM_BUG_H
++#include <linux/config.h>
++
++#ifdef CONFIG_DEBUG_BUGVERBOSE
++extern void __bug(const char *file, int line, void *data);
++
++/* give file/line information */
++#define BUG()		__bug(__FILE__, __LINE__, NULL)
++#define PAGE_BUG(page)	__bug(__FILE__, __LINE__, page)
++
++#else
++
++/* these just cause an oops */
++#define BUG()		(*(int *)0 = 0)
++#define PAGE_BUG(page)	(*(int *)0 = 0)
++
++#endif
++
++#endif /* _ASMARM_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-arm/page.h working-2.5.45-bug/include/asm-arm/page.h
+--- linux-2.5.45/include/asm-arm/page.h	2002-10-16 15:01:23.000000000 +1000
++++ working-2.5.45-bug/include/asm-arm/page.h	2002-11-04 12:59:46.000000000 +1100
+@@ -7,6 +7,7 @@
+ #ifndef __ASSEMBLY__
+ 
+ #include <asm/glue.h>
++#include <asm/bug.h>
+ 
+ /*
+  *	User Space Model
+@@ -160,21 +161,6 @@ typedef unsigned long pgprot_t;
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+ 
+-#ifdef CONFIG_DEBUG_BUGVERBOSE
+-extern void __bug(const char *file, int line, void *data);
+-
+-/* give file/line information */
+-#define BUG()		__bug(__FILE__, __LINE__, NULL)
+-#define PAGE_BUG(page)	__bug(__FILE__, __LINE__, page)
+-
+-#else
+-
+-/* these just cause an oops */
+-#define BUG()		(*(int *)0 = 0)
+-#define PAGE_BUG(page)	(*(int *)0 = 0)
+-
+-#endif
+-
+ /* Pure 2^n version of get_order */
+ static inline int get_order(unsigned long size)
+ {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-cris/bug.h working-2.5.45-bug/include/asm-cris/bug.h
+--- linux-2.5.45/include/asm-cris/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-cris/bug.h	2002-11-04 13:00:45.000000000 +1100
+@@ -0,0 +1,8 @@
++#ifndef _CRIS_BUG_H
++#define _CRIS_BUG_H
++
++#define BUG() do { \
++  printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++} while (0)
++
++#endif /* _CRIS_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-cris/page.h working-2.5.45-bug/include/asm-cris/page.h
+--- linux-2.5.45/include/asm-cris/page.h	2002-02-12 19:17:37.000000000 +1100
++++ working-2.5.45-bug/include/asm-cris/page.h	2002-11-04 13:01:04.000000000 +1100
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/config.h>
+ #include <asm/mmu.h>
++#include <asm/bug.h>
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT	13
+@@ -70,18 +71,10 @@ typedef unsigned long pgprot_t;
+ #define PAGE_OFFSET		KSEG_C   /* kseg_c is mapped to physical ram */
+ #endif
+ 
+-#ifndef __ASSEMBLY__
+-
+-#define BUG() do { \
+-  printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-} while (0)
+-
+ #define PAGE_BUG(page) do { \
+          BUG(); \
+ } while (0)
+ 
+-#endif /* __ASSEMBLY__ */
+-
+ /* macros to convert between really physical and virtual addresses
+  * by stripping a selected bit, we can convert between KSEG_x and 0x40000000 where
+  * the DRAM really resides
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-i386/bug.h working-2.5.45-bug/include/asm-i386/bug.h
+--- linux-2.5.45/include/asm-i386/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-i386/bug.h	2002-11-04 12:57:57.000000000 +1100
+@@ -0,0 +1,20 @@
++#ifndef _I386_BUG_H
++#define _I386_BUG_H
++/*
++ * Tell the user there is some problem. Beep too, so we can
++ * see^H^H^Hhear bugs in early bootup as well!
++ * The offending file and line are encoded after the "officially
++ * undefined" opcode for parsing in the trap handler.
++ */
++
++#if 1	/* Set to zero for a slightly smaller kernel */
++#define BUG()				\
++ __asm__ __volatile__(	"ud2\n"		\
++			"\t.word %c0\n"	\
++			"\t.long %c1\n"	\
++			 : : "i" (__LINE__), "i" (__FILE__))
++#else
++#define BUG() __asm__ __volatile__("ud2\n")
++#endif
++
++#endif /* _I386_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-i386/page.h working-2.5.45-bug/include/asm-i386/page.h
+--- linux-2.5.45/include/asm-i386/page.h	2002-10-15 15:31:04.000000000 +1000
++++ working-2.5.45-bug/include/asm-i386/page.h	2002-11-04 12:56:25.000000000 +1100
+@@ -13,6 +13,7 @@
+ #ifndef __ASSEMBLY__
+ 
+ #include <linux/config.h>
++#include <asm/bug.h>
+ 
+ #ifdef CONFIG_X86_USE_3DNOW
+ 
+@@ -99,23 +100,6 @@ typedef struct { unsigned long pgprot; }
+ 
+ #ifndef __ASSEMBLY__
+ 
+-/*
+- * Tell the user there is some problem. Beep too, so we can
+- * see^H^H^Hhear bugs in early bootup as well!
+- * The offending file and line are encoded after the "officially
+- * undefined" opcode for parsing in the trap handler.
+- */
+-
+-#if 1	/* Set to zero for a slightly smaller kernel */
+-#define BUG()				\
+- __asm__ __volatile__(	"ud2\n"		\
+-			"\t.word %c0\n"	\
+-			"\t.long %c1\n"	\
+-			 : : "i" (__LINE__), "i" (__FILE__))
+-#else
+-#define BUG() __asm__ __volatile__("ud2\n")
+-#endif
+-
+ #define PAGE_BUG(page) do { \
+ 	BUG(); \
+ } while (0)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-ia64/bug.h working-2.5.45-bug/include/asm-ia64/bug.h
+--- linux-2.5.45/include/asm-ia64/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-ia64/bug.h	2002-11-04 13:02:21.000000000 +1100
+@@ -0,0 +1,11 @@
++#ifndef _ASM_IA64_BUG_H
++#define _ASM_IA64_BUG_H
++
++#if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
++# define ia64_abort()	__builtin_trap()
++#else
++# define ia64_abort()	(*(volatile int *) 0 = 0)
++#endif
++#define BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); ia64_abort(); } while (0)
++
++#endif /* _ASM_IA64_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-ia64/page.h working-2.5.45-bug/include/asm-ia64/page.h
+--- linux-2.5.45/include/asm-ia64/page.h	2002-10-31 12:36:58.000000000 +1100
++++ working-2.5.45-bug/include/asm-ia64/page.h	2002-11-04 13:02:44.000000000 +1100
+@@ -10,6 +10,7 @@
+ #include <linux/config.h>
+ 
+ #include <asm/types.h>
++#include <asm/bug.h>
+ 
+ /*
+  * PAGE_SHIFT determines the actual kernel page size.
+@@ -122,12 +123,6 @@ typedef union ia64_va {
+ # define HUGETLB_PAGE_ORDER	(HPAGE_SHIFT - PAGE_SHIFT)
+ #endif
+ 
+-#if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
+-# define ia64_abort()	__builtin_trap()
+-#else
+-# define ia64_abort()	(*(volatile int *) 0 = 0)
+-#endif
+-#define BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); ia64_abort(); } while (0)
+ #define PAGE_BUG(page) do { BUG(); } while (0)
+ 
+ static __inline__ int
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-m68k/bug.h working-2.5.45-bug/include/asm-m68k/bug.h
+--- linux-2.5.45/include/asm-m68k/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-m68k/bug.h	2002-11-04 13:04:15.000000000 +1100
+@@ -0,0 +1,24 @@
++#ifndef _M68K_BUG_H
++#define _M68K_BUG_H
++
++#include <linux/config.h>
++
++#ifdef CONFIG_DEBUG_BUGVERBOSE
++#ifndef CONFIG_SUN3
++#define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++	asm volatile("illegal"); \
++} while (0)
++#else
++#define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++	panic("BUG!"); \
++} while (0)
++#endif
++#else
++#define BUG() do { \
++	asm volatile("illegal"); \
++} while (0)
++#endif
++
++#endif /* _M68K_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-m68k/page.h working-2.5.45-bug/include/asm-m68k/page.h
+--- linux-2.5.45/include/asm-m68k/page.h	2002-07-25 10:13:16.000000000 +1000
++++ working-2.5.45-bug/include/asm-m68k/page.h	2002-11-04 13:03:34.000000000 +1100
+@@ -16,6 +16,7 @@
+ #ifdef __KERNEL__
+ 
+ #include <asm/setup.h>
++#include <asm/bug.h>
+ 
+ #if PAGE_SHIFT < 13
+ #define THREAD_SIZE (8192)
+@@ -177,24 +178,6 @@ static inline void *__va(unsigned long x
+ #define virt_addr_valid(kaddr)	((void *)(kaddr) >= (void *)PAGE_OFFSET && (void *)(kaddr) < high_memory)
+ #define pfn_valid(pfn)		virt_addr_valid(pfn_to_virt(pfn))
+ 
+-#ifdef CONFIG_DEBUG_BUGVERBOSE
+-#ifndef CONFIG_SUN3
+-#define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-	asm volatile("illegal"); \
+-} while (0)
+-#else
+-#define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-	panic("BUG!"); \
+-} while (0)
+-#endif
+-#else
+-#define BUG() do { \
+-	asm volatile("illegal"); \
+-} while (0)
+-#endif
+-
+ #define PAGE_BUG(page) do { \
+ 	BUG(); \
+ } while (0)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-mips/bug.h working-2.5.45-bug/include/asm-mips/bug.h
+--- linux-2.5.45/include/asm-mips/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-mips/bug.h	2002-11-04 13:05:32.000000000 +1100
+@@ -0,0 +1,6 @@
++#ifndef __ASM_BUG_H
++#define __ASM_BUG_H
++
++#define BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); *(int *)0=0; } while (0)
++
++#endif /* __ASM_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-mips/page.h working-2.5.45-bug/include/asm-mips/page.h
+--- linux-2.5.45/include/asm-mips/page.h	2002-02-20 17:57:18.000000000 +1100
++++ working-2.5.45-bug/include/asm-mips/page.h	2002-11-04 13:05:06.000000000 +1100
+@@ -17,10 +17,10 @@
+ #define PAGE_MASK	(~(PAGE_SIZE-1))
+ 
+ #ifdef __KERNEL__
++#include <asm/bug.h>
+ 
+ #ifndef _LANGUAGE_ASSEMBLY
+ 
+-#define BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); *(int *)0=0; } while (0)
+ #define PAGE_BUG(page) do {  BUG(); } while (0)
+ 
+ extern void (*_clear_page)(void * page);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-mips64/bug.h working-2.5.45-bug/include/asm-mips64/bug.h
+--- linux-2.5.45/include/asm-mips64/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-mips64/bug.h	2002-11-04 13:06:14.000000000 +1100
+@@ -0,0 +1,6 @@
++#ifndef _ASM_BUG_H
++#define _ASM_BUG_H
++
++#define BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); *(int *)0=0; } while (0)
++
++#endif /* _ASM_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-mips64/page.h working-2.5.45-bug/include/asm-mips64/page.h
+--- linux-2.5.45/include/asm-mips64/page.h	2002-02-12 19:17:37.000000000 +1100
++++ working-2.5.45-bug/include/asm-mips64/page.h	2002-11-04 13:05:57.000000000 +1100
+@@ -10,6 +10,7 @@
+ #define _ASM_PAGE_H
+ 
+ #include <linux/config.h>
++#include <asm/bug.h>
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT	12
+@@ -20,7 +21,6 @@
+ 
+ #ifndef _LANGUAGE_ASSEMBLY
+ 
+-#define BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); *(int *)0=0; } while (0)
+ #define PAGE_BUG(page) do {  BUG(); } while (0)
+ 
+ extern void (*_clear_page)(void * page);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-parisc/bug.h working-2.5.45-bug/include/asm-parisc/bug.h
+--- linux-2.5.45/include/asm-parisc/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-parisc/bug.h	2002-11-04 13:07:02.000000000 +1100
+@@ -0,0 +1,14 @@
++#ifndef _PARISC_BUG_H
++#define _PARISC_BUG_H
++
++/*
++ * Tell the user there is some problem. Beep too, so we can
++ * see^H^H^Hhear bugs in early bootup as well!
++ *
++ * We don't beep yet.  prumpf
++ */
++#define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++} while (0)
++
++#endif /* _PARISC_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-parisc/page.h working-2.5.45-bug/include/asm-parisc/page.h
+--- linux-2.5.45/include/asm-parisc/page.h	2002-10-31 12:36:59.000000000 +1100
++++ working-2.5.45-bug/include/asm-parisc/page.h	2002-11-04 13:06:45.000000000 +1100
+@@ -10,6 +10,7 @@
+ #ifndef __ASSEMBLY__
+ 
+ #include <asm/cache.h>
++#include <asm/bug.h>
+ 
+ #define clear_page(page)	memset((void *)(page), 0, PAGE_SIZE)
+ #define copy_page(to,from)      copy_user_page_asm((void *)(to), (void *)(from))
+@@ -86,16 +87,6 @@ extern int npmem_ranges;
+ /* to align the pointer to the (next) page boundary */
+ #define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&PAGE_MASK)
+ 
+-/*
+- * Tell the user there is some problem. Beep too, so we can
+- * see^H^H^Hhear bugs in early bootup as well!
+- *
+- * We don't beep yet.  prumpf
+- */
+-#define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-} while (0)
+-
+ #define PAGE_BUG(page) do { \
+ 	BUG(); \
+ } while (0)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-ppc/bug.h working-2.5.45-bug/include/asm-ppc/bug.h
+--- linux-2.5.45/include/asm-ppc/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-ppc/bug.h	2002-11-04 13:08:46.000000000 +1100
+@@ -0,0 +1,22 @@
++#ifndef _PPC_PAGE_H
++#define _PPC_PAGE_H
++
++#include <linux/config.h>
++
++#ifndef __ASSEMBLY__
++#include <asm/system.h> /* for xmon definition */
++
++#ifdef CONFIG_XMON
++#define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++	xmon(0); \
++} while (0)
++#else
++#define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++	__asm__ __volatile__(".long 0x0"); \
++} while (0)
++#endif
++#endif /* !__ASSEMBLY__ */
++
++#endif /* _PPC_PAGE_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-ppc/page.h working-2.5.45-bug/include/asm-ppc/page.h
+--- linux-2.5.45/include/asm-ppc/page.h	2002-09-21 13:55:17.000000000 +1000
++++ working-2.5.45-bug/include/asm-ppc/page.h	2002-11-04 13:08:29.000000000 +1100
+@@ -8,6 +8,7 @@
+ 
+ #ifdef __KERNEL__
+ #include <linux/config.h>
++#include <asm/bug.h>
+ 
+ /* Be sure to change arch/ppc/Makefile to match */
+ #ifdef CONFIG_KERNEL_START_BOOL
+@@ -18,19 +19,6 @@
+ #define KERNELBASE	PAGE_OFFSET
+ 
+ #ifndef __ASSEMBLY__
+-#include <asm/system.h> /* for xmon definition */
+-
+-#ifdef CONFIG_XMON
+-#define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-	xmon(0); \
+-} while (0)
+-#else
+-#define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-	__asm__ __volatile__(".long 0x0"); \
+-} while (0)
+-#endif
+ #define PAGE_BUG(page) do { BUG(); } while (0)
+ 
+ #define STRICT_MM_TYPECHECKS
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-ppc64/bug.h working-2.5.45-bug/include/asm-ppc64/bug.h
+--- linux-2.5.45/include/asm-ppc64/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-ppc64/bug.h	2002-11-04 13:10:36.000000000 +1100
+@@ -0,0 +1,27 @@
++#ifndef _PPC64_BUG_H
++#define _PPC64_BUG_H
++#include <linux/config.h>
++
++/* Define an illegal instr to trap on the bug.
++ * We don't use 0 because that marks the end of a function
++ * in the ELF ABI.  That's "Boo Boo" in case you wonder...
++ */
++#define BUG_OPCODE .long 0x00b00b00  /* For asm */
++#define BUG_ILLEGAL_INSTR "0x00b00b00" /* For BUG macro */
++
++#ifndef __ASSEMBLY__
++#ifdef CONFIG_XMON
++extern void xmon(struct pt_regs *excp);
++#define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++	xmon(0); \
++} while (0)
++#else
++#define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++	__asm__ __volatile__(".long " BUG_ILLEGAL_INSTR); \
++} while (0)
++#endif
++#endif /* __ASSEMBLY__ */
++
++#endif /* _PPC64_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-ppc64/page.h working-2.5.45-bug/include/asm-ppc64/page.h
+--- linux-2.5.45/include/asm-ppc64/page.h	2002-09-21 13:55:18.000000000 +1000
++++ working-2.5.45-bug/include/asm-ppc64/page.h	2002-11-04 13:10:54.000000000 +1100
+@@ -22,14 +22,8 @@
+ #define SID_MASK        0xfffffffff
+ #define GET_ESID(x)     (((x) >> SID_SHIFT) & SID_MASK)
+ 
+-/* Define an illegal instr to trap on the bug.
+- * We don't use 0 because that marks the end of a function
+- * in the ELF ABI.  That's "Boo Boo" in case you wonder...
+- */
+-#define BUG_OPCODE .long 0x00b00b00  /* For asm */
+-#define BUG_ILLEGAL_INSTR "0x00b00b00" /* For BUG macro */
+-
+ #ifdef __KERNEL__
++#include <asm/bug.h>
+ #ifndef __ASSEMBLY__
+ #include <asm/naca.h>
+ 
+@@ -103,20 +97,6 @@ typedef unsigned long pgprot_t;
+ 
+ #endif
+ 
+-#ifdef CONFIG_XMON
+-#include <asm/ptrace.h>
+-extern void xmon(struct pt_regs *excp);
+-#define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-	xmon(0); \
+-} while (0)
+-#else
+-#define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-	__asm__ __volatile__(".long " BUG_ILLEGAL_INSTR); \
+-} while (0)
+-#endif
+-
+ #define PAGE_BUG(page) do { BUG(); } while (0)
+ 
+ /* Pure 2^n version of get_order */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-s390/bug.h working-2.5.45-bug/include/asm-s390/bug.h
+--- linux-2.5.45/include/asm-s390/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-s390/bug.h	2002-11-04 13:11:33.000000000 +1100
+@@ -0,0 +1,9 @@
++#ifndef _S390_PAGE_H
++#define _S390_PAGE_H
++
++#define BUG() do { \
++        printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++        __asm__ __volatile__(".word 0x0000"); \
++} while (0)                                       
++
++#endif /* _S390_PAGE_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-s390/page.h working-2.5.45-bug/include/asm-s390/page.h
+--- linux-2.5.45/include/asm-s390/page.h	2002-06-10 16:03:55.000000000 +1000
++++ working-2.5.45-bug/include/asm-s390/page.h	2002-11-04 13:11:22.000000000 +1100
+@@ -20,6 +20,8 @@
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+ 
++#include <asm/bug.h>
++
+ static inline void clear_page(void *page)
+ {
+ 	register_pair rp;
+@@ -62,11 +64,6 @@ static inline void copy_page(void *to, v
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define BUG() do { \
+-        printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-        __asm__ __volatile__(".word 0x0000"); \
+-} while (0)                                       
+-
+ #define PAGE_BUG(page) do { \
+         BUG(); \
+ } while (0)                      
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-s390x/bug.h working-2.5.45-bug/include/asm-s390x/bug.h
+--- linux-2.5.45/include/asm-s390x/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-s390x/bug.h	2002-11-04 13:12:20.000000000 +1100
+@@ -0,0 +1,10 @@
++#ifndef _S390_PAGE_H
++#define _S390_PAGE_H
++
++#define BUG() do { \
++        printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++        __asm__ __volatile__(".long 0"); \
++} while (0)                                       
++
++#endif /* _S390_PAGE_H */
++
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-s390x/page.h working-2.5.45-bug/include/asm-s390x/page.h
+--- linux-2.5.45/include/asm-s390x/page.h	2002-06-09 17:22:49.000000000 +1000
++++ working-2.5.45-bug/include/asm-s390x/page.h	2002-11-04 13:12:02.000000000 +1100
+@@ -19,6 +19,8 @@
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+ 
++#include <asm/bug.h>
++
+ static inline void clear_page(void *page)
+ {
+         asm volatile ("   lgr  2,%0\n"
+@@ -60,11 +62,6 @@ static inline void copy_page(void *to, v
+ #define clear_user_page(page, vaddr, pg)    clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg) copy_page(to, from)
+ 
+-#define BUG() do { \
+-        printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-        __asm__ __volatile__(".long 0"); \
+-} while (0)                                       
+-
+ #define PAGE_BUG(page) do { \
+         BUG(); \
+ } while (0)                      
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-sh/bug.h working-2.5.45-bug/include/asm-sh/bug.h
+--- linux-2.5.45/include/asm-sh/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-sh/bug.h	2002-11-04 13:12:56.000000000 +1100
+@@ -0,0 +1,12 @@
++#ifndef __ASM_SH_BUG_H
++#define __ASM_SH_BUG_H
++
++/*
++ * Tell the user there is some problem.
++ */
++#define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++	asm volatile("nop"); \
++} while (0)
++
++#endif /* __ASM_SH_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-sh/page.h working-2.5.45-bug/include/asm-sh/page.h
+--- linux-2.5.45/include/asm-sh/page.h	2001-09-09 05:29:09.000000000 +1000
++++ working-2.5.45-bug/include/asm-sh/page.h	2002-11-04 13:12:40.000000000 +1100
+@@ -24,6 +24,8 @@
+ #ifdef __KERNEL__
+ #ifndef __ASSEMBLY__
+ 
++#include <asm/bug.h>
++
+ extern void clear_page(void *to);
+ extern void copy_page(void *to, void *from);
+ 
+@@ -90,14 +92,6 @@ typedef struct { unsigned long pgprot; }
+ 
+ #ifndef __ASSEMBLY__
+ 
+-/*
+- * Tell the user there is some problem.
+- */
+-#define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-	asm volatile("nop"); \
+-} while (0)
+-
+ #define PAGE_BUG(page) do { \
+ 	BUG(); \
+ } while (0)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-sparc/bug.h working-2.5.45-bug/include/asm-sparc/bug.h
+--- linux-2.5.45/include/asm-sparc/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-sparc/bug.h	2002-11-04 13:14:08.000000000 +1100
+@@ -0,0 +1,22 @@
++#ifndef _SPARC_BUG_H
++#define _SPARC_BUG_H
++
++/*
++ * XXX I am hitting compiler bugs with __builtin_trap. This has
++ * hit me before and rusty was blaming his netfilter bugs on
++ * this so lets disable it. - Anton
++ */
++#if 0
++/* We need the mb()'s so we don't trigger a compiler bug - Anton */
++#define BUG() do { \
++	mb(); \
++	__builtin_trap(); \
++	mb(); \
++} while(0)
++#else
++#define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); *(int *)0=0; \
++} while (0)
++#endif
++
++#endif /* _SPARC_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-sparc/page.h working-2.5.45-bug/include/asm-sparc/page.h
+--- linux-2.5.45/include/asm-sparc/page.h	2002-08-28 09:29:51.000000000 +1000
++++ working-2.5.45-bug/include/asm-sparc/page.h	2002-11-04 13:13:24.000000000 +1100
+@@ -28,24 +28,7 @@
+ #include <asm/btfixup.h>
+ 
+ #ifndef __ASSEMBLY__
+-
+-/*
+- * XXX I am hitting compiler bugs with __builtin_trap. This has
+- * hit me before and rusty was blaming his netfilter bugs on
+- * this so lets disable it. - Anton
+- */
+-#if 0
+-/* We need the mb()'s so we don't trigger a compiler bug - Anton */
+-#define BUG() do { \
+-	mb(); \
+-	__builtin_trap(); \
+-	mb(); \
+-} while(0)
+-#else
+-#define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); *(int *)0=0; \
+-} while (0)
+-#endif
++#include <asm/bug.h>
+ 
+ #define PAGE_BUG(page)	BUG()
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-sparc64/bug.h working-2.5.45-bug/include/asm-sparc64/bug.h
+--- linux-2.5.45/include/asm-sparc64/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-sparc64/bug.h	2002-11-04 13:15:12.000000000 +1100
+@@ -0,0 +1,15 @@
++#ifndef _SPARC64_BUG_H
++#define _SPARC64_BUG_H
++#include <linux/config.h>
++
++#ifdef CONFIG_DEBUG_BUGVERBOSE
++extern void do_BUG(const char *file, int line);
++#define BUG() do {					\
++	do_BUG(__FILE__, __LINE__);			\
++	__builtin_trap();				\
++} while (0)
++#else
++#define BUG()		__builtin_trap()
++#endif
++
++#endif /* _SPARC64_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-sparc64/page.h working-2.5.45-bug/include/asm-sparc64/page.h
+--- linux-2.5.45/include/asm-sparc64/page.h	2002-10-31 12:37:00.000000000 +1100
++++ working-2.5.45-bug/include/asm-sparc64/page.h	2002-11-04 13:14:44.000000000 +1100
+@@ -19,16 +19,7 @@
+ #ifdef __KERNEL__
+ 
+ #ifndef __ASSEMBLY__
+-
+-#ifdef CONFIG_DEBUG_BUGVERBOSE
+-extern void do_BUG(const char *file, int line);
+-#define BUG() do {					\
+-	do_BUG(__FILE__, __LINE__);			\
+-	__builtin_trap();				\
+-} while (0)
+-#else
+-#define BUG()		__builtin_trap()
+-#endif
++#include <asm/bug.h>
+ 
+ #define PAGE_BUG(page)	BUG()
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-um/bug.h working-2.5.45-bug/include/asm-um/bug.h
+--- linux-2.5.45/include/asm-um/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-um/bug.h	2002-11-04 13:16:03.000000000 +1100
+@@ -0,0 +1,8 @@
++#ifndef __UM_BUG_H
++#define __UM_BUG_H
++
++#define BUG() do { \
++	panic("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++} while (0)
++
++#endif /* __UM_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-um/page.h working-2.5.45-bug/include/asm-um/page.h
+--- linux-2.5.45/include/asm-um/page.h	2002-10-15 15:26:29.000000000 +1000
++++ working-2.5.45-bug/include/asm-um/page.h	2002-11-04 13:15:41.000000000 +1100
+@@ -25,10 +25,7 @@ struct page;
+ 
+ extern void stop(void);
+ 
+-#define BUG() do { \
+-	panic("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+-} while (0)
+-
++#include <asm/bug.h>
+ #define PAGE_BUG(page) do { \
+ 	BUG(); \
+ } while (0)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-x86_64/bug.h working-2.5.45-bug/include/asm-x86_64/bug.h
+--- linux-2.5.45/include/asm-x86_64/bug.h	1970-01-01 10:00:00.000000000 +1000
++++ working-2.5.45-bug/include/asm-x86_64/bug.h	2002-11-04 13:17:14.000000000 +1100
+@@ -0,0 +1,18 @@
++#ifndef _X86_64_BUG_H
++#define _X86_64_BUG_H
++
++#include <linux/stringify.h>
++/*
++ * Tell the user there is some problem.  The exception handler decodes this frame.
++ */ 
++struct bug_frame { 
++       unsigned char ud2[2];          
++	char *filename;    /* should use 32bit offset instead, but the assembler doesn't like it */ 
++	unsigned short line; 
++} __attribute__((packed)); 
++#define BUG() \
++	asm volatile("ud2 ; .quad %c1 ; .short %c0" :: \
++		     "i"(__LINE__), "i" (__stringify(KBUILD_BASENAME)))
++void out_of_line_bug(void);
++
++#endif /* _X86_64_BUG_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.45/include/asm-x86_64/page.h working-2.5.45-bug/include/asm-x86_64/page.h
+--- linux-2.5.45/include/asm-x86_64/page.h	2002-10-16 15:01:24.000000000 +1000
++++ working-2.5.45-bug/include/asm-x86_64/page.h	2002-11-04 13:17:00.000000000 +1100
+@@ -64,21 +64,9 @@ typedef struct { unsigned long pgprot; }
+ 
+ #ifndef __ASSEMBLY__
+ 
+-#include <linux/stringify.h>
++#include <asm/bug.h>
+ 
+-/*
+- * Tell the user there is some problem.  The exception handler decodes this frame.
+- */ 
+-struct bug_frame { 
+-       unsigned char ud2[2];          
+-	char *filename;    /* should use 32bit offset instead, but the assembler doesn't like it */ 
+-	unsigned short line; 
+-} __attribute__((packed)); 
+-#define BUG() \
+-	asm volatile("ud2 ; .quad %c1 ; .short %c0" :: \
+-		     "i"(__LINE__), "i" (__stringify(KBUILD_BASENAME)))
+ #define PAGE_BUG(page) BUG()
+-void out_of_line_bug(void);
+ 
+ /* Pure 2^n version of get_order */
+ extern __inline__ int get_order(unsigned long size)

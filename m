@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312194AbSDSJhp>; Fri, 19 Apr 2002 05:37:45 -0400
+	id <S312178AbSDSKSI>; Fri, 19 Apr 2002 06:18:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312212AbSDSJho>; Fri, 19 Apr 2002 05:37:44 -0400
-Received: from mons.uio.no ([129.240.130.14]:51343 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S312194AbSDSJho>;
-	Fri, 19 Apr 2002 05:37:44 -0400
-To: "Jehanzeb Hameed" <u990056@giki.edu.pk>
-Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: regarding NFS
-In-Reply-To: <Pine.LNX.4.33.0204181338050.19147-100000@penguin.transmeta.com>
-	<001f01c1e6c6$2d6a9f80$e53ca8c0@hostel6.resnet.giki.edu.pk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 19 Apr 2002 11:36:35 +0200
-Message-ID: <shs7kn4m3mk.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S312169AbSDSKSH>; Fri, 19 Apr 2002 06:18:07 -0400
+Received: from zamok.crans.org ([138.231.136.6]:2955 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S312141AbSDSKSH>;
+	Fri, 19 Apr 2002 06:18:07 -0400
+To: Kurt Garloff <garloff@suse.de>
+Cc: Steve Kieu <haiquy@yahoo.com>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-pre6aa1 (possible all kernel after 2.4.19-pre2) athlon
+ PCI workaround
+In-Reply-To: <20020415174059.E2345@nbkurt.etpnet.phys.tue.nl>
+	<20020416064306.91089.qmail@web10407.mail.yahoo.com>
+	<20020416095703.A12012@nbkurt.etpnet.phys.tue.nl>
+X-PGP-KeyID: 0xF22A794E
+X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
+From: Vincent Bernat <bernat@free.fr>
+Organization: Kabale Inc
+Date: Fri, 19 Apr 2002 12:18:03 +0200
+Message-ID: <m3zo00yotg.fsf@neo.loria>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
+ i686-pc-linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Jehanzeb Hameed <u990056@giki.edu.pk> writes:
+OoO En cette matinée ensoleillée du mardi 16 avril 2002, vers 09:57,
+Kurt Garloff <garloff@suse.de> disait:
 
-     > I was looking at the code and I couldnt find how NFS implements
-     > inode->i_mapping->a_ops->readpage(filp,page) in
-     > used by generic_file_read in mm/filemapc.c. All I could find
-     > was inode->i_op->readpage(filp,page). But NFS uses
-     > generic_file_read....so how does it work out. Kernel 2.4.17??
+>> > and claiming that not clearing bit 5 did make the
+>> > problem go away.
+>> > (IOW: Replace v &= 0x1f; /* clear bits 5, 6, 7 */
+>> >            by v &= 0x3f; /* clear bits 6, 7 */
+>> >  and see whether this helps.)
 
-Look again: there is no such thing as readpage() in the struct
-inode_operations in the 2.4.x kernels. Just grep for 'nfs_file_aops'
-in the source.
+> It would be intersting to know. Maybe just clearing bits 6 and 7
+> would make everybody happy? 
 
-Cheers,
-  Trond
+Another related hack is to modify latency of this northbridge to 0 and
+to increase latency of "bandwidth eating" components. On
+french-speaking newsgroup fr.comp.os.linux.moderated, we have several
+reports that complete freeze of the system with TV cards can be
+postponed (at least ; in my case, they disappeared) by this
+tweak. Since, this is TV card related, I have already submitted this
+to bttv maintainer (I haven't checked if latest revisions of bttv
+include an option for this) but maybe decreasing to 0 the northbridge
+latency could help some people too (with or without TV card).
+-- 
+BOFH excuse #5:
+static from plastic slide rules

@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbVBTASS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVBTAVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbVBTASS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 19:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVBTARi
+	id S262330AbVBTAVq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 19:21:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVBTAVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 19:17:38 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:34224 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262329AbVBTARW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 19:17:22 -0500
-Subject: Re: I wrote a kernel tool for monitoring / web page
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, sylvanino b <sylvanino@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4217D41F.6000805@osdl.org>
-References: <d14685de050218164127828b06@mail.gmail.com>
-	 <1108774916.6040.4.camel@krustophenia.net>
-	 <d14685de05021817333c563cc9@mail.gmail.com>
-	 <20050220005022.64a6c9ea@mango.fruits.de>  <4217D41F.6000805@osdl.org>
-Content-Type: text/plain
-Date: Sat, 19 Feb 2005 19:17:18 -0500
-Message-Id: <1108858638.11675.1.camel@krustophenia.net>
+	Sat, 19 Feb 2005 19:21:45 -0500
+Received: from agminet04.oracle.com ([141.146.126.231]:1686 "EHLO
+	agminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S262330AbVBTAUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 19:20:07 -0500
+Date: Sat, 19 Feb 2005 16:20:00 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: updated list of unused kernel exports posted
+Message-ID: <20050220002000.GC27331@ca-server1.us.oracle.com>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <1108847674.6304.158.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108847674.6304.158.camel@laptopd505.fenrus.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-02-19 at 16:04 -0800, Randy.Dunlap wrote:
-> > 
-> > For some reason all i ever get to see is the front page.. Any link just
-> > leads to an empty page like this [screenshot]:
-> 
-> That's also what I saw with firefox, but konqueror worked OK.
-> 
+bio_map_user
+bio_unmap_user
 
-I saw it at first with Firefox but then when I tried again it worked.
+Used by Oracle's GPL ASMLib driver.
 
-> > http://affenbande.org/~tapas/kernelanalyzer_web.png
-> > 
-> > I second lee's idea to move the project to sf.net or berlios.
-> 
+dcache_readdir
+simple_commit_write
+simple_getattr
+simple_link
+simple_prepare_write
+simple_readpage
+simple_rename
+simple_sync_file
 
-This wasn't my idea but it's a good one.
+Used By OCFS2.
 
-Lee
+Joel
 
+-- 
+
+Life's Little Instruction Book #198
+
+	"Feed a stranger's expired parking meter."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

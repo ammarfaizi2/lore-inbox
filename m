@@ -1,68 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUF1AZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264577AbUF1A0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUF1AZF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 20:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUF1AZF
+	id S264577AbUF1A0o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 20:26:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbUF1A0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 20:25:05 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:11762 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S264571AbUF1AZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 20:25:00 -0400
-Date: Sun, 27 Jun 2004 19:24:34 -0500
-From: Erik Jacobson <erikj@subway.americas.sgi.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Pat Gefre <pfg@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Altix serial driver
-In-Reply-To: <20040626235248.GC12761@taniwha.stupidest.org>
-Message-ID: <Pine.SGI.4.53.0406271908390.524706@subway.americas.sgi.com>
-References: <Pine.SGI.3.96.1040623094239.19458C-100000@fsgi900.americas.sgi.com>
- <20040623143801.74781235.akpm@osdl.org> <200406231754.56837.jbarnes@engr.sgi.com>
- <Pine.SGI.4.53.0406242153360.343801@subway.americas.sgi.com>
- <20040625083130.GA26557@infradead.org> <Pine.SGI.4.53.0406250742350.377639@subway.americas.sgi.com>
- <20040625124807.GA29937@infradead.org> <Pine.SGI.4.53.0406250751470.377692@subway.americas.sgi.com>
- <20040626235248.GC12761@taniwha.stupidest.org>
+	Sun, 27 Jun 2004 20:26:44 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:2474 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264577AbUF1A0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 20:26:03 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: [PATCH] driver core: add default driver attributes to struct bus_type
+Date: Sun, 27 Jun 2004 19:25:51 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406271925.56187.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Jun 25, 2004 at 08:00:24AM -0500, Erik Jacobson wrote:
->
-> > I certainly had failed registrations when I tried to "share" ttyS0.
-> It's not clear to my why you can't use ttyS0, ttyS1, etc. since those
-> will probably not be used on Altix.
+Hi Greg,
 
-Maybe you can help me clear it up then.  When I feed serial core the
-name ttyS with TTY_MAJOR and minor 64, the registration fails.
-If I disable 8250 in the kernel config, the registration works for us.
-What should we try?
+Now that we have dev_attrs in bus_type can we also add drv_attrs so devices
+and drivers still have API similar to each other?
 
-Please let me know if I'm missing something and if I should try something
-different.  Any way out of this catch 22 would be good as far as we're
-concerned.  So if we over-looked something, that's great.  Just let us know
-what we need to try.
+The patch also contains 2 tiny trailing whitespace fixes.
+ 
+-- 
+Dmitry
 
-It seems you're attacking the patch from these angles.  I'll summerize
-the issues with each.
 
-1) You think we can some how use ttySX with our driver.  I need more
-   information for that as I couldn't get it to work with serial core.
 
-2) You think we should only use a major/minor if it's registered, but
-   our attempts to register it aren't getting anywhere.  Is there a way
-   around this problem?
+===================================================================
 
-3) You suggest we share with the major of pa/risc console driver.  This is
-   fine, but the agreement to possibly share some day was based on LANANA
-   accepting it.  LANANA has been unresponsive, so this doesn't help us.
 
-4) You think we should enable dynamic minors only -- but that would make our
-   driver not work properly on most current distros due to the timing of
-   when the console is opened vs when the "dev" is populated.  Indeed, this
-   would put is in a worse spot than where we are today.
+ChangeSet@1.1790, 2004-06-27 19:22:44-05:00, dtor_core@ameritech.net
+  Driver core: add default driver attributes to struct bus_type
+  
+  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
---
-Erik Jacobson - Linux System Software - Silicon Graphics - Eagan, Minnesota
+
+ drivers/base/bus.c     |   37 +++++++++++++++++++++++++++++++++++--
+ include/linux/device.h |    1 +
+ 2 files changed, 36 insertions(+), 2 deletions(-)
+
+
+===================================================================
+
+
+
+diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
+--- a/drivers/base/bus.c	2004-06-27 19:24:04 -05:00
++++ b/drivers/base/bus.c	2004-06-27 19:24:04 -05:00
+@@ -415,7 +415,7 @@
+ static void device_remove_attrs(struct bus_type * bus, struct device * dev)
+ {
+ 	int i;
+-	
++
+ 	if (bus->dev_attrs) {
+ 		for (i = 0; attr_name(bus->dev_attrs[i]); i++)
+ 			device_remove_file(dev,&bus->dev_attrs[i]);
+@@ -471,6 +471,37 @@
+ 	}
+ }
+ 
++static int driver_add_attrs(struct bus_type * bus, struct device_driver * drv)
++{
++	int error = 0;
++	int i;
++
++	if (bus->drv_attrs) {
++		for (i = 0; attr_name(bus->drv_attrs[i]); i++) {
++			error = driver_create_file(drv, &bus->drv_attrs[i]);
++			if (error)
++				goto Err;
++		}
++	}
++ Done:
++	return error;
++ Err:
++	while (--i >= 0)
++		driver_remove_file(drv, &bus->drv_attrs[i]);
++	goto Done;
++}
++
++
++static void driver_remove_attrs(struct bus_type * bus, struct device_driver * drv)
++{
++	int i;
++
++	if (bus->drv_attrs) {
++		for (i = 0; attr_name(bus->drv_attrs[i]); i++)
++			driver_remove_file(drv, &bus->drv_attrs[i]);
++	}
++}
++
+ 
+ /**
+  *	bus_add_driver - Add a driver to the bus.
+@@ -499,6 +530,7 @@
+ 		driver_attach(drv);
+ 		up_write(&bus->subsys.rwsem);
+ 
++		driver_add_attrs(bus, drv);
+ 	}
+ 	return error;
+ }
+@@ -516,6 +548,7 @@
+ void bus_remove_driver(struct device_driver * drv)
+ {
+ 	if (drv->bus) {
++		driver_remove_attrs(drv->bus, drv);
+ 		down_write(&drv->bus->subsys.rwsem);
+ 		pr_debug("bus %s: remove driver %s\n", drv->bus->name, drv->name);
+ 		driver_detach(drv);
+@@ -610,7 +643,7 @@
+ static void bus_remove_attrs(struct bus_type * bus)
+ {
+ 	int i;
+-	
++
+ 	if (bus->bus_attrs) {
+ 		for (i = 0; attr_name(bus->bus_attrs[i]); i++)
+ 			bus_remove_file(bus,&bus->bus_attrs[i]);
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	2004-06-27 19:24:04 -05:00
++++ b/include/linux/device.h	2004-06-27 19:24:04 -05:00
+@@ -56,6 +56,7 @@
+ 
+ 	struct bus_attribute	* bus_attrs;
+ 	struct device_attribute	* dev_attrs;
++	struct driver_attribute	* drv_attrs;
+ 
+ 	int		(*match)(struct device * dev, struct device_driver * drv);
+ 	struct device * (*add)	(struct device * parent, char * bus_id);

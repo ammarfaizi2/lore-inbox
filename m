@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318813AbSH1SyK>; Wed, 28 Aug 2002 14:54:10 -0400
+	id <S318900AbSH1S4O>; Wed, 28 Aug 2002 14:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318892AbSH1SyK>; Wed, 28 Aug 2002 14:54:10 -0400
-Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:14489 "EHLO
-	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S318813AbSH1SyJ>; Wed, 28 Aug 2002 14:54:09 -0400
-Date: Wed, 28 Aug 2002 11:52:32 -0700 (PDT)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Kai-Boris Schad <kschad@ebs.e-technik.uni-ulm.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: Q: Howto access the keyboard in a linux system without a graphics
- card ?
-In-Reply-To: <200208260943.LAA25845@correo.e-technik.uni-ulm.de>
-Message-ID: <Pine.LNX.4.33.0208281151380.1459-100000@maxwell.earthlink.net>
+	id <S318903AbSH1S4O>; Wed, 28 Aug 2002 14:56:14 -0400
+Received: from [200.255.184.105] ([200.255.184.105]:15499 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S318900AbSH1S4N>; Wed, 28 Aug 2002 14:56:13 -0400
+Date: Wed, 28 Aug 2002 16:00:26 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <0@pervalidus.net>
+X-X-Sender: fredlwm@pervalidus.dyndns.org
+To: linux-kernel@vger.kernel.org
+Subject: ECS K7S5A: IDE performance
+Message-ID: <Pine.LNX.4.44.0208281552190.213-100000@pervalidus.dyndns.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have an ECS K7S5A 3.1A. It works fine with 2.4.19. No
+corruption. Now I tested it with hdparm and:
 
-Its is easy if your keyboard driver is based on the input api. Just use
-the /dev/input/event interface.
+hdparm -tT /dev/hda
 
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
+/dev/hda:
+ Timing buffer-cache reads:   128 MB in  0.79 seconds =162.03 MB/sec
+ Timing buffered disk reads:  64 MB in  1.68 seconds = 38.10 MB/sec
 
-James Simmons  [jsimmons@users.sf.net] 	                ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
+Only 38.10 ?
 
-On Mon, 26 Aug 2002, Kai-Boris Schad wrote:
+hdparm -i /dev/hda
 
-> Hi !
->
-> I'm trying to set up a small embedded system for gps receiving with a linux
-> system.  I want to have the system working without a graphics card - wich
-> works well. The Problem I have at the moment is to access the keyboard
-> without a graphics card, because the console driver does not start then (
-> Also a redirect doesn't work then :-( )
-> Is there a way to access the keyboard in this case by a user program ?
-> The system recognises the keyboard ( I think Kernel and init) and reacts if
-> ctrl-alt-del is pressed.
->
-> Thanks for your help !
->
-> Kai
->
-> --
-> Kai-Boris Schad
-> University of Ulm, Germany
-> Dept. of Electron Devices and Circuits
-> Integrated Circuits in Communications
-> Albert Einstein Allee 45
-> 89069 ULM
->
-> http://www.uni-ulm.de/icic
-> email:kschad@ebs.e-technik.uni-ulm.de
-> phone +49/731/50-31581  fax +49/731/50-31599
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+/dev/hda:
+
+ Model=MAXTOR 6L060J3, FwRev=A93.0500, SerialNo=663200252994
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=1819kB, MaxMultSect=16, MultSect=off
+ CurCHS=4047/16/255, CurSects=16511760, LBA=yes, LBAsects=117266688
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 udma6
+ AdvancedPM=no WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  1 2 3 4 5
+
+SIS5513: IDE controller on PCI bus 00 dev 15
+SIS5513: chipset revision 208
+SIS5513: not 100% native mode: will probe irqs later
+SiS735    ATA 100 controller
+    ide0: BM-DMA at 0xff00-0xff07, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xff08-0xff0f, BIOS settings: hdc:DMA, hdd:DMA
+hda: MAXTOR 6L060J3, ATA DISK drive
+
+hda: 117266688 sectors (60041 MB) w/1819KiB Cache, CHS=7299/255/63, UDMA(100)
+
+-- 
+0@pervalidus.{net, {dyndns.}org} ICQ: 156552241
+Tel: +55 (21) 2717-2399 (with voice mailbox)
 

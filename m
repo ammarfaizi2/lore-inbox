@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264368AbUAHM3S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 07:29:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUAHM3S
+	id S264386AbUAHMeX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 07:34:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264409AbUAHMeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 07:29:18 -0500
-Received: from dspnet.fr.eu.org ([62.73.5.179]:32270 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S264368AbUAHM3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 07:29:18 -0500
-Date: Thu, 8 Jan 2004 13:29:16 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 8 Jan 2004 07:34:23 -0500
+Received: from mail-02.iinet.net.au ([203.59.3.34]:3558 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264386AbUAHMeW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 07:34:22 -0500
+Date: Thu, 8 Jan 2004 20:35:07 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+cc: Jim Carter <jimc@math.ucla.edu>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-Message-ID: <20040108122916.GA72001@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3FFB12AD.6010000@sun.com> <Pine.LNX.4.53.0401071139430.20046@simba.math.ucla.edu> <3FFC8E5B.40203@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <3FFC8E5B.40203@sun.com>
-User-Agent: Mutt/1.4.1i
+Message-ID: <Pine.LNX.4.44.0401082026340.354-100000@donald.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 05:55:23PM -0500, Mike Waychison wrote:
-> Yes, an 'ls' actually does an lstat on every file.
+On Wed, 7 Jan 2004, Mike Waychison wrote:
 
-I guess you haven't met the plague called color-ls yet.  Lucky you.
+>
+> This is a good example of why this stuff should probably be merged into
+> VFS,  autofs4 has yet to be updated to use this lock.  This comes with
+> the decision to a) no longer support it as a module, only built in, or
+> b) make vfsmount_lock accessible to modules.
 
-Most modern file browsers also seem to feel obligated to follow
-symlinks to check whether they're dangling.  A mis-click on "up" when
-you're on your home directory could cause a beautiful mount-storm.
+Please don't say it this way.
 
-  OG.
+A new implementation may mean current autofs becomes depricated but
+this is a deprecation process, not a slash and burn, and needs to be
+managed.
+
+Ian
+
 

@@ -1,128 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUEATNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUEATMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbUEATNT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 15:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUEATNT
+	id S261880AbUEATMX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 15:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUEATMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 15:13:19 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:56809 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261984AbUEATNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 15:13:14 -0400
-Date: Sat, 1 May 2004 15:13:13 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Keith Owens <kaos@sgi.com>
-Subject: [PATCH][2.6-mm] Allow i386 to reenable interrupts on lock contention
-In-Reply-To: <2015.1083331968@ocs3.ocs.com.au>
-Message-ID: <Pine.LNX.4.58.0405010628030.2332@montezuma.fsmlabs.com>
-References: <2015.1083331968@ocs3.ocs.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 1 May 2004 15:12:23 -0400
+Received: from wirefire.bureaudepost.com ([66.38.187.209]:24507 "EHLO
+	oasis.linuxant.com") by vger.kernel.org with ESMTP id S261880AbUEATMV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 15:12:21 -0400
+In-Reply-To: <6900000.1083388078@[10.10.2.4]>
+References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com> <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org> <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com> <6900000.1083388078@[10.10.2.4]>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <772768DC-9BA3-11D8-B83D-000A95BCAC26@linuxant.com>
+Content-Transfer-Encoding: 7bit
+Cc: Tim Connors <tconnors+linuxkernel1083378452@astro.swin.edu.au>,
+       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+From: Marc Boucher <marc@linuxant.com>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Date: Sat, 1 May 2004 15:12:18 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Keith, Andrew,
 
-Following up on Keith's code, i adapted the i386 code to allow enabling
-interrupts during contested locks depending on previous interrupt
-enable status. Obviously there will be a text increase (only for non
-CONFIG_SPINLINE case), although it doesn't seem so bad, there will be an
-increased exit latency when we attempt a lock acquisition after spinning
-due to the extra instructions. How much this will affect performance i'm
-not sure yet as i haven't had time to micro bench.
+On May 1, 2004, at 1:07 AM, Martin J. Bligh wrote:
 
-   text    data     bss     dec     hex filename
-2628024  921731       0 3549755  362a3b vmlinux-after
-2621369  921731       0 3543100  36103c vmlinux-before
-2618313  919222       0 3537535  35fa7f vmlinux-spinline
+>> All bugs can be debugged or fixed, it's a matter of how hard it is
+>> to do (generally easier with open-source) and *who* is responsible
+>> for doing it (i.e. supporting the modules).
+>
+> Yes, exactly. The tainted mechanism is there to tell us that it's not
+> *our* problem to support it. And you deliberately screwed that up,
+> which is why everybody is pissed at you.
 
-The code has been stress tested on a 16x NUMAQ (courtesy OSDL).
+It was already screwed up, and causing unnecessary support burdens
+both on the community ("help! what does tainted mean") and vendors.
+This thread and previous ones have shown ample evidence of that.
+Let's deal with the root problem and fix the messages, as Rik van Riel
+has suggested.
 
-Andrew, does this email have a whitespace problem too?
+Most third-party module suppliers have been confronted with the same 
+issue
+and forced to work around it (in other imperfect and sometimes clumsy 
+ways).
+One of them redirects the messages to a separate file and appends
+the following notice:
 
-Index: linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 spinlock.h
---- linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h	1 May 2004 08:19:15 -0000	1.1.1.1
-+++ linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h	1 May 2004 18:21:41 -0000
-@@ -42,7 +42,6 @@ typedef struct {
+ > ********************************************************************
+ > * You can safely ignore the above message about tainting the kernel.
+ > * It is completely political and means just that the maintainers of
+ > * of modutils package dislike software that is not distributed under
+ > * an open source license.
+ > ********************************************************************
 
- #define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
- #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
--#define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
+On Apr 30, 2004, at 10:36 PM, Tim Connors wrote:
+>
+> What's wrong with the printk setting workaround? Simply write a number
+> to the appropriate file before you load the modules.
+>
+> I just tried googling for the relevant post, but failed...
+>
+> He doesn't need to wait for the patches to propogate. He can act on
+> his own scripts immediately in readiness for the next version.
+>
+> Easy.
 
- #ifdef CONFIG_SPINLINE
+Not. We don't use a script to systematically load the modules,
+because they are large and not always required, nor want to
+interfere with the system's normal logging.
 
-@@ -58,6 +57,21 @@ typedef struct {
- 		"jmp 1b\n" \
- 		"3:\t"
+Manipulating printk settings or redirecting the superfluous
+messages elsewhere are also ugly hacks, which can
+potentially also divert/hide important messages.
 
-+	#define spin_lock_string_flags \
-+		"\n1:\t" \
-+		"lock ; decb %0\n\t" \
-+		"jns 3f\n" \
-+		"testl $0x200, %1\n\t" \
-+		"jz 2f\n\t" \
-+		"sti\n\t" \
-+		"2:\t" \
-+		"rep;nop\n\t" \
-+		"cmpb $0, %0\n\t" \
-+		"jle 2b\n\t" \
-+		"cli\n\t" \
-+		"jmp 1b\n" \
-+		"3:\t"
-+
- #else /* !CONFIG_SPINLINE */
+Marc
 
- 	#define spin_lock_string \
-@@ -72,6 +86,26 @@ typedef struct {
- 		"jmp 1b\n" \
- 		LOCK_SECTION_END
-
-+	#define spin_lock_string_flags \
-+		"\n1:\t" \
-+		"lock ; decb %0\n\t" \
-+		"jns 4f\n" \
-+		"testl $0x200, %1\n\t" \
-+		"jz 2f\n\t" \
-+		"sti\n\t" \
-+		"jmp 2f\n\t" \
-+		LOCK_SECTION_START("") \
-+		"2:\t" \
-+		"rep;nop\n\t" \
-+		"cmpb $0, %0\n\t" \
-+		"jle 2b\n\t" \
-+		"jmp 3f\n\t" \
-+		LOCK_SECTION_END \
-+		"3:\t" \
-+		"cli\n\t" \
-+		"jmp 1b\n" \
-+		"4:\t"
-+
- #endif /* CONFIG_SPINLINE */
- /*
-  * This works. Despite all the confusion.
-@@ -143,6 +177,20 @@ here:
- 		:"=m" (lock->lock) : : "memory");
- }
-
-+static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
-+{
-+#ifdef CONFIG_DEBUG_SPINLOCK
-+	__label__ here;
-+here:
-+	if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
-+		printk("eip: %p\n", &&here);
-+		BUG();
-+	}
-+#endif
-+	__asm__ __volatile__(
-+		spin_lock_string_flags
-+		:"=m" (lock->lock) : "r" (flags) : "memory");
-+}
-
- /*
-  * Read-write spinlocks, allowing multiple readers

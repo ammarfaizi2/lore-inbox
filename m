@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbTABPFH>; Thu, 2 Jan 2003 10:05:07 -0500
+	id <S261978AbTABPD7>; Thu, 2 Jan 2003 10:03:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbTABPFH>; Thu, 2 Jan 2003 10:05:07 -0500
-Received: from verein.lst.de ([212.34.181.86]:14097 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S261518AbTABPFG>;
-	Thu, 2 Jan 2003 10:05:06 -0500
-Date: Thu, 2 Jan 2003 16:10:20 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Christoph Hellwig <hch@lst.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, will@cs.earlham.edu
-Subject: Re: Linux v2.5.54
-Message-ID: <20030102161020.A11276@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	will@cs.earlham.edu
-References: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com> <20030102150839.GN6114@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030102150839.GN6114@fs.tum.de>; from bunk@fs.tum.de on Thu, Jan 02, 2003 at 04:08:40PM +0100
+	id <S261996AbTABPD6>; Thu, 2 Jan 2003 10:03:58 -0500
+Received: from k100-145.bas1.dbn.dublin.eircom.net ([159.134.100.145]:12811
+	"EHLO corvil.com.") by vger.kernel.org with ESMTP
+	id <S261978AbTABPD6>; Thu, 2 Jan 2003 10:03:58 -0500
+Message-ID: <3E14562F.8060104@corvil.com>
+Date: Thu, 02 Jan 2003 15:09:35 +0000
+From: Padraig Brady <padraig.brady@corvil.com>
+Organization: Corvil Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Fran=E7ois_Boisson?= <user@maison.homelinux.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: New version of e2compr for 2.4.16 kernel....
+References: <20030102160322.37ea4e88.user@maison.homelinux.net>
+In-Reply-To: <20030102160322.37ea4e88.user@maison.homelinux.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 04:08:40PM +0100, Adrian Bunk wrote:
-> --- linux-2.5.54/fs/befs/linuxvfs.c.old	2003-01-02 16:03:34.000000000 +0100
-> +++ linux-2.5.54/fs/befs/linuxvfs.c	2003-01-02 16:03:46.000000000 +0100
-> @@ -12,7 +12,7 @@
->  #include <linux/stat.h>
->  #include <linux/nls.h>
->  #include <linux/buffer_head.h>
-> -#include <linux/statfs.h>
-> +#include <linux/vfs.h>
-
-
-Yes, that's the proper fix.  Sorry for the breakage :P
+http://www.alizt.com/
 

@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265409AbRFVNdo>; Fri, 22 Jun 2001 09:33:44 -0400
+	id <S265414AbRFVNtB>; Fri, 22 Jun 2001 09:49:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265411AbRFVNde>; Fri, 22 Jun 2001 09:33:34 -0400
-Received: from customers.imt.ru ([212.16.0.33]:36623 "HELO smtp.direct.ru")
-	by vger.kernel.org with SMTP id <S265409AbRFVNdX>;
-	Fri, 22 Jun 2001 09:33:23 -0400
-Message-ID: <20010622093158.B2448@saw.sw.com.sg>
-Date: Fri, 22 Jun 2001 09:31:58 -0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: dwilson@technologist.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100: wait_for_cmd_done timeout
-In-Reply-To: <20010620163134.A22173@technolunatic.com> <20010620195134.A6877@saw.sw.com.sg> <20010620170202.B22565@technolunatic.com> <20010621183603.A28081@technolunatic.com>
+	id <S265413AbRFVNsv>; Fri, 22 Jun 2001 09:48:51 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:25096 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S265412AbRFVNse>;
+	Fri, 22 Jun 2001 09:48:34 -0400
+Date: Fri, 22 Jun 2001 09:51:59 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Missing help entries in 2.4.6pre5
+Message-ID: <20010622095159.B13075@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Russell King <rmk@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010621185144.A8669@thyrsus.com> <20010621154934.A6582@thyrsus.com> <Pine.LNX.4.33.0106211812560.30096-100000@xanadu.home> <20010621234002.Z18978@flint.arm.linux.org.uk> <20010621185144.A8669@thyrsus.com> <8226.993198272@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20010621183603.A28081@technolunatic.com>; from "Dionysius Wilson Almeida" on Thu, Jun 21, 2001 at 06:36:03PM
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <8226.993198272@redhat.com>; from dwmw2@infradead.org on Fri, Jun 22, 2001 at 09:24:32AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 21, 2001 at 06:36:03PM -0700, Dionysius Wilson Almeida wrote:
-> I tried inserting a udelay(1) and increasing the count ..but
-> the same behaviour.  
+David Woodhouse <dwmw2@infradead.org>:
 > 
-> any clues ? btw, i've been able to compile the redhat 7.1 intel e100
-> driver and it works fine for my card.
+> esr@thyrsus.com said:
+> >  I've done that in my rulesfile, thanks.  Here is the current list of
+> > ignored symbols:
+> 
+> > derive CMDLINE_BOOL from n
+>  ....etc...
+> 
+> 
+> That'll nicely break oldconfig behaviour when the options in question do 
+> get merged into the main tree, won't it?
 
-Your problem is different from anyone else's, as I explained.
-You see "netdev watchdog" message first.
-It means that the card just stopped to transmit packets.
-All other messages printed after that, including wait_for_cmd_done timeout,
-are irrelevant to this problem.  Your card just doesn't transmit.
+Actually, what will happen is that when the symbol goes active and I know 
+about it, I'll add a declaration to the symbols table.  Then, if I've
+forgotten that I had the symbol on my ignore list, I'll get a compilation
+error the next time I try to builsd a rulebase.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Please send me a complete log of what the kernel prints, since powering up
-the computer.
-
-	Andrey
+A ``decay in the social contract'' is detectable; there is a growing
+feeling, particularly among middle-income taxpayers, that they are not
+getting back, from society and government, their money's worth for
+taxes paid. The tendency is for taxpayers to try to take more control
+of their finances ..
+	-- IRS Strategic Plan, (May 1984)

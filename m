@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264904AbRFTP2Y>; Wed, 20 Jun 2001 11:28:24 -0400
+	id <S264907AbRFTPeO>; Wed, 20 Jun 2001 11:34:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264905AbRFTP2O>; Wed, 20 Jun 2001 11:28:14 -0400
-Received: from pop09-acc.tin.it ([212.216.176.72]:60091 "EHLO fep19-svc.tin.it")
-	by vger.kernel.org with ESMTP id <S264904AbRFTP2K>;
-	Wed, 20 Jun 2001 11:28:10 -0400
-From: "Delio Brignoli" <nordkyn@tin.it>
-Date: Wed, 20 Jun 2001 17:23:24 +0200
-To: "Michael O'Reilly" <michael@dgmo.org>
-Cc: linux-kernel@vger.kernel.org, fdavis112@juno.com
-Subject: Re: i810_audio problem
-Message-ID: <20010620172324.A721@argo>
-In-Reply-To: <20010619.222014.-149693.3.fdavis112@juno.com> <3B300A94.2082D61A@cwo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B300A94.2082D61A@cwo.com.au>; from Michael.O'Reilly@cwo.com.au on Wed, Jun 20, 2001 at 12:29:40PM +1000
+	id <S264908AbRFTPeF>; Wed, 20 Jun 2001 11:34:05 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51875 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264907AbRFTPd5>;
+	Wed, 20 Jun 2001 11:33:57 -0400
+Date: Wed, 20 Jun 2001 11:33:55 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jes Sorensen <jes@sunsite.dk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, bert hubert <ahu@ds9a.nl>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+In-Reply-To: <d37ky7ch0w.fsf@lxplus015.cern.ch>
+Message-ID: <Pine.GSO.4.21.0106201127350.24658-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've not read the specs yet! intel web site is unreachable for me at the moment (It's two days now I can't connect ARGHH!!) :(.
 
-If you have a copy, could you please send me?
+On 20 Jun 2001, Jes Sorensen wrote:
 
---
-Delio
+> Not to mention how complex it is to get locking right in an efficient
+> manner. Programming threads is not that much different from kernel SMP
+> programming, except that in userland you get a core dump and retry, in
+> the kernel you get an OOPS and an fsck and retry.
+
+Arrgh. As long as we have that "SMP makes locking harder" myth floating
+around we _will_ get problems. Kernel UP programming is not different
+from SMP one. It is multithreaded. And amount of genuine SMP bugs is
+very small compared to ones that had been there on UP since way back.
+And yes, programming threads is the same thing. No arguments here.
+

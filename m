@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315762AbSEJDLF>; Thu, 9 May 2002 23:11:05 -0400
+	id <S315780AbSEJDVZ>; Thu, 9 May 2002 23:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315764AbSEJDLE>; Thu, 9 May 2002 23:11:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9734 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315762AbSEJDLD>;
-	Thu, 9 May 2002 23:11:03 -0400
-Message-ID: <3CDB3AFA.31A377F@zip.com.au>
-Date: Thu, 09 May 2002 20:14:02 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Silvan <silvan@windows-sucks.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.18 + ext3 = filesystem corruption
-In-Reply-To: <200205092156.12911.silvan@windows-sucks.com>
+	id <S315782AbSEJDVY>; Thu, 9 May 2002 23:21:24 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:60859 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S315780AbSEJDVY>;
+	Thu, 9 May 2002 23:21:24 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.4 is available 
+In-Reply-To: Your message of "09 May 2002 18:46:18 MST."
+             <1020995179.2911.1.camel@tduffy-lnx.afara.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 10 May 2002 13:21:04 +1000
+Message-ID: <25985.1021000864@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Interesting domain name.
+On 09 May 2002 18:46:18 -0700, 
+Thomas Duffy <tduffy@directvinternet.com> wrote:
+>here is kbuild-2.5-sparc64-2.5.14-2.  you still need to apply the hacks
+>patch before using this from
+>http://prdownloads.sourceforge.net/kbuild/linux-2.5.14-sparc64-hacks.patch.bz2.  This won't be necessary once 2.5.15 comes out as Dave has already sent these fixes to Linus. 
+>
+>  Changes from kbuild-2.5-sparc64-2.5.14-1 
+>
+>    Build against core-12 
+>
+>    Builds with kbuild 2.4 now as well
+>
+>    asm-offsets.c now uses the new thread_info offsets 
+>
+>    Had to use the CFLAG ugliness of ia64 to get asm-offsets.c to
+>    work properly as include/asm-sparc64/system.h uses thread_info 
+>    offsets.
 
-Silvan wrote:
-> 
-> ...
->  I had a filesystem explosion (across the board corruption on all ext3
->  partitions, brought to my attention by a rather nasty series of EXT3_fs
->  errors and an immediate crash) about a month back.
-> ...
+Uploaded to http://sourceforge.net/project/showfiles.php?group_id=18813
+under release 2.4.
 
-I've just re-reviewed the 2.4.16 -> 2.4.18 diffs.  There's really
-nothing there which could explain this.  We have:
+Also uploaded are kbuild-2.5-common-2.5.15-1.bz2 and
+kbuild-2.5-i386-2.5.15-1.bz2 for kernel 2.5.15 support.
 
-- lots of s/bread/sb_bread/etc.  Which is rather unfortunate because
-  it complicates any attempt to back out to 2.4.16's ext3.
-
-- A bug fix for locking journal buffers (the infamous "request_list
-  destroyed" bug)
-
-- Some error-path-only code which remounts the fs readonly rather than taking
-  down the machine when the unexpected happens.
-
-> 
->  My hardware:
-> 
->  AMD K7-1000 on ASUS A7V (VIA Apollo KT133a chipset, integrated Promise
->  ATA-100 controller), 256 MB RAM, Linksys 10/100E NIC, USR PCI Performance
->  Pro modem, SB PCI 128, Riva TNT2 AGP video (running at 4X in BIOS and in X),
->  CREATIVE CD-RW RW8439E, CD-950E/TKU, Maxtor 94610H6, generic PS/2 mouse,
->  generic FD, and a 104-key keyboard.
-
-I'd be suspecting this, frankly.   Might be an IDE failure.
-
--

@@ -1,68 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272920AbTG3Ozp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272927AbTG3Ozp
+	id S272933AbTG3PER (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 11:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272936AbTG3PER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:55:45 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:31112 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S272920AbTG3Oy4 convert rfc822-to-8bit (ORCPT
+	Wed, 30 Jul 2003 11:04:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3296 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272933AbTG3PEP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:54:56 -0400
-Date: Wed, 30 Jul 2003 11:50:50 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: linux-kernel@vger.kernel.org, gibbs@scsiguy.com
-Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1, aic7xxx-6.2.36: solid
- hangs)
-In-Reply-To: <20030730071321.GV150921@niksula.cs.hut.fi>
-Message-ID: <Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva>
-References: <20030729073948.GD204266@niksula.cs.hut.fi>
- <20030730071321.GV150921@niksula.cs.hut.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 30 Jul 2003 11:04:15 -0400
+Date: Wed, 30 Jul 2003 08:01:15 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Studying MTD <studying_mtd@yahoo.com>
+Cc: agoddard@purdue.edu, joshk@triplehelix.org, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.0-test1 : modules not working
+Message-Id: <20030730080115.28fd5d4f.rddunlap@osdl.org>
+In-Reply-To: <20030730073441.61933.qmail@web20506.mail.yahoo.com>
+References: <Pine.LNX.4.56.0307300223300.4665@dust>
+	<20030730073441.61933.qmail@web20506.mail.yahoo.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 30 Jul 2003 00:34:41 -0700 (PDT) Studying MTD <studying_mtd@yahoo.com> wrote:
 
+| I am curious that linux-2.6.0-test1 supports external
+| modules yet or not ?
+| 
+| Thanks.
+| 
+| --- Alex Goddard <agoddard@purdue.edu> wrote:
+| > On Tue, 29 Jul 2003, Studying MTD wrote:
+| > 
+| > > I tried hello world example from
+| > > http://lwn.net/Articles/21817/
+| > > 
+| > > but i am still getting :-
+| > > 
+| > > #insmod hello_module.o
+| > > No module found in object
+| > > Error inserting 'hello_module.o': -1 Invalid
+| > module
+| > > format
+| > 
+| > [Snip]
+| > 
+| > 'kay.  So modules are enabled and everything.  More
+| > specifically, I was 
+| > after information such as the gcc options and stuff
+| > you used to compile 
+| > hello_module.o
+| > 
+| > Check the second article at that URL, and try
+| > building your hello_module
+| > with the basic Makefile it gives.  That uses the
+| > best way for building
+| > external modules.  After building your kernel that
+| > way, try inserting the
+| > hello_module.ko.
 
-On Wed, 30 Jul 2003, Ville Herva wrote:
+So you can insmod hello_module.ko successfully now?
 
-> On Tue, Jul 29, 2003 at 10:39:48AM +0300, you [Ville Herva] wrote:
-> > After about a year of stable operation, a server begun acting up. First it
-> > begun hanging up solid during the nightly oracle backup (that had run
-> > successfully for a year), the I got some aic7xxx-related crashes on boot.
-> >
-> > Initially, the box ran 2.4.20pre7 kernel with aic7xxx version 6.4.8. When
-> > the hangs started happening, I upgraded to 2.4.21-jam1 (basically 2.4.21
-> > vanilla + -aa patch + some minor stuff) that includes aic7xxx version 6.2.36.
-> > It did not help.
-> >
-> > I enabled kmsgdump and nmi watchdog, but when the box hangs, it hangs solid:
-> > no ctrl-alt-del, no caps lock led, no alt-sysrq-b, no kmsgdump, nmi watchdog
-> > doesn't trigger. Only the cursor on the console blinks, but no messages from
-> > the kernel appear. (Apart from "spurious 8259A interrupt: IRQ7." that
-> > always happens sometime after boot on this box, but way before the hang.)
->
-> Herbert Pötzl indicted that he'd had similar lockups with fairly similar hw
-> up until 2.4.22pre6. He suggested I should try 2.4.22pre8.
->
-> 2.4.22pre8 locked up the same way in about 10 hours.
->
-> > Any ideas on how to to debug this kind of hang?
->
-> The question still stands; how do I debug this?
->
-> > Does it sound kernel/driver or hw related? Are the two crashes related to
-> > the hang? Is the hang related to aic7xxx?
->
-> Any ideas?
+Sure, 2.6 supports external modules (if you mean modules that are
+built outside of the kernel source tree), but for now you also
+need a full kernel source tree for the build system to reference.
+I.e., you can't build an external module without having a full
+kernel source tree installed and configured.
 
-Ville,
-
-Mind trying 2.4.22-pre8 without MMAPIO defined in the SCSI driver?
-
-Justin, is this problem known to other boards or.. ?
+--
+~Randy
+| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |

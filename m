@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263231AbTIVQdN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 12:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbTIVQdN
+	id S263233AbTIVQem (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 12:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbTIVQem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 12:33:13 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:10665 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263231AbTIVQdJ (ORCPT
+	Mon, 22 Sep 2003 12:34:42 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:12810 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S263233AbTIVQeg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 12:33:09 -0400
-Message-ID: <3F6F23DA.9020901@colorfullife.com>
-Date: Mon, 22 Sep 2003 18:31:22 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org
-Subject: Re: [PATCH] Move slab objects to the end of the real allocation
-References: <200309221733.37203.arnd@arndb.de>
-In-Reply-To: <200309221733.37203.arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Sep 2003 12:34:36 -0400
+Date: Mon, 22 Sep 2003 18:34:32 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Kirk Reiser <kirk@braille.uwo.ca>, linux-kernel@vger.kernel.org
+Subject: Re: unknown symbols loading modules under 2.6.x
+Message-ID: <20030922163432.GA3208@mars.ravnborg.org>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	Kirk Reiser <kirk@braille.uwo.ca>, linux-kernel@vger.kernel.org
+References: <E1A1TE1-00075s-00@speech.braille.uwo.ca> <20030922091800.3b2532ec.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030922091800.3b2532ec.rddunlap@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
+On Mon, Sep 22, 2003 at 09:18:00AM -0700, Randy.Dunlap wrote:
+> On Mon, 22 Sep 2003 12:07:45 -0400 Kirk Reiser <kirk@braille.uwo.ca> wrote:
+> 
+> | Hello Everyone:  I have been trying to hunt down the answer to
+> | aproblem I am having attempting to load my modules under the 2.6.x
+> | kernels.  They load just fine under the 2.4.x kernels.  Have there
+> | been changes which need to be made to get symbols found with modprobe
+> | other than the EXPORT_SYMBOL() macro?  The symbols show up in the
+> | modules.symbols file created by depmod.  They appear to reference the
+> | correct loadable module.  The loadable module these symbols are
+> | exported in however is comprised of two separate .o files during
+> | compile.  I am not sure whether that has anything to do with it or
+> | not.
+> | 
+> | If someone could give me an idea what to read to solve this I'd
+> | appreciate it.
+> 
+> Make sure that you have the current version of module-init-tools
+> installed from http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+> and that scripts are using them (ie, check PATH).
 
->Manfred Spraul wrote:
->  
->
->>   - Do not page-pad allocations that are <= SMP_CACHE_LINE_SIZE.  This
->>     crashes.  Right now the limit is hardcoded to 128 bytes, but sooner or
->>     later an arch will appear with 256 byte cache lines.
->>    
->>
->
->What made you think that 128 is the current maximum? All s390 machines
->have 256 byte cache lines.
->  
->
-When I wrote "128" I was not aware that this is linked to the cache line 
-size. Initially it was ">128", just as an arbitrary number. I replaced 
-that with "> 116" due to an unrelated change, and that crashed, because 
-the cache line size was set to 128 bytes.
+Also make sure that you use kbuild when compiling your module.
+See Documentation/modules.txt (or Documentation/kbuild/modules.txt
+in BK-latest).
 
-My patch fixes this bug: It replaces the limits with >=116 [avoid 
-wasting too much memory, guarantee that there is a cache for the 
-off-slab control structures] and > SMP_CACHE_LINE_SIZE [guarantee that 
-there is a cache for the off-slab control structures].
-
-Right now there are too many patches in Andrew's tree, I'll wait until 
-everything settled down a bit, then I'll resent the cache line size as a 
-one-line patch. Do you want to implement CONFIG_DEBUG_PAGEALLOC 
-immediately? If yes, then I can send you the oneliner immediately. 
-Nothing except CONFIG_DEBUG_PAGEALLOC is affected by the bug.
-
---
-    Manfred
-
+	Sam

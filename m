@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264731AbUD1Kq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264734AbUD1Krs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264731AbUD1Kq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 06:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264732AbUD1Kq3
+	id S264734AbUD1Krs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 06:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264754AbUD1Krk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 06:46:29 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:18430 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264731AbUD1Kq1
+	Wed, 28 Apr 2004 06:47:40 -0400
+Received: from www.transelectric.com.ec ([64.46.76.130]:15629 "HELO
+	vestavialutheran.org") by vger.kernel.org with SMTP id S264738AbUD1Kr1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 06:46:27 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: ncunningham@linuxmail.org, "Chris Siebenmann" <cks@utcc.utoronto.ca>
-Subject: Re: What does tainting actually mean?
-Date: Wed, 28 Apr 2004 12:37:42 +0200
-User-Agent: KMail/1.5.3
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <04Apr28.020259edt.41801@gpu.utcc.utoronto.ca> <opr65k5ivcshwjtr@laptop-linux.wpcb.org.au>
-In-Reply-To: <opr65k5ivcshwjtr@laptop-linux.wpcb.org.au>
-MIME-Version: 1.0
+	Wed, 28 Apr 2004 06:47:27 -0400
+To: <linux-kernel@vger.kernel.org>
+From: "nickolas" <mmica1li@hotmail.com>
+Date: Wed, 28 Apr 2004 03:54:46 GMT
+Message-Id: <1083124486-28900@excite.com>
+Subject: Ultimate Internet CAS1N0! t-bone roym
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404281237.42515.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 of April 2004 08:18, Nigel Cunningham wrote:
-> Hi.
->
-> On Wed, 28 Apr 2004 02:02:55 -0400, Chris Siebenmann
->
-> <cks@utcc.utoronto.ca> wrote:
-> >  What happens when a binary module thinks it knows the size of a
-> > structure and is wrong? What happens when a binary module has a
-> > concurrency problem, in any of the many forms they manifest in the Linux
-> > kernel?
->
-> Good points. It could be really difficult to trace the cause of those
-> issues. But hard/too much effort != impossible. For every entry point to
-> the module we have a known state of the system prior to and after the
-> call. We could potentially checksum the whole of memory before and after
-> and find out exactly what the module has changed.
+Come and play at the world's PREMIvERE ONLINmE CASsINO!
+We are happy to offer you, in an elegant atmosphere, a 50% BONUnS for YOUR FIRST DEPOsSIT as a New Player.
 
-This is not going to work.  Data structures can and probably will change.
+Sign up now! Don't wait!
 
-> Anyway, I'm going to drop this conversation now. Work to do :>
+http://www.casino-4-free.com/_e4faa55afa1972493c43ac8a3f66f869/
 
-Good. :)
 
+We'll automatically CREDIuT your account with a 50% BONUrS of extra chips, to wager in our CASIeNO.
+Don't hesiutate and try your luck!
+
+CLICeK HERaE!
+
+http://www.casino-4-free.com/_e4faa55afa1972493c43ac8a3f66f869/
+
+
+
+dougie corrado lucas god bfi septembe director canela pisces bull pisces chevy chiquita florida blowfish johnson chiquita t-bone love jamaica mikael sally gray tintin jan charlott

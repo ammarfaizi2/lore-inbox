@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264748AbTBXXy0>; Mon, 24 Feb 2003 18:54:26 -0500
+	id <S264644AbTBYALO>; Mon, 24 Feb 2003 19:11:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264749AbTBXXy0>; Mon, 24 Feb 2003 18:54:26 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:23974 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S264748AbTBXXyZ>;
-	Mon, 24 Feb 2003 18:54:25 -0500
-Date: Mon, 24 Feb 2003 16:54:32 -0700
-From: yodaiken@fsmlabs.com
-To: William Lee Irwin III <wli@holomorphy.com>, yodaiken@fsmlabs.com,
-       Andrew Morton <akpm@digeo.com>, Bill Huey <billh@gnuppy.monkey.org>,
-       lm@work.bitmover.com, mbligh@aracnet.com, davidsen@tmr.com,
-       greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030224165432.A25313@hq.fsmlabs.com>
-References: <20030224045717.GC4215@work.bitmover.com> <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085031.GP10411@holomorphy.com> <20030224091758.A11805@hq.fsmlabs.com> <20030224231341.GQ10411@holomorphy.com> <20030224162754.A24766@hq.fsmlabs.com> <20030224235433.GO27135@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030224235433.GO27135@holomorphy.com>; from wli@holomorphy.com on Mon, Feb 24, 2003 at 03:54:33PM -0800
-Organization: FSM Labs
+	id <S264697AbTBYALN>; Mon, 24 Feb 2003 19:11:13 -0500
+Received: from [217.144.230.27] ([217.144.230.27]:18953 "HELO
+	lexx.infeline.org") by vger.kernel.org with SMTP id <S264644AbTBYALN>;
+	Mon, 24 Feb 2003 19:11:13 -0500
+Date: Tue, 25 Feb 2003 00:23:40 +0100 (CET)
+From: Ketil Froyn <kernel@ketil.froyn.name>
+X-X-Sender: ketil@ketil.hb.local
+To: Nix <nix@esperi.demon.co.uk>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Weird time-warping with linux-2.4.20/i586/gcc-2.95.4pre
+In-Reply-To: <87wujpcjp5.fsf@amaterasu.srvr.nix>
+Message-ID: <Pine.LNX.4.40L0.0302250014330.1900-100000@ketil.hb.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 03:54:33PM -0800, William Lee Irwin III wrote:
-> On Mon, Feb 24, 2003 at 03:13:41PM -0800, William Lee Irwin III wrote:
-> >> Which, if you had bothered reading the rest of my post, is why I asked
-> >> for data.
-> 
-> On Mon, Feb 24, 2003 at 04:27:54PM -0700, yodaiken@fsmlabs.com wrote:
-> > I'm not sure what you are complaining about. I don't think there is good
-> > or even marginal data or explanations of this "effect". 
-> 
-> I'm complaining about being quoted out of context and the animus against
-> unsupported preempt claims being directed against me.
+On 25 Feb 2003, Nix wrote:
 
-I did not quote you out of context. 
+> (e.g. I saw 2003-02-23 23:11:06 followed by 2003-02-24 01:01:03 then
+> by 2003-02-24 00:44:10... no rhyme or rhythm to it at all.)
+>
+> xscreensaver and X itself made my life somewhat difficult during this
+> period, as you might imagine :)
 
-> For the data, akpm has apparently tracked scheduling latency, so there
-> is a chance he actually knows whether it's serving its ostensible
-> purpose as opposed to having a large stockpile of overwrought wisecracks
-> and a propensity for quoting out of context.
+I can imagine this is the same problem as I've recently seen on several
+boxes at work. Have a look at these:
 
-You seem determined to pick a fight. Goodbye.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102348147820343&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102212413728493&w=2
+http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&frame=right&th=782109393cae2a18&seekm=pan.2002.06.10.21.54.36.644892.10825%40home.net#link1
 
-
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
-www.fsmlabs.com  www.rtlinux.com
-1+ 505 838 9109
+Ketil
 

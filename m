@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268017AbRHWR1B>; Thu, 23 Aug 2001 13:27:01 -0400
+	id <S268926AbRHWR3l>; Thu, 23 Aug 2001 13:29:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268926AbRHWR0v>; Thu, 23 Aug 2001 13:26:51 -0400
-Received: from eamail1-out.unisys.com ([192.61.61.99]:55231 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S268017AbRHWR0q>; Thu, 23 Aug 2001 13:26:46 -0400
-Message-ID: <245F259ABD41D511A07000D0B71C4CBA289F35@us-slc-exch-3.slc.unisys.com>
-From: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-To: "'Andrew Morton'" <akpm@zip.com.au>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: The cause of the "VM" performance problem with 2.4.X
-Date: Thu, 23 Aug 2001 12:26:40 -0500
+	id <S269067AbRHWR3b>; Thu, 23 Aug 2001 13:29:31 -0400
+Received: from users.havenet.com ([209.208.35.2]:9734 "EHLO mail.havenet.com")
+	by vger.kernel.org with ESMTP id <S268926AbRHWR3T>;
+	Thu, 23 Aug 2001 13:29:19 -0400
+Message-ID: <3B853C2A.1D60F860@aet-usa.com>
+Date: Thu, 23 Aug 2001 13:23:54 -0400
+From: Christopher Curtis <ccurtis@aet-usa.com>
+X-Mailer: Mozilla 4.78 [en] (Win98; U)
+X-Accept-Language: en-US,en,es
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: CMD649 RAID?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did a "mkfs" on a "md" of 3 8-disk "md"s (24 disk md).  So no
-lock contention, and only one "dev" to match, right?  [Try to
-avoid the problem.]
+Hello,
 
-getblk was holding the lru_list_lock lock 86% of the time.
+I have an IWILL KK-266R motherboard with an AMI HG80649 ATA100 IDE RAID
+controller that shows up as a CMD649 with lspci.  I've set up a RAID1
+array through the BIOS utility but Linux (2.4.[4-9]) can't seem to do
+anything with it ...
 
-Was averaging about 25,000 blocks/sec to the disks (vmstat),
-but it was often 200,000 over 2 seconds, then 5 seconds idle,
-etc.  Disk lights didn't come on much (but they all blinked
-nicely in sync).
+hde and hdg are detected, but the IRQ probe fails so ide2 and ide3 are
+disabled.  I can't access the machine right now, else I'd send some
+logfiles.  I'm also running devfs and am a little lost, so I'm not sure
+if it is simply unsupported or if I'm missing something.
 
-I'll try your patch out and run individual disks again.
+With the motherboard comes a bootdisk that I can use to install RedHat
+with a 2.2 kernel, but from what I read, after I install it, I can't do
+anything else with the array.  There are some patches, but they seem to
+already be integrated into 2.4.x>7 (the ide-patches no longer apply & I
+get a lot of reversed patch messages).
 
-Kevin
+2.4.9 only seems to have 'generic' CMD649 support, no raid, and I can't
+find an entry in /proc or /dev relating to raid support.  Am I doing
+something wrong, or am I screwed with 80GB inaccessible disk space?
+
+Thanks in advance,
+Christopher
+

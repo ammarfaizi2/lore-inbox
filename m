@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290088AbSAWVDb>; Wed, 23 Jan 2002 16:03:31 -0500
+	id <S290084AbSAWVFi>; Wed, 23 Jan 2002 16:05:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290083AbSAWVDS>; Wed, 23 Jan 2002 16:03:18 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:53508 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S290081AbSAWVDC>;
-	Wed, 23 Jan 2002 16:03:02 -0500
-Date: Wed, 23 Jan 2002 12:58:04 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Daemonize() should re-parent its caller
-Message-ID: <20020123205804.GA15259@kroah.com>
-In-Reply-To: <Pine.LNX.4.33L2.0201231050440.687-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0201231050440.687-100000@ida.rowland.org>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 26 Dec 2001 18:49:38 -0800
+	id <S290102AbSAWVFW>; Wed, 23 Jan 2002 16:05:22 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:46047 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S290081AbSAWVEO> convert rfc822-to-8bit; Wed, 23 Jan 2002 16:04:14 -0500
+Date: Wed, 23 Jan 2002 22:04:10 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Hans-Peter Jansen <hpj@urpla.net>
+cc: Ed Sweetman <ed.sweetman@wmich.edu>,
+        Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+In-Reply-To: <20020123205457.D5FB9141C@shrek.lisa.de>
+Message-ID: <Pine.LNX.4.40.0201232201190.2478-100000@infcip10.uni-trier.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 23, 2002 at 10:54:44AM -0500, Alan Stern wrote:
-> 
-> If the parent is init or another user process, we can reasonably
-> expect that the zombie will be reaped eventually.  But what if the
-> parent is another kernel thread?  This situation arises in the USB
-> mass-storage device driver, where the device manager and scsi
-> error-handler threads are spawned (indirectly) by the khubd kernel
-> thread.
+On Wed, 23 Jan 2002, Hans-Peter Jansen wrote:
 
-What problem are you seeing with the khubd and USB mass-storage kernel
-threads?  There is a patch in the most recent kernel versions that
-slightly modifies the usb-storage kernel thread logic, supposedly to fix
-a problem that people were having under very long scsi timeouts.
+> It is working somehow, and the 2 degrees are significant in my case, because
+> the 45°C is pretty stable in unloaded state with apm enabled. Tmax is around
+> 48°C when compiling kde, transcoding divx or the like.
 
-thanks,
+uhh ... this does not sound like any working power saving ... (imho)
 
-greg k-h
+> I know, and I think Daniel should have noted that one have to disable APM to
+> get ACPI power savings work. Would have saved me one reboot..
+
+sorry ... i didn't know this :) ... i only played around with acpi ... i
+haven't tested it with apm and or apm/acp at the same time ...
+
+daniel
+
+
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
+

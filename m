@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbUBWDAL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 22:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbUBWDAK
+	id S261793AbUBWDAV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 22:00:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbUBWDAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 22:00:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62142 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261794AbUBWDAF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 22:00:21 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:34471 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261793AbUBWDAF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 22 Feb 2004 22:00:05 -0500
-Date: Sun, 22 Feb 2004 19:00:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Steven J. Hill" <sjhill@realitydiluted.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.6.2, Partition support for SCSI CDROM...
-Message-Id: <20040222190047.01f6f024.akpm@osdl.org>
-In-Reply-To: <40396134.6030906@realitydiluted.com>
-References: <40396134.6030906@realitydiluted.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <40396ACD.7090109@cyberone.com.au>
+Date: Mon, 23 Feb 2004 13:51:57 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm3
+References: <20040222172200.1d6bdfae.akpm@osdl.org>	<40395ACE.4030203@cyberone.com.au> <20040222175507.558a5b3d.akpm@osdl.org>
+In-Reply-To: <20040222175507.558a5b3d.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Steven J. Hill" <sjhill@realitydiluted.com> wrote:
+
+
+Andrew Morton wrote:
+
+>Nick Piggin <piggin@cyberone.com.au> wrote:
 >
-> Greetings.
-> 
-> This patch enables support for CDROMs that have partitions on
-> them, like say SGI and SUN media. It was sent to me by Christoph
-> Hellwig and then I cleaned it up a bit. I am posting it more
-> for flamebait^Wcomments to see if people are comfortable with it.
+>>
+>>
+>>Andrew Morton wrote:
+>>
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm2/
+>>>
+>>>
+>>>
+>>URL is of course,
+>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm3/
+>>
+>
+>Yes, thanks.
+>
+>
+>>This still doesn't shrink slab correctly on highmem machines
+>>because you dropped my patch :(
+>>
+>
+>First, one needs to define "correctly".
+>
+>Certainly, it is not "solves the alleged updatedb problem".
+>
+>The design behind the slab shrinking is to reclaim slab in response to
+>memory demand.  Not in response to lowmem demand.  With all the scaling,
+>accounting-for-seeks-and-locality, etc.
+>
+>
 
-> +config BLK_DEV_SR_PARTITIONS
-> +config BLK_DEV_SR_PARTITIONS_PER_DEVICE
+That is the wrong design. That is basically just circumventing
+zone balancing, and it shows because you don't balance slab vs
+lowmem properly.
 
-Do we actually need these config options?  Why not hardwire it to some
-reasonable upper bound and be done with it?
+Lowmem pagecache vs highmem pagecache should be balanced correctly?
+I think it is with your other patches.
 
->  
-> +#ifdef MODULE
-> +	/* Check number of partitions specified. */
-> +	if (partitions < 0)
-> +		partitions = 0;
-> +#endif
-> +
+Lowmem pagecache vs slab should be balanced correctly with my patch.
 
-Why is this ifdef needed?
+Therefore highmem vs slab will be balanced correctly.
+
+Is that a good proof?
+

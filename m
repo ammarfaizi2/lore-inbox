@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265617AbUATSTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 13:19:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbUATSTb
+	id S265635AbUATSKi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 13:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUATSKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 13:19:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11235 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265617AbUATSTZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 13:19:25 -0500
-Date: Tue, 20 Jan 2004 10:19:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: kraxel@bytesex.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] -mm5 has no i2c on amd64
-Message-Id: <20040120101945.0e23b655.akpm@osdl.org>
-In-Reply-To: <p73n08ihj25.fsf@verdi.suse.de>
-References: <20040120124626.GA20023@bytesex.org.suse.lists.linux.kernel>
-	<p73n08ihj25.fsf@verdi.suse.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 20 Jan 2004 13:10:38 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:21768 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265635AbUATSJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 13:09:40 -0500
+Date: Tue, 20 Jan 2004 18:08:51 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix updates
+Message-ID: <20040120180851.A18872@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patrick Gefre <pfg@sgi.com>, akpm@osdl.org,
+	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+References: <200401152154.i0FLscIG023452@fsgi900.americas.sgi.com> <20040116144132.A24555@infradead.org> <400D6A5B.7090009@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <400D6A5B.7090009@sgi.com>; from pfg@sgi.com on Tue, Jan 20, 2004 at 11:50:19AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> Gerd Knorr <kraxel@bytesex.org> writes:
-> > 
-> > ==============================[ cut here ]==============================
-> > --- linux-mm5-2.6.1/arch/x86_64/Kconfig.i2c	2004-01-20 13:14:42.000000000 +0100
-> > +++ linux-mm5-2.6.1/arch/x86_64/Kconfig	2004-01-20 13:15:10.000000000 +0100
-> > @@ -429,6 +429,8 @@
-> >  
-> >  source "drivers/char/Kconfig"
-> >  
-> > +source "drivers/i2c/Kconfig"
-> > +
-> 
-> There is no such source in arch/i386/Kconfig.  So it's probably wrong.
-> 
+On Tue, Jan 20, 2004 at 11:50:19AM -0600, Patrick Gefre wrote:
+> Yes this probably looks a little odd. This was setup this way for TIO. 
+> The macro in the TIO code checks to see
+> if it is a 'soft' struct or bridge address AND what bridge type it is - 
+> accessing different registers depending
+> on TIO or not TIO (the 2 cases we have so far). We think this makes the 
+> register access functions pretty flexible/generic.
 
-arch/i386/Kconfig sources drivers/Kconfig, which then picks up the i2c stuff.
+Sorry, but this is completly bogus.  Just declare one accessor per
+datatype.
 

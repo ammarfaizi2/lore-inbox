@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264137AbTKJWYx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 17:24:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTKJWYx
+	id S264144AbTKJWgq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 17:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTKJWgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 17:24:53 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18948 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264137AbTKJWYw
+	Mon, 10 Nov 2003 17:36:45 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21764 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264144AbTKJWgj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 17:24:52 -0500
+	Mon, 10 Nov 2003 17:36:39 -0500
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
 Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Date: 10 Nov 2003 22:14:19 GMT
+Date: 10 Nov 2003 22:26:06 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <bop2jr$772$1@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1031106172846.16450A-100000@gatekeeper.tmr.com> <200311061951.27468.gene.heskett@verizon.net>
-X-Trace: gatekeeper.tmr.com 1068502459 7394 192.168.12.62 (10 Nov 2003 22:14:19 GMT)
+Message-ID: <bop39u$79v$1@gatekeeper.tmr.com>
+References: <20031106130030.GC1145@suse.de> <3FAA5CCB.5030902@gmx.de> <3FAB0754.2040209@cyberone.com.au> <3FAB7F94.7050504@gmx.de>
+X-Trace: gatekeeper.tmr.com 1068503166 7487 192.168.12.62 (10 Nov 2003 22:26:06 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200311061951.27468.gene.heskett@verizon.net>,
-Gene Heskett  <gene.heskett@verizon.net> wrote:
-| On Thursday 06 November 2003 17:36, Bill Davidsen wrote:
+In article <3FAB7F94.7050504@gmx.de>,
+Prakash K. Cheemplavam <prakashpublic@gmx.de> wrote:
 
-| >Are you saying that a 12x burn using a 2.4 kernel and ide-scsi
-| > doesn't take the same time? Because I see ~1.7MB/s if I use
-| > speed=12 with ide-scsi, and that's as expected (1x = 44100*4/1024
-| > kB/s). Haven't got a 2.6 system with a burner here, but I do at my
-| > other site.
-| 
-| Mmm, thats pretty close, Bill.  Maybe its something I just noted the 
-| last time I tried to burn a disk under ide-scsi, but I caught it 
-| turning the write speed down to 8x from the 12x setting.  It may have 
-| been doing that previously without advising me or??  The old times 
-| were usually just short of 10 minutes.
+| So i tried the patch, but it didn't help. I cannot feel any difference. 
+| Here are the vstats. First for dealine and second fro patched as. Please 
+| keep in mind that (at the end of the stat) I fiddled a bit around with 
+| the kernel sources while doing the burn. Intersting would be the start 
+| of the erasing and start of burning. There as gives serious stuttering.
 
-Thanks, I hope to try this Friday, I have a system I can update to 2.6
-and try it. I'll try the bttv stuff again as well. I have noticed that
-the audio burns in 2.4, which don't use DMA, seem to take a lot of CPU,
-but not that they run slower. More to come.
+Please ignore my comment on system time, unwrapping the lines
+misalligned them!
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

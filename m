@@ -1,28 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277301AbRJJQRa>; Wed, 10 Oct 2001 12:17:30 -0400
+	id <S277300AbRJJQWl>; Wed, 10 Oct 2001 12:22:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277300AbRJJQRU>; Wed, 10 Oct 2001 12:17:20 -0400
-Received: from c009-h019.c009.snv.cp.net ([209.228.34.132]:37785 "HELO
-	c009.snv.cp.net") by vger.kernel.org with SMTP id <S277296AbRJJQRA>;
-	Wed, 10 Oct 2001 12:17:00 -0400
-X-Sent: 10 Oct 2001 16:17:25 GMT
-Date: Wed, 10 Oct 2001 09:18:39 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@desktop>
-To: <linux-kernel@vger.kernel.org>
-Subject: Invalidate: busy buffer at shutdown with 2.4.11
-Message-ID: <Pine.LNX.4.33.0110100917460.234-100000@desktop>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277303AbRJJQWa>; Wed, 10 Oct 2001 12:22:30 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:29202 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S277300AbRJJQW0>; Wed, 10 Oct 2001 12:22:26 -0400
+Message-Id: <200110101622.f9AGMrY82571@aslan.scsiguy.com>
+To: Alexander Feigl <Alexander.Feigl@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: aic7xxx SCSI system hangs 
+In-Reply-To: Your message of "Wed, 10 Oct 2001 16:03:12 +0200."
+             <200110101403.f9AE3DY6006854@PowerBox.MysticWorld.de> 
+Date: Wed, 10 Oct 2001 10:22:53 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What does this message mean in 2.4.11 at shutdown time:
+>Summary : aic7xxx SCSI system hangs 
 
-Invalidate: busy buffer
+You need to send a complete console log from boot through the hang
+(serial console preferred).  It would also be userfull for you to
+add KDB to your system and get as much information about the hung
+exception handling thread (e.g. what routines it is looping through).
 
-I'm afraid it means "now your RAID is fucked."
-
--jwb
-
+--
+Justin

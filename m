@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbUDMFqb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 01:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbUDMFqb
+	id S263379AbUDMF5z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 01:57:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbUDMF5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 01:46:31 -0400
-Received: from [194.89.250.117] ([194.89.250.117]:42380 "EHLO
+	Tue, 13 Apr 2004 01:57:55 -0400
+Received: from [194.89.250.117] ([194.89.250.117]:44428 "EHLO
 	kimputer.holviala.com") by vger.kernel.org with ESMTP
-	id S263355AbUDMFq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 01:46:28 -0400
+	id S263379AbUDMF5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 01:57:54 -0400
 From: Kim Holviala <kim@holviala.com>
 To: Vitez Gabor <gabor@swszl.szkp.uni-miskolc.hu>
 Subject: Re: 2.6.5 : problem with MS Intellimouse Explorer buttons when using X
-Date: Tue, 13 Apr 2004 08:46:25 +0300
+Date: Tue, 13 Apr 2004 08:47:25 +0300
 User-Agent: KMail/1.6.1
 Cc: linux-kernel@vger.kernel.org
 References: <20040410135327.GA12573@swszl.szkp.uni-miskolc.hu> <200404112216.33308.kim@holviala.com> <20040412101631.GA22555@swszl.szkp.uni-miskolc.hu>
@@ -22,7 +22,7 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404130846.26008.kim@holviala.com>
+Message-Id: <200404130847.25267.kim@holviala.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -47,6 +47,6 @@ event device so that we wouldn't need the PS/2 emulation anymore.
 
 
 
-
-
 Kim
+
+

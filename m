@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263358AbTDSH0v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 03:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTDSH0v
+	id S263364AbTDSHdN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 03:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTDSHdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 03:26:51 -0400
-Received: from [202.109.126.231] ([202.109.126.231]:14454 "HELO
-	www.support-smartpc.com.cn") by vger.kernel.org with SMTP
-	id S263358AbTDSH0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 03:26:50 -0400
-Message-ID: <3EA0FCE9.5FC04124@mic.com.tw>
-Date: Sat, 19 Apr 2003 15:38:17 +0800
-From: "rain.wang" <rain.wang@mic.com.tw>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.67-ac2: ide reset issue
-References: <200304181146.h3IBkOx06987@devserv.devel.redhat.com>
+	Sat, 19 Apr 2003 03:33:13 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:24846 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263364AbTDSHdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 03:33:12 -0400
+Date: Sat, 19 Apr 2003 08:45:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrei Ivanov <andrei.ivanov@ines.ro>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm4
+Message-ID: <20030419084507.A15928@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrei Ivanov <andrei.ivanov@ines.ro>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50L0.0304182236480.1931-100000@webdev.ines.ro> <20030418205403.GA3366@nikolas> <20030418225447.A8626@infradead.org> <20030418221029.GA3956@nikolas> <20030418231204.A8747@infradead.org> <20030418222907.GA4127@nikolas> <20030418230729.GA578@nikolas>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Apr 2003 07:34:15.0218 (UTC) FILETIME=[14287920:01C30646]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030418230729.GA578@nikolas>; from bugfixer@list.ru on Fri, Apr 18, 2003 at 07:07:29PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Fri, Apr 18, 2003 at 07:07:29PM -0400, Nick Orlov wrote:
+> Sorry for the noise.
+> Next time I'll read changelog more carefully.
 
-> >     I don't know if there's enough reason to change reset semantics
-> > now to wait for completion, so that the next call be free of race.
-> > and  I once had a simpler fix to let it delay another 50ms, that works
-> > on my box but seems not a thorough one. does it help?
->
-> BWGROUP(drive)->busy should never reach zero until the reset is
-> done. The 50mS miught be enough that this occurs, as might waiting
-> for HWGROUP(drive)->busy hitting 0. I don't yet understand why it
-> matters, and to fix it properly I have to figure that out.
->
-> If you need reliable reset for something like a test harness, or
-> IDE drive tester its a usable workaround, but I need to fix it
-> properly (eventually)
->
-
-I agree. I found the reason seems some strange there. reset call set
-a 50ms's wait handler and return to user at once, when succeed in
-the first poll and handler return, there's always about another 50ms
-needed to cleanup the path(I once tested values lager and smaller
-than 50ms and found about 48ms needed at least on my box).  so
-the following call would race it if there's no such a delay, although
-there's actually few chances to do continuous reset call, I thought.
-
-> > +                     /* wait for another 50ms */
-> > +                     mdelay(50);
->
-> In your test set is HWGROUP(drive)->busy always zero after the
-> mdelay ?
-
-I think it is.
+No need to apologize - this happens if you use snaphots.  I'll post
+a big HEADSUP once Linus releases 2.5.68.
 

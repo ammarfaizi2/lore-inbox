@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264132AbTKZKry (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 05:47:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264141AbTKZKry
+	id S264153AbTKZLDG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 06:03:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTKZLDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 05:47:54 -0500
-Received: from hazard.jcu.cz ([160.217.1.6]:14747 "EHLO hazard.jcu.cz")
-	by vger.kernel.org with ESMTP id S264132AbTKZKrs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 05:47:48 -0500
-Date: Wed, 26 Nov 2003 11:47:46 +0100
-From: Jan Marek <linux@hazard.jcu.cz>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH][TRIVIAL] 2.6.0-test[9,10] Bug (typo) in smsc-ircc2.c
-Message-ID: <20031126104746.GA31328@hazard.jcu.cz>
+	Wed, 26 Nov 2003 06:03:06 -0500
+Received: from mail.actcom.co.il ([192.114.47.15]:1250 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S264153AbTKZLDC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 06:03:02 -0500
+Date: Wed, 26 Nov 2003 13:02:50 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: s0be <s0be@drunkencodepoets.servebeer.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] trivial change in kernel/sched.c in 2.6.0-test9+
+Message-ID: <20031126110250.GB27967@actcom.co.il>
+References: <20031126002713.1f8707f8.paterley@mail.drunkencodepoets.com> <20031126055556.GC3734@actcom.co.il> <20031126010701.25600adb.s0be@mail.drunkencodepoets.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZPt4rx8FFjLCG7dd"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EuxKj2iCbKjpUGkD"
 Content-Disposition: inline
+In-Reply-To: <20031126010701.25600adb.s0be@mail.drunkencodepoets.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ZPt4rx8FFjLCG7dd
+--EuxKj2iCbKjpUGkD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hallo l-k,
+On Wed, Nov 26, 2003 at 01:07:01AM -0500, s0be wrote:
 
-I have patch, which repair small, but important bug in smsc-ircc2.c.
+> If you can suggest a way to test this, I will test it on my system=20
+> tomorrow.
 
-Without this patch driver tried release one region twice.
+Just off the top of my head, you could try something like a kernel
+compilation with and without it. I doubt you'll see any improvement,
+though.. there are very few places in the kernel where such
+micro-optimizations are worth it, IMVHO.=20
 
-Please apply...
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
-Sincerely
-Jan Marek
--- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080
+"the nucleus of linux oscillates my world" - gccbot@#offtopic
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="smsc-ircc2.c.diff"
 
---- linux-2.6.0-test9/drivers/net/irda/smsc-ircc2.c	2003-10-25 20:43:57.000000000 +0200
-+++ linux-2.6.0-test9-new/drivers/net/irda/smsc-ircc2.c	2003-11-05 23:07:37.000000000 +0100
-@@ -524,7 +524,7 @@
- 
- 	return 0;
-  out3:
--	release_region(fir_base, SMSC_IRCC2_FIR_CHIP_IO_EXTENT);
-+	release_region(sir_base, SMSC_IRCC2_SIR_CHIP_IO_EXTENT);
-  out2:
- 	release_region(fir_base, SMSC_IRCC2_FIR_CHIP_IO_EXTENT);
-  out1:
+--EuxKj2iCbKjpUGkD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
---ZPt4rx8FFjLCG7dd--
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/xIhaKRs727/VN8sRAtmSAJ0aEcQOR0eS0T0iSggCWxMyle6sJgCdG3aH
+0da+DqwgOg15sRZRI4+YnmU=
+=mePG
+-----END PGP SIGNATURE-----
+
+--EuxKj2iCbKjpUGkD--

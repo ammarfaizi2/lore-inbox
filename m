@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263748AbUJ3AWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbUJ3AVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263748AbUJ3AWk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 20:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbUJ3AV2
+	id S261649AbUJ3AVB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 20:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbUJ3AUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 20:21:28 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:21359 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S263677AbUJ3AL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 20:11:56 -0400
-Subject: Re: 2.6.9 kernel oops with openais
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: Chris Wright <chrisw@osdl.org>
-Cc: Mark Haverkamp <markh@osdl.org>, Openais List <openais@lists.osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041029170129.W2357@build.pdx.osdl.net>
-References: <1099090282.14581.19.camel@persist.az.mvista.com>
-	 <1099091302.13961.42.camel@markh1.pdx.osdl.net>
-	 <1099091816.14581.22.camel@persist.az.mvista.com>
-	 <20041029163944.H14339@build.pdx.osdl.net>
-	 <1099093468.1207.8.camel@persist.az.mvista.com>
-	 <20041029164551.U2357@build.pdx.osdl.net>
-	 <1099094226.1207.13.camel@persist.az.mvista.com>
-	 <20041029170129.W2357@build.pdx.osdl.net>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Message-Id: <1099095114.1207.16.camel@persist.az.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 29 Oct 2004 17:11:54 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Oct 2004 20:20:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40934 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261649AbUJ3APJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 20:15:09 -0400
+Date: Fri, 29 Oct 2004 17:15:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+cc: Andreas Steinmetz <ast@domdv.de>, linux-os@analogic.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: Semaphore assembly-code bug
+In-Reply-To: <Pine.LNX.4.61.0410291639430.8616@twinlark.arctic.org>
+Message-ID: <Pine.LNX.4.58.0410291705210.28839@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
+ <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
+  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
+ <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
+ <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
+ <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
+ <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org> <41826A7E.6020801@domdv.de>
+ <Pine.LNX.4.61.0410291255400.17270@chaos.analogic.com>
+ <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org> <418292C7.2090707@domdv.de>
+ <Pine.LNX.4.58.0410291212350.28839@ppc970.osdl.org> <41829C91.5030709@domdv.de>
+ <Pine.LNX.4.61.0410291639430.8616@twinlark.arctic.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What would be preferrable instead of dropping UID when privleged
-services are needed?  more specifically I need
-    * CAP_NET_RAW (bindtodevice)
-     * CAP_SYS_NICE (setscheduler)
-     * CAP_IPC_LOCK (mlockall)
 
-I had thought about adding the correct code to get these capabilities
-but it still requires a start-from-uid0 environment
 
-THanks
--steve
-
-On Fri, 2004-10-29 at 17:01, Chris Wright wrote:
-> * Steven Dake (sdake@mvista.com) wrote:
-> > The change was that from 2.6.8 to 2.6.9 the rlimit for memlock was
-> > changed from infinity to 32k (and at the same time, normal users are now
-> > allowed to use mlockall if they dont have alot of memory to mlock).  I
-> > fixed up the openais code by doing something evil from uid 0 like:
-> > 
-> >        struct rlimit rlimit;
-> > 
-> >         rlimit.rlim_cur = RLIM_INFINITY;
-> >         rlimit.rlim_max = RLIM_INFINITY;
-> >         setrlimit (RLIMIT_MEMLOCK, &rlimit);
+On Fri, 29 Oct 2004, dean gaudet wrote:
 > 
-> Yeah, that'll do it (although, certainly wouldn't hurt to size it
-> down ;-).  Hopefully most users aren't dropping uid (I doubt it, since
-> I hadn't seen this problem pop up before).
+> for p4 model 0 through 2 it was faster to avoid lea and shl and generate 
+> code like:
 > 
-> thanks,
-> -chris
+> 	add %ebx,%ebx
+> 	add %ebx,%ebx
+> 	add %ebx,%ebx
+> 	add %ebx,%ebx
 
+I think that is true only for the lea's that have a shifted input. The
+weakness of the original P4 is its shifter, not lea itself. And for a
+simple lea like 4(%esp), it's likely no worse than a regular "add", and
+there lea has the advantage that you can put the result in another
+register, which can be advantageous in other circumstances.
+
+So lea actually _is_ useful for doing adds, in many cases. Of course, on
+older CPU's you'll see the effect of the address generation adder being
+one cycle "off" (earlier) the regular ALU execution unit, so lea often
+causes AGI stalls.  I don't think this is an issue on the P6 or P4 because 
+of how they actually end up implementing the lea in the regular ALU path. 
+
+How the hell did we get to worrying about this in the first place?
+
+		Linus

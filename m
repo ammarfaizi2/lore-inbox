@@ -1,73 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261573AbSKGUW0>; Thu, 7 Nov 2002 15:22:26 -0500
+	id <S261572AbSKGUVZ>; Thu, 7 Nov 2002 15:21:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261574AbSKGUWZ>; Thu, 7 Nov 2002 15:22:25 -0500
-Received: from p50829F9A.dip.t-dialin.net ([80.130.159.154]:13838 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id <S261573AbSKGUWX>; Thu, 7 Nov 2002 15:22:23 -0500
-Date: Thu, 7 Nov 2002 20:28:55 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: George France <france@handhelds.org>
-Cc: axp-list mailing list <axp-list@redhat.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] eliminate compile warnings
-Message-ID: <20021107202855.B17028@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: George France <france@handhelds.org>,
-	axp-list mailing list <axp-list@redhat.com>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20021106214705.A15525@Marvin.DL8BCU.ampr.org> <02110709222600.14483@shadowfax.middleearth>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <02110709222600.14483@shadowfax.middleearth>; from france@handhelds.org on Thu, Nov 07, 2002 at 09:22:26AM -0500
+	id <S261573AbSKGUVZ>; Thu, 7 Nov 2002 15:21:25 -0500
+Received: from mail.orcon.net.nz ([210.55.12.3]:30093 "EHLO mail.orcon.net.nz")
+	by vger.kernel.org with ESMTP id <S261572AbSKGUVY>;
+	Thu, 7 Nov 2002 15:21:24 -0500
+Message-ID: <011101c2869c$0f2bbce0$6df058db@PC2>
+From: "Craig Whitmore" <linuxkernel@orcon.net.nz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Adaptec S3210 RAID5 and Lilo
+Date: Fri, 8 Nov 2002 09:27:14 +1300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Spam-Score: 1.5 (*) INVALID_MSGID,SPAM_PHRASE_00_01,USER_AGENT_OE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 09:22:26AM -0500, George France wrote:
-> On Wednesday 06 November 2002 16:47, Thorsten Kranzkowski wrote:
-> 
-> You are brave sole. The bleeding edge cuts both ways.
+I am using an Adaptec S3210 RAID5 card in a Dual Xeon 2.4G (Using various
+kernels up to 2.4.20-rc1 and I cannot get it to boot via LILO at all (GRUB
+Works fine)(I've tried the latest version of LILO)
 
-And sometimes covered with a sticky red fluid ... :)
+When booting up LILO gives the error
 
-> > BTW who is the current maintainer for Alpha issues? MAINTAINERS has no
-> > entry :-/
-> 
-> If there is no entry in the MAINTAINERS file, then it is Linus.  He did the Alpha port.
+LILO - Descriptor Checksum Error
 
-yes, I know. If the patch won't show up soon I _will_ send it to Linus.
-But it's usually easier to get it in when some Maintainer sticks an OK-label
-on it :-) 
+and then just stops.
 
-> He still has his loaner box from Digital.
+Has anyone any pointers on how to fix this.. All relivant info below
+Any other info can be given easily.
 
-Well, I thought that box was already retired, but I may be wrong.
+Thanks
+Craig Whitmore
 
-> There are still a few of us that work for the Alpha Processor Group at HP that work on
-> maintaining the kernel.  I have tossed your patch into the directory that holds all
-> kinds of miscellaneous alpha bits for the next time one of us looks at the kernel.
+------------------------------
+Boot sequence.
 
-Thanks! Hopefully it won't take long to find it's way into mainline (hint hint...)
+Loading Adaptec I2O RAID: Version 2.4 Build 5
+Detecting Adaptec I2O RAID controllers...
+Adaptec I2O RAID controller 0 at f880c000 size=100000 irq=24
+dpti: If you have a lot of devices this could take a few minutes.
+dpti0: Reading the hardware resource table.
+TID 008  Vendor: ADAPTEC      Device: AIC-7899     Rev: 00000001
+TID 009  Vendor: ADAPTEC      Device: AIC-7899     Rev: 00000001
+TID 518  Vendor: ESG-SHV      Device: SCA HSBP M15 Rev: 0.09
+TID 524  Vendor: ADAPTEC      Device: RAID-5       Rev: 370F
+scsi0 : Vendor: Adaptec  Model: 3210S            FW:370F
+  Vendor: ADAPTEC   Model: RAID-5            Rev: 370F
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+  Vendor: ESG-SHV   Model: SCA HSBP M15      Rev: 0.09
+  Type:   Processor                          ANSI SCSI revision: 02
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+SCSI device sda: 287080448 512-byte hdwr sectors (146985 MB)
+Partition check:
+ sda: sda1 sda2
+--------------------------
+isk /dev/sda: 255 heads, 63 sectors, 17869 cylinders
+Units = cylinders of 16065 * 512 bytes
 
-> Since people that work on the Alpha Architecture are greatly outnumbered by the
-> people that work on other architectures, usually by the time we have a stable working 
-> kernel for Alpha, the kernel.org kernels are usually many versions ahead.  
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sda1   *         1       498   4000153+  83  Linux
+/dev/sda2           499     17869 139532557+  83  Linux
+-------------------------
+/etc/lilo.conf
+lba32
+boot=/dev/sda
+root=/dev/sda1
+image=/vmlinuz
+        label=Linux
+        read-only
+        root=/dev/sda1
+        restricted
+-------------------------------
+(lilo -v -v -v)
 
-I'd prefer if development is tightly coupled to mainline so that the version
-skew is minimized. Yes, here will be kernels that won't work for various 
-reasons but that's why it's called development kernel :)
+Reading boot sector from /dev/sda
+Device 0x0801: BIOS drive 0x80, 255 heads, 17869 cylinders,
+               63 sectors. Partition offset: 63 sectors.
+Using MENU secondary loader
+Calling map_insert_data
+Secondary loader: 16 sectors (0x3000 dataend).
 
-I strongly feel that _now_ is the time to sync up so we can start with a more
-or less working 2.6.0 and don't have to wait until 2.6.2x ...
+Boot image: /vmlinuz
+Device 0x0801: BIOS drive 0x80, 255 heads, 17869 cylinders,
+               63 sectors. Partition offset: 63 sectors.
+Setup length is 5 sectors.
+Mapped 2637 sectors.
+Added Linux *
+    <dev=0xe0,hd=16,cyl=30,sct=239>
+    "ro root=801"
+---------------
+(hdparm)
+/dev/sda:
+ readonly     =  0 (off)
+ geometry     = 17869/255/63, sectors = 287080448, start = 0
+----------------
+hdparm -Tt
 
-> 
-> I hope this helps.
+/dev/sda:
+ Timing buffer-cache reads:   128 MB in  0.26 seconds =492.31 MB/sec
+ Timing buffered disk reads:  64 MB in  1.74 seconds = 36.78 MB/sec
 
-Thorsten
-
--- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Niemannsweg 30, 49201 Dissen, Germany |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

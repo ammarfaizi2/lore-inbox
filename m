@@ -1,35 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287234AbSALSLl>; Sat, 12 Jan 2002 13:11:41 -0500
+	id <S287244AbSALSSB>; Sat, 12 Jan 2002 13:18:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287237AbSALSLc>; Sat, 12 Jan 2002 13:11:32 -0500
-Received: from waste.org ([209.173.204.2]:25762 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S287234AbSALSLV>;
-	Sat, 12 Jan 2002 13:11:21 -0500
-Date: Sat, 12 Jan 2002 12:11:09 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: "Eric S. Raymond" <esr@snark.thyrsus.com>
-cc: linux-kernel@vger.kernel.org, <greg@kroah.com>, <felix-dietlibc@fefe.de>
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-In-Reply-To: <200201092005.g09K5OL28043@snark.thyrsus.com>
-Message-ID: <Pine.LNX.4.43.0201121207260.3568-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287253AbSALSRy>; Sat, 12 Jan 2002 13:17:54 -0500
+Received: from sphere.open-net.org ([64.53.98.77]:58241 "HELO pbx.open-net.org")
+	by vger.kernel.org with SMTP id <S287244AbSALSRl>;
+	Sat, 12 Jan 2002 13:17:41 -0500
+Date: Sat, 12 Jan 2002 13:16:25 -0500
+From: Robert Jameson <rj@open-net.org>
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] KernelConf - menuconfig and help works
+Message-Id: <20020112131625.1c2fb4f9.rj@open-net.org>
+In-Reply-To: <20020112204633.A833@lklug.pdn.ac.lk>
+In-Reply-To: <20020112114855.A8005@lklug.pdn.ac.lk>
+	<20020112204633.A833@lklug.pdn.ac.lk>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.IGRlZ3'2R4+io,"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jan 2002, Eric S. Raymond wrote:
+--=.IGRlZ3'2R4+io,
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> greg k-h:
-> >What does everyone else need/want there?
->
-> dmidecode, so the init script can dump a DMI report in a known
-> location such as /var/run/dmi.
+On Sat, 12 Jan 2002 20:46:33 +0600
+Anuradha Ratnaweera <anuradha@gnu.org> wrote:
 
-No, this belongs in a distribution's init scripts. Initramfs is stuff that
-is needed before mounting real root, not everything that must be done
-before we have a login prompt.
+Awsome! keep up the great work ;)
+
+> On Sat, Jan 12, 2002 at 11:48:55AM +0600, Anuradha Ratnaweera wrote:
+> > 
+> > This time it is a working tarball ;)
+> > 
+> > Highlights: menuconfig, help
+> >
+> > [...]
+> 
+> Forgot to mention the download URL.  Here it is:
+> 
+>     http://www.bee.lk/people/anuradha/kernelconf/
+>     http://www.lklug.pdn.ac.lk/~anuradha/kernelconf/
+> 
+> Cheers,
+> 
+> Anuradha
+> 
+> -- 
+> 
+> Debian GNU/Linux (kernel 2.4.16-xfs)
+> 
+> Noise proves nothing.  Often a hen who has merely laid an egg cackles
+> as if she laid an asteroid.
+> 		-- Mark Twain
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+
+ "That vulnerability is completly TheoRaadtical."
+  -Microsoft
+
+--=.IGRlZ3'2R4+io,
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE8QH18yWZRCCLwK/cRAp++AJ4yGCCltXwhJr/dM8HLiQQF8oo91QCfZWCc
+MudKhUrvAfA+dRCDK5k5ZNM=
+=ixSC
+-----END PGP SIGNATURE-----
+
+--=.IGRlZ3'2R4+io,--
 

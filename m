@@ -1,28 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270999AbRHOCFv>; Tue, 14 Aug 2001 22:05:51 -0400
+	id <S271001AbRHOCXp>; Tue, 14 Aug 2001 22:23:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271000AbRHOCFn>; Tue, 14 Aug 2001 22:05:43 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:61637 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S270999AbRHOCFY>;
-	Tue, 14 Aug 2001 22:05:24 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Brad Chapman <kakadu_croc@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Broken QoS and PPPoE with 2.4.8 
-In-Reply-To: Your message of "Tue, 14 Aug 2001 18:24:38 MST."
-             <20010815012438.54245.qmail@web10901.mail.yahoo.com> 
-Mime-Version: 1.0
+	id <S271002AbRHOCXY>; Tue, 14 Aug 2001 22:23:24 -0400
+Received: from smtp02.vsnl.net ([203.197.12.8]:58342 "EHLO smtp02.vsnl.net")
+	by vger.kernel.org with ESMTP id <S271001AbRHOCXH>;
+	Tue, 14 Aug 2001 22:23:07 -0400
+Message-ID: <3B794174.148FF031@vsnl.net>
+Date: Tue, 14 Aug 2001 20:49:16 +0530
+From: "Amit S. Kale" <kgdb@vsnl.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: kgdb for Redhat 7.1 kernel
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 15 Aug 2001 12:05:25 +1000
-Message-ID: <32214.997841125@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Aug 2001 18:24:38 -0700 (PDT), 
-Brad Chapman <kakadu_croc@yahoo.com> wrote:
->c021baa0 pfifo_qdisc_ops_R__ver_pfifo_qdisc_ops
+Hi,
 
-FAQ: http://www.tux.org/lkml/#s8-8
+kgdb for Redhat 7.1 kernel (2.4.2-2) is available from
+http://kgdb.sourceforge.net/downloads.html 
+
+It contains the same features as kgdb for 2.4.6 kernel.
+-- 
+Amit S. Kale
+Linux kernel source level debugger    http://kgdb.sourceforge.net/
+Translation filesystem                http://trfs.sourceforge.net/
 

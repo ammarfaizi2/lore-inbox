@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318175AbSG3BOS>; Mon, 29 Jul 2002 21:14:18 -0400
+	id <S318186AbSG3BQi>; Mon, 29 Jul 2002 21:16:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318180AbSG3BOS>; Mon, 29 Jul 2002 21:14:18 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:14752 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318175AbSG3BOQ>;
-	Mon, 29 Jul 2002 21:14:16 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Muli Ben-Yehuda <mulix@actcom.co.il>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: rename 'unused' in sys_iopl to somethign else, since it is used 
-In-reply-to: Your message of "Sun, 28 Jul 2002 17:12:56 +0300."
-             <20020728141256.GA9573@alhambra.actcom.co.il> 
-Date: Tue, 30 Jul 2002 11:02:33 +1000
-Message-Id: <20020730011859.96E0B4276@lists.samba.org>
+	id <S318189AbSG3BQi>; Mon, 29 Jul 2002 21:16:38 -0400
+Received: from sm13.texas.rr.com ([24.93.35.40]:54921 "EHLO sm13.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S318186AbSG3BQh>;
+	Mon, 29 Jul 2002 21:16:37 -0400
+Subject: Re: 2.5.29: bug in ide and hd kernel option handling
+From: Gerald Champagne <gerald@io.com>
+To: mikpe@csd.uu.se
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 29 Jul 2002 20:19:53 -0500
+Message-Id: <1027991999.15188.17.camel@wiley>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020728141256.GA9573@alhambra.actcom.co.il> you write:
-> sys_iopl on i386 accepts one parameter, 'unsigned long unused'. Then
-> it goes ahead and uses it to get a pointer to struct pt_regs. This
-> patch changes its name to 'location'.=20
+Well, that would most likely be my fault.  I made some small changes to
+the parameter parsing code recently.
 
-Hmmm.... Andi, the x86_64 version is different: do you really push one
-arg on the stack then the regs?  Please check...
+> On my 486 test box (ISA/VLB only, CONFIG_PCI=n), passing any
+> any ide or hd kernel option (like idebus=33) to 2.5.29 results
+> in a kernel hang at boot: I get the initial "Uncompressing ..
+> booting .." and then nothing.
 
-> diff -Nru a/arch/i386/kernel/ioport.c b/arch/i386/kernel/ioport.c
-> --- a/arch/i386/kernel/ioport.c	Sun Jul 28 17:08:54 2002
-> +++ b/arch/i386/kernel/ioport.c	Sun Jul 28 17:08:54 2002
-> @@ -102,9 +102,9 @@
->   * code.
->   */
->  
-> -asmlinkage int sys_iopl(unsigned long unused)
-> +asmlinkage int sys_iopl(unsigned long location)
->  {
-> -	struct pt_regs * regs =3D (struct pt_regs *) &unused;
-> +	struct pt_regs * regs =3D (struct pt_regs *) &location;=20
->  	unsigned int level =3D regs->ebx;
->  	unsigned int old =3D (regs->eflags >> 12) & 3;
->  
+The no display symptom makes sense if there's a problem in a setup
+routine.  These routines are called before console_init.  Printk's
+before console_init are queued up and only displayed after console_init
+is called.  If the kernel hangs before this point, nothing is displayed.
 
-It also then rereads the arg out of regs->ebx.  I prefer the following
-patch, which makes it obvious that the arg *is* required, and what it
-means:
+> With 2.5.27, the kernel instantly rebooted itself instead.
 
-diff -urpN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.29/arch/i386/kernel/ioport.c working-2.5.29-iopl/arch/i386/kernel/ioport.c
---- linux-2.5.29/arch/i386/kernel/ioport.c	Mon Jun 17 23:19:16 2002
-+++ working-2.5.29-iopl/arch/i386/kernel/ioport.c	Tue Jul 30 10:58:38 2002
-@@ -102,10 +102,9 @@ asmlinkage int sys_ioperm(unsigned long 
-  * code.
-  */
- 
--asmlinkage int sys_iopl(unsigned long unused)
-+asmlinkage int sys_iopl(unsigned int level)
- {
--	struct pt_regs * regs = (struct pt_regs *) &unused;
--	unsigned int level = regs->ebx;
-+	struct pt_regs * regs = (struct pt_regs *) &level;
- 	unsigned int old = (regs->eflags >> 12) & 3;
- 
- 	if (level > 3)
+The changes went in in 2.5.27.
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Can you please send my your .config file?  I'll look at this tonight.
+
+Thanks.
+
+Gerald
+
+
+
+

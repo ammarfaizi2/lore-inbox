@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbTFFX0D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 19:26:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbTFFX0D
+	id S262362AbTFFX2v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 19:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTFFX2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 19:26:03 -0400
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:16521 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S262361AbTFFX0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 19:26:02 -0400
-Message-Id: <200306062339.h56NdIsG002820@ginger.cmf.nrl.navy.mil>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-cc: "David S. Miller" <davem@redhat.com>, wa@almesberger.net,
+	Fri, 6 Jun 2003 19:28:51 -0400
+Received: from [63.205.85.133] ([63.205.85.133]:32743 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S262362AbTFFX2u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 19:28:50 -0400
+Date: Fri, 6 Jun 2003 16:44:42 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: "David S. Miller" <davem@redhat.com>, chas@cmf.nrl.navy.mil,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2) 
-In-reply-to: Your message of "Fri, 06 Jun 2003 14:54:06 PDT."
-             <20030606215406.GE21217@gaz.sfgoth.com> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Fri, 06 Jun 2003 19:37:29 -0400
-From: chas williams <chas@cmf.nrl.navy.mil>
-X-Spam-Score: () hits=-0.9
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
+Message-ID: <20030606234442.GI21217@gaz.sfgoth.com>
+References: <20030606122616.B3232@almesberger.net> <20030606.082802.124082825.davem@redhat.com> <20030606125416.C3232@almesberger.net> <20030606.085558.56056656.davem@redhat.com> <20030606215406.GE21217@gaz.sfgoth.com> <20030606201906.F3232@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030606201906.F3232@almesberger.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030606215406.GE21217@gaz.sfgoth.com>,Mitchell Blank Jr writes:
->The really gross part is that it uses kernel-land pointers as "opaque" VC
->descriptors, so basically if atmsigd goes nuts in can easily stomp all
->over the kernel's memory.  Way back when I added a CAP_SYS_RAWIO check to
->the ATMSIGD_CTRL ioctl so at least there's no security hole but it's still
->damn gross (no offense, Werner :-)
+Werner Almesberger wrote:
+> But yes, with a unified VCC table, it certainly makes sense to
+> add a hash to validate those pointers. I still think that using
+> pointers per se is a good idea, because they're naturally
+> unique numbers.
 
-yes, it pretty awful.  the problem is that this will take some changes
-to user space stuff as well to be done right.  so i was hoping to put
-it off till 2.7 and hopefully get something that's smp stable for 
-2.6.
+True... it's gross when you have 32-bit userland and a 64-bit kernel but
+we already dealt with that pain for sparc64.
 
->I agree that fixing that old cruft would be a lot more productive than
->trying to shoehorn the ATM devices into the netdevice framework.
+> > the ATMSIGD_CTRL ioctl so at least there's no security hole but it's still
+> > damn gross (no offense, Werner :-)
+> 
+> It could probably be used to leverage other security holes in
+> atmsigd.
 
-i would be willing to review patches.  my concern is to have something
-stable for 2.6.  making atm more compliant with the netdevice framework
-will make it easier to maintain in the future (or so i hope).
+Not really... since atmsigd runs as root it could just as easily
+open("/proc/kcore") and go to town.
+
+-Mitch

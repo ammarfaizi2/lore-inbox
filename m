@@ -1,40 +1,48 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154311-16160>; Fri, 18 Sep 1998 18:05:51 -0400
-Received: from smtp1.erols.com ([207.172.3.234]:1349 "EHLO smtp1.erols.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <155063-16160>; Fri, 18 Sep 1998 17:54:28 -0400
-Date: Fri, 18 Sep 1998 21:24:04 -0400 (EDT)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-Reply-To: alex.buell@tahallah.demon.co.uk
-To: Linux Kernel <linux-kernel@vger.rutgers.edu>
-Subject: REQUEST for /proc/cpuinfo copies
-Message-ID: <Pine.LNX.4.02.9809182119130.4483-100000@tahallah.demon.co.uk>
+Received: by vger.rutgers.edu id <154447-16160>; Sat, 19 Sep 1998 20:16:08 -0400
+Received: from yonge.cs.toronto.edu ([128.100.1.8]:62170 "HELO yonge.cs.toronto.edu" ident: "root") by vger.rutgers.edu with SMTP id <154575-16160>; Sat, 19 Sep 1998 19:54:24 -0400
+Subject: Re: Today Linus redesigns the networking driver interface (was Re: tulip driver in ...)
+From: David Holland <dholland@cs.toronto.edu>
+To: tytso@MIT.EDU (Theodore Y. Ts'o)
+Date: Sat, 19 Sep 1998 23:30:21 -0400
+Cc: torvalds@transmeta.com, kuznet@ms2.inr.ac.ru, alan@lxorguk.ukuu.org.uk, davem@dm.cobaltmicro.com, matti.aarnio@sonera.fi, linux-kernel@vger.rutgers.edu, becker@cesdis1.gsfc.nasa.gov
+In-Reply-To: <199809192249.SAA08252@dcl.MIT.EDU> from "Theodore Y. Ts'o" at Sep 19, 98 06:49:56 pm
+X-Mailer: ELM [version 2.4 PL25]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <98Sep19.233024edt.37911-17305@qew.cs.toronto.edu>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi guys,
+ > The one thing which the BSD implementations have that we *don't* have is
+ > the ability mask just one kind of interrupts (say, serial or networking
+ > interrupts) during some critical section of code.  The only thing we can
+ > do is use cli(), which blocks all interrupts.
+ > 
+ > So one of the things which the BSD networking stack can do is to (in
+ > some critical section of code), prevent network interupts from being
+ > handled.  If a network interrupt comes in during the critical section of
+ > code, it is queued, and would be executed only after the networking code
+ > had unblocked network interrupts.  (However, if a disk interrupt
+ > happened during the critical section, it would be handled.)
 
-I'm testing a little program that generates the last line of my signature.
-I'd like to test it with a bunch of different /proc/cpuinfos (*any*
-architecture - m68k, sparc, sgi, alpha etc) so I can experiment with these
-and get it right.
+The trouble is that on the x86, disabling just some interrupts means
+you have to talk to the interrupt controller, which is excessively
+slow.
 
-I'd be happy if you could email me (privately) with a copy of your
-/proc/cpuinfo for my programming pleasure? Thanks!
+There was a paper by Chris Small a couple of years ago that suggested
+that the best thing to do (on the x86, anyway) was to use cli/sti for
+small critical sections and talk to the interrupt controller only if
+you were going to have interrupts off for a good while.
 
-Once I've tested it, I will release it into the big bad world. You'll be
-the first to know.  
+I can dig up the exact reference if you like, or you should be able to
+find it under http://www.eecs.harvard.edu/~chris.
 
-Cheers,
-Alex
---
- /\_/\  Legalise cannabis now! 
-( o.o ) Grow some cannabis today!
- > ^ <  Peace, Love, Unity and Respect to all.
+-- 
+   - David A. Holland             | (please continue to send non-list mail to
+     dholland@cs.utoronto.ca      | dholland@hcs.harvard.edu. yes, I moved.)
 
-http://www.tahallah.demon.co.uk - *new* - rewritten for text browser users!
-
-Linux tahallah 2.1.122 #42 Thu Sep 17 08:18:35 EDT 1998 One AMD 486 DX/4 processor, 49.77 total bogomips, 32M RAM
-
+     Any netkit mail should be sent to netbug@ftp.uk.linux.org, not me.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

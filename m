@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRA2SvH>; Mon, 29 Jan 2001 13:51:07 -0500
+	id <S131986AbRA2Sw2>; Mon, 29 Jan 2001 13:52:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131566AbRA2Su5>; Mon, 29 Jan 2001 13:50:57 -0500
-Received: from palrel1.hp.com ([156.153.255.242]:24837 "HELO palrel1.hp.com")
-	by vger.kernel.org with SMTP id <S129532AbRA2Suy>;
-	Mon, 29 Jan 2001 13:50:54 -0500
-Message-ID: <3A75BB81.3423F1B2@cup.hp.com>
-Date: Mon, 29 Jan 2001 10:50:41 -0800
-From: Rick Jones <raj@cup.hp.com>
-Organization: the Unofficial HP
-X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+	id <S131566AbRA2SwS>; Mon, 29 Jan 2001 13:52:18 -0500
+Received: from foobar.napster.com ([64.124.41.10]:19210 "EHLO
+	foobar.napster.com") by vger.kernel.org with ESMTP
+	id <S131986AbRA2SwH>; Mon, 29 Jan 2001 13:52:07 -0500
+Message-ID: <3A75BBB2.63CE124C@napster.com>
+Date: Mon, 29 Jan 2001 10:51:30 -0800
+From: Jordan Mendelson <jordy@napster.com>
+Organization: Napster, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: jamal <hadi@cyberus.ca>
-Cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
-In-Reply-To: <Pine.GSO.4.30.0101270729270.24088-100000@shell.cyberus.ca>
+To: Daniel Walton <zwwe@opti.cgi.net>
+CC: whitney@math.berkeley.edu, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 Networking oddity
+In-Reply-To: <5.0.2.1.2.20010128140720.03465e38@209.54.94.12>
+	 <5.0.2.1.2.20010128140720.03465e38@209.54.94.12> <5.0.2.1.2.20010129002217.03362fe0@209.54.94.12>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'll give this a shot later. Can you try with the sendfiled-ttcp?
-> http://www.cyberus.ca/~hadi/ttcp-sf.tar.gz
+Daniel Walton wrote:
+> 
+> The server in question is running the tulip driver.  dmesg reports:
+> 
+> Linux Tulip driver version 0.9.13 (January 2, 2001)
+> 
+> I have seen this same behavior on a couple of my servers running 3com
+> 3c905c adaptors as well.
+> 
+> The last time I was experiencing it I rebooted the system and it didn't
+> solve the problem.  When it came up it was still lagging.  This would lead
+> me to believe that it is caused by some sort of network condition, but what
+> I don't know.
+> 
+> If anyone has ideas, I'd be more than happy to run tests/provide more info..
+> 
 
-I guess I need to "leverage" some bits for netperf :)
+If you are running an intelligent switch, double check to make sure your
+duplex and speed match what the switch sees on it's port. The biggest
+problem I've had with any of my machines is autonegotiation of port
+speed and duplex. Typically all that is required is that I force speed
+and duplex on the Linux end.
 
 
-WRT getting data with links that cannot saturate a system, having
-something akin to the netperf service demand measure can help. Nothing
-terribly fancy - simply a conversion of the CPU utilization and
-throughput to a microseconds of CPU to transfer a KB of data. 
-
-As for CKO and avoiding copies and such, if past experience is any guide
-(ftp://ftp.cup.hp.com/dist/networking/briefs/copyavoid.ps) you get a
-very nice synergistic effect once the last "access" of data is removed.
-CKO gets you say 10%, avoiding the copy gets you say 10%, but doing both
-at the same time gets you 30%.
-
-rick jones
-http://www.netperf.org/
--- 
-ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
-these opinions are mine, all mine; HP might not want them anyway... :)
-feel free to email, OR post, but please do NOT do BOTH...
-my email address is raj in the cup.hp.com domain...
+Jordan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

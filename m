@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbUADXW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 18:22:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUADXWn
+	id S265799AbUADXdf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 18:33:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbUADXdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 18:22:43 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:7348 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S265768AbUADXWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 18:22:40 -0500
-Date: Sun, 4 Jan 2004 15:22:31 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ornati@lycos.it, gandalf@wlug.westbo.se, linuxram@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Buffer and Page cache coherent? was: Strange IDE performance change in 2.6.1-rc1 (again)
-Message-ID: <20040104232231.GV1882@matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, ornati@lycos.it,
-	gandalf@wlug.westbo.se, linuxram@us.ibm.com,
-	linux-kernel@vger.kernel.org
-References: <200401021658.41384.ornati@lycos.it> <20040102213228.GH1882@matchmail.com> <1073082842.824.5.camel@tux.rsn.bth.se> <200401031213.01353.ornati@lycos.it> <20040103144003.07cc10d9.akpm@osdl.org> <20040104171545.GR1882@matchmail.com> <20040104141030.02fbcce5.akpm@osdl.org>
+	Sun, 4 Jan 2004 18:33:35 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:37129 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S265799AbUADXdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 18:33:33 -0500
+Date: Mon, 5 Jan 2004 00:33:12 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: szonyi calin <caszonyi@yahoo.com>
+Cc: azarah@nosferatu.za.org, Con Kolivas <kernel@kolivas.org>,
+       Soeren Sonnenburg <kernel@nn7.de>, Willy Tarreau <willy@w.ods.org>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       gillb4@telusplanet.net
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+Message-ID: <20040104233312.GA649@alpha.home.local>
+References: <1073227359.6075.284.camel@nosferatu.lan> <20040104225827.39142.qmail@web40613.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040104141030.02fbcce5.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040104225827.39142.qmail@web40613.mail.yahoo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 02:10:30PM -0800, Andrew Morton wrote:
-> Mike Fedyk <mfedyk@matchmail.com> wrote:
-> >
-> > On Sat, Jan 03, 2004 at 02:40:03PM -0800, Andrew Morton wrote:
-> > > No effort was made to optimise buffered blockdev reads because it is not
-> > > very important and my main interest was in data coherency and filesystem
-> > > metadata consistency.
-> > 
-> > Does that mean that blockdev reads will populate the pagecache in 2.6?
-> 
-> They have since 2.4.10.  The pagecache is the only cacheing entity for file
-> (and blockdev) data.
+On Sun, Jan 04, 2004 at 11:58:27PM +0100, szonyi calin wrote:
+ 
+> how much free memory do you have when this happens ?
+> I had 
+> a similar problem. It was easily reproducive doing 
+> a du -sh / and then trying to do other things.
+> It didn't happend all the time but most of the time
 
-There was a large thread after 2.4.10 was released about speeding up the
-boot proces by reading the underlying blockdev of the root partition in
-block order.
+It's not the problem here. always between 200 and 400 MB free.
+BTW, the system is not swapping when this happens. The scrolling
+is very smooth and relatively fast (about 100 lines/s) which is
+enough to understand that X eats all the CPU scrolling one line
+at a time. I have yet to understand why 'ls|cat' behaves
+differently, but fortunately it works and it has already saved
+me some useful time.
 
-Unfortunately at the time reading the files through the pagecache would
-cause a second read of the data even if it was already buffered.  I don't
-remember the exact details.
+Cheers,
+Willy
 
-Are you saying this is now resolved?  And the above optimization will work?

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbUCRUKH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 15:10:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUCRUKH
+	id S262914AbUCRUKb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 15:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUCRUKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 15:10:07 -0500
-Received: from ns.suse.de ([195.135.220.2]:54474 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262918AbUCRUKC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 15:10:02 -0500
-Subject: Re: True  fsync() in Linux (on IDE)
-From: Chris Mason <mason@suse.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Peter Zaitsev <peter@mysql.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040318194745.GA2314@suse.de>
-References: <1079572101.2748.711.camel@abyss.local>
-	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
-	 <20040318194745.GA2314@suse.de>
-Content-Type: text/plain
-Message-Id: <1079640699.11062.1.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 18 Mar 2004 15:11:40 -0500
+	Thu, 18 Mar 2004 15:10:31 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:30986 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262914AbUCRUKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 15:10:25 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: [CFT,PATCH] cpu detection for 2.6.5-rc1-mm2
+Date: Thu, 18 Mar 2004 20:50:35 +0100
+User-Agent: KMail/1.6.1
+Cc: Manfred Spraul <manfred@colorfullife.com>, Andrew Morton <akpm@osdl.org>
+References: <4059F0EF.6070706@colorfullife.com>
+In-Reply-To: <4059F0EF.6070706@colorfullife.com>
+X-Operating-System: Linux 2.6.4-wolk2.1 i686 GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200403182050.35165@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-18 at 14:47, Jens Axboe wrote:
+On Thursday 18 March 2004 19:56, Manfred Spraul wrote:
 
-> > With 2.6.3 I have  both existing file and new file to complete in less
-> > than 1 second. 
-> 
-> I believe some missed set_page_writeback() calls caused fsync() to never
-> really wait on anything, pretty broken... IIRC, it's fixed in latest
-> -mm, or maybe it's just pending for next release.
+Hi Manfred,
 
-This should have only been broken in -mm.  Which kernels exactly are you
-comparing?  Maybe the 3ware array defaults to different writecache
-settings under 2.6?
+> 2.6.5-rc1-mm2 contains new slab code that is more memory efficient by
+> setting (and thus reducing) the alignment of the objects based on the
+> actual cpu cache line size. This means that the cpu identification must
+> be done far earlier than before and that caused the boot problems with
+> 2.6.5-mm1.
+> Attached is a new proposal against 2.6.5-rc1-mm2 - could you give it a
+> try? It's tested with Pentium 4, bochs (i.e. Intel Pentium) and Athlon
+> XP cpus.
 
--chris
+works for me too where the previous patches did not. Many thanks :)
 
+ciao, Marc
 

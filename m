@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314239AbSEDPs3>; Sat, 4 May 2002 11:48:29 -0400
+	id <S314281AbSEDPtg>; Sat, 4 May 2002 11:49:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314281AbSEDPs2>; Sat, 4 May 2002 11:48:28 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:28122 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S314239AbSEDPs1>; Sat, 4 May 2002 11:48:27 -0400
-Date: Sat, 4 May 2002 17:43:56 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Regina Kodato <reginak@cyclades.com>
-cc: linux-kernel@vger.kernel.org, <akpm@zip.com.au>,
-        <jgarzik@mandrakesoft.com>
-Subject: [2.5 patch] s|linux/malloc.h|linux/slab.h| in drivers/net/wan/pc300_tty.c
-Message-ID: <Pine.NEB.4.44.0205041738540.283-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314360AbSEDPtf>; Sat, 4 May 2002 11:49:35 -0400
+Received: from [203.167.79.9] ([203.167.79.9]:8211 "EHLO willow.compass.com.ph")
+	by vger.kernel.org with ESMTP id <S314281AbSEDPtd>;
+	Sat, 4 May 2002 11:49:33 -0400
+Subject: Re: [Linux-fbdev-devel] Comments on fbgen.c and fbcon-accel.c
+From: Antonino Daplas <adaplas@pol.net>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: fbdev <linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10205031444260.9732-100000@www.transvirtual.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 04 May 2002 23:48:47 +0800
+Message-Id: <1020527361.752.1.camel@daplas>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Regina,
+On Sat, 2002-05-04 at 05:47, James Simmons wrote:
+> 
+> > I have a few observations on fbgen and fbcon-accel.
+> 
+> Don't mix fbgen with fbcon-accel. The new gen_* stuff in fbgen.c is meant
+> to replace the old fbgen_* stuff. That is why the below doesn't work.
+>  
+Okay, I've succeeded in rewriting the i810/i815 driver to use the gen_*
+stuff instead of fbgen_*.  As far as I can tell everything works :) --
+y-panning, accel, etc -- although gen_update_var() may not work
+properly.  I'm still getting incorrect cursor colors in 8 bpp, but
+that's probably my fault.  And you're right, it's actually easier to
+write the driver using the gen_* stuff.  
 
-the patch below fixes the compilation of pc300_tty.c in 2.5.13 and
-2.5.13-dj2:
+> 
+> > 2. Also, fbgen_switch basically just do an fbgen_do_set_var()
+> > (decode_var(), followed by set_par()).  This is okay most times, but
+> > it's probably better if fbgen_switch also does an encode_fix() since
+> > fbcon's drawing functions also rely on fix->line_length.
+> 
+> Most likely that is also broken. I haven't thought about it since I plan
+> to make all the old fbgen_* functions go away.
+> 
+fb_gen_switch may be broken, but I think gen_switch works just okay as
+long as info->fix is updated in set_par().
 
-<--  snip  -->
+> > If an fb_fix_screeninfo is not updated, display corruption occurs when
+> > switching to another display with a different pixelformat.
+> 
+> Correct. That is why I require info->fix to be updated when set_par is
+> called.
+> 
+Right.
 
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.5/linux-2.5.13/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
-/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=pc300_tty  -c -o pc300_tty.o pc300_tty.c
-pc300_tty.c:52: linux/malloc.h: No such file or directory
-pc300_tty.c: In function `cpc_tty_rx_task':
-pc300_tty.c:738: warning: passing arg 2 of pointer to function discards
-qualifie
-rs from pointer target type
-make[4]: *** [pc300_tty.o] Error 1
-make[4]: Leaving directory
-`/home/bunk/linux/kernel-2.5/linux-2.5.13/drivers/net
-/wan'
+The i810fb patch is at
+http://prdownloads.sourceforge.net/i810fb/linux-2.5.13-i810fb.tar.bz2.
 
-<--  snip  -->
+Tony
 
---- drivers/net/wan/pc300_tty.c.old	Sat May  4 17:34:14 2002
-+++ drivers/net/wan/pc300_tty.c	Sat May  4 17:34:34 2002
-@@ -49,7 +49,7 @@
- #include <linux/init.h>
- #include <linux/netdevice.h>
- #include <linux/spinlock.h>
--#include <linux/malloc.h>
-+#include <linux/slab.h>
- #include <linux/if.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+--- fbgen.c.orig	Sat May  4 14:35:32 2002
++++ fbgen.c	Sat May  4 15:02:37 2002
+@@ -514,7 +514,8 @@
+     
+ 	if (con == info->currcon) {
+ 		if (info->fbops->fb_pan_display) {
+-			if ((err = info->fbops->fb_pan_display(&info->var, con, info)))
++		        /* Tony: offsets are still in disp->var, not info->var */
++			if ((err = info->fbops->fb_pan_display(&fb_display[con].var, con, info)))
+ 				return err;
+ 		}
+ 	}	
 

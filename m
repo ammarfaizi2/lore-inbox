@@ -1,139 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266813AbUHCTfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266821AbUHCTgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266813AbUHCTfi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 15:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266819AbUHCTfh
+	id S266821AbUHCTgW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 15:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266820AbUHCTft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 15:35:37 -0400
-Received: from pop.gmx.de ([213.165.64.20]:61605 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266813AbUHCTey (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 15:34:54 -0400
-X-Authenticated: #420190
-Message-ID: <410FE943.7050308@gmx.net>
-Date: Tue, 03 Aug 2004 21:36:35 +0200
-From: Marko Macek <Marko.Macek@gmx.net>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Eric Wong <eric@yhbt.net>
-Subject: Re: KVM & mouse wheel [was PATCH]
-References: <410FAE9B.5010909@gmx.net> <200408031253.38934.dtor_core@ameritech.net>
-In-Reply-To: <200408031253.38934.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Aug 2004 15:35:49 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31936 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266825AbUHCTfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 15:35:03 -0400
+Date: Tue, 3 Aug 2004 21:34:54 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: updated gcc-3.4 patches for 2.4.27-rc4
+Message-ID: <20040803193454.GC2746@fs.tum.de>
+References: <200408031902.i73J2MNx000087@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408031902.i73J2MNx000087@harpo.it.uu.se>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
+On Tue, Aug 03, 2004 at 09:02:22PM +0200, Mikael Pettersson wrote:
+> [Resend. 1st post seems to have gone into a /dev/null somewhere.]
+> 
+> The gcc-3.4 patches for the 2.4.27-rc4 kernel have been updated:
+>...
+> http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc34-misc-fixes-2.4.27-rc4
+>...
 
->Hi,
->
->On Tuesday 03 August 2004 10:26 am, Marko Macek wrote:
->  
->
->>Hello!
->>
->>A few months ago I posted about problems with 2.6 kernel, KVM and mouse
->>wheel.
->>
->>I was using 2.4 kernel until recently, but with the switch to FC2 with
->>2.6 kernel this problem became much more annoying.
->>
->>My mouse is Logitech MX 510.
->>
->>I figured out a few things.
->>
->>1. Trying to set the mouse/kvm into a stream mode makes things insane.
->>Since streaming mode is supposed to be the default, I propose not
->>doing this at all. I haven't researched this further.
->>
->>-      psmouse_command(psmouse, param, PSMOUSE_CMD_SETSTREAM);
->>    
->>
->
->Could you describe what insane mean? If you take the KVM out of the picture
->is the mouse still instane?
->  
->
-Insane means that the mouse is moving really slowly, jumping around and 
-buttons
-work erratically. I did some more experiments and it seems that if I put 
-this command
-before the resolution/rate/scaling setting it seems to do no harm (the 
-mouse works perfectly).
-I'd still prefer to remove it since I see no need for it.
+This still contains the compiler.h patch which shouldn't be there.
 
->>2. synaptics_detect hoses imps and exps detection. Resetting the mouse
->>after failed detect fixes it. This makes 'imps' and 'exps' protocols
->>work when used as proto=imps or proto=exps. Wheel works, I haven't tried
->>the buttons.
->>
->>    
->>
->
->Again, does it work without the KVM?
->  
->
-Yes, without the KVM the mouse works perfectly.
+> /Mikael
 
->  
->
->>3. PS2++ detection correctly detects Logitech MX mouse but doesn't
->>enable the PS2PP protocol, because of unexpected results in this code:
->>
->>	param[0] = param[1] = param[2] = 0;
->>         ps2pp_cmd(psmouse, param, 0x39); /* Magic knock */
->>         ps2pp_cmd(psmouse, param, 0xDB);
->>
->>         if ((param[0] & 0x78) == 0x48 &&
->>             (param[1] & 0xf3) == 0xc2 &&
->>             (param[2] & 0x03) == ((param[1] >> 2) & 3)) {
->>                 ps2pp_set_smartscroll(psmouse);
->>	        protocol = PSMOUSE_PS2PP;
->>         }
->>
->>The returned param array in my case is: 08 01 00 or 08 00 00 (hex)
->>(without KVM: C8 C2 64)
->>
->>I don't understand what this code is trying to check or why the protocol
->>is only set conditionally. If I set it unconditionally (swap last 2
->>lines) the PS2++ protocol now works including detection of all buttons
->>(I don't really need the buttons, just the wheel).
->>
->>    
->>
->
->Apparently your KVM doctors the data stream from the mouse. The driver
->tries to play safe and only switches to PS2++ protocol if mouse responds
->properly, otherwise there is a chance that it uses PS2++ with mouse that
->does not actually support it. 
->
->  
->
-Yeah, that's why I decided to fallback to im/exps modes instead.
+cu
+Adrian
 
-I have now also successfuly used the extra mouse buttons with 'exps' 
-protocol.
-So only the 'task' button is not supported with my previous patch (because
-it requires PS2++ mode).
+-- 
 
->>This is not included in the patch. The alternative solution
->>is to reset the mouse again and resume probing for imps or exps.
->>
->>    
->>
->
->It will be probed for imps/exps if PS2++ fails. Now I suspect that your
->particular KVM does not expect any extended probes and gets confused by
->them.
->  
->
-I have also seen comments in X sources about needing to reset the mouse 
-after
-each unsuccessful probe for best compatibility.
-
-Mark
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

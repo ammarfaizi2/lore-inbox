@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272781AbTHKQlw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 12:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272799AbTHKQlv
+	id S272752AbTHKQm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 12:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272799AbTHKQl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 12:41:51 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:24731 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272781AbTHKQke
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 12:40:34 -0400
-Date: Mon, 11 Aug 2003 09:40:12 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: davej@redhat.com
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
-Message-ID: <20030811164012.GB858@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>, davej@redhat.com,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	dri-devel@lists.sourceforge.net
-References: <E19mF4Y-0005Eg-00@tetrachloride>
+	Mon, 11 Aug 2003 12:41:56 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:51974 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S272752AbTHKQjn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 12:39:43 -0400
+Date: Mon, 11 Aug 2003 18:39:27 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Gregory G Carter <gcarter@aesgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 Test3 Config Compile Failure
+Message-ID: <20030811163927.GA1789@mars.ravnborg.org>
+Mail-Followup-To: Gregory G Carter <gcarter@aesgi.com>,
+	linux-kernel@vger.kernel.org
+References: <3F37BD21.4030701@aesgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E19mF4Y-0005Eg-00@tetrachloride>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+In-Reply-To: <3F37BD21.4030701@aesgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A few comments on why I don't like this patch:
-    1) It's a formatting only patch.  That screws over people who are using
-       BK for debugging, now when I double click on these changes I'll get
-       to your cleanup patch, not the patch that was the last substantive
-       change.
-    2) "if (expr) statement;" really ought to be considered legit coding style.
-       It's a one line "shorty" and it lets you see more of the code on a 
-       screen.
-    
-On the other hand, the author carried things too far when they did
+On Mon, Aug 11, 2003 at 10:58:25AM -0500, Gregory G Carter wrote:
+> The configuration program included with 2.6.0, allows a end-user to 
+> configure the kernel in such a way as to prevent it from compiling.
+> 
+> Please fix.
 
-	if (expr) statement;
-	else	  statement;
+Would be nice, but almost impossible.
+The problem you see are in device drivers, and device drivers
+does not get fixed unless someone actually cares and fix the driver in
+question.
+During the 2.5 cycle several internal interfaces were changed
+resulting in a wast amount of drivers that no longer compile.
 
-that's too hard for your eyes to parse quickly IMO.
+The usual reply to postings like yours is "Patches welcome" ;-)
+
+	Sam

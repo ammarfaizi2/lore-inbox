@@ -1,69 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280601AbRKBIeB>; Fri, 2 Nov 2001 03:34:01 -0500
+	id <S280605AbRKBIbB>; Fri, 2 Nov 2001 03:31:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280600AbRKBIdl>; Fri, 2 Nov 2001 03:33:41 -0500
-Received: from mel-rti20.wanadoo.fr ([193.252.19.91]:32169 "EHLO
-	mel-rti20.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S280601AbRKBIde>; Fri, 2 Nov 2001 03:33:34 -0500
-Date: Fri, 2 Nov 2001 09:31:27 +0100 (CET)
-From: Pascal Lengard <pascal.lengard@wanadoo.fr>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: Pascal Lengard <pascal.lengard@wanadoo.fr>, <alan@lxorguk.ukuu.org.uk>,
-        <suonpaa@iki.fi>, <linux-kernel@vger.kernel.org>
-Subject: Re: apm suspend broken ?
-In-Reply-To: <20011101015136.084c65cd.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.33.0111020918020.466-100000@h2o.chezmoi.fr>
+	id <S280603AbRKBIaw>; Fri, 2 Nov 2001 03:30:52 -0500
+Received: from kitkat.hotpop.com ([204.57.55.30]:1294 "HELO kitkat.hotpop.com")
+	by vger.kernel.org with SMTP id <S280601AbRKBIan>;
+	Fri, 2 Nov 2001 03:30:43 -0500
+Message-ID: <3BE2599A.1090405@toughguy.net>
+Date: Fri, 02 Nov 2001 02:30:18 -0600
+From: Lost Logic <lostlogic@toughguy.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: how to create the right kind of diffs to submit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Everyone,
+    Ok, this may seem pathetic... but I'd like to start fixing my own 
+bugs in the kernel as I find them, but as my education thus far has been 
+coding and not *nix related, I do not know how to create a diff to 
+submit in the correct format for inclusion in the kernel, any help, or 
+suggestions where to get help or any such?  TIA
 
-Some news about the APM problem on Dell Latitude C600:
+--Brandon Low (Lost Logic)
 
-On Thu, 1 Nov 2001, Stephen Rothwell wrote:
-> Can you try the following patch, please?  This is the relevant part of a
-> patch that was applied to Alan Cox's kernels.
-
-I tested this patch against 2.4.10-pre12 (first version showing problem)
-and 2.4.13.
-I tested also plain 2.4.13-ac5 since you (Stephen) said that this patch
-was taken from the last Alan kernel.
-
-Both kernels show the same behaviour, so please read on since 2.4.13-ac5
-is impacted by this bug.
-
-
-I tested the patch against 2.4.10-pre12.
-(I had to suppress a line in arch/i386/kernel/dmi_scan.c to make it compile
-since it defined pm_kbd_request_override differently than the definition in
-keyboard.h) The patch seemed to correct the apm behaviour nicely (I use
-'seem' since I tried it only once in a hurry to test against 2.4.13).
-
-So I tested the same patch against 2.4.13. It went through without any
-reject, compilation was fine also ... I tested also 2.4.13-ac5 and both
-show the same ill behaviour:
-
-Fn+Suspend (or launching "apm -s") does not ALWAYS suspend the laptop. 
-Sometimes, it blanks the screen but leaves the lcd light on, the cpu fan is 
-on also. Pressing Fn+D to turn off the lcd light completes the job and the 
-laptop finaly suspends completely.
-Typing "apm -s" shows the same behaviour, it did suspend the laptop ONCE out
-of 12 tests, all other 11 tests required to press Fn+D after to suspend.
-
-By the way, If I hit ANY key between Fn+Suspend and Fn+D, the keyboard
-is misbehaving after resume: CapsLock is inverted, Ctrl, Shift and Alt
-are dead.
-
-Under some rare conditions, apm -s works, but in general, asking the bios 
-to turn off the lcd light (Fn+D) helps a lot.
-I guess the keyboard problem is not a real one since if "apm -s" did its job 
-completely I would no chance to press any key before the lcd light goes off.
-
-Statistically, 2.4.13-ac5 seems to show better luck in suspending (it works
-correctly more often than 2.4.13+patch from Stephen).
-
-Pascal
 

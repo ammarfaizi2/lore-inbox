@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315358AbSFXWAf>; Mon, 24 Jun 2002 18:00:35 -0400
+	id <S315374AbSFXWiz>; Mon, 24 Jun 2002 18:38:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315370AbSFXWAe>; Mon, 24 Jun 2002 18:00:34 -0400
-Received: from perplex.selfdestruct.net ([195.197.225.4]:13471 "EHLO
-	perplex.selfdestruct.net") by vger.kernel.org with ESMTP
-	id <S315358AbSFXWA1>; Mon, 24 Jun 2002 18:00:27 -0400
-Date: Tue, 25 Jun 2002 00:56:19 +0300
-From: Toni Viemero <toni.viemero@iki.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Another .text.exit error with 2.4.19-rc1
-Message-ID: <20020624215619.GE27147@perplex.selfdestruct.net>
+	id <S315379AbSFXWiy>; Mon, 24 Jun 2002 18:38:54 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:63485 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S315374AbSFXWiy>; Mon, 24 Jun 2002 18:38:54 -0400
+Date: Mon, 24 Jun 2002 15:39:34 -0700
+From: Chris Wright <chris@wirex.com>
+To: linux-security-module@wirex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] 2.5.24-lsm1
+Message-ID: <20020624153934.A17122@figure1.int.wirex.com>
+Mail-Followup-To: linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems like ServeRAID driver is causing problems
+The Linux Security Modules project provides a lightweight, general
+purpose framework for access control.  The LSM interface enables
+security policies to be developed as loadable kernel modules.
+See http://lsm.immunix.org for more information.
 
-System: Debian GNU/Linux unstable (IBM eServer 232 with ServeRAID 4Lx)
+2.5.24-lsm1 patch released.  This is just a simple rebase to 2.5.24.
 
-compiling kernel stops, error output:
+Full lsm-2.5 patch (LSM + all modules) is available at:
+	http://lsm.immunix.org/patches/2.5/2.5.24/patch-2.5.24-lsm1.gz
 
-drivers/scsi/scsidrv.o(.data+0x3874): undefined reference to local symbols
-in discarded section .text.exit'
+The whole ChangeLog for this release is at:
+	http://lsm.immunix.org/patches/2.5/2.5.24/ChangeLog-2.5.24-lsm1
 
+The LSM 2.5 BK tree can be pulled from:
+        bk://lsm.bkbits.net/lsm-2.5
 
-and output of "reference_discarded.pl" by Keith Owens:
+2.5.24-lsm1
+ - merge with 2.5.24					(me)
+ - removed unneeded cpqphp.h fix			(Greg KH)
+ - document module identifier				(David Wheeler)
 
-aq144:/usr/src/linux# perl ../reference_discarded.pl 
-Finding objects, 392 objects, ignoring 0 module(s)
-Finding conglomerates, ignoring 35 conglomerate(s)
-Scanning objects
-Error: ./drivers/scsi/ips.o .data refers to 000000d4 R_386_32
-.text.exit
-Done
+thanks,
+-chris
 
-Regards,
 -- 
-Toni Viemerö  |  http://selfdestruct.net
-"The ones who dont do anything are always the ones who try to pull you
- down."
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

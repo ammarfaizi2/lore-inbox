@@ -1,69 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130882AbQK3UGL>; Thu, 30 Nov 2000 15:06:11 -0500
+        id <S131148AbQK3UGL>; Thu, 30 Nov 2000 15:06:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131145AbQK3UGB>; Thu, 30 Nov 2000 15:06:01 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:15376 "EHLO
-        vger.timpanogas.org") by vger.kernel.org with ESMTP
-        id <S131148AbQK3TuT>; Thu, 30 Nov 2000 14:50:19 -0500
-Date: Thu, 30 Nov 2000 13:10:15 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fasttrak100 questions...
-Message-ID: <20001130131015.C12886@vger.timpanogas.org>
-In-Reply-To: <8voa7g$d1r$1@forge.tanstaafl.de> <Pine.LNX.4.21.0011291152500.5109-100000@sol.compendium-tech.com> <20001129210830.J17523@forge.tanstaafl.de> <20001129165236.A9536@vger.timpanogas.org> <3A266EE7.4C734350@nortelnetworks.com> <20001130114349.A12564@vger.timpanogas.org> <3A2697E1.B41C448@nortelnetworks.com>
+        id <S131149AbQK3UGB>; Thu, 30 Nov 2000 15:06:01 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:24375 "EHLO
+        penguin.e-mind.com") by vger.kernel.org with ESMTP
+        id <S131156AbQK3UFt>; Thu, 30 Nov 2000 15:05:49 -0500
+Date: Thu, 30 Nov 2000 20:35:11 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre24
+Message-ID: <20001130203511.A18804@athlon.random>
+In-Reply-To: <E140wh7-0005Na-00@the-village.bc.nu> <20001129150159.Y872@opus.bloom.county> <20001130181740.A18566@athlon.random> <20001130112643.A16256@opus.bloom.county>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A2697E1.B41C448@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Thu, Nov 30, 2000 at 01:09:37PM -0500
+Content-Disposition: inline
+In-Reply-To: <20001130112643.A16256@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Nov 30, 2000 at 11:26:43AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 01:09:37PM -0500, Christopher Friesen wrote:
-> "Jeff V. Merkey" wrote:
-> > 
-> > On Thu, Nov 30, 2000 at 10:14:47AM -0500, Christopher Friesen wrote:
-> 
-> > > I think you should re-read the GPL.  You only have to provide source to
-> > > people to whome you have distributed your new binaries, and you only
-> > > have to provide that source if you are asked for it.  If you have some
-> > > code that you have written that is based on GPL'd code, and you are the
-> > > only person that ever runs the binaries, then there is no obligation for
-> > > you to make your code available to anybody.
-> > 
-> > Depends on what terms the code is provided under.  Using GPL code in a
-> > for profit enterprise and distributing it to customers does require
-> > that the changes be provided upon request.  I have read the GPL, and
-> > I've had a lot of lawyers around here read and analyze it too.
-> > 
-> > :-)
-> 
-> Well of course this is the case.  I specifically said that I am the only
-> one that ever ran the binaries.  Once you start distributing it to other
-> people, then they can request the source additions/modifications and you
-> are obligated to provide it.
-> 
-> Theoretically you could use software based on GPL'd code all throughout
-> a for-profit corporation and make boatloads of money using that
-> software.  As long as you don't distribute it to customers outside the
-> company, and as long as none of the employees using it ask for the
-> source and distribute it outside the company, nobody outside that
-> corporation has any right to the source even though it is being used for
-> profit.
+On Thu, Nov 30, 2000 at 11:26:43AM -0700, Tom Rini wrote:
+> Right.  But the problem here was a new, unused sysctl-by-number, conflicted
+> with an old-but-not-integrated sysctl-by-number that is used. :)  The only
 
-I'm not certain this is technically correct, but I think it would be worth
-having some folks here investigate this secnario.
+Who is using it? Not even the raid developers cared to take the
+sysctl-by-number consistent between 2.4.0-test12-pre2 and 2.2.x raid 0.90
+so nobody should be using it in first place.
 
-Jeff
+Furthmore since the number 4 is the official one for raid/md, DEV_MAC_HID=3
+isn't really colliding with the raid sysctl, but DEV_MAC_HID=3 is still wrong
+because is it should be =5 to be consistent with 2.4.x...
+
+2.2.x RAID 0.90:
+
+ enum {
+ 	DEV_CDROM=1,
+-	DEV_HWMON=2
++	DEV_HWMON=2,
++	DEV_MD=3
+ };
+[..]
++/* /proc/sys/dev/md */
++enum {
++	DEV_MD_SPEED_LIMIT=1
+ };
 
 
-> 
-> -- 
-> Chris Friesen                    | MailStop: 043/33/F10  
-> Nortel Networks                  | work: (613) 765-0557
-> 3500 Carling Avenue              | fax:  (613) 765-2986
-> Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+2.2.18pre24:
+
+enum {
+	DEV_CDROM=1,
+	DEV_HWMON=2,
+	DEV_MAC_HID=3
+};
+
+2.4.0-test12-pre2:
+
+enum {
+	DEV_CDROM=1,
+	DEV_HWMON=2,
+	DEV_PARPORT=3,
+	DEV_RAID=4,
+	DEV_MAC_HID=5
+};
+[..]
+/* /proc/sys/dev/raid */
+enum {
+	DEV_RAID_SPEED_LIMIT_MIN=1,
+	DEV_RAID_SPEED_LIMIT_MAX=2
+};
+
+As we can clearly see nobody cares about the sysctl-by-number interface because
+it generates collisions too easily so it should be declared obsolete and nobody
+should use it anymore. sysctl-by-name is less performant but it doesn't
+generate binary-level collisions so easily and in turn it's a big win for open
+source projects where everybody has some tons of unofficial patches applied
+(raid 0.90 in this case).
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265812AbTF3KG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 06:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbTF3KG5
+	id S265823AbTF3Kcc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 06:32:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbTF3Kcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 06:06:57 -0400
-Received: from dyn111.dial-0845.co.uk ([80.71.5.111]:26892 "EHLO
-	localserver.local.net") by vger.kernel.org with ESMTP
-	id S265812AbTF3KG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 06:06:56 -0400
-From: "Edwin Jones" <edwin@china-conferences.com>
+	Mon, 30 Jun 2003 06:32:32 -0400
+Received: from westhill.hyglo.com ([62.119.43.37]:33202 "EHLO
+	westhill.hyglo.com") by vger.kernel.org with ESMTP id S265823AbTF3Kcc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 06:32:32 -0400
+Message-ID: <3F00151A.6050302@hyglo.com>
+Date: Mon, 30 Jun 2003 12:46:50 +0200
+From: peter enderborg <pme@hyglo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: ELearnChina Conference 2003 - Only 3 Weeks To Go!
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-Reply-To: edwin@conferenceinfo.net
-Date: Mon, 30 Jun 2003 10:40:17 -0000
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Message-Id: <S265812AbTF3KG4/20030630100656Z+13744@vger.kernel.org>
+Subject: profs open hook
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Jun 2003 10:46:51.0218 (UTC) FILETIME=[E9D02320:01C33EF4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have done this little patch for the procfs_example.c
 
-Hey its me again!
+diff procfs_example.c 
+kernels/linux-2.4.20/Documentation/DocBook/procfs_example.c
+87,91d86
+< static int open_qp(struct inode * inode, struct file * file)
+< {
+<   printk("Open my node %p %p \n",inode,file);
+<   return -EINVAL;
+< }
+180c175
+<       foo_file->proc_fops->open=open_qp;
+---
+ >
 
-Ok, there are still a few places left at the best Elearning Event of the year.
-Please contact me directly for final discounted prices [yes, even lower now]
+And when loading this module. The procfs gets broken. I get EINVAL for 
+open on
+/proc/meminfo and all other procfs info. Why? Should procfs inodes don't 
+have full
+filesematics? And it don't help to unload the module.
 
-Yours,
-Edwin Jones
-www.conferenceinfo.net
-
-Sales
-China Conferences
-Tel +44 131 440 9881
-Fax +44 131 440 9882
-edwin@conferenceinfo.net

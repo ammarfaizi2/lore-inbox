@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLSArU>; Mon, 18 Dec 2000 19:47:20 -0500
+	id <S131392AbQLSAvV>; Mon, 18 Dec 2000 19:51:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbQLSArK>; Mon, 18 Dec 2000 19:47:10 -0500
-Received: from nrg.org ([216.101.165.106]:28992 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S129391AbQLSArB>;
-	Mon, 18 Dec 2000 19:47:01 -0500
-Date: Mon, 18 Dec 2000 16:14:56 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Daniel Phillips <phillips@innominate.de>
+	id <S131628AbQLSAvM>; Mon, 18 Dec 2000 19:51:12 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:21516
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131625AbQLSAvE>; Mon, 18 Dec 2000 19:51:04 -0500
+Date: Mon, 18 Dec 2000 16:20:28 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: David Weinehall <tao@acc.umu.se>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Semaphores used for daemon wakeup
-In-Reply-To: <0012171922570J.00623@gimli>
-Message-ID: <Pine.LNX.4.05.10012181611430.2088-100000@cosmic.nrg.org>
+Subject: Re: SerialATA Release, sortof........
+In-Reply-To: <20001219010852.B8435@khan.acc.umu.se>
+Message-ID: <Pine.LNX.4.10.10012181619050.25065-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Dec 2000, Daniel Phillips wrote:
-> This patch illustrates an alternative approach to waking and waiting on
-> daemons using semaphores instead of direct operations on wait queues.
-> The idea of using semaphores to regulate the cycling of a daemon was
-> suggested to me by Arjan Vos.  The basic idea is simple: on each cycle
-> a daemon down's a semaphore, and is reactivated when some other task
-> up's the semaphore.
+On Tue, 19 Dec 2000, David Weinehall wrote:
 
-> Is this better, worse, or lateral?
+> On Mon, Dec 18, 2000 at 01:27:07PM -0800, Andre Hedrick wrote:
+> > 
+> > FYI
+> > 
+> > The Serial ATA specification (500 pages) is now available to the public
+> > under certain "click-to-accept" conditions.  Click the "specification"
+> > link at the bottom of the home page at http://www.serialata.org/.
+> > I hope the conditions are acceptable. The file is zipped MS Word.
+> 
+> Well, I think that most people can be happy with the conditions. Now,
+> the format, that's a completely different issue. With all your
+> influence, I bet you could persuade them to at least run the document
+> through Acrobat Distiller to turn it into a .pdf?!
 
-This is much better, especially from a maintainability point of view.
-It is also the method that a lot of operating systems already use.
+My bad for forwarding info from internal.
+I knew that my copies were in PDF, but did not know if they combined all
+the erratas in to a newer doc or what....
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Cheers,
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVALMEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVALMGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVALMEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 07:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVALMEZ
+	id S261165AbVALMGM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 07:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVALMGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 07:04:25 -0500
-Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:51630 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261163AbVALMEW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 07:04:22 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: Mariusz Mazur <mmazur@kernel.pl>
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.10.0
-Date: Wed, 12 Jan 2005 12:04:15 +0000
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200501081613.27460.mmazur@kernel.pl> <200501121049.10219.andrew@walrond.org> <200501121211.23475.mmazur@kernel.pl>
-In-Reply-To: <200501121211.23475.mmazur@kernel.pl>
+	Wed, 12 Jan 2005 07:06:12 -0500
+Received: from static64-74.dsl-blr.eth.net ([61.11.64.74]:22020 "EHLO
+	linmail.globaledgesoft.com") by vger.kernel.org with ESMTP
+	id S261166AbVALMGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 07:06:06 -0500
+Message-ID: <41E510C7.5060100@globaledgesoft.com>
+Date: Wed, 12 Jan 2005 17:27:59 +0530
+From: krishna <krishna.c@globaledgesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: lirc <lirc-list-request@lists.sourceforge.net>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: LIRC for Infra Red port.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501121204.15255.andrew@walrond.org>
-X-Spam-Score: 4.3 (++++)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 January 2005 11:11, Mariusz Mazur wrote:
->
-> Looks like you've linked your kernel's config.h to llh and that causes the
-> problem. You shouldn't do that unless you have a specific reason to,
-> otherwise you might end up with problems I'm unable to test for (I can't
-> check every possible combination of kernel CONFIG_'s).
->
+Hi all,
 
-It seems that mysql looks for the existence of a compilable linux/config.h and 
-uses it if available. This has just happened to work until latest release of 
-llh. I had read your faq, but too long ago ;)
+    I am working on LIRC-serial.
 
-Thanks!
+But in my main board I also have Infra Red Port. I don't want to use the 
+serial port so that it I can use for some other purpose.
+Does any one know How could I use the IR port instead of Serial port.
 
-Andrew
+Regards,
+Krishna Chaitanya

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbTJDMXm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 08:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTJDMXm
+	id S262011AbTJDMYu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 08:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTJDMXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 08:23:42 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:25816 "EHLO
+	Sat, 4 Oct 2003 08:23:46 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28120 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262006AbTJDMXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262011AbTJDMXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 4 Oct 2003 08:23:41 -0400
-Date: Thu, 2 Oct 2003 14:40:30 +0200
+Date: Thu, 2 Oct 2003 19:58:02 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Mike Dresser <mdresser_l@windsormachine.com>, linux-kernel@vger.kernel.org
-Subject: Re: Keyboard oddness.
-Message-ID: <20031002124030.GA205@openzaurus.ucw.cz>
-References: <1064569422.21735.11.camel@ulysse.olympe.o2t> <20030926102403.GA8864@ucw.cz> <1064572898.21735.17.camel@ulysse.olympe.o2t> <1064581715.23200.9.camel@ulysse.olympe.o2t> <3F74459A.7060903@aitel.hist.no> <Pine.LNX.4.56.0309261000050.17642@router.windsormachine.com> <20030928105821.GA10794@hh.idb.hist.no>
+To: Thomas Winkler <tom@qwws.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BugReport (test6): USB (ACPI), SWSUSP, E100
+Message-ID: <20031002175802.GC205@openzaurus.ucw.cz>
+References: <200309291551.00446.tom@qwws.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030928105821.GA10794@hh.idb.hist.no>
+In-Reply-To: <200309291551.00446.tom@qwws.net>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > So there's a non-game application.
-> > 
-> 1. Do we want to protect people against leaving something heavy
->    on the keyboard - when this protection will cause other
->    trouble?
+> - SWSUSP 
+> In contrast du test5 there now is a /proc/acpi/sleep file again. But an 
+> 
+> echo 4 > /proc/acpi/sleep shows no effect at all. SWSUSP is enabled in the 
+> kernel (full .config at the end of the mail).
 
-No, thats a feature. Last night I was testing swsusp and had one
-heavy object on ctrl (reboot instead of powerdown)
-and second on enter (get through lilo).
+Look for [pm] patches I sent to the list; you need to add __initcall(software_resume).
+
+> echo 3 > /proc/acpi/sleep produces the following output and then the prompt 
+> returns again:
+> Stopping tasks: ==================
+>  stopping tasks failed (1 tasks remaining)
+> Restarting tasks...<6> Strange, khubd not stopped
+>  done
+
+
+Turn off config_usb.
+
 -- 
 				Pavel
 Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...

@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268008AbTBRUja>; Tue, 18 Feb 2003 15:39:30 -0500
+	id <S268004AbTBRUlL>; Tue, 18 Feb 2003 15:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268010AbTBRUja>; Tue, 18 Feb 2003 15:39:30 -0500
-Received: from AMarseille-201-1-6-77.abo.wanadoo.fr ([80.11.137.77]:18983 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S268008AbTBRUj2>;
-	Tue, 18 Feb 2003 15:39:28 -0500
-Subject: Re: PATCH: make the sl82c105 work again
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030218185309.C9785@flint.arm.linux.org.uk>
-References: <E18lCZa-0006Ec-00@the-village.bc.nu>
-	 <20030218185309.C9785@flint.arm.linux.org.uk>
-Content-Type: text/plain
+	id <S268006AbTBRUlJ>; Tue, 18 Feb 2003 15:41:09 -0500
+Received: from magic.adaptec.com ([208.236.45.80]:52460 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S268004AbTBRUlG>; Tue, 18 Feb 2003 15:41:06 -0500
+Date: Tue, 18 Feb 2003 13:50:06 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] aic7xxx/aicasm makefile - fix make clean
+Message-ID: <9080000.1045601406@aslan.btc.adaptec.com>
+In-Reply-To: <20030216193229.GA22723@mars.ravnborg.org>
+References: <20030216193229.GA22723@mars.ravnborg.org>
+X-Mailer: Mulberry/3.0.0b12 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045601367.570.56.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 18 Feb 2003 21:49:27 +0100
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-18 at 19:53, Russell King wrote:
-> On Tue, Feb 18, 2003 at 06:34:29PM +0000, Alan Cox wrote:
-> > +	hwif->drives[0].pio_speed = XFER_PIO_0;
-> > +	hwif->drives[0].autotune = 1;
-> > +	hwif->drives[1].pio_speed = XFER_PIO_1;
-> > +	hwif->drives[1].autotune = 1;
-> 
-> Is there some reason why drive 1 is PIO 1 and drive 0 is PIO 0 ?
+> The latest change to aic7xxx/aicasm/makefile broke make clean.
+> The following patch re-enable "make-clean" and keep the clean: target.
 
-No, just a typo from me that I forgot to send a patch for.
+I just renamed CLEANFILES to clean-files and added $(PROG) to it.  It
+should do the same thing.
 
-There is also still a problem. If DMA fails, the main IDE layer
-goes back to PIO, that works, and then goes back to DMA, it
-calls hwif->ide_dma_on() from IRQ with lock held etc...
-
-The problem is that if I fix that, that means the proper setting
-up of the disk for DMA etc... will not be done in ide_dma_on
-anymore but only on ide_dma_check() (so once upon discovery)
-and when setting xfer mode. Not on hdparm -d1. I'm still wondering
-what is the best fix for that. For ide-pmac, I did the later
-(only do the job in check()), but I also think we should change
-ide.c to actually call hwif->ide_dma_check() when DMA is turned
-ON with hdparm instead of ide_dma_on().
-
-Ben.
- 
+--
+Justin
 

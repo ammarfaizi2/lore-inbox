@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312962AbSF2P1T>; Sat, 29 Jun 2002 11:27:19 -0400
+	id <S313060AbSF2Pe4>; Sat, 29 Jun 2002 11:34:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312973AbSF2P1S>; Sat, 29 Jun 2002 11:27:18 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:43137
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S312962AbSF2P1R>; Sat, 29 Jun 2002 11:27:17 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200206291529.g5TFTTX14615@www.hockin.org>
-Subject: Re: IO and PCIy
-To: sheltraw@unm.edu
-Date: Sat, 29 Jun 2002 08:29:29 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1025335902.3d1d625ef2db3@webmail.unm.edu> from "sheltraw@unm.edu" at Jun 29, 2002 01:31:42 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S312973AbSF2Pez>; Sat, 29 Jun 2002 11:34:55 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:32527 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S313060AbSF2Pey>; Sat, 29 Jun 2002 11:34:54 -0400
+Date: Sat, 29 Jun 2002 17:36:18 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Keith Owens <kaos@ocs.com.au>
+cc: Sam Ravnborg <sam@ravnborg.org>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, <mec@shout.net>,
+       <kbuild-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kconfig: menuconfig and config uses $objtree 
+In-Reply-To: <5050.1025315441@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0206291409430.8911-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there a way to disable IO read/writes to a PCI device. The bit 0
-> of command register in PCI configuration space can be used to 
-> disable/enable memory-mapped IO but will it disable direct IO 
-> (what is the proper term?) as well?
- 
- There are two bits - IO enable and MMIO enable.  They are the 0x1 and 0x2
- bits in the command register, respectively.
- 
-> enable interrupts on vertical blanking without doing so on both 
-> cards (since they both respond to the same direct IO addresses). 
- 
- umm, should they be on the same IO?  I've never mucked with dual video
- cards, but that sounds odd...
- 
-> Of course if I knew the addresses/offsets for memory-mapped versions
-> of the appropriate registers on one card I could solve this problem
-> but I do not neccesarily have that info.
+Hi,
 
-The pci regions are easily readable - you should dig up a copy of the PCI
-spec - very good reading....
+On Sat, 29 Jun 2002, Keith Owens wrote:
+
+> What happens when you want to support multiple source trees?
+
+First we should answer the question, why kbuild support for multiple
+source trees is such a must have feature? So far I haven't seen a
+satisfying answer, that would justify a big increase in kbuild complexity.
+Only very few people would need such a feature and often there are other
+ways to archive almost the same.
+If such a feature is really badly needed, I think it's better to implement
+it first as a seperate tool, which synchronizes multiple source dirs into
+a single dir. This is not as efficient, as kbuild has to recheck the
+single dir, but most of it should be in the cache, so it shouldn't be that
+bad. On the other hand it should be easy to integrate in whatever kbuild
+system. If there should be a huge demand for a better integration, we can
+still do this later.
+
+> What happens when the config data is not in monolithic files but is
+> supplied in per-driver files (driver.inf)?  Linus wants that feature
+> eventually.  Note that driver.inf will contain more than just config
+> data, it will contain all the data required to build a driver.  With
+> your approach every CML program would have to be changed to understand
+> the format of the driver.inf files, replicating the code over multiple
+> parsers.  With my approach you need one program that extracts the
+> relevant data for config and builds the config tree, then the existing
+> CML programs run unchanged.
+
+The simple answer is to replace all the parsers with a single library,
+which is what I'm currently working on. Maintaining multiple config
+formats is just silly.
+
+bye, Roman
+

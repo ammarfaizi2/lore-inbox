@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270655AbTGUR6z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 13:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270652AbTGUR5i
+	id S270627AbTGUSU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 14:20:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270633AbTGUSU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 13:57:38 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:38897 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S270653AbTGUR41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 13:56:27 -0400
-Message-ID: <3F1C1079.7060103@cornell.edu>
-Date: Mon, 21 Jul 2003 12:10:33 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Ford <david+powerix@blue-labs.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TCQ problems in 2.6.0-test1: the summary
-References: <3F19C838.8040301@cornell.edu> <20030721123334.GF10781@suse.de> <3F1C1326.5080804@blue-labs.org>
-In-Reply-To: <3F1C1326.5080804@blue-labs.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jul 2003 14:20:59 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:55218 "EHLO
+	genius.impure.org.uk") by vger.kernel.org with ESMTP
+	id S270627AbTGUSU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 14:20:58 -0400
+Date: Mon, 21 Jul 2003 19:34:40 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
+Subject: Re: AMD Athlon MP Machine check exceptions
+Message-ID: <20030721183440.GA12668@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
+References: <20030719225935.GA628@gallifrey> <20030720082041.GD643@alpha.home.local> <20030720115432.GB628@gallifrey>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030720115432.GB628@gallifrey>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 20, 2003 at 12:54:32PM +0100, Dr. David Alan Gilbert wrote:
+ > > You should feed it through Dave Jones' parsemce program.
+ > Thank you! Unfortunatly Dave's site seems to be down at the moment
 
-> Note, reiserfsck never indicates any problems were found or fixed but 
-> the problems are none-the-less fixed.  (reiser guys: reiserfsck 
-> --fix-fixable always results in "--fix-fixable ignored")
+Gah, a pox on Cobalt Raq's...
+Such problems always seem to happen when I'm a few thousand miles
+away from said box also, so I'm not really too sure whats happening
+with it right now..  
+When I get chance, I'll move it (and post-halloween and other bits)
+to kernel.org. 
+ 
+ > (and google don't seem to have it cached - why?)
 
-I think it does that when the root fs is mounted - not sure.
-You should fsck from a different root.
-
-
-> Jul 19 10:55:31 james hdc: invalidating tag queue (0 commands)
-> Jul 19 10:55:41 james ide_tcq_intr_timeout: timeout waiting for 
-> completion interrupt
-
-Yes - that's in my original email.
-
-> and further disk access causes D state.  I upgraded this machine to 
-> 2.6.0-test1 and now it's having fits with apic or acpi but that's 
-> another email.  And a side note, if I have TCQ compiled in w/ 
-> 2.6.0-test1, the kernel barfs a long 40+ function OOPS on bootup.
-
-Jens's patch in my email should fix that.
-However, TCQ seems rather broken to me right now (or maybe it's just my
-machine) - so I'd be careful with it.
+Beats me.
 
 
-
+		Dave
 

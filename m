@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265955AbTGDMgG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 08:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266008AbTGDMgG
+	id S266024AbTGDMuC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 08:50:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbTGDMuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 08:36:06 -0400
-Received: from zamok.crans.org ([138.231.136.6]:61100 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S265955AbTGDMgF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 08:36:05 -0400
-Date: Fri, 4 Jul 2003 14:50:30 +0200
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm1 fails to boot due to APIC trouble, 2.5.73mm3 works.
-Message-ID: <20030704125030.GA914@darwin.crans.org>
-References: <20030703023714.55d13934.akpm@osdl.org> <3F054109.2050100@aitel.hist.no> <20030704093531.GA26348@holomorphy.com> <20030704095004.GB26348@holomorphy.com> <20030704100217.GC26348@holomorphy.com> <20030704100749.GD26348@holomorphy.com> <3F05610C.4050202@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Jul 2003 08:50:02 -0400
+Received: from 62-15-228-129.es.jazztelbone.net ([62.15.228.129]:49386 "EHLO
+	titan.gesline.com") by vger.kernel.org with ESMTP id S266024AbTGDMuA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 08:50:00 -0400
+From: =?iso-8859-1?q?V=EDctor=20Romero?= <victor.romero@gesline.com>
+Organization: Gesline
+To: linux-kernel@vger.kernel.org
+Subject: console=tty2
+Date: Fri, 4 Jul 2003 15:04:24 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F05610C.4050202@aitel.hist.no>
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.4i
-From: Vincent Hanquez <tab@tuxfamily.org>
+Message-Id: <200307041504.24844.victor.romero@gesline.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 04, 2003 at 01:12:12PM +0200, Helge Hafting wrote:
-> I applied both of your recent patches, and the patched
-> 2.5.74-mm1 kernel came up fine. :-)
 
-theses patchs fix the problem for me too.
 
--- 
-Tab
+	Dear kernel hackers,
+
+	In a little appliance (i386) I'm working on I have a linux(2.4.20 vanilla) 
+booting with a pretty nice logo in fb mode, but I dont want to see text in 
+the boot process just the logo, so I tryed on boot : linux console=tty2, but 
+still see everything, If i put to ttyS0 works but I have a modem there,so its 
+not a good idea, anyway tty2 should work, but it doesnt, any idea?
+
+	I can't use bootsplash because the initrd image I need its already too big 
+and actually I prefer to use just the vanilla kernel.
+
+	Can be redirected to /dev/null the console? I know this its not a good idea 
+but, I can have to lilo entrys the first one with console=tty and the other 
+one with console=null?
+
+	Greetings
+

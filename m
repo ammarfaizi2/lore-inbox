@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129930AbQL2SLq>; Fri, 29 Dec 2000 13:11:46 -0500
+	id <S129930AbQL2SWj>; Fri, 29 Dec 2000 13:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130061AbQL2SLg>; Fri, 29 Dec 2000 13:11:36 -0500
-Received: from psuvax1.cse.psu.edu ([130.203.4.6]:31677 "HELO mail.cse.psu.edu")
-	by vger.kernel.org with SMTP id <S129930AbQL2SLd>;
-	Fri, 29 Dec 2000 13:11:33 -0500
-From: Coy A Hile <hile@cse.psu.edu>
-Message-Id: <200012291741.MAA10090@gorn.cse.psu.edu>
-Subject: Re: Problem with ATX halt
-To: ryan831@usa.net (Ryan Sizemore)
-Date: Fri, 29 Dec 2000 12:41:05 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <NEBBIFHONDNEGJDKODONAEIDCDAA.ryan831@usa.net> from "Ryan Sizemore" at Dec 28, 2000 11:59:06 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S130061AbQL2SW3>; Fri, 29 Dec 2000 13:22:29 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:40371 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S129930AbQL2SWN>; Fri, 29 Dec 2000 13:22:13 -0500
+Date: Fri, 29 Dec 2000 17:54:36 +0000 (GMT)
+From: Mark Hemment <markhe@veritas.com>
+To: Tim Wright <timw@splhi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: test13-pre5
+In-Reply-To: <20001229083014.A3096@scutter.internal.splhi.com>
+Message-ID: <Pine.LNX.4.21.0012291712310.3592-100000@alloc.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Sizemore sez....
-> 
->    I am new this whole 'posting to the mailing list' thing, so please excuse
-> any obvious mistakes.
->    I have a comp. running mandrake 7.2, and when i go to power it down, it
-> gives me a screen full of errors, including a stackdump. It happens as the
-> very last thing (including being after the file system is unmounted, so I
-> highly doubt that the error is recorded somewhere. But i will hand-copy the
-> stack for whomever thinks it may be useful. The error is reproduced every
-> time, without equivication. Any insight or questions are much apriciated.
-> The motherboard is a Soyo 5EMA+ r1.0 w/ ETEQ EQ82C6638 Chipset, and it has
-> an Award BIOS.
-> Thanks in Advance.
-> 
+On Fri, 29 Dec 2000, Tim Wright wrote:
+> Yes, this is a very important point if we ever want to make serious use
+> of large memory machines on ia32. We ran into this with DYNIX/ptx when the
+> P6 added 36-bit physical addressing. Conserving KVA (kernel virtual address
+> space), became a very high priority. Eventually, we had to add code to play
+> silly segment games and "magically" materialize and dematerialize a 4GB
+> kernel virtual address space instead of the 1GB. This only comes into play
+> with really large amounts of memory, and is almost certainly not worth the
+> agony of implementation on Linux, but we'll need to be careful elsewhere to
+> conserve it as much as possible.
 
-I've seen this before with nearly every Mandrake distrib right out of the
-box.  One of the many reasons I choose not to use Mandrake on my personal
-boxes.  I think I solved it by recompiling the kernel and taking the 
-"Power Management" things out of the kernel.
+  Indeed.  I'm compiling my kernels with 2GB virtual.  Not as I want more
+NORMAL pages in the page cache (HIGH memory is fine), but as I need
+NORMAL pages for kernel data/structures (memory allocated from  
+slab-caches) which need to be constantly mapped in.
 
-Coy
+Mark
 
---
-Coy Hile
-hile@cse.psu.edu
-"Two roads diverged in a wood, and I-- / I took the one less traveled by, 
-And that has made all the difference." --Robert Frost
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

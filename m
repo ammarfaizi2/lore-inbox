@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbUCKRaF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 12:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUCKRaE
+	id S261181AbUCKRcy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 12:32:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbUCKRcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 12:30:04 -0500
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:61829 "HELO
-	server5.heliogroup.fr") by vger.kernel.org with SMTP
-	id S261442AbUCKRaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 12:30:03 -0500
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6 no boot report
-Date: Thu, 11 Mar 2004 17:21:08 GMT
-Message-ID: <043MYV812@server5.heliogroup.fr>
-X-Mailer: Pliant 90
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 11 Mar 2004 12:32:53 -0500
+Received: from mill.mtholyoke.edu ([138.110.30.76]:5762 "EHLO
+	mill.mtholyoke.edu") by vger.kernel.org with ESMTP id S261181AbUCKRcs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 12:32:48 -0500
+From: Ron Peterson <rpeterso@mtholyoke.edu>
+Date: Thu, 11 Mar 2004 12:32:29 -0500
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: network/performance problem
+Message-ID: <20040311173229.GA12325@mtholyoke.edu>
+References: <20040311152728.GA11472@mtholyoke.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040311152728.GA11472@mtholyoke.edu>
+User-Agent: Mutt/1.3.28i
+Organization: Mount Holyoke College
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Domsch wrote:
->
-> Might it be failing initializing APM?  You might try disabling APM, or
-> pass 'apm=off' on the kernel command line and see if that helps.  This
-> is a server, and APM isn't specifically tested.  We've seen this
-> problem on other platforms recently.
+On Thu, Mar 11, 2004 at 10:27:28AM -0500, rpeterso wrote:
 
-Same result: freeze near end of boot with no error message.
+> I've been perusing fa.linux.kernel, and saw Brad Laue's thread.  FWIW,
+> it smells similar.  When my machines finally go down, ksoftirqd is
+> always at the top of the process list.
+> 
+> Any ideas at all about what might be happening?
+
+I put my latest user.log file up (16M):
+
+http://depot.mtholyoke.edu:8080/tmp/sam-profile/user.log
+
+If you 'grep PSTOPCPU user.log | less', you can see that ksoftirqd_CPU0
+slowly but steadily consumes a higher and higher CPU percentage.  What
+this means, I have no idea.
+
+-- 
+Ron Peterson
+Network & Systems Manager
+Mount Holyoke College
+http://www.mtholyoke.edu/~rpeterso

@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbULJUxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbULJVBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbULJUxF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 15:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbULJUxE
+	id S261158AbULJVBF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 16:01:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbULJVBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 15:53:04 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:44481 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S261156AbULJUw7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 15:52:59 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Advice on high mem ioports needed
-Date: Fri, 10 Dec 2004 15:52:57 -0500
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Dec 2004 16:01:05 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:23493 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261158AbULJVBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 16:01:00 -0500
+Date: Fri, 10 Dec 2004 15:00:06 -0600
+From: Robin Holt <holt@sgi.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Robin Holt <holt@sgi.com>, yoshfuji@linux-ipv6.org, akpm@osdl.org,
+       hirofumi@parknet.co.jp, torvalds@osdl.org, dipankar@ibm.com,
+       laforge@gnumonks.org, bunk@stusta.de, herbert@apana.org.au,
+       paulmck@ibm.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       gnb@sgi.com
+Subject: Re: [RFC] Limit the size of the IPV4 route hash.
+Message-ID: <20041210210006.GB23222@lnx-holt.americas.sgi.com>
+References: <20041210190025.GA21116@lnx-holt.americas.sgi.com> <20041210114829.034e02eb.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412101552.58133.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.42.94] at Fri, 10 Dec 2004 14:52:58 -0600
+In-Reply-To: <20041210114829.034e02eb.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+> 
+> I can definitely say that just forcing it to use 1 page is wrong.
+> Even ignoring your tests, your test was on a system that has 16K
+> PAGE_SIZE.  Other systems use 4K and 8K (and other) PAGE_SIZE
+> values.  This is why we make our calculations relative to PAGE_SHIFT.
 
-I'm trying to cobble up a kernel driver for a card with 3 each
-8255's on it, to be used as machine control.
+I picked 1 page because it was not some magic small number that I would
+need to justify.  I also hoped that it would incite someone to respond.
 
-I have supposedly modified it for the 4 byte jumps this card uses
-between port addresses, and the compile and insmod both seem
-to work w/o errors when the insmod is given the argument of
-io=0xf100 (where the cards address is set to via dipswitches) as
-long as I don't try to register more than the first of 3 chips on
-this board.
+> 
+> Also, 1 page even in your case is (assuming you are on a 64-bit platform,
+> you didn't mention) going to give us 1024 hash chains.  A reasonably
+> busy web server will easily be talking to more than 1K unique hosts at
+> a given point in time.  This is especially true as slow long distance
+> connections bunch up.
 
-But, running a demo program using port_a  of chip 0 thats supposed
-to cause a motor to step once per second has no effect on the 8255 in
-question, while a reboot to dos, and a dos based exersize program
-works just fine.
+But 1k hosts is not the limit with a 16k page.  There are 1k buckets,
+but each is a list.  A reasonably well designed hash will scale to greater
+than one item per bucket.  Additionally, for the small percentage of web
+servers with enough network traffic that they will be affected by the
+depth of the entries, they can set rhash_entries for their specific needs.
 
-I think the code I'm fooling with (google for PIO-tar.gz) assumes
-its working below the 0x3FF barrier, but this card responds to
-accesses in the 0xF100-0xF12F range.  I *think* this might be my
-problem..
+> 
+> Alexey Kuznetsov needed to use more than one page on his lowly
+> i386 router in Russia, and this was circa 7 or 8 years ago.
 
-I've looked up the iopl call, but so far no "blinding flash of
-knowledge" has come my way.  Is there a resource available that can
-enlighten me on this subject?  Something that starts at square one
-as I'm a total dummy vis-a-vis pci bus management functions.
+And now he, for his special case, could set rhash_entries to increase
+the size.
 
-The kernel running is the one from emc's Brain Dead Install, 
-version rc46, kernel=2.4.25-adeos, so the advice should be valid
-for later 2.4 kernels as I've been told that the 2.6 stuff has a whole 
-new api.
+I realize I have a special case which highlighted the problem.  My case
+shows that not putting an upper limit or at least a drastically aggressive
+non-linear growth cap does cause issues.  For the really large system,
+we were seeing a size of 512MB for the hash which was limited because
+that was the largest amount of memory available on a single node.  I can
+not ever imagine this being a reasonable limit.  Not with 512 cpus and
+1024 network adapters could I envision that this level of hashing would
+actually be advantageous given all the other lock contention that will
+be seen.
 
-Thanks for any pointers that can be thrown my way.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
-
+Can we agree that a linear calculation based on num_physpages is probably
+not the best algorithm.  If so, should we make it a linear to a limit or
+a logarithmically decreasing size to a limit?  How do we determine that
+limit point?

@@ -1,67 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283586AbRLIQXZ>; Sun, 9 Dec 2001 11:23:25 -0500
+	id <S283594AbRLIQaq>; Sun, 9 Dec 2001 11:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283588AbRLIQXQ>; Sun, 9 Dec 2001 11:23:16 -0500
-Received: from tahallah.demon.co.uk ([158.152.175.193]:34313 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S283594AbRLIQXD>; Sun, 9 Dec 2001 11:23:03 -0500
-Date: Sun, 9 Dec 2001 16:19:31 +0000 (GMT)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [sparc32, 2.4.17-pre6] Wrong use of 'disable_irq' when linking kernel
-Message-ID: <Pine.LNX.4.33.0112091614001.21084-100000@tahallah.demon.co.uk>
+	id <S283599AbRLIQaf>; Sun, 9 Dec 2001 11:30:35 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55311 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S283594AbRLIQaY>; Sun, 9 Dec 2001 11:30:24 -0500
+Subject: Re: Intel I860
+To: acahalan@cs.uml.edu (Albert D. Cahalan)
+Date: Sun, 9 Dec 2001 16:38:20 +0000 (GMT)
+Cc: jamagallon@able.es (J.A. Magallon), n0ano@indstorage.com,
+        akruemmel@dohle.com (Achim =?iso-8859-1?Q?Kr=FCmmel?=),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200112091201.fB9C1wD158088@saturn.cs.uml.edu> from "Albert D. Cahalan" at Dec 09, 2001 07:01:58 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16D6y5-00076j-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been looking into a problem for someone who apparently can't compile
-a working kernel for his Sun PCI based Javastation, and here's the error I
-get when I build and link the kernel using his .config:
+> You people are insane, but hey, it'd be cool to have i860 Linux.
+> Maybe you don't realize just how unfit this chip is for normal
+> UNIX-like use.
 
-make[1]: Entering directory
-`/home/alex/src/kernel/chilton-linux/arch/sparc/boot'
-ld -m elf32_sparc -r
-/home/alex/src/kernel/chilton-linux/arch/sparc/kernel/head.o \
-/home/alex/src/kernel/chilton-linux/arch/sparc/kernel/init_task.o \
-/home/alex/src/kernel/chilton-linux/init/main.o /home/alex/src/kernel/chilton-linux/init/version.o \
-        --start-group \
-/home/alex/src/kernel/chilton-linux/arch/sparc/kernel/kernel.o \
-/home/alex/src/kernel/chilton-linux/arch/sparc/mm/mm.o \
-/home/alex/src/kernel/chilton-linux/kernel/kernel.o \
-/home/alex/src/kernel/chilton-linux/mm/mm.o \
-/home/alex/src/kernel/chilton-linux/fs/fs.o \
-/home/alex/src/kernel/chilton-linux/ipc/ipc.o \
-/home/alex/src/kernel/chilton-linux/arch/sparc/math-emu/math-emu.o \
-/home/alex/src/kernel/chilton-linux/drivers/char/char.o \
-/home/alex/src/kernel/chilton-linux/drivers/block/block.o \
-/home/alex/src/kernel/chilton-linux/drivers/misc/misc.o \
-/home/alex/src/kernel/chilton-linux/drivers/net/net.o \
-/home/alex/src/kernel/chilton-linux/drivers/media/media.o \
-/home/alex/src/kernel/chilton-linux/drivers/pci/driver.o \
-/home/alex/src/kernel/chilton-linux/drivers/sbus/sbus_all.o \
-/home/alex/src/kernel/chilton-linux/drivers/video/video.o \
-/home/alex/src/kernel/chilton-linux/net/network.o \
-        /home/alex/src/kernel/chilton-linux/lib/lib.a \
-/home/alex/src/kernel/chilton-linux/lib/lib.a \
-/home/alex/src/kernel/chilton-linux/arch/sparc/prom/promlib.a \
-/home/alex/src/kernel/chilton-linux/arch/sparc/lib/lib.a \
-        --end-group -o vmlinux.o
-objdump -x vmlinux.o | ./btfixupprep > btfix.s
-Wrong use of 'disable_irq' in '.text.exit' section. It can be only used in .text, .text.init, .fixup and __ksymtab
-make[1]: *** [btfix.s] Error 1
-make[1]: Leaving directory
-`/home/alex/src/kernel/chilton-linux/arch/sparc/boot'
-make: *** [_dir_arch/sparc/boot] Error 2
-
-Any ideas what could be causing this problem? Further details available on
-request.
-
--- 
-The best things in life are free.
-
-http://www.tahallah.demon.co.uk
-
+There already is an i860/i960 ucLinux port.

@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263787AbUC3RsD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 12:48:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUC3Rrn
+	id S263768AbUC3RrV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 12:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbUC3RrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 12:47:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36808 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263775AbUC3RrG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 12:47:06 -0500
-Message-ID: <4069B289.9030807@pobox.com>
-Date: Tue, 30 Mar 2004 12:46:49 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
-       dm-devel@redhat.com
-Subject: Re: "Enhanced" MD code avaible for review
-References: <760890000.1079727553@aslan.btc.adaptec.com> <200403261315.20213.kevcorry@us.ibm.com> <1644340000.1080333901@aslan.btc.adaptec.com> <200403270939.29164.kevcorry@us.ibm.com> <842610000.1080666235@aslan.btc.adaptec.com> <4069AB1B.90108@pobox.com> <854630000.1080668158@aslan.btc.adaptec.com>
-In-Reply-To: <854630000.1080668158@aslan.btc.adaptec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 30 Mar 2004 12:47:20 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:12501 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263768AbUC3Rq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 12:46:29 -0500
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+From: Len Brown <len.brown@intel.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <4069A359.7040908@nortelnetworks.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com>
+	 <1080535754.16221.188.camel@dhcppc4>
+	 <20040329052238.GD1276@alpha.home.local> <1080598062.983.3.camel@dhcppc4>
+	 <1080651370.25228.1.camel@dhcp23.swansea.linux.org.uk>
+	 <Pine.LNX.4.53.0403300814350.5311@chaos>
+	 <20040330142215.GA21931@alpha.home.local>
+	 <Pine.LNX.4.53.0403300943520.6151@chaos>
+	 <20040330150949.GA22073@alpha.home.local>
+	 <Pine.LNX.4.53.0403301019570.6451@chaos>
+	 <20040330161431.GA22272@alpha.home.local>
+	 <4069A359.7040908@nortelnetworks.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1080668673.989.106.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 30 Mar 2004 12:44:33 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin T. Gibbs wrote:
->>The kernel should not be validating -trusted- userland inputs.  Root is
->>allowed to scrag the disk, violate limits, and/or crash his own machine.
->>
->>A simple example is requiring userland, when submitting ATA taskfiles via
->>an ioctl, to specify the data phase (pio read, dma write, no-data, etc.).
->>If the data phase is specified incorrectly, you kill the OS driver's ATA
->>host wwtate machine, and the results are very unpredictable.   Since this
->>is a trusted operation, requiring CAP_RAW_IO, it's up to userland to get the
->>required details right (just like following a spec).
-> 
-> 
-> That's unfortunate for those using ATA.  A command submitted from userland
+Sorry I didn't reply to this thread, after Alan wrote I figured
+the topic was closed;-)
 
-Required, since one cannot know the data phase of vendor-specific commands.
+Yes, per my initial message, gcc _will_ generate cmpxchg for the 80386
+build.  Indeed, it has been doing so for over a year with ACPI's
+previous private (and flawed) asm() invocation of cmpxchg.
 
+Andi/Alan suggested we invoke cmpxchg always in ACPI,
+but disable ACPI at boot-time in the unlikely event we find
+ourselves running on a cpu without that instruction.
 
-> to the SCSI drivers I've written that causes a protocol violation will
-> be detected, result in appropriate recovery, and a nice diagnostic that
-> can be used to diagnose the problem.  Part of this is because I cannot know
-> if the protocol violation stems from a target defect, the input from the
-> user or, for that matter, from the kernel.  The main reason is for robustness
+Luming has already taking a swing at this patch here:
+http://bugzilla.kernel.org/show_bug.cgi?id=2391
 
-Well,
-* the target is not _issuing_ commands,
-* any user issuing incorrect commands/cdbs is not your bug,
-* and kernel code issuing incorrect cmands/cdbs isn't your bug either
-
-Particularly, checking whether the kernel is doing something wrong, or 
-wrong, just wastes cycles.  That's not a scalable way to code...  if 
-every driver and Linux subsystem did that, things would be unbearable slow.
-
-	Jeff
-
+thanks,
+-Len
 
 

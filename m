@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVARRXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVARR2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVARRXa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 12:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVARRXa
+	id S261390AbVARR2V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 12:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVARR2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 12:23:30 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:28178 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S261389AbVARRXZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 12:23:25 -0500
-Date: Tue, 18 Jan 2005 18:23:22 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: Fruhwirth Clemens <clemens@endorphin.org>,
-       Paul Walker <paul@black-sun.demon.co.uk>, linux-kernel@vger.kernel.org,
-       Bill Davidsen <davidsen@tmr.com>, linux-crypto@nl.linux.org,
-       James Morris <jmorris@redhat.com>
-Subject: Re: Announce loop-AES-v3.0b file/swap crypto package
-Message-ID: <20050118172322.GH8747@pclin040.win.tue.nl>
-References: <41EAE36F.35354DDF@users.sourceforge.net> <41EB3E7E.7070100@tmr.com> <41EBD4D4.882B94D@users.sourceforge.net> <1105989298.14565.36.camel@ghanima> <20050117192946.GT7782@black-sun.demon.co.uk> <1105995889.14565.47.camel@ghanima> <41ED2CD4.B0502FD7@users.sourceforge.net>
-Mime-Version: 1.0
+	Tue, 18 Jan 2005 12:28:21 -0500
+Received: from web30208.mail.mud.yahoo.com ([68.142.200.91]:58999 "HELO
+	web30208.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261390AbVARR2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 12:28:17 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=YsFnYumZKgSwiTx5aEJ7Yx6GOzqU22I3REv+KY4K1nhYQUp1OeLO3mxdBSs7g6uIFPpCL/zH1Rb4kffrClWhJmQ7VWTkJfKCEw0OdJ2O3mPliKV6cpHm1uVcZwGIym/fLLD9n4ndDKPhfgdFusoDfMZg1/mcLx5rsnAF1rbBgWU=  ;
+Message-ID: <20050118172816.21090.qmail@web30208.mail.mud.yahoo.com>
+Date: Tue, 18 Jan 2005 09:28:16 -0800 (PST)
+From: Martins Krikis <mkrikis@yahoo.com>
+Subject: iswraid and 2.4.x?
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041011111943.GA32430@logos.cnet>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41ED2CD4.B0502FD7@users.sourceforge.net>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 05:35:48PM +0200, Jari Ruusu wrote:
-> Fruhwirth Clemens wrote:
-> > Nothing about kernel crypto is backdoored. If Ruusu thinks different, he
-> > should show me source code. Till then, treat it as FUD.
+--- Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+
+> It seems the general consensus is to merge iswraid, so I'm fine with
+> it.
 > 
-> I have been submitting fix for this weakness to mainline mount (part of
-> util-linux package) since 2001, about 2 or 3 times a year. Refusing to fix
-> it for *years* counts as intentional backdoor.
-> 
-> You call it whatever you want. I call it backdoor.
+> Martins, we are approaching -rc stage, I would prefer the merge to
+> happen 
+> at the beginning of 2.4.29-pre. Is that fine for you?
 
-Hi Jari,
+Marcelo,
 
-Your crypto is good, your language is bad.
+I seemed to have missed the 2.4.29-pre stages, unfortunately.
+Are you planning on a 2.4.30, too? I'd still love to get
+iswraid accepted in the 2.4 tree eventually...
 
-Clearly there is no intentional backdoor.
-You do not gain any credibility by saying otherwise.
+The version that's out on SourceForge right now would be alright
+as is with the 2.4.29-x kernels, if that's any help. In about a
+week I'm planning to have a new version that adds RAID10 support
+for the ICH7R-based machines. Please let me know what my options
+are (if any) regarding getting iswraid in 2.4.
 
-Next, confusing the kernel with util-linux is a strange trick.
+Thanks very much,
 
-Finally, in the time I maintained util-linux I have asked you
-I don't know how often to come with a series of small clean
-patches instead of a huge ugly all-or-nothing monolithic patch.
-But you didnt.
+  Martins Krikis
+  Storage Components Division
+  Intel Massachusetts
 
-Maybe you don't understand, but it does not suffice when code
-is correct - it must also be maintainable.
 
-Something rather similar is true for the kernel, I suspect.
-A series of short clean patches would have solved all problems.
-
-As it is, time may be running out - some years ago your stuff
-was far superior to everything else. But alternative
-approaches are being developed, and maybe loop-aes will soon
-be some historic oddity.
-
-Andries
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

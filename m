@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269954AbRHQInR>; Fri, 17 Aug 2001 04:43:17 -0400
+	id <S269951AbRHQIni>; Fri, 17 Aug 2001 04:43:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269944AbRHQInH>; Fri, 17 Aug 2001 04:43:07 -0400
-Received: from ns.suse.de ([213.95.15.193]:34572 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S269954AbRHQImy>;
-	Fri, 17 Aug 2001 04:42:54 -0400
-To: linux-kernel@vger.kernel.org
-Cc: ehaase@inf.fu-berlin.de
-Subject: Re: ext2 not NULLing deleted files?
-In-Reply-To: <01081709381000.08800@haneman.suse.lists.linux.kernel>
-From: Andi Kleen <freitag@alancoxonachip.com>
-Date: 17 Aug 2001 10:03:46 +0200
-In-Reply-To: Enver Haase's message of "17 Aug 2001 09:42:44 +0200"
-Message-ID: <oupitfnw1st.fsf@pigdrop.muc.suse.de>
+	id <S269944AbRHQIn2>; Fri, 17 Aug 2001 04:43:28 -0400
+Received: from ns.suse.de ([213.95.15.193]:18189 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S269951AbRHQInN>;
+	Fri, 17 Aug 2001 04:43:13 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 does not compile [PATCH]
+In-Reply-To: <Your message of "Fri, 17 Aug 2001 00:35:02 +0100."  <5.1.0.14.2.20010817002825.00b1e4e0@pop.cus.cam.ac.uk.suse.lists.linux.kernel> <5.1.0.14.2.20010817015007.045689b0@pop.cus.cam.ac.uk.suse.lists.linux.kernel> <3B7C7846.FD9DEE68@zip.com.au.suse.lists.linux.kernel> <20010816.185319.88475216.davem@redhat.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 17 Aug 2001 09:30:18 +0200
+In-Reply-To: "David S. Miller"'s message of "17 Aug 2001 03:59:36 +0200"
+Message-ID: <oupofpfw3cl.fsf@pigdrop.muc.suse.de>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Enver Haase <ehaase@inf.fu-berlin.de> writes:
+"David S. Miller" <davem@redhat.com> writes:
 
-> Hi there,
+>    From: Andrew Morton <akpm@zip.com.au>
+>    Date: Thu, 16 Aug 2001 18:49:58 -0700
 > 
-> I just recognized there's an "undelete" now for ext2 file systems [a KDE 
-> app].
-
-There have been ext2 undeletes for many years now (and howtos how to do
-it manually even longer), nothing new.
-
+>    int test(int __x, int __y)
+>    {
+>            return min(__x, __y);		/* sic */
+>    }
 > 
-> "The Other OS" in its professional version does of course clear the deleted 
-> blocks with 0's for security reasons; I would have bet a thousand bucks Linux 
-> would do so, too [seems I should have read the source code, good thing no-one 
-> wanted to take on the bet :) ].
-> 
-> So how to go about this? With that feature wanted, which fs should one choose 
-> under Linux? Is there a patch for ext2 for that feature? Am I the only one 
-> liking the idea?
+> People are expected not to use underscore prefixed
+> variables in normal C code, this is why macros
+> in the kernel make liberal use of them for locals.
 
-Old ext2 (before 2.0) supported this with a special attribute bit; but it was 
-removed for good reasons.
-Just NULLing alone is quite useless anyways; just 0ed data can be easily
-recovered in a special laboratory by using old traces of magnetism on the
-surfaces.
-If you care about real data deletion you should probably use an utility
-like wipe which does about 20-30 passes with random data. That is far too
-complex to do in kernel space of course, but you can run it in user space
-as needed. 0ing would just give you a false sense of security.
+You are joking, right?  The kernel is full of double under score prefixed
+identifiers, for functions that do slighter lower level things than others.
+While this expectation may exist in POSIX/C89 and is frequently violated there,
+in kernel C nobody cares about it at all.
+
+It doesn't matter anyways, the way C macro expansion works guarantees that
+only macro arguments written in the macro get expanded; the arguments are not
+recursively expanded. Therefore any games with "magic" macro names 
+is totally unnecessary.
 
 -Andi
-

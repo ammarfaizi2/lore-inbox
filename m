@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262132AbREPXYc>; Wed, 16 May 2001 19:24:32 -0400
+	id <S261337AbREPXbc>; Wed, 16 May 2001 19:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262133AbREPXYW>; Wed, 16 May 2001 19:24:22 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:30980 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262132AbREPXYL>; Wed, 16 May 2001 19:24:11 -0400
-Message-ID: <3B030C11.3270CFA7@transmeta.com>
-Date: Wed, 16 May 2001 16:24:01 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S261339AbREPXbX>; Wed, 16 May 2001 19:31:23 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:15496 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S261337AbREPXbN>; Wed, 16 May 2001 19:31:13 -0400
+From: Simon Geard <simon.geard@ntlworld.com>
+Date: Thu, 17 May 2001 01:32:12 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Problem with make xconfig and tcl/tk 8.3 (and fix)
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rootfs (part 1)
-In-Reply-To: <Pine.GSO.4.21.0105161850200.26191-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01051701321300.01308@Granville>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> In full variant of patch I don't _have_ mount_root(9). It's done by
-> mount(2). Period. Initrd or not. Notice that rootfs stays absolute root
-> forever - it's much more convenient for fs/super.c, since you can get rid
-> of many kludges that way. So I'm not too happy about populating rootfs with
-> tons of files. BTW, loading initrd is done by open(2), read(2) and write(2) -
-> none of this fake struct file business anymore.
-> 
+I have tcl/tk8.3.2 installed and make xconfig (for both 2.2.18 and 2.4.2) 
+just hang. I've been told by the listed maintainer that a new GUI is on its 
+way and the existing make xconfig is orphaned, but this does not solve the 
+immediate problem.
 
-OK, I see what you're doing now.  However, I'm confused what you mean
-with "rootfs stays absolute root forever" -- does that mean that you
-mount the new root on top of /, and so the rootfs remains in the system
-never to be reclaimed, as opposed to pivot_root-ing it?
+I have therefore fixed this problem myself and have patches for header.tk and 
+tail.tk if anyone is interested. Essentially the fix is to replace all the 
+'exec ...' commands with native Tcl ones. I have also enhanced the help 
+system so that the help is cached internally on startup and its existence is 
+used to control the state of the help button, this makes getting help much 
+faster and more reliable (RTFM messages are no longer needed). The help 
+itself now has a blue title that points back to the originating entry.
 
-	-hpa
+I'm happy to provide these if anyone is interested, I have tested them with 
+tcl/tk8.2.0 as well and as far as I can see they work fine. The sizes are
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+wc -l *patch*
+    322 header.tk.patch
+     39 tail.tk.patch-2.2.18
+     61 tail.tk.patch-2.4.2 
+
+
+I'm not subscribed to the list so please cc replies to me if you wish.
+
+Thanks,
+
+Simon Geard.

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315480AbSEVOma>; Wed, 22 May 2002 10:42:30 -0400
+	id <S315441AbSEVOpB>; Wed, 22 May 2002 10:45:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315528AbSEVOlB>; Wed, 22 May 2002 10:41:01 -0400
-Received: from bitmover.com ([192.132.92.2]:32445 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S315441AbSEVOkk>;
-	Wed, 22 May 2002 10:40:40 -0400
-Date: Wed, 22 May 2002 07:40:41 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Htree directory index for Ext2, updated
-Message-ID: <20020522074041.B12265@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200205170736.g4H7aNj281162@saturn.cs.uml.edu> <E178xSu-0000Dc-00@starship> <20020518172634.GK21295@turbolinux.com> <E17ASeO-0001xB-00@starship> <20020522102354.GB802@turbolinux.com>
+	id <S315540AbSEVOnk>; Wed, 22 May 2002 10:43:40 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27660 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S315528AbSEVOmf>; Wed, 22 May 2002 10:42:35 -0400
+Date: Wed, 22 May 2002 16:42:36 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+        Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+Message-ID: <20020522144236.GA2357@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020522141306.GB29028@atrey.karlin.mff.cuni.cz> <E17AXVZ-0001up-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 04:23:54AM -0600, Andreas Dilger wrote:
-> On May 22, 2002  11:43 +0200, Daniel Phillips wrote:
-> > On Saturday 18 May 2002 19:26, Andreas Dilger wrote:
-> > > On May 18, 2002  08:13 +0200, Daniel Phillips wrote:
-> > > > I cloned a repository that is arranged like:
-> > > > 
-> > > >   somedir
-> > > >     |
-> > > >     |--linux
-> > > >     |    |
-> > > >     |    The usual stuff
-> > > >     |
-> > > >      `---other things
-> > > > 
-> > > > Bitkeeper wants the destination for the import to be 'somedir', and
-> > > > cannot figure out how to apply a patch that looks like:
-> > > > +++ src/include/linux/someheader.h, for instance.
-> > > 
-> > > And that is bad in what way?
-> > 
-> > It is bad in that there is no way to import the patch into BitKeeper.
-> > 
-> > It looks like a hole in BitKeeper.  How do you suggest I apply my
-> > perfectly normal patch?
+Hi!
+
+> > In such case, linus, here is your "reasonable" example. For PPro, it
+> > is faster to copy out-of-order, and if we wanted to use that for
+> > copy_to_user, you'd have your example.
 > 
-> cd somedir/linux; patch -p1 < foo.diff; bk citool
+> I think there is a misunderstanding here.
+> 
+> Nothing in the standards says that
+> 
+> 	write(pipe_fd, halfmappedbuffer, 2*PAGE_SIZE)
+> 
+> 
+> must return PAGE_SIZE on an error. What it seems to say is that it if an error
+> is reported then no data got written down the actual pipe itself. Putting
+> 4K into the pipe then reporting Esomething is not allowed. Copying 4K into
+> a buffer faulting and erroring with Efoo then throwing away the buffer is
+> allowed
 
-bk import -tpatch foo.diff somedir/linux
+So... Is copy_to_user allowed to copy more than it actually reported?
+Because if so, it might return 0/-EFAULT as well ;-).
 
-also works, does the same thing, but handles renames.  Not needed for
-simple patches but you might get in the habit of using it anyway so
-the odd rename is caught.
-
-Cheers,
+									Pavel
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

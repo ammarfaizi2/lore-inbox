@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318041AbSFSWnA>; Wed, 19 Jun 2002 18:43:00 -0400
+	id <S318042AbSFSWnX>; Wed, 19 Jun 2002 18:43:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318042AbSFSWm7>; Wed, 19 Jun 2002 18:42:59 -0400
-Received: from mail.viewcast.com ([66.21.70.195]:5603 "EHLO mail.viewcast.com")
-	by vger.kernel.org with ESMTP id <S318041AbSFSWm5>;
-	Wed, 19 Jun 2002 18:42:57 -0400
-From: "Scott Tillman" <tillman@viewcast.com>
-To: "Martin Dalecki" <dalecki@evision-ventures.com>,
-       "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: "Garet Cammer" <arcolin@arcoide.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Need IDE Taskfile Access
-Date: Wed, 19 Jun 2002 18:43:57 -0400
-Message-ID: <CBELJEJGBEIGHCIMEDHNCEPBCIAA.tillman@viewcast.com>
+	id <S318043AbSFSWnW>; Wed, 19 Jun 2002 18:43:22 -0400
+Received: from zok.sgi.com ([204.94.215.101]:33479 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S318042AbSFSWnU>;
+	Wed, 19 Jun 2002 18:43:20 -0400
+Message-ID: <D93B36D3895ED51183870004AC38ABA7AD88BD@mtv-atc-006e--n.corp.sgi.com>
+From: Gene Yee <gyee@sgi.com>
+To: "'Olaf Dabrunz'" <Olaf.Dabrunz@gmx.de>, linux-kernel@vger.kernel.org
+Subject: RE: big drive (ATA-4) support in stable kernel?
+Date: Wed, 19 Jun 2002 15:43:16 -0700
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
 Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <3D1038CC.3090108@evision-ventures.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>You are wasting electons, the interface is gone and the API to the
-> >>transport is wrecked.  I will need to compose a loadable module
-> to renable
-> >>the support.  Clearly 2.5/2.6 is not friendly with the needs of the
-> >>industry and it will never be at this rate.
->
-> If the "industry" asks - I'm responsive for certain.
-> Unless not - I don't.
 
-Well, I'm not "the industry" but I think I know of another need for these
-capabilities as well.
+It is in 2.4.19pre10 for sure and also 2.4.18 using the Hendrick Patch.
 
-I'm working with a group of people in an effort to get Linux running on the
-XBox.  The XBox uses a set of security PIO commands to restrict access to
-the IDE drive, requiring a 32 byte password to be delivered before sector
-access is allowed.  As far as I can tell from my investigations and from
-earlier discussions with Andre there is currently no way to issue this
-command.  If I'm wrong in my estimation just let me know how, otherwise I
-simply wish add my voice to the (albeit small) outcry for supporting the
-entire ATA spec.
+-----Original Message-----
+From: Olaf Dabrunz [mailto:Olaf.Dabrunz@gmx.de]
+Sent: Wednesday, June 19, 2002 3:39 PM
+To: linux-kernel@vger.kernel.org
+Subject: big drive (ATA-4) support in stable kernel?
 
-Another comment/question (related to XBox support):
-As part of this effort the xbox-linux team has coded support for the XBox's
-proprietary partitioning and it's new filesystem.  This code (and any
-further kernel support code) has been developed for the 2.4.18 kernel, and
-we have no desire to port it to 2.5.x unless there is some hope of it's
-adoption.  Could I get an official decision on whether this code might be
-adopted if made available to the 2.5.x kernel?
 
--Scott Tillman aka SpeedBump
+Hello everyone,
 
-PS: flames about why we are supporting the XBox (a design of the Evil
-Empire) will be summarily ignored.  I can only point you to it's HDTV, NTSC,
-PAL, and possibly VGA outputs, it's dvd/cd drive, and it's $199 USD price
-tag.
+what is the status of the big drive (>138GB) support in 2.5.x? Is someone
+porting it back to 2.4?
 
+Tnx,
+
+Olaf.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

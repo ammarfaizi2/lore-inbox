@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131517AbRAVPxi>; Mon, 22 Jan 2001 10:53:38 -0500
+	id <S129835AbRAVP6P>; Mon, 22 Jan 2001 10:58:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132216AbRAVPx2>; Mon, 22 Jan 2001 10:53:28 -0500
-Received: from concorde.inria.fr ([192.93.2.39]:38788 "EHLO concorde.inria.fr")
-	by vger.kernel.org with ESMTP id <S131517AbRAVPxL>;
-	Mon, 22 Jan 2001 10:53:11 -0500
-From: Alan Schmitt <alan.schmitt@inria.fr>
-Date: Mon, 22 Jan 2001 16:51:41 +0100
-To: linux-kernel@vger.kernel.org
-Subject: kapm-idled and cpu heating ...
-Message-ID: <20010122165141.A2888@alan-schm1p.inria.fr>
+	id <S132394AbRAVP6E>; Mon, 22 Jan 2001 10:58:04 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:53510 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S132216AbRAVP5w>;
+	Mon, 22 Jan 2001 10:57:52 -0500
+Date: Mon, 22 Jan 2001 16:56:38 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: David Luyer <david_luyer@pacific.net.au>, alan@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: PATCH: "Pass module parameters" to built-in drivers
+Message-ID: <20010122165638.E4979@almesberger.net>
+In-Reply-To: <200101210454.f0L4sug02747@typhaon.pacific.net.au> <27169.980053744@ocs3.ocs-net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-Organization: INRIA Rocquencourt 
+In-Reply-To: <27169.980053744@ocs3.ocs-net>; from kaos@ocs.com.au on Sun, Jan 21, 2001 at 04:09:04PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Keith Owens wrote:
+> Inconsistent methods for setting the same parameter are bad.  I can and
+> will do this cleanly in 2.5.
 
-I've read the december thread, I've searched the web and I could not
-come out with an answer, so here I dare to ask (please cc me for any
-answer as I am not subscribed to the list, I just read the kernel
-cousin version).
+If your approach isn't overly intrusive (i.e. doesn't require changes
+to all files containing module parameters, or such), maybe you could
+make a patch for 2.4.x and wave it a little under Linus' nose. Maybe
+he likes the scent ;-)
 
-I just installed 2.4.0 on my laptop (dell cpi a366x). I noticed the
-kapm-idled process, which doesn't really bother me, with one
-exception: my cpu is getting hot enough to start the fan, even without
-any load. I compiled with the apm cpu idle option (here is a quick
-grep of my .config file):
+In any case, once it's in 2.5.x, and if it is as useful as I suspect
+it to be, it would probably be back-ported to 2.4 sooner or later.
 
-[schmitta@alan-schm1p linux]$ grep APM .config
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-CONFIG_APM_DISPLAY_BLANK=y
-CONFIG_APM_RTC_IS_GMT=y
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+- Werner
 
-This behaviour, with the same options, does not occur with 2.2.18.
-
-So my question is: how idle is kapm-idled ? Is my bios buggy ? Did I
-miss something when configuring the kernel ? Is this a really stupid
-question ;-)
-
-Thanks for any hint.
-
-Alan Schmitt
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

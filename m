@@ -1,67 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264662AbSJTWyk>; Sun, 20 Oct 2002 18:54:40 -0400
+	id <S264661AbSJTXWe>; Sun, 20 Oct 2002 19:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264664AbSJTWyj>; Sun, 20 Oct 2002 18:54:39 -0400
-Received: from mta01ps.bigpond.com ([144.135.25.133]:46063 "EHLO
-	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S264662AbSJTWyL>; Sun, 20 Oct 2002 18:54:11 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Daniel Berlin <dberlin@dberlin.org>, Xavier Bestel <xavier.bestel@free.fr>
-Subject: Re: Bitkeeper outrage, old and new
-Date: Mon, 21 Oct 2002 08:51:46 +1000
-User-Agent: KMail/1.4.5
-Cc: Robert Love <rml@tech9.net>, Ben Collins <bcollins@debian.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Richard Stallman <rms@gnu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <E4D0019F-E47D-11D6-8E08-000393575BCC@dberlin.org>
-In-Reply-To: <E4D0019F-E47D-11D6-8E08-000393575BCC@dberlin.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200210210851.46773.bhards@bigpond.net.au>
+	id <S264664AbSJTXWd>; Sun, 20 Oct 2002 19:22:33 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:57100 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S264661AbSJTXWc>;
+	Sun, 20 Oct 2002 19:22:32 -0400
+Date: Mon, 21 Oct 2002 08:21:08 +0900 (JST)
+Message-Id: <20021021.082108.74745582.taka@valinux.co.jp>
+To: ahu@ds9a.nl
+Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
+Subject: Re: nfsd/sunrpc boot on reboot in 2.5.44
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <20021020173142.GA26384@outpost.ds9a.nl>
+References: <20021020173142.GA26384@outpost.ds9a.nl>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Multipart/Mixed;
+ boundary="--Next_Part(Mon_Oct_21_08:21:08_2002_586)--"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+----Next_Part(Mon_Oct_21_08:21:08_2002_586)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Mon, 21 Oct 2002 08:47, Daniel Berlin wrote:
+Hello,
 
-> 2+ people having copyrights on something only occurs when you have
-> joint authorship (or rare partial transfers).
-> In this case, what we have is the a transfer of copyright from you, to
-> the FSF ("my entire right, title, and interest (including all rights
-> under copyright))"
-> It's like transferring rights to real property (in most countries, you
-> can view copyright as an object of property in trying to determine what
-> you can do with it)
-> When rights are transferred to another party, the original author
-> doesn't get any residual rights unless these are expressly reserved as
-> a "grant back".
-> You are no longer the owner of the copy right.
-Which is the whole point of the FSF copyright assignment. They don't want you 
-to relicense it under some other terms. Under the GPL it doesn't matter who 
-owns the copyright, so the only point of the copyright assignment is to 
-reduce _your_ rights.
+I think auth_domain_drop() may call NULL function.
+I believe the followin patch will fix your problem.
+Can you try it with my patch?
 
-I understand why the FSF want to do this (imagine a major free-software 
-producer in financial trouble, and a big product (eg GCC and binutils) that 
-they could sell to a closed-source vendor). I just don't plan to do this 
-myself.
+ahu> My Debian sid machine oopses when I run 'sudo reboot'.
+ahu> 
+ahu> $ mount
+ahu> /dev/hdb2 on / type ext3 (rw,errors=remount-ro)
+ahu> proc on /proc type proc (rw)
+ahu> devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+ahu> /dev/hdb4 on /mnt type ext2 (rw,errors=remount-ro)
+ahu> nodev on /dev/oprofile type oprofilefs (rw)
+ahu> /dev/hda1 on /images type ext2 (rw)
+ahu> 
+ahu> No NFS activity involved.
+ahu> 
+ahu> By the way, can anybody tell me how to convert this:
+ahu> Oct 20 19:21:32 hubert kernel:  [<c8831060>] auth_domain_drop+0x50/0x60 [sunrpc]
+ahu> 
+ahu> To a line in auth_domain_drop()?
+ahu> 
+ahu> I'm looking if I can reproduce this.
 
-Brad
+----Next_Part(Mon_Oct_21_08:21:08_2002_586)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="rpcdomain-fix2.5.43.patch"
 
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+--- linux/net/sunrpc/svcauth.c.ORG	Sun Oct 20 15:47:26 2030
++++ linux/net/sunrpc/svcauth.c	Sun Oct 20 15:50:37 2030
+@@ -143,8 +143,9 @@ static struct cache_head	*auth_domain_ta
+ void auth_domain_drop(struct cache_head *item, struct cache_detail *cd)
+ {
+ 	struct auth_domain *dom = container_of(item, struct auth_domain, h);
+-	if (cache_put(item,cd))
+-		authtab[dom->flavour]->domain_release(dom);
++	void (*fn)(struct auth_domain *) = authtab[dom->flavour]->domain_release;
++	if (cache_put(item,cd) && fn != NULL)
++		fn(dom);
+ }
+ 
+ 
 
-iD8DBQE9szOCW6pHgIdAuOMRAkRsAKCjuMSaCbzWKYJYfNbGL0wj60co4ACdENXK
-xDDNeReSGOAOpT02TbtB7B0=
-=BI1d
------END PGP SIGNATURE-----
-
+----Next_Part(Mon_Oct_21_08:21:08_2002_586)----

@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbUKRExs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbUKREzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbUKRExs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 23:53:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbUKRExs
+	id S262552AbUKREzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 23:55:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbUKREzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 23:53:48 -0500
-Received: from thunk.org ([69.25.196.29]:24533 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261702AbUKRExp (ORCPT
+	Wed, 17 Nov 2004 23:55:16 -0500
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:61111 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262552AbUKREyW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 23:53:45 -0500
-Date: Wed, 17 Nov 2004 23:53:36 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, r6144 <rainy6144@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       phillips@istop.com, Alex Tomas <alex@clusterfs.com>,
-       Christopher Li <chrisl@vmware.com>,
-       Christopher Li <ext2-devel@chrisli.org>
-Subject: Re: Fw: [POSSIBLE-BUG] telldir() broken on ext3 dir_index'd directories just after the first entry.
-Message-ID: <20041118045336.GA5236@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, r6144 <rainy6144@gmail.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	"ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-	phillips@istop.com, Alex Tomas <alex@clusterfs.com>,
-	Christopher Li <chrisl@vmware.com>,
-	Christopher Li <ext2-devel@chrisli.org>
-References: <20041116183813.11cbf280.akpm@osdl.org> <20041117223436.GB5334@thunk.org> <1100736003.11047.14.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 17 Nov 2004 23:54:22 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: GPL version, "at your option"?
+Date: Wed, 17 Nov 2004 23:54:19 -0500
+User-Agent: KMail/1.6.2
+Cc: clemens@endorphin.org, davids@webmaster.com, linux-kernel@vger.kernel.org
+References: <MDEHLPKNGKAHNMBLJOLKEEOHPNAA.davids@webmaster.com> <200411172150.40799.dtor_core@ameritech.net> <81348C10-390F-11D9-85DC-000393ACC76E@mac.com>
+In-Reply-To: <81348C10-390F-11D9-85DC-000393ACC76E@mac.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1100736003.11047.14.camel@sisko.sctweedie.blueyonder.co.uk>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200411172354.19223.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 12:00:05AM +0000, Stephen C. Tweedie wrote:
+On Wednesday 17 November 2004 10:11 pm, Kyle Moffett wrote:
+> What about section 2, subsection B of the GPL:
+> > b) You must cause any work that you distribute or publish, that in
+> >     whole or in part contains or is derived from the Program or any
+> >     part thereof, to be licensed as a whole at no charge to all third
+> >     parties under the terms of this License.
 > 
-> Doesn't this make things worse?  
-> don't we end up silently ignoring all dirents with a major hash <= 1,
-> even for unbroken getdents() with no intervening seekdir?  
+> "this License", would refer to the specific version of the license.  
+> This means
+> that since the original code is dual-licensed under both versions, any 
+> code
+> that is a derivative work must _also_ be dual-licensed
 
-Oops, yes, I screwed up.
+No, not at all. I need only _one_ license to use the code. If original
+code was dual-licensed, let's say GPL/BSD, I can chose to completely
+ignore GPL part and treat the code as if it was always released BSD only.
+Why do you think several components, like ACPI, are dual-licensed?
+Intel chose to do that so they can take ACPI interpreter implementation
+and use it somewhere else, in non-GPL environment.
 
-> If we're going to do this, I think we need to stuff . and .. into the
-> rbtree with the right hashes, but without ignoring other existing
-> dirents with colliding hashes.
+Q9. Under what licensing is the source released?
+A9. ACPI CA can be licensed under the GNU General Public License or via a
+    separate license that may be more favorable to commercial OSVs. Please
+    see the source code license header for specifics.
 
-We can't just do that, because there are programs that's assume '.'
-and '..' are the first and second entries in the directory.  Yes, they
-are broken and non-portable, but so are programs that depend on
-d_off....
+> (This assumes of course that the other license has a similar clause).
+> In any case, any  work
+> derived from a GPLv2'ed work must also be licensable under the GPLv2.
+> Therefore, my request for _your_ source-code under the GPLv2 is 
+> perfectly
+> valid.
 
-So instead what we need to do is wire '.' and '..' to have hash values
-of (0,0) and (2,0), respectively, without ignoring other existing
-dirents with colliding hashes.  (In those cases the programs will
-break, but they are statistically rare, and there's not much we can do
-in those cases anyway.)
+See above. For me it was never GPLv2, if was BSD all the way and my new
+code I can chose to make BSD only. 
 
-This patch should do this.
-
-Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
-
---- 1.59/fs/ext3/namei.c	2004-10-19 05:40:30 -04:00
-+++ edited/fs/ext3/namei.c	2004-11-17 23:05:35 -05:00
-@@ -610,10 +610,14 @@ int ext3_htree_fill_tree(struct file *di
- 		de = (struct ext3_dir_entry_2 *) frames[0].bh->b_data;
- 		if ((err = ext3_htree_store_dirent(dir_file, 0, 0, de)) != 0)
- 			goto errout;
-+		count++;
-+	}
-+	if (start_hash < 2 || (start_hash ==2 && start_minor_hash==0)) {
-+		de = (struct ext3_dir_entry_2 *) frames[0].bh->b_data;
- 		de = ext3_next_entry(de);
--		if ((err = ext3_htree_store_dirent(dir_file, 0, 0, de)) != 0)
-+		if ((err = ext3_htree_store_dirent(dir_file, 2, 0, de)) != 0)
- 			goto errout;
--		count += 2;
-+		count++;
- 	}
- 
- 	while (1) {
+-- 
+Dmitry

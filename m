@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263171AbTENXad (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 19:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbTENXad
+	id S263163AbTENXaN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 19:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTENXaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 19:30:33 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:42210 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263171AbTENXac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 19:30:32 -0400
-Date: Thu, 15 May 2003 00:43:59 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
+	Wed, 14 May 2003 19:30:13 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:19376 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263163AbTENXaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 19:30:12 -0400
+Date: Wed, 14 May 2003 16:38:26 -0700
+From: Andrew Morton <akpm@digeo.com>
 To: jt@hpl.hp.com
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>,
-       David Gibson <hermes@gibson.dropbear.id.au>,
-       Benjamin Reed <breed@almaden.ibm.com>,
-       Javier Achirica <achirica@ttd.net>, Jouni Malinen <jkmaline@cc.hut.fi>
+Cc: jt@bougret.hpl.hp.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       hermes@gibson.dropbear.id.au, breed@almaden.ibm.com, achirica@ttd.net,
+       jkmaline@cc.hut.fi
 Subject: Re: airo and firmware upload (was Re: 2.6 must-fix list, v3)
-Message-ID: <20030514234359.GB9898@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>, jt@hpl.hp.com,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@digeo.com>,
-	David Gibson <hermes@gibson.dropbear.id.au>,
-	Benjamin Reed <breed@almaden.ibm.com>,
-	Javier Achirica <achirica@ttd.net>,
-	Jouni Malinen <jkmaline@cc.hut.fi>
-References: <20030514211222.GA10453@bougret.hpl.hp.com> <3EC2BDEC.6020401@pobox.com> <20030514233235.GA11581@bougret.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Message-Id: <20030514163826.6459cd93.akpm@digeo.com>
 In-Reply-To: <20030514233235.GA11581@bougret.hpl.hp.com>
-User-Agent: Mutt/1.5.4i
+References: <20030514211222.GA10453@bougret.hpl.hp.com>
+	<3EC2BDEC.6020401@pobox.com>
+	<20030514233235.GA11581@bougret.hpl.hp.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 May 2003 23:42:56.0680 (UTC) FILETIME=[8B938280:01C31A72]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 04:32:35PM -0700, Jean Tourrilhes wrote:
+Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
+>
+> firmwares blobs 
 
- > 	While we are on the subject : a few months ago, Javier added
- > support for MIC to the airo driver. It's basically crypto based on
- > AES. You refused to include that part in the kernel because crypto was
- > not accepted in the kernel.
- > 	Fast forward : today we have crypto in the 2.5.X kernel. Does
- > this mean that you would have no objection accepting a patch from
- > Javier including the crypto part ?
+well for the purposes of tracking 2.6 activities I'll separate this issue
+of firmware access policy out from drivers/net/wireless/. 
 
-Sounds like it would be better to get it using the in-kernel crypto
-stuff rather than reimplementing its own routines. Same for the HostAP
-driver.
- 
-		Dave
+yeah, it would be nice if the core kernel provided a "give me my firmware"
+API or something.
+

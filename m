@@ -1,101 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271797AbRHWJrO>; Thu, 23 Aug 2001 05:47:14 -0400
+	id <S271388AbRHWJpo>; Thu, 23 Aug 2001 05:45:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271799AbRHWJrF>; Thu, 23 Aug 2001 05:47:05 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2320 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S271797AbRHWJqq>; Thu, 23 Aug 2001 05:46:46 -0400
-Date: Thu, 23 Aug 2001 06:46:59 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "Jens Hoffrichter" <HOFFRICH@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Allocation of sk_buffs in the kernel
-Message-ID: <20010823064659.V5062@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"Jens Hoffrichter" <HOFFRICH@de.ibm.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <OF551C0474.A161B459-ONC1256AB1.00337905@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <OF551C0474.A161B459-ONC1256AB1.00337905@de.ibm.com>; from HOFFRICH@de.ibm.com on Thu, Aug 23, 2001 at 11:29:11AM +0200
-X-Url: http://advogato.org/person/acme
+	id <S271796AbRHWJpe>; Thu, 23 Aug 2001 05:45:34 -0400
+Received: from xilofon.it.uc3m.es ([163.117.139.114]:6272 "EHLO
+	xilofon.it.uc3m.es") by vger.kernel.org with ESMTP
+	id <S271388AbRHWJpX>; Thu, 23 Aug 2001 05:45:23 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108230945.LAA01478@xilofon.it.uc3m.es>
+Subject: Re: Shutdown and power off on a multi-processor machine
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <Pine.GSO.4.30.0108230927440.20823-100000@balu> "from Pozsar Balazs
+ at Aug 23, 2001 09:29:40 am"
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+Date: Thu, 23 Aug 2001 11:45:13 +0200 (CEST)
+CC: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Aug 23, 2001 at 11:29:11AM +0200, Jens Hoffrichter escreveu:
-> > > > Maybe Jens should use something like WAITQUEUE_DEBUG if he want to
-> know
-> > > > where alloc_skb and friends were called, see include/linux/wait.h 8)
-> > > Do you mean I should use something LIKE the WAITQUEUE_DEBUG (eg.
-> > > implementing something like that in skbuff.c) or I should use
-> > > WAITQUEUE_DEBUG?
-> > no, just use the same idea that is used to debug wait_queues
-> OK, then I interpreted the code in wait.h right ;)
+"A month of sundays ago Pozsar Balazs wrote:"
 > 
-> > > Are there any examples how to use the WAITQUEUE_DEBUG?
+> I had the same problems, and the only way i could have a poweroff at
+> shutdown was to pass the apm=power-off option to the kernel at boot time.
+> (e.g. in lilo.conf, have a append="apm=power-off" line.)
+
+I'm also having problems on all my smp machines. I can't reboot reliably from a shutdown,
+not even using the software watchdog daemon to help (killall -STOP watchdog), not even
+from "reboot", nor from magic-sysreq (though that seems most reliable to me - maybe 80%).
+I am currently using apm=power-off on 2.4.6 with about a 50% success rate overall.
+
+When things go badly, it just sits there at the "rebooting" stage, and needs
+the red button to be pressed.
+
+The machine that most annoys me in this regard is the dell poweredge at which I am
+sitting ... it's been a long time since I booted 2.2 on it, but I think things
+went better.
+
+The bios has no options vis-a-vis apm, etc.
+
+I have been running all kernels 2.4.0 to 2.4.8. I think 2.4.8 may be a bit better,
+but it needs time to get a feel for the stats.
+
+
+> On Wed, 22 Aug 2001, Jordan Breeding wrote:
 > 
-> > oops, I mean the __waker thing, for debugging you could get the address
-> of
-> > the caller with current_text_addr() and store it in an extra sk_buff
-> field
-> > so that later on you could know who create the skb.
-> But where should I fill this field in the sk_buff? I know that alloc_skb
-> creates an sk_buff, so this would be of no use for me. Or do you mean to
-> add something like that to the initialization of the sk_buff struct, like a
-> "long allocator = current_text_addr()" in skbuff.h? Is something like this
-> possible? I'm not sure about it....
+> > I too am having trouble powering off and rebooting an SMP machine.  It
+> > is a Tyan Tiger 230.  I have tried to report this a few times with
+> > little to no response.  The last kernel that worked for me in this
+> > respect was 2.4.6-ac2.  I have tried linus' and alan's kernels both with
+> > no success.  I have tried configuring all kernel with APM soft-power
+> > off, real-mode power off (I enable power-off even though the rest of APM
+> > is broken on SMP), ACPI (multiple setups), and nothing at all.  None of
+> > these kernel/configuration combos allow me to shutdown or reboot my
 
-look, alloc_skb is not inline, so you need to use
-__builtin_return_address(0) to know who called alloc_skb, you have to
-change struct sk_buff to have an extra member where you will store the
-return of __builtin_return_address(0), and possibly another field to store
-the jiffies, so that you'll have the time when the alloc_skb was called,
-then, later on, you could just printk the time it took from the alloc_skb
-to the place where you want to know how long it took to traverse the
-section of the network stack you're interested in.
- 
-> > About the example of WAITQUEUE_DEBUG:
-> >
-> > after being awaken you could do this:
-> 
-> >                 dprintk("sleeper=%p, waker=%lx\n",
-> >                          current_text_addr(), wait.__waker);
-> 
-> > in a inline function does the trick, but this is just an example of a
-> > function that uses an extra debug field in a structure that is alocated
-> > somewhere and you want to know who allocated it later on.
-> 
-> > Yes, you'll have to decode the address from syslog, gotcha?
-> But the __waker member is filled by a macro from wait.h, if I had seen it
-> right. Where would you issue such a dprintk call?
- 
-> Sorry about my missing knowledge about wait queues, but I don't get the
-> point where to fill the member. That I could print it later on, thats
-> clear, but how to fill it?
+> > Shawn McGovern wrote:
+> > >
+> > > I have a need for a headless machine to power off at the end of shutdown,
+> > > but cannot get it to work for smp kernels. I tried 2.2.14, and 2.4.9,
+> > > built with smp and apm. If there is a way to make this work, I would
 
-creating another field in the struct sk_buff, like I said above. The whole
-point of the wait_queue was to show you the idea, the fact that you could
-add another field to the struct you want to watch, see this excerpt from
-include/linux/wait.h:
 
-struct __wait_queue {
-        unsigned int flags;
-#define WQ_FLAG_EXCLUSIVE       0x01
-        struct task_struct * task;
-        struct list_head task_list;
-#if WAITQUEUE_DEBUG
-        long __magic;
-        long __waker;
-#endif
-};
-
-see? you just add a 'long allocator; long jiffies_creation;' to struct
-sk_buff like in the struct above, for WAITQUEUE_DEBUG debugging the kernel
-has __magic and __waker, and store at alloc_skb time there the return of
-__builtin_return_address(0) and jiffies, the later on you use it for your
-purposes.
-
-- Arnaldo
+Peter

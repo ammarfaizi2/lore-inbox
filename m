@@ -1,217 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278635AbRJ1SSz>; Sun, 28 Oct 2001 13:18:55 -0500
+	id <S278617AbRJ1SYP>; Sun, 28 Oct 2001 13:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278617AbRJ1SSq>; Sun, 28 Oct 2001 13:18:46 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:17 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S278635AbRJ1SSb>; Sun, 28 Oct 2001 13:18:31 -0500
-Date: Sun, 28 Oct 2001 19:19:39 +0100
-From: Hans-Joachim Baader <hjb@pro-linux.de>
-To: Urban Widmark <urban@teststation.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.14-3 via-rhine lockup
-Message-ID: <20011028191939.B679@mandel.hjb.de>
-In-Reply-To: <20011027225007.A718@mandel.hjb.de> <Pine.LNX.4.30.0110280950380.12850-100000@cola.teststation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.13-current-20010108i
-In-Reply-To: <Pine.LNX.4.30.0110280950380.12850-100000@cola.teststation.com>; from urban@teststation.com on Sun, Oct 28, 2001 at 10:32:46AM +0100
+	id <S278633AbRJ1SX4>; Sun, 28 Oct 2001 13:23:56 -0500
+Received: from arabuusi.tky.hut.fi ([130.233.24.169]:61855 "HELO
+	arabuusi.tky.hut.fi") by vger.kernel.org with SMTP
+	id <S278617AbRJ1SXn>; Sun, 28 Oct 2001 13:23:43 -0500
+Date: Sun, 28 Oct 2001 20:35:52 +0200 (EET)
+From: Janne Liimatainen <jeppe@arabuusimiehet.com>
+X-X-Sender: <jeppe@arabuusi.tky.hut.fi>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: Francois Romieu <romieu@cogenit.fr>, Janne Liimatainen <jannel@iki.fi>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: HPT366 problems continued
+In-Reply-To: <Pine.LNX.4.10.10110272003180.5826-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.33.0110282034460.3429-100000@arabuusi.tky.hut.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 28, 2001 at 10:32:46AM +0100, Urban Widmark wrote:
+On Sat, 27 Oct 2001, Andre Hedrick wrote:
+
+> > I'd say either mate->dma_base is set too soon for both mate (and they're both
+> > guaranteed to generate dma_base = 0 as soon as they reach 794) or do_identify
+> > is called too late (and dma_base = 0 because of 793).
+> > I haven't found a lot of dma_base field setting and they seem to happen late.
 > 
-> How do you generate the heavy load? (what is heavy)
+> Ueimor,
+> 
+> If the BIOS does not configure the PCI space or if it is not listed to be
+> setup in the ./arch/*/kernel/pci-quirks.... then the driver ignores the
+> HOST.  So in short you are wrong, and the driver is doing its job
+> correctly.  The real problem is happening long before I ever get to touch
+> the chipset.
+> 
+> Let me guess, you are using one of the soft-raid modes of that host.
 
-I rip a CD with abcde + distmp3. Ie. my workstation (with the via-rhine
-card creates the WAV files on an NFS volume and distributes the jobs of
-converting them to OGG format between 6 other machines. The results are
-stored ans postprocessed on the NFS volume again.
+Nope, seems to be the fault of the bios, as it works fine with another 
+motherboard. Need to look at the quirks then...
 
-So the network load is quite high (CPU load > 3). But the NFS is not the
-problem, because it also happens without using the NFS volume.
-
-> What hardware do you have? via-rhine chip model? (dmesg/lspci -n)
-
-AMD K6/2-400 on an ASUS P2A-B, 256 MB RAM (since I use KDE, it uses all
-the RAM and 40 MB swap ;-), Matrox G450, SB Live with Alsa drivers (the
-problem also occurs without the sound drivers), one IDE disk (IBM, 8 GB)
-and two IDE CD-ROMs.
-
-lspci:
-
-00:00.0 Class 0600: 10b9:1541 (rev 04)
-00:01.0 Class 0604: 10b9:5243 (rev 04)
-00:02.0 Class 0c03: 10b9:5237 (rev 03)
-00:03.0 Class 0680: 10b9:7101
-00:07.0 Class 0601: 10b9:1533 (rev c3)
-00:09.0 Class 0401: 1102:0002 (rev 08)
-00:09.1 Class 0980: 1102:7002 (rev 08)
-00:0a.0 Class 0200: 1106:3043 (rev 06)
-00:0f.0 Class 0101: 10b9:5229 (rev c1)
-01:00.0 Class 0300: 102b:0525 (rev 82)
+/Janne
 
 
-via-diag -aaeemm before lockup:
-
-via-diag.c:v2.04 7/14/2000 Donald Becker (becker@scyld.com)
-http://www.scyld.com/diag/index.html
-Index #1: Found a VIA VT3043 Rhine adapter at 0xd000.
-Station address 00:40:05:a4:3d:84.
-Tx enabled, Rx enabled, half-duplex (0x085a).
-Receive  mode is 0x6c: Normal unicast and hashed multicast.
-Transmit mode is 0x20: Normal transmit, 256 byte threshold.
-VIA VT3043 Rhine chip registers at 0xd000
-0x000: a4054000 206c843d 0000085a 4eff0000 80000000 00000000 03c1e090 03c1e1d0
-0x020: 80000400 00000600 0c96c810 03c1e0a0 80000000 00000600 0b3d6010 03c1e0b0
-0x040: 00000000 00e080a2 064c4e00 03c1e1e0 00000000 00e080a2 064c4e00 03c1e1e0
-0x060: 0faa5858 064c4862 00000000 00061008 782d0100 00000080 00070000 00000000
-No interrupt sources are pending (0000).
-Access to the EEPROM has been disabled (0x80).
-Direct reading or writing is not possible.
-EEPROM contents (Assumed from chip registers):
-0x100:  00 40 05 a4 3d 84 00 00 00 00 00 00 00 00 00 00
-0x110:  00 00 00 00 00 00 00 00 06 00 00 00 07 00 73 73
-MII PHY found at address 8, status 0x782d.
-MII PHY #8 transceiver registers:
-3000 782d 0181 b800 05e1 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0640 4088 6800 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000.
-MII PHY #8 transceiver registers:
-3000 782d 0181 b800 05e1 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0640 4088 6800 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000.
-Basic mode control register 0x3000: Auto-negotiation enabled.
-Basic mode status register 0x782d ... 782d.
-Link status: established.
-Capable of  100baseTx-FD 100baseTx 10baseT-FD 10baseT.
-Able to perform Auto-negotiation, negotiation complete.
-Vendor ID is 00:60:6e:--:--:--, model 0 rev. 0.
-Vendor/Part: Davicom DM9101.
-I'm advertising 05e1: Flow-control 100baseTx-FD 100baseTx 10baseT-FD 10baseT
-Advertising no additional info pages.
-IEEE 802.3 CSMA/CD protocol.
-Link partner capability is 0000:.
-Negotiation did not complete.
-Davicom vendor specific registers: 0x0640 0x4088 0x6800.
-11:34:42.1074316  Baseline value of MII BMSR (basic mode status register) is 782d.
-
-
-via-diag -aaeemm after lockup:
-
-I couldn't get the output into a file but if necessary I'll try again.
-
-
-> With debug=7, surely you get lots of other messages too ... ?
-
-Yes, I didn't think they're useful... Anyway, here's an example with
-debug=6:
-
-Oct 28 18:50:49 mandel kernel: eth0: VIA Rhine monitor tick, status 0000.
-Oct 28 18:50:51 mandel kernel: eth0: Transmit frame #2859171 queued in slot 2.
-Oct 28 18:50:51 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:50:51 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:50:52 mandel kernel: eth0: Transmit frame #2859172 queued in slot 3.
-Oct 28 18:50:52 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:50:52 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:50:52 mandel kernel: eth0: Transmit frame #2859173 queued in slot 4.
-Oct 28 18:50:52 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:50:52 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:50:53 mandel kernel: eth0: Transmit frame #2859174 queued in slot 5.
-Oct 28 18:50:53 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:50:53 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:50:53 mandel kernel: eth0: Transmit frame #2859175 queued in slot 6.
-Oct 28 18:50:53 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:50:53 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:50:54 mandel kernel: eth0: Transmit frame #2859176 queued in slot 7.
-Oct 28 18:50:54 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:50:54 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:50:59 mandel kernel: eth0: VIA Rhine monitor tick, status 0000.
-Oct 28 18:51:09 mandel kernel: eth0: VIA Rhine monitor tick, status 0000.
-Oct 28 18:51:13 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:13 mandel kernel:  In via_rhine_rx(), entry 2 status 00409700.
-Oct 28 18:51:13 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:13 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:13 mandel kernel: eth0: Transmit frame #2859177 queued in slot 8.
-Oct 28 18:51:13 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:13 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:14 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:14 mandel kernel:  In via_rhine_rx(), entry 3 status 00409700.
-Oct 28 18:51:14 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:14 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:14 mandel kernel: eth0: Transmit frame #2859178 queued in slot 9.
-Oct 28 18:51:14 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:14 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:15 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:15 mandel kernel:  In via_rhine_rx(), entry 4 status 00409700.
-Oct 28 18:51:15 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:15 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:15 mandel kernel: eth0: Transmit frame #2859179 queued in slot 10.
-Oct 28 18:51:15 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:15 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:17 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:17 mandel kernel:  In via_rhine_rx(), entry 5 status 00409700.
-Oct 28 18:51:17 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:17 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:17 mandel kernel: eth0: Transmit frame #2859180 queued in slot 11.
-Oct 28 18:51:17 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:17 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:18 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:18 mandel kernel:  In via_rhine_rx(), entry 6 status 00409700.
-Oct 28 18:51:18 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:18 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:18 mandel kernel: eth0: Transmit frame #2859181 queued in slot 12.
-Oct 28 18:51:18 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:18 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:19 mandel kernel: eth0: VIA Rhine monitor tick, status 0000.
-Oct 28 18:51:19 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:19 mandel kernel:  In via_rhine_rx(), entry 7 status 00409700.
-Oct 28 18:51:19 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:19 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:19 mandel kernel: eth0: Transmit frame #2859182 queued in slot 13.
-Oct 28 18:51:19 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:19 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:20 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:20 mandel kernel:  In via_rhine_rx(), entry 8 status 00409700.
-Oct 28 18:51:20 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:20 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:20 mandel kernel: eth0: Transmit frame #2859183 queued in slot 14.
-Oct 28 18:51:20 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:20 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:21 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:21 mandel kernel:  In via_rhine_rx(), entry 9 status 00409700.
-Oct 28 18:51:21 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:21 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:21 mandel kernel: eth0: Transmit frame #2859184 queued in slot 15.
-Oct 28 18:51:21 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:21 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:22 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:22 mandel kernel:  In via_rhine_rx(), entry 10 status 00409700.
-Oct 28 18:51:22 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:22 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:22 mandel kernel: eth0: Transmit frame #2859185 queued in slot 0.
-Oct 28 18:51:22 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:22 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:24 mandel kernel: eth0: Interrupt, status 0001.
-Oct 28 18:51:24 mandel kernel:  In via_rhine_rx(), entry 11 status 00409700.
-Oct 28 18:51:24 mandel kernel:   via_rhine_rx() status is 00409700.
-Oct 28 18:51:24 mandel kernel: eth0: exiting interrupt, status=0x0000.
-Oct 28 18:51:24 mandel kernel: eth0: Transmit frame #2859186 queued in slot 1.
-Oct 28 18:51:24 mandel kernel: eth0: Interrupt, status 0002.
-Oct 28 18:51:24 mandel kernel: eth0: exiting interrupt, status=0x0000.
-
-
-> After it stops working, do you still get log messages from it?
-> Including via_rhine_rx()?
-
-Yes, the above output is from the non-working state.
-
-Thanks a lot,
-hjb
--- 
-Pro-Linux - Germany's largest volunteer Linux support site
-http://www.pro-linux.de/

@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315457AbSILMh3>; Thu, 12 Sep 2002 08:37:29 -0400
+	id <S315440AbSILM4F>; Thu, 12 Sep 2002 08:56:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315483AbSILMh3>; Thu, 12 Sep 2002 08:37:29 -0400
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:8861 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S315457AbSILMh1> convert rfc822-to-8bit; Thu, 12 Sep 2002 08:37:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: Heuristic readahead for filesystems
-Date: Thu, 12 Sep 2002 07:41:28 -0500
-User-Agent: KMail/1.4.1
-References: <200209112104.41987.oliver@neukum.name> <Pine.LNX.3.95.1020911151848.32205A-100000@chaos.analogic.com> <20020912004520.GD10315@pegasys.ws>
-In-Reply-To: <20020912004520.GD10315@pegasys.ws>
+	id <S315449AbSILM4F>; Thu, 12 Sep 2002 08:56:05 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:20676 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S315440AbSILM4E>;
+	Thu, 12 Sep 2002 08:56:04 -0400
+From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+To: "Jens Axboe" <axboe@suse.de>, "Paul Mackerras" <paulus@samba.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] highmem I/O for ide-pmac.c
+Date: Thu, 12 Sep 2002 07:37:01 +0200
+Message-Id: <20020912053701.904@192.168.4.1>
+In-Reply-To: <20020912062057.GK30234@suse.de>
+References: <20020912062057.GK30234@suse.de>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209120741.28278.pollard@admin.navo.hpc.mil>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 September 2002 07:45 pm, jw schultz wrote:
-> On Wed, Sep 11, 2002 at 03:21:37PM -0400, Richard B. Johnson wrote:
-> > On Wed, 11 Sep 2002, Oliver Neukum wrote:
-> > > Am Mittwoch, 11. September 2002 20:43 schrieb Xuan Baldauf:
-> > > > > Aio should be able to do it. But even that want help you with the
-> > > > > stat data.
-> > > >
-> > > > Aio would help me announcing stat() usage for the future?
-> > >
-> > > No, it won't. But it would solve the issue of reading ahead.
-> > > Stating needs a kernel implementation of 'stat ahead'
-> > > -
-> >
-> > I think this is discussed in the future. Write-ahead is the
-> > next problem solved. ?;)
+>> Looking at it again, both ide_build_sglist and ide_raw_build_sglist do
+>> *almost* what we want.  If ide-pmac used hwif->sg_table instead of
+>> pmif->sg_table, and if ide_[raw_]build_sglist were exported and took
+>> the maximum number of entries as a parameter instead of using the
+>> PRD_ENTRIES constant, then ide-pmac wouldn't need to have its own
+>> versions of those routines.  Would those changes be OK?
 >
-> Gating back to the original issue which was "readahead" of
-> stat() info...
+>Sounds like a perfectly fine change to me.
 >
-> The userland open of a directory could trigger an advance
-> reading of the directory data and of the inode structs of
-> all it's immediate members.  Almost all instances of a
-> usermode open on a directory will be doing fstats.  Even a
-> command line ls often has options (colour, -F, etc) turned on
-> by default that require fstat on all the entries.
-> The question would be how far ahead of the user app would
-> the kernel be.
+>> Ben, any reason why we have to use pmif->sg_table rather than
+>> hwif->sg_table?
 >
-> I could possibly see having a fcntl() for directories to
-> pre-read just the first block of each file to accelerate
-> file-managers that use magic and perhaps forestall readahead
-> pulling in more than magic will use.
+>Looks identical to me. hwif->sg_table is kmalloc'ed sg list of
+>PRD_ENTRIES (256), pmif->sg_table is kmalloc'ed ditto of MAX_DCMDS (256)
+>entries.
 
-The problem now is that this becomes filesystem dependant.
-Some of the filesystems will already have the inode loaded, and
-if the inode is loaded, then the first block of the file is also loaded.
+Well, I decided to move all of those to pmif when I had the media
+bay broken because ide_unregister calling ide_release_dma which
+disposed of the tables behind my back.
 
-If the proposed readahead is done at the VFS level then multiple
-reads will be issued for the same block, with some physical IO
-reduction done due to cache hits.
+Looking at ide.c in it's current incarnation (2.4.20pre), it seems
+the common code will only play such tricks if hwif->dma_base is
+non-NULL, in which case it assumes a PRD-style DMA.
 
-This is starting to sound like a bit of overoptimization.
+So if we keep hwif->dma_base to 0, then we can probably go back
+to using the hwif fields for sg_* and thus share the routines
+with ide-dma.
 
-Still.. Try it. and on different filesystems and see what happens.
+I'd suggest you don't bother too much with that now. I'm working
+with andre on his new IDE stuff in which I already did some
+cleanup work on ide-pmac, I'll add that to it next week. That
+code should ultimately move to both 2.4 and 2.5 (by 2.4.21 time
+frame I beleive).
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Ben.
 
-Any opinions expressed are solely my own.

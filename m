@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282913AbRLDJER>; Tue, 4 Dec 2001 04:04:17 -0500
+	id <S282969AbRLDJKf>; Tue, 4 Dec 2001 04:10:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282922AbRLDJEL>; Tue, 4 Dec 2001 04:04:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28944 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282961AbRLDJEB>; Tue, 4 Dec 2001 04:04:01 -0500
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-To: Martin.Bligh@us.ibm.com
-Date: Tue, 4 Dec 2001 09:12:35 +0000 (GMT)
-Cc: ebiederm@xmission.com (Eric W. Biederman),
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <2379810054.1007402157@mbligh.des.sequent.com> from "Martin J. Bligh" at Dec 03, 2001 05:55:57 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S282968AbRLDJKZ>; Tue, 4 Dec 2001 04:10:25 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:49895
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S282943AbRLDJKO>; Tue, 4 Dec 2001 04:10:14 -0500
+Date: Tue, 4 Dec 2001 10:10:07 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: mehul radheshyam choube <m_choube@eudoramail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: curious to know about linux internals(kernel
+Message-ID: <20011204101006.E823@jaquet.dk>
+In-Reply-To: <PNKAIKBEDBEIEAAA@shared1-mail.whowhere.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16BBcx-0001Kh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <PNKAIKBEDBEIEAAA@shared1-mail.whowhere.com>; from m_choube@eudoramail.com on Tue, Dec 04, 2001 at 02:34:47PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > can come up with a single system image solution over fast ethernet a
-> > ccNuma machine just magically works.
+On Tue, Dec 04, 2001 at 02:34:47PM +0530, mehul radheshyam choube wrote:
+> hi guys,
 > 
-> it's not cc if you just use fast ethernet.
+>      i am new to linux (before this worked on windows)
+>     
+>      i am interested to know about kernel.
+>  
+>      i don't with which documents or books will give a through knowledge about linux kernel
+> 
 
-Thats a matter for handwaving and distributed shared memory algorithms. The
-general point is still true - if you assume your NUMA interconnects are
-utter crap when performance and latency issues come up - you'll get the
-right results.
+Look at http://www.kernelnewbies.org
+
+-- 
+        Rasmus(rasmus@jaquet.dk)
+
+Genius may have its limitations, but stupidity is not thus handicapped. 
+  -- Elbert Hubbard 

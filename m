@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290712AbSAYUCR>; Fri, 25 Jan 2002 15:02:17 -0500
+	id <S290716AbSAYUGr>; Fri, 25 Jan 2002 15:06:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290716AbSAYUCO>; Fri, 25 Jan 2002 15:02:14 -0500
-Received: from mta014pub.verizon.net ([206.46.170.216]:29583 "EHLO
-	mta014.verizon.net") by vger.kernel.org with ESMTP
-	id <S290712AbSAYUB4>; Fri, 25 Jan 2002 15:01:56 -0500
-Date: Fri, 25 Jan 2002 14:58:40 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: linux-kernel@vger.kernel.org
-Cc: hpa@mytor.com
-Subject: Re: If you haven't seen it yet...
-Message-ID: <20020125145840.A694@s>
-Mail-Followup-To: linux-kernel@vger.kernel.org, hpa@mytor.com
-In-Reply-To: <a2q2ud$kr$1@cesium.transmeta.com> <20020125040741.A1573@s> <3C518B79.6030506@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C518B79.6030506@zytor.com>; from hpa@zytor.com on Fri, Jan 25, 2002 at 08:44:41AM -0800
+	id <S290735AbSAYUGh>; Fri, 25 Jan 2002 15:06:37 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:10371 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S290716AbSAYUGU>;
+	Fri, 25 Jan 2002 15:06:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Andreas Schwab <schwab@suse.de>
+Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
+Date: Fri, 25 Jan 2002 12:05:55 -0800
+X-Mailer: KMail [version 1.3.8]
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        "Moore, Robert" <robert.moore@intel.com>,
+        "Therien, Guy" <guy.therien@intel.com>,
+        "Grover, Andrew" <andrew.grover@intel.com>,
+        "'lwn@lwn.net'" <lwn@lwn.net>,
+        "Acpi-linux (E-mail)" <acpi-devel@lists.sourceforge.net>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201251550.g0PFoIPa002738@tigger.cs.uni-dortmund.de> <200201250802.32508.bodnar42@phalynx.dhs.org> <jeelkes8y5.fsf@sykes.suse.de>
+In-Reply-To: <jeelkes8y5.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200201251205.55440.bodnar42@phalynx.dhs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On January 25, 2002 08:15, Andreas Schwab wrote:
+> These are all startup costs that are lost in the noise the longer the
+> program runs.
 
-H. Peter Anvin wrote:
-> 
-> VI downloads a HTML-ized version which is much larger, mostly because 
-> it's uncompressed.
+Executable size is -not- just a startup cost. Larger executables will have a 
+bigger memory footprint and less cache locality. A KDE desktop on 64megs of 
+memory would be noticably more responsive if GCC generated executables the 
+same size as VC++, due to less swap thrashing alone.
 
-Ah, I understand now.
-
-Maybe you could rename the file to 'patch-2.5.3-pre4-pre5.html' then
-since it's an html file and it's not compressed.
-
-- -- 
-Skip  ID: 0x7EDDDB0A
------BEGIN PGP SIGNATURE-----
-
-iEYEARECAAYFAjxRuOQACgkQBMKxVH7d2woOnwCfQ05ukCDDW1C3owuT/8PMF9zH
-NEoAoMnsIofM+Rr/GrkA2SXJu+RuTnhf
-=P81m
------END PGP SIGNATURE-----
+-Ryan

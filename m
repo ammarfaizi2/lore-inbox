@@ -1,143 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVBJEXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVBJEZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVBJEXP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 23:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVBJEXP
+	id S262017AbVBJEZu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 23:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbVBJEZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 23:23:15 -0500
-Received: from smtpauth06.mail.atl.earthlink.net ([209.86.89.66]:715 "EHLO
-	smtpauth06.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S262016AbVBJEXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 23:23:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=simple;
-  s=test1; d=earthlink.net;
-  h=Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=HnfLxIfSOdH31CcGnDnyK9/tnQy44wUc0FLjxLBODNA7SGRc806s1I1qVZTBkP+D;
-Message-ID: <420AE1CE.2070306@earthlink.net>
-Date: Wed, 09 Feb 2005 23:23:42 -0500
-From: Todd Shetter <tshetter-lkml@earthlink.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: 2.4.x kernel BUG at filemap.c:81
-References: <42099C57.9030306@earthlink.net> <20050209121011.GA13614@logos.cnet> <420A3A8D.9030705@earthlink.net> <20050209130319.GA13986@logos.cnet> <420A76E0.2030604@earthlink.net> <20050209174232.GC15888@logos.cnet>
-In-Reply-To: <20050209174232.GC15888@logos.cnet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ELNK-Trace: 20b3e7689bd2545e1aa676d7e74259b7b3291a7d08dfec790ba751edd9dd6c91c860bc811dd36b0a350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.144.117.200
+	Wed, 9 Feb 2005 23:25:50 -0500
+Received: from almesberger.net ([63.105.73.238]:13316 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262017AbVBJEZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 23:25:37 -0500
+Date: Thu, 10 Feb 2005 01:23:04 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: herbert@gondor.apana.org.au, anton@samba.org, okir@suse.de,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
+Message-ID: <20050210012304.E25338@almesberger.net>
+References: <20050131102920.GC4170@suse.de> <E1CvZo6-0001Bz-00@gondolin.me.apana.org.au> <20050203142705.GA11318@krispykreme.ozlabs.ibm.com> <20050203150821.2321130b.davem@davemloft.net> <20050204113305.GA12764@gondor.apana.org.au> <20050204154855.79340cdb.davem@davemloft.net> <20050204222428.1a13a482.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050204222428.1a13a482.davem@davemloft.net>; from davem@davemloft.net on Fri, Feb 04, 2005 at 10:24:28PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+David S. Miller wrote:
+> 	This document is intended to serve as a guide to Linux port
+> maintainers on how to implement atomic counter and bitops operations
+> properly.
 
->On Wed, Feb 09, 2005 at 03:47:28PM -0500, Todd Shetter wrote:
->
->  
->
->>>>>>Running slackware 10 and 10.1, with kernels 2.4.26, 2.4.27, 2.4.28, 
->>>>>>2.4.29 with highmem 4GB, and highmem i/o support enabled, I get a 
->>>>>>system lockup. This happens in both X and console. Happens with and 
->>>>>>without my Nvidia drivers loaded. I cannot determine what makes this 
->>>>>>bug present it self besides highmem and high i/o support enabled. Im 
->>>>>>guessing the system is fine until highmem is actually used to some 
->>>>>>point and then it borks, but I really have no idea and so im just 
->>>>>>making a random guess. I ran memtest86 for a few hours a while ago 
->>>>>>thinking that it may be bad memory, but that did not seem to be the 
->>>>>>problem.
->>>>>>
->>>>>>If you need anymore information, or have questions, or wish me to test 
->>>>>>anything, PLEASE feel free to contact me, I would really like to see 
->>>>>>this bug resolved. =)
->>>>>>
->>>>>>--
->>>>>>Todd Shetter
->>>>>>
->>>>>>
->>>>>>Feb  8 19:49:31 quark kernel: kernel BUG at filemap.c:81!
->>>>>>Feb  8 19:49:31 quark kernel: invalid operand: 0000
->>>>>>Feb  8 19:49:31 quark kernel: CPU:    0
->>>>>>Feb  8 19:49:31 quark kernel: EIP:    0010:[<c01280d1>]    Tainted: P
->>>>>>
->>>>>>
->>>>>>      
->>>>>>
->>>>>>            
->>>>>>
->>>>>Hi Todd, 
->>>>>
->>>>>Why is your kernel tainted ?
->>>>>
->>>>>          
->>>>>
->>>>I had the nvidia 1.0-6629 driver loaded when I got that error. I 
->>>>compiled the kernel using the slackware 10.1 config, enabled highmem 4GB 
->>>>support, highmem i/o, and then some kernel hacking options including 
->>>>debugging for highmen related things.
->>>>
->>>>I booted, loaded X with KDE, opened firefox a few times, and then 
->>>>started running hdparm because some newer 2.4.x kernels dont play nice 
->>>>with my SATA, ICH5, and DMA. hdparm segfaulted while running the drive 
->>>>read access portion of its tests, and things locked up from there in 
->>>>about 30secs.
->>>>
->>>>I've gotten the same error with the nvidia driver not loaded, so I dont 
->>>>think that is part of the problem.
->>>>
->>>>As I said, if you want me to test or try anything feel free to ask.  =)
->>>>  
->>>>        
->>>>
->>>Todd,
->>>
->>>Would be interesting to have the oops output without the kernel nvidia 
->>>module. 
->>>Do you have that saved?
->>>
->>>
->>>
->>>      
->>>
->>Sorry, it took me FOREVER to get this bug to appear again, and this time 
->>its a little different.
->>    
->>
->
->Hum, both BUGs are due to a page with alive ->buffers mapping.
->
->Did it crashed right after hdparm now too? 
->
->Can you boot your box without SATA drivers, configuring the interface to IDE 
->mode ?
->
->Which problems are you facing with newer v2.4.x kernels and SATA? 
->  
->
+Finally, some light is shed into one of the most arcane areas of
+the kernel ;-) Thanks !
 
-Im waiting for the system to crash, so I figured I might as well get on 
-with the SATA problems....
+> Unlike the above routines, it is required that explicit memory
+> barriers are performed before and after the operation.  It must
+> be done such that all memory operations before and after the
+> atomic operation calls are strongly ordered with respect to the
+> atomic operation itself.
 
-Running 2.4.29 neither the CONFIG_BLK_DEV_IDE_SATA nor the 
-CONFIG_SCSI_SATA are set currently and DMA is not enabled on either of 
-my drives,  hda: ST380013AS,  hdb: WDC WD2500SD-01KCB0,  hdc: Maxtor 
-94610U6. Setting DMA manually on the hard drives yields a HDIO_SET_DMA 
-failed: Operation not permitted error.
+Hmm, given that this description will not only be read by implementers
+of atomic functions, but also by users, the "explicit memory barriers"
+may be confusing. Who does them, the atomic_* function, or the user ?
+In fact, I would call them "implicit", because they're hidden in the
+atomic_foo functions :-)
 
-Using 2.4.26, DMA worked fine on the drives. Under 2.4.27, 2.4.28, and 
-2.4.29 using CONFIG_SCSI_SATA does not allow setting of DMA on the 
-drives, yielding a HDIO_SET_DMA failed: Operation not permitted error, 
-and the transfer speeds reported by hdparm are at about 3MB/s.
+> 	void smb_mb__before_atomic_dec(void);
+> 	void smb_mb__after_atomic_dec(void);
+> 	void smb_mb__before_atomic_inc(void);
+> 	void smb_mb__after_atomic_dec(void);
 
-Under 2.4.29 using CONFIG_BLK_DEV_IDE_SATA the DMA is set fine upon 
-boot, and I get good transfers, hdparm reports 58MB/s on my Western 
-Digital drive. I have not tested using CONFIG_BLK_DEV_IDE_SATA on any 
-previous kernel versions.
+s/smb_/smp/ :-)
 
-Well, still no crash yet....Again, anything else you want me to try or 
-do just let me know.
+Do they also work for atomic_add and atomic_sub, or do we have to
+fall back to smb_mb or atomic_add_return (see below) there ?
 
---
-Todd Shetter
+> With the memory barrier semantics required of the atomic_t
+> operations which return values, the above sequence of memory
+> visibility can never happen.
 
+What happens if the operation could return a value, but the user
+ignores it ? E.g. if I don't like smp_mb__*, could I just use
+
+	atomic_inc_and_test(foo);
+
+instead of
+
+	smp_mb__before_atomic_inc();
+	atomic_inc(foo);
+	smp_mb__after_atomic_dec();
+
+? If yes, is this a good idea ?
+
+> These routines, like the atomic_t counter operations returning
+> values, require explicit memory barrier semantics around their
+> execution.
+
+Very confusing: the barriers aren't around the routines (that
+is something the user would be doing), but around whatever does
+the atomic stuff inside them.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

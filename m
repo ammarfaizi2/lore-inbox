@@ -1,59 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264364AbUASFkf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 00:40:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUASFkf
+	id S264368AbUASF4l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 00:56:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbUASF4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 00:40:35 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:53202 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264364AbUASFkd
+	Mon, 19 Jan 2004 00:56:41 -0500
+Received: from mail-07.iinet.net.au ([203.59.3.39]:42218 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264368AbUASF4j
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 00:40:33 -0500
-Message-ID: <400B6DAF.7090802@cyberone.com.au>
-Date: Mon, 19 Jan 2004 16:39:59 +1100
+	Mon, 19 Jan 2004 00:56:39 -0500
+Message-ID: <400B7100.7090600@cyberone.com.au>
+Date: Mon, 19 Jan 2004 16:54:08 +1100
 From: Nick Piggin <piggin@cyberone.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Valdis.Kletnieks@vt.edu, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sched-idle and disk-priorities for 2.6.X
-References: Your message of "Fri, 16 Jan 2004 19:10:47 +0100."             <20040116181047.GA1896@elf.ucw.cz> <200401161937.i0GJbJmv003365@turing-police.cc.vt.edu> <400953B9.3090900@tmr.com> <400954E1.2050807@cyberone.com.au> <400B621D.7050307@tmr.com>
-In-Reply-To: <400B621D.7050307@tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Randy Appleton <rappleto@nmu.edu>
+CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Unneeded Code Found??
+References: <3FFF3931.4030202@nmu.edu> <4006B998.5040403@tmr.com> <400B2BCF.7090003@nmu.edu>
+In-Reply-To: <400B2BCF.7090003@nmu.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Bill Davidsen wrote:
+Randy Appleton wrote:
 
-> Nick Piggin wrote:
+> Bill Davidsen wrote:
 >
+>> Randy Appleton wrote:
 >>
->>
->> Bill Davidsen wrote:
->>
+>>> I think I have found some useless code in the Linux kernel
+>>> in the block request functions.
+>>>                                                                                         
 >>>
->>> Or you could use "ulimit -m" to set the RSS, of course.
+>>> I have modified the __make_request function in ll_rw_blk.c.
+>>> Now every request for a block off the hard drive is logged.
+>>>                                                                                         
+>>>
+>>> The function __make_request has code to attempt to merge the current
+>>> block request with some contigious existing request for better
+>>> performance. This merge function keeps a one-entry cache pointing to 
+>>> the
+>>> last block request made.  An attempt is made to merge the current
+>>> request with the last request, and if that is not possible then
+>>> a search of the whole queue is done, looking at merger possibililites.
+>>>                                                                                         
+>>>
+>>> Looking at the data from my logs, I notice that over 50% of all 
+>>> requests
+>>> can be merged.  However, a merge only ever happens between the
+>>> current request and the previous one.  It never happens between the
+>>> current request and any other request that might be in the queue (for
+>>> more than 50,000 requests examined).
+>>>                                                                                         
+>>>
+>>> This is true for several test runs, including "daily usage" and doing
+>>> two kernel compiles at the same time.  I have only tested on a
+>>> single-CPU machine.
+>>>                                                                                         
+>>>
+>>> I wonder if the code (and CPU time) used to search the entire request
+>>> queue is actually useful.  Would this be a reasonable candidate for 
+>>> code
+>>> elimination?
 >>
 >>
 >>
->>
->> I don't think that would do anything with 2.6 :P
+>> If you never get a hit, it means either (a) your test load actually 
+>> doesn't have one, or (b) the code isn't correctly finding them.
 >
 >
-> Does that imply that the feature doesn't function as documented in 
-> 2.6? Or is that a SysV-ism not in SuS and documented but not 
-> implemented, or what other reason would there be for it to not work?
+>
+> It might be buggy code on my part, but it looks pretty solid to me.   
+> I'd be happy to show anyone interested.
+> My load ought to find such a merge, if they happen with any freqency 
+> at all.  Compiling two kernels
+> at the same time and "general running" are my two current loads.  The 
+> disk queue gets to over 70
+> entries, which is rather high for a personal workstation, and I'm 
+> searching tens of thousands to accesses
+> in total.
+>
+> Does anyone know that this code is actualy useful?  Has anyone ever 
+> seen it actually do a merge of consecutive
+> data accesses for requests that were not issued themselves consequtively?
 >
 
-The first one. AFAIKS ulimit RSS doesn't do anything in the 2.6 vm.
+Yes it gets used.
 
-Rik has a fairly straightforward looking implementation in his 2.4 vm
-which probably wouldn't be too hard to forward port. It doesn't impose
-a hard limit on RSS though: I'm not sure what the standards say about that.
+I think its a lot more common with direct io and when you have lots of
+processes.
 
 

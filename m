@@ -1,144 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbTDID2Q (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 23:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbTDID2Q (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 23:28:16 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:9704 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262687AbTDID2N (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 23:28:13 -0400
-Message-ID: <32907.4.64.197.106.1049859540.squirrel@webmail.osdl.org>
-Date: Tue, 8 Apr 2003 20:39:00 -0700 (PDT)
-Subject: Re: readprofile: 0 total     nan (fwd)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <Shesha@asu.edu>
-In-Reply-To: <Pine.GSO.4.21.0304081836190.25278-100000@general3.asu.edu>
-References: <Pine.GSO.4.21.0304081836190.25278-100000@general3.asu.edu>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
-X-Mailer: SquirrelMail (version 1.2.11 [cvs])
+	id S262690AbTDIDgr (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 23:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbTDIDgr (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 23:36:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49071 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262690AbTDIDgq (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 23:36:46 -0400
+Message-ID: <3E9397FC.8050000@pobox.com>
+Date: Tue, 08 Apr 2003 23:48:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, hch@infradead.org,
+       Kai Germaschewski <kai.germaschewski@gmx.de>, sfr@canb.auug.org.au,
+       "Nemosoft Unv." <nemosoft@smcc.demon.nl>, davem@redhat.com
+Subject: Re: SET_MODULE_OWNER?
+References: <20030409032537.547E32C06F@lists.samba.org>
+In-Reply-To: <20030409032537.547E32C06F@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rusty Russell wrote:
+> In message <3E937144.9090105@pobox.com> you write:
+> 
+>>Why don't you just let the maintainers apply the driver "cleanups" if 
+>>they wish, or do not wish, like DaveM did.  Only when that is 
+>>accomplished is it reasonable to consider moving SET_MODULE_OWNER -- and 
+>>only then if other people do not need it's obvious utility.
+> 
+> 
+> The please define when it should and should not be used, so everyone
+> knows.
 
-We were seeing this problem occasionally at OSDL (but not on Xscale :).
-Is Xscale little or big endian?
-
-I suggest that you try the proposed patch or just run readprofile
-with the -n option.
-
-Did you try either of those yet?
-
-~Randy
+Use with structures that have an owner field, if you care about 
+cross-version kernel source compatibility.
 
 
-> Hello All
->
-> I am not very sure that it is readprofile application problem. I downloaded
-> readprofile source and I compiled it. It worked fine on x86 machine running
-> 2.4.7-10 kernel. I cross compiled it for xscale processor running 2.4.18 it
-> is not working.
->
-> Any Input?
->
->
-> On Tue, 8 Apr 2003, Andy Pfiffer wrote:
->
->> On Tue, 2003-04-08 at 15:41, Shesha@asu.edu wrote:
->> > I am running 2.4.18 kernel for ARM. I have one of the boot parameters
->> "profile=2". The size of the /proc/profile file is shown as 16MB. But
->> when I execute "readprofile" the output is ...
->> > 0 total                                         nan
->> >
->> > If I cat the file it just give me a ".". Can anyone suggest what i am
->> doing wrong?
->>
->> [ I swear I was just talking about this problem with someone else... ]
->>
->> 1. /proc/profile is a binary file.  cat won't show you anything
->> meaningful.
->>
->> 2. the 0 output by readprofile is a problem with the automatic
->> byte-order detection heuristic built into the code.  Try invoking
->> readprofile with the "-n" option, and see if your problem goes away.
->>
->> FYI: For those that might also run into this, the essence of the problem
->> is this piece of code in readprofile.c (fragmented for clarity):
->>
->> "optNative" is 0.
->> "buf" is an unsigned int *.
->>
->>
->> if (!optNative) {
->>         int entries = len/sizeof(*buf);
->>         int big = 0,small = 0,i;
->>         unsigned *p;
->>
->>         for (p = buf+1; p < buf+entries; p++)
->>                 if (*p) {
->>                         if (*p >= 1 << (sizeof.7-10 kernel. I cross
-compiled it for xscale processor running 2.4.18 it
-> is not working.
->
-> Any Input?
->
->
-> On Tue, 8 Apr 2003, Andy Pfiffer wrote:
->
->> On Tue, 2003-04-08 at 15:41, Shesha@asu.edu wrote:
->> > I am running 2.4.18 kernel for ARM. I have one of the boot parameters
->> "profile=2". The size of the /proc/profile file is shown as 16MB. But
->> when I execute "readprofile" the output is ...
->> > 0 total                                         nan
->> >
->> > If I cat the file it just give me a ".". Can anyone suggest what i am
->> doing wrong?
->>
->> [ I swear I was just talking about this problem with someone else... ]
->>
->> 1. /proc/profile is a binary file.  cat won't show you anything
->> meaningful.
->>
->> 2. the 0 output by readprofile is a problem with the automatic
->> byte-order detection heuristic built into the code.  Try invoking
->> readprofile with the "-n" option, and see if your problem goes away.
->>
->> FYI: For those that might also run into this, the essence of the problem
->> is this piece of code in readprofile.c (fragmented for clarity):
->>
->> "optNative" is 0.
->> "buf" is an unsigned int *.
->>
->>
->> if (!optNative) {
->>         int entries = len/sizeof(*buf);
->>         int big = 0,small = 0,i;
->>         unsigned *p;
->>
->>         for (p = buf+1; p < buf+entries; p++)
->>                 if (*p) {
->>                         if (*p >= 1 << (sizeof(*buf)/2)) big++;
->>                         else small++;
->>                 }
->>         if (big > small) {
->>                 fprintf(stderr,"Assuming reversed byte order. "
->>                    "Use -n to force native byte order.\n");
->>                 <snipped>
->>                 .
->>                 .
->>                 .
->>         }
->> }
->>
->> Based on my read of the code, "big" will be incremented if *p >= 4,
->> otherwise "small" will be incremented.  I can't see how this would ever
->> detect the byte order...
->>
->> Werner proposed this as a solution, but it could still fail to correctly
->> detect the byteorder (although with much less frequency):
+> Currently it seems to be:
+> 
+> /* This macro should be used on structures which had the owner field
+>    added between 2.2 and 2.4, and not others. */
+> 
+> Is that correct?
+
+No.  SET_MODULE_OWNER is useful regardless of kernel version, not just 
+the restrictive set you define here.  Different vendors may implement 
+SET_MODULE_OWNER with a different range of kernel versions, if they so 
+choose. It's not restricted at all to when struct net_device gained an 
+'owner' field.
+
+Maybe think of it this way:  a source code hook whose implementation is 
+free to change, as long as it functionally produces the desired result. 
+    The in-kernel definition of the macro is only one of N implementations.
+
+	Jeff
 
 
 

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285062AbSADWUP>; Fri, 4 Jan 2002 17:20:15 -0500
+	id <S285654AbSADWWp>; Fri, 4 Jan 2002 17:22:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285074AbSADWUF>; Fri, 4 Jan 2002 17:20:05 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59397 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285062AbSADWTt>; Fri, 4 Jan 2002 17:19:49 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: LSB1.1: /proc/cpuinfo
-Date: 4 Jan 2002 14:19:29 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a159ph$o5n$1@cesium.transmeta.com>
-In-Reply-To: <20020104080358.A11215@thyrsus.com> <E16MXjm-0004jo-00@the-village.bc.nu> <20020104234438.G1331@niksula.cs.hut.fi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S285666AbSADWWg>; Fri, 4 Jan 2002 17:22:36 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:1790 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S285498AbSADWWV>;
+	Fri, 4 Jan 2002 17:22:21 -0500
+Date: Fri, 4 Jan 2002 15:20:56 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Andries.Brouwer@cwi.nl
+Cc: phillips@bonn-fries.net, acme@conectiva.com.br, ion@cs.columbia.edu,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
+Message-ID: <20020104152056.Z12868@lynx.no>
+Mail-Followup-To: Andries.Brouwer@cwi.nl, phillips@bonn-fries.net,
+	acme@conectiva.com.br, ion@cs.columbia.edu,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200201041516.PAA224847.aeb@cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <UTC200201041516.PAA224847.aeb@cwi.nl>; from Andries.Brouwer@cwi.nl on Fri, Jan 04, 2002 at 03:16:32PM +0000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020104234438.G1331@niksula.cs.hut.fi>
-By author:    Ville Herva <vherva@niksula.hut.fi>
-In newsgroup: linux.dev.kernel
-> > 
-> > Nobody I am aware of uses 64bit int default types on a 64bit platform.  Its
-> > a waste of memory, bus bandwidth and instruction bandwidth. In almost
-> > all cases a 32bit int is quite adequate and since size_t can be 64bit when
-> > int is 32bit life works out nicely.
+On Jan 04, 2002  15:16 +0000, Andries.Brouwer@cwi.nl wrote:
+>     sizeof (foo): 1611, sizeof(foo): 19364 => -bs should be removed
+>
+>     int
+>     foo(int x): 11408, int foo(int x): 57275 => -psl should be removed
 > 
-> I *think* long is 32 bit on Windows XP 64bit, though. I imagine they went
-> with this hack to ensure backward compability or something. Can't tell for
-> sure since the IA64 box lying around hasn't got a bootable Windows on it
-> yet, just linux :).
-> 
-> http://msdn.microsoft.com/library/en-us/win64/64bitwin_4d0z.asp?frame=true
-> 
+> I do not think good style is best defined by majority vote.
 
-Yes, 'doze uses int == long == 32 bits, long long == void * == 64
-bits.  This is because the 'doze API has a bunch of really bogus
-assumptions hard-coded in it, back from the days when "portable" in
-the M$ world meant "don't use int; use `short' for 16 bits and `long'
-for 32 bits."
+Certainly not.  However, the Lindent style I'm trying to achieve is that
+dictated by Linus.  However, CodingStyle doesn't give all of the details
+of how code should be formatted, so I have to look at the code to see
+what is actually there.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+>     (void *) foo: 11274, (void *)foo: 17062 => -ncs should be added
+> 
+> Read old kernel sources.
+> 
+>         de = (struct minix_dir_entry *) (offset + bh->b_data);
+> 
+> 	:"S" ((long) name),"D" ((long) buffer),"c" (len)
+> 
+> 	if (32 != sizeof (struct minix_inode))
+
+Well, that's what I was trying to do when I found out that lksr.org
+(hosted by innominate.de) was not available.  It seems the -ncs
+change is incorrect then (although my preference is to add it - there
+doesn't seem to me to be any benefit of having the extra space).
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

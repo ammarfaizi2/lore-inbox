@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVCWAKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVCWATo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262507AbVCWAKe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 19:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbVCWAKe
+	id S262565AbVCWATo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 19:19:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbVCWATo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 19:10:34 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:19642 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262507AbVCWAJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 19:09:21 -0500
-Date: Tue, 22 Mar 2005 18:07:44 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Invalidating dentries
-In-reply-to: <3Kxue-6D8-35@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4240B350.90606@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3Kx1c-6iK-37@gated-at.bofh.it> <3Kxue-6D8-35@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Tue, 22 Mar 2005 19:19:44 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:31123 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262565AbVCWATm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 19:19:42 -0500
+Message-ID: <4240B61A.9070909@yahoo.com.au>
+Date: Wed, 23 Mar 2005 11:19:38 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: hugh@veritas.com, akpm@osdl.org, tony.luck@intel.com,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
+References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>	<20050322034053.311b10e6.akpm@osdl.org>	<Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>	<20050322110144.3a3002d9.davem@davemloft.net>	<20050322112125.0330c4ee.davem@davemloft.net>	<20050322112329.70bde057.davem@davemloft.net>	<Pine.LNX.4.61.0503221931150.9348@goblin.wat.veritas.com>	<20050322123301.090cbfa6.davem@davemloft.net>	<Pine.LNX.4.61.0503222142280.9761@goblin.wat.veritas.com>	<4240AAFA.1040206@yahoo.com.au> <20050322154459.7afb4f4f.davem@davemloft.net>
+In-Reply-To: <20050322154459.7afb4f4f.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
-> On Mon, 21 Mar 2005, Jan Engelhardt wrote:
+David S. Miller wrote:
+> On Wed, 23 Mar 2005 10:32:10 +1100
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
->> Hello list,
->>
->>
->> how can I invalidate all buffered/cached dentries so that ls -l 
->> /somefolder
->> will definitely go read the harddisk?
->>
 > 
-> fsync() on the file(s) in the directory then fsync() on the directory
-> itself. For this, one can open the directory as though it was
-> just a file, you don't need opendir().
+>>I think David's on the right track - I think there's something a
+>>bit wrong at the top. In my reply to Andrew in this thread I
+>>posted a patch which may at least get things working...
+> 
+> 
+> We have to do the "if (ceiling)" check in every spot where
+> we mask it in some way, and if it falls to zero from non-zero
+> due to the masking, we skip.
+> 
+> That gives me a mostly working kernel.
+> 
 
-I don't think this is what they want, it sounds like they want to 
-effectively clear the read cache for the file system. I'm not sure 
-there's an easy way to do that other than maybe umounting and mounting 
-the file system again..
+I see. Tricky.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+> Bad news is that while lat_proc's fork and exec tests improve
+> dramatically, shell performance is way down on sparc64.
+> I'll post before and after numbers in a bit.  Note, this is
+> just with Hugh's base patch plus bug fixes.
+> 
 
+That's interesting. The only "extra" stuff Hugh's should be
+doing is the vma traversal.
+
+The single walk patch seems to fit in quite well with Hugh's
+updated patchset. I haven't quite worked out how to best do
+hugepages, but it is easily possible. But I won't dust that
+off again until Hugh's is nicely tested and working.
 

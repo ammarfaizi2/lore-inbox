@@ -1,129 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266749AbTBCPuP>; Mon, 3 Feb 2003 10:50:15 -0500
+	id <S266622AbTBCPsq>; Mon, 3 Feb 2003 10:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266765AbTBCPuP>; Mon, 3 Feb 2003 10:50:15 -0500
-Received: from [205.205.44.10] ([205.205.44.10]:26890 "EHLO
-	sembo111.teknor.com") by vger.kernel.org with ESMTP
-	id <S266749AbTBCPuJ> convert rfc822-to-8bit; Mon, 3 Feb 2003 10:50:09 -0500
-Message-ID: <5009AD9521A8D41198EE00805F85F18F219C27@sembo111.teknor.com>
-From: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
-To: high-res-timers-discourse@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Unexpected lock during "Calibrating delay loop" and  failure 
-	to compile without "HighRes"
-Date: Mon, 3 Feb 2003 10:59:40 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S266638AbTBCPsp>; Mon, 3 Feb 2003 10:48:45 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:59144 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266622AbTBCPsp>; Mon, 3 Feb 2003 10:48:45 -0500
+Date: Mon, 3 Feb 2003 15:58:16 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] s390 fixes (10/12).
+Message-ID: <20030203155816.A14858@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <200302031550.23872.schwidefsky@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200302031550.23872.schwidefsky@de.ibm.com>; from schwidefsky@de.ibm.com on Mon, Feb 03, 2003 at 03:50:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 03, 2003 at 03:50:23PM +0100, Martin Schwidefsky wrote:
+> updates for s390 scsi support
 
-Compilation with high-res turned off:
+Hmm, I can't find a single s390 scsi driver in the tree..
 
-
-add #define do_gettimeoffset() do_slow_gettimeoffset()  at line 283 in
-arch/i386/kernel/time.c
-
-their was a 
-"static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;"
-instead of the #define found for other configuration
-
-at line 875
-
-#ifndef do_gettimeoffset
-			do_gettimeoffset = do_fast_gettimeoffset;
-#endif
-
-would be compiled even when the CONFIG_X86_TSC is off.
-
-
-> -----Original Message-----
-> From: Isabelle, Francois [mailto:Francois.Isabelle@ca.kontron.com]
-> Sent: 3 février, 2003 10:07
-> To: Isabelle, Francois; 
-> high-res-timers-discourse@lists.sourceforge.net
-> Cc: linux-kernel@vger.kernel.org
-> Subject: RE: Errata : Unexpected lock during "Calibrating delay loop"
-> and failure to co mpile without "HighRes"
-> 
-> 
-> Please Read: 
->  to build withOUT High-Res, the kernel won't build
-> 
-> > -----Original Message-----
-> > From: Isabelle, Francois [mailto:Francois.Isabelle@ca.kontron.com]
-> > Sent: 3 février, 2003 09:47
-> > To: high-res-timers-discourse@lists.sourceforge.net
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Unexpected lock during "Calibrating delay loop" and 
-> > failure to
-> > co mpile without "HighRes"
-> > 
-> > 
-> > Hi,
-> >     I'm trying to integrate some tools on a 486-powered cpu 
-> > board, I don't
-> > really need "High Resolution Timers", but one of the tools 
-> > would really make
-> > good use of the POSIX API you implemented. I've patch kernel 
-> > 2.4.20 with the
-> > latest 2.4.20-1.0 hrtimers.
-> > 
-> > Here comes the trouble.
-> > 
-> > - Trying to build with High-Res, the kernel won't build
-> > 
-> > time.c: In function `time_init':
-> > time.c:873: `do_fast_gettimeoffset' undeclared (first use in 
-> > this function)
-> > time.c:873: (Each undeclared identifier is reported only once
-> > time.c:873: for each function it appears in.)
-> > make[1]: *** [time.o] Error 1
-> > make[1]: Leaving directory `/usr/src/linux-2.4.20/arch/i386/kernel'
-> > make: *** [_dir_arch/i386/kernel] Error 2
-> > 
-> > seems like it should try to link "do_slow_gettimeoffset" 
-> > instead since 486
-> > does not handle TSC, (I'll have to check that..)
-> > 
-> > 
-> > - Trying to boot with "PIT-based" high-res support, the 
-> > kernel lock during
-> > calibration "Calibrating delay loop".
-> > 	Same occurs with IOAPIC and TSC ... 
-> > 
-> > 
-> > If you have any hint, I'll be glad to hear it.
-> > 
-> > Thanks
-> > 
-> > 
-> > Frank
-> > 
-> > 
-> > 
-> > -------------------------------------------------------
-> > This SF.NET email is sponsored by:
-> > SourceForge Enterprise Edition + IBM + LinuxWorld = Something 2 See!
-> > http://www.vasoftware.com
-> > to unsubscribe: 
-> http://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
-> High-res-timers-discourse mailing list
-> High-res-timers-discourse@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
-> 
-> 
-> -------------------------------------------------------
-> This SF.NET email is sponsored by:
-> SourceForge Enterprise Edition + IBM + LinuxWorld = Something 2 See!
-> http://www.vasoftware.com
-> to unsubscribe: 
-> http://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
-> High-res-timers-discourse mailing list
-> High-res-timers-discourse@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
-> 

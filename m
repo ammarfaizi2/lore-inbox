@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291876AbSBHWN2>; Fri, 8 Feb 2002 17:13:28 -0500
+	id <S291878AbSBHWSI>; Fri, 8 Feb 2002 17:18:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291878AbSBHWNS>; Fri, 8 Feb 2002 17:13:18 -0500
-Received: from dialin-145-254-136-157.arcor-ip.net ([145.254.136.157]:3076
-	"EHLO dale.home") by vger.kernel.org with ESMTP id <S291876AbSBHWNI>;
-	Fri, 8 Feb 2002 17:13:08 -0500
-Date: Fri, 8 Feb 2002 23:13:05 +0100
-From: Alex Riesen <fork0@users.sourceforge.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18-pre8-K2: Kernel panic: CPU context corrupt
-Message-ID: <20020208231305.B13545@steel>
-Reply-To: Alex Riesen <fork0@users.sourceforge.net>
-In-Reply-To: <20020208001831.A200@steel> <20020208003653.A28235@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020208003653.A28235@suse.de>
-User-Agent: Mutt/1.3.23i
+	id <S291880AbSBHWSB>; Fri, 8 Feb 2002 17:18:01 -0500
+Received: from illiter.at ([63.113.167.61]:27357 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id <S291878AbSBHWRw>;
+	Fri, 8 Feb 2002 17:17:52 -0500
+To: "Darren Smith" <data@barrysworld.com>
+Cc: "'Aaron Sethman'" <androsyn@ratbox.org>,
+        "'Andrew Morton'" <akpm@zip.com.au>, "'Dan Kegel'" <dank@kegel.com>,
+        "'Vincent Sweeney'" <v.sweeney@barrysworld.com>,
+        <linux-kernel@vger.kernel.org>, <coder-com@undernet.org>,
+        "'Kevin L. Mitchell'" <klmitch@mit.edu>
+Subject: Re: [Coder-Com] Re: PROBLEM: high system usage / poor SMP network performance
+In-Reply-To: <000001c1ada7$5ad5cfb0$5c5a1e3e@wilma>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 08 Feb 2002 17:11:38 -0500
+In-Reply-To: <000001c1ada7$5ad5cfb0$5c5a1e3e@wilma>
+Message-ID: <nnn0yjaajp.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 12:36:53AM +0100, Dave Jones wrote:
-> On Fri, Feb 08, 2002 at 12:18:31AM +0100, Alex Riesen wrote:
->  
->  > Feb  7 23:45:31 steel kernel: CPU 0: Machine Check Exception: 0000000000000004
->  > Feb  7 23:45:31 steel kernel: Bank 4: b200000000040151
->  > Feb  7 23:45:31 steel kernel: Kernel panic: CPU context corrupt
+"Darren Smith" <data@barrysworld.com> writes:
+
+> I mean I added a usleep() before the poll in s_bsd.c for the undernet
+> 2.10.10 code.
 > 
->  Machine checks are indicative of hardware fault.
->  Overclocking, inadequate cooling and bad memory are the usual causes.
-
-no overclocking, memtest passed (1 pass, 1 hour), native intel cooler.
-Space radiation, maybe 8)
-
-
->  > P.S. no nasty suspections about processor, please. No funds reserved
->  > for a new one :)
+>  timeout = (IRCD_MIN(delay2, delay)) * 1000;
+>  + usleep(100000); <- New Line
+>  nfds = poll(poll_fds, pfd_count, timeout);
 > 
->  The truth hurts 8(
+> And now we're using 1/8th the cpu! With no noticeable effects.
 
-oh dear...
+ Note that something else you want to do is call poll() with a 0
+timeout first (and if that doesn't return anything call again with the
+timeout), this removes all the wait queue manipulation inside the
+kernel when something is ready (most of the time).
 
-> 
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
+-- 
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

@@ -1,78 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263174AbTCLN0k>; Wed, 12 Mar 2003 08:26:40 -0500
+	id <S263176AbTCLNd3>; Wed, 12 Mar 2003 08:33:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263175AbTCLN0k>; Wed, 12 Mar 2003 08:26:40 -0500
-Received: from mail.gmx.net ([213.165.64.20]:57171 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263174AbTCLN0j> convert rfc822-to-8bit;
-	Wed, 12 Mar 2003 08:26:39 -0500
+	id <S263177AbTCLNd3>; Wed, 12 Mar 2003 08:33:29 -0500
+Received: from mx01.nexgo.de ([151.189.8.96]:48514 "EHLO mx01.nexgo.de")
+	by vger.kernel.org with ESMTP id <S263176AbTCLNd2>;
+	Wed, 12 Mar 2003 08:33:28 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Torsten Foertsch <torsten.foertsch@gmx.net>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [2.4.19] How to get the path name of a struct dentry
-Date: Wed, 12 Mar 2003 14:32:47 +0100
-User-Agent: KMail/1.4.3
+From: Daniel Phillips <phillips@arcor.de>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Zack Brown <zbrown@tumblerings.org>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Date: Wed, 12 Mar 2003 14:48:03 +0100
+X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
-References: <200303121033.08560.torsten.foertsch@gmx.net> <20030312104741.A9625@infradead.org> <200303121404.04979.torsten.foertsch@gmx.net>
-In-Reply-To: <200303121404.04979.torsten.foertsch@gmx.net>
+References: <200303120544.h2C5ibMY008372@eeyore.valparaiso.cl>
+In-Reply-To: <200303120544.h2C5ibMY008372@eeyore.valparaiso.cl>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200303121432.51329.torsten.foertsch@gmx.net>
+Message-Id: <20030312134412.4232B40CE0@mx01.nexgo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed 12 Mar 03 06:44, Horst von Brand wrote:
+> There is no universal "before" and "after", even within one repository;
 
-On Wednesday 12 March 2003 14:04, Torsten Foertsch wrote:
-> On Wednesday 12 March 2003 11:47, Christoph Hellwig wrote:
-> > On Wed, Mar 12, 2003 at 11:38:27AM +0100, Torsten Foertsch wrote:
-> > > Next question, is there a way to get the dentry and vfsmount of /? I
-> > > mean not current->fs->root and current->fs->rootmnt. They can be
-> > > chrooted. I mean the real /.
-> >
-> > No.  Esecially as there is not single "real" root.
->
-> How about that slightly modified d_path()?
->
-> char*
-> full_d_path( struct dentry *dentry,
-> 	     struct vfsmount *vfsmnt,
-> 	     char *buf, int buflen ) {
-...
-> }
+Sure there is, e.g., by incrementing master transaction number on the 
+repository database.
 
-or even simpler
+> there might be changes that can't be ordered. I.e., changes to files foo
+> and bar are independent, and might have happened in any order for the same
+> result. Same for all non-overlapping changes.
 
-char*
-full_d_path( struct dentry *dentry,
-	     struct vfsmount *vfsmnt,
-	     char *buf, int buflen ) {
-  char *res;
-  struct vfsmount *rootmnt;
-  struct dentry *root;
-  struct namespace *ns;
+I think what you're saying is that the repository may be ordered in more than 
+one way at the same time.  Transaction serial number is just one way.  
+Whatever else is recorded in the repository, at least there ought to be a 
+serial number on every transaction, a simple unstructured counter.  With just 
+this serial number you already have a way to roll back the entire repository 
+to any point in the past, provided all repository transactions are reversible.
 
-  ns=current->namespace;
-/*   get_namespace( ns ); */
-  rootmnt=mntget( ns->root );
-/*   put_namespace( ns ); */
+For dependencies between changes, rather than any fixed ordering, it's better 
+to record the actual precedence information, i.e., "a before b", where a and 
+b are id numbers of changes (I think everybody agrees changes are first class 
+objects).  These precedence relations can be determined automatically: if two 
+changes do not occur in the same file, there is no certainly no precedence 
+relation.  If two changes overlap the same text, then there is a precedence 
+relation.  If two changes do not overlap, there may or may not be a 
+precedence relation, depending on whether the changes are exact deltas or 
+deltas-with-context, and if the latter, whether the context is unambiguous.
 
-  root = dget(rootmnt->mnt_root);
+Once you have the precedence relations, there are all kinds of useful things 
+you can do with them.
 
-  spin_lock(&dcache_lock);
-  res = __d_path(dentry, vfsmnt, root, rootmnt, buf, buflen);
-  spin_unlock(&dcache_lock);
+Regards,
 
-  dput(root);
-  mntput(rootmnt);
-  return res;
-}
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+bzcDwicyCTir8T4RAju7AJ4lP23Mzp+GVJHQP7XqHhNNLV9qIACdF2cO
-GZVG8UuSq4UwOLxA2za4W8g=
-=wCJb
------END PGP SIGNATURE-----
+Daniel

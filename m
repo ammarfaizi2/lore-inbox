@@ -1,44 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267429AbUH1J6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267421AbUH1JyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267429AbUH1J6F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 05:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267403AbUH1J5f
+	id S267421AbUH1JyL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 05:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267399AbUH1JwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 05:57:35 -0400
-Received: from holomorphy.com ([207.189.100.168]:40613 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267429AbUH1Jvl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 05:51:41 -0400
-Date: Sat, 28 Aug 2004 02:51:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: oleg@tv-sign.ru, linux-kernel@vger.kernel.org
-Subject: Re: [2/4] consolidate bit waiting code patterns
-Message-ID: <20040828095134.GN5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, oleg@tv-sign.ru,
-	linux-kernel@vger.kernel.org
-References: <20040826014745.225d7a2c.akpm@osdl.org> <20040828052627.GA2793@holomorphy.com> <20040828053112.GB2793@holomorphy.com> <20040827231713.212245c5.akpm@osdl.org> <20040828063419.GA5492@holomorphy.com> <20040827234033.2b6e1525.akpm@osdl.org> <20040828064829.GB5492@holomorphy.com> <20040828092040.GH5492@holomorphy.com> <20040828092210.GJ5492@holomorphy.com> <20040828023909.5eac6b2d.akpm@osdl.org>
-Mime-Version: 1.0
+	Sat, 28 Aug 2004 05:52:14 -0400
+Received: from anubis.medic.chalmers.se ([129.16.30.218]:62196 "EHLO
+	anubis.medic.chalmers.se") by vger.kernel.org with ESMTP
+	id S267411AbUH1Jqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 05:46:32 -0400
+Message-ID: <413054AE.98FCE658@fy.chalmers.se>
+Date: Sat, 28 Aug 2004 11:47:26 +0200
+From: Andy Polyakov <appro@fy.chalmers.se>
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,sv,ru
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: [PATCH] ide-cd.c to mount multi-session DVD
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040828023909.5eac6b2d.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> --- mm1-2.6.9-rc1.orig/kernel/fork.c	2004-08-28 01:20:04.105925320 -0700
->>  +++ mm1-2.6.9-rc1/kernel/fork.c	2004-08-28 01:23:00.542102944 -0700
+With respect to http://marc.theaimsgroup.com/?l=linux-kernel&m=108827602322464&w=2
+I'd like to nominate the attached patch. And while we're on ide-cd.c
+track I also wonder why has dma alignment requirement been hardened?
 
-On Sat, Aug 28, 2004 at 02:39:09AM -0700, Andrew Morton wrote:
-> Sorry, but I think we might as well dtrt here and move all this waity code
-> into kernel/wait.c - it's silly keeping it in fork.c.
-> And logically, that should be patch #1 of N.
+-	blk_queue_dma_alignment(drive->queue, 3);
++	blk_queue_dma_alignment(drive->queue, 31);
 
-Okay, that and the test_bit() before calling bit_waitqueue() will take
-a few minutes to do.
+I can find requirement for minimal lenght reasonable, but who aligns
+pointers at 32 byte boundary? Cheers. A.
 
-
--- wli
+8<-------8<-------8<-------8<-------8<-------8<-------8<-------8<-------
+--- ./drivers/ide/ide-cd.c.orig	Tue Aug 24 18:54:42 2004
++++ ./drivers/ide/ide-cd.c	Fri Aug 27 20:31:27 2004
+@@ -2356,26 +2356,32 @@
+ 	/* Read the multisession information. */
+ 	if (toc->hdr.first_track != CDROM_LEADOUT) {
+ 		/* Read the multisession information. */
+-		stat = cdrom_read_tocentry(drive, 0, 1, 1, (char *)&ms_tmp,
++		int ask_for_msf=0;
++#if ! STANDARD_ATAPI
++		if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd)
++			ask_for_msf=1;
++#endif
++		stat = cdrom_read_tocentry(drive, 0, ask_for_msf, 1,
++					   (char *)&ms_tmp,
+ 					   sizeof(ms_tmp), sense);
+ 		if (stat) return stat;
+ 	} else {
+-		ms_tmp.ent.addr.msf.minute = 0;
+-		ms_tmp.ent.addr.msf.second = 2;
+-		ms_tmp.ent.addr.msf.frame  = 0;
++		ms_tmp.ent.addr.lba = 0;
+ 		ms_tmp.hdr.first_track = ms_tmp.hdr.last_track = CDROM_LEADOUT;
+ 	}
+ 
++	toc->last_session_lba = be32_to_cpu(ms_tmp.ent.addr.lba);
++	toc->xa_flag = (ms_tmp.hdr.first_track != ms_tmp.hdr.last_track);
++
+ #if ! STANDARD_ATAPI
+-	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd)
++	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd
++	    && toc->hdr.first_track != CDROM_LEADOUT) {
+ 		msf_from_bcd (&ms_tmp.ent.addr.msf);
++		toc->last_session_lba = msf_to_lba (ms_tmp.ent.addr.msf.minute,
++						    ms_tmp.ent.addr.msf.second,
++						    ms_tmp.ent.addr.msf.frame);
++	}
+ #endif  /* not STANDARD_ATAPI */
+-
+-	toc->last_session_lba = msf_to_lba (ms_tmp.ent.addr.msf.minute,
+-					    ms_tmp.ent.addr.msf.second,
+-					    ms_tmp.ent.addr.msf.frame);
+-
+-	toc->xa_flag = (ms_tmp.hdr.first_track != ms_tmp.hdr.last_track);
+ 
+ 	/* Now try to get the total cdrom capacity. */
+ 	stat = cdrom_get_last_written(cdi, &last_written);

@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263170AbUC2XYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 18:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUC2XYJ
+	id S263177AbUC2X3W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 18:29:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbUC2X3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 18:24:09 -0500
-Received: from dh132.citi.umich.edu ([141.211.133.132]:15490 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263170AbUC2XYH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 18:24:07 -0500
-Subject: Re: [patch] silence nfs mount messages
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Mon, 29 Mar 2004 18:29:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24706 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263177AbUC2X3V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 18:29:21 -0500
+Date: Mon, 29 Mar 2004 15:31:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: stern@rowland.harvard.edu, david-b@pacbell.net, viro@math.psu.edu,
+       maneesh@in.ibm.com, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20040329195435.GA19426@apps.cwi.nl>
-References: <UTC200403291900.i2TJ0sC14336.aeb@smtp.cwi.nl>
-	 <1080587480.2410.61.camel@lade.trondhjem.org>
-	 <20040329195435.GA19426@apps.cwi.nl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1080602653.2410.192.camel@lade.trondhjem.org>
+Subject: Re: Unregistering interfaces
+Message-Id: <20040329153117.558c3263.akpm@osdl.org>
+In-Reply-To: <20040329231604.GA29494@kroah.com>
+References: <20040328063711.GA6387@kroah.com>
+	<Pine.LNX.4.44L0.0403281057100.17150-100000@netrider.rowland.org>
+	<20040328123857.55f04527.akpm@osdl.org>
+	<20040329210219.GA16735@kroah.com>
+	<20040329132551.23e12144.akpm@osdl.org>
+	<20040329231604.GA29494@kroah.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 18:24:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På må , 29/03/2004 klokka 14:54, skreiv Andries Brouwer:
+Greg KH <greg@kroah.com> wrote:
+>
+> > The module should remain in memory, "unhashed", until the final kobject
+> > reference falls to zero.  Destruction of that kobject causes the refcount
+> > on the module to fall to zero which causes the entire module to be
+> > released.
+> > 
+> > (hmm, the existence of a kobject doesn't appear to contribute to its
+> > module's refcount.  Why not?)
+> 
+> It does, if a file for that kobject is opened.  In this case, there was
+> no file opened, so the module refcount isn't incremented.
 
-> The features that are being used are used by layers of software.
-> If there is information to be passed, it should be passed to
-> that software, not printed in a syslog.
-> It is not the kernel's job to set policy and have an opinion about user mode setup.
+hm, surprised.  Shouldn't the existence of a kobject contribute to its
+module's refcount?
 
-What do you mean "setting policy"? Your program is attempting to use an
-obsolete kernel ABI. Of course it should "have an opinion" about that...
+> > Maybe a shrink_dcache_parent(dentry) on entry to simple_rmdir() would
+> > suffice?
+> 
+> Will that get rid of the references properly nwhen we remove the
+> kobject?
 
-The issue is merely whether or not to issue an EINVAL, in order to force
-users to upgrade to an updated version of "mount":
-For 2.7.x, I'm rather of a mind to do just that in order to finally
-clean up the wretched struct nfs_mount and eliminate all the unused
-backward-compatibilty crap, but doing so in the middle of 2.6.x is not
-an option (particularly given that the SELinux mount changes came as
-late as they did).
-
-Cheers,
-  Trond
+That's one the dcache guys could address better, but I was mainly proposing
+it as a way of removing any negative dentries.  But it appears that we have
+problems beyond negative dentries?

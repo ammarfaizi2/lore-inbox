@@ -1,83 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318986AbSH1U0D>; Wed, 28 Aug 2002 16:26:03 -0400
+	id <S318980AbSH1U1E>; Wed, 28 Aug 2002 16:27:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318980AbSH1U0D>; Wed, 28 Aug 2002 16:26:03 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:40640 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S318986AbSH1UZy>; Wed, 28 Aug 2002 16:25:54 -0400
-Date: Wed, 28 Aug 2002 21:30:51 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Dave Jones <davej@suse.de>,
-       Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] M386 flush_one_tlb invlpg
-In-Reply-To: <Pine.LNX.4.44.0208271216440.1419-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208282059390.2079-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S318990AbSH1U1E>; Wed, 28 Aug 2002 16:27:04 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:54184 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318980AbSH1U0F>;
+	Wed, 28 Aug 2002 16:26:05 -0400
+Date: Wed, 28 Aug 2002 22:30:05 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.32 doesn't beep?
+Message-ID: <20020828223005.A21207@ucw.cz>
+References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <15724.51593.23255.339865@kim.it.uu.se> <20020828150522.A13090@ucw.cz> <15725.11451.335811.149069@kim.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15725.11451.335811.149069@kim.it.uu.se>; from mikpe@csd.uu.se on Wed, Aug 28, 2002 at 10:04:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Aug 2002, Linus Torvalds wrote:
+On Wed, Aug 28, 2002 at 10:04:11PM +0200, Mikael Pettersson wrote:
+> Vojtech Pavlik writes:
+>  > On Wed, Aug 28, 2002 at 03:00:56PM +0200, Mikael Pettersson wrote:
+>  > 
+>  > > Linus Torvalds 2.5.32 announcement:
+>  > >  > ... The input layer switch-over may also end up being a bit painful
+>  > >  > for a while, since that not only adds a lot of config options that you
+>  > >  > have to get right to have a working keyboard and mouse (we'll fix that
+>  > >  > usability nightmare), but the drivers themselves are different and there
+>  > >  > are likely devices out there that depended on various quirks.
+>  > > 
+>  > > I've noticed that in 2.5.32 with CONFIG_KEYBOARD_ATKBD=y, the kernel no
+>  > > longer beeps via the PC speaker. Both (at the console) hitting DEL or BS
+>  > > at the start of input or doing a simple echo ^G are now silent.
+>  > > 
+>  > > Call me old-fashioned, but I want those beeps back :-)
+>  > 
+>  > 2.5.32 still has quite complex input core config options - sorry, my
+>  > fault, and I'll fix it soon. You have to enable CONFIG_INPUT_MISC and
+>  > CONFIG_INPUT_PCSPKR.
 > 
-> This test is senseless, in my opinion:
+> That worked. Thanks.
 > 
-> > +		if (cpu_has_pge)					\
-> > +			__flush_tlb_single(addr);			\
-> 
-> The test _should_ be for something like
-> 
-> 	if (cpu_has_invlpg)
-> 		__flush_tlb_single(addr);
-> 
-> since we want to use the invlpg instruction regardless of any PGE issues 
+> Another issue: I enabled CONFIG_INPUT_MOUSEDEV_PSAUX, but /dev/psaux
+> gave an ENODEV when opened. Turns out CONFIG_INPUT_MOUSEDEV is
+> also required, but for some reason 'make config' let me set the
+> former without also setting the latter. A bug in input's config.in?
 
-New patch below defines cpu_has_invlpg as (boot_cpu_data.x86 > 3).
-But I do feel safer with that original cpu_has_pge test, which was
-using a decent capability flag, and only changed behaviour of the
-CONFIG_M386 __flush_tlb_one when it's necessary.
+Yes, a bug. Fixed now.
 
-Isn't CONFIG_M386 about maximum safe applicability, rather than speed?
-Am I imagining it, or were there a few i386 + i486 SMP machines built?
-Or might there be some i486 clone which didn't really implement invlpg,
-which could be used with a CONFIG_M386 kernel before this change,
-but not after?  But perhaps I'm just dreaming up excuses for my
-senselessness - your call.
-
-Hugh
-
-CONFIG_M386 kernel running on PPro+ processor with X86_FEATURE_PGE may
-set _PAGE_GLOBAL bit: then __flush_tlb_one must use invlpg instruction.
-
---- 2.5.32/include/asm-i386/tlbflush.h	Tue May 28 21:41:36 2002
-+++ linux/include/asm-i386/tlbflush.h	Wed Aug 28 20:48:44 2002
-@@ -45,11 +45,21 @@
- 			__flush_tlb();					\
- 	} while (0)
- 
--#ifndef CONFIG_X86_INVLPG
--#define __flush_tlb_one(addr) __flush_tlb()
-+#define cpu_has_invlpg	(boot_cpu_data.x86 > 3)
-+
-+#define __flush_tlb_single(addr) \
-+	__asm__ __volatile__("invlpg %0": :"m" (*(char *) addr))
-+
-+#ifdef CONFIG_X86_INVLPG
-+# define __flush_tlb_one(addr) __flush_tlb_single(addr)
- #else
--#define __flush_tlb_one(addr) \
--__asm__ __volatile__("invlpg %0": :"m" (*(char *) addr))
-+# define __flush_tlb_one(addr)						\
-+	do {								\
-+		if (cpu_has_invlpg)					\
-+			__flush_tlb_single(addr);			\
-+		else							\
-+			__flush_tlb();					\
-+	} while (0)
- #endif
- 
- /*
-
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,45 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269010AbUJQLmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269050AbUJQMIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269010AbUJQLmH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 07:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269103AbUJQLmG
+	id S269050AbUJQMIS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 08:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269102AbUJQMIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 07:42:06 -0400
-Received: from lennier.cc.vt.edu ([198.82.162.213]:31236 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S269010AbUJQLmE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 07:42:04 -0400
-Subject: Re: AMD64 Swsusp on 2.6.9-rc4-mm1
-From: William Wolf <wwolf@vt.edu>
-Reply-To: wwolf@vt.edu
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200410171224.14434.rjw@sisk.pl>
-References: <417188EA.4090205@vt.edu> <200410162252.33347.rjw@sisk.pl>
-	 <1100589554.7496.2.camel@Xnix>  <200410171224.14434.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Tue, 16 Nov 2004 12:43:00 -0600
-Message-Id: <1100630580.18017.4.camel@Xnix>
+	Sun, 17 Oct 2004 08:08:18 -0400
+Received: from admingilde.org ([213.95.21.5]:2265 "EHLO mail.admingilde.org")
+	by vger.kernel.org with ESMTP id S269050AbUJQMIP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 08:08:15 -0400
+Date: Sun, 17 Oct 2004 14:07:28 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       penguinppc-team@lists.penguinppc.org
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041017120728.GC10532@admingilde.org>
+Mail-Followup-To: Gerd Knorr <kraxel@bytesex.org>,
+	linux-fbdev-devel@lists.sourceforge.net,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	penguinppc-team@lists.penguinppc.org
+References: <416E6ADC.3007.294DF20D@localhost> <87d5zkqj8h.fsf@bytesex.org> <Pine.GSO.4.61.0410151437050.10040@waterleaf.sonytel.be> <87y8i8p1jq.fsf@bytesex.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uXxzq0nDebZQVNAZ"
+Content-Disposition: inline
+In-Reply-To: <87y8i8p1jq.fsf@bytesex.org>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.5.6+20040907i
+X-Hashcash: 0:041017:kraxel@bytesex.org:c2c57b235565f2ce
+X-Hashcash: 0:041017:penguinppc-team@lists.penguinppc.org:b4e7e57fb3618ca3
+X-Hashcash: 0:041017:linux-fbdev-devel@lists.sourceforge.net:11b9b3a8c0ae4578
+X-Hashcash: 0:041017:linux-kernel@vger.kernel.org:20f5bbafcd47a311
+X-Spam-Score: -11.1 (-----------)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-17 at 12:24 +0200, Rafael J. Wysocki wrote:
-> On Tuesday 16 of November 2004 08:19, William Wolf wrote:
-> > Is this supposedly something new in rc4-mm1?  I have been having the
-> > same problems since around 2.6.8.1, though i havent gone through every
-> > single -mm patch, i have tried at least one in every -rcx candidate, and
-> > they have all done this same thing.
-> 
-> This may be for another reason.  I generally test all of the -rc and -mm 
-> patches on an AMD64 box and apparently 2.6.9-rc4-mm1 is the first one that 
-> has the problem I was talking about.  AFAICT, the other kernels may fail in a 
-> similar way if memory is stuffed with something (eg after updatedb).
 
-Hmmm, ok, well I can boot into other -rcx-mmx kernels and get my output
-if that would help any. Usually when i test, i try it immediately after
-booting and logging into a console (no X running), so it would be tough
-for the memory to be stuffed.
+--uXxzq0nDebZQVNAZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+hi :)
+
+On Fri, Oct 15, 2004 at 03:13:13PM +0200, Gerd Knorr wrote:
+> You have a application running which uses the framebuffer device, then
+> suspend with that app running.  You'll have to restore the state of
+> the device _before_ restarting all the userspace proccesses, otherwise
+> the app will not be very happy.
+
+As long as the app only interfaces with the framebuffer device and not
+directly with the hardware it won't notice.
+The apps data will simply not show up on the screen until the
+usermode helper finishes.
+
+--=20
+Martin Waitz
+
+--uXxzq0nDebZQVNAZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBcmCAj/Eaxd/oD7IRApmhAJ45kTqnLsgLQHd8x9hUTFZmCxAHYwCggy7v
+Qh14l7v0bNmkxsgj9b2qazQ=
+=61cb
+-----END PGP SIGNATURE-----
+
+--uXxzq0nDebZQVNAZ--
 

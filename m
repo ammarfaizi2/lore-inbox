@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUIVOFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265477AbUIVOMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUIVOFT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 10:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUIVOFT
+	id S265477AbUIVOMp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 10:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUIVOMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 10:05:19 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:55685 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265395AbUIVOFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 10:05:14 -0400
-Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Martin Josefsson <gandalf@wlug.westbo.se>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Marc Ballarin <Ballarin.Marc@gmx.de>,
-       Linus Torvalds <torvalds@osdl.org>, netfilter-devel@lists.netfilter.org,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <m37jqmeby9.fsf@averell.firstfloor.org>
-References: <2GFBZ-61e-11@gated-at.bofh.it> <2GSfS-6eW-5@gated-at.bofh.it>
-	 <2H0ZO-49v-13@gated-at.bofh.it> <2HdDL-48z-53@gated-at.bofh.it>
-	 <2HdNp-4eJ-27@gated-at.bofh.it>  <m37jqmeby9.fsf@averell.firstfloor.org>
-Content-Type: text/plain
-Message-Id: <1095861889.17821.1337.camel@hades.cambridge.redhat.com>
+	Wed, 22 Sep 2004 10:12:45 -0400
+Received: from ns.schottelius.org ([213.146.113.242]:12928 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S265477AbUIVOMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 10:12:42 -0400
+Date: Wed, 22 Sep 2004 16:16:30 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: /sys: Network device status: link; Hard disks?
+Message-ID: <20040922141630.GE694@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Wed, 22 Sep 2004 15:04:50 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2qXFWqzzG3v1+95a"
+Content-Disposition: inline
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+Organization: http://nerd-hosting.net/
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.8.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-22 at 14:15 +0200, Andi Kleen wrote:
-> > Ever heard of iptables?
-> 
-> Except that it doesn't have usable 32bit emulation on x86-64.
-> 32bit userland on x86-64 kernel cannot use iptables, they have
-> to use ipchains.
-> 
-> I would ask for to not drop ipchains until this is fixed.
 
-Agreed. The iptables compatibility with 32-bit userspace is completely
-broken.
+--2qXFWqzzG3v1+95a
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-dwmw2
+Hello everybody!
 
+Will /sys provide details about link status of network cards
+and can I also find out what devices are harddisks?
+
+Like having /sys/block/hda/type, which contains "cd-rom" or
+"harddisk" or similar.=20
+
+Or having something like /sys/class/net/eth0/link with 0/1 setting?
+
+I know some or all information can be retrieved somehow differnt
+(like using /proc), but shouldn't those be found in /sys?
+
+Just some question on how we can use /sys useful.
+
+Greetings,
+
+Nico
+
+PS: Please CC, I am not subscribed.
+
+--2qXFWqzzG3v1+95a
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQIVAwUBQVGJPLOTBMvCUbrlAQJG7Q/+PZ0lcLQxHjmT/HB5wiwL2ulbLLw7lUo6
+LTdRFY7OLd7RlB3MTvPNU23rye7fW7v19TUzRzen67Ti3qOrpL4K9fpBxOEsCY3n
+Nisnr3qNcVrCaMkvitDHapNicgurRt39JCJ2cKL/oih12n9T3+Ba3Vu9Mo2oxOGw
+tfeNfzwptSv4fULX8I3otK0t96wurSX9FolPqucs+jidIzSiUAiJirQnkBro/Gio
+jmtpC/uXWDjPYJ4thUEfj4jyGTIfIb9C4DrwgA4ggkF52TZkZo0sSft+RHZ+SCVs
+OCuwfUhPmIChNbXcSa6sG2fsDp2+U1GQvifG9AXzbsvWr86d+E0iiMmFrXZ2oMIt
+vQhljy8bSYhoPVXA1nr4eZFPsTr1fQ0AGUBBznZ2xTAwPhqLIdIgWKU0nojSQB1G
+J9I8cTADOfjig1O4KhXIr1+G2lhplFwozCQTiwqYaP7pLftkWLITDyr90rfI3OtR
+UHdPogokpLxwmNBG+zrE0OuKNkWgUoDMK2ej9UZeHgNvycRcIyixecI6mSSfv8Ax
+sRBriqq9LYrafdWQABykIwCzffYflQm3E9t3uL8+Gcsp7ELk4d4tzoQFSt92XNgK
+Ojz5QRus+SyUDqeNCwI4uhCvbMudGN4JRvzDAjo0gqrmBKgKb3WtDVvxQJFL4Kq9
+DLI1GXAY9Rg=
+=wk3o
+-----END PGP SIGNATURE-----
+
+--2qXFWqzzG3v1+95a--

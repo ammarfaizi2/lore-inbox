@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUJSEPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUJSEou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267926AbUJSEPd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 00:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267928AbUJSEPd
+	id S267921AbUJSEou (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 00:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267939AbUJSEot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 00:15:33 -0400
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:59512 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267926AbUJSEPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 00:15:31 -0400
+	Tue, 19 Oct 2004 00:44:49 -0400
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:50809 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267921AbUJSElQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 00:41:16 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Weird... 2.6.9 kills FC2 gcc
-Date: Mon, 18 Oct 2004 23:15:27 -0500
+Subject: Re: [BK PATCH] SCSI updates for 2.6.9
+Date: Mon, 18 Oct 2004 23:41:13 -0500
 User-Agent: KMail/1.6.2
-Cc: Jeff Garzik <jgarzik@pobox.com>, Mark Haverkamp <markh@osdl.org>
-References: <4174697B.90306@pobox.com> <41747A28.2000101@pobox.com> <41748A9D.2080306@pobox.com>
-In-Reply-To: <41748A9D.2080306@pobox.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, willy@debian.org,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
+References: <1098137016.2011.339.camel@mulgrave>
+In-Reply-To: <1098137016.2011.339.camel@mulgrave>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410182315.27807.dtor_core@ameritech.net>
+Message-Id: <200410182341.13648.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 October 2004 10:31 pm, Jeff Garzik wrote:
-> 
-> More data points:
-> 
-> No problems at all on x86-64.
-> 
-> No ICE on 32-bit x86 gcc 3.4.2, with 2.6.9 release kernel.
-> 
-> So this ICE appears to be a bug specific to 3.3.x or perhaps Fedora.
-> 
-> 	Jeff
-> 
+On Monday 18 October 2004 05:03 pm, James Bottomley wrote:
 
-For what it worth this is on mutated RH 8.0:
+> Matthew Wilcox:
+>   o Add SPI-5 constants to scsi.h
 
-[dtor@core dtor]$ make
-  CHK     include/linux/version.h
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/asm-i386/asm_offsets.h
-  CHK     include/linux/compile.h
-  AS      arch/i386/kernel/vsyscall.o
-include/linux/compiler.h:20: warning: parameter name starts with a digit in #define
-include/linux/compiler.h:20: badly punctuated parameter list in #define
-make[1]: *** [arch/i386/kernel/vsyscall.o] Error 1
-make: *** [arch/i386/kernel] Error 2
-[dtor@core dtor]$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/specs
-Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-threads=posix --disable-checking --with-system-zlib --enable-__cxa_atexit --host=i386-redhat-linux
-Thread model: posix
-gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+This breaks Firewire SBP2 build:
 
+  CC [M]  drivers/ieee1394/sbp2.o
+In file included from drivers/ieee1394/sbp2.c:78:
+drivers/ieee1394/sbp2.h:61:1: warning: "ABORT_TASK_SET" redefined
+In file included from drivers/scsi/scsi.h:31,
+                 from drivers/ieee1394/sbp2.c:67:
+include/scsi/scsi.h:255:1: warning: this is the location of the previous definition
+In file included from drivers/ieee1394/sbp2.c:78:
+drivers/ieee1394/sbp2.h:62:1: warning: "LOGICAL_UNIT_RESET" redefined
+In file included from drivers/scsi/scsi.h:31,
+                 from drivers/ieee1394/sbp2.c:67:
+include/scsi/scsi.h:267:1: warning: this is the location of the previous definition
+
+It looks like firewire has its own set of commands with conflicting names.
+Who should win?
 
 -- 
 Dmitry

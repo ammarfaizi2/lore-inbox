@@ -1,130 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290288AbSAOVhk>; Tue, 15 Jan 2002 16:37:40 -0500
+	id <S290289AbSAOVjK>; Tue, 15 Jan 2002 16:39:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290289AbSAOVhX>; Tue, 15 Jan 2002 16:37:23 -0500
-Received: from 203-79-66-98.adsl-wns.paradise.net.nz ([203.79.66.98]:24194
-	"HELO volcano.kiwa.co.nz") by vger.kernel.org with SMTP
-	id <S290288AbSAOVhG>; Tue, 15 Jan 2002 16:37:06 -0500
-Date: Wed, 16 Jan 2002 10:37:03 +1300
-From: Nicholas Lee <nj.lee@plumtree.co.nz>
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disk corruption - Abit KT7, 2.2.19+ide patches
-Message-ID: <20020115213703.GD598@inktiger.kiwa.co.nz>
-Mail-Followup-To: Nicholas Lee <nj.lee@plumtree.co.nz>,
-	Ville Herva <vherva@niksula.hut.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020115202302.GA598@inktiger.kiwa.co.nz> <20020115205116.GH51648@niksula.cs.hut.fi> <20020115211032.GC598@inktiger.kiwa.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S290292AbSAOViv>; Tue, 15 Jan 2002 16:38:51 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:18602 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S290289AbSAOVik>;
+	Tue, 15 Jan 2002 16:38:40 -0500
+Date: Tue, 15 Jan 2002 21:38:35 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Larry McVoy <lm@bitmover.com>, Dave Jones <davej@suse.de>,
+        "Eric S. Raymond" <esr@thyrsus.com>, Eli Carter <eli.carter@inet.com>,
+        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
+ the elegant solution)
+Message-ID: <192999434.1011130714@[195.224.237.69]>
+In-Reply-To: <20020114105341.E27433@work.bitmover.com>
+In-Reply-To: <20020114105341.E27433@work.bitmover.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20020115211032.GC598@inktiger.kiwa.co.nz>
-User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Reposting as the linux mailing message bounced.
 
-Problem with:
-<linux-kernel@vger.rutgers.edu>:
-128.6.14.121 does not like recipient.
-Remote host said: 550 <linux-kernel@vger.rutgers.edu>... User unknown
-Giving up on 128.6.14.121.
+--On Monday, 14 January, 2002 10:53 AM -0800 Larry McVoy <lm@bitmover.com> 
+wrote:
 
+> Eric, your approach is pushing Aunt Tillie towards
+> more variations and what the Aunt Tillie needs is less.   Ditto for the
+> distro vendors.
 
-On Wed, Jan 16, 2002 at 10:10:32AM +1300, Nicholas Lee wrote:
-> On Tue, Jan 15, 2002 at 10:51:16PM +0200, Ville Herva wrote:
-> > 
-> > We are seeing corruption on KT7-RAID as well. But it's HPT370 only, and
-> > looks to be pci transfer corruption. It seems depended on which pci slots
-> > are populated (short story - expect full coverage on linux-kernel later this
-> > week as we finish our tests.)
-> 
-> Interesting. I'd had a feeling that its related to the PCI bus and
-> network traffic.
-> 
-> 
-> > We tried a number of bioses.
-> > 
-> > A question: what pci cards do you have and in which slots?
-> 
-> 
-> Hoppa is the current problem machine, woodcut only has periodic problem
-> notice even though it has the higher load and is in a different city.
-> 
-> 
-> 
-> [nic@woodcut:~] sudo lspci
-> 00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
-> 00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
-> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
-> 00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
-> 00:07.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
-> 00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-> 00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RT8139 (rev 10)
-> 00:0f.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RT8139 (rev 10)
-> 00:11.0 VGA compatible controller: Number 9 Computer Company Imagine 128 T2R [Ticket to Ride]
-> 
-> 
-> eth0      Interrupt:11 Base address:0xdc00 
-> 
-> 
-> 00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RT8139 (rev 10)
-> 	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-> 	Flags: bus master, medium devsel, latency 32, IRQ 11
-> 	I/O ports at dc00
-> 	Memory at d6811000 (32-bit, non-prefetchable)
-> 
-> 
-> 
-> nic@hoppa:~$ sudo lspci
-> 00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
-> 00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
-> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
-> 00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
-> 00:07.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
-> 00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-> 00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RT8139 (rev 10)
-> 01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 86C326 (rev d2)
-> 
-> 
-> 00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RT8139 (rev 10)
-> 	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-> 	Flags: bus master, medium devsel, latency 32, IRQ 11
-> 	I/O ports at ec00
-> 	Memory at e6800000 (32-bit, non-prefetchable)
-> 
-> eth0      Interrupt:11 Base address:0xec00 
-> 
-> 
-> 
-> > (Your problem may be - and propably is - a completely separate issue than
-> > ours, but I'd like to know.)
-> 
-> Looks like the active NIC is in the same slot on both machines. 
-> 
-> > 
-> > Alternatively, you may want to try 
-> > (1) 2.2.20pre2 that notably includes Via chipset fixes
-> > (2) The ide patch from Krzysztof Oledzki <ole@ans.pl>, which includes
-> >     2.4 Via ide driver backport (http://www.ans.pl/ide)
-> 
-> I'll try this, but it'll have to be next week. Busy at the moment.
-> 
-> I suspect that the drive is now full of bad sectors, it might be
-> troublesome compiling. 8-\
-> 
-> -- 
-> Nicholas Lee - nj.lee at plumtree.co dot nz, somewhere on the fish Maui caught.
-> gpg. 8072 4F86 EDCD 4FC1 18EF  5BDD 07B0 9597 6D58 D70C            icq. 1612865 
-> 
->                          Quixotic Eccentricity
+Not entirely.
 
--- 
-Nicholas Lee - nj.lee at plumtree.co dot nz, somewhere on the fish Maui caught.
-gpg. 8072 4F86 EDCD 4FC1 18EF  5BDD 07B0 9597 6D58 D70C            icq. 1612865 
+If Aunt Tillie has (say) a laptop, I think she is likely to find that no
+distribution kernel actually supports all features (sound, APM, etc.)
+if the laptop is even moderately new. This from experience with
+Redhat & Debian (perhaps the others are miles better). So she
+does indeed have a reasonable need to compile a kernel.
 
-                         Quixotic Eccentricity
+However, Eric's approach (dmesg) is still flawed as normally
+the way these distros fail is either (a) hanging on boot, or
+(b) failing to detect the relevant hardware. Needless to say,
+neither failure mode is going to give much use to a configurator
+tool which looks at dmesg.
+
+Eric: I think you'd be far better off trying to identify the
+machine (and hence get a working .config) rather than the
+hardware.
+
+Example: put in some wget based thingy, which goes to some (fixed) web
+site, searches for (some extracted or Tillie composed string) which
+describes the hardware (bound to have been bought as-is and never opened),
+pulls down a set of config files and heuristics to determine between them
+(look at BIOS, or 'that model will always show this or that in the PCI
+table') and guesses the correct (initial) config as tested by some other
+user. This is the automated equivalent of going to www.google.com/linux,
+typing your machine name followed by 'kernel .config'. If the site
+it contacted was configurable by the distro, you'd then have
+the distros praising you in that once they have solved the problem
+for one IBM T23, they've solved it for all of them, without doing
+a new release. And Aunt Tillie (apart from the module changes whatever)
+can be using the kernel version etc. from their distro (recompiled),
+rather than the latest 2.[2468].xx with lots of new bugs^Wunwanted
+fixes in.
+
+--
+Alex Bligh

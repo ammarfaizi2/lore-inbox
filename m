@@ -1,80 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRBPHI7>; Fri, 16 Feb 2001 02:08:59 -0500
+	id <S129027AbRBPICL>; Fri, 16 Feb 2001 03:02:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129379AbRBPHIt>; Fri, 16 Feb 2001 02:08:49 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:14258 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129375AbRBPHIi>; Fri, 16 Feb 2001 02:08:38 -0500
-Date: Thu, 15 Feb 2001 23:08:36 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: linux-2.4.2-pre3/arch/i386/boot/Makefile breaks with binutils-2.10.1.0.7
-Message-ID: <20010215230836.A10861@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="TB36FDmn/VVEgNH/"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S129055AbRBPICC>; Fri, 16 Feb 2001 03:02:02 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:38895 "HELO
+	dark.mandrakesoft.com") by vger.kernel.org with SMTP
+	id <S129027AbRBPIBp>; Fri, 16 Feb 2001 03:01:45 -0500
+To: Juergen Schoew <Juergen.Schoew@unix-ag.uni-siegen.de>
+Cc: Thomas Lau <lkthomas@hkicable.com>, linux-kernel@vger.kernel.org
+Subject: Re: finding Tekram SCSI dc395U linux patch driver:
+In-Reply-To: <XFMail.010215224622.Juergen.Schoew@unix-ag.org>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 16 Feb 2001 09:01:15 +0000
+In-Reply-To: <XFMail.010215224622.Juergen.Schoew@unix-ag.org>
+Message-ID: <m3d7cj0zok.fsf@giants.mandrakesoft.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.95
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Juergen Schoew <Juergen.Schoew@unix-ag.uni-siegen.de> writes:
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi,
+> On 15-Feb-01 Thomas Lau wrote:
+> > hey, I found this driver on mandrake kernel sources, it's ac3, but I
+> > need ac14 code, also, why still not port this driver into kernel?
+> > the patch file already released 1 years ago
+> 
+> Have you checked http://www.garloff.de/kurt/linux/dc395/index.html
+> there ist a driver Version 1.32 (2000-12-02).
 
-	The "ld" program in binutils-2.10.1.0.7 and in
-binutils-2.10.91.0.2 now requires "--oformat" instead of "-oformat".
-This breaks linux-2.4.2-pre3/arch/i386/boot/Makefile.  I have attached
-the fix below.  I am running a kernel built with this updated Makefile.
+it's the version included with the mandrake kernel.
 
 -- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ld.diff"
-
---- linux-2.4.2-pre3/arch/i386/boot/Makefile	Mon Dec 20 14:43:39 1999
-+++ linux/arch/i386/boot/Makefile	Fri Feb  9 15:37:53 2001
-@@ -43,7 +43,7 @@
- 	$(HOSTCC) $(HOSTCFLAGS) -o $@ $< -I$(TOPDIR)/include
- 
- bootsect: bootsect.o
--	$(LD) -Ttext 0x0 -s -oformat binary -o $@ $<
-+	$(LD) -Ttext 0x0 -s --oformat binary -o $@ $<
- 
- bootsect.o: bootsect.s
- 	$(AS) -o $@ $<
-@@ -52,7 +52,7 @@
- 	$(CPP) $(CPPFLAGS) -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
- bbootsect: bbootsect.o
--	$(LD) -Ttext 0x0 -s -oformat binary $< -o $@
-+	$(LD) -Ttext 0x0 -s --oformat binary $< -o $@
- 
- bbootsect.o: bbootsect.s
- 	$(AS) -o $@ $<
-@@ -61,7 +61,7 @@
- 	$(CPP) $(CPPFLAGS) -D__BIG_KERNEL__ -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
- setup: setup.o
--	$(LD) -Ttext 0x0 -s -oformat binary -e begtext -o $@ $<
-+	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
- 
- setup.o: setup.s
- 	$(AS) -o $@ $<
-@@ -70,7 +70,7 @@
- 	$(CPP) $(CPPFLAGS) -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
- 
- bsetup: bsetup.o
--	$(LD) -Ttext 0x0 -s -oformat binary -e begtext -o $@ $<
-+	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
- 
- bsetup.o: bsetup.s
- 	$(AS) -o $@ $<
-
---TB36FDmn/VVEgNH/--
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel

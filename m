@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269785AbTGOWJW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 18:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269794AbTGOWJW
+	id S269623AbTGOWKM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 18:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269798AbTGOWKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 18:09:22 -0400
-Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:55790
-	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S269785AbTGOWJV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 18:09:21 -0400
-Date: Wed, 16 Jul 2003 00:03:44 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: folkert@vanheusden.com, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: v2.6.0-test1 - no keyboard/mouse
-Message-ID: <20030715220344.GD2684@wind.cocodriloo.com>
-References: <200307152246.57389.folkert@vanheusden.com> <1058306246.584.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
+	Tue, 15 Jul 2003 18:10:11 -0400
+Received: from maild.telia.com ([194.22.190.101]:28618 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id S269623AbTGOWJ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 18:09:59 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1: Synaptics driver makes touchpad unusable
+References: <200307151244.53276.gallir@uib.es>
+	<1058296451.2394.63.camel@mentor.gurulabs.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 15 Jul 2003 23:27:22 +0200
+In-Reply-To: <1058296451.2394.63.camel@mentor.gurulabs.com>
+Message-ID: <m2fzl7h45h.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058306246.584.1.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 11:57:26PM +0200, Felipe Alfaro Solana wrote:
-> On Tue, 2003-07-15 at 22:46, Folkert van Heusden wrote:
-> > Ehrm, hello? Has this list became silent suddenly?
-> > Anyway: I just tried 2.6.0-test1 on my celeron. Boots up flawlessly. Rather 
-> > quick and all. X boots up, all fine.
-> > Only one minor problem: the keyboard and the mouse do not work.
-> > I *have* included input-core, etc.:
-> > CONFIG_INPUT=y
-> > CONFIG_INPUT_MOUSEDEV=y
-> > CONFIG_INPUT_MOUSEDEV_PSAUX=y
-> > CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-> > CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-> > CONFIG_INPUT_EVDEV=y
-> > CONFIG_INPUT_KEYBOARD=y
-> > CONFIG_INPUT_MOUSE=y
-> > CONFIG_INPUT_MISC=y
-> > CONFIG_INPUT_PCSPKR=y
-> > CONFIG_INPUT_UINPUT=y
+Dax Kelson <dax@gurulabs.com> writes:
+
+> On Tue, 2003-07-15 at 04:44, Ricardo Galli wrote:
+> > The new synaptics driver doesn't work with Dell Latitude Touchpad, it doesn't 
+> > work any /dev/input/event?|mouse? and /dev/psaux neither (altough the same 
+> > configuration worked at least until 2.5.70).
 > 
-> I can't think of anything except CONFIG_VGA_CONSOLE. Is it set to "y"?
+> I can replicate this problem with 2.6.0-test1 on a Dell Inspiron 4150
+> laptop as well.
+> 
+> Synaptics Touchpad, model: 1
+>  Firware: 5.9
+>  180 degree mounted touchpad
+>  Sensor: 27
+>  new absolute packet format
+>  Touchpad has extended capability bits
+>  -> multifinger detection
+>  -> palm detection
+> input: Synaptics Synaptics TouchPad on isa0060/serio1
 
-what about setting these usual switches to default "y"?
-It would cut a lot of problems at the first encounters
-with the latest kernel.
+This doesn't look like the same problem. There is no "reset failed"
+message. Are you using the correct XFree86 driver:
 
-Greets, Antonio. 
+        http://w1.894.telia.com/~u89404340/touchpad/index.html
 
---
-In fact, this is all you need to know to be
-a Caveman Database Programmer:
+Also, note that the driver doesn't work with gpm yet.
 
-A relational database is a big spreadsheet
-that several people can update simultaneously. 
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

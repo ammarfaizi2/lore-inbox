@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270880AbUJVI4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269837AbUJVI6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270880AbUJVI4l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 04:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270876AbUJVI4k
+	id S269837AbUJVI6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 04:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270857AbUJVI6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 04:56:40 -0400
-Received: from pD9E39197.dip.t-dialin.net ([217.227.145.151]:774 "EHLO
-	pro01.local.promotion-ie.de") by vger.kernel.org with ESMTP
-	id S270881AbUJVIzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 04:55:43 -0400
-From: alex@local.promotion-ie.de
-Subject: Re: [ALPHA 2.6.9] __ioremap gone in include/asm-alpha/io.h
-To: alex@local.promotion-ie.de
-Cc: Kernel-List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1098434690.30820.29.camel@pro30.local.promotion-ie.de>
-References: <1098432320.30655.8.camel@pro30.local.promotion-ie.de>
-	 <1098434690.30820.29.camel@pro30.local.promotion-ie.de>
-Content-Type: text/plain
+	Fri, 22 Oct 2004 04:58:23 -0400
+Received: from fbxmetz.linbox.com ([81.56.128.63]:1544 "EHLO xiii.metz")
+	by vger.kernel.org with ESMTP id S269837AbUJVI6M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 04:58:12 -0400
+Message-ID: <4178CB95.7000505@linbox.com>
+Date: Fri, 22 Oct 2004 10:57:57 +0200
+From: Ludovic Drolez <ludovic.drolez@linbox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: jsimmons@infradead.org, geert@linux-m68k.org
+Subject: 2.6.9 bug: linux logo not displayed in vga16fb
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1098435243.30655.32.camel@pro30.local.promotion-ie.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 10:54:03 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Fr, den 22.10.2004 schrieb alex@local.promotion-ie.de um 10:44:
-> Am Fr, den 22.10.2004 schrieb Alexander Rauth um 10:05:
-> > In 2.6.9 __ioremap( ) is gone in include/asm-alpha/io.h resp. the
-> > #define that linked alphas generic ioremap was deleted
-> > 
->
-> adding following line to include/asm-alpha/io.h fixed compile:
-> 
-> #define __ioremap(a,s) alpha_mv.mv_ioremap((unsigned long)(a),(s))
-> 
-fixed kernel did not boot at all. stuck after aboot
+Hi !
+
+I used to have a nice vga boot logo with my 2.6.7 kernel, but with the 2.6.9, my
+boot logo has disappeared (same .config)...
+It seems to switch to VGA, and some space is reserved for the logo, but it is 
+not displayed.
+The logo appears with vesafb.
+
+
+Any idea / patch welcome !
+
+Cheers,
+
+   Ludo
+
+-- 
+Ludovic DROLEZ                              Linbox / Free&ALter Soft
+152 rue de Grigy - Technopole Metz 2000                   57070 METZ
+tel : 03 87 50 87 90                            fax : 03 87 75 19 26

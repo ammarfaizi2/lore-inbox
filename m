@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261389AbSI3Uxf>; Mon, 30 Sep 2002 16:53:35 -0400
+	id <S261322AbSI3VAj>; Mon, 30 Sep 2002 17:00:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261390AbSI3Uxf>; Mon, 30 Sep 2002 16:53:35 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41396 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261389AbSI3Uxe>;
-	Mon, 30 Sep 2002 16:53:34 -0400
-Date: Mon, 30 Sep 2002 13:52:03 -0700 (PDT)
-Message-Id: <20020930.135203.110291802.davem@redhat.com>
-To: perex@suse.cz
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ALSA update [10/10] - 2002/08/05
+	id <S261323AbSI3VAj>; Mon, 30 Sep 2002 17:00:39 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:47028 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261322AbSI3VAi>;
+	Mon, 30 Sep 2002 17:00:38 -0400
+Date: Mon, 30 Sep 2002 13:59:11 -0700 (PDT)
+Message-Id: <20020930.135911.11242542.davem@redhat.com>
+To: jochen@scram.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.3.39 LLC on Alpha broken?
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0209301818400.503-100000@pnote.perex-int.cz>
-References: <20020929.175617.67342138.davem@redhat.com>
-	<Pine.LNX.4.33.0209301818400.503-100000@pnote.perex-int.cz>
+In-Reply-To: <Pine.LNX.4.44.0209301956320.1163-100000@alpha.bocc.de>
+References: <Pine.NEB.4.44.0209300934330.7633-100000@www2.scram.de>
+	<Pine.LNX.4.44.0209301956320.1163-100000@alpha.bocc.de>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -23,14 +23,11 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jaroslav Kysela <perex@suse.cz>
-   Date: Mon, 30 Sep 2002 18:20:24 +0200 (CEST)
+   From: Jochen Friedrich <jochen@scram.de>
+   Date: Mon, 30 Sep 2002 19:58:43 +0200 (CEST)
 
-   On Sun, 29 Sep 2002, David S. Miller wrote:
+   > I'll try to reboot the remaining mess and report how far it gets...
    
-   > And where are my SBUS DMA support and sparc build fixes? :-(
+   It looks like LLC is the culprit for me:
    
-   It's not lost. I've sent ALSA patches up to date CVS 2002/08/05. Your 
-   code will be in second set of ALSA update patches. Sorry for delay.
-   
-I sent this stuff to Linus seperately last night to save time.
+Arnaldo fixed this recently, it is a LLC bug.

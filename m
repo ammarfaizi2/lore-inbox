@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264242AbTFYB2S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 21:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTFYB2S
+	id S263752AbTFYBal (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 21:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263610AbTFYBal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 21:28:18 -0400
-Received: from [63.98.246.130] ([63.98.246.130]:4267 "EHLO
-	mailgw.projectdesign.com") by vger.kernel.org with ESMTP
-	id S264242AbTFYB2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 21:28:16 -0400
-Subject: Re: Intel RAID hw card
-From: Joshua Penix <jpenix@binarytribe.com>
+	Tue, 24 Jun 2003 21:30:41 -0400
+Received: from user-vc8fdp3.biz.mindspring.com ([216.135.183.35]:3078 "EHLO
+	mail.nateng.com") by vger.kernel.org with ESMTP id S263859AbTFYBaf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 21:30:35 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: mail.nateng.com
+Date: Tue, 24 Jun 2003 18:44:27 -0700 (PDT)
+From: Sir Ace <chandler@nateng.com>
+X-X-Sender: chandler@jordan.eng.nateng.com
 To: linux-kernel@vger.kernel.org
-Cc: ertra@volny.cz
-In-Reply-To: <008901c33a9e$492aa080$c15af53e@dev>
-References: <008901c33a9e$492aa080$c15af53e@dev>
-Content-Type: text/plain
-Message-Id: <1056505345.11051.18.camel@jepdesk.projectdesign.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 24 Jun 2003 18:42:25 -0700
-Content-Transfer-Encoding: 7bit
+Subject: Re: i2c BUG  easy fix?
+In-Reply-To: <Pine.LNX.4.53.0306241836510.596@jordan.eng.nateng.com>
+Message-ID: <Pine.LNX.4.53.0306241843570.596@jordan.eng.nateng.com>
+References: <Pine.LNX.4.53.0306241821230.596@jordan.eng.nateng.com>
+ <Pine.LNX.4.53.0306241836510.596@jordan.eng.nateng.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-24 at 15:16, tomas wrote:
 
-> Intel Server RAID Controller U3-1LA (SRCU31LA)
-> 
-> please, could somebody tell me if I can use linux (Redhat 9 for example)
-> with this hw RAID card for raid 1 without problems ?
+Nope sory, that was wrong... I should have read the rest of the code...
+Any ideas yet? {grin}
 
-I'm using an Intel SRCMR RAID controller in RAID5 mode under RedHat 9
-with 280GB attatched and have no trouble at all.  From what I can tell
-on Intel's website, my card and yours both use the same "GDTH" kernel
-driver, so I don't see any reason why yours won't work... unless your
-RAID controller model is newer (but it shouldn't be, I see specs on your
-model dating back to 2002) and the kernel just doesn't recognize its PCI
-ID yet.
+On Tue, 24 Jun 2003, Sir Ace wrote:
 
-HTH,
---Josh
-
+>
+> It looks like the offending code might be in:
+> i2c-algo-bit.c
+>
+> in function:
+> static int test_bus(struct i2c_algo_bit_data *adap, char* name) {
+>
+>
+> I'm no coder but it looks like it is limited to 4 devices as a hardcode?
+> anyone know of a way to do it so that it does:
+>
+> for x := {n devices} do
+>   crap
+>
+> On Tue, 24 Jun 2003, Sir Ace wrote:
+>
+> >
+> > I have 5 vidcapture cards, all of which show up in /proc/pci
+> > Only the first 4 show up in /proc/bus/i2c*
+> >
+> > I tried this on 2 completely unidentical systems, and both 2.4.21, and
+> > 2.4.20
+> >
+> > I verified that all 5 cards are actually good... {before people start
+> > pointing fingers}
+> >
+> > Where do I need to start looking to fix it?
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

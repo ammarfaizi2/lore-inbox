@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130368AbQLBURH>; Sat, 2 Dec 2000 15:17:07 -0500
+	id <S130196AbQLBUfV>; Sat, 2 Dec 2000 15:35:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130369AbQLBUQ5>; Sat, 2 Dec 2000 15:16:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36617 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130368AbQLBUQo>;
-	Sat, 2 Dec 2000 15:16:44 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200012021946.TAA07734@raistlin.arm.linux.org.uk>
-Subject: Re: [RFC] Configuring synchronous interfaces in Linux
-To: jgarzik@mandrakesoft.mandrakesoft.com (Jeff Garzik)
-Date: Sat, 2 Dec 2000 19:46:01 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1001202130202.1450B-100000@mandrakesoft.mandrakesoft.com> from "Jeff Garzik" at Dec 02, 2000 01:07:29 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130267AbQLBUfM>; Sat, 2 Dec 2000 15:35:12 -0500
+Received: from tazenda.demon.co.uk ([158.152.220.239]:10770 "EHLO
+	tazenda.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S130196AbQLBUe6>; Sat, 2 Dec 2000 15:34:58 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
+To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+cc: Chris Wedgwood <cw@f00f.org>, Donald Becker <becker@scyld.com>,
+        Francois Romieu <romieu@cogenit.fr>,
+        Russell King <rmk@arm.linux.org.uk>, Ivan Passos <lists@cyclades.com>,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [RFC] Configuring synchronous interfaces in Linux 
+In-Reply-To: Message from Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com> 
+   of "Sat, 02 Dec 2000 13:07:29 CST." <Pine.LNX.3.96.1001202130202.1450B-100000@mandrakesoft.mandrakesoft.com> 
+In-Reply-To: <Pine.LNX.3.96.1001202130202.1450B-100000@mandrakesoft.mandrakesoft.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 02 Dec 2000 20:02:00 +0000
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E142IrA-0007hG-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> Does 'ifconfig eth0 media xxx' wind up calling dev->set_config?
+>Does 'ifconfig eth0 media xxx' wind up calling dev->set_config?
 
-Yes.  See drivers/acorn/net/etherh.c for an(other) example driver
-supporting 10baseT and 10base2.
+Yes.
 
-> If yes, my guess is correct, I think the proper solution is to:
-> * create a generic set_config, which does nothing but convert the calls'
-> semantics into ethtool semantics, and
-> * add ethtool support to the specific driver
+p.
 
-Sounds logical.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

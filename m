@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262554AbSJGTTn>; Mon, 7 Oct 2002 15:19:43 -0400
+	id <S262652AbSJGTqP>; Mon, 7 Oct 2002 15:46:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262561AbSJGTTn>; Mon, 7 Oct 2002 15:19:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11014 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262554AbSJGTTm>; Mon, 7 Oct 2002 15:19:42 -0400
-Date: Mon, 7 Oct 2002 12:24:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@arcor.de>
-cc: Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
- 3.0 -  (NUMA))
-In-Reply-To: <E17ydBs-0003uE-00@starship>
-Message-ID: <Pine.LNX.4.33.0210071222340.10168-100000@penguin.transmeta.com>
+	id <S262654AbSJGTqO>; Mon, 7 Oct 2002 15:46:14 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26018 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S262652AbSJGTqL>; Mon, 7 Oct 2002 15:46:11 -0400
+Date: Mon, 7 Oct 2002 16:13:58 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.20-pre9 - drivers/atm/iphase.c : GFP_KERNEL with
+ spinlock held
+In-Reply-To: <20021005225410.A22417@fafner.intra.cogenit.fr>
+Message-ID: <Pine.LNX.4.44L.0210071613320.21638-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 7 Oct 2002, Daniel Phillips wrote:
-> 
-> Devices have a few MB of readahead cache, the kernel can have thousands of
-> times as much.
 
-I don't think that is in the least realistic.
+On Sat, 5 Oct 2002, Francois Romieu wrote:
 
-There's _no_ way that the krenel could do physical readahead for more than
-a few tens or hundreds of kB - the latency impact would just be too much
-to handle, and the VM impact is not likely insignificant either.
+> drivers/atm/iphase.c:tx_intr()
+> [...]
+>    1684            spin_lock_irqsave(&iadev->tx_lock, flags);
+>    1685            ia_tx_poll(iadev);
+>
+> ia_tx_poll ->
+>  ia_hack_tcq ->
+>   ia_enque_rtn_q ->
+>    IARTN_Q *entry = kmalloc(sizeof(*entry), GFP_KERNEL);
+>
+> Driver does not seem maintained. Please apply.
+>
+> --- linux-2.4.20-pre9.orig/drivers/atm/iphase.c	Sat Oct  5 15:51:28 2002
+> +++ linux-2.4.20-pre9/drivers/atm/iphase.c	Sat Oct  5 22:44:18 2002
+> @@ -124,7 +124,7 @@ static void ia_enque_head_rtn_q (IARTN_Q
+>  }
+>
+>  static int ia_enque_rtn_q (IARTN_Q *que, struct desc_tbl_t data) {
+> -   IARTN_Q *entry = kmalloc(sizeof(*entry), GFP_KERNEL);
+> +   IARTN_Q *entry = kmalloc(sizeof(*entry), GFP_ATOMIC);
+>     if (!entry) return -1;
+>     entry->data = data;
+>     entry->next = NULL;
 
-So the device readahead is _not_ noticeably smaller than what the kernel
-can reasonably do, and it does a better job of it (ie disks can fill track
-buffers optimally, depending on where the head hits etc).
+It seems correct. Have you tried to send this to Peter Wang
+<pwang@iphase.com> ?
 
-		Linus
 

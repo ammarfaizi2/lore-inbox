@@ -1,95 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265145AbTLKQQc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 11:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265146AbTLKQQc
+	id S265146AbTLKQRr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 11:17:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265147AbTLKQRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 11:16:32 -0500
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:56008 "EHLO
-	floyd.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S265145AbTLKQQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 11:16:28 -0500
-Subject: [2.4] Nforce2 oops and occasional hang (tried the lockups patch,
-	no difference)
-From: Disconnect <lkml@sigkill.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1071159379.1331.4.camel@slappy>
+	Thu, 11 Dec 2003 11:17:47 -0500
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:40657 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S265146AbTLKQRo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 11:17:44 -0500
+Date: Thu, 11 Dec 2003 11:17:41 -0500
+From: moth@magenta.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Linux 2.6.0-test11 only lets me use 1GB out of 2GB ram.
+Message-ID: <20031211111741.H28449@links.magenta.com>
+References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <20031211054111.GX8039@holomorphy.com> <20031211094148.G28449@links.magenta.com> <20031211150011.GF8039@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Dec 2003 11:16:20 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031211150011.GF8039@holomorphy.com>; from wli@holomorphy.com on Thu, Dec 11, 2003 at 07:00:11AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've posted this a couple of times, with no response.
+On Thu, Dec 11, 2003 at 07:00:11AM -0800, William Lee Irwin III wrote:
+> You should probably ignore this thread. It's probably not relevant to
+> you.
 
-So long as memory pressure is kept to a minimum, the system is stable. 
-Running without swap and without serious work kept it going for a couple
-of weeks.
+Ok, thanks.  My mistake.
 
-Running (currently with the nforce2-lockups patches and HZ=1000 but no
-APIC/IO-APIC) results in the same oopses as every kernel I've tried,
-including 2.4.22.
+> > [In my fantasies, I was thinking that the system came up with only 1GB of
+> > the memory easily usable, and that the lack of support for my hardware
+> > meant that it couldn't be properly reconfigured.  But I recognize that
+> > I haven't spent the time researching this to see if in fact this is
+> > the case.]
+> 
+> Highmem support gets you this on ia32. Other architectures can support it
+> with less overhead.
 
-Suggestions? I'd really love to be able to use this thing reliably under
-Linux :(
+Are there docs on this?
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000089
-c012dff7
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c012dff7>]    Tainted: P
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: 00000081   ebx: cff72b58   ecx: cee3a000   edx: 0000cad6
-esi: 00001000   edi: cbabd9b4   ebp: 00000081   esp: cee3bf08
-ds: 0018   es: 0018   ss: 0018
-Process giftd (pid: 29738, stackpage=cee3b000)
-Stack: c03155c0 c238b1c0 c44671c0 00000038 cee3a000 00000eea 00000000 00000000
-       00000116 cbabd900 c012e6a0 cee3bf74 c2974660 c2974640 00001000 00001000
-       00000000 00000000 c012e7f2 c2974640 c2974660 cee3bf74 c012e6a0 c0222e67
-Call Trace:    [<c012e6a0>] [<c012e7f2>] [<c012e6a0>] [<c0222e67>] [<c013d413>]
-  [<c0108fdf>]
-Code: 39 78 08 74 05 8b 40 10 eb f2 39 68 0c 75 f6 85 c0 89 c6 0f
- 
- 
->>EIP; c012dff7 <do_generic_file_read+157/4e0>   <=====
- 
->>ebx; cff72b58 <_end+fc02f6c/104a5494>
->>ecx; cee3a000 <_end+eaca414/104a5494>
->>edi; cbabd9b4 <_end+b74ddc8/104a5494>
->>esp; cee3bf08 <_end+eacc31c/104a5494>
- 
-Trace; c012e6a0 <file_read_actor+0/a0>
-Trace; c012e7f2 <generic_file_read+b2/1a0>
-Trace; c012e6a0 <file_read_actor+0/a0>
-Trace; c0222e67 <sys_send+37/40>
-Trace; c013d413 <sys_read+a3/110>
-Trace; c0108fdf <system_call+33/38>
- 
-Code;  c012dff7 <do_generic_file_read+157/4e0>
-00000000 <_EIP>:
-Code;  c012dff7 <do_generic_file_read+157/4e0>   <=====
-   0:   39 78 08                  cmp    %edi,0x8(%eax)   <=====
-Code;  c012dffa <do_generic_file_read+15a/4e0>
-   3:   74 05                     je     a <_EIP+0xa>
-Code;  c012dffc <do_generic_file_read+15c/4e0>
-   5:   8b 40 10                  mov    0x10(%eax),%eax
-Code;  c012dfff <do_generic_file_read+15f/4e0>
-   8:   eb f2                     jmp    fffffffc <_EIP+0xfffffffc>
-Code;  c012e001 <do_generic_file_read+161/4e0>
-   a:   39 68 0c                  cmp    %ebp,0xc(%eax)
-Code;  c012e004 <do_generic_file_read+164/4e0>
-   d:   75 f6                     jne    5 <_EIP+0x5>
-Code;  c012e006 <do_generic_file_read+166/4e0>
-   f:   85 c0                     test   %eax,%eax
-Code;  c012e008 <do_generic_file_read+168/4e0>
-  11:   89 c6                     mov    %eax,%esi
-Code;  c012e00a <do_generic_file_read+16a/4e0>
-  13:   0f 00 00                  sldtl  (%eax)
+> > I am in the process of bringing up an cross compilation environment for
+> > amd64 -- I need to do that anyways -- and I'll try building a real 64
+> > bit kernel to see if that helps any.  If that doesn't, I guess I'll try
+> > a couple 4G highmem kernels (one 64 bit, one 32 bit).  If nothing else,
+> > that will eat up some time...
+> 
+> If you have such a cpu why are you bothering with highmem (or wondering
+> if > 2GB is supported)?
+
+I'm not wondering if > 2GB is supported.  I'm trying to get 2GB
+to work (and I'm having a problem -- perhaps because I believe
+Documentation/memory.txt doesn't cover the issues I'm facing).
+
+I've not yet bothered with highmem, but I will if building a 64 bit
+kernel doesn't get me access to 2GB.
+
+Does that answer your question?
+
+Thanks,
 
 -- 
-Disconnect <lkml@sigkill.net>
-
+Raul

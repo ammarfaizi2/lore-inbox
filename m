@@ -1,324 +1,212 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291402AbSBHFF5>; Fri, 8 Feb 2002 00:05:57 -0500
+	id <S291418AbSBHFHQ>; Fri, 8 Feb 2002 00:07:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291414AbSBHFFr>; Fri, 8 Feb 2002 00:05:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7690 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291402AbSBHFFn>;
-	Fri, 8 Feb 2002 00:05:43 -0500
-Message-ID: <3C635C81.A7635551@zip.com.au>
-Date: Thu, 07 Feb 2002 21:05:05 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
+	id <S291415AbSBHFHJ>; Fri, 8 Feb 2002 00:07:09 -0500
+Received: from [24.93.35.42] ([24.93.35.42]:17369 "EHLO sm11.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S291414AbSBHFGw>;
+	Fri, 8 Feb 2002 00:06:52 -0500
+Message-ID: <003201c1b05e$5e128150$1cbaa218@HomeServer>
+Reply-To: "Bryan Parkoff" <BParkoff@satx.rr.com>
+From: "Bryan Parkoff" <BParkoff@satx.rr.com>
+To: <linux-kernel@vger.kernel.org>, <linux-tape@vger.kernel.org>
+Subject: Need Help With Kernel & Tape
+Date: Thu, 7 Feb 2002 23:06:29 -0600
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] VM_IO fixes
-In-Reply-To: <3C621B44.10C424B9@zip.com.au> <Pine.LNX.4.33.0202071259510.5900-100000@serv> <3C62E8D6.9FDAF382@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2526.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Is there a fast and portable way of doing this?
-> 
+Everyone,
 
-Seems that there isn't.
+    Linux-Kernel and Linux-Tape are part of ftape-4.04a.  I have followed
+all the procedures including FAQs and HOWTOs, but none of them provide the
+information to meet my needs to resolve the problem.
 
-Here's what I have.  We allow coredumps and ptrace peeking of:
+    I have Kernel v2.4.16 and Ftape v4.04a.  I use Iomega/Tecmar DittoMax
+Pro 4Mbps controller card as ISAPNP.(o?) and internal.(o?).  I did type
+./gokernel.sh /usr/src/linux /usr/src/ftape-4.04a to copy and patch some
+latest ftape's source code and files into Kernel v2.4.16's subdirectory.
 
-- file mappings
-- sysv ipc mappings
-- shmem mappings
-- /dev/mem if the mapping is page_struct backed
-- /dev/kmem
-- /dev/zero mappings
-- socket mappings
-- ftape's dma buffer
-- many audio card DMA buffers
-- videodev dma buffer mappings
+    I tried to compile Kernel v2.4.16 by giving "*" in ftape submenu, but I
+receive error message: ftape_init().  I believe that I am not allowed to use
+ISAPNP that is built in Kernel 2.4.16, but I am allowed to use module
+instead.  I did try to recompile by placing "m" in ftape submenu AND by
+placing " " in ftape submenu, but it did recompile everything except it did
+not compile and install ftape modules under /lib/modules...  I don't know
+why.
 
-Is anything missing?
+    I did compile ftape-4.04a, but I get error message like warning:
+pasting -- not valid preprocessing token.  I have enclosed a compilation log
+there.  Please take a look.  Please give me an idea what is going on.
 
---- linux-2.4.18-pre9/mm/mmap.c	Mon Nov  5 21:01:12 2001
-+++ linux-akpm/mm/mmap.c	Thu Feb  7 19:21:02 2002
-@@ -534,6 +534,11 @@ munmap_back:
- 		}
- 		vma->vm_file = file;
- 		get_file(file);
-+		/*
-+		 * Subdrivers can clear VM_IO if their mappings are
-+		 * valid pages inside mem_map[]
-+		 */
-+		vma->vm_flags |= VM_IO;
- 		error = file->f_op->mmap(file, vma);
- 		if (error)
- 			goto unmap_and_free_vma;
---- linux-2.4.18-pre9/mm/filemap.c	Thu Feb  7 13:04:22 2002
-+++ linux-akpm/mm/filemap.c	Thu Feb  7 19:21:02 2002
-@@ -2111,6 +2111,7 @@ int generic_file_mmap(struct file * file
- 		return -ENOEXEC;
- 	UPDATE_ATIME(inode);
- 	vma->vm_ops = &generic_file_vm_ops;
-+	vma->vm_flags &= ~VM_IO;
- 	return 0;
- }
- 
---- linux-2.4.18-pre9/fs/ncpfs/mmap.c	Mon Sep 10 09:04:53 2001
-+++ linux-akpm/fs/ncpfs/mmap.c	Thu Feb  7 19:21:02 2002
-@@ -119,5 +119,6 @@ int ncp_mmap(struct file *file, struct v
- 	}
- 
- 	vma->vm_ops = &ncp_file_mmap;
-+	vma->vm_flags &= ~VM_IO;
- 	return 0;
- }
---- linux-2.4.18-pre9/ipc/shm.c	Fri Dec 21 11:19:23 2001
-+++ linux-akpm/ipc/shm.c	Thu Feb  7 19:21:02 2002
-@@ -159,6 +159,7 @@ static int shm_mmap(struct file * file, 
- {
- 	UPDATE_ATIME(file->f_dentry->d_inode);
- 	vma->vm_ops = &shm_vm_ops;
-+	vma->vm_flags &= ~VM_IO;
- 	shm_inc(file->f_dentry->d_inode->i_ino);
- 	return 0;
- }
---- linux-2.4.18-pre9/mm/shmem.c	Fri Dec 21 11:19:23 2001
-+++ linux-akpm/mm/shmem.c	Thu Feb  7 19:21:02 2002
-@@ -657,6 +657,7 @@ static int shmem_mmap(struct file * file
- 		return -EACCES;
- 	UPDATE_ATIME(inode);
- 	vma->vm_ops = ops;
-+	vma->vm_flags &= ~VM_IO;
- 	return 0;
- }
- 
---- linux-2.4.18-pre9/drivers/char/mem.c	Fri Dec 21 11:19:13 2001
-+++ linux-akpm/drivers/char/mem.c	Thu Feb  7 12:42:19 2002
-@@ -198,10 +198,10 @@ static int mmap_mem(struct file * file, 
- 	vma->vm_flags |= VM_RESERVED;
- 
- 	/*
--	 * Don't dump addresses that are not real memory to a core file.
-+	 * Dump addresses that are real memory to a core file.
- 	 */
--	if (offset >= __pa(high_memory) || (file->f_flags & O_SYNC))
--		vma->vm_flags |= VM_IO;
-+	if (offset < __pa(high_memory) && !(file->f_flags & O_SYNC))
-+		vma->vm_flags &= ~VM_IO;
- 
- 	if (remap_page_range(vma->vm_start, offset, vma->vm_end-vma->vm_start,
- 			     vma->vm_page_prot))
-@@ -473,6 +473,7 @@ static int mmap_zero(struct file * file,
- 		return shmem_zero_setup(vma);
- 	if (zeromap_page_range(vma->vm_start, vma->vm_end - vma->vm_start, vma->vm_page_prot))
- 		return -EAGAIN;
-+	vma->vm_flags &= ~VM_IO;
- 	return 0;
- }
- 
---- linux-2.4.18-pre9/net/socket.c	Fri Dec 21 11:19:23 2001
-+++ linux-akpm/net/socket.c	Thu Feb  7 19:20:54 2002
-@@ -705,6 +705,7 @@ static int sock_mmap(struct file * file,
- {
- 	struct socket *sock = socki_lookup(file->f_dentry->d_inode);
- 
-+	vma->vm_flags &= ~VM_IO;
- 	return sock->ops->mmap(file, sock, vma);
- }
- 
---- linux-2.4.18-pre9/drivers/char/ftape/zftape/zftape-init.c	Thu Sep 13 15:21:32 2001
-+++ linux-akpm/drivers/char/ftape/zftape/zftape-init.c	Thu Feb  7 19:29:19 2002
-@@ -204,6 +204,7 @@ static int  zft_mmap(struct file *filep,
- 	sigfillset(&current->blocked);
- 	lock_kernel();
- 	if ((result = ftape_mmap(vma)) >= 0) {
-+		vma->vm_flags &= ~VM_IO;
- #ifndef MSYNC_BUG_WAS_FIXED
- 		static struct vm_operations_struct dummy = { NULL, };
- 		vma->vm_ops = &dummy;
---- linux-2.4.18-pre9/drivers/sound/soundcard.c	Sun Sep 30 12:26:08 2001
-+++ linux-akpm/drivers/sound/soundcard.c	Thu Feb  7 19:42:13 2002
-@@ -481,6 +481,7 @@ static int sound_mmap(struct file *file,
- 		return -EAGAIN;
- 	}
- 
-+	vma->vm_flags &= ~VM_IO;
- 	dmap->mapping_flags |= DMA_MAP_MAPPED;
- 
- 	if( audio_devs[dev]->d->mmap)
---- linux-2.4.18-pre9/drivers/sound/es1370.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/sound/es1370.c	Thu Feb  7 19:43:30 2002
-@@ -1377,6 +1377,7 @@ static int es1370_mmap(struct file *file
- 		ret = -EAGAIN;
- 		goto out;
- 	}
-+	vma->vm_flags &= ~VM_IO;
- 	db->mapped = 1;
- out:
- 	up(&s->sem);
---- linux-2.4.18-pre9/drivers/sound/maestro.c	Sun Sep 30 12:26:08 2001
-+++ linux-akpm/drivers/sound/maestro.c	Thu Feb  7 19:44:18 2002
-@@ -2512,6 +2512,7 @@ static int ess_mmap(struct file *file, s
- 	ret = -EAGAIN;
- 	if (remap_page_range(vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
- 		goto out;
-+	vma->vm_flags &= ~VM_IO;
- 	db->mapped = 1;
- 	ret = 0;
- out:
---- linux-2.4.18-pre9/drivers/sound/trident.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/sound/trident.c	Thu Feb  7 19:44:47 2002
-@@ -2077,6 +2077,7 @@ static int trident_mmap(struct file *fil
- 	if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
- 			     size, vma->vm_page_prot))
- 		goto out;
-+	vma->vm_flags &= ~VM_IO;
- 	dmabuf->mapped = 1;
- 	ret = 0;
- out:
---- linux-2.4.18-pre9/drivers/sound/es1371.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/sound/es1371.c	Thu Feb  7 19:45:54 2002
-@@ -1566,6 +1566,7 @@ static int es1371_mmap(struct file *file
- 		ret = -EAGAIN;
- 		goto out;
- 	}
-+	vma->vm_flags &= ~VM_IO;
- 	db->mapped = 1;
- out:
- 	up(&s->sem);
-@@ -2133,6 +2134,7 @@ static int es1371_mmap_dac(struct file *
- 	ret = -EAGAIN;
- 	if (remap_page_range(vma->vm_start, virt_to_phys(s->dma_dac1.rawbuf), size, vma->vm_page_prot))
- 		goto out;
-+	vma->vm_flags &= ~VM_IO;
- 	s->dma_dac1.mapped = 1;
- 	ret = 0;
- out:
---- linux-2.4.18-pre9/drivers/sound/cs4281/cs4281m.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/sound/cs4281/cs4281m.c	Thu Feb  7 19:46:24 2002
-@@ -3239,6 +3239,7 @@ static int cs4281_mmap(struct file *file
- 	if (remap_page_range
- 	    (vma->vm_start, virt_to_phys(db->rawbuf), size,
- 	     vma->vm_page_prot)) return -EAGAIN;
-+	vma->vm_flags &= ~VM_IO;
- 	db->mapped = 1;
- 
- 	CS_DBGOUT(CS_FUNCTION | CS_PARMS | CS_OPEN, 4,
---- linux-2.4.18-pre9/drivers/sound/cmpci.c	Thu Nov 22 23:02:58 2001
-+++ linux-akpm/drivers/sound/cmpci.c	Thu Feb  7 19:46:51 2002
-@@ -1754,6 +1754,7 @@ static int cm_mmap(struct file *file, st
- 	ret = -EINVAL;
- 	if (remap_page_range(vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
- 		goto out;
-+	vma->vm_flags &= ~VM_IO;
- 	db->mapped = 1;
- 	ret = 0;
- out:
---- linux-2.4.18-pre9/drivers/sound/i810_audio.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/sound/i810_audio.c	Thu Feb  7 19:47:19 2002
-@@ -1672,6 +1672,7 @@ static int i810_mmap(struct file *file, 
- 	if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
- 			     size, vma->vm_page_prot))
- 		goto out;
-+	vma->vm_flags &= ~VM_IO;
- 	dmabuf->mapped = 1;
- 	dmabuf->trigger = 0;
- 	ret = 0;
---- linux-2.4.18-pre9/drivers/sound/sonicvibes.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/sound/sonicvibes.c	Thu Feb  7 19:47:35 2002
-@@ -1551,6 +1551,7 @@ static int sv_mmap(struct file *file, st
- 	ret = -EAGAIN;
- 	if (remap_page_range(vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
- 		goto out;
-+	vma->vm_flags &= ~VM_IO;
- 	db->mapped = 1;
- 	ret = 0;
- out:
---- linux-2.4.18-pre9/drivers/sound/esssolo1.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/sound/esssolo1.c	Thu Feb  7 19:48:12 2002
-@@ -1247,6 +1247,7 @@ static int solo1_mmap(struct file *file,
- 	ret = -EAGAIN;
- 	if (remap_page_range(vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
- 		goto out;
-+	vma->vm_flags &= ~VM_IO;
- 	db->mapped = 1;
- 	ret = 0;
- out:
---- linux-2.4.18-pre9/drivers/sound/maestro3.c	Thu Nov 22 23:02:58 2001
-+++ linux-akpm/drivers/sound/maestro3.c	Thu Feb  7 19:48:49 2002
-@@ -1557,6 +1557,7 @@ static int m3_mmap(struct file *file, st
-     ret = -EAGAIN;
-     if (remap_page_range(vma->vm_start, virt_to_phys(db->rawbuf), size, vma->vm_page_prot))
-         goto out;
-+    vma->vm_flags &= ~VM_IO;
- 
-     db->mapped = 1;
-     ret = 0;
---- linux-2.4.18-pre9/drivers/sound/ymfpci.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/sound/ymfpci.c	Thu Feb  7 19:49:14 2002
-@@ -1507,6 +1507,7 @@ static int ymf_mmap(struct file *file, s
- 	if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
- 			     size, vma->vm_page_prot))
- 		return -EAGAIN;
-+	vma->vm_flags &= ~VM_IO;
- 	dmabuf->mapped = 1;
- 
- /* P3 */ printk(KERN_INFO "ymfpci: using memory mapped sound, untested!\n");
---- linux-2.4.18-pre9/drivers/sound/cs46xx.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/sound/cs46xx.c	Thu Feb  7 19:50:02 2002
-@@ -2468,6 +2468,7 @@ static int cs_mmap(struct file *file, st
- 		ret = -EAGAIN;
- 		goto out;
- 	}
-+	vma->vm_flags &= ~VM_IO;
- 	dmabuf->mapped = 1;
- 
- 	CS_DBGOUT(CS_FUNCTION, 2, printk("cs46xx: cs_mmap()-\n") );
---- linux-2.4.18-pre9/drivers/sound/rme96xx.c	Mon Nov  5 21:01:12 2001
-+++ linux-akpm/drivers/sound/rme96xx.c	Thu Feb  7 19:53:01 2002
-@@ -1429,7 +1429,7 @@ static int rm96xx_mmap(struct file *file
- 
- 
- /* this is the mapping */
--
-+	vma->vm_flags &= ~VM_IO;
- 	dma->mmapped = 1;
- 	unlock_kernel();
- 	return 0;
---- linux-2.4.18-pre9/drivers/sound/ite8172.c	Mon Nov  5 21:01:12 2001
-+++ linux-akpm/drivers/sound/ite8172.c	Thu Feb  7 19:53:26 2002
-@@ -1111,6 +1111,7 @@ static int it8172_mmap(struct file *file
- 	unlock_kernel();
- 	return -EAGAIN;
-     }
-+    vma->vm_flags &= ~VM_IO;
-     db->mapped = 1;
-     unlock_kernel();
-     return 0;
---- linux-2.4.18-pre9/drivers/usb/audio.c	Thu Feb  7 13:04:21 2002
-+++ linux-akpm/drivers/usb/audio.c	Thu Feb  7 19:57:42 2002
-@@ -2341,6 +2341,7 @@ static int usb_audio_mmap(struct file *f
- 	if (vma->vm_pgoff != 0)
- 		goto out;
- 
-+	vma->vm_flags &= ~VM_IO;
- 	ret = dmabuf_mmap(db,  vma->vm_start, vma->vm_end - vma->vm_start, vma->vm_page_prot);
- out:
- 	unlock_kernel();
---- linux-2.4.18-pre9/drivers/media/video/videodev.c	Thu Oct 11 09:14:32 2001
-+++ linux-akpm/drivers/media/video/videodev.c	Thu Feb  7 20:00:51 2002
-@@ -208,6 +208,7 @@ int video_mmap(struct file *file, struct
- 		lock_kernel();
- 		ret = vfl->mmap(vfl, (char *)vma->vm_start, 
- 				(unsigned long)(vma->vm_end-vma->vm_start));
-+		vma->vm_flags &= ~VM_IO;
- 		unlock_kernel();
- 	}
- 	return ret;
+    I appreciate that you are willing to help and answer the questions.
+
+[root@HomeServer ftape-4.04a]# make
+for i in ftape ; do make -C $i all ; done
+make[1]: Entering directory `/usr/src/ftape-4.04a/ftape'
+for i in  lowlevel internal parport zftape compressor; \
+do \
+  make -C $i NODEP=true versions; \
+done
+make[2]: Entering directory `/usr/src/ftape-4.04a/ftape/lowlevel'
+gcc -D__KERNEL__ -I. -I../../include -I/usr/src/linux/include  -E -D__GENKSY
+MS__ ftape_syms.c | /sbin/genksyms -k 2.4.17  >
+../../include/linux/modules/ftape_syms.ver.tmp; mv
+../../include/linux/modules/ftape_syms.ver.tmp
+../../include/linux/modules/ftape_syms.ver
+ftape_syms.c:58:1: warning: pasting "(" and "ftape_get_bad_sector_entry"
+does not give a valid preprocessing token
+ftape_syms.c:59:1: warning: pasting "(" and "ftape_find_end_of_bsm_list"
+does not give a valid preprocessing token
+ftape_syms.c:61:1: warning: pasting "(" and "ftape_set_state" does not give
+a valid preprocessing token
+ftape_syms.c:63:1: warning: pasting "(" and "ftape_seek_to_bot" does not
+give a valid preprocessing token
+ftape_syms.c:64:1: warning: pasting "(" and "ftape_seek_to_eot" does not
+give a valid preprocessing token
+ftape_syms.c:65:1: warning: pasting "(" and "ftape_abort_operation" does not
+give a valid preprocessing token
+ftape_syms.c:66:1: warning: pasting "(" and "ftape_get_status" does not give
+a valid preprocessing token
+ftape_syms.c:67:1: warning: pasting "(" and "ftape_enable" does not give a
+valid preprocessing token
+ftape_syms.c:68:1: warning: pasting "(" and "ftape_disable" does not give a
+valid preprocessing token
+ftape_syms.c:69:1: warning: pasting "(" and "ftape_destroy" does not give a
+valid preprocessing token
+ftape_syms.c:70:1: warning: pasting "(" and "ftape_calibrate_data_rate" does
+not give a valid preprocessing token
+ftape_syms.c:71:1: warning: pasting "(" and "ftape_get_drive_status" does
+not give a valid preprocessing token
+ftape_syms.c:73:1: warning: pasting "(" and "ftape_reset_drive" does not
+give a valid preprocessing token
+ftape_syms.c:74:1: warning: pasting "(" and "ftape_command" does not give a
+valid preprocessing token
+ftape_syms.c:75:1: warning: pasting "(" and "ftape_parameter" does not give
+a valid preprocessing token
+ftape_syms.c:76:1: warning: pasting "(" and "ftape_ready_wait" does not give
+a valid preprocessing token
+ftape_syms.c:77:1: warning: pasting "(" and "ftape_report_operation" does
+not give a valid preprocessing token
+ftape_syms.c:78:1: warning: pasting "(" and "ftape_report_error" does not
+give a valid preprocessing token
+ftape_syms.c:79:1: warning: pasting "(" and "ftape_door_lock" does not give
+a valid preprocessing token
+ftape_syms.c:80:1: warning: pasting "(" and "ftape_door_open" does not give
+a valid preprocessing token
+ftape_syms.c:81:1: warning: pasting "(" and "ftape_set_partition" does not
+give a valid preprocessing token
+ftape_syms.c:83:1: warning: pasting "(" and "ftape_ecc_correct" does not
+give a valid preprocessing token
+ftape_syms.c:84:1: warning: pasting "(" and "ftape_read_segment" does not
+give a valid preprocessing token
+ftape_syms.c:85:1: warning: pasting "(" and "ftape_zap_read_buffers" does
+not give a valid preprocessing token
+ftape_syms.c:86:1: warning: pasting "(" and "ftape_read_header_segment" does
+not give a valid preprocessing token
+ftape_syms.c:87:1: warning: pasting "(" and "ftape_decode_header_segment"
+does not give a valid preprocessing token
+ftape_syms.c:89:1: warning: pasting "(" and "ftape_write_segment" does not
+give a valid preprocessing token
+ftape_syms.c:90:1: warning: pasting "(" and "ftape_loop_until_writes_done"
+does not give a valid preprocessing token
+ftape_syms.c:91:1: warning: pasting "(" and "ftape_hard_error_recovery" does
+not give a valid preprocessing token
+ftape_syms.c:93:1: warning: pasting "(" and "fdc_infos" does not give a
+valid preprocessing token
+ftape_syms.c:94:1: warning: pasting "(" and "fdc_register" does not give a
+valid preprocessing token
+ftape_syms.c:95:1: warning: pasting "(" and "fdc_unregister" does not give a
+valid preprocessing token
+ftape_syms.c:96:1: warning: pasting "(" and "fdc_disable_irq" does not give
+a valid preprocessing token
+ftape_syms.c:97:1: warning: pasting "(" and "fdc_enable_irq" does not give a
+valid preprocessing token
+ftape_syms.c:99:1: warning: pasting "(" and "ftape_vmalloc" does not give a
+valid preprocessing token
+ftape_syms.c:100:1: warning: pasting "(" and "ftape_vfree" does not give a
+valid preprocessing token
+ftape_syms.c:101:1: warning: pasting "(" and "ftape_kmalloc" does not give a
+valid preprocessing token
+ftape_syms.c:102:1: warning: pasting "(" and "ftape_kfree" does not give a
+valid preprocessing token
+ftape_syms.c:103:1: warning: pasting "(" and "fdc_set_nr_buffers" does not
+give a valid preprocessing token
+ftape_syms.c:104:1: warning: pasting "(" and "fdc_get_deblock_buffer" does
+not give a valid preprocessing token
+ftape_syms.c:105:1: warning: pasting "(" and "fdc_put_deblock_buffer" does
+not give a valid preprocessing token
+ftape_syms.c:107:1: warning: pasting "(" and "ftape_format_track" does not
+give a valid preprocessing token
+ftape_syms.c:108:1: warning: pasting "(" and "ftape_format_status" does not
+give a valid preprocessing token
+ftape_syms.c:109:1: warning: pasting "(" and "ftape_verify_segment" does not
+give a valid preprocessing token
+ftape_syms.c:111:1: warning: pasting "(" and "ftape_ecc_set_segment_parity"
+does not give a valid preprocessing token
+ftape_syms.c:112:1: warning: pasting "(" and "ftape_ecc_correct_data" does
+not give a valid preprocessing token
+ftape_syms.c:115:1: warning: pasting "(" and "ftape_trace_call" does not
+give a valid preprocessing token
+ftape_syms.c:116:1: warning: pasting "(" and "ftape_trace_exit" does not
+give a valid preprocessing token
+ftape_syms.c:117:1: warning: pasting "(" and "ftape_trace_log" does not give
+a valid preprocessing token
+ftape_syms.c:118:1: warning: pasting "(" and "ftape_tracings" does not give
+a valid preprocessing token
+ftape_syms.c:119:1: warning: pasting "(" and "ftape_function_nest_levels"
+does not give a valid preprocessing token
+updating ../../include/linux/modftversions.h
+make[2]: Leaving directory `/usr/src/ftape-4.04a/ftape/lowlevel'
+make[2]: Entering directory `/usr/src/ftape-4.04a/ftape/internal'
+make[2]: Nothing to be done for `versions'.
+make[2]: Leaving directory `/usr/src/ftape-4.04a/ftape/internal'
+make[2]: Entering directory `/usr/src/ftape-4.04a/ftape/parport'
+make[2]: Nothing to be done for `versions'.
+make[2]: Leaving directory `/usr/src/ftape-4.04a/ftape/parport'
+make[2]: Entering directory `/usr/src/ftape-4.04a/ftape/zftape'
+gcc -D__KERNEL__ -I. -I../../include -I/usr/src/linux/include  -E -D__GENKSY
+MS__ zftape_syms.c | /sbin/genksyms -k 2.4.17  >
+../../include/linux/modules/zftape_syms.ver.tmp; mv
+../../include/linux/modules/zftape_syms.ver.tmp
+../../include/linux/modules/zftape_syms.ver
+zftape_syms.c:50:1: warning: pasting "(" and "zft_cmpr_register" does not
+give a valid preprocessing token
+zftape_syms.c:51:1: warning: pasting "(" and "zft_cmpr_unregister" does not
+give a valid preprocessing token
+zftape_syms.c:54:1: warning: pasting "(" and "zft_fetch_segment" does not
+give a valid preprocessing token
+zftape_syms.c:56:1: warning: pasting "(" and "zft_vmalloc_once" does not
+give a
+valid preprocessing token
+zftape_syms.c:57:1: warning: pasting "(" and "zft_vmalloc_always" does not
+give
+a valid preprocessing token
+updating ../../include/linux/modftversions.h
+make[2]: Leaving directory `/usr/src/ftape-4.04a/ftape/zftape'
+make[2]: Entering directory `/usr/src/ftape-4.04a/ftape/compressor'
+make[2]: Nothing to be done for `versions'.
+make[2]: Leaving directory `/usr/src/ftape-4.04a/ftape/compressor'
+set -e; for i in  lowlevel internal parport zftape compressor; do make -C $i
+modules; done
+make[2]: Entering directory `/usr/src/ftape-4.04a/ftape/lowlevel'
+make[2]: *** No rule to make target
+`/usr/src/linux/include/linux/modules/bio.ver', needed by `.ftape_syms.d'.
+Stop.
+make[2]: Leaving directory `/usr/src/ftape-4.04a/ftape/lowlevel'
+make[1]: *** [modules] Error 2
+make[1]: Leaving directory `/usr/src/ftape-4.04a/ftape'
+make: *** [all] Error 2
+[root@HomeServer ftape-4.04a]#
+Yours Truly,
+
+Bryan Parkoff
+BParkoff@satx.rr.com
+

@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbTJSRAx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 13:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTJSRAx
+	id S261869AbTJSRCf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 13:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTJSRCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 13:00:53 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:12457 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261982AbTJSRAw
+	Sun, 19 Oct 2003 13:02:35 -0400
+Received: from 82-68-107-172.dsl.in-addr.zen.co.uk ([82.68.107.172]:3461 "EHLO
+	brain.pulsesol.com") by vger.kernel.org with ESMTP id S261869AbTJSRCe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 13:00:52 -0400
-Date: Sun, 19 Oct 2003 10:00:48 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: support@bitmover.com, linux-kernel@vger.kernel.org
-Subject: BK support notification
-Message-ID: <20031019170048.GA11249@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	support@work.bitmover.com, linux-kernel@vger.kernel.org
+	Sun, 19 Oct 2003 13:02:34 -0400
+Date: Sun, 19 Oct 2003 18:02:35 +0100
+From: Antony Gelberg <antony@antgel.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Silicon Image 3112
+Message-ID: <20031019170235.GA1335@brain.pulsesol.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry to spam the list, I have to be out for a week unexpectedly, please
-raise support issues, if any, to support@bitmover.com.  Thanks.
+Hi all,
+
+I'm trying to get my SIL3112 RAID controller to work.  It's in an ASUS
+A7N8X mobo.  I'd like to boot from a RAID 1 array.
+
+I've built silraid into the kernel (2.4.22), but on boot I get:
+driver for Silicon Image Medley 0.0.1: no raid array found.
+
+My two drives are detected as /dev/hda and /dev/hdc.  I _have_ set up
+the array in the SIL BIOS.
+
+If anyone can guide me on this, I'd be very grateful.  As I would be for
+a CC, as I'm not subscribed.
+
+A
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Now playing: Spock's Beard - A Guy Named Sid: pt. III - You Don't Know

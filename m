@@ -1,93 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267224AbUBMVWD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 16:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267225AbUBMVWD
+	id S267226AbUBMVYu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 16:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267229AbUBMVYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 16:22:03 -0500
-Received: from mail.kroah.org ([65.200.24.183]:33979 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267224AbUBMVVz (ORCPT
+	Fri, 13 Feb 2004 16:24:50 -0500
+Received: from [80.72.36.106] ([80.72.36.106]:34989 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S267226AbUBMVYq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 16:21:55 -0500
-Date: Fri, 13 Feb 2004 13:19:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Mike Bell <kernel@mikebell.org>
+	Fri, 13 Feb 2004 16:24:46 -0500
+Date: Fri, 13 Feb 2004 22:24:40 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Daniel Drake <dan@reactivated.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040213211920.GH14048@kroah.com>
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <20040210172552.GB27779@kroah.com> <20040210174603.GL4421@tinyvaio.nome.ca> <20040210181242.GH28111@kroah.com> <20040210182943.GO4421@tinyvaio.nome.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040210182943.GO4421@tinyvaio.nome.ca>
-User-Agent: Mutt/1.4.1i
+Subject: Re: is nForce2 good choice under Linux?
+In-Reply-To: <402D3448.7080105@reactivated.net>
+Message-ID: <Pine.LNX.4.58.0402132205510.31906@alpha.polcom.net>
+References: <Pine.LNX.4.58.0402132048330.31906@alpha.polcom.net>
+ <402D3448.7080105@reactivated.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 10:29:44AM -0800, Mike Bell wrote:
-> On Tue, Feb 10, 2004 at 10:12:42AM -0800, Greg KH wrote:
-> > No, that is not true.  devfs exports the device node itself.  It does
-> > not just export the major:minor number.
-> 
-> That's a pretty minor difference, from the kernel's point of view. It's
-> basically putting the same numbers in different fields.
+Thanks for your fast response!
 
-Heh, that's a HUGE difference!
+> I haven't tried the SATA or firewire capabilities of my board, but I believe 
+> both work. Everything else (sound, network, ...) works OK.
 
-I think you are missing a few things here:
-  - sysfs is not only for exporting device major:minor info.  It's for a
-    1001 other very useful things.  You can't config out sysfs, you get
-    it for "free" with 2.6.  So it isn't a "choose sysfs vs. devfs"
-    argument at all.  It's a "do I want to enable devfs or not" issue.
-  
- - sysfs exports loads of info about every device in your system, not
-   only the major:minor info.  It exports what device this major:minor
-   is assigned to, the topology of the device, the fact that it has
-   vendor id FOO and product id BAR, and serial number "123".  devfs has
-   none of this.
+Is anybody using these features? I am thinking about connecting two 120GB 
+WD SATA drives (raid) to improve performance and seek times. But I have to 
+know if SATA controller works under Linux... (i think it is Silicon Image 
+controller or something like that...) Is TCQ supported on these 
+controllers? Or it depends on disks being used?
 
- - you get /sbin/hotplug calls for "free" too.  Yes, you can config this
-   out, but the added benefits of hotplug calls far outweigh any memory
-   savings you get for not enabling this option (embedded systems not
-   included.)
 
-So, if you put hotplug and sysfs together, udev can control your /dev.
-And it can provide persistent device naming, which on its own, devfs can
-not.
+> Apparently, nvidia are working on new (binary) drivers for nforce-audio which 
+> will do hardware mixing and the likes.
 
-Again, the fact that udev can do everything devfs can (manage a /dev),
-in userspace, and in less memory, is a big win in my eyes.
+Hope it will work with ALSA...
 
-Oh, and recall that I implemented a "dynamic /dev" with LSB names almost
-a year ago, in 6Kb of userspace code.  The amount of memory that this
-takes for devfs to do I don't really want to imagine...
 
-> > devfs also does not export the position within the entire device tree,
-> > which sysfs does.  
-> 
-> devfs tried to do just that. sysfs does it better though. I don't see
-> what that has to do with my point.
+> Yes, there is a problem. This is a hardware problem, which can likely be fixed 
+> in a BIOS update. Those who have tried contacting manufacturers have basically 
+> failed.
+> There is a bug relating to the C1 disconnect feature of AMD CPU's. It causes a 
+> total system freeze. There is some quite detailed info on this in recent 
+> threads, search the archive if you are interested.
+>
+> For the majority of people (as I understand it), these lockups can be totally 
+> avoided by *not* using APIC/IOAPIC. I never met a lockup until I enabled APIC 
+> for the first time. The older XTPIC paths are generally not fast enough to 
+> trigger the C1 bug. Ross Dickson has done some great work here, and he has 
+> produced patches which workaround this particular bug. His last two revisions 
+> of patches have worked great for me (and others), not a lockup since.
 
-persistent device names...  That's the main point of udev.
+You mean that kernel 2.6-mm with this patch with APIC and ACPI enabled 
+works OK? Is this patch a complete fix or a workaround?
 
-> > They are two completely different filesystems, doing two completely
-> > different things.  Please do not confuse them.
-> 
-> sysfs and devfs are very different. I said they both accomplish one
-> common goal, sysfs for udev and devfs for devfsd.
+Btw. Is CPU frequency scaling supported on this board (with ACPI)? What 
+about other power saving technologies?
 
-Not at all.  sysfs has 1001 goals at the least.  So many different
-people are using it for different things that it's really amazing to me.
-It also shows how powerful and how correct the model of it is.
 
-And as stated above, you always get sysfs in your kernel (unless you are
-running the -tiny tree...)
+> I have been perfectly happy with my NF7-S, except from the one time it failed 
+> on me (didn't boot up), and I had to get it replaced. I think there is a 
+> general risk involved in buying nforce2 boards, their rate of failure is 
+> fairly high. Still, the benefits are nice.
 
-I'm not going to try to answer all of your other questions specifically,
-as I think I have covered them all now.  If you feel that you still have
-some questions remaining about this, or that I have not explained
-anything good enough, please let me know.
+Wow! This fringtens me! What do you mean? Why are they so failure-able? 
+Are they worse than other new boards in it? Are they, at least, easily, 
+fast and free replaced (under warranty)?
 
-thanks,
 
-greg k-h
+Thanks again!
+
+
+Grzegorz Kulewski
+

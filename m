@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317625AbSGJVJK>; Wed, 10 Jul 2002 17:09:10 -0400
+	id <S317624AbSGJVIc>; Wed, 10 Jul 2002 17:08:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317626AbSGJVJJ>; Wed, 10 Jul 2002 17:09:09 -0400
-Received: from iris.mc.com ([192.233.16.119]:65194 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S317625AbSGJVJH>;
-	Wed, 10 Jul 2002 17:09:07 -0400
-Message-Id: <200207102111.RAA01524@mc.com>
-Content-Type: text/plain; charset=US-ASCII
-From: mbs <mbs@mc.com>
-To: linux-kernel@vger.kernel.org
-Subject: question for marcello re adaptec aic7902
-Date: Wed, 10 Jul 2002 17:14:02 -0400
-X-Mailer: KMail [version 1.3.1]
+	id <S317625AbSGJVIb>; Wed, 10 Jul 2002 17:08:31 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:34821 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317624AbSGJVIa>; Wed, 10 Jul 2002 17:08:30 -0400
+Date: Wed, 10 Jul 2002 18:11:01 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: jbradford@dial.pipex.com
+cc: Christian Ludwig <cl81@gmx.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: bzip2 patent status query
+In-Reply-To: <200207101554.QAA07949@darkstar.example.net>
+Message-ID: <Pine.LNX.4.44L.0207101810370.14432-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-when is the adaptec aic7902 driver justin gibbs submitted going to get 
-integrated into the kernel?
+On Wed, 10 Jul 2002 jbradford@dial.pipex.com wrote:
 
+> Is bzip2 *definitely* patent-unencumbered?
 
+As long as bitflipping and xor are patented, I guess there
+must be _something_ covering bzip2 ;)
 
-
+Rik
 -- 
-/**************************************************
-**   Mark Salisbury       ||      mbs@mc.com     **
-**************************************************/
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

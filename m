@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289226AbSCCWCl>; Sun, 3 Mar 2002 17:02:41 -0500
+	id <S289328AbSCCWON>; Sun, 3 Mar 2002 17:14:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289239AbSCCWCV>; Sun, 3 Mar 2002 17:02:21 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:28098 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S289226AbSCCWCU>;
-	Sun, 3 Mar 2002 17:02:20 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 3 Mar 2002 22:02:15 GMT
-Message-Id: <UTC200203032202.WAA145534.aeb@cwi.nl>
-To: dalecki@evision-ventures.com, torvalds@transmeta.com
-Subject: IDE cleanup eats disks
-Cc: linux-kernel@vger.kernel.org
+	id <S289306AbSCCWOD>; Sun, 3 Mar 2002 17:14:03 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:1751 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S289272AbSCCWNw>;
+	Sun, 3 Mar 2002 17:13:52 -0500
+Date: Sun, 3 Mar 2002 14:13:45 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+cc: Martin Wirth <martin.wirth@dlr.de>, rusty@rustycorp.com.au,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: [PATCH] Lightweight userspace semaphores...
+In-Reply-To: <20020302090856.A1332@elinux01.watson.ibm.com>
+Message-ID: <Pine.SGI.4.21.0203031410310.623951-100000@sam.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On one of my machines I lose two disk drives with
-2.5.6-pre2 that still were present with 2.5.6-pre1.
-Looking why, I see that the cleanup of ide-pci.c
-cleaned them away.
+On Sat, 2 Mar 2002, Hubertus Franke wrote:
+> But more conceptually, if you process dies while holding a lock ... 
+> your app is toast at that point.
 
-This is not necessarily bad, leaving things as they are is
-certainly an option, although maybe I prefer the old situation,
-but I just report the fact that the cleanup changes behaviour.
+Without application specific knowledge, certainly.
 
-In this case I had two disks hanging off a HPT366 card
-but no CONFIG_BLK_DEV_HPT366 selected. Until now this
-worked: the values {PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT366}
-were always compiled in. On the other hand, 2.5.6-pre2 only
-knows about them when CONFIG_BLK_DEV_HPT366 is selected,
-so does not recognize the card and does not see the disks.
+Is there someway one could support a hook, to enable
+an application to register a handler that could clean
+up, for those apps that found that worthwhile?
 
-As a check I changed 2.5.6-pre2 by
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373
 
- #ifdef CONFIG_BLK_DEV_HPT366
-        {PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT366, pci_init_hpt366, ...
-+#else
-+       {PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT366, NULL, NULL,
-+        IDE_NO_DRIVER, NULL, {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
-+	 OFF_BOARD, 240, ATA_F_IRQ | ATA_F_HPTHACK },
- #endif
-
-and indeed, this brings the drives back to life.
-
-Andries
-
-
-[Of course this is not a suggested patch. The same comment applies
-to all devices, not just HPT366.]
-[Thus, the old situation was that if one did not use DMA then all
-just worked, and no special chipset code was required. The new
-situation is that one has to select DMA before encountering the
-CONFIG_BLK_DEV_HPT366 option.]

@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284732AbSBDSX6>; Mon, 4 Feb 2002 13:23:58 -0500
+	id <S286521AbSBDSXi>; Mon, 4 Feb 2002 13:23:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286893AbSBDSXt>; Mon, 4 Feb 2002 13:23:49 -0500
-Received: from squeaker.ratbox.org ([63.216.218.7]:25607 "EHLO
-	squeaker.ratbox.org") by vger.kernel.org with ESMTP
-	id <S284732AbSBDSXg>; Mon, 4 Feb 2002 13:23:36 -0500
-Date: Mon, 4 Feb 2002 13:30:40 -0500 (EST)
-From: Aaron Sethman <androsyn@ratbox.org>
-To: Darren Smith <data@barrysworld.com>
-Cc: "'Andrew Morton'" <akpm@zip.com.au>, "'Dan Kegel'" <dank@kegel.com>,
-        "'Vincent Sweeney'" <v.sweeney@barrysworld.com>,
-        <linux-kernel@vger.kernel.org>, <coder-com@undernet.org>,
-        "'Kevin L. Mitchell'" <klmitch@mit.edu>
-Subject: RE: [Coder-Com] Re: PROBLEM: high system usage / poor SMP network
- performance
-In-Reply-To: <000001c1ada7$5ad5cfb0$5c5a1e3e@wilma>
-Message-ID: <Pine.LNX.4.44.0202041327420.4584-100000@simon.ratbox.org>
+	id <S284933AbSBDSXX>; Mon, 4 Feb 2002 13:23:23 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32531 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284732AbSBDSXE>; Mon, 4 Feb 2002 13:23:04 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: How to check the kernel compile options ?
+Date: 4 Feb 2002 10:22:36 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a3mjhc$qba$1@cesium.transmeta.com>
+In-Reply-To: <3C5EB070.4370181B@uni-mb.si> <3C5EB070.4370181B@uni-mb.si> <4.3.2.7.2.20020204124812.00aec590@mail.osagesoftware.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Feb 2002, Darren Smith wrote:
+Followup to:  <4.3.2.7.2.20020204124812.00aec590@mail.osagesoftware.com>
+By author:    David Relson <relson@osagesoftware.com>
+In newsgroup: linux.dev.kernel
+> 
+> I remember discussion of that patch some time ago and the main complaint 
+> about it was that it increases the size of the kernel, i.e. vmlinuz.  Why 
+> not put the need info in a module?  Doing that would enable the following 
+> command:
+> 
+>          zgrep CONFIG_PROC /lib/modules/`uname -r`/config.gz
+> 
+> (or something similar).
+> 
 
-> I mean I added a usleep() before the poll in s_bsd.c for the undernet
-> 2.10.10 code.
->
->  timeout = (IRCD_MIN(delay2, delay)) * 1000;
->  + usleep(100000); <- New Line
->  nfds = poll(poll_fds, pfd_count, timeout);
-Why not just add the additional delay into the poll() timeout?  It just
-seems like you were not doing enough of a delay in poll().
+Uhm, no.  The problem with it is that you're using kernel memory
+because you're not willing to manage userspace competently, so modules
+(in fact, *using modules at all*) would be right out.
 
-Regards,
+I have had in my /sbin/installkernel a clause to save .config as
+config-<foo> when I install vmlinuz-<foo>; I believe anyone not doing
+that[1] is, quite frankly, a moron.
 
-Aaron
+	-hpa
 
+[1] or rather, not doing it without knowing exactly why they aren't --
+sometimes there are good reasons for doing so.
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

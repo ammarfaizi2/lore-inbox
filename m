@@ -1,91 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129812AbRAQXki>; Wed, 17 Jan 2001 18:40:38 -0500
+	id <S129830AbRAQX5r>; Wed, 17 Jan 2001 18:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129830AbRAQXk1>; Wed, 17 Jan 2001 18:40:27 -0500
-Received: from ns1.SuSE.com ([202.58.118.2]:62990 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S129812AbRAQXkU>;
-	Wed, 17 Jan 2001 18:40:20 -0500
-Date: Wed, 17 Jan 2001 15:40:26 -0800 (PST)
-From: James Simmons <jsimmons@suse.com>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: console spin_lock
-In-Reply-To: <3A65A2F1.690CD6CF@uow.edu.au>
-Message-ID: <Pine.LNX.4.21.0101171514050.266-100000@euclid.oak.suse.com>
+	id <S129896AbRAQX5i>; Wed, 17 Jan 2001 18:57:38 -0500
+Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:1031 "EHLO
+	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
+	id <S129830AbRAQX51>; Wed, 17 Jan 2001 18:57:27 -0500
+Date: Wed, 17 Jan 2001 23:57:23 +0000 (GMT)
+From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Terrence Martin <tmartin@cal.montage.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: File System Corruption with 2.2.18
+In-Reply-To: <Pine.LNX.4.10.10101171443300.19379-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.30.0101172356370.26536-100000@pine.parrswood.manchester.sch.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Hi!
+> >
+> > Cute. Can it be run on say a swap partition?
+>
+> maybe but why?
 
-> heh.
-> 
-> I'm actually planning on grabbing console_lock and thoroughly strangling
-> it
+Because it stores no data, hence the wiping out of it is no problem?
 
-Ha Ha!!
+-- 
+   Tim Fletcher - Network manager   .~.
+                                    /V\      L   I   N   U   X
+     nightshade@solanum.net        // \\  >Don't fear the penguin<
+tim@parrswood.manchester.sch.uk   /(   )\
+ irc: Night-Shade on quakenet      ^^-^^
 
-> - Use a semaphore for serialisation.
-
-I think this would be the best solution as well.
-
-> - For printk in interrupt context, grab the
->   semaphore (yes, you can do this).
-
-Don't forget about the idle task also. How is this done? By reintializing
-the semaphore.
-
-> - If it couldn't be acquired from interrupt context,
->   buffer the text in the log buffer and return.  The text will be
->   printed by whoever holds the semaphore before they
->   drop it.
-
-By you saying couldn't be acquired from interrupt context do you mean
-from a process context or do you mean it failed to aquire it while in 
-the interrupt context?
-
-> - Special "system booting" mode which bypasses all this
->   stuff.
-
-This wouldn't be to hard to do for VTs using the fact that keybaords 
-are not initialized right away. As for serial consoles well that is
-another story. Of course we could have this flag set/cleared in
-start_kernel. 
-
-> - Special "oops in progress" mode which just
->   punches through everything.
-
-You already developed the framework for this.
-
-> - Get rid of the special printk buffer - share the
->   log buffer.  (Implies writes to console
->   devices will be broken into two writes when they
->   wrap around).
-> - Teach vsprintf to print into a circular buffer
->   (snprintf thus comes for free).
-
-> - Get rid of all the printk deadlock opportunities (fourth
->   attempt).
-
-Good luck.
-
-> - Get rid of console_tasklet.  Do it in process context callback
->   or just do it synchronously.
-
-What about multidesktop systems? I have vgacon and mdacon working fine 
-along each other. Each one has their own tasklet to allow them to work
-independent of each other. Meaning no race condition when both VC switch
-at the same time.  
- 
-> Assumption:
-> - Once the system is up and running, it's always safe to
->   call down() when in_interrupt() returns false - probably
->   not the case in parts of the exit path - tough.
-
-Don't forget the idle_task case as well. exit path?
+The only function of economic forecasting is to make astrology look
+respectable.
+                -- John Kenneth Galbraith
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

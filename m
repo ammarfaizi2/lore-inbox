@@ -1,44 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267597AbTBLUBv>; Wed, 12 Feb 2003 15:01:51 -0500
+	id <S267605AbTBLUGH>; Wed, 12 Feb 2003 15:06:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267605AbTBLUBv>; Wed, 12 Feb 2003 15:01:51 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:18937 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S267597AbTBLUBu>; Wed, 12 Feb 2003 15:01:50 -0500
-Date: Wed, 12 Feb 2003 13:11:09 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Eric Chen <echen@ateonix.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: changing file copy to support extended attributes
-Message-ID: <20030212131109.M22930@schatzie.adilger.int>
-Mail-Followup-To: Eric Chen <echen@ateonix.com>,
-	linux-kernel@vger.kernel.org
-References: <NFBBIGILIDAABCBKKGMLAECOCCAA.echen@ateonix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <NFBBIGILIDAABCBKKGMLAECOCCAA.echen@ateonix.com>; from echen@ateonix.com on Wed, Feb 12, 2003 at 11:35:11AM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S267612AbTBLUGH>; Wed, 12 Feb 2003 15:06:07 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1031 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267605AbTBLUGF>; Wed, 12 Feb 2003 15:06:05 -0500
+Date: Wed, 12 Feb 2003 12:12:13 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roland McGrath <roland@redhat.com>
+cc: Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: another subtle signals issue
+In-Reply-To: <200302120206.h1C26sI19476@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.44.0302121138570.8062-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 12, 2003  11:35 -0800, Eric Chen wrote:
-> I wanted to modify file copy so it supports extended attributes. I am using
-> extended attributes provided by the XFS filesystem, and right now when I
-> copy a file with an extended attribute bit set on, the copy of the file does
-> not preserve the extended attribute. I could use some help in this area
-> because I am not sure where to start. If anyone has some suggestions or can
-> offer me some help or resources to go to, please let me know.
 
-Probably only user-space changes are needed.  I think there are already
-modified tools for this.  See http://acl.bestbits.at.
+Btw, Roland, instead of your previous patch I would prefer something that 
+just makes "sig_ignored()" test the state of the signal better. Ie 
+something like the appended.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+This should bring it much closer to the old code, which got this _right_. 
+For example, a signal that is blocked is _never_ ignored, since even if 
+the handler is SIG_IGN right now, it may not be by the time it is 
+unblocked.
+
+I bet the blocked case accounts for some of the new test failures, while
+the (SIG_DFL && sig_kernel_ignore(sig)) case will account for a few more.  
+In general I _think_ this should get us pretty much back to the old
+behaviour.
+
+At least this fixes the pipe write() / SIGWINCH testcase for me.
+
+		Linus
+
+---
+===== kernel/signal.c 1.69 vs edited =====
+--- 1.69/kernel/signal.c	Tue Feb 11 17:33:52 2003
++++ edited/kernel/signal.c	Wed Feb 12 12:03:28 2003
+@@ -141,14 +141,34 @@
+ 	(((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_DFL) &&	\
+ 	 ((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_IGN))
+ 
+-#define sig_ignored(t, signr) \
+-	(!((t)->ptrace & PT_PTRACED) && \
+-	 (t)->sighand->action[(signr)-1].sa.sa_handler == SIG_IGN)
+-
+ #define sig_fatal(t, signr) \
+ 	(!T(signr, SIG_KERNEL_IGNORE_MASK|SIG_KERNEL_STOP_MASK) && \
+ 	 (t)->sighand->action[(signr)-1].sa.sa_handler == SIG_DFL)
+ 
++static inline int sig_ignored(struct task_struct *t, int sig)
++{
++	void * handler;
++
++	/*
++	 * Tracers always want to know about signals..
++	 */
++	if (t->ptrace & PT_PTRACED)
++		return 0;
++
++	/*
++	 * Blocked signals are never ignored, since the
++	 * signal handler may change by the time it is
++	 * unblocked.
++	 */
++	if (sigismember(&t->blocked, sig))
++		return 0;
++
++	/* Is it explicitly or implicitly ignored? */
++	handler = t->sighand->action[sig-1].sa.sa_handler;
++	return   handler == SIG_IGN ||
++		(handler == SIG_DFL && sig_kernel_ignore(sig));
++}
++
+ /*
+  * Re-calculate pending state from the set of locally pending
+  * signals, globally pending signals, and blocked signals.
+@@ -642,7 +662,7 @@
+ 			 * TIF_SIGPENDING
+ 			 */
+ 			state = TASK_STOPPED;
+-			if (!sigismember(&t->blocked, SIGCONT)) {
++			if (sig_user_defined(t, SIGCONT) && !sigismember(&t->blocked, SIGCONT)) {
+ 				set_tsk_thread_flag(t, TIF_SIGPENDING);
+ 				state |= TASK_INTERRUPTIBLE;
+ 			}
 

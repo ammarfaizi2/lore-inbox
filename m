@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284509AbRLERKT>; Wed, 5 Dec 2001 12:10:19 -0500
+	id <S284518AbRLEROQ>; Wed, 5 Dec 2001 12:14:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284512AbRLERKG>; Wed, 5 Dec 2001 12:10:06 -0500
-Received: from [209.1.214.217] ([209.1.214.217]:12293 "EHLO
-	iso2.vistocorporation.com") by vger.kernel.org with ESMTP
-	id <S284509AbRLERJz> convert rfc822-to-8bit; Wed, 5 Dec 2001 12:09:55 -0500
-Message-ID: <3C07FBEF00038ACA@iso2.vistocorporation.com> (added by
-	    administrator@vistocorporation.com)
-Reply-To: linuxlist@visto.com
-From: "rohit prasad" <linuxlist@visto.com>
+	id <S283773AbRLEROG>; Wed, 5 Dec 2001 12:14:06 -0500
+Received: from mustard.heime.net ([194.234.65.222]:30101 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S284517AbRLERN7>; Wed, 5 Dec 2001 12:13:59 -0500
+Date: Wed, 5 Dec 2001 18:13:43 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: rohit prasad <linuxlist@visto.com>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Hi all...
-Date: Wed, 05 Dec 2001 09:03:39 -0800
-X-Mailer: Visto
-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3C07FBEF00038ACA@iso2.vistocorporation.com> (added by     administrator@vistocorporation.com)
+Message-ID: <Pine.LNX.4.30.0112051812390.2669-100000@mustard.heime.net>
 MIME-Version: 1.0
-X-Mailer: Visto Server
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Is this the right place to enquire about how to set up my linux machine
+> as a gateway for other linux/windows machines for internet browsing and
+> email.
 
-Hi,, 
+er.. no.
 
- 
- Is this the right place to enquire about how to set up my linux machine as a gateway for other linux/windows machines for internet browsing and email.
+try the documentation from netfilter.samba.org
 
-Do let me know soon.
-TIA,
-Rohit
-___________________________________________________________________________
-Visit http://www.visto.com.
-Find out  how companies are linking mobile users to the 
-enterprise with Visto.
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
 

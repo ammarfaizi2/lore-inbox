@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261817AbSI2XUT>; Sun, 29 Sep 2002 19:20:19 -0400
+	id <S261839AbSI2Xid>; Sun, 29 Sep 2002 19:38:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261838AbSI2XUT>; Sun, 29 Sep 2002 19:20:19 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:21637 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S261817AbSI2XUS>; Sun, 29 Sep 2002 19:20:18 -0400
-Date: Sun, 29 Sep 2002 17:25:23 -0600
-Message-Id: <200209292325.g8TNPNI17404@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Phil Oester <kernel@theoesters.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.39 - make MCE options arch dependent
-In-Reply-To: <20020929161206.A14962@ns1.theoesters.com>
-References: <20020929161206.A14962@ns1.theoesters.com>
+	id <S261842AbSI2Xid>; Sun, 29 Sep 2002 19:38:33 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:58503 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S261839AbSI2Xic>; Sun, 29 Sep 2002 19:38:32 -0400
+Date: Mon, 30 Sep 2002 01:39:26 +0200
+From: Dominik Brodowski <linux@brodo.de>
+To: Gerald Britton <gbritton@alum.mit.edu>
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers
+Message-ID: <20020930013926.A11768@brodo.de>
+References: <20020928112503.E1217@brodo.de> <20020928134457.A14784@brodo.de> <20020928134739.A11797@light-brigade.mit.edu> <20020929111603.F1250@brodo.de> <20020929121018.A811@brodo.de> <20020929155648.A20308@light-brigade.mit.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <20020929155648.A20308@light-brigade.mit.edu>; from gbritton@alum.mit.edu on Sun, Sep 29, 2002 at 03:56:48PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phil Oester writes:
-> No need to see P4 or Athlon options if you don't have one...
+On Sun, Sep 29, 2002 at 03:56:48PM -0400, Gerald Britton wrote:
+> On Sun, Sep 29, 2002 at 12:10:18PM +0200, Dominik Brodowski wrote:
+> > I think I found the problem: it should be GFP_ATOMIC and not GFP_KERNEL in
+> > the allocation of struct cpufreq_driver. Will be fixed in the next release.
 > 
-> --- linux-2.5.39-orig/arch/i386/config.in       Fri Sep 27 14:49:42 2002
-> +++ linux-2.5.39/arch/i386/config.in    Sun Sep 29 15:55:44 2002
-> @@ -187,8 +187,12 @@
->  fi
+> Nope.  That should be fine, it's in a process context and not holding any
+> locks, so GFP_KERNEL should be fine.  I found the bug though:
 >  
->  bool 'Machine Check Exception' CONFIG_X86_MCE
-> -dep_bool 'Check for non-fatal errors on Athlon/Duron' CONFIG_X86_MCE_NONFATAL $CONFIG_X86_MCE
-> -dep_bool 'check for P4 thermal throttling interrupt.' CONFIG_X86_MCE_P4THERMAL $CONFIG_X86_MCE $CONFIG_X86_UP_APIC
-> +if [ "$CONFIG_MK7" = "y" ]; then
-> +   dep_bool 'Check for non-fatal errors on Athlon/Duron' CONFIG_X86_MCE_NONFATAL $CONFIG_X86_MCE
-> +fi
-> +if [ "$CONFIG_MPENTIUM4" = "y" ]; then
-> +   dep_bool 'Check for P4 thermal throttling interrupt' CONFIG_X86_MCE_P4THERMAL $CONFIG_X86_MCE $CONFIG_X86_UP_APIC
-> +fi 
+> -driver->policy = (struct cpufreq_policy *) (driver + sizeof(struct cpufreq_driver));
+> +driver->policy = (struct cpufreq_policy *) (driver + 1);
+>  
+> Remember your pointer arithmetic.
 
-But now I can't build a "generic" kernel which supports both these
-features.
+yes, you're right. I've just merged your patch into CVS, and I'll send a
+patch to Linus really soon. 
 
-				Regards,
+<snip>
+> [rounding] 
+> There probably isn't a lot that can be done about these unfortunately, but
+> they won't necessarily converge to a stable value so things may eventually
+> start to fail.
+Yes, that's a problem; but as cpufreq doesn't change speed dynamically yet
+(and thus the number of transitions is somewhat limited) it shouldn't cause
+too much trouble _yet_. But I'll try to think of a better solution _soon_.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+	Dominik

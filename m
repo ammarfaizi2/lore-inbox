@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261776AbSJIOJR>; Wed, 9 Oct 2002 10:09:17 -0400
+	id <S261740AbSJIORn>; Wed, 9 Oct 2002 10:17:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261782AbSJIOJR>; Wed, 9 Oct 2002 10:09:17 -0400
-Received: from Morgoth.ESIWAY.NET ([193.194.16.157]:4621 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S261776AbSJIOI7>; Wed, 9 Oct 2002 10:08:59 -0400
-Date: Wed, 9 Oct 2002 16:14:35 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
+	id <S261747AbSJIORn>; Wed, 9 Oct 2002 10:17:43 -0400
+Received: from [64.76.155.18] ([64.76.155.18]:7119 "EHLO alumno.inacap.cl")
+	by vger.kernel.org with ESMTP id <S261740AbSJIORm>;
+	Wed, 9 Oct 2002 10:17:42 -0400
+Date: Wed, 9 Oct 2002 10:23:23 -0400 (CLT)
+From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-In-Reply-To: <3DA33250.FB61BAAE@digeo.com>
-Message-ID: <Pine.LNX.4.44.0210091612160.26363-100000@Megathlon.ESI>
+Subject: [PATCH][RFC][Call for Testers] Change of [const] char definitions
+ from Kernel Janitor TODO List (Against 2.5.40)
+Message-ID: <Pine.LNX.4.44.0210091017160.19850-100000@alumno.inacap.cl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, Andrew Morton wrote:
+It seems like my original post to the list went to /dev/null, since I 
+can't find it at http://marc.theaimsgroup.com/?l=linux-kernel
+so here we go again.
 
-> I'd say that if you were designing a new application which
-> streams large amount of data then yes, you would design it
-> to use O_DIRECT.  You would instantiate a separate IO worker
-> thread and a message passing mechanism so that thread would
-> pump your data for you, and would peform your readahead, etc.
-> 
-> If your filesystem supports O_DIRECT, of course.  Not all do.
-> 
-> The strength of O_STREAMING is that you can take an existing,
-> working, megahuge application and make it play better with the
-> VM by changing a single line of code.  No big redesign needed.
+-- 
 
-Such as perl:
+Hi all,
 
-sysopen(MYKERNEL, "/boot/vmlinuz", 04000000);
+I've done a first run looking for var defs in the form:
 
-O_DIRECT support is another beast, IMHO.
+const char *foo = "blah";
+and changed that for
+const char foo[] = "blah";
 
-.TM.
+This came from the kerneljanitor TODO list, doing some tests, in x86 we 
+get 4 less lines of asm code, since it only declares a single variable, 
+against a static string and a pointer to that string in the *foo case.
+
+Almost all changes were verified doing visual inspection, and trying to 
+compile them. This is where you come in, since I don't have the hardware 
+and/or cross-compilers to test each change I'm asking you people to test 
+this patch and report any breakage to me, I'll wait some days for reports 
+before start sending the changes to the respective maintainers
+
+Patch is against 2.5.40, and it's located at:
+<http://alumno.inacap.cl/~rmaureira/kernel/chardef.diff>
+
+Best regards
+-- 
+Robinson Maureira Castillo
+Asesor DAI
+INACAP
+
 

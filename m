@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275358AbTHMUSe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 16:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275363AbTHMUSe
+	id S275486AbTHMUXe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 16:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275487AbTHMUXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 16:18:34 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:521 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S275358AbTHMUSc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 16:18:32 -0400
-Date: Wed, 13 Aug 2003 22:18:29 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: George Anzinger <george@mvista.com>
-Cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test3-mm1
-Message-ID: <20030813201829.GA15012@mars.ravnborg.org>
-Mail-Followup-To: George Anzinger <george@mvista.com>,
-	Thomas Schlichter <schlicht@uni-mannheim.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030809203943.3b925a0e.akpm@osdl.org> <200308101941.33530.schlicht@uni-mannheim.de> <3F37DFDC.6080308@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F37DFDC.6080308@mvista.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 13 Aug 2003 16:23:32 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:20651 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S275486AbTHMUXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 16:23:24 -0400
+Date: Wed, 13 Aug 2003 16:23:17 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200308132023.h7DKNH508763@devserv.devel.redhat.com>
+To: Tom Vier <tmv@comcast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3: sparc64: no asm/serial.h
+In-Reply-To: <mailman.1060747924.1184.linux-kernel2news@redhat.com>
+References: <mailman.1060747924.1184.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 11:26:36AM -0700, George Anzinger wrote:
-> >that patch sets DEBUG_INFO to y by default, even if whether DEBUG_KERNEL 
-> >nor KGDB is enabled. The attached patch changes this to enable DEBUG_INFO 
-> >by default only if KGDB is enabled.
-> 
-> Looks good to me, but.... just what does this turn on?  Its been a 
-> long time and me thinks a wee comment here would help me remember next 
-> time.
+> drivers/serial/8250.c:106:24: asm/serial.h: No such file or directory
 
-DEBUG_INFO add "-g" to CFLAGS.
-Main reason to introduce this was that many architectures always use
-"-g", so a config option seemed more appropriate.
-I do not agree that this should be dependent on KGDB.
-To my knowledge -g is useful also without using kgdb.
+Well, duh. Use sunsu for now.
 
-	Sam
+How did you manage to enable it, anyway? And why?
+
+If you want to fix it, I accept patches.
+
+-- Pete

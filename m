@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263751AbTL0Mir (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 07:38:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264391AbTL0Mir
+	id S264415AbTL0Mn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 07:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264423AbTL0MnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 07:38:47 -0500
-Received: from pooh.lsc.hu ([195.56.172.131]:38795 "EHLO pooh.lsc.hu")
-	by vger.kernel.org with ESMTP id S263751AbTL0Miq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 07:38:46 -0500
-Date: Sat, 27 Dec 2003 13:24:17 +0100
-From: GCS <gcs@lsc.hu>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>
-Subject: Re: Synaptics problems in -mm1
-Message-ID: <20031227122417.GA20603@lsc.hu>
-References: <20031224095921.GA8147@lsc.hu> <200312250411.55881.dtor_core@ameritech.net> <200312250413.32822.dtor_core@ameritech.net> <200312250414.58598.dtor_core@ameritech.net> <20031227113848.GA10491@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <20031227113848.GA10491@louise.pinerecords.com>
-X-Operating-System: GNU/Linux
-User-Agent: Mutt/1.5.4i
+	Sat, 27 Dec 2003 07:43:25 -0500
+Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:54823 "EHLO
+	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
+	id S264415AbTL0MnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 07:43:24 -0500
+Message-ID: <3FED7E80.20800@planet.nl>
+Date: Sat, 27 Dec 2003 13:43:44 +0100
+From: Stef van der Made <svdmade@planet.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: wrlk@riede.org, linux-kernel@vger.kernel.org
+Subject: Re: The survival of ide-scsi in 2.6.x
+References: <20031226181242.GE1277@linnie.riede.org>
+In-Reply-To: <20031226181242.GE1277@linnie.riede.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 27, 2003 at 12:38:48PM +0100, Tomas Szepe <szepe@pinerecords.com> wrote:
-> it seems one of the synaptics-related patches in 2.6.0-mm1 kills
-> off the pointer stick on my T40p.  2.6.0 vanilla works just fine
-> in that department.  Thought you might want to know.
- I had the same problems, but Dmitry provided two additional patches,
-which made my one working. Have you tried them? You can find them in the
-thread.
+Willem Riede wrote:
+
+snip
+
+>(By the way, ide-tape contains code for the ATAPI version, the 
+>DI-30, but that code is old and has serveral known problems - 
+>I'd like to see it removed - or at least deprecated - I will do 
+>that myself later if people want me to.)
+>
+>  
+>
+snip
+
+After some fixing on ide-scsi my DI-30 is now working fine. I don't know 
+of any bugs in it. All works fine for me. Getting rid if ide-scsi might 
+be a good idea but it ain't going to be easy as a lot of programs are 
+using the code.
+
+ If you need a tester for the di-30 please feed me the patches and I'll 
+play around with them.
 
 Cheers,
-GCS
-Ps:Somehow I know you, just don't know where - are you Hungarian?
+
+Stef

@@ -1,109 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313422AbSDMLJ1>; Sat, 13 Apr 2002 07:09:27 -0400
+	id <S312944AbSDMLdh>; Sat, 13 Apr 2002 07:33:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313585AbSDMLJ0>; Sat, 13 Apr 2002 07:09:26 -0400
-Received: from ws-002.ray.fi ([193.64.14.2]:26489 "EHLO behemoth.ts.ray.fi")
-	by vger.kernel.org with ESMTP id <S313422AbSDMLJZ>;
-	Sat, 13 Apr 2002 07:09:25 -0400
-Date: Sat, 13 Apr 2002 14:09:18 +0300 (EEST)
-From: Tommi Kyntola <kynde@ts.ray.fi>
-X-X-Sender: kynde@behemoth.ts.ray.fi
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] oops with USB mass storage and DiskOnKey
-In-Reply-To: <Pine.LNX.4.44.0204131121040.22068-100000@behemoth.ts.ray.fi>
-Message-ID: <Pine.LNX.4.44.0204131403320.22254-100000@behemoth.ts.ray.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313093AbSDMLdg>; Sat, 13 Apr 2002 07:33:36 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:14088 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S312944AbSDMLdg>; Sat, 13 Apr 2002 07:33:36 -0400
+Date: Sat, 13 Apr 2002 12:32:44 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] don't allocate ratnodes under PF_MEMALLOC
+Message-ID: <20020413123244.A4470@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@zip.com.au>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CB7D75F.FEE95D28@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>  
+>  /*
+> + * On the swap_out path, the radix-tree node allocations are performing
+> + * GFP_ATOMIC allocations under PF_MEMALLOC.  They can completely
+> + * exhaust the page allocator.  This is bad; some pages should be left
+> + * available for the I/O system to start sending the swapcache contents
+> + * to disk.
+> + *
+> + * So PF_MEMALLOC is dropped here.  This causes the slab allocations to fail
+> + * earlier, so radix-tree nodes will then be allocated from the mempool
+> + * reserves.
+> + */
+> +static inline int
+> +swap_out_add_to_swap_cache(struct page *page, swp_entry_t entry)
+> +{
+> +	int flags = current->flags;
+> +	int ret;
+> +
+> +	current->flags &= ~PF_MEMALLOC;
+> +	ret = add_to_swap_cache(page, entry);
+> +	current->flags = flags;
+> +	return ret;
+> +}
 
-Just a minor additional note, by rmmod'ing usb-storage module before 
-plugging it back in this mount/umount hangs go away. 
+I don't like this soloution very - I think porting th add_to_swap() logic
+from -rmap and implementing the flags fiddling in that function makes
+more sense.  I will do so once a -pre4 is out to resync.
 
-Worth noting may also be that where 2.4.19-pre6 oopses with 2nd mount
-the 2.4.18 (and for example RedHat flavor 2.4.9-31) behaves slightly 
-differently, the mount (after being plugged out) succeeds, but the
-umount after that will hang instead.
-
-If there are any "Could you do/try this-and-that ?", I'll be glad to help.
-
-> Reproducible mount/sync hang which results in oops with DiskOnKey.
-> 
-> After unplugging a DiskOnKey USB mass storage device (after being plugged 
-> in and mounted/umounted atleast once) and then plugging it back in, any 
-> mount for that device will hang (and after that all calls to sync 
-> will/would hang, too) And after 20ish seconds it oopses...
-> 
-> Here's the oops with 2.4.19-pre6, what was done was :
-> mount /dev/sda1 /mnt/diskonkey
-> umout /mnt/diskonkey
-> *** unplugged the DoK and plugged it right back in ***
-> mount /dev/sda1 /mnt/diskonkey
-> 
-> straced : 
-> mount("/dev/sda1","/mnt/diskonkey","ext2",MS_NOSUID|MS_NODEV|0xc0ed0000,0x805b140 
-> -------------------------------------------------------------------------
-> 
-> Unable to handle kernel paging request at virtual address 6c2d7479
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[<d0851269>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010202
-> eax: 6c2d7461   ebx: cf658c00   ecx: cd837e5c   edx: cf2228c0
-> esi: 00000190   edi: cd837e58   ebp: cd836000   esp: cd837e4c
-> ds: 0018   es: 0018   ss: 0018
-> Process scsi_eh_0 (pid: 1372, stackpage=cd837000)
-> Stack: d0851352 cf2228c0 cd837e68 00000000 cd837e70 cd837e70 00000000 00000000
->        cd836000 cd837e5c cd837e5c cf658c00 80000000 ce47ee40 00000000 d08514b9
->        cf2228c0 00000190 cd837e98 00000246 00000000 ce47ee40 00000190 cf658c00
-> Call Trace: [<d0851352>] [<d08514b9>] [<d0851554>] [<d085f484>] [<d0852371>]   
->   [<d0855016>] [<c011543b>] [<d0962359>] [<d0917c0d>] [<d0918313>] [<d091882a>]
->   [<c010879e>] [<c0110018>] [<c0107036>] [<d0918730>]
-> Code: 8b 40 18 85 c0 74 06 52 ff 50 0c 5a c3 b8 ed ff ff ff c3 8d
-> 
-> >>EIP; d0851269 <[usbcore]usb_submit_urb+19/30>   <=====
-> Trace; d0851352 <[usbcore]usb_start_wait_urb+82/190>
-> Trace; d08514b9 <[usbcore]usb_internal_control_msg+59/70>
-> Trace; d0851554 <[usbcore]usb_control_msg+84/a0>
-> Trace; d085f484 <[usbcore]usb_address0_sem+0/14>
-> Trace; d0852371 <[usbcore]usb_set_address+31/40>
-> Trace; d0855016 <[usbcore]usb_reset_device+c6/2f7>
-> Trace; c011543b <call_console_drivers+eb/100>
-> Trace; d0962359 <[usb-storage]bus_reset+89/1e0>
-> Trace; d0917c0d <[scsi_mod]scsi_try_bus_reset+3d/90>
-> Trace; d0918313 <[scsi_mod]scsi_unjam_host+383/7a0>
-> Trace; d091882a <[scsi_mod]scsi_error_handler+fa/160>
-> Trace; c010879e <ret_from_fork+6/20>
-> Trace; c0110018 <pcibios_lookup_irq+138/2a0>
-> Trace; c0107036 <kernel_thread+26/30>
-> Trace; d0918730 <[scsi_mod]scsi_error_handler+0/160>
-> Code;  d0851269 <[usbcore]usb_submit_urb+19/30>   <=====
->    0:   8b 40 18                  mov    0x18(%eax),%eax   <=====
-> Code;  d085126c <[usbcore]usb_submit_urb+1c/30>
->    3:   85 c0                     test   %eax,%eax
-> 
-> ...
-> 
-> I'm not sure wether this is a known issue or just induced by 
-> possible bugs in DiskOnKey. I've tested this thing with uhci (bx 
-> chipset) and ohci (Ali chipset) boxen with same results.
-> 
-> I've had this same issue with kernel versions 2.4.X (vanilla aswell 
-> as -ac tree) from atleast 2.4.9 up to 2.4.19-pre6 aswell as 2.5.0 up to 
-> IIRC 2.5.7 (possibly just up to 2.5.6).
-> 
-> I can post the .config and post the full ksymoops and look into it more 
-> if this indeed is a new issue and not just some personal fsck-up due to 
-> ignorance. 
-> 
-> 
-
--- 
-Tommi Kynde Kyntola		kynde@ts.ray.fi
-      "A man alone in the forest talking to himself and
-       no women around to hear him. Is he still wrong?"
+	Christoph
 

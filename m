@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289739AbSA2QyY>; Tue, 29 Jan 2002 11:54:24 -0500
+	id <S289754AbSA2QzS>; Tue, 29 Jan 2002 11:55:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289754AbSA2QyO>; Tue, 29 Jan 2002 11:54:14 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:34063 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S289739AbSA2QyA>;
-	Tue, 29 Jan 2002 11:54:00 -0500
-Message-ID: <3C56D38E.C7FD34B3@gmx.net>
-Date: Tue, 29 Jan 2002 17:53:34 +0100
-From: Gunther Mayer <gunther.mayer@gmx.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ethernet data corruption?
-In-Reply-To: <mailman.1012246740.9237.linux-kernel2news@redhat.com> <200201281956.g0SJuH725438@devserv.devel.redhat.com>
+	id <S289756AbSA2Qyz>; Tue, 29 Jan 2002 11:54:55 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:63739 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289754AbSA2Qyy>;
+	Tue, 29 Jan 2002 11:54:54 -0500
+Date: Tue, 29 Jan 2002 09:53:56 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: update to MAINTAINERS list
+Message-ID: <20020129095356.Q763@lynx.adilger.int>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <20020129152732.G9149@suse.de> <Pine.LNX.4.33.0201291733500.11959-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0201291733500.11959-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Jan 29, 2002 at 05:36:07PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
+On Jan 29, 2002  17:36 +0100, Ingo Molnar wrote:
+> @@ -927,7 +919,6 @@
+> 
+>  LOGICAL VOLUME MANAGER
+>  P:     Heinz Mauelshagen
+> -M:     mge@sistina.de
+>  L:     linux-LVM@sistina.com
+>  W:     http://www.sistina.com/lvm
+>  S:     Maintained
 
-> >       The other night, my friend was sending me a video over the internet.
-> > We tried http, ftp, and other protocols, using different download
-> > applications.  It seemed to be corrupt, the same way, everytime.  It
-> > wouldn't work, and had a different md5sum than the "good" version on my
-> > friend's computer.  Eventually we got it working.
-> >[...]
->
-> Two things are likely:
->
-> 1. a firewall mangles your TCP streams
->
-> 2. something is wrong between the driver and the NIC.
+mge@sistina.com or mauelshagen@sistina.com
 
-3. An error source in the transmission path exchanging 0x00 0x00
-against 0xff 0xff sequences will go undetected by TCP CRC.
-
-"diff -u" onto "od"-output will help understanding your error pattern.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRADGEh>; Thu, 4 Jan 2001 01:04:37 -0500
+	id <S129436AbRADGKs>; Thu, 4 Jan 2001 01:10:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRADGE1>; Thu, 4 Jan 2001 01:04:27 -0500
-Received: from [202.106.187.156] ([202.106.187.156]:48396 "HELO sina.com")
-	by vger.kernel.org with SMTP id <S129348AbRADGER>;
-	Thu, 4 Jan 2001 01:04:17 -0500
-Date: Thu, 4 Jan 2001 14:02:56 +0800
-From: hugang <linuxbest@sina.com>
+	id <S129413AbRADGKi>; Thu, 4 Jan 2001 01:10:38 -0500
+Received: from webmail.metabyte.com ([216.218.208.53]:7200 "EHLO
+	webmail.metabyte.com") by vger.kernel.org with ESMTP
+	id <S129348AbRADGKg>; Thu, 4 Jan 2001 01:10:36 -0500
+Message-ID: <3A541361.65942CB3@metabyte.com>
+Date: Wed, 03 Jan 2001 22:08:33 -0800
+From: Pete Zaitcev <zaitcev@metabyte.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Abort x86 assemble code
-Message-Id: <20010104140256.4ce9f12b.linuxbest@sina.com>
-X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.8; Linux 2.4.0-prerelease; i686)
-Organization: soul
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: So, what about kwhich on RH6.2?
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Jan 2001 06:10:34.0307 (UTC) FILETIME=[0C890130:01C07615]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all
-	
-	I have following code ,and I can not understand the mark line,who can tell me.thanks.
---------------------------------------------------------------
-00000eb8 movb   (%ebx),%al      <<IMPORTANT 1-4>>
-00000eba incl   %ebx
-00000ebb movl   %edi,%ecx
-00000ebd shrl   $0x8,%ecx
-00000ec0 movl   %edi,%edx
-00000ec2 xorb   %dl,%al
-00000ec4 movzbl %al,%eax
-00000ec7 xorl   0x400dec(,%eax,4),%ecx					????<-----------------What it to do.
-00000ece movl   %ecx,%edi
-00000ed0 movl   %esi,%eax               <-- jmp here
-00000ed2 decl   %esi
-00000ed3 orl    %eax,%eax
-00000ed5 jne    00000eb8
-00000ed7 movl   %edi,0x406894           <- 1-4 see here
-00000edd popl   %esi
-00000ede popl   %edi
-00000edf popl   %ebx
+Are we going to use Miquel's patch? I cannot build fresh 2.2.x
+on plain RH6.2 without it. The 2.2.19-pre6 comes out without it.
+Or is "install new bash" the official answer? Alan?
 
-________________________________________________________________
-thanks .
+-- Pete
 
+--- linux-2.2.19-pre3/scripts/kwhich	Sun Dec 10 16:49:45 2000
++++ linux-2.2.19-pre3-p3/scripts/kwhich	Sat Dec 23 21:10:33 2000
+@@ -7,7 +7,7 @@
+         exit 1
+ fi
+ 
+-IFS=:
++IFS=":$IFS"
+ for cmd in $*
+ do
+         for path in $PATH
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319406AbSILBrX>; Wed, 11 Sep 2002 21:47:23 -0400
+	id <S319407AbSILBvS>; Wed, 11 Sep 2002 21:51:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319407AbSILBrX>; Wed, 11 Sep 2002 21:47:23 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:35079 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S319406AbSILBrW>; Wed, 11 Sep 2002 21:47:22 -0400
-Message-Id: <200209120152.g8C1q3D8027091@pincoya.inf.utfsm.cl>
-To: Maxwell Spangler <maxwax@speakeasy.net>
-cc: Adam Jaskiewicz <adamjaskie@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Western Digital hard drive and DMA 
-In-Reply-To: Message from Maxwell Spangler <maxwax@speakeasy.net> 
-   of "Tue, 10 Sep 2002 17:36:21 -0400." <Pine.LNX.4.33.0209101730480.31550-100000@tyan.doghouse.com> 
-Date: Wed, 11 Sep 2002 21:52:03 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S319408AbSILBvS>; Wed, 11 Sep 2002 21:51:18 -0400
+Received: from mta06ps.bigpond.com ([144.135.25.138]:32978 "EHLO
+	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S319407AbSILBvR>; Wed, 11 Sep 2002 21:51:17 -0400
+Message-ID: <3D7FF444.87980B8E@bigpond.com>
+Date: Thu, 12 Sep 2002 11:56:20 +1000
+From: Allan Duncan <allan.d@bigpond.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.20-pre4 & ff. blows away Xwindows with Matrox G400 and agpgart
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maxwell Spangler <maxwax@speakeasy.net> said:
+This is a reissue of an earlier report, and I've since done some more digging.
 
-[...]
+Up to kernel 2.4.20-pre2 there was no problem, agpgart et al ran fine etc,
+but from 2.4.20-pre4 onwards when Xwindows starts to load these modules
+I am instantly thrown back to a booting machine.
+The same kernels on a VIA MVP3 chipset box with a Matrox G200 are fine.
 
-> I can't remember why I finally did it, but after replacing the power
-> supply, the system operated fine.  The original was 3 years old, a
-> generic to begin with.  (I've become a big fan of Antec power supplies
-> and cases now that I've upgraded to Athlon class CPUs.)
+I have ascertained that any attempt to use agpgart triggers it.
 
-This is the second power supply here (original died on me), corruption with
-the old and the new one. I very much doubt both are broken the same
-way. Problems started with 2.4 or thereabouts.
+Rather than clutter up the list with lots of log files, I've made a web page at
+http://www.users.bigpond.com/allan.d/bug/Matrox.html
+with all the info I could gather.
 
-WDC WD135AA, 15GiB; PIIX4E (intel sr440bx mobo, updated bios)
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Any suggestions of how to improve the error messages around the failure point
+are welcome.  Nothing is written into dmesg at the time of failure.

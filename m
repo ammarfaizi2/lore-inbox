@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132830AbRDPCao>; Sun, 15 Apr 2001 22:30:44 -0400
+	id <S132839AbRDPCke>; Sun, 15 Apr 2001 22:40:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132837AbRDPCaf>; Sun, 15 Apr 2001 22:30:35 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:58862
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S132830AbRDPCaa>; Sun, 15 Apr 2001 22:30:30 -0400
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: Bernd Eckenfels <W1012@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: fsck, raid reconstruction & bad bad 2.4.3
-Date: Sun, 15 Apr 2001 21:23:27 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <E14oxbX-0000oM-00@sites.inka.de>
-In-Reply-To: <E14oxbX-0000oM-00@sites.inka.de>
+	id <S132843AbRDPCkY>; Sun, 15 Apr 2001 22:40:24 -0400
+Received: from mail.inconnect.com ([209.140.64.7]:16813 "HELO
+	mail.inconnect.com") by vger.kernel.org with SMTP
+	id <S132839AbRDPCkJ>; Sun, 15 Apr 2001 22:40:09 -0400
+Date: Sun, 15 Apr 2001 20:40:08 -0600 (MDT)
+From: Dax Kelson <dax@gurulabs.com>
+To: David Findlay <david_j_findlay@yahoo.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: IP Acounting Idea for 2.5
+In-Reply-To: <01041707532801.00352@workshop>
+Message-ID: <Pine.SOL.4.30.0104152031580.28965-100000@ultra1.inconnect.com>
 MIME-Version: 1.0
-Message-Id: <01041521302600.15046@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Apr 2001, Bernd Eckenfels wrote:
->In article <20010415195903.1D0F7683B@mail.clouddancer.com> you wrote:
->>>(There is no config file to disable/alter this .. no work-around that I
->>>know of ..)
->
->> You can't be serious.  Go sit down and think about what's going on.
->
->Well, there are two potential solutions:
->
->a) stop rebuild until fsck is fixed
+David Findlay said once upon a time (Tue, 17 Apr 2001):
 
-And let fsck read bad data because the raid doesn't yet recognize the correct
-one....
+> I am using the kernel IP Accounting in Linux to record the amount of data
+> transfered via my Linux internet gateway from individual IP addresses. This
+> currently requires me to set up an accounting rule for each IP address that I
+> want to record accounting info for. If I had 200 machines to individually log
+> this would require me to set 200 rules.
 
-There is nothing to fix in fsck. It should NOT know about the low level
-block storage devices. If it does, then fsck for EACH filesystem will
-have to know about ALL different raid hardware/software implementations.
+In 1999 I setup a Linux kernel 2.2 box to monitor traffic for about 2500
+hosts.  I created two rules for each host (to monitor inbound and
+outbound).  I had over 5000 total rules on a Pentium II 300 Mhz box.  I
+wrote some perl glue so I could accounts on a per customer basis (each
+customer had one or more IPs, not necessarily contiguous) and graph the
+results in MRTG.
 
->b) wait with fsck until rebuild is fixed
+There was ZERO performance problems on the box.  The box is still
+runningly happily today.  I don't there is a "problem" to fix.
 
-Depends on your definition of "fixed". The most I can see to fix is
-reduce the amount of continued update in favor of updating those blocks
-being read (by fsck or anything else). This really ought to be a runtime
-configuration option. If it is set to 0, then no automatic repair would
-be done.
+Dax
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
-
-Any opinions expressed are solely my own.

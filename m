@@ -1,108 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265683AbVBDUBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264157AbVBDUER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265683AbVBDUBq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbVBDUBp
+	id S264157AbVBDUER (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265616AbVBDUCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:01:45 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:18692 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S266786AbVBDUAf (ORCPT
+	Fri, 4 Feb 2005 15:02:36 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:19204 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S266789AbVBDUAf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 4 Feb 2005 15:00:35 -0500
-Subject: [patch 1/8] uml: fix compilation for missing headers [before 2.6.11]
+Subject: [patch 6/8] uml: fix broken #ifdef clause causing crashes [before 2.6.11]
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
        user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 04 Feb 2005 19:35:40 +0100
-Message-Id: <20050204183541.52C972125F@zion>
+Date: Fri, 04 Feb 2005 19:35:53 +0100
+Message-Id: <20050204183553.71E3C310C1@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>, Jeff Dike <jdike@addtoit.com>
 
-Readd some needed headers inclusion deleted in
-http://linux.bkbits.net:8080/linux-2.5/cset@41e49628dGbOWX-bT9yZII4f19GT6A
-
-If you think it cannot make sense to include both <sys/ptrace.h> and
-<linux/ptrace.h> (as userspace process, i.e. host includes), go complaining
-with glibc, or follow the linux-abi includes idea.
-
-However, the compilation failure is possibly glibc-version (or better glibc
-includes version) related - what I now is that the failure happens on my
-system with a glibc 2.3.4 (from Gentoo).
-
-Also, fix the syscall table to both compile and have no empty slot (which
-could cause Oopses).
-
-Acked-by: Jeff Dike <jdike@addtoit.com>
+The previous ifdef to check whether to use the host's vsyscall page 
+was buggy. This bug can cause crashes.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.11-paolo/arch/um/kernel/process.c        |   15 ++++-----------
- linux-2.6.11-paolo/arch/um/kernel/sys_call_table.c |   16 ++--------------
- 2 files changed, 6 insertions(+), 25 deletions(-)
+ linux-2.6.11-paolo/arch/um/Kconfig_i386   |    4 ++++
+ linux-2.6.11-paolo/arch/um/Kconfig_x86_64 |    4 ++++
+ linux-2.6.11-paolo/arch/um/kernel/mem.c   |   12 ++++++++----
+ 3 files changed, 16 insertions(+), 4 deletions(-)
 
-diff -puN arch/um/kernel/process.c~uml-fix-compilation-for-missing-headers arch/um/kernel/process.c
---- linux-2.6.11/arch/um/kernel/process.c~uml-fix-compilation-for-missing-headers	2005-02-04 03:28:51.973132912 +0100
-+++ linux-2.6.11-paolo/arch/um/kernel/process.c	2005-02-04 03:28:58.254178048 +0100
-@@ -13,6 +13,10 @@
- #include <setjmp.h>
- #include <sys/time.h>
- #include <sys/ptrace.h>
+diff -puN arch/um/Kconfig_i386~uml-vsyscall arch/um/Kconfig_i386
+--- linux-2.6.11/arch/um/Kconfig_i386~uml-vsyscall	2005-02-04 06:22:14.731673232 +0100
++++ linux-2.6.11-paolo/arch/um/Kconfig_i386	2005-02-04 06:22:14.738672168 +0100
+@@ -18,3 +18,7 @@ config 3_LEVEL_PGTABLES
+ config ARCH_HAS_SC_SIGNALS
+ 	bool
+ 	default y
 +
-+/*Userspace header, must be after sys/ptrace.h, and both must be included. */
-+#include <linux/ptrace.h>
++config ARCH_REUSE_HOST_VSYSCALL_AREA
++	bool
++	default y
+diff -puN arch/um/Kconfig_x86_64~uml-vsyscall arch/um/Kconfig_x86_64
+--- linux-2.6.11/arch/um/Kconfig_x86_64~uml-vsyscall	2005-02-04 06:22:14.733672928 +0100
++++ linux-2.6.11-paolo/arch/um/Kconfig_x86_64	2005-02-04 06:22:14.739672016 +0100
+@@ -9,3 +9,7 @@ config 3_LEVEL_PGTABLES
+ config ARCH_HAS_SC_SIGNALS
+ 	bool
+ 	default n
 +
- #include <sys/wait.h>
- #include <sys/mman.h>
- #include <asm/unistd.h>
-@@ -422,14 +426,3 @@ int can_do_skas(void)
- 	return(0);
- }
- #endif
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-diff -puN arch/um/kernel/sys_call_table.c~uml-fix-compilation-for-missing-headers arch/um/kernel/sys_call_table.c
---- linux-2.6.11/arch/um/kernel/sys_call_table.c~uml-fix-compilation-for-missing-headers	2005-02-04 03:28:51.975132608 +0100
-+++ linux-2.6.11-paolo/arch/um/kernel/sys_call_table.c	2005-02-04 03:29:05.565066624 +0100
-@@ -267,10 +267,9 @@ syscall_handler_t *sys_call_table[] = {
- 	[ __NR_mq_timedreceive ] = (syscall_handler_t *) sys_mq_timedreceive,
- 	[ __NR_mq_notify ] = (syscall_handler_t *) sys_mq_notify,
- 	[ __NR_mq_getsetattr ] = (syscall_handler_t *) sys_mq_getsetattr,
-+	[ __NR_sys_kexec_load ] = (syscall_handler_t *) sys_ni_syscall,
- 	[ __NR_waitid ] = (syscall_handler_t *) sys_waitid,
--#if 0
--	[ __NR_sys_setaltroot ] = (syscall_handler_t *) sys_sys_setaltroot,
--#endif
-+	[ 285 ] = (syscall_handler_t *) sys_ni_syscall,
- 	[ __NR_add_key ] = (syscall_handler_t *) sys_add_key,
- 	[ __NR_request_key ] = (syscall_handler_t *) sys_request_key,
- 	[ __NR_keyctl ] = (syscall_handler_t *) sys_keyctl,
-@@ -279,14 +278,3 @@ syscall_handler_t *sys_call_table[] = {
- 	[ LAST_SYSCALL + 1 ... NR_syscalls ] = 
- 	        (syscall_handler_t *) sys_ni_syscall
- };
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
++config ARCH_REUSE_HOST_VSYSCALL_AREA
++	bool
++	default n
+diff -puN arch/um/kernel/mem.c~uml-vsyscall arch/um/kernel/mem.c
+--- linux-2.6.11/arch/um/kernel/mem.c~uml-vsyscall	2005-02-04 06:22:14.735672624 +0100
++++ linux-2.6.11-paolo/arch/um/kernel/mem.c	2005-02-04 06:22:14.739672016 +0100
+@@ -152,6 +152,7 @@ void __init kmap_init(void)
+ static void init_highmem(void)
+ {
+ 	pgd_t *pgd;
++	pud_t *pud;
+ 	pmd_t *pmd;
+ 	pte_t *pte;
+ 	unsigned long vaddr;
+@@ -163,7 +164,8 @@ static void init_highmem(void)
+ 	fixrange_init(vaddr, vaddr + PAGE_SIZE*LAST_PKMAP, swapper_pg_dir);
+ 
+ 	pgd = swapper_pg_dir + pgd_index(vaddr);
+-	pmd = pmd_offset(pgd, vaddr);
++	pud = pud_offset(pgd, vaddr);
++	pmd = pmd_offset(pud, vaddr);
+ 	pte = pte_offset_kernel(pmd, vaddr);
+ 	pkmap_page_table = pte;
+ 
+@@ -173,9 +175,10 @@ static void init_highmem(void)
+ 
+ static void __init fixaddr_user_init( void)
+ {
+-#if FIXADDR_USER_START != 0
++#if CONFIG_ARCH_REUSE_HOST_VSYSCALL_AREA
+ 	long size = FIXADDR_USER_END - FIXADDR_USER_START;
+ 	pgd_t *pgd;
++	pud_t *pud;
+ 	pmd_t *pmd;
+ 	pte_t *pte;
+ 	unsigned long paddr, vaddr = FIXADDR_USER_START;
+@@ -187,9 +190,10 @@ static void __init fixaddr_user_init( vo
+ 	paddr = (unsigned long)alloc_bootmem_low_pages( size);
+ 	memcpy( (void *)paddr, (void *)FIXADDR_USER_START, size);
+ 	paddr = __pa(paddr);
+-	for ( ; size > 0; size-=PAGE_SIZE, vaddr+=PAGE_SIZE, paddr+=PAGE_SIZE) {
++	for ( ; size > 0; size-=PAGE_SIZE, vaddr+=PAGE_SIZE, paddr+=PAGE_SIZE){
+ 		pgd = swapper_pg_dir + pgd_index(vaddr);
+-		pmd = pmd_offset(pgd, vaddr);
++		pud = pud_offset(pgd, vaddr);
++		pmd = pmd_offset(pud, vaddr);
+ 		pte = pte_offset_kernel(pmd, vaddr);
+ 		pte_set_val( (*pte), paddr, PAGE_READONLY);
+ 	}
 _

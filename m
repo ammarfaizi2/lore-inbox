@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262608AbSIPQcb>; Mon, 16 Sep 2002 12:32:31 -0400
+	id <S262468AbSIPQak>; Mon, 16 Sep 2002 12:30:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262613AbSIPQcb>; Mon, 16 Sep 2002 12:32:31 -0400
-Received: from h-64-105-136-15.SNVACAID.covad.net ([64.105.136.15]:10114 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S262608AbSIPQc3>; Mon, 16 Sep 2002 12:32:29 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 16 Sep 2002 09:36:15 -0700
-Message-Id: <200209161636.JAA02714@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org, spstarr@sh0n.net, venom@sns.it
-Subject: Re: BUG(): sched.c: Line 944 - 2.5.35
+	id <S262532AbSIPQak>; Mon, 16 Sep 2002 12:30:40 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:26322 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262468AbSIPQaj>; Mon, 16 Sep 2002 12:30:39 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200209161635.g8GGZaV18210@devserv.devel.redhat.com>
+Subject: Linux 2.2.22
+To: linux-kernel@vger.kernel.org
+Date: Mon, 16 Sep 2002 12:35:36 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr wrote:
 
->Kernel 2.5.35:
->
->code resides in main schedule() function:
->
->if (unlikely(in_atomic()))
->   BUG();
+2.2.22
+o	Fix HDLC bugs causing kernel printk warns	(Pavel)
 
+2.2.22-rc3
+o	3ware IDE raid small update			(Adam Radford)
+o	Fix incorrect comments				(Solar Designer)
+o	Sanity check in isdn 				(Solar Designer)
+o	Type fixes for usb				(Solar Designer)
+o	Vmalloc corner case fix 			(Dave Miller)
 
-	That line prevously checked in_interrupt (in 2.5.34) instead of
-in_atomic.  If you have CONFIG_PREEMPT defined, the definition of in_atomic
-in linux-2.5.35/include/asm-i386/hardirq.h is:
+2.2.22-rc2
+o	Fix isofs over loopback problems		(Balazs Takacs)
+o	Backport 2.4 shutdown/reset SIGIO from 2.4	(Julian Anastasov)
+o	Fix error reporting in OOM cases		(Julian Anastasov)
+o	List a 2.2 maintainer in MAINTAINERS		(Keith Owens)
+o	Set atime on AF_UNIX sockets			(Solar Designer)
+o	Restore SPARC MD boot configuration		(Tomas Szepe)
+o	Multiple further sign/overflow fixes		(Solar Designer)
+o	Fix ov511 'vfree in interrupt'			(Mark McClelland)
 
-# define in_atomic()    (preempt_count() != kernel_locked())
-
-	When I see this problem at boot, preempt_count() returns 0x4000000
-(PREEMPT_ACTIVE) and kernel_locked() returns 0.
-
-	I don't understand the semantics of PREEMPT_ACTIVE to know
-whether to
-
-	(1) change the test back to using in_interrupt instead of in_atomic, or
-	(2) change the definition of in_atomic(), or
-	(3) look for a bug somewhere else.
-
-	However, I know experimentally that changing the test back to
-using in_interrupt() results in a possibly unrelated BUG() at line 279
-of rmap.c:
-
-void page_remove_rmap(struct page * page, pte_t * ptep)
-{
-        pte_addr_t pte_paddr = ptep_to_paddr(ptep);
-        struct pte_chain *pc;
-
-        if (!page || !ptep)
-                BUG();
-        if (!pfn_valid(page_to_pfn(page)) || PageReserved(page))
-                return;
-
-        pte_chain_lock(page);
-
-        BUG_ON(page->pte.direct == 0);
-
-
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+2.2.22-rc1
+o	Backport 2.4 neighbour sending fix		(Chris Friesen)
+o	Fix a sign handling slackness in apm		(Silvio Cesare)
+o	Fix a sign handling error in rio500		(Silvio Cesare)
+o	Indent depca ready for cleanups			(me)
+o	Update VIA C3 recognition			(Diego Rodriguez)
+o	Fix a sysctl handling bug			(MIYOSHI Kazuto)
+o	Fix a netlink error handling bug in ipfw	(Alexander Atanasov)
+o	3ware IDE RAID update				(Adam Radford)
+o	Note ioctl clash on 0x5402			(Pavel Machek)
+o	Typo fix					(Dan Aloni)
+o	Update Riley's contact info			(Riley Williams)
+o	Alpha ptrace fixes				(Solar Designer)
+o	Multiple security fix backports			(Solar Designer)

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262024AbTDAEW4>; Mon, 31 Mar 2003 23:22:56 -0500
+	id <S262006AbTDAEQR>; Mon, 31 Mar 2003 23:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262045AbTDAEW4>; Mon, 31 Mar 2003 23:22:56 -0500
-Received: from [203.199.93.15] ([203.199.93.15]:23308 "EHLO
-	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
-	id <S262024AbTDAEWz>; Mon, 31 Mar 2003 23:22:55 -0500
-From: "ramands" <ramands@indiatimes.com>
-Message-Id: <200304010401.JAA16708@WS0005.indiatimes.com>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: "ramands" <ramands@indiatimes.com>
-Subject: Compilation Error: variable has intializer but incomplete type
-Date: Tue, 01 Apr 2003 10:04:50 +0530
-X-URL: http://indiatimes.com
+	id <S262045AbTDAEQR>; Mon, 31 Mar 2003 23:16:17 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:1924 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S262006AbTDAEQQ>;
+	Mon, 31 Mar 2003 23:16:16 -0500
+Date: Mon, 31 Mar 2003 23:27:34 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Brad Campbell <brad@seme.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via-rhine problem on EPIAV-1Ghz 2.4.21-pre6
+Message-ID: <20030401042734.GA21273@gtf.org>
+References: <3E88FA24.7040406@seme.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E88FA24.7040406@seme.com.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i am trying to learn and write device driver on linux kernel 2.4 redhat distribution 
+On Tue, Apr 01, 2003 at 10:32:04AM +0800, Brad Campbell wrote:
+> G'day all,
+> I have a problem with the via-rhine on this board timing out.
 
-iam getting compilation errors for driver code.
-struct file_operations my_ops ={NULL,my_read,my_write,NULL,NULL,NULL
-NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
-NULL };
+Try booting with "noapic"
 
-ERROR -> my_ops has intializer but incomplete type
+I have sent via-rhine fixes to Marcelo, hopefully they will appear in -pre7
 
-Can anyone help me  with this 
-Regards
-Raman
+	Jeff
 
 
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
-
- Buy The Best In BOOKS at http://www.bestsellers.indiatimes.com
-
-Bid for for Air Tickets @ Re.1 on Air Sahara Flights. Just log on to http://airsahara.indiatimes.com and Bid Now !
 

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVBOTaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVBOTdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVBOTaw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 14:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVBOTaw
+	id S261833AbVBOTdR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 14:33:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVBOTdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:30:52 -0500
-Received: from mail.gmx.de ([213.165.64.20]:8102 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261815AbVBOTao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:30:44 -0500
-X-Authenticated: #14776911
-From: Stefan =?iso-8859-15?q?D=F6singer?= <stefandoesinger@gmx.at>
-To: acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-Date: Tue, 15 Feb 2005 20:37:59 +0100
-User-Agent: KMail/1.7.2
-Cc: Norbert Preining <preining@logic.at>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       Pavel Machek <pavel@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-References: <20050214211105.GA12808@elf.ucw.cz> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
-In-Reply-To: <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Tue, 15 Feb 2005 14:33:14 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:40637 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261833AbVBOTcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 14:32:48 -0500
+Subject: Re: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001
+	release)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jim Crilly <jim@why.dont.jablowme.net>
+Cc: ncunningham@cyclades.com, Tim Bird <tim.bird@am.sony.com>,
+       Roland Dreier <roland@topspin.com>, Prakash Punnoor <prakashp@arcor.de>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>, Greg KH <gregkh@suse.de>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42119380.2080309@why.dont.jablowme.net>
+References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>
+	 <20050211011609.GA27176@suse.de>
+	 <1108354011.25912.43.camel@krustophenia.net>
+	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>
+	 <1108422240.28902.11.camel@krustophenia.net>  <524qge20e2.fsf@topspin.com>
+	 <1108424720.32293.8.camel@krustophenia.net> <42113F6B.1080602@am.sony.com>
+	 <1108430245.32293.16.camel@krustophenia.net>
+	 <42116EAF.4070503@why.dont.jablowme.net>
+	 <1108446753.3666.28.camel@desktop.cunningham.myip.net.au>
+	 <42119380.2080309@why.dont.jablowme.net>
+Content-Type: text/plain
+Date: Tue, 15 Feb 2005 14:32:46 -0500
+Message-Id: <1108495967.7826.23.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502152038.00401.stefandoesinger@gmx.at>
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 15. Februar 2005 18:08 schrieb Norbert Preining:
-> On Die, 15 Feb 2005, Carl-Daniel Hailfinger wrote:
-> > To suspend and resume properly, call the following script as root:
->
-> Success.
->
-> After deactivating DRI in the X config file and saving the states with
-> your script (thanks) and turning off various stuff I get X running
-> again.
->
-> Questions:
-> - DRI must be disabled I guess?! Even with newer X server (x.org)?
-Do you use the fglrx driver? This doesn't work with any type of suspend so 
-far. If you use the radeon driver try a driver update.
+On Tue, 2005-02-15 at 01:15 -0500, Jim Crilly wrote:
+> Another issue would be dual-booting, which a lot of people still do for some 
+> strange reason.
 
-Stefan
+Um, to reverse engineer Windows drivers?
+
+Lee
+

@@ -1,59 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283771AbRLSJ1d>; Wed, 19 Dec 2001 04:27:33 -0500
+	id <S284768AbRLSJdY>; Wed, 19 Dec 2001 04:33:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284608AbRLSJ1Y>; Wed, 19 Dec 2001 04:27:24 -0500
-Received: from pcow035o.blueyonder.co.uk ([195.188.53.121]:65041 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S283771AbRLSJ1K>;
-	Wed, 19 Dec 2001 04:27:10 -0500
-Message-ID: <T57ead5b988ac1785ed28e@pcow035o.blueyonder.co.uk>
-Content-Type: text/plain; charset=US-ASCII
-From: James A Sutherland <james@sutherland.net>
-To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: Wed, 19 Dec 2001 09:27:29 +0000
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.GSO.4.21.0112180350550.6100-100000@weyl.math.psu.edu> <T57e612d0dbac1785e6169@pcow028o.blueyonder.co.uk> <9vo4b3$iet$1@cesium.transmeta.com>
-In-Reply-To: <9vo4b3$iet$1@cesium.transmeta.com>
+	id <S284629AbRLSJdO>; Wed, 19 Dec 2001 04:33:14 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56395 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S284608AbRLSJc6>; Wed, 19 Dec 2001 04:32:58 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+        Christian Koenig <ChristianK.@t-online.de>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        Otto Wyss <otto.wyss@bluewin.ch>, Alexander Viro <viro@math.psu.edu>,
+        antirez <antirez@invece.org>, Andreas Dilger <adilger@turbolabs.com>,
+        "Grover, Andrew" <andrew.grover@intel.com>,
+        Craig Christophel <merlin@transgeek.com>
+Subject: Re: Booting a modular kernel through a multiple streams file / Making Linux multiboot capable and grub loading kernel modules at boot time.
+In-Reply-To: <200112181605.KAA00820@tomcat.admin.navo.hpc.mil>
+	<m1r8prwuv7.fsf@frodo.biederman.org> <3C204282.3000504@zytor.com>
+	<m1itb3wsld.fsf@frodo.biederman.org> <3C2052C0.2010700@zytor.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Dec 2001 02:12:31 -0700
+In-Reply-To: <3C2052C0.2010700@zytor.com>
+Message-ID: <m18zbzwp34.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 December 2001 7:10 pm, H. Peter Anvin wrote:
-> Followup to:  <T57e612d0dbac1785e6169@pcow028o.blueyonder.co.uk>
-> By author:    James A Sutherland <james@sutherland.net>
-> In newsgroup: linux.dev.kernel
->
-> > On Tuesday 18 December 2001 8:55 am, Alexander Viro wrote:
-> > > On Tue, 18 Dec 2001, James A Sutherland wrote:
-> > > > Not necessarily. You could, say, put the modules in a small
-> > > > filesystem image - say, Minix, or maybe ext2. Then just have the
-> > > > loader put that disk image into RAM, and have the kernel able to read
-> > > > disk images from RAM initially.
-> > > >
-> > > > Of course, this revolutionary new features needs a name. Something
-> > > > like initrd, perhaps?
-> > >
-> > > Had you actually looked at initrd-related code?  I had and "bloody
-> > > mess" is the kindest description I've been able to come up with.  Even
-> > > after cleanups and boy, were they painful...
+"H. Peter Anvin" <hpa@zytor.com> writes:
+
+> Eric W. Biederman wrote:
+> 
+> > I have a personally dislike for using firmware calls to drive hardware
+> > devices, so I won't be picking that up.  But I am interested in what
+> > it requires to not burn bridges.  So I can make certain a linux kernel
+> > loaded with a linux booting linux patch can requery the firmware.
 > >
-> > With a choice between that, or teaching lilo, grub etc how to link
-> > modules - and how to read NTFS and XFS, and losing the ability to boot
-> > from fat, minix etc floppies, tftp or nfs servers - almost any level of
-> > existing nastiness would be preferable to that sort of insane codebloat!
->
-> Note that Al is working on a replacement; he's not just bitching. The
-> replacement is called "initramfs" which means populating a ramfs from
-> an archive or collection of archives passwd by the bootloader.  With
-> that in there, lots of things can be done in userspace.
-
-What I was suggesting is that using an initfs (whether initrd, initramfs or 
-something else) is a better approach than trying to get the bootloader 
-grovelling around in the kernel innards - initramfs strengthens this 
-argument, I think. Just put the modules into archives, and use initramfs to 
-access them and a copy of insmod...
+> 
+> > My impression is that the linux kernel already does the important
+> > things by not smashing firmware reserved memory, (assuming you aren't
+> > loaded with loadlin).  So all that is required is to switch the idt
+> > back to address 0, and switch the cpu back to 16bit real mode.
+> > But if you know of other cases that need to be handled I would be
+> > happy to hear about it.
+> >
+> 
+> 
+> Unfortunately that's not the case.  The big issue is "who owns the interrupt
+> controller", and "who owns the interrupts." 
+[snip]
 
 
-James.
+
+> You can check out the BIOS extender I wrote for genesis at
+> ftp://ftp.zytor.com/pub/linux/genesis/
+
+Thanks.  I've got genesis-1.10 now looking and digesting to see if you
+have any unexpected tricks takes a little longer.
+
+For my purposes I intend to fully disable the BIOS and then after I
+have done all of my work, reenable the BIOS.  Which should be a little
+easier and have a slightly different set of issues. 
+
+>From the 10,000 foot level it looks like I am pretty safe already
+except for those BIOS functions that drive the hardware.  For those I
+need to setup the legacy PIC back to it's default setting, and
+possibly a few other hardware things.   I wonder just how sensitive
+the an x86 BIOS really is to changing those things...
+
+For the most part I find it perfectly acceptable if I break all of the
+firmware hardware drivers.  As long as the information callbacks are
+preserved.  But preserver enough so I could load dos from linux would
+be nice.
+
+Eric

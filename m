@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310190AbSCUKne>; Thu, 21 Mar 2002 05:43:34 -0500
+	id <S310214AbSCULIp>; Thu, 21 Mar 2002 06:08:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310206AbSCUKnY>; Thu, 21 Mar 2002 05:43:24 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:52428 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S310190AbSCUKnM>; Thu, 21 Mar 2002 05:43:12 -0500
-Date: Thu, 21 Mar 2002 05:43:06 -0500
-From: Tim Waugh <twaugh@redhat.com>
-To: Martin Blais <blais@iro.umontreal.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: xxdiff as a visual diff tool (shameless plug)
-Message-ID: <20020321054306.C14095@redhat.com>
-In-Reply-To: <20020321061423.HIXG2746.tomts17-srv.bellnexxia.net@there>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S310241AbSCULIf>; Thu, 21 Mar 2002 06:08:35 -0500
+Received: from [203.197.61.74] ([203.197.61.74]:61828 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S310252AbSCULIY>; Thu, 21 Mar 2002 06:08:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Vinolin <vinolin@nodeinfotech.com>
+To: linux-kernel@vger.kernel.org
+Subject: ip_options.c
+Date: Thu, 21 Mar 2002 16:40:50 +0530
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <02032116405005.00890@Vinolin>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 21, 2002 at 01:13:32AM -0500, Martin Blais wrote:
+Hello all,
 
-> It does not do edits at this point because I felt everyone has
-> their own strong preferences for editing files.
+Can i get the summary of what exactly ip_options.c is doing ?
+Through any web page or documents ...
 
-Incidentally, on a related subject: editdiff (from patchutils) can do
-simple hunk editing.  Use emacs or vi to hand-edit a patch, and it
-will fix up offsets and counts for you.
-
-Tim.
-*/
+Thanks,
+Vinolin.

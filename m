@@ -1,94 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318117AbSIHQLa>; Sun, 8 Sep 2002 12:11:30 -0400
+	id <S316677AbSIHQ0x>; Sun, 8 Sep 2002 12:26:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318139AbSIHQLa>; Sun, 8 Sep 2002 12:11:30 -0400
-Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:27271 "HELO
-	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S318117AbSIHQL3>; Sun, 8 Sep 2002 12:11:29 -0400
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: ide drive dying?
-Date: Sun, 8 Sep 2002 02:02:35 +0200
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S316971AbSIHQ0x>; Sun, 8 Sep 2002 12:26:53 -0400
+Received: from packet.digeo.com ([12.110.80.53]:20644 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S316677AbSIHQ0w>;
+	Sun, 8 Sep 2002 12:26:52 -0400
+Message-ID: <3D7B7EC6.EFD38352@digeo.com>
+Date: Sun, 08 Sep 2002 09:45:58 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209080159.47115.Dieter.Nuetzel@hamburg.de>
+To: Axel Siebenwirth <axel@hh59.org>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.33-mm5
+References: <3D7AF270.BE4AFBEB@digeo.com> <20020908151159.GA5260@prester.freenet.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Sep 2002 16:31:28.0805 (UTC) FILETIME=[2EC14550:01C25755]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Sep 2002, Andre Hedrick wrote:
-> On 7 Sep 2002, Daniel Egger wrote:
->
-> > Am Sam, 2002-09-07 um 17.02 schrieb jbradford@dial.pipex.com:
-> > 
-> > > No, but you've upgraded the firmware, right?
-> > 
-> > Not exactly. According to IBM technical support there is no such thing
-> > as a new firmware. The drives are alright, the OS is broken.
->
-> They are full of CRAP!
->
-> IBM ran TASKFILE IO throught there bus analyzers and it came up clean.
-> IBM also introduced FLAGGED versions of the diagnostic TASKFILE transport
-> for eventual use of their DFT (Drive Fitness Test).
->
-> You tell the service tech he is smoking crack.
-> The kernel passed with flying colors in their disk labs. If you read
-> in ide-taskfile.c version 0.33 and above, you will see they did some work
-> on the driver and verified issues.
+Axel Siebenwirth wrote:
+> 
+> Hi Andrew!
+> 
+> On Sat, 07 Sep 2002, Andrew Morton wrote:
+> 
+> > I'd appreciate it if people could grab this one, be nasty to it
+> > and send a report.
+> 
+> What are your favorite tests to run? I'd like to send you some useful test
+> results. But which do you like to see?
 
-Sorry, that I step in but you said that you are working on smartsuite (2.1+), 
-again?
+I've already run my favourite tests ;)  The value of external testing is
+in the extra coverage which it gives - different hardware, different
+tests.  And also different requirements: there may be things which I
+think are cool, but which you think suck.
 
-Andre, can you fix start/stop counts, please?
+So... The real test is of course "daily use".  If it works OK in daily
+use for you, and for everyone else then we ship 2.6.  By definition.
 
-unWave1 /home/nuetzel# /usr/local/sbin/smartctl -a /dev/sda
-Device: IBM      DDYS-T18350N     Version: S96H
-Device supports S.M.A.R.T. and is Enabled
-Temperature Warning Disabled or Not Supported
-S.M.A.R.T. Sense: Okay!
-Current Drive Temperature:     31 C
-Drive Trip Temperature:        85 C
-Current start stop count:      131072 times
-Recommended start stop count:  2555920 times
-
-SunWave1 /home/nuetzel# /usr/local/sbin/smartctl -a /dev/sdb
-Device: IBM      DDRS-34560D      Version: DC1B
-Device supports S.M.A.R.T. and is Enabled
-Temperature Warning Disabled or Not Supported
-S.M.A.R.T. Sense: Okay!
-
-SunWave1 /home/nuetzel# /usr/local/sbin/smartctl -a /dev/sdc
-Device: IBM      DDRS-34560W      Version: S71D
-Device supports S.M.A.R.T. and is Enabled
-Temperature Warning Disabled or Not Supported
-S.M.A.R.T. Sense: Okay!
-
-Smartsuite-2.1 (at least) missing some feather for SCSI.
-
-Regards,
-	Dieter
-
-BTW
-I had a double disk crash (same symptoms as in this thread) in a school's 
-RAID5 with four Fujitsu MPG3204AT-EF (the ones with gel-lager, silent and 
-reliable we hoped) last week...
-The shop for which I work from time to time got 71 disks of this type back 
-(sold over the last 1.5 years). We switched to them after the "IBM" disaster. 
-Maybe a "misdecision" ;-)
-What shall we sell safely, now...?
-MAXTOR?
-
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel at hamburg.de (replace at with @)
-
+Of course, on top of daily use it is best to run additional stress
+tests to find problems more quickly.  Large desktop applications, web
+and file servers, databases, etc would be interesting.  CD burning,
+funny old PIO-mode IDE drives, stress testing with gigabt NICs,
+you name it.  Coverage.

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261607AbSI0Ou2>; Fri, 27 Sep 2002 10:50:28 -0400
+	id <S261717AbSI0OrE>; Fri, 27 Sep 2002 10:47:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261714AbSI0Ou2>; Fri, 27 Sep 2002 10:50:28 -0400
-Received: from pD9E239ED.dip.t-dialin.net ([217.226.57.237]:56704 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S261607AbSI0Ou2>; Fri, 27 Sep 2002 10:50:28 -0400
-Date: Fri, 27 Sep 2002 08:56:17 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Peter Chubb <peter@chubb.wattle.id.au>
-cc: Rik van Riel <riel@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated
- v2
-In-Reply-To: <15763.55020.35426.721691@wombat.chubb.wattle.id.au>
-Message-ID: <Pine.LNX.4.44.0209270855000.7827-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S261722AbSI0OrE>; Fri, 27 Sep 2002 10:47:04 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:1050 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261717AbSI0OrD>; Fri, 27 Sep 2002 10:47:03 -0400
+Date: Fri, 27 Sep 2002 09:52:11 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: george anzinger <george@mvista.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: [PATCH] High-res-timers part 1 (core)
+Message-ID: <34760000.1033138331@baldur.austin.ibm.com>
+In-Reply-To: <3D93CB59.85C315A0@mvista.com>
+References: <3D93A363.ACA56815@mvista.com> <3D93C093.464B158C@digeo.com>
+ <3D93CB59.85C315A0@mvista.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 27 Sep 2002, Peter Chubb wrote:
-> What is the problem these lists are intended to solve?
+--On Thursday, September 26, 2002 20:07:05 -0700 george anzinger
+<george@mvista.com> wrote:
 
-Reduction of effort in the place where we only have single-direction 
-lists, such as stacks and the scheduler. (That is, whereever we don't need 
-to step back.)
+> A much bigger issue is that only two parts of the 4 seem to
+> have made it to the list.  Is there a size restriction some
+> where?
 
-> There's no point in adding general infrastructure that has no immediate
-> uses -- it just ends up mouldering in a corner, (like the generic
-> hashing code linux/ghash.h which has been in the kernel for 4 or 5
-> years, and still has *no* uses.)
+Yes, lkml discards all mail over 100k.  I spent a week awhile back
+discovering this the hard way.
 
-Wasn't it already removed?
+Dave McCracken
 
-			Thunder
--- 
-assert(typeof((fool)->next) == typeof(fool));	/* wrong */
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

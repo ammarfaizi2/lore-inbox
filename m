@@ -1,98 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbVCDEN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVCCTit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbVCDEN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 23:13:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbVCDEM4
+	id S261451AbVCCTit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 14:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVCCTil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 23:12:56 -0500
-Received: from warden2-p.diginsite.com ([209.195.52.120]:35502 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S262639AbVCCV6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 16:58:08 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
-       akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>
-Date: Thu, 3 Mar 2005 13:53:26 -0800 (PST)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: RFD: Kernel release numbering
-In-Reply-To: <1109886108.591.58.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0503031349470.29190@qynat.qvtvafvgr.pbz>
-References: <42265A6F.8030609@pobox.com><20050302165830.0a74b85c.davem@davemloft.net>
- <422674A4.9080209@pobox.com><Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org><42268749.4010504@pobox.com>
- <20050302200214.3e4f0015.davem@davemloft.net><42268F93.6060504@pobox.com>
- <4226969E.5020101@pobox.com><20050302205826.523b9144.davem@davemloft.net>
- <4226C235.1070609@pobox.com><20050303080459.GA29235@kroah.com>
- <4226CA7E.4090905@pobox.com><Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org><422751C1.7030607@pobox.com><Pine.LNX.4.58.0503031022100.25732@ppc970.osdl.org><1109883750.591.47.camel@localhost.localdomain><Pine.LNX.4.62.0503031321140.29190@qynat.qvtvafvgr.pbz>
- <1109886108.591.58.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 3 Mar 2005 14:38:41 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:42601 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262064AbVCCS6Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 13:58:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ohfzraF031OOOci94qZvLgz+P8Fx/Qt6PpHXO8bArpY/FpEZVEgKsllr5/oOj+Z00CC9H7ec/dgPmy+1CBCwJWRinF+44NXJj76/PuvaTCo//PL3LKbXeL9f9IpRepXx4FxC64n6Fau/b1NPnNvQ4klGtmfVyjXrlJD0Jz0NgSc=
+Message-ID: <d91f4d0c0503031057306a74e1@mail.gmail.com>
+Date: Thu, 3 Mar 2005 13:57:28 -0500
+From: George Georgalis <georgalis@gmail.com>
+Reply-To: George Georgalis <georgalis@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: problem with linux 2.6.11 and sa
+In-Reply-To: <20050303184605.GB1061@ixeon.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050303184605.GB1061@ixeon.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Mar 2005, Steven Rostedt wrote:
+I recall a problem a while back with a pipe from
+/proc/kmsg that was sent by root to a program with a
+user uid. The fix was to run the logging program as
+root. Has that protected pipe method been extended
+since 2.6.8.1?
 
-> On Thu, 2005-03-03 at 13:24 -0800, David Lang wrote:
->
->> I don't think you are understanding the proposal
->>
-> You're probably right. :-)
->
->> 2.6.11.y will be released as 2.6.12 is being developed.
->>
->> once 2.6.12 is released (or shortly after that if 2.6.12 ends up being a
->> _real_ mess) 2.6.11.y will not get any additional releases (2.6.12.y will
->> get released instead)
->>
->> as a result there will be no backports at all. if you want a feature
->> that's introduced in 2.6.12 then you wait until you get a 2.6.12.y release
->> that's good enough for you.
->>
-> I understand the no backports.  That's a good thing.  That's what I was
-> trying to state (but was probably too long winded!).  Lets see if this
-> is what I believe is being proposed.
->
-> 2.6.x would be the release with some number of features added.
->
-> 2.6.x.y would include bug fixes only, that are under the strong rule of
-> Linus to only be things that crash/hang the machine or nasty security
-> exploits.
->
-> 2.6.x+1 would be 2.6.x.(some y) also including features (from -rc or
-> -mm)
->
-> 2.6.x.z (where z is greater than the above "some y") only include the
-> same level of fixes as with 2.6.x.y, with the parallel work of 2.6.x+1
-> still going on.
->
-> Please correct me if I'm wrong here.
+I'm very defiantly seeing a problem with the 2.6.11
+kernel and my spamassassin setup. However, it's not
+clear exactly where the problem is, seems like sa
+but it might be 2.6.11 with daemontools + qmail +
+QMAIL_QUEUE.
 
-this sounds like what I am understanding.
+A sure sign of it is no logs (with debug) for
+remote sa connections which score "0/0" and correct
+operation with local "cat spam.txt | spamc -R"; fix
+is to use the older kernel.
 
->> also I think the expectation is that there aren't going to be more then
->> 2-3 2.6.x.y releases so your comment of people waiting until y>5 won't
->> apply
->>
->
-> Say after 2.6.x.3 has been released and 2.6.x+1 is now out, and someone
-> finds a rare race condition that hangs the machine.  A 2.6.x.4 would not
-> be released?
+SA has stopped stdout logging completely with 2.6.11
+in addition to the all pass score. But the message
+seems to go through my temp queue (for testing) and
+sent on to my local MDA. I'm not sure if it's a sa
+problem with the kernel or the new kernel doing
+something new with pipes from tcp connections.
+Maybe the new kernel is not making files available
+(eg 0 bytes), until the writing pipe is closed?
+That would make my SA test a zero byte file, which
+would pass, close, become full, and the file piped
+to local MDA is full? ...humm then I'd get a score
+of "0/5"... this sounds like a SA problem with the
+new kernel, ideas?
 
-my understanding is that in general there would no be a 2.6.x.4 in this 
-case (special cases can cause rules to be bent, a rare race condition 
-probably wouldn't qualify, a remote root security hole probably would)
+// George
 
-> Actually, the >5 was pretty pointless anyway.  What I got
-> from talking to people is that they wanted a release that only got fixes
-> that would crash the machine, or cause a root exploit. That's what I
-> thought Linus was trying to say.
-
-the trouble is that 'crash the machine' can include a HUGE number of the 
-fixes that go into 2.6.x+1 and you just lost stability again
-
-David Lang
 
 -- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+George Georgalis, systems architect, administrator Linux BSD IXOYE
+http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org

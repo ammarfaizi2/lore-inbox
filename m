@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129209AbQKHRmb>; Wed, 8 Nov 2000 12:42:31 -0500
+	id <S129404AbQKHRuU>; Wed, 8 Nov 2000 12:50:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129280AbQKHRmV>; Wed, 8 Nov 2000 12:42:21 -0500
-Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:21486
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S129209AbQKHRmN>; Wed, 8 Nov 2000 12:42:13 -0500
-Date: Wed, 8 Nov 2000 10:37:29 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Urban Widmark <urban@svenskatest.se>
-Subject: Re: test11-pre1
-Message-ID: <20001108103729.A30483@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.10.10011071301580.6012-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="0OAP2g/MAC+5xKAE"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10011071301580.6012-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Nov 07, 2000 at 01:06:27PM -0800
+	id <S129113AbQKHRuB>; Wed, 8 Nov 2000 12:50:01 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37424 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129307AbQKHRtx>; Wed, 8 Nov 2000 12:49:53 -0500
+Subject: Re: Pentium 4 and 2.4/2.5
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Wed, 8 Nov 2000 17:50:21 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8uc2ch$g3u$1@penguin.transmeta.com> from "Linus Torvalds" at Nov 08, 2000 09:26:41 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13tZMe-0000F8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> unless that CPU is also SMP-capable).  It's documented by intel these
+> days, and it works on all CPU's I've ever heard of, and it even makes
+> sense to me (*).
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Do the intel docs guarantee it works on i486 and higher, if so SMP athlon
+will be the only check needed for the SMP users. You work for an x86 chip
+cloning company so if you say it works I trust you 8)
 
-On Tue, Nov 07, 2000 at 01:06:27PM -0800, Linus Torvalds wrote:
+> Also, at least part of the reason Intel removed the TSC check was that
+> Linux actually seems to get the extended CPU capability flags wrong,
+> overwriting the _real_ capability flags which in turn caused the TSC
+> check on Linux to simply not work.  Peter Anvin is working on fixing
+> this. I suspect that Linux-2.2 has the same problem.
 
-> Mostly driver updates.
+I've not seen incorrect TSC detection in 2.2, do you know the precise
+circumstances this occurs and I'll check over them. I've also got no
+bug reports of this failing.
+
+check_config would also panic with the 'Kernel compiled for ..' message 
+if it occurred.
+
+> There's a few other minor details that need to be fixed for Pentium 4
+> features (aka " not very well documented errata"), and I think I have
+> them all except for waiting for Peter to get the capabilities flag
+> handling right.
 > 
-> With a few notable exceptions: two rather subtle MM race conditions that
-> happened with SMP and highmem respectively. And the FXCSR and file locking
-> that was already discussed on the list.
+> So I suspect that we'll have good support for Pentium IV soon enough.. 
 
-I've once again attached this very small patch for !CONFIG_INET.  Summary:
-This is a very minor patch for fs/nls/Config.in, which Petr Vandrovec came up   
-with.  The problem is that if CONFIG_INET is n, CONFIG_SMB_FS is never set
-so fs/nls/Config.in assumes that the user wants to select some NLS options.
-This fixes it and works on config/menuconfig/xconfig.  It's been ok'ed by
-the SMB maintainer, so could this please go in?
+Excellent
 
-This is still vs 2.4.10-test8 or so, but the file hasn't changed any, nor has
-the problem, so...
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
-
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nls.patch"
-
---- fs/nls/Config.in.orig	Thu Oct 19 12:54:09 2000
-+++ fs/nls/Config.in	Thu Oct 19 12:54:32 2000
-@@ -2,10 +2,17 @@
- # Native language support configuration
- #
- 
-+# smb wants NLS
-+if [ "$CONFIG_SMB_FS" = "m" -o "$CONFIG_SMB_FS" = "y" ]; then
-+  define_bool CONFIG_SMB_NLS y
-+else
-+  define_bool CONFIG_SMB_NLS n
-+fi
-+
- # msdos and Joliet want NLS
- if [ "$CONFIG_JOLIET" = "y" -o "$CONFIG_FAT_FS" != "n" \
- 	-o "$CONFIG_NTFS_FS" != "n" -o "$CONFIG_NCPFS_NLS" = "y" \
--	-o "$CONFIG_SMB_FS" != "n" ]; then
-+	-o "$CONFIG_SMB_NLS" = "y" ]; then
-   define_bool CONFIG_NLS y
- else
-   define_bool CONFIG_NLS n
-
---0OAP2g/MAC+5xKAE--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

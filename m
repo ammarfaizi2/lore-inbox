@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287289AbSAXLEy>; Thu, 24 Jan 2002 06:04:54 -0500
+	id <S287317AbSAXLKo>; Thu, 24 Jan 2002 06:10:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287317AbSAXLEo>; Thu, 24 Jan 2002 06:04:44 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:23723 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S287289AbSAXLEl>;
-	Thu, 24 Jan 2002 06:04:41 -0500
-Date: Thu, 24 Jan 2002 14:02:10 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Rene Rebe <rene.rebe@gmx.net>
-Cc: zdenek <zdenek@smetana.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Missing changelog to Ingo's J5 scheduler?
-In-Reply-To: <20020124.115653.730556705.rene.rebe@gmx.net>
-Message-ID: <Pine.LNX.4.33.0201241401090.8884-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287333AbSAXLKe>; Thu, 24 Jan 2002 06:10:34 -0500
+Received: from AMontpellier-201-1-1-52.abo.wanadoo.fr ([193.252.31.52]:33018
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S287332AbSAXLKX>; Thu, 24 Jan 2002 06:10:23 -0500
+Subject: Re: umounting
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Samuel Maftoul <maftoul@esrf.fr>
+Cc: Oliver.Neukum@lrz.uni-muenchen.de, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020124005223.A23933@pcmaftoul.esrf.fr>
+In-Reply-To: <20020122150703.B13509@pcmaftoul.esrf.fr>
+	<16T6BH-1ZiPWiC@fwd07.sul.t-online.com>
+	<20020123090614.A18262@pcmaftoul.esrf.fr>
+	<16TVAs-0xKiHYC@fwd10.sul.t-online.com> 
+	<20020124005223.A23933@pcmaftoul.esrf.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 24 Jan 2002 10:22:27 +0100
+Message-Id: <1011864149.17679.11.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There was a suggestion some time ago (yeah I know, that was RMS) to have
+a special mode for "surprise-removal" filesystems: when starting a write
+operation on the device, always complete it such as if unmounted by
+surprise, the fs is still valid.
+This is not quite like a journaled fs I think, because it ought to work
+with any fs (e.g. vfat because most if not all removable
+disks/floppies/CF/flash-card-du-jour are formatted like this).
 
-On Thu, 24 Jan 2002, Rene Rebe wrote:
+Well, I think this should be looked at.
 
-> Ok. After some massive rebooting:
->
-> -J2 is worser. starting XFree(+gnome) when three gcc's are running
-> take long (> half a minute?). With -J5 X start nearly normal (mostly
-> file access time anyway?) Dragging windows arround is nearly equal.
-> Although with -J2 i sometimes noticed a really big latency when
-> starting vim or man ...
-
-thanks, so -J5 is an improvement on all fronts - good.
-
-> Oh. btw. The -J5 was tested with 2.4.18-pre7; the rest was with
-> vanilla-2.4.17 - I hope this doesn't make a performance difference for
-> this tests ...
-
-i dont think there is a difference, as long as you have enough RAM and
-dont swap usually.
-
-	Ingo
 

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293538AbSBZITy>; Tue, 26 Feb 2002 03:19:54 -0500
+	id <S293541AbSBZIVY>; Tue, 26 Feb 2002 03:21:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293539AbSBZITo>; Tue, 26 Feb 2002 03:19:44 -0500
-Received: from AGrenoble-202-1-1-87.abo.wanadoo.fr ([80.14.157.87]:48547 "EHLO
-	lyon.ram.loc") by vger.kernel.org with ESMTP id <S293538AbSBZITg>;
-	Tue, 26 Feb 2002 03:19:36 -0500
+	id <S293539AbSBZIVP>; Tue, 26 Feb 2002 03:21:15 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37136 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293540AbSBZIVA>; Tue, 26 Feb 2002 03:21:00 -0500
+Date: Tue, 26 Feb 2002 00:20:28 -0800
+Message-Id: <200202260820.AAA03790@sodium.transmeta.com>
+From: Daniel Quinlan <quinlan@transmeta.com>
 To: linux-kernel@vger.kernel.org
-From: Raphael_Manfredi@pobox.com (Raphael Manfredi)
-Subject: Re: setsockopt(SOL_SOCKET, SO_SNDBUF) broken on 2.4.18?
-Date: 26 Feb 2002 07:46:42 GMT
-Organization: Home, Grenoble, France
-Message-ID: <a5feh2$bvs$1@lyon.ram.loc>
-In-Reply-To: <2871.1014671286@nice.ram.loc> <E16fTly-0006Va-00@the-village.bc.nu>
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-In-Reply-To: <E16fTly-0006Va-00@the-village.bc.nu>
-X-Mailer: newsgate 1.0 at lyon.ram.loc
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Dave Bogdanoff <bog@transmeta.com>, quinlan@transmeta.com
+Subject: [PATCH] Linux Secondary Slave IDE timings
+X-Mailer: VM 6.75 under Emacs 20.4.1
+Reply-To: quinlan@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Alan Cox <alan@lxorguk.ukuu.org.uk> from ml.linux.kernel:
-:Neither. You asked for 8K the kernel allows a bit more for BSD compatibility
-:and other things. You query and it gives back the size it chose
+This fix is from Dave Bogdanoff <bog@transmeta.com>.
 
-I understand the kernel can choose to allocate more than requested.
-Even double the size.  But it should be consistent, i.e. if when I request
-x it allocates 2x, then when I ask the size, I want to know x, not 2x.
-Otherwise, how can the application behave sanely if it want to vary the
-size?
+Linux incorrectly sets up IDE timings for secondary slave drives on PC
+systems that use Intel PIIX Southbridges.
 
-Linux seems to be the only kernel to lie like that.  It's not consistent.
-The aim is not for the application to accurately measure the amount of
-kernel resources used by sockets, it's to adjust the (perceived) size of the
-socket buffer.
+This will correctly shift IDE slave PCI timings for register 44h so
+that:
 
-If I can't use the returned value from getsockopt(SO_SNDBUF) to do a
-setsockopt(SO_SNDBUF), then it's broken!  You'll have a hard time convincing
-me otherwise.
+ - secondary slave (drive1) uses bits 4-7
+ - primary slave   (drive1) uses bits 0-3
 
-Now whether it should be fixed is another matter.
+(The addition of the parentheses is needed so the shift will take
+place after the bitwise-or.  Without the parentheses, the shift will
+incorrectly always take place before the bitwise-or.)
 
-Raphael
+--- linux/drivers/ide/piix.c.orig	Tue Jan 29 23:26:55 2002
++++ linux/drivers/ide/piix.c	Tue Jan 29 23:27:33 2002
+@@ -258,8 +258,8 @@
+ 			master_data = master_data | 0x0070;
+ 		pci_read_config_byte(HWIF(drive)->pci_dev, slave_port, &slave_data);
+ 		slave_data = slave_data & (HWIF(drive)->index ? 0x0f : 0xf0);
+-		slave_data = slave_data | ((timings[pio][0] << 2) | (timings[pio][1]
+-					   << (HWIF(drive)->index ? 4 : 0)));
++		slave_data = slave_data | (((timings[pio][0] << 2) | timings[pio][1])
++					   << (HWIF(drive)->index ? 4 : 0));
+ 	} else {
+ 		master_data = master_data & 0xccf8;
+ 		if (pio > 1)

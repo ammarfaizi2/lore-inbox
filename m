@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271328AbTGQBza (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 21:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271329AbTGQBza
+	id S271325AbTGQCDo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 22:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271330AbTGQCDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 21:55:30 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:17298
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S271328AbTGQBz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 21:55:29 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] O6.1int
-Date: Thu, 17 Jul 2003 12:13:02 +1000
+	Wed, 16 Jul 2003 22:03:44 -0400
+Received: from dup-200-42-115-136.prima.net.ar ([200.42.115.136]:51594 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S271325AbTGQCDn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 22:03:43 -0400
+From: Norberto BENSA <nbensa@gmx.net>
+Reply-To: nbensa@yahoo.com
+Organization: BENSA.ar
+To: Jeff Garzik <jgarzik@pobox.com>, Max Valdez <maxvalde@fis.unam.mx>
+Subject: Re: 2.6 sound drivers?
+Date: Wed, 16 Jul 2003 23:18:24 -0300
 User-Agent: KMail/1.5.2
-Cc: Andrew Morton <akpm@osdl.org>, Wade <neroz@ii.net>,
-       Eugene Teo <eugene.teo@eugeneteo.net>, Wiktor Wodecki <wodecki@gmx.de>
+Cc: kernel <linux-kernel@vger.kernel.org>
+References: <20030716225826.GP2412@rdlg.net> <1058383534.5432.33.camel@garaged.homeip.net> <3F15F63E.1060602@pobox.com>
+In-Reply-To: <3F15F63E.1060602@pobox.com>
+X-Operating-System: Gentoo GNU/Linux 1.4
+X-PGP-Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x49664BBE
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_zdgF/owb2V9rtjI";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307171213.02643.kernel@kolivas.org>
+Message-Id: <200307162318.27081.nbensa@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The bug in the O6int patch probably wasn't responsible for WIktor's problem 
-actually. It shouldn't manifest for a very long time. Anyway here is the fix 
-and a couple of minor cleanups.
 
---- linux-2.6.0-test1-mm1/kernel/sched.c	2003-07-17 11:24:54.000000000 +1000
-+++ linux-2.6.0-testck1/kernel/sched.c	2003-07-17 11:59:01.000000000 +1000
-@@ -78,7 +78,7 @@
- #define STARVATION_LIMIT	(10*HZ)
- #define SLEEP_BUFFER		(HZ/100)
- #define NODE_THRESHOLD		125
--#define MAX_BONUS		(40 * PRIO_BONUS_RATIO / 100)
-+#define MAX_BONUS		(MAX_USER_PRIO * PRIO_BONUS_RATIO / 100)
- 
- /*
-  * If a task is 'interactive' then we reinsert it in the active
-@@ -390,8 +390,6 @@ static inline void activate_task(task_t 
- 	long sleep_time = jiffies - p->last_run - 1;
- 
- 	if (sleep_time > 0) {
--		unsigned long runtime = jiffies - p->avg_start;
--
- 		/*
- 		 * Tasks that sleep a long time are categorised as idle and
- 		 * will get just under interactive status with a small runtime
-@@ -402,6 +400,11 @@ static inline void activate_task(task_t 
- 			p->sleep_avg = MIN_SLEEP_AVG * (MAX_BONUS - INTERACTIVE_DELTA - 2) /
- 				MAX_BONUS;
- 		} else {
-+			unsigned long runtime = jiffies - p->avg_start;
-+
-+			if (runtime > MAX_SLEEP_AVG)
-+				runtime = MAX_SLEEP_AVG;
-+
- 			/*
- 			 * This code gives a bonus to interactive tasks.
- 			 *
+--Boundary-02=_zdgF/owb2V9rtjI
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
+
+Jeff Garzik wrote:
+> Max Valdez wrote:
+> > I have a SBlive too, emu10k1 works pretty well for me, what should I do
+> > for going to ALSA ??
+>
+> ALSA supports emu10k1.
+
+How well? Last time I've checked ALSA, it didn't support bass and treble,=20
+that's why I'm using OSS (emu10k1)
+
+Thanks,
+Norberto
+
+--Boundary-02=_zdgF/owb2V9rtjI
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/FgdzFXVF50lmS74RApHfAJ9gA5r51M6TVZz/B+Tw2AkTbVdfWgCgjmxq
+yolQuV8T9cwuHA9hcGTnN30=
+=Vrhe
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_zdgF/owb2V9rtjI--
 

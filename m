@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266857AbUAXCZS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 21:25:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266855AbUAXCYI
+	id S266859AbUAXC3B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 21:29:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUAXC0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 21:24:08 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:7835 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S266851AbUAXCWa (ORCPT
+	Fri, 23 Jan 2004 21:26:15 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:41418 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S266856AbUAXCZH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 21:22:30 -0500
-Date: Fri, 23 Jan 2004 18:22:29 -0800
+	Fri, 23 Jan 2004 21:25:07 -0500
+Date: Fri, 23 Jan 2004 18:25:04 -0800
 To: "David S. Miller" <davem@redhat.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] 6/11: act200l-sir: converted to new API
-Message-ID: <20040124022229.GG22410@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] 10/11: old_belkin-sir: converted to new API
+Message-ID: <20040124022504.GK22410@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,34 +26,44 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir262_dongles-6_act200l-sir.diff :
+ir262_dongles-10_belkin-sir.diff :
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		<Patch from Martin Diehl>
 * converted for new api from old driver
 
 
-diff -u -p linux/drivers/net/irda.d6/act200l-sir.c  linux/drivers/net/irda/act200l-sir.c
---- linux/drivers/net/irda.d6/act200l-sir.c	Wed Dec 31 16:00:00 1969
-+++ linux/drivers/net/irda/act200l-sir.c	Thu Jan 22 16:43:35 2004
-@@ -0,0 +1,258 @@
+diff -u -p linux/drivers/net/irda.d6/old_belkin-sir.c  linux/drivers/net/irda/old_belkin-sir.c
+--- linux/drivers/net/irda.d6/old_belkin-sir.c	Wed Dec 31 16:00:00 1969
++++ linux/drivers/net/irda/old_belkin-sir.c	Thu Jan 22 16:43:52 2004
+@@ -0,0 +1,156 @@
 +/*********************************************************************
-+ *
-+ * Filename:      act200l.c
-+ * Version:       0.8
-+ * Description:   Implementation for the ACTiSYS ACT-IR200L dongle
-+ * Status:        Experimental.
-+ * Author:        SHIMIZU Takuya <tshimizu@ga2.so-net.ne.jp>
-+ * Created at:    Fri Aug  3 17:35:42 2001
-+ * Modified at:   Fri Aug 17 10:22:40 2001
-+ * Modified by:   SHIMIZU Takuya <tshimizu@ga2.so-net.ne.jp>
-+ *
-+ *     Copyright (c) 2001 SHIMIZU Takuya, All Rights Reserved.
-+ *
-+ *     This program is free software; you can redistribute it and/or
-+ *     modify it under the terms of the GNU General Public License as
-+ *     published by the Free Software Foundation; either version 2 of
++ *                
++ * Filename:      old_belkin.c
++ * Version:       1.1
++ * Description:   Driver for the Belkin (old) SmartBeam dongle
++ * Status:        Experimental...
++ * Author:        Jean Tourrilhes <jt@hpl.hp.com>
++ * Created at:    22/11/99
++ * Modified at:   Fri Dec 17 09:13:32 1999
++ * Modified by:   Dag Brattli <dagb@cs.uit.no>
++ * 
++ *     Copyright (c) 1999 Jean Tourrilhes, All Rights Reserved.
++ *     
++ *     This program is free software; you can redistribute it and/or 
++ *     modify it under the terms of the GNU General Public License as 
++ *     published by the Free Software Foundation; either version 2 of 
 + *     the License, or (at your option) any later version.
-+ *
++ * 
++ *     This program is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ *     GNU General Public License for more details.
++ * 
++ *     You should have received a copy of the GNU General Public License 
++ *     along with this program; if not, write to the Free Software 
++ *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
++ *     MA 02111-1307 USA
++ *     
 + ********************************************************************/
 +
 +#include <linux/module.h>
@@ -61,98 +71,74 @@ diff -u -p linux/drivers/net/irda.d6/act200l-sir.c  linux/drivers/net/irda/act20
 +#include <linux/init.h>
 +
 +#include <net/irda/irda.h>
++// #include <net/irda/irda_device.h>
 +
 +#include "sir-dev.h"
 +
-+static int act200l_reset(struct sir_dev *dev);
-+static int act200l_open(struct sir_dev *dev);
-+static int act200l_close(struct sir_dev *dev);
-+static int act200l_change_speed(struct sir_dev *dev, unsigned speed);
++/*
++ * Belkin is selling a dongle called the SmartBeam.
++ * In fact, there is two hardware version of this dongle, of course with
++ * the same name and looking the exactly same (grrr...).
++ * I guess that I've got the old one, because inside I don't have
++ * a jumper for IrDA/ASK...
++ *
++ * As far as I can make it from info on their web site, the old dongle 
++ * support only 9600 b/s, which make our life much simpler as far as
++ * the driver is concerned, but you might not like it very much ;-)
++ * The new SmartBeam does 115 kb/s, and I've not tested it...
++ *
++ * Belkin claim that the correct driver for the old dongle (in Windows)
++ * is the generic Parallax 9500a driver, but the Linux LiteLink driver
++ * fails for me (probably because Linux-IrDA doesn't rate fallback),
++ * so I created this really dumb driver...
++ *
++ * In fact, this driver doesn't do much. The only thing it does is to
++ * prevent Linux-IrDA to use any other speed than 9600 b/s ;-) This
++ * driver is called "old_belkin" so that when the new SmartBeam is supported
++ * its driver can be called "belkin" instead of "new_belkin".
++ *
++ * Note : this driver was written without any info/help from Belkin,
++ * so a lot of info here might be totally wrong. Blame me ;-)
++ */
 +
-+/* Regsiter 0: Control register #1 */
-+#define ACT200L_REG0    0x00
-+#define ACT200L_TXEN    0x01 /* Enable transmitter */
-+#define ACT200L_RXEN    0x02 /* Enable receiver */
++static int old_belkin_open(struct sir_dev *dev);
++static int old_belkin_close(struct sir_dev *dev);
++static int old_belkin_change_speed(struct sir_dev *dev, unsigned speed);
++static int old_belkin_reset(struct sir_dev *dev);
 +
-+/* Register 1: Control register #2 */
-+#define ACT200L_REG1    0x10
-+#define ACT200L_LODB    0x01 /* Load new baud rate count value */
-+#define ACT200L_WIDE    0x04 /* Expand the maximum allowable pulse */
-+
-+/* Register 4: Output Power register */
-+#define ACT200L_REG4    0x40
-+#define ACT200L_OP0     0x01 /* Enable LED1C output */
-+#define ACT200L_OP1     0x02 /* Enable LED2C output */
-+#define ACT200L_BLKR    0x04
-+
-+/* Register 5: Receive Mode register */
-+#define ACT200L_REG5    0x50
-+#define ACT200L_RWIDL   0x01 /* fixed 1.6us pulse mode */
-+
-+/* Register 6: Receive Sensitivity register #1 */
-+#define ACT200L_REG6    0x60
-+#define ACT200L_RS0     0x01 /* receive threshold bit 0 */
-+#define ACT200L_RS1     0x02 /* receive threshold bit 1 */
-+
-+/* Register 7: Receive Sensitivity register #2 */
-+#define ACT200L_REG7    0x70
-+#define ACT200L_ENPOS   0x04 /* Ignore the falling edge */
-+
-+/* Register 8,9: Baud Rate Dvider register #1,#2 */
-+#define ACT200L_REG8    0x80
-+#define ACT200L_REG9    0x90
-+
-+#define ACT200L_2400    0x5f
-+#define ACT200L_9600    0x17
-+#define ACT200L_19200   0x0b
-+#define ACT200L_38400   0x05
-+#define ACT200L_57600   0x03
-+#define ACT200L_115200  0x01
-+
-+/* Register 13: Control register #3 */
-+#define ACT200L_REG13   0xd0
-+#define ACT200L_SHDW    0x01 /* Enable access to shadow registers */
-+
-+/* Register 15: Status register */
-+#define ACT200L_REG15   0xf0
-+
-+/* Register 21: Control register #4 */
-+#define ACT200L_REG21   0x50
-+#define ACT200L_EXCK    0x02 /* Disable clock output driver */
-+#define ACT200L_OSCL    0x04 /* oscillator in low power, medium accuracy mode */
-+
-+static struct dongle_driver act200l = {
++static struct dongle_driver old_belkin = {
 +	.owner		= THIS_MODULE,
-+	.driver_name	= "ACTiSYS ACT-IR200L",
-+	.type		= IRDA_ACT200L_DONGLE,
-+	.open		= act200l_open,
-+	.close		= act200l_close,
-+	.reset		= act200l_reset,
-+	.set_speed	= act200l_change_speed,
++	.driver_name	= "Old Belkin SmartBeam",
++	.type		= IRDA_OLD_BELKIN_DONGLE,
++	.open		= old_belkin_open,
++	.close		= old_belkin_close,
++	.reset		= old_belkin_reset,
++	.set_speed	= old_belkin_change_speed,
 +};
 +
-+int __init act200l_init(void)
++int __init old_belkin_init(void)
 +{
-+	return irda_register_dongle(&act200l);
++	return irda_register_dongle(&old_belkin);
 +}
 +
-+void __exit act200l_cleanup(void)
++void __exit old_belkin_cleanup(void)
 +{
-+	irda_unregister_dongle(&act200l);
++	irda_unregister_dongle(&old_belkin);
 +}
 +
-+static int act200l_open(struct sir_dev *dev)
++static int old_belkin_open(struct sir_dev *dev)
 +{
 +	struct qos_info *qos = &dev->qos;
 +
-+	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
 +
-+	/* Power on the dongle */
++	/* Power on dongle */
 +	sirdev_set_dtr_rts(dev, TRUE, TRUE);
 +
-+	/* Set the speeds we can accept */
-+	qos->baud_rate.bits &= IR_9600|IR_19200|IR_38400|IR_57600|IR_115200;
-+	qos->min_turn_time.bits = 0x03;
++	/* Not too fast, please... */
++	qos->baud_rate.bits &= IR_9600;
++	/* Needs at least 10 ms (totally wild guess, can do probably better) */
++	qos->min_turn_time.bits = 0x01;
 +	irda_qos_bits_to_value(qos);
 +
 +	/* irda thread waits 50 msec for power settling */
@@ -160,137 +146,49 @@ diff -u -p linux/drivers/net/irda.d6/act200l-sir.c  linux/drivers/net/irda/act20
 +	return 0;
 +}
 +
-+static int act200l_close(struct sir_dev *dev)
++static int old_belkin_close(struct sir_dev *dev)
 +{
-+	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
 +
-+	/* Power off the dongle */
++	/* Power off dongle */
 +	sirdev_set_dtr_rts(dev, FALSE, FALSE);
 +
 +	return 0;
 +}
 +
 +/*
-+ * Function act200l_change_speed (dev, speed)
++ * Function old_belkin_change_speed (task)
 + *
-+ *    Set the speed for the ACTiSYS ACT-IR200L type dongle.
-+ *
++ *    With only one speed available, not much to do...
 + */
-+static int act200l_change_speed(struct sir_dev *dev, unsigned speed)
++static int old_belkin_change_speed(struct sir_dev *dev, unsigned speed)
 +{
-+	u8 control[3];
-+	int ret = 0;
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
 +
-+	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
-+
-+	/* Clear DTR and set RTS to enter command mode */
-+	sirdev_set_dtr_rts(dev, FALSE, TRUE);
-+
-+	switch (speed) {
-+	default:
-+		ret = -EINVAL;
-+		/* fall through */
-+	case 9600:
-+		control[0] = ACT200L_REG8 |  (ACT200L_9600       & 0x0f);
-+		control[1] = ACT200L_REG9 | ((ACT200L_9600 >> 4) & 0x0f);
-+		break;
-+	case 19200:
-+		control[0] = ACT200L_REG8 |  (ACT200L_19200       & 0x0f);
-+		control[1] = ACT200L_REG9 | ((ACT200L_19200 >> 4) & 0x0f);
-+		break;
-+	case 38400:
-+		control[0] = ACT200L_REG8 |  (ACT200L_38400       & 0x0f);
-+		control[1] = ACT200L_REG9 | ((ACT200L_38400 >> 4) & 0x0f);
-+		break;
-+	case 57600:
-+		control[0] = ACT200L_REG8 |  (ACT200L_57600       & 0x0f);
-+		control[1] = ACT200L_REG9 | ((ACT200L_57600 >> 4) & 0x0f);
-+		break;
-+	case 115200:
-+		control[0] = ACT200L_REG8 |  (ACT200L_115200       & 0x0f);
-+		control[1] = ACT200L_REG9 | ((ACT200L_115200 >> 4) & 0x0f);
-+		break;
-+	}
-+	control[2] = ACT200L_REG1 | ACT200L_LODB | ACT200L_WIDE;
-+
-+	/* Write control bytes */
-+	sirdev_raw_write(dev, control, 3);
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(MSECS_TO_JIFFIES(5));
-+
-+	/* Go back to normal mode */
-+	sirdev_set_dtr_rts(dev, TRUE, TRUE);
-+
-+	dev->speed = speed;
-+	return ret;
++	dev->speed = 9600;
++	return (speed==dev->speed) ? 0 : -EINVAL;
 +}
 +
 +/*
-+ * Function act200l_reset (driver)
++ * Function old_belkin_reset (task)
 + *
-+ *    Reset the ACTiSYS ACT-IR200L type dongle.
++ *      Reset the Old-Belkin type dongle.
++ *
 + */
-+
-+#define ACT200L_STATE_WAIT1_RESET	(SIRDEV_STATE_DONGLE_RESET+1)
-+#define ACT200L_STATE_WAIT2_RESET	(SIRDEV_STATE_DONGLE_RESET+2)
-+
-+static int act200l_reset(struct sir_dev *dev)
++static int old_belkin_reset(struct sir_dev *dev)
 +{
-+	unsigned state = dev->fsm.substate;
-+	unsigned delay = 0;
-+	u8 control[9] = {
-+		ACT200L_REG15,
-+		ACT200L_REG13 | ACT200L_SHDW,
-+		ACT200L_REG21 | ACT200L_EXCK | ACT200L_OSCL,
-+		ACT200L_REG13,
-+		ACT200L_REG7  | ACT200L_ENPOS,
-+		ACT200L_REG6  | ACT200L_RS0  | ACT200L_RS1,
-+		ACT200L_REG5  | ACT200L_RWIDL,
-+		ACT200L_REG4  | ACT200L_OP0  | ACT200L_OP1 | ACT200L_BLKR,
-+		ACT200L_REG0  | ACT200L_TXEN | ACT200L_RXEN
-+	};
-+	int ret = 0;
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
 +
-+	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
++	/* This dongles speed "defaults" to 9600 bps ;-) */
++	dev->speed = 9600;
 +
-+	switch (state) {
-+	case SIRDEV_STATE_DONGLE_RESET:
-+		/* Reset the dongle : set RTS low for 25 ms */
-+		sirdev_set_dtr_rts(dev, TRUE, FALSE);
-+		state = ACT200L_STATE_WAIT1_RESET;
-+		delay = 50;
-+		break;
-+
-+	case ACT200L_STATE_WAIT1_RESET:
-+		/* Clear DTR and set RTS to enter command mode */
-+		sirdev_set_dtr_rts(dev, FALSE, TRUE);
-+
-+		udelay(25);			/* better wait for some short while */
-+
-+		/* Write control bytes */
-+		sirdev_raw_write(dev, control, sizeof(control));
-+		state = ACT200L_STATE_WAIT2_RESET;
-+		delay = 15;
-+		break;
-+
-+	case ACT200L_STATE_WAIT2_RESET:
-+		/* Go back to normal mode */
-+		sirdev_set_dtr_rts(dev, TRUE, TRUE);
-+		dev->speed = 9600;
-+		break;
-+	default:
-+		ERROR("%s(), unknown state %d\n", __FUNCTION__, state);
-+		ret = -1;
-+		break;
-+	}
-+	dev->fsm.substate = state;
-+	return (delay > 0) ? delay : ret;
++	return 0;
 +}
 +
-+MODULE_AUTHOR("SHIMIZU Takuya <tshimizu@ga2.so-net.ne.jp>");
-+MODULE_DESCRIPTION("ACTiSYS ACT-IR200L dongle driver");
++MODULE_AUTHOR("Jean Tourrilhes <jt@hpl.hp.com>");
++MODULE_DESCRIPTION("Belkin (old) SmartBeam dongle driver");	
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("irda-dongle-10"); /* IRDA_ACT200L_DONGLE */
++MODULE_ALIAS("irda-dongle-7"); /* IRDA_OLD_BELKIN_DONGLE */
 +
-+module_init(act200l_init);
-+module_exit(act200l_cleanup);
++module_init(old_belkin_init);
++module_exit(old_belkin_cleanup);

@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285482AbRL2UiE>; Sat, 29 Dec 2001 15:38:04 -0500
+	id <S285484AbRL2Uge>; Sat, 29 Dec 2001 15:36:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285475AbRL2Uhy>; Sat, 29 Dec 2001 15:37:54 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:56845 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S285449AbRL2Uhl>;
-	Sat, 29 Dec 2001 15:37:41 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200112292037.XAA12592@ms2.inr.ac.ru>
-Subject: Re: AX25/socket kernel PATCHes
-To: alan@lxorguk.UKuu.ORG.UK (Alan Cox)
-Date: Sat, 29 Dec 2001 23:37:18 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16KNor-00059i-00@the-village.bc.nu> from "Alan Cox" at Dec 29, 1 09:15:00 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S285472AbRL2UgY>; Sat, 29 Dec 2001 15:36:24 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:34060 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S285484AbRL2UgM>; Sat, 29 Dec 2001 15:36:12 -0500
+Message-ID: <3C2E2875.8E2EF36D@zip.com.au>
+Date: Sat, 29 Dec 2001 12:32:53 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Bernhard Rosenkraenzer <bero@redhat.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] exporting seq_* stuff
+In-Reply-To: <Pine.LNX.4.42.0112291626430.23274-200000@bochum.stuttgart.redhat.com> <Pine.GSO.4.21.0112291328160.5671-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> So that it checks
-> 			< skb2->data || nh.raw > ..
+Alexander Viro wrote:
 > 
-> Let me know if that fixes it. It shouldn't but it would be good to know if
-> we are picking up header only frames somewhere, or nh.raw has accidentally
-> been pushed on one header too far.
+> [snip the attached horror]
 
-Indeed... This fix would be right in any case.
+[ replace with a different one :-) ]
+ 
+> diff -urN C2-pre3/kernel/ksyms.c C2-pre3-fix/kernel/ksyms.c
+> --- C2-pre3/kernel/ksyms.c      Thu Dec 27 19:48:04 2001
+> +++ C2-pre3-fix/kernel/ksyms.c  Sat Dec 29 13:48:12 2001
+> @@ -46,6 +46,7 @@
+>  #include <linux/tty.h>
+>  #include <linux/in6.h>
+>  #include <linux/completion.h>
+> +#include <linux/seq_file.h>
+>  #include <asm/checksum.h>
+> 
+>  #if defined(CONFIG_PROC_FS)
+> @@ -480,6 +481,12 @@
+>  EXPORT_SYMBOL(reparent_to_init);
+>  EXPORT_SYMBOL(daemonize);
+>  EXPORT_SYMBOL(csum_partial); /* for networking and md */
+> +EXPORT_SYMBOL(seq_escape);
+> +EXPORT_SYMBOL(seq_printf);
+> +EXPORT_SYMBOL(seq_open);
+> +EXPORT_SYMBOL(seq_release);
+> +EXPORT_SYMBOL(seq_read);
+> +EXPORT_SYMBOL(seq_lseek);
 
+Personally, I prefer to see the EXPORT_SYMBOL() near the
+definition of the thing being exported.  For functions, the
+convention I like is:
 
-I want to remind why this check is made: this pointer must not show
-to heavens and it must not be NULL. This property was not held in the past,
-hence this bug trap was inserted. It can be relaxed, provided it preserves
-its sanitizing function.
+void foo()
+{
+}
+EXPORT_SYMBOL(foo);
 
-Also, note that real value of nh.raw is private to protocol.
-Particularly, it can be equal to mac.raw. The best thing to do is
-to set it to the same position as it would have if the same packet
-appeared on input. But it is not an absolute requirement,
-as soon as raw packet socket cannot hold it.
+It's nicer, and prevents patch conflicts.
 
-Alexey
+I'd propose that we drop the concept of EXPORT_OBJ by making all
+files eligible for exporting symbols, and that the janitors be given
+a mandate to scrap the ksyms files.
+
+Is this acceptable?
+
+-

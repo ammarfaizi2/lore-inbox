@@ -1,73 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbTEDAyo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 20:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263490AbTEDAyo
+	id S263490AbTEDBD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 21:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263493AbTEDBD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 20:54:44 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:3595 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP id S263487AbTEDAyn
+	Sat, 3 May 2003 21:03:27 -0400
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:40581 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP id S263490AbTEDBD0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 20:54:43 -0400
-Date: Sat, 3 May 2003 18:04:06 -0700
-From: jw schultz <jw@pegasys.ws>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.{4,5}.x] mod_timer fix for sch_cbq.c
-Message-ID: <20030504010406.GC8288@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1051971380.2018.128.camel@lima.royalchallenge.com> <1051973612.14504.7.camel@rth.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1051973612.14504.7.camel@rth.ninka.net>
-User-Agent: Mutt/1.3.27i
+	Sat, 3 May 2003 21:03:26 -0400
+Date: Sat, 03 May 2003 18:27:28 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: [Fwd: [PATCH 2.5.68] USB Gadget framework (0/6)]
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <3EB46C80.3010500@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 03, 2003 at 07:53:32AM -0700, David S. Miller wrote:
-> On Sat, 2003-05-03 at 07:16, Vinay K Nallamothu wrote:
-> > Hi,
-> > 
-> > sch_cbq.c: trivial {del,add}_timer to mod_timer conversions.
-> 
-> Vinay, I sent you email earlier today saying that you
-> need to send networking patches to the networking lists
-> and to the networking maintainers.
-> 
-> Yet, you're still shoveling these patches to lkml.
-> What is the problem?
-> 
+FYI:  sent this morning to linux-usb-devel.
 
-This looks like a timer fix that happens to be in network
-code, not a network fix.  Judging from the others he just
-posted he is fixing/upgrading timer code.
+-------- Original Message --------
+Subject: [PATCH 2.5.68] USB Gadget framework (0/6)
+Date: Sat, 03 May 2003 11:45:06 -0700
+From: David Brownell <david-b@pacbell.net>
+To: Greg KH <greg@kroah.com>,  linux-usb-devel@lists.sourceforge.net
 
-He only CC'd the kernel list.  The bug was sent to
-davej@codemonkey.org.uk.  You are askiing him to filter
-every piddly fix to identify which group it should go to.
+Followups to this message will  include patches with the core
+of a "USB Gadget" framework.  As you know, this is something
+we've wanted for the 2.5 kernel.  I see this as a good seed,
+the Linux developer community as fertile ground, and with
+spring here (Northern hemisphere, y'all), it's time to see
+what we'll grow!
 
-I sypmathize with your position but i think you are setting
-up too high a barrier.  When multiple poeple repeat the same
-mistake it is called a systems problem and you fix the
-system.
+The API is hardware-neutral, and passes straight down to drivers
+for device-side USB controllers.  The "gadget drivers" implement
+USB device functionality using that API, including "endpoint zero"
+policies to configure that hardware for the desired functionality.
+They talk to host-side USB device drivers, such as those found
+today in all mainstream Linux kernels.
 
-It strikes me that a filter subscribed to lkml could examine
-the postings for lines like:
+       1 <linux/usb_gadget.h> ... API, and inlined implementation.
 
---- linux-2.5.68/net/sched/sch_cbq.c    2003-03-25 10:08:36.000000000 +0530
-+++ linux-2.5.68-nvk/net/sched/sch_cbq.c        2003-05-03 19:29:08.000000000 +0530
+       2 drivers/usb/gadget/net2280.[hc] ... implements that API,
+         for the Net2280 peripheral controller.  This connects
+         using PCI, and supports USB 2.0 high speed.  So it's
+         relatively demanding of that API.
 
-and if present recognize "this is for the network list" and
-send them there if the networking list isn't already
-specified as a destination.  Such functionality, once
-created, could be expanded for other lists or individuals
-that want it.
+       3 drivers/usb/gadget/zero.c  ... simple gadget driver for
+         testing
+
+       4 drivers/usb/gadget/ether.c  ... CDC Ethernet gadget driver,
+         supports high speed link
+
+       5 drivers/usb/gadget/usbstring.c ... optional utility code,
+         for use by gadget drivers
+
+       6 kconfig/kbuild support for all the above.
+
+These patches are against 2.5.68 current.  Please merge them
+towards Linus' tree.
+
+- Dave
 
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
 
-		Remember Cernan and Schmitt
+
+
+
+

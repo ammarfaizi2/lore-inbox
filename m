@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277591AbRJVS6t>; Mon, 22 Oct 2001 14:58:49 -0400
+	id <S277687AbRJVTDT>; Mon, 22 Oct 2001 15:03:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277665AbRJVS6k>; Mon, 22 Oct 2001 14:58:40 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:57609 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S277655AbRJVS6e>; Mon, 22 Oct 2001 14:58:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Mike Fedyk <mfedyk@matchmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: VM
-Date: Mon, 22 Oct 2001 20:59:40 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "Michael T. Babcock" <mbabcock@fibrespeed.net>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BD420ED.4090508@fibrespeed.net> <E15vffF-00023N-00@the-village.bc.nu> <20011022110058.C27227@mikef-linux.matchmail.com>
-In-Reply-To: <20011022110058.C27227@mikef-linux.matchmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011022185859Z16022-4006+539@humbolt.nl.linux.org>
+	id <S277655AbRJVTDJ>; Mon, 22 Oct 2001 15:03:09 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:37391 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S277687AbRJVTCx>; Mon, 22 Oct 2001 15:02:53 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-ID: <86256AED.0068A63B.00@smtpnotes.altec.com>
+Date: Mon, 22 Oct 2001 13:59:25 -0500
+Subject: Re: Linux 2.2.20pre10
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 22, 2001 08:00 pm, Mike Fedyk wrote:
-> On Mon, Oct 22, 2001 at 03:02:49PM +0100, Alan Cox wrote:
-> > > I have never done this comparison myself, but I was wondering how ugly 
-> > > it would be if stable versions of Andrea's and Rik's VMs were both 
-> > > available in your/Linus' kernel as compile-time options.  Assuming that 
-> > > each provides better performance under certain conditions, wouldn't 
-> > 
-> > Too ugly for words.
-> 
-> Though, if it's done from the start of 2.5, it could be very possible.  Is
-> there a way to make it non-ugly?
 
-No, not within the current structure of our config system.  It touches the 
-tree in many places break out nicely into a few defines or separable files. 
-Both mm variants are under heavy development and injecting them with a bunch 
-of cruft just to make it compile-time configurable would only add to the 
-difficulty of maintaining a subsystem that already is very difficult to 
-maintain.
 
-This is properly a patch.
+I certainly can't argue with your logic.  :-)
 
-If you want to argue for something, argue for giving config the ability to 
-apply patches, that would be lots of fun.
+Actually, I believe there are some decent, honest, well-meaning people in our
+government.  It's just that they seldom have much influence on policy.  :-(
 
---
-Daniel
+Wayne
+
+
+
+
+Alexander Viro <viro@math.psu.edu> on 10/22/2001 01:40:36 PM
+
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+
+Subject:  Re: Linux 2.2.20pre10
+
+
+
+
+
+On Mon, 22 Oct 2001 Wayne.Brown@altec.com wrote:
+
+> I wonder if there are any Linux hackers in Iraq?  It's doubtful the government
+> there would honor any legal action attempted by the US on DMCA issues.  OTOH,
+it
+> would put me in the rather weird position of agreeing with the Iraqi
+government,
+> which is something I NEVER would have expected...  :-)
+
+Oh, come on.  Every government is right on some issues.  Proof:
+
+     For every government X there is at least one government Y such that X
+would claim that Y is a bunch of corrupt assholes.  Since every government
+_is_ a bunch of corrupt assholes, every government is right at least in one
+of its claims.
+
+
+
+
+

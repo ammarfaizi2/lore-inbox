@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263235AbTDYHdG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 03:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263243AbTDYHdG
+	id S263259AbTDYHpF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 03:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263399AbTDYHpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 03:33:06 -0400
-Received: from kogut2.o2.pl ([212.126.20.58]:22228 "EHLO kogut2.o2.pl")
-	by vger.kernel.org with ESMTP id S263235AbTDYHdF (ORCPT
+	Fri, 25 Apr 2003 03:45:05 -0400
+Received: from news.cistron.nl ([62.216.30.38]:18447 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S263259AbTDYHpE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 03:33:05 -0400
-Date: Fri, 25 Apr 2003 09:39:24 +0200
-From: Rafal Bujnowski <bujnor@go2.pl>
-To: "jds" <jds@soltis.cc>, linux-kernel@vger.kernel.org
-Subject: Re: Modutils version for kernel 2.5.68-mm ?
-Message-Id: <20030425093924.3427fab9.bujnor@go2.pl>
-In-Reply-To: <20030424162406.M94538@soltis.cc>
-References: <20030424162406.M94538@soltis.cc>
-Organization: bujnor.lan
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Debian GNU/Linux 3.0
-X-Registered-Linux-User: 203781
-X-Website: http://www.bujnor.iq.pl/
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Apr 2003 03:45:04 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: Re: 2.4.21-rc1-ac1: Filesystem corruption
+Date: Fri, 25 Apr 2003 07:57:13 +0000 (UTC)
+Organization: Cistron
+Message-ID: <b8apop$5ti$1@news.cistron.nl>
+References: <20030425073652.GA2089@defiant.crash>
+X-Trace: ncc1701.cistron.net 1051257433 6066 62.216.30.38 (25 Apr 2003 07:57:13 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@ncc1701.cistron.net (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A "jds" <jds@soltis.cc> na to:
+Ronald Lembcke  <es186@fen-net.de> wrote:
+>Apr 25 02:19:40 defiant kernel: hdb: dma_timer_expiry: dma status == 0x60
+>Apr 25 02:19:40 defiant kernel: hdb: timeout waiting for DMA
+>Apr 25 02:19:40 defiant kernel: hdb: timeout waiting for DMA
+>Apr 25 02:19:40 defiant kernel: hdb: (__ide_dma_test_irq) called while not waiting
+>Apr 25 02:19:40 defiant kernel: hdb: status timeout: status=0xd0 { Busy }
+>Apr 25 02:19:40 defiant kernel:
+>Apr 25 02:19:40 defiant kernel: hda: DMA disabled
+>Apr 25 02:19:40 defiant kernel: hdb: drive not ready for command
+>Apr 25 02:19:41 defiant kernel: ide0: reset: success
+>
+>CONFIG_X86_UP_APIC=y
+>CONFIG_X86_UP_IOAPIC=y
+>CONFIG_X86_LOCAL_APIC=y
+>CONFIG_X86_IO_APIC=y
 
->    What is the version modutils for kernel 2.5.68 o 2.5.68-mmx for
->    RH9.0 and
+I also encounterd similar problems on several servers.
 
-On my Debian Sid with kernel 2.5.68 I have modutils 2.4.21. And it
-works.
+Disabling IO_APIC on uni-processor machine "fixed" things for me.
+Could you recompile a kernel without IO-APIC?
 
+I've found these problems also in 2.5.xx kernels.
 
-Regards
+My wild guess is that certain motherboards/bioses don't do what
+they are supposed to do. Found problems both on AMD and P4 platforms.
 
-rafal
-
+Danny
 
 -- 
+Miguel   | "I can't tell if I have worked all my life or if
+de Icaza |  I have never worked a single day of my life,"
 
-[              Rafal Bujnowski ][ e-mail: bujnor@go2.pl            ]
-[     http://www.bujnor.iq.pl/ ][ e-mail: bujnor@poczta.onet.pl    ]
-[   ICQ: 85602025  GG: 4174829 ][ Jabber: bujnor@jabber.org        ]

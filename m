@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265022AbUEYSWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265035AbUEYSZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265022AbUEYSWK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 14:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265032AbUEYSUS
+	id S265035AbUEYSZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 14:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265039AbUEYSXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 14:20:18 -0400
-Received: from hyperion.haystack.edu ([192.52.65.1]:54990 "EHLO
-	hyperion.haystack.edu") by vger.kernel.org with ESMTP
-	id S265022AbUEYSSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 14:18:43 -0400
-Message-ID: <40B38DFD.1080608@haystack.mit.edu>
-Date: Tue, 25 May 2004 14:18:37 -0400
-From: Frank Lind <flind@haystack.mit.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925
+	Tue, 25 May 2004 14:23:14 -0400
+Received: from mail.wnyip.net ([209.2.65.194]:42249 "EHLO mail.wnyip.net")
+	by vger.kernel.org with ESMTP id S265028AbUEYSWX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 14:22:23 -0400
+Message-ID: <40B391E8.3080904@wnyip.net>
+Date: Tue, 25 May 2004 14:35:20 -0400
+From: "pvant67@wnyip.net" <pvant67@wnyip.net>
+Reply-To: pvant67@wnyip.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: knobi@knobisoft.de
-CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Multicast problems between 2.4.20 and 2.4.21?
-References: <20040525181510.68862.qmail@web13902.mail.yahoo.com>
-In-Reply-To: <20040525181510.68862.qmail@web13902.mail.yahoo.com>
+To: Valdis.Kletnieks@vt.edu
+CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [RFC] Kernel origins and maintainers
+References: <40B384DE.9060504@wnyip.net> <200405251811.i4PIBHGR029414@turing-police.cc.vt.edu>
+In-Reply-To: <200405251811.i4PIBHGR029414@turing-police.cc.vt.edu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin,
+Valdis.Kletnieks@vt.edu wrote:
 
-/sbin/sysctl -w net.ipv4.conf.eth1.force_igmp_version=2
+> 
+> That might get you all the major maintainers.  You'll probably want to also
+> look at the release Changelogs, and possibly the BitKeeper logs as well - I
+> think the Changelogs show part of the #if/#ifdef cleanup I did as coming from
+> me, and part as coming from somebody else (Dave Jones?), since he forwarded
+> part to Linus. I never did bother checking what the BitKeeper notations were...
+> 
 
-the above worked for me. I think it was added in 2.4.25 and 2.6.2.
-
--- Frank
-
-
-Martin Knoblauch wrote:
-
->--- "David S. Miller" <davem@redhat.com> wrote:
->  
->
->>You don't need a patch to force IGMPv2, there is a sysctl
->>available now in 2.4.x for this purpose.
->>
->>
->>    
->>
->David,
->
->  what is the name of the sysctl, and when was it added to 2.4? What
->about 2.6.x?
->
->Thanks
->Martin
->
->=====
->------------------------------------------------------
->Martin Knoblauch
->email: k n o b i AT knobisoft DOT de
->www:   http://www.knobisoft.de
->
->!DSPAM:40b38d3220961361122433!
->
->
->  
->
-
+Thanks for the idea - I had overlooked that. ASAP I will try it.
 
 -- 
-Frank D. Lind			email: flind@haystack.mit.edu	
-MIT Haystack Observatory	WWW: http://www.haystack.mit.edu
-Route 40			tel: 781 981 5570
-Westford, MA  01886  USA	fax: 781 981 5766
-
-
-
+"Truly, if Te is strong in one, all one needs to do is sit on one's ass, 
+and the corpse of one's enemy shall be carried past shortly."
+	-- spotted somewhere on Usenet

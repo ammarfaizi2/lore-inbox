@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265935AbUBCKeb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 05:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265969AbUBCKeb
+	id S265977AbUBCKrz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 05:47:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUBCKrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 05:34:31 -0500
-Received: from [211.100.14.36] ([211.100.14.36]:5548 "HELO ig2.legend.com.cn")
-	by vger.kernel.org with SMTP id S265935AbUBCKea convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 05:34:30 -0500
-From: 0xLJC0EED3C2z/0xLJB7FECEF1C6F7CFB5CDB3D1D0B7A2B4A6z/0xLJC1AACFEBz 
-	<0xLJC0EED3C2z/0xLJB7FECEF1C6F7CFB5CDB3D1D0B7A2B4A6z/0xLJC1AACFEBz@legend.com.cn>
-Subject: where can we find scsi driver for aic79xx under Linux Kernel 2.2
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OFEEB038D5.E017451E-ON48256E2F.0039EB64@legend.com.cn>
-Date: Tue, 3 Feb 2004 18:36:55 +0800
-X-MIMETrack: Serialize by Router on BJMS8/Legend(Release 5.0.8 |June 18, 2001) at 2004-02-03
- 18:34:20
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 3 Feb 2004 05:47:46 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:50863 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265966AbUBCKrn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 05:47:43 -0500
+Date: Tue, 3 Feb 2004 11:47:42 +0100 (MET)
+Message-Id: <200402031047.i13Algrs019289@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: mcornils@usta.de
+Subject: ACPI breakage (was: 2.6.x: local APIC results in hang at boot)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, every friend:-)
-Our custom wanna run their Linux on our machince. But their Linux is Linux
-Kernel 2.2.18, and our machine adapt a ultra 320 scsi chip "7902 nohost
-scsi chip", we can only find 7902 driver for Linux Kernel 2.4 on Adaptec's
-WebSite. So, we can't make a driverdisk contains aic79xx driver for Linux
-Kernel
-2.2.18 to install customer's old linux on our machince.
+On 2004-02-03, Malte Cornils wrote:
+>I've tested this with 2.6.2-rc3 and kernels before that; when I activate
+>the "Enable local APIC" question the kernel hangs with:
+>
+>POSIX conformance testing by UNIFIX
+>enabled ExtInt on CPU#0
+>ESR value before enabling vector: 00000000
+>ESR value after enabling vector: 00000000
+>Using local APIC timer interrupts.
+>calibrating APIC timer ...
+>..... CPU clock speed is 1399.0856 MHz.
+>..... host bus clock speed is 99.0989 MHz.
+>NET: Registered protocol family 16
+>EISA bus registered
+>PCI: Using configuration type 1
+>mtrr: v2.0 (20020519)
+>ACPI: Subsystem revision 20040116
+>ACPI: IRQ9 SCI: Edge set to Level Trigger.
+>
+>and then nothing happens.
+>
+>On request, I can send the boot log from the same kernel without local
+>APIC compiled-in; you can also get it from 
+>http://www.usta.de/RefAk/Aussen/privat/apic-works.log
+>
+>As I said, it works without the option. (So, this is a problem for
+>people using distribution/generic kernels with the Local-APIC option
+>enabled)
+>
+>This is an Asus Centrino notebook (M2400N) with 1,4 GHz, latest BIOS
+>update and so on. When I enable the local APIC but disable ACPI, it
+>works too - ACPI is used to reroute some interrupts and make e.g. sound
+>work.
 
-I wonder if any one can help me where can I find a aic79xx driver for Linux
-Kernel
-2.2?
-
-thanks a lot.
-
-best regards!
-
-
-colyli
-
-
-
+This clearly indicates ACPI breakage on your machine.
+Re-report it as such to the ACPI list.

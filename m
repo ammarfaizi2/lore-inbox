@@ -1,133 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbTKCVwr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 16:52:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263392AbTKCVwo
+	id S263423AbTKCWDB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 17:03:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTKCWDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 16:52:44 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:25836 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263365AbTKCVwh (ORCPT
+	Mon, 3 Nov 2003 17:03:01 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:20138 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263423AbTKCWDA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 16:52:37 -0500
-Subject: PATCH] linxu-2.4.23-pre9_cpu-map-fix_A0
-From: john stultz <johnstul@us.ibm.com>
-To: marcelo <marcelo.tosatti@cyclades.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1067896202.11436.20.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 03 Nov 2003 13:50:02 -0800
+	Mon, 3 Nov 2003 17:03:00 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16294.53393.763572.291298@napali.hpl.hp.com>
+Date: Mon, 3 Nov 2003 14:02:57 -0800
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Jamie Wellnitz <Jamie.Wellnitz@emulex.com>, linux-kernel@vger.kernel.org
+Subject: Re: virt_to_page/pci_map_page vs. pci_map_single
+In-Reply-To: <yq0sml5a63s.fsf@wildopensource.com>
+References: <20031102181224.GD2149@ma.emulex.com>
+	<yq0wuahan3t.fsf@trained-monkey.org>
+	<20031103125259.GC16690@ma.emulex.com>
+	<yq0sml5a63s.fsf@wildopensource.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, All,
+>>>>> On 03 Nov 2003 09:17:59 -0500, Jes Sorensen <jes@wildopensource.com> said:
 
-	I noticed on x440s that when HT is disabled in the BIOS I was having
-problems properly booting 2.4 in ACPI mode. Further investigation found
-a subtle problem w/ smp_boot_cpus() when clustered_acpi_mode is set. 
+>>>>> "Jamie" == Jamie Wellnitz <Jamie.Wellnitz@emulex.com> writes:
+  Jamie> On Mon, Nov 03, 2003 at 03:10:46AM -0500, Jes Sorensen wrote:
+  >>> virt_to_page() can handle any page in the standard kernel region
 
-During bootup, phys_cpu_present_map is initialized by ORing
-apicid_to_phys_cpu_present() for each cpu apicid(see MP_processor_info)
-On flat mode boxes this translates to "phys_cpu_present_map |=
-(1<<apicid)". 
+  Jamie> What is the "standard kernel region"?  ZONE_NORMAL?
 
-On clustered_apic_mode boxes, since we're using phyiscal apic addresses,
-the apicids are not sequential so it is possible the
-phys_cpu_present_map can have holes in it (see
-apicid_to_phys_cpu_present()). 
+  Jes> Hmmm, my brain has gotten ia64ified ;-) It's basically the normal
+  Jes> mappings of the kernel, ie. the kernel text/data/bss segments as well
+  Jes> as anything you do not get back as a dynamic mapping such as
+  Jes> ioremap/vmalloc/kmap.
 
-The problem arises in smp_boot_cpus() because when we are booting the
-cpus, we iterate through each apicid, however we bit-AND
-phys_cpu_present_map w/ (1<<apicid)  rather then using
-apicid_to_phys_cpu_present(apicid). On clustered apic machines, this may
-cause us to try to boot apicids that do not exist. 
+I don't think it's safe to use virt_to_page() on static kernel
+addresses (text, data, and bss).  For example, ia64 linux nowadays
+uses a virtual mapping for the static kernel memory, so it's not part
+of the identity-mapped segment.
 
-The following patch corrects the problem by always bit-ANDing
-phys_cpu_present_map with apicid_to_phys_cpu_present(). This is safe for
-flat mode boxes, as apicid_to_phys_cpu_present(apicid) translates back
-to (1<<apicid).  
-
-Additionally, the patch insures we do not try to boot BAD_APICIDs and
-removes a hack that was added to mpparse.c which worked around this
-problem in the non-ACPI boot path.
-
-In 2.5 we do not have this problem as we use logical rather then
-physical apic addressing. 
-
-Please consider for inclusion in your tree. 
-
-thanks
--john
-
-diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
---- a/arch/i386/kernel/mpparse.c	Mon Nov  3 13:48:33 2003
-+++ b/arch/i386/kernel/mpparse.c	Mon Nov  3 13:48:33 2003
-@@ -587,10 +587,6 @@
- 		++mpc_record;
- 	}
- 
--	if (clustered_apic_mode){
--		phys_cpu_present_map = logical_cpu_present_map;
--	}
--
- 
- 	printk("Enabling APIC mode: ");
- 	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
-diff -Nru a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
---- a/arch/i386/kernel/process.c	Mon Nov  3 13:48:33 2003
-+++ b/arch/i386/kernel/process.c	Mon Nov  3 13:48:33 2003
-@@ -44,6 +44,7 @@
- #include <asm/irq.h>
- #include <asm/desc.h>
- #include <asm/mmu_context.h>
-+#include <asm/smpboot.h>
- #ifdef CONFIG_MATH_EMULATION
- #include <asm/math_emu.h>
- #endif
-@@ -377,7 +378,7 @@
- 		   if its not, default to the BSP */
- 		if ((reboot_cpu == -1) ||  
- 		      (reboot_cpu > (NR_CPUS -1))  || 
--		      !(phys_cpu_present_map & (1<<cpuid))) 
-+		      !(phys_cpu_present_map & apicid_to_phys_cpu_present(cpuid)))
- 			reboot_cpu = boot_cpu_physical_apicid;
- 
- 		reboot_smp = 0;  /* use this as a flag to only go through this once*/
-diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Mon Nov  3 13:48:33 2003
-+++ b/arch/i386/kernel/smpboot.c	Mon Nov  3 13:48:33 2003
-@@ -1108,13 +1108,17 @@
- 
- 	for (bit = 0; bit < NR_CPUS; bit++) {
- 		apicid = cpu_present_to_apicid(bit);
-+		
-+		/* don't try to boot BAD_APICID */
-+		if (apicid == BAD_APICID)
-+			continue; 
- 		/*
- 		 * Don't even attempt to start the boot CPU!
- 		 */
- 		if (apicid == boot_cpu_apicid)
- 			continue;
- 
--		if (!(phys_cpu_present_map & (1ul << bit)))
-+		if (!(phys_cpu_present_map & apicid_to_phys_cpu_present(apicid)))
- 			continue;
- 		if (max_cpus <= cpucount+1)
- 			continue;
-@@ -1125,7 +1129,8 @@
- 		 * Make sure we unmap all failed CPUs
- 		 */
- 		if ((boot_apicid_to_cpu(apicid) == -1) &&
--				(phys_cpu_present_map & (1ul << bit)))
-+			(phys_cpu_present_map & 
-+				apicid_to_phys_cpu_present(apicid)))
- 			printk("CPU #%d/0x%02x not responding - cannot use it.\n",
- 								bit, apicid);
- 	}
-
-
-
+	--david

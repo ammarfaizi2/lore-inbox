@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313289AbSDJQSL>; Wed, 10 Apr 2002 12:18:11 -0400
+	id <S313297AbSDJQVf>; Wed, 10 Apr 2002 12:21:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313293AbSDJQSK>; Wed, 10 Apr 2002 12:18:10 -0400
-Received: from exchange.macrolink.com ([64.173.88.99]:32782 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S313289AbSDJQSJ>; Wed, 10 Apr 2002 12:18:09 -0400
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A776C@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Gabor Kerenyi'" <wom@tateyama.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: how to write driver for PCI cards
-Date: Wed, 10 Apr 2002 09:18:05 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S313309AbSDJQVe>; Wed, 10 Apr 2002 12:21:34 -0400
+Received: from mail-01.med.umich.edu ([141.214.93.149]:56764 "EHLO
+	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
+	id <S313297AbSDJQVe> convert rfc822-to-8bit; Wed, 10 Apr 2002 12:21:34 -0400
+Message-Id: <scb42e4b.036@mail-01.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.0.1
+Date: Wed, 10 Apr 2002 12:21:03 -0400
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <aab@cichlid.com>, <dang@fprintf.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Tyan S2462 reboot problems
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gabor,
+What display adapter are you using? BIOS's earlier than 1.04 screwed up royally with ATI Radeon 8500/7500 cards - actually, so does 1.04, but not as much. I've also noticed that Radeon + Adaptec 39160 corrupts video where without the Adaptec it doesn't. Strange.
 
-> There is a good news (at least for me), my company would like to 
-> have a Linux driver for its card. And this great task is mine. 
-> So I'm going to write a driver.
+Nik
 
-What kind of card is it? serial, SCSI, network? ...
+(This is on the 2460, not 2462)
 
-> But I don't know where to start. OK, the interface and how the 
-> driver should be written is clear(more or less) but I don't have 
-> any documents for it. 
+>>> Daniel Gryniewicz <dang@fprintf.net> 04/09/02 04:14PM >>>
+> Hi.
 
-A good place to start is to find and study an existing Linux driver 
-for a similar device. 
+> No, I doubt this has anything to do with Linux.   I have a S2460 (which his
+> corrected post says he has), which does not power down under linux, and
+> *never* warm boots cleanly.  It does power down under windows, so I assume
+> ACPI powerdown works and APM does not.  I have gone under the assumption that
+> a BIOS upgrade will fix this, but that involves putting a floppy into the box,
+> so I haven't done it yet.  The warm boot problems consist of either a hang
+> after POST (but before bootloader, OS irrelevent), or really bad video
+> corruption.  I don't know if it boot with the video corruption, I've never let
+> it try.
 
-> Can anyone give me some online docs about PCI bus? (I found some 
-> info about PCI-9050 chip but it doesn't contain what I need.)
+> Daniel
 
-Did you mean PLX-9050 PCI interface chip? This is a widely used chip
-and should have several examples. If your device uses interrupts, you 
-will need to know how the kind of interrupt sources (edge, level) and 
-how they are connected to the 9050.
-
-A Linux PCI HOW-TO file is at http://www.tldp.org/HOWTO/PCI-HOWTO.html.
-General Linux PCI driver info is in /usr/src/linux*/Documentation/pci.txt.
-See also /usr/src/linux*/Documentation/devices.txt. That's a start. 
-
-Good luck,
-Ed Vance
 

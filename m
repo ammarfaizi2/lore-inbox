@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280935AbRKYREH>; Sun, 25 Nov 2001 12:04:07 -0500
+	id <S280937AbRKYRJa>; Sun, 25 Nov 2001 12:09:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280937AbRKYRD7>; Sun, 25 Nov 2001 12:03:59 -0500
-Received: from zero.aec.at ([193.170.194.10]:34313 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S280935AbRKYRDr>;
-	Sun, 25 Nov 2001 12:03:47 -0500
-To: ptb@it.uc3m.es
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Severe Linux 2.4 kernel memory leakage
-In-Reply-To: <1006699767.1178.0.camel@gandalf.chabotc.com> <200111251527.QAA05393@nbd.it.uc3m.es>
-From: Andi Kleen <ak@muc.de>
-Date: 25 Nov 2001 18:03:10 +0100
-In-Reply-To: "Peter T. Breuer"'s message of "Sun, 25 Nov 2001 16:30:13 +0100"
-Message-ID: <m3lmgug4vl.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
+	id <S280938AbRKYRJT>; Sun, 25 Nov 2001 12:09:19 -0500
+Received: from imo-d04.mx.aol.com ([205.188.157.36]:8834 "EHLO
+	imo-d04.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S280937AbRKYRJC>; Sun, 25 Nov 2001 12:09:02 -0500
+Message-ID: <3C012423.B2F8A27D@cs.com>
+Date: Sun, 25 Nov 2001 10:02:27 -0700
+From: Charles Marslett <cmarslett9@cs.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,zh-TW,ja
 MIME-Version: 1.0
+To: Sven.Riedel@tu-clausthal.de
+CC: Dominik Kubla <kubla@sciobyte.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux and RS/6000 250
+In-Reply-To: <20011125024652.B26191@moog.heim1.tu-clausthal.de> <Pine.NEB.4.33.0111251427280.1488-100000@www2.scram.de> <20011125144038.C5506@duron.intern.kubla.de> <20011125174742.A5789@moog.heim1.tu-clausthal.de>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" <ptb@it.uc3m.es> writes:
-
-> "A month of sundays ago Chris Chabot wrote:"
-> > The box has ran Redhat 7.1 and 7.2, with plain vanilla linux kernels
-> > 2.4.9 upto 2.4.15, in all situations the same problem appeared.
-> > 
-> > The problem is that when the box boots up, it uses about 60Mb of memory.
-> > However after only 1 1/2 days, the memory usage is already around 430Mb
-> > (!!). (this is ofcource used - buffers - cache, as displayed by 'free').
+Sven.Riedel@tu-clausthal.de wrote:
+> On Sun, Nov 25, 2001 at 02:40:38PM +0100, Dominik Kubla wrote:
+> > Add a 350 from me.  But the problem is not just the PPC/MCA combination,
+> > but also the CPU. It's Power, not PowerPC!
 > 
-> I also have this problem. Unknown circumstances provoke it. Kernel
-> 2.4.9 to 2.4.13.  When it occurs I lose about 30MB a day.
+> Really? The IBM website says the following:
+> 
+> <quote>
+> The IBM* RS/6000 Model 250 is flexible and powerful, and performs well
+> as either a graphics workstation or a server. Driven by a 66MHz PowerPC
+> 601* microprocessor,[...]
+> </quote>
+> 
+> As can be seen at
+> http://www1.ibmlink.ibm.com/cgi-bin/master?request=salesmanual&parms=SMS&xh=GYqgx1sg9i2Geo1USenGnN9332&xhi=usa.main%7Csalesmanual%5E&type=D&search=rs%2F6000+250&title=T&product=
+> 
+> Marketing strikes again, eh? :/
+> 
+> Regs,
+> Sven
+> --
+> Sven Riedel                      sr@gimp.org
+> Osteroeder Str. 6 / App. 13      sven.riedel@tu-clausthal.de
+> 38678 Clausthal                  "Call me bored, but don't call me boring."
+>                                  - Larry Wall
 
-Compare snapshots of /proc/slabinfo before and after.
+Perhaps I should go back and dig out my docs, but I'm lazy -- IIRC, the 601 was
+a hybrid chip -- it had most but not all of the basic PPC instruction set, and
+it still had all the instructions in the Power instruction set that disappeared
+in later PPCs.
 
-It may be completely harmless; e.g. a slab cache. free is unfortunately 
-quite misleading with newer kernels; it doesn't give information about
-many important caches (e.g. not about the slab caches) 
-
--Andi
-
-
+--Charles 
+          /"\                           |
+          \ /     ASCII Ribbon Campaign |
+           X      Against HTML Mail     |--Charles Marslett
+          / \                           |  www.wordmark.org

@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261719AbSJEAHX>; Fri, 4 Oct 2002 20:07:23 -0400
+	id <S261729AbSJEAUU>; Fri, 4 Oct 2002 20:20:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261785AbSJEAHX>; Fri, 4 Oct 2002 20:07:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39394 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261719AbSJEAHW>;
-	Fri, 4 Oct 2002 20:07:22 -0400
-Date: Fri, 04 Oct 2002 17:04:51 -0700 (PDT)
-Message-Id: <20021004.170451.27090459.davem@redhat.com>
-To: zippel@linux-m68k.org
-Cc: gilbertd@treblig.org, lm@work.bitmover.com, tom_gall@mac.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0210050034250.8911-100000@serv>
-References: <20021004221639.GM710@gallifrey>
-	<Pine.LNX.4.44.0210050034250.8911-100000@serv>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261790AbSJEAUU>; Fri, 4 Oct 2002 20:20:20 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:51188 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261729AbSJEAUT>;
+	Fri, 4 Oct 2002 20:20:19 -0400
+Date: Fri, 04 Oct 2002 17:21:42 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] 2.6 not 3.0 - (NUMA)
+Message-ID: <515070000.1033777302@flay>
+In-Reply-To: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roman Zippel <zippel@linux-m68k.org>
-   Date: Sat, 5 Oct 2002 00:36:16 +0200 (CEST)
-   
-   On Fri, 4 Oct 2002, Dr. David Alan Gilbert wrote:
-   
-   > Just to be clear;
-   
-   ... this is completely offtopic, can this _please_ be moved to a bk list?
-   Thanks.
+> The main thing that I think is lacking is any relevance to any significant 
+> user base, thanks to lack of interesting hardware. So even if Linux itself 
+> was doing everything perfectly, as long as there is no wide hw base and 
+> users, it's all pretty much academic, the same way SMP was during the 
+> early 1.x days.
+> 
+> And I'm not trying to put you or any of the Linux NuMA work down here, I'm 
+> just saying that what makes it not important as a "3.0 feature" is just 
+> that deployment doesn't merit it yet.
 
-It is very ontopic because it affects a number of kernel developers.
+Fair enough, I appreciate it's not a wide market segment right now.
+It's not a quick and easy project though, so there's a long-ish ramp up time.
+It would be nice to have it all working and in place by the time Hammer arrives 
+and makes this much more widespread ;-) 
 
-Whether you like BK or not, it is the primary source management tool
-used by Linus and others, it is even documented in the source tree as
-such.
+Just an order of magnitude figure for you ... number of seconds spent in kernel
+space across all CPUs during a kernel compile on a 16-way NUMA-Q ... 
 
-Therefore, such a license change could change that, so it's a relavant
-topic.
+2.4 with every patch I had (including O(1) sched + NUMA mods) ... 120s. 
+On 2.5.40-mm1 with one small NUMA scheduler patch ... 38s. 
 
-And finally, as the person who has to maintain this list and deal with
-the daily bounce pool this list generates every day, I declare it as
-ontopic so :-P~~~~~~
+Personally, I think that's pretty impressive - lots of very good things have been
+happening, from Andrew in particular, the NUMA people, and VM people in general.
+IMHO, the NUMA code is also much more readable and less buggy ;-)
 
+M.
 

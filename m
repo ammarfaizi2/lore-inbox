@@ -1,115 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264518AbTLGUzs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 15:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbTLGUyo
+	id S264557AbTLGVuE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 16:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264559AbTLGVuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 15:54:44 -0500
-Received: from amsfep19-int.chello.nl ([213.46.243.20]:41793 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264527AbTLGUxx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 15:53:53 -0500
-Date: Sun, 7 Dec 2003 21:49:39 +0100
-Message-Id: <200312072049.hB7KndJ1000690@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 127] Mac ADB IOP fix
+	Sun, 7 Dec 2003 16:50:04 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:1760 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S264557AbTLGVt7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 16:49:59 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: aio on ramfs
+Date: Sun, 7 Dec 2003 15:50:02 -0600
+User-Agent: KMail/1.5
+Cc: suparna@in.ibm.com, linux-aio@kvack.org
+References: <20031207083432.GP19856@holomorphy.com>
+In-Reply-To: <20031207083432.GP19856@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312071550.03009.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mac ADB IOP: Fix improperly initialized request struct in the reset code,
-causing a bogus pointer (from Matthias Urlichs in 2.6.0)
+On Sunday 07 December 2003 02:34, William Lee Irwin III wrote:
 
---- linux-2.4.23/drivers/macintosh/adb-iop.c	Wed Feb 16 07:39:01 2000
-+++ linux-m68k-2.4.23/drivers/macintosh/adb-iop.c	Mon Oct 20 21:45:29 2003
-@@ -106,6 +106,9 @@
- 	struct adb_iopmsg *amsg = (struct adb_iopmsg *) msg->message;
- 	struct adb_request *req;
- 	uint flags;
-+#ifdef DEBUG_ADB_IOP
-+	int i;
-+#endif
- 
- 	save_flags(flags);
- 	cli();
-@@ -113,12 +116,10 @@
- 	req = current_req;
- 
- #ifdef DEBUG_ADB_IOP
--	printk("adb_iop_listen: rcvd packet, %d bytes: %02X %02X",
-+	printk("adb_iop_listen %p: rcvd packet, %d bytes: %02X %02X", req,
- 		(uint) amsg->count + 2, (uint) amsg->flags, (uint) amsg->cmd);
--	i = 0;
--	while (i < amsg->count) {
--		printk(" %02X", (uint) amsg->data[i++]);
--	}
-+	for (i = 0; i < amsg->count; i++)
-+		printk(" %02X", (uint) amsg->data[i]);
- 	printk("\n");
- #endif
- 
-@@ -136,7 +137,7 @@
- 			adb_iop_end_req(req, idle);
- 		}
- 	} else {
--		/* TODO: is it possible for more tha one chunk of data  */
-+		/* TODO: is it possible for more than one chunk of data  */
- 		/*       to arrive before the timeout? If so we need to */
- 		/*       use reply_ptr here like the other drivers do.  */
- 		if ((adb_iop_state == awaiting_reply) &&
-@@ -165,6 +166,9 @@
- 	unsigned long flags;
- 	struct adb_request *req;
- 	struct adb_iopmsg amsg;
-+#ifdef DEBUG_ADB_IOP
-+	int i;
-+#endif
- 
- 	/* get the packet to send */
- 	req = current_req;
-@@ -174,7 +178,7 @@
- 	cli();
- 
- #ifdef DEBUG_ADB_IOP
--	printk("adb_iop_start: sending packet, %d bytes:", req->nbytes);
-+	printk("adb_iop_start %p: sending packet, %d bytes:", req, req->nbytes);
- 	for (i = 0 ; i < req->nbytes ; i++)
- 		printk(" %02X", (uint) req->data[i]);
- 	printk("\n");
-@@ -271,13 +275,17 @@
- 
- int adb_iop_reset_bus(void)
- {
--	struct adb_request req;
-+	struct adb_request req = {
-+		.reply_expected = 0,
-+		.nbytes = 2,
-+		.data = { ADB_PACKET, 0 },
-+	};
- 
--	req.reply_expected = 0;
--	req.nbytes = 2;
--	req.data[0] = ADB_PACKET;
--	req.data[1] = 0; /* RESET */
- 	adb_iop_write(&req);
--	while (!req.complete) adb_iop_poll();
-+	while (!req.complete) {
-+		adb_iop_poll();
-+		schedule();
-+	}
-+
- 	return 0;
- }
+> -- wli
+>
+> diff -prauN linux-2.6.0-test11/fs/ramfs/inode.c
+> ramfs-2.6.0-test11-1/fs/ramfs/inode.c ---
+> linux-2.6.0-test11/fs/ramfs/inode.c	2003-11-26 12:43:32.000000000 -0800 +++
+> ramfs-2.6.0-test11-1/fs/ramfs/inode.c	2003-12-07 00:26:29.000000000 -0800
+> @@ -31,6 +31,7 @@
+>  #include <linux/string.h>
+>  #include <linux/smp_lock.h>
+>  #include <linux/backing-dev.h>
+> +#include <linux/writeback.h>
+>
+>  #include <asm/uaccess.h>
+>
+> @@ -140,10 +141,28 @@ static int ramfs_symlink(struct inode *
+>  	return error;
+>  }
 
-Gr{oetje,eeting}s,
+Can I suggest a comment right here, "writepage/writepages/set_page_dirty stubs 
+needed for aio"?
 
-						Geert
+> +static int ramfs_writepage(struct page *page, struct writeback_control
+> *wbc) +{
+> +	return 0;
+> +}
+> +
+> +static int ramfs_writepages(struct address_space *mapping, struct
+> writeback_control *wbc) +{
+> +	return 0;
+> +}
+> +
+> +static int ramfs_set_page_dirty(struct page *page)
+> +{
+> +	return 0;
+> +}
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Rob

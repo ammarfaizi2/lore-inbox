@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132471AbRDCDE5>; Mon, 2 Apr 2001 23:04:57 -0400
+	id <S132370AbRDCDAG>; Mon, 2 Apr 2001 23:00:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132459AbRDCDEq>; Mon, 2 Apr 2001 23:04:46 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:23640 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S132421AbRDCDEe>;
-	Mon, 2 Apr 2001 23:04:34 -0400
-Message-ID: <3AC93D2A.760CE67F@sgi.com>
-Date: Mon, 02 Apr 2001 20:02:02 -0700
-From: LA Walsh <law@sgi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, en-US, en-GB, fr
+	id <S132471AbRDCC74>; Mon, 2 Apr 2001 22:59:56 -0400
+Received: from warden.digitalinsight.com ([208.29.163.2]:58338 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S132459AbRDCC7q>; Mon, 2 Apr 2001 22:59:46 -0400
+Date: Mon, 2 Apr 2001 19:52:49 -0700 (PDT)
+From: David Lang <dlang@diginsite.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Jeremy Jackson <jerj@coplanar.net>, Ian Soboroff <ian@cs.umbc.edu>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/config idea
+In-Reply-To: <3AC91E05.F11BFF43@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0104021951450.30568-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: Quim K Holland <qkholland@my-deja.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] 2.4.x nice level
-In-Reply-To: <200104022304.QAA19333@mail6.bigmailbox.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quim K Holland wrote:
-> 
-> >>>>> "BS" == BERECZ Szabolcs <szabi@inf.elte.hu> writes:
-> 
-> BS> ... a setiathome running at nice level 19, and a bladeenc at
-> BS> nice level 0. setiathome uses 14 percent, and bladeenc uses
-> BS> 84 percent of the processor. I think, setiathome should use
-> BS> max 2-3 percent.  the 14 percent is way too much for me.
-> BS> ...
-> BS> with kernel 2.2.16 it worked for me.
-> BS> now I use 2.4.2-ac20
----
-	I was running 2 copies of setiathome on a 4 CPU server
-@ work.  The two processes ran nice'd -19.  The builds we were 
-running still took 20-30% longer as opposed to when setiathome wasn't
-running (went from 45 minutes up to about an hour).  This machine
-has 1G, so I don't think it was hurting from swapping.
 
-I finally wrote a script that checked every 30 seconds -- if the
-load on the machine climbed over '4', the script would SIGSTOP the
-seti jobs.  Once the load on the machine fell below 2, it would 
-send a SIGCONT to them.  
+a module for 2.4.3 will work for any 2.4.3 kernel that supports modules
+at all (except for the SMP vs UP issue) so it's not the same thing as
+trying to figure out which if the 2.4.3 kernels matches what you are
+running.
 
-I was also running setiathome on my laptop for a short while --
-but the fan kept coming on and the computer would get really hot.
-So I stopped that.  Linux @ idle doesn't seem to ever kick on
-the fan, but turn on a CPU cruching program and it sure seemed
-to heat up the machine.  I still wonder how many kilo or mega watts
-go to running dispersed computation programs.  Just one of those
-things I may never know....
+David Lang
 
--l
+On Mon, 2 Apr 2001, Jeff Garzik wrote:
 
--- 
-The above thoughts and           | They may have nothing to do with
-writings are my own.             | the opinions of my employer. :-)
-L A Walsh                        | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+> Date: Mon, 02 Apr 2001 20:49:09 -0400
+> From: Jeff Garzik <jgarzik@mandrakesoft.com>
+> To: Jeremy Jackson <jerj@coplanar.net>
+> Cc: Ian Soboroff <ian@cs.umbc.edu>, linux-kernel@vger.kernel.org
+> Subject: Re: /proc/config idea
+>
+> Jeremy Jackson wrote:
+> > If you have a lot of kernels around, which Config-2.4.3 applies to kernel 2.4.3
+> > given 5 to choose from...the idea (same for System.map) is that it being in the
+> > same
+> > file they can't be confused.  Kinda like forks under Mac (but let's not go there
+> > now)
+>
+> The same applies to kernel modules too.  Are you going to put all those
+> in the kernel image too?
+>
+> If it's a file, read it from a filesystem after the kernel has booted.
+> There is no need to special case this stuff.
+>
+> --
+> Jeff Garzik       | May you have warm words on a cold evening,
+> Building 1024     | a full moon on a dark night,
+> MandrakeSoft      | and a smooth road all the way to your door.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

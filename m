@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKPCSQ>; Wed, 15 Nov 2000 21:18:16 -0500
+	id <S129045AbQKPCXk>; Wed, 15 Nov 2000 21:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129060AbQKPCSH>; Wed, 15 Nov 2000 21:18:07 -0500
-Received: from dns.buddysync.com.sg ([203.126.129.188]:55563 "EHLO
-	www.cyberlab.com.sg") by vger.kernel.org with ESMTP
-	id <S129045AbQKPCR4>; Wed, 15 Nov 2000 21:17:56 -0500
-Message-ID: <3A133CC5.45069C9@ieee.org>
-Date: Thu, 16 Nov 2000 09:47:49 +0800
-From: Chng Tiak-Jung <tiakjung@ieee.org>
-Reply-To: tiakjung@ieee.org
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-dp1 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthew Carlisle <Matthewc@aeimusic.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NatSemi CS5530 Sound Support
-In-Reply-To: <1DA9F58AA962D4118EAE00508B5BD5439B8F7F@MAIL01SEA>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129060AbQKPCX3>; Wed, 15 Nov 2000 21:23:29 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:2760 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129045AbQKPCXQ>;
+	Wed, 15 Nov 2000 21:23:16 -0500
+Date: Thu, 16 Nov 2000 02:53:10 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200011160153.CAA107740.aeb@aak.cwi.nl>
+To: aeb@veritas.com, torvalds@transmeta.com
+Subject: Re: BUG: isofs broken (2.2 and 2.4)
+Cc: emoenke@gwdg.de, eric@andante.org, koenig@tat.physik.uni-tuebingen.de,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Carlisle wrote:
-> Are there any plans to develop kernel sound driver support for the
-> Cyrix/NatSemi CS5530 chipset?  I noticed PCI and IDE support for this
-> chipset in the kernel source, but nothing for the sound.  I have a NatSemi
-> Geode GXLV processor, NatSemi Geode CS5530 chipset, and the AC97 codec that
-> NatSemi recommends (although I'm sure any one will do).  So I can act as an
-> alpha/beta/gamma/zappa tester!  :)
+> Anybody else willing to finish this one off?
 
-Go register as a developer on National Semiconductor's website and you
-can download the source to the native audio support for CS5530. However,
-my understanding is that this driver will only work on system with BIOS
-that support VSA2, so you may need to upgrade your BIOS first.
+If noone else does, I suppose I can.
 
-Regards,
-T J
---
-Chng Tiak-Jung                          tiak-jung.chng@eno.ericsson.se
-Cyberlab Singapore, Ericsson Research                Tel: +65-880-8649
-510 Thomson Road, #18-00                             Fax: +65-256-2403
-SLF Building, Singapore 298135                http://www.ericsson.com/
+(> .. gets ENOENT ..
+and that is not because it only is a partial image?)
+
+Andries
+
+
+PS - Yesterday I complained that 2.4.0test9 was fine
+but 2.4.0test11pre5 dies as soon as it has to forward a ping.
+The effect is reproducible, and 2.4.0test10 is also fine.
+I see no changes in the netfilter code.
+Will look some more into this tomorrow.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

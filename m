@@ -1,91 +1,331 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264961AbUEQLq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264974AbUEQLx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbUEQLq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 07:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUEQLq4
+	id S264974AbUEQLx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 07:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264975AbUEQLx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 07:46:56 -0400
-Received: from cantor.suse.de ([195.135.220.2]:19360 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264961AbUEQLqx (ORCPT
+	Mon, 17 May 2004 07:53:57 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:60640 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264974AbUEQLx0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 07:46:53 -0400
-Date: Mon, 17 May 2004 13:46:51 +0200
-From: Andi Kleen <ak@suse.de>
-To: Sean Neakums <sneakums@zork.net>
-Cc: davej@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: i810 AGP fails to initialise (was Re: 2.6.6-mm2)
-Message-Id: <20040517134651.5444eb54.ak@suse.de>
-In-Reply-To: <6ulljrl3gb.fsf@zork.zork.net>
-References: <20040513032736.40651f8e.akpm@osdl.org>
-	<6usme4v66s.fsf@zork.zork.net>
-	<20040513135308.GA2622@redhat.com>
-	<20040513155841.6022e7b0.ak@suse.de>
-	<6ulljwtoge.fsf@zork.zork.net>
-	<20040513174110.5b397d84.ak@suse.de>
-	<6u8yfvsbd4.fsf@zork.zork.net>
-	<6uk6zeow52.fsf@zork.zork.net>
-	<6u65avmo97.fsf@zork.zork.net>
-	<20040517100159.GC4903@wotan.suse.de>
-	<6ulljrl3gb.fsf@zork.zork.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 17 May 2004 07:53:26 -0400
+Date: Mon, 17 May 2004 17:19:29 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: [2.6.6-mm3] fix-sysfs-symlinks.patch 
+Message-ID: <20040517114929.GA1249@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 May 2004 12:04:36 +0100
-Sean Neakums <sneakums@zork.net> wrote:
+Hi Andrew,
 
-> Andi Kleen <ak@suse.de> writes:
-> 
-> > On Mon, May 17, 2004 at 09:49:56AM +0100, Sean Neakums wrote:
-> >> Sean Neakums <sneakums@zork.net> writes:
-> >> 
-> >> > Sean Neakums <sneakums@zork.net> writes:
-> >> >
-> >> >> Andi Kleen <ak@suse.de> writes:
-> >> >>
-> >> >>> Sean, can you double check that when you compile the AGP driver as module
-> >> >>> that the 7124 PCI ID appears in modinfo intel-agp ? 
-> >> >>> And does the module also refuse to load ? 
-> >> >>
-> >> >> I rebuilt with agpgart, intel-agp and i810 as modules, modprobed them,
-> >> >> and it works.
-> >> >
-> >> > I just realised that I probably forgot to reapply the patch before
-> >> > doing this test.  Will check Monday.  Sorry about this.
-> >> 
-> >> Below is modinfo output.  The module loads but doesn't initialise the
-> >> AGP.
-> >
-> > Someone else reported that it worked modular at least. When you apply
-> > the following patch what output do you get in the kernel log when you
-> > load the module?
-> 
->   Linux agpgart interface v0.100 (c) Dave Jones
->   agp_intel_init
->   agp_intel_probe device 7124
->   no cap
+I have fixed the rejects and re-diffed the following patch. There are no code
+changes as such.
 
-Thanks for testing.
 
-Ok. This patch should fix it then. Revert the debug patch first. 
-Apparently some of the devices listed don't have a AGP capability. Maybe they're only AGPv1 
-compliant?
+Thanks
+Maneesh
 
-Dave, please apply.
+- Rediffed the patch for 2.6.6-mm3 to fix rejects in the latest changes
+  in sysfs code.
 
--Andi
+o The symlinks code in sysfs doesnot point to the correct target kobject
+  whenever target kobject is renamed and suffers from dangling symlinks
+  if target kobject is removed.
 
---- linux-2.6.6-work/drivers/char/agp/intel-agp.c.~3~	2004-05-17 13:45:26.000000000 +0200
-+++ linux-2.6.6-work/drivers/char/agp/intel-agp.c	2004-05-17 13:46:15.000000000 +0200
-@@ -1264,8 +1264,6 @@
- 	struct resource *r;
+o The following patch implements ->readlink and ->follow_link operations 
+  for sysfs instead of using the page_symlink_inode_operations. 
+  The pointer to target kobject is saved in the link dentry's d_fsdata field. 
+  The target path is generated everytime we do ->readlink and ->follow_link. 
+  This results in generating the correct target path during readlink and 
+  follow_link operations inspite of renamed target kobject. 
+
+o This also pins the target kobject during link creation and the ref. is
+  released when the link is removed. 
+
+o Apart from being correct this patch also saves some memory by not pinning
+  a whole page for saving the target information.
+
+o Used a rw_semaphor sysfs_rename_sem to avoid clashing with renaming of 
+  ancestors while the target path is generated. 
+
+o Used dcache_lock in fs/sysfs/sysfs.h:sysfs_get_kobject() because of using
+  d_drop() while removing dentries.
+
+
+ fs/sysfs/dir.c     |   12 ++++
+ fs/sysfs/inode.c   |    7 ++
+ fs/sysfs/symlink.c |  135 ++++++++++++++++++++++++++++++++++++-----------------
+ fs/sysfs/sysfs.h   |    7 +-
+ 4 files changed, 116 insertions(+), 45 deletions(-)
+
+diff -puN fs/sysfs/dir.c~fix-sysfs-symlinks fs/sysfs/dir.c
+--- linux-2.6.6-mm3/fs/sysfs/dir.c~fix-sysfs-symlinks	2004-05-17 14:50:02.000000000 +0530
++++ linux-2.6.6-mm3-maneesh/fs/sysfs/dir.c	2004-05-17 16:17:17.000000000 +0530
+@@ -10,6 +10,8 @@
+ #include <linux/kobject.h>
+ #include "sysfs.h"
  
- 	cap_ptr = pci_find_capability(pdev, PCI_CAP_ID_AGP);
--	if (!cap_ptr)
--		return -ENODEV;
++DECLARE_RWSEM(sysfs_rename_sem);
++
+ static int init_dir(struct inode * inode)
+ {
+ 	inode->i_op = &simple_dir_inode_operations;
+@@ -134,8 +136,14 @@ restart:
+ 			/**
+ 			 * Unlink and unhash.
+ 			 */
++			__d_drop(d);
+ 			spin_unlock(&dcache_lock);
+-			d_delete(d);
++			/* release the target kobject in case of 
++			 * a symlink
++			 */
++			if (S_ISLNK(d->d_inode->i_mode))
++				kobject_put(d->d_fsdata);
++			
+ 			simple_unlink(dentry->d_inode,d);
+ 			dput(d);
+ 			pr_debug(" done\n");
+@@ -165,6 +173,7 @@ int sysfs_rename_dir(struct kobject * ko
+ 	if (!kobj->parent)
+ 		return -EINVAL;
  
- 	bridge = agp_alloc_bridge();
- 	if (!bridge)
++	down_write(&sysfs_rename_sem);
+ 	parent = kobj->parent->dentry;
+ 
+ 	down(&parent->d_inode->i_sem);
+@@ -179,6 +188,7 @@ int sysfs_rename_dir(struct kobject * ko
+ 		dput(new_dentry);
+ 	}
+ 	up(&parent->d_inode->i_sem);	
++	up_write(&sysfs_rename_sem);
+ 
+ 	return error;
+ }
+diff -puN fs/sysfs/inode.c~fix-sysfs-symlinks fs/sysfs/inode.c
+--- linux-2.6.6-mm3/fs/sysfs/inode.c~fix-sysfs-symlinks	2004-05-17 14:50:09.000000000 +0530
++++ linux-2.6.6-mm3-maneesh/fs/sysfs/inode.c	2004-05-17 16:16:44.000000000 +0530
+@@ -96,7 +96,12 @@ void sysfs_hash_and_remove(struct dentry
+ 			pr_debug("sysfs: Removing %s (%d)\n", victim->d_name.name,
+ 				 atomic_read(&victim->d_count));
+ 
+-			d_delete(victim);
++			d_drop(victim);
++			/* release the target kobject in case of 
++			 * a symlink
++			 */
++			if (S_ISLNK(victim->d_inode->i_mode))
++				kobject_put(victim->d_fsdata);
+ 			simple_unlink(dir->d_inode,victim);
+ 		}
+ 		/*
+diff -puN fs/sysfs/symlink.c~fix-sysfs-symlinks fs/sysfs/symlink.c
+--- linux-2.6.6-mm3/fs/sysfs/symlink.c~fix-sysfs-symlinks	2004-05-17 14:50:19.000000000 +0530
++++ linux-2.6.6-mm3-maneesh/fs/sysfs/symlink.c	2004-05-17 16:04:09.000000000 +0530
+@@ -8,27 +8,17 @@
+ 
+ #include "sysfs.h"
+ 
++static struct inode_operations sysfs_symlink_inode_operations = {
++	.readlink = sysfs_readlink,
++	.follow_link = sysfs_follow_link,
++};
+ 
+ static int init_symlink(struct inode * inode)
+ {
+-	inode->i_op = &page_symlink_inode_operations;
++	inode->i_op = &sysfs_symlink_inode_operations;
+ 	return 0;
+ }
+ 
+-static int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
+-{
+-	int error;
+-
+-	error = sysfs_create(dentry, S_IFLNK|S_IRWXUGO, init_symlink);
+-	if (!error) {
+-		int l = strlen(symname)+1;
+-		error = page_symlink(dentry->d_inode, symname, l);
+-		if (error)
+-			iput(dentry->d_inode);
+-	}
+-	return error;
+-}
+-
+ static int object_depth(struct kobject * kobj)
+ {
+ 	struct kobject * p = kobj;
+@@ -74,37 +64,20 @@ int sysfs_create_link(struct kobject * k
+ 	struct dentry * dentry = kobj->dentry;
+ 	struct dentry * d;
+ 	int error = 0;
+-	int size;
+-	int depth;
+-	char * path;
+-	char * s;
+-
+-	depth = object_depth(kobj);
+-	size = object_path_length(target) + depth * 3 - 1;
+-	if (size > PATH_MAX)
+-		return -ENAMETOOLONG;
+-	pr_debug("%s: depth = %d, size = %d\n",__FUNCTION__,depth,size);
+-
+-	path = kmalloc(size,GFP_KERNEL);
+-	if (!path)
+-		return -ENOMEM;
+-	memset(path,0,size);
+-
+-	for (s = path; depth--; s += 3)
+-		strcpy(s,"../");
+-
+-	fill_object_path(target,path,size);
+-	pr_debug("%s: path = '%s'\n",__FUNCTION__,path);
+ 
+ 	down(&dentry->d_inode->i_sem);
+ 	d = sysfs_get_dentry(dentry,name);
+-	if (!IS_ERR(d))
+-		error = sysfs_symlink(dentry->d_inode,d,path);
+-	else
++	if (!IS_ERR(d)) {
++		error = sysfs_create(d, S_IFLNK|S_IRWXUGO, init_symlink);
++		if (!error)
++			/* 
++			 * associate the link dentry with the target kobject 
++			 */
++			d->d_fsdata = kobject_get(target);
++		dput(d);
++	} else 
+ 		error = PTR_ERR(d);
+-	dput(d);
+ 	up(&dentry->d_inode->i_sem);
+-	kfree(path);
+ 	return error;
+ }
+ 
+@@ -120,6 +93,86 @@ void sysfs_remove_link(struct kobject * 
+ 	sysfs_hash_and_remove(kobj->dentry,name);
+ }
+ 
++static int sysfs_get_target_path(struct kobject * kobj, struct kobject * target,
++				   char *path)
++{
++	char * s;
++	int depth, size;
++
++	depth = object_depth(kobj);
++	size = object_path_length(target) + depth * 3 - 1;
++	if (size > PATH_MAX)
++		return -ENAMETOOLONG;
++
++	pr_debug("%s: depth = %d, size = %d\n", __FUNCTION__, depth, size);
++
++	for (s = path; depth--; s += 3)
++		strcpy(s,"../");
++
++	fill_object_path(target, path, size);
++	pr_debug("%s: path = '%s'\n", __FUNCTION__, path);
++
++	return 0;
++}
++
++static int sysfs_getlink(struct dentry *dentry, char * path)
++{
++	struct kobject *kobj, *target_kobj;
++	int error = 0;
++
++	kobj = sysfs_get_kobject(dentry->d_parent);
++	if (!kobj)
++		return -EINVAL;
++
++	target_kobj = sysfs_get_kobject(dentry);
++	if (!target_kobj) {
++		kobject_put(kobj);
++		return -EINVAL;
++	}
++
++	down_read(&sysfs_rename_sem);
++	error = sysfs_get_target_path(kobj, target_kobj, path);
++	up_read(&sysfs_rename_sem);
++	
++	kobject_put(kobj);
++	kobject_put(target_kobj);
++	return error;
++
++}
++
++int sysfs_readlink(struct dentry *dentry, char __user *buffer, int buflen)
++{
++	int error = 0;
++	unsigned long page = get_zeroed_page(GFP_KERNEL);
++
++	if (!page)
++		return -ENOMEM;
++
++	error = sysfs_getlink(dentry, (char *) page);
++	if (!error)
++	        error = vfs_readlink(dentry, buffer, buflen, (char *) page);
++
++	free_page(page);
++
++	return error;
++}
++
++int sysfs_follow_link(struct dentry *dentry, struct nameidata *nd)
++{
++	int error = 0;
++	unsigned long page = get_zeroed_page(GFP_KERNEL);
++
++	if (!page)
++		return -ENOMEM;
++
++	error = sysfs_getlink(dentry, (char *) page); 
++	if (!error)
++	        error = vfs_follow_link(nd, (char *) page);
++
++	free_page(page);
++
++	return error;
++}
+ 
+ EXPORT_SYMBOL(sysfs_create_link);
+ EXPORT_SYMBOL(sysfs_remove_link);
+diff -puN fs/sysfs/sysfs.h~fix-sysfs-symlinks fs/sysfs/sysfs.h
+--- linux-2.6.6-mm3/fs/sysfs/sysfs.h~fix-sysfs-symlinks	2004-05-17 14:50:25.000000000 +0530
++++ linux-2.6.6-mm3-maneesh/fs/sysfs/sysfs.h	2004-05-17 15:58:39.000000000 +0530
+@@ -12,15 +12,18 @@ extern void sysfs_hash_and_remove(struct
+ extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
+ extern void sysfs_remove_subdir(struct dentry *);
+ 
++extern int sysfs_readlink(struct dentry *, char __user *, int );
++extern int sysfs_follow_link(struct dentry *, struct nameidata *);
++extern struct rw_semaphore sysfs_rename_sem;
+ 
+ static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
+ {
+ 	struct kobject * kobj = NULL;
+ 
+-	spin_lock(&dentry->d_lock);
++	spin_lock(&dcache_lock);
+ 	if (!d_unhashed(dentry))
+ 		kobj = kobject_get(dentry->d_fsdata);
+-	spin_unlock(&dentry->d_lock);
++	spin_unlock(&dcache_lock);
+ 
+ 	return kobj;
+ }
+
+_
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270646AbRHWWwv>; Thu, 23 Aug 2001 18:52:51 -0400
+	id <S270645AbRHWWuB>; Thu, 23 Aug 2001 18:50:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270688AbRHWWwl>; Thu, 23 Aug 2001 18:52:41 -0400
-Received: from otter.mbay.net ([206.40.79.2]:35858 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S270646AbRHWWwg> convert rfc822-to-8bit;
-	Thu, 23 Aug 2001 18:52:36 -0400
-From: jalvo@mbay.net (John Alvord)
-To: Disconnect <lkml@sigkill.net>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Date: Thu, 23 Aug 2001 22:52:35 GMT
-Message-ID: <3b8788c0.11437523@mail.mbay.net>
-In-Reply-To: <20010823144406.G25051@sigkill.net> <Pine.LNX.4.33L.0108231608520.31410-100000@duckman.distro.conectiva> <20010823153126.H25051@sigkill.net>
-In-Reply-To: <20010823153126.H25051@sigkill.net>
-X-Mailer: Forte Agent 1.5/32.451
-MIME-Version: 1.0
+	id <S270451AbRHWWtv>; Thu, 23 Aug 2001 18:49:51 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:20085
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S270645AbRHWWtc>; Thu, 23 Aug 2001 18:49:32 -0400
+Date: Thu, 23 Aug 2001 15:49:47 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: source control?
+Message-ID: <20010823154947.X25998@work.bitmover.com>
+Mail-Followup-To: "Grover, Andrew" <andrew.grover@intel.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0A4@orsmsx35.jf.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0A4@orsmsx35.jf.intel.com>; from andrew.grover@intel.com on Thu, Aug 23, 2001 at 02:29:18PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Aug 2001 15:31:26 -0400, Disconnect <lkml@sigkill.net>
-wrote:
+On Thu, Aug 23, 2001 at 02:29:18PM -0700, Grover, Andrew wrote:
+> Is Linux development ever going to use source control?
+> 
+> This was talked about at the Kernel Summit, and I haven't heard anything
+> about it since.
 
->On Thu, 23 Aug 2001, Rik van Riel did have cause to say:
->
->> On Thu, 23 Aug 2001, Disconnect wrote:
->> 
->> > ONLY task that they will use python for.  And everyone who builds a kernel
->> > will have gcc, so thats the 'ideal' dependency.  Second and third most
->> > likely, a C++ compiler or perl (depending on what you figure the
->> > installbase of each one is).  Forth, some form of java runtime.  And after
->> > that is python.
->> 
->> Sounds like you'd just might be fanatical enough to implement
->> CML2 in C or Perl, then ;)
->> 
->> Personally, I'd welcome such a thing...
->
->You are mistaking my position I think.  Personally, I like python quite a
->bit ;) 
->
->But my point isn't that its good/bad for CML2.  My point is that I would
->be very surprised if you had to install python in order to configure and
->build a kernel under CML2, once CML2 is the official configuration
->platform.  (Right now it is necessary to have python to use cml2.  But
->CML2 is not yet in the stock kernel sources.)
->
->But until ESR either chimes in or releases the final CML2, this is a moot
->discussion.
+There are two features that Linus wants in BitKeeper that we haven't
+finished yet.  One is the removal of the revision control files from
+the working tree and the other is the ability to break the tree up
+into logical units (we call 'em filesets) so that you can more easily
+pick and choose which patches you want in your tree.
 
-ESR is awaiting the 2.5 branch and the makefile rewrite.
+Linus pinged me about these a while back, we've made some progress on
+them but they aren't done yet.  When they are done we'll let Linus take
+it for a whirl and see what he thinks.
 
-My impression is that CML2 is "less bad" than CML in terms of weird
-languages and buggy interpreters.
+In the meantime, the PPC people maintain a pure Linux tree in BK, you
+can see it at http://ppc.bkbits.net and Ted Tso has recently done a
+nice import of the various kernel versions complete with Linus' change
+logs.  I need to work with the PPC guys and Ted to get to one tree;
+it's not an easy issue because the PPC have a lot of changes in their
+tree but Ted's tree was done more nicely, he did some extra work to 
+preserve timestamps and comments.  
 
-john
+And to avoid yet-another-BK-flamewar, I'm not saying Linus will or will
+not use BitKeeper, all I'm saying is that we're making changes he wants
+and then he'll see if it is good enough for him.  I will say that he has
+eased slightly off of his original position of "I'll use BitKeeper when
+it is the best" because I asked him if that meant what I think both he
+and I would mean, i.e., "it is not physically possible for it to be better"
+as opposed to "it's better than all the other crap out there".  I think
+we agreed we have to be well past #2 but not necessarily to #1 (which is
+a good thing, at the rate we're going we'll hit the best sometime this
+century but that's as close as I want to call it :-)
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

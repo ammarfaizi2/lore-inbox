@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261783AbRE1Xlq>; Mon, 28 May 2001 19:41:46 -0400
+	id <S261800AbRE1XrG>; Mon, 28 May 2001 19:47:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261800AbRE1Xlg>; Mon, 28 May 2001 19:41:36 -0400
-Received: from [203.34.97.3] ([203.34.97.3]:38157 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261783AbRE1XlT>;
-	Mon, 28 May 2001 19:41:19 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: George France <france@handhelds.org>
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jay Thorne <Yohimbe@userfriendly.org>
-Subject: Re: PATCH - ksymoops on Alpha - 2.4.5-ac3 
-In-Reply-To: Your message of "Mon, 28 May 2001 17:05:45 -0400."
-             <01052817054503.17841@shadowfax.middleearth> 
+	id <S261802AbRE1Xq4>; Mon, 28 May 2001 19:46:56 -0400
+Received: from yoda.planetinternet.be ([195.95.30.146]:10252 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S261800AbRE1Xqj>; Mon, 28 May 2001 19:46:39 -0400
+Date: Tue, 29 May 2001 01:46:35 +0200
+From: Kurt Roeckx <Q@ping.be>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Vadim Lebedev <vlebedev@aplio.fr>, linux-kernel@vger.kernel.org
+Subject: Re: Potenitial security hole in the kernel
+Message-ID: <20010529014635.A3499@ping.be>
+In-Reply-To: <003601c0e7bf$41953080$0101a8c0@LAP> <20010529001256.F9203@flint.arm.linux.org.uk> <20010529013030.A3381@ping.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 29 May 2001 09:40:02 +1000
-Message-ID: <4172.991093202@ocs3.ocs-net>
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <20010529013030.A3381@ping.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 May 2001 17:05:45 -0400, 
-George France <france@handhelds.org> wrote:
->Here is a trivial patch that will make ksymoops work again on Alpha.
+On Tue, May 29, 2001 at 01:30:30AM +0200, Kurt Roeckx wrote:
+> You should never "return" from userspace to kernelspace.  The
+> only way to go from user space to kernel space should be by using
+> a system call.
 
-Thanks for that.  Now if you can just persuade the Alpha people to
-print the 'Code:' line in the same format as other architectures then
-ksymoops can decode the instructions as well.  If Alpha wants to
-include its own instruction decoder as well then that is up to them but
-I would appreciate a standard 'Code:' line being printed first.
+If you were able to return to kernel space, it already means
+you're running as kernel in the first place.  There is no reason
+to even do the return in the first place.
+
+
+Kurt
 

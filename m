@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267261AbTAHQK5>; Wed, 8 Jan 2003 11:10:57 -0500
+	id <S265085AbTAHQNU>; Wed, 8 Jan 2003 11:13:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267613AbTAHQK5>; Wed, 8 Jan 2003 11:10:57 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:48402
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267261AbTAHQK5>; Wed, 8 Jan 2003 11:10:57 -0500
-Subject: Re: observations on 2.5 config screens
-From: Robert Love <rml@tech9.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1030108093021.21759B-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030108093021.21759B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042041195.694.2734.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-3) 
-Date: 08 Jan 2003 10:53:15 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267613AbTAHQNU>; Wed, 8 Jan 2003 11:13:20 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:27329 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265085AbTAHQNS>;
+	Wed, 8 Jan 2003 11:13:18 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Arnd Bergmann <arndb@de.ibm.com>
+Reply-To: arnd@bergmann-dalldorf.de
+To: kiran@in.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [IPV6]: Convert mibstats to use kmalloc_percpu
+Date: Wed, 8 Jan 2003 17:18:37 +0100
+User-Agent: KMail/1.4.3
+Organization: IBM Deutschland Entwicklung GmbH
+Cc: Trivial Patches <trivial@rustcorp.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200301081718.37263.arndb@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-08 at 09:32, Bill Davidsen wrote:
+Changeset 1.879.9.7 from kiran@in.ibm.com contains:
 
-> Someone else suggested putting all the low level options like preempt,
-> smp, and the stuff in kernel-hacking into a single menu, with a better
-> name.
+> @@ -765,6 +847,7 @@
+>  #ifdef CONFIG_SYSCTL
+>         ipv6_sysctl_unregister();       
+>  #endif
+> +       cleanup_ipv6_mibs();
+>  }
+>  module_exit(inet6_exit);
+>  #endif /* MODULE */
 
-I do not think I like this.  SMP, kernel preemption, and high memory
-support are the three most fundamental choices one makes during
-configuration.
+This does not work when cleanup_ipv6_mibs() is marked __exit,
+the fix below is needed to build a kernel with ipv6.
 
-They should be out in the open, in the beginning, in a well-labeled
-category.  They only issue I see is "processor options" should be
-renamed "core options" or whatever.  But that is trivial.
-
-	Robert Love
-
+===== net/ipv6/af_inet6.c 1.18 vs edited =====
+--- 1.18/net/ipv6/af_inet6.c	Tue Jan  7 11:19:42 2003
++++ edited/net/ipv6/af_inet6.c	Wed Jan  8 17:08:52 2003
+@@ -684,7 +684,7 @@
+ 	
+ }
+ 
+-static void __exit cleanup_ipv6_mibs(void)
++static void cleanup_ipv6_mibs(void)
+ {
+ 	kfree_percpu(ipv6_statistics[0]);
+ 	kfree_percpu(ipv6_statistics[1]);

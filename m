@@ -1,340 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266200AbTALNT4>; Sun, 12 Jan 2003 08:19:56 -0500
+	id <S266095AbTALNYy>; Sun, 12 Jan 2003 08:24:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266203AbTALNT4>; Sun, 12 Jan 2003 08:19:56 -0500
-Received: from netlx010.civ.utwente.nl ([130.89.1.92]:13487 "EHLO
-	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
-	id <S266200AbTALNTv>; Sun, 12 Jan 2003 08:19:51 -0500
-From: "=?iso-8859-1?Q?Philip_K.F._H=F6lzenspies?=" 
-	<p.k.f.holzenspies@student.utwente.nl>
-To: <linux-kernel@vger.kernel.org>
-Cc: "'Pete Zaitcev'" <zaitcev@redhat.com>, "'Shawn Starr'" <spstarr@sh0n.net>,
-       "'Bayard R. Coolidge'" <bayard@tds.net>
-Subject: 
-Date: Sun, 12 Jan 2003 14:28:35 +0100
-Message-ID: <000001c2ba3e$84695730$53a85982@tomwaits>
+	id <S266203AbTALNYy>; Sun, 12 Jan 2003 08:24:54 -0500
+Received: from tag.witbe.net ([81.88.96.48]:3591 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id <S266095AbTALNYw>;
+	Sun, 12 Jan 2003 08:24:52 -0500
+From: "Paul Rolland" <rol@witbe.net>
+To: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
+Cc: "'Sam Ravnborg'" <sam@ravnborg.org>, <rol@as2917.net>
+Subject: [BUG 2.5.56] IDE/CDROM Oops at boot time without /proc
+Date: Sun, 12 Jan 2003 14:33:38 +0100
+Organization: Witbe.net
+Message-ID: <009401c2ba3f$3780a940$2101a8c0@witbe>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook, Build 10.0.3416
 Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-UTwente-MailScanner: Found to be clean
-X-UTwente-MailScanner-SpamScore: s
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I do have the following line in my fstab file (Bayard):
+Hello,
 
-none  /proc/bus/usb  usbfs  defaults 0 0
+Please note that using IDE CDRom without /proc support will result
+in Oops at boot time.
 
-I believe usbdevfs is deprecated (although - should I use it when my
-hosthub is picked up by the OHCI driver in stead of the EHCI driver?).
+In drivers/cdrom/cdrom.c, the code is :
 
-My full dmesg is attached below (Pete), I'ld say the relevant section
-is:
+/* Make sure that /proc/sys/dev is there */
+ctl_table cdrom_root_table[] = {
+#ifdef CONFIG_PROC_FS
+        {CTL_DEV, "dev", NULL, 0, 0555, cdrom_cdrom_table},
+#endif /* CONFIG_PROC_FS */
+        {0}
+        };
+static struct ctl_table_header *cdrom_sysctl_header;
 
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-PCI: Enabling device 02:08.2 (0014 -> 0016)
-PCI: No IRQ known for interrupt pin C of device 02:08.2. Probably buggy
-MP table.
-hcd.c: Found HC with no IRQ.  Check BIOS/PCI 02:08.2 setup!
-uhci.c: USB Universal Host Controller Interface driver v1.1
-PCI: Enabling device 02:08.0 (0014 -> 0016)
-PCI: No IRQ known for interrupt pin A of device 02:08.0. Probably buggy
-MP table.
-usb-ohci.c: found OHCI device with no IRQ assigned. check BIOS settings!
-PCI: Enabling device 02:08.1 (0014 -> 0016)
-PCI: No IRQ known for interrupt pin B of device 02:08.1. Probably buggy
-MP table.
-usb-ohci.c: found OHCI device with no IRQ assigned. check BIOS settings!
-usb.c: registered new driver hiddev
-usb.c: registered new driver hid
-hid-core.c: v1.8.1 Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>
-hid-core.c: USB HID support drivers
-usb.c: registered new driver usblp
-printer.c: v0.11: USB Printer Device Class driver
-Initializing USB Mass Storage driver...
-usb.c: registered new driver usb-storage
-USB Mass Storage support registered.
+static void cdrom_sysctl_register(void)
+{
+        static int initialized;
 
-Does anybody else with the A7M266-D have that "Probably buggy MP table."
+        if (initialized == 1)
+                return;
 
-For the OHCI 'found device with no IRQ assigned' I don't really get it.
-I have all my PCI slots set to auto assign IRQ and I didn't reserve any
-IRQ for Legacy Devices, so that shouldn't be the problem.
+        cdrom_sysctl_header = register_sysctl_table(cdrom_root_table,
+1);
+        cdrom_root_table->child->de->owner = THIS_MODULE;
 
-> I have this board, but the problem is the newer A7M266-D boards have
-the USB
-> 1.x pins removed.
-(Shawn)
+        /* set the defaults */
+        cdrom_sysctl_settings.autoclose = autoclose;
+        cdrom_sysctl_settings.autoeject = autoeject;
+        cdrom_sysctl_settings.debug = debug;
+        cdrom_sysctl_settings.lock = lockdoor;
+        cdrom_sysctl_settings.check = check_media_type;
 
-I don't know what would be considered a "newer" board, but mine is a 
-03/07/2002-ASUS-A7M266-D
+        initialized = 1;
+}
 
-B.T.W.
-I use BIOS rev. 1005.
+The line cdrom_root_table->child->de->owner = THIS_MODULE;
+(line 2582) is broken is CONFIG_PROC_FS is not defined, as this
+is resulting in the following Oops :
+
+Unable to handle kernel NULL pointer dereference at virtual address
+00000020
+ printing eip:
+c032e12c
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<c032e12c>]    Not tainted
+EFLAGS: 00010292
+EIP is at cdrom_sysctl_register+0x2a/0x74
+eax: 00000000   ebx: c04c3fe0   ecx: dfc8de80   edx: dfc8de84
+esi: c04c4014   edi: dfcedcf4   ebp: c059f348   esp: dff8fef8
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 1, threadinfo=dff8e000 task=dff8c080)
+Stack: c04cf120 00000001 c0329e43 c0465400 c059f358 00000001 dfde2037
+c046eaa0 
+       c02eb6ae dfcedcf4 00000001 dfcedcf4 dfcedc00 c059f348 dfd91080
+dfcedc00 
+       dff8e000 c02ebc31 c059f348 00000000 0000013c c04c3bc4 c02502c3
+c04c3f08 
+Call Trace:
+ [<c0329e43>] register_cdrom+0x1f7/0x20e
+ [<c02eb6ae>] ide_cdrom_setup+0x352/0x4ec
+ [<c02ebc31>] ide_cdrom_attach+0x13f/0x24e
+ [<c02502c3>] kobject_add+0x87/0xd6
+ [<c0289f62>] devclass_add_driver+0x1e/0x9c
+ [<c0250331>] kobject_register+0x1f/0x62
+ [<c02898f8>] bus_add_driver+0x86/0xac
+ [<c02e31c3>] ata_attach+0x5b/0x11c
+ [<c02e3eba>] ide_register_driver+0xe6/0x102
+ [<c02ebd4f>] ide_cdrom_init+0xf/0x16
+ [<c010506f>] init+0x3d/0x15a
+ [<c0105032>] init+0x0/0x15a
+ [<c0108c11>] kernel_thread_helper+0x5/0xc
+
+Code: 8b 40 20 c7 40 24 00 00 00 00 c7 05 24 3b 5a c0 01 00 00 00 
+ <0>Kernel panic: Attempted to kill init!
+ <0>Rebooting in 30 seconds..
+
+decoded as :
+9 [14:28] rol@donald:~> more oops-cdrom.decode 
+ksymoops 2.4.8 on i686 2.4.20.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.20/ (default)
+     -m /usr/src/linux/System.map (specified)
+
+No modules in ksyms, skipping objects
+Unable to handle kernel NULL pointer dereference at virtual address
+00000020
+c032e12c
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<c032e12c>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010292
+eax: 00000000   ebx: c04c3fe0   ecx: dfc8de80   edx: dfc8de84
+esi: c04c4014   edi: dfcedcf4   ebp: c059f348   esp: dff8fef8
+ds: 007b   es: 007b   ss: 0068
+Stack: c04cf120 00000001 c0329e43 c0465400 c059f358 00000001 dfde2037
+c046eaa0 
+       c02eb6ae dfcedcf4 00000001 dfcedcf4 dfcedc00 c059f348 dfd91080
+dfcedc00 
+       dff8e000 c02ebc31 c059f348 00000000 0000013c c04c3bc4 c02502c3
+c04c3f08 
+Call Trace:
+ [<c0329e43>] register_cdrom+0x1f7/0x20e
+ [<c02eb6ae>] ide_cdrom_setup+0x352/0x4ec
+ [<c02ebc31>] ide_cdrom_attach+0x13f/0x24e
+ [<c02502c3>] kobject_add+0x87/0xd6
+ [<c0289f62>] devclass_add_driver+0x1e/0x9c
+ [<c0250331>] kobject_register+0x1f/0x62
+ [<c02898f8>] bus_add_driver+0x86/0xac
+ [<c02e31c3>] ata_attach+0x5b/0x11c
+ [<c02e3eba>] ide_register_driver+0xe6/0x102
+ [<c02ebd4f>] ide_cdrom_init+0xf/0x16
+ [<c010506f>] init+0x3d/0x15a
+ [<c0105032>] init+0x0/0x15a
+ [<c0108c11>] kernel_thread_helper+0x5/0xc
+Code: 8b 40 20 c7 40 24 00 00 00 00 c7 05 24 3b 5a c0 01 00 00 00 
+
+
+>>EIP; c032e12c <cdrom_sysctl_register+2a/74>   <=====
+
+>>ebx; c04c3fe0 <ide_cdrom_dops+0/40>
+>>esi; c04c4014 <ide_cdrom_dops+34/40>
+>>ebp; c059f348 <ide_hwifs+808/4998>
+
+Trace; c0329e43 <register_cdrom+1f7/20e>
+Trace; c02eb6ae <ide_cdrom_setup+352/4ec>
+Trace; c02ebc31 <ide_cdrom_attach+13f/24e>
+Trace; c02502c3 <kobject_add+87/d6>
+Trace; c0289f62 <devclass_add_driver+1e/9c>
+Trace; c0250331 <kobject_register+1f/62>
+Trace; c02898f8 <bus_add_driver+86/ac>
+Trace; c02e31c3 <ata_attach+5b/11c>
+Trace; c02e3eba <ide_register_driver+e6/102>
+Trace; c02ebd4f <ide_cdrom_init+f/16>
+Trace; c010506f <init+3d/15a>
+Trace; c0105032 <init+0/15a>
+Trace; c0108c11 <kernel_thread_helper+5/c>
+
+Code;  c032e12c <cdrom_sysctl_register+2a/74>
+00000000 <_EIP>:
+Code;  c032e12c <cdrom_sysctl_register+2a/74>   <=====
+   0:   8b 40 20                  mov    0x20(%eax),%eax   <=====
+Code;  c032e12f <cdrom_sysctl_register+2d/74>
+   3:   c7 40 24 00 00 00 00      movl   $0x0,0x24(%eax)
+Code;  c032e136 <cdrom_sysctl_register+34/74>
+   a:   c7 05 24 3b 5a c0 01      movl   $0x1,0xc05a3b24
+Code;  c032e13d <cdrom_sysctl_register+3b/74>
+  11:   00 00 00 
+
+ <0>Kernel panic: Attempted to kill init!
+
+One easy trick would be to have :
+#ifdef CONFIG_PROC_FS
+        cdrom_root_table->child->de->owner = THIS_MODULE;
+#endif
+
+but as this doesn't seem to be the favorite approach from people on
+the mailing list, I'll leave this one to people in charge of
+the module to apply the best approach patch to fix this.
+
+Please note that, however, I've tested this change, and it is 
+working fine on my machine.
 
 Regards,
-
-Philip
-
-P.S.
-Would configuring the kernel with >1GB mem support remove that
-" Warning only 896MB will be used." from my dmesg?
-
-
-
-Linux version 2.4.20 (root@tomwaits) (gcc version 3.2) #1 SMP Sat Jan 11
-18:46:51 CET 2003
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000003ffec000 (usable)
- BIOS-e820: 000000003ffec000 - 000000003ffef000 (ACPI data)
- BIOS-e820: 000000003ffef000 - 000000003ffff000 (reserved)
- BIOS-e820: 000000003ffff000 - 0000000040000000 (ACPI NVS)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-Warning only 896MB will be used.
-Use a HIGHMEM enabled kernel.
-896MB LOWMEM available.
-found SMP MP-table at 000f6d10
-hm, page 000f6000 reserved twice.
-hm, page 000f7000 reserved twice.
-hm, page 000f6000 reserved twice.
-hm, page 000f7000 reserved twice.
-On node 0 totalpages: 229376
-zone(0): 4096 pages.
-zone(1): 225280 pages.
-zone(2): 0 pages.
-Intel MultiProcessor Specification v1.4
-    Virtual Wire compatibility mode.
-OEM ID: ASUS     Product ID: PROD00000000 APIC at: 0xFEE00000
-Processor #0 Pentium(tm) Pro APIC version 16
-Processor #1 Pentium(tm) Pro APIC version 16
-I/O APIC #2 Version 17 at 0xFEC00000.
-Processors: 2
-Kernel command line: BOOT_IMAGE=lfs ro root=305
-Initializing CPU#0
-Detected 1533.431 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 3060.53 BogoMIPS
-Memory: 904324k/917504k available (1707k kernel code, 12792k reserved,
-604k data, 124k init, 0k highmem)
-Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
-Inode cache hash table entries: 65536 (order: 7, 524288 bytes)
-Mount-cache hash table entries: 16384 (order: 5, 131072 bytes)
-Buffer-cache hash table entries: 65536 (order: 6, 262144 bytes)
-Page-cache hash table entries: 262144 (order: 8, 1048576 bytes)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
-CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
-CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
-CPU0: AMD Athlon(TM) MP 1800+ stepping 02
-per-CPU timeslice cutoff: 731.39 usecs.
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Booting processor 1/1 eip 2000
-Initializing CPU#1
-masked ExtINT on CPU#1
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Calibrating delay loop... 3060.53 BogoMIPS
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-Intel machine check reporting enabled on CPU#1.
-CPU:     After generic, caps: 0383fbff c1cbfbff 00000000 00000000
-CPU:             Common caps: 0383fbff c1cbfbff 00000000 00000000
-CPU1: AMD Athlon(TM) MP 1800+ stepping 02
-Total of 2 processors activated (6121.06 BogoMIPS).
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 2 ... ok.
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 2-0, 2-5, 2-9, 2-10, 2-11, 2-17, 2-20, 2-21, 2-22,
-2-23 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=0
-number of MP IRQ sources: 16.
-number of IO-APIC #2 registers: 24.
-testing the IO APIC.......................
-
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.... register #01: 00170011
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 0
-.......     : IO APIC version: 0011
-.... register #02: 00000000
-.......     : arbitration: 00
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 003 03  0    0    0   0   0    1    1    39
- 02 003 03  0    0    0   0   0    1    1    31
- 03 003 03  0    0    0   0   0    1    1    41
- 04 003 03  0    0    0   0   0    1    1    49
- 05 000 00  1    0    0   0   0    0    0    00
- 06 003 03  0    0    0   0   0    1    1    51
- 07 003 03  0    0    0   0   0    1    1    59
- 08 003 03  0    0    0   0   0    1    1    61
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 003 03  0    0    0   0   0    1    1    69
- 0d 003 03  0    0    0   0   0    1    1    71
- 0e 003 03  0    0    0   0   0    1    1    79
- 0f 003 03  0    0    0   0   0    1    1    81
- 10 003 03  1    1    0   1   0    1    1    89
- 11 000 00  1    0    0   0   0    0    0    00
- 12 003 03  1    1    0   1   0    1    1    91
- 13 003 03  1    1    0   1   0    1    1    99
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ3 -> 0:3
-IRQ4 -> 0:4
-IRQ6 -> 0:6
-IRQ7 -> 0:7
-IRQ8 -> 0:8
-IRQ12 -> 0:12
-IRQ13 -> 0:13
-IRQ14 -> 0:14
-IRQ15 -> 0:15
-IRQ16 -> 0:16
-IRQ18 -> 0:18
-IRQ19 -> 0:19
-.................................... done.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1533.4929 MHz.
-..... host bus clock speed is 266.6942 MHz.
-cpu: 0, clocks: 2666942, slice: 888980
-CPU0<T0:2666928,T1:1777936,D:12,S:888980,C:2666942>
-cpu: 1, clocks: 2666942, slice: 888980
-CPU1<T0:2666928,T1:888960,D:8,S:888980,C:2666942>
-checking TSC synchronization across CPUs: passed.
-Waiting on wait_init_idle (map = 0x2)
-All processors have done init_idle
-mtrr: your CPUs had inconsistent fixed MTRR settings
-mtrr: probably your BIOS does not setup all CPUs
-PCI: PCI BIOS revision 2.10 entry at 0xf0de0, last bus=2
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI: Using IRQ router AMD768 [1022/7443] at 00:07.3
-PCI->APIC IRQ transform: (B1,I5,P0) -> 16
-PCI->APIC IRQ transform: (B2,I5,P0) -> 18
-BIOS failed to enable PCI standards compliance, fixing this error.
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-Starting kswapd
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-NTFS driver v1.1.22 [Flags: R/O]
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
-SERIAL_PCI enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-amd768_rng: AMD768 system management I/O registers at 0xE400.
-amd768_rng hardware driver 0.1.0 loaded
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-AMD7441: IDE controller on PCI bus 00 dev 39
-AMD7441: chipset revision 4
-AMD7441: not 100% native mode: will probe irqs later
-AMD7441: disabling single-word DMA support (revision < C4)
-    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:DMA
-hda: WDC WD800JB-00CRA1, ATA DISK drive
-hdb: WDC WD307AA-00BAA0, ATA DISK drive
-hdc: LITEON DVD-ROM LTD163D, ATAPI CD/DVD-ROM drive
-hdd: AOPEN CD-RW CRW3248 1.10 20020301, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-blk: queue c03b9124, I/O limit 4095Mb (mask 0xffffffff)
-hda: 156301488 sectors (80026 MB) w/8192KiB Cache, CHS=9729/255/63,
-UDMA(100)
-blk: queue c03b9270, I/O limit 4095Mb (mask 0xffffffff)
-hdb: 60074784 sectors (30758 MB) w/2048KiB Cache, CHS=3739/255/63,
-UDMA(66)
-hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-hdd: ATAPI 48X CD-ROM CD-R/RW drive, 8192kB Cache, UDMA(33)
-Partition check:
- hda: hda1 hda2 < hda5 >
- hdb: hdb1
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-loop: loaded (max 8 devices)
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-02:05.0: 3Com PCI 3c982 Dual Port Server Cyclone at 0xc800. Vers
-LK1.1.16
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 816M
-agpgart: Detected AMD 760MP chipset
-agpgart: AGP aperture is 32M @ 0xfc000000
-SCSI subsystem driver Revision: 1.00
-kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
-es1371: version v0.30 time 18:48:06 Jan 11 2003
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-PCI: Enabling device 02:08.2 (0014 -> 0016)
-PCI: No IRQ known for interrupt pin C of device 02:08.2. Probably buggy
-MP table.
-hcd.c: Found HC with no IRQ.  Check BIOS/PCI 02:08.2 setup!
-uhci.c: USB Universal Host Controller Interface driver v1.1
-PCI: Enabling device 02:08.0 (0014 -> 0016)
-PCI: No IRQ known for interrupt pin A of device 02:08.0. Probably buggy
-MP table.
-usb-ohci.c: found OHCI device with no IRQ assigned. check BIOS settings!
-PCI: Enabling device 02:08.1 (0014 -> 0016)
-PCI: No IRQ known for interrupt pin B of device 02:08.1. Probably buggy
-MP table.
-usb-ohci.c: found OHCI device with no IRQ assigned. check BIOS settings!
-usb.c: registered new driver hiddev
-usb.c: registered new driver hid
-hid-core.c: v1.8.1 Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>
-hid-core.c: USB HID support drivers
-usb.c: registered new driver usblp
-printer.c: v0.11: USB Printer Device Class driver
-Initializing USB Mass Storage driver...
-usb.c: registered new driver usb-storage
-USB Mass Storage support registered.
-mice: PS/2 mouse device common for all mice
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 8192 buckets, 64Kbytes
-TCP: Hash tables configured (established 262144 bind 65536)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 124k freed
-
+Paul Rolland, rol@as2917.net
 

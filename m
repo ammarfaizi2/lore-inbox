@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271972AbTG2Sgb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 14:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272000AbTG2Sgb
+	id S271968AbTG2SbM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 14:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271970AbTG2SbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 14:36:31 -0400
-Received: from 81-202-66-245.user.ono.com ([81.202.66.245]:58000 "EHLO
-	subhal1.tecnoxarxa.com") by vger.kernel.org with ESMTP
-	id S271972AbTG2Sga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 14:36:30 -0400
-Message-ID: <3F26C174.9070702@tecnoxarxa.com>
-Date: Tue, 29 Jul 2003 20:48:20 +0200
-From: german aracil boned <german@tecnoxarxa.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
+	Tue, 29 Jul 2003 14:31:12 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:38285 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S271968AbTG2SbK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 14:31:10 -0400
+Date: Tue, 29 Jul 2003 20:29:01 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
+       Chris Heath <chris@heathens.co.nz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i8042 problem
+In-Reply-To: <20030728155118.GA1761@win.tue.nl>
+Message-ID: <Pine.GSO.3.96.1030729192558.10528A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: NEW SYSTEM FOR THE NET (OFF-TOPIC)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please watches the project TL System. His system of archives is created 
-with Firebird!!!!
+On Mon, 28 Jul 2003, Andries Brouwer wrote:
 
-This is an operating system of nets. Thought to work with multiple 
-platforms.
-The place where to be able to see it:
+> > > > Well, are timeouts needed at all?
+> > > 
+> > > Yes. We send a command to the keyboard. It may react, or it may not.
+> > 
+> >  But we need not wait for that actively.  If we are unsure about a result
+> > of a command, then we may send a command in question followed with an echo
+> > request.  This assures an IRQ will finally arrive and if no command
+> > response arrives before an echo response, then the keyboard ignored the
+> > command.  I used this approach many years ago to differ between PS/2
+> > keyboards (which respond with 0xfa,0xab,0x83 to a request for ID) and
+> > genuine PC/AT ones (which respond with lone 0xfa).  It worked. 
+> 
+> And what did you do for XT? :-)
 
-http://sourceforge.net/projects/tlsystem/
+ Nice joke, but I'll answer seriously.  No support was provided.  Hooking
+a PC/XT keyboard to the 8042, if supported, requires a different setup of
+the command byte and is possibly done by the system firmware.  You can
+read the command byte to see which configuration is used.
 
-A detail of his system of archives:
+ Wrt polling vs IRQ-driven probing and setup: using IRQ is a natural
+choice as you have to do keyboard detection in the IRQ handler anyway to
+properly support hot plugging of a PC/AT or a PS/2 keyboard. 
 
-PROPERTIES AND PARTICULARITIES OF THE FILE SYSTEM
------------------------------------------------------------------------
-
-- FILES, DIRECTORIES AND OTHER ONES
-In the system of archives they can create for oneself directories, files 
-and link to databases and link to another TL Systems. The files keep in 
-blobs in the table SYS_FILES_BLOB. The first blob of the file is the 
-numbered with a 0 and he contains additional information of the file. 
-There the user can introduce a comment of text for example. When he has 
-to do with to a database or another system a link, a blob be believed 
-that he contains the precise information to be able to establish the 
-connection ( numbered I eat 1 ). In TL the System can perform on a file 
-also like directory. Could have stored within this old versions of the 
-same or related files with the. When a file, perform on form of this, it 
-becomes of the mixed type ( Directory File ) The information that he 
-contains like file is respected, but they can call him as it stops a 
-directory to be able to enter within this another files, link or 
-directories. There can be over a file, directory or link with the same 
-name in a same directory. The system permit the easy implementation of 
-mirrors placed in any point of the net or simple replications to act of 
-backup.
-
-- A FILE'S PROPERTIES
-All of them have a user and group principal owners. And besides, they 
-can belong to another groups. But the permissions of access and 
-restrictions determine themselves for the user.
-
-- USERS AND GROUPS
-A user has a principal group. But it can belong to a group over. 
-Permissions for the system of archives in TL System they determine for 
-the user group. If a file belongs to the group X and the user also, the 
-restrictions that this have for that group will be applied.
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

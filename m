@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUHZAyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUHZAxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266561AbUHZAyh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 20:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUHZAyg
+	id S266611AbUHZAxi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 20:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUHZAvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 20:54:36 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51123 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S266561AbUHZAyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 20:54:13 -0400
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/14] kexec: apic-virtwire-on-shutdown.i386.patch
-References: <m1vffd667r.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.58L.0408231411480.19572@blysk.ds.pg.gda.pl>
-	<m1u0uu2d4b.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.58L.0408252118150.18088@blysk.ds.pg.gda.pl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Aug 2004 18:52:37 -0600
-In-Reply-To: <Pine.LNX.4.58L.0408252118150.18088@blysk.ds.pg.gda.pl>
-Message-ID: <m1vff6vhyi.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Wed, 25 Aug 2004 20:51:54 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:22457 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266603AbUHZAvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 20:51:23 -0400
+Date: Thu, 26 Aug 2004 02:51:22 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <Pine.LNX.4.58.0408251723540.17766@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0408260233400.29842@artax.karlin.mff.cuni.cz>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
+ <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
+ <Pine.LNX.4.58.0408260204050.22259@artax.karlin.mff.cuni.cz>
+ <Pine.LNX.4.58.0408251723540.17766@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" <macro@linux-mips.org> writes:
+> > The only way xattrs are useful is that backup/restore software doesn't
+> > have to know about every filesystem with it's specific attributes and
+> > every magic ioctl for setting them. Instead it can save/restore
+> > filesystem-specific attributes without understanding what do they mean.
+> > However there's no need why application should use them. And no
+> > application does.
+>
+> If no application does, then why back them up? Why implement them in the
+> first place?
+>
+> In other words - some apps obviously do want to use the. Sadly.
 
-> On Mon, 23 Aug 2004, Eric W. Biederman wrote:
-> 
-> > The local apic still needs to be put into virtual wire mode in that
-> > case.
-> 
->  Well, depending on actual wiring you may need to mask LINT0 in this case
-> to avoid duplicate interrupts.  I think the safest approach would be
-> remembering the initial values of LVT0 and LVT1 registers of the BSP --
-> they are just four bytes each, so it would not be a terrible memory waste.
+You can add more functionality to filesystem and use xattrs to control it.
+For example:
+- acls
+- compress file
+- encrypt file (copy user's password into task_struct and use it to
+encrypt his files)
+- preallocate file in 4MB contignuous chunks, becuase it needs real time
+multimedia access
+- sync/append-only/immutable
+etc.
+However there's no need why an application should care whether the file is
+compressed, whether it has acls, or so. And applications don't.
 
-If I was seeing problems I guess I would worry about it.  As I have
-tested on both Opteron's which require the ioapic to be in
-virtual wire mode, and on Xeons which require the local apic to be in
-virtual wire mode and both work I am not too concerned.
+And I think this is the only legitimate use for xattrs. Who else uses them
+except samba? I don't see how reiser4's hybrids would help.
 
-I don't think the configuration you are worrying about where
-both the ioapic and the local apic can both be put into virtual
-wire mode is valid according to the mp specification.  Although that
-is probably a grey area in the specification.
-
-It is more code to save off and then restore the registers,
-then simply hard coding a value into them.
-
-It is nice to have hard coded values when you can as then
-you don't have to guess how something was configured on this occasion.
-
-As my code is simpler than your suggestion and it works I'm not
-a fan of changing it until I see a case where it breaks.
-
-Eric
+Mikulas

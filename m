@@ -1,52 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbUKMTGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbUKMTKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbUKMTGg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 14:06:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbUKMTGf
+	id S261153AbUKMTKj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 14:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUKMTKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 14:06:35 -0500
-Received: from outbound04.telus.net ([199.185.220.223]:14295 "EHLO
-	priv-edtnes51.telusplanet.net") by vger.kernel.org with ESMTP
-	id S261151AbUKMTGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 14:06:34 -0500
-Subject: hda: lost interrupt on 2.6.10-rc
-From: Bob Gill <gillb4@telusplanet.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Sat, 13 Nov 2004 12:06:38 -0700
-Message-Id: <1100372798.3746.10.camel@localhost.localdomain>
+	Sat, 13 Nov 2004 14:10:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36773 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261153AbUKMTKa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 14:10:30 -0500
+Date: Sat, 13 Nov 2004 13:24:50 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrey Melnikoff <temnota+news@kmv.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.28-rc3
+Message-ID: <20041113152450.GA28226@logos.cnet>
+References: <20041112180052.GE23215@logos.cnet> <20041113162709.GX24130@kmv.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041113162709.GX24130@kmv.ru>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I just built 2.6.10-rc1-bk23 (under Fedora Core 3).  When I boot
-the kernel I get:
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: 40020624 sectors (20490 MB) w/512KiB Cache, CHS=39703/16/63, UDMA
-(66) hda:(4)hda: lost interrupt
-hda: dma_timer_expiry: dma status == 0x64
-hda: DMA interrupt recovery
-hda: lost interrupt
- hda1 hda2 hda3
-hdb: max request size: 128KiB
-hdb: lost interrupt
-hdb: lost interrupt
-hdb: lost interrupt
-hdb: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA
-(100) hdb:(4)hdb: lost interrupt
-...
-I don't have any parameters on the kernel boot line except "ro
-root=/dev/hda3"  
-(without the quotes)
-Please mail me as I'm not on the list.
-Thanks,
-Bob
--- 
-Bob Gill <gillb4@telusplanet.net>
+On Sat, Nov 13, 2004 at 07:27:09PM +0300, Andrey Melnikoff wrote:
+> In article <20041112180052.GE23215@logos.cnet> you wrote:
+> > Hi,
+> 
+> > Here goes the third release candidate.
+> 
+> > It contains a v2.6 backport of the binfmt_elf potential vulnerabilities
+> > disclosed this week, an enhanced smbfs client overflow fix, an ACPI update
+> > fixing a couple of nasty bugs, a NFS client bugfix and a network update
+> > from Davem.
+> 
+> Any chance to apply this patch before release?
+> 
+> Prevent NMI oopser kill kernel thread when megearid2 driver wating abort or
+> reset command completion. 
 
+Hi Andrey,
+
+I talked to Atul and Arjan about this one - the correct thing to do is to 
+replace mdelay() with CPU yielding msleep(). 
+
+We should backport msleep() in 2.4.29-pre1. 
+
+
+> Signed-off-by: Andrey Melnikov <temnota+kernel@kmv.ru>
+> 
+> --- linux-2.4.28-rc3/drivers/scsi/megaraid2.c~	Thu Nov 11 19:37:13 2004
+> +++ linux-2.4.28-rc3/drivers/scsi/megaraid2.c	Sat Nov 13 19:20:23 2004
+> @@ -39,6 +39,7 @@
+>  #include <linux/reboot.h>
+>  #include <linux/module.h>
+>  #include <linux/list.h>
+> +#include <linux/nmi.h>
+>  
+>  #include "sd.h"
+>  #include "scsi.h"
+> @@ -2820,6 +2821,7 @@
+>  
+>  		if( iter++ < MBOX_ABORT_SLEEP*1000 ) {
+>  			mdelay(1);
+> +			touch_nmi_watchdog();
+>  		}
+>  		else {
+>  			printk(KERN_WARNING
+> @@ -2900,6 +2902,7 @@
+>  
+>  		if( iter++ < MBOX_RESET_SLEEP*1000 ) {
+>  			mdelay(1);
+> +			touch_nmi_watchdog();
+>  		}
+>  		else {
+>  			printk(KERN_WARNING
+> 
+> 
+> -- 
+>  Best regards, TEMHOTA-RIPN aka MJA13-RIPE
+>  System Administrator. mailto:temnota@kmv.ru

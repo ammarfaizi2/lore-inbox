@@ -1,49 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbUJZBND@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbUJZBPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbUJZBND (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 21:13:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbUJZBME
+	id S261853AbUJZBPE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 21:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbUJZBLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 21:12:04 -0400
+	Mon, 25 Oct 2004 21:11:55 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:2762 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261928AbUJZBJ5 (ORCPT
+	by vger.kernel.org with ESMTP id S261898AbUJZBJh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:09:57 -0400
-Subject: [PATCH TRIVIAL 2.6] X.25 : Dont log "unknown frame type" when
-	receiving clear confirm
-From: Andrew Hendry <ahendry@tusc.com.au>
-To: linux-x25@vger.kernel.org, eis@baty.hanse.de
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1098749619.3099.194.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 26 Oct 2004 10:13:39 +1000
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Oct 2004 00:16:27.0169 (UTC) FILETIME=[08DB4910:01C4BAF1]
+	Mon, 25 Oct 2004 21:09:37 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C4BAF2.4B85EFFC"
+Subject: [PATCH]Add sysctl interface to sched_domain parameters
+Date: Tue, 26 Oct 2004 08:25:28 +0800
+Message-ID: <894E37DECA393E4D9374E0ACBBE7427013C949@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]Add sysctl interface to sched_domain parameters
+Thread-Index: AcS68ktW32CwXUXhT0mSKcxyFlbQRg==
+From: "Zou, Nanhai" <nanhai.zou@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <akpm@osdl.org>, <torvalds@osdl.org>
+X-OriginalArrivalTime: 26 Oct 2004 00:25:30.0071 (UTC) FILETIME=[4C738E70:01C4BAF2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No need to log this for clear confirm.
+This is a multi-part message in MIME format.
 
-Signed-off-by: Andrew Hendry <ahendry@tusc.com.au>
+------_=_NextPart_001_01C4BAF2.4B85EFFC
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-diff -up linux-2.6.8.1/net/x25/x25_dev.c.orig linux-2.6.8.1/net/x25/x25_dev.c
---- linux-2.6.8.1/net/x25/x25_dev.c.orig        2004-10-26 09:58:36.158922080 +1000
-+++ linux-2.6.8.1/net/x25/x25_dev.c     2004-10-26 10:03:01.134639648 +1000
-@@ -92,7 +92,12 @@ static int x25_receive_data(struct sk_bu
- /*
-        x25_transmit_clear_request(nb, lci, 0x0D);
- */
--       printk(KERN_DEBUG "x25_receive_data(): unknown frame type %2x\n",frametype);
-+
-+       /*
-+        *      Dont spam the logs for clear confirms.
-+        */
-+       if (frametype != X25_CLEAR_CONFIRMATION)
-+               printk(KERN_DEBUG "x25_receive_data(): unknown frame type %2x\n",frametype);
-  
-        return 0;
- }
+I think add sysctl interface to sched_domain parameters is helpful to
+debug and tuning those parameters at run time.
+Here is the patch against kernel 2.6.9 to add sysctl interface to those
+parameters.
 
+Signed-off-by: Zou Nan hai <nanhai.zou@intel.com>
 
+------_=_NextPart_001_01C4BAF2.4B85EFFC
+Content-Type: application/octet-stream;
+	name="sched-domain-sysctl.patch"
+Content-Transfer-Encoding: base64
+Content-Description: sched-domain-sysctl.patch
+Content-Disposition: attachment;
+	filename="sched-domain-sysctl.patch"
+
+ZGlmZiAtTnJhdXAgYS9pbmNsdWRlL2xpbnV4L3NjaGVkLmggYi9pbmNsdWRlL2xpbnV4L3NjaGVk
+LmgKLS0tIGEvaW5jbHVkZS9saW51eC9zY2hlZC5oCTIwMDQtMTAtMTggMDU6MTE6MzkuMDAwMDAw
+MDAwIC0wNzAwCisrKyBiL2luY2x1ZGUvbGludXgvc2NoZWQuaAkyMDA0LTEwLTI1IDAwOjA5OjQ5
+LjI0NzcxMDMwNCAtMDcwMApAQCAtMTAyOSw0ICsxMDI5LDggQEAgZXh0ZXJuIGxvbmcgc2NoZWRf
+Z2V0YWZmaW5pdHkocGlkX3QgcGlkLAogCiAjZW5kaWYgLyogX19LRVJORUxfXyAqLwogCisjaWZk
+ZWYgQ09ORklHX1NZU0NUTAorZXh0ZXJuIHZvaWQgaW5pdF9zY2hlZF9kb21haW5fc3lzY3RsKHZv
+aWQpOworZXh0ZXJuIHZvaWQgZGVzdHJveV9zY2hlZF9kb21haW5fc3lzY3RsKHZvaWQpOworI2Vu
+ZGlmIC8qIENPTkZJR19TWVNDVEwgKi8KICNlbmRpZgpkaWZmIC1OcmF1cCBhL2tlcm5lbC9zY2hl
+ZC5jIGIva2VybmVsL3NjaGVkLmMKLS0tIGEva2VybmVsL3NjaGVkLmMJMjAwNC0xMC0xOCAwNTox
+MTozOS4wMDAwMDAwMDAgLTA3MDAKKysrIGIva2VybmVsL3NjaGVkLmMJMjAwNC0xMC0yNSAwMDox
+MDoxNy4wNDg0OTEyMTMgLTA3MDAKQEAgLTQ1NzYsNiArNDU3Niw3IEBAIF9faW5pdCBzdGF0aWMg
+dm9pZCBhcmNoX2luaXRfc2NoZWRfZG9tYWkKICNlbmRpZgogCQljcHVfYXR0YWNoX2RvbWFpbihz
+ZCwgaSk7CiAJfQorCWluaXRfc2NoZWRfZG9tYWluX3N5c2N0bCgpOwogfQogCiAjdW5kZWYgU0NI
+RURfRE9NQUlOX0RFQlVHCkBAIC00NzY3LDMgKzQ3NjgsMTMyIEBAIHZvaWQgX19taWdodF9zbGVl
+cChjaGFyICpmaWxlLCBpbnQgbGluZSkKIH0KIEVYUE9SVF9TWU1CT0woX19taWdodF9zbGVlcCk7
+CiAjZW5kaWYKKworI2lmZGVmIENPTkZJR19TWVNDVEwKK3N0YXRpYyBzdHJ1Y3QgY3RsX3RhYmxl
+IHNkX2N0bF9kaXJbXSA9IHsKKwl7MSwgInNjaGVkX2RvbWFpbiIsIE5VTEwsIDAsIDA3NTUsIE5V
+TEwsIH0sCisJezAsfSwKK307CisKK3N0YXRpYyBzdHJ1Y3QgY3RsX3RhYmxlIHNkX2N0bF9yb290
+W10gPSB7CisJezEsICJrZXJuZWwiLCBOVUxMLCAwLCAwNzU1LCBzZF9jdGxfZGlyLCB9LAorCXsw
+LH0sCit9OworX19kZXZpbml0IHN0YXRpYyBjaGFyICpzdHJkdXAoY2hhciAqc3RyKQoreworCWlu
+dCBuID0gc3RybGVuKHN0cikrMTsKKwljaGFyICpzID0ga21hbGxvYyhuLCBHRlBfS0VSTkVMKTsK
+KwlpZiAoIXMpIHJldHVybiBOVUxMOworCXJldHVybiBzdHJjcHkocywgc3RyKTsKK30KK19fZGV2
+aW5pdCBzdGF0aWMgc3RydWN0IGN0bF90YWJsZSAqc2RfYWxsb2NfY3RsX2VudHJ5KGludCBuKQor
+eworCXN0cnVjdCBjdGxfdGFibGUgKmVudHJ5ID0gKHN0cnVjdCBjdGxfdGFibGUgKikKKwkJa21h
+bGxvYyhuICogc2l6ZW9mKHN0cnVjdCBjdGxfdGFibGUpLCBHRlBfS0VSTkVMKTsKKwlCVUdfT04o
+IWVudHJ5KTsKKwltZW1zZXQoZW50cnksIDAsIG4gKiBzaXplb2Yoc3RydWN0IGN0bF90YWJsZSkp
+OworCXJldHVybiBlbnRyeTsKK30KKworX19kZXZpbml0IHN0YXRpYyB2b2lkCitzZXRfdGFibGVf
+ZW50cnkoc3RydWN0IGN0bF90YWJsZSAqZW50cnksIGludCBjdGxfbmFtZSwgY29uc3QgY2hhciAq
+cHJvY25hbWUsCisJCXZvaWQgKmRhdGEsIGludCBtYXhsZW4sIG1vZGVfdCBtb2RlLAorCQlwcm9j
+X2hhbmRsZXIgKnByb2NfaGFuZGxlcikKK3sKKwllbnRyeS0+Y3RsX25hbWUgPSBjdGxfbmFtZTsK
+KwllbnRyeS0+cHJvY25hbWUgPSBwcm9jbmFtZTsKKwllbnRyeS0+ZGF0YSA9IGRhdGE7CisJZW50
+cnktPm1heGxlbiA9IG1heGxlbjsKKwllbnRyeS0+bW9kZSA9IG1vZGU7CisJZW50cnktPnByb2Nf
+aGFuZGxlciA9IHByb2NfaGFuZGxlcjsKK30KKworX19kZXZpbml0IHN0YXRpYyBzdHJ1Y3QgY3Rs
+X3RhYmxlICoKK3NkX2FsbG9jX2N0bF9kb21haW5fdGFibGUoc3RydWN0IHNjaGVkX2RvbWFpbiAq
+c2QpCit7CisJc3RydWN0IGN0bF90YWJsZSAqdGFibGU7CisJdGFibGUgPSBzZF9hbGxvY19jdGxf
+ZW50cnkoOSk7CisKKwlzZXRfdGFibGVfZW50cnkoJnRhYmxlWzBdLCAxLCAibWluX2ludGVydmFs
+IiwgJnNkLT5taW5faW50ZXJ2YWwsCisJCQlzaXplb2YobG9uZyksIDA2NDQsIHByb2NfZG91bG9u
+Z3ZlY19taW5tYXgpOworCXNldF90YWJsZV9lbnRyeSgmdGFibGVbMV0sIDIsICJtYXhfaW50ZXJ2
+YWwiLCAmc2QtPm1heF9pbnRlcnZhbCwKKwkJCXNpemVvZihsb25nKSwgMDY0NCwgcHJvY19kb3Vs
+b25ndmVjX21pbm1heCk7CisJc2V0X3RhYmxlX2VudHJ5KCZ0YWJsZVsyXSwgMywgImJ1c3lfZmFj
+dG9yIiwgJnNkLT5idXN5X2ZhY3RvciwKKwkJCXNpemVvZihpbnQpLCAwNjQ0LCBwcm9jX2RvaW50
+dmVjX21pbm1heCk7CisJc2V0X3RhYmxlX2VudHJ5KCZ0YWJsZVszXSwgNCwgImltYmFsYW5jZV9w
+Y3QiLCAmc2QtPmltYmFsYW5jZV9wY3QsCisJCQlzaXplb2YoaW50KSwgMDY0NCwgcHJvY19kb2lu
+dHZlY19taW5tYXgpOworCXNldF90YWJsZV9lbnRyeSgmdGFibGVbNF0sIDUsICJjYWNoZV9ob3Rf
+dGltZSIsICZzZC0+Y2FjaGVfaG90X3RpbWUsCisJCQlzaXplb2YobG9uZyBsb25nKSwgMDY0NCwg
+cHJvY19kb3Vsb25nbG9uZ3ZlY19taW5tYXgpOworCXNldF90YWJsZV9lbnRyeSgmdGFibGVbNV0s
+IDYsICJjYWNoZV9uaWNlX3RyaWVzIiwgJnNkLT5jYWNoZV9uaWNlX3RyaWVzLAorCQkJc2l6ZW9m
+KGludCksIDA2NDQsIHByb2NfZG9pbnR2ZWNfbWlubWF4KTsKKwlzZXRfdGFibGVfZW50cnkoJnRh
+YmxlWzZdLCA3LCAicGVyX2NwdV9nYWluIiwgJnNkLT5wZXJfY3B1X2dhaW4sCisJCQlzaXplb2Yo
+aW50KSwgMDY0NCwgcHJvY19kb2ludHZlY19taW5tYXgpOworCXNldF90YWJsZV9lbnRyeSgmdGFi
+bGVbN10sIDgsICJmbGFncyIsICZzZC0+ZmxhZ3MsCisJCQlzaXplb2YoaW50KSwgMDY0NCwgcHJv
+Y19kb2ludHZlY19taW5tYXgpOworCXJldHVybiB0YWJsZTsKK30KKworX19kZXZpbml0IHN0YXRp
+YyBjdGxfdGFibGUgKnNkX2FsbG9jX2N0bF9jcHVfdGFibGUoaW50IGNwdSkKK3sKKwlzdHJ1Y3Qg
+c2NoZWRfZG9tYWluICpzZDsKKwlpbnQgZG9tYWluX251bSA9IDAsIGk7CisJc3RydWN0IGN0bF90
+YWJsZSAqZW50cnksICp0YWJsZTsKKwljaGFyIGJ1ZlszMl07CisJZm9yX2VhY2hfZG9tYWluKGNw
+dSwgc2QpCisJCWRvbWFpbl9udW0rKzsKKwllbnRyeSA9IHRhYmxlID0gc2RfYWxsb2NfY3RsX2Vu
+dHJ5KGRvbWFpbl9udW0gKyAxKTsKKworCWkgPSAwOworCWZvcl9lYWNoX2RvbWFpbihjcHUsIHNk
+KSB7CisJCXNwcmludGYoYnVmLCAiZG9tYWluLSVkIiwgaSk7CisJCWVudHJ5LT5jdGxfbmFtZSA9
+IGkgKyAxOworCQllbnRyeS0+cHJvY25hbWUgPSBzdHJkdXAoYnVmKTsKKwkJZW50cnktPm1vZGUg
+PSAwNzU1OworCQllbnRyeS0+Y2hpbGQgPSBzZF9hbGxvY19jdGxfZG9tYWluX3RhYmxlKHNkKTsK
+KwkJZW50cnkrKzsKKwkJaSsrOworCX0KKwlyZXR1cm4gdGFibGU7Cit9CisKK3N0YXRpYyBzdHJ1
+Y3QgY3RsX3RhYmxlX2hlYWRlciAqc2Rfc3lzY3RsX2hlYWRlcjsKK19fZGV2aW5pdCB2b2lkIGlu
+aXRfc2NoZWRfZG9tYWluX3N5c2N0bCgpCit7CisJaW50IGksIGNwdV9udW0gPSBudW1fb25saW5l
+X2NwdXMoKTsKKwljaGFyIGJ1ZlszMl07CisJc3RydWN0IGN0bF90YWJsZSAqZW50cnkgPSBzZF9h
+bGxvY19jdGxfZW50cnkoY3B1X251bSArIDEpOworCisJc2RfY3RsX2RpclswXS5jaGlsZCA9IGVu
+dHJ5OworCisJZm9yIChpID0gMDsgaSA8IGNwdV9udW07IGkrKywgZW50cnkrKykgeworCQlzcHJp
+bnRmKGJ1ZiwgImNwdSVkIiwgaSk7CisJCWVudHJ5LT5jdGxfbmFtZSA9IGkgKyAxOworCQllbnRy
+eS0+cHJvY25hbWUgPSBzdHJkdXAoYnVmKTsKKwkJZW50cnktPm1vZGUgPSAwNzU1OworCQllbnRy
+eS0+Y2hpbGQgPSBzZF9hbGxvY19jdGxfY3B1X3RhYmxlKGkpOworCX0KKwlzZF9zeXNjdGxfaGVh
+ZGVyID0gcmVnaXN0ZXJfc3lzY3RsX3RhYmxlKHNkX2N0bF9yb290LCAwKTsKK30KKworX19kZXZp
+bml0IHZvaWQgZGVzdHJveV9zY2hlZF9kb21haW5fc3lzY3RsKCkKK3sKKwlpbnQgY3B1LCBjcHVf
+bnVtID0gbnVtX29ubGluZV9jcHVzKCk7CisJc3RydWN0IHNjaGVkX2RvbWFpbiAqc2Q7CisJc3Ry
+dWN0IGN0bF90YWJsZSAqcm9vdCA9IHNkX2N0bF9kaXJbMF0uY2hpbGQ7CisJc3RydWN0IGN0bF90
+YWJsZSAqZW50cnksICp0YWJsZTsKKworCXVucmVnaXN0ZXJfc3lzY3RsX3RhYmxlKHNkX3N5c2N0
+bF9oZWFkZXIpOworCWVudHJ5ID0gcm9vdDsKKwlmb3IgKGNwdSA9IDA7IGNwdSA8IGNwdV9udW07
+IGNwdSsrLCBlbnRyeSsrKSB7CisJCWtmcmVlKGVudHJ5LT5wcm9jbmFtZSk7CisJCXRhYmxlID0g
+ZW50cnktPmNoaWxkOworCQlmb3JfZWFjaF9kb21haW4oY3B1LCBzZCkgeworCQkJa2ZyZWUodGFi
+bGUtPnByb2NuYW1lKTsKKwkJCWtmcmVlKHRhYmxlLT5jaGlsZCk7CisJCQl0YWJsZSsrOworCQl9
+CisJCWtmcmVlKGVudHJ5LT5jaGlsZCk7CisJfQorCWtmcmVlKHJvb3QpOworfQorI2VuZGlmIC8q
+IENPTkZJR19TWVNDVEwgKi8K
+
+------_=_NextPart_001_01C4BAF2.4B85EFFC--

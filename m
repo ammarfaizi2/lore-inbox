@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267890AbRG3Ut5>; Mon, 30 Jul 2001 16:49:57 -0400
+	id <S267912AbRG3Uu1>; Mon, 30 Jul 2001 16:50:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267837AbRG3Uts>; Mon, 30 Jul 2001 16:49:48 -0400
-Received: from ns.caldera.de ([212.34.180.1]:55725 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S267885AbRG3Ute>;
-	Mon, 30 Jul 2001 16:49:34 -0400
-Date: Mon, 30 Jul 2001 22:49:31 +0200
-From: Christoph Hellwig <hch@caldera.de>
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Message-ID: <20010730224930.A18311@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200107281645.f6SGjA620666@ns.caldera.de> <3B653211.FD28320@namesys.com> <20010730210644.A5488@caldera.de> <3B65C3D4.FF8EB12D@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B65C3D4.FF8EB12D@namesys.com>; from reiser@namesys.com on Tue, Jul 31, 2001 at 12:30:12AM +0400
+	id <S267837AbRG3UuU>; Mon, 30 Jul 2001 16:50:20 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.17]:553 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S267885AbRG3Utx>; Mon, 30 Jul 2001 16:49:53 -0400
+Message-ID: <3B65C72E.3040508@chello.nl>
+Date: Mon, 30 Jul 2001 22:44:30 +0200
+From: Gerbrand van der Zouw <g.vanderzouw@chello.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Kurt Garloff <garloff@suse.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VIA KT133A / athlon / MMX
+In-Reply-To: <20010729222830.A25964@pckurt.casa-etp.nl> <20010730125012Z268576-720+7896@vger.kernel.org> <20010730154458.C4859@pckurt.casa-etp.nl> <20010730151538.A5600@debian> <20010730174653.D4859@pckurt.casa-etp.nl> <20010730204354.B26097@pckurt.casa-etp.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 31, 2001 at 12:30:12AM +0400, Hans Reiser wrote:
-> But there is not one where they recover from invalid arguments without a panic
-> (unless I failed to notice something),
+Hi,
 
-Right.
+Kurt Garloff wrote:
 
-> so it gets you nothing except a message
-> that we the developers will find more informative when trying to find what made
-> it crash.
+ > It seemed to solved the trouble here on first sight (booting went further
+ > then normal) but in the end did not turn out to solve the trouble here.
+ > (Here means: MSI K7T Turbo (Ver.3) with AMD K7 1.2GHz.)
 
-Nope.  It does a reiserfs_panic instead of letting the wrong arguments
-slipping into lower layers and possibly on disk and thus corrupting data.
+from your lspci output I seem to have exactly the same system as you 
+have. I tried your patch (247-viakt133.diff) and came up with the same 
+result here: it seemed to come further than last time with only 
+2.4.6ac5, but then it crashed anyway. If you know of any BIOS parameters 
+  that might help for this mobo, please let me know. I could not 
+identify a parameter that does the same as the "DRAM Prefetch" for Abit 
+mobos.
 
-And in my opinion correct data is much more worth than one crash more or
-less (especially with a journaling filesystem).
+Regards,
 
-	Christoph
+Gerbrand van der Zouw
 
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+

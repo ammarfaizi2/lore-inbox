@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274859AbTHALCl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 07:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275212AbTHALCD
+	id S270739AbTHALQa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 07:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270741AbTHALQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 07:02:03 -0400
-Received: from 213-0-202-111.dialup.nuria.telefonica-data.net ([213.0.202.111]:34184
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S274859AbTHALAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 07:00:51 -0400
-Date: Fri, 1 Aug 2003 13:00:49 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2-mm2
-Message-ID: <20030801110049.GB5762@localhost>
-Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20030730223810.613755b4.akpm@osdl.org> <1059648996.1263.1.camel@debian>
+	Fri, 1 Aug 2003 07:16:30 -0400
+Received: from mail.szintezis.hu ([195.56.253.241]:63157 "HELO
+	hold.szintezis.hu") by vger.kernel.org with SMTP id S270739AbTHALQ2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 07:16:28 -0400
+Subject: Linux 2.6.0-test2-mg1
+From: Gabor MICSKO <gmicsko@szintezis.hu>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 01 Aug 2003 13:16:14 +0200
+Message-Id: <1059736576.514.5.camel@gmicsko03>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1059648996.1263.1.camel@debian>
-User-Agent: Mutt/1.5.4i
+X-OriginalArrivalTime: 01 Aug 2003 11:16:26.0912 (UTC) FILETIME=[596D8A00:01C3581E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 31 July 2003, at 12:57:23 +0200,
-Ramón Rey Vicente???? wrote:
+Hi!
 
-> The best desktop experience for me since I run 2.5/2.6 kernels. No more
-> sound skips and a very good response of all applications into  the
-> X-Windows.
-> 
-I have the same opinion with respect to 2.6.0-test2-mm2 here, but with a
-box much more powrful than yours (fact that did not prevent jerky
-behaviour in past kernel releases though).
+This is my first patch against 2.6.0-test2 kernel, including complete
+-mm1, fbdev boot logo fix, CK patch-O11int-0307300018 and small reiserfs
+fix ( fix savelinks on bigebdian platforms). 
 
-Under my "common" workload (X, Mozilla in pages full of crap^Wflash,
-xmms, several monitors, spamassassin analyzing no less than 10
-simultaneous mails, and "make -j25 bzImage" to add some more work to the
-mix) mouse movement was smooth, and MP3 didn't skip. So i nthis aspect,
-2.6.0-test2-mm2 is better than 2.6.0-test2-G7 (2.6.0-test2 with Ingo's
-sched-2.6.0-test1-G7).
+download: 
+http://www.hup.hu/old/stuff/kernel/patch-2.6.0-test2-mg1.bz2
 
-But there is one thing 2.6.0-test2-mm2 "does" worse than 2.6.0-test2-G7,
-and that is prevent windows in X to freeze under heavy window movement
-(with "show contents of windows while moving" ON, of course). Under
-2.6.0-test2-G7 I was unable to make windows freeze, but with
-2.6.0-test2-mm2 I can after several seconds, and the moving window (and
-the rest of them) get frozen for a while (couple of seconds).
+sign:
+http://www.hup.hu/old/stuff/kernel/patch-2.6.0-test2-mg1.sign
 
-Hope this helps.
+changelog:
+http://www.hup.hu/old/stuff/kernel/ChangeLog-2.6.0-test2-mg1
+
+Feedback -> trey@hup.hu
+
+Thx.
 
 -- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test2-mm2)
+Windows not found
+(C)heers, (P)arty or (D)ance?
+-----------------------------------
+Micskó Gábor
+Compaq Accredited Platform Specialist, System Engineer (APS, ASE)
+Szintézis Computer Rendszerház Rt.      
+H-9021 Gyõr, Tihanyi Árpád út.2.
+Tel: +36 96 502-216
+Fax: +36 96 318-658
+E-mail: gmicsko@szintezis.hu
+Web: http://www.hup.hu/
+

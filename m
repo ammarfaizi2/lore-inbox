@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292330AbSB0LC3>; Wed, 27 Feb 2002 06:02:29 -0500
+	id <S292338AbSB0LGs>; Wed, 27 Feb 2002 06:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292324AbSB0LCS>; Wed, 27 Feb 2002 06:02:18 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20745 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292326AbSB0LCM>;
-	Wed, 27 Feb 2002 06:02:12 -0500
-Date: Wed, 27 Feb 2002 08:01:45 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: <m.knoblauch@teraport.de>
-Cc: <Martin.Bligh@us.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in thetree
-In-Reply-To: <3C7CB28A.CAD095B5@TeraPort.de>
-Message-ID: <Pine.LNX.4.33L.0202270800420.7820-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292326AbSB0LGi>; Wed, 27 Feb 2002 06:06:38 -0500
+Received: from ns.suse.de ([213.95.15.193]:43787 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289299AbSB0LGT>;
+	Wed, 27 Feb 2002 06:06:19 -0500
+Date: Wed, 27 Feb 2002 12:06:18 +0100
+From: Dave Jones <davej@suse.de>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: sound/oss updates.
+Message-ID: <20020227120618.A16565@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Jaroslav Kysela <perex@suse.cz>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020227031241.F9189@suse.de> <Pine.LNX.4.33.0202270911270.665-100000@pnote.perex-int.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0202270911270.665-100000@pnote.perex-int.cz>; from perex@suse.cz on Wed, Feb 27, 2002 at 09:18:05AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Feb 2002, Martin Knoblauch wrote:
+On Wed, Feb 27, 2002 at 09:18:05AM +0100, Jaroslav Kysela wrote:
+ > It would be probably good to maintain the /sound tree from one place, so
+ > I can maintain the /sound/oss tree as well - allowing Linus to do 
+ > something more interesting ;-)
+ > 
+ > I am ready to maintain all sound related updates for 2.5.
 
-> > > Not to begin the flamewar, but no thanks. rmap-12f blows -aa away AFAIK
-> > > on this P200 w/ 64MB ram.
-> >
-> > rmap still sucks on large systems though. I'd love to see rmap
-> > in the main kernel, but it needs to get the scalability fixed first.
-> > The main problem seems to be pagemap_lru_lock ... Rik & crew
-> > know about this problem, but let's give them some time to fix it
-> > before rmap gets put into mainline ....
->
->  just out of curiosity: where does "large systems" start in your
-> context?
-
-My guess it would start at about 4 or 8 CPUs.
-
-Systems which have a lot of pagetable overhead would also
-suffer with -rmap, until -rmap supports pte_highmem.
-
-regards,
-
-Rik
+ Ok, I'll break them up into smaller bits for you to grab later today.
+ 
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

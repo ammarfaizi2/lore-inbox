@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266152AbUALL4V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 06:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUALL4V
+	id S266150AbUALMLv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 07:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266156AbUALMLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 06:56:21 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:43931 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266152AbUALL4S (ORCPT
+	Mon, 12 Jan 2004 07:11:51 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:12239 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S266150AbUALMLt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 06:56:18 -0500
-Date: Mon, 12 Jan 2004 17:30:38 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Jan Ischebeck <mail@jan-ischebeck.de>
-Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-mm2: BUG in kswapd?
-Message-ID: <20040112120038.GE1404@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <1073842387.3720.5.camel@JHome.uni-bonn.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1073842387.3720.5.camel@JHome.uni-bonn.de>
-User-Agent: Mutt/1.4i
+	Mon, 12 Jan 2004 07:11:49 -0500
+Date: Mon, 12 Jan 2004 13:11:42 +0100 (MET)
+Message-Id: <200401121211.i0CCBg5u006677@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: linux-kernel@vger.kernel.org, raul@pleyades.net
+Subject: Re: SMP or UP???
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 08:13:40PM +0000, Jan Ischebeck wrote:
-> Hi Andrew,
-> 
-> After 24 hours running 2.6.1-mm2 I got the following BUG in kswapd:
-> 
-> Jan 11 06:27:41 JHome kernel: ------------[ cut here ]------------
-> Jan 11 06:27:41 JHome kernel: kernel BUG at include/linux/list.h:148!
-> Jan 11 06:27:41 JHome kernel: invalid operand: 0000 [#1]
-> Jan 11 06:27:41 JHome kernel: PREEMPT 
-> Jan 11 06:27:41 JHome kernel: CPU:    0
-> Jan 11 06:27:41 JHome kernel: EIP:    0060:[<c016fc36>]    Tainted: GF  VLI
-> Jan 11 06:27:41 JHome kernel: EFLAGS: 00010206
-> Jan 11 06:27:41 JHome kernel: EIP is at prune_dcache+0x1d6/0x1f0
-> Jan 11 06:27:41 JHome kernel: eax: 00000000   ebx: dc3b06c0   ecx: dc3b06d4   edx: dca6585c
-> Jan 11 06:27:41 JHome kernel: esi: dc3b0730   edi: dfdd8000   ebp: 00000067   esp: dfdd9e7c
-> Jan 11 06:27:41 JHome kernel: ds: 007b   es: 007b   ss: 0068
-> Jan 11 06:27:41 JHome kernel: Process kswapd0 (pid: 8, threadinfo=dfdd8000 task=dfddece0)
-> Jan 11 06:27:41 JHome kernel: Stack: df683cc0 00000000 00000080 dfdd8000 000001ac dffeeb60 c01700f3 00000080 
-> Jan 11 06:27:41 JHome kernel: c0146dde 00000080 000000d0 000159b5 07a9b6c8 00000000 000005ac 00000000 
-> Jan 11 06:27:41 JHome kernel: 00000162 c034d674 00000001 ffffff4f c01481b2 00000162 000000d0 000000d0 
-> Jan 11 06:27:41 JHome kernel: Call Trace:
-> Jan 11 06:27:41 JHome kernel: [<c01700f3>] shrink_dcache_memory+0x23/0x30
-> Jan 11 06:27:41 JHome kernel: [<c0146dde>] shrink_slab+0x11e/0x170
-> Jan 11 06:27:41 JHome kernel: [<c01481b2>] balance_pgdat+0x1d2/0x200
-> Jan 11 06:27:41 JHome kernel: [<c01482f7>] kswapd+0x117/0x130
-> Jan 11 06:27:41 JHome kernel: [<c0120fa0>] autoremove_wake_function+0x0/0x50
-> Jan 11 06:27:41 JHome kernel: [<c02f0b5e>] ret_from_fork+0x6/0x14
-> Jan 11 06:27:41 JHome kernel: [<c0120fa0>] autoremove_wake_function+0x0/0x50
-> Jan 11 06:27:41 JHome kernel: [<c01481e0>] kswapd+0x0/0x130
-> Jan 11 06:27:41 JHome kernel: [<c010b289>] kernel_thread_helper+0x5/0xc
-> Jan 11 06:27:41 JHome kernel: 
+On Mon, 12 Jan 2004 11:20:39 +0100, DervishD <raul@pleyades.net> wrote:
+>    I have an used Gigabyte GA-7ZXE mobo, with chipset VIA KT133A,
+>wearing a Duron 1000 processor, since December. AFAIK this mobo is
+>uniprocessor (it has only a socket, that should be a good
+>evidence...), but when booting I get these messages (I just show
+>those relevant to the issue):
+>
+>kernel: Linux version 2.4.21 (root@DervishD) (gcc version 3.2.2) #1 Wed Jul 2 17:25:21 CEST 2003
+>kernel: found SMP MP-table at 000fb210
+>
+>    What, SMP table?
+...
+>    This is not an issue, because the system seems to work OK, but
+>for me is very strange and I'm not sure wether this may cause
+>problems or not...
 
-Hi Jan,
+You have an anti-problem. The chipset includes an I/O-APIC
+(good) and your mobo manufacturer was decent enough to include
+the appropriate BIOS MP tables to describe it to the OS.
 
-I guess you are getting this without tainters also.
-Can you give some more details like .config, what filesystems
-you have etc. 
+Other manufacturers skip the MP table, forcing you to enable
+ACPI and pray it actually works. 
 
-Thanks
-Maneesh
+This is one area where Gigabyte seems to be consistently
+better (more user-friendly) than ASUS.
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+/Mikael

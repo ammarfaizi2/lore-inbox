@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262747AbSITOve>; Fri, 20 Sep 2002 10:51:34 -0400
+	id <S262750AbSITOzM>; Fri, 20 Sep 2002 10:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262750AbSITOve>; Fri, 20 Sep 2002 10:51:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60933 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262747AbSITOve>;
-	Fri, 20 Sep 2002 10:51:34 -0400
-Message-ID: <3D8B3708.2060205@mandrakesoft.com>
-Date: Fri, 20 Sep 2002 10:56:08 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262758AbSITOzM>; Fri, 20 Sep 2002 10:55:12 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:56584 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S262750AbSITOzL>; Fri, 20 Sep 2002 10:55:11 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RESEND] Cleanup (BIN|BCD)_TO_(BCD|BIN) usage/macros
-References: <20020917182950.GA726@opus.bloom.county> <3D8776FF.3050504@mandrakesoft.com> <20020920143931.GH726@opus.bloom.county>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15755.14336.739277.700462@laputa.namesys.com>
+Date: Fri, 20 Sep 2002 19:00:16 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Cc: Alexander Viro <viro@math.psu.edu>, Andrew Morton <AKPM@Digeo.COM>
+Subject: locking rules for ->dirty_inode()
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Meat: Turkey Jerky
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> The other thing, is that in general people seem to expect BIN_TO_BCD(X) to
-> not return a value, and just convert X.  Would it be better to replace
-> CONVERT_x to __x then ?
+Hello,
 
+Documentation/filesystems/Locking states that all super operations may
+block, but __set_page_dirty_buffers() calls
 
-My gut feeling is that the users in the majority -- the ones that don't 
-return a value -- are still abnormal.  Side effects on arguments are the 
-rare case in C, even if it is the common case here.
+   __mark_inode_dirty()->s_op->dirty_inode()
 
-But to answer your question, I think s/CONVERT_x/__x/ is better than 
-nothing...
+under mapping->private_lock spin lock. This seems strange, because file
+systems' ->dirty_inode() assume that they are allowed to block. For
+example, ext3_dirty_inode() allocates memory in
 
-	Jeff
+   ext3_journal_start()->journal_start()->new_handle()->...
 
+Nikita.
 

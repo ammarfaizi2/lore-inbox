@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264829AbTFBSS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 14:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264831AbTFBSS7
+	id S264828AbTFBSRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 14:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbTFBSRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 14:18:59 -0400
-Received: from cpmail5.sol.no1.asap-asp.net ([195.225.3.232]:27540 "HELO
-	cpmail5.sol.no1.asap-asp.net") by vger.kernel.org with SMTP
-	id S264829AbTFBSS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 14:18:58 -0400
-Date: Mon, 2 Jun 2003 21:32:23 +0300
-Message-ID: <3E5AD46C000710DA@webmail-fi1.sol.no1.asap-asp.net>
-In-Reply-To: <Pine.LNX.4.50L0.0306022121240.3303-100000@limbo.dnsalias.org>
-From: zipa24@suomi24.fi
-Subject: Re: 2.5.70-mm3
-To: "LKML" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
+	Mon, 2 Jun 2003 14:17:25 -0400
+Received: from dp.samba.org ([66.70.73.150]:30151 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264828AbTFBSRY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 14:17:24 -0400
+Date: Tue, 3 Jun 2003 04:30:47 +1000
+From: Anton Blanchard <anton@samba.org>
+To: roland@redhat.com, mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org
+Subject: FP state in threaded coredumps
+Message-ID: <20030602183047.GF1169@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Jun 2003 zipa24@suomi24.fi wrote:
 
-> There is a new ALSA patch available, but it didn't apply cleanly to -mm3.
-> If I have time later today I'll see if I can apply only ymfpci-related
-> changes and if they help.
+Hi,
 
-The newest ALSA patch touched two ymfpci files, and when I applied them everything
-works fine, so I'd expect next -mm work, too.
+I was adding threaded coredump support to ppc64 and noticed that the
+ELF_CORE_SYNC hook was never called. It looks like we need something
+like this on archs that do lazy FP save/restore to ensure the FP state
+for threads running on other cpus is up to date.
 
-// /
+On ppc64 ELF_CORE_SYNC does an IPI to all cpus that copies FP state into
+the thread struct.
 
-_____________________________________________________________
-Kuukausimaksuton nettiyhteys: http://www.suomi24.fi/liittyma/
-Yli 12000 logoa ja soitto‰‰nt‰: http://sms.suomi24.fi/
+I also got rid of an old function prototype that isnt used in
+binfmt_elf, dump_fpu.
 
+Anton
 
+===== fs/binfmt_elf.c 1.45 vs edited =====
+--- 1.45/fs/binfmt_elf.c	Tue May  6 23:16:37 2003
++++ edited/fs/binfmt_elf.c	Sun Jun  1 09:02:22 2003
+@@ -45,7 +45,6 @@
+ static int load_elf_binary(struct linux_binprm * bprm, struct pt_regs * regs);
+ static int load_elf_library(struct file*);
+ static unsigned long elf_map (struct file *, unsigned long, struct elf_phdr *, int, int);
+-extern int dump_fpu (struct pt_regs *, elf_fpregset_t *);
+ 
+ #ifndef elf_addr_t
+ #define elf_addr_t unsigned long
+@@ -1203,6 +1202,10 @@
+ 	elf_fpxregset_t *xfpu = NULL;
+ #endif
+ 	int thread_status_size = 0;
++
++#ifdef ELF_CORE_SYNC
++	ELF_CORE_SYNC();
++#endif
+ 
+ 	/*
+ 	 * We no longer stop all VM operations.

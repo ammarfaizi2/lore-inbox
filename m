@@ -1,88 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291177AbSBQW1c>; Sun, 17 Feb 2002 17:27:32 -0500
+	id <S292622AbSBQAFN>; Sat, 16 Feb 2002 19:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291192AbSBQW1X>; Sun, 17 Feb 2002 17:27:23 -0500
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:6148
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S291177AbSBQW1S>; Sun, 17 Feb 2002 17:27:18 -0500
-Date: Sun, 17 Feb 2002 17:28:28 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: "Dennis, Jim" <jdennis@snapserver.com>
-cc: Linux <linux-kernel@vger.kernel.org>
-Subject: RE: XFS + rmap?
-In-Reply-To: <Pine.LNX.4.40.0202152352110.16438-100000@coredump.sh0n.net>
-Message-ID: <Pine.LNX.4.40.0202171728050.277-100000@coredump.sh0n.net>
+	id <S292621AbSBQAFE>; Sat, 16 Feb 2002 19:05:04 -0500
+Received: from femail44.sdc1.sfba.home.com ([24.254.60.38]:61362 "EHLO
+	femail44.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S292622AbSBQAEq>; Sat, 16 Feb 2002 19:04:46 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Nicolas Pitre <nico@cam.org>, "Eric S. Raymond" <esr@thyrsus.com>
+Subject: Re: Disgusted with kbuild developers
+Date: Sat, 16 Feb 2002 19:05:29 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0202161055030.16872-100000@xanadu.home>
+In-Reply-To: <Pine.LNX.4.44.0202161055030.16872-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020217000440.FTZN23150.femail44.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 16 February 2002 11:06 am, Nicolas Pitre wrote:
 
--shawn6 is how out. removed pre9-ac4 breaks XFS quota/EXT2/3 quota.
+> Don't tell us that's not doable.  Do it and show us that you can do a
+> perfect translation of CML1 into CML2 with all CML1 structural flaws.
 
-Shawn.
+"Hey, the new VM in 2.4.10 should have replicated the swap overload failure 
+case in 2.4.9!  The first implementation should definitely melt down exactly 
+the same way!  We need to artificially introduce all the flaws in the old 
+one, just to prove it can be done!  Otherwise the new code is not 
+interesting."
 
-On Fri, 15 Feb 2002, Shawn Starr wrote:
+"To get people to try Linux on the desktop, first we need to make it 
+blue-screen just like windows."
 
->
-> you can find it at http://xfs.sh0n.net/2.4
->
-> Now that im all Olympic out it's time to get to work :)
->
-> I'd give it about 30-40 mins for me to get the patch ready. Doing some
-> testing and there's small changes that need to be done.
->
-> Shawn.
->
-> On Fri, 15 Feb 2002, Dennis, Jim wrote:
->
-> >
-> >  Where will you be putting it?
-> >
-> > -----Original Message-----
-> > From: Shawn Starr [mailto:shawn.starr@datawire.net]
-> > Sent: Friday, February 15, 2002 11:03 AM
-> > To: Dennis, Jim
-> > Cc: Linux
-> > Subject: Re: XFS + rmap?
-> >
-> >
-> > Yes, I will be releasing -shawn5 with: rmap-12f + XFS + 2.4.18-rc1 w/
-> > ac's -ac4 of 2.4.18-pre9.
-> >
-> > Shawn.
-> >
-> > On Fri, 2002-02-15 at 13:14, Dennis, Jim wrote:
-> > >
-> > >   Has anyone been using the XFS 2.4.x patches with Rik van Riel's rmap
-> > >  VM patches?  Any known problems with that?
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> > --
-> > Shawn Starr
-> > Developer Support Engineer
-> > Datawire Communication Networks Inc.
-> > 10 Carlson Court, Suite 300
-> > Toronto, ON, M9W 6L2
-> > T: 416-213-2001 ext 179  F: 416-213-2008
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+"It's unfair to compare laptops to desktops unless you first remove the 
+battery from the laptop."
 
+What the...?
+
+Wouldn't it be nice if there was an implementation of CML2 that did 
+everything CML1 did -EXCEPT- for the structural flaws?  Rather than a blind 
+mindless drooling bug-for-bug clone that defeats the whole purpose of 
+reimplementing the thing?
+
+Your requirement seems to be based on the blind assumption that CML1 had 
+nothing whatsoever wrong with it, and CML2 didn't need to be done in the 
+first place.  If that's your argument, then say it directly.  (That might be 
+a defendable position.  The one you just stated isn't.)
+
+As for breaking CML2 so it's capable of producing a configuration that the 
+rulebase says won't compile, the way CML1 can...  You do understand the 
+difference between a procedural and a declarative language, right?
+
+Rob

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263435AbUCTPDK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 10:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263437AbUCTPDK
+	id S263432AbUCTPCV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 10:02:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263437AbUCTPCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 10:03:10 -0500
-Received: from mail-ext.curl.com ([66.228.88.132]:36616 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S263435AbUCTPDH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 10:03:07 -0500
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gznab4lhm.fsf@patl=users.sf.net>
-To: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-References: <20040320083411.GA25934@wohnheim.fh-wedel.de>
-Date: 20 Mar 2004 10:03:05 -0500
-In-Reply-To: <mit.lcs.mail.linux-kernel/20040320083411.GA25934@wohnheim.fh-wedel.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 20 Mar 2004 10:02:21 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:11220
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263432AbUCTPCU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 10:02:20 -0500
+Date: Sat, 20 Mar 2004 16:03:11 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       mjy@geizhals.at, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PREEMPT and server workloads
+Message-ID: <20040320150311.GN9009@dualathlon.random>
+References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <405A584B.40601@cyberone.com.au> <20040319050948.GN2045@holomorphy.com> <20040320121423.GA9009@dualathlon.random> <20040320145111.GD2045@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040320145111.GD2045@holomorphy.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neat stuff!  But...
+On Sat, Mar 20, 2004 at 06:51:11AM -0800, William Lee Irwin III wrote:
+> I may have missed one of his posts where he gave the results from the
+> RT test suite. I found a list of functions with some kind of numbers,
+> though I didn't see a description of what those numbers were and was
+> looking for something more detailed (e.g. the output of the RT
+> instrumentation things he had with and without preempt). This is all
+> mostly curiosity and sort of hoping this gets carried out vaguely
+> scientifically anyway, so I'm not really arguing one way or the other.
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
-
-> + * Files with the S_COWLINK flag set cannot be written to, if more
-> + * than one hard link to them exists.  Ultimately, this function
-> + * should copy the inode, assign the copy to the dentry and lower use
-> + * count of the old inode - one day.
-
-What happens if the disk fills while you are making the copy?  Will
-open(2) on an *existing file* then return ENOSPC?
-
-I do not think you can implement this without changing the interface
-to open(2).  Which means applications have to be made aware of it
-anyway.  Which means you might as well leave your implementation as-is
-and let userspace worry about creating the copy (and dealing with the
-resulting errors).
-
- - Pat
+agreed. what I've seen so far is a great number of graphs, they were
+scientific enough for my needs and covering real life different
+workloads, but I'm not sure what Takashi published exactly, you may want
+to discuss it with him.

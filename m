@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269194AbRGaGbF>; Tue, 31 Jul 2001 02:31:05 -0400
+	id <S269193AbRGaGb4>; Tue, 31 Jul 2001 02:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269193AbRGaGa4>; Tue, 31 Jul 2001 02:30:56 -0400
-Received: from Huntington-Beach.blue-labs.org ([208.179.59.198]:88 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S269194AbRGaGat>; Tue, 31 Jul 2001 02:30:49 -0400
-Message-ID: <3B664FE2.9090702@blue-labs.org>
-Date: Tue, 31 Jul 2001 02:27:46 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010730
-X-Accept-Language: en-us
+	id <S269195AbRGaGbr>; Tue, 31 Jul 2001 02:31:47 -0400
+Received: from titan.golden.net ([199.166.210.90]:43473 "EHLO titan.golden.net")
+	by vger.kernel.org with ESMTP id <S269193AbRGaGbd>;
+	Tue, 31 Jul 2001 02:31:33 -0400
+From: "John L. Males" <software_iq@TheOffice.net>
+Organization: Toronto, Ontario, Canada
+To: linux-kernel@vger.kernel.org
+Date: Tue, 31 Jul 2001 02:31:25 -0500
 MIME-Version: 1.0
-To: Tony.Lill@ajlc.waterloo.on.ca
-CC: linux-kernel@vger.kernel.org
-Subject: Re: laptops and journalling filesystems
-In-Reply-To: <200107310254.WAA22236@spider.ajlc.waterloo.on.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Linux Kernel 2.4.8-pre2 Compile Attempts
+Reply-to: software_iq@TheOffice.net
+Message-ID: <3B66187D.17040.4C80F5@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-My laptop works quite well with reiserfs, maybe you have some program 
-that is doing the diddling?  Once my disk goes to sleep, it stays asleep 
-until I do something that isn't in the cache or needs to be written out 
-of the cache.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-David
+Hello,
 
-Tony Lill wrote:
+Without giving the gory details, I am curious to know if there are
+still problems compiling the 2.4.8-pre2 kernel (2.4.7 + 2.4.8-pre2
+patch).  Specifically the "make modules" does not complete dues to
+some errors, the kernel compiles, but will not start after it is
+decompressed, if one uses the "-k -i" options of make for the modules
+to skip those that are really not a big concern to me anyway, there
+seems to be problems with "make modules_install" either not working
+or some other strange thing.  Also what is installed in /lib/modules
+tree is not just modules, but some extensive set of the kernel source
+tree with object code mixed in for adventure of finding.
 
->Do any of the current batch of journalling filesystems NOT diddle the
->disk every 5 seconds? I've tried reiser and ext3 and they're both
->antithetic to spinning down the disk. Any plans to fix this bug in
->future kernels?
->--
->Tony Lill,                         Tony.Lill@AJLC.Waterloo.ON.CA
->President, A. J. Lill Consultants        fax/data (519) 650 3571
->539 Grand Valley Dr., Cambridge, Ont. N3H 2S2     (519) 241 2461
->--------------- http://www.ajlc.waterloo.on.ca/ ----------------
->"Welcome to All Things UNIX, where if it's not UNIX, it's CRAP!"
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+All I really wanted to do was give the 2.4.8pre2 kernel a try to see
+if memory management was improved with the recent approaches.  I did
+try a prior 2.4 kernel, not sure, but think it was 2.4.4 and it had
+its share of compile problems via make.  Am I completely out to lunch
+here, or should I just hang in.  I am doing ok with the 2.2.19 Linus
+Kernel with the Openwall patch, but I really would like to observe
+the work in memory management of the kernel to determine if may
+observations on how memory is management in the bigger picture to
+determine if I wish to offer my observations to the memory management
+discussion.
 
 
+Regards,
+
+John L. Males
+Software I.Q. Consulting
+Toronto, Ontario
+Canada
+31 July 2001 02:31
+mailto:software_iq@TheOffice.net
+mailto:jlmales@softhome.net
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.8 for non-commercial use <http://www.pgp.com>
+
+iQA/AwUBO2ZeyfLzhJbmoDZ+EQLWMQCeJCO8ncZ8WW51ufl+CWt2oLhDsmoAnj4U
+XmokefDd3smnPvFBdoO9wdDd
+=XX0U
+-----END PGP SIGNATURE-----
 

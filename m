@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319652AbSIMOAr>; Fri, 13 Sep 2002 10:00:47 -0400
+	id <S319653AbSIMOTJ>; Fri, 13 Sep 2002 10:19:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319650AbSIMOAq>; Fri, 13 Sep 2002 10:00:46 -0400
-Received: from madhouse.demon.co.uk ([158.152.8.97]:61394 "EHLO
-	madhouse.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S319648AbSIMOAq>; Fri, 13 Sep 2002 10:00:46 -0400
-To: <linux-kernel@vger.kernel.org>
-From: abuse@madhouse.demon.co.uk (Andrew Bray)
-Subject: Extracting CONFIG_IKCONFIG data from 2.4.19-ac4
-Date: 13 Sep 2002 13:50:14 GMT
-Organization: Private Internet Node
-Message-ID: <slrnao3r8m.si3.abuse@madhouse.demon.co.uk>
-Reply-To: andy@@chaos.org.uk
-X-Trace: madhouse.demon.co.uk 1031925014 16371 127.0.0.1 (13 Sep 2002 13:50:14 GMT)
-X-Complaints-To: news@madhouse.demon.co.uk
-NNTP-Posting-Date: 13 Sep 2002 13:50:14 GMT
-Summary: binoffset ikconfig
-User-Agent: slrn/0.9.6.4 (Linux)
+	id <S319655AbSIMOTJ>; Fri, 13 Sep 2002 10:19:09 -0400
+Received: from f116.pav2.hotmail.com ([64.4.37.116]:24851 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S319653AbSIMOTI>;
+	Fri, 13 Sep 2002 10:19:08 -0400
+X-Originating-IP: [202.140.142.131]
+From: "Parthiban M" <parthi_m@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: skotra@npd.hcltech.com, pamanick@npd.hcltech.com, nramamur@npd.hcltech.com
+Subject: Query on code space and data space !
+Date: Fri, 13 Sep 2002 19:53:55 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F116NqfYwAYmY3pYNIT00019d42@hotmail.com>
+X-OriginalArrivalTime: 13 Sep 2002 14:23:55.0721 (UTC) FILETIME=[313A1390:01C25B31]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using kernel 2.4.19-ac4 and I have been looking at using 
-CONFIG_IKCONFIG to record the configuration in the kernel image.
 
-I have a question about this:
+Hi all :
 
-There is a handy looking script in scripts/extract-ikconfig.  This
-uses a command called 'binoffset'.  I have never heard of this, can
-anyone point me to a source of binoffset, or an alternative to
-extract-ikconfig?
+I'm using a linux box running RH7.3 (kernel 2.4.18-3).
+I've inserted one kernel module and I need information
+on how much code space and data space my module
+has consumed.
 
-Regards,
+Is there any way to know these statistics ? Doing a
+cat  /proc/<process ID>/status (or stat or statm)
+showed some information. But I'm not very clear.
 
-Andy
+Any pointers in this regard are highly appreciated.
 
--- 
------------------------------------------------------------------------------
-Andrew Bray, PWMS, MA,              |  preferred:    mailto:andy@chaos.org.uk
-London, England                     |  or:   mailto:andy@madhouse.demon.co.uk
-PGP id/fingerprint:  D811F5C9/26 B5 42 C6 F4 00 B2 71 BA EA 9B 81 6C 65 59 07
+Thanks,
+Parthi.
+
+
+--
+http://san.hcltech.com
+www.hcltechnologies.com
+
+
+
+
+Thx,
+Parthi.
+
+
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
 

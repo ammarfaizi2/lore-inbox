@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272682AbTG1Gv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 02:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272683AbTG1Gv3
+	id S272684AbTG1GyY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 02:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272685AbTG1GyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 02:51:29 -0400
-Received: from web20203.mail.yahoo.com ([216.136.226.58]:30056 "HELO
-	web20203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S272682AbTG1Gv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 02:51:26 -0400
-Message-ID: <20030728070639.8611.qmail@web20203.mail.yahoo.com>
-Date: Mon, 28 Jul 2003 00:06:39 -0700 (PDT)
-From: Raghava Vatsavayi <rajuraghava@yahoo.com>
-Subject: DMA Mapping???
-To: linux-kernel@vger.kernel.org
+	Mon, 28 Jul 2003 02:54:24 -0400
+Received: from outmail.cc.huji.ac.il ([132.64.1.21]:2006 "EHLO
+	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S272684AbTG1GyV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 02:54:21 -0400
+Message-ID: <3F24C0F4.9070809@mscc.huji.ac.il>
+Date: Mon, 28 Jul 2003 09:21:40 +0300
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+Organization: Hebrew University of Jerusalem
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030713
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: hugang <hugang@soulinfo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmware version >=4
+References: <3F24BA60.9050503@mscc.huji.ac.il> <20030728145636.70fd45de.hugang@soulinfo.com>
+In-Reply-To: <20030728145636.70fd45de.hugang@soulinfo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-RAVMilter-Version: 8.4.2(snapshot 20021217) (pluto.mscc.huji.ac.il)
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.14; VAE: 6.20.0.1; VDF: 6.20.0.26; host: mail3.cc.huji.ac.il)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hugang wrote:
+> On Mon, 28 Jul 2003 08:53:36 +0300
+> Voicu Liviu <pacman@mscc.huji.ac.il> wrote:
+> 
+> 
+>>Hi,
+>>I know there is a patch to make vmware compile against kernel >=2.5x
+>>Any one could help me?
+>>Thanks,
+>>
+>>-- 
+> 
+> 
+> http://ftp.cvut.cz/vmware/vmware-any-any-update37.tar.gz
+> 
+Thank you very much,
 
-Our ethernet driver performance is not so good in
-powerpc machines. I have attached a link for a patch
-and brief description below, which talks about 
-alignment of dma memory for rx and tx buffers. 
-So my question is, Will there be increase in 
-performance on powerpc machines if I also align my 
-tx/rx dma pointers?????
+-- 
+Voicu Liviu
+Rothberg International School
+Computation center, Mount Scopus
+Hebrew University of Jerusalem
+Tel: 972(2)-5881253
+E-mail: pacman@mscc.huji.ac.il
 
+Operating System: Linux Gentoo1.4 ( www.gentoo.org )
 
+Click here to see my GPG signature:
+	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
 
-Description:
-PCI bridge peculiarities mean the insufficiently
-aligned DMAs perform terribly on Power4 hardware. This
-hack copies and realigns packets to improve
-performance.  
- 
-
-http://oss.software.ibm.com/linux/patches/?patch_id=881
-
-
-Please mail me at rajuraghava@yahoo.com
-
-Cheers
-Raghav.
-
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com

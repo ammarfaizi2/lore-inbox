@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266059AbUAFBW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 20:22:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266068AbUAFBW3
+	id S266058AbUAFBUl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 20:20:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266059AbUAFBUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 20:22:29 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34001 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266059AbUAFBW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 20:22:27 -0500
-Date: Tue, 6 Jan 2004 02:22:23 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrea Barisani <lcars@infis.univ.trieste.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.0, wrong Kconfig directives
-Message-ID: <20040106012223.GD11523@fs.tum.de>
-References: <20031222235622.GA17030@sole.infis.univ.trieste.it> <20040105221732.GG10569@fs.tum.de> <20040105225954.GA9382@sole.infis.univ.trieste.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040105225954.GA9382@sole.infis.univ.trieste.it>
-User-Agent: Mutt/1.4.1i
+	Mon, 5 Jan 2004 20:20:41 -0500
+Received: from us01smtp2.synopsys.com ([198.182.44.80]:9097 "EHLO
+	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S266058AbUAFBUj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 20:20:39 -0500
+Reply-To: <Paul.Zimmerman@synopsys.com>
+From: "Paul Zimmerman" <Paul.Zimmerman@synopsys.com>
+To: "Rob Landley" <rob@landley.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: udev and devfs - The final word
+Date: Mon, 5 Jan 2004 17:20:37 -0800
+Message-ID: <LNBBKKJNHNDCOAMAOENDAEAODGAA.paulz@synopsys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 11:59:54PM +0100, Andrea Barisani wrote:
-> Hi!
+On Tuesday 06 January 2004 00:31 Rob Landley wrote:
+> What about kernel upgrades?  Future backwards compatability when
+developers
+> change the device enumeration methods?  (The sata driver got completely
+> rewritten from scratch, and now it detects devices in a wildly different
+> order, but we need this shim layer for backwards compatability with a
+> guarantee we never should have made because we encouraged old scripts to
+> remain broken.)  This plants hidden land mines restricting future
+> development.  You're basically proposing a whole "device number
+stabilization
+> infrastructure" for future kernels if it's to have ANY meaning at all...
 
-Hi Andrea!
+Did people really write scripts that used major:minor numbers to refer to
+devices? I would have thought they would use the /dev/xxx name, and those
+will
+not change when "random" device numbers are implemented, will they?
 
->...
-> And I really think that MOUSEDEV should not be considered a 'not-standard'
-> option. It's quite common disabling MOUSE support on servers, terminals and
-> so on. :)
-
-If the only effect of an unnecessaryly enabled option are a few kB 
-wasted space, this isn't a big problem in most situations.
-
-If it's easy to accidentially disable an important option, it's good to 
-protect users against doing so.
-
-People who _really_ need the space simply enable EMBEDDED to disable 
-such an option.
-
-> Bye and thanks
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+- Paul
 

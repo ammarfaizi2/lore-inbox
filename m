@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVABDZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVABDmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVABDZx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 22:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVABDZw
+	id S261235AbVABDmf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 22:42:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVABDmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 22:25:52 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:34031 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S261236AbVABDZr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 22:25:47 -0500
-Message-ID: <41D769CE.1070902@verizon.net>
-Date: Sat, 01 Jan 2005 22:26:06 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Sat, 1 Jan 2005 22:42:35 -0500
+Received: from smtp3.oregonstate.edu ([128.193.0.12]:4324 "EHLO
+	smtp3.oregonstate.edu") by vger.kernel.org with ESMTP
+	id S261235AbVABDmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 22:42:32 -0500
+Message-ID: <41D7AF86.2050000@gentoo.org>
+Date: Sun, 02 Jan 2005 00:23:34 -0800
+From: Michael Marineau <marineam@gentoo.org>
+Organization: Gentoo Linux
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041231)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Eugene K <evgfpeters@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to start
-References: <20050102030444.51206.qmail@web51002.mail.yahoo.com>
-In-Reply-To: <20050102030444.51206.qmail@web51002.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Disable Sidewinder debug messages
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [209.158.220.243] at Sat, 1 Jan 2005 21:25:46 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eugene K wrote:
-> For many years I've been involved in OS/kernel and
-> network development on various platforms (including
-> Intel86) and OSes, but I am totally new to Linux. What
-> would be an optimal way for somebody like me to learn
-> both Linux driver development and Linux Kernel
-> internals ?
-> 
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hit http://www.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html - has a good 
-selection of dead-tree and online references.  The kernel-janitors project - 
-http://www.kerneljanitors.org/ - is a good starting point; that's where a lot of 
-kernel hackers get their start.
+Here is a little pach to disable the sidewinder debug messages
+
+signed-off-by: Michael Marineau <marineam@gentoo.org>
+
+- --- linux-2.6.10.orig/drivers/input/joystick/sidewinder.c       2005-01-01 23:06:57.580682749 -0800
++++ linux-2.6.10/drivers/input/joystick/sidewinder.c    2005-01-01 23:08:38.938770296 -0800
+@@ -45,7 +45,7 @@
+  * as well as break everything.
+  */
+
+- -#define SW_DEBUG
++/* #define SW_DEBUG */         /* Enable lots of debugging output */
+
+ #define SW_START       400     /* The time we wait for the first bit [400 us] */
+ #define SW_STROBE      45      /* Max time per bit [45 us] */
+
+
+- --
+Michael Marineau
+marineam@gentoo.org
+Gentoo Linux Developer
+Oregon State University
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFB16+GiP+LossGzjARAkvrAKC7n2sifNEqsyceOYlu/QZwMH3CDwCglNjT
+iHZKz0kCwpRIiW56k/+CJFE=
+=0ckq
+-----END PGP SIGNATURE-----

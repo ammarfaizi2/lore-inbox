@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281745AbRKQQ0W>; Sat, 17 Nov 2001 11:26:22 -0500
+	id <S281765AbRKQQdW>; Sat, 17 Nov 2001 11:33:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280833AbRKQQ0M>; Sat, 17 Nov 2001 11:26:12 -0500
-Received: from flounder.jimking.net ([209.205.176.18]:44554 "EHLO
-	flounder.jimking.net") by vger.kernel.org with ESMTP
-	id <S280826AbRKQQ0D>; Sat, 17 Nov 2001 11:26:03 -0500
+	id <S281775AbRKQQdN>; Sat, 17 Nov 2001 11:33:13 -0500
+Received: from hermes.toad.net ([162.33.130.251]:11239 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S281765AbRKQQdD>;
+	Sat, 17 Nov 2001 11:33:03 -0500
+Subject: Re: 2.4.13-ac8: crash on IBM Thinkpad 600x
+From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: It's me again ...
-In-Reply-To: <m3vggaxin8.excludabilities@totally-fudged-out-message-id>
-From: Tony Reed <Tony@TRLJC.COM>
-Encrypted: : PGP
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1 (i586-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Message-Id: <20011117162600.B95DA15A05@kubrick.trljc.com>
-Date: Sat, 17 Nov 2001 11:26:00 -0500 (EST)
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 17 Nov 2001 11:33:31 -0500
+Message-Id: <1006014813.1183.0.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 
-  Tony Reed <Tony@TRLJC.COM> wrote:
+> 2.4.13-ac8 unfortunately crashes on my IBM Thinkpad 600x every now and
+> then by a kernel panic.  Unfortunately, not syncing.
+> Does anyone has similar experienes and managed a workaround?
 
-:I've been building kernels since 2.2.15 or something, and I've never
-:had problems before, so bear with me.
+I got these crashes.  Every time it happened, the caps-lock
+and scroll-lock lights would turn on and the machine would
+freeze.  I went back to -ac7.
 
-Got it.  Thanks guys, for your patience and hard work.
 
-$ uname -a
-Linux kubrick 2.4.15-pre5 #1 Sat Nov 17 10:28:20 EST 2001 i586 unknown
-
--- 
-   Tony Reed 
-<Tony@TRLJC.COM>

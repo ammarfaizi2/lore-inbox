@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129908AbQLRUap>; Mon, 18 Dec 2000 15:30:45 -0500
+	id <S129406AbQLRUiq>; Mon, 18 Dec 2000 15:38:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130359AbQLRUae>; Mon, 18 Dec 2000 15:30:34 -0500
-Received: from magic.adaptec.com ([208.236.45.80]:54677 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S129908AbQLRUa2>; Mon, 18 Dec 2000 15:30:28 -0500
-Message-ID: <E9EF680C48EAD311BDF400C04FA07B612D4DA4@ntcexc02.ntc.adaptec.com>
-From: "Boerner, Brian" <Brian_Boerner@adaptec.com>
-To: "'linux-kernel@vger.redhat.com'" <linux-kernel@vger.kernel.org>
-Subject: Disabling interrupts in 2.4.x
-Date: Mon, 18 Dec 2000 14:57:19 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129436AbQLRUih>; Mon, 18 Dec 2000 15:38:37 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:2820 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129406AbQLRUib>;
+	Mon, 18 Dec 2000 15:38:31 -0500
+Message-ID: <20001218004227.A2552@bug.ucw.cz>
+Date: Mon, 18 Dec 2000 00:42:27 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Fredrik Vraalsen <vraalsen@cs.uiuc.edu>,
+        Rik van Riel <riel@conectiva.com.br>
+Cc: Chris Lattner <sabre@nondot.org>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        Alexander Viro <viro@math.psu.edu>,
+        "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
+        linux-kernel@vger.kernel.org, orbit-list@gnome.org,
+        korbit-cvs@lists.sourceforge.net
+Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <Pine.LNX.4.21.0012141442390.1437-100000@duckman.distro.conectiva> <sz2g0jq9as0.fsf@kazoo.cs.uiuc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <sz2g0jq9as0.fsf@kazoo.cs.uiuc.edu>; from Fredrik Vraalsen on Thu, Dec 14, 2000 at 11:23:59AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm still trying to get the aacraid driver up and running on 2.4 and have
-worked it down to this final problem. It appears that interrupts are not
-being disabled properly using spin_lock_irqsave. I'm using 2.4.0-test11.
+Hi!
 
-I make this call:
-	spin_lock_irqsave ( &(SpinLock->spin_lock), SpinLock->cpu_flags);
+> The cool thing is that the CorbaFS userspace server can implement any
+> kind of filesystem you want, as long as it follows the CorbaFS
+> interface!  The current implementation exports the filesystem on the
+> host machine that it is running on, similar to NFS.  But we also have
+> ideas for FTP or web filesystems, for example.  Imagine being able to
+> mount the web CorbaFS onto /mnt/www and do a
+>  
+>   cat /mnt/www/www.kernel.org/index.html
 
-where SpinLock is of type pointer to an OS_SPINLOCK structure defined as:
+can you do ls /mnt/www/www.kernel.org/ as well? I'm interested, I came
+to conclusion that web filesystem is not possible... (If you can't do
+listings, it is not really filesystem; you could do
 
-typedef _OS_SPINLOCK {
-	spinlock_t	spin_lock;
-	unsigned 	cpu_lock_count[NR_CPUS];
-	long 		cpu_flag;
-	long		lockout_count;
-} OS_SPINLOCK;
+ cat /mnt/www/www.kernel.org_index.html as well, and that's easy to
+do.) 
 
+> and the CorbaFS userspace server takes care of loading the webpage and
+> returning it to the kernel client.  And these new filesystems don't
+> take up any extra space in the kernel, since they all talk to the same
+> CorbaFS kernel module!  Not to mention being able to implement the
+> filesystem in any language you like, debug the implementation in
+> userspace, etc.
 
-This is the same call that I was making in 2.2.x kernel and don't have any
-problems.
-
-I would expect this function to disable interrupts, but given the scale of
-change between 2.2.x spinlock.h and 2.4.x spinlock.h I'm just not sure
-anymore. 
-
-The only thing I am sure of is that interrupts are simply not disabled.
-
-I've also looked at some other scsi drivers that are disabling interrupts
-and they appear to be making similar calls to spin_lock_irqsave.
-
-Does anyone have any suggestions for debugging this? Is there a call that
-can be made to find out if interrupts are actually disabled?
-
-Brian M. Boerner
-System Software Developer
-Adaptec, Inc.
-Nashua, NH 03060
-
+codafs can do pretty much the same.
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

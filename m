@@ -1,197 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315806AbSGYRe3>; Thu, 25 Jul 2002 13:34:29 -0400
+	id <S315779AbSGYRa0>; Thu, 25 Jul 2002 13:30:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316089AbSGYReN>; Thu, 25 Jul 2002 13:34:13 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47856 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S315806AbSGYRbo>;
-	Thu, 25 Jul 2002 13:31:44 -0400
-Message-ID: <3D4036A0.6FAA303@mvista.com>
-Date: Thu, 25 Jul 2002 10:34:24 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Per Gregers Bilse <bilse@qbfox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 clock warps 4294 seconds
-References: <200207251036.LAA04618@spirit.qbfox.com>
+	id <S315856AbSGYRa0>; Thu, 25 Jul 2002 13:30:26 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:64643
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S315779AbSGYRaZ>; Thu, 25 Jul 2002 13:30:25 -0400
+Date: Thu, 25 Jul 2002 10:33:33 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] A generic RTC driver [2/3]
+Message-ID: <20020725173333.GE746@opus.bloom.county>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Per Gregers Bilse wrote:
-> 
-> On Jul 25, 11:01am, Per Gregers Bilse <bilse@qbfox.com> wrote:
-> > Ie, set flag/value in do_fast_gettimeoffset(), check/print in
-> > do_gettimeofday().  I figure that should catch it if it happens
-> > again, and safely so.
-> 
-> Not sure if that's the right thing to do, the check succeeds very
-> frequently.  A modified version, printing only every 1000th time,
-> yields:
-
-You have the number a bit low.  If I recall, this is an 800
-MHz machine, so each TSC tick is 1.25 nano seconds.  This
-means your threshold (with 5,000,000) is 6.25 ms.  The
-system should easily recover from anything up to about 9.9
-ms.  If you were to use 8,000,000 it would trigger on loss
-of a tick (i.e. 10 ms).  On the other hand, the warp you see
-is caused by the subtract overflowing.  For this the test
-would be something like:
-
-if ( eax & 0x80000000)  (i.e. is the sign bit set?)  OR you
-could do:
-
-if ( (int)eax < 0)
-
-
-Now if we are convinced that you are having these long
-"black outs" the question turns to why.  We are talking
-about an interrupt hold off here, not a preemption issue. 
-The first thing I would check is that you are using DMA for
-you disc transfers.  To the best of my knowledge, the
-default config file still has DMA off for these transfers
-and this can cause long delays.  Beyond this, I would look
-for special content in your system.  From the analytical
-point of view, some analysis of what is running when this
-happens might be of use.
-
--g
-
-
-> 
-> Jul 25 11:18:36 vulpes kernel: do_gettimeofday warp 0 eax 6968466
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 1000 eax 5301486
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 2000 eax 5814470
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 3000 eax 6238995
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 4000 eax 6662828
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 5000 eax 7109559
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 6000 eax 7534440
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 7000 eax 7959034
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 8000 eax 6302366
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 9000 eax 6736399
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 10000 eax 7160461
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 11000 eax 7584511
-> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 12000 eax 5855713
-> Jul 25 11:19:15 vulpes kernel: do_gettimeofday warp 13000 eax 6265463
-> Jul 25 11:19:15 vulpes kernel: do_gettimeofday warp 14000 eax 7992560
-> Jul 25 11:19:15 vulpes kernel: do_gettimeofday warp 15000 eax 6263791
-> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 16000 eax 5247486
-> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 17000 eax 6358315
-> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 18000 eax 7393344
-> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 19000 eax 6237626
-> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 20000 eax 6406708
-> Jul 25 11:19:21 vulpes kernel: do_gettimeofday warp 21000 eax 6005906
-> Jul 25 11:19:21 vulpes kernel: do_gettimeofday warp 22000 eax 5056750
-> Jul 25 11:19:23 vulpes kernel: do_gettimeofday warp 23000 eax 6434750
-> Jul 25 11:19:24 vulpes kernel: do_gettimeofday warp 24000 eax 5093940
-> Jul 25 11:19:25 vulpes kernel: do_gettimeofday warp 25000 eax 6269335
-> Jul 25 11:19:26 vulpes kernel: do_gettimeofday warp 26000 eax 5596617
-> Jul 25 11:19:27 vulpes kernel: do_gettimeofday warp 27000 eax 7918244
-> Jul 25 11:19:29 vulpes kernel: do_gettimeofday warp 28000 eax 7266647
-> Jul 25 11:19:33 vulpes kernel: do_gettimeofday warp 29000 eax 5293260
-> Jul 25 11:19:53 vulpes kernel: do_gettimeofday warp 30000 eax 6751016
-> Jul 25 11:21:32 vulpes kernel: do_gettimeofday warp 31000 eax 6213632
-> Jul 25 11:23:24 vulpes kernel: do_gettimeofday warp 32000 eax 6997568
-> Jul 25 11:24:16 vulpes kernel: do_gettimeofday warp 33000 eax 5326413
-> Jul 25 11:25:10 vulpes kernel: do_gettimeofday warp 34000 eax 5717715
-> Jul 25 11:25:37 vulpes kernel: do_gettimeofday warp 35000 eax 6464694
-> Jul 25 11:26:19 vulpes kernel: do_gettimeofday warp 36000 eax 5969042
-> Jul 25 11:27:05 vulpes kernel: do_gettimeofday warp 37000 eax 7196006
-> Jul 25 11:28:10 vulpes kernel: do_gettimeofday warp 38000 eax 7129216
-> Jul 25 11:28:40 vulpes kernel: do_gettimeofday warp 39000 eax 5971848
-> Jul 25 11:29:04 vulpes kernel: do_gettimeofday warp 40000 eax 6347832
-> Jul 25 11:29:38 vulpes kernel: do_gettimeofday warp 41000 eax 6769141
-> Jul 25 11:30:19 vulpes kernel: do_gettimeofday warp 42000 eax 5279110
-> Jul 25 11:31:18 vulpes kernel: do_gettimeofday warp 43000 eax 6256288
-> Jul 25 11:31:34 vulpes kernel: do_gettimeofday warp 44000 eax 6483175
-> 
-> Here are complete code excerpts from arch/i386/kernel/time.c,
-> look for glob_eax:
-> 
-> static unsigned long glob_eax;
-> 
-> static inline unsigned long do_fast_gettimeoffset(void)
-> {
->         register unsigned long eax, edx;
-> 
->         /* Read the Time Stamp Counter */
-> 
->         rdtsc(eax,edx);
-> 
->         /* .. relative to previous jiffy (32 bits is enough) */
->         eax -= last_tsc_low;    /* tsc_low delta */
-> 
->         if ( eax > 5000000 ) {
->                 glob_eax = eax;
->                 return delay_at_last_interrupt;
->         }
-> 
->         /*
->          * Time offset = (tsc_low delta) * fast_gettimeoffset_quotient
->          *             = (tsc_low delta) * (usecs_per_clock)
->          *             = (tsc_low delta) * (usecs_per_jiffy / clocks_per_jiffy)
->          *
->          * Using a mull instead of a divl saves up to 31 clock cycles
->          * in the critical path.
->          */
-> 
->         __asm__("mull %2"
->                 :"=a" (eax), "=d" (edx)
->                 :"rm" (fast_gettimeoffset_quotient),
->                  "0" (eax));
-> 
->         /* our adjusted time offset in microseconds */
->         return delay_at_last_interrupt + edx;
-> }
-> 
-> void do_gettimeofday(struct timeval *tv)
-> {
->         unsigned long flags;
->         unsigned long usec, sec;
->         static unsigned warp;
-> 
->         read_lock_irqsave(&xtime_lock, flags);
->         usec = do_gettimeoffset();
->         {
->                 unsigned long lost = jiffies - wall_jiffies;
->                 if (lost)
->                         usec += lost * (1000000 / HZ);
->         }
->         sec = xtime.tv_sec;
->         usec += xtime.tv_usec;
->         read_unlock_irqrestore(&xtime_lock, flags);
-> 
->         while (usec >= 1000000) {
->                 usec -= 1000000;
->                 sec++;
->         }
-> 
->         tv->tv_sec = sec;
->         tv->tv_usec = usec;
-> 
->         if ( glob_eax != 0 ) {
->                 if ( warp % 1000 == 0 )
->                         printk("do_gettimeofday warp %u eax %lu\n",warp,glob_eax);
->                 warp++;
->                 glob_eax = 0;
->         }
-> }
-> 
-> Is this correctly detecting the problem?  Or is the low word (eax) of the TSC
-> a red herring?
-> 
-> Thanks.
-> 
->   -- Per
+This is part 2 of 3 of the genrtc driver work.  This is the PPC portion
+of the patch, which creates include/asm-ppc/rtc.h.  This has been in the
+PPC bitkeeper tree for over a month now.  I can have Paul Mackerras send
+this to you instead, if you prefer.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
+
+--- /dev/null	1969-12-31 17:00:00.000000000 -0700
++++ linux-2.5/include/asm-ppc/rtc.h	2002-07-23 09:20:47.000000000 -0700
+@@ -0,0 +1,89 @@
++/* 
++ * inclue/asm-ppc/rtc.h
++ *
++ * Copyright 2002 MontaVista Software Inc.
++ * Author: Tom Rini <trini@mvista.com>
++ *
++ * Based on:
++ * include/asm-m68k/rtc.h
++ *
++ * Copyright Richard Zidlicky
++ * implementation details for genrtc/q40rtc driver
++ *
++ * And the old drivers/macintosh/rtc.c which was heavily based on:
++ * Linux/SPARC Real Time Clock Driver
++ * Copyright (C) 1996 Thomas K. Dyas (tdyas@eden.rutgers.edu)
++ *
++ * With additional work by Paul Mackerras and Franz Sirl.
++ */
++/* Please read the COPYING file for all license details. */
++
++#ifndef __ASM_RTC_H__
++#define __ASM_RTC_H__
++
++#ifdef __KERNEL__
++
++#include <linux/rtc.h>
++
++#include <asm/machdep.h>
++#include <asm/time.h>
++
++#define RTC_PIE 0x40		/* periodic interrupt enable */
++#define RTC_AIE 0x20		/* alarm interrupt enable */
++#define RTC_UIE 0x10		/* update-finished interrupt enable */
++
++extern void gen_rtc_interrupt(unsigned long);
++
++/* some dummy definitions */
++#define RTC_SQWE 0x08		/* enable square-wave output */
++#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
++#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
++#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
++
++static inline void get_rtc_time(struct rtc_time *time)
++{
++	if (ppc_md.get_rtc_time) {
++		unsigned long nowtime;
++
++		nowtime = (ppc_md.get_rtc_time)();
++
++		to_tm(nowtime, time);
++
++		time->tm_year -= 1900;
++		time->tm_mon -= 1; /* Make sure userland has a 0-based month */
++	}
++}
++
++/* Set the current date and time in the real time clock. */
++static inline void set_rtc_time(struct rtc_time *time)
++{
++	if (ppc_md.get_rtc_time) {
++		unsigned long nowtime;
++
++		nowtime = mktime(time->tm_year+1900, time->tm_mon+1,
++				time->tm_mday, time->tm_hour, time->tm_min,
++				time->tm_sec);
++
++		(ppc_md.set_rtc_time)(nowtime);
++	}
++}
++
++static inline unsigned int get_rtc_ss(void)
++{
++	struct rtc_time h;
++
++	get_rtc_time(&h);
++	return h.tm_sec;
++}
++
++static inline int get_rtc_pll(struct rtc_pll_info *pll)
++{
++	return -EINVAL;
++}
++static inline int set_rtc_pll(struct rtc_pll_info *pll)
++{
++	return -EINVAL;
++}
++
++#endif /* __KERNEL__ */
++#endif /* __ASM_RTC_H__ */

@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131035AbQKABgY>; Tue, 31 Oct 2000 20:36:24 -0500
+	id <S131041AbQKABxT>; Tue, 31 Oct 2000 20:53:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131090AbQKABgO>; Tue, 31 Oct 2000 20:36:14 -0500
-Received: from hibernia.clubi.ie ([212.17.32.129]:22939 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP
-	id <S131035AbQKABgE>; Tue, 31 Oct 2000 20:36:04 -0500
-Date: Wed, 1 Nov 2000 01:40:24 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S131053AbQKABxJ>; Tue, 31 Oct 2000 20:53:09 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2685 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131041AbQKABxC>; Tue, 31 Oct 2000 20:53:02 -0500
 Subject: Re: scsi-cdrom lockup and ide-scsi problem (both EFS related)
-In-Reply-To: <20001031183357.B11727@suse.de>
-Message-ID: <Pine.LNX.4.21.0011010138070.9072-100000@fogarty.jakma.org>
+To: axboe@suse.de (Jens Axboe)
+Date: Wed, 1 Nov 2000 01:54:11 +0000 (GMT)
+Cc: paul@clubi.ie (Paul Jakma), linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <20001031183357.B11727@suse.de> from "Jens Axboe" at Oct 31, 2000 06:33:57 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13qn6S-00001i-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2000, Jens Axboe wrote:
-
+> > > correctly with SCSI CD-ROM (it's even on Ted's list).
+> > 
+> > doesn't work is one thing.. but an instant lockup? that's a bit
+> > unfriendly. :)
+> 
 > It's untested behaviour at this point, all bets are off. It
 > hasn't oopses here though...
-> 
 
-let me mail you an IRIX EFS CD.. :) 
-
-(only half joking here. if you want one for testing let me know).
-
-> > so once the scsi cdrom is fixed then ide-scsi should work too?
-> 
-> Yup
-
-how far down the TODO list is it? (to this user anyway it's
-important).
-
-thanks for the answers jens,
--- 
-Paul Jakma	paul@clubi.ie
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-The reason that every major university maintains a department of
-mathematics is that it's cheaper than institutionalizing all those people.
+Not just CD either. SCSI disk has the same problem in 2.4 but not 2.2
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

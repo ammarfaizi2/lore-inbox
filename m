@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283560AbRK3IYx>; Fri, 30 Nov 2001 03:24:53 -0500
+	id <S283561AbRK3I1E>; Fri, 30 Nov 2001 03:27:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283556AbRK3IYr>; Fri, 30 Nov 2001 03:24:47 -0500
-Received: from zero.tech9.net ([209.61.188.187]:26379 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S283560AbRK3IYZ>;
-	Fri, 30 Nov 2001 03:24:25 -0500
-Subject: Re: preempt on sparc64
-From: Robert Love <rml@tech9.net>
-To: Phil Sorber <aafes@psu.edu>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1007108416.8043.11.camel@praetorian>
-In-Reply-To: <1007108416.8043.11.camel@praetorian>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 30 Nov 2001 03:24:30 -0500
-Message-Id: <1007108671.28315.11.camel@phantasy>
-Mime-Version: 1.0
+	id <S283559AbRK3I1B>; Fri, 30 Nov 2001 03:27:01 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:14328 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S283564AbRK3I0D>;
+	Fri, 30 Nov 2001 03:26:03 -0500
+Date: Fri, 30 Nov 2001 03:25:59 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [LART] pc_keyb.c changes
+Message-ID: <Pine.GSO.4.21.0111300252030.13367-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-30 at 03:20, Phil Sorber wrote:
-> Does the preemption patch work on sparc64? I just downloaded the 2.4.16
-> kernel and appropriate patches, patched, then make menucondig'd. however
-> i didn't find a place to turn that on. then entire menuconfig is
-> re-organized under the sparc64 tree, maybe this has something to do with
-> it?
+	Could the person who switched from BKL to spin_lock_irqsave() in
+pc_keyb.c please share whatever the hell he had been smoking?  Free clue:
+disabling interrupts for long intervals to improve scalability is right up
+there with fighting for peace and fucking for virginity.
 
-We don't have sparc64 support yet, but I'd be happy to take patches :)
-
-Right now we support i386 and ARM.  SH is done and out soon.  Some other
-work is ongoing.
-
-	Robert Love
+	Linus, could we please revert that crap and feed the authors to
+Larry?  If they are religious about Scalability At Any Cost, Common Sense
+Be Damned(tm) - let's give them a chance to become martyrs...
 

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290772AbSBLFex>; Tue, 12 Feb 2002 00:34:53 -0500
+	id <S290768AbSBLF1N>; Tue, 12 Feb 2002 00:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290782AbSBLFeo>; Tue, 12 Feb 2002 00:34:44 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:5513 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290772AbSBLFef>;
-	Tue, 12 Feb 2002 00:34:35 -0500
-Date: Mon, 11 Feb 2002 21:32:48 -0800 (PST)
-Message-Id: <20020211.213248.48398226.davem@redhat.com>
-To: rth@twiddle.net
-Cc: davidm@hpl.hp.com, anton@samba.org, linux-kernel@vger.kernel.org,
-        zippel@linux-m68k.org
+	id <S290772AbSBLF1C>; Tue, 12 Feb 2002 00:27:02 -0500
+Received: from are.twiddle.net ([64.81.246.98]:28293 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S290768AbSBLF0r>;
+	Tue, 12 Feb 2002 00:26:47 -0500
+Date: Mon, 11 Feb 2002 21:26:44 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: David Mosberger <davidm@hpl.hp.com>
+Cc: "David S. Miller" <davem@redhat.com>, anton@samba.org,
+        linux-kernel@vger.kernel.org, zippel@linux-m68k.org
 Subject: Re: thread_info implementation
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020211212644.A20387@twiddle.net>
-In-Reply-To: <20020211.192334.123921982.davem@redhat.com>
-	<15464.36074.246502.582895@napali.hpl.hp.com>
-	<20020211212644.A20387@twiddle.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20020211212644.A20387@twiddle.net>
+Mail-Followup-To: David Mosberger <davidm@hpl.hp.com>,
+	"David S. Miller" <davem@redhat.com>, anton@samba.org,
+	linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+In-Reply-To: <15464.34183.282646.869983@napali.hpl.hp.com> <20020211.190449.55725714.davem@redhat.com> <15464.35214.669412.477377@napali.hpl.hp.com> <20020211.192334.123921982.davem@redhat.com> <15464.36074.246502.582895@napali.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15464.36074.246502.582895@napali.hpl.hp.com>; from davidm@hpl.hp.com on Mon, Feb 11, 2002 at 07:32:58PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Richard Henderson <rth@twiddle.net>
-   Date: Mon, 11 Feb 2002 21:26:44 -0800
-   
-   On another topic, I'm considering having $8 continue to be current
-   and using the two-insn stack mask to get current_thread_info and
-   measuring the size difference that makes.
+On Mon, Feb 11, 2002 at 07:32:58PM -0800, David Mosberger wrote:
+> The kernel has many paths that have sequential dependencies.  If there
+> is no other work to do, the compiler won't help you.
 
-I might put 'current' into %g7 on sparc but currently I don't think
-it's worth it myself.
+Indeed.  A 2 cycle latency on a 4-issue processor means you have
+to have quite a large block of code in order for the hot load to
+be "free".
 
-BTW, your "4 issue" comments assume the cpu can do 4 non-FPU
-instructions per cycle, most I am aware of cannot and I think ia64
-even falls into the "cannot" category.  Doesn't it?
+On another topic, I'm considering having $8 continue to be current
+and using the two-insn stack mask to get current_thread_info and
+measuring the size difference that makes.
 
+
+r~

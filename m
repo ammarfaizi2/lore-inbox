@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265834AbSKBA1P>; Fri, 1 Nov 2002 19:27:15 -0500
+	id <S265836AbSKBA1H>; Fri, 1 Nov 2002 19:27:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265835AbSKBA1P>; Fri, 1 Nov 2002 19:27:15 -0500
-Received: from almesberger.net ([63.105.73.239]:39688 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S265834AbSKBA1O>; Fri, 1 Nov 2002 19:27:14 -0500
-Date: Fri, 1 Nov 2002 21:33:25 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Ed Vance <EdV@macrolink.com>
-Cc: "'Richard B. Johnson'" <root@chaos.analogic.com>,
-       Ken Ryan <newsryan@leesburg-geeks.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [STATUS 2.5] October 30, 2002
-Message-ID: <20021101213324.H2599@almesberger.net>
-References: <11E89240C407D311958800A0C9ACF7D1A33C8E@EXCHANGE>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33C8E@EXCHANGE>; from EdV@macrolink.com on Fri, Nov 01, 2002 at 02:25:55PM -0800
+	id <S265835AbSKBA1H>; Fri, 1 Nov 2002 19:27:07 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:65202 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265836AbSKBA1F>;
+	Fri, 1 Nov 2002 19:27:05 -0500
+From: "Venkata Jagana" <jagana@us.ibm.com>
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.45
+To: "David S. Miller" <davem@redhat.com>
+Cc: yoshfuji@wide.ad.jp, kkumar@beaverton.ibm.com, kuznet@ms2.inr.ac.ru,
+       ajtuomin@tml.hut.fi, lpetande@tml.hut.fi, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF5B9EF40F.E3D52B05-ON88256C65.000191C7@boulder.ibm.com>
+Date: Fri, 1 Nov 2002 16:32:13 -0800
+X-MIMETrack: Serialize by Router on D03NM036/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 11/01/2002 05:32:21 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Vance wrote:
-> functional as long as he can keep up. For the memory, the many separate bit
-> error events would cause only correctable errors, as long as the scrubbing
-> can keep up.
 
-Don't those bit errors have a Poissonian character ? If so, it's
-impossible to "keep up". All you can do is make the interval small
-enough that, on average, it takes a long time until you get hit
-twice (or more often) in that interval.
 
-A better example would be car tires on roads with many randomly
-distributed sharp objects (i.e. such that age does not significantly
-change the odds of tire damage): you can keep going as long as you
-can get a flat tire fixed before another tire gets punctured. But
-sometimes, you may end up with two flat tires, and need a tow truck.
 
-- Werner
+Hello Dave,
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+>Just like a router changes and monitors routes, a home agent daemon
+>would change and monitor mipv6 state.  So for the same reason we don't
+>put OSPF routing databases into the kernel, we do not put the home
+>agent registration into the kernel :-)
+
+I absolutely understand your concerns about keeping the Home Agent
+registration in the kernel. However, I still believe that keeping
+this code in userspace would cause problems for handoffs. (btw, this
+code will never get executed on a regular host - only routers configured
+as Home Agents would be running this code as a module).
+
+Currently, when a Home Agent receives a registration request during the
+Mobile Node's handoff mechanism, it needs to respond in a reasonably
+quick time period so that the sessions on the MN can continue without
+experiencing delays. Longer delays could be harmful for applications
+such as VoIP, for which the latencies are quite critical.
+
+By moving this registration process to userspace, we have no control
+over when the home registration would complete, since there are no
+guarantees when the home agent daemon would run. BTW, according to
+ongoing discussions at Mobile IP WG, it is believed that even few
+hundred millisecs of latencies are not acceptable to critical apps,
+during which time the IP packet transfer is completely stopped.
+With such latency issues, I still believe that moving the registration
+to userspace would create issues for the MN.
+
+Thanks,
+Venkat
+
+----------------------------------------------------------------
+Venkata R Jagana
+IBM Linux Technology Centre, Beaverton
+jagana@us.ibm.com
+Tel: (503) 578 3430 T/L 775-3430
+
+
+

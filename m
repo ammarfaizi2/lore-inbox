@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbTKBVnD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 16:43:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTKBVnD
+	id S261842AbTKBWDF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 17:03:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTKBWDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 16:43:03 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:10418 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261841AbTKBVnA
+	Sun, 2 Nov 2003 17:03:05 -0500
+Received: from out008pub.verizon.net ([206.46.170.108]:56744 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S261842AbTKBWDD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 16:43:00 -0500
-Message-ID: <3FA57A62.7020402@namesys.com>
-Date: Mon, 03 Nov 2003 00:42:58 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Sun, 2 Nov 2003 17:03:03 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: vfat file system over usb fails for 2.6.0.test9
+Date: Sun, 2 Nov 2003 17:03:01 -0500
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: tytso@mit.edu, andersen@codepoet.org, linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-References: <3F9F7F66.9060008@namesys.com>	<20031029224230.GA32463@codepoet.org>	<20031030015212.GD8689@thunk.org>	<3FA0C631.6030905@namesys.com>	<20031030174809.GA10209@thunk.org>	<3FA16545.6070704@namesys.com>	<20031030203146.GA10653@thunk.org>	<3FA211D3.2020008@namesys.com>	<20031031193016.GA1546@thunk.org>	<3FA2CA5E.3050308@namesys.com> <20031031130833.42788aec.davem@redhat.com>
-In-Reply-To: <20031031130833.42788aec.davem@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311021703.01269.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.10.219] at Sun, 2 Nov 2003 16:03:01 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+Two bug reports:
 
->On Fri, 31 Oct 2003 23:47:26 +0300
->Hans Reiser <reiser@namesys.com> wrote:
->
->  
->
->>If you say that names resolve to single objects and never should 
->>resolve to sets of objects, we disagree.
->>    
->>
->
->While I have no personal opinion either way on the utility of such an
->idea, I do think that if we ever do support a "one to many" mapping of
->names to inodes we should make you do the security audit of a full
->Linux system in the presence of this feature, deal?  :-)
->
->
->  
->
-;-)
+I just hooked up my camera, an Olympus that looks like a vfat 
+filesystem over usb, and had to reboot from 2.6.0.test9 back to 
+2.4.23-pre8 before I could get it to mount.  mount kept claiming that 
+/dev/sda1 was not a block device until the reboot to the older 
+kernel..
 
-I don't know how seriously you desire me to take your comment, so 
-forgive me if I take it too seriously.
-
-You can't upgrade existing APIs to handle sets of inodes without 
-changing them in ways that require source code modification, so one can 
-presume that the app writer used the new APIs as correctly as he 
-performs all his other changes to his code.
-
-Agreed?
-
-Of course, bash would be much more secure if we got rid of globbing (*), 
-yes?  Ted, can you write and send a patch in to the bash maintainer for 
-that?    ;-)
+During the reboot, shutdown was hung for a few seconds per partition 
+mounted claiming a bunch of illegal seeks and such.  This has been 
+occuring with module-init-tools-0.9.15pre installed, but did not 
+occur when I was running the 0.9.13pre version.  I'm gonna put 
+0.9.13pre back in unless there is a good reason not to, so hit me 
+with it, please.
 
 -- 
-Hans
-
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315277AbSDWRk7>; Tue, 23 Apr 2002 13:40:59 -0400
+	id <S315285AbSDWRl4>; Tue, 23 Apr 2002 13:41:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315278AbSDWRk6>; Tue, 23 Apr 2002 13:40:58 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:2693 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S315277AbSDWRk5>; Tue, 23 Apr 2002 13:40:57 -0400
-Message-ID: <3CC59124.576C5719@nortelnetworks.com>
-Date: Tue, 23 Apr 2002 12:51:48 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: exporting task_nice in O(1)-sched
-In-Reply-To: <20020423152749.GC1697@werewolf.able.es> <1019582164.1465.110.camel@phantasy>
+	id <S315287AbSDWRlz>; Tue, 23 Apr 2002 13:41:55 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:56536 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315285AbSDWRlv>;
+	Tue, 23 Apr 2002 13:41:51 -0400
+Date: Tue, 23 Apr 2002 10:41:35 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] task cpu affinity syscalls for 2.4-O(1)
+Message-ID: <20020423104135.B1904@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <20020423093634.A1904@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.44.0204231635410.12991-100000@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Tue, Apr 23, 2002 at 04:41:10PM +0200, Ingo Molnar wrote:
 > 
-> On Tue, 2002-04-23 at 11:27, J.A. Magallon wrote:
+> well, my goal was the following: the migration thread makes sure that the
+> migrated thread will *not* run on that particular CPU. The only issue the
+> migration thread is for is to 'push' the migrated thread from its current
+> CPU.
 > 
-> > Found this building bproc. New O(1) scheduler kills the nice field in
-> > task struct. It gives a way to fix the niceness (set_user_nice()), but
-> > the funtion to _query_ is not exported. Any particular reason ?
+> so we first set the cpus_allowed mask, then we schedule the migration
+> thread (which is a highest RT priority thread) if the thread is running on
+> an invalid CPU.
 > 
-> Probably because Ingo intended to hide as many interfaces to the
-> scheduler as possible and only export those symbols that were needed.
+> load_balance() moving a process to another CPU is in fact makes this job
+> easier, and causes no problems. It will pull a process only to allowed
+> runqueues.
 > 
-> It is safe to export if it is needed.
+> this way it can be guaranteed that after the set_cpus_allowed() call the
+> thread is not running on an invalid CPU.
+> 
+> the affinity setting syscalls added by Robert's patch utilize this
+> underlying mechanizm, but kernel threads call it directly as well. Eg. in
+> the softirqd case it's of importance whether the thread is running on the
+> right CPU or not, after calling set_cpus_allowed().
+> 
+> is there anything else unclear in this area?
 
-Seems kind of silly to be able to set it but not read it...
+Thanks,  I just needed to stare at the migration_thread code a bit 
+more to convince myself that all the special cases were covered.
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Mike

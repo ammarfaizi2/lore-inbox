@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133006AbRAHV4d>; Mon, 8 Jan 2001 16:56:33 -0500
+	id <S135312AbRAHV5M>; Mon, 8 Jan 2001 16:57:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133051AbRAHV4M>; Mon, 8 Jan 2001 16:56:12 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:35104 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135192AbRAHVzy>; Mon, 8 Jan 2001 16:55:54 -0500
-Date: Mon, 8 Jan 2001 22:56:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "Mohammad A. Haque" <mhaque@haque.net>, linux-kernel@vger.kernel.org
-Subject: Re: `rmdir .` doesn't work in 2.4
-Message-ID: <20010108225605.Y27646@athlon.random>
-In-Reply-To: <20010108213036.T27646@athlon.random> <Pine.GSO.4.21.0101081537570.4061-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S132964AbRAHV5G>; Mon, 8 Jan 2001 16:57:06 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:47120 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S133051AbRAHV45>;
+	Mon, 8 Jan 2001 16:56:57 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <200101080124.RAA08134@pizda.ninka.net>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 08 Jan 2001 22:56:48 +0100
+In-Reply-To: "David S. Miller"'s message of "Sun, 7 Jan 2001 17:24:24 -0800"
+Message-ID: <d366jp4sin.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0101081537570.4061-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Jan 08, 2001 at 04:08:58PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 04:08:58PM -0500, Alexander Viro wrote:
-> 	Andrea, fix your code. Linux-only stuff is OK when there is no
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-BTW, "rmdir `pwd`" is not portable either.
+David> I've put a patch up for testing on the kernel.org mirrors:
 
-> portable way to achieve the same result. In your situation such way indeed
-> exists and is prefectly doable in userland. If you want a cute DoWhatIMean
-> wrapper around rmdir(2) - fine, you've just written one of the variants.
+David> /pub/linux/kernel/people/davem/zerocopy-2.4.0-1.diff.gz
 
-As just said I'm really not concerned about my code.
+David> It provides a framework for zerocopy transmits and delayed
+David> receive fragment coalescing.  TUX-1.01 uses this framework.
 
-> Any reasons to keep that in the kernel? None? Thank you, case closed.
+David> Zerocopy transmit requires some driver support, things run as
+David> they did before for drivers which do not have the support
+David> added.  Currently sg+csum driver support has been added to
+David> Acenic, 3c59x, sunhme, and loopback drivers.  We had eepro100
+David> support coded at one point, but it was removed because we
+David> didn't know how to identify the cards which support hw csum
+David> assist vs. ones which could not.
 
-I think it would provide nicer semantics as 2.2.x does.  The performance
-argument seems irrelevant to me.
+I haven't had time to test this patch, but looking over the changes to
+the acenic driver I have to say that I am quite displeased with the
+way the changes were done. I can't comment on how authors of the other
+drivers which were changed feel about it. However I find it highly
+annoying that someone goes off and makes major cosmetic structural
+changes to someone elses code without even consulting the author who
+happens to maintain the code. It doesn't help that the patch reverts
+changes that should not have been reverted.
 
-Andrea
+I don't think it's too much to ask that one actually tries to
+communicate with an author of a piece of code before making such major
+changes and submitting them opting for inclusion in the kernel.
+
+Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

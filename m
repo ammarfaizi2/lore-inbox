@@ -1,76 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbTEMHON (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 03:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTEMHON
+	id S263279AbTEMHQr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 03:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTEMHQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 03:14:13 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:59054 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263301AbTEMHOK (ORCPT
+	Tue, 13 May 2003 03:16:47 -0400
+Received: from [193.98.9.7] ([193.98.9.7]:64193 "EHLO mail.provi.de")
+	by vger.kernel.org with ESMTP id S263279AbTEMHQp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 03:14:10 -0400
-Date: Tue, 13 May 2003 12:48:07 +0530
-From: Bharata B Rao <bharata@in.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-Subject: Re: 2.5.69-mjb1: undefined reference to `blk_queue_empty'
-Message-ID: <20030513124807.A31823@in.ibm.com>
-Reply-To: bharata@in.ibm.com
-References: <9380000.1052624649@[10.10.2.4]> <20030512205139.GT1107@fs.tum.de> <20570000.1052797864@[10.10.2.4]>
+	Tue, 13 May 2003 03:16:45 -0400
+Subject: Re: 2.4.21-rc:  lost interrupt wgen usinf atapi cdrom-drive
+From: Michael Reincke <reincke.m@stn-atlas.de>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E19FTA7-000Mgw-00.arvidjaar-mail-ru@f15.mail.ru>
+References: <E19FTA7-000Mgw-00.arvidjaar-mail-ru@f15.mail.ru>
+Content-Type: text/plain; charset=ISO-8859-15
+Organization: STN ATLAS Elektronik GmbH
+Message-Id: <1052810966.1602.4.camel@pcew80.atlas.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20570000.1052797864@[10.10.2.4]>; from mbligh@aracnet.com on Mon, May 12, 2003 at 08:51:05PM -0700
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 May 2003 09:29:26 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 08:51:05PM -0700, Martin J. Bligh wrote:
+On Tue, 2003-05-13 at 08:21, Andrey Borzenkov wrote:
+> > i upgraded the linux kernel of my computer from 2.4.21-pre4 to
+> > 2.4.21-rc2 and got the following messages in syslog when using my
+> > atapi-cdrom drive:
+> > May 12 09:42:52 pcew80 kernel: hdc: DMA interrupt recovery
+> > May 12 09:42:52 pcew80 kernel: hdc: lost interrupt
+> > May 12 09:42:52 pcew80 kernel: hdc: status timeout: status=0xd0 { Busy }
+> > May 12 09:42:52 pcew80 kernel: hdc: status timeout: error=0x00
+> > May 12 09:42:52 pcew80 kernel: hdc: DMA disabled
+> > May 12 09:42:52 pcew80 kernel: hdc: drive not ready for command
+> > May 12 09:42:52 pcew80 kernel: hdc: ATAPI reset complete
 > 
-> --Adrian Bunk <bunk@fs.tum.de> wrote (on Monday, May 12, 2003 22:51:40 +0200):
 > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   gcc -Wp,-MD,drivers/dump/.dump_blockdev.o.d -D__KERNEL__ -Iinclude 
-> > -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
-> > -mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default 
-> > -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=dump_blockdev 
-> > \-DKBUILD_MODNAME=dump_blockdev -c -o drivers/dump/dump_blockdev.o 
-> > drivers/dump/dump_blockdev.c
-> > drivers/dump/dump_blockdev.c: In function `dump_block_silence':
-> > drivers/dump/dump_blockdev.c:264: warning: implicit declaration of function `blk_queue_empty'
-> > ...
-> > 386/oprofile/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-> > drivers/built-in.o(.text+0x77edaf): In function `dump_block_silence':
-> > : undefined reference to `blk_queue_empty'
-> > ...
-> > make: *** [.tmp_vmlinux1] Error 1
-> > 
-> > <--  snip  -->
-> > 
-> > This is the only occurence of blk_queue_empty in the whole kernel tree.
+> It smells like ide_do_request forgets to enable interrupts when
+> request queue is empty.
 > 
-> Thanks Adrian ... this is LKCD stuff, maybe Suparna / Bharata can fix it?
-> Looks like it disappeared in 2.5.67 or so.
+> drivers/ide/ide-io.c:
 > 
+> void ide_do_request (ide_hwgroup_t *hwgroup, int masked_irq)
+> {
+>         ide_drive_t     *drive;
+>         ide_hwif_t      *hwif;
+>         struct request  *rq;
+>         ide_startstop_t startstop;
+> 
+>         /* for atari only: POSSIBLY BROKEN HERE(?) */
+>         ide_get_lock(&ide_intr_lock, ide_intr, hwgroup);
+> 
+>         /* necessary paranoia: ensure IRQs are masked on local CPU */
+>         local_irq_disable();
+>            ^^^^^^^^
+>               [...]
+>                 if (drive == NULL) {
+>                               [...]
+>                         if (sleep) {
+>                               [...]
+>                         } else {
+>                                 /* Ugly, but how can we sleep for the lock
+>                                  * otherwise? perhaps from tq_disk?
+>                                  */
+> 
+>                                 /* for atari only */
+>                                 ide_release_lock(&ide_intr_lock);
+>                                 hwgroup->busy = 0;
+>                         }
+>                         /* no more work for this hwgroup (for now) */
+>                         return;
+>                    Oops. local_irq_disable remains in effect
+>                      [...]
+>                 spin_unlock(&io_request_lock);
+>                 local_irq_enable();
+>                 ^^^^^^^^^^^^^^^^^^^
+>                         /* allow other IRQs while we start this request */
+>                 startstop = start_request(drive, rq);
+>                 spin_lock_irq(&io_request_lock);
+>                 if (masked_irq && hwif->irq != masked_irq)
+>                         enable_irq(hwif->irq);
+>                 if (startstop == ide_stopped)
+>                         hwgroup->busy = 0;
+> 
+> Ironically it does not release ide_intr_lock in this case but we
+> are not on m68k so we do not care :)
+> 
+> Could you please try to add local_irq_enable() before ide_release_lock() above and see if it helps?
+> It has been reported to have fixed fix problems for other people. OTOH
+> I did have sevral hard lockups with this so there may be more subtle
+> problems issues.
+The hangs and timeouts and total blocking of the cdrom drive seems to be
+away, but the lost interrupt messages are still there.
+But have in mind I've only a quick test so far.
 
-Martin,
+-- 
+Michael Reincke, NUT Team 2 (Software Build Management)
 
-I have already sent you a fix for this. Anyway here it is again.
+STN ATLAS Elektronik GmbH, Bremen (Germany)
+E-mail : reincke.m@stn-atlas.de |  mail: Sebaldsbrücker Heerstr 235    
+phone  : +49-421-457-2302       |        28305 Bremen                  
+fax    : +49-421-457-3913       |
 
---- linux-2.5.69/drivers/dump/dump_blockdev.c.orig	Tue May 13 12:30:49 2003
-+++ linux-2.5.69/drivers/dump/dump_blockdev.c	Tue May 13 12:34:09 2003
-@@ -261,7 +261,7 @@
- 
- 	/* For now we assume we have the device to ourselves */
- 	/* Just a quick sanity check */
--	if (!blk_queue_empty(bdev_get_queue(dump_bdev->bdev))) {
-+	if (elv_next_request(bdev_get_queue(dump_bdev->bdev))) {
- 		/* i/o in flight - safer to quit */
- 		return -EBUSY;
- 	}
 
-Regards,
-Bharata.
+
+

@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264893AbUBRLY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 06:24:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264905AbUBRLY7
+	id S264278AbUBRLCn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 06:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbUBRLCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 06:24:59 -0500
-Received: from mail.shareable.org ([81.29.64.88]:33669 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S264893AbUBRLY6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 06:24:58 -0500
-Date: Wed, 18 Feb 2004 11:24:47 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-Message-ID: <20040218112447.GG28599@mail.shareable.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl> <c0ukd2$3uk$1@terminus.zytor.com> <Pine.LNX.4.58.0402171910550.2686@home.osdl.org> <4032DA76.8070505@zytor.com>
+	Wed, 18 Feb 2004 06:02:43 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8411 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264278AbUBRLCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 06:02:42 -0500
+Date: Wed, 18 Feb 2004 12:02:32 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Erik Tews <erik@debian.franken.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.3
+Message-ID: <20040218110232.GU1308@fs.tum.de>
+References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <20040218101702.GA5551@debian.franken.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4032DA76.8070505@zytor.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040218101702.GA5551@debian.franken.de>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Well, the reason you'd want an out-of-band mechanism is to be able to
-> display it as some kind of escapes.
+On Wed, Feb 18, 2004 at 11:17:02AM +0100, Erik Tews wrote:
+> On Tue, Feb 17, 2004 at 08:15:08PM -0800, Linus Torvalds wrote:
+> > 
+> > Ok, it's out.
+> > 
+> > There were some minimal changes relative to the last -rc4, mostly some 
+> > configuration and build fixes, but a few important one-liners too.
+> 
+> Ext3 doesn't seem to compile without jbd support.
 
-As soon as you go to "display", you need a mechanism to escape lots of
-characters, not just malformed UTF-8.  Consider: \u0000, \u001B,
-\u0007 and such need to be escaped too.
+This is correct.
 
--- Jamie
+How did you manage to get a configuration with ext3 but without JBD?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

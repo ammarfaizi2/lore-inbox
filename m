@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281370AbRKEV55>; Mon, 5 Nov 2001 16:57:57 -0500
+	id <S273269AbRKEV75>; Mon, 5 Nov 2001 16:59:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281382AbRKEV5r>; Mon, 5 Nov 2001 16:57:47 -0500
-Received: from fluent1.pyramid.net ([206.100.220.212]:9006 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S281381AbRKEV5e>; Mon, 5 Nov 2001 16:57:34 -0500
-Message-Id: <4.3.2.7.2.20011105133211.00bbfed0@10.1.1.42>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Mon, 05 Nov 2001 13:43:11 -0800
-To: Jonathan Lundell <jlundell@pobox.com>, dalecki@evision.ag,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>
-From: Stephen Satchell <satch@concentric.net>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Cc: Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Alexander Viro <viro@math.psu.edu>, John Levon <moz@compsoc.man.ac.uk>,
-        linux-kernel@vger.kernel.org,
-        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
-In-Reply-To: <p05100302b80c9aab7f40@[10.128.7.49]>
-In-Reply-To: <4.3.2.7.2.20011105080435.00bc7620@10.1.1.42>
- <200111042213.fA4MDoI229389@saturn.cs.uml.edu>
- <4.3.2.7.2.20011105080435.00bc7620@10.1.1.42>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S281372AbRKEV7r>; Mon, 5 Nov 2001 16:59:47 -0500
+Received: from pool-141-154-110-12.bos.east.verizon.net ([141.154.110.12]:2570
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S273269AbRKEV73>; Mon, 5 Nov 2001 16:59:29 -0500
+To: acpi@phobos.fachschaften.tu-muenchen.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI problems
+In-Reply-To: <20011105123321.GA13301@fefe.de>
+From: Nick Papadonis <nick@coelacanth.com>
+Organization: None
+X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
+ <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
+ !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
+Date: 05 Nov 2001 16:58:26 -0500
+In-Reply-To: <20011105123321.GA13301@fefe.de> (Felix von Leitner's message of "Mon, 5 Nov 2001 13:33:21 +0100")
+Message-ID: <m33d3sswvx.fsf@localhost.localdomain>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Civil Service)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:58 AM 11/5/01 -0800, Jonathan Lundell wrote:
->Either too coarse or too fine, often enough, when we're talking about a 
->semi-independent module. Consider, though, a more legitimate non-bloating 
->use of a version field. Rather than try to support all versions, use it to 
->determine whether the two ends of the communication channel are 
->compatible, and fail gracefully because of the incompatible version. Tell 
->the user to update the app, or whatever.
+Forwarded to the ACPI list.
 
-I have software out in the field that has been around for more than ten 
-years.  Some of it has been maintenance-free (other than the 
-every-other-fortnight bug report that requires a fix) because the 
-underlying operating system didn't change.  Some of it has been a 
-nightmare, requiring changes for each OS release and in some cases with 
-each sub-release in order to keep the feature bloat from knocking out the 
-functionality of the program.
+Felix von Leitner <leitner@fefe.de> writes:
 
-Unlike many of you, my client base doesn't upgrade on a whim.  They stick 
-with what works.  That means all my software has to be able to run up and 
-down the version tree, and I have a real problem maintaining parallel 
-versions of code.  In Linux, I have people on 2.0.34 still.  I have people 
-running some of my software on old versions of Ultrix on hardware that 
-hasn't seen sales for over a decade.  I just found out that software I 
-wrote 20 years ago is STILL in use, and customers were inquiring if I was 
-available to make changes!
-
-And then there is the problem of who pays for my time to make the app 
-update.  I don't charge people for updates as a rule -- that rule may have 
-to change for my Linux apps if this ill-thought-out idea goes into the 
-kernel.  I expend enough effort trying to keep up with the crap coming out 
-of Redmond and Cupertino.
-
-Apologies for the vent, but I just swatted another bug caused by an 
-undocumented change in Windows 2000 that nailed one of my apps but good.  I 
-shudder to think what XP is going to look like when my clients start 
-thinking of "upgrading" their hardware and have XP foisted on them...
-
-Satch
+> Hi!
+> 
+> ACPI is acting up on me.  On my main machine, ACPI used to be unable to
+> power the machine down.  It just said "Power down." and the said there.
+> It worked flawlessly with my notebook (Dell Inspiron 8k).
+> 
+> Now, since about 2.4.10 (?) the situation reversed.  Now ACPI can power
+> down my desktop just fine but my notebook just sits there after the "Power
+> Down." message.  Normally, I press the power button then, but yesterday
+> I was too busy and let the machine sit there and to my utter
+> astonishment, the notebook did power down after several minutes!  I
+> didn't take the exact time, but right now I'm sitting besides the
+> notebook which said "Power down." exactly 3 minutes ago and still is
+> powered on.  Any ideas?
+> 
+> Felix
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262457AbTCRPDR>; Tue, 18 Mar 2003 10:03:17 -0500
+	id <S262464AbTCRPCK>; Tue, 18 Mar 2003 10:02:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262370AbTCRPDR>; Tue, 18 Mar 2003 10:03:17 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:49642
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262457AbTCRPDQ>; Tue, 18 Mar 2003 10:03:16 -0500
-Subject: Re: IDE 48 bit addressing causes data corruption
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Felix Domke <tmbinc@elitedvb.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E772DA1.5080504@elitedvb.net>
-References: <3E772DA1.5080504@elitedvb.net>
-Content-Type: text/plain
+	id <S262459AbTCRPCK>; Tue, 18 Mar 2003 10:02:10 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:48556 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262465AbTCRPCI>; Tue, 18 Mar 2003 10:02:08 -0500
+Date: Tue, 18 Mar 2003 07:13:02 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 467] New: DHCPOFFER is ignored at boottime
+Message-ID: <12730000.1048000382@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048004672.27223.65.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 18 Mar 2003 16:24:32 +0000
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-18 at 14:30, Felix Domke wrote:
-> Can somebody please confirm again that i don't need an atapi-6 (ATA133) 
-> controller to use LBA48 ?
-> 
-> Regulary some people are stating this, and regulary some people tell 
-> that these people are wrong.
+http://bugme.osdl.org/show_bug.cgi?id=467
 
-LBA48 support and UDMA100/133 support are unrelated to one another.
-There are controllers with one or the other, eg the older ALi can do
-UDMA133 but not LBA48
+           Summary: DHCPOFFER is ignored at boottime
+    Kernel Version: 2.5.65
+            Status: NEW
+          Severity: high
+             Owner: acme@conectiva.com.br
+         Submitter: kc0@hotmail.com
 
-Consult your IDE controller vendor
+
+Distribution: Debian sid
+Hardware Environment: toshiba satellite pro 6100, e100 driver.
+Software Environment:
+Problem Description:
+2.5.64 didn't have this problem using the same .config file.
+This is what I see at boottime:
+DHCPREQUEST on eth0 to 255.255.255.255 port 67
+DHCPREQUEST on eth0 to 255.255.255.255 port 67
+DHCPREQUEST on eth0 to 255.255.255.255 port 67 interval 3
+DHCPOFFER from 192.168.0.1
+this is where the kernel should continue booting but instead it goes on with:
+DHCPREQUEST on eth0 to 255.255.255.255 port 67
+DHCPREQUEST on eth0 to 255.255.255.255 port 67
+DHCPREQUEST on eth0 to 255.255.255.255 port 67 interval 4
+DHCPOFFER from 192.168.0.1
+DHCPREQUEST on eth0 to 255.255.255.255 port 67
+.
+.
+.
+
+Steps to reproduce:
+compile 2.5.65 and boot
+
 

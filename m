@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVCOVWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVCOVX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbVCOVWX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 16:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVCOVWW
+	id S261849AbVCOVX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 16:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVCOVX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 16:22:22 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:20097 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261842AbVCOVWU (ORCPT
+	Tue, 15 Mar 2005 16:23:59 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:17629 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261849AbVCOVXr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 16:22:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=bqSUyLf3BDaF/4VIZGkhDAIqftQdefkFlFmQfUB2FHqq6/yVwL9yc1UlDThaMf9SfTdbTrClilbug7tac5DXcUPJSLbA0GgoWs53dxFIKe6l9NGjbR3hZZcJllhXr6JRu9uK47kV3yABqiRRN6wbIrTIkqZ3hnHxvKfoKFK1n6A=
-Message-ID: <c195ebf705031513225b1e2960@mail.gmail.com>
-Date: Tue, 15 Mar 2005 16:22:20 -0500
-From: sean darcy <seandarcy2@gmail.com>
-Reply-To: sean darcy <seandarcy2@gmail.com>
-To: Dave Jones <davej@redhat.com>, sean <seandarcy2@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: where did 2.6.11-bkx go?
-In-Reply-To: <20050315210142.GA15643@redhat.com>
+	Tue, 15 Mar 2005 16:23:47 -0500
+Date: Tue, 15 Mar 2005 22:23:45 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: dtor_core@ameritech.net, linux-usb-devel@lists.sourceforge.net,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [linux-usb-devel] Re: [RFC] Changes to the driver model class code.
+Message-ID: <20050315212345.GA4950@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	David Brownell <david-b@pacbell.net>, dtor_core@ameritech.net,
+	linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
+References: <20050315170834.GA25475@kroah.com> <200503151235.02934.david-b@pacbell.net> <d120d50005031512485125db18@mail.gmail.com> <200503151314.40510.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <d179e2$hq0$1@sea.gmane.org> <20050315210142.GA15643@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503151314.40510.david-b@pacbell.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005 16:01:42 -0500, Dave Jones <davej@redhat.com> wrote:
-..............
-> 
-> Something screwed up in the mirroring scripts it seems.
-> They're in old/
-> 
->                 Dave
+On Tue, Mar 15, 2005 at 01:14:40PM -0800, David Brownell wrote:
+> That pre-driver model stuff went away in maybe 2.6.5 or so, I
+> forget just when.  If you think those changes can easily be
+> reversed, I suggest you think again ... they enabled a LOT of
+> likewise-overdue cleanups. 
+...
+> converting to the driver model has been a win at every step
+> of the way.  It's gone both ways; the driver core has changed
+> to work better with USB too.
 
-Thanks
+Exactly my point: the driver code forces/encourages you to write better
+code. With proper reference counting. And reverting this by making
+"class_simple" default, and possibly doing a similar transition for struct
+device and struct device_driver means that we lose this encouragement. and
+we lose this win-win situation.
 
-sean
+Thanks,
+	Dominik

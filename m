@@ -1,189 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266011AbSKBSft>; Sat, 2 Nov 2002 13:35:49 -0500
+	id <S266016AbSKBShc>; Sat, 2 Nov 2002 13:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266016AbSKBSft>; Sat, 2 Nov 2002 13:35:49 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:26884 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266011AbSKBSfq>;
-	Sat, 2 Nov 2002 13:35:46 -0500
-Date: Sat, 2 Nov 2002 19:41:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: Use akpm's mem freeing code, small cleanups
-Message-ID: <20021102184102.GA162@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S266017AbSKBShc>; Sat, 2 Nov 2002 13:37:32 -0500
+Received: from mail.scram.de ([195.226.127.117]:17097 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S266016AbSKBSh0>;
+	Sat, 2 Nov 2002 13:37:26 -0500
+Date: Sat, 2 Nov 2002 19:37:55 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [BUG] USB Kernel bug in 2.5.45
+Message-ID: <Pine.LNX.4.44.0211021933220.18761-100000@gfrw1044.bocc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-This uses new memory-freeing code from Andrew Morton (thanx!), cleans
-sources a bit and makes suspend possible with md enabled, drivers are
-no longer resumed from atomic context.
+when running "rmmod hid" while a USB HID device is still connected (but
+not used), i get this Oops messages:
 
-Please apply,
-								Pavel
+drivers/usb/core/usb.c: deregistering driver hiddev
+drivers/usb/core/usb.c: deregistering driver hid
+devfs_put(fffffc0009393000): poisoned pointer
+Forcing Oops
+Kernel bug at fs/devfs/base.c:933
 
---- clean/arch/i386/kernel/suspend.c	2002-11-01 00:37:05.000000000 +0100
-+++ linux-swsusp/arch/i386/kernel/suspend.c	2002-10-13 20:19:43.000000000 +0200
-@@ -175,7 +175,6 @@
- 	 * the flags
- 	 */
- 	asm volatile ("pushl %0 ; popfl" :: "m" (saved_context.eflags));
--
- 	do_fpu_end();
- }
- 
---- clean/drivers/md/md.c	2002-11-01 00:37:17.000000000 +0100
-+++ linux-swsusp/drivers/md/md.c	2002-11-01 00:44:22.000000000 +0100
-@@ -37,6 +37,7 @@
- #include <linux/raid/xor.h>
- #include <linux/devfs_fs_kernel.h>
- #include <linux/buffer_head.h> /* for invalidate_bdev */
-+#include <linux/suspend.h>
- 
- #include <linux/init.h>
- 
-@@ -2463,6 +2464,8 @@
- 
- 		wait_event_interruptible(thread->wqueue,
- 					 test_bit(THREAD_WAKEUP, &thread->flags));
-+		if (current->flags & PF_FREEZE)
-+			refrigerator(PF_IOTHREAD);
- 
- 		clear_bit(THREAD_WAKEUP, &thread->flags);
- 
---- clean/kernel/suspend.c	2002-11-01 00:37:42.000000000 +0100
-+++ linux-swsusp/kernel/suspend.c	2002-11-02 19:28:02.000000000 +0100
-@@ -145,10 +145,10 @@
- /*
-  * Debug
-  */
- #undef	DEBUG_DEFAULT
- #undef	DEBUG_PROCESS
- #undef	DEBUG_SLOW
--#define TEST_SWSUSP 1		/* Set to 1 to reboot instead of halt machine after suspension */
-+#define TEST_SWSUSP 0		/* Set to 1 to reboot instead of halt machine after suspension */
- 
- #ifdef DEBUG_DEFAULT
- # define PRINTK(f, a...)       printk(f, ## a)
-@@ -235,6 +235,7 @@
- 	} while(todo);
- 	
- 	printk( "|\n" );
-+	BUG_ON(in_atomic());
- 	return 0;
- }
- 
-@@ -489,7 +490,6 @@
- 			if (PageNosave(page))
- 				continue;
- 
--
- 			if ((chunk_size=is_head_of_free_region(page))!=0) {
- 				pfn += chunk_size - 1;
- 				continue;
-@@ -549,7 +549,7 @@
- 
- 	pagedir_order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
- 
--	p = pagedir = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC, pagedir_order);
-+	p = pagedir = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_COLD, pagedir_order);
- 	if(!pagedir)
- 		return NULL;
- 
-@@ -558,11 +558,12 @@
- 		SetPageNosave(page++);
- 		
- 	while(nr_copy_pages--) {
--		p->address = get_zeroed_page(GFP_ATOMIC);
-+		p->address = get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
- 		if(!p->address) {
- 			free_suspend_pagedir((unsigned long) pagedir);
- 			return NULL;
- 		}
-+		printk(".");
- 		SetPageNosave(virt_to_page(p->address));
- 		p->orig_address = 0;
- 		p++;
-@@ -623,7 +624,7 @@
- static void free_some_memory(void)
- {
- 	printk("Freeing memory: ");
--	while (try_to_free_pages(&contig_page_data.node_zones[ZONE_HIGHMEM], GFP_KSWAPD, 0))
-+	while (shrink_all_memory(10000))
- 		printk(".");
- 	printk("|\n");
- }
-@@ -676,7 +677,7 @@
- 	}
- }
- 
--static int suspend_save_image(void)
-+static int suspend_prepare_image(void)
- {
- 	struct sysinfo i;
- 	unsigned int nr_needed_pages = 0;
-@@ -725,9 +726,15 @@
- 	 *
- 	 * Following line enforces not writing to disk until we choose.
- 	 */
--	drivers_unsuspend();
--	spin_unlock_irq(&suspend_pagedir_lock);
-+
- 	printk( "critical section/: done (%d pages copied)\n", nr_copy_pages );
-+	spin_unlock_irq(&suspend_pagedir_lock);
-+	return 0;
-+}
-+
-+void suspend_save_image(void)
-+{
-+	drivers_unsuspend();
- 
- 	lock_swapdevices();
- 	write_suspend_image();
-@@ -738,7 +745,6 @@
- 	 * filesystem clean: it is not. (And it does not matter, if we resume
- 	 * correctly, we'll mark system clean, anyway.)
- 	 */
--	return 0;
- }
- 
- void suspend_power_down(void)
-@@ -788,8 +794,8 @@
- 
- 	PRINTK( "Freeing prev allocated pagedir\n" );
- 	free_suspend_pagedir((unsigned long) pagedir_save);
--	drivers_resume(RESUME_ALL_PHASES);
- 	spin_unlock_irq(&suspend_pagedir_lock);
-+	drivers_resume(RESUME_ALL_PHASES);
- 
- 	PRINTK( "Fixing swap signatures... " );
- 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
-@@ -804,14 +810,17 @@
- {
- 	mb();
- 	barrier();
-+	BUG_ON(in_atomic());
- 	spin_lock_irq(&suspend_pagedir_lock);
- }
- 
- void do_magic_suspend_2(void)
- {
- 	read_swapfiles();
--	if (!suspend_save_image())
-+	if (!suspend_prepare_image()) {	/* suspend_save_image realeses suspend_pagedir_lock */
-+		suspend_save_image();
- 		suspend_power_down();	/* FIXME: if suspend_power_down is commented out, console is lost after few suspends ?! */
-+	}
- 
- 	printk(KERN_EMERG "%sSuspend failed, trying to recover...\n", name_suspend);
- 	MDELAY(1000); /* So user can wait and report us messages if armageddon comes :-) */
+rmmod(1073): Kernel Bug 1
+pc = [<fffffc00003d4ad4>]  ra = [<fffffc00003d4ac8>]  ps = 0000    Not
+tainted
+Using defaults from ksymoops -t elf64-alpha -a alpha
+v0 = 000000000000000d  t0 = 0000000000000001  t1 = fffffc000058d3a0
+t2 = 0000000000000000  t3 = ffffffff00000000  t4 = 0000000000000001
+t5 = 0000000000000000  t6 = fffffc0000630450  t7 = fffffc0006734000
+a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000000
+a3 = 0000000000000000  a4 = 00000000000000a0  a5 = 000000000000000f
+t8 = 0000000000000000  t9 = 0000000000003fff  t10= 000000000000000f
+t11= 0000000000000010  pv = fffffc000032d160  at = 0000000000000000
+gp = fffffc00006281b0  sp = fffffc0006737d88
+Trace:fffffc00003d63b8 fffffc00003f5ac0 fffffc00003f5bac fffffc00003f6018
+fffffc00003f64ec fffffc00003f65f8 fffffc0000334e94 fffffc0000333db8
+fffffc0000310d44
+Code: a61dfe00  a77daf28  6b5b7556  27ba0025  23bd36e8  00000081
+<000003a5> 0050f363
+>>RA;  fffffc00003d4ac8 <devfs_put+68/1e0>
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+>>PC;  fffffc00003d4ad4 <devfs_put+74/1e0>   <=====
+
+Trace; fffffc00003d63b8 <devfs_unregister+38/60>
+Trace; fffffc00003f5ac0 <detach+60/a0>
+Trace; fffffc00003f5bac <driver_detach+6c/c0>
+Trace; fffffc00003f6018 <bus_remove_driver+78/100>
+Trace; fffffc00003f64ec <put_driver+6c/c0>
+Trace; fffffc00003f65f8 <driver_unregister+18/40>
+Trace; fffffc0000334e94 <free_module+34/160>
+Trace; fffffc0000333db8 <sys_delete_module+1d8/340>
+Trace; fffffc0000310d44 <entSys+a4/b8>
+
+Code;  fffffc00003d4abc <devfs_put+5c/1e0>
+0000000000000000 <_PC>:
+Code;  fffffc00003d4abc <devfs_put+5c/1e0>
+   0:   00 fe 1d a6       ldq  a0,-512(gp)
+Code;  fffffc00003d4ac0 <devfs_put+60/1e0>
+   4:   28 af 7d a7       ldq  t12,-20696(gp)
+Code;  fffffc00003d4ac4 <devfs_put+64/1e0>
+   8:   56 75 5b 6b       jsr  ra,(t12),ffffffffffffd564
+<_PC+0xffffffffffffd564> fffffc00003d2020 <ext2_rename+140/400>
+Code;  fffffc00003d4ac8 <devfs_put+68/1e0>
+   c:   25 00 ba 27       ldah gp,37(ra)
+Code;  fffffc00003d4acc <devfs_put+6c/1e0>
+  10:   e8 36 bd 23       lda  gp,14056(gp)
+Code;  fffffc00003d4ad0 <devfs_put+70/1e0>
+  14:   81 00 00 00       call_pal     0x81
+Code;  fffffc00003d4ad4 <devfs_put+74/1e0>   <=====
+  18:   a5 03 00 00       call_pal     0x3a5   <=====
+Code;  fffffc00003d4ad8 <devfs_put+78/1e0>
+  1c:   63 f3 50 00       call_pal     0x50f363
+
+
+--jochen
+

@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269610AbUIRS4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268693AbUIRTNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269610AbUIRS4w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 14:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269614AbUIRS4w
+	id S268693AbUIRTNR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 15:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUIRTNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 14:56:52 -0400
-Received: from smtp.terra.es ([213.4.129.129]:20678 "EHLO tsmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id S269610AbUIRS4v convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 14:56:51 -0400
-Date: Sat, 18 Sep 2004 20:56:52 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: <Andries.Brouwer@cwi.nl>
+	Sat, 18 Sep 2004 15:13:17 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:38404 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S268693AbUIRTNO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 15:13:14 -0400
+Message-ID: <414C8924.1070701@aknet.ru>
+Date: Sat, 18 Sep 2004 23:14:44 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: hackbench?
-Message-Id: <20040918205652.6b4c1d5a.diegocg@teleline.es>
-In-Reply-To: <UTC200409181807.i8II7IK06013.aeb@smtp.cwi.nl>
-References: <UTC200409181807.i8II7IK06013.aeb@smtp.cwi.nl>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Subject: Re: ESP corruption bug - what CPUs are affected?
+References: <3BFF2F87096@vcnet.vc.cvut.cz> <414C662D.5090607@aknet.ru> <20040918165932.GA15570@vana.vc.cvut.cz>
+In-Reply-To: <20040918165932.GA15570@vana.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AV-Checked: ClamAV using ClamSMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sat, 18 Sep 2004 20:07:18 +0200 (MEST) <Andries.Brouwer@cwi.nl> escribió:
+Hi,
 
-> I was shown results that go in the other direction, so just tried
-> on a machine here.
+Petr Vandrovec wrote:
+>> Does this look reasonable? If it does, I think I
+>> should just start implementing that.
+> Do not forget that you have to implement also return to CPL1, as
+> NMI may arrive while you are running on CPL1.  So it may not be
+> as trivial as it seemed. 
+I am not sure what special actions have to be
+taken here compared to returning to ring-3 from NMI.
+Is there anywhere in the sources an example to take
+a look at? (sorry for the newbie questions)
 
-In a 512 MB dual p3 machine I got this: (hackbench 100)
+> Maybe all these programs survive that
+> their CPL3 stack changes,
+Most likely they will, I am just not sure. What
+if they disabled interrupts and are switching the
+stack by loading the SS and ESP separately? If we
+interrupt it there, there may be the problems, which
+would be almost impossible to track down later.
+It just looks a bit unsafe to me. Or maybe exploit
+a sigaltstack for that? Hmm, is implementing the
+CPL1 trampoline really that difficult after all?
+I think it is somewhat cleaner and maybe safer.
 
-2.4.26: Time: 38.123
-2.6.9-rc2-mm1: Time: 19.505
+> Only problem is how to find that old SS points to 16bit segment.
+> You need LAR and/or you have to peek GDT/LDT to find stack size, 
+Yes, I was thinking about using LAR - looks like the
+most easy and fast way to just get that single bit
+out of LDT.
 
-BTW, in the 2.6 case the kernel didn't have a very nice behaviour: A couple of
-seconds after starting hackbench(after doing the benchmarks), Xorg stopped
-running until hackbench finished. X was using nice 0.
+> and AFAIK LAR is microcoded on P4.
+Where does this lead us to? Some other problems I
+am not aware about?
+

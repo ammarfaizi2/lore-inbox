@@ -1,34 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbULKATk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbULKATw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbULKATk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 19:19:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbULKATk
+	id S261883AbULKATw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 19:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbULKATw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 19:19:40 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:28071 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S261888AbULKATe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 19:19:34 -0500
-Date: Fri, 10 Dec 2004 18:19:16 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: Matt Mackall <mpm@selenic.com>, Bernard Normier <bernard@zeroc.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Concurrent access to /dev/urandom
-In-Reply-To: <20041210212815.GB25409@thunk.org>
-Message-ID: <Pine.LNX.4.58.0412101818310.2173@gradall.private.brainfood.com>
-References: <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org>
- <079001c4dcc9$1bec3a60$6401a8c0@centrino> <20041208192126.GA5769@thunk.org>
- <20041208215614.GA12189@waste.org> <20041209015705.GB6978@thunk.org>
- <20041209212936.GO8876@waste.org> <20041210044759.GQ8876@waste.org>
- <20041210163558.GB10639@thunk.org> <20041210182804.GT8876@waste.org>
- <20041210212815.GB25409@thunk.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Dec 2004 19:19:52 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:23002 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261883AbULKATh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 19:19:37 -0500
+Subject: Re: ide-cd problem revisited - more brainpower needed
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+In-Reply-To: <200412102132.41512.alan@chandlerfamily.org.uk>
+References: <200411201842.15091.alan@chandlerfamily.org.uk>
+	 <200411232149.31701.alan@chandlerfamily.org.uk>
+	 <200411300859.43422.alan@chandlerfamily.org.uk>
+	 <200412102132.41512.alan@chandlerfamily.org.uk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1102720480.3271.79.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 10 Dec 2004 23:14:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is this problem a security issue?  On SMP, couldn't an attacker read from
-/dev/urandom, then know what other programs have read, and use that to do some
-kind of subversion?
+On Gwe, 2004-12-10 at 21:32, Alan Chandler wrote:
+> All the above output is a result of the command (as root) using linux 
+> 2.6.10-rc2 (with acpi turned off to avoid that bug)·
+> 
+
+Is local apic enabled ?
+
+> So what do I do next?  Why would the hardware work this way - is it a bug in 
+> the firmware?, is there a subtle timing problem causing interrupts to 
+> re-enter... should I just junk the hardware and start again?  Help!
+
+A purely armwaving guess of the moment is that if the IRQ routing is
+confused over edge versus level trigger then you would see extra
+interrupts. Does the drive work in another PC (I forget if you tried
+that)
+

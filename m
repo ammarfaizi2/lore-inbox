@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265996AbUAFAJd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266046AbUAFAJF
+	id S266037AbUAFACn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbUAFABS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:09:05 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9879 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266049AbUAFAIk (ORCPT
+	Mon, 5 Jan 2004 19:01:18 -0500
+Received: from mail.kroah.org ([65.200.24.183]:60584 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266037AbUAFAAd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:08:40 -0500
-Date: Mon, 5 Jan 2004 16:08:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-cc: linux-kernel@vger.kernel.org
-Subject: Re: mremap() bug IMHO not in 2.2 
-In-Reply-To: <200401052358.i05NwWIe010594@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.58.0401051604550.5970@home.osdl.org>
-References: <20040105145421.GC2247@rdlg.net> <Pine.LNX.4.58L.0401051323520.1188@logos.cnet>
- <20040105181053.6560e1e3.grundig@teleline.es> <20040105182607.GB2093@pasky.ji.cz>
- <20040105225508.GM2093@pasky.ji.cz>            <Pine.LNX.4.58.0401051532510.5737@home.osdl.org>
- <200401052358.i05NwWIe010594@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jan 2004 19:00:33 -0500
+Date: Mon, 5 Jan 2004 16:00:15 -0800
+From: Greg KH <greg@kroah.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>, Daniel Jacobowitz <dan@debian.org>,
+       Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040106000014.GL30464@kroah.com>
+References: <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040106001326.A1128@pclin040.win.tue.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 5 Jan 2004 Valdis.Kletnieks@vt.edu wrote:
->
-> On Mon, 05 Jan 2004 15:36:41 PST, Linus Torvalds said:
+On Tue, Jan 06, 2004 at 12:13:26AM +0100, Andries Brouwer wrote:
+> On Mon, Jan 05, 2004 at 12:38:54PM -0800, Linus Torvalds wrote:
 > 
-> > So yes, it creates some confusion in the VM layer, but it all seems 
-> > benign. It's clearly a bug, but where does the security problem come in?
+> > Have you even _tried_ udev?
 > 
-> Just guessing, but would a zero-length vma be rounded up to a page, and
-> thus give the attacker scribble permission on a page he shouldn't have had?
+> Yes, and it works reasonably well. I have version 012 here.
+> Some flaws will be fixed in 013 or so.
 
-Almost certainly not.
+What flaws would that be?  The short time delay for partitions?  Or
+something else?
 
-It's more likely that one of the two functions that walk through _all_ the 
-vma's (fork() and exit()) simply knows that a vma can never be 
-zero-length, and uses a
+> Some difficulties are of a more fundamental type, not so easy to fix.
 
-	addr = vma->vm_start;
-	do {
-		...
-		addr += PAGE_SIZE;
-	} while (addr < vma->vm_end);
+Such as?
 
-kind of loop - which means that either fork() or exit() would copy or 
-release one page too many. 
+> But udev is an entirely different discussion. Some other time.
 
-The only page that should matter is likely the one at 0xC0000000, where 
-there can be extra complications from the fact that we use 4MB pages for 
-the kernel, so when fork/exit tries to walk the page table, it would get 
-bogus results.
+Feel free to bring it up on the linux-hotplug-devel list whenever you
+wish.
 
-Still, I'd expect that to lead to a triple fault (and thus a reboot) 
-rather than any elevation of privileges..
+thanks,
 
-Interesting, in any case. Good catch from whoever found it.
-
-		Linus
+greg k-h

@@ -1,68 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275436AbTHIXxh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 19:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275437AbTHIXxg
+	id S275437AbTHIXz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 19:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275438AbTHIXz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 19:53:36 -0400
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:33440 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S275436AbTHIXxY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 19:53:24 -0400
-Date: Sun, 10 Aug 2003 01:42:57 +0200 (CEST)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH] ia32 irq router detection bug in 2.4.22-rc1-ac1
-Message-ID: <Pine.LNX.4.53.0308100136240.1011@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+	Sat, 9 Aug 2003 19:55:26 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:43978 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S275437AbTHIXzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 19:55:24 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy  ...
+Date: Sun, 10 Aug 2003 00:58:16 +0100
+User-Agent: KMail/1.5.3
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com> <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="658386544-1604970508-1060472577=:1105"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308100058.16261.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Saturday 09 August 2003 18:47, Mike Galbraith wrote:
+> 1.  SCHED_SOFTRR tasks can disturb (root) SCHED_RR/SCHED_FIFO tasks as is.
 
---658386544-1604970508-1060472577=:1105
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+What do you mean by "disturb"?
 
-2.4.22-rc1-ac1 can misdetect irq routers because of a typo in the probing 
-code.
+Regards,
 
-Patch attached.
+Daniel
 
-LLaP
-bero
-
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
-
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
---658386544-1604970508-1060472577=:1105
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="2.4.22-rc1-ac1-irq-fix.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0308100142570.1105@dot.kde.org>
-Content-Description: IRQ routing fix
-Content-Disposition: attachment; filename="2.4.22-rc1-ac1-irq-fix.patch"
-
-LS0tIGxpbnV4LTIuNC4yMS9hcmNoL2kzODYva2VybmVsL3BjaS1pcnEuYy5h
-cmsJMjAwMy0wOC0wOSAxNzozODoxMC4wMDAwMDAwMDAgKzAyMDANCisrKyBs
-aW51eC0yLjQuMjEvYXJjaC9pMzg2L2tlcm5lbC9wY2ktaXJxLmMJMjAwMy0w
-OC0wOSAxNzozODo0My4wMDAwMDAwMDAgKzAyMDANCkBAIC04MTksNyArODE5
-LDcgQEANCiAJCWlmIChydC0+cnRyX3ZlbmRvciA9PSBoLT52ZW5kb3IgJiYg
-aC0+cHJvYmUociwgcGlycV9yb3V0ZXJfZGV2LCBydC0+cnRyX2RldmljZSkp
-DQogCQkJYnJlYWs7DQogCQkvKiBGYWxsIGJhY2sgdG8gYSBkZXZpY2UgbWF0
-Y2ggKi8NCi0JCWlmIChwaXJxX3JvdXRlcl9kZXYtPnZlbmRvciA9PSBwaXJx
-X3JvdXRlcl9kZXYtPnZlbmRvciAmJiBoLT5wcm9iZShyLCBwaXJxX3JvdXRl
-cl9kZXYsIHBpcnFfcm91dGVyX2Rldi0+ZGV2aWNlKSkNCisJCWlmIChwaXJx
-X3JvdXRlcl9kZXYtPnZlbmRvciA9PSBoLT52ZW5kb3IgJiYgaC0+cHJvYmUo
-ciwgcGlycV9yb3V0ZXJfZGV2LCBwaXJxX3JvdXRlcl9kZXYtPmRldmljZSkp
-DQogCQkJYnJlYWs7DQogCX0NCiAJcHJpbnRrKEtFUk5fSU5GTyAiUENJOiBV
-c2luZyBJUlEgcm91dGVyICVzIFslMDR4LyUwNHhdIGF0ICVzXG4iLA0K
-
---658386544-1604970508-1060472577=:1105--

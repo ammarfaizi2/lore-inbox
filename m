@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267542AbTBFXj2>; Thu, 6 Feb 2003 18:39:28 -0500
+	id <S267351AbTBFXu0>; Thu, 6 Feb 2003 18:50:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267543AbTBFXj2>; Thu, 6 Feb 2003 18:39:28 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:50314 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267542AbTBFXj1>;
-	Thu, 6 Feb 2003 18:39:27 -0500
-Date: Thu, 6 Feb 2003 18:49:16 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: John Bradford <john@grabjohn.com>, perex@perex.cz,
-       linux-kernel@vger.kernel.org, greg@kroah.com, alan@lxorguk.ukuu.org.uk
-Subject: Re: PnP model
-Message-ID: <20030206184916.GC10021@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	"Grover, Andrew" <andrew.grover@intel.com>,
-	John Bradford <john@grabjohn.com>, perex@perex.cz,
-	linux-kernel@vger.kernel.org, greg@kroah.com,
-	alan@lxorguk.ukuu.org.uk
-References: <F760B14C9561B941B89469F59BA3A84725A154@orsmsx401.jf.intel.com>
-Mime-Version: 1.0
+	id <S267554AbTBFXu0>; Thu, 6 Feb 2003 18:50:26 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:52620 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267351AbTBFXuY>; Thu, 6 Feb 2003 18:50:24 -0500
+Date: Thu, 06 Feb 2003 15:59:58 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc -O2 vs gcc -Os performance
+Message-ID: <285570000.1044575997@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0302061456370.14478-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302061456370.14478-100000@home.transmeta.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A154@orsmsx401.jf.intel.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 11:53:40AM -0800, Grover, Andrew wrote:
-> > From: John Bradford [mailto:john@grabjohn.com] 
-> > > I think the people who want to manually configure their device's
-> > > resources need to step up and justify why this is really necessary.
-> > 
-> > Prototyping an embedded system, maybe, where you have devices in the
-> > test box that won't be in the production machine.  You would want them
-> > to use resources other than those that you want the hardware which
-> > will be present to use.
->
-> Ok fair enough. But I think the drivers should always think things are
-> handled in a PnP manner, even if they really aren't. ;-) For example,
-> between the stages where PnP enumerates the devices and the stage where
-> drivers get device_add notifications as a result of that, we will be
-> assigning the system resources to each device, but we could also
-> implement a way at this stage for people to manually alter things. I
-> think this is the right place to do this, as opposed to having all the
-> drivers implement code to probe for themselves.
+>> The observation re low repeat rate is interesting ... might be amusing 
+>> to do some really basic profile-guided optimisation on this grounds,
+>> take readprofile / oprofile output, and compile the files that don't
+>> get hammered at all with -Os rather than -O2. Given their low frequency
+>> (by definition), I'm not sure that improving their icache footprint will
+>> have a measureable effect though.
 > 
-> Thoughts?
+> Icache footprint has nothing to do with repeat rates, which is exactly why 
+> repeat rates are interesting for -Os.
 
-I agree.  Actually the isapnp specifications (see Figure 2. Plug and Play ISA 
-Configuration Flow for Plug and Play BIOS located in Plug and Play ISA
-Specification Version 1.0a) recommend that the operating system configures
-and activates all devices before drivers are loaded.  For the most part
-linux plug and play follows this standard with the exception of manual
-configuration support which is included in my latest patches.
+Reading the below, I think I just misinterpreted what you meant by 
+"repeate rate". My point was that if you hardly ever run that section
+of code, -Os might be better. If we call how often you call that code
+section it's "frequency" (nothing to do with how tightly it loops inside
+it), then if the frequency of the code is low, the icache footprint 
+might be better off smaller, as it'll just blow the icache when we do
+run it and those cachelines are fetched. On the other hand, that won't
+happen often, so it may well be unobservable for real loads.
 
-Regards,
-Adam
+M.
+
+
+

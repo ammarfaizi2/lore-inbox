@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274049AbRISNVd>; Wed, 19 Sep 2001 09:21:33 -0400
+	id <S274051AbRISNZx>; Wed, 19 Sep 2001 09:25:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274051AbRISNVY>; Wed, 19 Sep 2001 09:21:24 -0400
-Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:44296
-	"EHLO awak") by vger.kernel.org with ESMTP id <S274049AbRISNVN> convert rfc822-to-8bit;
-	Wed, 19 Sep 2001 09:21:13 -0400
-Subject: Re: 2.4.9-ac10 hangs on CDROM read error
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Giuliano Pochini <pochini@shiny.it>
-Cc: Jens Axboe <axboe@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <XFMail.20010919151538.pochini@shiny.it>
-In-Reply-To: <XFMail.20010919151538.pochini@shiny.it>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.13.99+cvs.2001.09.18.04.53 (Preview Release)
-Date: 19 Sep 2001 15:16:17 +0200
-Message-Id: <1000905378.31487.25.camel@nomade>
-Mime-Version: 1.0
+	id <S274057AbRISNZn>; Wed, 19 Sep 2001 09:25:43 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:20868 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S274051AbRISNZd>; Wed, 19 Sep 2001 09:25:33 -0400
+Date: Wed, 19 Sep 2001 09:25:09 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Bruce Blinn <blinn@MissionCriticalLinux.com>
+cc: Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Reading Windows CD on Linux 2.4.6
+In-Reply-To: <3BA7C01E.82613672@MissionCriticalLinux.com>
+Message-ID: <Pine.LNX.3.95.1010919090014.25310A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le mer 19-09-2001 at 15:15 Giuliano Pochini a écrit :
-> 
-> >> > I have an ABit VP6, CDRW as hdc and DVD as hdd (VIA vt82c686b IDE
-> >> > driver), with SCSI emulation on top, and when I read either:
-> >> >
-> >> > - a DVD with a read error in the DVD drive (UDF mounted, ripping)
-> >> >
-> >> > - a CDR with a read error in the CDRW drive (ISO mounted)
-> >> >
-> >> > the system hangs - no ping, no sysrq, nothing. no log.
-> >>
-> >> I have the same problem with PowerMac G3 and G4 with IDE drives. No
-> >> problems with SCSI, where read just stops with an I/O error.
-> >
-> > Could one of you hook up a serial console and attempt to capture any
-> > oops info?
-> 
-> No oops or panic or anything, as far as I can remember. I have access
-> to a IDE equipped G4 right now. I'll try to reproduce the lockup this
-> night (hmm, what CD can I scrape? :)) ). Stay tuned...
+On Tue, 18 Sep 2001, Bruce Blinn wrote:
+[SNIPPED...]
 
-Yes, no Oops - I tried with a VGA console.
+> I downloaded a copy of cdda2wav and was able to run it.  Here is the
+> output:
+> 
+> # cdda2wav -D0,0,0 -B
+> Type: ROM, Vendor 'Lite-On ' Model 'LTN483S 48x Max ' Revision 'PD02'
+> cdda2wav:
+> Warning: controller returns wrong size for CD capabilities page.
+> MMC+CDDA
+> 724992 bytes buffer memory requested, 4 buffers, 75 sectors
+> #Cdda2wav version 1.11a07_linux_2.4.6-cdrom_i686_i686 real time sched.
+> soundcard support
+>  DATAtrack recorded      copy-permitted tracktype
+>       1- 1 uninterrupted            yes      data
+>  DATAtrack recorded      copy-permitted tracktype
+>       2- 2   incremental             no      data
+> Table of Contents: total tracks:2, (total time 3:10.44)
+>   1.[ 0:06.62],  2.[ 3:01.57],
+>  
+> Table of Contents: starting sectors
+>   1.(       0),  2.(     512), lead-out(   14144)
+> CDINDEX discid: 9hOr8JVIL3ybrw8DyqAsew8V_MM-
+> CDDB discid: 0x0a00bc02
+> CD-Text: not detected
+> CD-Extra: not detected
+> This disk has no audio tracks
+> 
 
-           Xav
+Okay. You can see that it was recorded in some "non-standard" way.
+"Warning: controller returns wrong size for CD capabilities page."
+However, it should not hurt. This shows that there are only two
+tracks of data. The rest has never been recorded. Therefore, you
+have an ISO9660 image that doesn't fill the whole CD. This seems
+okay.
+
+You, therefore, can't get a binary image of the whole CD because
+only the first two tracks has been written. A CD isn't "formatted"
+like a hard-disk. An unwritten CD doesn't contain anything that
+will even synchronize read electronics.
+
+This CD should mount normally under Linux and have no missing or
+unreadable files. However, you can't expect to raw-read 700 Mb
+of data from the physical media.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

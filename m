@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267368AbUIFAd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUIFAmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267368AbUIFAd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 20:33:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUIFAd4
+	id S267370AbUIFAmj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 20:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUIFAmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 20:33:56 -0400
-Received: from holomorphy.com ([207.189.100.168]:8341 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267368AbUIFAdz (ORCPT
+	Sun, 5 Sep 2004 20:42:39 -0400
+Received: from ns1.skjellin.no ([80.239.42.66]:30399 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S267370AbUIFAmg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 20:33:55 -0400
-Date: Sun, 5 Sep 2004 17:33:48 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lighten mmlist_lock
-Message-ID: <20040906003348.GE3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-	Suparna Bhattacharya <suparna@in.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0409052344350.3218-100000@localhost.localdomain> <20040905234101.GD3106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040905234101.GD3106@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 5 Sep 2004 20:42:36 -0400
+Message-ID: <413BB200.4010708@tomt.net>
+Date: Mon, 06 Sep 2004 02:40:32 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rohit Neupane <rohitneupane@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Weird Problem with TCP
+References: <93e09f0104090202216403c08d@mail.gmail.com> <1094122617.4966.0.camel@localhost.localdomain> <93e09f0104090206334a708289@mail.gmail.com>
+In-Reply-To: <93e09f0104090206334a708289@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 05, 2004 at 04:41:01PM -0700, William Lee Irwin III wrote:
-> The ticketing scheme -based alternative only really has to involve a
-> pgd coming into active use, so s/mmlist addition points/pgd reuse points/
-> would be better here to retain instructions for anyone suffering from
-> contention on pgd_lock how to address the issue with the new mmlist
-> scheme. pgd_alloc() and pgd_free() actually appear to suffice, and it's
-> also worth mentioning the ticketing scheme's MMU context switch and
-> smp_call_function() requirements as well.
-> So I'll send an update to that comment a bit later on.
+Rohit Neupane wrote:
+> No, it is not running any session tracking (ip_conntrack) neither it
+> does nat. It is just a firewall with around 1600 rules in FORWARD
+> mangle table and around 1500 rules in FORWARD filter table. Out of
+> 1500 rules , 1377 rules are MAC filter rules.
+> And it had 3 alias address for the interface conneted to the wirelss.
 
-Actually we should probably #ifdef the whole change_page_attr() mess
-on CONFIG_AGP; any box that cares about the overhead will be headless
-and thus able to remove the state maintenance on behalf of AGP. AGP's
-introduction of physical aliases (i.e. 2 physical addresses aliasing
-the same memory) without cache coherency protocol support was beyond
-insane and people should be able to opt out of the overhead when they
-don't want or need AGP support.
+Ouch. Thats a lot of rules to traverse for each packet. Segment them 
+into chains if possible. Also you may want to take a look at nf-hipac, 
+http://www.hipac.org
 
-
--- wli
+-- 
+André Tomt

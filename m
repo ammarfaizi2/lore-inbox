@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265420AbUAZLce (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 06:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUAZLcd
+	id S265331AbUAZLbK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 06:31:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbUAZLbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 06:32:33 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:30042 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S265420AbUAZLc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 06:32:28 -0500
-Date: Mon, 26 Jan 2004 06:32:25 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: JustFillBug <mozbugbox@yahoo.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Cooperative Linux
-In-Reply-To: <slrnc193vo.42h.mozbugbox@mozbugbox.somehost.org>
-Message-ID: <Pine.LNX.4.44.0401260632040.26321-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 Jan 2004 06:31:10 -0500
+Received: from spc1-leed3-6-0-cust58.leed.broadband.ntl.com ([80.7.68.58]:5103
+	"EHLO arthur.pjc.net") by vger.kernel.org with ESMTP
+	id S265331AbUAZLbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 06:31:08 -0500
+Date: Mon, 26 Jan 2004 11:31:06 +0000
+From: Patrick Caulfield <patrick@tykepenguin.com>
+To: davem@redhat.com, linux-kernel@vger.kernel.org
+Cc: Steve Whitehouse <Steve@ChyGwyn.com>
+Subject: [PATCH] 1/2 DECnet fix SDF_WILD
+Message-ID: <20040126113106.GB21366@tykepenguin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jan 2004, JustFillBug wrote:
+This patch fixes the operation of SDF_WILD sockets on Linux 2.6.0/1
+(they don't currently work at all).
 
-> How about a bare bone OS whose sole purpose is to run multiple OS on top
-> of it? A pure VM OS. 
+--- net/decnet/af_decnet.c.orig 2003-12-08 11:27:59.000000000 +0000
++++ net/decnet/af_decnet.c      2003-12-08 11:28:34.000000000 +0000
+@@ -163,7 +163,7 @@
+        struct dn_scp *scp = DN_SK(sk);
 
-It's easier if that OS is Linux, so we can reuse all the
-device drivers.
+        if (scp->addr.sdn_flags & SDF_WILD)
+-               return hlist_empty(&dn_wild_sk) ? NULL : &dn_wild_sk;
++               return hlist_empty(&dn_wild_sk) ? &dn_wild_sk : NULL;
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+        return &dn_sk_hash[scp->addrloc & DN_SK_HASH_MASK];
+ }
+
+
+patrick
 

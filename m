@@ -1,119 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261960AbRFBAwq>; Fri, 1 Jun 2001 20:52:46 -0400
+	id <S261824AbRFBAv4>; Fri, 1 Jun 2001 20:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261978AbRFBAwi>; Fri, 1 Jun 2001 20:52:38 -0400
-Received: from ns01.vbnet.com.br ([200.230.208.6]:53987 "EHLO
-	iron.vbnet.com.br") by vger.kernel.org with ESMTP
-	id <S261960AbRFBAw1>; Fri, 1 Jun 2001 20:52:27 -0400
+	id <S261960AbRFBAvq>; Fri, 1 Jun 2001 20:51:46 -0400
+Received: from mail-out.chello.nl ([213.46.240.7]:15184 "EHLO
+	amsmta05-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S261824AbRFBAvf>; Fri, 1 Jun 2001 20:51:35 -0400
 Content-Type: Multipart/Mixed;
   charset="iso-8859-1";
-  boundary="------------Boundary-00=_M55A4YC3I6H7ZVVA5Y2U"
-From: Carlos E Gorges <carlos@techlinux.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, cltien@cmedia.com.tw (ChenLi Tien),
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] cmpci pc-speaker volume control support
-Date: Fri, 1 Jun 2001 21:51:22 -0400
+  boundary="------------Boundary-00=_OD2AA6I0UCFNK3Q9X1YE"
+From: Ben Twijnstra <bentw@chello.nl>
+To: alan@lxorguk.ukuu.org.uk
+Subject: cs46xx driver in 2.4.5-ac6
+Date: Sat, 2 Jun 2001 02:51:24 +0200
 X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Message-Id: <01060121512200.18700@shark.techlinux>
+Message-Id: <01060202512400.01300@beastie>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_M55A4YC3I6H7ZVVA5Y2U
+--------------Boundary-00=_OD2AA6I0UCFNK3Q9X1YE
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 8bit
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+Hi Alan,
+
+sndconfig still locked up on me with the cs46xx driver in -ac6, but I found 
+the culprit. Too lazy to figure out how to officially submit a patch, but the 
+body should look like what I attached.
+
+Looks like you're too pessimistic. If everything works OK first time you 
+don't believe it. Oh well, looking at your diary, given all those 
+contractors I can't blame your mindset ;-)
+
+Grtz,
 
 
-Hi all, the following patch adds pc-speaker volume control to
-cmpci driver.
-
-- --- linux/drivers/sound/cmpci.c.orig	Thu May 31 20:32:44 2001
-+++ linux/drivers/sound/cmpci.c	Thu May 31 21:02:41 2001
-@@ -1293,10 +1293,10 @@
- 	[SOUND_MIXER_CD]     = { DSP_MIX_CDVOLIDX_L,     DSP_MIX_CDVOLIDX_R,     MT_5MUTE,     0x04, 0x02 },
- 	[SOUND_MIXER_LINE]   = { DSP_MIX_LINEVOLIDX_L,   DSP_MIX_LINEVOLIDX_R,   MT_5MUTE,     0x10, 0x08 },
- 	[SOUND_MIXER_MIC]    = { DSP_MIX_MICVOLIDX,      DSP_MIX_MICVOLIDX,      MT_5MUTEMONO, 0x01, 0x01 },
-- -
- 	[SOUND_MIXER_SYNTH]  = { DSP_MIX_FMVOLIDX_L,  	 DSP_MIX_FMVOLIDX_R,     MT_5MUTE,     0x40, 0x00 },
- 	[SOUND_MIXER_VOLUME] = { DSP_MIX_MASTERVOLIDX_L, DSP_MIX_MASTERVOLIDX_R, MT_5MUTE,     0x00, 0x00 },
-- -	[SOUND_MIXER_PCM]    = { DSP_MIX_VOICEVOLIDX_L,  DSP_MIX_VOICEVOLIDX_R,  MT_5MUTE,     0x00, 0x00 }
-+	[SOUND_MIXER_PCM]    = { DSP_MIX_VOICEVOLIDX_L,  DSP_MIX_VOICEVOLIDX_R,  MT_5MUTE,     0x00, 0x00 },
-+	[SOUND_MIXER_SPEAKER]= { DSP_MIX_SPKRVOLIDX,	 DSP_MIX_SPKRVOLIDX,	 MT_5MUTEMONO, 0x01, 0x01 }
- };
- 
- #ifdef OSS_DOCUMENTED_MIXER_SEMANTICS
-@@ -1359,7 +1359,8 @@
- 	[SOUND_MIXER_MIC]    = 3,
- 	[SOUND_MIXER_SYNTH]  = 4,
- 	[SOUND_MIXER_VOLUME] = 5,
-- -	[SOUND_MIXER_PCM]    = 6
-+	[SOUND_MIXER_PCM]    = 6,
-+	[SOUND_MIXER_SPEAKER]= 7
- };
- 
- #endif /* OSS_DOCUMENTED_MIXER_SEMANTICS */
-- --
- 
-	 _________________________
-	 Carlos E Gorges          
-	 (carlos@techlinux.com.br)
-	 Tech informática LTDA
-	 Brazil                   
-	 _________________________
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iQIXAwUBOxhGnhfQA3nqPEsZFAM5KwgAn3PwYejzyNk8KrdVIAnAFHUENDZfOddT
-t+IN9NIEia8kXRtCx1sNJCzjCJmgumZJ9e0C6W/TKpUdHiuqH2FvGl4PmTjWsvW8
-XbcQQj1HhU5nuE6TxKDwvaUiHs2dodKp943z8YQXm8eiPgqHWr1C1gMNOzw+Fx6q
-4rIb8WtOU4fwSEvfOwGtJVdExewi/pJyL7sZgtE8m4SMpQtM4tUD6ugIlPTxjjcA
-yNBm8VwV+E0vnkceurP54MNlXTMyeQ+D9gIkcdd0CIKe8FVo0DTwBvgzhxlFMibl
-WeRMs2kH0Zml7Wg4hibAzskYopDGMPBy5ubWwYDInfaK4dK9O/11EQf8CySglQeK
-lst7wVAlVi1mRagH+4I23ZdXqPzZAUnm94WFJcF3NwQCs6LkWzmF92rMiA8QFKv6
-ZWEfh02RwgMRSnes6+Kupg2mN11xJQ9p7G/i7j8LcD1DRjccT/WAl6SoAwHkOfUD
-gb44mVOLODSKLer3svMlNAcVE8fnOJkxMcHgN1xlWQ8Eb2Ii6u3D6dYCAPsSe0Fb
-uQh91omuRJPsoLCEq0K8fYJaRZkPCi96nb0EJCPneKAqx9frXvO+rI5jozUHNKVI
-aaMbgero3Dit1i4X8sBs1vRc2lOSJqiYrdZpuxEtUMHpjAEGqJSZKxV6APXIuElb
-Bp9DyJKfIRBxGQ==
-=WoFD
------END PGP SIGNATURE-----
-
---------------Boundary-00=_M55A4YC3I6H7ZVVA5Y2U
+Ben
+--------------Boundary-00=_OD2AA6I0UCFNK3Q9X1YE
 Content-Type: text/plain;
   charset="iso-8859-1";
-  name="diff"
+  name="cs46xx.c.patch"
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="diff"
+Content-Disposition: attachment; filename="cs46xx.c.patch"
 
-LS0tIGxpbnV4L2RyaXZlcnMvc291bmQvY21wY2kuYy5vcmlnCVRodSBNYXkgMzEgMjA6MzI6NDQg
-MjAwMQorKysgbGludXgvZHJpdmVycy9zb3VuZC9jbXBjaS5jCVRodSBNYXkgMzEgMjE6MDI6NDEg
-MjAwMQpAQCAtMTI5MywxMCArMTI5MywxMCBAQAogCVtTT1VORF9NSVhFUl9DRF0gICAgID0geyBE
-U1BfTUlYX0NEVk9MSURYX0wsICAgICBEU1BfTUlYX0NEVk9MSURYX1IsICAgICBNVF81TVVURSwg
-ICAgIDB4MDQsIDB4MDIgfSwKIAlbU09VTkRfTUlYRVJfTElORV0gICA9IHsgRFNQX01JWF9MSU5F
-Vk9MSURYX0wsICAgRFNQX01JWF9MSU5FVk9MSURYX1IsICAgTVRfNU1VVEUsICAgICAweDEwLCAw
-eDA4IH0sCiAJW1NPVU5EX01JWEVSX01JQ10gICAgPSB7IERTUF9NSVhfTUlDVk9MSURYLCAgICAg
-IERTUF9NSVhfTUlDVk9MSURYLCAgICAgIE1UXzVNVVRFTU9OTywgMHgwMSwgMHgwMSB9LAotCiAJ
-W1NPVU5EX01JWEVSX1NZTlRIXSAgPSB7IERTUF9NSVhfRk1WT0xJRFhfTCwgIAkgRFNQX01JWF9G
-TVZPTElEWF9SLCAgICAgTVRfNU1VVEUsICAgICAweDQwLCAweDAwIH0sCiAJW1NPVU5EX01JWEVS
-X1ZPTFVNRV0gPSB7IERTUF9NSVhfTUFTVEVSVk9MSURYX0wsIERTUF9NSVhfTUFTVEVSVk9MSURY
-X1IsIE1UXzVNVVRFLCAgICAgMHgwMCwgMHgwMCB9LAotCVtTT1VORF9NSVhFUl9QQ01dICAgID0g
-eyBEU1BfTUlYX1ZPSUNFVk9MSURYX0wsICBEU1BfTUlYX1ZPSUNFVk9MSURYX1IsICBNVF81TVVU
-RSwgICAgIDB4MDAsIDB4MDAgfQorCVtTT1VORF9NSVhFUl9QQ01dICAgID0geyBEU1BfTUlYX1ZP
-SUNFVk9MSURYX0wsICBEU1BfTUlYX1ZPSUNFVk9MSURYX1IsICBNVF81TVVURSwgICAgIDB4MDAs
-IDB4MDAgfSwKKwlbU09VTkRfTUlYRVJfU1BFQUtFUl09IHsgRFNQX01JWF9TUEtSVk9MSURYLAkg
-RFNQX01JWF9TUEtSVk9MSURYLAkgTVRfNU1VVEVNT05PLCAweDAxLCAweDAxIH0KIH07CiAKICNp
-ZmRlZiBPU1NfRE9DVU1FTlRFRF9NSVhFUl9TRU1BTlRJQ1MKQEAgLTEzNTksNyArMTM1OSw4IEBA
-CiAJW1NPVU5EX01JWEVSX01JQ10gICAgPSAzLAogCVtTT1VORF9NSVhFUl9TWU5USF0gID0gNCwK
-IAlbU09VTkRfTUlYRVJfVk9MVU1FXSA9IDUsCi0JW1NPVU5EX01JWEVSX1BDTV0gICAgPSA2CisJ
-W1NPVU5EX01JWEVSX1BDTV0gICAgPSA2LAorCVtTT1VORF9NSVhFUl9TUEVBS0VSXT0gNwogfTsK
-IAogI2VuZGlmIC8qIE9TU19ET0NVTUVOVEVEX01JWEVSX1NFTUFOVElDUyAqLwo=
+KioqIGRyaXZlcnMvc291bmQvY3M0Nnh4LmMJU2F0IEp1biAgMiAwMjozODowNiAyMDAxCi0tLSAu
+Li9jczQ2eHguYwlTYXQgSnVuICAyIDAyOjQwOjA5IDIwMDEKKioqKioqKioqKioqKioqCioqKiAy
+MzEyLDIzMTcgKioqKgotLS0gMjMxMiwyMzE4IC0tLS0KICAKICAJQ1NfREJHT1VUKENTX1dBVkVf
+V1JJVEUgfCBDU19GVU5DVElPTiwgMiwgCiAgCQlwcmludGsoImNzNDZ4eDogY3Nfd3JpdGUoKS0g
+cmV0PTB4JXhcbiIsIHJldCkgKTsKKyAgICAgICAgIHVwKCZzdGF0ZS0+c2VtKTsKICAJcmV0dXJu
+IHJldDsKICBvdXQ6CiAgCXVwKCZzdGF0ZS0+c2VtKTsK
 
---------------Boundary-00=_M55A4YC3I6H7ZVVA5Y2U--
+--------------Boundary-00=_OD2AA6I0UCFNK3Q9X1YE--

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278614AbRJXPuX>; Wed, 24 Oct 2001 11:50:23 -0400
+	id <S278620AbRJXPxd>; Wed, 24 Oct 2001 11:53:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278609AbRJXPuP>; Wed, 24 Oct 2001 11:50:15 -0400
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:45447 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S278605AbRJXPuH>; Wed, 24 Oct 2001 11:50:07 -0400
-Date: Wed, 24 Oct 2001 16:50:34 +0100 (BST)
-From: James Sutherland <jas88@cam.ac.uk>
-X-X-Sender: <jas88@yellow.csi.cam.ac.uk>
-To: Jan Kara <jack@suse.cz>
-cc: Neil Brown <neilb@cse.unsw.edu.au>, <linux-fsdevel@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-In-Reply-To: <20011024173930.A19777@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.SOL.4.33.0110241646420.24809-100000@yellow.csi.cam.ac.uk>
+	id <S278624AbRJXPxX>; Wed, 24 Oct 2001 11:53:23 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25351 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278609AbRJXPxK>; Wed, 24 Oct 2001 11:53:10 -0400
+Subject: Re: [RFC] New Driver Model for 2.5
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Wed, 24 Oct 2001 16:59:26 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        benh@kernel.crashing.org (Benjamin Herrenschmidt),
+        linux-kernel@vger.kernel.org, mochel@osdl.org (Patrick Mochel),
+        jlundell@pobox.com (Jonathan Lundell)
+In-Reply-To: <Pine.LNX.4.33.0110240831200.8049-100000@penguin.transmeta.com> from "Linus Torvalds" at Oct 24, 2001 08:41:22 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15wQRC-0001uV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Oct 2001, Jan Kara wrote:
-> > On Wed, 24 Oct 2001, Jan Kara wrote:
-> >
-> > >   But how do you solve the following: mv <dir> <some_other_dir>
-> > > The parent changes. You need to go through all the subdirs of <dir> and change
-> > > the TID. This is really hard to get right and to avoid deadlocks
-> > > and races... At least it seems to me so.
-> >
-> > Provided you are tracking the total size in each directory, it's just a
-> > matter of subtracting dir's size from the old parent, and adding it to the
-> > new parent. (With suitable checks beforehand to avoid a result which
-> > exceeds quota.)
->   Nope. If you'd just keep usage in directory than you need to go all the way
-> up and decrease the usage and then go all the way down in the new directory.
-> It's simplier but also nontrivial...
+> call might block for some device information, that does not mean that it
+> can allocate memory with GFP_KERNEL, for example: when we shut off device
+> X, the disk may have been prepared for shutdown already, and the VM layer
+> cannot do any IO. So the suspend (and resume) function have to use
+> GFP_NOIO for their allocations - _regardless_ of any other device issues.
 
-Yep, you're right: you'd need to ascend the target directory tree,
-increasing the cumulative size all the way up, then do the move and
-decrement the old location's totals in the same way. All wrapped up in a
-transaction (on journalled FSs) or have fsck rebuild the totals on a dirty
-mount. Fairly clean and painless on a JFS, but a bit of a mess on
-others - still, quite workable, and the performance hit shouldn't be too
-bad. Better than walking all the way DOWN the tree, anyway...
+So I have to write a whole extra set of code paths to duplicate normal
+functionality during power off
 
+> So sure, there are tons of issues here, but none of them have, in my
+> opinion, anything to do with the device model itself. More just normal
+> implementation details.
 
-James.
+My concern is that we need to make the implementation details simple. eg
+so that simple things like "save state" can be done before we get into
+"no this, no that , no the other" situations. Also so that for the many 
+drivers where freezing the system once we have irqs off is easier (a lot
+of sound for example is easiest done by disable irq, disable dma engine,
+copy registers, return) can be done late and with small amounts of code
 

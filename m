@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263866AbRFISMS>; Sat, 9 Jun 2001 14:12:18 -0400
+	id <S264442AbRFISVS>; Sat, 9 Jun 2001 14:21:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264272AbRFISMH>; Sat, 9 Jun 2001 14:12:07 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:16400 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S263866AbRFISLu>;
-	Sat, 9 Jun 2001 14:11:50 -0400
-Date: Sat, 9 Jun 2001 19:11:48 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Michael McConnell <soruk@eridani.co.uk>
-Subject: 2.2.19 DMA problem
-Message-ID: <Pine.LNX.4.33.0106091829540.23184-100000@infradead.org>
+	id <S264443AbRFISU6>; Sat, 9 Jun 2001 14:20:58 -0400
+Received: from ppp32-0-67.miem.edu.ru ([194.226.32.67]:2564 "EHLO yahoo.com")
+	by vger.kernel.org with ESMTP id <S264442AbRFISUy>;
+	Sat, 9 Jun 2001 14:20:54 -0400
+From: Stas Sergeev <stas_orel@yahoo.com>
+Reply-To: stas.orel@mailcity.com
+To: linux-kernel@vger.kernel.org
+Subject: linux fails to do proper cleanups with free_vm86_irq()
+Date: Sat, 9 Jun 2001 22:20:09 +0400
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01060922031100.00974@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there.
+I am using linux-2.2.19 and I have a problem with irq handling:
+if some program requests an irq and doesn't free it before exit, I have to
+reboot my machine in order to make this program to work again.
+I mean dosemu: if it crashes, it doesn't handle irqs any more until reboot.
 
-A friend of mine is having a problem with the 2.2.19 kernel on one of
-his boxes, and has asked for some advice which is beyond my experience
-so I'm asking here: Is this a kernel problem or something else?
+I can demonstrate the problem with the following example:
 
-First, the hardware, as best we can determine:
+----------------------------------------
+#include <sys/vm86.h>
+#include <stdio.h>
+#include <signal.h>
 
-	Vesa VLB motherboard, model unknown.
-	Intel 486dx4/100 stepping 0.
-	48 Mb of RAM
-	eth0 is an RTL8009 chipset configured for 0x300/IRQ9
-	Serial port 0x3f8/4 (16550A) connects to an external modem
-	Serial port 0x2f8/3 (16550A) is unused
+#define OLD_SYS_vm86  113
+#define NEW_SYS_vm86  166
+static inline int vm86_plus(int function, int param)
+{
+	int __res;
+	__asm__ __volatile__("int $0x80\n"
+	:"=a" (__res):"a" ((int)NEW_SYS_vm86), "b" (function), "c" (param));
+	return __res;
+} 
 
-The boix in question isn't used for compiling, but here's what the
-ver_linux script from 2.2.18 produced on it:
+int main() {
+    printf("%s\n", vm86_plus(VM86_REQUEST_IRQ, (SIGIO << 8) | 11)>0?
+	"Success":"Fail");
+    return 0;
+}
+------------------------------------------
 
-	binutils:		2.9.5.0.22
-	util-linux:		2.10f
-	modutils:		2.3.21
-	e2fsprogs:		1.18
-	PPP:			2.3.11
-	Linux C Library:	2.1.3
-	Dynamic Linker (ldd):	2.1.3
-	Procps:			2.0.6
-	Net-tools:		1.54
-	Console-tools:		0.3.3
-	Sh-utils:		2.0
+Running it first time (with root previleges) returns "Success", and next
+starts will return "Fail".
+I have looked in kernel's vm86.c and found a function handle_irq_zombies()
+that must do a cleanup. It doesn't work however for some reasons.
+I think the problem is that a function task_valid() compares pointers to
+task_struct instead of comparing the actual structures.
+Furthermore I have found out that I can make a cleanup manually just
+doing VM86_FREE_IRQ within the program, started from the normal user,
+not root! It just prooves that the check
+if (vm86_irqs[irqnumber].tsk != current) return -EPERM;
+is not valid.
+Never mind, it is just my guesses...
 
-The machine that compiled the kernel has:
+So can anyone help me with this problem by explaining why linux fails to do
+a cleanup and how to make it to do it?
 
-	Gnu-C:			egcs-2.91.66
-	Gnu Make:		3.77
-	Binutils:		2.9.1.0.24
-
-The problem machine irregularly spams the following over both the
-console and syslog (taken from syslog):
-
- Q> Jun  9 17:34:04 Doorstep kernel: eth0: DMAing conflict in
- Q>		ne_block_output.[DMAstat:1][irqlock:1][intr:0]
- Q> Jun  9 17:34:04 Doorstep kernel: eth0: DMAing conflict in
- Q>		ne_get_8390_hdr.[DMAstat:1][irqlock:0][intr:1]
-
-When this happens, the spam can be stopped by `ifconfig eth0 down` but
-the card is totally dead and can only be restarted by rebooting the
-machine.
-
-Can anybody advise on likely solutions, as this is his firewall
-gateway machine, so causes quite a bit of inconvenience.
-
-Best wishes from Riley.
-
+Thanks.

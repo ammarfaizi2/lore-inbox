@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271226AbRINVlR>; Fri, 14 Sep 2001 17:41:17 -0400
+	id <S271278AbRINVsT>; Fri, 14 Sep 2001 17:48:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271309AbRINVlH>; Fri, 14 Sep 2001 17:41:07 -0400
-Received: from tartarus.telenet-ops.be ([195.130.132.34]:56297 "EHLO
-	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S271226AbRINVlB>; Fri, 14 Sep 2001 17:41:01 -0400
+	id <S271309AbRINVsL>; Fri, 14 Sep 2001 17:48:11 -0400
+Received: from relay02.cablecom.net ([62.2.33.102]:35593 "EHLO
+	relay02.cablecom.net") by vger.kernel.org with ESMTP
+	id <S271278AbRINVrw>; Fri, 14 Sep 2001 17:47:52 -0400
+Message-Id: <200109142148.f8ELmE517753@mail.swissonline.ch>
 Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <DevilKin@gmx.net>
-Reply-To: DevilKin@gmx.net
+From: Christian Widmer <cwidmer@iiic.ethz.ch>
+Reply-To: cwidmer@iiic.ethz.ch
 To: linux-kernel@vger.kernel.org
-Subject: AGP Bridge support for AMD 761
-Date: Fri, 14 Sep 2001 23:40:31 +0200
+Subject: sync syscall/bottom-halves
+Date: Fri, 14 Sep 2001 23:48:14 +0200
 X-Mailer: KMail [version 1.3]
-X-Cats: All your linux' belong to us!
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20010914214120.039EE21712C@tartarus.telenet-ops.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all...
+is it right with the following:
 
-I've recently bought a new mobo, the Abit KG7-Raid, and I've run into some trouble trying to get the agpgart to work correctly. Everytime I load it 
-on kernel 2.4.9 (nonpatched, straigt from the tarball) I get messages like 'Unsupported chipset; try try_unsupported' (or smthing, not entirely
-sure about the msg anymore since I'm not on that PC right now). I've tried what it advices, but still it keeps on giving that error.
+A)
+ tasklets scheduled by a irq-handler may interrupt 
+ 1) the request fuction of a block device driver
+ 2) a open/close system call of a block device driver
 
-Anyone got a clue?
+B)
+ if i don't want to be interrupted by a tasklet i need
+ to call local_bh_disable or because (i've to use spin-
+ locks anyway) spin_lock_bh.
 
-Thanks,
 
-Devil
--- 
-devilkin@gmx.net
+thank
+christian

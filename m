@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271790AbRHRGus>; Sat, 18 Aug 2001 02:50:48 -0400
+	id <S271794AbRHRHnk>; Sat, 18 Aug 2001 03:43:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271791AbRHRGui>; Sat, 18 Aug 2001 02:50:38 -0400
-Received: from odyssey.netrox.net ([204.253.4.3]:24223 "EHLO t-rex.netrox.net")
-	by vger.kernel.org with ESMTP id <S271790AbRHRGuT>;
-	Sat, 18 Aug 2001 02:50:19 -0400
-Subject: [PATCH] Configure.help: Bad URL for CONFIG_SYN_COOKIES
-From: Robert Love <rml@tech9.net>
-To: elenstev@mesatop.com, esr@thyrsus.com
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 18 Aug 2001 02:50:05 -0400
-Message-Id: <998117417.2184.44.camel@phantasy>
+	id <S271793AbRHRHnT>; Sat, 18 Aug 2001 03:43:19 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:3588 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S271795AbRHRHnI>;
+	Sat, 18 Aug 2001 03:43:08 -0400
+Date: Sat, 18 Aug 2001 03:47:25 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Robert Love <rml@tech9.net>
+Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Configure.help: Bad URL for CONFIG_SYN_COOKIES
+Message-ID: <20010818034725.A11028@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Robert Love <rml@tech9.net>, elenstev@mesatop.com,
+	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <998117417.2184.44.camel@phantasy>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <998117417.2184.44.camel@phantasy>; from rml@tech9.net on Sat, Aug 18, 2001 at 02:50:05AM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The provided URL for more information re SYN Cookies is bad.  I
-originally posted a patch to fix this in the 2.4-pre series but it was
-not merged.  I am reposting because I was in need of the URL and again
-got stuck on the stale URL in Configure.help.
+Robert Love <rml@tech9.net>:
+> The provided URL for more information re SYN Cookies is bad.  I
+> originally posted a patch to fix this in the 2.4-pre series but it was
+> not merged.  I am reposting because I was in need of the URL and again
+> got stuck on the stale URL in Configure.help.
+> 
+> This is against Configure.help 2.41, as in 2.4.8-ac7.
 
-This is against Configure.help 2.41, as in 2.4.8-ac7.
-
-
-
---- linux/Documentation/Configure.help~	Sat Aug 18 02:32:33 2001
-+++ linux/Documentation/Configure.help	Sat Aug 18 02:35:32 2001
-@@ -2655,8 +2655,7 @@
-   continue to connect, even when your machine is under attack. There
-   is no need for the legitimate users to change their TCP/IP software;
-   SYN cookies work transparently to them. For technical information
--  about SYN cookies, check out
--  <ftp://koobera.math.uic.edu/syncookies.html>.
-+  about SYN cookies, check out <http://cr.yp.to/syncookies.html>.
- 
-   If you are SYN flooded, the source address reported by the kernel is
-   likely to have been forged by the attacker; it is only reported as
-@@ -2675,7 +2674,7 @@
- 
-   at boot time after the /proc file system has been mounted.
- 
--  If unsure, say Y.
-+  If unsure, say N.
- 
- HCI EMU (virtual device) driver
- CONFIG_BLUEZ_HCIEMU
-
-
-
+OK, Steve and Alan, I've uploaded this to the CML2 page as 2.42.
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+...Virtually never are murderers the ordinary, law-abiding people
+against whom gun bans are aimed.  Almost without exception, murderers
+are extreme aberrants with lifelong histories of crime, substance
+abuse, psychopathology, mental retardation and/or irrational violence
+against those around them, as well as other hazardous behavior, e.g.,
+automobile and gun accidents."
+        -- Don B. Kates, writing on statistical patterns in gun crime

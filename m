@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129040AbRBAOHH>; Thu, 1 Feb 2001 09:07:07 -0500
+	id <S129026AbRBAOGh>; Thu, 1 Feb 2001 09:06:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129377AbRBAOHC>; Thu, 1 Feb 2001 09:07:02 -0500
-Received: from [206.11.178.253] ([206.11.178.253]:50957 "EHLO
-	wind.enjellic.com") by vger.kernel.org with ESMTP
-	id <S129040AbRBAOGn>; Thu, 1 Feb 2001 09:06:43 -0500
-Message-Id: <200102011406.f11E6cO30025@wind.enjellic.com>
-From: greg@wind.enjellic.com (G.W. Wettstein)
-Date: Thu, 1 Feb 2001 08:06:37 -0600
-Reply-To: greg@enjellic.com
-X-Mailer: Mail User's Shell (7.2.5 10/14/92)
-To: linux-kernel@vger.kernel.org
-Subject: Multiple hamachi instances.
+	id <S129040AbRBAOG2>; Thu, 1 Feb 2001 09:06:28 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:11279 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S129026AbRBAOGR>; Thu, 1 Feb 2001 09:06:17 -0500
+Message-ID: <3A796D20.853374FB@idb.hist.no>
+Date: Thu, 01 Feb 2001 15:05:20 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: no, da, en
+MIME-Version: 1.0
+To: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: modules as drivers and the order of loading
+In-Reply-To: <ptah7t4do0ts1cukrnqfs38ok1bd2rlnal@4ax.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day to everyone who isn't in New York at Linux Expo or otherwise
-travelling around the world.
+Alan Chandler wrote:
+> 
+> As I was building 2.4.1 afresh I took the opportunity to build some of
+> the device drivers as modules.  In particular I have a SCSI cdrom
+> device (it actually is a cd writer) and I had made that and its
+> controller (Adaptec AIC-7xxx driver) modules.
+> 
+> However, during boot they fail to load because at the time they are
+> brought up VFS had not mounted the root filesystem
+> 
+Is your root disk also connected to that adaptec controller?
+If so, compile the adapter into the kernel and let the scsi-CD support
+be a module.
 
-We recently upgraded the kernels on our computational cluster.  All of
-the machines are Gigabit ethernet attached using the GNIC-II Packet
-Engine cards.  The kernel is 2.2.18 patches with Ingo's software raid.
-The machines are dual PII-450's with 440BX motherboards, pretty
-vanilla setup all in all.
+> I am not sure why they can be built as modules if they then can't be
+> loaded?
 
-The anomalous behavior we are noting is that the GNIC-II cards are
-showing up 7 different times, all with identical statistics.  The
-first instance is the configured interface and seems to function
-fine.  When the driver is loaded as a module it presents only as a
-single instance.  The following excerpt is the from the system probe
-at boot time with a statically compiled kernel:
+It is usually not worth the trouble making modules of something
+you need before the root fs is mounted.  (There are special cases,
+but generally - don't do it!) 
+About the only thing you need to mount root is harddisk support
+and a driver for whatever kind of adapter (scsi, ide,...) that the
+root fs disk is connected to.  
 
----------------------------------------------------------------------------
-Jan 29 12:53:01 heifer01 kernel: Found Hamachi GNIC-II at PCI address 0xfedfb004, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth1: Hamachi GNIC-II type 10911 at 0xe0802000, 00:e0:b1:04:19:b3, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth1:  32-bit 33 Mhz PCI bus (60), Virtual Jumpers 30, LPA 0000.
-Jan 29 12:53:01 heifer01 kernel: Found Hamachi GNIC-II at PCI address 0xfedfb004, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth2: Hamachi GNIC-II type 10911 at 0xe0804000, 00:e0:b1:04:19:b3, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth2:  32-bit 33 Mhz PCI bus (60), Virtual Jumpers 30, LPA 0000.
-Jan 29 12:53:01 heifer01 kernel: Found Hamachi GNIC-II at PCI address 0xfedfb004, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth3: Hamachi GNIC-II type 10911 at 0xe0806000, 00:e0:b1:04:19:b3, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth3:  32-bit 33 Mhz PCI bus (60), Virtual Jumpers 30, LPA 0000.
-Jan 29 12:53:01 heifer01 kernel: Found Hamachi GNIC-II at PCI address 0xfedfb004, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth4: Hamachi GNIC-II type 10911 at 0xe0808000, 00:e0:b1:04:19:b3, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth4:  32-bit 33 Mhz PCI bus (60), Virtual Jumpers 30, LPA 0000.
-Jan 29 12:53:01 heifer01 kernel: Found Hamachi GNIC-II at PCI address 0xfedfb004, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth5: Hamachi GNIC-II type 10911 at 0xe080a000, 00:e0:b1:04:19:b3, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth5:  32-bit 33 Mhz PCI bus (60), Virtual Jumpers 30, LPA 0000.
-Jan 29 12:53:01 heifer01 kernel: Found Hamachi GNIC-II at PCI address 0xfedfb004, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth6: Hamachi GNIC-II type 10911 at 0xe080c000, 00:e0:b1:04:19:b3, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth6:  32-bit 33 Mhz PCI bus (60), Virtual Jumpers 30, LPA 0000.
-Jan 29 12:53:01 heifer01 kernel: Found Hamachi GNIC-II at PCI address 0xfedfb004, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth7: Hamachi GNIC-II type 10911 at 0xe080e000, 00:e0:b1:04:19:b3, IRQ 11.
-Jan 29 12:53:01 heifer01 kernel: eth7:  32-bit 33 Mhz PCI bus (60), Virtual Jumpers 30, LPA 0000.
----------------------------------------------------------------------------
+If it isn't connected to the adaptec (perhaps you have an IDE disk?)
+then something else is wrong.  Maybe the root device isn't set
+right in the kernel image you are booting.  Check your lilo.conf
+(or whatever kernel loader you use)
 
-Any thoughts?
+The general rules for modules:
+Stuff you need almost all the time is compiled in.  Stuff you use
+only occationally makes sense as modules.  Developers often
+use modules for drivers they work on - so they can recompile
+and reload without a reboot.  Modules also makes sense for
+buggy drivers - you can force re-initialization by
+unloading and reloading the module.
 
-Have a pleasant end of the week.
+There are a couple of reasons for not modularizing everything.  First,
+you get a complicated setup for loading the right modules.
+Second, there is a memory overhead of half a page per module.  (But of
+course you save memory for modules when they aren't loaded.)
+Third, compiled-in stuff goes in the single big "kernel page" for
+those systems that support big pages.  Pentiums do.  This
+gives a performance enhancement as the cpu looks up less
+page table entries.  That could be important if the driver is
+a high-performance thing like a network or disk controller.
 
-As always,
-Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
-4206 N. 19th Ave.           Specializing in information infra-structure
-Fargo, ND  58102            development.
-PH: 701-281-4950            WWW: http://www.enjellic.com
-FAX: 701-281-3949           EMAIL: greg@enjellic.com
-------------------------------------------------------------------------------
-"One of the reporters asked if the could "see" the INTERNET worm.
-They tried to explain that it wasn't something that you could actually
-see but is was merely a program that was running in the background.
-One of the reporters asked, 'What if you had a color monitor?'"
-                                -- UNKNOWN
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

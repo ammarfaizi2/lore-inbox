@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131041AbQKUTTc>; Tue, 21 Nov 2000 14:19:32 -0500
+	id <S131066AbQKUTYw>; Tue, 21 Nov 2000 14:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131040AbQKUTTW>; Tue, 21 Nov 2000 14:19:22 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:12438 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129977AbQKUTTM>; Tue, 21 Nov 2000 14:19:12 -0500
-Date: Tue, 21 Nov 2000 19:40:23 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Johannes Erdfelt <johannes@erdfelt.com>,
-        Ingo Molnar <mingo@chiara.elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0test11-ac1
-In-Reply-To: <E13yICI-000504-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.3.96.1001121193320.28403C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S129682AbQKUTYo>; Tue, 21 Nov 2000 14:24:44 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:3596 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S131060AbQKUTYa>;
+	Tue, 21 Nov 2000 14:24:30 -0500
+Message-ID: <3A1AC4E1.80E5F423@mandrakesoft.com>
+Date: Tue, 21 Nov 2000 13:54:25 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0test11-ac1
+In-Reply-To: <E13yDpy-0004ir-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2000, Alan Cox wrote:
+Alan Cox wrote:
+> Change Log
+> 
+> o       Cleanup console_verbose() dunplication
 
-> Its completely unsafe. The CPU in question is NOT intel. It has no APIC
-> instead you poke around randomly in MMIO space and the box dies. You have
-> to check the cpu capabilities too
+include/linux/kernel.h:  if we are adding new inlines to kernel headers,
+they should be 'static inline'..
 
- Well, does any SMP board map anything into the local APIC space?  After
-saying there a real APIC there???  Now *THAT* is completely unsafe.  How
-is that supposed to work when there actually is an APIC-equipped CPU put
-in?
 
- Poking unoccupied space leads to bus error exceptions for certain archs
-but I can't actually recall existence of such events for i386... 
+> o       3c503 error return cleanup
+> o       8390 seperate tx timeout path
+> o       Acenic update
+> o       Network driver check/request region fixes
+> o       Epic100 update
+
+dhinds seemed to question the epic100 fix which is enclosed in
+CONFIG_CARDBUS...  also I have a big endian fix for epic100 in my local
+tree.
+
+The change to hp-plus is totally unnecessary and backwards... 
+[un]load_8390_module is null, has been for a while.  A bombing run was
+made recently through most drivers to -remove- the now-null calls to
+*_8390_module.
+
+
+> o       Tulip crash fix on weird eeproms
+
+Hopefully an update with this and more will be out this week.
+
+	Jeff
+
+
+
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

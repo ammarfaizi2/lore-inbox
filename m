@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUGBIg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUGBIrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266512AbUGBIg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 04:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUGBIg4
+	id S261375AbUGBIrD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 04:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUGBIrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 04:36:56 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:53519 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S266512AbUGBIgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 04:36:55 -0400
-Date: Fri, 2 Jul 2004 10:21:20 +0200
-From: DervishD <raul@pleyades.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Voodoo3 2000 is eating my chars!
-Message-ID: <20040702082120.GA567@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20040701185527.GB122@DervishD> <20040702073636.GA25592@babylon.d2dc.net>
+	Fri, 2 Jul 2004 04:47:01 -0400
+Received: from [203.178.140.15] ([203.178.140.15]:61449 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S266514AbUGBIqm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 04:46:42 -0400
+Date: Fri, 02 Jul 2004 17:47:53 +0900 (JST)
+Message-Id: <20040702.174753.93406678.yoshfuji@linux-ipv6.org>
+To: davem@redhat.com, yxie@cs.stanford.edu
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [BUGS] [CHECKER] 99 synchronization bugs and a lock summary
+ database
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <Pine.LNX.4.44.0407011747040.4015-100000@kaki.stanford.edu>
+References: <Pine.LNX.4.44.0407011747040.4015-100000@kaki.stanford.edu>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040702073636.GA25592@babylon.d2dc.net>
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Zephaniah :)
+Hello.
 
- * Zephaniah E. Hull <warp@babylon.d2dc.net> dixit:
-> >     I recently put a Voodoo3 2000 (AGP) card to my home linux box,
-> > and now I have a problem in the console. When switching from X to the
-> > console, some chars dissappear, or appear cut, etc. I've googled for
-> > this, but with no success. Is this a known bug? Maybe an X bug?
-> This is actually an X bug, which I thought I had fixed a long time ago
-> when I was still doing 3Dfx stuff.
+In article <Pine.LNX.4.44.0407011747040.4015-100000@kaki.stanford.edu> (at Thu, 1 Jul 2004 18:01:00 -0700 (PDT)), Yichen Xie <yxie@cs.stanford.edu> says:
 
-    It happens only sometimes, but happens :(
+>     http://glide.stanford.edu/linux-lock/err1.html (69 errors)
+:
+> err1.html consists of potential double locks/unlocks. Acquiring a lock
+> twice in a row may result in a system hang, and releasing a lock more than
+> once with certain mutex functions (e.g. up) may cause critical section
+> violations.
+
+Well,
+lapb_iface.c:lapb_unregister() has typo and we failed to get lapb_list_lock.
+rose_route.c:rose_remove_node()'s caller has rose_node_list_lock; so, this is 
+dead lock.
+
+Here's the fix.
+
+===== net/lapb/lapb_iface.c 1.14 vs edited =====
+--- 1.14/net/lapb/lapb_iface.c	2004-01-11 08:39:04 +09:00
++++ edited/net/lapb/lapb_iface.c	2004-07-02 17:23:27 +09:00
+@@ -176,7 +176,7 @@
+ 	struct lapb_cb *lapb;
+ 	int rc = LAPB_BADTOKEN;
  
-> I no longer have either an X tree to easily play in, nor a 3Dfx card in
-> a box to test with, so I'm afraid that you're going to have to bug the X
-> people.
+-	write_unlock_bh(&lapb_list_lock);
++	write_lock_bh(&lapb_list_lock);
+ 	lapb = __lapb_devtostruct(dev);
+ 	if (!lapb)
+ 		goto out;
+===== net/rose/rose_route.c 1.12 vs edited =====
+--- 1.12/net/rose/rose_route.c	2004-06-04 09:11:24 +09:00
++++ edited/net/rose/rose_route.c	2004-07-02 17:26:08 +09:00
+@@ -206,7 +206,6 @@
+ {
+ 	struct rose_node *s;
+ 
+-	spin_lock_bh(&rose_node_list_lock);
+ 	if ((s = rose_node_list) == rose_node) {
+ 		rose_node_list = rose_node->next;
+ 		kfree(rose_node);
 
-    Thanks anyway for pointing :) I don't have a bugzilla account so
-I've tried the X mailing list first. Well, this bug is harmless
-anyway, just... annoying ;)
-
-    Raúl Núñez de Arenas Coronado
+Thanks.
 
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

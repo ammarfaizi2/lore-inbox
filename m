@@ -1,71 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129619AbQKBWQp>; Thu, 2 Nov 2000 17:16:45 -0500
+	id <S129716AbQKBWXq>; Thu, 2 Nov 2000 17:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129716AbQKBWQe>; Thu, 2 Nov 2000 17:16:34 -0500
-Received: from 209-164-222-32.iglobal.net ([209.164.222.32]:32643 "EHLO
-	liu.fafner.com") by vger.kernel.org with ESMTP id <S129619AbQKBWQT>;
-	Thu, 2 Nov 2000 17:16:19 -0500
-From: Elizabeth Morris-Baker <eamb@liu.fafner.com>
-Message-Id: <200011022158.PAA08240@liu.fafner.com>
-Subject: Re: scsi init problem in 2.4.0-test10?
-To: chen_xiangping@emc.com (chen, xiangping)
-Date: Thu, 2 Nov 2000 15:58:24 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <276737EB1EC5D311AB950090273BEFDD979DF6@elway.lss.emc.com> from "chen, xiangping" at Nov 02, 2000 04:49:11 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S129819AbQKBWXg>; Thu, 2 Nov 2000 17:23:36 -0500
+Received: from cr416993-a.ym1.on.wave.home.com ([24.112.193.232]:32019 "EHLO
+	cr416993-a.ym1.on.wave.home.com") by vger.kernel.org with ESMTP
+	id <S129716AbQKBWXb>; Thu, 2 Nov 2000 17:23:31 -0500
+Date: Thu, 2 Nov 2000 17:23:07 -0500 (EST)
+From: "D. Hugh Redelmeier" <hugh@mimosa.com>
+Reply-To: hugh@mimosa.com
+To: Tim Riker <Tim@Rikers.org>
+cc: Andrea Arcangeli <andrea@suse.de>, Andi Kleen <ak@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux?
+In-Reply-To: <3A01C7CD.C5AEB5B5@Rikers.org>
+Message-ID: <Pine.LNX.4.21.0011021655260.8398-100000@redshift.mimosa.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Hello,
+| From: Tim Riker <Tim@Rikers.org>
 
-	Yes, I encountered the same problem, and have a fix, but
-	want to test it. If the author of scsi_scan.c would like
-	to correct it, then that would be fine.
+| However, it makes me a bit nervous to take this route. It assumes that
+| the way gcc does things is the "best way". A more formal route of adding
+| to the ANSI C standard would involve more eyes and therefore hopefully
+| add to the quality of what has been done solely for gcc.
+| 
+| This started off with some comments from the group (hpa in particular)
+| that even between gcc releases, the gcc extensions have been much less
+| stable that the standard compiler features. The danger of implementing
+| gcc extensions in another compiler is that these feature are solely
+| under the control of the gcc team. They are to a large degree
+| "documented as implemented" and as such can be difficult to determine
+| the Right Way to implement. The Good Things that are in gcc, that we
+| believe are implemented the Right Way should probably be added to the
+| ANSI C spec. The others should be avoided, especially when there is an
+| existing ANSI C way to do them.
 
-	Basically the problem is in scan_scsis_single.
-	Some scsi devices are notoriously brain dead
-	about answering inquiries without having 
-	recived a TUR and then spinning up.
-	The problem seems to be the disk, not the controller,
-	if this is the same problem.
+I strongly support Tim's direction here.
 
-	The problem appeared in the test kernels because
-	the TUR *used* to be there, now it is not.
+I've found that code improves when you port it to different compilers
+(unless you are in a hurry -- then it grows warts).
 
-	Hope this helps.
+Being GCC-dependent is rather parochial.  Being GCC-version-dependent
+is downright embarrassing.
 
-	Just curious, what kind of scsi disk do you have??
-	lemme guess... Compaq Atlas?? :>
+Summary: spurious GCC-isms are a bad thing.
 
-	cheers, 
+Earlier, Tim gave quite a good outline of how to address GCCisms.
+My summary:
 
-	Elizabeth
+- use ISO C 89 when possible (without undue pain)
 
-> 
-> I met a problem when trying to upgrade my Linux kernel to 2.4.0-test10.
-> The machine is Compay AP550, dual processor, mem 512 MB, and 863 MHZ freq.
-> It has two scsi host adaptors. one is AIC-7892 ultra 160/m connected to 
-> internal hard disk, and the other is AHA-3944 ultra scsi connected to 
-> an attached disk. The boot process stops after detection of the first
-> scsi host, error info is:
-> 	scsi: aborting command due to time out: pid0, scsci1, channel 0, 
-> 	id 0, lun 0, Inquiry 00 00 00 ff 00
-> 
-> Previous OS on this machine was RedHat 6.2 kernel version 2.2.14
-> 
-> looking forward to your help!
-> 
-> Xiangping
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+- use IOS C 99 when advantageous
+
+- use GCCisms for the remainder of appropriate things BUT embed them
+  in macros defined in header so that they can be systematically
+  replaced.  Using these macros probably makes the code more readable.
+  Use of any GCCism should probably be justified in commentary.
+
+This would improve the code *and* make it more portable.
+
+The important advantages accrue to everyone, including those who never
+use a different compiler.
+
+Hugh Redelmeier
+hugh@mimosa.com  voice: +1 416 482-8253
+
+PS: I don't agree with all that ISO SC22 WG14 does, but I think that
+its work is valuable.  I attended their meeting in Toronto a couple of
+weeks ago.
+
+PPS: my own C compiler is not a toy and does not implement "packed".
+I've not even thought of trying it on the linux kernel, but experience
+shows that putting a program through my compiler does point to places
+to improve the code.  Ask Miguel de Icaza, for example.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

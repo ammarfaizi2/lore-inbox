@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264472AbTKNVer (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 16:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbTKNVer
+	id S264387AbTKNVsE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 16:48:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264470AbTKNVsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 16:34:47 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:3055 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S264472AbTKNVeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 16:34:37 -0500
-Message-ID: <3FB54A62.6020601@nortelnetworks.com>
-Date: Fri, 14 Nov 2003 16:34:26 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Fri, 14 Nov 2003 16:48:03 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48364 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264387AbTKNVsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 16:48:01 -0500
+Date: Fri, 14 Nov 2003 13:47:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: 2.6.0-test9-mm3
+In-Reply-To: <103290000.1068847073@flay>
+Message-ID: <Pine.LNX.4.44.0311141344290.5877-100000@home.osdl.org>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: why no Kconfig in "kernel" subdir?
-References: <3FB50B4D.1000300@nortelnetworks.com> <20031114092319.5260bd01.rddunlap@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
 
+On Fri, 14 Nov 2003, Martin J. Bligh wrote:
+> 
+> Linus had some debug thing for triple faults, a few months ago, IIRC ...
+> probably in the archives somewhere ...
 
-> I consider PREEMPT and SMP arch-specific, not generic.
+Triple faults you can't debug, they raise a line outside the CPU, and 
+normal PC hardware will cause that to just trigger a reboot.
 
-Interesting.  Might I ask why?  I thought that most of PREEMPT was 
-pretty arch-neutral.
+But double faults do get caught, and that debugging stuff actually is in
+the standard kernel. It won't give _nearly_ as good a debug report as a
+"normal" oops, since I didn't want the double-fault handler to touch
+anything even remotely unsafe, but it often gives a good hint about what
+might be wrong. Certainly better than triple-faulting did (which we still
+do for _catastrophic_ corruption, eg totally munged kernel page tables etc
+- it's just very hard to avoid once you get corrupted enough).
 
-> Will init/Kconfig do what you want?
-
-As long as there is some place to put generic options that are 
-applicable to the system as a whole, then I'm happy.
-
-Chris
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+		Linus
 

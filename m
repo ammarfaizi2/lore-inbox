@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316342AbSIDXdf>; Wed, 4 Sep 2002 19:33:35 -0400
+	id <S316538AbSIDXju>; Wed, 4 Sep 2002 19:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316446AbSIDXde>; Wed, 4 Sep 2002 19:33:34 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:14582
+	id <S316541AbSIDXju>; Wed, 4 Sep 2002 19:39:50 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:17910
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316342AbSIDXdX>; Wed, 4 Sep 2002 19:33:23 -0400
-Subject: Re: IDE write speed (Promise versus AMD)
+	id <S316538AbSIDXjt>; Wed, 4 Sep 2002 19:39:49 -0400
+Subject: RE: Problem on a kernel driver(SuSE, SMP)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020904195729.A3985@fi.muni.cz>
-References: <20020904195729.A3985@fi.muni.cz>
+To: "Libershteyn, Vladimir" <vladimir.libershteyn@hp.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <8C18139EDEBC274AAD8F2671105F0E8E012704D7@cacexc02.americas.cpqcorp.net>
+References: <8C18139EDEBC274AAD8F2671105F0E8E012704D7@cacexc02.americas.cpqcorp.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 05 Sep 2002 00:38:35 +0100
-Message-Id: <1031182715.2788.144.camel@irongate.swansea.linux.org.uk>
+Date: 05 Sep 2002 00:44:33 +0100
+Message-Id: <1031183073.2796.149.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-04 at 18:57, Jan Kasprzak wrote:
-> - it takes about 50 seconds (~40 MByte/s write speed) on hda, hdb and hdc,
-> but 2 minutes 48 seconds (~12 MByte/s write speed) on hde, hdf and hdg.
-> I have 1 GB of RAM, server is dual athlon 2000+. Kernel is 2.4.20-pre5-ac1.
-> 
-> 	Is there any problem with the Promise IDE driver on Linux?
+On Wed, 2002-09-04 at 18:56, Libershteyn, Vladimir wrote:
 
-One or two with various versions. I've seen the same thing with both IDE
-and non IDE devices with the AMD chipset. The two 64bit slots and the
-onboard I/O seems to have markedly higher write throughput. 
+> 	//
+> 	// sleep until data is ready
+> 	//
+> 	down_interruptible(&a->sem[enumerator]);
+
+Suppose its interrupted. You dont check that and handle it..
+
+
+> 	board_address = ((unsigned long *)((unsigned char *)a->vaddr + OutputQueueFilled));
+> 	length = *board_address;
+
+You can't poke around in memory directly either. Yes it works on x86 but
+unless you use ioremap combined with readl and friends it wont work they
+way you expect on ia64, x86-64, ...
 
 

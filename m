@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUHNQyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUHNRCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264153AbUHNQyA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 12:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUHNQyA
+	id S264213AbUHNRCp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 13:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUHNRCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 12:54:00 -0400
-Received: from mail501.nifty.com ([202.248.37.209]:16341 "EHLO
-	mail501.nifty.com") by vger.kernel.org with ESMTP id S264153AbUHNQxx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 12:53:53 -0400
-To: linux-kernel@vger.kernel.org
-Subject: TG3 doesn't work in kernel 2.4.27
-From: Tetsuo Handa <a5497108@anet.ne.jp>
-Message-Id: <200408150152.EAC63479.8815296B@anet.ne.jp>
-X-Mailer: Winbiff [Version 2.43]
-X-Accept-Language: ja,en
-Date: Sun, 15 Aug 2004 01:53:49 +0900
+	Sat, 14 Aug 2004 13:02:45 -0400
+Received: from gateway.nixsys.be ([195.144.77.33]:9740 "EHLO gateway.nixsys.be")
+	by vger.kernel.org with ESMTP id S264213AbUHNRCn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 13:02:43 -0400
+Subject: Issue with i82365 PCMCIA controller in 2.6.8.1
+From: Wouter Verhelst <wouter@grep.be>
+Reply-To: wouter@grep.be
+To: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Grep.be -- Grep the Internet :-)
+Message-Id: <1092502955.2228.6.camel@rock.grep.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 14 Aug 2004 19:02:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I'm using tg3.o with DHCP and PXE boot environment
-and I updated from 2.4.26 to 2.4.27,
-but tg3.o became not working with IBM BladeCenter.
+I just compiled 2.6.8.1 for my system, and found the following in dmesg:
 
-I think tg3.o in 2.4.27 is generating something broken arp.
-When I run 'arp' in the DHCP server (who doesn't use tg3.o),
-the entry with <incomplete> status appears.
-The IP address which has the <incomplete> status is
-the DHCP client's (who is using tg3.o in 2.4.27).
+-----
+Intel ISA PCIC probe: not found.
+Device 'i823650' does not have a release() function, it is broken and must be fixed.
+Badness in device_release at drivers/base/core.c:85
+ [<c01ac814>] kobject_cleanup+0x94/0xa0
+ [<c033b973>] init_i82365+0x1a3/0x1c0
+ [<c032678c>] do_initcalls+0x2c/0xc0
+ [<c01003f0>] init+0x0/0xf0
+ [<c010041a>] init+0x2a/0xf0
+ [<c0102298>] kernel_thread_helper+0x0/0x18
+ [<c010229d>] kernel_thread_helper+0x5/0x18
+-----
 
-The workaround I took is to replace tg3.h and tg3.c
-in 2.4.27 with the files in 2.4.26, and it seems working fine.
+... which reminded me that I still had this in my .config (the card
+isn't in there anymore since quite a while now, so the failure to find
+it is expected).
 
-Thanks.
+Apologies if this has already been reported, but googling didn't reveal
+anything.
 
---
-Tetsuo Handa
+-- 
+         EARTH
+     smog  |   bricks
+ AIR  --  mud  -- FIRE
+soda water |   tequila
+         WATER
+ -- with thanks to fortune
+

@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVADKnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVADKro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVADKnl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 05:43:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVADKnl
+	id S261607AbVADKro (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 05:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVADKrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 05:43:41 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:8049 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261597AbVADKnj (ORCPT
+	Tue, 4 Jan 2005 05:47:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63372 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261607AbVADKrd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 05:43:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=OKJ82NJBRRxJ8zQdmWzncF3lY15NMSPnmIlBFxrNwds1/W5VrANZZzvMJ9yDshFba6yspN417MKnk3miuKd6R0qXKm3W6RRyeG3m52DbylrVETbDu9w8iFfk2xNW6iSqFnQ6A3jvXbWln4T/ATLk/seHqJOX/FmOBFTH9gSMtQo=
-Message-ID: <5a2cf1f6050104024368eb1424@mail.gmail.com>
-Date: Tue, 4 Jan 2005 11:43:39 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-Reply-To: jerome lacoste <jerome.lacoste@gmail.com>
-To: Norbert van Nobelen <norbert-kernel@edusupport.nl>
-Subject: Re: 50% CPU user usage but top doesn't list any CPU unfriendly task
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200501040851.23287.norbert-kernel@edusupport.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <5a2cf1f6050103134611114dbd@mail.gmail.com>
-	 <200501040851.23287.norbert-kernel@edusupport.nl>
+	Tue, 4 Jan 2005 05:47:33 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <28707.1104722227@ocs3.ocs.com.au> 
+References: <28707.1104722227@ocs3.ocs.com.au> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Jim Nelson <james4765@cwazy.co.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Coywolf Qi Hunt <coywolf@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: printk loglevel policy? 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.3
+Date: Tue, 04 Jan 2005 10:46:45 +0000
+Message-ID: <2583.1104835605@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jan 2005 08:51:23 +0100, Norbert van Nobelen
-<norbert-kernel@edusupport.nl> wrote:
-> The load and the CPU useage are two separate things:
-> Load: Defined by a programmer on an estimate on which his program is running
-> 100% fulltime, thus consuming little or more CPU/IO.
-> The interesting program you mention is the VoIP application. Is this program
-> multithreaded and is every thread using a little bit of CPU? Than it quickly
-> adds up to the mentioned 40%. 
 
-There are some threads in that app, not that many, and none show in
-the top listing (which displays at least 30 entries). So I don't think
-this sum scenario is valid.
+Keith Owens <kaos@ocs.com.au> wrote:
 
->The load is than also easily reached.
+> >That kind of garbled output has been known to happen, but
+> >the <console_sem> is supposed to prevent that (along with
+> >zap_locks() in kernel/printk.c).
+> 
+> Using multiple calls to printk to print a single line has always been
+> subject to the possibility of interleaving on SMP.  We just live with the
+> risk. Printing a complete line in a single call to printk is protected by
+> various locks.  Print a line in multiple calls is not protected.  If it
+> bothers you that much, build up the line in a local buffer then call printk
+> once.
+
+The oops writer breaks the locks. It's _really_ annoying when oopses happen
+simultaneously on separate CPUs - the oops reports end up interleaved
+char-by-char.
+
+My patch serialised oops writing.
+
+David

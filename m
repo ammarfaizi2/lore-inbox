@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbTFGHCu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 03:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTFGHCu
+	id S262636AbTFGHEh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 03:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbTFGHEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 03:02:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:25475 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262601AbTFGHCt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 03:02:49 -0400
-Date: Sat, 07 Jun 2003 00:11:40 -0700 (PDT)
-Message-Id: <20030607.001140.08328499.davem@redhat.com>
-To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
-Cc: manfred@colorfullife.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: problem with blk_queue_bounce_limit()
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <16097.36514.763047.738847@napali.hpl.hp.com>
-References: <200306062013.h56KDcLe026713@napali.hpl.hp.com>
-	<20030606.234401.104035537.davem@redhat.com>
-	<16097.36514.763047.738847@napali.hpl.hp.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Sat, 7 Jun 2003 03:04:37 -0400
+Received: from mail019.syd.optusnet.com.au ([210.49.20.160]:57814 "EHLO
+	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262636AbTFGHEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 03:04:36 -0400
+Date: Sat, 7 Jun 2003 17:16:24 +1000
+To: khromy <khromy@lnuxlab.ath.cx>, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIV-PATCH] Better CONFIG_X86_GENERIC description (was: Re: Generic x86 support in 2.5.70-bk)
+Message-ID: <20030607071624.GB1540@cancer>
+References: <20030601182532.GA1948@lnuxlab.ath.cx>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030601182532.GA1948@lnuxlab.ath.cx>
+User-Agent: Mutt/1.5.4i
+From: Stewart Smith <stewart@linux.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@napali.hpl.hp.com>
-   Date: Sat, 7 Jun 2003 00:05:06 -0700
 
-   But you're creating a new mapping for the old buffer.  What if you had
-   a DMA API implementation which consolidates multiple mapping attempts
-   of the same buffer into a single mapping entry (along with a reference
-   count)?  That would break the workaround.
-   
-I hope nobody is doing this, it would probably break other things
-we haven't considered yet.
+On Sun, Jun 01, 2003 at 02:25:32PM -0400, khromy wrote:
+> Generic x86 support (X86_GENERIC) [N/y/?] (NEW) ?
+> ^-- Am I the only one confused by this description?
 
-You can't support all the BIO_MERGE_BOUNDARY stuff properly in
-such a scheme. And you _WANT_ to support that when you have an
-IOMMU, it shrinks the DMA descriptor addr/len entries a chip
-has to DMA for each block I/O considerably.
+No, it's a bit funny (no, not ha-ha funny). Maybe this is a bit clearer?
 
-   Isn't the proper fix to (a) get a new buffer, (b) create a mapping for
-   the new buffer, (c) destroy the mapping for the old buffer.  That
-   should guarantee a different bus address, no matter what the
-   DMA-mapping implementation.
-   
-I suppose this would work, fell free to code this up for the
-tg3 driver for me because I certainly lack the time to do this.
+
+--- linux-2.5.70-bk11-orig/arch/i386/Kconfig	2003-06-06 23:55:43.000000000 +1000
++++ linux-2.5.70-bk11stew1/arch/i386/Kconfig	2003-06-07 17:11:16.000000000 +1000
+@@ -289,9 +289,13 @@
+ config X86_GENERIC
+        bool "Generic x86 support" 
+        help
+-       	  Including some tuning for non selected x86 CPUs too.
+-	  when it has moderate overhead. This is intended for generic 
+-	  distributions kernels.
++	  Instead of just including optimizations for the selected
++	  x86 variant (e.g. PII, Crusoe or Athlon), include some more
++	  generic optimizations as well. This will make the kernel
++	  perform better on x86 CPUs other than that selected.
++
++	  This is really intended for distributors who need more
++	  generic optimizations.
+ 
+ #
+ # Define implied options from the CPU selection here

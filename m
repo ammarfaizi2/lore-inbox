@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263555AbTDNQuN (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 12:50:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbTDNQuN (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 12:50:13 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:38586
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263555AbTDNQuM (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 12:50:12 -0400
-Subject: Re: [PATCH] M68k IDE updates
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0304141544130.28305-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0304141544130.28305-100000@vervain.sonytel.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050336224.25353.78.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Apr 2003 17:03:45 +0100
+	id S263558AbTDNQvI (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 12:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbTDNQvH (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 12:51:07 -0400
+Received: from odpn1.odpn.net ([212.40.96.53]:9425 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S263558AbTDNQvG (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 12:51:06 -0400
+To: linux-kernel@vger.kernel.org
+From: "Gabor Z. Papp" <gzp@myhost.mynet>
+Subject: Re: Linux 2.4.21pre7-ac1
+References: <200304141616.h3EGG1K22074@devserv.devel.redhat.com>
+Organization: Who, me?
+User-Agent: tin/1.5.18-20030412 ("Peephole") (UNIX) (Linux/2.4.21-pre6-gzp2 (i686))
+Message-ID: <2895.3e9ae9be.d69c1@gzp1.gzp.hu>
+Date: Mon, 14 Apr 2003 17:02:54 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-14 at 14:44, Geert Uytterhoeven wrote:
-> On 14 Apr 2003, Alan Cox wrote:
-> > On Llu, 2003-04-14 at 09:39, Geert Uytterhoeven wrote:
-> > > Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
-> > > on-disk data to be that way, for compatibility with e.g. TOS.
-> > 
-> > That is a higher level problem. You need a byteswap mode for the loop device
-> > it seems. Then you can read atari disks on any box..
-> 
-> You're talking about a different problem.
-> 
-> We want to read Atari disks on Ataris, too.
+ld -m elf_i386 -T /usr/src/linux-2.4.21-pre7-ac1-gzp2/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/media/media.o \
+        net/network.o \
+        /usr/src/linux-2.4.21-pre7-ac1-gzp2/arch/i386/lib/lib.a /usr/src/linux-2.4.21-pre7-ac1-gzp2/lib/lib.a /usr/src/linux-2.4.21-pre7-ac1-gzp2/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+fs/fs.o(.text+0x1baa9): In function `do_quotactl':
+: undefined reference to `sync_dquots_dev'
+make: *** [vmlinux] Error 1
 
-You can initrd a loop over ide root on the Atari. I can see reasons (performance)
-you don't want to do that, and I'm quite happy for someone to split the mmio ops
-for data/control to clean that up.
 

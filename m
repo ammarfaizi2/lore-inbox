@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263303AbTEIQaT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 12:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTEIQaT
+	id S263305AbTEIQbx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 12:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbTEIQbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 12:30:19 -0400
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:64960 "EHLO
-	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
-	id S263303AbTEIQaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 12:30:18 -0400
-Message-ID: <3EBBDA0A.2010709@blue-labs.org>
-Date: Fri, 09 May 2003 12:40:42 -0400
-From: David Ford <david+powerix@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030509
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: #include error (userland)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 9 May 2003 12:31:53 -0400
+Received: from 136.231.118.64.mia-ftl.netrox.net ([64.118.231.136]:1201 "EHLO
+	smtp.netrox.net") by vger.kernel.org with ESMTP id S263305AbTEIQbv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 12:31:51 -0400
+Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn't
+	work due to /dev/rtc issues
+From: Robert Love <rml@tech9.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030509070142.GU8978@holomorphy.com>
+References: <3EBAD63C.4070808@nortelnetworks.com>
+	 <20030509001339.GQ8978@holomorphy.com>
+	 <Pine.LNX.4.50.0305081735040.2094-100000@blue1.dev.mcafeelabs.com>
+	 <20030509003825.GR8978@holomorphy.com>
+	 <Pine.LNX.4.53.0305082052160.21290@chaos>
+	 <3EBB25FD.7060809@nortelnetworks.com>
+	 <20030509042659.GS8978@holomorphy.com> <3EBB4735.30701@nortelnetworks.com>
+	 <20030509062008.GT8978@holomorphy.com>
+	 <3EBB504C.1030001@nortelnetworks.com>
+	 <20030509070142.GU8978@holomorphy.com>
+Content-Type: text/plain
+Message-Id: <1052498824.867.8.camel@icbm>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.3 (1.3.3-2) (Preview Release)
+Date: 09 May 2003 12:47:05 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In file included from /usr/include/netinet/igmp.h:26,
-                 from /usr/include/libnet.h:69,
-                 from killtcp.c:6:
-/usr/include/linux/igmp.h:74:2: #error "Please fix <asm/byteorder.h>"
-make[1]: *** [killtcp.o] Error 1
+On Fri, 2003-05-09 at 03:01, William Lee Irwin III wrote:
 
+> Why not just keep track of it in the scheduler? The statistic is well-
+> defined in terms of things measurable at context switch and wakeup.
 
-What needs to be fixed?
+This would measure context switch latency.  Or something.
 
-David
+By definition, scheduling latency is the time from an interrupt which
+wakes the task up until the task is actually running.
 
+Historically, it has been measured by things like realfeel or amlat or
+whatever which generate interrupts and wake a waiting task up. You then
+measure the latency between the interrupt and when the task actually
+runs in user-space.
+
+So Chris can then go run this test under varying loads and see how bad
+the latency gets.  I understand his question, but (sorry Chris) I have
+no idea of the solution on PPC.
+
+	Robert Love
 

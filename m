@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132507AbRDRSjC>; Wed, 18 Apr 2001 14:39:02 -0400
+	id <S135246AbRDRSkv>; Wed, 18 Apr 2001 14:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135225AbRDRSix>; Wed, 18 Apr 2001 14:38:53 -0400
-Received: from virtualro.ic.ro ([194.102.78.138]:33284 "EHLO virtualro.ic.ro")
-	by vger.kernel.org with ESMTP id <S132507AbRDRSip>;
-	Wed, 18 Apr 2001 14:38:45 -0400
-Date: Wed, 18 Apr 2001 21:38:40 +0300 (EEST)
-From: Jani Monoses <jani@virtualro.ic.ro>
-To: Ben Pfaff <pfaffben@msu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Rage Mobility P/M
-In-Reply-To: <874rvmrraa.fsf@pfaffben.user.msu.edu>
-Message-ID: <Pine.LNX.4.10.10104182137100.1670-100000@virtualro.ic.ro>
+	id <S135225AbRDRSkl>; Wed, 18 Apr 2001 14:40:41 -0400
+Received: from pD9506FDF.dip.t-dialin.net ([217.80.111.223]:26240 "HELO
+	WernerOnline.de") by vger.kernel.org with SMTP id <S135246AbRDRSkd>;
+	Wed, 18 Apr 2001 14:40:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Frank Werner <develop@WernerOnline.de>
+Reply-To: develop@WernerOnline.de
+Organization: WERNER Software
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.3 - Problems with poweroff
+Date: Wed, 18 Apr 2001 20:33:44 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01041820334400.00500@mowgli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have trouble with the APM in kernel 2.4.3.
 
-Well I only use it with vesafb,but ywrap is doing strange stuff
-(maybe the card misreports the amount of memory on it) and redraw
-and ypan are sloooow... 
+I'm booting Win98SE and run loadlin 1.6a to booting the linux kenel 2.4.3. 
+Everything goes ok, but my machine will not turn off if I use the command 
+poweroff.
 
-On 18 Apr 2001, Ben Pfaff wrote:
+If I booting MS-DOS 6.22 from disk at the same machine, then running the same 
+loadlin and loading the same kernel, then the poweroff command will turn off 
+my computer.
 
-> Jani Monoses <jani@virtualro.ic.ro> writes:
-> 
-> > 	does the atyfb or aty128fb  support this chip?
-> > Device id of 4c4d.
-> > Using 2.4.3-ac7.
-> 
-> I have a Rage Mobility with the same device ID on my laptop
-> (Compaq Armada M700) but haven't been able to get it working with
-> framebuffer.  At any rate, atyfb is the proper one to use.  Let
-> me know if you get it working, I'd like to use it too.
-> -- 
-> "How could this be a problem in a country 
->  where we have Intel and Microsoft?"
-> --Al Gore on Y2K
-> 
+I'm not sure if this is a kernel specific problem, but I don't know where to 
+ask to help me.
 
+I don't understand, whats the difference to load the kernel from Win98SE or 
+from MS-Dos 6.22.
+
+Maybe someone can help me.
+
+Thanks
+
+Frank

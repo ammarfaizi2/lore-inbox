@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVATH4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVATIG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVATH4F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 02:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVATH4F
+	id S262071AbVATIG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 03:06:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVATIG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 02:56:05 -0500
-Received: from news.suse.de ([195.135.220.2]:31461 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262069AbVATHz6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 02:55:58 -0500
-Message-ID: <41EF640D.60102@suse.de>
-Date: Thu, 20 Jan 2005 08:55:57 +0100
-From: Hannes Reinecke <hare@suse.de>
-Organization: SuSE Linux AG
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: dtor_core@ameritech.net, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] remove input_call_hotplug (Take#2)
-References: <41EE651E.1060201@suse.de> <20050119214249.GC4151@kroah.com>
-In-Reply-To: <20050119214249.GC4151@kroah.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 20 Jan 2005 03:06:28 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:3495 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262071AbVATIGX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 03:06:23 -0500
+Date: Thu, 20 Jan 2005 00:04:41 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: George Anzinger <george@mvista.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+       john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050120080441.GF9975@atomide.com>
+References: <20050119000556.GB14749@atomide.com> <20050119094342.GB25623@elf.ucw.cz> <20050119171323.GB14545@atomide.com> <20050119174858.GB12647@dualathlon.random> <41EEE648.2010309@mvista.com> <20050119231702.GJ14545@atomide.com> <41EEFA4A.4070605@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41EEFA4A.4070605@mvista.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Jan 19, 2005 at 02:48:14PM +0100, Hannes Reinecke wrote:
+* George Anzinger <george@mvista.com> [050119 16:25]:
+> Tony Lindgren wrote:
+> >* George Anzinger <george@mvista.com> [050119 15:00]:
+> >
+> >>I don't think you will ever get good time if you EVER reprogramm the PIT. 
+> >>That is why the VST patch on sourceforge does NOT touch the PIT, it only 
+> >>turns off the interrupt by interrupting the interrupt path (not changing 
+> >>the PIT).  This allows the PIT to be the "gold standard" in time that it 
+> >>is designed to be.  The wake up interrupt, then needs to come from an 
+> >>independent timer.  My patch requires a local APIC for this.  Patch is 
+> >>available at http://sourceforge.net/projects/high-res-timers/
+> >
+> >
+> >Well on my test systems I have pretty good accurate time. But I agree,
+> >PIT is not the best option for interrupt. It should be possible to use
+> >other interrupt sources as well.
+> >
+> >It should not matter where the timer interrupt comes from, as long as 
+> >it comes when programmed. Updating time should be separate from timer
+> >interrupts. Currently we have a problem where time is tied to the
+> >timer interrupt.
 > 
->>Hi Dmitry,
->>
->>attached is the reworked patch for removing the call to 
->>call_usermodehelper from input.c
->>I've used the 'phys' attribute to generate the device names, this way we 
->>don't need to touch all drivers and the patch itself is nice and small.
-> 
-> 
-> The main problem of this is the input_dev structures are created
-> statically, right?  Because of this, the release function really doesn't
-> work out correctly I think....
-> 
-That depends on the driver. input_dev is in general a static entry in 
-the driver-dependend structure, which in turn may be statically or 
-dynamically allocated (depending on whether the driver allows for more 
-than one instance of the device to be connected).
-Would dynamic allocation be of any help here?
+> In the HRT code time is most correctly stated as wall_time + 
+> get_arch_cycles_since(wall_jiffies) (plus conversion or two:)).  This is 
+> some what removed from the tick interrupt, but is resynced to that 
+> interrupt more or less each interrupt.
 
-I must admit that reference counting in sysfs is still a somewhat 
-darkish grey box to me.
+That sounds very accurate :)
 
-> Other than that this looks a lot better.
-> 
-kewl.
+> A second issue is trying to get the jiffies update as close to the run of 
+> the timer list as possible.  Without this we have no hope of high res 
+> timers.
 
-> Hm, you're still generating hotplug events with this patch of the
-> "input_device" type, right?
-> 
-Of course. I didn't see another way, as already stated the originial 
-input events were something of a misnomer.
-So either I had to change the existing sysfs layout by renaming the 
-current 'input' class and retain compability with the events
-or change the event types and retain compability with the sysfs layout.
-I opted for the latter, as AFAIK more userland tools might be reading 
-from sysfs than processing hotplug events.
+OK. But if the timer interrupt is separated from updating the time,
+the next timer interrupt should be programmable to happen exactly
+when a HRT timer needs it, right?
 
-Cheers,
+Hmm, how about using a pool of programmable timers available on the 
+system for the timer interrupts and HRT? Or is one interrupt source
+always enough?
 
-Hannes
--- 
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux AG				S390 & zSeries
-Maxfeldstraße 5				+49 911 74053 688
-90409 Nürnberg				http://www.suse.de
+Tony

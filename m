@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264156AbTFPTB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 15:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTFPTB5
+	id S264178AbTFPTHz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 15:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbTFPTHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 15:01:57 -0400
-Received: from mailf.telia.com ([194.22.194.25]:56551 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id S264156AbTFPTBz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 15:01:55 -0400
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-Message-ID: <3EEE173A.8040802@telia.com>
-Date: Mon, 16 Jun 2003 21:15:06 +0200
-From: Peter Lundkvist <p.lundkvist@telia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.71 go boom
-References: <87isr7cjra.fsf@jumper.lonesom.pp.fi> <20030615191125.I5417@flint.arm.linux.org.uk> <87el1vcdrz.fsf@jumper.lonesom.pp.fi> <20030615212814.N5417@flint.arm.linux.org.uk> <87he6qc3bb.fsf@jumper.lonesom.pp.fi> <20030616085403.A5969@flint.arm.linux.org.uk>
-In-Reply-To: <20030616085403.A5969@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.74.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Mon, 16 Jun 2003 15:07:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46747 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264178AbTFPTHz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 15:07:55 -0400
+Date: Mon, 16 Jun 2003 20:21:46 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: "Downing, Thomas" <Thomas.Downing@ipc.com>
+Cc: root@chaos.analogic.com, Patrick Mochel <mochel@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+       david-b@pacbell.net, linux-kernel@vger.kernel.org
+Subject: Re: GFDL in the kernel tree
+Message-ID: <20030616192146.GR6754@parcelfarce.linux.theplanet.co.uk>
+References: <170EBA504C3AD511A3FE00508BB89A9202301AF6@exnanycmbx4.ipc.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <170EBA504C3AD511A3FE00508BB89A9202301AF6@exnanycmbx4.ipc.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+On Mon, Jun 16, 2003 at 02:45:55PM -0400, Downing, Thomas wrote:
+> IMBMSB is the GFDL the 'Gnu Free Documentation License'?
+> Has Gnu produced a doc license that is incompatible with GPL?
+> Looks like it...but I can understand the purpose behind the
+> GFDL.
 > 
-> Which was the latest kernel version which didn't show the problem?
-> There doesn't seem to be any PCI, PCMCIA or driver model changes
-> from 2.5.70-bk12 to 2.5.70-bk13.
-> 
-> There are changes in:
-> 
-> 	-bk11 (pci)
-> 	-bk10 (pci)
-> 	-bk9 (driver model)
-> 	-bk4 (pci)
-> 	-bk2 (pcmcia)
+> Seems like GNU needs a simple doc license a la BSD doc license
+> to fill the gap between a formally published doc 'GFDL' and the
+> sort of stuff in the kernel tree 'BSDish'.
 
-I get the same problems: cardbus works only if I boot with the card
-inserted. If I insert the card later I get two PCI device entries
-for the device, and can't get any interrupts from the card (sometimes
-the driver complains about the chip not responding (8139too)).
-Tested with the following versions (exactly the same behaviour):
-   2.5.69-bk10
-   2.5.70
-   2.5.70-bk2
-   2.5.70-bk5
-   2.5.70-bk18
-   2.5.71
-
-2.5.69-bk9 was OK.
-
-/peter
-
-
+List name is linux-kernel.  Linux is not GNU, so kindly take that
+to appropriate place (gnu.misc.discuss, alt.tasteless, whatever).

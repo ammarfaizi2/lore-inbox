@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285910AbRLTDIN>; Wed, 19 Dec 2001 22:08:13 -0500
+	id <S285907AbRLTDHW>; Wed, 19 Dec 2001 22:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285912AbRLTDIC>; Wed, 19 Dec 2001 22:08:02 -0500
-Received: from tierra.ucsd.edu ([132.239.214.132]:28818 "EHLO burn")
-	by vger.kernel.org with ESMTP id <S285910AbRLTDHp>;
-	Wed, 19 Dec 2001 22:07:45 -0500
-Date: Wed, 19 Dec 2001 19:07:16 -0800
-To: "David S. Miller" <davem@redhat.com>
+	id <S285904AbRLTDHL>; Wed, 19 Dec 2001 22:07:11 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:9602 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285907AbRLTDHF>;
+	Wed, 19 Dec 2001 22:07:05 -0500
+Date: Wed, 19 Dec 2001 19:06:29 -0800 (PST)
+Message-Id: <20011219.190629.03111291.davem@redhat.com>
+To: kerndev@sc-software.com
 Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
         linux-kernel@vger.kernel.org, linux-aio@kvack.org
 Subject: Re: aio
-Message-ID: <20011219190716.A26007@burn.ucsd.edu>
-In-Reply-To: <20011219171631.A544@burn.ucsd.edu> <20011219.172046.08320763.davem@redhat.com> <20011219182628.A13280@burn.ucsd.edu> <20011219.184527.31638196.davem@redhat.com>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.3.95.1011219184950.581H-100000@scsoftware.sc-software.com>
+In-Reply-To: <20011219.184527.31638196.davem@redhat.com>
+	<Pine.LNX.3.95.1011219184950.581H-100000@scsoftware.sc-software.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011219.184527.31638196.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 06:45:27PM -0800
-From: Bill Huey <billh@tierra.ucsd.edu>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 19, 2001 at 06:45:27PM -0800, David S. Miller wrote:
-> So they'll get paid to implement and support it, and that is precisely
-> what is happening right now.  And the whole point I'm trying to make
-> is that that is where it's realm is right now.
-> 
-> If AIO was so relevant+sexy we'd be having threads of discussion about
-> the AIO implementation instead of threads about how relevant it is or
-> is not for the general populace.  Wouldn't you concur?  :-)
+   From: John Heil <kerndev@sc-software.com>
+   Date: Wed, 19 Dec 2001 18:57:34 +0000 (   )
+   
+   True for now, but if we want to expand linux into the enterprise and the
+   desktop to a greater degree, then we need to support the Java community to
+   draw them and their management in, rather than delaying beneficial 
+   features until their number on lkml reaches critical mass for a design
+   discussion.
 
-I attribute the lack of technical discussion to the least common denomiator
-culture of the Linux community and not the merits of the actual technical
-system itself. That's what linux-aio@ is for...
+Firstly, you say this as if server java applets do not function at all
+or with acceptable performance today.  That is not true for the vast
+majority of cases.
 
-And using lkml as a AIO forum is probably outside of the scope of this list
-and group.
-
-> The people doing Java server applets are such a small fraction of the
-> Linux user community.
-
-Yeah, but the overall Unix community probably has something different to say
-about that, certainly. Even in BSD/OS, this JVM project I've been working on is
-recognized as one of the most important systems second (probably) only to the
-kernel itself. And, IMO, they have a more balanced view of this language
-system and the value of it economically as a money making platform instead of
-showing off to their peers. It's a greatly anticipated project in all of the
-BSDs.
-
-That's my semi-obnoxious take on it. ;-)
-
-bill
-
+If java server applet performance in all cases is dependent upon AIO
+(it is not), that would be pretty sad.  But it wouldn't be the first
+time I've heard crap like that.  There is propaganda out there telling
+people that 64-bit address spaces are needed for good java
+performance.  Guess where that came from?  (hint: they invented java
+and are in the buisness of selling 64-bit RISC processors)

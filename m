@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263527AbRFFQQI>; Wed, 6 Jun 2001 12:16:08 -0400
+	id <S263530AbRFFQQs>; Wed, 6 Jun 2001 12:16:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263529AbRFFQP6>; Wed, 6 Jun 2001 12:15:58 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:34970 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263527AbRFFQPn>;
-	Wed, 6 Jun 2001 12:15:43 -0400
-Message-ID: <3B1E572B.1CEEF41B@mandrakesoft.com>
-Date: Wed, 06 Jun 2001 12:15:39 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
-X-Accept-Language: en
+	id <S263531AbRFFQQj>; Wed, 6 Jun 2001 12:16:39 -0400
+Received: from h55t105.delphi.afb.lu.se ([130.235.188.122]:45582 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S263530AbRFFQQ1>;
+	Wed, 6 Jun 2001 12:16:27 -0400
+Date: Wed, 6 Jun 2001 18:16:08 +0200 (CEST)
+From: Peter Svensson <petersv@psv.nu>
+To: Chris Boot <bootc@worldnet.fr>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        "David N. Welton" <davidw@apache.org>, Pavel Machek <pavel@suse.cz>
+Subject: Re: temperature standard - global config option?
+In-Reply-To: <B74421C0.F6F7%bootc@worldnet.fr>
+Message-ID: <Pine.LNX.4.33.0106061814470.1655-100000@cheetah.psv.nu>
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        "Christian =?iso-8859-1?Q?Borntr=E4ger?=" 
-	<linux-kernel@borntraeger.net>,
-        Derek Glidden <dglidden@illusionary.com>
-Subject: Re: Requirement: swap = RAM x 2.5 ??
-In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com>
-		<991815578.30689.1.camel@nomade>
-		<20010606095431.C15199@dev.sportingbet.com>
-		<0106061316300A.00553@starship>
-		<200106061528.f56FSKa14465@vindaloo.ras.ucalgary.ca>
-		<000701c0ee9f$515fd6a0$3303a8c0@einstein>
-		<3B1E52FC.C17C921F@mandrakesoft.com> <200106061612.f56GCbA14901@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> 
-> Jeff Garzik writes:
-> >
-> > I'm sorry but this is a regression, plain and simple.
-> >
-> > Previous versons of Linux have worked great on diskless workstations
-> > with NO swap.
-> >
-> > Swap is "extra space to be used if we have it" and nothing else.
-> 
-> Sure. But Linux still works without swap. It's just that if you *do*
-> have swap, it works best with 2* RAM.
+On Wed, 6 Jun 2001, Chris Boot wrote:
 
-Yes, but that's not the point of the discussion.  Currently 2*RAM is
-more of a requirement than a recommendation.
+> I'm sorry, by I don't feel like adding 273 to every number I get just to
+> find the temperature of something.  What I would do is give configuration
+> options to choose the default (Celsius/centigrade, Kelvin, or [shudder]
+> Fahrenheit) then, when you need to print or output a temperature, send it
+> off to a common converter function so you don't repeat core all over the
+> place.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+Kelvin (decikelvin?) is probably a good unit to use in the kernel. If you
+want something else you convert it in the programs you use to interact
+with the kernel. This is a usespace issue, I think.
+
+Peter
+--
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
+
+

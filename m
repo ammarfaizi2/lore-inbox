@@ -1,53 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293632AbSDDTUQ>; Thu, 4 Apr 2002 14:20:16 -0500
+	id <S310206AbSDDTUP>; Thu, 4 Apr 2002 14:20:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293603AbSDDTUM>; Thu, 4 Apr 2002 14:20:12 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30227 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310201AbSDDTTp>; Thu, 4 Apr 2002 14:19:45 -0500
-Message-ID: <3CACA74A.1000004@zytor.com>
-Date: Thu, 04 Apr 2002 11:19:38 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020312
-X-Accept-Language: en-us, en, sv
+	id <S293632AbSDDTUH>; Thu, 4 Apr 2002 14:20:07 -0500
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:52929 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S293603AbSDDTSW>;
+	Thu, 4 Apr 2002 14:18:22 -0500
+Message-ID: <3CACA6E5.9080005@acm.org>
+Date: Thu, 04 Apr 2002 13:17:57 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 Boot enhancements, boot protocol 2.04 7/9
-In-Reply-To: <m1ofh0spik.fsf@frodo.biederman.org>	<a8flgc$ms2$1@cesium.transmeta.com>	<m1lmc3qtaz.fsf@frodo.biederman.org> <3CAC9BD4.5050500@zytor.com> <m1hemrqo9b.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: "Patrick R. McManus" <mcmanus@ducksong.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre4-ac4 kills my gdm
+In-Reply-To: <20020404142308.GA1177@ducksong.com> <E16t8yO-00068s-00@the-village.bc.nu> <20020404162112.GA1171@ducksong.com>
+Content-Type: multipart/mixed;
+ boundary="------------040400050600030902020804"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+This is a multi-part message in MIME format.
+--------------040400050600030902020804
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+  Patrick R. McManus wrote:
+
+>Alan,
 >
->>There can't be a "default load address".  0x90000 is actively dangerous and
->>trying to encourage it for anything than legacy kernels is WRONG. If you can't
->>handle this, then you need to go back to the drawing board.
-> 
-> 
-> I agree.  But I do think being able to hard code the load address is a
-> very good thing.
-> 
-> After digesting the requirements I plan on having setup.S call int 12h
-> (so the information is available), and then having misc.c relocate the
-> real mode code, and the command line, out of the way, of it's
-> decompression buffer.  This removes the need for bootloaders to
-> make a tradeoff between memory use efficiency and reliability.
-> 
-> This should give me about 630KB on machines designed to run DOS, where
-> this matters.   Better than the current best of 572KB, with the real
-> mode code @ 0x90000. 
-> 
-> And when your total size is 1-4MB.  +-640KB is a significant change.
-> 
+>mea culpa on this one - my problem appears to be with the only other
+>patch I was running - I believed I was also running it on ac3, but it
+>now appears that I was thinking of another box.
+>
+>The other patch was corey minyard's "allow signal handler to not call
+>handler" patch that I was interested in seeing its impact on a
+>userspace project of mine. It kills gdm (at least with ac4.. maybe
+>others?)
+>
+>thanks,
+>-Pat
+>
+Yet, it does seem to kill gdm. xdm and kdm seem to work fine.
 
-Agreed.  Note that so far putting the real mode code *above* 0x90000 is 
-completely untested.  It *should* work with boot protocol 2.02 support; 
-it almost certainly *does not* work with earlier boot protocols (due to 
-the "move it back to 0x90000" braindamage.)
+Ok, I see the problem. I've fixed it, booted and tried gdm, and it works 
+fine. The SA_ONESHOT was checked in the wrong place, the handler is set 
+in the frame_setup routines, so I have to check and set the handler due 
+to the SA_ONESHOT flag after this. The patch is attached.
 
-	-hpa
+-Corey
+
+
+
+--------------040400050600030902020804
+Content-Type: text/plain;
+ name="linux-nocallhndlr.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-nocallhndlr.patch"
+
+--- ./arch/i386/kernel/signal.c.nocallhndlr	Wed Mar 27 10:56:29 2002
++++ ./arch/i386/kernel/signal.c	Thu Apr  4 13:10:30 2002
+@@ -558,22 +558,25 @@
+ 		}
+ 	}
+ 
+-	/* Set up the stack frame */
+-	if (ka->sa.sa_flags & SA_SIGINFO)
+-		setup_rt_frame(sig, ka, info, oldset, regs);
+-	else
+-		setup_frame(sig, ka, oldset, regs);
++	/* Set up the stack frame if we are calling the handler. */
++	if (! (ka->sa.sa_flags & SA_NOCALLHNDLR)) {
++		if (ka->sa.sa_flags & SA_SIGINFO)
++			setup_rt_frame(sig, ka, info, oldset, regs);
++		else
++			setup_frame(sig, ka, oldset, regs);
++
++		if (!(ka->sa.sa_flags & SA_NODEFER)) {
++			spin_lock_irq(&current->sigmask_lock);
++			sigorsets(&current->blocked,&current->blocked,
++				  &ka->sa.sa_mask);
++			sigaddset(&current->blocked,sig);
++			recalc_sigpending(current);
++			spin_unlock_irq(&current->sigmask_lock);
++		}
++	}
+ 
+ 	if (ka->sa.sa_flags & SA_ONESHOT)
+ 		ka->sa.sa_handler = SIG_DFL;
+-
+-	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sigmask_lock);
+-		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
+-		sigaddset(&current->blocked,sig);
+-		recalc_sigpending(current);
+-		spin_unlock_irq(&current->sigmask_lock);
+-	}
+ }
+ 
+ /*
+--- ./include/asm-i386/signal.h.nocallhndlr	Wed Mar 27 10:56:12 2002
++++ ./include/asm-i386/signal.h	Thu Apr  4 13:02:07 2002
+@@ -91,6 +91,7 @@
+ #define SA_RESTART	0x10000000
+ #define SA_NODEFER	0x40000000
+ #define SA_RESETHAND	0x80000000
++#define SA_NOCALLHNDLR	0x00800000 /* Don't really call the handler. */
+ 
+ #define SA_NOMASK	SA_NODEFER
+ #define SA_ONESHOT	SA_RESETHAND
+
+--------------040400050600030902020804--
 

@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVAaXQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVAaXTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVAaXQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 18:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVAaXQ6
+	id S261428AbVAaXTy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 18:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVAaXTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 18:16:58 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16357 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261430AbVAaXQY (ORCPT
+	Mon, 31 Jan 2005 18:19:51 -0500
+Received: from gate.crashing.org ([63.228.1.57]:6568 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261428AbVAaXSw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 18:16:24 -0500
-Date: Mon, 31 Jan 2005 15:15:49 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Peter Osterlund <petero2@telia.com>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: Touchpad problems with 2.6.11-rc2
-Message-ID: <20050131151549.26f437b0@localhost.localdomain>
-In-Reply-To: <m3acqr895h.fsf@telia.com>
-References: <20050123190109.3d082021@localhost.localdomain>
-	<m3acqr895h.fsf@telia.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	Mon, 31 Jan 2005 18:18:52 -0500
+Subject: Re: Fw: Re: 2.6.11-rc2-mm2
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Joseph Fannin <jfannin@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Sean Neakums <sneakums@zork.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050131112106.GA3494@samarkand.rivenstone.net>
+References: <20050129163117.1626d404.akpm@osdl.org>
+	 <1107155510.5905.2.camel@gaston>
+	 <20050131112106.GA3494@samarkand.rivenstone.net>
+Content-Type: text/plain
+Date: Tue, 01 Feb 2005 10:18:33 +1100
+Message-Id: <1107213513.5963.26.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Peter:
+On Mon, 2005-01-31 at 06:21 -0500, Joseph Fannin wrote:
 
-The keyboard seems to work now, but I stepped on a very strange condition.
-Suddenly, touchpad motions started to cause wild movements in it became
-impossible to do anything due to a focus loss (of course, I had plenty of
-modified files open :-)
+>     I'm getting a blank screen with radeonfb on two boxes here as
+> well. One is a beige g3, the other is i386; both have PCI Radeon 7000s
+> with radeonfb non-modular. 
+> 
+>     On the PC I could see the earliest kernel messages in VGA text
+> mode before radeonfb took over and the screen went blank -- no
+> penguin, and the logo is enabled.  Booting with radeonfb:off seemed to
+> work except for the module problem in -rc2-mm2:
+> 
+>     On the ppc box I tried both -rc2-mm1 and -rc2-mm2.  Both hung and
+> then rebooted after 3 minutes, so it seems to be panicing somewhere.
+> I backed the massive-radeonfb patch out of -mm2 and radeonfb worked,
+> so I got as far as the module thing again.
+> 
+>     So yeah, it's possible that there's something in -mm1 that panics
+> my ppc, and radeonfb is just making a blank screen, but it seems more
+> likely that radeonfb is panicing.  I tried to get netconsole working
+> on both machines, but it didn't work out for unrelated reasons.
+> 
+>     Hopefully I'll have more time to poke at this tomorrow; maybe this
+> is helpful somehow.
 
-The dmesg looked like this:
+Hrm... indeed, there seem to be a problem, though I can't tell for sure
+what's up now, it just works on all the configs I had a chance to test
+on. Can you try to boot your G3 with serial console so you can see the
+panic message if any ?
 
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 3
-psmouse.c: TouchPad at isa0060/serio1/input0 - driver resynched.
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 3
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio1/input0 - driver resynched.
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 3
-psmouse.c: TouchPad at isa0060/serio1/input0 - driver resynched.
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 3
-psmouse.c: TouchPad at isa0060/serio1/input0 - driver resynched.
-psmouse.c: TouchPad at isa0060/serio1/input0 lost sync at byte 3
-psmouse.c: TouchPad at isa0060/serio1/input0 - driver resynched.
+Ben.
 
-Now I'm afraid to run that kernel again (2.6.11-rc2 + your patches
-1/4 and 2/4).
 
-I run that kernel with hardware tap disabled (tap_time = 0).
-
--- Pete

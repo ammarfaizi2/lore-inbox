@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265074AbSJWQKq>; Wed, 23 Oct 2002 12:10:46 -0400
+	id <S265076AbSJWQUo>; Wed, 23 Oct 2002 12:20:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265075AbSJWQKq>; Wed, 23 Oct 2002 12:10:46 -0400
-Received: from nameservices.net ([208.234.25.16]:15564 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S265074AbSJWQKp>;
-	Wed, 23 Oct 2002 12:10:45 -0400
-Message-ID: <3DB6CC71.9DA9A543@opersys.com>
-Date: Wed, 23 Oct 2002 12:21:05 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
-CC: Richard J Moore <richardj_moore@uk.ibm.com>,
-       Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-       S Vamsikrishna <vamsi_krishna@in.ibm.com>
-Subject: Re: 2.4 Ready list - Kernel Hooks
-References: <OFD4366ECB.CE549043-ON80256C5A.007614F9@portsmouth.uk.ibm.com> <20021023122841.G1421@almesberger.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265077AbSJWQUn>; Wed, 23 Oct 2002 12:20:43 -0400
+Received: from mail.hometree.net ([212.34.181.120]:30890 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265076AbSJWQUm>; Wed, 23 Oct 2002 12:20:42 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: feature request - why not make netif_rx() a pointer?
+Date: Wed, 23 Oct 2002 16:26:52 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <ap6ikc$1qc$1@forge.intermeta.de>
+References: <00b201c27a0e$3f82c220$800a140a@SLNW2K> <1035389494.3968.63.camel@irongate.swansea.linux.org.uk>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1035390412 8059 212.34.181.4 (23 Oct 2002 16:26:52 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 23 Oct 2002 16:26:52 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Werner Almesberger wrote:
-> Richard J Moore wrote:
-> > This is nothing more than a call-back mechanism such as could be used by
-> > LSM or LTT.
-> 
-> Hmm, Greg has already voiced some violent disagreement regarding
-> LSM :-) That leaves LTT. Given the more exploratory nature of LTT,
-> I wonder if [dk]probes wouldn't be quite sufficient there, too.
+>> Not putting an export into the source or exporting GPL_ONLY symbols
+>> won't hinder anyone. Because putting the hooks into a GPL source and
+>> then releasing the result (code + hooks) under GPL is perfectly legal.
 
-The whole point of tracing is that the system's behavior should not
-be modified but only recorded. Generating int3 won't do.
+>Not according to lawyers
 
-> Oh, you could probably have some "fast" probes by just checking
-> for a certain "anchor" pattern (e.g. a sequence of 5 nops on
-> i386), which could then be replaced with a direct call. This
-> optimization would have to be optional, in case some code yields
-> the anchor pattern such that it isn't also a basic block.
+"The kernel source code + hooks under GPL" definitely are.
 
-If I remember correctly, the optimized arch-dependent code in kernel
-hooks uses "compare immediate" and the value of the immediate is
-edited to enable/disable hooking. Given modern branch-prediction the
-cost should be quite close to an unconditional jump.
+"The kernel source code + hooks + binary modules" are doubtful, correct.
 
-Karim
+Sorry, my wording wasn't clear.
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+	Regards
+		Henning
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

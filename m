@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263866AbUDFPHL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 11:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbUDFPGR
+	id S263856AbUDFPGM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 11:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbUDFPGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 11:06:17 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:32179 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263850AbUDFPGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 11:06:09 -0400
-Date: Tue, 6 Apr 2004 16:03:33 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jan Killius <jkillius@arcor.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops with cpufreq on 2.6.5-mm1
-Message-ID: <20040406150333.GD6930@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jan Killius <jkillius@arcor.de>, linux-kernel@vger.kernel.org
-References: <20040406101609.GA25248@gate.unimatrix> <20040406135441.GC32405@redhat.com> <200404061653.14606.jkillius@arcor.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Apr 2004 11:06:12 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:35783 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S263856AbUDFPGC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 11:06:02 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Subject: Re: APIC error on CPU0
+Date: Tue, 6 Apr 2004 17:05:46 +0200
+User-Agent: KMail/1.6.2
+References: <200404060057.i360vtNV012133@harpo.it.uu.se>
+In-Reply-To: <200404060057.i360vtNV012133@harpo.it.uu.se>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Steve Youngs <sryoungs@bigpond.net.au>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200404061653.14606.jkillius@arcor.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404061705.56852.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 04:53:14PM +0200, Jan Killius wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- > >  > The patch have fixed the problem. thx
- > >
- > > Can you try out the fully merged patch at
- > > http://www.codemonkey.org.uk/projects/bitkeeper/cpufreq
- > > too please ?
- >
- > the patch don't apply clean to 2.6.5-mm1.
+On Tuesday 06 April 2004 02:57, you wrote:
+> On Mon, 5 Apr 2004 23:35:59 +0200, Michael Buesch wrote:
+> >What does this kernel message mean?
+> >
+> >Apr  5 23:16:20 lfs kernel: APIC error on CPU0: 60(60)
+> >Apr  5 23:16:31 lfs kernel: APIC error on CPU0: 60(60)
+> >
+> >kernel is 2.6.5 with reiser4 patch.
+> 
+> Send Illegal Vector and Receive Illegal Vector at the same time.
+> This is more interesting than the usual 40(40) errors
+> (just Receive Illegal Vector), since 60 implies that the
+> CPU itself is the source of the bogus vector, whereas 40
+> usually implies a crap mainboard.
+> 
+> My guess is that either your hardware (whatever it is,
+> you didn't leave any clues) has problems with a noisy
+> APIC bus, broken chipset, or something like that, or
+> you enabled ACPI and the ACPI tables are crap.
+> 
+> In any event, Linux is probably not the source of the
+> problem. You may need to run without I/O APIC ("noapic"
+> kernel param), no ACPI-based PCI routing ("pci=noapci"),
+> or completely without ACPI ("acpi=off").
 
-No, it's against 2.6.5 vanilla. You'll get it to apply to -mm
-if you backout (patch -R) the bk-cpufreq.patch  first from
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm1/broken-out/
+Ok, thanks for this long explanation.
+I think it's possible, that the reason is bad hardware.
 
-		Dave
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAcsdTFGK1OIvVOP4RAji5AJ9G4ms5U3ktWNDV0zih30XnPAMwxQCgqkxI
+5bDE3Tki3a+BSSyWS1kw9+Q=
+=Oqt5
+-----END PGP SIGNATURE-----

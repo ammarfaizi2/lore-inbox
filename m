@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315439AbSEUTAO>; Tue, 21 May 2002 15:00:14 -0400
+	id <S314546AbSEUTDM>; Tue, 21 May 2002 15:03:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315445AbSEUTAN>; Tue, 21 May 2002 15:00:13 -0400
-Received: from ns.suse.de ([213.95.15.193]:18696 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315439AbSEUTAM>;
-	Tue, 21 May 2002 15:00:12 -0400
-Date: Tue, 21 May 2002 21:00:11 +0200
-From: Dave Jones <davej@suse.de>
-To: "Peter J. Braam" <braam@clusterfs.com>
-Cc: Bob_Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.X: intermezzo compile errors
-Message-ID: <20020521210011.H15417@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"Peter J. Braam" <braam@clusterfs.com>,
-	Bob_Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <m17AApp-0005khC@gherkin.frus.com> <20020521124459.N24085@lustre.cfs>
-Mime-Version: 1.0
+	id <S315451AbSEUTDL>; Tue, 21 May 2002 15:03:11 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:40464 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S314546AbSEUTDL>;
+	Tue, 21 May 2002 15:03:11 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200205211902.g4LJ25562768@saturn.cs.uml.edu>
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+To: hch@infradead.org (Christoph Hellwig)
+Date: Tue, 21 May 2002 15:02:05 -0400 (EDT)
+Cc: acme@conectiva.com.br (Arnaldo Carvalho de Melo),
+        torvalds@transmeta.com (Linus Torvalds),
+        vda@port.imtp.ilyichevsk.odessa.ua (Denis Vlasenko),
+        zaitcev@redhat.com (Pete Zaitcev), linux-kernel@vger.kernel.org
+In-Reply-To: <20020521093357.A6641@infradead.org> from "Christoph Hellwig" at May 21, 2002 09:33:57 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002 at 12:44:59PM -0600, Peter J. Braam wrote:
- > Hi, 
- > 
- > Clearly we need to do something about this.  Apologies for the
- > problems. 
+Christoph Hellwig writes:
 
-Hi Peter,
- There are a bunch of fixes in my tree that have been either
- brought forward from 2.4, or have been submitted by janitors at
- some point. You may find that patch useful to begin with.
+------
+> FreeBSD has:
+> /* return 0 on success, EFAULT on failure */
+> int copyin(const void *udaddr, void *kaddr, size_t len);
+> int copyout(const void *kaddr, void *udaddr, size_t len);
 
- If you just want the intermezzo specific bits, let me know
- off list and I'll cut it up into bits.
+return copyin(x,y,z);                /* want EFAULT */
+return copyin(x,y,z) ? -1 : 0;       /* want -1 */
+return copyin(x,y,z);                /* want non-zero */
 
- (I'd rather shove this your way now than have to resync these fixes
-  after whatever you're about to do. I don't want a repeat of what
-  happened with reiserfs in my tree circa 2.5.3 8-)
+FreeBSD behavior might be best, considering where we
+are most likely to share drivers.
 
-    Dave.
+------
+> System V and derivates have:
+> /* return 0 on success, -1 on failure */
+> int  copyin(const  void  *userbuf, void *driverbuf, size_t cn);
+> int  copyout(const  void *driverbuf, void *userbuf, size_t cn);
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+System V behavior is the easiest to use:
+
+return copyin(x,y,z) & EFAULT;       /* want EFAULT */
+return copyin(x,y,z);                /* want -1 */
+return copyin(x,y,z);                /* want non-zero */
+
+------
+> OSF/1 has:
+> /* return 0 on success, some non-specified error on failure) */
+> int copyin(caddr_t user_src, caddr_t kernel_dest, u_int bcount);
+> int copyout(caddr_t kernel_src, caddr_t user_dest, u_int bcount);
+
+return copyin(x,y,z) ? EFAULT : 0;   /* want EFAULT */
+return copyin(x,y,z) ? -1 : 0;       /* want -1 */
+return copyin(x,y,z);                /* want non-zero */
+
+Yuck... but good if it makes the assembly any faster.
+
+------
+With -EFAULT on an error:
+
+return -copyin(x,y,z);       /* want EFAULT */
+return copyin(x,y,z)>>31;    /* want -1 (rely on gcc's sign awareness) */
+return copyin(x,y,z);        /* want non-zero */
+
+Well, I like it.

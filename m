@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRACVfm>; Wed, 3 Jan 2001 16:35:42 -0500
+	id <S129324AbRACVjn>; Wed, 3 Jan 2001 16:39:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129572AbRACVfd>; Wed, 3 Jan 2001 16:35:33 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:38736 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129348AbRACVfV>; Wed, 3 Jan 2001 16:35:21 -0500
-Date: Wed, 3 Jan 2001 22:35:04 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
-Cc: linux-kernel@vger.kernel.org, linux-parport@torque.net,
-        tim@cyberelk.demon.co.uk
-Subject: Re: Printing to off-line printer in 2.4.0-prerelease
-Message-ID: <20010103223504.L32185@athlon.random>
-In-Reply-To: <m2k88czda4.fsf@ppro.localdomain> <20010103201344.A3203@athlon.random> <m2hf3gz6yc.fsf@ppro.localdomain>
+	id <S129370AbRACVje>; Wed, 3 Jan 2001 16:39:34 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:23565
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129324AbRACVj2>; Wed, 3 Jan 2001 16:39:28 -0500
+Date: Thu, 4 Jan 2001 10:39:24 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Chris Mason <mason@suse.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alexander Viro <viro@math.psu.edu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] filemap_fdatasync & related changes
+Message-ID: <20010104103924.B28974@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.10.10101031027090.1896-100000@penguin.transmeta.com> <466640000.978548970@tiny>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m2hf3gz6yc.fsf@ppro.localdomain>; from peter.osterlund@mailbox.swipnet.se on Wed, Jan 03, 2001 at 10:00:59PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <466640000.978548970@tiny>; from mason@suse.com on Wed, Jan 03, 2001 at 02:09:30PM -0500
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2001 at 10:00:59PM +0100, Peter Osterlund wrote:
-> off.  Apparently the printer tells the computer it is OK to send data
-> to it when it is off.
+On Wed, Jan 03, 2001 at 02:09:30PM -0500, Chris Mason wrote:
 
-So then parport_write is probably buggy because it's losing data silenty while
-the printer is off. So the below is probably a band aid. Really some printer
-acts in a different way (see the LP_CAREFUL hack in 2.2.x) so it maybe that
-parport_write is ok on some printer and it would need something like a
-LP_CAREFUL option to work also on some other printer. Or maybe some parport
-handshake is badly designed in hardware and it cannot report errors (or maybe
-there's the hardware compatibility mode that cannot know about LP_CAREFUL to
-workaround some printer behaviour). In such case your patch is probably the
-only way to go (but almost certainly for the software compatibility mode it
-should be possible to report errors via parport_write as we do in 2.2.x).
+    The problem with [mf]sync is that we really want to write the
+    page before returning back to the application.
 
-> I also only get one DMA write timeout when putting the printer in
-> offline mode during sending, instead of repeated timeouts as I got
-> with the previous patch.
+We don't _want_ to -- we MUST. Some applications assume fsync and
+fdatasync work correctly; if they do not the all bests are off.
 
-I see, it makes sense to try to parport_write only when errors goes away, but I
-think it's nicer to have lp_error or lp_check_status that loops internally in
-interruptible mode if LP_ABORT isn't set via lptune. probably the code should
-be restructured a bit.
+This includes many MTAs, MDAs and databases (msync also being
+important).
 
-Andrea
+Looping somewhere before returning to the application is by far
+better than returning when some pages have yet to be flushed.
+
+
+
+  --cw
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

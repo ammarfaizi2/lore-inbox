@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263760AbSKVBjT>; Thu, 21 Nov 2002 20:39:19 -0500
+	id <S264786AbSKVBoR>; Thu, 21 Nov 2002 20:44:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264755AbSKVBjT>; Thu, 21 Nov 2002 20:39:19 -0500
-Received: from holomorphy.com ([66.224.33.161]:60547 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263760AbSKVBjT>;
-	Thu, 21 Nov 2002 20:39:19 -0500
-Date: Thu, 21 Nov 2002 17:43:33 -0800
+	id <S264790AbSKVBoR>; Thu, 21 Nov 2002 20:44:17 -0500
+Received: from holomorphy.com ([66.224.33.161]:64387 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264786AbSKVBoQ>;
+	Thu, 21 Nov 2002 20:44:16 -0500
+Date: Thu, 21 Nov 2002 17:48:17 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT][PATCH] Latest -rmap15 stuff against 2.4.20-rc2-ac2
-Message-ID: <20021122014333.GT23425@holomorphy.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Russell King <rmk@arm.linux.org.uk>, Sam Ravnborg <sam@ravnborg.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] subarch-cleanup_A1
+Message-ID: <20021122014817.GU23425@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021121225507.GH20701@stingr.net>
+	john stultz <johnstul@us.ibm.com>,
+	"J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Russell King <rmk@arm.linux.org.uk>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1037929596.7576.78.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021121225507.GH20701@stingr.net>
+In-Reply-To: <1037929596.7576.78.camel@w-jstultz2.beaverton.ibm.com>
 User-Agent: Mutt/1.3.25i
 Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 22, 2002 at 01:55:07AM +0300, Paul P Komkoff Jr wrote:
-> diff -Nru a/include/linux/mm.h b/include/linux/mm.h
-> --- a/include/linux/mm.h	Fri Nov 22 00:36:57 2002
-> +++ b/include/linux/mm.h	Fri Nov 22 00:36:57 2002
-> @@ -1,5 +1,23 @@
->  #ifndef _LINUX_MM_H
->  #define _LINUX_MM_H
-> +/*
-> + * Copyright (c) 2002. All rights reserved.
-> + *
-> + * This software may be freely redistributed under the terms of the
-> + * GNU General Public License.
-[...]
+On Thu, Nov 21, 2002 at 05:46:36PM -0800, john stultz wrote:
+> Ok, next pass. How about this: (complete patch bz'ed and attached)
 
-Shouldn't this be part of a separate attribution update?
-(also, it'd be better to just remove the buffer cache)
+Would you like me to send you a patch to do strong typing
+(== wrap in structs) on the various flavors of APIC ID's?
+
+I'll do so overnight when west coast .us is most likely to sleep if so.
 
 
 Bill

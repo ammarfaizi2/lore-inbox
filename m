@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276511AbRJUSXp>; Sun, 21 Oct 2001 14:23:45 -0400
+	id <S276522AbRJUSh5>; Sun, 21 Oct 2001 14:37:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276534AbRJUSXg>; Sun, 21 Oct 2001 14:23:36 -0400
-Received: from gusi.leathercollection.ph ([202.163.192.10]:64385 "EHLO
-	gusi.leathercollection.ph") by vger.kernel.org with ESMTP
-	id <S276522AbRJUSX3>; Sun, 21 Oct 2001 14:23:29 -0400
-Date: Mon, 22 Oct 2001 02:23:57 +0800 (PHT)
-From: Federico Sevilla III <jijo@leathercollection.ph>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] updated preempt-kernel
-In-Reply-To: <1003562833.862.65.camel@phantasy>
-Message-ID: <Pine.LNX.4.40.0110220216500.21933-100000@gusi.leathercollection.ph>
+	id <S276535AbRJUShr>; Sun, 21 Oct 2001 14:37:47 -0400
+Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:65153 "EHLO
+	backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S276522AbRJUShe>; Sun, 21 Oct 2001 14:37:34 -0400
+Message-Id: <200110211838.f9LIc7Tn002375@backfire.WH8.TU-Dresden.De>
+Content-Type: text/plain; charset=US-ASCII
+From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
+Organization: Networkadministrator WH8/DD
+To: linux-kernel@vger.kernel.org
+Subject: Re: AIC7XXX-EISA hang at boot
+Date: Sun, 21 Oct 2001 20:38:07 +0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <E15vJQA-0006SS-00@the-village.bc.nu>
+In-Reply-To: <E15vJQA-0006SS-00@the-village.bc.nu>
+X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
+X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Oct 2001 at 03:27, Robert Love wrote:
-> A preemptible kernel.  It lowers your latency.
+Am Sonntag, 21. Oktober 2001 16:17 schrieb Alan Cox:
+> > so - do anybody know what's wrong with aic7xxx and who broke it after
+> > 2.4.7ac5 so it can't work on hardware described here ?
+>
+> For EISA use aic7xxx_old or get the latest version from Justin Gibbs site
+> -
+Why doesn't Linus and you merge it? The 6.2.4 runs pretty stable on our EISA 
+box.
 
-I'm using 2.4.12-xfs with the preempt-kernel-rml-1 patch. Just this
-morning I noticed a minute or so of the system being in "freeze". There
-was no significant disk activity, my open windows were working (ICQ,
-IPTraf under wterm, Opera), but things like opening a new wterm would work
-but no prompt (bash) would come out, or "ps ax" on a system with stay
-there.
-
-In the IPTraf window I saw a lot of domain lookups going back and forth.
-Since IPTraf does reverse name lookups I quit it to hopefully bring down
-the load. I'm running bind 9.1.3. After the freeze everything was 100%
-normal. I checked the syslog and found close to a hundred lines one after
-the other about named complaining of a lame server.
-
-I am under the impression that it was bind hogging system resources,
-although I do not know how to look at historical data of memory usage and
-CPU usage for such a small time.
-
-I am curious, what does the preempt patch do for such situations? I
-honestly don't know how the system would have felt otherwise (if I didn't
-have support for preemption). And it's not so easy to reproduce since I
-don't cause this myself.
-
-Thanks for your input, and I'll give your second patch a shot as soon as I
-can. :)
-
- --> Jijo
-
---
-Federico Sevilla III  :: jijo@leathercollection.ph
-Network Administrator :: The Leather Collection, Inc.
-GnuPG Key: <http://jijo.leathercollection.ph/jijo.gpg>
-
+-Gregor

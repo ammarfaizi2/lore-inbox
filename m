@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316644AbSEVS1h>; Wed, 22 May 2002 14:27:37 -0400
+	id <S316667AbSEVSdJ>; Wed, 22 May 2002 14:33:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSEVS0T>; Wed, 22 May 2002 14:26:19 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58885 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316644AbSEVSZT>; Wed, 22 May 2002 14:25:19 -0400
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Wed, 22 May 2002 18:46:59 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <3CEBC496.9030900@evision-ventures.com> from "Martin Dalecki" at May 22, 2002 06:17:26 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S316643AbSEVSb5>; Wed, 22 May 2002 14:31:57 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:20486 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S316659AbSEVSas>; Wed, 22 May 2002 14:30:48 -0400
+Date: Wed, 22 May 2002 15:30:00 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        "M. Edward Borasky" <znmeb@aracnet.com>,
+        <linux-kernel@vger.kernel.org>, <andrea@suse.de>, <akpm@zip.com.au>
+Subject: Re: Have the 2.4 kernel memory management problems on large machines
+ been fixed?
+In-Reply-To: <Pine.LNX.4.33.0205221048570.23621-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44L.0205221528070.14140-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17AaCR-0002NK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW> Under java it's rather hard to get around
-> CAP_RAWIO if you ask me without going down to JNI.
+On Wed, 22 May 2002, Linus Torvalds wrote:
 
-People run them as root. Thats not rocket science
+> don't want to upgrade your CPU's, it's a _whole_ lot easier to just have a
+> magic "map_large_page()" system call, and start using the 2MB page support
+> of the x86.
+>
+> And no, this should NOT be a mmap.
+>
+> It's a magic x86-only system call,
 
-> > I've seen it used in tools written in java, python, perl, even tcl
-> > 
-> > Other examples include libieee1284, the pic 16x84 programmer, hwclock,
-> > older kbdrate, /sbin/clock on machines that don't have /dev/rtc.
-> 
-> All the examples above are samples of bad coding practice - I have
-> uncovered already here in C what can be expected inside there!
+> Making the _generic_ code jump through hoops because some stupid special
+> case that nobody else is interested in is bad.
 
-Portable code is good practice.
+Actually, I suspect that MIPS, x86-64 and other
+architectures are also interested ...
 
-> > Not everything in the world is an x86, and not every app wants to be Linux/x86
-> > specific or use weird syscalls
-> 
-> Yes and in esp. everything in the world is a __m68000__!
+kind regards,
 
-When you look at the kernel codebase its abundantly obvious that its much
-more "if its not 32bit with hardware managed caches, little endian, with
-no more than one root pci bridge, has a 32/64bit machine word, is byte 
-addressed, has sane store ordering rules, conventional not reverse mapped
-mmu, machine word sized cache coherency, and no more than 3 level page
-tables" and so forth its going to be hard to get it to work well.
- 
-A lot of that /dev/port using code is portable to everything from Minix through
-most BSD's. It works on pretty much anything with PC style devices.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Alan
+http://www.surriel.com/		http://distro.conectiva.com/
+

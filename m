@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271184AbTHRB4N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 21:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271186AbTHRB4N
+	id S271186AbTHRB6l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 21:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271187AbTHRB6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 21:56:13 -0400
-Received: from marc2.theaimsgroup.com ([63.238.77.172]:42258 "EHLO
-	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
-	id S271184AbTHRB4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 21:56:12 -0400
-Date: Sun, 17 Aug 2003 21:56:08 -0400
-Message-Id: <200308180156.h7I1u8m9022198@marc2.theaimsgroup.com>
-From: Hank Leininger <linux-kernel@progressive-comp.com>
-Reply-To: Hank Leininger <hlein@progressive-comp.com>
+	Sun, 17 Aug 2003 21:58:41 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:21983
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S271186AbTHRB6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 21:58:39 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
 To: linux-kernel@vger.kernel.org
-Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
-Cc: Michael Frank <mhf@linuxmail.org>
-X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
-X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
-X-Warning: Report any violation of list policy to abuse@progressive-comp.com
-X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
+Subject: Compiling cardbus devices monolithic doesn't work?
+Date: Sun, 17 Aug 2003 21:58:34 -0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308172158.34498.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-08-16, Michael Frank <mhf () linuxmail ! org> wrote:
+I'm easing my way into the 2.6.0-test series, and everything I've done so far 
+has been with monolithic kernels to minimize the number of fun new things 
+I've been playing with, and I just can't get the monolithic orinoco_cs to 
+find my new thinkpad's built-in wireless networking thingy.
 
-> Linux logs almost everything, why not exceptions such as SIGSEGV in
-> userspace which may be very informative?
+I think it's because even though the sucker's built-in, the bus topology puts 
+it behind its own cardbus bridge controller thingy (for no readily apparent 
+reason).  Cardbus needs hotplug, hotplug wants to load modules.
 
-If you really want this, patches to do so have been in hap-linux (2.2.x)
-for a while, and they were picked up by grsecurity (2.4).  We both log 
-SIGSEGV, SIGBUS, SIGABRT, SIGILL currently; you could add others if you
-desired.  The logging is rate-limited to reduce log-flood opportunities
-(though as others have mentioned it's quite easy to flood logs through
-other means).
+Currently I'm booting into 2.4 when I need to use the internet.  I suppose 
+it's time to actually fire up rusty's modutils, but before I do that I'm 
+curious WHY the compiled-in orinoco_cs driver can't find the card.  
+(Presumably because hotplug can't provide it with module arguments, or 
+something like that?)  If they DO only work as modules, why are they allowed 
+to be compiled monolithic?  (Did I miss a warning in the kconfig help text, 
+or should I have read the relevant section of Documentation more closely?)
 
---
-Hank Leininger <hlein@progressive-comp.com> 
-  
+It's entirely possible there's some other reason my wireless card isn't 
+working under 2.6, this is just a working hypothesis.  I'm happy to debug it 
+if anybody has suggestions...
+
+Rob
+
+(P.S.  And while I'm at it, what's the relationship between orinoco_cs, 
+orinoco, and hermes?  The /proc/modules dependency tree thing says they're 
+using each other in a chain.  Probably true, just a bit odd, I thought.  
+Couldn't figure out which driver I needed, compiled all three, and it loaded 
+ALL of them.  Can't complain, the card works under 2.4.  This is just a 
+random "huh?")

@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbSKBSK1>; Sat, 2 Nov 2002 13:10:27 -0500
+	id <S261354AbSKBSQ7>; Sat, 2 Nov 2002 13:16:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261373AbSKBSK0>; Sat, 2 Nov 2002 13:10:26 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:64595 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261370AbSKBSKU>; Sat, 2 Nov 2002 13:10:20 -0500
-Date: Sun, 3 Nov 2002 03:16:32 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: [RFC][Patchset 15/20] Support for PC-9800 (PNP)
-Message-ID: <20021103031632.E1536@precia.cinet.co.jp>
-References: <20021103023345.A1536@precia.cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: =?iso-8859-1?Q?=3C20021103023345=2EA1536?=
-	=?iso-8859-1?B?QHByZWNpYS5jaW5ldC5jby5qcD47IGZyb20gdG9taXRhQGNpbmV0LmNv?=
-	=?iso-8859-1?B?LmpwIG9uIMb8LCAxMbfu?= 03, 2002 at 02:33:45 +0900
-X-Mailer: Balsa 1.2.4
+	id <S261360AbSKBSQ7>; Sat, 2 Nov 2002 13:16:59 -0500
+Received: from [212.45.9.156] ([212.45.9.156]:44673 "EHLO null.ru")
+	by vger.kernel.org with ESMTP id <S261354AbSKBSQW>;
+	Sat, 2 Nov 2002 13:16:22 -0500
+Message-ID: <3DC417A4.2000903@yahoo.com>
+Date: Sat, 02 Nov 2002 21:21:24 +0300
+From: Stas Sergeev <stssppnn@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021014
+X-Accept-Language: ru, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Larger IO bitmap?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a part 15/20 of patchset for add support NEC PC-9800 architecture,
-against 2.5.45.
+Hello.
 
-Summary:
-  legacy bus pnp module
-   - IO port address change.
+I was trying to add some VESA support to
+dosemu and found that on my Radeon7500
+card it requires an access to the ports
+from range 0x9800-0x98ff. As ioperm()
+doesn't allow to open such a ports, I've
+got a very slow graphics.
+What happens is this:
+IO attempt->GPF->return_to_dosemu->
+decode insn->change uid->change IOPL->
+do IO->change IOPL->change uid->
+back_to_DOS_execution.
+You may guess how slow it is, but if I
+say that it is as slow as the simple
+screen redraw takes up to a minute, that
+may still be a surprise:)
 
-diffstat:
-  drivers/pnp/isapnp/core.c |    5 +++++
-  1 files changed, 5 insertions(+)
+My question is: why do we still have a
+128-bit IO bitmap? Is it possible to have
+the full 8K IO bitmap per process under
+Linux? And if yes, then why not yet?
+(Note: I am using the latest 2.4 kernels
+and I don't know if there is something
+changed in 2.5 about that problem. If
+something is changed, then sorry for wasting
+your time).
 
-patch:
-diff -urN linux/drivers/pnp/isapnp/core.c linux98/drivers/pnp/isapnp/core.c
---- linux/drivers/pnp/isapnp/core.c	Sat Oct 19 13:01:56 2002
-+++ linux98/drivers/pnp/isapnp/core.c	Sat Oct 19 15:37:24 2002
-@@ -75,8 +75,13 @@
-  MODULE_PARM_DESC(isapnp_verbose, "ISA Plug & Play verbose mode");
-  MODULE_LICENSE("GPL");
-  +#ifndef CONFIG_PC9800
-  #define _PIDXR		0x279
-  #define _PNPWRP		0xa79
-+#else
-+#define _PIDXR		0x259
-+#define _PNPWRP		0xa59
-+#endif
-   /* short tags */
-  #define _STAG_PNPVERNO		0x01
+I think that could be an advantage also for
+X. I think currently X works around the
+problem by keeping IOPL==3 all the run,
+but that can't work for dosemu.
+
+I've found several discussions on that
+topic, but they all ended unconclusively
+(too difficult, too expensive, useless etc).
+But as the last discussion I've found was
+dated 1998, I think it is time to reiterate:)
+
+Can anyone please suggest what must be done
+in order to enlarge the thing? The obvious
+way of increasing IO_BITMAP_SIZE constant
+doesn't do the trick.
+

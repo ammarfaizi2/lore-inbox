@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBNNoR>; Wed, 14 Feb 2001 08:44:17 -0500
+	id <S129051AbRBNOBp>; Wed, 14 Feb 2001 09:01:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131951AbRBNNoH>; Wed, 14 Feb 2001 08:44:07 -0500
-Received: from t2.redhat.com ([199.183.24.243]:50929 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129055AbRBNNny>; Wed, 14 Feb 2001 08:43:54 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <862569F2.006FADCD.00@smtpnotes.altec.com> 
-In-Reply-To: <862569F2.006FADCD.00@smtpnotes.altec.com> 
-To: Wayne.Brown@altec.com
-Cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        Timur Tabi <ttabi@interactivesi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [LK] Re: lkml subject line 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 14 Feb 2001 13:39:46 +0000
-Message-ID: <6043.982157986@redhat.com>
+	id <S129055AbRBNOBf>; Wed, 14 Feb 2001 09:01:35 -0500
+Received: from www.wen-online.de ([212.223.88.39]:35335 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129051AbRBNOBX>;
+	Wed, 14 Feb 2001 09:01:23 -0500
+Date: Wed, 14 Feb 2001 15:01:00 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [patchlet] cramfs incompatible with initrd..
+Message-ID: <Pine.Linu.4.10.10102141445001.2324-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(If the initrd is other than PAGE_CACHE_SIZE blocksize)
 
-Wayne.Brown@altec.com said:
->  I haven't complained about any of this on the list until now, because
-> I know I'm in the minority and I don't expect most people to care
-> about my problems.  But it bothered me seeing the criticism Mike
-> Harrold has gotten for his request. Not everyone has problems because
-> they're lazy.  Some of us are boxed in by decisions that are beyond
-> our control.  For my part, if anyone can tell me a method (that
-> doesn't require Notes administrator assistance) to get my mail, with
-> headers intact, out of Notes and into elm or pine, I'd be ecstatic.
+Hi,
 
-If your employer can't run a decent mail system - they lock you into crap
-clients, don't add X-rbl-warning headers for ORBS-listed hosts, or they
-can't manage to set up a reliable and efficient mail system - or maybe you'd
-just be embarrassed to post to technical fora from a domain with only one MX
-record - then just don't use it. Use a personal account elsewhere for all
-mail which isn't strictly confidential.
+I found that merely having cramfs configured into the kernel
+precludes mounting a ramdisk root after cramfs_read_super() has
+been called.  The problem is that cramfs changes the blocksize
+of the ramdisk to PAGE_CACHE_SIZE after we've loaded the initrd
+at 1k blocksize.
 
-It works for me.
+The patchlet below effectively works around the problem.  Question
+being does it do it in an acceptable manner?  Can refusing to change
+blocksize of a device with a registered hard blocksize cause problems
+elsewhere?
 
---
-dwmw2
+	-Mike
 
+--- linux-2.4.1.ac12/fs/buffer.c.org	Wed Feb 14 14:01:54 2001
++++ linux-2.4.1.ac12/fs/buffer.c	Wed Feb 14 14:19:13 2001
+@@ -686,7 +686,7 @@
+ 	int i, nlist, slept;
+ 	struct buffer_head * bh, * bh_next;
+ 
+-	if (!blksize_size[MAJOR(dev)])
++	if (!blksize_size[MAJOR(dev)] || get_hardblocksize(dev))
+ 		return;
+ 
+ 	/* Size must be a power of two, and between 512 and PAGE_SIZE */
 

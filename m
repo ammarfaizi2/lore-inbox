@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317633AbSFRVuH>; Tue, 18 Jun 2002 17:50:07 -0400
+	id <S317634AbSFRVuP>; Tue, 18 Jun 2002 17:50:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317634AbSFRVuG>; Tue, 18 Jun 2002 17:50:06 -0400
-Received: from pc-62-31-66-56-ed.blueyonder.co.uk ([62.31.66.56]:34180 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S317633AbSFRVuF>; Tue, 18 Jun 2002 17:50:05 -0400
-Date: Tue, 18 Jun 2002 22:50:05 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: DervishD <raul@pleyades.net>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Shrinking ext3 directories
-Message-ID: <20020618225005.A7897@redhat.com>
-References: <3D0F5AFC.mailGSE111D9L@viadomus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D0F5AFC.mailGSE111D9L@viadomus.com>; from raul@pleyades.net on Tue, Jun 18, 2002 at 06:08:28PM +0200
+	id <S317635AbSFRVuO>; Tue, 18 Jun 2002 17:50:14 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13581 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317634AbSFRVuN>; Tue, 18 Jun 2002 17:50:13 -0400
+Date: Tue, 18 Jun 2002 14:47:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Cort Dougan <cort@fsmlabs.com>
+cc: Benjamin LaHaise <bcrl@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Robert Love <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken
+In-Reply-To: <20020618150840.Q13770@host110.fsmlabs.com>
+Message-ID: <Pine.LNX.4.33.0206181442050.2562-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 18 Jun 2002, Cort Dougan wrote:
+>
+> I agree with you there.  It's not easy, and I'd claim it's not possible
+> given that no-one has done it yet, to have a select() call that is speedy
+> for both 0-10 and 1k file descriptors.
 
-On Tue, Jun 18, 2002 at 06:08:28PM +0200, DervishD wrote:
- 
->     All of you know that if you create a lot of files or directories
-> within a directory on ext2/3 and after that you remove them, the
-> blocks aren't freed (this is the reason behind the lost+found block
-> preallocation). If you want to 'shrink' the directory now that it
-> doesn't contain a lot of leafs, the only solution I know is creating
-> a new directory, move the remaining leafs to it, remove the
-> 'big-unshrinken' directory and after that renaming the new directory
+Actually, select() scales a lot better than poll() for _dense_ bitmaps.
 
-Right.  Shrinking directories is not implemented for ext2 or ext3 at
-the moment.  However, I know that Daniel Phillips has been thinking
-about adding that for his HTree extensions which add fast directory
-indexing to ext2/3.
+The problem with non-scalability ends up being either sparse bitmaps
+(minor problem, poll() can help) or just the work involved in watching a
+large number of fd's (major problem, but totally unrelated to the bitmap
+itself, and poll() usually makes it worse thanks to more data to be
+moved).
 
-Cheers,
- Stephen
+Anyway, I was talking about the scalability of the _data_structure_, not 
+the scalability performance-wise. Performance scalability is a non-issue 
+for something like setaffinity(), since it's just not called at any rate 
+approaching poll.
+
+>From a data structure standpoint, bitmaps are clearly the simplest dense 
+representation, and scale perfectly well to any reasonable number of 
+CPU's.
+
+If we end up using a default of 1024, maybe you'll have to recompile that
+part of the system that has anything to do with CPU affinity in about
+10-20 years by just upping the number a bit. Quite frankly, that's going
+to be the _least_ of the issues.
+
+		Linus
+

@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292976AbSB0Vfj>; Wed, 27 Feb 2002 16:35:39 -0500
+	id <S292964AbSB0Vfj>; Wed, 27 Feb 2002 16:35:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292977AbSB0Vek>; Wed, 27 Feb 2002 16:34:40 -0500
-Received: from kraid.nerim.net ([62.4.16.95]:62984 "HELO kraid.nerim.net")
-	by vger.kernel.org with SMTP id <S292974AbSB0VeD>;
-	Wed, 27 Feb 2002 16:34:03 -0500
-Date: Wed, 27 Feb 2002 22:33:59 +0100
-To: Allo!Allo! <lachinois@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel module ethics.
-Message-ID: <20020227213359.GD32288@calixo.net>
-In-Reply-To: <F82zxvoEaZWNaBJjvmZ00001183@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <F82zxvoEaZWNaBJjvmZ00001183@hotmail.com>
-User-Agent: Mutt/1.3.27i
-X-Face: "99`N"mZV/:<T->OLp[>#d3R;u.!ivtwAEpIQDL8rD#;L3Wm)~^)Uv=#;S!LZf1y8oRY7J#JR\Lr{*4Cn*32C89ln>0~5~tm--}j%hvhj+vtW><xbwA=@G8M||zPV0-r`:6zhMqq+_OC_0W*-:Wxzm3%|A5EE}VFnIgRU=+,L-hGdM"j&l'_^zK+%MBOsdmi#e3(3fGg^SGM
-From: Cyrille Chepelov <cyrille@chepelov.org>
+	id <S292979AbSB0Ver>; Wed, 27 Feb 2002 16:34:47 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:15538 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S292976AbSB0VeG>;
+	Wed, 27 Feb 2002 16:34:06 -0500
+Date: Wed, 27 Feb 2002 22:29:54 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 2.5.6-pre2] fix task migration code boot hang
+In-Reply-To: <200202272117.g1RLHCB05891@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0202272229080.26081-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel,
 
-> The other compromise is to write a closed source part that would not permit 
-> the driver to work with another card supporting the same chipset. Is this 
-> kind of practice generally accepted or is it frowned upon? The motive of 
-> the company is quite clear. If people want to "improve" the driver, they 
-> can only improve it for their hardware, not the competitors. There is also 
-> a big marketing sales pitch that goes like "we support linux, the others 
-> don&#8217;t..."
+On Wed, 27 Feb 2002, James Bottomley wrote:
 
-If you can detect that it is indeed your company's card and not the
-competitors (who seemingly uses the same chipset), perhaps your
-closed-source userland firmware load utility could take advantage of this to
-refuse to load the firmware if the right implementation of the device is not
-found? This'd allow you to keep the kernel driver open and still satisfy the
-requirement of "screw the competition".
+> The task migration code of change set 1.373 actually only works on
+> architectures where the physical and logical CPU numberings are the
+> same. It they aren't, the boot sequence hangs forever. The attached
+> fixes the code to work on all architectures.
 
-Just my 2¢.
+yep. DaveM has sent me a fix for this already which is in my tree.
 
-	-- Cyrille
-
--- 
-Grumpf.
+	Ingo
 

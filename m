@@ -1,157 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263614AbUE0NPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264375AbUE0NQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263614AbUE0NPX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 09:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUE0NPX
+	id S264375AbUE0NQu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 09:16:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUE0NQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 09:15:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1926 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263614AbUE0NPI (ORCPT
+	Thu, 27 May 2004 09:16:33 -0400
+Received: from penti.sit.fi ([193.167.33.237]:48865 "EHLO penti.sit.fi")
+	by vger.kernel.org with ESMTP id S264349AbUE0NQW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 09:15:08 -0400
-Date: Thu, 27 May 2004 09:15:00 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: Cleanups for APIC
-In-Reply-To: <20040525124937.GA13347@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0405270856120.28319@devserv.devel.redhat.com>
-References: <20040525124937.GA13347@elf.ucw.cz>
+	Thu, 27 May 2004 09:16:22 -0400
+Date: Thu, 27 May 2004 16:16:19 +0300 (EEST)
+From: Harald Hannelius <harald@arcada.fi>
+X-X-Sender: harald@penti.sit.fi
+To: linux-kernel@vger.kernel.org
+Subject: Poor NFS performance, kernel 2.6.6.  
+Message-ID: <Pine.LNX.4.58.0405271612350.12816@penti.sit.fi>
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Fnord: +++ath
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 25 May 2004, Pavel Machek wrote:
+[already posted this on the nfs-list too]
 
-> This cleans up io_apic.c a bit -- I do not really like 4 copies of same
-> code. Does it look okay to apply?
+Hi there,
 
-yeah, agreed - i checked & test it, it's ok. I made a small modification
-(see the patch below) to uninline the __modify_IO_APIC_irq() function -
-shaving 0.5K off the kernel's size ...
+I'm running two servers, both Dual Opterons with Broadcom Gb NICs. I'm
+using the bcm5700 driver and I see no errors whatsoever with 'ifconfig'.
+These NICs are onboard PCIX:100MHz:64-bit.
 
-(wrt. io_apic_sync(): i added it in 2.1.104 together with some other
-changes - i dont this it's necessary anymore - the local APICs had
-writearound erratas, but i dont remember this ever being necessary for
-IO-APICs. I'll address this in another patch.)
+I'm using nfs-utils-1.0.6 and the 2.6.6 kernel, compiled with both NFSv3
+and NFSv4 support. The client and servers are identical except for the
+server having a scsi-raid under /home and the client being and IDE-box.
 
-	Ingo
+Distribution slackware-9.1 on both computers.
 
-From: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+/etc/exports;
 
---- linux/arch/i386/kernel/io_apic.c.orig	
-+++ linux/arch/i386/kernel/io_apic.c	
-@@ -41,8 +41,6 @@
- 
- #include "io_ports.h"
- 
--#undef APIC_LOCKUP_DEBUG
--
- #define APIC_LOCKUP_DEBUG
- 
- static spinlock_t ioapic_lock = SPIN_LOCK_UNLOCKED;
-@@ -127,83 +125,50 @@ static void __init replace_pin_at_irq(un
- 	}
- }
- 
--/* mask = 1 */
--static void __mask_IO_APIC_irq (unsigned int irq)
-+static void __modify_IO_APIC_irq (unsigned int irq, unsigned long enable, unsigned long disable)
- {
--	int pin;
- 	struct irq_pin_list *entry = irq_2_pin + irq;
-+	unsigned int pin, reg;
- 
- 	for (;;) {
--		unsigned int reg;
- 		pin = entry->pin;
- 		if (pin == -1)
- 			break;
- 		reg = io_apic_read(entry->apic, 0x10 + pin*2);
--		io_apic_modify(entry->apic, 0x10 + pin*2, reg |= 0x00010000);
-+		reg &= ~disable;
-+		reg |= enable;
-+		io_apic_modify(entry->apic, 0x10 + pin*2, reg);
- 		if (!entry->next)
- 			break;
- 		entry = irq_2_pin + entry->next;
- 	}
-+}
-+
-+/* mask = 1 */
-+static void __mask_IO_APIC_irq (unsigned int irq)
-+{
-+	struct irq_pin_list *entry = irq_2_pin + irq;
-+	__modify_IO_APIC_irq(irq, 0x00010000, 0);
-+	/* Is it needed? Or do others need it too? */
- 	io_apic_sync(entry->apic);
- }
- 
- /* mask = 0 */
- static void __unmask_IO_APIC_irq (unsigned int irq)
- {
--	int pin;
--	struct irq_pin_list *entry = irq_2_pin + irq;
--
--	for (;;) {
--		unsigned int reg;
--		pin = entry->pin;
--		if (pin == -1)
--			break;
--		reg = io_apic_read(entry->apic, 0x10 + pin*2);
--		io_apic_modify(entry->apic, 0x10 + pin*2, reg &= 0xfffeffff);
--		if (!entry->next)
--			break;
--		entry = irq_2_pin + entry->next;
--	}
-+	__modify_IO_APIC_irq(irq, 0, 0x00010000);
- }
- 
- /* mask = 1, trigger = 0 */
- static void __mask_and_edge_IO_APIC_irq (unsigned int irq)
- {
--	int pin;
--	struct irq_pin_list *entry = irq_2_pin + irq;
--
--	for (;;) {
--		unsigned int reg;
--		pin = entry->pin;
--		if (pin == -1)
--			break;
--		reg = io_apic_read(entry->apic, 0x10 + pin*2);
--		reg = (reg & 0xffff7fff) | 0x00010000;
--		io_apic_modify(entry->apic, 0x10 + pin*2, reg);
--		if (!entry->next)
--			break;
--		entry = irq_2_pin + entry->next;
--	}
-+	__modify_IO_APIC_irq(irq, 0x00010000, 0x00008000);
- }
- 
- /* mask = 0, trigger = 1 */
- static void __unmask_and_level_IO_APIC_irq (unsigned int irq)
- {
--	int pin;
--	struct irq_pin_list *entry = irq_2_pin + irq;
--
--	for (;;) {
--		unsigned int reg;
--		pin = entry->pin;
--		if (pin == -1)
--			break;
--		reg = io_apic_read(entry->apic, 0x10 + pin*2);
--		reg = (reg & 0xfffeffff) | 0x00008000;
--		io_apic_modify(entry->apic, 0x10 + pin*2, reg);
--		if (!entry->next)
--			break;
--		entry = irq_2_pin + entry->next;
--	}
-+	__modify_IO_APIC_irq(irq, 0x00008000, 0x00010000);
- }
- 
- static void mask_IO_APIC_irq (unsigned int irq)
+   /home   193.167.32.175(ro,no_root_squash,async)
+
+/etc/fstab;
+
+  193.167.32.187:/home    /home   nfs     \
+ defaults,noauto,rsize=32768,wsize=32768,nfsvers=3 0 0
+
+(as you can see I have experimented with different rsize,wsize without any
+noticeable effect, same goes for nfsvers 2 and 3. I even mounted the
+filesystem as ext2 on the server and as ext3 with data=journal with no
+effect)
+
+The computers are connected through a HP 8-port Gb switch and are on the
+same subnet.
+
+rsync over ssh gives me roughly 200Mbps (37 GB dataset)
+netcat over tcp with a 2GB file gives me 457 Mbps
+netcat over udp with a 2GB file gives me 640 Mbps
+
+But dd'ing the 2GB file over nfs as some NFS-HOWTO suggests takes over 5
+minutes. That should equal to something around 49 Mbps, correct?
+
+The netcat takes 25 secs to transfer 2GB file.
+
+I installed kernel 2.4.26 and the netcat finished in 29seconds (550Mbps).
+With kernel 2.4.26 the 'time cat largefile > /dev/null' over NFS took just
+1min3s on the client. Which should equal to something like 254Mbps.
+
+
+Is there some way I can look at the nfs-server what it's doing? Any
+suggestions on solutions for this?
+
+And what datarates over NFS could I expect on a setup like this?
+Half-wirespeed maybe?
+
+Thanks in advance,
+
+  Harald
+
+
+
+-- 
+A: Top Posters
+Q: What is the most annoying thing on mailing lists?
+
+Harald H Hannelius | harald/a\arcada.fi      | GSM +358 50 594 1020

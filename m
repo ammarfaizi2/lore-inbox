@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVDGHba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVDGHch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbVDGHba (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 03:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVDGHba
+	id S261728AbVDGHch (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 03:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVDGHch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 03:31:30 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:53129 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261841AbVDGHbX (ORCPT
+	Thu, 7 Apr 2005 03:32:37 -0400
+Received: from main.gmane.org ([80.91.229.2]:50862 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261728AbVDGHcb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 03:31:23 -0400
-Date: Thu, 7 Apr 2005 09:31:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched: consolidate sbe sbf
-Message-ID: <20050407073114.GD26607@elte.hu>
-References: <42549D76.9040701@yahoo.com.au>
+	Thu, 7 Apr 2005 03:32:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Paolo Bonzini <bonzini@gnu.org>
+Subject: Re: [BUG mm] "fixed" i386 memcpy inlining buggy
+Date: Wed, 06 Apr 2005 17:18:35 +0200
+Message-ID: <d30uga$2j0$1@sea.gmane.org>
+References: <200503291542.j2TFg4ER027715@earth.phy.uc.edu>	 <200504021526.53990.vda@ilport.com.ua>	 <1112718844.22591.15.camel@leto.cs.pocnet.net>	 <200504061314.27740.vda@port.imtp.ilyichevsk.odessa.ua> <1112789157.32279.13.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42549D76.9040701@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: usilu-ge.ti-edu.ch
+User-Agent: Mozilla Thunderbird 0.9 (Macintosh/20041103)
+X-Accept-Language: en-us, en
+In-Reply-To: <1112789157.32279.13.camel@leto.cs.pocnet.net>
+Cc: gcc@gcc.gnu.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> The only thing that would avoid this is to either tell the compiler to
+> never put esi/edi in memory (which I think is not possibly across
+> different versions of gcc) or to always generate a single asm section
+> for all the different cases.
 
-> Hi Ingo,
-> 
-> What do you think of the following patch? I won't send the
-> whole series again, I'll queue them up with Andrew if you
-> think this one looks OK (which is the only major change).
+Use __asm__ ("%esi") and __asm__ ("%edi").  It is not guaranteed that 
+they access the registers always (you can still have copy propagation 
+etcetera); but, if your __asm__ statement constraints match the register 
+you specify, then you can be reasonably sure that good code is produced.
 
-this one looks good too.
+Paolo
 
-  Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo

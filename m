@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbTIMGu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 02:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbTIMGu7
+	id S262061AbTIMG7V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 02:59:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbTIMG7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 02:50:59 -0400
-Received: from users.linvision.com ([62.58.92.114]:59026 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id S262055AbTIMGu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 02:50:58 -0400
-Date: Sat, 13 Sep 2003 08:50:48 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Kyle Rose <krose+linux-kernel@krose.org>, linux-kernel@vger.kernel.org
-Subject: Re: Large-file corruption. ReiserFS? VFS?
-Message-ID: <20030913085048.A22707@bitwizard.nl>
-References: <87r82noyr9.fsf@nausicaa.krose.org> <20030911144732.S18851@schatzie.adilger.int> <87n0dboxhg.fsf@nausicaa.krose.org> <20030911150017.T18851@schatzie.adilger.int>
+	Sat, 13 Sep 2003 02:59:21 -0400
+Received: from mail.telpin.com.ar ([200.43.18.243]:22658 "EHLO
+	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S262061AbTIMG7U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 02:59:20 -0400
+Date: Sat, 13 Sep 2003 03:59:14 -0300
+From: Alberto Bertogli <albertogli@telpin.com.ar>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: file_lock_cache won't shink down
+Message-ID: <20030913065914.GD22369@telpin.com.ar>
+Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
+	Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+References: <20030913005123.GE21596@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030911150017.T18851@schatzie.adilger.int>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+In-Reply-To: <20030913005123.GE21596@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.4i
+X-RAVMilter-Version: 8.4.2(snapshot 20021217) (mail)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 03:00:17PM -0600, Andreas Dilger wrote:
-> True, and O_LARGEFILE would have bit you at 2GB and not 4GB...  If you are
-> doing output redirected from the shell, then it can't be a seek issue
-> either.
+On Sat, Sep 13, 2003 at 01:51:23AM +0100, Matthew Wilcox wrote:
+> Hi, Alberto.  Please try
+> http://ftp.linux.org.uk/pub/linux/willy/patches/flock-memleak.diff
 
-Nah! Some programs just "try to seek" and if it works, will. 
+I've just put it in, it seems to be working so far but I'll tell you
+tomorrow for sure after it's been under some pressure.
 
-dd if=/dev/zero count=200 | strace sox -t raw -r 44100 -s -w - -t wav - > /tmp/test
 
-dd if=/dev/zero count=200 | sox -t raw -r 44100 -s -w - -t wav - | dd of=/tmp/test
-sox: Length in output .wav header will be wrong since can't seek to fix it
+Thanks a lot,
+		Alberto
 
-		Roger. 
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

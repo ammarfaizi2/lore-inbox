@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277965AbRJIUzW>; Tue, 9 Oct 2001 16:55:22 -0400
+	id <S277962AbRJIUyY>; Tue, 9 Oct 2001 16:54:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277963AbRJIUzN>; Tue, 9 Oct 2001 16:55:13 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:1263
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277967AbRJIUzD>; Tue, 9 Oct 2001 16:55:03 -0400
-Date: Tue, 9 Oct 2001 13:55:28 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.11.p4 and dd
-Message-ID: <20011009135528.A20914@mikef-linux.matchmail.com>
-Mail-Followup-To: kernel-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110081343280.1775-100000@boris.prodako.se> <3BC2A130.CFEBBE2D@isg.de>
-Mime-Version: 1.0
+	id <S277963AbRJIUyC>; Tue, 9 Oct 2001 16:54:02 -0400
+Received: from cs181196.pp.htv.fi ([213.243.181.196]:16000 "EHLO
+	cs181196.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S277962AbRJIUx4>; Tue, 9 Oct 2001 16:53:56 -0400
+Message-ID: <3BC363FF.3F911E5E@welho.com>
+Date: Tue, 09 Oct 2001 23:54:23 +0300
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Yaroslav Popovitch <yp@sot.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Which switch should be enabled in kernel to support global 
+ IPv6forwarding
+In-Reply-To: <Pine.LNX.4.10.10110092027360.27505-100000@ares.sot.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BC2A130.CFEBBE2D@isg.de>
-User-Agent: Mutt/1.3.22i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 09:03:12AM +0200, Constantin Loizides wrote:
-> Hi!
+Yaroslav Popovitch wrote:
 > 
-> > > 2.4.3 uses a large amount of buffer, 2.4.11p4 only chache.
-> > 
-> > Block devices are handled by the page cache in 2.4.10 and up.
-> > 
-> 
-> Eh, did I miss something? 
+> ASAP,please
 
-Yes.
+sysctl -w net.ipv6.conf.all.forwarding=1
 
->Thought, that meta data are still
-> cached in buffer cache?
+Regards,
 
-FSes still use the buffer cache, but the block devices now use page cache.
-
->Did it change from 2.4.9 to 2.4.10?
-
-Yes, in 2.4.10pre11
-
-> What about the ac kernels? 
->
-
-Block devices use Buffer Cache.  Alan has stated that he doesn't plan to
-merge this change any time soon, if at all.
-
-> Constantin
-
-Mike
+	MikaL

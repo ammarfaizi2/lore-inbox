@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312418AbSC3Jfi>; Sat, 30 Mar 2002 04:35:38 -0500
+	id <S312426AbSC3J6C>; Sat, 30 Mar 2002 04:58:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312419AbSC3Jf2>; Sat, 30 Mar 2002 04:35:28 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:1409 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S312418AbSC3JfP>;
-	Sat, 30 Mar 2002 04:35:15 -0500
-Message-ID: <001d01c1d7ce$34f830c0$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Andrew Morton" <akpm@zip.com.au>
-Cc: <linux-kernel@vger.kernel.org>,
-        "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Subject: Re: [patch] block/IDE/interrupt lockup
-Date: Sat, 30 Mar 2002 10:35:08 +0100
+	id <S312429AbSC3J5w>; Sat, 30 Mar 2002 04:57:52 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:34256 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S312426AbSC3J5p>; Sat, 30 Mar 2002 04:57:45 -0500
+Date: Sat, 30 Mar 2002 11:46:17 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel hosed or Nvidia modules?
+In-Reply-To: <20020330012703.GA16583@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.44.0203301144270.18682-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -	spin_unlock_irq(&io_request_lock);
-> +	spin_unlock_irqrestore(&io_request_lock, flags);
->  	rq = kmem_cache_alloc(request_cachep, SLAB_KERNEL);
+On Sat, 30 Mar 2002, Matthias Andree wrote:
 
-Great patch.
-kmem_cache_alloc with SLAB_KERNEL can sleep, i.e. you've just converted
-an obvious bug into a rare, difficult to find bug. What about trying to
-fix it?
+> Is that a genuine kernel bug (2.4.19-pre2-ac3 here) or Yet Another
+> Nvidia Driver Bug (would not be the first bug to bite me in their
+> driver)? The Nvidia driver is configured to use the kernel AGP rather
+> than the Nvidia AGP. (TNT board, FWIW).
+> 
+> This does not happen frequently. Does anyone have a contact address at
+> Nvidia so I can show them as well?
+> 
+> NVRM: AGPGART: freed 16 pages
+> NVRM: AGPGART: backend released
+> kernel BUG at page_alloc.c:131!
 
-I agree that this won't happen during boot, but what about a hotplug PCI
-ide controller?
+Using the kernel AGP driver with the TNT and 440BX seems to hose things 
+pretty badly in my experience, either use the NvAGP or go sans AGP, 
+ideally you don't want the kernel AGP loaded at all.
+
+	Zwane
 
 --
-    Manfred
+http://function.linuxpower.ca
+		
 

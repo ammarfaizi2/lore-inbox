@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129371AbQKIIoX>; Thu, 9 Nov 2000 03:44:23 -0500
+	id <S129187AbQKIJff>; Thu, 9 Nov 2000 04:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129870AbQKIIoP>; Thu, 9 Nov 2000 03:44:15 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:46002 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129371AbQKIIoB>; Thu, 9 Nov 2000 03:44:01 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Michael Rothwell <rothwell@holly-springs.nc.us>, richardj_moore@uk.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <80256991.007632DE.00@d06mta06.portsmouth.uk.ibm.com>
-	<3A09C725.6CFA0EE2@holly-springs.nc.us> <qwwn1f9lhdg.fsf@sap.com>
-	<20001108235312.H22781@work.bitmover.com>
-Organisation: SAP LinuxLab
-Date: 09 Nov 2000 09:43:18 +0100
-In-Reply-To: Larry McVoy's message of "Wed, 8 Nov 2000 23:53:12 -0800"
-Message-ID: <qwwzoj9k02h.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S129076AbQKIJfY>; Thu, 9 Nov 2000 04:35:24 -0500
+Received: from fs1.dekanat.physik.uni-tuebingen.de ([134.2.216.20]:5391 "EHLO
+	fs1.dekanat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S129033AbQKIJfW>; Thu, 9 Nov 2000 04:35:22 -0500
+Date: Thu, 9 Nov 2000 10:34:59 +0100 (CET)
+From: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+To: James Simmons <jsimmons@suse.com>
+cc: Richard Guenther <richard.guenther@student.uni-tuebingen.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@mit.edu,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Broken colors on console with 2.4.0-textXX
+In-Reply-To: <Pine.LNX.4.21.0011081017320.2704-100000@euclid.oak.suse.com>
+Message-ID: <Pine.LNX.4.21.0011091033220.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Larry,
+On Wed, 8 Nov 2000, James Simmons wrote:
 
-On Wed, 8 Nov 2000, Larry McVoy wrote:
-> On Thu, Nov 09, 2000 at 08:44:11AM +0100, Christoph Rohland wrote:
->> *Are you crazy?* =:-0 
->> 
->> Proposing proprietary kernel extensions to establish an enterprise
->> kernel? No thanks!
 > 
-> Actually, I think this idea is a good one.  I'm a big opponent of
-> all the big iron feature bloat getting into the kernel, and if SGI
-> et al want to go off and do their own thing, that's fine with me.
-> As long as Linus continues in his current role, I doubt much of
-> anything that the big iron boys do will really make it back into the
-> generic kernel.  Linus is really smart about that stuff, are least
-> it seems so to me; he seems to be well aware that 99.9999% of the
-> hardware in the world isn't big iron and never will be, so something
-> approximating 99% of the effort should be going towards the common
-> platforms, not the uncommon ones.
+> > Sure - but this was always the case. And using 2.2 with the same
+> > (or more) stress the Xserver is still able to set the video hardware
+> > back to vga text mode. I just want to know whats the difference
+> > between 2.2 and 2.4 that causes failure in 2.4.
+> 
+> I don't think it is the console system. I bet if you stress 2.2 even more
+> you will get the same results.
 
-If we would not allow binary only modules I would not have such a big
-problem with that...
+Ok, obviously I'm not happy with this - I'll try to stress 2.2, but
+it never happened there. With 2.4 its nearly _always_ the case (on
+32Megs ram you get into swapping very fast with X and gnome) - so, to
+repeat, I'm not happy with the current 2.4 situation.
 
-I understand that the one size fits all approach has some limitations
-if you want to run on PDAs up to big iron. But a framework to overload
-core kernel functions with modules smells a lot of binary only, closed
-source, vendor specific Linux on high end machines. 
+Richard.
 
-And then I don't see the value of Linux anymore.
+--
+Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+WWW: http://www.anatom.uni-tuebingen.de/~richi/
+The GLAME Project: http://www.glame.de/
 
-Greetings
-		Christoph
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

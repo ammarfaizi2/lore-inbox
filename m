@@ -1,76 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270848AbTHLQyU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 12:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270987AbTHLQyU
+	id S270462AbTHLRHa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 13:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270864AbTHLRH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 12:54:20 -0400
-Received: from smtp-node1.eclipse.net.uk ([212.104.129.76]:35591 "EHLO
-	smtp1.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S270848AbTHLQyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 12:54:18 -0400
-From: Ian Hastie <ianh@iahastie.clara.net>
-To: Matthew Wilcox <willy@debian.org>, Greg KH <greg@kroah.com>
-Subject: Re: C99 Initialisers
-Date: Tue, 12 Aug 2003 17:54:14 +0100
-User-Agent: KMail/1.5.3
-Cc: Matthew Wilcox <willy@debian.org>, Robert Love <rml@tech9.net>,
-       CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-References: <20030812020226.GA4688@zip.com.au> <20030812053826.GA1488@kroah.com> <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk>
+	Tue, 12 Aug 2003 13:07:29 -0400
+Received: from pwmail.portoweb.com.br ([200.248.222.108]:60632 "EHLO
+	portoweb.com.br") by vger.kernel.org with ESMTP id S270462AbTHLRHT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 13:07:19 -0400
+Date: Tue, 12 Aug 2003 14:09:53 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: maney@pobox.com
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
+In-Reply-To: <20030812165624.GA1070@furrr.two14.net>
+Message-ID: <Pine.LNX.4.44.0308121408450.10045-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308121754.16216.ianh@iahastie.local.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 Aug 2003 12:27, Matthew Wilcox wrote:
-> On Mon, Aug 11, 2003 at 10:38:27PM -0700, Greg KH wrote:
-> > On Tue, Aug 12, 2003 at 03:39:36AM +0100, Matthew Wilcox wrote:
-> > > I don't think anyone would appreciate you converting that to:
-> > >
-> > > static struct pci_device_id tg3_pci_tbl[] __devinitdata = {
-> > > 	{
-> > > 		.vendor		= PCI_VENDOR_ID_BROADCOM,
-> > > 		.device		= PCI_DEVICE_ID_TIGON3_5700,
-> > > 		.subvendor	= PCI_ANY_ID,
-> > > 		.subdevice	= PCI_ANY_ID,
-> > > 		.class		= 0,
-> > > 		.class_mask	= 0,
-> > > 		.driver_data	= 0,
-> > > 	},
-> >
-> > I sure would.  Oh, you can drop the .class, .class_mask, and
-> > .driver_data lines, and then it even looks cleaner.
-> >
-> > I would love to see that kind of change made for pci drivers.
->
-> I really strongly disagree.  For a struct that's as well-known as
-> pci_device_id, the argument of making it clearer doesn't make sense.
 
-Which is OK for those very familiar with the code, but not so good for anyone 
-else.
 
-> It's also not subject to change, unlike say file_operations, so the
-> argument of adding new elements without breaking anything is also not
-> relevant.
+On Tue, 12 Aug 2003, Martin Maney wrote:
 
-Even if it is not subject to change, which can never be a total certainty, it 
-will need to be applied in new code.  The greater clarity provided by the 
-C-99 format will make it easier to ensure the appropriate values are put into 
-the right fields.
+> On Tue, Aug 12, 2003 at 11:10:51AM -0300, Marcelo Tosatti wrote:
+> > I'll try to reproduce around here. In the meantime can you try to isolate 
+> > the corruption. You said it didnt happen with 2.4.21 -- which pre shows up 
+> > the problem? 
+> 
+> The problem appears only in rc2 (okay, assuming it's not a
+> regression).  With 2.4.21-rc1 the file corruption I've been seeing does
+> not happen.  From what Stephan has said I think I should try some more
+> varied tests.  At this point I plan to do that a little later; I will
+> also try an rc2 with unnecessary features omitted from the build.  So
+> far I've stayed with the base config, but it's a config shared by most
+> of the machines on the LAN and thus has plenty of extras.
 
-> In tg3, the table definition is already 32 lines long with 2 lines per
-> device_id.  In the scheme you favour so much, that becomes 92 lines, for
-> no real gain that I can see.
+Well, rc2 had a Promise change. I'm not sure if it could be the cause, but 
+lets check.
 
-Smaller source code is not everything.  A consistant style is also very 
-important.
+Alan? 
 
--- 
-Ian.
+Please try -rc2 with the following patch unpplied (patch -R): 
+
+
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1070  -> 1.1071 
+#	drivers/ide/pci/pdc202xx_old.c	1.5     -> 1.6    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/08/08	alan@lxorguk.ukuu.org.uk	1.1071
+# [PATCH] PATCH: Promise cable
+# 
+# The old driver used to check .id was NULL to detect drive absent
+# (which is wrong but generally worked) with the IDE changes it always
+# got it wrong. This fixes it to test .present instead.
+# 
+# Without this fix it mistakenly assumes that the empty drive slot
+# cannot do UDMA66/100/133
+# --------------------------------------------
+#
+diff -Nru a/drivers/ide/pci/pdc202xx_old.c b/drivers/ide/pci/pdc202xx_old.c
+--- a/drivers/ide/pci/pdc202xx_old.c	Tue Aug 12 14:08:21 2003
++++ b/drivers/ide/pci/pdc202xx_old.c	Tue Aug 12 14:08:21 2003
+@@ -423,9 +423,9 @@
+ 		if (ultra_66) {
+ 			/*
+ 			 * check to make sure drive on same channel
+-			 * is u66 capable
++			 * is u66 capable. Ignore empty slots.
+ 			 */
+-			if (hwif->drives[!(drive->dn%2)].id) {
++			if (hwif->drives[!(drive->dn%2)].present) {
+ 				if (hwif->drives[!(drive->dn%2)].id->dma_ultra & 0x0078) {
+ 					hwif->OUTB(CLKSPD | mask, (hwif->dma_master + 0x11));
+ 				} else {
 

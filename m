@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbVBCLRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbVBCLVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbVBCLRH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 06:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVBCLOa
+	id S262882AbVBCLVi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 06:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbVBCLVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 06:14:30 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:62852 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S263006AbVBCLII
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 06:08:08 -0500
-Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: ee21rh@surrey.ac.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       list linux-ide <linux-ide@vger.kernel.org>
-In-Reply-To: <1107299901.5624.28.camel@gaston>
-References: <200502011257.40059.brade@informatik.uni-muenchen.de>
-	 <pan.2005.02.01.20.21.46.334334@surrey.ac.uk>
-	 <1107299901.5624.28.camel@gaston>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1107332790.14787.118.camel@localhost.localdomain>
+	Thu, 3 Feb 2005 06:21:36 -0500
+Received: from main.gmane.org ([80.91.229.2]:34449 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262920AbVBCLUs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 06:20:48 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: [PATCH 3/4] Fix "pointer jumps to corner of screen" problem on ALPS Glidepoint touchpads.
+Date: Thu, 3 Feb 2005 12:18:10 +0100
+Message-ID: <MPG.1c6c19f1476bb4a98970e@news.gmane.org>
+References: <m34qgz9pj5.fsf@telia.com> <m3zmyr8avm.fsf@telia.com> <m3vf9f8asf.fsf_-_@telia.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 03 Feb 2005 10:03:07 +0000
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-116-150.29-151.libero.it
+User-Agent: MicroPlanet-Gravity/2.70.2067
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-02-01 at 23:18, Benjamin Herrenschmidt wrote:
-> On Tue, 2005-02-01 at 20:22 +0000, Richard Hughes wrote:
-> > On Tue, 01 Feb 2005 12:57:33 +0100, Michael Brade wrote:
-> I suspect in your case, it's reading "ff", which indicates either that
-> there is no hardware where the kernel tries to probe, or that there is
-> bogus IDE interfaces which don't properly have the D7 line pulled low so
-> that BUSY appears not set in absence of a drive.
-> 
-> I'm not sure how the list of intefaces is probed on this machine, that's
-> probably where the problem is.
+Peter Osterlund wrote:
+> Only parse a "z == 127" packet as a relative Dualpoint stick packet if
+> the touchpad actually is a Dualpoint device.  The Glidepoint models
+> don't have a stick, and can report z == 127 for a very wide finger. If
+> such a packet is parsed as a stick packet, the mouse pointer will
+> typically jump to one corner of the screen.
 
-Known, fixed
+I remember reading specs of a touchpad (can't remember if it 
+was ALPS or Synaptics) (driver) which could do "palm 
+detection" (basically ignoring events when a large part of the 
+hand accidentally touched/pressed the pad, FWICS).
 
-There is a patch that allows probing for ISA ide4,5,6 etc only if there
-is
-no PCI bus
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 

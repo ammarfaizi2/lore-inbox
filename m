@@ -1,87 +1,184 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263373AbTCNPi2>; Fri, 14 Mar 2003 10:38:28 -0500
+	id <S263379AbTCNPuq>; Fri, 14 Mar 2003 10:50:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263375AbTCNPi2>; Fri, 14 Mar 2003 10:38:28 -0500
-Received: from portal.beam.ltd.uk ([62.49.82.227]:45953 "EHLO beam.beamnet")
-	by vger.kernel.org with ESMTP id <S263373AbTCNPi0>;
-	Fri, 14 Mar 2003 10:38:26 -0500
-Message-ID: <3E71F9CB.706@beam.ltd.uk>
-Date: Fri, 14 Mar 2003 15:48:27 +0000
-From: Terry Barnaby <terry@beam.ltd.uk>
-Organization: Beam Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: mmadore@aslab.com, linux-kernel@vger.kernel.org
-Subject: Re: Reproducible SCSI Error with Adaptec 7902
-References: <3E71B629.60204@beam.ltd.uk> <1999490000.1047653585@aslan.scsiguy.com>
-In-Reply-To: <1999490000.1047653585@aslan.scsiguy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263380AbTCNPuq>; Fri, 14 Mar 2003 10:50:46 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:62612 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S263379AbTCNPul>; Fri, 14 Mar 2003 10:50:41 -0500
+Date: Fri, 14 Mar 2003 17:01:08 +0100
+From: Joern Engel <joern@wohnheim.fh-wedel.de>
+To: Benjamin Reed <breed@users.sourceforge.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix stack usage for drivers/net/wireless/airo.c
+Message-ID: <20030314160108.GE27154@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Justin,
+Hi!
 
-Thanks for the info.
-We were using these drivers as:
+This patch moves a 2k buffer from stack to heap in readrids() and
+writerids(). The #define is ugly, I agree. But the functions
+themselves could use some cleanup anyway.
 
-1. The 1.0.0 driver is as used in the Stock Redhat 7.3 release (updated
-	to current updates).
-2. The 1.1.0 driver is on the Adaptec web site for Linux and is I 		 
-believe the one shipped on there CDROM for the on-board 7902
-	controller.
-
-We were not aware of a later driver.
-For future reference, where should we go to find the latest drivers
-for any device for the linux 2.4.x kernel ?
-
-Do you know if the latest driver at 
-http://people.FreeBSD.org/~gibbs/linux/RPM/aic79xx/
-might fix this problem ?
-
-Cheers
-
-Terry
-
-Justin T. Gibbs wrote:
->>Our system is:
->>System: Dual Xeon 2.4GHz system using SuperMicro X5DA8 Motherboard.
->>SCSI: Adaptec 7902 onboard dual channel SCSI controller
->>Disks: 2 off Quantum Atlas 10K2 18G (160LW), 1 of Quantum 9G (80LW)
->>Disks: 1 off Seagate ST336607LW 36G (320LW)
->>System: RedHat 7.3 with updates to 18/02/03
->>Kernel: 2.4.18-24.7.xsmp
->>Aic79xx Driver: versions 1.0.0 and 1.1.0
-> 
-> 
-> Is there some reason why you are using such old versions of the aic79xx
-> driver?  You can obtain the latest version of the driver from here:
-> 
-> http://people.FreeBSD.org/~gibbs/linux/RPM/aic79xx/
-> http://people.FreeBSD.org/~gibbs/linux/DUD/aic79xx/
-> 
-> or in source form for a 2.4.X or 2.5.X kernel from here:
-> 
-> http://people.freebsd.org/~gibbs/linux/SRC/
-> 
-> --
-> Justin
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Jörn
 
 -- 
-Dr Terry Barnaby                     BEAM Ltd
-Phone: +44 1454 324512               Northavon Business Center, Dean Rd
-Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
-Email: terry@beam.ltd.uk             Web: www.beam.ltd.uk
-BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software
-                       "Tandems are twice the fun !"
+A victorious army first wins and then seeks battle.
+-- Sun Tzu
 
+--- linux-2.5.64/drivers/net/wireless/airo.c	Wed Mar 12 14:16:38 2003
++++ linux-2.5.64-i2o/drivers/net/wireless/airo.c	Wed Mar 12 20:06:05 2003
+@@ -5894,6 +5894,7 @@
+ #endif /* WIRELESS_EXT */
+ 
+ #ifdef CISCO_EXT
++#define ret(val) do { kfree(iobuf); return(val); } while(0)
+ /*
+  * This just translates from driver IOCTL codes to the command codes to
+  * feed to the radio's host interface. Things can be added/deleted
+@@ -5902,12 +5903,16 @@
+  */
+ static int readrids(struct net_device *dev, aironet_ioctl *comp) {
+ 	unsigned short ridcode;
+-	unsigned char iobuf[2048];
++	unsigned char *iobuf;
+ 	struct airo_info *ai = dev->priv;
+ 
+ 	if (ai->flags & FLAG_FLASHING)
+ 		return -EIO;
+ 
++	iobuf = kmalloc(2048, GFP_KERNEL);
++	if (!iobuf)
++		return -ENOMEM;
++
+ 	switch(comp->command)
+ 	{
+ 	case AIROGCAP:      ridcode = RID_CAPABILITIES; break;
+@@ -5920,12 +5925,12 @@
+ 	case AIROGWEPKTMP:  ridcode = RID_WEP_TEMP;
+ 		/* Only super-user can read WEP keys */
+ 		if (!capable(CAP_NET_ADMIN))
+-			return -EPERM;
++			ret(-EPERM);
+ 		break;
+ 	case AIROGWEPKNV:   ridcode = RID_WEP_PERM;
+ 		/* Only super-user can read WEP keys */
+ 		if (!capable(CAP_NET_ADMIN))
+-			return -EPERM;
++			ret(-EPERM);
+ 		break;
+ 	case AIROGSTAT:     ridcode = RID_STATUS;       break;
+ 	case AIROGSTATSD32: ridcode = RID_STATSDELTA;   break;
+@@ -5933,23 +5938,23 @@
+ 	case AIROGMICSTATS:
+ 		if (copy_to_user(comp->data, &ai->micstats,
+ 				 min((int)comp->len,(int)sizeof(ai->micstats))))
+-			return -EFAULT;
+-		return 0;
++			ret(-EFAULT);
++		ret(0);
+ 	default:
+-		return -EINVAL;
++		ret(-EINVAL);
+ 		break;
+ 	}
+ 
+-	PC4500_readrid(ai,ridcode,iobuf,sizeof(iobuf));
++	PC4500_readrid(ai,ridcode,iobuf,sizeof(*iobuf));
+ 	/* get the count of bytes in the rid  docs say 1st 2 bytes is it.
+ 	 * then return it to the user
+ 	 * 9/22/2000 Honor user given length
+ 	 */
+ 
+ 	if (copy_to_user(comp->data, iobuf,
+-			 min((int)comp->len, (int)sizeof(iobuf))))
+-		return -EFAULT;
+-	return 0;
++			 min((int)comp->len, (int)sizeof(*iobuf))))
++		ret(-EFAULT);
++	ret(0);
+ }
+ 
+ /*
+@@ -5961,7 +5966,7 @@
+ 	int  ridcode, enabled;
+ 	Resp      rsp;
+ 	static int (* writer)(struct airo_info *, u16 rid, const void *, int);
+-	unsigned char iobuf[2048];
++	unsigned char *iobuf;
+ 
+ 	/* Only super-user can write RIDs */
+ 	if (!capable(CAP_NET_ADMIN))
+@@ -5970,6 +5975,10 @@
+ 	if (ai->flags & FLAG_FLASHING)
+ 		return -EIO;
+ 
++	iobuf = kmalloc(2048, GFP_KERNEL);
++	if (!iobuf)
++		return -ENOMEM;
++
+ 	ridcode = 0;
+ 	writer = do_writerid;
+ 
+@@ -5991,8 +6000,8 @@
+ 		 */
+ 	case AIROPMACON:
+ 		if (enable_MAC(ai, &rsp) != 0)
+-			return -EIO;
+-		return 0;
++			ret(-EIO);
++		ret(0);
+ 
+ 		/*
+ 		 * Evidently this code in the airo driver does not get a symbol
+@@ -6000,7 +6009,7 @@
+ 		 */
+ 	case AIROPMACOFF:
+ 		disable_MAC(ai);
+-		return 0;
++		ret(0);
+ 
+ 		/* This command merely clears the counts does not actually store any data
+ 		 * only reads rid. But as it changes the cards state, I put it in the
+@@ -6015,17 +6024,17 @@
+ 
+ 		if (copy_to_user(comp->data, iobuf,
+ 				 min((int)comp->len, (int)sizeof(iobuf))))
+-			return -EFAULT;
+-		return 0;
++			ret(-EFAULT);
++		ret(0);
+ 
+ 	default:
+-		return -EOPNOTSUPP;	/* Blarg! */
++		ret(-EOPNOTSUPP);	/* Blarg! */
+ 	}
+ 	if(comp->len > sizeof(iobuf))
+-		return -EINVAL;
++		ret(-EINVAL);
+ 
+ 	if (copy_from_user(iobuf,comp->data,comp->len))
+-		return -EFAULT;
++		ret(-EFAULT);
+ 
+ 	if (comp->command == AIROPCFG) {
+ 		ConfigRid *cfg = (ConfigRid *)iobuf;
+@@ -6040,9 +6049,10 @@
+ 	}
+ 
+ 	if((*writer)(ai, ridcode, iobuf,comp->len))
+-		return -EIO;
+-	return 0;
++		ret(-EIO);
++	ret(0);
+ }
++#undef ret
+ 
+ /*****************************************************************************
+  * Ancillary flash / mod functions much black magic lurkes here              *

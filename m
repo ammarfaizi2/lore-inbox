@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130696AbQKABHh>; Tue, 31 Oct 2000 20:07:37 -0500
+	id <S131019AbQKABVE>; Tue, 31 Oct 2000 20:21:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131016AbQKABH0>; Tue, 31 Oct 2000 20:07:26 -0500
-Received: from serval.noc.ucla.edu ([169.232.10.12]:49635 "EHLO
-	serval.noc.ucla.edu") by vger.kernel.org with ESMTP
-	id <S130696AbQKABHS>; Tue, 31 Oct 2000 20:07:18 -0500
-Message-ID: <39FF6CE2.7D42CA58@math.ucla.edu>
-Date: Tue, 31 Oct 2000 17:07:46 -0800
-From: Mike Oliver <oliver@math.ucla.edu>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: it,en
+	id <S130791AbQKABUy>; Tue, 31 Oct 2000 20:20:54 -0500
+Received: from hibernia.clubi.ie ([212.17.32.129]:13467 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S129061AbQKABUp>; Tue, 31 Oct 2000 20:20:45 -0500
+Date: Wed, 1 Nov 2000 01:25:05 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+To: Jens Axboe <axboe@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: scsi-cdrom lockup and ide-scsi problem (both EFS related)
+In-Reply-To: <20001031153106.A9458@suse.de>
+Message-ID: <Pine.LNX.4.21.0011010123220.9072-100000@fogarty.jakma.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.17 -- can't power-down on halt?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have Linux RH 6.2 installed, Soyo motherboard, Athlon K7.
-When using the kernel that came with the distro (2.2.14-5.0),
-the "shutdown -h" commend worked correctly, causing the
-computer to power down after exiting Linux.
+On Tue, 31 Oct 2000, Jens Axboe wrote:
 
-But when I compiled myself a 2.2.17 kernel, it didn't
-work anymore (it hung on halt).  So I turned on
-CONFIG_APM_REAL_MODE_POWER_OFF, which is supposed to
-fix some bugs.  But after that, while it no longer
-hung, it *restarted* rather than powering down as
-I wanted it to.
+> Known problem, blocksizes != 2kb does not currently work
+> correctly with SCSI CD-ROM (it's even on Ted's list).
+> 
 
-I find that the CONFIG_APM_REAL_MODE_POWER_OFF symbol
-causes apm_power_off() to call
-        machine_real_restart(po_bios_call, sizeof(po_bios_call));
-which certainly *looks* like it's trying to restart
-the machine rather than powering down (line 641 of
-apm.c, version 1.13).  What's the reason for
-this?
+doesn't work is one thing.. but an instant lockup? that's a bit
+unfriendly. :)
 
-When the symbol is not defined, apm_power_off() calls
-        (void) apm_set_power_state(APM_STATE_OFF);
-which is the same call as in apm.c from the
-2.2.14 kernel (version 1.9 of apm.c).  So
-how come this causes a hang when I try
-it in 2.2.17, but not in 2.2.14?
+> Same deal, SCSI CD-ROM driver. As you noted, pure ATAPI drive will
+> work just fine.
+> 
+
+so once the scsi cdrom is fixed then ide-scsi should work too?
+
+> rmmod ide-scsi ; insmod ide-cd
+> mount, etc
+> rmmod ide-cd ; insmod ide-scsi
+> burn
+> 
+
+didn't think this was possible. will try that. thanks.
+
+> 
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+The gent who wakes up and finds himself a success hasn't been asleep.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269352AbUINMOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269372AbUINMMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269352AbUINMOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 08:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269345AbUINL6F
+	id S269372AbUINMMt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 08:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269353AbUINMKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 07:58:05 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:6077 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269342AbUINL5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 07:57:04 -0400
-Subject: Re: [patch] sched, tty: fix scheduling latencies in tty_io.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040914110611.GA32077@elte.hu>
-References: <20040914093855.GA23258@elte.hu>
-	 <20040914095110.GA24094@elte.hu> <20040914095731.GA24622@elte.hu>
-	 <20040914100652.GB24622@elte.hu> <20040914101904.GD24622@elte.hu>
-	 <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu>
-	 <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu>
-	 <20040914110237.GC31370@elte.hu>  <20040914110611.GA32077@elte.hu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095159217.16572.29.camel@localhost.localdomain>
+	Tue, 14 Sep 2004 08:10:40 -0400
+Received: from mail2.bluewin.ch ([195.186.4.73]:20178 "EHLO mail2.bluewin.ch")
+	by vger.kernel.org with ESMTP id S269370AbUINMI6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 08:08:58 -0400
+Date: Tue, 14 Sep 2004 14:08:06 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>
+Subject: Re: [pidhashing] [2/3] lower PID_MAX_LIMIT for 32-bit machines
+Message-ID: <20040914120805.GA17333@k3.hellgate.ch>
+Mail-Followup-To: Lars Marowsky-Bree <lmb@suse.de>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Albert Cahalan <albert@users.sf.net>
+References: <20040913015003.5406abae.akpm@osdl.org> <20040914022530.GO9106@holomorphy.com> <20040914022827.GP9106@holomorphy.com> <20040914023114.GQ9106@holomorphy.com> <20040914105527.GB11238@k3.hellgate.ch> <20040914111024.GN4882@marowsky-bree.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 14 Sep 2004 11:53:39 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040914111024.GN4882@marowsky-bree.de>
+X-Operating-System: Linux 2.6.9-rc2-nproc on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-09-14 at 12:06, Ingo Molnar wrote:
-> the attached patch fixes long scheduling latencies in tty_read() and 
-> tty_write() caused by the BKL.
+On Tue, 14 Sep 2004 13:10:24 +0200, Lars Marowsky-Bree wrote:
+> On 2004-09-14T12:55:27,
+>    Roger Luethi <rl@hellgate.ch> said:
+> 
+> > > -#define PID_MAX_LIMIT (4*1024*1024)
+> > > +#define PID_MAX_LIMIT (sizeof(long) > 32 ? 4*1024*1024 : PID_MAX_DEFAULT)
+> > An architecture with sizeof(long) > 32? -- Most impressive.
+> 
+> x86_64, s390x, ppc64...
 
-Have you verified that none of the ldisc methods rely on the big kernel
-lock. In doing the tty audit I found several cases that tty drivers
-still rely on this lock so I am curious why you make this change.
-
-Would it not be better to fix the tty layer locking rather than
-introduces new random memory corruptors ?
-
-
-Alan
+Really.

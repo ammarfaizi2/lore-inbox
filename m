@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265049AbSJWPYX>; Wed, 23 Oct 2002 11:24:23 -0400
+	id <S265053AbSJWP0y>; Wed, 23 Oct 2002 11:26:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265050AbSJWPYX>; Wed, 23 Oct 2002 11:24:23 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:51726 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S265049AbSJWPYW>; Wed, 23 Oct 2002 11:24:22 -0400
-Date: Wed, 23 Oct 2002 09:26:37 -0600
+	id <S265054AbSJWP0y>; Wed, 23 Oct 2002 11:26:54 -0400
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:61965 "EHLO
+	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S265053AbSJWP0w>; Wed, 23 Oct 2002 11:26:52 -0400
+Date: Wed, 23 Oct 2002 09:29:09 -0600
 From: Stephen Cameron <steve.cameron@hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/10] 2.5.44 cciss zero cylinders too
-Message-ID: <20021023092637.B14917@zuul.cca.cpqcorp.net>
+Subject: [PATCH 4/10] 2.5.44 cciss no scsi tape timeouts
+Message-ID: <20021023092909.D14917@zuul.cca.cpqcorp.net>
 Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -19,27 +19,38 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 2 of 10
+patch 4 of 10
 The whole set can be grabbed via anonymous cvs (empty password):
 cvs -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss login
 cvs -z3 -d:pserver:anonymous@cvs.cciss.sourceforge.net:/cvsroot/cciss co 2.5.44
 
-DESC
-Zero out cylinders when zeroing out other disk info.
+This patch makes scsi commands to tape drives have no timeouts.
+Previously the timeout was 1000 seconds, too short, and nothing good
+happens when the timeout expires.  Better to have no timeout.
 
 
- drivers/block/cciss.c |    1 +
- 1 files changed, 1 insertion
+ drivers/block/cciss_scsi.c |    4 ++--
+ 1 files changed, 2 insertions, 2 deletions
 
---- linux-2.5.44/drivers/block/cciss.c~zero_cyls	Mon Oct 21 12:05:12 2002
-+++ linux-2.5.44-root/drivers/block/cciss.c	Mon Oct 21 12:05:12 2002
-@@ -808,6 +808,7 @@ static int deregister_disk(int ctlr, int
- 	/* zero out the disk size info */ 
- 	h->drv[logvol].nr_blocks = 0;
- 	h->drv[logvol].block_size = 0;
-+	h->drv[logvol].cylinders = 0;
- 	h->drv[logvol].LunID = 0;
- 	return(0);
- }
+--- linux-2.5.44/drivers/block/cciss_scsi.c~no_tape_timeouts	Mon Oct 21 12:05:48 2002
++++ linux-2.5.44-root/drivers/block/cciss_scsi.c	Mon Oct 21 12:05:48 2002
+@@ -913,7 +913,7 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
+ 
+ 	memset(cp->Request.CDB, 0, sizeof(cp->Request.CDB));
+ 	memcpy(cp->Request.CDB, cdb, cdblen);
+-	cp->Request.Timeout = 1000;		// guarantee completion. 
++	cp->Request.Timeout = 0;
+ 	cp->Request.CDBLen = cdblen;
+ 	cp->Request.Type.Type = TYPE_CMD;
+ 	cp->Request.Type.Attribute = ATTR_SIMPLE;
+@@ -1427,7 +1427,7 @@ cciss_scsi_queue_command (Scsi_Cmnd *cmd
+ 	
+ 	// Fill in the request block...
+ 
+-	cp->Request.Timeout = 1000; // guarantee completion
++	cp->Request.Timeout = 0;
+ 	memset(cp->Request.CDB, 0, sizeof(cp->Request.CDB));
+ 	if (cmd->cmd_len > sizeof(cp->Request.CDB)) BUG();
+ 	cp->Request.CDBLen = cmd->cmd_len;
 
 .

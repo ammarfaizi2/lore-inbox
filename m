@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265226AbTLFS1b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 13:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbTLFS1b
+	id S265225AbTLFSWG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 13:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbTLFSWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 13:27:31 -0500
-Received: from law9-f111.law9.hotmail.com ([64.4.9.111]:1038 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S265226AbTLFS1a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 13:27:30 -0500
-X-Originating-IP: [62.73.41.232]
-X-Originating-Email: [tero1001@hotmail.com]
-From: "Tero Knuutila" <tero1001@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cdrecord hangs my computer
-Date: Sat, 06 Dec 2003 20:27:29 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law9-F111RPjRRlH4zX000126ea@hotmail.com>
-X-OriginalArrivalTime: 06 Dec 2003 18:27:29.0823 (UTC) FILETIME=[9B62D2F0:01C3BC26]
+	Sat, 6 Dec 2003 13:22:06 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:8605 "EHLO
+	myware.akkadia.org") by vger.kernel.org with ESMTP id S265225AbTLFSWD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 13:22:03 -0500
+Message-ID: <3FD21E09.4080504@redhat.com>
+Date: Sat, 06 Dec 2003 10:20:57 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031121 Thunderbird/0.4a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jon Smirl <jonsmirl@yahoo.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] FIx  'noexec' behavior
+References: <20031206172720.52128.qmail@web14909.mail.yahoo.com>
+In-Reply-To: <20031206172720.52128.qmail@web14909.mail.yahoo.com>
+X-Enigmail-Version: 0.82.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->Good. However, I'd still like to hear if ide-scsi.c works with the patch:
->it's deprecated and I don't actually encourage people to use it, but it
->would be interesting to hear whether it works for people..
+Jon Smirl wrote:
+> This patch makes Mozilla fail to load on my system. If I back it out everything
+> is fine again. No error messages, Mozilla just hangs for about thirty seconds
+> and exits.
 
-I had to throw away one faulty cd-disk, and now my 2.6-test11 works!!
-I did two things while having troubles: Applied Linus's patch and
-tried John Bradford's tip to turn off pre-emptive kernel (in processor 
-options).
+What do all the mounts on this system look like?
 
-I am currently in a process to put pre-emptive back to enabled so soon I can 
-tell if it was the patch or the option change.
+The changes in fact change the kernel ABI but any programs which has
+problems with this is buggy and it either can easily be changed, or it
+actively does something compromising the security of the system.
+Anyway, stalling is the least I expect since the kernel returns a new
+error.  Unless, of course, there is another programming mistake in the
+program's code.
 
-I'll be back in one hour. Thanks already for Your help, this test11 kernel 
-is fast and goog, I LIKE it!!!
+- -- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Rgds,
-
-    Tero
-
-_________________________________________________________________
-Add photos to your messages with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
-
+iD8DBQE/0h4J2ijCOnn/RHQRAhx7AJ4lUy5JcdE0bCwoKh6LMP0t/uOoMACgst4N
+mnLPEmLg3SIBUDTVVYZlpfQ=
+=sZ/A
+-----END PGP SIGNATURE-----

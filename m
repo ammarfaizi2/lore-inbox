@@ -1,83 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbUC1UTO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 15:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbUC1UTN
+	id S262438AbUC1USO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 15:18:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUC1USO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 15:19:13 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:38079 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S262439AbUC1UTE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 15:19:04 -0500
-Message-ID: <07af01c414fe$d6836300$fc82c23f@pc21>
-From: "Ivan Godard" <igodard@pacbell.net>
-To: "Pavel Machek" <pavel@ucw.cz>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <048e01c413b3_3c3cae60_fc82c23f@pc21> <20040327103401.GA589@openzaurus.ucw.cz> <066b01c41464$7e0ec9c0$fc82c23f@pc21> <20040328062422.GB307@elf.ucw.cz> <06ea01c4148e$67436c80$fc82c23f@pc21> <20040328185410.GE406@elf.ucw.cz>
-Subject: Re: Kernel support for peer-to-peer protection models...
-Date: Sun, 28 Mar 2004 11:56:57 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 28 Mar 2004 15:18:14 -0500
+Received: from mail.gmx.net ([213.165.64.20]:6105 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262438AbUC1USJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 15:18:09 -0500
+X-Authenticated: #1226656
+Date: Sun, 28 Mar 2004 22:18:06 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: status of Linux on Alpha?
+Message-Id: <20040328221806.7fa20502@vaio.gigerstyle.ch>
+In-Reply-To: <20040328204308.C14868@jurassic.park.msu.ru>
+References: <yw1xsmftnons.fsf@ford.guide>
+	<20040328201719.A14868@jurassic.park.msu.ru>
+	<yw1xoeqhndvl.fsf@ford.guide>
+	<20040328204308.C14868@jurassic.park.msu.ru>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ivan, Hi Måns
 
------ Original Message ----- 
-From: "Pavel Machek" <pavel@ucw.cz>
-To: "Ivan Godard" <igodard@pacbell.net>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Sunday, March 28, 2004 10:54 AM
-Subject: Re: Kernel support for peer-to-peer protection models...
+I haven't found the time to look deeper into the problem. All what I can
+say ATM is, it is real and exists!
 
+Ivan, perhaps you can give me some useful advise how to debug this
+successfully? I think we should begin to try isolating the problem to a
+single part of the kernel. 
+Is it possible that we have a deadlock in the VFS part? After a
+while every process that accesses a file will be blocked (already
+described).
 
-> Hi!
->
-> > > Strange system.... If an application does not grant kernel access to
-> > > its space, how is kernel supposed to do its job? For example, that
-> > > "paranoid DLL" becomes unswappable, then?
-> >
-> > Pretection is in the *virtual* space, not physical. The physical-page
-> > manager (who has the TLB and underlying mapping tables in its space) can
-see
-> > and deal with any physical address, which in turn has the usual aliasing
-> > relationship with virtual addresses. Of course, physical is just one of
-the
-> > virtual spaces (and is distinguished solely by the one-to-one
-> > virtual-physical mapping). So the protection can be penetrated by anyone
-who
-> > can see the underlying physical page - but that's always true.
->
-> Aha, so some part of kernel exist that has "absolute right". Ok, now I
-> can imagine that it can work.
+Regards
 
-The "boot process" comes up with unlimited access to everything and the
-virt2phys direct mapped. As it forks procesess it can arbitrarily restrict
-their vision, transitively, and set the translation tables any way it wants.
-What I've sketched is one model, where a particular virtual space is used to
-map physical and the kernel is broken up into distinct address spaces with
-protection boundaries between, and each driver and app in ots own space. But
-you could emulate a conventoional, with the kernel and the drivers all in
-one space (and mutually vulnerable), or others.
+Marc
 
-> > > If most changes are in arch/, it should be acceptable...
-> >
-> > I fear that it might be more extensive than that :-)
->
-> Well, make patch and lets see... That means that 2.8 needs to be your
-> target. If impact outside of arch is not "total rewrite", you might
-> have a chance. If it is "total rewrite".... well you just need to be
-> very clever.
+On Sun, 28 Mar 2004 20:43:08 +0400
+Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
 
-How badly would the average driver break if it did not have direct data
-access to kernal data structures? Calls into the kernel and direct access by
-the called functions are OK.
-
-Ivan
-
-
+> On Sun, Mar 28, 2004 at 06:19:10PM +0200, Måns Rullgård wrote:
+> > Well, I'm using both raid and xfs...
+> 
+> OK, good to know.
+> 
+> > So you're saying that if 2.6.3 is stable, 2.6.4 and later should be
+> > fine too?
+> 
+> I haven't tried 2.6.5 yet, but with 2.6.4 couple of my boxes have
+> 16 days uptime and no problems so far.
+> 
+> Ivan.
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268634AbRGZS3v>; Thu, 26 Jul 2001 14:29:51 -0400
+	id <S268642AbRGZS3L>; Thu, 26 Jul 2001 14:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268644AbRGZS3n>; Thu, 26 Jul 2001 14:29:43 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20242 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268634AbRGZS3h>; Thu, 26 Jul 2001 14:29:37 -0400
-Date: Thu, 26 Jul 2001 20:28:44 +0200
-From: Jan Hubicka <jh@suse.cz>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Chris Friesen <cfriesen@nortelnetworks.com>,
-        Jeff Dike <jdike@karaya.com>,
-        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: user-mode port 0.44-2.4.7
-Message-ID: <20010726202844.K9601@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010724020413.A29561@athlon.random> <Pine.LNX.4.33.0107240849240.29354-100000@penguin.transmeta.com> <20010726004957.F32148@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010726004957.F32148@athlon.random>; from andrea@suse.de on Thu, Jul 26, 2001 at 12:49:57AM +0200
+	id <S268641AbRGZS3B>; Thu, 26 Jul 2001 14:29:01 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:14354 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S268634AbRGZS2s>;
+	Thu, 26 Jul 2001 14:28:48 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Thu, 26 Jul 2001 20:28:32 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] gcc-3.0.1 and 2.4.7-ac1
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <9C117960438@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Honza? Do you assure me that? In case you don't, could you suggest
-> another way besides volatile and spinlocks around the access to the
-> variable to avoid gcc to get confused?
-Looking at the code, it really looks as perfect candidate for volatile.
-GCC has definitly right to assume that the memory location won't change
-and use it for optimization.  On the other hand, from usual usage of
-time I guess gcc won't be able to do so, at least not today.
+On 26 Jul 01 at 18:52, Alan Cox wrote:
+> >   following is patch which was needed for compiling 2.4.7-ac1
+> > on box equipped with 'gcc version 3.0.1 20010721 (Debian prerelease)'.
+> > As I did not see such complaint yet - here it is.
+> >   If you think that gcc is too lazy on inlining (I think so...),
+> > tell me and I'll complain to gcc team instead of here.
+> 
+> Fix gcc. We use extern inline to say 'must be inlined' and that was the
+> semantic it used to have. Some of our inlines will not work if the compiler
+> uninlines them.
 
-Basically most optimizations comes from that compiler recognizes that
-value is equivalent to something (constant) at given code path and
-promotes it futher.
-
-So it is probably up to kernel folks if you want to follow C standard
-and blame gcc developers for breaking it, or stay in the unsafe ground
-and fix kernel each time gcc will introduce new nasty optimizations.
-This may become tricky later - for instance as making kernel codebase
--fstrict-aliasing ready.
-
-Honza
+Just adding '-finline-limit=150' fixes all of them (critical limit
+is somewhere between 120 and 150 on my kernel). As '-finline-limit'
+is documented as being 10000 by default, it looks like that someone
+changed default value to some really unreasonable value (probably 100).
+                                        Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

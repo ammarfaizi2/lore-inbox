@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275092AbRIYQqY>; Tue, 25 Sep 2001 12:46:24 -0400
+	id <S275094AbRIYQpy>; Tue, 25 Sep 2001 12:45:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275093AbRIYQqP>; Tue, 25 Sep 2001 12:46:15 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:20720 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S275092AbRIYQqD>; Tue, 25 Sep 2001 12:46:03 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Tue, 25 Sep 2001 10:46:22 -0600
-To: BALBIR SINGH <balbir.singh@wipro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] OOM aware applications
-Message-ID: <20010925104622.B392@turbolinux.com>
-Mail-Followup-To: BALBIR SINGH <balbir.singh@wipro.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BB013D3.6060408@wipro.com>
-Mime-Version: 1.0
+	id <S275092AbRIYQpo>; Tue, 25 Sep 2001 12:45:44 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:19718 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S275093AbRIYQp2>; Tue, 25 Sep 2001 12:45:28 -0400
+Message-ID: <3BB0B499.D39531A6@t-online.de>
+Date: Tue, 25 Sep 2001 18:45:13 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jaroslav Kysela <perex@perex.cz>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dagb@cs.uit.no>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: IRDA support for NSC8739x LPC Super I/O chipsets
+In-Reply-To: <Pine.LNX.4.31.0109251311070.3643-200000@pnote.perex-int.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BB013D3.6060408@wipro.com>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 25, 2001  10:49 +0530, BALBIR SINGH wrote:
-> Warning: I am not aware of what was discussed earlier about these issues 
-> or if they were discusses at all.
+Jaroslav Kysela wrote:
+> 
+> Hello,
+> 
+>         I've attached a patch for NSC8739x LPC Super I/O chipsets to
+> enable and configure the IRDA port. It works perfectly with my notebook
+> over a half of year but the FIR transfers has not been tested yet. It
+> would be nice to include this code to the official linux kernel tree.
+> Thank you.
 
-They have been discussed many times.  Please search for SIGDANGER in the
-linux-kernel mailing list archive.
+This should probably go to user space, too
 
-> 1. I was wondering that instead of killing the application using 
->    oom_kill_task() directly, should the OOM issue some kind of a
->    warning by sending a signal (some signal with si_code set to a
->    value indicating that the application is causing memory to run
->    out). Then, wait for a while and then see if the application is
->    still misbehaving and if so kill it.
+Can't you set "IR" in your notebook BIOS? Then try "lspnp"
+and a serial port should disappear if favour of infrared.
 
-This is exactly what SIGDANGER is.
-
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+-
+Gunther

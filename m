@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270367AbTHQQaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 12:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270365AbTHQQaQ
+	id S270365AbTHQQgd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 12:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270370AbTHQQgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 12:30:16 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:53389 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270359AbTHQQaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 12:30:11 -0400
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Carlos Velasco <carlosev@newipnet.com>
-Cc: Lamont Granquist <lamont@scriptkiddie.org>,
-       Bill Davidsen <davidsen@tmr.com>, "David S. Miller" <davem@redhat.com>,
-       bloemsaa@xs4all.nl, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308171759540391.00AA8CAB@192.168.128.16>
-References: <Pine.LNX.3.96.1030728222606.21100A-100000@gatekeeper.tmr.com>
-	 <20030728213933.F81299@coredump.scriptkiddie.org>
-	 <200308171509570955.003E4FEC@192.168.128.16>
-	 <200308171516090038.0043F977@192.168.128.16>
-	 <1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
-	 <200308171555280781.0067FB36@192.168.128.16>
-	 <1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk>
-	 <200308171759540391.00AA8CAB@192.168.128.16>
-Content-Type: text/plain
+	Sun, 17 Aug 2003 12:36:33 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:58629 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270365AbTHQQgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 12:36:32 -0400
+Message-ID: <3F3FAF79.1060303@yahoo.com>
+Date: Sun, 17 Aug 2003 12:38:17 -0400
+From: Brandon Stewart <rbrandonstewart@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Hot swapping USB mouse in X window system
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 17 Aug 2003 17:26:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-08-17 at 16:59, Carlos Velasco wrote:
-> We are not talking about ARP Replies, we are talking about ARP
-> Requests.
-> You can see the Richard post here, same issue I reported several weeks
-> ago:
-> http://marc.theaimsgroup.com/?l=linux-net&m=106094924813337&w=2
+My ohci adapter doesn't work on 2.4, so I can't tell if this is the 2.6 
+kernel, devfsd, or configuration related. There are two facts that make 
+hot swapping a USB mouse in X windows fail:
 
-You put the foundary devices IP on one of your interfaces ? In which case
-your network is misconfigured - go fix it. Two systems are not permitted
-to have the same IP address. Linux supports asymettric routing just fine.
+1) If a mouse is not detected at the start of X windows, that mouse will 
+not be checked for during the operation of X windows.
+2) If a mouse is detected at the start of X windows, then the device 
+corresponding to that mouse cannot be released until X windows is stopped.
 
+So when I start X windows without the mouse plugged in, and then try to 
+plug the mouse in, X windows will not even look at it, because it threw 
+away it's InputDevice section at startup. I can verify that it is 
+recognized by Linux proper because a /dev/input/mouse1 device will be 
+created and catting this device while moving the mouse will result in 
+junk on the screen.
 
+But when I start X windows with the mouse, unplug it, and replug it in, 
+I get a different problem. What happens is that upon unplugging the 
+mouse, the /dev/input/mouse1 device will stay there, whereas unplugging 
+it outside of X windows results in its disappearance. So X windows is 
+still listening for input from /dev/input/mouse1. But when I replug in 
+the USB mouse, it doesn't attach to /dev/input/mouse1. Rather, it 
+creates a new device called /dev/input/mouse2. And X windows is not 
+looking at this.
 
+I tried creating a third InputDevice section for X windows that points 
+to mouse2, but it discards the configuration at startup, and so won't 
+use it when it is plugged in.
+
+I'd appreciate hearing from anyone who has experienced similar, or knows 
+if there is a way to work around this.
+
+-Brandon
 

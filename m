@@ -1,89 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVBBS6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVBBS6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbVBBS6W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 13:58:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbVBBS4V
+	id S262323AbVBBS6k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 13:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVBBSz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 13:56:21 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:45000 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262553AbVBBSvY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 13:51:24 -0500
-Date: Wed, 2 Feb 2005 19:51:22 +0100
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, andyw@pobox.com,
-       jgarzik@pobox.com
-Subject: Re: [patch libata-dev-2.6 1/1] libata: sync SMART ioctls with ATA pass thru spec (T10/04-262r7)
-Message-ID: <20050202185121.GX11484@suse.de>
-References: <20050202183753.GB17450@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050202183753.GB17450@tuxdriver.com>
+	Wed, 2 Feb 2005 13:55:27 -0500
+Received: from scl-ims.phoenix.com ([216.148.212.222]:28856 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S262751AbVBBSs5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 13:48:57 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Linux hangs during IDE initialization at boot for 30 sec
+Date: Wed, 2 Feb 2005 10:48:45 -0800
+Message-ID: <5F106036E3D97448B673ED7AA8B2B6B301ACE7F7@scl-exch2k.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Linux hangs during IDE initialization at boot for 30 sec
+Thread-Index: AcUIVeTWldzlZY7gSRGqCb1aAi8JNQBATYUA
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Michael Brade" <brade@informatik.uni-muenchen.de>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 02 Feb 2005 18:48:57.0127 (UTC) FILETIME=[D9D3D370:01C50957]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02 2005, John W. Linville wrote:
-> Update libata's SMART-related ioctl handlers to match the current
-> ATA command pass-through specification (T10/04-262r7).  Also change
-> related SCSI op-code definition to match current spec.
-> 
-> Signed-off-by: John W. Linville <linville@tuxdriver.com>
-> ---
-> Contact w/ spec author (Curtis Stevens @ Western Digital) indicates
-> that while a revision 8 of the spec is expected, that it is really
-> only a re-formatting of the text to match T10 requirements.  According
-> to Stevens, revision 8 is expected to be the last version of the spec.
-> 
->  drivers/scsi/libata-scsi.c |    6 ++++--
->  include/scsi/scsi.h        |    6 +++---
->  2 files changed, 7 insertions(+), 5 deletions(-)
-> 
-> --- sata-smart-2.6/drivers/scsi/libata-scsi.c.orig	2005-02-01 16:24:01.687622085 -0500
-> +++ sata-smart-2.6/drivers/scsi/libata-scsi.c	2005-02-01 16:49:18.213876086 -0500
-> @@ -109,14 +109,16 @@ int ata_cmd_ioctl(struct scsi_device *sc
->  			return -ENOMEM;
->  
->  		scsi_cmd[1]  = (4 << 1); /* PIO Data-in */
-> +		scsi_cmd[2]  = 0x0e;     /* no off.line or cc, read from dev,
-> +		                            block count in sector count field */
->  		sreq->sr_data_direction = DMA_FROM_DEVICE;
->  	} else {
->  		scsi_cmd[1]  = (3 << 1); /* Non-data */
-> +		/* scsi_cmd[2] is already 0 -- no off.line, cc, or data xfer */
->  		sreq->sr_data_direction = DMA_NONE;
->  	}
->  
->  	scsi_cmd[0] = ATA_16;
-> -	scsi_cmd[2] = 0x1f;     /* no off.line or cc, yes all registers */
->  
->  	scsi_cmd[4] = args[2];
->  	if (args[0] == WIN_SMART) { /* hack -- ide driver does this too... */
-> @@ -179,7 +181,7 @@ int ata_task_ioctl(struct scsi_device *s
->  	memset(scsi_cmd, 0, sizeof(scsi_cmd));
->  	scsi_cmd[0]  = ATA_16;
->  	scsi_cmd[1]  = (3 << 1); /* Non-data */
-> -	scsi_cmd[2]  = 0x1f;     /* no off.line or cc, yes all registers */
-> +	/* scsi_cmd[2] is already 0 -- no off.line, cc, or data xfer */
->  	scsi_cmd[4]  = args[1];
->  	scsi_cmd[6]  = args[2];
->  	scsi_cmd[8]  = args[3];
-> --- sata-smart-2.6/include/scsi/scsi.h.orig	2005-02-01 16:22:12.390234346 -0500
-> +++ sata-smart-2.6/include/scsi/scsi.h	2005-02-01 16:23:02.828491161 -0500
-> @@ -113,9 +113,9 @@ extern const char *const scsi_device_typ
->  /* values for service action in */
->  #define	SAI_READ_CAPACITY_16  0x10
->  
-> -/* Temporary values for T10/04-262 until official values are allocated */
-> -#define	ATA_16		      0x85	/* 16-byte pass-thru [0x85 == unused]*/
-> -#define	ATA_12		      0xb3	/* 12-byte pass-thru [0xb3 == obsolete set limits command] */
-> +/* Values for T10/04-262r7 */
-> +#define	ATA_16		      0x85	/* 16-byte pass-thru */
-> +#define	ATA_12		      0xa1	/* 12-byte pass-thru */
+Hi,
+ 
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Michael Brade
+>Sent: Tuesday, February 01, 2005 3:58 AM
+>To: linux-kernel@vger.kernel.org
+>Subject: Linux hangs during IDE initialization at boot for 30 sec
+>
+[snip]
+>
+>I found additional lines in the log just before the line above:
+>
+>Probing IDE interface ide2...
+>Probing IDE interface ide3...
+>Probing IDE interface ide4...
+>Probing IDE interface ide5...
+>
+>But I only have ide0 and ide1. This problem persists even with 
+>2.6.11-rc2. For 
+>the last test I removed every option from the kernel that is 
+>not needed, but 
+>the problem stays. So I'm sure it's not because of ACPI or PNP 
+>or the like.
+>
+>With 2.6.11-rc2 I get in my syslog:
+>
+>Feb  1 11:30:02 newton kernel: ICH3M: chipset revision 2
+>Feb  1 11:30:02 newton kernel: ICH3M: not 100%% native mode: 
+>will probe irqs 
+>later
+>Feb  1 11:30:02 newton kernel:     ide0: BM-DMA at 0xcfa0-0xcfa7, BIOS 
+>settings: hda:DMA, hdb:pio
+>Feb  1 11:30:02 newton kernel:     ide1: BM-DMA at 0xcfa8-0xcfaf, BIOS 
+>settings: hdc:DMA, hdd:pio
+>Feb  1 11:30:02 newton kernel: Probing IDE interface ide0...
+>Feb  1 11:30:02 newton kernel: hda: HITACHI_DK23DA-30, ATA DISK drive
+>Feb  1 11:30:02 newton kernel: DEV: registering device: ID = 'ide0'
+>Feb  1 11:30:02 newton kernel: PM: Adding info for No Bus:ide0
+>Feb  1 11:30:02 newton kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+>Feb  1 11:30:02 newton kernel: DEV: registering device: ID = '0.0'
+>Feb  1 11:30:02 newton kernel: PM: Adding info for ide:0.0
+>Feb  1 11:30:02 newton kernel: bus ide: add device 0.0
+>Feb  1 11:30:02 newton kernel: Probing IDE interface ide1...
+>Feb  1 11:30:02 newton kernel: hdc: TOSHIBA DVD-ROM SD-R2212, 
+>ATAPI CD/DVD-ROM 
+>drive
+>Feb  1 11:30:02 newton kernel: DEV: registering device: ID = 'ide1'
+>Feb  1 11:30:02 newton kernel: PM: Adding info for No Bus:ide1
+>Feb  1 11:30:02 newton kernel: ide1 at 0x170-0x177,0x376 on irq 15
+>Feb  1 11:30:02 newton kernel: DEV: registering device: ID = '1.0'
+>Feb  1 11:30:02 newton kernel: PM: Adding info for ide:1.0
+>Feb  1 11:30:02 newton kernel: bus ide: add device 1.0
+>Feb  1 11:30:02 newton kernel: bus pci: add driver PIIX_IDE
+>Feb  1 11:30:02 newton kernel: bound device '0000:00:1f.1' to driver 
+>'PIIX_IDE'
+>Feb  1 11:30:02 newton kernel: bus pci: add driver PCI_IDE
+>Feb  1 11:30:02 newton kernel: Probing IDE interface ide2...
+>Feb  1 11:30:02 newton kernel: Probing IDE interface ide3...
+>Feb  1 11:30:02 newton kernel: Probing IDE interface ide4...
+>Feb  1 11:30:02 newton kernel: ide4: Wait for ready failed 
+>before probe !
+>---> I guess the line above is the reason for the wait <---
+>Feb  1 11:30:02 newton kernel: Probing IDE interface ide5...
+>Feb  1 11:30:02 newton kernel: hda: max request size: 128KiB
+>
 
-Ehh are you sure that is correct? 0xa1 is the BLANK command, I would
-hate to think there would be a collision like that.
+Since you don't care about anything except ide0 & ide1, try to add
+the following to the kernel's command line:
+ide2=noprobe ide3=noprobe ide4=noprobe ide5=noprobe
 
--- 
-Jens Axboe
-
+Aleks.

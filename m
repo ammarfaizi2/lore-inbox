@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265260AbUAES2h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 13:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUAES2g
+	id S265236AbUAESYx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 13:24:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbUAESYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 13:28:36 -0500
-Received: from ip-213-226-226-138.ji.cz ([213.226.226.138]:56046 "HELO
-	machine.sinus.cz") by vger.kernel.org with SMTP id S265246AbUAES0K
+	Mon, 5 Jan 2004 13:24:52 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32957 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265236AbUAESYq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 13:26:10 -0500
-Date: Mon, 5 Jan 2004 19:26:07 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: Diego Calleja <grundig@teleline.es>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, Robert.L.Harris@rdlg.net,
+	Mon, 5 Jan 2004 13:24:46 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Possibly wrong BIO usage in ide_multwrite
+Date: Mon, 5 Jan 2004 19:27:40 +0100
+User-Agent: KMail/1.5.4
+Cc: Christophe Saout <christophe@saout.de>, linux-ide@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: mremap() bug and 2.2?
-Message-ID: <20040105182607.GB2093@pasky.ji.cz>
-Mail-Followup-To: Diego Calleja <grundig@teleline.es>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Robert.L.Harris@rdlg.net, linux-kernel@vger.kernel.org
-References: <20040105145421.GC2247@rdlg.net> <Pine.LNX.4.58L.0401051323520.1188@logos.cnet> <20040105181053.6560e1e3.grundig@teleline.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+References: <1072977507.4170.14.camel@leto.cs.pocnet.net> <200401051813.30625.bzolnier@elka.pw.edu.pl> <20040105181627.GB3483@suse.de>
+In-Reply-To: <20040105181627.GB3483@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040105181053.6560e1e3.grundig@teleline.es>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Message-Id: <200401051927.40360.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Mon, Jan 05, 2004 at 06:10:53PM CET, I got a letter,
-where Diego Calleja <grundig@teleline.es> told me, that...
-> El Mon, 5 Jan 2004 13:26:23 -0200 (BRST) Marcelo Tosatti <marcelo.tosatti@cyclades.com> escribió:
-> 
-> > On Mon, 5 Jan 2004, Robert L. Harris wrote:
-> > > Just read this on full disclosure:
+On Monday 05 of January 2004 19:16, Jens Axboe wrote:
+> On Mon, Jan 05 2004, Bartlomiej Zolnierkiewicz wrote:
+> > On Monday 05 of January 2004 17:49, Jens Axboe wrote:
+> > > On Mon, Jan 05 2004, Bartlomiej Zolnierkiewicz wrote:
+> > > > > calling end_request with a null sector count, ide_end_request will
+> > > > > then take hard_nr_sectors which will end the whole request even if
+> > > > > only one bio was finished, huh? Am I missing something here?
+> > > >
+> > > > No, it is used mainly to fail requests.
+> > > >
+> > > > This hack should be later removed with care
+> > > > (there is some strange comment about locking).
 > > >
-> > > http://isec.pl/vulnerabilities/isec-0013-mremap.txt
-> [...]
-> > It is possible that the problem is exploitable. There is no known public
-> > exploit yet, however.
-> > 
-> > 2.4.24 includes a fix for this (mm/mremap.c diff)
-> 
-> It names 2.2 too. Is there a fix for 2.2?
+> > > IIRC, it's due to it not always being safe to inspect rq state outside
+> > > of ide_lock. So that makes 0 a magic value that just means 'end the
+> > > first chunk' for ide_end_request().
+> >
+> > Why/when it is not safe to do?
+>
+> You would need to read hwgroup->rq.
 
-I'm trying to investigate that right now. In 2.2, mremap() doesn't yet
-take yet the new_addr argument, therefore the "official" 2.4 fix
-wouldn't apply at all to it. There are four possibilities:
+Okay I see it, non IRQ context.
 
-* The isec.pl guys just made a mistake.
-
-* 2.2's get_unmapped_area() can return dangerous pages for len == 0,
-whilst the 2.4's get_unmapped_area() cannot. (I'm not sure, looking into
-that code right now.)
-
-* 2.4's fix is incorrect.
-
-* I'm missing something obvious.
-
-Anyone has an idea?
-
--- 
- 
-				Petr "Pasky" Baudis
-.
-The brain is a wonderful organ; it starts working the moment you get up
-in the morning, and does not stop until you get to work.
-.
-Stuff: http://pasky.or.cz/

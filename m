@@ -1,185 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266812AbUHCTeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266813AbUHCTfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266812AbUHCTeA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 15:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUHCTeA
+	id S266813AbUHCTfi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 15:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266819AbUHCTfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 15:34:00 -0400
-Received: from smtp-1.hut.fi ([130.233.228.91]:4782 "EHLO smtp-1.hut.fi")
-	by vger.kernel.org with ESMTP id S266812AbUHCTdS (ORCPT
+	Tue, 3 Aug 2004 15:35:37 -0400
+Received: from pop.gmx.de ([213.165.64.20]:61605 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266813AbUHCTey (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 15:33:18 -0400
-Date: Tue, 3 Aug 2004 22:33:04 +0300 (EEST)
-From: Heikki Linnakangas <hlinnaka@iki.fi>
-X-X-Sender: hlinnaka@kosh.hut.fi
-To: linux-kernel@vger.kernel.org
-cc: wewright@verizonmail.com, rddunlap@osdl.org
-Subject: [PATCH] Retrying root mounting for booting off USB
-Message-ID: <Pine.OSF.4.60.0408032154400.205783@kosh.hut.fi>
+	Tue, 3 Aug 2004 15:34:54 -0400
+X-Authenticated: #420190
+Message-ID: <410FE943.7050308@gmx.net>
+Date: Tue, 03 Aug 2004 21:36:35 +0200
+From: Marko Macek <Marko.Macek@gmx.net>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (smtp-1.hut.fi)
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Eric Wong <eric@yhbt.net>
+Subject: Re: KVM & mouse wheel [was PATCH]
+References: <410FAE9B.5010909@gmx.net> <200408031253.38934.dtor_core@ameritech.net>
+In-Reply-To: <200408031253.38934.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, booting off USB devices doesn't work in all environments. The 
-root fs mounting code in init/do_mounts.c decides that the root filesystem 
-is not available and gives up before the USB mass storage driver gets 
-fully initialized.
+Dmitry Torokhov wrote:
 
-There has been many quick & dirty patches floating around for 2.4 kernels 
-to add a small delay to the boot process or to retry the mount if it 
-doesn't succeed the first time. None of these old patches seem to work 
-correctly on the latest kernels.
+>Hi,
+>
+>On Tuesday 03 August 2004 10:26 am, Marko Macek wrote:
+>  
+>
+>>Hello!
+>>
+>>A few months ago I posted about problems with 2.6 kernel, KVM and mouse
+>>wheel.
+>>
+>>I was using 2.4 kernel until recently, but with the switch to FC2 with
+>>2.6 kernel this problem became much more annoying.
+>>
+>>My mouse is Logitech MX 510.
+>>
+>>I figured out a few things.
+>>
+>>1. Trying to set the mouse/kvm into a stream mode makes things insane.
+>>Since streaming mode is supposed to be the default, I propose not
+>>doing this at all. I haven't researched this further.
+>>
+>>-      psmouse_command(psmouse, param, PSMOUSE_CMD_SETSTREAM);
+>>    
+>>
+>
+>Could you describe what insane mean? If you take the KVM out of the picture
+>is the mouse still instane?
+>  
+>
+Insane means that the mouse is moving really slowly, jumping around and 
+buttons
+work erratically. I did some more experiments and it seems that if I put 
+this command
+before the resolution/rate/scaling setting it seems to do no harm (the 
+mouse works perfectly).
+I'd still prefer to remove it since I see no need for it.
 
-This patch implements the "retry until succeeds" approach. It applies at 
-least to 2.6.7 and 2.6.8-rc2-mm1. BTW: The trivial implementation of just 
-doing a "goto retry" in mount_block_root doesn't work, because create_dev 
-is called outside mount_block_root and it needs to see the new device.
+>>2. synaptics_detect hoses imps and exps detection. Resetting the mouse
+>>after failed detect fixes it. This makes 'imps' and 'exps' protocols
+>>work when used as proto=imps or proto=exps. Wheel works, I haven't tried
+>>the buttons.
+>>
+>>    
+>>
+>
+>Again, does it work without the KVM?
+>  
+>
+Yes, without the KVM the mouse works perfectly.
 
-I've tested it on my laptop and my desktop. More testing is welcome!
+>  
+>
+>>3. PS2++ detection correctly detects Logitech MX mouse but doesn't
+>>enable the PS2PP protocol, because of unexpected results in this code:
+>>
+>>	param[0] = param[1] = param[2] = 0;
+>>         ps2pp_cmd(psmouse, param, 0x39); /* Magic knock */
+>>         ps2pp_cmd(psmouse, param, 0xDB);
+>>
+>>         if ((param[0] & 0x78) == 0x48 &&
+>>             (param[1] & 0xf3) == 0xc2 &&
+>>             (param[2] & 0x03) == ((param[1] >> 2) & 3)) {
+>>                 ps2pp_set_smartscroll(psmouse);
+>>	        protocol = PSMOUSE_PS2PP;
+>>         }
+>>
+>>The returned param array in my case is: 08 01 00 or 08 00 00 (hex)
+>>(without KVM: C8 C2 64)
+>>
+>>I don't understand what this code is trying to check or why the protocol
+>>is only set conditionally. If I set it unconditionally (swap last 2
+>>lines) the PS2++ protocol now works including detection of all buttons
+>>(I don't really need the buttons, just the wheel).
+>>
+>>    
+>>
+>
+>Apparently your KVM doctors the data stream from the mouse. The driver
+>tries to play safe and only switches to PS2++ protocol if mouse responds
+>properly, otherwise there is a chance that it uses PS2++ with mouse that
+>does not actually support it. 
+>
+>  
+>
+Yeah, that's why I decided to fallback to im/exps modes instead.
 
-Please CC replies directly to me, I'm not subscribed.
+I have now also successfuly used the extra mouse buttons with 'exps' 
+protocol.
+So only the 'task' button is not supported with my previous patch (because
+it requires PS2++ mode).
 
-- Heikki
+>>This is not included in the patch. The alternative solution
+>>is to reset the mouse again and resume probing for imps or exps.
+>>
+>>    
+>>
+>
+>It will be probed for imps/exps if PS2++ fails. Now I suspect that your
+>particular KVM does not expect any extended probes and gets confused by
+>them.
+>  
+>
+I have also seen comments in X sources about needing to reset the mouse 
+after
+each unsuccessful probe for best compatibility.
 
-
-diff -ru linux-2.6.8-rc2-mm1.orig/init/do_mounts.c linux-2.6.8-rc2-mm1/init/do_mounts.c
---- linux-2.6.8-rc2-mm1.orig/init/do_mounts.c	2004-06-16 08:19:13.000000000 +0300
-+++ linux-2.6.8-rc2-mm1/init/do_mounts.c	2004-08-03 18:59:59.000000000 +0300
-@@ -272,11 +272,14 @@
-  	return 0;
-  }
-
--void __init mount_block_root(char *name, int flags)
-+static int first_try = 1;
-+
-+int __init mount_block_root(char *name, int flags)
-  {
-  	char *fs_names = __getname();
-  	char *p;
-  	char b[BDEVNAME_SIZE];
-+	int success;
-
-  	get_fs_names(fs_names);
-  retry:
-@@ -284,6 +287,7 @@
-  		int err = do_mount_root(name, p, flags, root_mount_data);
-  		switch (err) {
-  			case 0:
-+				success = 1;
-  				goto out;
-  			case -EACCES:
-  				flags |= MS_RDONLY;
-@@ -291,20 +295,26 @@
-  			case -EINVAL:
-  				continue;
-  		}
--	        /*
--		 * Allow the user to distinguish between failed sys_open
--		 * and bad superblock on root device.
--		 */
--		__bdevname(ROOT_DEV, b);
--		printk("VFS: Cannot open root device \"%s\" or %s\n",
--				root_device_name, b);
--		printk("Please append a correct \"root=\" boot option\n");
-+		/* Print out a warning on the first attempt */
-+		if(first_try) {
-+			first_try = 0;
-+			/*
-+			 * Allow the user to distinguish between failed sys_open
-+			 * and bad superblock on root device.
-+			 */
-+			__bdevname(ROOT_DEV, b);
-
--		panic("VFS: Unable to mount root fs on %s", b);
-+			printk("VFS: Cannot open root device \"%s\" or %s\n",
-+				root_device_name, b);
-+			printk("Retrying. Please verify the \"root=\" boot option.\n");
-+		}
-+		success = 0;
-+		goto out;
-  	}
-  	panic("VFS: Unable to mount root fs on %s", __bdevname(ROOT_DEV, b));
-  out:
-  	putname(fs_names);
-+	return success;
-  }
-
-  #ifdef CONFIG_ROOT_NFS
-@@ -350,7 +360,7 @@
-  }
-  #endif
-
--void __init mount_root(void)
-+int __init mount_root(void)
-  {
-  #ifdef CONFIG_ROOT_NFS
-  	if (MAJOR(ROOT_DEV) == UNNAMED_MAJOR) {
-@@ -374,7 +384,7 @@
-  	}
-  #endif
-  	create_dev("/dev/root", ROOT_DEV, root_device_name);
--	mount_block_root("/dev/root", root_mountflags);
-+	return mount_block_root("/dev/root", root_mountflags);
-  }
-
-  /*
-@@ -388,23 +398,30 @@
-
-  	md_run_setup();
-
--	if (saved_root_name[0]) {
--		root_device_name = saved_root_name;
--		ROOT_DEV = name_to_dev_t(root_device_name);
--		if (strncmp(root_device_name, "/dev/", 5) == 0)
--			root_device_name += 5;
--	}
-+	do {
-+		if (saved_root_name[0]) {
-+			root_device_name = saved_root_name;
-+			ROOT_DEV = name_to_dev_t(root_device_name);
-+			if (strncmp(root_device_name, "/dev/", 5) == 0)
-+				root_device_name += 5;
-+		}
-
--	is_floppy = MAJOR(ROOT_DEV) == FLOPPY_MAJOR;
-+		is_floppy = MAJOR(ROOT_DEV) == FLOPPY_MAJOR;
-
--	if (initrd_load())
--		goto out;
-+		if (initrd_load())
-+			break;
-
--	if (is_floppy && rd_doload && rd_load_disk(0))
--		ROOT_DEV = Root_RAM0;
-+		if (is_floppy && rd_doload && rd_load_disk(0))
-+			ROOT_DEV = Root_RAM0;
-+
-+		if(mount_root())
-+			break;
-+
-+		/* Mounting root failed. Retry after a small delay */
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		schedule_timeout(1*HZ);
-+	} while(1);
-
--	mount_root();
--out:
-  	umount_devfs("/dev");
-  	sys_mount(".", "/", NULL, MS_MOVE, NULL);
-  	sys_chroot(".");
-diff -ru linux-2.6.8-rc2-mm1.orig/init/do_mounts.h linux-2.6.8-rc2-mm1/init/do_mounts.h
---- linux-2.6.8-rc2-mm1.orig/init/do_mounts.h	2004-06-16 08:19:37.000000000 +0300
-+++ linux-2.6.8-rc2-mm1/init/do_mounts.h	2004-08-02 23:28:35.000000000 +0300
-@@ -11,8 +11,8 @@
-
-  dev_t name_to_dev_t(char *name);
-  void  change_floppy(char *fmt, ...);
--void  mount_block_root(char *name, int flags);
--void  mount_root(void);
-+int  mount_block_root(char *name, int flags);
-+int  mount_root(void);
-  extern int root_mountflags;
-  extern char *root_device_name;
+Mark
 

@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292589AbSCIHS6>; Sat, 9 Mar 2002 02:18:58 -0500
+	id <S292522AbSCIHS5>; Sat, 9 Mar 2002 02:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292473AbSCIHRY>; Sat, 9 Mar 2002 02:17:24 -0500
+	id <S292529AbSCIHRn>; Sat, 9 Mar 2002 02:17:43 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:61645 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292475AbSCIHPG>;
-	Sat, 9 Mar 2002 02:15:06 -0500
-Date: Sat, 9 Mar 2002 03:46:18 +0000 (GMT)
-From: Mark Cooke <mpc@star.sr.bham.ac.uk>
-X-X-Sender: mpc@pc24.sr.bham.ac.uk
-To: Thomas Winischhofer <tw@webit.com>
-cc: linux-kernel@vger.kernel.org,
-        Carl-Johan Kjellander <carljohan@kjellander.com>
-Subject: Re: pwc-webcam attached to usb-ohci card blocks on read() indefinitely.
-In-Reply-To: <3C89273D.28BC97DB@webit.com>
-Message-ID: <Pine.LNX.4.44.0203090344130.8477-100000@pc24.sr.bham.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by vger.kernel.org with ESMTP id <S292533AbSCIHPf>;
+	Sat, 9 Mar 2002 02:15:35 -0500
+Date: Fri, 8 Mar 2002 19:09:37 -0800
+From: Danek Duvall <duvall@emufarm.org>
+To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: root-owned /proc/pid files for threaded apps?
+Message-ID: <20020309030937.GA244@lorien.emufarm.org>
+Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
+	Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net> <20020308203157.GA457@lorien.emufarm.org> <20020308222942.A7163@devcon.net> <20020308214148.GA750@lorien.emufarm.org> <20020308233001.B7163@devcon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020308233001.B7163@devcon.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just as a FYI, I had similar trouble using usb-uhci (440BX chipset) to 
-a 680K using pwc/pwcx.  I had to add a bunch of error recovery (close 
-/ open device, ignore open() failing and retry, etc).
+Ok, after trying all four combinations (call to wmb() moved or not, and
+set_user(0, 1) vs set_user(0, 0)), it turns out all four exhibit
+skipping, so that's unrelated (in fact, it seems to happen not on net
+access, but on redraw -- mozilla's dialogs make xmms skip, too).
 
-I get a group of EMC messages logged , then the reset seems to take 
-quite a while.
+The call to set_user() definitely changes the behavior of the directory
+in /proc as we expected.
 
-(2.4.19-pre2-ac2, but have seem this will many recent 2.4.x kernels)
+I suppose I'll have to wait for the low latency patch to be updated to
+the latest ac kernel; that appears to have been the reason there wasn't
+any skipping in my 2.4.18-pre3-ac2.  I tried porting it myself, but the
+rejects were significant enough to confuse me, so I'll wait.
 
-Mark
+I'll leave it for someone else to decide what arguments to set_user()
+exec_usermodehelper() should pass.
 
-On Fri, 8 Mar 2002, Thomas Winischhofer wrote:
+Thanks all!
 
-> > The camera attached to the UHCI-controller running usb-uhci works just 
-> > fine,out the three attached to the OHCI-controllers running usb-ohci don't. 
-> > After a random amount of frames being read from a camera the read()-call 
-> > blocks indefinitely until the device is closed. Next time the v4l-device is 
-> > opened the program can again read frames from the camera but read() always 
-> > blocks after some time.
-> 
-> I can't help, but I have the exact same problem here. Closing the
-> application (eg. camstream) and re-opening it makes it work again for a
-> while.
-> 
-> As Carl-Johan said, this happens with or without the pwcx module, so
-> that's not the problem.
-> 
-> I think it's an ohci problem.
-> 
-> Furthermore, the usb driver(s) behave strangely on
-> connecting/disconnecting the camera. Sometimes this works flawlessly,
-> sometimes I get a lot of USB timeout ("usb_control/bulk_msg: timeout")
-> and/or "USBDEVFS_CONTROL failed dev x rqt 128 rq 6 len 490 ret -110"
-> messages in the syslog. (Kernel is 2.4.16 and 2.4.18 - no difference)
-> After a couple of times disconnecting and reconnecting the camera it's
-> being detected. Since 2.4.18, the camera's LED sometimes is on,
-> sometimes off - seems quite random.
-> 
-> Even closing the cam application (xawtv, camstream) after the camera
-> stopped working never results in any error messages in the log, I only
-> read "pwc: Closing video device: xxx frames received, dumped 0 frames, 0
-> frames with errors"
-> 
-> Thomas
-> 
-> 
-
--- 
-+-------------------------------------------------------------------------+
-Mark Cooke                  The views expressed above are mine and are not
-Systems Programmer          necessarily representative of university policy
-University Of Birmingham    URL: http://www.sr.bham.ac.uk/~mpc/
-+-------------------------------------------------------------------------+
-
+Danek

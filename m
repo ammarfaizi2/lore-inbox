@@ -1,103 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269615AbRHCVWT>; Fri, 3 Aug 2001 17:22:19 -0400
+	id <S269619AbRHCVZT>; Fri, 3 Aug 2001 17:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269619AbRHCVWK>; Fri, 3 Aug 2001 17:22:10 -0400
-Received: from egghead.curl.com ([216.230.83.4]:64529 "HELO egghead.curl.com")
-	by vger.kernel.org with SMTP id <S269615AbRHCVVw>;
-	Fri, 3 Aug 2001 17:21:52 -0400
-From: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <01080317471707.01827@starship> <20010803121638.A28194@cs.cmu.edu> <0108031854120A.01827@starship> <Pine.LNX.4.33L.0107301320370.11893-100000@imladris.rielhome.conectiva> <s5gvgkacqlm.fsf@egghead.curl.com> <200107301711.f6UHBWHE001945@acap-dev.nas.cmu.edu> <20010803132457.A30127@cs.cmu.edu>
-Date: 03 Aug 2001 17:21:47 -0400
-In-Reply-To: <mit.lcs.mail.linux-kernel/20010803132457.A30127@cs.cmu.edu>
-Message-ID: <s5g3d78261g.fsf@egghead.curl.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S269620AbRHCVY7>; Fri, 3 Aug 2001 17:24:59 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:47634 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S269619AbRHCVYr>;
+	Fri, 3 Aug 2001 17:24:47 -0400
+Date: Fri, 3 Aug 2001 18:24:53 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Anders Peter Fugmann <afu@fugmann.dhs.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Ongoing 2.4 VM suckage
+In-Reply-To: <3B6AD039.5060809@fugmann.dhs.org>
+Message-ID: <Pine.LNX.4.33L.0108031823380.11893-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Harkes <jaharkes@cs.cmu.edu> writes:
+On Fri, 3 Aug 2001, Anders Peter Fugmann wrote:
 
-> Here is the relevant mail,
-> 
-> On Mon, Jul 30, 2001 at 01:11:32PM -0400, Lawrence Greenfield wrote:
-> } BSD softupdates allows you to call fsync() on the file, and this will
-> } sync the directories all the way up to the root if necessary.
-> } 
-> } Thus BSD fsync() actually guarantees that when it returns, the file
-> } (and all of it's filenames) will survive a reboot.
-> } 
-> } Sendmail does:
-> } fd = open(tmp)
-> } write(fd)
-> } fsync(fd)
-> } rename(tmp, final)
-> } fsync(fd)
-> } 
-> } Cyrus IMAP does:
-> } fd = open(tmp)
-> } write(fd)
-> } fsync(fd)
-> } link(tmp, final1)
-> } link(tmp, final2)
-> } link(tmp, final3)
-> } fsync(fd)
-> } close(fd)
-> } unlink(tmp)
-> } 
-> } The idea that Linux fsync() doesn't actually make the file survive
-> } reboots is pretty ridiculous.
-> 
-> As you can see, the 'sync a path leading to the file' semantics from SuS
-> don't work in the Cyrus IMAP case as is specifically requires to have
-> _all_ paths committed to disk before fsync returns.
+> I dont know task states are defined, but by 'running' I mean that it
+> is not stopped by the VM, when the VM needs to fetch memory for the
+> process.
 
-To fill in more of the table, Qmail does:
+What do you propose the program does when it doesn't have
+its data ? Better give up the CPU for somebody else than
+twiddle your thumbs while you don't have the data you want.
 
-  fd = open(tmp)
-  write(fd)
-  fsync(fd)
-  link(tmp,final)
-  close(fd)
+regards,
 
-...and Postfix does:
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-  fd = open(final)
-  write(fd)
-  (should be an "fsync(fd)" here, but I cannot find it)
-  fchmod(fd,+execute)
-  fsync(fd)
-  close(fd)
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Postfix apparently uses the execute bit to indicate that delivery is
-complete.  I am probably misreading the source (version 20010228
-Patchlevel 3), but I do not see any fsync() between the write and the
-fchmod.  Surely it is there or this delivery scheme is not reliable on
-any system, since without an intervening fsync() the writes to the
-data and the permissions can happen out of order.
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 
-Anyway, it is certainly true that it is largely useless to have
-fsync() commit only one path to a file; many applications expect to be
-able to force a simple link(x,y) to be committed to disk.
-
-I know this thread is already much too long, but I am still not sure I
-understand the conclusions.  I *think* it is true that:
-
-  1) People disagree about what SuS mandates, but at least a few
-     critical developers (e.g., sct) say it definitely does not
-     require synchronizing directory entries for fsync().
-
-  2) It would be fairly easy and efficient for fsync() to chase one
-     chain of directory entries up to the root, but a lot harder and
-     slower to find and commit all of them.
-
-  3) Most (?) core developers, including Linus (?), would not object
-     to "dirsync" as a mount option and/or directory attribute, but
-     somebody has to rise to the occasion and create the patches.
-
-Is this an accurate summary?
-
- - Pat

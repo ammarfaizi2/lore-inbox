@@ -1,95 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129800AbQLJJvY>; Sun, 10 Dec 2000 04:51:24 -0500
+	id <S130510AbQLJKLO>; Sun, 10 Dec 2000 05:11:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129960AbQLJJvD>; Sun, 10 Dec 2000 04:51:03 -0500
-Received: from w064.z064001255.sjc-ca.dsl.cnc.net ([64.1.255.64]:9734 "HELO
-	pop.mountainviewdata.com") by vger.kernel.org with SMTP
-	id <S129800AbQLJJux>; Sun, 10 Dec 2000 04:50:53 -0500
-From: "Peter Braam" <braam@mountainviewdata.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: InterMezzo FS beta 0.93 available
-Date: Sun, 10 Dec 2000 01:23:14 -0800
-Message-ID: <NEBBIIJKCMJGDLNAMBCBKEFACCAA.braam@mountainviewdata.com>
+	id <S130374AbQLJKLE>; Sun, 10 Dec 2000 05:11:04 -0500
+Received: from smtp3.libero.it ([193.70.192.53]:28849 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S129960AbQLJKKw>;
+	Sun, 10 Dec 2000 05:10:52 -0500
+Message-ID: <3A334F7C.3205A3DF@alsa-project.org>
+Date: Sun, 10 Dec 2000 10:40:12 +0100
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17 i586)
+X-Accept-Language: it, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Richard Henderson <rth@twiddle.net>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [2*PATCH] alpha I/O access and mb()
+In-Reply-To: <3A31F094.480AAAFB@alsa-project.org> <20001209161013.A30555@twiddle.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-BeenThere: intermezzo-announce@lists.sourceforge.net
-X-Mailman-Version: 2.0beta5
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard Henderson wrote:
+> 
+> On Sat, Dec 09, 2000 at 09:43:00AM +0100, Abramo Bagnara wrote:
+> > alpha-mb-2.4.diff add missing defines from core_t2.h for non generic
+> > kernel (against 2.4.0test11)
+> 
+> These are not "missing".  They are intentionally not present
+> so that stuff will be done out of line.
 
-InterMezzo is a high availability file system featuring write back caching
-and disconnected operation.  It replicates file trees across multiple
-systems, one of the systems plays the role of server, the others are
-clients.  InterMezzo recovers from network and server
-failures.  InterMezzo shares many ideas with Coda but is considerably
-simpler and less fully featured. 
+And this would be the only core_*.h files where this intention is
+expressed?
 
-You can find packages and source for beta 0.93 Linux 2.2 kernels in:
-ftp://ftp.inter-mezzo.org/pub/intermezzo
+It's hard to believe, without you explain why ;-)
 
-Documentation is available on the InterMezzo WWW site:
-http://www.inter-mezzo.org
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
 
-Mailing lists with announcements, discussions etc. are available at:
-http://www.sourceforge.net/projects/intermezzo
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
 
-Sources for cutting edge versions are available from 
-http://www.sourceforge.net/projects/intermezzo
+ALSA project is            http://www.alsa-project.org
+sponsored by SuSE Linux    http://www.suse.com
 
-New since the previous release:
-
- - We have migrated to "stock" POE from CPAN
- - Considerable simplification of reconnection code
- - Minor improvements and feature additions to the kernel code
- - RPM packages
- - Minor documentation updates
- - Improvements to the config tools
-
-To reach 1.0 we have the following outstanding issues:
- - Move forward to ext3 0.05c or later
- - Better documentation
- - Conflict detection
- - Bug fixes
-
-Particular thanks go to Shirish Phatak from Tacitus Systems
-(shirish@tacitussystems.com) for very persistent debugging and testing.  
-Gord Matzigkeit (gord@fig.org) has build the RPM packages and cleaned up
-the build environment for this purpose.  Many others have contributed
-significantly.
-
-
-- Peter Braam - 
-Mountain View Data, Inc. 
-
-
-
-NOTE:
-
-InterMezzo relies on journal file systems for recovery.  This release
-works with Ext3 and you must compile 0.03b into your kernel, as well as
-the following 3 lines to be add in linux/kernel/ksyms.c:
-
-#include <linux/jfs.h>
-
-EXPORT_KSYM(journal-start);
-EXPORT_KSYM(journal_stop); 
-
-
-
-
-
-
-_______________________________________________
-intermezzo-announce mailing list
-intermezzo-announce@lists.sourceforge.net
-http://lists.sourceforge.net/mailman/listinfo/intermezzo-announce
-
+It sounds good!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319104AbSIJMhv>; Tue, 10 Sep 2002 08:37:51 -0400
+	id <S319033AbSIJMkm>; Tue, 10 Sep 2002 08:40:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319105AbSIJMhv>; Tue, 10 Sep 2002 08:37:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35839 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S319104AbSIJMhv>; Tue, 10 Sep 2002 08:37:51 -0400
-Date: Tue, 10 Sep 2002 14:42:32 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Andreas Kerl <andreas.kerl@dts.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: compile error 2.4.20.pre5-ac4 
-In-Reply-To: <3D7D0D02.6060604@dts.de>
-Message-ID: <Pine.NEB.4.44.0209101441300.7966-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319066AbSIJMkm>; Tue, 10 Sep 2002 08:40:42 -0400
+Received: from h-66-166-207-97.SNVACAID.covad.net ([66.166.207.97]:12008 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S319033AbSIJMkl>; Tue, 10 Sep 2002 08:40:41 -0400
+Date: Tue, 10 Sep 2002 05:45:20 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: mj@ucw.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Trivial patch: linux-2.5.33/arch/i386/pci/irq.c - pcibios_fixup_irqs should be static
+Message-ID: <20020910054520.A13716@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Sep 2002, Andreas Kerl wrote:
 
-> drivers/ide/idedriver.o: In function `proc_ide_read_drivers':
-> drivers/ide/idedriver.o(.text+0x4c9): undefined reference to `ide_modules'
->...
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Andreas,
-
-thanks for the report. This is a known issue when compiling
-2.4.20-pre5-ac4 without IDE support. A workaround is to enable IDE
-support.
-
-cu
-Adrian
+	pcibios_fixup_irqs declared in linux-2.5.33/arch/i386/pci/irq.c
+is only called from within that file.  So, it should be declared static
+(as it already is in the linux-2.5.33/arch/i386/pci/visws.c version).
+The following patch makes that change.  Do you want to integrate this
+and forward it to Linus the next time you submit some changes, or is
+there some other course of action that you'd prefer?
 
 -- 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="irq.static"
 
+--- linux-2.5.33/arch/i386/pci/irq.c	2002-08-31 15:05:37.000000000 -0700
++++ linux/arch/i386/pci/irq.c	2002-09-10 05:29:09.000000000 -0700
+@@ -719,7 +724,7 @@
+ 
+ subsys_initcall(pcibios_irq_init);
+ 
+-void __init pcibios_fixup_irqs(void)
++static void __init pcibios_fixup_irqs(void)
+ {
+ 	struct pci_dev *dev;
+ 	u8 pin;
+
+--k+w/mQv8wyuph6w0--

@@ -1,88 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266588AbUF3IYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266592AbUF3I1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266588AbUF3IYX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 04:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUF3IYW
+	id S266592AbUF3I1d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 04:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266589AbUF3I1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 04:24:22 -0400
-Received: from styx.suse.cz ([82.119.242.94]:56705 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S266588AbUF3IYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 04:24:03 -0400
-Date: Wed, 30 Jun 2004 10:25:34 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>, laflipas@telefonica.net,
-       linux-kernel@vger.kernel.org, t.hirsch@web.de
-Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
-Message-ID: <20040630082533.GA4194@ucw.cz>
-References: <20040629143232.52963.qmail@web81303.mail.yahoo.com> <200406291808.08186.Marc.Waeckerlin@siemens.com> <200406291253.10542.dtor_core@ameritech.net> <200406300102.16083.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406300102.16083.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Jun 2004 04:27:33 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:34574 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S266592AbUF3I1U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 04:27:20 -0400
+Message-ID: <40E279F4.4090708@hist.no>
+Date: Wed, 30 Jun 2004 10:29:40 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040509)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Timothy Miller <miller@techsource.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Block Device Caching
+References: <20040630002014.4970b82d@kingfisher.intern.logi-track.com> <40E1FDEC.6020606@techsource.com>
+In-Reply-To: <40E1FDEC.6020606@techsource.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 30, 2004 at 01:02:16AM -0500, Dmitry Torokhov wrote:
+Timothy Miller wrote:
 
-> Vojtech, what is your opinion?
-> 
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, aux1, 12) [191319]
-> > Jun 28 16:01:29 qingwa kernel: i8042.c: MUX reports error condition b3 (35)
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: b3 <- i8042 (interrupt, aux0, 12) [191325]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 52 <- i8042 (interrupt, aux1, 12) [191327]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: d0 <- i8042 (interrupt, aux1, 12) [191328]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 2e <- i8042 (interrupt, aux1, 12) [191330]
-> > Jun 28 16:01:29 qingwa kernel: psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 4
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 30 <- i8042 (interrupt, aux1, 12) [191331]
-> > Jun 28 16:01:29 qingwa kernel: psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, aux1, 12) [191333]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: b3 <- i8042 (interrupt, aux1, 12) [191335]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 50 <- i8042 (interrupt, aux1, 12) [191336]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: d0 <- i8042 (interrupt, aux1, 12) [191338]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 29 <- i8042 (interrupt, aux1, 12) [191339]
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 30 <- i8042 (interrupt, aux1, 12) [191342]
-> > Jun 28 16:01:29 qingwa kernel: psmouse.c: TouchPad at isa0060/serio2/input0 - driver resynched.
-> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, aux1, 12) [191343]
-> 
-> Again MUX got confused momentarily, the patch should fix that.
-> 
-> > Jun 28 16:01:31 qingwa kernel: drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, kbd, 1) [193334]
-> > Jun 28 16:01:31 qingwa kernel: drivers/input/serio/i8042.c: 9d <- i8042 (interrupt, kbd, 1) [193359]
-> > Jun 28 16:01:33 qingwa kernel: i8042.c: MUX reports error condition fd (f5)
-> > Jun 28 16:01:33 qingwa kernel: drivers/input/serio/i8042.c: fd <- i8042 (interrupt, aux3, 12, timeout) [195950]
-> > Jun 28 16:01:33 qingwa kernel: psmouse.c: bad data from KBC - timeout
-> > Jun 28 16:01:36 qingwa kernel: drivers/input/serio/i8042.c: 13 <- i8042 (interrupt, kbd, 1) [198170]
-> > Jun 28 16:01:36 qingwa kernel: drivers/input/serio/i8042.c: 93 <- i8042 (interrupt, kbd, 1) [198243]
-> 
-> This one seems to be legit and handled OK although I am not sure what caused
-> AUX3 to report timeout - it wasn't transmitting for quite some time.
-> 
-> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux1, 12) [206317]
-> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: c0 <- i8042 (interrupt, aux1, 12) [206320]
-> > Jun 28 16:01:44 qingwa kernel: i8042.c: MUX reports error condition 00 (35)
-> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux0, 12) [206326]
-> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux1, 12) [206327]
-> 
-> Confused again...
-> 
-> Anyway, please try the patch and the change to the timeout in
-> psmouse_interrupt. I am anxiously awaiting result of your testing.
+>
+>
+> Markus Schaber wrote:
+>
+>> This lead us to the conclusion that block devices do not cache, but the
+>> filesystem does. But subsequently, I ran some tests on my developer
+>> machine (Pentium 4 Mobile Laptop).
+>
+>
+>
+> I had kernel experts repeatedly insist to me that block devices were 
+> cached, while all of my tests (using dd to or from, say, /dev/sda1 or 
+> whatever) indicated that there was absolutely no caching whatsoever.
 
-This looks like the i8042 chip is busy with something else than getting
-the touchpad data to us.
+Well, any cache is dropped when the device is closed. "dd" closes the device
+when it finishes.
 
-This could, for example, be getting battery/thermal data to ACPI,
-because it's commonly used as an ACPI EC (Embedded Controller) as well
-as for handling the keyboard/mouse.  I'd suggest disabling ACPI
-completely (not just ACPI=off, but CONFIG_ACPI=n), same for APM,
-frequency scaling, and everything else that could access the BIOS. 
+Try a program that reads the same two blocks (spaced videly apart)
+over and over from the same open file descriptor.  With _no_ caching 
+you'll see
+the drive seeking all the time.  With caching, you won't.
 
-If that helps, then we'll need to find a way how to make sure we let
-ACPI use the chip reasonably so that it doesn't cause these problems.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Helge Hafting

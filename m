@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbUCQPma (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 10:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbUCQPma
+	id S261618AbUCQPnf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 10:43:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbUCQPnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 10:42:30 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60817
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261611AbUCQPm3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 10:42:29 -0500
-Date: Wed, 17 Mar 2004 16:43:14 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-rc1 shm paging blocker
-Message-ID: <20040317154314.GG2106@dualathlon.random>
-References: <20040317061522.GN30940@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040317061522.GN30940@dualathlon.random>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Wed, 17 Mar 2004 10:43:35 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:9606 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S261618AbUCQPn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 10:43:29 -0500
+Message-ID: <405872E1.8020109@myrealbox.com>
+Date: Wed, 17 Mar 2004 07:46:41 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: Broadcom gigabit solution for Jeff.
+References: <40578C04.3070202@myrealbox.com> <20040316174511.3003f880.davem@redhat.com>
+In-Reply-To: <20040316174511.3003f880.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it seems the testing I did on 2.6.5-rc1 was incorrect (after testing
-another 2 combinations of kernels were the problem exists I may have not
-waited long enough while testing 2.6.5-rc1 for the first time and I
-mistaken a sluggishness for a live lock and I clicked reboot too early,
-that's the only reasonable explanation), it's working correctly now
-(like it works fine with 2.6.5-rc1 - backout + objrmap + anon_vma so
-it's impossible that it was my changes triggering it). If it happens
-again I'll let you know. I still have to find what cause it in another
-combinations of vm patches. Andrew, now that you've the testcase could
-you test the -mm tree, and see if happens there, some -mm patch is one
-of the diffs between the working tree and the non-working one.
+David S. Miller wrote:
+> On Tue, 16 Mar 2004 15:21:40 -0800
+> walt <wa1ter@myrealbox.com> wrote:
+> 
+> 
+>>...this is the first time I've tried the driver from Broadcom, so I can't
+>> tell you when it was fixed...
+> 
+> 
+> The current driver in the current 2.4.x and 2.6.x pre-release trees should
+> have this bug fixed in the tg3 driver.
 
-However now I'll repeat all tests, if they works all flawlessy today I
-will be very annoyed, since the thing was definitely not swapping at all
-yesterday, no matter how long I awaited.
+I admit I seem to be the only one still complaining, so I suspect I must have
+a mobo with a rare chip type.  The bug is definitely *not* fixed for me, as of
+today's latests changesets from Linus.
 
-Now I start to wonder if kbuild may have screwed my kernel, effectively
-it was a development tree, I don't run make distclean anymore in between
-the kernel compiles (I almost don't feel the need of ccache anymoe ;),
-but maybe I'm wrong trusting the buildsystem can be smart enough.
+The problem lies in the way the chip is initialized on bootup, clearly, because
+doing ifconfig down/up changes a few bytes of memory and starts things working
+until the next reboot.
+
+Here is a before/after diff of lspci -xxx.  You can see that byte 0x94 has been
+reset by the ifconfig down/up:
+
+#diff before after
+83,89c83,89
+< 90: 09 02 00 01 01 00 00 00 00 00 00 00 c8 00 00 00
+< a0: 00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00
+< b0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+< c0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+< d0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+< e0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+< f0: 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00
+---
+ > 90: 09 02 00 01 00 00 00 00 00 00 00 00 c8 00 00 00
+ > a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ > f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+I wish I had the expertise to figure out what code is responsible
+for resetting that bit, but alas I don't.
+
+If you could give me even a hint of what sections of the tg3 code
+to look at I might be able to pick it up from there -- e.g. what
+part of the driver code would be exercised by 'ifconfig down' that
+isn't done by the 'ifconfig up' at bootup.

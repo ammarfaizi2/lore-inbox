@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132194AbRDCQlh>; Tue, 3 Apr 2001 12:41:37 -0400
+	id <S132223AbRDCQmr>; Tue, 3 Apr 2001 12:42:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132223AbRDCQl2>; Tue, 3 Apr 2001 12:41:28 -0400
-Received: from [212.17.18.2] ([212.17.18.2]:42769 "EHLO gw.ac-sw.com")
-	by vger.kernel.org with ESMTP id <S132194AbRDCQlO>;
-	Tue, 3 Apr 2001 12:41:14 -0400
-Message-Id: <200104031639.XAA32695@gw.ac-sw.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Perchine <dyp@perchine.com>
-To: linux-kernel@vger.kernel.org
-Subject: EATA driver with DPT SmartRAID V
-Date: Tue, 3 Apr 2001 23:38:12 +0700
-X-Mailer: KMail [version 1.2.1]
+	id <S132224AbRDCQmi>; Tue, 3 Apr 2001 12:42:38 -0400
+Received: from colorfullife.com ([216.156.138.34]:33038 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S132223AbRDCQmU>;
+	Tue, 3 Apr 2001 12:42:20 -0400
+Message-ID: <003501c0bc5c$e26e81c0$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: <ocdi@ocdi.org>
+Cc: <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: uninteruptable sleep
+Date: Tue, 3 Apr 2001 18:40:53 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> ps xl:
+>   F UID PID PPID PRI NI VSZ RSS WCHAN STAT TTY TIME COMMAND
+> 040 1000 1230 1 9 0 24320 4 down_w D ? 0:00
+>           /home/data/mozilla/obj/dist/bin/mozi
+>
+down_w
 
-I tried to make subj working on 2.4.2-ac28, but failed. Could you please give 
-me some advise about the situation.
+Perhaps down_write_failed()? 2.4.3 converted the mmap semaphore to a
+rw-sem.
+Did you compile sysrq into your kernel? Then enable it with
 
-pci shows:
+#echo 1 > /proc/sys/kernel/sysrq
+and press <Alt>+<SysRQ>+'t'
 
-  Bus  1, device   1, function  0:
-    PCI bridge: Distributed Processing Technology PCI Bridge (rev 2).
-      Master Capable.  Latency=64.  Min Gnt=3.
-  Bus  1, device   1, function  1:
-    I2O: Distributed Processing Technology SmartRAID V Controller (rev 2).
-      IRQ 24.
-      Master Capable.  Latency=64.  Min Gnt=1.Max Lat=1.
-      Prefetchable 32 bit memory at 0xf8000000 [0xfbffffff].
+It prints the complete back trace, not just one function name
 
-When I try to modprobe driver I get:
+--
+    Manfred
 
-[root@axis /root]# modprobe eata
-/lib/modules/2.4.2-ac28/kernel/drivers/scsi/eata.o: init_module: No such 
-deviceHint: insmod errors can be caused by incorrect module parameters, 
-including invalid IO or IRQ parameters
-/lib/modules/2.4.2-ac28/kernel/drivers/scsi/eata.o: insmod 
-/lib/modules/2.4.2-ac28/kernel/drivers/scsi/eata.o failed
-/lib/modules/2.4.2-ac28/kernel/drivers/scsi/eata.o: insmod eata failed
 
-I tried also default settings provided in eata.c, but this does not help. 
 
-If anyone had a success with this device, please let me know.
-
-Thanks in advance.
-
--- 
-Sincerely Yours,
-Denis Perchine
-
-----------------------------------
-E-Mail: dyp@perchine.com
-HomePage: http://www.perchine.com/dyp/
-FidoNet: 2:5000/120.5
-----------------------------------

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264325AbTKUIYl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 03:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbTKUIYl
+	id S264319AbTKUIUe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 03:20:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264320AbTKUIUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 03:24:41 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:53444 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S264325AbTKUIYk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 03:24:40 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: Andrew Morton <akpm@osdl.org>, IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
-Subject: Re: O_DIRECT leaks memory on linux-2.6.0-test9
-Date: Fri, 21 Nov 2003 03:24:35 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <20031121061806.6A65F7007C@sv1.valinux.co.jp> <20031121073411.665A27007C@sv1.valinux.co.jp> <20031120235530.3d09882f.akpm@osdl.org>
-In-Reply-To: <20031120235530.3d09882f.akpm@osdl.org>
-Organization: None that appears to be detectable by casual observers
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Nov 2003 03:20:33 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8460 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264319AbTKUIUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 03:20:33 -0500
+Date: Fri, 21 Nov 2003 08:20:27 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Russell Coker <russell@coker.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0-test9 and HDD LED
+Message-ID: <20031121082027.A5090@flint.arm.linux.org.uk>
+Mail-Followup-To: Russell Coker <russell@coker.com.au>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200311211327.00522.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311210324.35127.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.54.127] at Fri, 21 Nov 2003 02:24:39 -0600
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200311211327.00522.russell@coker.com.au>; from russell@coker.com.au on Fri, Nov 21, 2003 at 01:27:00PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 November 2003 02:55, Andrew Morton wrote:
->IWAMOTO Toshihiro <iwamoto@valinux.co.jp> wrote:
->> It'll take a while to leak a noticable amount of memory. So I
->> reduced the amount of memory using a boot option.
->
->Well I'll be darned.  I took a new version of fsstress and it
-> happens here too.  We're leaking anonymous memory.  -mm doesn't do
-> any better, either.
+On Fri, Nov 21, 2003 at 01:27:00PM +1100, Russell Coker wrote:
+> When running 2.4.0-test9 on my Thinkpad T20 the HDD LED usually stays on all
+> the time.  It seems random, some boots the LED will operate normally, but
+> most boots the LED will go on continually.
 
-Running 2.6.0-test9-mm4, default as scheduler
+Is the HDD led separate from the floppy LED?  On my thinkpad, they're
+one of the same.
 
-That triggerd me to go look at ksysguard, and I've got 70 megs out in 
-swap in less than 24 hours uptime with my normal loading.  Usually it 
-takes me a couple of weeks to get that much as I've half a gig of 
-main memory.  Its also showing about 95 megs free.  Would this leak 
-show up there (ksysguard), and if so, in what section?
-
-T'would be nice if xosview were to be made operable, but this kernel 
-breaks it.  I used to keep it running in the corner of one of my 
-screens.
+If yes, I'd guess that you've built a kernel without floppy support
+built in.  The kernel used to turn the floppy motor off itself even
+without floppy support, but this has been removed.  IIRC it is now
+the responsibility of the boot loader to do this.
 
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,35 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129842AbRAXPKQ>; Wed, 24 Jan 2001 10:10:16 -0500
+	id <S129774AbRAXPOQ>; Wed, 24 Jan 2001 10:14:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131128AbRAXPKH>; Wed, 24 Jan 2001 10:10:07 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:19756 "EHLO iq.rulez.org")
-	by vger.kernel.org with ESMTP id <S129842AbRAXPJ4>;
-	Wed, 24 Jan 2001 10:09:56 -0500
-Date: Wed, 24 Jan 2001 16:12:49 +0100
-Message-Id: <200101241512.QAA01140@iq.rulez.org>
-From: "Sasi Peter" <sape@iq.rulez.org>
-To: James Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-X-Mailer: NeoMail 1.21
-X-IPAddress: 195.228.20.2
+	id <S130383AbRAXPOG>; Wed, 24 Jan 2001 10:14:06 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:5649 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S129774AbRAXPNx>;
+	Wed, 24 Jan 2001 10:13:53 -0500
+Message-ID: <3A6F00C5.F9962FCB@candelatech.com>
+Date: Wed, 24 Jan 2001 09:20:21 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+To: David Weis <djweis@sjdjweis.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: changing mac address of eth alias
+In-Reply-To: <Pine.LNX.4.21.0101241309410.25159-100000@www.sjdjweis.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> AIUI, Jeff Merkey was working on loading "userspace" apps into the 
-kernel
-> to tackle this sort of problem generically. I don't know if he's 
-tried it
-> with Samba - the forking would probably be a problem...
+David Weis wrote:
+> 
+> On Tue, 23 Jan 2001, Ben Greear wrote:
+> > David Weis wrote:
+> > > what would be required to make the mac address of aliases changable,
+> > > specifically for something like vrrp that shares a mac address among
+> > > machines.
+> >
+> > Not sure you can do that, but you could use an 802.1Q vlan patch
+> > and set up two different VLANs.  You can now change the MAC
+> > address on a VLAN with my patch: http://scry.wanfear.com/~greear/vlan.html
+> 
+> I'm looking at your code, in the function
+> vlan_dev_set_multicast_list() for the 2.4 tree, you enable promiscuity and
+> reception of all multicast packets. Is this necessary for all cards?
 
-I think, that is not what we need. Once Ingo wrote, that since HTTP 
-serving can also be viewed as a kind of fileserving, it should be 
-possible to create a TUX like module for the same framwork, that serves 
-using the SMB protocol instead of HTTP...
+Hrm, it should only turn on that particular multicast address, not go PROMISC.
+I will look at that.
 
--- SaPE / Sasi Péter / mailto: sape@sch.hu / http://sape.iq.rulez.org/
+The change-MAC DOES turn on PROMISC, because that is the only way I could
+figure out how to make sure that the underlying device passed the packets
+up to the VLAN layer.  The idea is that if you are using VLANs, you are
+probably using an ethernet switch, so there shouldn't be TOO much traffic
+on your port that isn't destined for you...so being PROMISC shouldn't
+hurt too bad.
+
+> 
+> This looks pretty close to what I was looking for, thanks for the
+> pointer. Do the multicast functions have enough usefulness for things
+> other than VLAN to be split out separately?
+
+I think the advanced routing protocols (OSPF??) use multicast in their routing
+decisions/management.
+
+Ben
+
+-- 
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132482AbRCZRsn>; Mon, 26 Mar 2001 12:48:43 -0500
+	id <S132520AbRCZRxN>; Mon, 26 Mar 2001 12:53:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132506AbRCZRse>; Mon, 26 Mar 2001 12:48:34 -0500
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:59128 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S132503AbRCZRsZ>; Mon, 26 Mar 2001 12:48:25 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103261747.f2QHlEX19564@webber.adilger.int>
-Subject: Re: 64-bit block sizes on 32-bit systems
-In-Reply-To: <20010326181803.F31126@parcelfarce.linux.theplanet.co.uk> from Matthew
- Wilcox at "Mar 26, 2001 06:18:03 pm"
-To: Matthew Wilcox <matthew@wil.cx>
-Date: Mon, 26 Mar 2001 10:47:13 -0700 (MST)
-CC: LA Walsh <law@sgi.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S132519AbRCZRxD>; Mon, 26 Mar 2001 12:53:03 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:41221
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S132518AbRCZRwm>; Mon, 26 Mar 2001 12:52:42 -0500
+Date: Mon, 26 Mar 2001 12:51:46 -0500
+From: Chris Mason <mason@suse.com>
+To: Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
+cc: torvalds@transmeta.com, alan@redhat.com,
+        Alexander Viro <viro@math.psu.edu>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: 2.4.2 fs/inode.c
+Message-ID: <90660000.985629106@tiny>
+In-Reply-To: <20010322134215.A25508@cs.cmu.edu>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox writes:
-> On Mon, Mar 26, 2001 at 08:39:21AM -0800, LA Walsh wrote:
-> > I vaguely remember a discussion about this a few months back.
-> > If I remember, the reasoning was it would unnecessarily slow
-> > down smaller systems that would never have block devices in
-> > the 4-28T range attached.  
+
+
+On Thursday, March 22, 2001 01:42:15 PM -0500 Jan Harkes
+<jaharkes@cs.cmu.edu> wrote:
+
 > 
-> 4k page size * 2GB = 8TB.
+> I found some code that seems wrong and didn't even match it's comment.
+> Patch is against 2.4.2, but should go cleanly against 2.4.3-pre6 as well.
 > 
-> i consider it much more likely on such systems that the page size will
-> be increased to maybe 16 or 64k which would give us 32TB or 128TB.
-> 
-> personally, i'm going to see what the situation looks like in 5 years time
-> and try to solve the problem then.
 
-What do you mean by problems 5 years down the road?  The real issue is that
-this 32-bit block count limit affects composite devices like MD RAID and
-LVM today, not just individual disks.  There have been several postings
-I have seen with people having a problem _today_ with a 2TB limit on
-devices.
+Ok, this looks correct, makes reiserfs faster, and survived under load.  The
+idea was to only call dirty_inode if sync_one might decide the inode needs
+flushing to disk.  So, the check in __mark_inode_dirty should look the same
+as the check in sync_one.
 
-There is some hope with LVM (and MD I suspect as well), that it could
-do blocksize remapping, so it appears to be a 4k sector device, but
-remaps to 512-byte sector disks underneath.  This _should_ give us an
-upper limit of 16TB, assuming 32-bit unsigned ints for block numbers.
-Of course, you would need to only do 4kB block I/O on top of these devices
-(not much of an issue for such large devices).
+> --- linux/fs/inode.c.orig	Thu Mar 22 13:20:55 2001
+> +++ linux/fs/inode.c	Thu Mar 22 13:21:32 2001
+> @@ -133,7 +133,7 @@
+>  
+> 	 if (sb) {
+> 		 /* Don't do this for I_DIRTY_PAGES - that doesn't actually dirty the
+> 		 inode itself */ 
+> -		if (flags & (I_DIRTY | I_DIRTY_SYNC)) {
+> +		if (flags & (I_DIRTY_SYNC | I_DIRTY_DATASYNC)) {
+> 			 if (sb->s_op && sb->s_op->dirty_inode)
+> 				 sb->s_op->dirty_inode(inode);
+> 		 }
+> -
 
-Still, this is just a stop-gap measure because next year people will want
-> 16TB devices, and there won't be an easy way to do this.
+-chris
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

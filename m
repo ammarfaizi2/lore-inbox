@@ -1,110 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268714AbRHKTLw>; Sat, 11 Aug 2001 15:11:52 -0400
+	id <S268792AbRHKTcE>; Sat, 11 Aug 2001 15:32:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268765AbRHKTLm>; Sat, 11 Aug 2001 15:11:42 -0400
-Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:19629 "EHLO
-	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S268714AbRHKTLc>; Sat, 11 Aug 2001 15:11:32 -0400
-Date: Sat, 11 Aug 2001 15:11:42 -0400 (EDT)
-From: "Daniel T. Chen" <crimsun@email.unc.edu>
-To: linux-kernel@vger.kernel.org
-cc: emu10k1-devel@opensource.creative.com
-Subject: [PATCH] EMU10K1: Juha Rjola's AC3 Passthrough for SMP kernels (against
- 2.4.8+Rui)
-Message-ID: <Pine.A41.4.21L1.0108111506190.39342-200000@login3.isis.unc.edu>
+	id <S268809AbRHKTbz>; Sat, 11 Aug 2001 15:31:55 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:59024 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S268792AbRHKTbn>; Sat, 11 Aug 2001 15:31:43 -0400
+Date: Sat, 11 Aug 2001 15:31:40 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@touchme.toronto.redhat.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Johannes Erdfelt <johannes@erdfelt.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel lockups on dual-Athlon board -- help wanted
+In-Reply-To: <20010811125035.A6428@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0108111527360.15826-100000@touchme.toronto.redhat.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1744699036-1742709216-997556984=:39342"
-Content-ID: <Pine.A41.4.21L1.0108111511220.39342@login3.isis.unc.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sat, 11 Aug 2001, Eric S. Raymond wrote:
 
----1744699036-1742709216-997556984=:39342
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.A41.4.21L1.0108111510001.39342@login3.isis.unc.edu>
+> Server case.  Seems to be running pretty cool -- the processor heatsinks
+> are warm to the touch but not hot.  We've got a power-supply fan, two coolers,
+> and two case fans.  Did you find you needed more than that?
 
-I've rediffed Juha's patch against 2.4.8+Rui's patch.
+Depends on how many drives you've got in the case.  The dual Athlon I'm
+using has three case fans: two pulling air out from just below the
+power supply and one drawing air into the case at the front.  The only
+crashes I've experienced on the machine were caused by kernel bugs. =)
 
----
-Dan Chen                 crimsun@email.unc.edu
-GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
+		-ben
 
----1744699036-1742709216-997556984=:39342
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="2.4.8+rui_ac3smp_emu10k1-1.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.A41.4.21L1.0108111509440.39342@login3.isis.unc.edu>
-Content-Description: ac3-smp-fix.diff
-Content-Disposition: ATTACHMENT; FILENAME="2.4.8+rui_ac3smp_emu10k1-1.diff"
+-- 
+"The world would be a better place if Larry Wall had been born in
+Iceland, or any other country where the native language actually
+has syntax" -- Peter da Silva
 
-ZGlmZiAtdU5yIGxpbnV4LTIuNC44LXJ1aS9kcml2ZXJzL3NvdW5kL2VtdTEw
-azEvYXVkaW8uYyBsaW51eC0yLjQuOC1ydWktYWMzX3NtcF9maXgvZHJpdmVy
-cy9zb3VuZC9lbXUxMGsxL2F1ZGlvLmMNCi0tLSBsaW51eC0yLjQuOC1ydWkv
-ZHJpdmVycy9zb3VuZC9lbXUxMGsxL2F1ZGlvLmMJU2F0IEF1ZyAxMSAxNDo0
-NjozNyAyMDAxDQorKysgbGludXgtMi40LjgtcnVpLWFjM19zbXBfZml4L2Ry
-aXZlcnMvc291bmQvZW11MTBrMS9hdWRpby5jCVNhdCBBdWcgMTEgMTQ6NDk6
-NDcgMjAwMQ0KQEAgLTEyNDYsOCArMTI0NiwxMSBAQA0KIA0KIAkJc3Bpbl9s
-b2NrX2lycXNhdmUoJndvaW5zdC0+bG9jaywgZmxhZ3MpOw0KIA0KLQkJaWYg
-KHdvaW5zdC0+Zm9ybWF0LnBhc3N0aHJvdWdoICYmIGNhcmQtPnB0LnN0YXRl
-ICE9IFBUX1NUQVRFX0lOQUNUSVZFKQ0KKwkJaWYgKHdvaW5zdC0+Zm9ybWF0
-LnBhc3N0aHJvdWdoICYmIGNhcmQtPnB0LnN0YXRlICE9IFBUX1NUQVRFX0lO
-QUNUSVZFKSB7DQorCQkJc3Bpbl9sb2NrKCZjYXJkLT5wdC5sb2NrKTsNCiAg
-ICAgICAgICAgICAgICAgICAgICAgICBlbXUxMGsxX3B0X3N0b3AoY2FyZCk7
-DQorCQkJc3Bpbl91bmxvY2soJmNhcmQtPnB0LmxvY2spOw0KKwkJfQ0KIA0K
-IAkJaWYgKHdvaW5zdC0+c3RhdGUgJiBXQVZFX1NUQVRFX09QRU4pIHsNCiAJ
-CQlpZiAod29pbnN0LT5zdGF0ZSAmIFdBVkVfU1RBVEVfU1RBUlRFRCkgew0K
-ZGlmZiAtdU5yIGxpbnV4LTIuNC44LXJ1aS9kcml2ZXJzL3NvdW5kL2VtdTEw
-azEvZWZ4bWdyLmMgbGludXgtMi40LjgtcnVpLWFjM19zbXBfZml4L2RyaXZl
-cnMvc291bmQvZW11MTBrMS9lZnhtZ3IuYw0KLS0tIGxpbnV4LTIuNC44LXJ1
-aS9kcml2ZXJzL3NvdW5kL2VtdTEwazEvZWZ4bWdyLmMJU2F0IEF1ZyAxMSAx
-NDo0NjozNyAyMDAxDQorKysgbGludXgtMi40LjgtcnVpLWFjM19zbXBfZml4
-L2RyaXZlcnMvc291bmQvZW11MTBrMS9lZnhtZ3IuYwlTYXQgQXVnIDExIDE0
-OjUxOjIwIDIwMDENCkBAIC0xOTcsMTUgKzE5NywxNSBAQA0KIAkJdTMyIGJj
-Ow0KIAkJYmMgPSBzYmxpdmVfcmVhZHB0cihjYXJkLCBHUFJfQkFTRSArIGNh
-cmQtPnB0LmludHJfZ3ByLCAwKTsNCiAJCWlmIChiYyAhPSAwKSB7DQotCQkJ
-c3Bpbl9sb2NrX2lycXNhdmUoJmNhcmQtPmxvY2ssIGZsYWdzKTsNCisJCQlE
-UEQoMywgInB0IGludGVycnVwdCwgYmMgPSAlZFxuIiwgYmMpOw0KKwkJCXNw
-aW5fbG9ja19pcnFzYXZlKCZjYXJkLT5wdC5sb2NrLCBmbGFncyk7DQogCQkJ
-Y2FyZC0+cHQuYmxvY2tzX3BsYXllZCA9IGJjOw0KIAkJCWlmIChjYXJkLT5w
-dC5ibG9ja3NfcGxheWVkID49IGNhcmQtPnB0LmJsb2Nrc19jb3BpZWQpIHsN
-CiAJCQkJRFBGKDEsICJidWZmZXIgdW5kZXJydW4gaW4gcGFzc3Rocm91Z2gg
-cGxheWJhY2tcbiIpOw0KIAkJCQllbXUxMGsxX3B0X3N0b3AoY2FyZCk7DQog
-CQkJfQ0KIAkJCXdha2VfdXBfaW50ZXJydXB0aWJsZSgmY2FyZC0+cHQud2Fp
-dCk7DQotCQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmY2FyZC0+bG9jaywg
-ZmxhZ3MpOw0KLQkJCURQRCgzLCAicHQgaW50ZXJydXB0LCBiYyA9ICVkXG4i
-LCBiYyk7DQorCQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmY2FyZC0+cHQu
-bG9jaywgZmxhZ3MpOw0KIAkJfQ0KIAl9DQogfQ0KZGlmZiAtdU5yIGxpbnV4
-LTIuNC44LXJ1aS9kcml2ZXJzL3NvdW5kL2VtdTEwazEvbWFpbi5jIGxpbnV4
-LTIuNC44LXJ1aS1hYzNfc21wX2ZpeC9kcml2ZXJzL3NvdW5kL2VtdTEwazEv
-bWFpbi5jDQotLS0gbGludXgtMi40LjgtcnVpL2RyaXZlcnMvc291bmQvZW11
-MTBrMS9tYWluLmMJU2F0IEF1ZyAxMSAxNDo0NzoyNyAyMDAxDQorKysgbGlu
-dXgtMi40LjgtcnVpLWFjM19zbXBfZml4L2RyaXZlcnMvc291bmQvZW11MTBr
-MS9tYWluLmMJU2F0IEF1ZyAxMSAxNDo1MTo1NSAyMDAxDQpAQCAtNzc1LDYg
-Kzc3NSw3IEBADQogCWNhcmQtPnB0LmludHJfZ3ByX25hbWUgPSAiY291bnQi
-Ow0KIAljYXJkLT5wdC5lbmFibGVfZ3ByX25hbWUgPSAiZW5hYmxlIjsNCiAJ
-Y2FyZC0+cHQucG9zX2dwcl9uYW1lID0gInB0ciI7DQorCXNwaW5fbG9ja19p
-bml0KCZjYXJkLT5wdC5sb2NrKTsNCiAJaW5pdF93YWl0cXVldWVfaGVhZCgm
-Y2FyZC0+cHQud2FpdCk7DQogDQogLyoJdG1wID0gc2JsaXZlX3JlYWRmbjAo
-Y2FyZCwgSENGRyk7DQpkaWZmIC11TnIgbGludXgtMi40LjgtcnVpL2RyaXZl
-cnMvc291bmQvZW11MTBrMS9wYXNzdGhyb3VnaC5jIGxpbnV4LTIuNC44LXJ1
-aS1hYzNfc21wX2ZpeC9kcml2ZXJzL3NvdW5kL2VtdTEwazEvcGFzc3Rocm91
-Z2guYw0KLS0tIGxpbnV4LTIuNC44LXJ1aS9kcml2ZXJzL3NvdW5kL2VtdTEw
-azEvcGFzc3Rocm91Z2guYwlTYXQgQXVnIDExIDE0OjQ2OjM3IDIwMDENCisr
-KyBsaW51eC0yLjQuOC1ydWktYWMzX3NtcF9maXgvZHJpdmVycy9zb3VuZC9l
-bXUxMGsxL3Bhc3N0aHJvdWdoLmMJU2F0IEF1ZyAxMSAxNDo1MzozMCAyMDAx
-DQpAQCAtMjA5LDkgKzIwOSw3IEBADQogew0KIAlzdHJ1Y3QgcHRfZGF0YSAq
-cHQgPSAmY2FyZC0+cHQ7DQogCWludCBpOw0KLQl1bnNpZ25lZCBsb25nIGZs
-YWdzOw0KIA0KLQlzcGluX2xvY2tfaXJxc2F2ZSgmY2FyZC0+cHQubG9jaywg
-ZmxhZ3MpOw0KIAlpZiAocHQtPnN0YXRlICE9IFBUX1NUQVRFX0lOQUNUSVZF
-KSB7DQogCQlEUEYoMiwgImRpZ2l0YWwgcGFzcy10aHJvdWdoIHN0b3BwZWRc
-biIpOw0KIAkJc2JsaXZlX3dyaXRlcHRyKGNhcmQsIEdQUl9CQVNFICsgcHQt
-PmVuYWJsZV9ncHIsIDAsIDApOw0KQEAgLTIyMiw3ICsyMjAsNiBAQA0KIAkJ
-cHQtPnN0YXRlID0gUFRfU1RBVEVfSU5BQ1RJVkU7DQogCQlrZnJlZShwdC0+
-YnVmKTsNCiAJfQ0KLQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZjYXJkLT5w
-dC5sb2NrLCBmbGFncyk7DQogfQ0KIA0KIHZvaWQgZW11MTBrMV9wdF93YXZl
-b3V0X3VwZGF0ZShzdHJ1Y3QgZW11MTBrMV93YXZlZGV2aWNlICp3YXZlX2Rl
-dikNCg==
----1744699036-1742709216-997556984=:39342--

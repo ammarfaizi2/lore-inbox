@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290240AbSAXDgw>; Wed, 23 Jan 2002 22:36:52 -0500
+	id <S290243AbSAXDsg>; Wed, 23 Jan 2002 22:48:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290241AbSAXDgn>; Wed, 23 Jan 2002 22:36:43 -0500
-Received: from c001-h018.c001.snv.cp.net ([209.228.32.132]:53503 "HELO
-	c001.snv.cp.net") by vger.kernel.org with SMTP id <S290240AbSAXDgZ>;
-	Wed, 23 Jan 2002 22:36:25 -0500
-Date: 23 Jan 2002 19:36:18 -0800
-Message-ID: <20020124033618.20653.cpmta@c001.snv.cp.net>
-X-Sent: 24 Jan 2002 03:36:18 GMT
-Content-Type: text/plain
-Content-Disposition: inline
-Mime-Version: 1.0
-To: linux-kernel@vger.kernel.org
-From: info@global-digicom.com
-X-Mailer: Web Mail 3.9.3.5
-X-Sent-From: info@global-digicom.com
-Subject: White Paper on the Linux kernel VM?
+	id <S290244AbSAXDsY>; Wed, 23 Jan 2002 22:48:24 -0500
+Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:1724 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S290243AbSAXDsS>; Wed, 23 Jan 2002 22:48:18 -0500
+Message-ID: <036a01c1a48a$0480da40$1d01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Andrew Morton" <akpm@zip.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.h7o6q7v.lha792@ifi.uio.no> <fa.divhjuv.3guviq@ifi.uio.no>
+Subject: Re: Low latency for recent kernels
+Date: Wed, 23 Jan 2002 22:48:42 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am interested in reviewing the technical specifications on the Linux kernel VM.
-As there has been much controversy of late on this subject, it would be relevant to compare the concepts behind both the former VM and the new VM in order to obtain a better understanding of the issues. 
-Is there a “white paper” available on both the old and the new VM’s? 
-Understandably, the VM is a work in progress; however, there should be a basic set of design goals and concepts from which future development will proceed.  It would definitely be helpful to present them both as an aid to further analysis.
+> I'm a little surprised that desktop users do notice significant
+> benefits with all the latency/preempt patches.  If you actually
+> instrument the kernel's behaviour, the stalls are in fact
+> quite small and infrequent.
 
-Sincerely,
-D. L. Beaman
+Havoc Pennington, Soeren Sandmann, and I have been investigating causes of
+UI unresponsiveness in Xfree86/Linux. I would agree that in most situations,
+on a mostly-idle machine, low-latency/preempt patches should *not* enhance
+the overall feel of the desktop. (if they do measurably increase
+responsiveness, then that would suggest inefficiencies in X/the WM/the X
+client - a definite possibility, of course).
 
+Two situations where I would expect low-latency/preemption to have a
+positive effect on responsiveness are 1) when the system is under heavy CPU
+and disk load (e.g. kernel compile); due to the interactive tasks being able
+to run earlier/more often, and 2) when performing UI operations that depend
+on tight synchronization between X/the WM/the X client, particularly opaque
+window resizing. (my theory is that low-latency/preemption results in the
+CPU switching more rapidly or evenly among these processes, reducing the
+perceptible "lag" between the client window and its WM frame)
 
-   -- D. L. Beaman -- 
-  Software development 
-     Global Digicom 
-----------------------------
- info@global-digicom.com
-
+Regards,
+Dan
 

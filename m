@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129977AbQLKALQ>; Sun, 10 Dec 2000 19:11:16 -0500
+	id <S129906AbQLKASH>; Sun, 10 Dec 2000 19:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129906AbQLKALG>; Sun, 10 Dec 2000 19:11:06 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:36778 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129977AbQLKAKv>; Sun, 10 Dec 2000 19:10:51 -0500
-Message-Id: <5.0.2.1.2.20001210232808.04affbd0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sun, 10 Dec 2000 23:34:18 +0000
-To: Ion Badulescu <ionut@cs.columbia.edu>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: eepro100 driver update for 2.4
-Cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
-        Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0012081254360.26353-100000@age.cs.columbia.e
- du>
-In-Reply-To: <3A3143D5.98E8E948@Hell.WH8.TU-Dresden.De>
+	id <S131363AbQLKAR5>; Sun, 10 Dec 2000 19:17:57 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:21008 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129906AbQLKARt>; Sun, 10 Dec 2000 19:17:49 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Tim <tim@parrswood.manchester.sch.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in test11, test11-ac4 and test12-pre4/7 
+In-Reply-To: Your message of "Sun, 10 Dec 2000 17:44:06 -0000."
+             <Pine.LNX.4.21.0012101742020.3920-100000@pine.parrswood.manchester.sch.uk> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 11 Dec 2000 10:47:17 +1100
+Message-ID: <1051.976492037@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 20:57 08/12/2000, Ion Badulescu wrote:
->On Fri, 8 Dec 2000, Udo A. Steinberg wrote:
->
-> > > +               /* disable advertising the flow-control capability */
-> > > +               sp->advertising &= ~0x0400;
-> > > +               mdio_write(ioaddr, sp->phy[0] & 0x1f, sp->advertising);
-> >
-> >                                                       ^^^
-> >                                                  missing a 4 here?
->
->Yes, sorry about that.
->
-> > I've tried the patch putting a 4 in the place noted above. It doesn't
-> > help with the issue at all.
+On Sun, 10 Dec 2000 17:44:06 +0000 (GMT), 
+Tim <tim@parrswood.manchester.sch.uk> wrote:
+>Dec 10 17:08:24 oxygen kernel: Call Trace: [<d08925b7>] [call_spurious_interrupt+33951/35940] [sprintf+20/28] [call_spurious_interrupt+33924/35940] [do_resource_list+77/132] [call_spurious_interrupt+33907/35940] [<d08925b7>]
 
-Just to say that the patch (including added 4) fixed the "card reports no 
-resources" messages for me. - Looking at my logs the messages appeared once 
-every 10-40 minutes. - Now the box is up for more than 5 hours with the 
-patch and test12-pre7 and not a single no resources message logged so far. 
-(Note, I upgraded the kernel at the same time as adding the patch so it is 
-actually possible that test12-pre7 vanilla is fixed as well.)
+Yet another completely broken klogd oops conversion.  Always run klogd
+as "klogd -x", probably started from /etc/rc.d/init.d/syslog.
 
-My card is an Ether Express Pro 100, lcpci says: Intel Corporation 82557 
-[Ethernet Pro 100] (rev 04) and lspci -n gives: class 0200: 10b7:9004
+>Dec 10 17:08:24 oxygen kernel: Code: 80 38 00 74 07 40 4a 83 fa ff 75 f4 29 c8 89 c6 8b 44 24 1c
 
-Just my 2p.
-
-Anton
-
-
--- 
-      "Education is what remains after one has forgotten everything he 
-learned in school." - Albert Einstein
--- 
-Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
-Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
-Cambridge CB2 3BU    ICQ: 8561279
-United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Not decoded.  Get a clean oops (without klogd getting in the way) then
+run the clean oops through ksymoops.  Documentation/oops-tracing.txt.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

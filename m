@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268399AbTCFVem>; Thu, 6 Mar 2003 16:34:42 -0500
+	id <S268400AbTCFVf0>; Thu, 6 Mar 2003 16:35:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268402AbTCFVem>; Thu, 6 Mar 2003 16:34:42 -0500
-Received: from gtwy.nap.wideopenwest.com ([64.233.207.11]:43042 "EHLO
-	pop-1.dnv.wideopenwest.com") by vger.kernel.org with ESMTP
-	id <S268399AbTCFVel>; Thu, 6 Mar 2003 16:34:41 -0500
-From: kelleycook@wideopenwest.com
-Reply-to: kelleycook@wideopenwest.com
-To: linux-kernel@vger.kernel.org
-Subject: Disabling ATAPI retry?
-X-Mailer: WebMAIL to Mail Gateway v3.0h
-Date: Thu, 06 Mar 2003 15:58:51 -0500
-Message-id: <3e67c49b.7c12.1804289383@wideopenwest.com>
+	id <S268405AbTCFVf0>; Thu, 6 Mar 2003 16:35:26 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22440
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268400AbTCFVfX>; Thu, 6 Mar 2003 16:35:23 -0500
+Subject: Re: Linux 2.5.64-ac1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1046985881.4992.99.camel@spc9.esa.lanl.gov>
+References: <200303061915.h26JFAP06033@devserv.devel.redhat.com>
+	 <1046985881.4992.99.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046991076.17715.129.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 06 Mar 2003 22:51:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am attempting to copy data off a damaged partition on an
-ATAPI hard drive onto a new drive using 'dd
-conv=sync,noerror' since my Deskstar recently blew up.
+On Thu, 2003-03-06 at 21:24, Steven Cole wrote:
+> I backed out the same partitions stuff as before, and 2.5.64-ac1 boots
+> fine.  This is the resulting diff.
 
-My main problem is the fact that when it hits a bad sector,
-the drive goes into retry mode for a sizeable portion of
-time before coming back with an error.  This means that as a
-rough estimate, it is going to take a month to copy the
-partition.
+Backing it out isnt an option in the end, it has to get fixed 8(
 
-Is there a boot parameter or a runtime command that can tell
-the linux IDE driver not to automatically retry on error.
-
-Sorry if this is an FAQ, but I could not find the
-information.
-
-Kelley Cook

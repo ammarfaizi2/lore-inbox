@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261349AbSJQKTa>; Thu, 17 Oct 2002 06:19:30 -0400
+	id <S261306AbSJQKbt>; Thu, 17 Oct 2002 06:31:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261351AbSJQKTa>; Thu, 17 Oct 2002 06:19:30 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:5799 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261349AbSJQKT3>;
-	Thu, 17 Oct 2002 06:19:29 -0400
-Date: Thu, 17 Oct 2002 15:59:55 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: netdev <netdev@oss.sgi.com>
+	id <S261312AbSJQKbt>; Thu, 17 Oct 2002 06:31:49 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:49350 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261306AbSJQKbs>; Thu, 17 Oct 2002 06:31:48 -0400
+To: "Theodore Ts'o" <tytso@mit.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Qdisc drops not being reported to user space
-Message-ID: <20021017155955.E20237@in.ibm.com>
-Mime-Version: 1.0
+Subject: Re: Posix capabilities
+References: <20021016154459.GA982@TK150122.tuwien.teleweb.at>
+	<20021017032619.GA11954@think.thunk.org>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Thu, 17 Oct 2002 12:37:30 +0200
+Message-ID: <874rblcpw5.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sometime back, I had posted a patch to report Qdisc drops under /proc/net/dev.
-I'd noticed that Qdisc.drops was not being reported for the default queuing
-discipline (pfifo_fast).  I was told that my approach mucked SNMP data.
-I was also told that prio will be made the default queuing discipline and
-pfifo_fast will be done away with. Is this the case even now? will prio
-be made the default queuing disc in the 2.5 time frame? If not, any
-solution in sight to report Qdisc drops to userland? (I think there is
-a kernel patch and a patch for tc from Jamal). I have noticed Qdisc
-drops under webserver loads, and heavy tx loads (I used my  proc reporting
-patch .. it did not break ifconfig atleast..).  IMO It'd not be right if
-packets are being dropped by the kernel (default queuing discipline) and the
-unsuspecting admin has no means to find that out.  IMHO It'd also not be fair 
-to expect users to use CONFIG_NET_SCH_PRIO and add the prio qdisc before 
-using a n/w interface just to be able to make out Qdisc drops.
- 
-One more thing...IMHO, there must be some documentation somewhere ....
-tc man page (which doesn't exist as of now?) or atleast the readme
-which should indicate to the user that drops seen from ifconfig
-(packets dropped by the adapter) are different from packets dropped from
-the qdisc as shown by tc. 
- 
-Thanks,
-Kiran
+"Theodore Ts'o" <tytso@mit.edu> writes:
+
+> Personally, I'm not so convinced that capabilities are such a great
+> idea.  System administrators have a hard enough time keeping 12 bits
+> of permissions correct on executable files; with capabilities they
+> have to keep track of several hundred bits of capabilties flags, which
+
+So you claim, system administrators are stupid people?
+
+> must be set precisely correctly, or the programs will either (a) fail
+> to function,
+
+Which you will notice very fast.
+
+> or (b) have a gaping huge security hole.  
+
+Which is not worse, but possibly a lot better, than setuid root.
+
+> This probablem could be solved with some really scary, complex user
+> tools (which no one has written yet).  Alternatively you could just
+> let programs continue to be setuid root, but modify the executable to
+> explicitly drop all the capabilities except for the ones that are
+> actually needed as one of the first things that executable does.  It
+
+Which isn't convincing, either. The benefit of capabilities is to
+administer your system _without_ relying on someone else doing a
+decent job.
+
+> perhaps only gives you 90% of the benefits of the full-fledged
+> capabilities model, but it's much more fool proof, and much easier to
+> administer.
+
+With capabilities you don't have to resort to programming, which _is_
+already an easier way to administer. This also means, distribution
+builders, who may not be coders, can contribute to enhance security.
+
+Maybe this sounds like a plea for capabilities and maybe it is, but I
+just want to put some things straight. Unless there's something
+better, I stay with capabilities.
+
+To be more constructive, I want to point to
+<http://www.linux.it/~md/software/ssd.tgz>. This is a modified
+start-stop-daemon, which allows to change capabilities. With this
+really scary, complex user tool (which to some extent it is, when you
+look at the code), I was able to drop all the capabilities except for
+the ones that are actually needed. ;-)
+
+Regards, Olaf.

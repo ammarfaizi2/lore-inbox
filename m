@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261974AbSIYNIP>; Wed, 25 Sep 2002 09:08:15 -0400
+	id <S261972AbSIYNEw>; Wed, 25 Sep 2002 09:04:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSIYNIP>; Wed, 25 Sep 2002 09:08:15 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:27569 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261974AbSIYNIP>; Wed, 25 Sep 2002 09:08:15 -0400
-Date: Wed, 25 Sep 2002 10:13:03 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Adam Goldstein <Whitewlf@Whitewlf.net>
-cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-       <linux-kernel@vger.kernel.org>, Adam Taylor <iris@servercity.com>
-Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
-In-Reply-To: <EFED8A1D-D02F-11D6-AD2E-000502C90EA3@Whitewlf.net>
-Message-ID: <Pine.LNX.4.44L.0209251012160.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261973AbSIYNEv>; Wed, 25 Sep 2002 09:04:51 -0400
+Received: from hercules.egenera.com ([208.254.46.135]:45067 "HELO
+	coyote.egenera.com") by vger.kernel.org with SMTP
+	id <S261972AbSIYNEv>; Wed, 25 Sep 2002 09:04:51 -0400
+Date: Wed, 25 Sep 2002 09:07:22 -0400
+From: Phil Auld <pauld@egenera.com>
+To: DragonK <dragon_krome@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel 2.4.x Bug
+Message-ID: <20020925090722.K4368@vienna.EGENERA.COM>
+References: <20020924213421.22776.qmail@web20307.mail.yahoo.com> <200209250709.g8P79ip29724@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200209250709.g8P79ip29724@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Wed, Sep 25, 2002 at 10:04:05AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Sep 2002, Adam Goldstein wrote:
+Rumor has it that on Wed, Sep 25, 2002 at 10:04:05AM -0200 Denis Vlasenko said:
+> On 24 September 2002 19:34, DragonK wrote:
+> > I'm sorry if I'm sending this to the wrong persons,
+> > but I really don't know whom I should send this to.
+> >
+> > My problem involves ALL linux kernels 2.4.x. All
+> > versions I've tried on my machine lock up at boot time
+> > (no panic, no oops, just plain old dead), just after
+> > writing "Uncompressing linux kernel...Ok, now booting
+> > the kernel...". The kernel banner DOES NOT appear. I
+> > compiled every kernel with a minimal set of options
+> > (and CPU=386) but nothing; I've even installed the
+> > latest Lilo.
 
-> These are under current load, i will run a full snap of tests tomorrow
-> during peak load.
+maybe too minimal :)
 
-> 235 processes: 229 sleeping, 6 running, 0 zombie, 0 stopped
-> CPU0 states: 87.5% user, 12.0% system,  0.0% nice,  0.0% idle
-> CPU1 states: 90.2% user,  9.4% system,  0.0% nice,  0.0% idle
+This sounds like what you get if you don't have VT configured. 
+Make sure you have these in your .config
 
-OK, this looks like you're just running out of CPU power.
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+Phil

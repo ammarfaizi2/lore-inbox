@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261485AbSJ2BY0>; Mon, 28 Oct 2002 20:24:26 -0500
+	id <S261396AbSJ2BXm>; Mon, 28 Oct 2002 20:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261478AbSJ2BY0>; Mon, 28 Oct 2002 20:24:26 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:41355 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S261463AbSJ2BYY>;
-	Mon, 28 Oct 2002 20:24:24 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200210290130.EAA19804@sex.inr.ac.ru>
-Subject: Re: UPD: Frequent/consistent panics in 2.4.19 at ip_route_input_slow, in_dev_get(dev)
-To: alain@cscoms.net (Alain Fauconnet)
-Date: Tue, 29 Oct 2002 04:30:25 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org, lve@ns.aanet.ru
-In-Reply-To: <20021028171956.A14460@cscoms.net> from "Alain Fauconnet" at Oct 28, 2 05:19:56 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S261398AbSJ2BXm>; Mon, 28 Oct 2002 20:23:42 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:23965 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261396AbSJ2BXl>; Mon, 28 Oct 2002 20:23:41 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 28 Oct 2002 17:39:26 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Hanna Linder <hannal@us.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: and nicer too - Re: [PATCH] epoll more scalable
+ than poll
+In-Reply-To: <112700000.1035853724@w-hlinder>
+Message-ID: <Pine.LNX.4.44.0210281734250.966-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 28 Oct 2002, Hanna Linder wrote:
 
-> I assume that the kernel is trying to use dynamic memory that has been
-> released already, right?
+> 	If you need any help with the Man pages I will be glad to
+> help too. It looks like providing examples of how to use it would be
+> very useful since this is something application writers are supposed
+> to use...
 
-Right.
+IMHO I find the ephttpd.c, once stripped of the tons of #ifdef to handle
+the other interfaces, to be a very clear example about how to use the API
+togheter with coroutines. Using it with an event driven state machine
+would require a little bit more code, but nothing brutal ...
+Anyway yes, the NOTES section of the man pages should be "enriched" with a
+few notes and maybe code samples.
 
-> What's next in tracing this one down?
 
-To tell what exactly driver makes this. Apparently, it continues
-to inject packets to the stack even after it has been destroyed.
 
-If you did not see message "Freeing alive device", this means
-that driver unregistered it. Usual ppp seems to be sane...
+- Davide
 
-Alexey
+

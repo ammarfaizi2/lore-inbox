@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbULPDO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbULPDpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbULPDO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 22:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbULPDO1
+	id S261917AbULPDpG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 22:45:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbULPDpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 22:14:27 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:9661 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261916AbULPDOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 22:14:22 -0500
-Message-ID: <41C0FDBA.5060406@comcast.net>
-Date: Wed, 15 Dec 2004 22:15:06 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+	Wed, 15 Dec 2004 22:45:06 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:5079 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261917AbULPDpB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 22:45:01 -0500
+Message-ID: <41C0F67D.4000506@zytor.com>
+Date: Wed, 15 Dec 2004 18:44:13 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Sockets from kernel space?
-References: <41C0E720.8050201@comcast.net> <41C0DF8B.2020007@conectiva.com.br>
-In-Reply-To: <41C0DF8B.2020007@conectiva.com.br>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "J.A. Magallon" <jamagallon@able.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What if?
+References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org>	 <1101976424l.5095l.0l@werewolf.able.es>	 <1101984361.28965.10.camel@tara.firmix.at>	 <cpkc5i$84f$1@terminus.zytor.com>  <1102972125l.7475l.0l@werewolf.able.es> <1103158646.3585.35.camel@localhost.localdomain>
+In-Reply-To: <1103158646.3585.35.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Alan Cox wrote:
+> On Llu, 2004-12-13 at 21:08, J.A. Magallon wrote:
+> 
+>>>Type-safe linkage, mainly.  That actually would be a nice thing.
+>>>
+>>And let the compiler do all what now is done by hand wrt driver methods,
+>>inheritance, specialized methods and so on, with a 1000% increase in security
+>>because compiler does not forget to do thinks, like we do ;)
+> 
+> This is not a C++ thing per se however. A future gcc could do type safe
+> linkage of C programs instead of C++.
 
-Thanks.  I'll look at those.
+Yes, but there is also no really big deal compiling C code with a C++ 
+compiler.  Yes, it was a disaster in 0.99.14, but that was 10 years ago.
 
-I'm aiming at potentially writing an LSM that allows a process to attach
-to the kernel, which will then be sent messages through an AF_UNIX
-(these are the app<->app sockets right?) socket with the details of any
-listen(2) or connect(2) calls made.  I was going to do it in userspace,
-but realized it was easily avoidable that way.
+There is a huge difference between "C compiled with a C++ compiler" and 
+the "go crazy with keeping the programmer in the dark" concept proposed 
+by Mr. Magallon.
 
-If this works, I can pretty much securely create a host firewall that
-regulates based on network operations, user, and program.  This would
-allow the creation of discressionary firewalls, like Zone Alarm, Norton
-PF, McAffee PF, etc.  The daemon sits in userspace, the kernel asks it
-for policy decisions, it asks connected/authenticated clients about
-unknown policy, and makes them re-authenticate to get an answer.  The
-authentication is in userspace (PAM), hence the daemon.
-
-Arnaldo Carvalho de Melo wrote:
-[...]
-|
-| Please send networking development related messages to netdev@oss.sgi.com,
-| there are several networking hackers that don't even subscribe lkml.
-|
-| Having said that, look at the svc_makesock and svc_create_socket functions
-| in net/sunrpc/svcsock.c as a starting point.
-|
-| - Arnaldo
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBwP26hDd4aOud5P8RAhSjAJ956RdBt9deoh3RgW7UKWdEgNeLMACeOR+b
-nVFR/uA/ZNXkv2b6HYcRczw=
-=VUfC
------END PGP SIGNATURE-----
+	-hpa

@@ -1,75 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263032AbUCXHLS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 02:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbUCXHLR
+	id S263033AbUCXHQl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 02:16:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbUCXHQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 02:11:17 -0500
-Received: from mail.tpgi.com.au ([203.12.160.57]:41442 "EHLO mail1.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S263032AbUCXHLJ (ORCPT
+	Wed, 24 Mar 2004 02:16:40 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:13278 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263033AbUCXHQj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 02:11:09 -0500
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on
-	the merge?]
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Michael Frank <mhf@linuxmail.org>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
-In-Reply-To: <opr5cry20s4evsfm@smtp.pacific.net.th>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au>
-	 <200403231743.01642.dtor_core@ameritech.net>
-	 <20040323233228.GK364@elf.ucw.cz>
-	 <200403232352.58066.dtor_core@ameritech.net>
-	 <1080104698.3014.4.camel@calvin.wpcb.org.au>
-	 <opr5cry20s4evsfm@smtp.pacific.net.th>
-Content-Type: text/plain
-Message-Id: <1080107188.2205.10.camel@laptop-linux.wpcb.org.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Wed, 24 Mar 2004 17:46:28 +1200
+	Wed, 24 Mar 2004 02:16:39 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Message-ID: <16481.13780.673796.20976@napali.hpl.hp.com>
+Date: Tue, 23 Mar 2004 23:16:36 -0800
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: davidm@hpl.hp.com, Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Non-Exec stack patches
+In-Reply-To: <20040324070020.GI31589@devserv.devel.redhat.com>
+References: <20040323231256.GP4677@tpkurt.garloff.de>
+	<20040323154937.1f0dc500.akpm@osdl.org>
+	<20040324002149.GT4677@tpkurt.garloff.de>
+	<16480.55450.730214.175997@napali.hpl.hp.com>
+	<4060E24C.9000507@redhat.com>
+	<16480.59229.808025.231875@napali.hpl.hp.com>
+	<20040324070020.GI31589@devserv.devel.redhat.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+>>>>> On Wed, 24 Mar 2004 02:00:20 -0500, Jakub Jelinek <jakub@redhat.com> said:
 
-On Wed, 2004-03-24 at 18:22, Michael Frank wrote:
-> Error messages should be handled on a seperate VT eliminating the issue.
+  Jakub> But I think we should change the toolchain and generate it on
+  Jakub> IA64 and PPC64 as well (only GCC would need changing,
+  Jakub> emitting .section .note.GNU-stack,"",@progbits at the end of
+  Jakub> every compile unit, ld takes care of the rest) exactly for
+  Jakub> uniformity's sake and because you get ld.so handling free.
 
-While I definitely like the idea, I'm not sure that's feasible; as Pavel
-pointed out, Suspend doesn't generate all the error messages that might
-possibly appear. Maybe I'm just ignorant.. I'll take a look when I get
-the change.
+I'm not following you on the "get ld.so handling free" part.  How is
+that handling free?
 
-> How are bad blocks on a swap partition handled by the vm?
+  Jakub> GLIBC dynamic linker will take care of making the stack
+  Jakub> executable if say a binary which doesn't need executable
+  Jakub> stack depends on a shared library which needs executable
+  Jakub> stack or even dlopens a library which needs executable stack.
 
-Good question :>
+Actually, that's something that worries me.  Somebody just needs to
+succeed in loading any shared object with the right PT_GNU_STACK
+header and then the entire program will be exposed to the risk of a
+writable stack.  On ia64, I just don't see any need to ever implicitly
+turn on execute-permission on the stack, so why allow this extra
+backdoor?
 
-> Which reminds me of the "failed to read a chunk" message, the guys who reported
-> it got all quiet after telling them to do more badblocks testing without diskcaching or
-> using dd to write random data and read them back, so  likely was caused by
-> media problems.
-
-I'll reserve judgement there...
-
-> Here we need more detailed error messages including the driver output  and the
-> screen  should be switched to a text VT so messages are visible. Also as the
-> error will cause resume to fail the system should be halted in this case.
-> 
-> IMO seperate message VT will eliminate all interference issues and further modularization
-> by keeping the eye candy seperate.
-> 
-> Regards
-> Michael
--- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
-
+	--david

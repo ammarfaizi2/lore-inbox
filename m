@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVBRLZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVBRL2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVBRLZI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 06:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVBRLZI
+	id S261339AbVBRL2W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 06:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVBRL2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 06:25:08 -0500
-Received: from ns.suse.de ([195.135.220.2]:42881 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261332AbVBRLZB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 06:25:01 -0500
-Message-ID: <4215D03F.7070206@suse.de>
-Date: Fri, 18 Feb 2005 12:23:43 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
+	Fri, 18 Feb 2005 06:28:22 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:39670 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261336AbVBRL2L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 06:28:11 -0500
+From: "Sven Dietrich" <sdietrich@mvista.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, "Rt-Dev@Mvista. Com" <rt-dev@mvista.com>
+Subject: Realtime preempt 
+Date: Fri, 18 Feb 2005 03:28:08 -0800
+Message-ID: <001901c515ac$ec8032f0$6d00a8c0@mvista.com>
 MIME-Version: 1.0
-To: ncunningham@cyclades.com
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
-       dtor_core@ameritech.net, Bernard Blackham <bernard@blackham.com.au>
-Subject: Re: Swsusp, resume and kernel versions
-References: <200502162346.26143.dtor_core@ameritech.net>	 <1108617332.4471.33.camel@desktop.cunningham.myip.net.au>	 <200502170038.30033.dtor_core@ameritech.net>	 <1108627778.4471.54.camel@desktop.cunningham.myip.net.au>	 <421506FC.3060909@suse.de> <1108722865.4077.8.camel@desktop.cunningham.myip.net.au>
-In-Reply-To: <1108722865.4077.8.camel@desktop.cunningham.myip.net.au>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <20050217080304.GA21887@elte.hu>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-> Hi Stefan.
-> 
-> For Suspend2, we also put a device id in the space, so there's only room
-> for one character, which is a lower or upper case Z. (We also validate
-> the device ID, so a random Z won't cause an oops).
-> 
-> Thanks for the code. With your/Suse's permission, I'll ask Bernard
-> (cc'd) to include the script in the docs somewhere with the appropriate
-> credit.
 
-i have consulted our license guy and the original author of
-/etc/init.d/boot.swap and am glad to say that it is GPL'd ;-)
+Ingo,
 
-Have fun,
+this patch turns off the preemptable BKL when 
+either PREEMPT_VOLUNTARY or PREEMPT_NONE is selected.
 
-  Stefan
+Signed-off-by: Sven-Thorsten Dietrich <sdietrich@mvista.com>
 
--- 
-Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX, Nürnberg.
+Index: linux-2.6.10-vaio/lib/Kconfig.RT
+===================================================================
+--- linux-2.6.10-vaio.orig/lib/Kconfig.RT       2005-02-18 11:13:42.050554215 +0000
++++ linux-2.6.10-vaio/lib/Kconfig.RT    2005-02-18 11:20:16.021273614 +0000
+@@ -144,5 +144,6 @@
+ config PREEMPT_BKL
+        bool
+        depends on PREEMPT_RT || !SPINLOCK_BKL
++       default n if !PREEMPT
+        default y
 
-"Any ideas, John?"
-"Well, surrounding them's out."
+

@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263601AbTJWPW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 11:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263603AbTJWPW3
+	id S263598AbTJWPaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 11:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbTJWPaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 11:22:29 -0400
-Received: from APlessis-Bouchard-112-1-6-202.w81-51.abo.wanadoo.fr ([81.51.226.202]:5799
-	"EHLO fozzy.syrius.org") by vger.kernel.org with ESMTP
-	id S263601AbTJWPW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 11:22:27 -0400
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-pre8
-References: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
-From: laurent.ml@linuxfr.org
-Date: Thu, 23 Oct 2003 17:22:24 +0200
-In-Reply-To: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet> (Marcelo
- Tosatti's message of "Wed, 22 Oct 2003 21:24:17 -0200 (BRST)")
-Message-ID: <wazza.87ad7sf07j.fsf@message.id>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+	Thu, 23 Oct 2003 11:30:09 -0400
+Received: from [217.67.140.50] ([217.67.140.50]:18118 "EHLO
+	web-server.sachsenlb.ie") by vger.kernel.org with ESMTP
+	id S263598AbTJWPaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 11:30:05 -0400
+Message-ID: <025201c3997a$86c56890$6e69690a@RIMAS>
+From: "Rimas" <rmocius@auste.elnet.lt>
+To: <linux-kernel@vger.kernel.org>
+Subject: umsdos and kernel 2.6
+Date: Thu, 23 Oct 2003 16:30:02 +0100
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Hi folks,
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
-
->   o [IRDA]: Fix build with gcc-3.4
-
-Tell me if I'm wrong, it seems 2 comas are missing.
+Does kernel 2.6 supports UMSDOS file system?
 
 
---=-=-=
-Content-Disposition: attachment; filename=irda.2.4.23-pre8.diff
+Regards
 
-diff -ur linux-2.4.23-pre8.orig/net/irda/af_irda.c linux-2.4.23-pre8/net/irda/af_irda.c
---- linux-2.4.23-pre8.orig/net/irda/af_irda.c	2003-10-23 17:11:55.000000000 +0200
-+++ linux-2.4.23-pre8/net/irda/af_irda.c	2003-10-23 16:38:34.000000000 +0200
-@@ -285,7 +285,7 @@
- 		self->max_data_size = irttp_get_max_seg_size(self->tsap);
- 	};
- 
--	IRDA_DEBUG(2, "%s(), max_data_size=%d\n", __FUNCTION__
-+	IRDA_DEBUG(2, "%s(), max_data_size=%d\n", __FUNCTION__,
- 		   self->max_data_size);
- 
- 	memcpy(&self->qos_tx, qos, sizeof(struct qos_info));
-@@ -384,7 +384,7 @@
- 
- 	/* Check if request succeeded */
- 	if (result != IAS_SUCCESS) {
--		IRDA_DEBUG(1, "%s(), IAS query failed! (%d)\n", __FUNCTION__
-+		IRDA_DEBUG(1, "%s(), IAS query failed! (%d)\n", __FUNCTION__,
- 			   result);
- 
- 		self->errno = result;	/* We really need it later */
-
---=-=-=
-
-
--- 
-Laurent
-
---=-=-=--
+Remus

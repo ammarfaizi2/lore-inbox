@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262968AbTCWIi6>; Sun, 23 Mar 2003 03:38:58 -0500
+	id <S262972AbTCWIjA>; Sun, 23 Mar 2003 03:39:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262976AbTCWIi6>; Sun, 23 Mar 2003 03:38:58 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:2828 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262968AbTCWIi5>;
-	Sun, 23 Mar 2003 03:38:57 -0500
-Date: Sun, 23 Mar 2003 00:49:50 -0800
-From: Greg KH <greg@kroah.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [PATCH] More i2c driver changes for 2.5.65
-Message-ID: <20030323084950.GL26145@kroah.com>
-References: <1048295082521@kroah.com> <1048295084971@kroah.com> <20030322023351.GB2050@vana.vc.cvut.cz>
+	id <S262976AbTCWIjA>; Sun, 23 Mar 2003 03:39:00 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:23308 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262972AbTCWIi6>; Sun, 23 Mar 2003 03:38:58 -0500
+Date: Sun, 23 Mar 2003 08:50:00 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: [PATCH] alternative dev patch
+Message-ID: <20030323085000.B6788@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, Roman Zippel <zippel@linux-m68k.org>,
+	Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+	akpm@digeo.com
+References: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0303202314210.5042-100000@serv> <20030321012455.GB10298@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030322023351.GB2050@vana.vc.cvut.cz>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030321012455.GB10298@kroah.com>; from greg@kroah.com on Thu, Mar 20, 2003 at 05:24:55PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 22, 2003 at 03:33:51AM +0100, Petr Vandrovec wrote:
+On Thu, Mar 20, 2003 at 05:24:55PM -0800, Greg KH wrote:
+> On Fri, Mar 21, 2003 at 12:03:57AM +0100, Roman Zippel wrote:
+> > I'm unsure how your code will scale. It depends on how that code will be 
+> > used. If drivers register a lot of devices, your lookup function has to 
+> > scan a possibly very long list of minor devices and that function is 
+> > difficult to optimize.
 > 
-> Although you'll not break matroxfb more than it is currently, can you
-> also update drivers/video/matrox/{i2c-matroxfb,matroxfb_maven}.* in 
-> your updates? Or I'll send you patch after this change hits Linus kernel... 
+> And then we grab the BKL :(
 
-Yeah, that stuff doesn't compile at all :)
+You're thinking the wrnog way around.  Locking reduction / splitting is
+trivial, getting the algorithms right is the hard part.  Getting rid
+of BKL in chardev open is a matter of simple search and replace and I expect
+it to happen before 2.6.
 
-I added a patch for the i2c related stuff to my tree that I just sent
-out.
+> There are a number of char drivers that have "regions".  The tty layer
+> support them, and the usb core supports them as two examples.  I'm sure
+> there are others.  Personally, I like the symmetry with the block device
+> function the way Andries did it.
 
-thanks for pointing it out.
+No, Andries did not do it symmetric to the block devices.
 
-greg k-h
+> > Even for block devices blk_register_region() is not the preferred 
+> > interface, you should use alloc_disk/add_disk instead. This will make it 
+> > easier to assign dynamic device numbers later.
+> 
+> True, but dynamic device numbers can be built on top of the *_region()
+> calls as it is today.  Anyway, dynamic numbers are for 2.7 :)
+
+Dynamic numbers are there today and have been for ages.
+
+> No, I don't see /proc/misc going away due to the driver model,
+
+I do see it going away.  Dito for /proc/devices.  They already are
+inaccurate for those midlevel drivers that partition their major number
+themselves and having the ranges properly exported like it's already
+done for block devices is the proper replacement.  Yes, this breaks
+userspace and we'll have to live with it.
+

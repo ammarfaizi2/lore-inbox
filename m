@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbUKUCVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263203AbUKUEJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUKUCVU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 21:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUKUCVU
+	id S263203AbUKUEJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 23:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbUKUEJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 21:21:20 -0500
-Received: from natnoddy.rzone.de ([81.169.145.166]:42956 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S261745AbUKUCVQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 21:21:16 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: [PATCH 3/13] Filesystem in Userspace
-Date: Sun, 21 Nov 2004 03:14:58 +0100
-User-Agent: KMail/1.6.2
-Cc: diegocg@gmail.com, linux-kernel@vger.kernel.org
-References: <E1CVeML-0007PA-00@dorka.pomaz.szeredi.hu> <20041121003755.3342a1cb.diegocg@gmail.com> <E1CVfgb-0007Ze-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1CVfgb-0007Ze-00@dorka.pomaz.szeredi.hu>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_jo/nB3xv9iXxToz";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411210314.59537.arnd@arndb.de>
+	Sat, 20 Nov 2004 23:09:59 -0500
+Received: from mail.kroah.org ([69.55.234.183]:35729 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263208AbUKUEJd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 23:09:33 -0500
+Date: Sat, 20 Nov 2004 20:08:56 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 PATCH] visor: Always do generic_startup
+Message-ID: <20041121040856.GB1569@kroah.com>
+References: <20041116154943.GA13874@k3.hellgate.ch> <20041119174405.GE20162@kroah.com> <20041121012353.GA4008@himi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041121012353.GA4008@himi.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Nov 21, 2004 at 12:23:53PM +1100, Simon Fowler wrote:
+> On Fri, Nov 19, 2004 at 09:44:05AM -0800, Greg KH wrote:
+> > On Tue, Nov 16, 2004 at 04:49:43PM +0100, Roger Luethi wrote:
+> > > generic_startup in visor.c was not called for some hardware, resulting
+> > > in attempts to access memory that had never been allocated, which in
+> > > turn caused the problem several people reported with recent (2.6.10ish)
+> > > kernels.
+> > > 
+> > > Signed-off-by: Roger Luethi <rl@hellgate.ch>
+> > 
+> > Thanks for finding this.
+> > 
+> > Applied.
+> > 
+> This patch fixes the oops, but after applying it I can no longer
+> sync my palm 5 - it starts, but part way through the connection is
+> lost.
 
---Boundary-02=_jo/nB3xv9iXxToz
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Can you enable debugging in the visor driver (either through the
+modprobe paramater, or through the /sys/module/paramater/debug file, and
+send it to us?
 
-On S=FCnndag 21 November 2004 01:34, Miklos Szeredi wrote:
-> > If something it's in mainline "kernel version 2.6.56" is enought to des=
-cribe
-> > what code people are running.
->=20
-> It's not for people, but for the library. =A0It's the version of the
-> userspace-kernel interface.
->=20
-But once it is integrated, you can no longer make incompatible changes to
-the API. You only need to know the difference between each API version
-prior to the inclusion and the final version.
+thanks,
 
-If the API gets extended later, any user should be able to deal with the
-extension failing on older kernels.
-
-	Arnd <><
-
---Boundary-02=_jo/nB3xv9iXxToz
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBn/oj5t5GS2LDRf4RAiUPAJ48t2akOPHlBxtOlqokWR5oqQVQOQCgkW2E
-9AsNR6Tbk5yFj3Ca6nBQzyc=
-=WB2J
------END PGP SIGNATURE-----
-
---Boundary-02=_jo/nB3xv9iXxToz--
+greg k-h

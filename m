@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbTJHUcn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 16:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbTJHUcn
+	id S261507AbTJHUcB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 16:32:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbTJHUcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 16:32:43 -0400
-Received: from pluvier.ens-lyon.fr ([140.77.167.5]:11755 "EHLO
-	mailhost.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261774AbTJHUcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 16:32:15 -0400
-Date: Wed, 8 Oct 2003 22:32:10 +0200
-From: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>
-To: Jens Axboe <axboe@suse.de>,
-       =?iso-8859-1?Q?S=E9bastien?= Hinderer 
-	<Sebastien.Hinderer@libertysurf.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Impossible to read files from a CD-Rom
-Message-ID: <20031008203210.GC779@bouh.residence.ens-lyon.fr>
-Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
-Mail-Followup-To: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>,
-	Jens Axboe <axboe@suse.de>,
-	=?iso-8859-1?Q?S=E9bastien?= Hinderer <Sebastien.Hinderer@libertysurf.fr>,
-	linux-kernel@vger.kernel.org
-References: <20030818163520.GA413@galois> <20030908152800.GA5224@bouh.famille.thibault.fr> <20030912065116.GA16813@suse.de> <20030912095825.GB568@bouh.residence.ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 8 Oct 2003 16:32:00 -0400
+Received: from natsmtp01.rzone.de ([81.169.145.166]:5352 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S261507AbTJHUb6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 16:31:58 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH] cleanup of compat_ioctl functions
+Date: Wed, 8 Oct 2003 22:26:15 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <200310081809.42859.arnd@arndb.de> <20031008192929.GC1035@elf.ucw.cz>
+In-Reply-To: <20031008192929.GC1035@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030912095825.GB568@bouh.residence.ens-lyon.fr>
-User-Agent: Mutt/1.4i-nntp
+Message-Id: <200310082226.15104.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 08 October 2003 21:29, Pavel Machek wrote:
+> Also __u32 should not be used here, it looks too ugly and u32 is
+> okay. Same for __u16 and __u64. Its simple search&replace, and as you
+> are doing lots of changes, anyway....
 
-Le ven 12 sep 2003 11:58:25 GMT, Samuel Thibault a tapoté sur son clavier :
-> Le ven 12 sep 2003 08:51:16 GMT, Jens Axboe a tapoté sur son clavier :
->
-> > This basically boils down to a typical problem with CDROM/DVD drives -
-> > some specific structure may vary a little in size depending on when in
-> > the spec cycle they were implemented. Some drives barf if you try and
-> > read to much, some when you read too little. So the approach that
-> > typically works the best is to just read the very first of the
-> > structure, check the length, and issue a read for the complete data.
-> 
-> This is fine. Another solution would be that cdrom_get_track_info returns
-> the actual amount of data that was read, so that the caller may check
-> that the field it needs was really filled up.
+Well, in the light of 'strictly bug fixes only', it was probably too
+much search&replace already. I guess I'll have to prepare a new patch 
+that just fixes the bugs in the current s390 compat_ioctl code and not 
+use fs/compat_ioctl.c in 2.6.0.
 
-I tested this and it worked fine.
+	Arnd <><
 
-> > I'd be more interested in fixing the real bug: why does your drive
-> > return zero length, and only sporadically?
-
-Not sporadically, it always returns the same amount of data, but this
-amount is not sufficient to give the size, so that an arbitrary size is
-taken. The function should see that and report an error instead, which
-will fix the problem we had by trigging another size discovery mean.
-
-Regards,
-Samuel Thibault

@@ -1,78 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266182AbUALNKU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 08:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUALNKT
+	id S266172AbUALNIG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 08:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUALNIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 08:10:19 -0500
-Received: from [212.239.225.130] ([212.239.225.130]:39553 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S266182AbUALNKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 08:10:11 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: Kiko Piris <kernel@pirispons.net>
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-Date: Mon, 12 Jan 2004 14:09:44 +0100
-User-Agent: KMail/1.5.4
-Cc: Bart Samwel <bart@samwel.tk>, linux-kernel@vger.kernel.org,
-       Dax Kelson <dax@gurulabs.com>, Bartek Kania <mrbk@gnarf.org>,
-       Simon Mackinlay <smackinlay@mail.com>
-References: <3FFFD61C.7070706@samwel.tk> <200401121212.44902.lkml@kcore.org> <20040112121956.GA8226@portsdebalears.com>
-In-Reply-To: <20040112121956.GA8226@portsdebalears.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401121409.44187.lkml@kcore.org>
+	Mon, 12 Jan 2004 08:08:06 -0500
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:52961 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S266172AbUALNIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 08:08:01 -0500
+Date: Mon, 12 Jan 2004 08:07:37 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+In-reply-to: <Pine.LNX.4.33.0401101325280.2403-100000@wombat.indigo.net.au>
+To: Ian Kent <raven@themaw.net>
+Cc: Jim Carter <jimc@math.ucla.edu>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <40029C19.409@sun.com>
+MIME-version: 1.0
+Content-type: multipart/signed;
+ boundary=------------enigEC06537060425A855A49AC28;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+X-Accept-Language: en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107
+ Debian/1.5-3
+X-Enigmail-Version: 0.82.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <Pine.LNX.4.33.0401101325280.2403-100000@wombat.indigo.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 January 2004 13:19, Kiko Piris wrote:
-> On 12/01/2004 at 12:12, Jan De Luyck wrote:
-> > Patch applied, kernel built, laptop_mode activated, but my disk just
-> > doesn't want to spin down...
->
-> [...]
->
-> > But the disk never spins down. Not that I can tell, hdparm -C /dev/hda
-> > always tells me active/idle, and the sdsl tool also reports 100% disk
-> > spinning...
-> >
-> > anything else I have to activate/check?
->
-> As you don't say if you have checked it, here goes my suggestion:
->
-> First of all, you should assure there's no process doing reads [*] that
-> cause a cache miss (eg. daemons like postfix that check the queue every
-> few seconds). You can tell this running vmstat 1 and see that bi and bo
-> [**] stay at 0.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigEC06537060425A855A49AC28
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-vmstat 1:
+Ian Kent wrote:
 
- 0  0      0  88748  37628 216216    0    0     0     0 1514  1130  7  4 89  0
- 0  0      0  88756  37628 216216    0    0     0     0 1495  1123  6  1 93  0
- 0  0      0  88748  37628 216216    0    0     0     0 1504  1114  8  4 88  0
- 1  0      0  88748  37628 216216    0    0     0     0 1499  1058  6  2 92  0
- 0  0      0  88748  37628 216216    0    0     0     0 1488  1062  7  4 89  0
- 0  0      0  88748  37628 216216    0    0     0     0 1480  1007  7  6 87  0
- 0  0      0  88876  37628 216216    0    0     0     0 1524  1122  7  6 87  0
- 0  0      0  88748  37628 216216    0    0     0     0 1506  1078 11  6 83  0
- 0  0      0  88748  37628 216216    0    0     0     0 1500  1057 11  5 84  0
- 0  0      0  88748  37628 216216    0    0     0     0 1514  1040 16  3 81  0
- 0  1      0  88748  37660 216216    0    0     0    28 1523  1041 19  4 64 13
- 0  1      0  88748  37660 216216    0    0     0     0 1500   994 23  2  0 75
- 0  0      0  88748  37660 216216    0    0     0    32 1540  1064 25  1 53 21
- 0  0      0  88748  37660 216216    0    0     0     0 1501  1064 24  0 76  0
- 0  0      0  88748  37660 216216    0    0     0     0 1514  1071 24  1 75  0
- 2  0      0  88812  37660 216216    0    0     0     0 1518  1086 24  1 75  0
- 0  0      0  88804  37660 216216    0    0     0     0 1504  1066 24  2 74  0
- 0  0      0  88740  37660 216216    0    0     0     0 1482  1015 25  1 74  0
+>On Fri, 9 Jan 2004, Mike Waychison wrote:
+>
+>  
+>
+>>>Indeed, I
+>>>haven't solved my requirement of a transparent autofs filesystem aka.
+>>>Solaris automounter again. A difficult problem that will require
+>>>considerable effort.
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>What do you mean by this?  Something that doesn't show up in
+>>/proc/mounts?  I don't see this as much of an issue..  On any decently
+>>large machine, there are so many entries anyway that /etc/mtab and
+>>/proc/mounts become humanly unparseable anyhow.
+>>    
+>>
+>
+>Transparency of an autofs filesystem (as I'm calling it) is the situation
+>where, given a map
+>
+>/usr	/man1	server:/usr/man1
+>	/man2	server:/usr/man2
+>
+>where the filesystem /usr contains, say a directory lib, that needs to be
+>available while also seeing the automounted directories.
+>
+>  
+>
+I see.  This requires direct mount triggers to do properly.  Trying to 
+do it with some sort of passthrough to the underlying filesystem is a 
+nightmare waiting to happen..
 
-At the presence of bo it spins up the disk.
-
-Jan
 -- 
-Only fools are quoted.
-		-- Anonymous
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+mailto: Michael.Waychison@Sun.COM
+http://www.sun.com
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me, 
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+
+--------------enigEC06537060425A855A49AC28
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
+
+iD8DBQFAApwcdQs4kOxk3/MRAgxRAJ41kSxekMyt39Ke4HakQsUWUnYWTACfUOq7
+GcLnjaIeN5Z4V15fYeVMDFQ=
+=1Y6P
+-----END PGP SIGNATURE-----
+
+--------------enigEC06537060425A855A49AC28--
 

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129928AbRBHM11>; Thu, 8 Feb 2001 07:27:27 -0500
+	id <S131164AbRBHMiS>; Thu, 8 Feb 2001 07:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129945AbRBHM1S>; Thu, 8 Feb 2001 07:27:18 -0500
-Received: from [210.212.54.4] ([210.212.54.4]:35342 "EHLO mail.cse.iitk.ac.in")
-	by vger.kernel.org with ESMTP id <S129928AbRBHM1D>;
-	Thu, 8 Feb 2001 07:27:03 -0500
-Date: Thu, 8 Feb 2001 17:55:56 +0530 (IST)
-From: Avinash vyas <avyas@cse.iitk.ac.in>
-To: linux-kernel@vger.kernel.org
-cc: kernelnewbies@humbolt.nl.linux.org,
-        "Atul Kumar (9721171)" <ak@cse.iitk.ac.in>,
-        "Rajiv A.R" <rajiva@cse.iitk.ac.in>
-Subject: Problem with schedule_timeout..
-Message-ID: <Pine.LNX.4.10.10102081745140.758-100000@csews5.cse.iitk.ac.in>
+	id <S131163AbRBHMiJ>; Thu, 8 Feb 2001 07:38:09 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:6919 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129945AbRBHMhw>; Thu, 8 Feb 2001 07:37:52 -0500
+Date: Thu, 8 Feb 2001 07:37:48 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Pavel Machek <pavel@suse.cz>
+cc: Juergen Schneider <juergen.schneider@tuxia.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
+In-Reply-To: <20010208004021.D189@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0102080736190.5431-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-	I am a relatively newb in the kenel programming. I am using the
-function "schedule_timeout" for sleeping for some time. But in some cases
-the function returns after the specified timeout but in some instance it
-returns immediately, without decrementing the timeout value passed as the
-argument. 
-	I have to use this function only, so please suggest what can be
-the possible reasons.
+On Thu, 8 Feb 2001, Pavel Machek wrote:
 
-	The above said instance occured when i was developing a device
-driver, where i am implementing the poll. The function do_poll() uses this
-function for sleeping for specified timeout value. In normal device
-drivers it runs as it should, but when i poll on my device then the
-function returns immediately. I used the same timeout value for both the
-polls.
+>> I've created a patch for kernel 2.4.1 that adds some fancy options for
+>> the framebuffer console driver concerning the boot logo.
+>> I've added logo animation and logo centering.
+>> People may find this not very useful but nice to look at. :-)
+>
+>Long time ago I joked that win2000 will have 30-minute film at the
+>bootup. [3.1 had picture, 95+ had static logo with moving line...] And
+>now it looks like _linux_ is getting that feature...
+>								Pavel,
+>wondering when linux boot gets so long that mpeg2 player gets
+>integrated into kernel.
 
-Thanx in advance,
-Avinash Vyas,
-Student,
-IIT Kanpur, 
-India.
+;o)
+
+I doubt strongly that that is technically possible. In fact I'm
+sure it is not.
 
 
-
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+"Facts do not cease to exist because they are ignored."
+                                               - Aldous Huxley
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

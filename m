@@ -1,95 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVCGXi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbVCGXiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbVCGXi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCGXhc
+	id S261771AbVCGXiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVCGXhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:37:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31435 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261964AbVCGXNh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 18:13:37 -0500
-Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1110230527.15117.625.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050304160451.4c33919c.akpm@osdl.org>
-	 <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050307123118.3a946bc8.akpm@osdl.org>
-	 <1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050307131113.0fd7477e.akpm@osdl.org>
-	 <1110230527.15117.625.camel@sisko.sctweedie.blueyonder.co.uk>
-Content-Type: multipart/mixed; boundary="=-S3XYun7wACwaWuoBoO3Z"
-Message-Id: <1110237205.15117.702.camel@sisko.sctweedie.blueyonder.co.uk>
+	Mon, 7 Mar 2005 18:37:09 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39176 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261928AbVCGXGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 18:06:39 -0500
+Date: Tue, 8 Mar 2005 00:06:33 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: dtor_core@ameritech.net
+Cc: Borislav Petkov <petkov@uni-muenster.de>, perex@suse.cz, vojtech@suse.cz,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, linux-input@atrey.karlin.mff.cuni.cz
+Subject: [2.6 patch] sound/pci/cs4281.c fix typos in the SUPPORT_JOYSTICK=n case
+Message-ID: <20050307230633.GJ3170@stusta.de>
+References: <20050304033215.1ffa8fec.akpm@osdl.org> <200503070941.59365.petkov@uni-muenster.de> <20050307215206.GH3170@stusta.de> <d120d50005030714126e345fe2@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 07 Mar 2005 23:13:26 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d50005030714126e345fe2@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-S3XYun7wACwaWuoBoO3Z
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Hi,
-
-On Mon, 2005-03-07 at 21:22, Stephen C. Tweedie wrote:
-
-> altgr-scrlck is showing a range of EIPs all in ext3_direct_IO->
-> invalidate_inode_pages2_range().  I'm seeing
+On Mon, Mar 07, 2005 at 05:12:57PM -0500, Dmitry Torokhov wrote:
+> On Mon, 7 Mar 2005 22:52:06 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > On Mon, Mar 07, 2005 at 09:41:59AM +0100, Borislav Petkov wrote:
+> > >
+> > > --- sound/pci/ymfpci/ymfpci.c.orig 2005-03-07 09:07:10.000000000 +0100
+> > > +++ sound/pci/ymfpci/ymfpci.c 2005-03-07 09:08:02.000000000 +0100
+> > > @@ -332,7 +332,9 @@ static int __devinit snd_card_ymfpci_pro
+> > >    }
+> > >   }
+> > >
+> > > +#ifdef SUPPORT_JOYSTICK
+> > >   snd_ymfpci_create_gameport(chip, dev, legacy_ctrl, legacy_ctrl2);
+> > > +#endif /* SUPPORT_JOYSTICK */
+> > >
+> > >   if ((err = snd_card_register(card)) < 0) {
+> > >    snd_card_free(card);
+> > 
+> > Nice catch (but I had to apply the patch manually due to some
+> > whitespace damage).
+> > 
+> > After a quick look, it seems there are a dozen other sound drivers (most
+> > OSS but also ALSA) with similar problems.
 > 
-> invalidate_inode_pages2_range()->pagevec_lookup()->find_get_pages()
+> Note that in input tree (and in -mm) I tried to clean up these #ifdefs
+> by providing dummy functions when CONFIG_GAMEPORT is not selected. The
+> original report caused by the typo in dummy function name
+> (snc_ymfpci_create_gameport).
 
-In invalidate_inode_pages2_range(), what happens if we lookup a pagevec,
-get a bunch of pages back, but all the pages in the vec are beyond the
-end of the range we want?
+I was looking at -mm.
 
-That's quite possible: pagevec_lookup() gets told how many pages we
-want, but not the index of the end of the range.
+Ah OK, that sounds like a good solution.
 
-The loop over the pages in the pagevec contains this:
+I rechecked, and the only other non-OSS problems are in 
+sound/pci/cs4281.c where the two dummy functions have the wrong names, 
+too (patch below).
 
-                        lock_page(page);
-                        if (page->mapping != mapping || page->index > end) {
-                                unlock_page(page);
-                                continue;
-                        }
-                        wait_on_page_writeback(page);
-                        next = page->index + 1;
+I'll send patches against the OSS drivers with this problem later.
 
-Now, if all of the pages have page->index > end, we'll skip them all...
-but we'll do it before we've advanced "next" to indicate that we've made
-progress.  The next iteration is just going to start in the same place. 
+> Dmitry
 
-Truncate always invalidates to EOF, which is probably why we haven't
-seen this before.  But O_DIRECT is doing limited range cache
-invalidates, and is getting stuck here pretty repeatably.
-
-I'm currently testing the small patch below; it seems to be running OK
-so far, although it hasn't been going for long yet.  I'll run a longer
-test in the morning.
-
---Stephen
+cu
+Adrian
 
 
---=-S3XYun7wACwaWuoBoO3Z
-Content-Disposition: inline; filename=invalidate-livelock.patch
-Content-Type: text/plain; name=invalidate-livelock.patch; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
+<--  snip  -->
 
-LS0tIGxpbnV4LTIuNi1leHQzL21tL3RydW5jYXRlLmMuPUswMDAyPS5vcmlnDQorKysgbGludXgt
-Mi42LWV4dDMvbW0vdHJ1bmNhdGUuYw0KQEAgLTI3MSwxMiArMjcxLDEzIEBAIGludCBpbnZhbGlk
-YXRlX2lub2RlX3BhZ2VzMl9yYW5nZShzdHJ1Y3QNCiAJCQlpbnQgd2FzX2RpcnR5Ow0KIA0KIAkJ
-CWxvY2tfcGFnZShwYWdlKTsNCisJCQlpZiAocGFnZS0+bWFwcGluZyA9PSBtYXBwaW5nKQ0KKwkJ
-CQluZXh0ID0gcGFnZS0+aW5kZXggKyAxOw0KIAkJCWlmIChwYWdlLT5tYXBwaW5nICE9IG1hcHBp
-bmcgfHwgcGFnZS0+aW5kZXggPiBlbmQpIHsNCiAJCQkJdW5sb2NrX3BhZ2UocGFnZSk7DQogCQkJ
-CWNvbnRpbnVlOw0KIAkJCX0NCiAJCQl3YWl0X29uX3BhZ2Vfd3JpdGViYWNrKHBhZ2UpOw0KLQkJ
-CW5leHQgPSBwYWdlLT5pbmRleCArIDE7DQogCQkJaWYgKG5leHQgPT0gMCkNCiAJCQkJd3JhcHBl
-ZCA9IDE7DQogCQkJd2hpbGUgKHBhZ2VfbWFwcGVkKHBhZ2UpKSB7DQo=
 
---=-S3XYun7wACwaWuoBoO3Z--
+This patch fixes typos in the SUPPORT_JOYSTICK=n case.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.11-mm1-full/sound/pci/cs4281.c.old	2005-03-07 23:45:01.000000000 +0100
++++ linux-2.6.11-mm1-full/sound/pci/cs4281.c	2005-03-07 23:45:27.000000000 +0100
+@@ -1331,8 +1331,8 @@
+ 	}
+ }
+ #else
+-static inline int snd_cs4281_gameport(cs4281_t *chip) { return -ENOSYS; }
+-static inline void snd_cs4281_gameport_free(cs4281_t *chip) { }
++static inline int snd_cs4281_create_gameport(cs4281_t *chip) { return -ENOSYS; }
++static inline void snd_cs4281_free_gameport(cs4281_t *chip) { }
+ #endif /* CONFIG_GAMEPORT || (MODULE && CONFIG_GAMEPORT_MODULE) */
+ 
+ 
+

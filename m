@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292324AbSB0ONv>; Wed, 27 Feb 2002 09:13:51 -0500
+	id <S292384AbSB0OSP>; Wed, 27 Feb 2002 09:18:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292511AbSB0ONl>; Wed, 27 Feb 2002 09:13:41 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:47302 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S292324AbSB0ONh>; Wed, 27 Feb 2002 09:13:37 -0500
-Date: Wed, 27 Feb 2002 16:01:01 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Nathan <wfilardo@fuse.net>, <linux-kernel@vger.kernel.org>,
-        <davej@suse.de>
-Subject: Re: 2.5.5-dj2 compile failures
-In-Reply-To: <3C7CCFEB.7CA3CE7B@aitel.hist.no>
-Message-ID: <Pine.LNX.4.44.0202271600370.16294-100000@netfinity.realnet.co.sz>
+	id <S292508AbSB0OSH>; Wed, 27 Feb 2002 09:18:07 -0500
+Received: from x86unx3.comp.nus.edu.sg ([137.132.90.3]:38305 "EHLO
+	x86unx3.comp.nus.edu.sg") by vger.kernel.org with ESMTP
+	id <S292395AbSB0OR5>; Wed, 27 Feb 2002 09:17:57 -0500
+Date: Wed, 27 Feb 2002 22:17:51 +0800 (GMT-8)
+From: Zhu Ying Jie <zhuyingj@comp.nus.edu.sg>
+To: linux-kernel@vger.kernel.org
+Subject: How to disable TCP's checksum
+Message-ID: <Pine.GSO.4.21.0202272215080.21508-100000@sf3.comp.nus.edu.sg>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Feb 2002, Helge Hafting wrote:
+Hi,
+  I am currently using kernel version 2.4.2 and trying to disable
+tcp_input's checksum function. However, even I comment all the csum_error
+in the file tcp_input.c, the packet (with wrong checksum) seems still will
+be dropped. Can anyone tell me how to do the work? 
 
-> Nathan wrote:
-> > 
-> > First the good news - it built the ALSA modules correctly this time around.
-> 
-> RTC Timer support failed - but maybe I don't need that
-> 
-> Generic ESS ES18xx driver also failed to compile, - so no sound here.
+Zhu Ying jie
+Department of Computer Science,
+School of Computing, 
+National University of Singapore
 
-Aargh i think thats me too! I'll have a look.
 
-Cheers,
-	Zwane
+SS****************************SS***********************************SS
++           From little town of far land we came,                   + 
++           to save our honor from a world of flame.                +
++           By little town of far land we sleep,                    + 
++           and trust that world will be won for you to keep.       +
+SS****************************SS***********************************SS
 
 

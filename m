@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVBQEpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVBQEqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbVBQEpO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 23:45:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbVBQEpO
+	id S262211AbVBQEqi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 23:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVBQEqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 23:45:14 -0500
-Received: from thunk.org ([69.25.196.29]:25244 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262210AbVBQEpJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 23:45:09 -0500
-Date: Wed, 16 Feb 2005 23:44:44 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andreas Schwab <schwab@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Pty is losing bytes
-Message-ID: <20050217044444.GA6115@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-References: <jebramy75q.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org> <je1xbhy3ap.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151239160.2330@ppc970.osdl.org> <Pine.LNX.4.61.0502160405410.15339@scrub.home> <Pine.LNX.4.58.0502151942530.2383@ppc970.osdl.org> <20050216144203.GB7767@thunk.org> <Pine.LNX.4.58.0502160802510.2383@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Feb 2005 23:46:32 -0500
+Received: from smtp819.mail.sc5.yahoo.com ([66.163.170.5]:52815 "HELO
+	smtp819.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262211AbVBQEq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 23:46:28 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Swsusp, resume and kernel versions
+Date: Wed, 16 Feb 2005 23:46:25 -0500
+User-Agent: KMail/1.7.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0502160802510.2383@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200502162346.26143.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 16, 2005 at 08:06:00AM -0800, Linus Torvalds wrote:
-> Yes, yes, but did you see my suggested version that I had just below that
-> explained what I thought the real fix was?
-> 
-> Th eproblem with checking for the "canon but no canon data" is that it's a
-> special case that IS ONLY VALID WHEN THE BUFFER IS FULL! Until that
-> happens, it means that the code returns the wrong value, and then can
-> (obviously, as seen by the bug) drop bytes even when it shouldn't.
-> 
-> That's why my suggested work-around moved things around, to only return 
-> the "we'll take anything" thing if the buffer really was full.
+Pavel,
 
-Yes, but then when the buffer is full, and we return the "we'll take
-anything" return value, the code that was getting confused with the
-"incorrect" receive_room value will still be getting confused....
+First of all I must say that swsusp has progressed alot and now works
+very reliably, at least for my configuration, and I use it a lot. Great
+job!
 
-						- Ted
+But I think there is one pretty severe issue present - even if swsusp
+is not enabled kernel should check if there is an image in swap and
+erase it. Today I has somewhat unpleasant experience - after suspending
+I accidentially loaded a vendor kernel. I was in hurry and decided that
+resume just failed for some reason so I did couple of things and left
+the box running. In the evening I realized that I am running vendor kernel
+and decided to reboot into my devel. version. What I did not expect is for
+the kernel to find a valid suspend image and restore it. As you might
+imagine messed up my disk somewhat.
+
+Any chance this can be done?
+
+-- 
+Dmitry

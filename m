@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVCPEjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262515AbVCPEnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbVCPEjb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 23:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbVCPEjb
+	id S262515AbVCPEnu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 23:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVCPEnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 23:39:31 -0500
-Received: from fire.osdl.org ([65.172.181.4]:51137 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262514AbVCPEj2 (ORCPT
+	Tue, 15 Mar 2005 23:43:50 -0500
+Received: from waste.org ([216.27.176.166]:16321 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262515AbVCPEns (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 23:39:28 -0500
-Date: Tue, 15 Mar 2005 20:39:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11 USB broken on VIA computer (not just ACPI)
-Message-Id: <20050315203914.223771b2.akpm@osdl.org>
-In-Reply-To: <4237A5C1.5030709@sbcglobal.net>
-References: <4237A5C1.5030709@sbcglobal.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 15 Mar 2005 23:43:48 -0500
+Date: Tue, 15 Mar 2005 20:43:47 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel@vger.kernel.org, linux-tiny@selenic.com,
+       celinux-dev@tree.celinuxforum.org
+Subject: 2.6.11-tiny1 released
+Message-ID: <20050316044347.GU32638@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Robert W. Fuller" <orangemagicbus@sbcglobal.net> wrote:
->
-> This isn't limited to the ACPI case.  My BIOS is old enough that ACPI is 
->  not supported because the kernel can't find RSDP.  I found that the USB 
->  works if I boot with "noapic."  This is probably sub-optimal on an SMP 
->  machine.  If don't boot with "noapic" I get the following errors:
+This is a resync of the -tiny tree against 2.6.11.
 
-Did it work OK under previous kernels?  If so, which versions?
+The latest patch can be found at:
+
+ http://selenic.com/tiny/2.6.11-tiny1.patch.bz2
+ http://selenic.com/tiny/2.6.11-tiny1-broken-out.tar.bz2
+
+There's a mailing list for linux-tiny development at:
+ 
+ linux-tiny at selenic.com
+ http://selenic.com/mailman/listinfo/linux-tiny
+
+Webpage for your bookmarking pleasure:
+
+ http://selenic.com/tiny-about/
+
+-- 
+Mathematics is the supreme nostalgia of our time.

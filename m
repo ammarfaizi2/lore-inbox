@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266948AbTAUVgF>; Tue, 21 Jan 2003 16:36:05 -0500
+	id <S267126AbTAUVht>; Tue, 21 Jan 2003 16:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267084AbTAUVgF>; Tue, 21 Jan 2003 16:36:05 -0500
-Received: from gate.perex.cz ([194.212.165.105]:16389 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S266948AbTAUVgD>;
-	Tue, 21 Jan 2003 16:36:03 -0500
-Date: Tue, 21 Jan 2003 22:43:43 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: Daniel Ritz <daniel.ritz@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [alsa, pnp] more on opl3sa2
-In-Reply-To: <20030121160228.GH26108@neo.rr.com>
-Message-ID: <Pine.LNX.4.44.0301212223550.6355-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267228AbTAUVht>; Tue, 21 Jan 2003 16:37:49 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:60946 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S267126AbTAUVhs>;
+	Tue, 21 Jan 2003 16:37:48 -0500
+Date: Tue, 21 Jan 2003 22:46:51 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Olaf Titz <olaf@bigred.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
+Message-ID: <20030121214651.GA958@mars.ravnborg.org>
+Mail-Followup-To: Olaf Titz <olaf@bigred.inka.de>,
+	linux-kernel@vger.kernel.org
+References: <25160.1042809144@passion.cambridge.redhat.com> <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il> <E18a1aZ-0006mL-00@bigred.inka.de> <1042930522.15782.12.camel@laptop.fenrus.com> <E18ai8O-00032u-00@bigred.inka.de> <1043098758.27074.2.camel@laptop.fenrus.com> <E18b5kc-0003BB-00@bigred.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18b5kc-0003BB-00@bigred.inka.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003, Adam Belay wrote:
+On Tue, Jan 21, 2003 at 10:16:06PM +0100, Olaf Titz wrote:
+> currently (or was back then, granted it has improved but not as much
+> as is desirable and possible).
 
-> On Tue, Jan 21, 2003 at 09:09:14PM +0100, Jaroslav Kysela wrote:
-> 
-> > > the card is not detected by pnp, that problem stays. is that a problem of the pnp layer or is
-> > > my toshiba laptop just so damn stupid??
-> > 
-> > Nope. It's fault of the driver. It scans for a card. Actually, the
-> > structure card -> devices is created only by the ISA PnP driver.
-> > 
-> > I don't see any reason to not group the PnP BIOS devices into one "card", 
-> > too. Adam, do you have any comments?
-> > 
-> 
-> I have considered this approach several times.  However, there are the following
-> problems with representing the pnpbios devices under one card:
-> 
-> 1.) If a driver attaches to the pnpbios card all other card-based drivers will
-> be unable to use the pnpbios.  One will attach and cause the others to fail.  It
-> is possible for the user to have more than one pnpbios sound card but with this
-> approach such a user would only be able to use one sound device from the entire
-> pnpbios.
+>From your previous posts I have only noted down one feature that is
+not yet planned: 
+1) Building modules separate from module src.
 
-I see. I think it's a design problem then. The rule card -> one driver is
-bad. We need something between card and device which will take care about
-drivers. Unfortunately, this information is dynamic (only driver knows
-which devices have to be attached).
+The other issues you have rasied are either queued for inclusion, or
+being worked on.
+Could you try to come up with some sort of list what you really miss.
+It is always nice to get inputs from others, not only judging based
+on your own needs.
 
-I think that we need to discuss this thing very carefully.
+Any constructive inputs are greatly appreciated.
 
-> 2.) Doing so would misrepresent the pnpbios topology because it physically
-> doesn't have any cards.
-> 
-> 3.) The opl3sa2 driver doesn't need a card because it is only asking for one
-> device anyway.  Using the card interface puts unnecessary overhead on both the
-> driver and the pnp layer.
-
-Yes, but IT SHOULD WORK. Although it isn't an most efficient way. (I
-personally think that it's better to keep as much IDs as possible to avoid
-clashes in future).
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
-
+	Sam

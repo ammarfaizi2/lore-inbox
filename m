@@ -1,76 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130606AbRCGJoi>; Wed, 7 Mar 2001 04:44:38 -0500
+	id <S130657AbRCGKGl>; Wed, 7 Mar 2001 05:06:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130820AbRCGJo2>; Wed, 7 Mar 2001 04:44:28 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:51848 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130606AbRCGJoT>; Wed, 7 Mar 2001 04:44:19 -0500
-Message-ID: <3AA602E1.3A22392@uow.edu.au>
-Date: Wed, 07 Mar 2001 20:44:01 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+	id <S129677AbRCGKGc>; Wed, 7 Mar 2001 05:06:32 -0500
+Received: from mlist.austria.eu.net ([193.81.83.3]:27619 "EHLO
+	hausmasta.austria.eu.net") by vger.kernel.org with ESMTP
+	id <S130657AbRCGKGM>; Wed, 7 Mar 2001 05:06:12 -0500
+Message-ID: <3AA607E7.6B94D2D@eunet.at>
+Date: Wed, 07 Mar 2001 11:05:27 +0100
+From: Michael Reinelt <reinelt@eunet.at>
+Organization: netWorks
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: Vibol Hou <vhou@khmer.cc>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-        balbir@reflexnet.net, hahn@coffee.psychology.mcmaster.ca
-Subject: Re: System slowdown on 2.4.2-ac5 (recurring from 2.4.1-ac20 and2.4.0)
-In-Reply-To: <NDBBKKONDOBLNCIOPCGHAEAEFDAA.vhou@khmer.cc> <Pine.LNX.4.33.0103070939011.1305-100000@mikeg.weiden.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: nanosleep question
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: OK (checked by AntiVir Version 6.6.0.6)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> 
-> On Tue, 6 Mar 2001, Vibol Hou wrote:
-> 
-> > Hi,
-> >
-> > This is a follow up report on a server I run which is now using 2.4.2-ac5.
-> > It was suggested that the problem might be a NIC driver issue, but that
-> > seems unlikely at this point.
-> >
-> > You can find my previous posts at the following links to get a better idea
-> > of what I am encountering:
-> >
-> > http://www.uwsg.indiana.edu/hypermail/linux/kernel/0101.3/0470.html
-> > http://www.uwsg.indiana.edu/hypermail/linux/kernel/0102.3/0401.html
-> >
-> > The problem still persists with the new 2.4.2-ac5 kernel, and I have a
-> > feeling it has to do with the VM subsystem.  The system runs Apache, MySQL,
-> > and Sendmail.  It has ~900MB RAM.  The first lockup in 2.4.2-ac5 occured
-> 
-> Hi,
-> 
-> This portion of your log...
-> 
-> ...
-> 
-> ...leads me to believe that the NMI-Watchdog fired.
+Hi,
 
-yes, it did.  But this is not the problem.  The log was 
-captured on a serial console.  Doing an ALT_SYSRQ-T (or
-BREAK/T) will cause a large amount of output to be written
-to the serial port while interrupts are disabled.  It
-takes so long that the NMI watchdog decides the CPU
-is stuck.
+I've got a question regarding the nanosleep() system call.
 
-Actually, I think the remove-the-console-lock patch which
-went into 2.4.2-ac13 will fix this - timer interrupts
-should now continue to be serviced while the task table
-is being dumped out.
+I'm writing a little tool called lcd4linux
+(http://lcd4linux.sourceforge.net), where I have to drive displays
+connected to the parallel port. I'm doing this in userland, using
+outb().
 
-I'm going to pretend I meant this to happen :)
+Some of this displays require quite short delays (e.g. 40 microseconds),
+which cannot be done with normal nanosleep() because of the 10 msec
+timer resolution.
 
-I note that the Mem-info dump only shows the page table cache
-size for the local CPU.  It should be showing the info for all
-CPUs. Minor thing.
+At the moment I implemented by own delay loop using a small assembler
+loop similar to the one used in the kernel. This has two disadvantages:
+assembler isn't that portable, and the loop has to be calibrated.
 
-But the failing of Vibol's server remains a mystery.  I suggest
-an upgrade to 2.4.2-ac13 would be worthwhile - at least we'll
-get a full task table dump.
+I took a look at the nanosleep() implementation in the kernel, and found
+that it is possible to get very small delays, but only if I set the
+scheduling type to SCHED_RR or SCHED_FIFO.
+
+Here are my questions:
+
+- why are small delays only possible up to 2 msec? what if I needed a
+delay of say 5msec? I can't get it?
+
+- how dangerous is it to run a process with SCHED_RR? As far as I
+understood the nanosleep man page, it _is_ dangerous (if the process
+gets stuck in an endless loop, you can't even kill it if you don't have
+a shell which has a higher static priority than the stuck process
+itself).
+
+- is it possible to switch between different scheduling modes? I cound
+run the program with normal SCHED_OTHER, and switch to SCHED_RR whenever
+I need to write data to the parallel port? Does this make sense?
+
+- what's the reason why these small delays is not possible with
+SCHED_OTHER?
 
 
--
+TIA, 
+     Michael
+
+-- 
+netWorks       	                                  Vox: +43 316  692396
+Michael Reinelt                                   Fax: +43 316  692343
+Geisslergasse 4					  GSM: +43 676 3079941
+A-8045 Graz, Austria			      e-mail: reinelt@eunet.at

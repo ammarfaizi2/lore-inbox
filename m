@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264055AbRFER25>; Tue, 5 Jun 2001 13:28:57 -0400
+	id <S264056AbRFERkJ>; Tue, 5 Jun 2001 13:40:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264056AbRFER2r>; Tue, 5 Jun 2001 13:28:47 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:35845 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S264055AbRFER2f>; Tue, 5 Jun 2001 13:28:35 -0400
-Date: Tue, 5 Jun 2001 11:30:51 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: TRG vger.timpanogas.org hacked
-Message-ID: <20010605113051.A6209@vger.timpanogas.org>
-In-Reply-To: <20010604183642.A855@vger.timpanogas.org> <E157AuE-0006Wc-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E157AuE-0006Wc-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jun 05, 2001 at 08:05:34AM +0100
+	id <S264057AbRFERj6>; Tue, 5 Jun 2001 13:39:58 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:35844 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264056AbRFERjr>; Tue, 5 Jun 2001 13:39:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: Missing cache flush.
+Date: Tue, 5 Jun 2001 19:41:57 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <13942.991696607@redhat.com> <Pine.LNX.4.21.0106051105110.1078-100000@godzilla.axis.se> <20010606005703.A23758@metastasis.f00f.org>
+In-Reply-To: <20010606005703.A23758@metastasis.f00f.org>
+MIME-Version: 1.0
+Message-Id: <01060519415705.00553@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 05, 2001 at 08:05:34AM +0100, Alan Cox wrote:
-> > is curious as to how these folks did this.  They exploited BIND 8.2.3
-> > to get in and logs indicated that someone was using a "back door" in 
-> 
-> Bind runs as root.
-> 
-> > We are unable to determine just how they got in exactly, but they 
-> > kept trying and created an oops in the affected code which allowed 
-> > the attack to proceed.  
-> 
-> Are you sure they didnt in fact simply screw up live patching the kernel to
-> cover their traces
+On Tuesday 05 June 2001 14:57, Chris Wedgwood wrote:
+> I don't know about the CRIS (never heard of it, what is it?)
 
-Could have.  The kernel is unable to dismount the root volume when booted.
-I can go through the drive and remove confidential stuffd and just leave 
-the system intact and post the entire system image to my ftp server. 
+I wondered about that too.  From Documentation/cris:
 
-I have changed all the passwords on the server, so what's there is no 
-big deal.  This server was public FTP and web/email, so nothing really 
-super "confidential" on it.  
+What is CRIS ?
+-------------- 
+CRIS is an acronym for 'Code Reduced Instruction Set'. It is the CPU 
+architecture in Axis Communication AB's range of embeddedn etwork 
+CPU's, called ETRAX. The latest CPU is called
 
-Jeff
+ETRAX 100LX, where LX stands for 'Linux' because the chip was designed 
+to be a good host for the Linux operating system. 
 
+Interesting, huh?
+
+--
+Daniel

@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266851AbUGLOdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266858AbUGLOii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266851AbUGLOdh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 10:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266852AbUGLOdh
+	id S266858AbUGLOii (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 10:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266853AbUGLOii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 10:33:37 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:7863 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266851AbUGLOdd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 10:33:33 -0400
-Date: Mon, 12 Jul 2004 07:33:24 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Instrumenting high latency
-Message-ID: <78220000.1089642803@[10.10.2.4]>
-In-Reply-To: <40F29FCF.3070302@kolivas.org>
-References: <cone.1089613755.742689.28499.502@pc.kolivas.org> <75270000.1089642258@[10.10.2.4]> <40F29FCF.3070302@kolivas.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 12 Jul 2004 10:38:38 -0400
+Received: from nika.frontier.iarc.uaf.edu ([137.229.94.16]:4736 "EHLO
+	nika.frontier.iarc.uaf.edu") by vger.kernel.org with ESMTP
+	id S266858AbUGLOih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 10:38:37 -0400
+Date: Mon, 12 Jul 2004 06:38:35 -0800
+From: Christopher Swingley <cswingle@iarc.uaf.edu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IRQ issues, (nobody cared, disabled), not USB
+Message-ID: <20040712143835.GA2113@iarc.uaf.edu>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040708155356.GG22065@iarc.uaf.edu> <20040708220522.73839ea3.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20040708220522.73839ea3.akpm@osdl.org>
+X-gpg-fingerprint: B96C 58DC 0643 F8FE C9D0  8F55 1542 1A4F 0698 252E
+X-gpg-key: [http://www.frontier.iarc.uaf.edu/~cswingle/gnupgkey.asc]
+X-URL: [http://www.frontier.iarc.uaf.edu/~cswingle/]
+X-Editor: VIM [http://www.vim.org]
+X-message-flag: Consider Linux: fast, reliable, secure & free!
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Con Kolivas <kernel@kolivas.org> wrote (on Tuesday, July 13, 2004 00:27:27 +1000):
-
-> Martin J. Bligh wrote:
->>> Because of the recent discussion about latency in the kernel I asked 
->>> William Lee Irwin III to help create some instrumentation to determine 
->>> where in the kernel there were still sustained periods of non-preemptible 
->>> code. He hacked together this simple patch which times periods according 
->>> to the preempt count. Hopefully we can use this patch in the advice of 
->>> Linus to avoid the "mental masturbation" at guessing where latency is 
->>> and track down real problem areas.
->> 
->> 
->> Is this much different from Rick's schedstat's work, which was itself based
->> on some earlier patches by Bill? I'd hate to end up with two sets of patches,
->> and schedstats seemed pretty comprehensive to me. He's on vacation, but his
->> stuff is here, if you want to take a look:
->> 
->> http://eaglet.rain.com/rick/linux/schedstats/
+* Andrew Morton <akpm@osdl.org> [2004-Jul-08 21:05 AKDT]:
+> Christopher Swingley <cswingle@iarc.uaf.edu> wrote:
+> > For the past few iterations of 2.6 (including the vanilla 2.6.7 I'm 
+> > running now) I've had this problem:
+> > 
+> >  03:27:26 kernel: irq 7: nobody cared!
 > 
-> No I remember his work and this is tackling it via a different area if I 
-> recall correctly. He was looking at scheduler latencies as opposed to 
-> non-preemptible kernel code.
+> It would be useful if you could go back to 2.6.5 for a while, so we can
+> mostly-eliminate a hardware glitch.
 
-Fair enough ... is it worth adding it to the same harness though? He had lots
-of nice analysis tools set up to do comparisons and graphing, etc.
+2.6.5 lasted three days.  Same error as before.  I'm back to 2.6.7, 
+trying the kernel parameters suggested by Len Brown ("acpi_irq_balance" 
+plus "acpi_isa_irq=7").
 
-M.
+Chris
+-- 
+Christopher S. Swingley          email: cswingle@iarc.uaf.edu (work)
+Intl. Arctic Research Center            cswingle@gmail.com (personal)
+University of Alaska Fairbanks   www.frontier.iarc.uaf.edu/~cswingle/
 

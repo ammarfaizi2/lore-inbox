@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbUBYVXa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 16:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbUBYVVt
+	id S261555AbUBYVQf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 16:16:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUBYVOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 16:21:49 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:63619 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S261554AbUBYVUF
+	Wed, 25 Feb 2004 16:14:42 -0500
+Received: from fed1mtao08.cox.net ([68.6.19.123]:14784 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S261506AbUBYVN5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 16:20:05 -0500
-Date: Wed, 25 Feb 2004 16:20:02 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       linux-pcmcia <linux-pcmcia@lists.infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] yenta: irq-routing for TI bridges - take 2
-In-Reply-To: <200402252103.48739.daniel.ritz@gmx.ch>
-Message-ID: <Pine.LNX.4.58.0402251553410.20967@marabou.research.att.com>
-References: <200402240033.31042.daniel.ritz@gmx.ch> <200402250026.20708.daniel.ritz@gmx.ch>
- <Pine.LNX.4.58.0402250148080.2144@portland.hansa.lan> <200402252103.48739.daniel.ritz@gmx.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Feb 2004 16:13:57 -0500
+Date: Wed, 25 Feb 2004 14:13:53 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Greg Weeks <greg.weeks@timesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH} PPC 32 multithreaded core dumps
+Message-ID: <20040225211353.GD1052@smtp.west.cox.net>
+References: <403D04D4.3020502@timesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403D04D4.3020502@timesys.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Feb 2004, Daniel Ritz wrote:
+On Wed, Feb 25, 2004 at 03:25:56PM -0500, Greg Weeks wrote:
 
-> > Yenta: CardBus bridge found at 0000:00:08.0 [133f:1233]
-> > Yenta: Enabling burst memory read transactions
-> > Yenta: Using CSCINT to route CSC interrupts to PCI
-> > Yenta: Routing CardBus interrupts to PCI
-> > Yenta TI: mfunc 0cc07d92, devctl 60
->
-> mfunc0 is inta, mfunc1 is irq9, mfunc2 is activity led, mfunc3 is irq7,
-> mfunc4 GPI3, mfunc5 is the other led, mfunc6 is irq12...
->
-> this would give you irq7,9,12 but device control says parallel PCI only..
+> This code fixes the register dumps for 32 bit ppc multi threaded core 
+> dumps. It's largely based on the ppc64 code. It was tested on an 8260 
 
-That's not surprising.  The card is a PCI device, it's not connected to
-the ISA bus.
+This looks right, and I'll think about it a bit more and apply.
 
-[snip]
-> that's just an uninitialized ti1410. so we're using PCI
->
->
-> > Yenta TI: changing mfunc to 00001000
-> > Yenta TI: falling back to PCI interrupts
+> processor with the TimeSys modified 2.6.1 kernel. The patch is for 
+> 2.6.3. Let me know if there are any problems with it. If anyone can tell 
+> me why arch/ppc/boot/simple/misc.c was including elf.h in the first 
+> place I'd appreciate it. It doesn't appear to need it and it doesn't 
+> like task_struct now.
 
-By the way, I looked through your mails an I still don't quite understand
-what the above is for.  I understand you are trying serial ISA interrupts
-first.  What's the reason for that?  Do you know any device that needs
-this?  I would prefer not to add any code unless it's known to be needed.
-Any probe is potentially dangerous.  The known problems are with PCI
-cards, which have PCI interrupts and don't need anything else.  I believe
-laptops are engineered better and don't need any fixes.
-
-> > Yenta TI: changing mfunc to 00001002
-> > Yenta: ISA IRQ mask 0x0000, PCI irq 12
-
-Apparently you are enabling INTA.  Shouldn't you disable serial ISA
-interrupts if they didn't work?
-
-I also think you are using mfunc_old incorrectly.  Either it should be the
-current value of irqmux, in which case you should change it when testing
-serial ISA interrupts, or it's the initial value of irqmux, in which case
-you shouldn't compare it to mfunc the second time.  You cannot have it
-both ways.  Please create one more variable, e.g. mfunc_current.
+Long ago it used to care more about the file it was dealing with.  I'll
+remove it from the other files in boot/ that include it as well.
 
 -- 
-Regards,
-Pavel Roskin
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262686AbRFQTfS>; Sun, 17 Jun 2001 15:35:18 -0400
+	id <S262685AbRFQTeS>; Sun, 17 Jun 2001 15:34:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262694AbRFQTfI>; Sun, 17 Jun 2001 15:35:08 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:14600
-	"EHLO Opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S262686AbRFQTez>; Sun, 17 Jun 2001 15:34:55 -0400
-Date: Sun, 17 Jun 2001 12:33:26 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 VM & swap question
-Message-ID: <20010617123326.G11642@opus.bloom.county>
-In-Reply-To: <20010617104836.B11642@opus.bloom.county> <20010617221239.B1027@spiral.extreme.ro> <20010617122033.F11642@opus.bloom.county> <20010617223147.A5849@spiral.extreme.ro>
-Mime-Version: 1.0
+	id <S262694AbRFQTeI>; Sun, 17 Jun 2001 15:34:08 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24337 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262685AbRFQTdz>; Sun, 17 Jun 2001 15:33:55 -0400
+Subject: Re: Client receives TCP packets but does not ACK
+To: pavel@suse.cz (Pavel Machek)
+Date: Sun, 17 Jun 2001 20:32:49 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mblack@csihq.com (Mike Black),
+        f.v.heusden@ftr.nl (Heusden Folkert van), linux-kernel@vger.kernel.org
+In-Reply-To: <20010617201727.A1493@bug.ucw.cz> from "Pavel Machek" at Jun 17, 2001 08:17:27 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010617223147.A5849@spiral.extreme.ro>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15BiHy-0002xC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 17, 2001 at 10:31:47PM +0300, Dan Podeanu wrote:
-> > Yes, I know there's no hard and fast rule for the exact ammount of ram/swap one
-> > needs that will always work.  However, in 2.2 for a 'workstation' one could
-> > usually quite happily get away with having 128:128 and never have much of a
-> > problem.  with 2.4.0 and up this isn't the case.  This has been the cause
-> > of many people complaining quite loudly about 2.4 VM sucking and having
-> > lots of OOM kills going about.  It's also been called an 'aritificial limit'
-> > since one of the VM people had a patch to 'fix' this.  What I'm trying to
-> > figure out is if this problem exists linearly or just with 'lower' ammounts
-> > of total physical ram.  ie if I jump up to 512mb and don't have a webserver
-> > or database (ie I've got 512mb so I end up with a big disk cache) will I need
-> > to have 1gb of swap just to keep the VM happy?  Will 256 be enough?  Could I
-> > even live w/o swap?
+> > Specifically
+> > 1.	If the receiver closes and there is unread data many TCP's forget
+> > 	to RST the sender to indicate that data was lost.
 > 
-> Probably you'd live with 512MB of swap.
+> Do at least FreeBSD, Solaris and NT sent RST correctly?
 
-Seeing as 256:256 seems to be doing fine on my other two machines, yes, it
-might.  But since I'd repartition too (I hate swapfiles) I'd like to do it
-once and be done with it.  I'd also like to know what exactly causes the
-original problem (Like I said, my workload hasn't changed nor my programs
-that much.  And w/ twice my swap I get the same swap usage I used to get
-in 2.2/late 2.3..)
+I dont believe so
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+> > 2.	There is a flaw in the TCP protocol itself that is extremely unlikely
+> > 	to bite people but can in theory cause wrong data in some unusual
+> > 	circumstances that Ian Heavans found and has yet to be fixed by
+> > 	the keepers of the protocol.
+> 
+> This is interesting; where are details?
+
+http://www.schooner.com/~loverso/Public/Internet-Drafts/draft-heavens-problems-rsts-00.txt
+
+Yes a 1996 tcp protocol flaw that still hasnt been fixed. 
+

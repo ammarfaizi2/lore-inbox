@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVAYArS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVAYArS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVAYArS (ORCPT <rfc822;willy@w.ods.org>);
+	id S261761AbVAYArS (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 24 Jan 2005 19:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVAYAo5
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVAYAnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 19:44:57 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:56257 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261763AbVAYAnu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 19:43:50 -0500
-Subject: Re: [PATCH] BUG in io_destroy (fs/aio.c:1248)
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-aio@kvack.org
-In-Reply-To: <20050124155613.3a741825.akpm@osdl.org>
-References: <41F04D73.20800@us.ibm.com> <20050124085805.GA4462@in.ibm.com>
-	 <20050124155613.3a741825.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 24 Jan 2005 16:43:21 -0800
-Message-Id: <1106613801.11633.2.camel@localhost.localdomain>
+	Mon, 24 Jan 2005 19:43:32 -0500
+Received: from speedy.student.utwente.nl ([130.89.163.131]:12270 "EHLO
+	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
+	id S261761AbVAYAlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 19:41:18 -0500
+Date: Tue, 25 Jan 2005 01:41:17 +0100
+From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11-rc2: vmnet breaks; put skb_copy_datagram back in place
+Message-ID: <20050125004117.GB610@speedy.student.utwente.nl>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0501211806130.3053@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501211806130.3053@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Linus, could you please put skb_copy_datagram back in place? It's not used
+anymore in the kernel, but the vmnet module (in vmware) still uses this
+interface to skb_copy_datagram_iovec.
 
-> So...  Will someone be sending a new patch?
+Patch for 2.6.11-rc2 follows. It compiles cleanly; I have not tested it yet,
+but I assume it's okay. I'll test it right after sending this mail and report
+back here if something goes wrong.
 
-Here's a cheesy patch that simply marks the ioctx as dead before
-destroying it.  Though I'd like to simply mark the ioctx as dead until
-it actually gets used, I don't know enough about the code to make that
-sort of invasive change.
+    Sytse
 
---D
-
------------------
-Signed-off-by: Darrick Wong <djwong@us.ibm.com>
-
---- linux-2.6.10/fs/aio.c.old	2005-01-24 16:12:46.000000000 -0800
-+++ linux-2.6.10/fs/aio.c	2005-01-24 16:30:53.000000000 -0800
-@@ -1285,6 +1285,10 @@
- 		if (!ret)
- 			return 0;
+diff -ru a/include/linux/skbuff.h b/include/linux/skbuff.h
+--- a/include/linux/skbuff.h    2005-01-25 01:27:00.000000000 +0100
++++ b/include/linux/skbuff.h    2005-01-25 01:31:20.000000000 +0100
+@@ -1086,6 +1086,8 @@
+                                         int noblock, int *err);
+ extern unsigned int    datagram_poll(struct file *file, struct socket *sock,
+                                     struct poll_table_struct *wait);
++extern int            skb_copy_datagram(const struct sk_buff *from,
++                                        int offset, char __user *to, int size);
+ extern int            skb_copy_datagram_iovec(const struct sk_buff *from,
+                                               int offset, struct iovec *to,
+                                               int size);
+diff -ru a/net/core/datagram.c b/net/core/datagram.c
+--- a/net/core/datagram.c       2005-01-25 01:27:01.000000000 +0100
++++ b/net/core/datagram.c       2005-01-25 01:31:20.000000000 +0100
+@@ -199,6 +199,19 @@
+        kfree_skb(skb);
+ }
  
-+		spin_lock_irq(&ctx->ctx_lock);
-+		ctx->dead = 1;
-+		spin_unlock_irq(&ctx->ctx_lock);
++/*
++ *     Copy a datagram to a linear buffer.
++ */
++int skb_copy_datagram(const struct sk_buff *skb, int offset, char __user *to, int size)
++{
++       struct iovec iov = {
++               .iov_base = to,
++               .iov_len =size,
++       };
 +
- 		io_destroy(ioctx);
- 	}
-
++       return skb_copy_datagram_iovec(skb, offset, &iov, size);
++}
++
+ /**
+  *     skb_copy_datagram_iovec - Copy a datagram to an iovec.
+  *     @skb - buffer to copy
+@@ -477,6 +490,7 @@
+ 
+ EXPORT_SYMBOL(datagram_poll);
+ EXPORT_SYMBOL(skb_copy_and_csum_datagram_iovec);
++EXPORT_SYMBOL(skb_copy_datagram);
+ EXPORT_SYMBOL(skb_copy_datagram_iovec);
+ EXPORT_SYMBOL(skb_free_datagram);
+ EXPORT_SYMBOL(skb_recv_datagram);

@@ -1,73 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265825AbUHICgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUHICjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265825AbUHICgv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 22:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265833AbUHICgv
+	id S265872AbUHICjn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 22:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265833AbUHICjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 22:36:51 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:26830 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S265825AbUHICgt (ORCPT
+	Sun, 8 Aug 2004 22:39:43 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63433 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265872AbUHICiA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 22:36:49 -0400
-Message-ID: <bec878da04080819361445af2c@mail.gmail.com>
-Date: Sun, 8 Aug 2004 19:36:41 -0700
-From: "Kevin O'Shea" <mastergoon@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [BUG?] nvidia oops 2.6.8-rc3-mm2
+	Sun, 8 Aug 2004 22:38:00 -0400
+Date: Sun, 8 Aug 2004 19:37:43 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@muc.de>
+Cc: david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org
+Subject: Re: warning: comparison is always false due to limited range of
+ data type
+Message-Id: <20040808193743.6076bdd3.pj@sgi.com>
+In-Reply-To: <20040808142107.GB94449@muc.de>
+References: <411562FD.5040500@blue-labs.org>
+	<20040807174133.1e368fbc.pj@sgi.com>
+	<20040808142107.GB94449@muc.de>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hope its ok to post about this here, but I thought it might be a
-kernel bug not nvidia.
+Andi wrote:
+> Someone else please take care of it.
 
-This is the oops with the new 6111 driver (it worked fine on mm1).
+Let's give this a try.  It fixes the warning in my i386 and ia64 trees.
 
-Thanks,
-Kevin
+Unfortunately, this patch uses the notorious "gcc warning suppression
+by obfuscation" technique.
+
+What seems to be going on is that the uid and gid convert macros in
+include/linux/highuid.h:
+
+#define __convert_uid(size, uid) \
+        (size >= sizeof(uid) ? (uid) : high2lowuid(uid))
+
+only call high2lowuid in the case of trying to put a bigger (32 bit,
+say) uid/gid in a smaller (16 bit, in this case) word.  Gcc is smart
+enough to see that the comparison in high2lowuid() macro is silly if
+called with a 16 bit source uid, but not smart enough to understand
+from the __convert_uid() logic that this is exactly the case that
+high2lowuid() won't be called.
+
+So replace the logical "<" operator with the bit op "&~".  This
+obfuscates things enough to shut gcc up.
+
+Only build the half-dozen files that use SET_UID/SET_GID, on arch
+i386 and ia64.  Only the file fs/smbfs/inode.c showed the warning,
+both arch's, and this patch fixed both.  Untested further, past
+staring at the code long enough to convince myself the change has
+no actual affect on the code's  results.
 
 
-Unable to handle kernel NULL pointer dereference at virtual address 000000a9
- printing eip:
-c050ed00
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT 
-Modules linked in: nvidia
-CPU:    0
-EIP:    0060:[<c050ed00>]    Tainted: P   VLI
-EFLAGS: 00010212   (2.6.8-rc3-mm2) 
-EIP is at add_pin_to_irq+0x0/0x70
-eax: 000000a9   ebx: 00000010   ecx: 00000080   edx: 00000020
-esi: 00000010   edi: 00000000   ebp: 00000001   esp: c4667d98
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 26835, threadinfo=c4667000 task=de4d7930)
-Stack: c0114375 00000010 00000000 00000010 00000093 c4667000 00000292 dfe3f540 
-       00000001 0001a900 01000000 00000010 00000010 00000000 00010000 c011246b 
-       00000000 00000010 00000010 00000001 00000001 00000001 00000001 00000010 
-Call Trace:
- [<c0114375>] io_apic_set_pci_routing+0x1e5/0x210
- [<c011246b>] mp_register_gsi+0xeb/0x180
- [<c01101a1>] acpi_register_gsi+0x61/0xc0
- [<c025bc41>] acpi_pci_irq_enable+0x100/0x15f
- [<c03774f8>] pcibios_enable_device+0x28/0x30
- [<c023bdab>] pci_enable_device_bars+0x2b/0x40
- [<c023bdde>] pci_enable_device+0x1e/0x30
- [<e17863a8>] nv_kern_probe+0x227/0x33f [nvidia]
- [<c018e003>] create_dir+0x153/0x1c0
- [<c023d7d2>] pci_device_probe_static+0x52/0x70
- [<c023d82b>] __pci_device_probe+0x3b/0x50
- [<c023d86c>] pci_device_probe+0x2c/0x50
- [<c028d72f>] bus_match+0x3f/0x70
- [<c028d859>] driver_attach+0x59/0x90
- [<c028dd55>] bus_add_driver+0xa5/0xd0
- [<c028e31f>] driver_register+0x2f/0x40
- [<c023daec>] pci_register_driver+0x5c/0x90
- [<e1a4305f>] nvidia_init_module+0x5f/0x3a0 [nvidia]
- [<c013157e>] sys_init_module+0x12e/0x280
- [<c0104135>] sysenter_past_esp+0x52/0x71
-Code: 00 00 00 00 00 00 00 00 00 00 00 87 db 02 00 06 de 02 00 00 00
-00 00 00 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 <00>
-00 00 00 04 ed 50 c0 04 ed 50 c0 00 00 00 00 89 0e 00 00 e0
+Index: 2.6.8-rc2-mm2/include/linux/highuid.h
+===================================================================
+--- 2.6.8-rc2-mm2.orig/include/linux/highuid.h	2004-08-04 19:27:48.000000000 -0700
++++ 2.6.8-rc2-mm2/include/linux/highuid.h	2004-08-08 19:03:47.000000000 -0700
+@@ -44,8 +44,8 @@ extern void __bad_gid(void);
+ #ifdef CONFIG_UID16
+ 
+ /* prevent uid mod 65536 effect by returning a default value for high UIDs */
+-#define high2lowuid(uid) ((uid) > 65535 ? (old_uid_t)overflowuid : (old_uid_t)(uid))
+-#define high2lowgid(gid) ((gid) > 65535 ? (old_gid_t)overflowgid : (old_gid_t)(gid))
++#define high2lowuid(uid) ((uid) & ~0xFFFF ? (old_uid_t)overflowuid : (old_uid_t)(uid))
++#define high2lowgid(gid) ((gid) & ~0xFFFF ? (old_gid_t)overflowgid : (old_gid_t)(gid))
+ /*
+  * -1 is different in 16 bits than it is in 32 bits
+  * these macros are used by chown(), setreuid(), ...,
+@@ -89,8 +89,8 @@ extern int fs_overflowgid;
+  * Since these macros are used in architectures that only need limited
+  * 16-bit UID back compatibility, we won't use old_uid_t and old_gid_t
+  */
+-#define fs_high2lowuid(uid) ((uid) > 65535 ? (uid16_t)fs_overflowuid : (uid16_t)(uid))
+-#define fs_high2lowgid(gid) ((gid) > 65535 ? (gid16_t)fs_overflowgid : (gid16_t)(gid))
++#define fs_high2lowuid(uid) ((uid) & ~0xFFFF ? (uid16_t)fs_overflowuid : (uid16_t)(uid))
++#define fs_high2lowgid(gid) ((gid) & ~0xFFFF ? (gid16_t)fs_overflowgid : (gid16_t)(gid))
+ 
+ #define low_16_bits(x)	((x) & 0xFFFF)
+ #define high_16_bits(x)	(((x) & 0xFFFF0000) >> 16)
+
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

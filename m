@@ -1,93 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319108AbSIDJL2>; Wed, 4 Sep 2002 05:11:28 -0400
+	id <S319112AbSIDJV1>; Wed, 4 Sep 2002 05:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319109AbSIDJL2>; Wed, 4 Sep 2002 05:11:28 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:17158 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S319108AbSIDJL1>;
-	Wed, 4 Sep 2002 05:11:27 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200209040915.g849Ftf29959@oboe.it.uc3m.es>
-Subject: Re: [RFC] mount flag "direct"
-In-Reply-To: <3D75ACFA.480860BB@aitel.hist.no> from Helge Hafting at "Sep 4,
- 2002 08:49:30 am"
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Date: Wed, 4 Sep 2002 11:15:55 +0200 (MET DST)
-Cc: ptb@it.uc3m.es, linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S319113AbSIDJV0>; Wed, 4 Sep 2002 05:21:26 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:27664 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S319112AbSIDJVY>;
+	Wed, 4 Sep 2002 05:21:24 -0400
+Date: Wed, 4 Sep 2002 11:26:45 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: root@chaos.analogic.com, Rik van Riel <riel@conectiva.com.br>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] mount flag "direct" (fwd)
+Message-ID: <20020904092645.GE7836@marowsky-bree.de>
+References: <20020903185344.GA7836@marowsky-bree.de> <200209032107.g83L71h10758@oboe.it.uc3m.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200209032107.g83L71h10758@oboe.it.uc3m.es>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Helge Hafting wrote:"
-> No problem if all you do is use file data.  A serious problem if
-> the stuff you read is used to make a decision about where
-> to write something else on that shared disk.  For example:
-> The fs need to extend a file.  It reads the free block bitmap,
-> and finds a free block.  Then it overwrites that free block,
-> and also write back a changed block bitmap.  Unfortunately
+On 2002-09-03T23:07:01,
+   "Peter T. Breuer" <ptb@it.uc3m.es> said:
 
-That's the exact problem that's already been mentioned twice,
-and I'm confident of that one being solved. Lock the whole
-FS if necessary, but read the bitmap and lock the bitmap on disk
-until the extension is finished and the bitmap is written back.
-It has been suggested that the VFS support a "reserve/release blocks"
-operation. It would simply mark the ondisk bitmap bits as used
-and add them to our available list. Then every file extension
-or creation would need to be preceded by a reserve command,
-or fail, according to policy.
+> > *ouch* Sure. Right. You just have to read it from scratch every time. How
+> > would you make readdir work?
+> Well, one has to read it from scratch. I'll set about seeing how to do.
+> CLues welcome.
 
-> some other machine just did the same thing and you
-> know have a crosslinked and corrupt file.
+Yes, use a distributed filesystem. There are _many_ out there; GFS, OCFS,
+OpenGFS, Compaq has one as part of their SSI, Inter-Mezzo (sort of), Lustre,
+PvFS etc.
 
-There is no problem locking and serializing groups of
-read/write accesses.  Please stop harping on about THAT at
-least :-). What is a problem is marking the groups of accesses.
+Any of them will appreciate the good work of a bright fellow.
 
-> There are several similiar scenarios. You can't really talk
-> about "not caching".  Once you read something into
-> memory it is "cached" in memory, even if you only use it once
-> and then re-read it whenever you need it later.
+Noone appreciates reinventing the wheel another time, especially if - for
+simplification - it starts out as a square.
 
-That's fine. And I don't see what needs to be reread. You had this
-problem once with smp, and you beat it with locks.
+> > Just please, tell us why.
+> You don't really want the whole rationale.
 
-> > A generic mechanism is not a "no cache fs". It's a generic mechanism.
-> > 
-> > > Nobody will have time to wait for this, and this alone makes your
-> > 
-> > Try arguing logically. I really don't like it when people invent their
-> > own straw men and then procede to  reason as though it were *mine*.
-> > 
-> Maybe I wasn't clear.  What I say is that a fs that don't cache
-> anything in order to avoid cache coherency problems will be
-> too slow for generic use.  (Such as two desktop computers
+Yes, I do.
 
-Quite possibly, but not too slow for reading data in and writing data
-out, at gigabyte/s rates overall, which is what the intention is.
-That's not general use. And even if it were general use, it would still
-be pretty acceptable _in general_.
+You tell me why Distributed Filesystems are important. I fully agree.
 
-> > Then imagine some more. I'm not responsible for your imagination ...
-> 
-> You tell.  You keep asking why your idea won't work and I
-> give you "performance problems" _even_ if you sort out the
-> correctness issues with no other cost than the lack of cache.
+You fail to give a convincing reason why that must be made to work with
+"all" conventional filesystems, especially given the constraints this implies.
 
-The correctness issues are the only important ones, once we have
-correct and fast shared read and write to (existing) files.
+Conventional wisdom seems to be that this can much better be handled specially
+by special filesystems, who can do finer grained locking etc because they
+understand the on disk structures, can do distributed journal recovery etc.
 
-> it is useless for everything, although it certainly is useless
-> for the purposes I can come up with.  The only uses *I* find
-> for a shared writeable (but uncachable) disk is so special that 
-> I wouldn't bother putting a fs like ext2 on it.  Sharing a
-> raw block device is doable today if you let the programs
+What you are starting would need at least 3-5 years to catch up with what
+people currently already can do, and they'll improve in this time too. 
 
-It's far too inconvenient to be totally without a FS. What we
-want is a normal FS, but slower at some things, and faster at others,
-but correct and shared. It's an approach. The caclulations show
-clearly that r/w  (once!) to existing files are the only performance
-issues. The rest is decor. But decor that is very nice to have around.
+I've seen your academic track record and it is surely impressive. I am not
+saying that your approach won't work within the constraints. Given enough
+thrust, pigs fly. I'm just saying that it would be nice to learn what reasons
+you have for this, because I believe that "within the constraints" makes your
+proposal essentially useless (see the other mails).
 
-Peter
+In particular, they make them useless for the requirements you seem to have. A
+petabyte filesystem without journaling? A petabyte filesystem with a single
+write lock? Gimme a break.
+
+Please, do the research and tell us what features you desire to have which are
+currently missing, and why implementing them essentially from scratch is
+preferrable to extending existing solutions.
+
+You are dancing around all the hard parts. "Don't have a distributed lock
+manager, have one central lock." Yeah, right, has scaled _really_ well in the
+past. Then you figure this one out, and come up with a lock-bitmap on the
+device itself for locking subtrees of the fs. Next you are going to realize
+that a single block is not scalable either because one needs exclusive write
+lock to it, 'cause you can't just rewrite a single bit. You might then begin
+to explore that a single bit won't cut it, because for recovery you'll need to
+be able to pinpoint all locks a node had and recover them. Then you might
+begin to think about the difficulties in distributed lock management and
+recovery. ("Transaction processing" is an exceptionally good book on that I
+believe)
+
+I bet you a dinner that what you are going to come up with will look
+frighteningly like one of the solutions which already exist; so why not
+research them first in depth and start working on the one you like most,
+instead of wasting time on an academic exercise?
+
+> So, start thinking about general mechanisms to do distributed storage.
+> Not particular FS solutions.
+
+Distributed storage needs a way to access it; in the Unix paradigm,
+"everything is a file", that implies a distributed filesystem. Other
+approaches would include accessing raw blocks and doing the locking in the
+application / via a DLM (ie, what Oracle RAC does).
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Immortality is an adequate definition of high availability for me.
+	--- Gregory F. Pfister
+

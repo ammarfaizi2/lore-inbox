@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291759AbSBANxM>; Fri, 1 Feb 2002 08:53:12 -0500
+	id <S291767AbSBAOTt>; Fri, 1 Feb 2002 09:19:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291755AbSBANxD>; Fri, 1 Feb 2002 08:53:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:56078 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S291758AbSBANwo>;
-	Fri, 1 Feb 2002 08:52:44 -0500
-Date: Fri, 1 Feb 2002 14:52:43 +0100
-From: Dave Jones <davej@suse.de>
-To: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.3-dj7
-Message-ID: <20020201145243.A20802@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"Daniel E. Shipton" <dshipton@vrac.iastate.edu>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C59749C.B4855316@lbl.gov> <1012527802.8490.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1012527802.8490.5.camel@localhost.localdomain>; from dshipton@vrac.iastate.edu on Thu, Jan 31, 2002 at 07:43:22PM -0600
+	id <S291765AbSBAOTa>; Fri, 1 Feb 2002 09:19:30 -0500
+Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:25765 "EHLO
+	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S291762AbSBAOTN>; Fri, 1 Feb 2002 09:19:13 -0500
+Date: Fri, 1 Feb 2002 15:19:00 +0100 (MET)
+From: Erich Focht <efocht@ess.nec.de>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: O(1) J9 scheduler: set_cpus_allowed
+Message-ID: <Pine.LNX.4.21.0202011435500.6004-100000@sx6.ess.nec.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 07:43:22PM -0600, Daniel E. Shipton wrote:
- > One of these days the kernel + modules will compile without error for
- > me.....
+Hi Ingo,
 
- I trust from $subject, you meant 2.5.3-dj1, or 2.5.2-dj7
- unless you are from the future 8-)
+the function set_cpus_allowed(task_t *p, unsigned long new_mask)
+works "as is" only if called for the task p=current. The appended patch
+corrects this and enables e.g. external load balancers to change the
+cpus_allowed mask of an arbitrary process.
 
- Either way..
- > ataraid.c: In function `ataraid_make_request':
- > ataraid.c:105: structure has no member named `b_rdev'
- > ataraid.c:103: warning: `minor' might be used uninitialized in this
- > function
+BTW: how about migrating the definition of the structures runqueue and
+prio_array into include/linux/sched.h and exporting the symbol
+runqueues? It would help with debugging, monitoring and other
+developments.
 
- ataraid needs some more TLC to make it work with the new block layer.
- Theres a bunch of parts that still need attention, and surprisingly
- some of the more common ones haven't been touched yet.
+Thanks,
+Best regards,
+Erich
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+--- 2.4.17-IA64-kdb-J9/kernel/sched.c	Thu Jan 31 18:39:37 2002
++++ 2.4.17-IA64-kdb-J9ia64/kernel/sched.c	Fri Feb  1 16:06:40 2002
+@@ -859,16 +868,16 @@
+ 
+ 	p->cpus_allowed = new_mask;
+ 	/*
+-	 * Can the task run on the current CPU? If not then
++	 * Can the task run on its current CPU? If not then
+ 	 * migrate the process off to a proper CPU.
+ 	 */
+-	if (new_mask & (1UL << smp_processor_id()))
++	if (new_mask & (1UL << p->cpu))
+ 		return;
+ #if CONFIG_SMP
+-	current->state = TASK_UNINTERRUPTIBLE;
+-	smp_migrate_task(__ffs(new_mask), current);
+-
+-	schedule();
++	p->state = TASK_UNINTERRUPTIBLE;
++	smp_migrate_task(__ffs(new_mask), p);
++	if (p == current)
++		schedule();
+ #endif
+ }
+ 
+

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317279AbSFGM4A>; Fri, 7 Jun 2002 08:56:00 -0400
+	id <S317276AbSFGNOu>; Fri, 7 Jun 2002 09:14:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317281AbSFGMz7>; Fri, 7 Jun 2002 08:55:59 -0400
-Received: from kura.mail.jippii.net ([195.197.172.113]:27786 "HELO
-	kura.mail.jippii.net") by vger.kernel.org with SMTP
-	id <S317279AbSFGMz7>; Fri, 7 Jun 2002 08:55:59 -0400
-Date: Fri, 7 Jun 2002 15:58:59 +0300
-From: Anssi Saari <as@sci.fi>
+	id <S317281AbSFGNOt>; Fri, 7 Jun 2002 09:14:49 -0400
+Received: from stud3.tuwien.ac.at ([193.170.75.13]:4561 "EHLO
+	stud3.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id <S317276AbSFGNOt>; Fri, 7 Jun 2002 09:14:49 -0400
+Date: Fri, 7 Jun 2002 15:14:48 +0200
+From: Stefan Schwandter <swan@shockfrosted.org>
 To: linux-kernel@vger.kernel.org
-Cc: roy@karlsbakk.net
 Subject: Re: CMD-649 support? (in a hurry - please help)
-Message-ID: <20020607125859.GA22474@sci.fi>
-In-Reply-To: <Pine.LNX.4.44.0206071240230.18309-100000@sharra.ivimey.org> <1023454939.25523.3.camel@irongate.swansea.linux.org.uk> <200206071211.g57CBFV02101@mail.pronto.tv>
+Message-ID: <20020607131448.GA692@TK150122.tuwien.teleweb.at>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200206070943.g579hhN23163@mail.pronto.tv> <20020607.025447.121220968.davem@redhat.com> <200206071019.g57AJt923468@mail.pronto.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,12 +24,12 @@ Roy Sigurd Karlsbakk wrote:
 
 > oh. anyone around with any experience with the 649?
 
-Yes, but very limited. So far the only thing I've plugged into mine is a CD
-writer.  Haven't tried writing yet, though. Reading works, but
-enabling DMA for the drive caused a crash. I got the card to see
-if it could be a solution to my CD writing problem (details in
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101826880719379&w=2) and also
-because they go for only 29 euros around here.
+I have got a no name IDE controller card with a CMD 649 for one year
+now and never had problems with it under linux.
 
-It would be nice to know what bugs exist in current CMD chips, namely
-649 and 680. David S. Miller seems to know?
+
+regards, Stefan
+
+-- 
+Wanna listen to my music? <------
+----> http://www.shockfrosted.org

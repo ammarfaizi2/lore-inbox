@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbTK3SR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 13:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTK3SR5
+	id S262063AbTK3Sbx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 13:31:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTK3Sbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 13:17:57 -0500
-Received: from vsmtp4.tin.it ([212.216.176.224]:5613 "EHLO vsmtp4.tin.it")
-	by vger.kernel.org with ESMTP id S262330AbTK3SRz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 13:17:55 -0500
-Message-ID: <3FCA356A.6050003@tin.it>
-Date: Sun, 30 Nov 2003 19:22:34 +0100
-From: Marcello <voloterreno@tin.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; it-IT; rv:1.5) Gecko/20031031
-X-Accept-Language: it, en-us, en
+	Sun, 30 Nov 2003 13:31:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4789 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262063AbTK3Sbv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 13:31:51 -0500
+Message-ID: <3FCA3787.1000104@pobox.com>
+Date: Sun, 30 Nov 2003 13:31:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [2.4.23] IPv6 creates errors on my ethernet device
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: Jens Axboe <axboe@suse.de>
+CC: Vojtech Pavlik <vojtech@suse.cz>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Prakash K. Cheemplavam" <prakashkc@gmx.de>, marcush@onlinehome.de,
+       linux-kernel@vger.kernel.org, eric_mudama@Maxtor.com
+Subject: Re: Silicon Image 3112A SATA trouble
+References: <3FC36057.40108@gmx.de> <3FCA1DD3.70004@pobox.com> <20031130165146.GY10679@suse.de> <200311301758.53885.bzolnier@elka.pw.edu.pl> <3FCA2380.1050902@pobox.com> <20031130171006.GA10679@suse.de> <20031130175649.GA18670@ucw.cz> <20031130181723.GD6454@suse.de> <3FCA34A6.3010600@pobox.com> <20031130182232.GF6454@suse.de>
+In-Reply-To: <20031130182232.GF6454@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all ,
+Jens Axboe wrote:
+> Ah, my line wasn't completely clear (to say the least)... So to clear
+> all doubts:
+> 
+> 	if ((sector_count % 15 == 1) && (sector_count != 1))
+> 		errata path
+> 
+> Agree?
 
-I have an ethernet card with a Realtek 8139C chip , and I've enabled 
-IPv6 in my kernel  (2.4.23)
 
-My ethernet card is connected to an ADSL Modem , an Ericsson HM220dp, 
-and every (appoximatly)  50000 packets transmitted/recived by the 
-devices ,if IPv6 is enabled , ifconfig reports an error in RX packages :
+Agreed.
 
-bash-2.05b# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:E0:7D:D5:0C:ED
-          inet6 addr: fe80::2e0:7dff:fed5:ced/64 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:95734 errors:1 dropped:0 overruns:0 frame:0
-          TX packets:101956 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:465 txqueuelen:1000
-          RX bytes:24717818 (23.5 Mb)  TX bytes:52543424 (50.1 Mb)
-          Interrupt:17 Base address:0x5f00
- 
-The modem is connected at 10Mbps speed Half-Duplex .
 
-If I disable IPv6 I don't see errors on the ethernet device , I've tried 
-until 1500000 packets without errors .
+The confusion here is most likely my fault, as my original post 
+intentionally inverted the logic for illustrative purposes (hah!)...
 
-What cause those errors? The only solution is disable IPv6?? I've found 
-this problem on 2.4.22 too (I haven't tried IPv6 on previous kernels)
+> Well, the constraint we must satisfy is
+> 
+>     sector_count % 15 != 1
+> 
+> (i.e. "== 1" causes the lockup) 
 
-Thanks
+And to think, English is my only language...
 
-Marcello
+	Jeff
+
+
 

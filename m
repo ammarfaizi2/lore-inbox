@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263221AbUJ2AWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263283AbUJ2A3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263221AbUJ2AWb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbUJ2AUj
+	id S263283AbUJ2A3V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbUJ2A3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:20:39 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:64005 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263181AbUJ2AQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:16:21 -0400
-Date: Fri, 29 Oct 2004 02:15:49 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: dm-devel@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] dm: remove unused functions
-Message-ID: <20041029001549.GE29142@stusta.de>
-References: <20041028221413.GK3207@stusta.de>
-Mime-Version: 1.0
+	Thu, 28 Oct 2004 20:29:10 -0400
+Received: from inx.pm.waw.pl ([195.116.170.20]:61373 "EHLO inx.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S263274AbUJ2A1f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:27:35 -0400
+To: Adrian Bunk <bunk@stusta.de>
+Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net/wan/n2.c: remove an unused function
+References: <20041028230822.GZ3207@stusta.de>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 29 Oct 2004 02:25:46 +0200
+In-Reply-To: <20041028230822.GZ3207@stusta.de> (Adrian Bunk's message of
+ "Fri, 29 Oct 2004 01:08:22 +0200")
+Message-ID: <m3ekjixtdh.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028221413.GK3207@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time without the problems due to a digital signature... ]
+Adrian Bunk <bunk@stusta.de> writes:
 
-The patch below removes two unsed functions from dm code.
+> The patch below removes an unused function from drivers/net/wan/n2.c
 
+Right.
 
-diffstat output:
- drivers/md/dm-io.c   |   16 ----------------
- drivers/md/dm-snap.c |    5 -----
- 2 files changed, 21 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm1-full/drivers/md/dm-io.c.old	2004-10-28 23:03:35.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/md/dm-io.c	2004-10-28 23:03:44.000000000 +0200
-@@ -149,22 +149,6 @@
- 	return 0;
+A similar thing, for C101 card.
+Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
+--- linux-2.6/drivers/net/wan/c101.c	20 Oct 2004 01:26:30 -0000	1.15
++++ linux-2.6/drivers/net/wan/c101.c	29 Oct 2004 00:18:31 -0000
+@@ -113,9 +113,6 @@
  }
  
--static inline void bs_bio_init(struct bio *bio)
--{
--	bio->bi_next = NULL;
--	bio->bi_flags = 1 << BIO_UPTODATE;
--	bio->bi_rw = 0;
--	bio->bi_vcnt = 0;
--	bio->bi_idx = 0;
--	bio->bi_phys_segments = 0;
--	bio->bi_hw_segments = 0;
--	bio->bi_size = 0;
--	bio->bi_max_vecs = 0;
--	bio->bi_end_io = NULL;
--	atomic_set(&bio->bi_cnt, 1);
--	bio->bi_private = NULL;
--}
--
- static unsigned _bio_count = 0;
- struct bio *bio_set_alloc(struct bio_set *bs, int gfp_mask, int nr_iovecs)
- {
---- linux-2.6.10-rc1-mm1-full/drivers/md/dm-snap.c.old	2004-10-28 23:04:16.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/md/dm-snap.c	2004-10-28 23:04:24.000000000 +0200
-@@ -271,11 +271,6 @@
- 	return e;
- }
  
--static inline void free_exception(struct exception *e)
--{
--	kmem_cache_free(exception_cache, e);
--}
+-#define close_windows(card) {} /* no hardware support */
 -
- static inline struct pending_exception *alloc_pending_exception(void)
- {
- 	return mempool_alloc(pending_pool, GFP_NOIO);
+-
+ #include "hd6457x.c"
+ 
+ 
+
+

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266042AbSKOKVU>; Fri, 15 Nov 2002 05:21:20 -0500
+	id <S266041AbSKOKl2>; Fri, 15 Nov 2002 05:41:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266053AbSKOKVT>; Fri, 15 Nov 2002 05:21:19 -0500
-Received: from relay1.clb.oleane.net ([213.56.31.21]:5594 "EHLO
-	relay1.clb.oleane.net") by vger.kernel.org with ESMTP
-	id <S266042AbSKOKVR>; Fri, 15 Nov 2002 05:21:17 -0500
-Subject: Re: via-rhine weirdness with via kt8235 Southbridge
-From: Nicolas Mailhot <Nicolas.Mailhot@one2team.com>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-k6qj+2zY7tWPukOeVkD3"
-Organization: One2team
-Message-Id: <1037356084.2255.5.camel@ulysse.olympe.o2t>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.90 (1.1.90-2) (Preview Release)
-Date: 15 Nov 2002 11:28:05 +0100
+	id <S266091AbSKOKl2>; Fri, 15 Nov 2002 05:41:28 -0500
+Received: from precia.cinet.co.jp ([210.166.75.133]:11906 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S266041AbSKOKl1>; Fri, 15 Nov 2002 05:41:27 -0500
+Message-ID: <3DD4D0EA.C44F5ED7@cinet.co.jp>
+Date: Fri, 15 Nov 2002 19:48:10 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.47-ac4-pc98smp i686)
+X-Accept-Language: ja, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: PC-9800 patch for 2.5.47-ac4 pci_ids.h typo fix
+References: <3DD4C5A7.84AB38B6@cinet.co.jp>
+Content-Type: multipart/mixed;
+ boundary="------------75845339CFBCBFE83F581546"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------75845339CFBCBFE83F581546
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 
---=-k6qj+2zY7tWPukOeVkD3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Fix typo in pci_ids.h, already in 2.5.47-ac4.
 
-Hi,
+diffstat:
+ include/linux/pci_ids.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-	Please see http://bugzilla.kernel.org/show_bug.cgi?id=3D10, I think
-that's the very same problem on another mobo.
+-- 
+Osamu Tomita
+tomita@cinet.co.jp
+--------------75845339CFBCBFE83F581546
+Content-Type: text/plain; charset=iso-2022-jp;
+ name="pci_ids_h-typo.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pci_ids_h-typo.patch"
 
-(was also in 2.5 problem reports, do not remember the exact number)
+--- linux/include/linux/pci_ids.h	Fri Nov 15 12:10:13 2002
++++ linux98/include/linux/pci_ids.h	Fri Nov 15 12:28:04 2002
+@@ -468,7 +468,7 @@
+ #define PCI_DEVICE_ID_NEC_486		0x0005 /* 486 Like Peripheral Bus Bridge */
+ #define PCI_DEVICE_ID_NEC_ACCEL_1	0x0006 /* Graphic Accelerator */
+ #define PCI_DEVICE_ID_NEC_UXBUS		0x0007 /* UX-Bus Bridge */
+-#define PCI_DEVICE_ID_NEC_ACCEL_2	0x0006 /* Graphic Accelerator */
++#define PCI_DEVICE_ID_NEC_ACCEL_2	0x0008 /* Graphic Accelerator */
+ #define PCI_DEVICE_ID_NEC_GRAPH		0x0009 /* PCI-CoreGraph Bridge */
+ #define PCI_DEVICE_ID_NEC_VL		0x0016 /* PCI-VL Bridge */
+ #define PCI_DEVICE_ID_NEC_STARALPHA2	0x002c /* STAR ALPHA2 */
 
-Maybe you should take ownership of this bug ?
-
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-k6qj+2zY7tWPukOeVkD3
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA91Mw0msj7VFSyrYsRAne6AJ9EKgAS75aQ7OIlRX09dtYehq3yhQCglNzz
-liYxvgesquO9hrXQgEDddwA=
-=BvIv
------END PGP SIGNATURE-----
-
---=-k6qj+2zY7tWPukOeVkD3--
+--------------75845339CFBCBFE83F581546--
 

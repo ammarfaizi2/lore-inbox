@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261685AbRFFVwt>; Wed, 6 Jun 2001 17:52:49 -0400
+	id <S264188AbRFFVyk>; Wed, 6 Jun 2001 17:54:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264188AbRFFVwj>; Wed, 6 Jun 2001 17:52:39 -0400
-Received: from jalon.able.es ([212.97.163.2]:49620 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S261685AbRFFVwY>;
-	Wed, 6 Jun 2001 17:52:24 -0400
-Date: Wed, 6 Jun 2001 23:52:13 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: temperature standard - global config option?
-Message-ID: <20010606235213.C1136@werewolf.able.es>
-In-Reply-To: <20010606155026.A28950@bug.ucw.cz> <B74421C0.F6F7%bootc@worldnet.fr> <20010606224203.A2044@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010606224203.A2044@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Wed, Jun 06, 2001 at 22:42:04 +0200
-X-Mailer: Balsa 1.1.5
+	id <S264189AbRFFVya>; Wed, 6 Jun 2001 17:54:30 -0400
+Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:11529 "EHLO
+	moisil.badula.org") by vger.kernel.org with ESMTP
+	id <S264188AbRFFVyW>; Wed, 6 Jun 2001 17:54:22 -0400
+Date: Wed, 6 Jun 2001 14:54:14 -0700
+Message-Id: <200106062154.f56LsE115507@moisil.badula.org>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: "Tom Sightler" <ttsig@tuxyturvy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac9
+In-Reply-To: <002e01c0eead$03c6d890$26040a0a@zeusinc.com>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 06.06 Pavel Machek wrote:
+On Wed, 6 Jun 2001 13:20:41 -0400, Tom Sightler <ttsig@tuxyturvy.com> wrote:
+>> 2.4.5-ac9
 > 
-> ACPI is already using 0.1*K, so everything should use that to be
-> consistent.
-> 								Pavel
+>> o Fix xircom_cb problems with some cisco kit (Ion Badulescu)
+> 
+> I'm not sure what this is supposed to fix, but it makes my Xircom
+> RBEM56G-100 almost useless on my network at the office.  Actually, I can't
+> quite blame just this patch, it only makes the problem worse, the driver
+> from 2.4.5-ac3 worked, but with 1 second ping times, the new driver barely
+> works at all, it seems to think the link is not there, at least not enough
+> to pull an IP address.
 
-Which is the data type for temperature ? Would not it be better to
-use 0.01*K ? So you get the full accuracy of a short.
+The patch does only one thing: it instructs the card not to negotiate
+full-duplex modes, because (for undocumented and yet unexplained reasons)
+full-duplex modes don't work well on this card.
+
+If you had problems before, then their cause is most likely elsewhere.
+1-second ping time is definitely wrong.
+
+> The last driver that worked moderately well for me was the one from
+> 2.4.4-ac11, it still had a few issues, mostly when resuming, but everything
+> worked at home on my 10Mb hub, and at the office on my 10/100Mb FD Cisco
+> 6509.  I must admist that I haven't tested every version in between.
+
+The thing is, I don't really see any significant differences between the
+2.4.4-ac11 driver and the 2.4.5-ac9 driver. I see lots of clean-ups, some
+power management stuff, and the half-duplex stuff. None of them should
+affect the core functionality directly..
+
+Please do me a favor: comment out the call to set_half_duplex() (in
+xircom_up), recompile and see if it makes a difference.
+
+> One other note, the version in 2.4.4-ac11 is listed as 1.33 while the
+> version in 2.4.5-ac9 is 1.11, why did we go backwards?  Were there
+> significant problems with the newer version?  The 1.33 sure seems to work
+> better for me.
+
+The CVS version is almost irrelevant, I guess Arjan simply rebuild his
+repository.
+
+Ion
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.5-ac9 #1 SMP Wed Jun 6 09:57:46 CEST 2001 i686
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130062AbRBSMAq>; Mon, 19 Feb 2001 07:00:46 -0500
+	id <S129170AbRBSMAG>; Mon, 19 Feb 2001 07:00:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130056AbRBSMAg>; Mon, 19 Feb 2001 07:00:36 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:15366 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S130037AbRBSMA2>;
-	Mon, 19 Feb 2001 07:00:28 -0500
-Date: Mon, 19 Feb 2001 13:00:22 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
+	id <S129384AbRBSL75>; Mon, 19 Feb 2001 06:59:57 -0500
+Received: from babsi.intermeta.de ([212.34.181.3]:25352 "EHLO
+	babsi.intermeta.de") by vger.kernel.org with ESMTP
+	id <S129170AbRBSL7r>; Mon, 19 Feb 2001 06:59:47 -0500
+Date: Mon, 19 Feb 2001 12:59:45 +0100
+From: "Henning P . Schmiedehausen" <hps@intermeta.de>
+To: Werner Almesberger <Werner.Almesberger@epfl.ch>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [LONG RANT] Re: Linux stifles innovation...
-Message-ID: <20010219130022.G6494@almesberger.net>
-In-Reply-To: <20010219115314.A6724@almesberger.net> <Pine.LNX.3.96.1010219050514.17784G-100000@mandrakesoft.mandrakesoft.com>
+Message-ID: <20010219125945.C16663@forge.intermeta.de>
+Reply-To: hps@intermeta.de
+In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>, <E14TtEx-0004Lr-00@the-village.bc.nu> <96lrau$dcd$1@forge.intermeta.de> <20010219115314.A6724@almesberger.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1010219050514.17784G-100000@mandrakesoft.mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Feb 19, 2001 at 05:07:02AM -0600
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010219115314.A6724@almesberger.net>; from "Werner Almesberger" on Mon, Feb 19, 2001 at 11:53:14AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> FWIW, -every single- Windows driver source code I've seen has been
-> bloody awful.  Asking them to release that code would probably result in
-> embarrassment.
+On Mon, Feb 19, 2001 at 11:53:14AM +0100, Werner Almesberger wrote:
+> Henning P. Schmiedehausen wrote:
 
-Maybe a good analogy is that drivers are to hardware companies like
-excrements are to living creatures: in order to stay alive, they have
-to produce them, but you don't put much love into their production,
-and their internals (like their development) may be a little
-disgusting.
+> Fine. So you've reinvented AIX, HP-UX, SCO, etc. The question is what
+> you expect from Linux. After all, you strongly disagree with the main
+> common denominator of Linux developers, that it be Open Source.
 
->  Same reasoning why many companies won't release hardware
-> specifications...  The internal docs are bad.  Really bad.
+No, I don't. I don't at all. But I prefer a more pragmatic approach to
+the developers and companies who don't.
 
-A fair number of hardware documents I have came with "here's all the
-material you'll need, but please don't show this to anyone" (but no
-NDA), which is fine with me: it doesn't complicate development in any
-way, and in those few cases where I really needed to share a document,
-they were flexible enough to allow this.
+And yes, there _is_ IMHO a difference in telling someone on LKM,
+especially someone without deeper knowledge that is lookin for help:
 
-Of course, it's better if documentation is entirely in the public too,
-but considering the typical overhead of clearing a document for public
-release, I can understand why companies frequently don't do it.
+"You're using a non-open source driver, so we can't help you. Please
+ask your vendor for support."
 
-- Werner
+and
+
+"Fuck off, <insert binary vendor, software or distribution> Luser".
+
+("Der Ton macht die Musik". Sorry don't know the equal english
+expression).
+
+	Regards
+		Henning
+
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

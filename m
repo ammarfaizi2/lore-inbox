@@ -1,98 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314366AbSDRSL7>; Thu, 18 Apr 2002 14:11:59 -0400
+	id <S314399AbSDRSTO>; Thu, 18 Apr 2002 14:19:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314367AbSDRSL6>; Thu, 18 Apr 2002 14:11:58 -0400
-Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:50445 "EHLO
-	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
-	id <S314366AbSDRSL5>; Thu, 18 Apr 2002 14:11:57 -0400
-Message-ID: <006e01c1e704$805e1760$7e0aa8c0@bridge>
-From: "Jeremy Jackson" <jerj@coplanar.net>
-To: "Kent Borg" <kentborg@borg.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020418110558.A16135@borg.org>
-Subject: Re: Versioning File Systems?
-Date: Thu, 18 Apr 2002 11:11:42 -0700
+	id <S314402AbSDRSTN>; Thu, 18 Apr 2002 14:19:13 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2896 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S314399AbSDRSTM>; Thu, 18 Apr 2002 14:19:12 -0400
+To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] x86 boot enhancements, Clean up the 32bit entry points 6/11
+In-Reply-To: <20020418165939.22502.qmail@web11801.mail.yahoo.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 18 Apr 2002 12:11:55 -0600
+Message-ID: <m1hem86fmc.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the RPM case, where the RPM db can be out of sync
-with the filesystem if the rpm command is interrupted
-(not to mention db corruption), simply use LVM or EVMS
-snapshot of fs before doing anything.  Haven't tried yet, but
-working towards this:
+Etienne Lorrain <etienne_lorrain@yahoo.fr> writes:
 
-eg:
+>  Seems that previous message did not go through, rewrite.
+> 
+>  I am sorry I did not check enough your patch.
+>  You are speaking of: arch/i386/boot/compressed/head.S
 
-init 1 ; go to single user mode
-; initiate snapshot of /, /usr, /var etc - everything rpm touches
-rpm -Fvh * ;
-; oops power cable came out in middle
-; restore snapshot to be live version (how?)
-init 3 ; go back about your business, nothing to see here.
+That is what you quoted, so I assumed that is what you were
+talking about.
 
-Jeremy
+>  I am speaking of:    arch/i386/kernel/head.S
+> 
+>  Gujin skip completely arch/i386/boot/compressed/* and really
+>  boots the file '$$tmppiggy.gz' line 44 of file:
+> arch/i386/boot/compressed/Makefile
+> 
+>  So you can do whatever you want with the "first" 32 bits entry point,
+>  I am just concerned by the "second" kernel 32 bits entry point, in
+>  arch/i386/kernel/head.S
+> 
+>  I still have a problem to detect the size of your decompressor, and that
+>  is my use of the "lss" instruction.
+>  This "lss SYMBOL_NAME(stack_start),%esp" gives an access to the symbol
+>  'stack_start', so it is quite easy to find back the GZIP signature
+>  of the initial '$$tmppiggy.gz' in what I call my "compatibility" mode,
+>  i.e. booting the legacy vmlinuz files - and skipping all of the real mode
+>  code and the decompressor code.
 
------ Original Message -----
-From: "Kent Borg" <kentborg@borg.org>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, April 18, 2002 8:05 AM
-Subject: Versioning File Systems?
+Well it should be easier I put an explicit pointer to it.
 
+>  This "lss" line has not always been at the same offset, but is around
+>  since maybe even the 0.01 kernel, it is quite easy to find it from its
+>  hexadecimal form. (function vmlinuz_header_treat() in vmlinuz.c of
+>  Gujin).
+> 
+>  The loaded high/loaded low stuff is just to know if I have to remove
+>  0x100000 or 0x1000 from this symbol to have the number of bytes
+>  to skip on the file.
+>  By the way, the bit in the kernel header is set by the bootloader to say
+>  where it has loaded the kernel, not by the compiler/linker chain.
 
-> I just read an article mentioned on Slashdot,
-> <http://www.sigmaxi.org/amsci/Issues/Comsci02/Compsci2002-05.html>.
->
-> It is a fascinating short summary of the history of hard disks (they
-> still use the same fundamental design as the very first one) and an
-> update on current technology (disks are no longer aluminum).  It also
-> looks at today's 120 gigabyte disk and muses over the question of how
-> we might ever put an imagined 120 terabyte disk to use.  And the got
-> me thinking various thoughts, one turns into a question for this list:
-> It there any work going on to make a versioning file system?
->
-> I remember in VMS that I could accumulate "myfile.txt;1",
-> "myfilw.txt;2", etc., until the local admin got pissed at me for using
-> up all the disk space with my several megabytes of redundant files.
->
-> It is time for Linux to start figuring out ways to use all the disk
-> space that is on the horizon!  In a few weeks the sweet spot will be
-> to buy a pair of 80 GB disks.  Disks are outpacing even Red Hat's
-> "everything" install.
->
-> Seriously, I have a server in the basement with a pair of 60 GB RAID 1
-> disks the protect me against likely hardware failure, but they don't
-> protect me against: "# rm rf /*".  They don't even let me easily back
-> out a bad RPM from Red Hat.
->
-> I guess I am suggesting the (more constructive) discussions over
-> desirable Bitkeeper and CVS features consider what it would mean for a
-> filesystem to absorb some of the key underlying features of each.
->
-> As a first crack, I am imagining a file system that records every (or
-> nearly every) change to every file with time stamps and sequence
-> numbering.  I don't know what all the primitives would be.  It
-> obviously seems much of making sense of it all would have to happen in
-> userland.  Making this too powerful almost brings up some science
-> fiction problems of time travel through parallel universes, but I
-> think it could be kept grounded by looking at it as a powerful version
-> of existing backup systems: they don't have such problems because they
-> are too cumbersome for them to arise very often.
->
->
-> -kb, the Kent who thinks his journaled filesystem on redundant disks
-> next needs a better memory.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Nope.  LOADED_HIGH in loadflags is set at compile time.  It determines
+where the bootloader must load the compressed part of the kernel.
 
+>  So is it possible to write somewhere how much code to skip or the offset
+>  of the kernel GZIP signature?
+
+Already done.
+
+>  Something like:
+>   jmp next
+>   lss SYMBOL_NAME(stack_start),%esp
+> next:
+>  Would make me really happy, but is dirty.
+>  Changing the 'tmppiggy.lnk' in the Makefile can be done, but the value
+>  (to know the length of the decompressor code) has to be _before_ the code
+>  itself in the raw file.
+
+Yep.
+
+>  Else whatever signature at whatever fixed address with the code+rodata
+>  size following would make me happy.
+
+Check out the code.
+
+Eric

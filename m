@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbTJXRfP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 13:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTJXRfP
+	id S262427AbTJXRrw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 13:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTJXRrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 13:35:15 -0400
-Received: from not.theboonies.us ([66.139.79.224]:15273 "EHLO
-	not.theboonies.us") by vger.kernel.org with ESMTP id S262420AbTJXRfJ
+	Fri, 24 Oct 2003 13:47:52 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:3596 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262427AbTJXRru
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 13:35:09 -0400
-Message-ID: <1067021062.3f9973069378a@mail.theboonies.us>
-Date: Fri, 24 Oct 2003 13:44:22 -0500
+	Fri, 24 Oct 2003 13:47:50 -0400
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test6 + fb patch = dead PowerBook
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 81.196.140.33
-From: David Eger <random-temp_addy-1067625873.f45fe1@theboonies.us>
-X-Delivery-Agent: TMDA/0.84 (Tim Tam)
-X-Primary-Address: random@theboonies.us
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [RFC] frandom - fast random generator module
+Date: 24 Oct 2003 17:37:44 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bnbo18$49b$1@gatekeeper.tmr.com>
+References: <3F8E552B.3010507@users.sf.net> <20031022025602.GH17713@pegasys.ws> <20031022122251.A3921@borg.org> <3F97498D.9050704@storm.ca>
+X-Trace: gatekeeper.tmr.com 1067017064 4395 192.168.12.62 (24 Oct 2003 17:37:44 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I decided a week ago to work on bringing the Radeon driver up-to-date for Linux 
-2.6 -- essentially a forward port of BenH's 2.4 driver + some acceleration code 
-from xfree86.
+In article <3F97498D.9050704@storm.ca>, Sandy Harris  <sandy@storm.ca> wrote:
 
-My PowerBook is now toast.  I'm hoping someone might give me some hints on 
-resurrecting it.  Here's the story:
+| Do you think you need this before there's a file system? Why?
+| Or are you thinking of boxes that don't have a file system?
+| Or not writable? Not local?
+| 
+| > --and even speed),
+| 
+| I suspect that's the real issue. People report using other
+| things because /dev/urandom is too slow.
+| 
+| Can we speed up /dev/urandom? Or perhaps write a PRNG daemon?
 
-1. Dowloaded linux-2.6.0-test8.  Compiled.  Rebooted.  My lcd didn't show 
-anything once tux was supposed to appear.
+I know someone noted that frandom couldn't just replace urandom, but I
+don't recall why. The values appear to be at least a good, the speed is
+much higher, and since it's already in use, there would be no opposition
+to having it, since we need to have something.
 
-2. Decided "must be a bad radeon driver".  Forward ported BenH's driver, 
-ifdef'ing out all of the Power Management code and console ugliness.
+Could someone clarify why this isn't a drop-in replacement?
 
-3. Compiled this patched kernel.  Rebooted.  Hung, I believe, detecting a 
-mouse.  strange.
+| If all we need is a library, there's an RC4-based one named
+| prng.c in the FreeS/WAN libraries.
+| http://www.freeswan.org/freeswan_snaps/CURRENT-SNAP/doc/manpage.d/ipsec_prng.3.html
+| 
+| Two threads discussing the desin start at:
+| http://lists.freeswan.org/pipermail/design/2002-March/002166.html
+| http://lists.freeswan.org/pipermail/design/2002-March/002207.html
+| 
+| > but the Kent who doesn't
+| > want the kernel to be exploded into a catalogue of competing random
+| > number generators.
+| 
+| I'm with you there.
 
-4. Checked my .config from linux-2.4.22-ben2.  Oh.  I'll try enabling VGA 
-console in addition to FB console, and those other "Apple" framebuffers just 
-for kicks in my 2.6.0-test8+ kernel.
+No argument, but the performance of urandom is quite poor in terms of
+speed and having every application generate their own number using
+their own possibly badly flawed algorithm certainly qualifies as
+undesirable.
 
-5. Compile. Reboot.  tux! login prompt! Rock! login.  just for kicks, startx.  
-X starts! Rock!  Okay, reboot to linux-2.4 so I can clean up the new driver.  X 
-gets killed and video goes weird during shut down.  That's expected, though, as 
-I disabled some of the Power Management codes.
-
-My machine never reboots properly.
-
-It will get to the end of openpic() right before tux is supposed to appear and 
-dies.  Linux-2.4.22-ben2, MacOSX, Linux-2.6.0-test8+, Gentoo Install CD, MacOSX 
-install CD, they all die somewhere during kernel initialization.  The only 
-thing I can get to boot is the Hardware Test CD.
-
-I figure, "okay, I must have screwed with some registers improperly.  I'll just 
-unplug it, take the battery out, let all of the registers settle down to zero 
-and reboot it later.  I'll even hit that reset switch on the PMU just in case."
-
-None of this helps.
-
-Any ideas?
-
--Eger David, in Budapest
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

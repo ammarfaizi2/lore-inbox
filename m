@@ -1,111 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266557AbRGQPKG>; Tue, 17 Jul 2001 11:10:06 -0400
+	id <S266567AbRGQPS0>; Tue, 17 Jul 2001 11:18:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266551AbRGQPJr>; Tue, 17 Jul 2001 11:09:47 -0400
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:20698 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S265443AbRGQPJf>; Tue, 17 Jul 2001 11:09:35 -0400
-Message-ID: <35721.193.133.92.239.995382564.squirrel@lbbrown.homeip.net>
-Date: Tue, 17 Jul 2001 16:09:24 +0100 (BST)
-Subject: [RFC][PATCH] Allow compressed initial ramdisks to span multiple floppies
-From: "Leigh Brown" <leigh@solinno.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: leigh@solinno.co.uk
-Reply-To: leigh@solinno.co.uk
-X-Mailer: SquirrelMail (version 1.0.4)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S266565AbRGQPSR>; Tue, 17 Jul 2001 11:18:17 -0400
+Received: from t2.redhat.com ([199.183.24.243]:61426 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S266562AbRGQPSI>; Tue, 17 Jul 2001 11:18:08 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <OE17UirmJJgWha8vFnq000074b6@hotmail.com> 
+In-Reply-To: <OE17UirmJJgWha8vFnq000074b6@hotmail.com>  <Pine.LNX.4.33.0107171532450.1817-100000@ketil.np> 
+To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6-ac5 gives wrong cache info for Duron in /proc/cpuinfo 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 17 Jul 2001 16:18:07 +0100
+Message-ID: <7721.995383087@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-This is my first patch (and possibly post) to lkml, although I browse
-the archives quite often.  The patch allows a compressed ramdisk to
-span multiple floppies.  This is handy for installing modern distros
-(YDL in my case) on a machine that can't boot from CD-ROM, where the
-initial ramdisks are several meg in size.  Obviously, I could
-uncompress the ramdisk (which I have actually done) but writing 12 or
-more floppies in this day and age make my toes curl.
+thatlinuxguy@hotmail.com said:
+> It never ceases to amaze me how ANAL some people on this list are.
+> :-)
 
-Please CC me in any replies for a speedy response.
+It's called attention to detail, and it's the _reason_ why a lot of people 
+are here.
 
-Cheers,
+The correct prefix to signify a multiple of 1024 is 'Ki'.
 
-Leigh.
----
---- drivers/block/rd.c.orig	Sun Apr  8 23:22:17 2001
-+++ drivers/block/rd.c	Mon Jul 16 16:27:56 2001
-@@ -85,7 +85,7 @@
- #define BUILD_CRAMDISK
+Index: arch/i386/kernel/setup.c
+===================================================================
+RCS file: /inst/cvs/linux/arch/i386/kernel/setup.c,v
+retrieving revision 1.4.2.57
+diff -u -r1.4.2.57 setup.c
+--- arch/i386/kernel/setup.c	2001/05/14 10:32:23	1.4.2.57
++++ arch/i386/kernel/setup.c	2001/07/17 15:13:54
+@@ -2406,7 +2406,7 @@
  
- void rd_load(void);
--static int crd_load(struct file *fp, struct file *outfp);
-+static int crd_load(struct file *fp, struct file *outfp, kdev_t device, struct inode *inode);
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- static int initrd_users;
-@@ -608,7 +608,7 @@
- 
- 	if (nblocks == 0) {
- #ifdef BUILD_CRAMDISK
--		if (crd_load(&infile, &outfile) == 0)
-+		if (crd_load(&infile, &outfile, device, inode) == 0)
- 			goto successful_load;
- #else
- 		printk(KERN_NOTICE
-@@ -787,6 +786,8 @@
- static int exit_code;
- static long bytes_out;
- static struct file *crd_infp, *crd_outfp;
-+static kdev_t crd_device;
-+static struct inode *crd_inode;
- 
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
+ 		/* Cache size */
+ 		if (c->x86_cache_size >= 0)
+-			p += sprintf(p, "cache size\t: %d KB\n", c->x86_cache_size);
++			p += sprintf(p, "cache size\t: %d KiB\n", c->x86_cache_size);
  		
-@@ -839,7 +840,23 @@
- 	
- 	insize = crd_infp->f_op->read(crd_infp, inbuf, INBUFSIZ,
- 				      &crd_infp->f_pos);
--	if (insize == 0) return -1;
-+	if (insize == 0) {
-+		invalidate_buffers(crd_device);
-+		if (crd_infp->f_op->release)
-+			crd_infp->f_op->release(crd_inode, crd_infp);
-+		printk("Please insert next disk and press ENTER\n");
-+		wait_for_keypress();
-+		if (blkdev_open(crd_inode, crd_infp) != 0) {
-+			printk("Error opening disk.\n");
-+			return -1;
-+		}
-+		crd_infp->f_pos = 0;
-+		printk("Loading disk... ");
-+		insize = crd_infp->f_op->read(crd_infp, inbuf, INBUFSIZ,
-+					      &crd_infp->f_pos);
-+	}
-+	if (insize == 0)
-+		return -1;
- 
- 	inptr = 1;
- 
-@@ -874,7 +891,7 @@
- }
- 
- static int __init 
--crd_load(struct file * fp, struct file *outfp)
-+crd_load(struct file * fp, struct file *outfp, kdev_t device, struct inode *inode)
- {
- 	int result;
- 
-@@ -887,6 +904,8 @@
- 
- 	crd_infp = fp;
- 	crd_outfp = outfp;
-+	crd_device = device;
-+	crd_inode = inode;
- 	inbuf = kmalloc(INBUFSIZ, GFP_KERNEL);
- 	if (inbuf == 0) {
- 		printk(KERN_ERR "RAMDISK: Couldn't allocate gzip buffer\n");
+ 		/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
+ 		fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
+
+
+--
+dwmw2
+
 

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280827AbRKBUtb>; Fri, 2 Nov 2001 15:49:31 -0500
+	id <S280830AbRKBU5w>; Fri, 2 Nov 2001 15:57:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280828AbRKBUtV>; Fri, 2 Nov 2001 15:49:21 -0500
-Received: from mtiwmhc22.worldnet.att.net ([204.127.131.47]:41350 "EHLO
-	mtiwmhc22.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S280827AbRKBUtM>; Fri, 2 Nov 2001 15:49:12 -0500
-Date: Fri, 2 Nov 2001 15:49:03 -0500
-From: khromy <khromy@lnuxlab.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: system locks up when trying to use soundcard.
-Message-ID: <20011102154903.A24992@lnuxlab.ath.cx>
+	id <S280831AbRKBU5m>; Fri, 2 Nov 2001 15:57:42 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:29522 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S280830AbRKBU5g>; Fri, 2 Nov 2001 15:57:36 -0500
+Date: Fri, 2 Nov 2001 21:57:29 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Zlatko's I/O slowdown status
+Message-ID: <20011102215729.K1274@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0110261018270.1001-100000@penguin.transmeta.com> <87k7xfk6zd.fsf@atlas.iskon.hr> <20011102065255.B3903@athlon.random> <87g07xdj6x.fsf@atlas.iskon.hr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <87g07xdj6x.fsf@atlas.iskon.hr>; from zlatko.calusic@iskon.hr on Fri, Nov 02, 2001 at 09:14:14PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's how I can reproduce it:
+On Fri, Nov 02, 2001 at 09:14:14PM +0100, Zlatko Calusic wrote:
+> It was write caching. Somehow disk was running with write cache turned
 
-1) I load the sound modules.
-2) I play an mp3(mpg123 abcd.mp3)
+Ah, I was going to ask you to try with:
 
-If I switch consoles or start it while I'm in X, it locks up.  If I don't, it keeps playing..
+	/sbin/hdparm -d1 -u1 -W1 -c1 /dev/hda
 
-I've tried two different soundcards and two different isa slots.
+(my settings, of course not safe for journaling fs, safe to use it only
+with ext2 and I -W0 back during /etc/init.d/halt) but I assumed you were
+using the same hdparm settings in -ac and mainline. Never mind, good
+that it's solved now :).
 
-The sound cards use ad1848.o and sb.o.
-
-One is a sound blaster 16 pnp, and the other is an aztech.(microsoft sound
-system)
-
-Anybody know what's going on?
-
-Let me know if you need any more info.
-
--- 
-L1:	khromy		;khromy at lnuxlab.ath.cx
+Andrea

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262725AbVBYPH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbVBYPOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbVBYPH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 10:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVBYPEn
+	id S262730AbVBYPOK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 10:14:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVBYPOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 10:04:43 -0500
-Received: from [61.145.102.93] ([61.145.102.93]:9220 "HELO mail.drnzxl.com")
-	by vger.kernel.org with SMTP id S262716AbVBYPDZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 10:03:25 -0500
-Reply-To: <drnzxl@pchome.com.tw>
-Message-ID: <001901c471f2$017f70d0$0300a8c0@xinyi>
-From: <David@vger.kernel.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Plugs & Sockets
-Date: Fri, 25 Feb 2005 23:03:23 +0800
-Mime-Version: 1.0
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Content-Type: text/plain;
-    charset="gb2312"
-Content-Transfer-Encoding: 8bit
+	Fri, 25 Feb 2005 10:14:09 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:30677 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262734AbVBYPMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 10:12:55 -0500
+Message-ID: <421F4042.3020302@nortel.com>
+Date: Fri, 25 Feb 2005 09:12:02 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Oeser <ioe-lkml@axxeo.de>
+CC: "Chad N. Tindel" <chad@tindel.net>, Paulo Marques <pmarques@grupopie.com>,
+       Mike Galbraith <EFAULT@gmx.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Xterm Hangs - Possible scheduler defect?
+References: <20050224075756.GA18639@calma.pair.com> <421E2EF9.9010209@nortel.com> <20050224200802.GA39590@calma.pair.com> <200502250151.41793.ioe-lkml@axxeo.de>
+In-Reply-To: <200502250151.41793.ioe-lkml@axxeo.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir or Madam: 
+Ingo Oeser wrote:
 
-We understand from your information posted on internet that you are in the market for plugs & sockets. We would like to take this opportunity to introduce our company and products, with the hope that we may work with Bright Ideas Imports in the future. 
+> Stupid applications can starve other applications for a while, but not
+> forever, because the kernel is still running and deciding.
 
-We are a professional company specializing in the manufacture and export of plugs, sockets & connecting-terminals. You may feel free to visit our online company introduction at http://andian.b2bleague.com  which includes our latest product line. 
-
-Should any of these items be of interest to you, please let us know. We will be happy to give you a quotation upon receipt of your detailed requirements. 
-
-We look forward to receiving your enquires soon. 
-
-Sincerely, 
-
-David Chow (Mr.)
-Company: Andian Industry Co., Ltd.
-http://andian.b2bleague.com 
-E-mail: mickzhou@126.com 
-Tel: 86-757-27336845
-Fax: 86-757-27723669
-Cel: 86-13192690106
+Not so.
 
 
 
+task 1: sched_rr, priority 1, takes mutex
+task 2: sched_rr, priority 2, cpu hog, infinite loop
+task 3: sched_rr, priority 99, tries to get mutex
 
+And now tasks 1 and 3 are starved forever.  Arguably bad application 
+design, but it demonstrates a case where applications can starve other 
+applications.
+
+Chris

@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262554AbVAPRzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVAPSHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262554AbVAPRzc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 12:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVAPRzb
+	id S262556AbVAPSHB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 13:07:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbVAPSHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 12:55:31 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:29883 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262554AbVAPRz2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 12:55:28 -0500
-Date: Sun, 16 Jan 2005 19:55:43 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: changing local version requires full rebuild
-Message-ID: <20050116175543.GB5029@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20050116152242.GA4537@mellanox.co.il> <20050116161622.GC3090@mars.ravnborg.org> <20050116162816.GA4715@mellanox.co.il> <20050116172647.GA3306@mars.ravnborg.org>
+	Sun, 16 Jan 2005 13:07:01 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47306 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262555AbVAPSG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 13:06:58 -0500
+Date: Sun, 16 Jan 2005 18:06:56 +0000
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] shared subtrees
+Message-ID: <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk>
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <20050116160213.GB13624@fieldses.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050116172647.GA3306@mars.ravnborg.org>
+In-Reply-To: <20050116160213.GB13624@fieldses.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Sam Ravnborg (sam@ravnborg.org) "Re: changing local version requires full rebuild":
->  > 
-> > > Do you use "echo -mylocalver > localversion" to change the local version?
-> > > 
-> > > 	Sam
-> > 
-> > No, I do makemenuconfig to edit the version. Is that right?
+On Sun, Jan 16, 2005 at 11:02:13AM -0500, J. Bruce Fields wrote:
+> On Thu, Jan 13, 2005 at 10:18:51PM +0000, Al Viro wrote:
+> > 	6. mount --move
+> > prohibited if what we are moving is in some p-node, otherwise we move
+> > as usual to intended mountpoint and create copies for everything that
+> > gets propagation from there (as we would do for rbind).
 > 
-> That is fine too.
-> When building - do you use separate output dir?
-> 
-> 	Sam
+> Why this prohibition?
 
-nope, just make
-
+How do you propagate that?  We can weaken that to "in a p-node that
+owns something or contains more than one vfsmount", but it's not
+worth the trouble, AFAICS.

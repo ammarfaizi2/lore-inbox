@@ -1,92 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269984AbUIDBCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269938AbUIDBCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269984AbUIDBCx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 21:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270008AbUIDBCw
+	id S269938AbUIDBCp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 21:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270005AbUIDBCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 21:02:52 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:36739 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269984AbUIDAyc (ORCPT
+	Fri, 3 Sep 2004 21:02:45 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:44708 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S269938AbUIDAv3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 20:54:32 -0400
-Message-ID: <a728f9f904090317547ca21c15@mail.gmail.com>
-Date: Fri, 3 Sep 2004 20:54:31 -0400
-From: Alex Deucher <alexdeucher@gmail.com>
-Reply-To: Alex Deucher <alexdeucher@gmail.com>
-To: Dave Airlie <airlied@linux.ie>
-Subject: Re: New proposed DRM interface design
+	Fri, 3 Sep 2004 20:51:29 -0400
+Date: Sat, 4 Sep 2004 01:51:24 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Jon Smirl <jonsmirl@yahoo.com>
 Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0409040107190.18417@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0409040107190.18417@skynet>
+Subject: Re: New proposed DRM interface design
+In-Reply-To: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.58.0409040145240.25475@skynet>
+References: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Sep 2004 01:12:16 +0100 (IST), Dave Airlie <airlied@linux.ie> wrote:
-> 
-> Okay I've had some thoughts about the DRM interfaces and did some code
-> hacking (drmlib-0-0-1 branch on DRM CVS , very incomplete)
-> 
-> Below is my proposal for an interface that does introduce a major new
-> binary interface (the biggest issue with a straight core/personality split
-> for DRI developers, we have enough binary interfaces in our lives)...
-> 
-> Any comments are appreciated, the document is also available at:
-> http://dri.sourceforge.net/cgi-bin/moin.cgi/DRMRedesign
-> 
-> Dave.
-> 
-> This documents a proposed new design for the DRM internal kernel interfaces.
-> 
-> The current DRM suffers from a number of issues with multiple drivers in
-> the same kernel (the mess that is the drm_stub.h and parts of drm_drv.h)
-> along with the DRM() macros show this up. This design tries to address
-> this issue without introducing any major new binary interface.
-> 
-> I propose a 3 way code split-
->         DRM core
->         DRM library
->         DRM driver
-> 
-> This is slightly along the lines of the fb where the core is fbmem + co,
-> the library is the cfb* object and the driver is the graphics chipset
-> specific.
-> 
-> What I would like to do for the DRM is not as extreme as the fb approach.
-> I propose the following type split:
-> 
->         DRM core - just the stub registration procedure and handling any
-> shared resources like the device major number, and perhaps parts of sysfs
-> and class code. This interface gets set in stone as quickly as possible
-> and is as minimal as can be, (Jon Smirls dyn-minor patch will help a fair
-> bit also). All the core does is allow DRMs to register and de-register in
-> a nice easy fashion and not interfere with each other. This drmcore.o can
-> either be linked into the kernel (ala the fb core) or a module, but in
-> theory it should only really be shipped with the kernel - (for compat
-> reasons the DRM tree will ship it for older systems).
-> 
->         DRM library - this contains all the non-card specific code, AGP
-> interface, buffers interface, memory allocation, context handling etc.
-> This is mostly stuff that is in templated header files now moved into C
-> files along the lines of what I've done in the drmlib-0-0-1-branch. This
-> file gets linked into each drm module, if you build two drivers into the
-> kernel it gets shared automatically as far as I can see, if you build as
-> modules they both end up with the code, for the DRM the single card is the
-> primary case so I don't mind losing some resources for having different
-> cards in a machine.
-> 
->         DRM driver - the current driver files converted to the new
-> interfaces, I don't mind retaining some of the templating work, I like the
-> fact that we don't have 20 implementations of the drm probe or PCI tables
-> or anything like that, so I think some small uses of DRM() may still be
-> acceptable from a maintenance point of view.
-> 
+>
+> Then drm_core would always be bundled with the OS.
+>
+> Is there any real advantage to spliting core/library and creating three
+> interface compatibily problems?
 
-Will this redesign allow for multiple 3d accelerated cards in the same
-machine?  could I have say an AGP radeon and a PCI radeon or a AGP
-matrox and a PCI sis and have HW accel on :0 and :1.  If not, I think
-it's something we should consider.
+Yes we only have one binary interface, between the core and module, this
+interface is minimal, so AGP won't go in it... *ALL* the core does is deal
+with the addition/removal of modules, the idea being that the interface is
+very minor and new features won't change it...
 
-Alex
+The library/driver interface then becomes a source interface as the
+library isn't a separate module, it is linked into the modules, so we have
+no binary interface issues with it, so the library/driver interface is
+what we have at the moment minus the uglyness of DRM() and templated
+header files... so if a vendor wants to ship a binary DRM, they only worry
+about the drm core interface, and we avoid moving that interface as all it
+does is keep track of all installed drms and the major device number..
+
+> What about the VM page fault routines with 2.4 vs 2.6 differences?
+> How about HAS_WORKQUEUE?
+
+These are things to worry about later, as I said the code was just
+experimental hackery to get my head around the issues. I'm not proposing
+it for inclusion at any point, it also doesn't follow the design I
+proposed, it makes the library as a separate module at the moment, and
+uses an EXPORT_SYMBOL table, which isn't what I want to do...
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

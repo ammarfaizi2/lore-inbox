@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263241AbTDNNg1 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263288AbTDNNgN (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 09:36:13 -0400
-Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:24794 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S263241AbTDNNfD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 09:35:03 -0400
-Date: Mon, 14 Apr 2003 07:46:47 -0600 (MDT)
-From: James Bourne <jbourne@hardrock.org>
-To: Alex Adriaanse <alex_a@caltech.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS-Lock patch
-In-Reply-To: <JIEIIHMANOCFHDAAHBHOAECGDAAA.alex_a@caltech.edu>
-Message-ID: <Pine.LNX.4.44.0304140742440.22450-100000@cafe.hardrock.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263019AbTDNNju (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:39:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbTDNNju (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 09:39:50 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:17038 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263299AbTDNNjs (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 09:39:48 -0400
+Date: Mon, 14 Apr 2003 06:50:34 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: root@vanheusden.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: statistics for this mailinglist
+Message-Id: <20030414065034.3c552fa4.rddunlap@osdl.org>
+In-Reply-To: <200304130201.h3D211vu030602@muur.intranet.vanheusden.com>
+References: <200304130201.h3D211vu030602@muur.intranet.vanheusden.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Apr 2003, Alex Adriaanse wrote:
+On Sun, 13 Apr 2003 04:01:01 +0200 root@vanheusden.com wrote:
 
-> Hi,
-> 
-> I'm just curious, is there any reason why the VFS-lock patch provided by the
-> LVM people has not been included into the 2.4.x tree yet?
-> 
-> If I were to apply this patch to a stock 2.4.20 kernel, is it safe to use
-> LVM snapshots with ReiserFS on production machines, or are there any
-> stability issues with it (either with the LVM version that comes with
-> 2.4.20, or upgrading to LVM 1.0.7)?
+| Top user-agents
+| ----------------------------------------------------------
+|  1]   46 Mozilla/5.0
+|  2]   43 Ximian
+|  3]   23 Mutt/1.4i
+|  4]   22 Mutt/1.5.4i
+|  5]   20 Microsoft
+|  6]   19 Mutt/1.3.28i
+|  7]   17 Sylpheed
+|  8]   11 Mutt/1.5.3i
+|  9]   10 KMail/1.5.1
+| 10]    9 VM
 
-Hi,
-We have been using this in production for some time, with all the 2.4
-kernels since 2.4.17 and it has been stable.  Our version is at
 
-http://www.hardrock.org/kernel/2.4.20
+Could you merge different versions of the same MUA?
+I.e., just use up to the '/'.
+Or is that a bad idea?
 
-You will have to follow the patch-order file and make sure to apply the ext3
-patch first as it will be required to use the LVM patch.
-
-BTW, we are still using LVM version 1.0.5.
-
-Regards
-James Bourne
-
-> Thanks,
-> 
-> Alex
-
--- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
-
+--
+~Randy   ["in English any noun can be verbed."  bah!]

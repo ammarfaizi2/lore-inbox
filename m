@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129072AbRBLXbM>; Mon, 12 Feb 2001 18:31:12 -0500
+	id <S129137AbRBLXgD>; Mon, 12 Feb 2001 18:36:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129075AbRBLXbC>; Mon, 12 Feb 2001 18:31:02 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:64006 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129072AbRBLXan>; Mon, 12 Feb 2001 18:30:43 -0500
-Date: Tue, 13 Feb 2001 12:30:38 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Ivan Passos <lists@cyclades.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S129601AbRBLXfy>; Mon, 12 Feb 2001 18:35:54 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:28571 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129436AbRBLXfs>; Mon, 12 Feb 2001 18:35:48 -0500
+Date: Mon, 12 Feb 2001 23:35:00 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Werner Almesberger <Werner.Almesberger@epfl.ch>,
+        linux-kernel@vger.kernel.org
 Subject: Re: LILO and serial speeds over 9600
-Message-ID: <20010213123038.B18818@metastasis.f00f.org>
-In-Reply-To: <Pine.LNX.4.31.0102121147390.25638-100000@lairdtest1.internap.com> <Pine.LNX.4.10.10102121456380.3761-100000@main.cyclades.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10102121456380.3761-100000@main.cyclades.com>; from lists@cyclades.com on Mon, Feb 12, 2001 at 03:17:04PM -0800
-X-No-Archive: Yes
+In-Reply-To: <3A886FAC.C47465A7@transmeta.com>
+Message-ID: <Pine.SOL.4.21.0102122331360.21380-100000@yellow.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 12, 2001 at 03:17:04PM -0800, Ivan Passos wrote:
+On Mon, 12 Feb 2001, H. Peter Anvin wrote:
 
-    Then HPA may ask: but why do you want to run the serial console
-    at 115200?? The answer is simple: because we can (or more
-    precisely, because the HW can ;).
+> Alan Cox wrote:
+> > 
+> > > > Explain 'controlled buffer overrun'.
+> > >
+> > > That's probably the ability to send new data even if there's unacked old
+> > > data (e.g. because the receiver can't keep up or because we've had losses).
+> > 
+> > Well let me see, the typical window on the other end of the connection if
+> > its a normal PC class host will be 32K. I think that should be sufficient.
+> 
+> Depends on what the client can handle.  For the kernel, that might be
+> true, but for example a boot loader may only have a few K worth of buffer
+> space.
 
-Actually... consider debugging PCI hardware on a large SMP box; you
-get lots of kernel messages and even reboot is slowed by the volume
-you see there.
-
-There you want as fast a console as you can possibly have...
-
+Fortunately, the bulky stuff (printk's from the booting kernel) will be
+going from the boot loader to the server, and should be buffered there
+OK until they can be processed. Only the stuff sent to the client will
+need buffering, and that should be simple keystrokes...
 
 
-  --cw
+James.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,177 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266199AbSKFXK2>; Wed, 6 Nov 2002 18:10:28 -0500
+	id <S266215AbSKFXXx>; Wed, 6 Nov 2002 18:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266200AbSKFXK1>; Wed, 6 Nov 2002 18:10:27 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:48110 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S266199AbSKFXKZ>; Wed, 6 Nov 2002 18:10:25 -0500
-Message-ID: <3DC9A2E6.2060700@nortelnetworks.com>
-Date: Wed, 06 Nov 2002 18:16:54 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: interesting behaviour in cpu utilization accounting
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266216AbSKFXXx>; Wed, 6 Nov 2002 18:23:53 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:62964 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S266215AbSKFXXv>; Wed, 6 Nov 2002 18:23:51 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 6 Nov 2002 16:27:57 -0700
+To: Christopher Li <chrisl@vmware.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Ext2 devel <ext2-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] Re: [PATCH] Fix bug in ext3 htree rename: doesn't delete old name, leaves ino with bad nlink
+Message-ID: <20021106232757.GT588@clusterfs.com>
+Mail-Followup-To: Christopher Li <chrisl@vmware.com>,
+	Theodore Ts'o <tytso@mit.edu>,
+	Jeremy Fitzhardinge <jeremy@goop.org>,
+	Ext2 devel <ext2-devel@lists.sourceforge.net>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <1036471670.21855.15.camel@ixodes.goop.org> <20021105212415.GB1472@vmware.com> <20021106082500.GA3680@vmware.com> <20021106214027.GA9711@think.thunk.org> <20021106172455.A7778@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021106172455.A7778@vmware.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Nov 06, 2002  17:24 -0800, Christopher Li wrote:
+> On Wed, Nov 06, 2002 at 04:40:27PM -0500, Theodore Ts'o wrote:
+> > On Wed, Nov 06, 2002 at 12:25:00AM -0800, chrisl@vmware.com wrote:
+> > > This should fix the ext3 htree rename problem. Please try it again.
+> > 
+> > I've looked over the patch, and I've got some comments....
+> > 
+> > >      handle = ext3_journal_start(old_dir, 2 * EXT3_DATA_TRANS_BLOCKS +
+> > > -                                    EXT3_INDEX_EXTRA_TRANS_BLOCKS + 2);
+> > > +                                    EXT3_INDEX_EXTRA_TRANS_BLOCKS + 3);
+> > 
+> > There's no need to increase the number of blocks that might need to be
+> > dirtied; if ext3_delete_entry() can't find the missing entry, it won't
+> > dirty the block, so the number of blocks that might need to modified
+> > remains constant.
+> 
+> Even for the same block dirty twice? I am not sure about that case
+> so I put it there. I got a lots of thing to do tonight.
 
-I was playing around with a tool to use a certain amount of cpu time. 
-The way it does this is to take a timestamp, sleep for a tick, take 
-another timestamp, and then busy-loop until the desired cpu utilization 
-is reached, at which point it sleeps again.
+Ted is correct on this one - if we hit this bug because both the source
+and target names were in the same block before the split, then after the
+split we will still need to dirty only 2 blocks because of the rename
+(the split blocks are accounted for in EXT3_INDEX_EXTRA_TRANS_BLOCKS).
 
-I was very confused when the running tool didn't seem to show the right 
-utilization in "top", so I made it print out how much time it spent 
-sleeping and how much time it spent busy-waiting.  It looked okay, but 
-the "top" numbers didn't match.
+> > Simply retrying the ext3_delete_entry() isn't sufficient, since
+> > another ext3_add_entry() could move the directory entry again while
+> > you're reading in the blocks as part of ext3_find_entry().  OK, that
+> > would be pretty rare, since enough other directory adds would have
+> > to fill up enough that another split could happen, but *is* possible.
+> > (Surely our scheduler isn't that unfair....)
+> 
+> I think we have the lock on ext3_rename. I might be wrong.
+> If other process can change the dir between the add new entry
+> and delete old entry. We should also need to check the entry have
+> been delete from other process in case fall into dead loop? 
 
-Then I wrote another tool that busy-loops and prints out an index of how 
-fast it busy-loops.  If you run this tool on and idle system and then 
-while its being loaded it gives an accurate picture of the real system 
-load.  Sure enough, the cpu utilization tool was working fine.
+Chris is right on this one.  Like Al said, the VFS holds i_sem on
+"both" directories (or the single directory if src_dir & tgt_dir are
+the same).  We don't need additional locking within ext3...(yet)
 
-It looks like the pattern of behaviour of the cpu utilization tool is 
-such that it minimizes how often it gets counted by the tick counter. 
-This means that even though it really takes 20% of the cpu, it only 
-registers 4-5% in top.
+<aside>
+For _real_ scaling of large directories, it would be good to allow
+locking just individual leaf blocks of the directories instead of the
+entire directory.  Since the source and target directory leaf blocks
+are the only possible locations for those filenames, we do not have
+any races w.r.t. other threads adding/deleting files of the same name
+if we lock those directory blocks.
 
-I'd love to hear what kind of results others get with these to programs 
-or alternate explanations of what's going on, and whether this kind of 
-thing is something we should worry about when doing sampling-based cpu 
-utilization calculations.
+We will probably need to do this in the next year or so for Lustre where
+we have a requirement for millions of files being created/renamed/deleted
+in the same directory by thousands of clients, and tens of metadata
+servers load-balancing those requests.
+</aside>
 
-Chris
-
-
-
-//bsyloop
-//adjust INTERVAL to change the printing interval
-//adjust CONSTANT to give a convenient index
-#include <iostream>
-#include <asm/msr.h>
-#define INTERVAL 100000000
-#define CONSTANT 10
-int main()
-{
-    double counter = 0;
-    unsigned long long begin, end;
-    rdtscll(begin);
-    while(1)
-    {
-       counter++;
-       if (counter == INTERVAL)
-       {
-          rdtscll(end);
-          cout << "index: " << counter*CONSTANT / (end - begin) << endl;
-          counter = 0;
-          rdtscll(begin);
-       }
-    }
-}
-
-
-
-//cpu utilization program
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <iostream>
-#include <sched.h>
-#include <asm/msr.h>
-
-void chewcpu(double percent)
-{
-    int blah;
-
-    //handle 100% case first
-    if (percent > 99.99)
-    {
-       while(1)
-       {
-          blah++;
-       }
-    }
-
-    cout << "want to be busy " << percent << " percent" << endl;
-
-    sched_param param;
-    param.sched_priority = 50;
-    sched_setscheduler(getpid(), SCHED_RR, &param);
-
-
-
-    //anything other than 100%
-    while(1)
-    {
-       unsigned long long begin, aftersleep, end, current;
-       unsigned long long busytime;
-       struct timeval delay;
-
-       rdtscll(begin);
-       delay.tv_sec = 0;
-       delay.tv_usec = 10000;
-
-       //sleep one hundredth of a second
-       //this is the smallest amount possible
-
-       select(0, NULL, NULL, NULL, &delay);
-
-       rdtscll(aftersleep);
-
-       //now figure out how long we need to be busy to give the desired 
-percentage
-       busytime = (aftersleep - begin)/(100/percent - 1);
-
-       //cout << "want to be busy " << busytime << " ticks" << endl;
-
-       end = aftersleep + busytime;
-
-       do{ rdtscll(current); } while(current < end);
-
-       //cout << "slept " << (aftersleep - begin) << " ticks" << endl;
-       //cout << "busy " << (current - aftersleep) << " ticks" << endl;
-    }
-}
-
-void usage(char *name)
-{
-    cout << "usage: " << name << " <percentage>" << endl;
-    exit (-1);
-}
-
-int main(int argc, char** argv)
-{
-    if (argc < 2)
-       usage(*argv);
-
-    char *endptr = 0;
-    double percent = strtod(argv[1],&endptr);
-
-    if (endptr == argv[1])
-    {
-       cout << "died on strtod" << endl;
-       usage(*argv);
-    }
-
-    chewcpu(percent);
-    return 0;
-}
-
-
-
-
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

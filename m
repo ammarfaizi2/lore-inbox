@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266015AbUBJRJb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:09:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUBJRGr
+	id S266023AbUBJRGX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUBJRED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:06:47 -0500
-Received: from findaloan.ca ([66.11.177.6]:59812 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S266027AbUBJRD4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:03:56 -0500
-Date: Tue, 10 Feb 2004 12:02:03 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Mike Bell <kernel@mikebell.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040210170203.GA16800@mark.mielke.cc>
-Mail-Followup-To: Mike Bell <kernel@mikebell.org>,
-	Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <4028DA93.9060107@aitel.hist.no> <20040210144629.GH4421@tinyvaio.nome.ca>
+	Tue, 10 Feb 2004 12:04:03 -0500
+Received: from smithers.nildram.co.uk ([195.112.4.54]:6159 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S266024AbUBJRBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 12:01:13 -0500
+Date: Tue, 10 Feb 2004 17:01:10 +0000
+From: Joe Thornber <thornber@redhat.com>
+To: Joe Thornber <thornber@redhat.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [Patch 6/10] dm: block size bug with 64 bit devs
+Message-ID: <20040210170110.GL27507@reti>
+References: <20040210163548.GC27507@reti>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040210144629.GH4421@tinyvaio.nome.ca>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040210163548.GC27507@reti>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 06:46:30AM -0800, Mike Bell wrote:
-> I didn't mean it as an idea, hence the bit about not advocating it. I'm
-> just trying to show that they're basically the same thing. The kernel is
-                           --------------------------------
+With 32 bit sector_t the block device size _in bytes_ is also cut to
+32 bit in __set_size when the block device is mount (a filesystem
+mounted). The argument should be cast to loff_t before expanding the
+sector count to a byte count and calling i_size_write.
 
-Exactly... :-)
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+[Christophe Saout]
+--- diff/drivers/md/dm.c	2004-02-10 16:11:43.000000000 +0000
++++ source/drivers/md/dm.c	2004-02-10 16:11:50.000000000 +0000
+@@ -639,7 +639,7 @@
+ 	bdev = bdget_disk(disk, 0);
+ 	if (bdev) {
+ 		down(&bdev->bd_inode->i_sem);
+-		i_size_write(bdev->bd_inode, size << SECTOR_SHIFT);
++		i_size_write(bdev->bd_inode, (loff_t)size << SECTOR_SHIFT);
+ 		up(&bdev->bd_inode->i_sem);
+ 		bdput(bdev);
+ 	}

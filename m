@@ -1,223 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289273AbSBDXVM>; Mon, 4 Feb 2002 18:21:12 -0500
+	id <S289277AbSBDXaI>; Mon, 4 Feb 2002 18:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289277AbSBDXVD>; Mon, 4 Feb 2002 18:21:03 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:60557 "EHLO
+	id <S289278AbSBDX35>; Mon, 4 Feb 2002 18:29:57 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:3726 "EHLO
 	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S289273AbSBDXUv>; Mon, 4 Feb 2002 18:20:51 -0500
-Date: Mon, 4 Feb 2002 17:20:34 -0600
+	id <S289277AbSBDX3q>; Mon, 4 Feb 2002 18:29:46 -0500
+Date: Mon, 4 Feb 2002 17:29:42 -0600
 From: Ken Brownfield <brownfld@irridia.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] improved free page accounting
-Message-ID: <20020204172034.B14297@asooo.flowerfire.com>
-In-Reply-To: <20020202161912.D41D615CF1@oscar.casa.dyndns.org>
+To: Willy Tarreau <wtarreau@free.fr>
+Cc: jon-anderson@rogers.com, linux-kernel@vger.kernel.org
+Subject: Re: 760MPX IO/APIC Errors...
+Message-ID: <20020204172942.C14297@asooo.flowerfire.com>
+In-Reply-To: <200202031027.g13ARMN03118@ns.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020202161912.D41D615CF1@oscar.casa.dyndns.org>; from tomlins@cam.org on Sat, Feb 02, 2002 at 11:19:12AM -0500
+In-Reply-To: <200202031027.g13ARMN03118@ns.home.local>; from wtarreau@free.fr on Sun, Feb 03, 2002 at 11:27:22AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes -- I noticed before when I was doing primitive hacking on this code
-that these functions don't contribute to nr_pages, which seemed to
-result in over-delayed purging of the caches.  I would think that having
-these functions contribute to the shrink_caches nr_pages "heuristic"
-could help, which is one thing that attracts me to rmap.
+At what point do your machines stop booting, i.e., what was the last
+printed kernel message on the console?  Also, can you send me full
+dmesgs from your machines after booting?
 
-It would be interesting to hear Andrea's take on this, since something
-like this with appropriate tuning could be a useful addition to 10_vm,
-which is due to be merged in mainline any day now, right? ;-)
+I'm trying to corelate these issues with APIC issues I've had in the
+past (and I'm thinking of getting the A7M266D at some point).
+
+Thanks,
 -- 
 Ken.
 brownfld@irridia.com
 
+PS: MPS1.4 ==> APIC_DM_FIXED?
 
-On Sat, Feb 02, 2002 at 11:19:12AM -0500, Ed Tomlinson wrote:
-| The following patch improves the free page accounting.  It does 
-| this by creating variants of the shrink functions used by the
-| inode, dentry, dquota caches that return the number of pages 
-| they free.  Current interfaces are not modified.  A variant
-| of this code is in the rmap patch and was reduced the number 
-| of false oom triggers.
+On Sun, Feb 03, 2002 at 11:27:22AM +0100, Willy Tarreau wrote:
+| Hi Jon,
 | 
-| I have been running versions of this since 2.4.14.
+| same motherboard here, but with 2 XP1800+.
+| It couldn't boot until I either disabled IO/APIC or disable MPS1.4 support
+| in the bios setup. Finally, I disabled MPS1.4 and let IO/APIC enabled and
+| it works really well in SMP. (In fact, I couldn't really imagine how fast
+| this could be !)
 | 
-| Patch is against 2.4.17pre7
+| Regards,
+| Willy
 | 
-| Comments,
-| Ed Tomlinson
-| 
-| --- linux/fs/inode.c.orig	Sat Jan  5 17:35:17 2002
-| +++ linux/fs/inode.c	Sat Jan  5 17:36:06 2002
-| @@ -725,8 +725,7 @@
-|  	count = inodes_stat.nr_unused / priority;
-|  
-|  	prune_icache(count);
-| -	kmem_cache_shrink(inode_cachep);
-| -	return 0;
-| +	return kmem_cache_shrink_nr(inode_cachep);
-|  }
-|  
-|  /*
-| --- linux/fs/dcache.c.orig	Sat Jan  5 17:37:02 2002
-| +++ linux/fs/dcache.c	Sat Jan  5 17:37:57 2002
-| @@ -568,8 +568,7 @@
-|  	count = dentry_stat.nr_unused / priority;
-|  
-|  	prune_dcache(count);
-| -	kmem_cache_shrink(dentry_cache);
-| -	return 0;
-| +	return kmem_cache_shrink_nr(dentry_cache);
-|  }
-|  
-|  #define NAME_ALLOC_LEN(len)	((len+16) & ~15)
-| --- linux/fs/dquot.c.orig	Sat Jan  5 17:38:21 2002
-| +++ linux/fs/dquot.c	Sat Jan  5 17:38:57 2002
-| @@ -413,8 +413,7 @@
-|  	lock_kernel();
-|  	prune_dqcache(nr_free_dquots / (priority + 1));
-|  	unlock_kernel();
-| -	kmem_cache_shrink(dquot_cachep);
-| -	return 0;
-| +	return kmem_cache_shrink_nr(dquot_cachep);
-|  }
-|  
-|  /* NOTE: If you change this function please check whether dqput_blocks() works right... */
-| --- linux/include/linux/slab.h.orig	Sat Jan  5 17:27:13 2002
-| +++ linux/include/linux/slab.h	Sat Jan  5 17:27:49 2002
-| @@ -55,6 +55,7 @@
-|  				       void (*)(void *, kmem_cache_t *, unsigned long));
-|  extern int kmem_cache_destroy(kmem_cache_t *);
-|  extern int kmem_cache_shrink(kmem_cache_t *);
-| +extern int kmem_cache_shrink_nr(kmem_cache_t *);
-|  extern void *kmem_cache_alloc(kmem_cache_t *, int);
-|  extern void kmem_cache_free(kmem_cache_t *, void *);
-|  
-| --- linux/mm/slab.c.orig	Sat Jan  5 15:06:40 2002
-| +++ linux/mm/slab.c	Sat Jan  5 18:54:40 2002
-| @@ -911,34 +911,45 @@
-|  #define drain_cpu_caches(cachep)	do { } while (0)
-|  #endif
-|  
-| +/**
-| + * Called with the &cachep->spinlock held, returns number of slabs released
-| + */
-| +static int __kmem_cache_shrink_locked(kmem_cache_t *cachep)
-| +{
-| +        slab_t *slabp;
-| +        int ret = 0;
-| +
-| +        /* If the cache is growing, stop shrinking. */
-| +        while (!cachep->growing) {
-| +                struct list_head *p;
-| +
-| +                p = cachep->slabs_free.prev;
-| +                if (p == &cachep->slabs_free)
-| +                        break;
-| +
-| +                slabp = list_entry(cachep->slabs_free.prev, slab_t, list);
-| +#if DEBUG
-| +                if (slabp->inuse)
-| +                        BUG();
-| +#endif
-| +                list_del(&slabp->list);
-| +
-| +                spin_unlock_irq(&cachep->spinlock);
-| +                kmem_slab_destroy(cachep, slabp);
-| +		ret++;
-| +                spin_lock_irq(&cachep->spinlock);
-| +        }
-| +        return ret;
-| +}
-| +
-|  static int __kmem_cache_shrink(kmem_cache_t *cachep)
-|  {
-| -	slab_t *slabp;
-|  	int ret;
-|  
-|  	drain_cpu_caches(cachep);
-|  
-|  	spin_lock_irq(&cachep->spinlock);
-| -
-| -	/* If the cache is growing, stop shrinking. */
-| -	while (!cachep->growing) {
-| -		struct list_head *p;
-| -
-| -		p = cachep->slabs_free.prev;
-| -		if (p == &cachep->slabs_free)
-| -			break;
-| -
-| -		slabp = list_entry(cachep->slabs_free.prev, slab_t, list);
-| -#if DEBUG
-| -		if (slabp->inuse)
-| -			BUG();
-| -#endif
-| -		list_del(&slabp->list);
-| -
-| -		spin_unlock_irq(&cachep->spinlock);
-| -		kmem_slab_destroy(cachep, slabp);
-| -		spin_lock_irq(&cachep->spinlock);
-| -	}
-| +	__kmem_cache_shrink_locked(cachep);
-|  	ret = !list_empty(&cachep->slabs_full) || !list_empty(&cachep->slabs_partial);
-|  	spin_unlock_irq(&cachep->spinlock);
-|  	return ret;
-| @@ -957,6 +968,24 @@
-|  		BUG();
-|  
-|  	return __kmem_cache_shrink(cachep);
-| +}
-| +
-| +/**
-| + * kmem_cache_shrink_nr - Shrink a cache returning pages released
-| + */
-| +int kmem_cache_shrink_nr(kmem_cache_t *cachep)
-| +{
-| +        int ret;
-| +
-| +        if (!cachep || in_interrupt() || !is_chained_kmem_cache(cachep))
-| +                BUG();
-| +
-| +	drain_cpu_caches(cachep);
-| +
-| +	spin_lock_irq(&cachep->spinlock);
-| +	ret = __kmem_cache_shrink_locked(cachep);
-| +	spin_unlock_irq(&cachep->spinlock);
-| +	return ret<<(cachep->gfporder);
-|  }
-|  
-|  /**
-| --- linux/mm/vmscan.c.orig	Sun Jan 13 08:47:58 2002
-| +++ linux/mm/vmscan.c	Sun Jan 13 08:48:27 2002
-| @@ -567,7 +567,6 @@
-|  	if (nr_pages <= 0)
-|  		return 0;
-|  
-| -	nr_pages = chunk_size;
-|  	/* try to keep the active list 2/3 of the size of the cache */
-|  	ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages + 1) * 2);
-|  	refill_inactive(ratio);
-| @@ -576,13 +575,13 @@
-|  	if (nr_pages <= 0)
-|  		return 0;
-|  
-| -	shrink_dcache_memory(priority, gfp_mask);
-| -	shrink_icache_memory(priority, gfp_mask);
-| +	nr_pages -= shrink_dcache_memory(priority, gfp_mask);
-| +	nr_pages -= shrink_icache_memory(priority, gfp_mask);
-|  #ifdef CONFIG_QUOTA
-| -	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
-| +	nr_pages -= shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
-|  #endif
-|  
-| -	return nr_pages;
-| +	return (nr_pages<=0 ? 0 : nr_pages);
-|  }
-|  
-|  int try_to_free_pages(zone_t *classzone, unsigned int gfp_mask, unsigned int order)
 | -
 | To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 | the body of a message to majordomo@vger.kernel.org

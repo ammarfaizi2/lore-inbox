@@ -1,126 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316845AbSH0UjI>; Tue, 27 Aug 2002 16:39:08 -0400
+	id <S317102AbSH0UhS>; Tue, 27 Aug 2002 16:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316897AbSH0UjI>; Tue, 27 Aug 2002 16:39:08 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:3972 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S316845AbSH0UjG>; Tue, 27 Aug 2002 16:39:06 -0400
-Date: Tue, 27 Aug 2002 22:43:22 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.32
-Message-Id: <20020827224322.24561e60.us15@os.inf.tu-dresden.de>
-In-Reply-To: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.1claws (GTK+ 1.2.10; )
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg=pgp-sha1; boundary="W6+=.h0RFIe)2K.e"
+	id <S317107AbSH0UhS>; Tue, 27 Aug 2002 16:37:18 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:130 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317102AbSH0UhR>; Tue, 27 Aug 2002 16:37:17 -0400
+Date: Tue, 27 Aug 2002 16:44:34 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: yodaiken@fsmlabs.com
+cc: Mark Hounschell <markh@compro.net>,
+       "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: interrupt latency
+In-Reply-To: <20020827135400.A31990@hq.fsmlabs.com>
+Message-ID: <Pine.LNX.3.95.1020827160243.11549A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---W6+=.h0RFIe)2K.e
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Tue, 27 Aug 2002 yodaiken@fsmlabs.com wrote:
 
-On Tue, 27 Aug 2002 12:47:16 -0700 (PDT)
-Linus Torvalds <torvalds@transmeta.com> wrote:
+> On Tue, Aug 27, 2002 at 02:01:43PM -0400, Richard B. Johnson wrote:
+> > This cannot be. A stock kernel-2.4.18, running a 133 MHz AMD-SC520,
+> > (like a i586) with a 33 MHz bus, handles interrupts off IRQ7 (the lowest
+> > priority), from the 'printer port' at well over 75,000 per second without
+> > skipping a beat or missing an edge. This means that latency is at least
+> > as good as 1/57,000 sec = 0.013 microseconds.
+> 
+> Assuming you mean 75,000 then ... 
+> Thats 0.013 MILLISECONDS which is 13 microseconds and its not likely.
 
-> Linux 2.5.32 ...
+Yes 13 microseconds.
 
-Hello,
+> I bet that your data source drops data or looks at some handshake
+> pins on the parallel connect.
+> 
 
-It looks like the kernel is trying to read partition tables on IDE cdrom drives
-in SCSI emulation mode - and failing at doing so.
+No. You can easily read into memory 75,000 bytes per second from the
+parallel port, hell RS-232C will do 22,400++ bytes per second (224,000
+baud) on a Windows machine, done all the while to feed a PROM burner. I
+never measured Linux RS-232C, but it's got to be at least as good.
 
-Regards,
--Udo.
+On a faster machine, i.e., an ordinary 400 MHz Pentium, we have a
+complete Tomographic Imaging machine that gets triggers from the
+parallel port.
 
+Off the parallel port, hardware writes a byte and sets the interrupt
+line. There is no hand-shake with incoming data. It comes off a
+trigger board that will generate between 50 and 80 thousand
+triggers per second, depending upon some wheel speed. FYI, these
+triggers mark the position at which an X-Ray beam generated image
+data. If we missed a trigger, we end up losing a whole ray of
+image data, which would be a mess.
 
-hda: hda1
-hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 hdb7 hdb8 hdb9 hdb10 >
-hde:ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 0, nr/cnr 8/1
+Software reads then writes the byte into memory and executes 
+wake_up_interruptible() for somebody sleeping in poll(). There is a
+fixed-length circular buffer with no dynamic allocation. This is
+the only thing that could possibly make it fast.
 
-end_request: I/O error, dev 21:00, sector 0
-Buffer I/O error on device ide2(33,0), logical block 0
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 1, nr/cnr 7/1
+At the same time, a high-speed data-link, interfacing to the PCI/Bus
+gets 2k of data per trigger so the machine is not exactly idle
+when the triggers are coming into the parallel port. Software
+correlates the trigger data with the image data as part of a
+tomographic reconstruction.
 
-end_request: I/O error, dev 21:00, sector 1
-Buffer I/O error on device ide2(33,0), logical block 1
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 2, nr/cnr 6/1
+That's 2048 * 80,000 = ~163 MB/s over the PCI with 80,000 b/s over
+the parallel port at the same time. We originally had a hardware
+"funnel" to combine 4 bytes before generating an interrupt. This
+turned out to be a synchronization nightmare and was scrapped once
+it was found that Linux interrupted fast enough.
 
-end_request: I/O error, dev 21:00, sector 2
-Buffer I/O error on device ide2(33,0), logical block 2
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 3, nr/cnr 5/1
-
-end_request: I/O error, dev 21:00, sector 3
-Buffer I/O error on device ide2(33,0), logical block 3
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 4, nr/cnr 4/1
-
-end_request: I/O error, dev 21:00, sector 4
-Buffer I/O error on device ide2(33,0), logical block 4
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 5, nr/cnr 3/1
-
-end_request: I/O error, dev 21:00, sector 5
-Buffer I/O error on device ide2(33,0), logical block 5
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 6, nr/cnr 2/1
-
-end_request: I/O error, dev 21:00, sector 6
-Buffer I/O error on device ide2(33,0), logical block 6
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 7, nr/cnr 1/1
-
-end_request: I/O error, dev 21:00, sector 7
-Buffer I/O error on device ide2(33,0), logical block 7
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 0, nr/cnr 8/1
-
-end_request: I/O error, dev 21:00, sector 0
-Buffer I/O error on device ide2(33,0), logical block 0
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 1, nr/cnr 7/1
-
-end_request: I/O error, dev 21:00, sector 1
-Buffer I/O error on device ide2(33,0), logical block 1
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 2, nr/cnr 6/1
-
-end_request: I/O error, dev 21:00, sector 2
-Buffer I/O error on device ide2(33,0), logical block 2
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 3, nr/cnr 5/1
-
-end_request: I/O error, dev 21:00, sector 3
-Buffer I/O error on device ide2(33,0), logical block 3
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 4, nr/cnr 4/1
-
-end_request: I/O error, dev 21:00, sector 4
-Buffer I/O error on device ide2(33,0), logical block 4
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 5, nr/cnr 3/1
-
-end_request: I/O error, dev 21:00, sector 5
-Buffer I/O error on device ide2(33,0), logical block 5
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 6, nr/cnr 2/1
-
-end_request: I/O error, dev 21:00, sector 6
-Buffer I/O error on device ide2(33,0), logical block 6
-ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 7, nr/cnr 1/1
-
-end_request: I/O error, dev 21:00, sector 7
-Buffer I/O error on device ide2(33,0), logical block 7
- unable to read partition table
-SCSI subsystem driver Revision: 1.00
+Make a simple module, create an ISR off the printer port, enable
+the printer port (hardware) interrupt line, then use a function
+generator to toggle the printer port interrupt line. You can then
+do all kinds of diagnostics to find out the max rate you can
+interrupt --and the maximum amount of code you can use in that
+ISR before you get overruns. This is what I did before I ever
+signed up to use a ^$@^$!(-@ printer-port for something important.
 
 
---W6+=.h0RFIe)2K.e
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9a+RtnhRzXSM7nSkRApdhAJ9WIlT1M8aoF/E1i5AJ5GlCTj6o5QCeIfqJ
-54rpViHhgauFblQb7DSA7as=
-=SAUd
------END PGP SIGNATURE-----
-
---W6+=.h0RFIe)2K.e--
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

@@ -1,98 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbUJaRSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbUJaRsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbUJaRSe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 12:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUJaRSe
+	id S261336AbUJaRsj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 12:48:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUJaRsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 12:18:34 -0500
-Received: from mail.murom.net ([213.177.124.17]:7883 "EHLO mail.murom.net")
-	by vger.kernel.org with ESMTP id S261393AbUJaRS3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 12:18:29 -0500
-Date: Sun, 31 Oct 2004 20:18:14 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Jason Baron <jbaron@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.4.28-pre3 tty/ldisc fixes
-Message-ID: <20041031171814.GA4013@sirius.home>
-References: <20041028183551.GC3253@sirius.home> <Pine.LNX.4.44.0410291426240.13340-200000@dhcp83-105.boston.redhat.com> <20041030191955.GA2310@sirius.home>
+	Sun, 31 Oct 2004 12:48:39 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:17117 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261336AbUJaRsf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 12:48:35 -0500
+Date: Sun, 31 Oct 2004 09:47:20 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Larry McVoy <lm@bitmover.com>, Adrian Bunk <bunk@stusta.de>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+Message-ID: <20041031174720.GA21343@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+	Adrian Bunk <bunk@stusta.de>, Xavier Bestel <xavier.bestel@free.fr>,
+	James Bruce <bruce@andrew.cmu.edu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Andrea Arcangeli <andrea@novell.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <20041028195947.GD3207@stusta.de> <20041028213534.GA29335@work.bitmover.com> <20041030065111.GF4374@stusta.de> <20041030234619.GB24640@work.bitmover.com> <1099177552.25194.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041030191955.GA2310@sirius.home>
-X-yoursite-MailScanner-Information: Please contact the ISP for more information
-X-yoursite-MailScanner: Found to be clean
-X-yoursite-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.629,
-	required 6, autolearn=not spam, AWL 2.27, BAYES_00 -4.90)
-X-MailScanner-From: vsu@altlinux.ru
+In-Reply-To: <1099177552.25194.16.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 31, 2004 at 12:05:53AM +0100, Alan Cox wrote:
+> On Sul, 2004-10-31 at 00:46, Larry McVoy wrote:
+> > a lot of people think that then lets fix that.  By the way, with all
+> > due respect, Andrea & Roman are not "reasonable" people in this context.
+> > Let's find some reasonable people who are not BK users and make sure they
+> > are comfortable with what is going on.  Alan Cox, Al Viro, who else?
+> > I don't really care if it is non-BK users, BK users, or a combination,
+> > I just care that there is some sanity in the discussion.
+> > 
+> > Is there any need for this or is this a non-issue?
+> 
+> Seems a total non issue to me. If you did utterly evil things then your
+> statements archived in email so far would be more than sufficient.
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Cool.  But I'd like to clarify something someone else said, for the record.
 
-On Sat, Oct 30, 2004 at 11:19:55PM +0400, Sergey Vlasov wrote:
-> On Fri, Oct 29, 2004 at 02:29:43PM -0400, Jason Baron wrote:
-> > Here's an updated 2.4 tty patch. I'm not sure if the updated patch woul=
-d=20
-> > fix the above issue, but it has a lot of changes so it might be worth a=
-=20
-> > try.
->=20
-> This looks better - at least the system boots without hang or oops ;)
+> > I think you could make a compelling argument that the linux
+> > kernel history
+> > metadata is *not* covered under the GPL, and hence can be
+> > restricted by licensing.
 
-However, this seems to break SieFS 0.2
-(http://mirror01.users.i.com.ua/~dmitry_z/siefs/; 0.4 is broken with
-Siemens x55 models): even "slink i" does not work:
+> That's an interesting argument. I think you could argue that a BK
+> repository is an aggregation of metadata and the kernel source, and
+> therefore only the kernel source needs to be distributed. IANAL, this
+> question has now gotten into territory in which I don't feel comfortable
+> offering an opinion.
 
-ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, {c_iflags=3D0x5, c_oflags=3D0, c_cf=
-lags=3D0xebe, c_lflags=3D0, c_line=3D0, c_cc[VMIN]=3D0, c_cc[VTIME]=3D2, c_=
-cc=3D"\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\=
-x00\x00"}) =3D 0
-ioctl(3, SNDCTL_TMR_START or TCSETS, {c_iflags=3D0x5, c_oflags=3D0, c_cflag=
-s=3D0x1eb1, c_lflags=3D0, c_line=3D0, c_cc[VMIN]=3D0, c_cc[VTIME]=3D2, c_cc=
-=3D"\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0=
-0\x00"}) =3D 0
-ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, {c_iflags=3D0x5, c_oflags=3D0, c_cf=
-lags=3D0x1eb1, c_lflags=3D0, c_line=3D0, c_cc[VMIN]=3D0, c_cc[VTIME]=3D2, c=
-_cc=3D"\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00=
-\x00\x00"}) =3D 0
-ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, {c_iflags=3D0x5, c_oflags=3D0, c_cf=
-lags=3D0x1eb1, c_lflags=3D0, c_line=3D0, c_cc[VMIN]=3D0, c_cc[VTIME]=3D2, c=
-_cc=3D"\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00=
-\x00\x00"}) =3D 0
-ioctl(3, SNDCTL_TMR_START or TCSETS, {c_iflags=3D0x5, c_oflags=3D0, c_cflag=
-s=3D0x1eb1, c_lflags=3D0, c_line=3D0, c_cc[VMIN]=3D0, c_cc[VTIME]=3D3, c_cc=
-=3D"\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0=
-0\x00"}) =3D 0
-ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, {c_iflags=3D0x5, c_oflags=3D0, c_cf=
-lags=3D0x1eb1, c_lflags=3D0, c_line=3D0, c_cc[VMIN]=3D0, c_cc[VTIME]=3D3, c=
-_cc=3D"\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00=
-\x00\x00"}) =3D 0
-write(3, "\2\1\3\24", 4)  =3D 4
-read(3, "", 1)            =3D 0
+There are really three distinct chunks of information in BK:
+    - the source code under management
+    - the metadata created by users, i.e., checkin comments.  We also
+      consider user names, dates, and timestamps to be created by users
+      even though BK itself does that for you.
+    - the metadata created by BK 
 
-There is no responce to the packet.  Without the tty patch SieFS
-works; 2.6.9 (where locking fixes are already applied) also works.
+The license and ownership of kernel source code managed by BK has nothing
+to do with BK nor the BK license.
 
-The bug might really be in the pl2303 driver (the 2.4 version is
-missing some patches which are in 2.6.x).  Will try to investigate
-this further...
+There is a question as to whether the metadata created by the users
+is GPLed.  It's not because it falls under the separate works part
+of the GPL.  If that metadata were GPLed then your user name in an
+inode is GPLed if you were putting a GPLed file into a filesystem.
+That's a boundary you aren't going to be able to cross no matter how
+hard you try (note: you can start arguing about this and I'll ignore 
+you, we've been over this).
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Just to make our position clear, consider this a formal declaration that
+we make no claims of ownership of user created metadata, as defined above,
+and impose no restrictions on its use.  I suspect that this declaration
+isn't needed, you ought to have rights to your own name and checkin
+comments, but let's make sure that there is no confusion about that.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+There is the question of metadata created by BK.  That's also not GPLed
+for the same reasons.  This metadata is more like the block pointers in
+a file system.  While you may use BK, if you have a license, to dig out
+your data and the user created metadata, you aren't entitled to expose the
+internal BK metadata.  That falls under the reverse engineering clause,
+non-compete clause, etc.  I realize you don't like this if you are trying
+to create a competing product but that's the way things are.
 
-iD8DBQFBhR5WW82GfkQfsqIRAg1AAJ0Wm+kPsYhCs8p3c6Oib72K5a9IDwCfTJ4t
-FGYwsPGHZnWCgRQlXr3hVQ8=
-=fPef
------END PGP SIGNATURE-----
-
---Nq2Wo0NMKNjxTN9z--
+Please respect that just as we are respecting your rights to your data.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

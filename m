@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbULJUJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbULJUMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbULJUJj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 15:09:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbULJUJi
+	id S261818AbULJUMp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 15:12:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbULJUMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 15:09:38 -0500
-Received: from robin.gentoo.org ([140.105.134.102]:46797 "EHLO
-	robin.gentoo.org") by vger.kernel.org with ESMTP id S261811AbULJUJ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 15:09:27 -0500
-Date: Fri, 10 Dec 2004 20:08:55 GMT
-Message-Id: <200412102008.iBAK8tGg023986@robin.gentoo.org>
-From: gentoo-user-kr+owner@lists.gentoo.org
-To: linux-kernel@vger.kernel.org
-Subject: gentoo-user-kr@lists.gentoo.org is a subscribers only list
+	Fri, 10 Dec 2004 15:12:38 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:2260 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261224AbULJUMQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 15:12:16 -0500
+Date: Fri, 10 Dec 2004 21:11:16 +0100
+From: Jens Axboe <axboe@suse.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI -rc fixes for 2.6.10-rc3
+Message-ID: <20041210201115.GD12581@suse.de>
+References: <1102650988.3814.13.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102650988.3814.13.camel@mulgrave>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, this is the mlmmj program managing the mailinglist
+On Thu, Dec 09 2004, James Bottomley wrote:
+> This one is another set of small driver fixes
+> 
+> It is available from:
 
-gentoo-user-kr@lists.gentoo.org
+Here is one more. Currently imm uses page_address() which can crash on
+highmem. It's not directly doable to map the pages properly, at least
+not without changing some code. In lack of a ->bounce_highio member in
+the scsi host template, just set ->unchecked_isa_dma which will just
+bounce everything for us. imm isn't performance critical by any stretch
+of the imagination, so...
 
-You have tried to post from this email address:
+Usually I'd not encourage such a silly hack, but in lack of hardware for
+testing (who has it??), this should suffice as it is obviously correct.
 
-linux-kernel@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@suse.de>
 
-But this address is not subscribed, and only subscribers can post to
-the list.
+===== drivers/scsi/imm.c 1.39 vs edited =====
+--- 1.39/drivers/scsi/imm.c	2004-08-25 01:09:03 +02:00
++++ edited/drivers/scsi/imm.c	2004-12-10 21:07:29 +01:00
+@@ -1140,6 +1140,10 @@
+ 	.use_clustering		= ENABLE_CLUSTERING,
+ 	.can_queue		= 1,
+ 	.slave_alloc		= imm_adjust_queue,
++	.unchecked_isa_dma	= 1, /* imm cannot deal with highmem, so
++				      * this is an easy trick to ensure
++				      * all io pages for this host reside
++				      * in low memory */
+ };
+ 
+ /***************************************************************************
 
-If You believe you are subscribed, please check the email address
-You subscribed with in the welcome mail, or check the headers of
-any mail to the mailinglist.
 
-If you want to be able to post from more than one email address, you
-can subscribe the other addresses to the nomail version of the list.
-
+-- 
+Jens Axboe
 

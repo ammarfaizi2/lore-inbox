@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314078AbSEMQKQ>; Mon, 13 May 2002 12:10:16 -0400
+	id <S314080AbSEMQMD>; Mon, 13 May 2002 12:12:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314080AbSEMQKP>; Mon, 13 May 2002 12:10:15 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10921 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S314078AbSEMQKP>; Mon, 13 May 2002 12:10:15 -0400
-Date: Mon, 13 May 2002 12:10:08 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Strange s390 code in 2.4.19-pre8
-Message-ID: <20020513121008.B29935@devserv.devel.redhat.com>
-In-Reply-To: <OFFA479633.3A335CB7-ONC1256BB8.002ABB8D@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314083AbSEMQMC>; Mon, 13 May 2002 12:12:02 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27923 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314080AbSEMQMB>; Mon, 13 May 2002 12:12:01 -0400
+Date: Mon, 13 May 2002 12:08:09 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+cc: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] IO wait accounting
+In-Reply-To: <87bsbl9ogw.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.3.96.1020513120027.27042A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-> Date: Mon, 13 May 2002 09:54:59 +0200
+On Sun, 12 May 2002, Zlatko Calusic wrote:
 
-> > #2 - strange changes to net Makefile
-> The intention of this is to have fsm.o built as a module if ctc
-> and iucv are built as modules too. I agree that this is broken
-> if one of {iucv,ctc} is built as a module and the other is built
-> in.
+> Rik van Riel <riel@conectiva.com.br> writes:
+> >
+> > And should we measure read() waits as well as page faults or
+> > just page faults ?
+> >
+> 
+> Definitely both. Somewhere on the web was a nice document explaining
+> how Solaris measures iowait%, I read it few years ago and it was a
+> great stuff (quite nice explanation).
 
-The old Makefile was correct, and the only failing was a namespace
-conflict between your fsm.c and fsm.c in ISDN, when CONFIG_MODVERSIONS
-are used. The right fix is to rename your fsm.c or to create
-fsm_s390_ksyms.c with all EXPORT_SYMBOL's sitting in there.
-It is fixed in 2.5 with $(MODPREFIX) in Rules.make.
+  I'm out of town so I miss a bit of this, but I agree, what you want time
+waiting for IO, total.
 
--- Pete
+  That said, it would probably be useful to keep the first patch
+information, since overall disk performance reflects in total IOwait,
+while wait VM is useful comparing the several flavors of vm tuning and
+enhancement, bot the the implementors and the users, who may have unusual
+configurations.
+
+  I hope that write blocks are falling into place as well, because even
+though they are less common, you still get programs which build ugly stuff
+like a full 700MB CD image in memory and do that last write (or close, or
+fsync, etc). This is bad with large memory, and unspeakable with small,
+where stuff is being paged in and writen out.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

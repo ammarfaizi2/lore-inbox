@@ -1,68 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267669AbUHPOt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267658AbUHPOw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267669AbUHPOt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 10:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267658AbUHPOt1
+	id S267658AbUHPOw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 10:52:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUHPOw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 10:49:27 -0400
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:8915 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S267669AbUHPOsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 10:48:32 -0400
-Date: Mon, 16 Aug 2004 07:48:29 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Greg Weeks <greg.weeks@timesys.com>
-Cc: Dan Malek <dan@embeddededge.com>, Kumar Gala <kumar.gala@freescale.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LinuxPPC-dev Development <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: [BUG] PPC math-emu multiply problem
-Message-ID: <20040816144829.GC2377@smtp.west.cox.net>
-References: <4108F845.7080305@timesys.com> <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com> <A46787F8-E194-11D8-B8DB-003065F9B7DC@embeddededge.com> <410A5F08.90103@timesys.com> <410A67EA.80705@timesys.com> <20040809165650.GA22109@smtp.west.cox.net> <6FBD1B21-EA2B-11D8-8382-003065F9B7DC@embeddededge.com> <20040809222328.GB22109@smtp.west.cox.net> <4120B055.8090503@timesys.com>
+	Mon, 16 Aug 2004 10:52:26 -0400
+Received: from pD9517D3C.dip.t-dialin.net ([217.81.125.60]:45698 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S267674AbUHPOvo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 10:51:44 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
+From: Thomas Charbonnel <thomas@undata.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <1092665577.5362.12.camel@localhost>
+References: <20040816023655.GA8746@elte.hu>
+	 <1092624221.867.118.camel@krustophenia.net>
+	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>
+	 <1092627691.867.150.camel@krustophenia.net>
+	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
+	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
+	 <20040816113131.GA30527@elte.hu>  <20040816120933.GA4211@elte.hu>
+	 <1092662814.5082.2.camel@localhost>  <1092665577.5362.12.camel@localhost>
+Content-Type: text/plain
+Message-Id: <1092667804.5362.21.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4120B055.8090503@timesys.com>
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 16 Aug 2004 16:50:04 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 09:02:13AM -0400, Greg Weeks wrote:
-
-> Tom Rini wrote:
-> >On Mon, Aug 09, 2004 at 01:42:08PM -0400, Dan Malek wrote:
-> >>On Aug 9, 2004, at 12:56 PM, Tom Rini wrote:
-> >>>Has anyone had a problem with this?  If not, I'll go and pass it
-> >>>along...
-> >>>
-> >>The default rounding mode should be whatever is defined
-> >>by IEEE.  I thought the emulator used the proper default value
-> >>and if want something different it should be selected by
-> >>the control register.  Maybe the emulator isn't implementing
-> >>the control register properly.
-> >
-> >Or we had the wrong default?  Greg, any chance you've looked into this
-> >more?  Thanks.
-> >
-> I'm back.
+I wrote :
+> I wrote :
+> > Ingo Molnar wrote :
+> > > here's -P2:
+> > > 
+> > >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P2
+> > > 
+> > > Changes since -P1:
+> > > 
+> > >  - trace interrupted kernel code (via hardirqs, NMIs and pagefaults)
+> > > 
+> > >  - yet another shot at trying to fix the IO-APIC/USB issues.
+> > > 
+> > >  - mcount speedups - tracing should be faster
+> > > 
+> > > 	Ingo
+> > 
+> > Same do_IRQ problem with P2, trace is here :
+> > http://www.undata.org/~thomas/swapper-P2.trace
+> > 
+> > Thomas
+> > 
+(...)
+> There still are weird things happening with irq handling, though. how
+> can generic_redirect_hardirq eat half a millisecond :
 > 
-> The round mode for the emulator is compiled in. Changing the round mode 
-> caused failures in some of the other LSB float tests.  I had intended to 
-> say something about this before taking off on vacation. Sorry.
+(...)
+> Is there any source of interruption not covered by your P2 patch ?
+(...)
 
-S'alright.
+More on this : 
 
-> The way I got the LSB tests to pass was to remove the round in the 
-> denormalised underflow case. This appears to match the hardware 
-> behavior. I've not looked at the PPC floating point model close enough 
-> to know if this is proper behavior. It is what the LSB tests are 
-> expecting and doesn't cause a failure in any of the other LSB tests.
+preemption latency trace v1.0
+-----------------------------
+ latency: 611 us, entries: 21 (21)
+ process: ksoftirqd/0/2, uid: 0
+ nice: -10, policy: 0, rt_priority: 0
+=======>
+ 0.000ms (+0.000ms): sched_clock (schedule)
+ 0.000ms (+0.000ms): dequeue_task (schedule)
+ 0.000ms (+0.000ms): recalc_task_prio (schedule)
+ 0.590ms (+0.589ms): effective_prio (recalc_task_prio)
+ 0.590ms (+0.000ms): enqueue_task (schedule)
+ 0.590ms (+0.000ms): __switch_to (schedule)
+ 0.590ms (+0.000ms): finish_task_switch (schedule)
+ 0.591ms (+0.001ms): do_IRQ (finish_task_switch)
+(...)
 
-Have you guys run the LSB tests on some PPC with hw floating point (is
-that what you mean by 'matches the hardware behavior' ?) to see if the
-test also passes there as-is?  And does anyone object to this patch?
-Now that 2.6.8.1 is out I'm gonna start committing in a bunch of stuff
-I've had queued up and see if I can get Linus to pull.  Thanks.
+and
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+preemption latency trace v1.0
+-----------------------------
+ latency: 481 us, entries: 32 (32)
+ process: swapper/0, uid: 0
+ nice: 0, policy: 0, rt_priority: 0
+=======>
+ 0.000ms (+0.000ms): do_IRQ (default_idle)
+ 0.000ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
+ 0.459ms (+0.459ms): generic_redirect_hardirq (do_IRQ)
+ 0.459ms (+0.000ms): generic_handle_IRQ_event (do_IRQ)
+ 0.459ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
+ 0.459ms (+0.000ms): mark_offset_tsc (timer_interrupt)
+ 0.465ms (+0.005ms): do_timer (timer_interrupt)
+ 0.465ms (+0.000ms): update_process_times (do_timer)
+ 0.465ms (+0.000ms): update_one_process (update_process_times)
+ 0.465ms (+0.000ms): run_local_timers (update_process_times)
+ 0.465ms (+0.000ms): raise_softirq (update_process_times)
+ 0.466ms (+0.000ms): scheduler_tick (update_process_times)
+ 0.466ms (+0.000ms): sched_clock (scheduler_tick)
+ 0.466ms (+0.000ms): update_wall_time (do_timer)
+ 0.466ms (+0.000ms): update_wall_time_one_tick (update_wall_time)
+ 0.466ms (+0.000ms): profile_hook (timer_interrupt)
+ 0.466ms (+0.000ms): notifier_call_chain (profile_hook)
+ 0.467ms (+0.000ms): generic_note_interrupt (do_IRQ)
+ 0.467ms (+0.000ms): end_8259A_irq (do_IRQ)
+ 0.467ms (+0.000ms): enable_8259A_irq (do_IRQ)
+ 0.468ms (+0.000ms): do_softirq (do_IRQ)
+ 0.468ms (+0.000ms): __do_softirq (do_softirq)
+ 0.468ms (+0.000ms): wake_up_process (do_softirq)
+ 0.468ms (+0.000ms): try_to_wake_up (wake_up_process)
+ 0.468ms (+0.000ms): task_rq_lock (try_to_wake_up)
+ 0.468ms (+0.000ms): activate_task (try_to_wake_up)
+ 0.469ms (+0.000ms): sched_clock (activate_task)
+ 0.469ms (+0.000ms): recalc_task_prio (activate_task)
+ 0.469ms (+0.000ms): effective_prio (recalc_task_prio)
+ 0.469ms (+0.000ms): enqueue_task (activate_task)
+ 0.469ms (+0.000ms): preempt_schedule (try_to_wake_up)
+ 0.469ms (+0.000ms): check_preempt_timing (sub_preempt_count)
+
+It definitely looks like the kernel is interrupted by some interrupt
+source not covered by the patch.
+
+Thomas
+
+

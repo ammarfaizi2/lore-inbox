@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265578AbTAFAG7>; Sun, 5 Jan 2003 19:06:59 -0500
+	id <S265508AbTAFAD7>; Sun, 5 Jan 2003 19:03:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265589AbTAFAG6>; Sun, 5 Jan 2003 19:06:58 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:8052 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S265578AbTAFAG5>; Sun, 5 Jan 2003 19:06:57 -0500
-Subject: Re: Honest does not pay here ...
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Andrew McGregor <andrew@indranet.co.nz>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       "Adam J. Richter" <adam@yggdrasil.com>, lm@bitmover.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, paul@clubi.ie
-In-Reply-To: <2209530000.1041811301@localhost.localdomain>
-References: <Pine.LNX.4.10.10301051223130.421-100000@master.linux-ide.org>
-	 <1041805731.1052.4.camel@aurora.localdomain>
-	 <2209530000.1041811301@localhost.localdomain>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041812124.1052.10.camel@aurora.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 05 Jan 2003 19:15:24 -0500
-Content-Transfer-Encoding: 7bit
+	id <S265543AbTAFAD6>; Sun, 5 Jan 2003 19:03:58 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:8678 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S265508AbTAFAD4>;
+	Sun, 5 Jan 2003 19:03:56 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 6 Jan 2003 01:12:30 +0100 (MET)
+Message-Id: <UTC200301060012.h060CUg15266.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com
+Subject: [PATCH] htmldoc fix
+Cc: dgilbert@interlog.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-05 at 19:01, Andrew McGregor wrote:
-> I've had some discussion with an ex-NVidia guy who was there while they 
-> were doing the driver release.
-> 
-> They wanted to dual GPL/BSD license the kernel part in the first place, 
-> then they realised they had a problem.  They don't own the copyright on all 
-> that code themselves, nor do they have the right to redistribute specs for 
-> all of the hardware without NDA, because it consists in part of purchased 
-> 'IP blocks' (as hardware people call libraries).  So in the end they've 
-> opened up as far as they were allowed by preexisting constraints.
-> 
-> Remember, the hardware was not constructed with an open source driver in 
-> mind.  It's fairly easy to build hardware which can have open source 
-> drivers (you choose your IP block vendors carefully), but NVidia did not do 
-> that in the first place, and now they are stuck.
-> 
+I told someone to do "make htmldocs" and just to be sure
+checked myself. Below two fixes.
 
-I was not aware of all of this as being the case.  I am sorry they are
-stuck in such a bad position.  It does raise my opinion of them quite a
-bit.
+Andries
 
-> So your belief about hardware is just plain false, unfortunately.  You're 
-
-No, my belief may not reflect what is, but that doesn't make it false. 
-I know there were, at least until recently, countries that actually
-dictated what I said by law.  Again, how much did reality follow the
-laws... your guess would probably be better than mine.
-
-> free not to buy their hardware, but I don't think you are being fair to dis 
-> them when they appear to have gotten the point of open source but been 
-> stymied by other vendors.  NVidia do try hard to give you the right to use 
-> their stuff with Linux, but there is only so far they can go.
-> 
-> I expect if Linux makes them enough money, they might buy the rights they 
-> don't have, and release the driver in full.  But don't expect that to 
-> happen soon, because if you think proprietary software licenses can be 
-> expensive, you haven't seen hardware.
-
-I expect that IP is expensive to buy.  Anyway, thank you for explaining
-the Nvidia situation to me.  I really hope they do figure out some
-things soon.  (Even if that is just how to make kernels with their
-modules loaded more stable and easier to debug.)
-
-Trever
---
-"What makes his world so hard to see clearly is not its strangeness but
-its usualness. Familiarity can blind you." -- Robert M. Pirsig
-
+diff -u --recursive --new-file -X /linux/dontdiff a/Documentation/DocBook/journal-api.tmpl b/Documentation/DocBook/journal-api.tmpl
+--- a/Documentation/DocBook/journal-api.tmpl	Thu Nov 28 15:28:17 2002
++++ b/Documentation/DocBook/journal-api.tmpl	Mon Jan  6 00:06:57 2003
+@@ -206,6 +206,7 @@
+ 	journal_unlock_updates() // carry on with filesystem use.
+ </programlisting>
+ 
++<para>
+ The opportunities for abuse and DOS attacks with this should be obvious,
+ if you allow unprivileged userspace to trigger codepaths containing these
+ calls.
+@@ -250,7 +251,6 @@
+    }
+    journal_destroy(my_jrnl);
+ </programlisting>
+-</para>
+ </sect1>
+ 
+ </chapter>
+diff -u --recursive --new-file -X /linux/dontdiff a/Documentation/DocBook/scsidrivers.tmpl b/Documentation/DocBook/scsidrivers.tmpl
+--- a/Documentation/DocBook/scsidrivers.tmpl	Fri Nov 22 22:40:12 2002
++++ b/Documentation/DocBook/scsidrivers.tmpl	Sun Jan  5 23:35:15 2003
+@@ -52,7 +52,7 @@
+   </para>
+ <para>
+ This document can been found in an ASCII text file in the linux kernel 
+-source: <filename>drivers/scsi/scsi_mid_low_api.txt</filename> .
++source: <filename>Documentation/scsi/scsi_mid_low_api.txt</filename> .
+ It currently hold a little more information than this document. The
+ <filename>drivers/scsi/hosts.h</filename> and <filename>
+ drivers/scsi/scsi.h</filename> headers contain descriptions of members
+@@ -107,7 +107,7 @@
+ 
+   <chapter id="intfunctions">
+      <title>Interface Functions</title>
+-!Edrivers/scsi/scsi_mid_low_api.txt
++!EDocumentation/scsi/scsi_mid_low_api.txt
+   </chapter>
+ 
+   <chapter id="locks">

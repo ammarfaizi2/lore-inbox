@@ -1,69 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbULTR7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbULTSC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbULTR7v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 12:59:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbULTR7u
+	id S261595AbULTSC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 13:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbULTSC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 12:59:50 -0500
-Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:45517 "EHLO
-	safari.iki.fi") by vger.kernel.org with ESMTP id S261592AbULTR4l
+	Mon, 20 Dec 2004 13:02:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17288 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261595AbULTSCr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 12:56:41 -0500
-Date: Mon, 20 Dec 2004 19:56:35 +0200
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
-Message-ID: <20041220175635.GC7459@m.safari.iki.fi>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <037BE7456155544096945D871C4709AA01A99EB3@ausx2kmps318.aus.amer.dell.com>
+	Mon, 20 Dec 2004 13:02:47 -0500
+Date: Mon, 20 Dec 2004 13:43:34 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: James Pearson <james-p@moving-picture.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reducing inode cache usage on 2.4?
+Message-ID: <20041220154333.GC3345@logos.cnet>
+References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org> <20041218110247.GB31040@logos.cnet> <41C6D802.7070901@moving-picture.com> <20041220124604.GB2529@logos.cnet> <20041220151045.GL4424@dualathlon.random> <20041220150634.GA3113@logos.cnet> <20041220175409.GH4630@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <037BE7456155544096945D871C4709AA01A99EB3@ausx2kmps318.aus.amer.dell.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041220175409.GH4630@dualathlon.random>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 10:46:48AM -0600, Robert_Hentosh@Dell.com wrote:
+On Mon, Dec 20, 2004 at 06:54:09PM +0100, Andrea Arcangeli wrote:
+> On Mon, Dec 20, 2004 at 01:06:34PM -0200, Marcelo Tosatti wrote:
+> > The thing is right now we dont try to reclaim from icache/dcache _at all_ 
+> > if enough clean pagecache pages are found and reclaimed.
+> > 
+> > Its sounds unfair to me.
 > 
+> If most ram is in pagecache there's not much point to shrink the dcache.
+> The more ram goes into dcache/icache, the less ram will be in pagecache,
+> and the more likely we'll start shrinking dcache/icache. Also keep in
+> mind in a highmem machine the pagecache will be in highmemory and the
+> dcache/icache in lowmemory (on very very big boxes the lowmem_reserve
+> algorithm pratically splits the two in non-overkapping zones), so
+> especially on a big highmem machine shrinking dcache/icache during a
+> pagecache allocation (because this is what the workload is doing: only
+> pagecache allocations) is a worthless effort.
 > 
-> > On Mon, 20 Dec 2004, Rik van Riel wrote:
-> >
-> >> Simply running "dd if=/dev/zero of=/dev/hd<one you can miss>"
-> >> will result in OOM kills, with the dirty pagecache
-> >> completely filling up lowmem.  This patch is part 1 to
-> >> fixing that problem.
-> >
-> > What I forgot to say is that in order to trigger this OOM
-> > Kill the dirty_limit of 40% needs to be more memory than
-> > what fits in low memory.  So this will work on x86 with 
-> > 4GB RAM, since the dirty_limit is 1.6GB, but the block 
-> > device cache cannot grow that big because it is restricted
-> > to low memory.
-> >
-> > This has the effect of all low memory being tied up in
-> > Dirty page cache and userspace try_to_free_pages() skipping
-> > the writeout of these pages because the block device is
-> > congested.
+> This is the best solution we have right now, but there have been several
+> discussions in the past on how to shrink dcache/icache. But if we want
+> to talk on how to change this, we should talk about 2.6/2.7 only IMHO.
 > 
-> I am just confirming that this is a real problem.  The problem 
-> more frequently shows up with block sizes above 4k on the
-> dd and also showed up on some platforms with just a mke2fs
-> on a slower device such as a USB hard drive.
+> > Why not? If we have a lot of them they will probably be hurting performace, which seems
+> > to be the case now.
 > 
-> Rik's patch has solved the issue and has been running under
-> stress (via ctcs) over the weekend without failure.  
+> The slowdown could be because the icache/dcache hash size is too small.
+> It signals collisions in the dcache/icache hashtable. 2.6 with bootmem
+> allocated hashes should be better. Optimizing 2.4 for performance if not
+> worth the risk IMHO. I would suggest to check if you can reproduce in
+> 2.6, and fix it there, if it's still there.
+> 
+> > Following this logic any workload which generates pagecache and happen
+> > to, most times, have enough pagecache clean to be reclaimed should not
+> > reclaim the i/dcache's.  Which is not right.
+> 
+> This mostly happens for cache-polluting-workloads like in this testcase.
+> If the cache would be activated, there would be less pages in the
+> inactive list and you had a better chance to invoke the dcache/icache
+> shrinking.
 
-Rik's patch was broken (word-wrap by pine), but I patched
-manually.  However, I have tglx-oom-final patch which moved
-out_of_memory call from vmscan.c:try_to_free_pages()
-to page_alloc.c:__alloc_pages().
-
-Basically, (sc.nr_congested < SWAP_CLUSTER_MAX) check is missing.
-So, what's the best way to combine these two patches?
-
-If you use mutt, the patch can be found with command
-/~i 1102697553.3306.91.camel@tglx.tec.linutronix.de
-from your LKML mailbox.
-
--- 
+OK I buy your arguments I'll revert Andrew's patch.

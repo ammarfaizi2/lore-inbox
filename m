@@ -1,98 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129211AbRBLRg3>; Mon, 12 Feb 2001 12:36:29 -0500
+	id <S130702AbRBLRj3>; Mon, 12 Feb 2001 12:39:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129586AbRBLRgT>; Mon, 12 Feb 2001 12:36:19 -0500
-Received: from gear.torque.net ([204.138.244.1]:27147 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S129211AbRBLRgH>;
-	Mon, 12 Feb 2001 12:36:07 -0500
-Message-ID: <3A881BBB.D2685106@torque.net>
-Date: Mon, 12 Feb 2001 12:22:03 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.1 i586)
-X-Accept-Language: en
+	id <S130692AbRBLRjT>; Mon, 12 Feb 2001 12:39:19 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:64520 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130671AbRBLRjJ>; Mon, 12 Feb 2001 12:39:09 -0500
+Message-ID: <3A881FA7.2C5C8CBE@transmeta.com>
+Date: Mon, 12 Feb 2001 09:38:47 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-To: Ishikawa <ishikawa@yk.rim.or.jp>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.orgsend.redhat.com
-Subject: Re: devfs: "cd" device not showing up initially. [Fwd: Scan past lun 7 
- in
-In-Reply-To: <3A8595DC.B33CB0B2@torque.net> <3A874BE2.51C58711@yk.rim.or.jp>
+To: Olaf Hering <olh@suse.de>
+CC: Trond Myklebust <trond.myklebust@fys.uio.no>, autofs@linux.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: race in autofs / nfs
+In-Reply-To: <20010211211701.A7592@suse.de> <3A86F6AA.1416F479@transmeta.com> <shsbss8i8iq.fsf@charged.uio.no> <20010212111448.A28932@suse.de> <20010212125115.B30552@suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ishikawa wrote:
+Olaf Hering wrote:
 > 
-> > Chiaki,
-> > The upper level scsi drivers (sd, sr, st, osst and sg) register
-> > and unregister device names with devfs. After the mid level
-> > recognizes a new scsi device it calls the detect() function
-> > in the builtin upper level drivers and those that are currently
-> > loaded as modules. That is your "problem", sr_mod.o is not
-> > loaded until you do something like "ls -l /dev/sr0" (due to
-> > that LOOKUP rule in /etc/devfsd.conf). The lsmod command will
-> > show which modules are loaded (in your case look for sr_mod).
-> >
-> > There is no "push" mechanism in the scsi mid level to load
-> > the sr_mod.o module when it sees a device with SCSI type
-> > CDROM. Devfs (specifically devfsd) supplies various "pull"
-> > mechanisms (e.g. LOOKUP) to load that module.
+> The autofs4.o is the culprit, it works perfect with autofs.o.
 > 
-> Doug,
+> What would happen if I stick with autofs.o now?
+> The docu recommends autofs4 in modules.conf.
 > 
-> Thank you for enlightening me on the subtle
-> interaction of module loading and devfs.
-> 
-> One thing that confused me was that "generic" was
-> present On my system, I use the module version of
-> scsi generic driver.
-> Am I right then assuming  that SCSI subsystem
-> somehow supports the loading of "sg" driver module
-> automagically (as opposed to mod_sr.o )?
 
-Chiaki,
-No, there is no special code in the kernel SCSI 
-subsystem to load the sg driver.
+I don't know who came up with that idea.  You should use the module that
+matches your daemon, and not try to hack around so that there is a
+module/daemon mismatch.
 
-The only special ("push") code within the SCSI subsystem
-is a mid-level attempt to load a module called
-"scsi_hostadapter". This will happen when any upper level
-driver is registered _and_ there is not already a lower
-level driver (i.e. adapter driver) registered.
-[Hotplugging devices (e.g. USB mass storage) may be a
- good reason to add some more "push" code.]
+	-hpa
 
-> Otherwise I can't explain why "generic" was already
-> present when I ran "ls", but "cd" wasn't.
-
-It only requires one lookup on a /dev/sg* device name
-to trigger devfsd (1.3.11) to load sg. Perhaps you need 
-to closely examine devfsd's configuration files:
-  - /etc/devfsd.conf
-  - /etc/modules.devfs  [you are not meant to change this one]
-  - /etc/modules.conf
-
-There could also be something hidden away in your "rc"
-system initialization scripts.
-
-> (During the boot I see the string "sg" just prior to the
-> loading of tmscsim (DC390) driver module. The NCR driver
-> is built-in and recognized earlier. Aha, could it be that
-> "sg" is used for the initial probing of
-> device types and such?)
-
-No, unless you call an app like SANE, cdrecord or scsidev.
-I am aware that Debian are looking at devfs. Doing
-'modprobe sg' is one way of populating the /dev/scsi
-subtree when using devfs.
-
-Doug Gilbert
-
-
-P.S. Perhaps you could send me a copy of the 3 configuration
-files mentioned above and the output from 'dmesg'.
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

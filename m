@@ -1,71 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261491AbSIZUoO>; Thu, 26 Sep 2002 16:44:14 -0400
+	id <S261485AbSIZUnD>; Thu, 26 Sep 2002 16:43:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261492AbSIZUoO>; Thu, 26 Sep 2002 16:44:14 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:2198 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261491AbSIZUoM>;
-	Thu, 26 Sep 2002 16:44:12 -0400
-Message-ID: <3D9372D3.3000908@colorfullife.com>
-Date: Thu, 26 Sep 2002 22:49:23 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S261490AbSIZUnD>; Thu, 26 Sep 2002 16:43:03 -0400
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:27871 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S261485AbSIZUnB>; Thu, 26 Sep 2002 16:43:01 -0400
+Message-ID: <3D9372CA.7080203@drugphish.ch>
+Date: Thu, 26 Sep 2002 22:49:14 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/4] slab reclaim balancing
-References: <3D931608.3040702@colorfullife.com> <3D9345C4.74CD73B8@digeo.com> <3D935655.1030606@colorfullife.com> <3D9364BA.A2CA02C5@digeo.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>, niv@us.ibm.com,
+       linux-kernel@vger.kernel.org, jamal <hadi@cyberus.ca>,
+       netdev <netdev@oss.sgi.com>
+Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
+References: <3D924F9D.C2DCF56A@us.ibm.com.suse.lists.linux.kernel> <20020925.170336.77023245.davem@redhat.com.suse.lists.linux.kernel> <p73n0q5sib2.fsf@oldwotan.suse.de> <20020925.172931.115908839.davem@redhat.com> <3D92CCC5.5000206@drugphish.ch> <20020926140430.E14485@wotan.suse.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Was the microbenchmark actually touching the memory which it was
-> allocating from slab?  If so then yes, we'd expect to see cache
-> misses against those cold pages coming out of the buddy.
->  
+> For iptables/ipchain you need to write hierarchical/port range rules 
+> in this case and try to terminate searchs early.
 
-No, it was just measuring the cost of the kmem_cache_grow/shrink.
+We're still trying to find the correct mathematical functions to do 
+this. Trust me, it is not so easy, the mapping of the port matrix and 
+the network flow through many stacked packet filters and firewalls 
+generates a rather complex graph (partly bigraph (LVS-DR for example)) 
+which has complex structures (redundancy and parallelisations). It's not 
+that we could sit down and implement a fw-script for our packet filters, 
+the fw-script is being generated through a meta-fw layer that knows 
+about the surrounding network nodes.
 
-Btw, 140 cycles for kmem_cache_alloc+free is inflated - someone enabled 
-kmem_cache_alloc_head() even in the no-debugging version.
-As expected, done by Andrea, who neither bothered to cc me, nor actually 
-understood the code.
+> But yes, we also found that the L2 cache is limiting here
+> (ip_conntrack has the same problem) 
 
-> 
->>For SMP and slabs that are per-cpu cached, the change could be right,
->>because the arrays should absorb bursts. But I do not think that the
->>change is the right approach for UP.
-> 
-> 
-> I'd suggest that we wait until we have slab freeing its pages into
-> the hotlists, and allocating from them.  That should pull things back.
- >
-You are asking a interesting question:
+I think this weekend I will do my tests also measuring some cpu 
+performance counters with oprofile, such as DATA_READ_MISS, CODE CACHE 
+MISS and NONCACHEABLE_MEMORY_READS.
 
-The slab is by design far from LIFO - it tries to find pages with no 
-allocated objects, that are possible to return to the page allocator. It 
-doesn't try to optimize for cache hit rates.
+> At least  that is easily fixed. Just increase the LOG_BUF_LEN parameter
+> in kernel/printk.c
 
-Is that actually the right approach? For large objects, it would be 
-possible to cripple the freeable slabs list, and to perform the cache 
-hit optimization (i.e. per-cpu LIFO) in page_alloc.c, but that doesn't 
-work with small objects.
+Tests showed that this only helps in peak situations, I think we should 
+simply forget about printk().
 
-On SMP, the per-cpu arrays are the LIFO and should give good cache hit 
-rates. On UP, I haven't enabled them, because they could increase the 
-internal fragmentation of the slabs.
+> Alternatively don't use slow printk, but nfnetlink to report bad packets
+> and print from user space. That should scale much better.
 
-Perhaps we should enable the arrays on UP, too, and thus improve the 
-cache hit rates? If there is no increase in fragmentation, we could 
-ignore it. Otherwise we could replace the 3-list Bonwick slab with 
-another backend, something that's stronger at reducing the internal 
-fragmentation.
+Yes and there are a few things that my collegue found out during his 
+tests (actually pretty straight forward things):
 
---
-	Manfred
+1. A big log buffer is only useful to come by peaks
+2. A big log buffer while having high CPU load doesn't help at all
+3. The smaller the message, the better (binary logging thus is an
+    advantage)
+4. The logging via printk() is extremely expensive, because of the
+    conversions and whatnot. A rough estimate would be 12500 clock
+    cycles for a log entry generated by printk(). This means that on a
+    PIII/450 a log entry needs 0.000028s and this again leads to
+    following observation: Having 36000pps which should all be logged,
+    you will end up with a system having 100% CPU load and being 0% idle.
+5. The kernel should log a binary stream, also the daemon that needs to
+    fetch the data. If you want to convert the binary to human readable
+    format, you start a process with low prio or do it on-demand.
+6. Ideally the log daemon should be preemtible to get a defined time
+    slice to do its job.
 
+Some test results conducted by a coworker of mine (Achim Gsell):
+
+Max pkt rate the system can log without losing more then 1% of the messages:
+----------------------------------------------------------------------------
+
+
+kernel:		Linux 2.4.19-gentoo-r7 (low latency scheduling)
+
+daemon:		syslog-ng (nice 0), logbufsiz=16k, pkts=10*10000, CPU=PIII/450
+packet-len:	64		256		512		1024
+
+		2873pkt/s	3332pkt/s	3124pkt/s	3067pkt/s
+		1.4 Mb/s	6.6Mb/s		12.2Mb/s	23.9Mb/s
+
+daemon:		syslog-ng (nice 0), logbufsiz=16k, pkts=10*10000, CPU=PIVM/1.7
+packet-len:	64		256		512		1024
+
+		7808pkt/s	7807pkt/s	7806pkt/s	    pkt/s
+		3.8 Mb/s	15.2Mb/s	30.5Mb/s	    Mb/s
+
+----------------------------------------------------------------------------------------------------------
+
+daemon:		cat /proc/kmsg > kernlog, logbufsiz=16k, pkts=10*10000, 
+CPU=PIII/450
+packet-len:	64		256		512		1024
+
+		4300pkt/s	        	         	3076pkt/s
+		2.1 Mb/s	       		         	24.0Mb/s
+
+daemon:		ulogd (nlbufsize=4k, qthreshold=1), pkts=10*10000, CPU=PIII/450
+packet-len:	64		256		512		1024
+
+		4097pkt/s	        	       		4097pkt/s
+		2.0 Mb/s	       		         	32  Mb/s
+
+daemon:		ulogd (nlbufsize=2^17 - 1, qthreshold=1), pkts=10*10000, 
+CPU=PIII/450
+packet-len:	64		256		512		1024
+
+		6576pkt/s	        	         	5000pkt/s
+		3.2 Mb/s	       		        	38  Mb/s
+
+daemon:		ulogd (nlbufsize=64k, qthreshold=1), pkts=1*10000, CPU=PIII/450
+packet-len:	64		256		512		1024
+
+		         	        	         	    pkt/s
+		        	       		        	4.0 Mb/s
+
+daemon:		ulogd (nlbufsize=2^17 - 1, qthreshold=50), pkts=10*10000, 
+CPU=PIII/450
+packet-len:	64		256		512		1024
+
+		6170pkt/s	        	         	5000pkt/s
+		3.0 Mb/s	       		        	38  Mb/s
+
+
+Best regards,
+Roberto Nibali, ratz
+-- 
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
 

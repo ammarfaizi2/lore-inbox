@@ -1,76 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUCSShx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 13:37:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbUCSShx
+	id S263097AbUCSSjV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 13:39:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUCSSjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 13:37:53 -0500
-Received: from hermes.e-matters.de ([217.69.76.213]:6857 "HELO e-matters.de")
-	by vger.kernel.org with SMTP id S263107AbUCSShs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 13:37:48 -0500
-Date: Fri, 19 Mar 2004 19:35:15 +0100
-From: Stefan Esser <s.esser@e-matters.de>
-To: linux-kernel@vger.kernel.org
-Subject: [OVERFLOW] in arch/mips/au1000/common/power.c
-Message-ID: <20040319183515.GA29837@php.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Fri, 19 Mar 2004 13:39:21 -0500
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:30992 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S263097AbUCSSjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 13:39:02 -0500
+Message-ID: <405B3F74.6040706@kolumbus.fi>
+Date: Fri, 19 Mar 2004 20:44:04 +0200
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] barrier patch set
+References: <20040319153554.GC2933@suse.de> <405B200A.40909@kolumbus.fi> <20040319181616.GA2423@suse.de>
+In-Reply-To: <20040319181616.GA2423@suse.de>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 19.03.2004 20:41:25,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 19.03.2004 20:40:29,
+	Serialize complete at 19.03.2004 20:40:29
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-sorry for the possible double posting, but my other mail seems
-to be lost...
 
-The following code seems very fishy ;)
+Jens Axboe wrote:
 
-static int pm_do_freq(ctl_table * ctl, int write, struct file *file,
-                      void *buffer, size_t * len)
-{
-        int retval = 0, i;
-        unsigned long val, pll;
-#define TMPBUFLEN 64
-#define MAX_CPU_FREQ 396
-        char buf[8], *p;
+>On Fri, Mar 19 2004, Mika Penttil? wrote:
+>  
+>
+>>Jens Axboe wrote:
+>>
+>>    
+>>
+>>>Hi,
+>>>
+>>>A first release of a collected barrier patchset for 2.6.5-rc1-mm2. I
+>>>have a few changes planned to support dm/md + sata, I'll do those
+>>>changes over the weekend.
+>>>
+>>>Reiser has the best barrier support, ext3 works but only if things don't
+>>>go wrong. So only attempt to use the barrier feature on ext3 if on ide
+>>>drives, not SCSI nor SATA.
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>What are these brutal pieces...?
+>>
+>>
+>>+static int ide_transform_pc_req(ide_drive_t *drive, struct request *rq)
+>>+{
+>>+ if (rq->cmd[0] != 0x35) {
+>>+ ide_end_request(drive, 0, 0);
+>>+ return 1;
+>>+ }
+>>+
+>>+ if (!drive->wcache) {
+>>+ ide_end_request(drive, 1, 0);
+>>+ return 1;
+>>+ }
+>>+
+>>+ ide_fill_flush_cmd(drive, rq);
+>>+ return 0;
+>>+}
+>>
+>>
+>>/*
+>>+ * basic transformation support for scsi -> ata commands
+>>+ */
+>>+ if (blk_pc_request(rq)) {
+>>+ if (drive->media != ide_disk)
+>>+ goto kill_rq;
+>>+ if (ide_transform_pc_req(drive, rq))
+>>+ return ide_stopped;
+>>+ }
+>>    
+>>
+>
+>Hmm, I thought it was pretty obvious, even just from the naming and
+>comments. Right now, the block layer issued flush without data attached
+>(ie a drive barrier without pinning it to a buffer) comes as a scsi
+>synchronize cache command. I'm going to change this anyways and allow
+>queue hook of a ->issue_flush_fn() that can just tailored to ide or
+>scsi, _or_ dm/md and that sort of thing.
+>  
+>
+I mean other BLOCK_PC requests than SYNCHRONIZE CACHE -> 
+ide_end_request() and ide_stopped.
 
-	...
+--Mika
 
-        spin_lock_irqsave(&pm_lock, flags);
-        if (!write) {
-                *len = 0;
-        } else {
-                /* Parse the new frequency */
-                if (*len > TMPBUFLEN - 1) {
-                        spin_unlock_irqrestore(&pm_lock, flags);
-                        return -EFAULT;
-                }
-                if (copy_from_user(buf, buffer, *len)) {
-                        spin_unlock_irqrestore(&pm_lock, flags);
-                        return -EFAULT;
-                }
-                buf[*len] = 0;
-                p = buf;
-
-Earth to linux kernel. Earth to linux kernel. Your buffer is only 8
-bytes big and not TMPBUFLEN - 1
-
-Looks like a 56 byte stackoverflow to me ;)
-
-Stefan Esser
-
--- 
-
---------------------------------------------------------------------------
- Stefan Esser                                        s.esser@e-matters.de
- e-matters Security                         http://security.e-matters.de/
-
- GPG-Key                gpg --keyserver pgp.mit.edu --recv-key 0xCF6CAE69 
- Key fingerprint       B418 B290 ACC0 C8E5 8292  8B72 D6B0 7704 CF6C AE69
---------------------------------------------------------------------------
- Did I help you? Consider a gift:            http://wishlist.suspekt.org/
---------------------------------------------------------------------------
 

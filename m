@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbUFVMRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUFVM1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbUFVMRz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 08:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUFVMRz
+	id S263095AbUFVM1O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 08:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUFVM1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 08:17:55 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:21675 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263019AbUFVMRx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 08:17:53 -0400
-Date: Tue, 22 Jun 2004 14:17:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: [PATCH] idle ide disk on resume
-Message-ID: <20040622121742.GA1937@suse.de>
+	Tue, 22 Jun 2004 08:27:14 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:43644 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S263095AbUFVM1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 08:27:13 -0400
+Date: Tue, 22 Jun 2004 07:27:57 -0500
+From: Dean Nelson <dcn@sgi.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add wait_event_interruptible_exclusive() macro
+Message-ID: <20040622122757.GA23606@sgi.com>
+References: <40D30646.mailxA8X155I80@aqua.americas.sgi.com> <20040622120130.GA16246@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040622120130.GA16246@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Jun 22, 2004 at 05:01:30AM -0700, Chris Wedgwood wrote:
+> On Fri, Jun 18, 2004 at 10:12:06AM -0500, Dean Nelson wrote:
+> 
+> > +#define __wait_event_interruptible_exclusive(wq, condition, ret)	\
+> > +do {									\
+> > +	wait_queue_t __wait;						\
+> > +	init_waitqueue_entry(&__wait, current);				\
+> > +									\
+> > +	add_wait_queue_exclusive(&wq, &__wait);
+> > \
+> 
+> [...]
+> 
+> Thsi reminds me...
+> 
+> I really loath all the preprocessor macros.  I know there are plenty
+> of this already, but I don't see the advantage of macros over (static)
+> inline functions which IMO look cleaner and give gcc some change to
+> sanitize what it's looking at without actually having to have it used.
+> 
+> Is there a reason why we keep doing this?
 
-I need this patch to survive suspend on my powerbook, if the drive is
-sleeping when suspend is entered. Otherwise it freezes on resume when it
-tries to read from the drive.
+In this particular case, I was just trying to 'conform' to what I found
+in include/linux/wait.h.
 
-===== drivers/ide/ide-disk.c 1.86 vs edited =====
---- 1.86/drivers/ide/ide-disk.c	2004-06-05 22:15:29 +02:00
-+++ edited/drivers/ide/ide-disk.c	2004-06-22 14:15:08 +02:00
-@@ -1334,7 +1334,8 @@
- 	idedisk_pm_flush_cache	= ide_pm_state_start_suspend,
- 	idedisk_pm_standby,
- 
--	idedisk_pm_restore_dma	= ide_pm_state_start_resume,
-+	idedisk_pm_idle		= ide_pm_state_start_resume,
-+	idedisk_pm_restore_dma,
- };
- 
- static void idedisk_complete_power_step (ide_drive_t *drive, struct request *rq, u8 stat, u8 error)
-@@ -1349,6 +1350,9 @@
- 	case idedisk_pm_standby:	/* Suspend step 2 (standby) complete */
- 		rq->pm->pm_step = ide_pm_state_completed;
- 		break;
-+	case idedisk_pm_idle:		/* resume step 1, idle drive */
-+		rq->pm->pm_step = idedisk_pm_restore_dma;
-+		break;
- 	}
- }
- 
-@@ -1376,6 +1380,12 @@
- 		args->tfRegister[IDE_COMMAND_OFFSET] = WIN_STANDBYNOW1;
- 		args->command_type = IDE_DRIVE_TASK_NO_DATA;
- 		args->handler	   = &task_no_data_intr;
-+		return do_rw_taskfile(drive, args);
-+
-+	case idedisk_pm_idle:
-+		args->tfRegister[IDE_COMMAND_OFFSET] = WIN_IDLEIMMEDIATE;
-+		args->command_type = IDE_DRIVE_TASK_NO_DATA;
-+		args->handler = task_no_data_intr;
- 		return do_rw_taskfile(drive, args);
- 
- 	case idedisk_pm_restore_dma:	/* Resume step 1 (restore DMA) */
+If the community would prefer, I can resubmit my patch as an inline
+function instead of a macro.
 
--- 
-Jens Axboe
-
+Dean

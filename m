@@ -1,134 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265253AbUAOXmy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 18:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbUAOXmx
+	id S265244AbUAOXjX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 18:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUAOXjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 18:42:53 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:53134 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265253AbUAOXmp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 18:42:45 -0500
-Date: Thu, 15 Jan 2004 21:23:31 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: "David S. Miller" <davem@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, sim@netnation.com, dwmw2@infradead.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: Linux 2.4.25-pre5
-In-Reply-To: <20040115145519.79beddc3.davem@redhat.com>
-Message-ID: <Pine.LNX.4.58L.0401152110020.17528@logos.cnet>
-References: <Pine.LNX.4.58L.0401151816320.17528@logos.cnet>
- <20040115145519.79beddc3.davem@redhat.com>
+	Thu, 15 Jan 2004 18:39:23 -0500
+Received: from smtpq3.home.nl ([213.51.128.198]:47778 "EHLO smtpq3.home.nl")
+	by vger.kernel.org with ESMTP id S265244AbUAOXjS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 18:39:18 -0500
+Message-ID: <400723D1.2090400@keyaccess.nl>
+Date: Fri, 16 Jan 2004 00:35:45 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031029
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+To: Adam Belay <ambx1@neo.rr.com>
+CC: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: ALSA in 2.6 failing to find the OPL chip of the sb
+ cards
+References: <20040107212916.GA978@man.manty.net> <s5hy8sixsor.wl@alsa2.suse.de> <20040109171715.GA933@man.manty.net> <s5hn08xgh06.wl@alsa2.suse.de> <20040109201423.GA1677@man.manty.net> <3FFFA8C3.6040609@keyaccess.nl> <4000E030.2020500@keyaccess.nl> <s5hr7y5b2oe.wl@alsa2.suse.de> <20040113232940.GC3188@neo.rr.com> <20040114190721.GD3188@neo.rr.com>
+In-Reply-To: <20040114190721.GD3188@neo.rr.com>
+Content-Type: multipart/mixed;
+ boundary="------------040202010504030201000106"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040202010504030201000106
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Adam Belay wrote:
+
+> Here's the patch.  Any testing would be appreciated.
+
+Tested with two more ISA-Pnp soundcards, ES1868 and OPTi 82c933, and
+their ALSA drivers, snd-es18xx and snd-opti93x, and both work the same
+as they do without the patch (not quite right that is, but nothing to do
+with PnP). Also tested with ISA-PnP IDE (on the ES1868), ISA-PnP NE2000
+(RTL8019), and ISA-PnP modem. All fine.
+
+Minor point about the patch itself though. In pnp.h, you do:
+
+> -#define pnp_port_valid(dev,bar) (pnp_port_flags((dev),(bar)) &
+> IORESOURCE_IO)
+> +#define pnp_port_valid(dev,bar) \ +
+> ((pnp_port_flags((dev),(bar)) & IORESOURCE_IO) && \ +
+> !(pnp_port_flags((dev),(bar)) & IORESOURCE_UNSET))
+
+and the same for mem,irq,dma. It seems you could roll these two tests
+into one with:
+
+#define pnp_port_valid(dev,bar) \
+((pnp_port_flags((dev),(bar)) & (IORESOURCE_IO | IORESOURCE_UNSET)) ==
+IORESOURCE_IO)
+
+Basically just an optimisation I guess (just checked and gcc doesn't do
+this itself) but this also stops the macro arguments from being accessed
+more than once.
+
+One more point, in isapnp/core.c:isapnp_set_resources()
+
+> -	for (tmp = 0; tmp < PNP_MAX_PORT && res->port_resource[tmp].flags & IORESOURCE_IO; tmp++)
+> +	for (tmp = 0; tmp < PNP_MAX_PORT && !(res->port_resource[tmp].flags & IORESOURCE_UNSET); tmp++)
+
+and again same for mem,irq,dma. That is, it goes from only checking
+IORESOURCE_<TYPE> to only checking IORESOURCE_UNSET. Also checking for
+the type does sound like a valid sanity check, so would it be better to
+also check both flags here? Ie:
+
+for (tmp = 0; tmp < PNP_MAX_PORT && (res->port_resource[tmp].flags &
+(IORESOURCE_IO | IORESOURCE_UNSET)) == IORESOURCE_IO; tmp++)
+
+Incremental patch attached, in case you agree. Compiled, booted and tested.
+
+Rene.
 
 
-On Thu, 15 Jan 2004, David S. Miller wrote:
-
-> On Thu, 15 Jan 2004 18:19:40 -0200 (BRST)
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> > Here is -pre5.
->
-> If this is anything like the current 2.4.x BK tree, people will need this
-> in order to get a successful build:
->
-> --- Makefile.~1~	Thu Jan 15 12:13:10 2004
-> +++ Makefile	Thu Jan 15 12:13:12 2004
-> @@ -1,6 +1,6 @@
->  VERSION = 2
->  PATCHLEVEL = 4
-> -UBLEVEL = 25
-> +SUBLEVEL = 25
->  EXTRAVERSION = -pre5
->
->  KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
-
-I forgot to "bk push" (I never forget, you know).
-
-Sir Woodhouse,
-
-I just managed to crash a SMP box running dbench.
-
-I guess this is related to your deadlock fix?
-
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000 c011a673
-*pde = 1efe0001
-Oops: 0000
-CPU:  6
-EIP:  0010:[<c011a673>]
-
-Not tainted
-Using defaults from ksymoops -t elf32-i386-a i386
-EFLAGS: 00010097 eax: ec4f81d4 ebx: df0f7dd0 ecx: 00000000 edx:
-00000003 esi: cd09a1a0 edi: ec4f81d0 ebp: defe3e30 esp: defe3e18 ds: 0018
-es: 0018 ss: 0018
-Process sh (pid: 2325, stackpage=defe3000)
-Stack:
-00000001 00000282 00000003 ec4f8120 cd09a1a0 cd09e800 f6ef1002 c0163e24
-       ec4f8120 ec4f8120 defd9990 00000001 42132674 f5d426e0 cd09a1a0f6efb483
-       cd09a1f3 c0166010 cd09e800 00001002 cd09a1a0 ffffffea 00000000 cd09c440
-
-Call Trace:    [<c0163e24>] [<c0166010>] [<c015620b>] [<c016400e>]
-[<c014c3a3>]
-  [<c014ccdf>] [<c014d16b>] [<c014d66d>] [<c0140ea4>] [<c014c02f>]
-[<c01411f4>]
-  [<c0108c83>]
-Code: 8b 01 85 45 f0 74 69 31 d2 9c 5e fa f0 fe 0d 80 7c 3a c0 0f
-
->>EIP; c011a673 <__wake_up+33/c0>   <=====
-Trace; c0163e24 <proc_get_inode+64/140>
-Trace; c0166010 <proc_lookup+c0/e0>
-Trace; c015620b <d_alloc+1b/180>
-Trace; c016400e <proc_root_lookup+2e/50>
-Trace; c014c3a3 <real_lookup+73/100>
-Trace; c014ccdf <link_path_walk+76f/a20>
-Trace; c014d16b <path_lookup+1b/30>
-Trace; c014d66d <open_namei+6d/640>
-Trace; c0140ea4 <filp_open+34/60>
-Trace; c014c02f <getname+5f/a0>
-Trace; c01411f4 <sys_open+34/a0>
-Trace; c0108c83 <system_call+33/40>
-Code;  c011a673 <__wake_up+33/c0>
-00000000 <_EIP>:
-Code;  c011a673 <__wake_up+33/c0>   <=====
-   0:   8b 01                     mov    (%ecx),%eax   <=====
-Code;  c011a675 <__wake_up+35/c0>
-   2:   85 45 f0                  test   %eax,0xfffffff0(%ebp)
-Code;  c011a678 <__wake_up+38/c0>
-   5:   74 69                     je     70 <_EIP+0x70> c011a6e3
-<__wake_up+a3/c0>
-Code;  c011a67a <__wake_up+3a/c0>
-   7:   31 d2                     xor    %edx,%edx
-Code;  c011a67c <__wake_up+3c/c0>
-   9:   9c                        pushf
-Code;  c011a67d <__wake_up+3d/c0>
-   a:   5e                        pop    %esi
-Code;  c011a67e <__wake_up+3e/c0>
-   b:   fa                        cli
-Code;  c011a67f <__wake_up+3f/c0>
-   c:   f0 fe 0d 80 7c 3a c0      lock decb 0xc03a7c80
-Code;  c011a686 <__wake_up+46/c0>
-  13:   0f 00 00                  sldtl  (%eax)
 
 
-proc_get_inode() does not call __wake_up(), so I'm wondering whats going
-on here.
 
-0xc0163e17 <proc_get_inode+87>: mov    0x20(%edi),%eax
-0xc0163e1a <proc_get_inode+90>: push   %ebx
-0xc0163e1b <proc_get_inode+91>: call   *0x8(%eax)
-0xc0163e1e <proc_get_inode+94>: push   %ebx
-0xc0163e1f <proc_get_inode+95>: call   0xc01584c0 <unlock_new_inode>
-****> 0xc0163e24 <proc_get_inode+100>:        pop    %edi
-0xc0163e25 <proc_get_inode+101>:        pop    %eax
-0xc0163e26 <proc_get_inode+102>:        test   %ebx,%ebx
+--------------040202010504030201000106
+Content-Type: text/plain;
+ name="linux-2.6.1-pnp_incr.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.1-pnp_incr.diff"
+
+diff -urN linux-2.6.1-pnp/drivers/pnp/isapnp/core.c linux-2.6.1-pnp-incr/drivers/pnp/isapnp/core.c
+--- linux-2.6.1-pnp/drivers/pnp/isapnp/core.c	2004-01-16 00:02:40.000000000 +0100
++++ linux-2.6.1-pnp-incr/drivers/pnp/isapnp/core.c	2004-01-15 23:58:23.000000000 +0100
+@@ -1039,17 +1039,17 @@
+ 
+ 	isapnp_cfg_begin(dev->card->number, dev->number);
+ 	dev->active = 1;
+-	for (tmp = 0; tmp < PNP_MAX_PORT && !(res->port_resource[tmp].flags & IORESOURCE_UNSET); tmp++)
++	for (tmp = 0; tmp < PNP_MAX_PORT && (res->port_resource[tmp].flags & (IORESOURCE_IO | IORESOURCE_UNSET)) == IORESOURCE_IO; tmp++)
+ 		isapnp_write_word(ISAPNP_CFG_PORT+(tmp<<1), res->port_resource[tmp].start);
+-	for (tmp = 0; tmp < PNP_MAX_IRQ && !(res->irq_resource[tmp].flags & IORESOURCE_UNSET); tmp++) {
++	for (tmp = 0; tmp < PNP_MAX_IRQ && (res->irq_resource[tmp].flags & (IORESOURCE_IRQ | IORESOURCE_UNSET)) == IORESOURCE_IRQ; tmp++) {
+ 		int irq = res->irq_resource[tmp].start;
+ 		if (irq == 2)
+ 			irq = 9;
+ 		isapnp_write_byte(ISAPNP_CFG_IRQ+(tmp<<1), irq);
+ 	}
+-	for (tmp = 0; tmp < PNP_MAX_DMA && !(res->dma_resource[tmp].flags & IORESOURCE_UNSET); tmp++)
++	for (tmp = 0; tmp < PNP_MAX_DMA && (res->dma_resource[tmp].flags & (IORESOURCE_DMA | IORESOURCE_UNSET)) == IORESOURCE_DMA; tmp++)
+ 		isapnp_write_byte(ISAPNP_CFG_DMA+tmp, res->dma_resource[tmp].start);
+-	for (tmp = 0; tmp < PNP_MAX_MEM && !(res->mem_resource[tmp].flags & IORESOURCE_UNSET); tmp++)
++	for (tmp = 0; tmp < PNP_MAX_MEM && (res->mem_resource[tmp].flags & (IORESOURCE_MEM | IORESOURCE_UNSET)) == IORESOURCE_MEM; tmp++)
+ 		isapnp_write_word(ISAPNP_CFG_MEM+(tmp<<2), (res->mem_resource[tmp].start >> 8) & 0xffff);
+ 	/* FIXME: We aren't handling 32bit mems properly here */
+ 	isapnp_activate(dev->number);
+diff -urN linux-2.6.1-pnp/include/linux/pnp.h linux-2.6.1-pnp-incr/include/linux/pnp.h
+--- linux-2.6.1-pnp/include/linux/pnp.h	2004-01-16 00:02:40.000000000 +0100
++++ linux-2.6.1-pnp-incr/include/linux/pnp.h	2004-01-15 23:56:31.000000000 +0100
+@@ -34,8 +34,8 @@
+ #define pnp_port_end(dev,bar)     ((dev)->res.port_resource[(bar)].end)
+ #define pnp_port_flags(dev,bar)   ((dev)->res.port_resource[(bar)].flags)
+ #define pnp_port_valid(dev,bar) \
+-	((pnp_port_flags((dev),(bar)) & IORESOURCE_IO) && \
+-	!(pnp_port_flags((dev),(bar)) & IORESOURCE_UNSET))
++	((pnp_port_flags((dev),(bar)) & (IORESOURCE_IO | IORESOURCE_UNSET)) \
++		== IORESOURCE_IO)
+ #define pnp_port_len(dev,bar) \
+ 	((pnp_port_start((dev),(bar)) == 0 &&	\
+ 	  pnp_port_end((dev),(bar)) ==		\
+@@ -48,8 +48,8 @@
+ #define pnp_mem_end(dev,bar)     ((dev)->res.mem_resource[(bar)].end)
+ #define pnp_mem_flags(dev,bar)   ((dev)->res.mem_resource[(bar)].flags)
+ #define pnp_mem_valid(dev,bar) \
+-	((pnp_mem_flags((dev),(bar)) & IORESOURCE_MEM) && \
+-	!(pnp_mem_flags((dev),(bar)) & IORESOURCE_UNSET))
++	((pnp_mem_flags((dev),(bar)) & (IORESOURCE_MEM | IORESOURCE_UNSET)) \
++		== IORESOURCE_MEM)
+ #define pnp_mem_len(dev,bar) \
+ 	((pnp_mem_start((dev),(bar)) == 0 &&	\
+ 	  pnp_mem_end((dev),(bar)) ==		\
+@@ -61,14 +61,14 @@
+ #define pnp_irq(dev,bar)	 ((dev)->res.irq_resource[(bar)].start)
+ #define pnp_irq_flags(dev,bar)	 ((dev)->res.irq_resource[(bar)].flags)
+ #define pnp_irq_valid(dev,bar) \
+-	((pnp_irq_flags((dev),(bar)) & IORESOURCE_IRQ) && \
+-	!(pnp_irq_flags((dev),(bar)) & IORESOURCE_UNSET))
++	((pnp_irq_flags((dev),(bar)) & (IORESOURCE_IRQ | IORESOURCE_UNSET)) \
++		== IORESOURCE_IRQ)
+ 
+ #define pnp_dma(dev,bar)	 ((dev)->res.dma_resource[(bar)].start)
+ #define pnp_dma_flags(dev,bar)	 ((dev)->res.dma_resource[(bar)].flags)
+ #define pnp_dma_valid(dev,bar) \
+-	((pnp_dma_flags((dev),(bar)) & IORESOURCE_DMA) && \
+-	!(pnp_dma_flags((dev),(bar)) & IORESOURCE_UNSET))
++	((pnp_dma_flags((dev),(bar)) & (IORESOURCE_DMA | IORESOURCE_UNSET)) \
++		== IORESOURCE_DMA)
+ 
+ #define PNP_PORT_FLAG_16BITADDR	(1<<0)
+ #define PNP_PORT_FLAG_FIXED	(1<<1)
+
+
+--------------040202010504030201000106--
 

@@ -1,122 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266939AbUBEWe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 17:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266977AbUBEWe5
+	id S266937AbUBEWds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 17:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266939AbUBEWds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 17:34:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:14305 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266939AbUBEWeq (ORCPT
+	Thu, 5 Feb 2004 17:33:48 -0500
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:34940 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266937AbUBEWdZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 17:34:46 -0500
-Date: Thu, 5 Feb 2004 14:28:16 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] add syscalls.h (ver. 5)
-Message-Id: <20040205142816.75658fd5.rddunlap@osdl.org>
-In-Reply-To: <20040203215605.497b3af3.rddunlap@osdl.org>
-References: <20040203215605.497b3af3.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Feb 2004 17:33:25 -0500
+From: Murilo Pontes <murilo_pontes@yahoo.com.br>
+To: LINUX KERNEL MAILING LIST <linux-kernel@vger.kernel.org>
+Subject: Re: psmouse.c, throwing 3 bytes away
+Date: Thu, 5 Feb 2004 19:33:47 +0000
+User-Agent: KMail/1.6
+References: <4022BC15.4090502@wanadoo.es>
+In-Reply-To: <4022BC15.4090502@wanadoo.es>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200402051933.47597.murilo_pontes@yahoo.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am not problems only using kde-3.2! 
+I have problems running any Window manager,
 
-| Now builds on i386 (P4) and ia64.
-| Booted on i386/P4.
+The problem is similar for "Kernel losing many ticks", 
+I think which problem is in VM system, "Kernel losing many ticks" is worst case of
+kernel wait(long) get data from disk without DMA, but this is solve by activing DMA for all disks.
 
+The time service maybe depend "wait kernel VM flush", like flush g++ buffers 
+or disk cache in systems with ~512MB without swap partitions. 
+This long wait increase kernel jiffes is not suficient for cause "Kernel losing many ticks",
+but is suficient for break fewer bytes in mouse stream data..... 
 
-If anyone could build a 2.6.2 kernel plus this patch on
-x86_64 or ppc or ppc64 or sparc64 etc., and send me any
-build errors or warnings (that this patch causes), I'll
-fix them up.
+In parallel may be I2c/acpi thermal and fan monitoring software like gkrellm, well like S.M.A.R.T.
+on disks, increase wait states in hardware. 
+Anyone is take this BUG always which i2c/acpi thermal and fan/s.m.a.r.t. is off????
 
-I have run LTP-current on the patched x86 kernel with almost
-no problems.  :)
-There does seem to be some problem with LTP's fcntl15 test,
-but this problem happens on my test machine with or without
-this patch applied.
+Thanks
 
-
-Patch is now updated for 2.6.2.
-
-http://developer.osdl.org/rddunlap/syscalls/2.6.2-syscalls-v5.diff
-(98 KB)
-
-diffstat totals:
- 58 files changed, 554 insertions(+), 454 deletions(-)
-
-
-Comments?
-
-Thanks,
---
-~Randy
-
-
-full diffstat:
- arch/alpha/kernel/osf_sys.c         |    3 
- arch/ia64/ia32/ia32_ioctl.c         |    3 
- arch/ia64/ia32/sys_ia32.c           |   28 --
- arch/mips/kernel/ioctl32.c          |    3 
- arch/mips/kernel/irixioctl.c        |    4 
- arch/mips/kernel/linux32.c          |   13 -
- arch/mips/kernel/sysirix.c          |   15 -
- arch/parisc/hpux/ioctl.c            |    3 
- arch/parisc/hpux/sys_hpux.c         |    4 
- arch/parisc/kernel/sys_parisc.c     |   14 -
- arch/parisc/kernel/sys_parisc32.c   |    7 
- arch/ppc64/kernel/ppc_ksyms.c       |    2 
- arch/ppc64/kernel/sys_ppc32.c       |   55 ----
- arch/s390/kernel/compat_linux.c     |   28 --
- arch/s390/kernel/compat_linux.h     |    1 
- arch/s390/kernel/sys_s390.c         |    3 
- arch/sparc/kernel/sunos_ioctl.c     |    2 
- arch/sparc/kernel/sys_sunos.c       |    5 
- arch/sparc64/kernel/sparc64_ksyms.c |    2 
- arch/sparc64/kernel/sunos_ioctl32.c |    3 
- arch/sparc64/kernel/sys_sparc.c     |    3 
- arch/sparc64/kernel/sys_sparc32.c   |   39 ---
- arch/sparc64/kernel/sys_sunos32.c   |    3 
- arch/sparc64/solaris/ioctl.c        |    3 
- arch/sparc64/solaris/socksys.c      |    3 
- arch/sparc64/solaris/timod.c        |    2 
- arch/x86_64/ia32/ia32_ioctl.c       |    3 
- arch/x86_64/ia32/sys_ia32.c         |   27 --
- arch/x86_64/kernel/x8664_ksyms.c    |    3 
- drivers/macintosh/via-pmu.c         |    2 
- fs/compat.c                         |   14 -
- include/asm-alpha/unistd.h          |   11 
- include/asm-arm/unistd.h            |    9 
- include/asm-arm26/unistd.h          |   14 -
- include/asm-i386/unistd.h           |    1 
- include/asm-ia64/unistd.h           |   18 -
- include/asm-mips/unistd.h           |    5 
- include/asm-parisc/unistd.h         |   16 -
- include/asm-ppc/unistd.h            |    4 
- include/asm-ppc64/unistd.h          |    4 
- include/asm-s390/unistd.h           |    3 
- include/asm-sparc/unistd.h          |    5 
- include/asm-sparc64/unistd.h        |    5 
- include/asm-um/unistd.h             |   15 -
- include/asm-v850/unistd.h           |    4 
- include/asm-x86_64/unistd.h         |   21 -
- include/linux/syscalls.h            |  458 ++++++++++++++++++++++++++++++++++++
- include/linux/sysctl.h              |    1 
- init/do_mounts.h                    |   15 -
- init/do_mounts_devfs.c              |    9 
- init/initramfs.c                    |   12 
- kernel/compat.c                     |   31 --
- kernel/panic.c                      |    3 
- kernel/power/disk.c                 |    3 
- kernel/power/swsusp.c               |    3 
- kernel/sysctl.c                     |    2 
- kernel/uid16.c                      |   13 -
- net/compat.c                        |   23 -
- 58 files changed, 554 insertions(+), 454 deletions(-)
----
+Em Qui 05 Fev 2004 21:56, Luis Miguel García escreveu:
+> It's only me or we're having problems with kde 3.2?? Does it make sense? 
+> perhaps it's only that it's big compile? or not?
+> 
+> I have this problemsometimes and even another problem in which 
+> double-click converts itself in 40-clicks.
+> 
+> Any tip on that?
+> 
+> 
+> 

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274979AbTHAXBK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 19:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274980AbTHAXBK
+	id S274984AbTHAXDq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 19:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274985AbTHAXDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 19:01:10 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:40818 "EHLO
-	arlx248.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S274979AbTHAXBJ convert rfc822-to-8bit (ORCPT
+	Fri, 1 Aug 2003 19:03:46 -0400
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:6532 "EHLO dust")
+	by vger.kernel.org with ESMTP id S274984AbTHAXCu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 19:01:09 -0400
-Subject: Re: HELP: cpufreq on HT and/or SMP systems
-From: Wes Felter <wesley@felter.org>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1059778307.1537.173.camel@bip.parateam.prv>
-References: <200307312353.54735.gallir@uib.es>
-	 <pan.2003.08.01.22.36.19.940443@felter.org>
-	 <1059778307.1537.173.camel@bip.parateam.prv>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Organization: Hack the Planet
-Message-Id: <1059778865.23307.42.camel@arlx248.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 01 Aug 2003 18:01:05 -0500
+	Fri, 1 Aug 2003 19:02:50 -0400
+Date: Fri, 1 Aug 2003 18:06:35 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Viaris <bmeneses_beltran@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems compiling kernel 2.5.75
+In-Reply-To: <Law11-OE70LwHc9ny7B0000e8d4@hotmail.com>
+Message-ID: <Pine.LNX.4.56.0308011805470.3897@dust>
+References: <Law11-OE70LwHc9ny7B0000e8d4@hotmail.com>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-01 at 17:51, Xavier Bestel wrote:
-> Le sam 02/08/2003 à 00:36, Wes Felter a écrit :
-> > AFAIK no SMP systems have voltage/frequency scaling (SpeedStep/PowerNow).
-> > I've heard that ACPI P-states works on SMP, but if it's not doing
-> > voltage/frequency scaling then I don't know what it's doing.
-> 
-> I've got an ABit VP6 (VIA686, dual P3), and the processors speed and
-> voltage can be set in the BIOS. Does it count ?
+On Fri, 1 Aug 2003, Viaris wrote:
 
-I meant dynamic voltage/frequency scaling, so that doesn't count.
+[Snip]
 
-Wes Felter - wesley@felter.org - http://felter.org/wesley/
+Aside from what the other person suggested, you should probably give 
+2.6.0-test2 a try.  If you're going to run a development kernel, why run 
+an old one unless you absolutely have to?
+
+-- 
+Alex Goddard
+agoddard@purdue.edu

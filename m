@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263536AbTICPlp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 11:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbTICPlp
+	id S263432AbTICPhV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 11:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263439AbTICPhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 11:41:45 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:32972 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263536AbTICPll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 11:41:41 -0400
-Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx
-	doesn't work
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Damian Kolkowski <deimos@deimos.one.pl>,
-       Danny ter Haar <dth@ncc1701.cistron.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16214.1666.850426.454153@gargle.gargle.HOWL>
-References: <bj447c$el6$1@news.cistron.nl>
-	 <20030903074902.GA1786@deimos.one.pl>
-	 <16213.46254.376174.466098@gargle.gargle.HOWL>
-	 <1062598918.19059.54.camel@dhcp23.swansea.linux.org.uk>
-	 <16214.1666.850426.454153@gargle.gargle.HOWL>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062603639.19059.77.camel@dhcp23.swansea.linux.org.uk>
+	Wed, 3 Sep 2003 11:37:21 -0400
+Received: from pinga.salk.edu ([192.31.153.187]:35537 "EHLO pinga.salk.edu")
+	by vger.kernel.org with ESMTP id S263432AbTICPhS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 11:37:18 -0400
+Date: Wed, 3 Sep 2003 08:37:13 -0700
+From: David Chambers <davidc@ccmi.salk.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test{2,4}, gcc, smp problem
+Message-Id: <20030903083713.009d4b1b.davidc@ccmi.salk.edu>
+X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-Message-flag: Warning: Usage of MS Outlook will stunt your growth.
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Wed, 03 Sep 2003 16:40:39 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-CCMI-MailScanner-Information: Please contact the ISP for more information
+X-CCMI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-09-03 at 16:19, Mikael Pettersson wrote:
-> You mean PCI initialisation (and thus ACPI) can break the I/O-APIC
-> even though the kernel never actually accesses the I/O-APIC per se?
-> Ok, I see how that could happen.
+Hi,
 
-In paticular onboard VIA stuff uses the upper bits of the
-PCI_INTERRUPT_LINE register to do IRQ routing as well as the PIN stuff
-that PCI expects
+I have recently been trying the 2.6.0-test kernels on an up-to-date Red Hat 9 system (Dual Xeon, 2 GB RAM, Tyan 7505 motherboard).  Being lazy :-) I downloaded arjanv's source RPMs and built from those.  These RPMs apply 2 small patches, one framebuffer related and one implements a noninteractive "make oldconfig", otherwise the 2.6.0 source is untouched.
 
+Compilation of the initial 2.6.0-test2 with gcc 3.2 (Red Hat released version) (while running 2.4.21) went perfectly.  I booted the new 2.6.0-test2 and I have to say I never want to go back to 2.4!  Desktop responsiveness is **much** improved - superb job, guys!.
+
+However...  When I tried to compile 2.6.0-test2 again, (running under 2.6.0-test2) I get irreproducible internal compiler errors or segmentation faults.  I have tracked this down to the use of "make -j4" during the build.  If I disable the multiple job compilation, everything works.  If I so much as use "make -j2" I get the errors again.
+
+Same thing happens with 2.6.0-test4.  I tried upgrading gcc to 3.3.1 (Rawhide rpm) and this has made no difference.  I have not yet tried this with anything but the smp kernel, btw.
+
+So... What am I looking at here?  Problem with hardware? kernel? gcc?  Any comments and suggestions gratefully received!!
+
+- David Chambers

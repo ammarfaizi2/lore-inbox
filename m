@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262445AbRFLQS4>; Tue, 12 Jun 2001 12:18:56 -0400
+	id <S262568AbRFLQXR>; Tue, 12 Jun 2001 12:23:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262485AbRFLQSu>; Tue, 12 Jun 2001 12:18:50 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19722 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262445AbRFLQSg>; Tue, 12 Jun 2001 12:18:36 -0400
-Subject: Re: [PATCH] megaraid.c
-To: praveens@stanford.edu (Praveen Srinivasan)
-Date: Tue, 12 Jun 2001 17:17:00 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
-In-Reply-To: <200106120605.f5C65f402129@smtp1.Stanford.EDU> from "Praveen Srinivasan" at Jun 11, 2001 11:05:46 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262550AbRFLQXH>; Tue, 12 Jun 2001 12:23:07 -0400
+Received: from paloma14.e0k.nbg-hannover.de ([62.159.219.14]:35541 "HELO
+	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S262485AbRFLQWs>; Tue, 12 Jun 2001 12:22:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: [patch] truncate_inode_pages
+Date: Tue, 12 Jun 2001 18:32:47 +0200
+X-Mailer: KMail [version 1.2.2]
+In-Reply-To: <20010611021437Z261385-17720+2631@vger.kernel.org> <200106112252.AAA19615@mail.bonn-fries.net> <01061214324600.00879@starship>
+In-Reply-To: <01061214324600.00879@starship>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E159qqi-0001Z4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010612162257Z262485-17721+2408@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch fixes an instance where an allocation is checked, but only after 
-> the pointer is memset() - moving the memset further down in the function 
+Am Dienstag, 12. Juni 2001 14:32 schrieb Daniel Phillips:
+> On Tuesday 12 June 2001 02:00, you wrote:
+> > Now with -ac13 and the third try.
+> > Is it final?
 >
+> There have been no further problems reported, but it's Andrew Morton's
+> patch, his decision.
+>
+> --
+> Daniel
 
-Linus - please skip this one. There is a newer (1.15d) megaraid driver ready
-to go on to you this weekend and it fixes this, pci api usage and security 
-holes
+Hello Andrew,
 
+have you forwarded it to Alan for apply?
+
+Thanks,
+	Dieter

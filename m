@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbSKMPDb>; Wed, 13 Nov 2002 10:03:31 -0500
+	id <S261857AbSKMPEj>; Wed, 13 Nov 2002 10:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261894AbSKMPDb>; Wed, 13 Nov 2002 10:03:31 -0500
-Received: from leon.mat.uni.torun.pl ([158.75.2.17]:44237 "EHLO
-	Leon.mat.uni.torun.pl") by vger.kernel.org with ESMTP
-	id <S261874AbSKMPDa>; Wed, 13 Nov 2002 10:03:30 -0500
-Date: Wed, 13 Nov 2002 16:10:01 +0100 (CET)
-From: Michal Wronski <wrona@mat.uni.torun.pl>
-X-X-Sender: wrona@Leon
-To: linux-kernel@vger.kernel.org
-cc: Peter Waechtler <pwaechtler@mac.com>,
-       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>,
-       "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
-       "Abbas, Mohamed" <mohamed.abbas@intel.com>
-Subject: Re: [PATCH] unified SysV and POSIX mqueues - complete rewrite
-In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C70992@orsmsx119.jf.intel.com>
-Message-ID: <Pine.LNX.4.44.0211131555530.9870-100000@Leon>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261868AbSKMPEj>; Wed, 13 Nov 2002 10:04:39 -0500
+Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:55243 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S261857AbSKMPEi>; Wed, 13 Nov 2002 10:04:38 -0500
+Date: Wed, 13 Nov 2002 08:11:25 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Don't ask about "Enhanced Real Time Clock Support" on some archs
+Message-ID: <20021113151125.GB9033@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following patch adds an explicit no list of arches who do not want
+to have the "Enhanced Real Time Clock Support" RTC driver asked.  This
+adds PPC32 (who for a long time had their own 'generic' RTC driver, and
+then have adopted the genrtc driver) and PARISC (who have always used
+the genrtc driver).
 
-> The interface boils down to 7 new syscalls (for now just i386):
-> - sys_mq_open
-> - sys_mq_unlink
-> - sys_mq_timedsend
-> - sys_mq_timedreceive
-> ...
+The problem is that on some archs there is no hope of this driver
+working, and having it compiled into the kernel can cause many different
+problems.  On the other hand, there are some arches for whom that driver
+does work, on some platforms.  So having an explicit yes list would
+result in some rather ugly statements.
 
-Why add a new syscalls?? It's better to do this via ioctl's
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
-> The change to ipc/msg.c is minimal - just make
-> - load_msg
-> - store_msg
-> - free_msg
-> accessible (not static).
-
-I suggest doing this independently to SysV IPC
-
-> userspace lib and test progs are on
-> http://homepage.mac.com/pwaechtler/linux/mqueue/
-
-"We're sorry, but we can't find the HomePage you've requested."
-
-> +#ifndef _LINUX_MQUEUE_H
-> +#define _LINUX_MQUEUE_H
-> +
-> +#define MQ_MAXMSG 40 /* max number of messages in each queue */
-> +#define MQ_MAXSYSSIZE 1048576 /* max size that all m.q. can have 
-> together 
-> */
-> +#define MQ_PRIO_MAX 10000 /* max priority */
-
-I see that you've read our sources....
-
-We (K. Benedyczak with me) are currently working on new implementation of 
-mqueues. It's very similar to yours (filesystem, without new syscalls) and 
-it's almost done. Maybe we should collaborate??
-
-Michal Wronski
-
+===== drivers/char/Kconfig 1.1 vs edited =====
+--- 1.1/drivers/char/Kconfig	Tue Oct 29 18:16:55 2002
++++ edited/drivers/char/Kconfig	Wed Nov 13 07:56:39 2002
+@@ -1053,6 +1053,7 @@
+ 
+ config RTC
+ 	tristate "Enhanced Real Time Clock Support"
++	depends on PPC32 != y && PARISC != y
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263932AbTEWI0s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 04:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTEWI0r
+	id S263936AbTEWIdc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 04:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbTEWIdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 04:26:47 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:199 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S263932AbTEWI0q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 04:26:46 -0400
-Subject: Re: [PATCH] PPC32 Fix warning with ndelay (with patch !)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Paul Mackerras <paulus@samba.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1053679084.1160.99.camel@gaston>
-References: <1053679084.1160.99.camel@gaston>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1053679168.1159.102.camel@gaston>
+	Fri, 23 May 2003 04:33:32 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:40216 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263936AbTEWIdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 04:33:31 -0400
+Date: Fri, 23 May 2003 01:49:34 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC] probably bug in current ext3/jbd
+Message-Id: <20030523014934.37a1c10d.akpm@digeo.com>
+In-Reply-To: <8765o1x6mb.fsf@gw.home.net>
+References: <87d6igmarf.fsf@gw.home.net>
+	<1053376482.11943.15.camel@sisko.scot.redhat.com>
+	<87he7qe979.fsf@gw.home.net>
+	<1053377493.11943.32.camel@sisko.scot.redhat.com>
+	<87addhd2mc.fsf@gw.home.net>
+	<20030521093848.59ada625.akpm@digeo.com>
+	<87smr8c9le.fsf@gw.home.net>
+	<20030521095921.4f457002.akpm@digeo.com>
+	<m3brxwe2lr.fsf@lexa.home.net>
+	<20030521103737.52eddeb3.akpm@digeo.com>
+	<87n0hgc6s6.fsf@gw.home.net>
+	<20030521105011.2d316baf.akpm@digeo.com>
+	<87k7ckc5z2.fsf@gw.home.net>
+	<20030521143140.3aaa86ba.akpm@digeo.com>
+	<8765o1x6mb.fsf@gw.home.net>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 23 May 2003 10:39:28 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 May 2003 08:46:37.0393 (UTC) FILETIME=[D2574C10:01C32107]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OOOps, here's the real one...
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
+>
+> here is small patch that intented to fix race with b_committed_data.
 
-This patch fixes a warning with recent gcc's when using the new
-ndelay() function, by properly defining a large constant as unsigned
+Thanks, it looks good.
 
-===== include/asm-ppc/delay.h 1.5 vs edited =====
---- 1.5/include/asm-ppc/delay.h	Wed Feb 12 05:29:33 2003
-+++ edited/include/asm-ppc/delay.h	Fri May 23 10:26:50 2003
-@@ -30,8 +30,8 @@
-  * (which corresponds to ~3800 bogomips at HZ = 100).
-  *  -- paulus
-  */
--#define __MAX_UDELAY	(226050910/HZ)	/* maximum udelay argument */
--#define __MAX_NDELAY	(4294967295/HZ)	/* maximum ndelay argument */
-+#define __MAX_UDELAY	(226050910UL/HZ)	/* maximum udelay argument */
-+#define __MAX_NDELAY	(4294967295UL/HZ)	/* maximum ndelay argument */
- 
- extern __inline__ void __udelay(unsigned int x)
- {
-
+The balloc.c code is getting awfully convoluted and hard to follow,
+but no obvious restructuring strategies are leaping out at me.

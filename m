@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUJHUtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUJHU5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUJHUtT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 16:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUJHUtD
+	id S265044AbUJHU5J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 16:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUJHU5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 16:49:03 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:38919 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265093AbUJHUqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 16:46:31 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] Make gcc -align options .config-settable
-Date: Fri, 8 Oct 2004 23:46:24 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <2KBq9-2S1-15@gated-at.bofh.it> <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua> <20041008154227.GA91816@muc.de>
-In-Reply-To: <20041008154227.GA91816@muc.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Fri, 8 Oct 2004 16:57:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56710 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265044AbUJHU5F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 16:57:05 -0400
+Date: Fri, 8 Oct 2004 14:00:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: linux@MichaelGeng.de, linux-kernel@vger.kernel.org,
+       "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: video_usercopy() enforces change of VideoText IOCTLs since
+ 2.6.8
+Message-Id: <20041008140056.72b177d9.akpm@osdl.org>
+In-Reply-To: <20041008105219.GA24842@bytesex>
+References: <20041007165410.GA2306@t-online.de>
+	<20041008105219.GA24842@bytesex>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410082346.24150.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I would just do a single CONFIG_NO_ALIGNMENTS that sets everything to
-> > > 1, that should be enough.
-> > 
-> > For me, yes, but there are people which are slightly less obsessed
-> > with code size than me.
-> > 
-> > They might want to say "try to align to 16 bytes if
-> > it costs less than 5 bytes" etc.
+Gerd Knorr <kraxel@bytesex.org> wrote:
+>
+> Yes, that change is wrong.  It breaks all ioctls which use arg to pass
+> a integer value directly (i.e. not a pointer to a integer).
 > 
-> If they want to go down to that low level they can as well edit
-> the Makefiles. But we already have far too many configs and
-> adding new ones for obscure compiler options is not a good idea.
+> The patch below reverses it.  Please apply,
 > 
-> Also we don't normally add stuff "just in case", but only when
-> people actually use it.
+>   Gerd
+> 
+> Index: linux-2.6.8/drivers/media/video/videodev.c
+> ===================================================================
+> --- linux-2.6.8.orig/drivers/media/video/videodev.c	2004-10-08 11:55:08.000000000 +0200
+> +++ linux-2.6.8/drivers/media/video/videodev.c	2004-10-08 12:46:12.571630864 +0200
+> @@ -183,7 +183,7 @@ video_usercopy(struct inode *inode, stru
+>  	/*  Copy arguments into temp kernel buffer  */
+>  	switch (_IOC_DIR(cmd)) {
+>  	case _IOC_NONE:
+> -		parg = NULL;
+> +		parg = (void*)arg;
+>  		break;
 
-I have a suspicion that if I had submitted CONFIG_NO_ALIGNMENTS
-patch instead, there would be comments from another crowd,
-about it being too coarse.
+(the typecast is unneeded)
 
-Look at the post of Grzegorz Kulewski.
+Seems that with this change we are now sometimes passing a user pointer
+into (*func)().  And we're sometimes passing a kernel pointer, yes?
 
-Anyway, I don't have strong preference. I just want to be at least
-able to disable code alignment completely.
---
-vda
+Are all the implementations of (*func)() handling that correctly?
 
+It all looks fishy.

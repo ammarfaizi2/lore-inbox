@@ -1,42 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262741AbUKMBmQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262671AbUKLXlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262741AbUKMBmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 20:42:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbUKMBjS
+	id S262671AbUKLXlv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 18:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbUKLXkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 20:39:18 -0500
-Received: from gate.crashing.org ([63.228.1.57]:58550 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262688AbUKMBhh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 20:37:37 -0500
-Subject: Re: [PATCH] MII bus API for PHY devices
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jason McMullan <jason.mcmullan@timesys.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, romieu@fr.zoreil.com
-In-Reply-To: <1100278046.17607.23.camel@jmcmullan>
-References: <20041111224845.GA12646@jmcmullan.timesys>
-	 <1100240131.20512.47.camel@gaston>  <1100278046.17607.23.camel@jmcmullan>
-Content-Type: text/plain
-Date: Sat, 13 Nov 2004 12:36:59 +1100
-Message-Id: <1100309819.20593.99.camel@gaston>
+	Fri, 12 Nov 2004 18:40:18 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:27875 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262667AbUKLXWd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 18:22:33 -0500
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.10-rc1
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <11003017203252@kroah.com>
+Date: Fri, 12 Nov 2004 15:22:01 -0800
+Message-Id: <1100301721392@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-12 at 11:47 -0500, Jason McMullan wrote:
+ChangeSet 1.2091.1.24, 2004/11/12 14:12:11-08:00, hannal@us.ibm.com
 
-> 	For the 'wake on lan' stuff, could you give me a list of the
-> types of features you'd need? I haven't really looked at WOL just yet.
+[PATCH] pplus.c: replace pci_find_device with pci_get_device
 
-Me neither, though Colin Leroy has, I'll check out his stuff next week.
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-> 	We can add WOL, suspend, etc. as needed. I just want to
-> get the base infrastructure in first, and gradually start migrating
-> phys to the mii_bus on embedded systems.
-> 
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+ arch/ppc/platforms/pplus.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/arch/ppc/platforms/pplus.c b/arch/ppc/platforms/pplus.c
+--- a/arch/ppc/platforms/pplus.c	2004-11-12 15:09:04 -08:00
++++ b/arch/ppc/platforms/pplus.c	2004-11-12 15:09:04 -08:00
+@@ -359,7 +359,7 @@
+ 	 * Perform specific configuration for the Via Tech or
+ 	 * or Winbond PCI-ISA-Bridge part.
+ 	 */
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
+ 				   PCI_DEVICE_ID_VIA_82C586_1, dev))) {
+ 		/*
+ 		 * PPCBUG does not set the enable bits
+@@ -371,7 +371,7 @@
+ 		pci_write_config_byte(dev, 0x40, reg);
+ 	}
+ 
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
+ 				   PCI_DEVICE_ID_VIA_82C586_2,
+ 				   dev)) && (dev->devfn = 0x5a)) {
+ 		/* Force correct USB interrupt */
+@@ -379,7 +379,7 @@
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
+ 	}
+ 
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
+ 				   PCI_DEVICE_ID_WINBOND_83C553, dev))) {
+ 		/* Clear PCI Interrupt Routing Control Register. */
+ 		short_reg = 0x0000;
+@@ -389,7 +389,7 @@
+ 		pci_write_config_byte(dev, 0x43, reg);
+ 	}
+ 
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
+ 				   PCI_DEVICE_ID_WINBOND_82C105, dev))) {
+ 		/*
+ 		 * Disable LEGIRQ mode so PCI INTS are routed
+@@ -401,6 +401,7 @@
+ 		dev->irq = 14;
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
+ 	}
++	pci_dev_put(dev);
+ }
+ 
+ void __init pplus_set_VIA_IDE_legacy(void)
 

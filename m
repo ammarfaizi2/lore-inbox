@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbUEXGmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUEXGmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263028AbUEXGmi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 02:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUEXGmh
+	id S261300AbUEXGmY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 02:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUEXGmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 02:42:37 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:3051 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263028AbUEXGmV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 02:42:21 -0400
-Date: Mon, 24 May 2004 10:43:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Billy Biggs <vektor@dumbterm.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: tvtime and the Linux 2.6 scheduler
-Message-ID: <20040524084334.GB24967@elte.hu>
-References: <20040523154859.GC22399@dumbterm.net> <200405240254.20171.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405240254.20171.kernel@kolivas.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 24 May 2004 02:42:23 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:3733 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261300AbUEXGmM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 02:42:12 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 23 May 2004 23:41:20 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: scheduler: IRQs disabled over context switches
+In-Reply-To: <20040524083715.GA24967@elte.hu>
+Message-ID: <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com>
+References: <20040523174359.A21153@flint.arm.linux.org.uk> <20040524083715.GA24967@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 24 May 2004, Ingo Molnar wrote:
 
-* Con Kolivas <kernel@kolivas.org> wrote:
-
-> >      33 ms : time per NTSC frame
 > 
-> snip
+> * Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 > 
-> The followup email from someone describing good performance may help
-> us understand what's going on. Your example of poor performance is one
-> when the cpu performance is marginal to get exactly 30 fps processed
-> and on the screen. The cpu overhead in 2.6 is slightly higher than 2.4
-> so a borderline case may be just pushed over. 
+> > The 2.6.6 scheduler disables IRQs across context switches, which is
+> > bad news for IRQ latency on ARM - to the point where 16550A FIFO UARTs
+> > to overrun.
+> > 
+> > I'm considering defining prepare_arch_switch & co as follows on ARM,
+> > so that we release IRQs over the call to context_switch().
+> 
+> > The question is... why are we keeping IRQs disabled over
+> > context_switch() in the first case?  Looking at the code, the only
+> > thing which is touched outside of the two tasks is rq->prev_mm.  Since
+> > runqueues are CPU- specific and we're holding at least one spinlock, I
+> > think the above is preempt safe and SMP safe.
+> 
+> historically x86 context-switching has been pretty fragile when done
+> with irqs enabled. (x86 has tons of legacy baggage, segments, etc.) It's
+> also slightly faster to do the context-switch in one atomic swoop. On
+> x86 we do this portion in like 1 usec so it's not a latency issue.
 
-most of the cpu overhead comes from HZ=1000. Especial with SCHED_FIFO
-there should be minimal (if any) impact from the scheduler changes -
-SCHED_FIFO tasks get all CPU time, no ifs and whens.
+We used to do it in 2.4. What changed to make it fragile? The threading 
+(TLS) thing?
 
-could people who experience tvtime performance problems apply the patch
-below to change HZ back to 100? Does it have any impact?
 
-	Ingo
+- Davide
 
---- linux/include/asm-i386/param.h.orig	
-+++ linux/include/asm-i386/param.h	
-@@ -2,7 +2,7 @@
- #define _ASMi386_PARAM_H
- 
- #ifdef __KERNEL__
--# define HZ		1000		/* Internal kernel timer frequency */
-+# define HZ		100		/* Internal kernel timer frequency */
- # define USER_HZ	100		/* .. some user interfaces are in "ticks" */
- # define CLOCKS_PER_SEC		(USER_HZ)	/* like times() */
- #endif

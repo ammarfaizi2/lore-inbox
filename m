@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316999AbSGNSX6>; Sun, 14 Jul 2002 14:23:58 -0400
+	id <S317025AbSGNShj>; Sun, 14 Jul 2002 14:37:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317003AbSGNSX5>; Sun, 14 Jul 2002 14:23:57 -0400
-Received: from eos.telenet-ops.be ([195.130.132.40]:3988 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S316999AbSGNSX4> convert rfc822-to-8bit; Sun, 14 Jul 2002 14:23:56 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Bart Verwilst <verwilst@gentoo.org>
-Reply-To: verwilst@gentoo.org
-To: linux-kernel@vger.kernel.org
-Subject: sa2opl3 driver b0rkage?
-Date: Sun, 14 Jul 2002 20:33:29 +0200
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200207142033.29721.verwilst@gentoo.org>
+	id <S317026AbSGNShi>; Sun, 14 Jul 2002 14:37:38 -0400
+Received: from ns.suse.de ([213.95.15.193]:27154 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317025AbSGNShh>;
+	Sun, 14 Jul 2002 14:37:37 -0400
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [BUG?] unwanted proxy arp in 2.4.19-pre10
+References: <20020713.205930.101495830.davem@redhat.com.suse.lists.linux.kernel> <Pine.LNX.4.44.0207141026440.4252-100000@twinlark.arctic.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Jul 2002 20:40:23 +0200
+In-Reply-To: dean gaudet's message of "14 Jul 2002 19:33:04 +0200"
+Message-ID: <p73lm8eup9k.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello! 
+dean gaudet <dean-list-linux-kernel@arctic.org> writes:
 
-I'm using kernel 2.4.19-pre7-ac2, and since i upgraded, arts (KDE's sound 
-server) keeps on crashing every few minutes :o( I have an OPL3SA2 sound card.
+> On Sat, 13 Jul 2002, David S. Miller wrote:
+> 
+> >
+> > You have to use specific source-routing settings in conjuntion with
+> > enabling arp_filter in order for arp_filter to have any effect.
+> >
+> > This is a FAQ.
+> 
+> a couple google queries yielded no answer to this faq... is there a posted
+> example somewhere?
 
-I think the cause is this:
+arpfilter normally needs no special routing entries, unless you want
+to do weird things (like filtering ARP based on source). The main use
+of arp filter is to prevent multiple arp answers on multiple devices
+when the host has more than one interface to the same network. The other
+use is to allow load balancing for incoming connections together 
+with multi path routing.
 
+It can be abused for more complex filtering scenaries:
 
-<snip>
-Summary of changes from v2.4.18 to v2.4.19-pre1
-============================================
+The arpfilter routing decision takes the reversed address tuple in account.
+When the routing decision yields the device that the ARP arrived on
+then the ARP is answered otherwise not.
+You can construct policy routing rules that match the ARP requests you
+want to prevent with some tricks, but do not match outgoing packets.
+Easy? It's not easy, but nobody said it was.
 
-<marcelo@plucky.distro.conectiva> (02/03/13 1.160)
-	- Add tape support to cciss driver                      (Stephen Cameron)
-	- Add Permedia3 fb driver                               (Romain Dolbeau)
-	- meye driver update                                    (Stelian Pop)
-	- opl3sa2 update                                     (Zwane Mwaikambo)   <---  
-</snip>
+The main use of this seem to be certain HA failover setups.
+Some people use a patch that allows to disable ARP per interface for it
+("hidden") but for some reasons it was not integrated. 
 
-Several KDE bugreports say the same thing, for example:
+> 
+> is the default behaviour of use to anyone?  this question comes up like
+> every other month.
 
-http://bugs.kde.org/db/32/32415.html
+It would be likely easier/more straightforward if there was a special
+ARP routing table that is only consulted by ARP filter (as an extension 
+to the current multi table routing). Then you could just put reject routes
+there to filter ARP Unfortunately nobody has stepped forward to implement it
+yet, so it remained a dream so far.
 
-My aRts dies with the messagebox "cpu overload - aborting".
+Another thing that was implemented is a netfilter chain for ARP, but
+afaik there are no filtering modules for it yet, so Joe User cannot
+use it. It likely just exists somewhere as a proprietary module in
+someone's firewall appliance and all they did was to contribute the
+hook. It probably would not be hard to rewrite a filter module for it,
+but again nobody did it yet.
 
-I hope this will be solved soon, so i can enjoy stable sound again :o)
+Hope this helps,
 
-Thanks in advance!
+-Andi
 
-PS Please CC me your replies, since i'm not on this list.
-
--- 
-Bart Verwilst
-Gentoo Linux Developer, Release Coordinator
-Gent, Belgium

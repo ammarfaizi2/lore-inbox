@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266547AbUI0Jtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUI0J4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266547AbUI0Jtz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 05:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266603AbUI0Jtz
+	id S266603AbUI0J4z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 05:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUI0J4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 05:49:55 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:46888
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S266547AbUI0Jtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 05:49:53 -0400
-Message-Id: <s157f050.048@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
-Date: Mon, 27 Sep 2004 11:50:49 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <hch@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: i386 entry.S problems
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Sep 2004 05:56:55 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:17839 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266603AbUI0J4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 05:56:53 -0400
+Message-ID: <4157CDFD.5030001@yahoo.com.au>
+Date: Mon, 27 Sep 2004 18:23:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Reuben Farrelly <reuben-lkml@reub.net>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: Stack traces in 2.6.9-rc2-mm4
+References: <6.1.2.0.2.20040927184123.019b48b8@tornado.reub.net>
+In-Reply-To: <6.1.2.0.2.20040927184123.019b48b8@tornado.reub.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Christoph Hellwig <hch@infradead.org> 27.09.04 11:00:18 >>>
->On Mon, Sep 27, 2004 at 09:37:10AM +0200, Jan Beulich wrote:
->> >>> Christoph Hellwig <hch@infradead.org> 24.09.04 21:12:51 >>>
->> >> +#if !defined(CONFIG_REGPARM) || __GNUC__ < 3
->> >>  	pushl %ebp
->> >> +#endif
->> >
->> >CONFIG_REGPARM n eeds gcc 3.0 or later
->> 
->> Not sure what you try to point out here: the additions account for
->> exactly that.
->
->No, the || __GNUC__ < 3 is superflous.  if CONFIG_REGPARM is defined
->and __GNUC__ < 3 you have problems elsewhere already.
+Reuben Farrelly wrote:
+> Since upgrading from -mm3 to -mm4, I'm now getting messages like this 
+> logged every second or so:
+> 
+> Sep 27 18:28:06 tornado kernel: using smp_processor_id() in preemptible 
+> 
 
-I don't think so. Otherwise, why would arch/i386/Makefile specifically
-deal with this situation?
+snip
 
+> 
+> Is there a fix to shut this all up or a suggested patch to revert?
+> 
+> Box is a P4 Intel 2.8Ghz single processor, SMP/HT with PREEMPT on..
+> 
+
+Looks like disk_stat_add in the sw-raid code. The proper fix is probably
+to disable preempt around those regions - but just doing it the dumb
+way (ie. in the driver code) looks like an unfortunate layering violation.
+
+Maybe something like disk_stat_update_start / disk_stat_update_end that
+gives you the per-cpu stat pointer as a "token" to be used by
+disk_stat_inc/add/etc. Anyone?
+
+Named slightly differently, so you keep backward compatibility, of course.

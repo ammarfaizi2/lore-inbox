@@ -1,36 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263828AbUFFRM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263834AbUFFRP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263828AbUFFRM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 13:12:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbUFFRM4
+	id S263834AbUFFRP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 13:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUFFRP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 13:12:56 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:41900 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S263828AbUFFRMz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 13:12:55 -0400
-Message-ID: <40C35091.8000902@dlfp.org>
-Date: Sun, 06 Jun 2004 19:12:49 +0200
-From: Benoit Dejean <TazForEver@dlfp.org>
-Reply-To: TazForEver@free.fr
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, cyplp@free.fr
-Subject: Re: [2.6.6 panic] via-rhine and acpi sleep 3
-References: <40C314C4.4080006@dlfp.org> <200406061943.41009.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200406061943.41009.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 6 Jun 2004 13:15:27 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:5248 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263834AbUFFRP0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 13:15:26 -0400
+Date: Sun, 6 Jun 2004 19:16:01 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6] Mousedev - better button handling under load
+Message-ID: <20040606171601.GA5845@ucw.cz>
+References: <200406050249.02523.dtor_core@ameritech.net> <200406060940.21209.dtor_core@ameritech.net> <20040606160245.GA1350@ucw.cz> <200406061149.45284.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406061149.45284.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko a écrit :
+On Sun, Jun 06, 2004 at 11:49:45AM -0500, Dmitry Torokhov wrote:
+> On Sunday 06 June 2004 11:02 am, Vojtech Pavlik wrote:
+> > On Sun, Jun 06, 2004 at 09:40:20AM -0500, Dmitry Torokhov wrote:
+> > > On Sunday 06 June 2004 04:58 am, Vojtech Pavlik wrote:
+> > > > Thanks for this. Can I just pull from your tree, or is there more that I
+> > > > shouldn't take?
+> > > > 
+> > > 
+> > > I am exporting stuff to my bk tree on as-needed basis so there is nothing
+> > > extra (and no mousedev changes yet). Do you want button handling changes
+> > > only or you do also want tapping emulation exported?
+> > 
+> > Tapping is fine as well.
+> > 
 > 
-> Retrieve it from your syslog
+> OK, when you are ready please do:
+> 
+> 	bk pull bk://dtor.bkbits.net/input
 
-i'm afraid it's empty, nothin about the panic is saved there. i've tried 
-to run a while:; do sync; done and to ajust  kernel log buffer size from 
-  14 to 10 but i've not been able to retrieve anything
+Done. Thanks.
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

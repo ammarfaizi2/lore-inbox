@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271047AbTGVXyx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 19:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271048AbTGVXyx
+	id S271067AbTGWAlO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 20:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271068AbTGWAlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 19:54:53 -0400
-Received: from bay2-f83.bay2.hotmail.com ([65.54.247.83]:18449 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S271047AbTGVXyw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 19:54:52 -0400
-X-Originating-IP: [147.145.40.43]
-X-Originating-Email: [sumanesh@hotmail.com]
-From: "sumanesh samanta" <sumanesh@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4x - getting physical address for pages in HIGHMEM 
-Date: Wed, 23 Jul 2003 00:09:54 +0000
+	Tue, 22 Jul 2003 20:41:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1933 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271066AbTGWAlM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 20:41:12 -0400
+Date: Tue, 22 Jul 2003 17:54:00 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Otto Solares <solca@guug.org>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org,
+       sparclinux@vger.kernel.org, debian-sparc@lists.debian.org
+Subject: Re: sparc scsi esp depends on pci & hangs on boot
+Message-Id: <20030722175400.4fe2aa5d.davem@redhat.com>
+In-Reply-To: <20030722182609.GA30174@guug.org>
+References: <20030722025142.GC25561@guug.org>
+	<20030722080905.A21280@devserv.devel.redhat.com>
+	<20030722182609.GA30174@guug.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY2-F83zgm7hVTThPD00010aa2@hotmail.com>
-X-OriginalArrivalTime: 23 Jul 2003 00:09:57.0275 (UTC) FILETIME=[C0076EB0:01C350AE]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 22 Jul 2003 12:26:09 -0600
+Otto Solares <solca@guug.org> wrote:
 
-I am facing a lot of problems in trying to get the physical address(actually 
-bus address) from of page.
+> converting the esp scsi driver to sbus without
+> pci requirement is the right step IMO.  Maybe
+> the scsi people can comment on this.
 
-The most obvious answer, virt_to_bus(kmap(page)) seems to work for pages 
-that are NOT  in high memory.
-
-For pages in high memory, I have read up a lot of documentation, and mailing 
-list questions, but the only thing that seems to work for me is,
-(page-mem_map)<<PAGE_SHIFT
-
-Now, the mail i got this from says that this would work only when  mem_map 
-[] starts at zero.
-
-I am pretty confused here, this seems to be a obvious problem, why does 
-Linux not have a pretty macro or function that would work in all situations?
-
-PS. please cc me in any answers, as I am not subscribed to this list.
-
-Thanks
-sumanesh
-
-_________________________________________________________________
-Protect your PC - get McAfee.com VirusScan Online  
-http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
-
+No, the problem is that SCSI DMA transfer direction
+macros are defined in terms of PCI ones.  That's all,
+it's a minor issue and probably easily solved.

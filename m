@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbULYVd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbULYVlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbULYVd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 16:33:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbULYVd6
+	id S261573AbULYVlk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 16:41:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbULYVlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 16:33:58 -0500
-Received: from mail.dif.dk ([193.138.115.101]:26316 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261572AbULYVd4 (ORCPT
+	Sat, 25 Dec 2004 16:41:40 -0500
+Received: from coderock.org ([193.77.147.115]:24798 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261573AbULYVlh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 16:33:56 -0500
-Date: Sat, 25 Dec 2004 22:44:50 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: docs: add sparse howto
-In-Reply-To: <20041225212235.GA20147@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.61.0412252240000.3495@dragon.hygekrogen.localhost>
-References: <20041225212235.GA20147@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Dec 2004 16:41:37 -0500
+Date: Sat, 25 Dec 2004 22:41:45 +0100
+From: Domen Puncer <domen@coderock.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: delete unused file
+Message-ID: <20041225214145.GA3764@masina.coderock.org>
+References: <20041225134120.050934DC0EB@golobica.uni-mb.si> <20041225191126.GA3219@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041225191126.GA3219@twiddle.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Dec 2004, Pavel Machek wrote:
-
-> Hi!
+On 25/12/04 11:11 -0800, Richard Henderson wrote:
+> On Sat, Dec 25, 2004 at 02:41:28PM +0100, domen@coderock.org wrote:
+> >  kj/arch/alpha/lib/dbg_stackcheck.S |   27 ---------------------------
 > 
-> Installing / using sparse is not exactly trivial, this should make
-> setting it up easier. Please apply, 
-> 								Pavel
+> As should be obvious from the "dbg" prefix, these are debugging aids.
+> Do not remove any of them.
 
-/If/ that patch gets accepted may I suggest this companion?   :)
+Obvious? Not to me :-)
+It looked like they were debugging aids (no change >2 years) and they
+are not needed anymore (or there would be a DEBUG_blah).
 
-Add sparse.txt to Documentation/00-INDEX
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -u linux-2.6.10-rc3-bk16-orig/Documentation/00-INDEX linux-2.6.10-rc3-bk16/Documentation/00-INDEX
---- linux-2.6.10-rc3-bk16-orig/Documentation/00-INDEX	2004-12-06 22:24:13.000000000 +0100
-+++ linux-2.6.10-rc3-bk16/Documentation/00-INDEX	2004-12-25 22:42:34.000000000 +0100
-@@ -254,6 +254,8 @@
- 	- directory with info on sound card support.
- sparc/
- 	- directory with info on using Linux on Sparc architecture.
-+sparse.txt
-+	- documentation on installing and using the 'sparse' source checker.
- specialix.txt
- 	- info on hardware/driver for specialix IO8+ multiport serial card.
- spinlocks.txt
+Patch dropped.
 
 
+	Domen

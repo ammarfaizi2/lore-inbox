@@ -1,209 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUFRJm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265073AbUFRJrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265093AbUFRJm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 05:42:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265094AbUFRJli
+	id S265073AbUFRJrp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 05:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbUFRJrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 05:41:38 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:10175 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265090AbUFRJkQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 05:40:16 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Fri, 18 Jun 2004 11:21:18 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] v4l: msp3400 cleanup.
-Message-ID: <20040618092118.GA23871@bytesex.org>
+	Fri, 18 Jun 2004 05:47:45 -0400
+Received: from disk.smurf.noris.de ([192.109.102.53]:59117 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S265073AbUFRJp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 05:45:58 -0400
+From: "Matthias Urlichs" <smurf@smurf.noris.de>
+Date: Fri, 18 Jun 2004 11:43:00 +0200
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: [PATCH] kbuild: Allow HOSTLOADLIBES_foo for single-object foo
+Message-ID: <20040618094300.GA29540@kiste>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.5.6+20040523i
+X-Smurf-Spam-Score: -2.6 (--)
+X-Smurf-Spam-Report: Spam detection software, running on the system "server.smurf.noris.de", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Self-explanatory (I hope ;-) and tested. NB: Thanks to
+	whoever convinced off-source-tree and separate-binary Make runs just
+	work. Magic. You can import this changeset into BK by piping this whole
+	message to: '| bk receive [path to repository]' or apply the patch as
+	usual. [...] 
+	Content analysis details:   (-2.6 points, 10.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.7 OBSCURED_EMAIL         BODY: Message seems to contain rot13ed address
+	-4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	0.0 UPPERCASE_25_50        message body is 25-50% uppercase
+	-0.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+Self-explanatory (I hope ;-) and tested.
 
-This patch has some cleanups for the msp3400 module:  Balance is used
-directly now instead of maintaining the state as left/right volume and
-calculate the balance from that.  The msp3400 did that only for
-historical reasons and it isn't needed any more ...
+NB: Thanks to whoever convinced off-source-tree and separate-binary Make
+    runs just work. Magic.
 
-Credits for that go to Perry Gilfillan.
 
-please apply,
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
 
-  Gerd
+===================================================================
 
-diff -up linux-2.6.7/drivers/media/video/msp3400.c linux/drivers/media/video/msp3400.c
---- linux-2.6.7/drivers/media/video/msp3400.c	2004-06-17 10:29:44.000000000 +0200
-+++ linux/drivers/media/video/msp3400.c	2004-06-17 13:47:59.065407892 +0200
-@@ -51,6 +51,7 @@
- #include <asm/pgtable.h>
+
+ChangeSet@1.1785, 2004-06-18 11:13:27+02:00, smurf@smurf.noris.de
+  The HOSTLOADLIBES_target variable did not work for single-object host binaries.
+  
+  Signed-Off-By: Matthias Urlichs <smurf@smurf.noris.de>
+
+
+ Makefile.build |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+
+diff -Nru a/scripts/Makefile.build b/scripts/Makefile.build
+--- a/scripts/Makefile.build	2004-06-18 11:38:49 +02:00
++++ b/scripts/Makefile.build	2004-06-18 11:38:49 +02:00
+@@ -305,7 +305,8 @@
+ # Create executable from a single .c file
+ # host-csingle -> Executable
+ quiet_cmd_host-csingle 	= HOSTCC  $@
+-      cmd_host-csingle	= $(HOSTCC) $(hostc_flags) $(HOST_LOADLIBES) -o $@ $<
++      cmd_host-csingle	= $(HOSTCC) $(hostc_flags) -o $@ $< \
++			  $(HOST_LOADLIBES) $(HOSTLOADLIBES_$(@F))
+ $(host-csingle): %: %.c FORCE
+ 	$(call if_changed_dep,host-csingle)
  
- #include <media/audiochip.h>
-+#include <media/id.h>
- #include "msp3400.h"
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.1785
+## Wrapped with gzip_uu ##
+
+
+makepatch: ChangeSet 
+makepatch: scripts/Makefile.build 
+makepatch: patch contains 2 revisions from 2 files
+M'XL( "FXTD   [64;4_;,!#'7]>?XB3Z@@HEL1,G32.*"H4--% 1A5?;5#FV
+MVV1-X\IV04CY\'/+0X7HD#8-QU*<\_ER=_]?L@=W1NJL918K/45[<*Z,?7[R
+M:Z5+XPOIS#=*.7,@F)5U8#0/YE+7L@I"/_&[R#E<,\L+N)?:9"WB1Z\6^[B4
+M6>OF[.O=Y?$-0OT^# M6S^186NCWD57ZGE7"#)@M*E7[5K/:+*1E/E>+YM6U
+M"3$.W163;H3CI"$)IMV&$T$(HT0*'-(TH=MHRR7O=;&OC*A\I6=O U&<N/,N
+ME M!HAX.T2D0GW33&# -<!*0% C)2)2%W0,<9AC#IA^#MUV! P(>1B?P?VL8
+M(@ZWA83ST?CV<G1\>GEQ<C:>6*9GKF/W3)<LKR2(4D"M+#PH/8>ITF#*>E9)
+M3^6_)+=0.!4A+VOG+HWO(KHY+F>U%-YH.O5.'C.X8M86)3-PIZN2%P8.=Q5Y
+MA+X!B>*XAZZWPB'O+P="F&%T!'-6#NR2^'I5:&]5EUZN>+%:N/<TANMR:4UP
+MQ>9R6E;2SU=E)38](ZXS3K40DX9@2J)&3'M)+*(DS-,DC]AN>3Z(N 8@Q3T2
+MA;BA48R3#9>[_=>0?E+:B,V7B\$+H]]?,/KY8>8124A,:-QK*$EIO$&7TG?@
+MX@_!#<$CGP+N<56IA]WHOH?T:<,XPIY$&(&G'S;3$7/]!SW^@;W3"+N^H(OU
+M+42P&7PA)NN/Q.-/.;7ZT-Y?YST<=MQJO<4GTXK-3 <\!>T!M _A!VJU6O#L
+G.'FML/-LV9;<WA]\Z72VOT5>2#XWJT6_2P5-(\G1;S-X615W!0  
  
- /* insmod parameters */
-@@ -80,7 +81,7 @@ struct msp3400c {
- 	int input;
- 
- 	int muted;
--	int left, right;	/* volume */
-+	int volume, balance;
- 	int bass, treble;
- 
- 	/* shadow register set */
-@@ -378,26 +379,24 @@ static void msp3400c_setcarrier(struct i
- }
- 
- static void msp3400c_setvolume(struct i2c_client *client,
--			       int muted, int left, int right)
-+			       int muted, int volume, int balance)
- {
--	int vol = 0,val = 0,balance = 0;
-+	int val = 0, bal = 0;
- 
- 	if (!muted) {
--		vol     = (left > right) ? left : right;
--		val     = (vol * 0x73 / 65535) << 8;
-+		val = (volume * 0x73 / 65535) << 8;
- 	}
--	if (vol > 0) {
--		balance = ((right-left) * 127) / vol;
-+	if (val) {
-+		bal = (balance / 256) - 128;
- 	}
--
- 	dprintk(KERN_DEBUG
- 		"msp34xx: setvolume: mute=%s %d:%d  v=0x%02x b=0x%02x\n",
--		muted ? "on" : "off", left, right, val>>8, balance);
-+		muted ? "on" : "off", volume, balance, val>>8, bal);
- 	msp3400c_write(client,I2C_MSP3400C_DFP, 0x0000, val); /* loudspeaker */
- 	msp3400c_write(client,I2C_MSP3400C_DFP, 0x0006, val); /* headphones  */
- 	/* scart - on/off only */
- 	msp3400c_write(client,I2C_MSP3400C_DFP, 0x0007, val ? 0x4000 : 0);
--	msp3400c_write(client,I2C_MSP3400C_DFP, 0x0001, balance << 8);
-+	msp3400c_write(client,I2C_MSP3400C_DFP, 0x0001, bal << 8);
- }
- 
- static void msp3400c_setbass(struct i2c_client *client, int bass)
-@@ -738,7 +737,7 @@ autodetect_stereo(struct i2c_client *cli
- static int msp34xx_sleep(struct msp3400c *msp, int timeout)
- {
- 	DECLARE_WAITQUEUE(wait, current);
--
-+	
- 	add_wait_queue(&msp->wq, &wait);
- 	if (!msp->rmmod) {
- 		set_current_state(TASK_INTERRUPTIBLE);
-@@ -815,7 +814,7 @@ static int msp3400c_thread(void *data)
- 			/* no carrier scan, just unmute */
- 			printk("msp3400: thread: no carrier scan\n");
- 			msp3400c_setvolume(client, msp->muted,
--					   msp->left, msp->right);
-+					   msp->volume, msp->balance);
- 			continue;
- 		}
- 		msp->restart = 0;
-@@ -960,7 +959,8 @@ static int msp3400c_thread(void *data)
- 		}
- 
- 		/* unmute + restore dfp registers */
--		msp3400c_setvolume(client, msp->muted, msp->left, msp->right);
-+		msp3400c_setvolume(client, msp->muted,
-+				   msp->volume, msp->balance);
- 		msp3400c_restore_dfp(client);
- 
- 		if (msp->watch_stereo)
-@@ -1042,7 +1042,7 @@ static int msp3410d_thread(void *data)
- 			/* no carrier scan needed, just unmute */
- 			dprintk(KERN_DEBUG "msp3410: thread: no carrier scan\n");
- 			msp3400c_setvolume(client, msp->muted,
--					   msp->left, msp->right);
-+					   msp->volume, msp->balance);
- 			continue;
- 		}
- 		msp->restart = 0;
-@@ -1194,7 +1194,8 @@ static int msp3410d_thread(void *data)
- 		/* unmute + restore dfp registers */
- 		msp3400c_setbass(client, msp->bass);
- 		msp3400c_settreble(client, msp->treble);
--		msp3400c_setvolume(client, msp->muted, msp->left, msp->right);
-+		msp3400c_setvolume(client, msp->muted,
-+				    msp->volume, msp->balance);
- 		msp3400c_restore_dfp(client);
- 
- 		if (msp->watch_stereo)
-@@ -1257,8 +1258,8 @@ static int msp_attach(struct i2c_adapter
- 	}
- 	
- 	memset(msp,0,sizeof(struct msp3400c));
--	msp->left   = 65535;
--	msp->right  = 65535;
-+	msp->volume = 65535;
-+	msp->balance = 32768;
- 	msp->bass   = 32768;
- 	msp->treble = 32768;
- 	msp->input  = -1;
-@@ -1290,7 +1291,7 @@ static int msp_attach(struct i2c_adapter
- 	/* this will turn on a 1kHz beep - might be useful for debugging... */
- 	msp3400c_write(c,I2C_MSP3400C_DFP, 0x0014, 0x1040);
- #endif
--	msp3400c_setvolume(c,msp->muted,msp->left,msp->right);
-+	msp3400c_setvolume(c, msp->muted, msp->volume, msp->balance);
- 
- 	snprintf(c->name, sizeof(c->name), "MSP34%02d%c-%c%d",
- 		 (msp->rev2>>8)&0xff, (msp->rev1&0xff)+'@',
-@@ -1440,8 +1441,10 @@ static int msp_command(struct i2c_client
- 		} else {
- 			/* set msp3400 to FM radio mode */
- 			msp3400c_setmode(client,MSP_MODE_FM_RADIO);
--			msp3400c_setcarrier(client, MSP_CARRIER(10.7),MSP_CARRIER(10.7));
--			msp3400c_setvolume(client,msp->muted,msp->left,msp->right);			
-+			msp3400c_setcarrier(client, MSP_CARRIER(10.7),
-+					    MSP_CARRIER(10.7));
-+			msp3400c_setvolume(client, msp->muted,
-+					   msp->volume, msp->balance);	
- 		}
- 		if (msp->active)
- 			msp->restart = 1;
-@@ -1488,16 +1491,9 @@ static int msp_command(struct i2c_client
- 			VIDEO_AUDIO_MUTABLE;
- 		if (msp->muted)
- 			va->flags |= VIDEO_AUDIO_MUTE;
--		va->volume=max(msp->left,msp->right);
- 
--		if (0 == va->volume) {
--			va->balance = 32768;
--		} else {
--			va->balance = (32768 * min(msp->left,msp->right))
--				/ va->volume;
--			va->balance = (msp->left<msp->right) ?
--				(65535 - va->balance) : va->balance;
--		}
-+		va->volume = msp->volume;
-+		va->balance = (va->volume) ? msp->balance : 32768;
- 		va->bass = msp->bass;
- 		va->treble = msp->treble;
- 
-@@ -1513,13 +1509,13 @@ static int msp_command(struct i2c_client
- 
- 		dprintk(KERN_DEBUG "msp34xx: VIDIOCSAUDIO\n");
- 		msp->muted = (va->flags & VIDEO_AUDIO_MUTE);
--		msp->left = (min(65536 - va->balance,32768) *
--			     va->volume) / 32768;
--		msp->right = (min(va->balance,(__u16)32768) *
--			      va->volume) / 32768;
-+		msp->volume = va->volume;
-+		msp->balance = va->balance;
- 		msp->bass = va->bass;
- 		msp->treble = va->treble;
--		msp3400c_setvolume(client,msp->muted,msp->left,msp->right);
-+
-+		msp3400c_setvolume(client, msp->muted,
-+				   msp->volume, msp->balance);
- 		msp3400c_setbass(client,msp->bass);
- 		msp3400c_settreble(client,msp->treble);
- 
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de

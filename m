@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272560AbTHEH3W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 03:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272563AbTHEH3V
+	id S272566AbTHEHbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 03:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272567AbTHEHbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 03:29:21 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:18082 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S272560AbTHEH3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 03:29:17 -0400
-Date: Tue, 5 Aug 2003 09:29:13 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: torvalds@osdl.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [TRIVIAL] use ext2/ext3 consistently in Kconfig
-Message-ID: <20030805072913.GE5876@louise.pinerecords.com>
+	Tue, 5 Aug 2003 03:31:15 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:38404 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S272566AbTHEHbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 03:31:12 -0400
+Subject: Re: [PATCH] O13.1int
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200308051017.55616.kernel@kolivas.org>
+References: <200308051017.55616.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1060068667.556.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 05 Aug 2003 09:31:07 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resend: patch against test2-bk4.
-Use ext2/ext3 consistently in Kconfig.  Also clarify what fs versions the
-current reiser module supports.
+On Tue, 2003-08-05 at 02:17, Con Kolivas wrote:
+> A heck of a lot fairer on disk only tasks; lets them earn sleep avg up to just 
+> interactive state so they stay on the active array.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+This one is more "jumpy" (i.e., not as smooth as) than just the previous
+release. I have had to renice X back to -20 in order to get smooth
+window movements involving heavyweight CPU programs like Evolution.
 
+Also, with X at -20, XMMS skips are still present, but they are a little
+bit shorter than with previous iterations.
 
-diff -urN a/fs/Kconfig b/fs/Kconfig
---- a/fs/Kconfig	2003-06-14 23:07:12.000000000 +0200
-+++ b/fs/Kconfig	2003-07-26 23:18:35.000000000 +0200
-@@ -5,7 +5,7 @@
- menu "File systems"
- 
- config EXT2_FS
--	tristate "Second extended fs support"
-+	tristate "Ext2 fs support"
- 	help
- 	  This is the de facto standard Linux file system (method to organize
- 	  files on a storage device) for hard disks.
-@@ -86,11 +86,12 @@
- 	  extended attributes for file security labels, say N.
- 
- config EXT3_FS
--	tristate "Ext3 journalling file system support"
-+	tristate "Ext3 journaling file system support"
- 	help
--	  This is the journaling version of the Second extended file system
--	  (often called ext3), the de facto standard Linux file system
--	  (method to organize files on a storage device) for hard disks.
-+	  Ext3 is a journaling version of the Second extended fs
-+	  (or just ext2fs), the de facto standard Linux filesystem
-+	  (method to organize files on a storage device) for block
-+	  devices such as hard disk partitions.
- 
- 	  The journaling code included in this driver means you do not have
- 	  to run e2fsck (file system checker) on your file systems after a
-@@ -200,7 +201,7 @@
- 	default m if EXT2_FS=m || EXT3_FS=m
- 
- config REISERFS_FS
--	tristate "Reiserfs support"
-+	tristate "Reiserfs support (for v3.5 & v3.6 filesystems)"
- 	help
- 	  Stores not just filenames but the files themselves in a balanced
- 	  tree.  Uses journaling.

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbTJID1c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 23:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTJID1c
+	id S261841AbTJIEFI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 00:05:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTJIEFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 23:27:32 -0400
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:38055 "EHLO
-	office.lsg.internal") by vger.kernel.org with ESMTP id S261882AbTJID1b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 23:27:31 -0400
-Message-ID: <3F84D5A0.5050709@backtobasicsmgmt.com>
-Date: Wed, 08 Oct 2003 20:27:28 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Thu, 9 Oct 2003 00:05:08 -0400
+Received: from ol.freeshell.org ([192.94.73.20]:6348 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S261841AbTJIEFF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 00:05:05 -0400
+Date: Thu, 9 Oct 2003 04:04:59 +0000 (UTC)
+From: Cherry George Mathew <cherry@sdf.lonestar.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: lkml <linux-kernel@vger.kernel.org>, fastboot@osdl.org
+Subject: Re: [Fastboot] kexec update (2.6.0-test7)
+In-Reply-To: <20031008172235.70d6b794.rddunlap@osdl.org>
+Message-ID: <Pine.NEB.4.58.0310090401310.17767@sdf.lonestar.org>
+References: <20031008172235.70d6b794.rddunlap@osdl.org>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: 2.6.0-test7 "make oldconfig" breaks with O=...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unpacked a complete fresh source tree (from -test1 patched up to 
--test7), then did
+On Wed, 8 Oct 2003, Randy.Dunlap wrote:
 
-make O=../linux-foo oldconfig
+> You'll need to update the kexec-syscall.c file for the correct
+> kexec syscall number (274).
 
-where ../linux-foo is an object-only tree previously successfully used 
-with -test6.
+Is there a consensus about what the syscall number will finally be ? We've
+jumped from 256 to 274 over the 2.5.x+  series kernels. Or is it the law
+the Jungle ?
 
-This is what I got back for my efforts :-)
-
-----
-
-make[2]: `scripts/fixdep' is up to date.
-   HOSTCC  -fPIC scripts/kconfig/zconf.tab.o
-gcc: /storage/work/linux-2.6/scripts/kconfig/zconf.tab.c: No such file 
-or directory
-gcc: No input files
-make[2]: *** [scripts/kconfig/zconf.tab.o] Error 1
-make[1]: *** [oldconfig] Error 2
-make: *** [oldconfig] Error 2
-
+--
+cherry@sdf.lonestar.org
+Homepage - http://cherry.freeshell.org

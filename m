@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264942AbSJ3Wwa>; Wed, 30 Oct 2002 17:52:30 -0500
+	id <S264948AbSJ3W4r>; Wed, 30 Oct 2002 17:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbSJ3Wwa>; Wed, 30 Oct 2002 17:52:30 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:31502 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S264942AbSJ3Wwa>; Wed, 30 Oct 2002 17:52:30 -0500
-Date: Wed, 30 Oct 2002 23:58:46 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Bob Billson <reb@bhive.dhs.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lkc 1.2: make xmenu error
-In-Reply-To: <20021030223843.GF4186@etain.bhive.dhs.org>
-Message-ID: <Pine.LNX.4.44.0210302355150.13257-100000@serv>
-References: <20021030223843.GF4186@etain.bhive.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264951AbSJ3W4q>; Wed, 30 Oct 2002 17:56:46 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:29614 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S264948AbSJ3W4q>;
+	Wed, 30 Oct 2002 17:56:46 -0500
+Date: Wed, 30 Oct 2002 23:01:59 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: John Gardiner Myers <jgmyers@netscape.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021030230159.GB25231@bjl1.asuk.net>
+References: <Pine.LNX.4.44.0210291237240.1457-100000@blue1.dev.mcafeelabs.com> <3DBF426B.6050208@netscape.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DBF426B.6050208@netscape.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+John Gardiner Myers wrote:
+> I am uncomfortable with the way the epoll code adds its own set of 
+> notification hooks into the socket and pipe code.  Much better would be 
+> to extend the existing set of notification hooks, like the aio poll code 
+> does.
 
-On Wed, 30 Oct 2002, Bob Billson wrote:
+Fwiw, I agree with the above (I'm having a think about it).
 
-> [reb@etain]:~/kernel/linux-2.5.44$ make xconfig
-> make -f scripts/Makefile 
-> make -f scripts/kconfig/Makefile scripts/kconfig/qconf
->   gcc -Wp,-MD,scripts/kconfig/.conf.o.d -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer   -c -o scripts/kconfig/conf.o scripts/kconfig/conf.c
->   gcc -Wp,-MD,scripts/kconfig/.kconfig_load.o.d -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer   -c -o scripts/kconfig/kconfig_load.o scripts/kconfig/kconfig_load.c
->   gcc -Wp,-MD,scripts/kconfig/.mconf.o.d -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer   -c -o scripts/kconfig/mconf.o scripts/kconfig/mconf.c
-> /usr/share/qt/bin/moc -i scripts/kconfig/qconf.h -o scripts/kconfig/qconf.moc
-> make[1]: /usr/share/qt/bin/moc: Command not found
-> make[1]: *** [scripts/kconfig/qconf.moc] Error 127
-> make: *** [scripts/kconfig/qconf] Error 2
-> 
-> This is on a Debian (testing tree) box with the libqt3-dev package
-> installed.  moc is there, just not in /usr/share/qt/bin:
-> 
-> [reb@etain]:~/kernel/linux-2.5.44$ whereis moc
-> moc: /usr/bin/moc /usr/share/man/man1/moc.1.gz
+I also agree with criticisms that epoll should test and send an event
+on registration, but only _if_ the test is cheap.  Nothing to do with
+correctness (I like the edge semantics as they are), but because
+delivering one event is so infinitesimally low impact with epoll that
+it's preferable to doing a single speculative read/write/whatever.
 
-Debian creates symlinks in /usr/share/qt/bin, which point to /usr/bin, so 
-this should work (at least it does here :) ). How does your 
-/usr/share/qt/bin look like?
+Regarding the effectiveness of the optimisation, I'd guess that quite
+a lot of incoming connections do not come with initial data in the
+short scheduling time after a SYN (unless it's on a LAN).  I don't
+know this for sure though.
 
-bye, Roman
-
+-- Jamie
+ 

@@ -1,77 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSGEGUV>; Fri, 5 Jul 2002 02:20:21 -0400
+	id <S315455AbSGEGbl>; Fri, 5 Jul 2002 02:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315455AbSGEGUU>; Fri, 5 Jul 2002 02:20:20 -0400
-Received: from mail.vtc.edu.hk ([202.75.80.229]:7977 "EHLO pandora.vtc.edu.hk")
-	by vger.kernel.org with ESMTP id <S315454AbSGEGUT>;
-	Fri, 5 Jul 2002 02:20:19 -0400
-Message-ID: <3D253B36.BE0BC22@vtc.edu.hk>
-Date: Fri, 05 Jul 2002 14:22:46 +0800
-From: Nick Urbanik <nicku@vtc.edu.hk>
-Organization: Institute of Vocational Education (Tsing Yi)
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: cmd649 not working with 2 CPU box
-References: <Pine.LNX.4.44.0207041128570.21993-100000@netfinity.realnet.co.sz>
+	id <S315456AbSGEGbk>; Fri, 5 Jul 2002 02:31:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:39570 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315455AbSGEGbk>;
+	Fri, 5 Jul 2002 02:31:40 -0400
+Date: Fri, 5 Jul 2002 08:34:01 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org,
+       sullivan@austin.ibm.com
+Subject: Re: [BUG-2.5.24-BK] DriverFS panics on boot!
+Message-ID: <20020705063401.GI1007@suse.de>
+References: <200207042259.g64MxdH03605@localhost.localdomain> <Pine.LNX.4.10.10207041900080.19028-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10207041900080.19028-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
+On Thu, Jul 04 2002, Andre Hedrick wrote:
+> 	1) 8K writes and 64K (or larger) reads.
 
-> On Thu, 4 Jul 2002, Nick Urbanik wrote:
->
-> > hda: ATAPI CD-ROM DRIVE 50X MAXIMUM, ATAPI CD/DVD-ROM drive
-> > hdc: ST360021A, ATA DISK drive
-> > hde: ST320420A, ATA DISK drive
-> > hde: IRQ probe failed (0xfffffef8)
-> > hdf: IRQ probe failed (0xfffffef8)
-> > hdf: IRQ probe failed (0xfffffef8)
-> > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > ide1 at 0x170-0x177,0x376 on irq 15
-> > ide2: DISABLED, NO IRQ
-> > ^^^^^^^^^^^^^^^^^^^^^^____________Oh dear!!!!
->
-> Does booting with noapic change anything?
+I've heard this before, but noone seems to have tested it yet. You know,
+this is a couple of lines of change in ll_rw_blk.c and blkdev.h to
+support this. Any reason you haven't done that, benched, and submitted
+something to that effect? I'll even walk you through the 2.5 changes
+needed to do this:
 
-I still got the same "ide2: DISABLED, NO IRQ" message.  I tried booting with
-pirq=0,0,18,0,16 and a number of other combinations (until somone complained
-about the server not being available), and only succeeded in disabling the
-keyboard at my last permutation; sshed in to reboot.
+blkdev.h:
+	unsigned short max_sectors;
 
-the PCI slots are like this:
+change to
 
-back of main board
-|  |  |  |  |  |
-|  |  |  |  |  |
-|  |  |  |  |  |
-e  e  e  e  c  |
-m  m  t  m  m  a
-p  p  h  p  d  g
-t  t  1  t  6  p
-y  y     y  4
-            9
+	unsigned short max_sectors[2];
 
-I think I'll wait till there's less demand for the server, then try booting it
-with other kernel parameter values for pirq.
+ll_rw_blk.c:
+	ll_back_merge_fn()
+	if (req->nr_sectors + bio_sectors(bio) > q->max_sectors) {
 
-> Cheers,
->         Zwane Mwaikambo
+change to
 
-Thank you; I think I may eventually get these things working!
+	if (req->nr_sectors + bio_sectors(bio) > q->max_sectors[rq_data_dir[req]) {
 
---
-Nick Urbanik   RHCE                                  nicku@vtc.edu.hk
-Dept. of Information & Communications Technology
-Hong Kong Institute of Vocational Education (Tsing Yi)
-Tel:   (852) 2436 8576, (852) 2436 8579          Fax: (852) 2436 8526
-PGP: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B     ID: 7529555D
-GPG: 7FFA CDC7 5A77 0558 DC7A 790A 16DF EC5B BB9D 2C24   ID: BB9D2C24
+Ditto for ll_front_merge_fn() and ll_merge_requests_fn(). The line in
+attempt_merge() can be killed.
 
+	generic_make_request()
+	BUG_ON(bio_sectors(bio) > q->max_sectors);
 
+change to
+
+	BUG_ON(bio_sectors(bio) > q->max_sectors[bio_data_dir(bio)];
+
+And do the trivial thing to blk_queue_max_sectors() as well. Now all you
+need to do is change ide-probe.c to set the values you want.
+
+> 	2) ONE maybe TWO passes on elevator operations.
+
+Explain.
+
+> Since this is falling on deaf ears in general, oh well.
+
+How so?
+
+-- 
+Jens Axboe
 

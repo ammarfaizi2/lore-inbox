@@ -1,30 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129730AbRCFSbX>; Tue, 6 Mar 2001 13:31:23 -0500
+	id <S129401AbRCFSqR>; Tue, 6 Mar 2001 13:46:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129797AbRCFSbN>; Tue, 6 Mar 2001 13:31:13 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2571 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129730AbRCFSbH>; Tue, 6 Mar 2001 13:31:07 -0500
-Subject: Re: Inadequate documentation: sockets
-To: alex@baretta.com (Alessandro Baretta)
-Date: Tue, 6 Mar 2001 18:34:08 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3AA52916.5FD87258@baretta.com> from "Alessandro Baretta" at Mar 06, 2001 07:14:46 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129216AbRCFSqI>; Tue, 6 Mar 2001 13:46:08 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:1263 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129408AbRCFSpw>; Tue, 6 Mar 2001 13:45:52 -0500
+Date: Tue, 6 Mar 2001 15:44:52 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Kurt Garloff <garloff@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Patch submissions
+In-Reply-To: <20010306192636.G5944@garloff.etpnet.phys.tue.nl>
+Message-ID: <Pine.LNX.4.33.0103061542550.1409-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14aMHj-0001E1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> =46inally I'm left with my original problem: how am I supposed to
-> detect a close or a shutdown from the peer? Once again, I thank in
-> advance anyone who will lend me a hand by explaining this to me or
-> by addressing me to more adequate documentation.
+On Tue, 6 Mar 2001, Kurt Garloff wrote:
+> On Tue, Mar 06, 2001 at 02:22:58PM -0300, Rik van Riel wrote:
+> > I agree with Alan that we should keep all experimental stuff
+> > out of 2.4,
+>
+> Depends on the impact. Experimental stuff in MM, FS, ...
+	[snip]
+> But, that's probably what you meant.
 
-By an EOF on read or getting SIGPIPE/EPIPE on a write. You might want to pick
-up a book on the subject of network programming. There are some very nice ones
-around
+*nod*
+
+> > probably even out of linux-kernel ...
+>
+> No. I want to see experimental stuff on l-k. That's what it's meant for.
+
+Putting the experimental stuff which isn't on l-k at the
+moment would probably triple the volume of this list, if
+not more ...
+
+I'm pretty sure most people already find l-k traffic too
+heavy to keep up. If you want to read all the experimental
+stuff of all the subsystems, why not subscribe to the
+mailing lists of those subsystems ?
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

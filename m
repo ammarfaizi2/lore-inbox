@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275066AbRIYQWn>; Tue, 25 Sep 2001 12:22:43 -0400
+	id <S275078AbRIYQZc>; Tue, 25 Sep 2001 12:25:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275082AbRIYQWc>; Tue, 25 Sep 2001 12:22:32 -0400
-Received: from rj.sgi.com ([204.94.215.100]:15009 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S275066AbRIYQWQ>;
-	Tue, 25 Sep 2001 12:22:16 -0400
-Message-ID: <3BB0AF30.89DD484@sgi.com>
-Date: Tue, 25 Sep 2001 09:22:08 -0700
-From: Casey Schaufler <casey@sgi.com>
-Organization: Silicon Graphics
-X-Mailer: Mozilla 4.78C-SGI [en] (X11; U; IRIX 6.5-ALPHA-1277639620 IP32)
-X-Accept-Language: en
+	id <S275079AbRIYQZW>; Tue, 25 Sep 2001 12:25:22 -0400
+Received: from [213.97.45.174] ([213.97.45.174]:43012 "EHLO pau.intranet.ct")
+	by vger.kernel.org with ESMTP id <S275078AbRIYQZK>;
+	Tue, 25 Sep 2001 12:25:10 -0400
+Date: Tue, 25 Sep 2001 18:25:18 +0200 (CEST)
+From: Pau Aliagas <linux4u@wanadoo.es>
+X-X-Sender: <pau@pau.intranet.ct>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.9-ac15 painfully sluggish
+In-Reply-To: <Pine.LNX.4.33L.0109251315130.26091-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0109251819520.1401-100000@pau.intranet.ct>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-In-Reply-To: <E15lf6o-00044T-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > > SGI           - High level security modules (LSM)
-> >
-> > License terms and release scheme for this work
-> > have not been finalized.
-> 
-> But from your comments on the LSM list we can guess
+On Tue, 25 Sep 2001, Rik van Riel wrote:
 
-Sure you can guess. That's all you'll be doing though.
-As a representitive of a corporate entity it is important
-that I not make promises that I can't keep. I would like
-to provide all facilities under GPL or more liberal terms.
-We have to deal with potential legal encumberances, and
-that's a fact of corporate life. I can say that I want
-to use GPL, that I plan to use GPL (which is true) but
-I am required to provide notice that I may not be able
-for legal, copywrite, or corporate poliy reasons to
-commit to doing so. This is one of the disadvantages of
-being a wage slave.
+> Could you give me some info on how much memory is being
+> used by the various caches (first lines of top) and maybe
+> a few lines of vmstat output ?
 
--- 
+Only setiathome was really running whilst the rest of processes just where
+in D state; the IDE disk never seemed to stop.
 
-Casey Schaufler				Manager, Trust Technology, SGI
-casey@sgi.com				voice: 650.933.1634
-casey_p@pager.sgi.com			Pager: 888.220.0607
+Once I stopped the CPU hog (that's seti) kapm-idled ained the CPU, but
+again the swap was not being used but for a few Kb (about 2M maximum).
+
+The problem seems to be related in pages not moved to swap but being
+discarded somehow and reread later on.... just a guess.
+
+If you need any debugging just tell me what and I'll give it a try.
+
+Pau
+

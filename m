@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293525AbSBZFTL>; Tue, 26 Feb 2002 00:19:11 -0500
+	id <S293527AbSBZFTL>; Tue, 26 Feb 2002 00:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293523AbSBZFTD>; Tue, 26 Feb 2002 00:19:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16140 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293522AbSBZFSv>; Tue, 26 Feb 2002 00:18:51 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux 2.4.18
-Date: 25 Feb 2002 21:18:13 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a5f5ql$2jl$1@cesium.transmeta.com>
-In-Reply-To: <20020225233230.GB11786@merlin.emma.line.org> <Pine.LNX.3.96.1020226000221.20055B-100000@gatekeeper.tmr.com>
+	id <S293525AbSBZFTC>; Tue, 26 Feb 2002 00:19:02 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39185 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S293521AbSBZFSs>; Tue, 26 Feb 2002 00:18:48 -0500
+Date: Tue, 26 Feb 2002 00:14:13 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: lse-tech@lists.sourceforge.net,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] NUMA scheduling
+In-Reply-To: <20020225120242.F22497@work.bitmover.com>
+Message-ID: <Pine.LNX.3.96.1020226000515.20055C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.3.96.1020226000221.20055B-100000@gatekeeper.tmr.com>
-By author:    Bill Davidsen <davidsen@tmr.com>
-In newsgroup: linux.dev.kernel
->
-> On Tue, 26 Feb 2002, Matthias Andree wrote:
-> 
-> > I'd think that running a script to "upgrade" 2.4.N-rcM to 2.4.N by just
-> > unpacking that latest rc tarball, editing the Makefile and tarring
-> > things up again, should be safe enough, and if it doesn't allow for
-> > operator interference, especially so. 
-> 
-> Seems to me:
-> - clean EXTRAVERSION
-> - make new diff
-> - make tar (one please)
-> - make tar.gz from tar
-> - compress tar to tar.bz2
-> 
+On Mon, 25 Feb 2002, Larry McVoy wrote:
 
-For what it's worth, I have written such a script and made it
-available on master.kernel.org.  The kernel maintainers have been sent
-directions; it's of course up to them if they want to use it.
+> On Mon, Feb 25, 2002 at 02:49:40PM -0500, Bill Davidsen wrote:
+> >   Unfortunately this is an overly simple view of how SMP works. The only
+> > justification for CPU latency is to preserve cache contents. Trying to
+> > express this as a single number is bound to produce suboptimal results.
+> 
+> And here is the other side of the coin.  Remember what we are doing.
+> We're in the middle of a context switch, trying to figure out where we
+> should run this process.  We would like context switches to be fast.
 
-	-hpa
+I hope we're not in the middle of a context switch... hopefully any
+decision to move a process is done either (a) during load balancing, or
+(b) when you have an idle CPU which needs work to do. Otherwise why
+consider changing CPU?
+
+I would think the place to do the work is when it needs doing, not on
+every context switch. The CPU selection is costly, as opposed to "which
+process to run." Of course when a process moves from blocked to ready it
+might be time to consider how long it's been waiting and if anything in
+the cache is worth using.
+
+> Any work we do here is at direct odds with our goals.  SGI took the
+> approach that your statements would imply,
+
+I wasn't really implying anything except the problem being more complex
+than "set the affinity to 500ms and tune." You can't tune, the system will
+be unresponsive. Since complex decisions would be made infrequently, it
+should be better to do them right than to do the wrong thing quickly.
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

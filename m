@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136050AbRD0Ohq>; Fri, 27 Apr 2001 10:37:46 -0400
+	id <S136058AbRD0OnI>; Fri, 27 Apr 2001 10:43:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136058AbRD0Ohg>; Fri, 27 Apr 2001 10:37:36 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:10506
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S136050AbRD0OhU>; Fri, 27 Apr 2001 10:37:20 -0400
-Date: Fri, 27 Apr 2001 10:36:44 -0400
-From: Chris Mason <mason@suse.com>
-To: Pavel Machek <pavel@suse.cz>, viro@math.psu.edu,
-        kernel list <linux-kernel@vger.kernel.org>,
-        jack@atrey.karlin.mff.cuni.cz
-cc: torvalds@transmeta.com
-Subject: Re: [patch] linux likes to kill bad inodes
-Message-ID: <221900000.988382204@tiny>
-In-Reply-To: <20010427002853.A11426@bug.ucw.cz>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S136059AbRD0Oms>; Fri, 27 Apr 2001 10:42:48 -0400
+Received: from www.wen-online.de ([212.223.88.39]:48913 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S136058AbRD0Omq>;
+	Fri, 27 Apr 2001 10:42:46 -0400
+Date: Fri, 27 Apr 2001 16:41:21 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Rik van Riel <riel@conectiva.com.br>, Ingo Molnar <mingo@elte.hu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
+In-Reply-To: <Pine.LNX.4.21.0104270844560.2863-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0104271639550.310-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 27 Apr 2001, Marcelo Tosatti wrote:
 
+> On Fri, 27 Apr 2001, Mike Galbraith wrote:
+>
+> > I decided to take a break from pondering input and see why the thing
+> > ran itself into the ground.  Methinks I was sent the wrooong patch :)
+>
+> Mike,
+>
+> Please apply this patch on top of Rik's v2 patch otherwise you'll get the
+> livelock easily:
 
-On Friday, April 27, 2001 12:28:54 AM +0200 Pavel Machek <pavel@suse.cz>
-wrote:
+test results:
 
-> Okay, so what about following patch, followed by attempt to debug it?
-> [I'd really like to get patch it; killing user's data without good
-> reason seems evil to me, and this did quite a lot of damage to my
-> $HOME.]
-
-2.4.4-pre8 does have the patch to keep write_inode from syncing a
-bad_inode.        In the short term this is the best way to go.
-
-For debugging further, it is probably best to put the warning in when
-marking the inode dirty, and randomly returning bad_inodes from read_inode.
-I'll give this a try next week.  
-
-My guess is that UPDATE_ATIME is the offending caller, the follow_link path
-in open_namei is at least one place that should trigger it.
-
--chris
-
-
+real    11m44.088s
+user    7m57.720s
+sys     0m36.420s
 

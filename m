@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266823AbTGOOPS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 10:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268391AbTGOOPS
+	id S268013AbTGOOUo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 10:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbTGOOUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 10:15:18 -0400
-Received: from h80ad2707.async.vt.edu ([128.173.39.7]:54426 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S266823AbTGOOPP (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 10:15:15 -0400
-Message-Id: <200307151429.h6FETrMQ011058@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: "B. D. Elliott" <bde@nwlink.com>, linux-kernel@vger.kernel.org
-Subject: Re: "Where's the Beep?" (PCMCIA/vt_ioctl-s) 
-In-Reply-To: Your message of "Tue, 15 Jul 2003 17:53:13 +1000."
-             <16147.45801.812885.479853@gargle.gargle.HOWL> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030715074826.EF8F46DC14@smtp3.pacifier.net>
-            <16147.45801.812885.479853@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1326982306P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 15 Jul 2003 10:29:53 -0400
+	Tue, 15 Jul 2003 10:20:44 -0400
+Received: from tantale.fifi.org ([216.27.190.146]:52868 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S268013AbTGOOUm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 10:20:42 -0400
+To: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+Cc: linux-kernel@vger.kernel.org, amd-dev@cs.columbia.edu
+Subject: Re: am-utils or kernel bug ? Seems to be kernel  bug.. Any news ?
+References: <1058258041.19183.18.camel@atlas.inria.fr>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 15 Jul 2003 07:35:28 -0700
+Message-ID: <87isq3uabz.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1326982306P
-Content-Type: text/plain; charset=us-ascii
+Nicolas Turro <Nicolas.Turro@sophia.inria.fr> writes:
 
-On Tue, 15 Jul 2003 17:53:13 +1000, Neil Brown said:
-> On Tuesday July 15, bde@nwlink.com wrote:
-> > On my old DELL LM laptop the -2.5 series no longer issues any beeps when
-> > a card is inserted.  The problem is in the kernel, as the test program
-> > below (extracted from cardmgr) beeps on -2.4, but not on -2.5.
+> Hi, i posted a bug about amd hanging at boot time a few week ago,
+> does anybody has a fix for it ?
+> The bug is described here :
 > 
-> CONFIG_INPUT_PCSPKR
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=90902
 > 
-> needs to be =y or =m and the module loaded.
+> it seems that several groups of users besides me encounter the same
+> bug....
+> 
+> If not, i'll have to post-install a 2.4.18 kernel on all my new
+> RH9 boxes :-(
 
-Argh.  Is *THAT* what it was?? ;)
+Looks like YAFP (Yet Another Futex Problem).
 
-Will those keeping the "How-to 2.6" documents please put this one in there, near
-the description of CONFIG_VT_CONSOLE and friends? ;)
+Have you tried running with LD_ASSUME_KERNEL=2.2.5 ?
 
---==_Exmh_1326982306P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/FA/hcC3lWbTT17ARAudHAKCZtajc9GPY2HqTZXifQGLeul6cxgCg9ChP
-P/LyQ5NRlcIoU2KWnO14LIo=
-=AVkA
------END PGP SIGNATURE-----
-
---==_Exmh_1326982306P--
+Phil.

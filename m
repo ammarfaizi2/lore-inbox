@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316860AbSHGBv5>; Tue, 6 Aug 2002 21:51:57 -0400
+	id <S316855AbSHGBun>; Tue, 6 Aug 2002 21:50:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316880AbSHGBv5>; Tue, 6 Aug 2002 21:51:57 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14864 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316860AbSHGBvy>; Tue, 6 Aug 2002 21:51:54 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Linux 2.4.19-ac1
-Date: 7 Aug 2002 01:49:35 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <aipubf$997$1@gatekeeper.tmr.com>
-References: <20020803214239.GA30242@outpost.ds9a.nl> <20020804080843.0e953083.harada@mbr.sphere.ne.jp>
-X-Trace: gatekeeper.tmr.com 1028684975 9511 192.168.12.62 (7 Aug 2002 01:49:35 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	id <S316856AbSHGBun>; Tue, 6 Aug 2002 21:50:43 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:20869 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316855AbSHGBum>; Tue, 6 Aug 2002 21:50:42 -0400
+Date: Tue, 6 Aug 2002 21:57:53 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+       abraham@2d3d.co.za
+Subject: Re: ethtool documentation
+In-Reply-To: <1028671126.18478.190.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.3.95.1020806215309.26428A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020804080843.0e953083.harada@mbr.sphere.ne.jp>,
-Bruce Harada  <harada@mbr.sphere.ne.jp> wrote:
-| On Sat, 3 Aug 2002 23:42:39 +0200
-| bert hubert <ahu@ds9a.nl> wrote:
-| 
-| > On Sat, Aug 03, 2002 at 02:59:44PM -0400, Alan Cox wrote:
-| > > The HP merge is now down to 4058 lines pending
-| > 
-| > What is the HP merge?
-| 
-| PA-RISC port (http://www.parisc-linux.org/).
+On 6 Aug 2002, Alan Cox wrote:
 
-I thought HP was phasing out PA-RISC. Might this carry forward to 2.5 or
-is this a 2.4 only effort?
+> On Tue, 2002-08-06 at 21:03, Richard B. Johnson wrote:
+> > Sure you can. And it was assumed that the MAC address provided by
+> > the manufacturer would always be used by the software for the MAC
+> > address on the wire. However, 'software engineers' have decided
+> 
+> Umm no
+> 
+> DECnet used dynamically assigned MAC addresses from the beginning and
+> Digital (now Compaq (now HP)) were one of the creators of the original
+> DIX ethernet standard
+> 
+> Thats why several boards allow you to have a pair of receiving MAC
+> addresses.
+> 
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+That's not the MAC address. That's the multicast hash. They are
+different. The MAC address says who you are. The multicast hash
+says who you can receive (in addition to your MAC and the
+all 1's broadcast). Of course there's also 'promisc' which turns
+off receive filtering all together.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

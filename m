@@ -1,38 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTINXL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 19:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbTINXL2
+	id S262409AbTINX4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 19:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTINX4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 19:11:28 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:11483 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262050AbTINXL2
+	Sun, 14 Sep 2003 19:56:16 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:37645 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262409AbTINX4O
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 19:11:28 -0400
-Message-ID: <3F64F59E.9060904@namesys.com>
-Date: Mon, 15 Sep 2003 03:11:26 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan Filius <iafilius@xs4all.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Another ReiserFS (rpm database) issue (2.6.0-test5)
-References: <Pine.LNX.4.53.0309141826030.9944@sjoerd.sjoerdnet>
-In-Reply-To: <Pine.LNX.4.53.0309141826030.9944@sjoerd.sjoerdnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Sep 2003 19:56:14 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Date: 14 Sep 2003 23:47:13 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bk2um1$flp$1@gatekeeper.tmr.com>
+References: <m1vfrxlxol.fsf@ebiederm.dsl.xmission.com> <20030912195606.24e73086.ak@suse.de>
+X-Trace: gatekeeper.tmr.com 1063583233 16057 192.168.12.62 (14 Sep 2003 23:47:13 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is interesting that we didn't get reports of corruption until 
-2.6.0-test* came out, there must be immensely more users.
+In article <20030912195606.24e73086.ak@suse.de>,
+Andi Kleen  <ak@suse.de> wrote:
+| On 12 Sep 2003 11:32:42 -0600
+| ebiederm@xmission.com (Eric W. Biederman) wrote:
+| 
+| 
+| > There may be better places to attack.  But new code is what is up for
+| > examination and is easiest to fix.
+| 
+| With is_prefetch:
+| 
+|    text    data     bss     dec     hex filename
+|    2782       4       0    2786     ae2 arch/i386/mm/fault.o
+| 
+| Without is_prefetch:
+| 
+|  text    data     bss     dec     hex filename
+|    2446       4       0    2450     992 arch/i386/mm/fault.o
+| 
+| Difference 332 bytes
+| 
+| If you start your attack on 332 bytes then IMHO you have your priorities wrong ;-)
+| 
+| The main reason I'm really against this is that currently the P4 kernels work
+| fine on Athlon. Just when is_prefetch is not integrated in them there will 
+| be an mysterious oops once every three months in the kernel in prefetch
+| on Athlon.
+|  
+| That would be bad. The alternative would be to prevent the P4 kernel
+| from booting on the Athlon at all, but doing that for 332 bytes
+| would seem a bit silly.
 
-Apologies for that bug, I need to review what was used for testing the 
-large writes patch, it must have been a test that does not write more 
-than 4 GB.....:-/
+I am really missing something here, why is it you want to run a P4
+kernel on Athlon? And why is it good to push bloat into the kernel and
+then tell people who really care about size to go peddle their papers
+elsewhere? There is perfectly good code in the kernel now to disable
+prefetch on Athlon, leave it in unless the kernel is built for Athlon
+support. A P4 kernel should run fine on an Athlon already.
 
+We just got a start on making Linux smaller to encourage embedded use, I
+don't see adding 300+ bytes of wasted code so people can run
+misconfigured kernels.
+
+I rather have to patch this in for my Athlon kernels than have people
+who aren't cutting corners trying to avoid building matching kernels
+have to live with the overhead.
 -- 
-Hans
-
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262833AbUCJVAd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 16:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbUCJVAP
+	id S262841AbUCJVAc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 16:00:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262833AbUCJVAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 16:00:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26284 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262833AbUCJU6p (ORCPT
+	Wed, 10 Mar 2004 16:00:25 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:12743 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262820AbUCJU55 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 15:58:45 -0500
-Date: Wed, 10 Mar 2004 13:00:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com,
-       thornber@redhat.com
-Subject: Re: [PATCH] backing dev unplugging
-Message-Id: <20040310130046.2df24f0e.akpm@osdl.org>
-In-Reply-To: <20040310124507.GU4949@suse.de>
-References: <20040310124507.GU4949@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 10 Mar 2004 15:57:57 -0500
+Message-ID: <404F814C.1070202@colorfullife.com>
+Date: Wed, 10 Mar 2004 21:57:48 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] different proposal for mq_notify(SIGEV_THREAD)
+References: <404B2C46.90709@colorfullife.com> <20040310203857.GA7341@mail.shareable.org>
+In-Reply-To: <20040310203857.GA7341@mail.shareable.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
+Jamie Lokier wrote:
+
+>The difference is that your proposal eliminates those fds.
+>But there is no reason that I can see why mq_notify() should be
+>optimised in this way and futexes not.
+>  
 >
-> Here's a first cut at killing global plugging of block devices to reduce
-> the nasty contention blk_plug_lock caused.
+I would start with message queues, but the mechanism must be generic 
+enough to be used for futexes, etc.
 
-Shouldn't we take read_lock(&md->map_lock) in dm_table_unplug_all()?
+The main open question is if I should write something new or if I can 
+reuse netlink.
 
-If so, what are the lock ranking issues here?  The queue lock is not held
-yet, so it seems pretty simple?
+--
+    Manfred
+

@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263923AbUCZDxg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 22:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbUCZDxg
+	id S263927AbUCZDzc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 22:55:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbUCZDzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 22:53:36 -0500
-Received: from waste.org ([209.173.204.2]:1709 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263923AbUCZDxe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 22:53:34 -0500
-Date: Thu, 25 Mar 2004 21:53:31 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/22] /dev/random: remove broken resizing sysctl
-Message-ID: <20040326035331.GD8366@waste.org>
-References: <3.524465763@selenic.com> <4.524465763@selenic.com> <20040325161523.3efbb4b7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040325161523.3efbb4b7.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+	Thu, 25 Mar 2004 22:55:31 -0500
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:32913 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263927AbUCZDzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 22:55:22 -0500
+Message-ID: <4063A217.30807@yahoo.com.au>
+Date: Fri, 26 Mar 2004 14:23:03 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Rick Lindsley <ricklind@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       piggin@cyberone.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       kernel@kolivas.org, rusty@rustcorp.com.au, anton@samba.org,
+       lse-tech@lists.sourceforge.net, mbligh@aracnet.com
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de>
+In-Reply-To: <20040325154011.GB30175@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 04:15:23PM -0800, Andrew Morton wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
-> >
-> > /dev/random  remove broken resizing sysctl
+Andi Kleen wrote:
+> On Thu, Mar 25, 2004 at 07:31:37AM -0800, Nakajima, Jun wrote:
 > 
-> This could break things.  Shouldn't we leave the /proc entry there
-> and print a friendly message in the sysctl handler?
+>>Andi,
+>>
+>>Can you be more specific with "it doesn't load balance threads
+>>aggressively enough"? Or what behavior of the base NUMA scheduler is
+>>missing in the sched-domain scheduler especially for NUMA?
+> 
+> 
+> It doesn't do load balance in wake_up_forked_process()  and is relatively
+> non aggressive in balancing later. This leads to the multithreaded OpenMP
+> STREAM running its childs first on the same node as the original process
+> and allocating memory there. Then later they run on a different node when
+> the balancing finally happens, but generate  cross traffic to the old node, 
+> instead of using the memory bandwidth of their local nodes.
+> 
+> The difference is very visible, even the 4 thread STREAM only sees the
+> bandwidth of a single node. With a more aggressive scheduler you get
+> 4 times as much.
+> 
+> Admittedly it's a bit of a stupid benchmark, but seems to representative
+> for a lot of HPC codes.
 
-I could do that, yes. I would be really surprised if there were any
-users, however.
+Hi Andi,
+Sorry I keep telling you I'll work on this, but I never get
+around to it. Mostly lack of hardware makes it difficult. I've
+fixed a few bugs and some other workloads, so I keep hoping
+that they will fix your problem :P
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Your STREAM performance is really bad and I hope you don't
+think I'm going to ignore it even if it is a bit stupid. Give
+me a bit more time.
+
+Of course, there is nothing fundamentally wrong with
+sched-domains that is causing your problem. It can easily do
+anything the old numa scheduler can do. It must be a bug or
+some bad tuning somewhere.
+
+Nick

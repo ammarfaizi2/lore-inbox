@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266207AbUAVKi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 05:38:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266227AbUAVKi2
+	id S266433AbUAVT5B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 14:57:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266435AbUAVT5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 05:38:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:24507 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266207AbUAVKgh (ORCPT
+	Thu, 22 Jan 2004 14:57:00 -0500
+Received: from mail.bluebottle.com ([69.20.6.25]:7915 "EHLO www.bluebottle.com")
+	by vger.kernel.org with ESMTP id S266433AbUAVT4x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 05:36:37 -0500
-Date: Thu, 22 Jan 2004 11:36:33 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix Careless bio->_bio change in rq_for_each_bio().
-Message-ID: <20040122103633.GA6669@suse.de>
-References: <20040122071637.735A32C100@lists.samba.org> <20040122103007.GO2734@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040122103007.GO2734@suse.de>
+	Thu, 22 Jan 2004 14:56:53 -0500
+Date: Thu, 22 Jan 2004 17:56:48 -0200
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+X-X-Sender: fredlwm@pervalidus
+To: Julien Oster <frodoid@frodoid.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: parhelia doesn't work anymore with 2.6.1
+Message-ID: <Pine.CYG.4.58.0401221751520.3684@pervalidus>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 22 2004, Jens Axboe wrote:
-> On Thu, Jan 22 2004, Rusty Russell wrote:
-> > Looks like an obvious typo.  Works fine if "bio" is the name of the
-> > iterator.
-> 
-> Rusty,
-> 
-> This was already posted a week or two ago, and has been in Linus' tree
-> since yesterday (or the day before).
+> What about (also) asking for support at
+> http://forum.matrox.com/mga/viewforum.php?f=2 ?
 
-Sorry misread that, there was an error in the fixup :)
+Nevermind. Sorry. I noticed you've been one of the most helpul
+users - http://forum.matrox.com/mga/viewtopic.php?t=8053
+
+Yes, too bad Matrox doesn't care much anymore about Linux. I'll
+think twice before buying a Parhelia to replace my G400 since
+it isn't that cheap and the support just suck.
 
 -- 
-Jens Axboe
-
+How to contact me - http://www.pervalidus.net/contact.html

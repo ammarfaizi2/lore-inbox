@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293092AbSCJQpz>; Sun, 10 Mar 2002 11:45:55 -0500
+	id <S293109AbSCJRMG>; Sun, 10 Mar 2002 12:12:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293094AbSCJQpq>; Sun, 10 Mar 2002 11:45:46 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:58058 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S293092AbSCJQph>;
-	Sun, 10 Mar 2002 11:45:37 -0500
-Date: Sun, 10 Mar 2002 17:45:35 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200203101645.RAA02322@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.6 compile warnings in ide-scsi.c
+	id <S293111AbSCJRL4>; Sun, 10 Mar 2002 12:11:56 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:41325 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S293109AbSCJRLo>; Sun, 10 Mar 2002 12:11:44 -0500
+Date: Sat, 9 Mar 2002 22:07:51 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+        Oleg Drokin <green@namesys.com>
+Subject: Re: 23 second kernel compile (aka which patches help scalibility on NUMA)
+Message-ID: <20020309220751.C13379@dualathlon.random>
+In-Reply-To: <200203092044.43456.Dieter.Nuetzel@hamburg.de> <135154151.1015676353@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <135154151.1015676353@[10.10.2.3]>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel 2.5.6, compilation of ide-scsi.c generates some rather
-unpleasant looking warnings:
+On Sat, Mar 09, 2002 at 12:19:13PM -0800, Martin J. Bligh wrote:
+> some other stuff as well. The -aa tree also seems to be 
+> incompatible (or rather, not trivially fixable) with the O(1)
+> scheduler.
 
-ide-scsi.c: In function `idescsi_end_request':
-ide-scsi.c:293: warning: comparison of distinct pointer types lacks a cast
-ide-scsi.c: In function `get_timeout':
-ide-scsi.c:310: warning: comparison of distinct pointer types lacks a cast
+To apply the O(1) scheduler you only need to backout the dyn-sched and
+numa-sched patches first (dyn-sched will be definitely obsoleted by the
+O(1) scheduler, numa-sched should be changed like Mike described a few
+weeks ago but probably O(1) will just work better than my current
+numa-sched). There are no other changes to the scheduler, the
+child-first is an optimization and parent-timeslice is an important
+bugfix.
 
-They turned out to be caused by type mismatches in uses of the
-min() and max() macros. Fix below.
-
-/Mikael
-
---- linux-2.5.6/drivers/scsi/ide-scsi.c.~1~	Sat Mar  9 12:53:13 2002
-+++ linux-2.5.6/drivers/scsi/ide-scsi.c	Sun Mar 10 17:14:12 2002
-@@ -290,7 +290,7 @@
- 			if (!test_bit(PC_WRITING, &pc->flags) && pc->actually_transferred && pc->actually_transferred <= 1024 && pc->buffer) {
- 				printk(", rst = ");
- 				scsi_buf = pc->scsi_cmd->request_buffer;
--				hexdump(scsi_buf, min(16, pc->scsi_cmd->request_bufflen));
-+				hexdump(scsi_buf, min(16U, pc->scsi_cmd->request_bufflen));
- 			} else printk("\n");
- 		}
- 	}
-@@ -307,7 +307,7 @@
- 
- static inline unsigned long get_timeout(idescsi_pc_t *pc)
- {
--	return max(WAIT_CMD, pc->timeout - jiffies);
-+	return max((unsigned long)WAIT_CMD, pc->timeout - jiffies);
- }
- 
- /*
+Andrea

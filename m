@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267094AbSLKJie>; Wed, 11 Dec 2002 04:38:34 -0500
+	id <S267089AbSLKJjH>; Wed, 11 Dec 2002 04:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267096AbSLKJie>; Wed, 11 Dec 2002 04:38:34 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:17682 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S267094AbSLKJid>;
-	Wed, 11 Dec 2002 04:38:33 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Wahib Nackad" <wahibn@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is not plain file nor directory 
-In-reply-to: Your message of "Wed, 11 Dec 2002 00:16:25 -0000."
-             <F155L9OqNHKEn8diHNK0001ecdb@hotmail.com> 
-Mime-Version: 1.0
+	id <S267096AbSLKJjH>; Wed, 11 Dec 2002 04:39:07 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:65250 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267089AbSLKJjF>; Wed, 11 Dec 2002 04:39:05 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: CD Writing in 2.5.51
+References: <1039598049.480.7.camel@nirvana> <87fzt43nm4.fsf@web.de>
+	<1039599708.711.9.camel@nirvana>
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+From: Markus Plail <linux-kernel@gitteundmarkus.de>
+Date: Wed, 11 Dec 2002 10:46:11 +0100
+In-Reply-To: <1039599708.711.9.camel@nirvana> (mdew's message of "11 Dec
+ 2002 22:41:45 +1300")
+Message-ID: <87adjc3n30.fsf@web.de>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i686-pc-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 11 Dec 2002 20:46:01 +1100
-Message-ID: <10451.1039599961@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Dec 2002 00:16:25 +0000, 
-"Wahib Nackad" <wahibn@hotmail.com> wrote:
->I'm able to compile kernel 2.4.20 via SRPMS with spec file without problem 
->as long as I don't enable pcmcia support with the kernel. If I enable pcmcia 
->support, then compilation fail when the 'make module_install' command runs 
->and return the following error message for each pcmcia drivers:
->
->depmod: 
->/var/tmp/kernel-2.4.20-root/lib/modules/2.4.20-1/pcmcia/xircom_tulip_cb.o is 
->not plain file nor directory
+* mdew  writes:
+>On Wed, 2002-12-11 at 22:34, Markus Plail wrote:
+>>You don't need any additional modules. Just don't activate ide-scsi by
+>>either not appending ide-scsi/scsi=hdX or not compiling ide-scsi
+>>support in the kernel.
+>can i completely remove scsi support then? (I dont have any scsi device)
 
-depmod detects symlinks and resolves them, this error should never
-happen for valid symlinks.  Run depmod with -v, post the 10 lines
-starting with 'resolving xircom_tulip_cb.o symlink'.
+Yes.
+
+regards
+Markus
 

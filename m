@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268486AbUHLAoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268525AbUHLAmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268486AbUHLAoh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 20:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268455AbUHLAmh
+	id S268525AbUHLAmP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 20:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268508AbUHLAdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 20:42:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24540 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268486AbUHLAke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 20:40:34 -0400
-Date: Wed, 11 Aug 2004 17:39:35 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: torvalds@osdl.org, pavel@ucw.cz, zwane@linuxpower.ca,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, mpm@selenic.com
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
-Message-Id: <20040811173935.5f23e348.davem@redhat.com>
-In-Reply-To: <23701.1092268910@ocs3.ocs.com.au>
-References: <Pine.LNX.4.58.0408111511380.1839@ppc970.osdl.org>
-	<23701.1092268910@ocs3.ocs.com.au>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 11 Aug 2004 20:33:13 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:30660
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S268420AbUHLAOB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 20:14:01 -0400
+Date: Wed, 11 Aug 2004 20:12:18 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Alan Jenkins <sourcejedi@phonecoop.coop>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cd burning: kernel / userspace?
+Message-ID: <20040812001218.GA20341@animx.eu.org>
+References: <41189AA2.3010908@phonecoop.coop> <20040810220528.GA17537@animx.eu.org> <4119DFB0.6050204@phonecoop.coop> <20040811164109.GA18761@animx.eu.org> <411A89BB.60505@phonecoop.coop> <20040811213322.GA19908@animx.eu.org> <411A92EC.6090609@phonecoop.coop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <411A92EC.6090609@phonecoop.coop>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Aug 2004 10:01:50 +1000
-Keith Owens <kaos@ocs.com.au> wrote:
+> Sorry, I'm not very good at this list / person CC stuff.  I sent a reply 
+> to Valdis.Kletnieks@vt.edu, but forgot to CC to list.  Contents as follows:
+> 
+> I'm not sure this is necessary.  Can't you just do:
+> 
+> # dump -0 -B 700000 -u -z3 /home -f -| cdrecord /dev/hdb -
+> 
+> dump and cdrecord allow you to use "-" as a filename to indicate that 
+> output shoud be written to stdout and input should be read from stdin 
+> respectively.
 
-> Tweak the profile code to detect that the instruction pointer is in the
-> out of line spinlock code and replace the ip with the caller's ip.  We
-> already do that for ia64, where the out of line spinlock code is a big
-> win.  A kdb backtrace on an ia64 contended lock will even decode the
-> address of the lock, which is only possible because the lock address is
-> in a known location for this case.
+Yes, but if I was to understand it right, dump will close/reopen at "700000"
+(whatever that is, 700000kb?).  That won't work with cdrecord since it's
+expecting a single input stream, not many seperated by a pause.  I'd
+consider it more like using tar with the multiple tape option.  When it is
+finished writing to a tape, it'll wait for the user to physically change
+tapes and start writing at the beginning of the new tape.
 
-We were doing this on sparc64 as well.
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

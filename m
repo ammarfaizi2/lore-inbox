@@ -1,80 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265607AbRF1It7>; Thu, 28 Jun 2001 04:49:59 -0400
+	id <S265605AbRF1JKP>; Thu, 28 Jun 2001 05:10:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265605AbRF1Itk>; Thu, 28 Jun 2001 04:49:40 -0400
-Received: from sky.irisa.fr ([131.254.60.147]:15337 "EHLO sky.irisa.fr")
-	by vger.kernel.org with ESMTP id <S265603AbRF1Itc>;
-	Thu, 28 Jun 2001 04:49:32 -0400
-Message-ID: <3B3AEF8B.A3EBF2AC@irisa.fr>
-Date: Thu, 28 Jun 2001 10:49:15 +0200
-From: Romain Dolbeau <dolbeau@irisa.fr>
-Organization: IRISA, Campus de Beaulieu, 35042 Rennes Cedex, FRANCE
-X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: James Simmons <jsimmons@transvirtual.com>,
-        Linux Fbdev development list 
-	<Linux-fbdev-devel@lists.sourceforge.net>
-Subject: [PATCH][2.2 & 2.4] fbgen & multiple RGBA, take 3 (no more MIME)
-In-Reply-To: <Pine.LNX.4.10.10106270922550.30940-100000@transvirtual.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265610AbRF1JKF>; Thu, 28 Jun 2001 05:10:05 -0400
+Received: from ns.caldera.de ([212.34.180.1]:40370 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S265605AbRF1JJu>;
+	Thu, 28 Jun 2001 05:09:50 -0400
+Date: Thu, 28 Jun 2001 11:09:12 +0200
+Message-Id: <200106280909.f5S99Bd24719@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: gp@iws.it (Giampaolo Gallo)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problem building 2.4.6 pre 6 + freevxfs
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <993718178.8885.0.camel@castle>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
 
-> I will intergrate your changes into my fbgen 2.
+Hi Giampaolo,
 
-Guess that means it's OK to ask for integration.
-I repost it with proper inlining (sorry about that)
+In article <993718178.8885.0.camel@castle> you wrote:
+> gcc -D__KERNEL__ -I/u1/usr.src/linux/include -Wall -Wstrict-prototypes
+> -Wno-traphs -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> -mpreferred-stack-bdary=2 -march=i686    -c -o vxfs_inode.o vxfs_inode.c
+> vxfs_inode.c:50: `generic_file_llseek' undeclared here (not in a
+> function)
+> vxfs_inode.c:50: initializer element is not constant
+> vxfs_inode.c:50: (near initialization for `vxfs_file_operations.llseek')
 
-Description of the patch:
+Just remove the complete line - generic_file_llseek doesn't exist in
+2.4.6-pre6 and it's appeareance seems to be an merge error.
 
-> the attached patch fix a problem with `fbgen' when changing the
-> RGBA components but not the depth ; `fbgen' would not change
-> the colormap in this case, where it should.
-> This patch is for kernel 2.4.x, but can also
-> be applied to kernel 2.2.x (same bug, same fix).
-
-#####
---- linux/drivers/video/fbgen.c.ORIG	Thu May 17 14:34:54 2001
-+++ linux/drivers/video/fbgen.c	Tue Jun 26 10:26:23 2001
-@@ -106,6 +106,7 @@
-     struct fb_info_gen *info2 = (struct fb_info_gen *)info;
-     int err;
-     int oldxres, oldyres, oldbpp, oldxres_virtual, oldyres_virtual,
-oldyoffset;
-+    struct fb_bitfield oldred, oldgreen, oldblue;
- 
-     if ((err = fbgen_do_set_var(var, con == currcon, info2)))
- 	return err;
-@@ -115,12 +116,18 @@
- 	oldxres_virtual = fb_display[con].var.xres_virtual;
- 	oldyres_virtual = fb_display[con].var.yres_virtual;
- 	oldbpp = fb_display[con].var.bits_per_pixel;
-+	oldred = fb_display[con].var.red;
-+	oldgreen = fb_display[con].var.green;
-+	oldblue = fb_display[con].var.blue;
- 	oldyoffset = fb_display[con].var.yoffset;
- 	fb_display[con].var = *var;
- 	if (oldxres != var->xres || oldyres != var->yres ||
- 	    oldxres_virtual != var->xres_virtual ||
- 	    oldyres_virtual != var->yres_virtual ||
- 	    oldbpp != var->bits_per_pixel ||
-+	    (!(memcmp(&oldred, &(var->red), sizeof(struct fb_bitfield)))) || 
-+	    (!(memcmp(&oldgreen, &(var->green), sizeof(struct fb_bitfield))))
-||
-+	    (!(memcmp(&oldblue, &(var->blue), sizeof(struct fb_bitfield)))) ||
- 	    oldyoffset != var->yoffset) {
- 	    fbgen_set_disp(con, info2);
- 	    if (info->changevar)
-#####
-
+	Christoph
 
 -- 
-DOLBEAU Romain               | l'histoire est entierement vraie, puisque
-ENS Cachan / Ker Lann        |     je l'ai imaginee d'un bout a l'autre
-dolbeau@irisa.fr             |           -- Boris Vian
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUE0O0B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264562AbUE0O1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264561AbUE0O0B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 10:26:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbUE0O0B
+	id S264562AbUE0O1F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 10:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264578AbUE0O1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 10:26:01 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:12241
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S264561AbUE0OZ6
+	Thu, 27 May 2004 10:27:04 -0400
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:40338 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264562AbUE0O0l
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 10:25:58 -0400
-Date: Thu, 27 May 2004 10:34:14 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: why swap at all?
-Message-ID: <20040527103414.A31572@animx.eu.org>
-References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B4590A.1090006@yahoo.com.au> <40B4667B.5040303@nodivisions.com> <40B46A57.4050209@yahoo.com.au> <20040526161127.A30461@animx.eu.org> <40B583BC.7030706@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <40B583BC.7030706@yahoo.com.au>; from Nick Piggin on Thu, May 27, 2004 at 03:59:24PM +1000
+	Thu, 27 May 2004 10:26:41 -0400
+Date: Thu, 27 May 2004 16:26:40 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Ingo Molnar <mingo@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Cleanups for APIC
+In-Reply-To: <20040527141404.GA23566@elte.hu>
+Message-ID: <Pine.LNX.4.55.0405271614490.10917@jurand.ds.pg.gda.pl>
+References: <20040525124937.GA13347@elf.ucw.cz>
+ <Pine.LNX.4.58.0405270856120.28319@devserv.devel.redhat.com>
+ <Pine.LNX.4.55.0405271525140.10917@jurand.ds.pg.gda.pl>
+ <Pine.LNX.4.58.0405270931040.28319@devserv.devel.redhat.com>
+ <Pine.LNX.4.55.0405271542080.10917@jurand.ds.pg.gda.pl> <20040527141404.GA23566@elte.hu>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have a question about that.  I keep a debian mirror on one of my machines. 
-> > there is over 70000 files.  If I run find on that tree while it's
-> > downloading the file list, it doesn't take as long.  I thought it would be
-> > nice if there was some way I could keep that in memory.  The box has 256mb
-> > ram no swap.  It is configured as diskless.
-> > 
+On Thu, 27 May 2004, Ingo Molnar wrote:
+
+> >  The I/O APIC need not be hooked to PCI ;-) -- I'm not sure about the
+> > i82093AA, but that's definitely true for the i82489DX.  The call to
+> > io_apic_sync() is needed for masking to make sure interrupts won't be
+> > dispatched after returning from the call -- this is not needed for
+> > unmasking as a delay here is harmless.
 > 
-> You mean that if you prime the cache by running find on the tree,
-> your actual operation doesn't take as long?
+> well, an APIC message could be on the way to the CPU even with this
+> synchronization. Does it matter whether it's a newly dispatched one due
+> to POST delays or an in-fly one due to APIC bus delays?
 
-Yup.  Running the mirror doesn't matter really.  I start that before I
-retire at the end of the day.
+ Well, if you'd mask, sync, ack (send EOI) in a handler, then the sync
+would assure the ack wouldn't be in effect before masking, so no further
+interrupt would arrive till unmasking.  It would work for level-triggered
+interrupts and the i82093AA, but OTOH for the i82489DX, which uses
+level-deassert messages, it wouldn't.
 
-> I don't doubt this. Slab cache is shrunk aggressively compared to
-> page cache. Traditionally I think this has been due at least in
-> part to some failure cases in the balancing there resulting in slab
-> growing out of control with some systems.
-
-Where it gets me is the 2nd mirror I have on a usb disk.  Updating it takes
-a while.  Although priming the cache on the machine where the usb disk is is
-a bit quicker than where the mirror is (rsync over tcp/ip).  Both disks use
-ext3, but the machine the usb is on has way more memory, usb2, and overall
-quicker than the other.
-
-> These failure cases should be fixed now, and slab vs pagecache is
-> probably something that should be looked at again. I really need
-> to get my hands on a 2GB+ system before I'd be game to start
-> fiddling with too much stuff though.
-
-I've been wanting to upgrade that machine to 768mb, but I don't know if
-it'll handle it.
+ Too much hassle for an unreliable result...  Just scrap it.
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

@@ -1,125 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266601AbUGKOP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266586AbUGKOQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266601AbUGKOP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 10:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266602AbUGKOP2
+	id S266586AbUGKOQb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 10:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266602AbUGKOQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 10:15:28 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:8928 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266601AbUGKOPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 10:15:21 -0400
-Message-ID: <40F14B75.1010802@comcast.net>
-Date: Sun, 11 Jul 2004 10:15:17 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: NX: List of apps that probably break with NX
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jul 2004 10:16:31 -0400
+Received: from mail.telpin.com.ar ([200.43.18.243]:36545 "EHLO
+	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S266586AbUGKOQL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 10:16:11 -0400
+Date: Sun, 11 Jul 2004 11:19:17 -0300
+From: Alberto Bertogli <albertogli@telpin.com.ar>
+To: Andrew Morton <akpm@osdl.org>
+Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Syncing a file's metadata in a portable way
+Message-ID: <20040711141917.GI7405@telpin.com.ar>
+Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
+	Andrew Morton <akpm@osdl.org>, bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org
+References: <20040709030637.GB5858@telpin.com.ar> <20040709023948.59497dca.akpm@osdl.org> <20040710115404.GA11420@outpost.ds9a.nl> <20040710131459.13ffec23.akpm@osdl.org> <20040711102743.GB16199@outpost.ds9a.nl> <20040711033527.4017170d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040711033527.4017170d.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Jul 11, 2004 at 03:35:27AM -0700, Andrew Morton wrote:
+> bert hubert <ahu@ds9a.nl> wrote:
+> >
+> > On Sat, Jul 10, 2004 at 01:14:59PM -0700, Andrew Morton wrote:
+> > 
+> > > If only the one file has been written to, an fsync on ext3 shouldn't
+> > > produce any more writeout than an fsync on ext2.
+> > (...)
+> > > Either that, or SQLite is broken.
+> > 
+> > I'll show strace and vmstat tomorrow - I found very little writes, no mmap,
+> > some fsync and massive writeouts. On ext2, performance was two orders of
+> > magnitude better.
+> > 
+> 
+> One scenario which could cause this is if the application is writing a
+> large amount of data to a file and is repeatedly *overwriting* that data. 
+> And the application is repeatedly adding new blocks to, and fsyncing a
+> separate file.
 
-Hi.
+I don't know about SQLite, but I've written a small transactional I/O
+library and it seems to trigger this behaviour too.
 
-I've noticed you're pondering an NX technology in the kernel.  I help
-maintain a list of applications that break under PaX, an NX/ASLR patch,
-used for a script which applies reduced restrictions to these binaries.
-~ The result is that I have a handfull of unprotected apps; but
-everything works.  You either have to trade off the security for the
-usability, or the usability for the security.
+I test with fsx opening files O_SYNC against fsx using the library with a
+mode called "lingering transactions" that write the data synchronously
+only once when the trasaction is commited (and fsync()s at the end, which
+doesn't seem to make a significant difference).
 
-PaX uses two tools to set reduced restrictions: chpax and paxctl.  The
-chpax tool uses a free field in the ELF header; while paxctl uses a
-special field set aside by a specially patched binutils.  Binaries with
-this extra field are natively compatible with vanilla Linux.
+In this mode the library creates a file for each transaction, write to it
+using pwrite and then fsync both the file and the parent directory. Then
+it uses pwrite to write to the real file, without syncing it.
 
-The different flags are as follows:
+I'm using an USB flash so disk seeks are not so costly. Here are the
+results, running "fsx -R -W -p 1024 -N 1000 testfile" as root, on the
+flash. For more operations (-N) the relation between the tests is pretty
+much the same.
 
-P  PageExec (NX method) to supply functionality of NX marking of pages
-S  SegmExec (NX method) to supply functionality of NX marking of pages
-E  Emulate Trampolines
-M  Reduced mprotect() restrictions (basically fixes things wanting +X
-stack)
-R  Random mmap() base
-X  Random ET_EXEC base
+Tests are:
+* sync: fsx opening everything O_SYNC (uses write())
+* linger: fsx using the library with the method described avobe (uses
+	pwrite and fsync)
 
+Time is measured with "time" (real), and the time spent in write and fsync
+with ltrace -S -c (in seconds), taken in different runs so ltrace overhead
+doesn't show up in time. The other functions and system calls don't make a
+significant difference.
 
-I supply these as shell patterns.  Be familiar with bash, or try:
-
-$ echo `exec <pattern>`
-
-
-NX-Exempt (-psem)
-~  Wine:
-/usr/lib/wine/bin/{wine{,build,clipsrv,dump,gcc,server,wrap,-{k,p}thread},w{mc,rc,idl}}
-
-~  Java:
-/opt/*-{jdk-*/{,jre/},jre-*/}bin/*
-
-OpenOffice.org:
-/opt/OpenOffice.org*/program/soffice.bin
-
-Misc:
-/usr/X11R6/bin/XFree86
-/usr/X11R6/bin/Xorg
-/usr/bin/blender
-/usr/bin/gxine
-/usr/bin/xine
-/usr/bin/totem
-/usr/bin/acme
-/usr/bin/gnome-sound-recorder
-/usr/games/bin/bzflag
-/usr/bin/xfce4-panel
-/usr/bin/{g,}xine
-
-Randmap Exempt (-r)
-Java:
-/opt/*-{jdk-*/{,jre/},jre-*/}bin/*
-
-X:
-/usr/X11R6/bin/XFree86
-/usr/X11R6/bin/Xorg
-
-mprotect() restriction exempt (-m)
-Java:
-/opt/*-{jdk-*/{,jre/},jre-*/}bin/*
-
-Firefox:
-/usr/lib/MozillaFirefox/firefox{,-bin}
-
-xmms:
-/usr/bin/xmms
-
-RandExec Exempt (-x):
-Java:
-/opt/*-{jdk-*/{,jre/},jre-*/}bin/*
-
-X:
-/usr/X11R6/bin/XFree86
-/opt/*-{jdk-*/{,jre/},jre-*/}bin/*
+I tested ext2, ext3 with data=ordered and data=writeback, without any
+mount options.
 
 
+test	fs      total time  write      fsync      ltrace total
 
-The bug used to track changes in the scripts that supply the application
-of reduced restrictions is at
-http://bugs.gentoo.org/show_bug.cgi?id=40665 .  This may prove
-interesting, as I or someone else will need to update it as more
-applications break, or as more begin to work.
+sync	ext2    0m22.956s   69.007234  ---        153.888504
+linger	ext2    0m27.358s   ---        81.107975  191.014929
 
-- --John
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+sync	ext3-o  0m23.709s   69.143989  ---        162.130448
+linger	ext3-o  0m37.234s   ---        109.51823  243.963197
 
-iD8DBQFA8Ut0hDd4aOud5P8RAmPyAJ0abHDHZAvb+nyl5Fs0CDXYwX7ZDACgibwV
-Ls2RB3CjkY8VHKUS1GAAcmE=
-=ASsQ
------END PGP SIGNATURE-----
+sync 	ext3-w  0m22.622s   71.071572  ---        160.095286
+linger	ext3-w  0m26.429s   ---        76.482683  188.377637
+
+
+So ext3 in writeback mode has almost the same numbers as ext2, but using
+ordered mode is much more slower in the library case.
+
+
+Thanks,
+		Alberto
+
+

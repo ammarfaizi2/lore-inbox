@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbUEASis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUEASh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbUEASis (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 14:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbUEASis
+	id S261602AbUEASh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 14:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUEASh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 14:38:48 -0400
-Received: from ns.suse.de ([195.135.220.2]:36056 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261673AbUEASiq (ORCPT
+	Sat, 1 May 2004 14:37:59 -0400
+Received: from smtpq3.home.nl ([213.51.128.198]:11197 "EHLO smtpq3.home.nl")
+	by vger.kernel.org with ESMTP id S261602AbUEASh6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 14:38:46 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Gerd Knorr <kraxel@bytesex.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3: gcc 2.95: cx88 __ucmpdi2 error
-References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
-	<408F9BD8.8000203@eyal.emu.id.au> <20040501112432.GE2541@fs.tum.de>
-	<Pine.LNX.4.58.0405011025410.18014@ppc970.osdl.org>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: LOOK!!  Sullen American teens wearing MADRAS shorts and
- ``Flock of Seagulls'' HAIRCUTS!
-Date: Sat, 01 May 2004 20:38:15 +0200
-In-Reply-To: <Pine.LNX.4.58.0405011025410.18014@ppc970.osdl.org> (Linus
- Torvalds's message of "Sat, 1 May 2004 10:45:36 -0700 (PDT)")
-Message-ID: <jey8oc6lig.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+	Sat, 1 May 2004 14:37:58 -0400
+Message-ID: <4093EE30.5030009@keyaccess.nl>
+Date: Sat, 01 May 2004 20:36:32 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [TRIVIAL] missing closing \n in printk
+Content-Type: multipart/mixed;
+ boundary="------------000507020500030705060901"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+This is a multi-part message in MIME format.
+--------------000507020500030705060901
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Sat, 1 May 2004, Adrian Bunk wrote:
->> >...
->> > WARNING: /lib/modules/2.6.6-rc3/kernel/drivers/media/video/cx88/cx8800.ko 
->> > needs unknown symbol __ucmpdi2
->> 
->> I'm also seeing this, but only with gcc 2.95, not with gcc 3.3.3 .
->> 
->> It comes from drivers/media/video/cx88/cx88-video.c, more exactly from 
->> the switch in set_tvaudio.
->
-> I don't see that set_tvaudio() uses any 64-bit comparisons at all, so I 
-> have this suspicion that the linker reports the wrong function or 
-> something. 
 
-dev->tvnorm->id is __u64.
+--------------000507020500030705060901
+Content-Type: text/plain;
+ name="linux-2.6.6-rc3-mm1_smbios-printk-typo.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="linux-2.6.6-rc3-mm1_smbios-printk-typo.diff"
 
-linux/videodev2.h:typedef __u64 v4l2_std_id;
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+LS0tIGxpbnV4LTIuNi42LXJjMy1tbTEvZHJpdmVycy9maXJtd2FyZS9zbWJpb3MuYy5vcmln
+CTIwMDQtMDUtMDEgMjA6MTY6MDMuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuNi1y
+YzMtbW0xL2RyaXZlcnMvZmlybXdhcmUvc21iaW9zLmMJMjAwNC0wNS0wMSAyMDoxNzowMi4w
+MDAwMDAwMDAgKzAyMDAKQEAgLTEyNiw3ICsxMjYsNyBAQAogCWlmKGtlZXBfZ29pbmcgIT0g
+MCkKIAkJcHJpbnRrKEtFUk5fSU5GTyAiV2FybmluZzogU01CSU9TIHRhYmxlIGRvZXMgbm90
+IGVuZCB3aXRoIGEiCiAJCQkJIiBzdHJ1Y3R1cmUgdHlwZSAxMjcuIFRoaXMgbWF5IGluZGlj
+YXRlIGEiCi0JCQkJIiB0cnVuY2F0ZWQgdGFibGUuIik7CisJCQkJIiB0cnVuY2F0ZWQgdGFi
+bGUuXG4iKTsKIAogCWlmKHNkZXYtPnNtYmlvc190YWJsZV9yZWFsX2xlbmd0aCAhPSBtYXhf
+bGVuZ3RoKQogCQlwcmludGsoS0VSTl9JTkZPICJXYXJuaW5nOiBCSU9TIHNwZWNpZmllZCBT
+TUJJT1MgdGFibGUgbGVuZ3RoIgo=
+--------------000507020500030705060901--

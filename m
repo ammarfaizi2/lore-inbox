@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131664AbRAGNSH>; Sun, 7 Jan 2001 08:18:07 -0500
+	id <S131672AbRAGNbw>; Sun, 7 Jan 2001 08:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131672AbRAGNRr>; Sun, 7 Jan 2001 08:17:47 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:36617 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131664AbRAGNRp>;
-	Sun, 7 Jan 2001 08:17:45 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-cc: richbaum@acm.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] More compile warning fixes for 2.4.0 
-In-Reply-To: Your message of "Sun, 07 Jan 2001 07:41:57 CDT."
-             <3A586415.699EFDE@yahoo.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Jan 2001 00:17:39 +1100
-Message-ID: <310.978873459@ocs3.ocs-net>
+	id <S131871AbRAGNbm>; Sun, 7 Jan 2001 08:31:42 -0500
+Received: from csa.iisc.ernet.in ([144.16.67.8]:25098 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S131672AbRAGNbc>;
+	Sun, 7 Jan 2001 08:31:32 -0500
+Date: Sun, 7 Jan 2001 19:01:06 +0530 (IST)
+From: Sourav Sen <sourav@csa.iisc.ernet.in>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Kdb for modules
+Message-ID: <Pine.SOL.3.96.1010107184944.24088A-100000@kohinoor.csa.iisc.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 07 Jan 2001 07:41:57 -0500, 
-Paul Gortmaker <p_gortmaker@yahoo.com> wrote:
->Rich Baum wrote:
->> 
->> Here's a patch that fixes more of the compile warnings with gcc
->> 2.97.
->> -#endif __SNMP__
->> +#endif /* __SNMP__ */
->
->Might as well automate it for all of these endif ones through the entire
->kernel (assuming you already haven't of course).
->
->Paul.
->  -----------------------------8<-----------8<------------------------
->#!/bin/bash
->for i in `find . -type f -name '*.[chS]'`
->do
->	grep -q '^#endif [A-Za-z0-9_]' $i 2>/dev/null
->	if [ $? == 0 ]; then
->		mv $i $i~
->		sed 's/^#endif \([A-Za-z0-9_]\+$\)/#endif \/\* \1 \*\//'<$i~>$i
->	fi
->done
->  -----------------------------8<-----------8<------------------------
 
-#endif can have white space before '#' and between '#' and 'endif', it
-can have tabs instead of spaces, the spurious text is anything that
-does not start with '/'.  Time to start a new one liner contest ;) ...
+Hi,
+	For using kdb I have done the following:
+	1) upgrade modutils using modutils-2.3.11-1.i386.rpm
+	2) patched the source using kdb-v0.6-2.2.13 as I am using
+	   linux-2.2.16.(I don't know, this kdb for 2.2.13 works for
+	   linux-2.2.16, I haven't used it extensively, so don't know 
+	   whether it works correctly or not?, but I couldn't find kdb
+	   for 2.2.16 in SGI site, any clues in this is very much 
+	   welcomed  :))
 
-find -type f -name '*.[chS]' | xargs perl -lpi -e 's:^(\s*#\s*endif)\s+([^/\s].*)$:\1\t/* \2 */:;'
+	so this works ... , 
+	But if I want to debug the modules, set breakpoints at, see the
+	address of, module functions, what shall I have to do? I haven't 
+	found any clue on this as yet, Plz. help..
 
-It even preserves the existing #endif layout.  That regexp does not
-catch #endif /foo, it assumes that '/' always starts a comment.  The
-extra complexity to catch that rare case is not worth it.  The command
-changed 97 files on base 2.4.0.
+sourav
+--------------------------------------------------------------------------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

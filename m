@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131350AbQLUWMr>; Thu, 21 Dec 2000 17:12:47 -0500
+	id <S131417AbQLUWUL>; Thu, 21 Dec 2000 17:20:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131464AbQLUWM2>; Thu, 21 Dec 2000 17:12:28 -0500
-Received: from [203.36.158.121] ([203.36.158.121]:32131 "HELO kabuki.eyep.net")
-	by vger.kernel.org with SMTP id <S131241AbQLUWMV>;
-	Thu, 21 Dec 2000 17:12:21 -0500
-To: safemode <safemode@voicenet.com>
-cc: Zdenek Kabelac <kabi@fi.muni.cz>, xOr <xor@x-o-r.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: lockups from heavy IDE/CD-ROM usage 
-In-Reply-To: Your message of "Thu, 21 Dec 2000 15:00:16 CDT."
-             <3A426150.1545FC96@voicenet.com> 
-In-Reply-To: <Pine.LNX.4.31.0012210421450.284-100000@bitch.x-o-r.net> <3A41FFD8.531DF534@fi.muni.cz>  <3A426150.1545FC96@voicenet.com> 
-Date: Fri, 22 Dec 2000 08:44:02 +1100
-From: Daniel Stone <daniel@kabuki.eyep.net>
-Message-Id: <20001221221226Z131241-440+3492@vger.kernel.org>
+	id <S131428AbQLUWUA>; Thu, 21 Dec 2000 17:20:00 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:260 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131417AbQLUWTv>; Thu, 21 Dec 2000 17:19:51 -0500
+Date: Thu, 21 Dec 2000 15:44:46 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: jmerkey@timpanogas.org, linux-kernel@vger.kernel.org
+Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
+Message-ID: <20001221154446.A10579@vger.timpanogas.org>
+In-Reply-To: <20001221144247.A10273@vger.timpanogas.org> <E149DKS-0003cX-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E149DKS-0003cX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 21, 2000 at 09:32:46PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I get this on the 440LX with the same DMA timeout message.  Everyone says it's
-> the board's fault as well.  Funny.   Anyways this happens accross just about
-> any Dev kernel but more so in the -test12 and up versions. .   Test10 works
-> fine without locking.  Blaming the hardware reminds me of the help given by
-> some other company I can't seem to remember the name to.
+On Thu, Dec 21, 2000 at 09:32:46PM +0000, Alan Cox wrote:
+> > A question related to bigphysarea support in the native Linux
+> > 2.2.19 and 2.4.0 kernels.
+> > 
+> > I know there are patches for this support, but is it planned for 
+> > rolling into the kernel by default to support Dolphin SCI and 
+> > some of the NUMA Clustering adapters.  I see it there for some 
+> > of the video adapters.
+> 
+> bigphysarea is the wrong model for 2.4. The bootmem allocator means that
+> drivers could do early claims via the bootmem interface during boot up. That
+> would avoid all the cruft.
+> 
+> For 2.2 bigphysarea is a hack, but a neccessary add on patch and not one you
+> can redo cleanly as we don't have bootmem
+> 
+> I belive Pauline Middelink had a patch implementing bigphysarea in terms of
+> bootmem
+> 
+> Alan
 
-Well, think about it - if there are DMA/IRQ timeouts, the hardware IS rooted.
-Otherwise, why would it be timing out? I've been seeing these messages
-shortly before a hardlock (except for the fact numlock still works, but
-nothing else) when doing long, intensive hard drive activity. Because my
-hard drives are right next to each other, overheat sometimes and shut
-straight down when they do. But I'm gonna take a wild guess it's not Linux's
-fault, unless they've done some whacky stuff with the elevator ;)
+Alan,
 
---
-Daniel Stone
-Linux Kernel Developer
-daniel@kabuki.eyep.net
+Thanks for the prompt response.  I am merging the Dolphin SCI High Speed
+interconnect drivers into 2.2.18 and 2.4.0 for our M2FS project, and I 
+am reviewing the big ugly nasty patch they have current as of 2.2.13 
+(really old).  I will be looking over the 2.4 tree for a more clean 
+manner to do what they want.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-G!>CS d s++:- a---- C++ ULS++++$>B P---- L+++>++++ E+(joe)>+++ W++ N->++ !o
-K? w++(--) O---- M- V-- PS+++ PE- Y PGP>++ t--- 5-- X- R- tv-(!) b+++ DI+++ 
-D+ G e->++ h!(+) r+(%) y? UF++
-------END GEEK CODE BLOCK------
+What's in the patch alters the /proc filesystem, and the VM code.  I will
+submit a patch against 2.2.19 and 2.4.0 for this support for their SCI 
+adapters after I get a handle on it.
 
+:-)
 
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

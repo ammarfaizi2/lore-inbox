@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131623AbRCOCg5>; Wed, 14 Mar 2001 21:36:57 -0500
+	id <S131577AbRCNW6f>; Wed, 14 Mar 2001 17:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131619AbRCOCgt>; Wed, 14 Mar 2001 21:36:49 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:45370 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S131613AbRCOCgj>; Wed, 14 Mar 2001 21:36:39 -0500
-Date: Wed, 14 Mar 2001 21:35:43 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: dledford@redhat.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: scsi_scan problem.
-Message-ID: <20010314213543.A30816@devserv.devel.redhat.com>
-In-Reply-To: <3AB028BE.E8940EE6@redhat.com>
-Mime-Version: 1.0
+	id <S131578AbRCNW60>; Wed, 14 Mar 2001 17:58:26 -0500
+Received: from duck.doc.ic.ac.uk ([146.169.1.46]:23306 "EHLO duck.doc.ic.ac.uk")
+	by vger.kernel.org with ESMTP id <S131577AbRCNW6X>;
+	Wed, 14 Mar 2001 17:58:23 -0500
+To: rct@gherkin.sa.wlk.com (Bob_Tracy),
+        Joerg Diederich <dieder@ibr.cs.tu-bs.de>
+Cc: davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: another Cyrix/mtrr problem?
+In-Reply-To: <m14d1KU-0005khC@gherkin.sa.wlk.com>
+From: David Wragg <dpw@doc.ic.ac.uk>
+Date: 14 Mar 2001 22:57:21 +0000
+Message-ID: <y7ru24wuffy.fsf@sytry.doc.ic.ac.uk>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AB028BE.E8940EE6@redhat.com>; from dledford@redhat.com on Wed, Mar 14, 2001 at 09:28:14PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Wed, 14 Mar 2001 21:28:14 -0500
-> From: Doug Ledford <dledford@redhat.com>
+rct@gherkin.sa.wlk.com (Bob_Tracy) writes:
+> Unfortunately, when I execute
+> 
+> echo "base=0xd8000000 size=0x100000 type=write-combining" >| /proc/mtrr
+> 
+> I get a 2MB region instead of the 1MB region I expected...
+
+Oops, it got broken by the MTRR >32-bit support in 2.4.0-testX.  The
+patch below should fix it.
+
+Joerg, I think this might well fix your Cyrix mtrr problem also.
+
+Let me know how it goes,
+Dave Wragg
+
+
+diff -uar linux-2.4.2/arch/i386/kernel/mtrr.c linux-2.4.2.cyrix/arch/i386/kernel/mtrr.c
+--- linux-2.4.2/arch/i386/kernel/mtrr.c	Thu Feb 22 15:24:53 2001
++++ linux-2.4.2.cyrix/arch/i386/kernel/mtrr.c	Wed Mar 14 22:28:02 2001
+@@ -538,7 +538,7 @@
+      * Note: shift==0xf means 4G, this is unsupported.
+      */
+     if (shift)
+-      *size = (reg < 7 ? 0x1UL : 0x40UL) << shift;
++      *size = (reg < 7 ? 0x1UL : 0x40UL) << (shift - 1);
+     else
+       *size = 0;
  
-> A bug report I was charged with fixing (qla2x00 driver doesn't see all luns or
-> sees multiple identical luns in different scenarios) was not a bug in the
-> qla2x00 driver.  [...]
->  The bug is that we were detecting offline devices and linking
-> them into the device list.
-
-Why is this a bug? What would happen when I telnet into the
-the RAID box and enable my volumes on those LUNs?
-
->  But, some devices (at least the Clariion raid
-> chassis) report luns that don't currently have any device bound to them as
-> present but offline.  This meant if we truly scanned all luns then we got
-> something like 100+ devices on one ID from this chassis when only 1 might be
-> valid:-(
-
-16384 LUNs for Fibre Channel. As you see, scanning is out of the
-question. You must issue REPORT LUNs and fall back on scanning
-if the device reports a check condition. I did that when I worked
-in Sun Storage with A5000/A3500/T3 arrays couple of years ago.
-
--- Pete

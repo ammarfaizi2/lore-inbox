@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282062AbRKVHaP>; Thu, 22 Nov 2001 02:30:15 -0500
+	id <S282064AbRKVHb0>; Thu, 22 Nov 2001 02:31:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282064AbRKVHaF>; Thu, 22 Nov 2001 02:30:05 -0500
-Received: from gate.mesa.nl ([194.151.5.70]:43531 "EHLO joshua.mesa.nl")
-	by vger.kernel.org with ESMTP id <S282062AbRKVH3v>;
-	Thu, 22 Nov 2001 02:29:51 -0500
-Date: Thu, 22 Nov 2001 08:29:30 +0100
+	id <S282067AbRKVHbQ>; Thu, 22 Nov 2001 02:31:16 -0500
+Received: from gate.mesa.nl ([194.151.5.70]:44555 "EHLO joshua.mesa.nl")
+	by vger.kernel.org with ESMTP id <S282064AbRKVHbD>;
+	Thu, 22 Nov 2001 02:31:03 -0500
+Date: Thu, 22 Nov 2001 08:30:50 +0100
 From: "Marcel J.E. Mol" <marcel@mesa.nl>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dominik Kubla <kubla@sciobyte.de>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
+To: Dominik Kubla <kubla@sciobyte.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
 Subject: Re: New ac patch???
-Message-ID: <20011122082930.A18888@joshua.mesa.nl>
+Message-ID: <20011122083050.B18888@joshua.mesa.nl>
 Reply-To: marcel@mesa.nl
-In-Reply-To: <E166VIr-0004ik-00@the-village.bc.nu> <Pine.LNX.4.40.0111221100460.10224-100000@boston.corp.fedex.com>
+In-Reply-To: <20011121100849.D15851@joshua.mesa.nl> <E166TZh-0004T8-00@the-village.bc.nu> <20011121103354.E15851@joshua.mesa.nl> <20011121120033.C21032@duron.intern.kubla.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.40.0111221100460.10224-100000@boston.corp.fedex.com>; from jeffchua@silk.corp.fedex.com on Thu, Nov 22, 2001 at 11:03:27AM +0800
+In-Reply-To: <20011121120033.C21032@duron.intern.kubla.de>; from kubla@sciobyte.de on Wed, Nov 21, 2001 at 12:00:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 22, 2001 at 11:03:27AM +0800, Jeff Chua wrote:
-> On Wed, 21 Nov 2001, Alan Cox wrote:
+On Wed, Nov 21, 2001 at 12:00:33PM +0100, Dominik Kubla wrote:
+> On Wed, Nov 21, 2001 at 10:33:54AM +0100, Marcel J.E. Mol wrote:
+> > Not exaclty. It is a 48Gig drive in a dell inspiron 8000. I think it is
+> > IBM but the logs do not show a brandname. I can try open up the case tonight
+> > if you want to know for sure?
 > 
-> > > > Not exaclty. It is a 48Gig drive in a dell inspiron 8000. I think it is
-> > > > IBM but the logs do not show a brandname. I can try open up the case tonight
-> > > > if you want to know for sure?
-> > >
-> > > It's an IBM IC25T048ATDA05-0 to be precise.
-> >
-> > Thanks. It seems IBM laptop drives are the ones that specifically need this
-> > fix. That ties in with the windows 98 reports/microsoft fixes.
-> 
-> I'm using IBM 240Z with IBM-DJSA-220 (20GB, 9.5mm thickness) with
-> 2.4.15-pre7 and it does not need any fixes. Disk clean after shutdown.
+> It's an IBM IC25T048ATDA05-0 to be precise.
 
-Does it have write caching enabled? check with hdparm ( I think you need one of
-the latest hdparm versions...)
+Exact. But noone reports the 'IBM' part, not even hdparm -i...
+But hdparm does shows that writecaching is enabled.
 
 -Marcel
 -- 

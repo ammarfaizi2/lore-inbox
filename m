@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263315AbUDUQIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263324AbUDUQK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbUDUQIf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 12:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbUDUQIf
+	id S263324AbUDUQK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 12:10:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbUDUQKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 12:08:35 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:53413 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S263315AbUDUQIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 12:08:16 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
-In-Reply-To: <1N4qh-4Ct-13@gated-at.bofh.it>
-References: <1N4qh-4Ct-13@gated-at.bofh.it>
-Date: Wed, 21 Apr 2004 18:08:14 +0200
-Message-Id: <E1BGKGk-0005zP-00@lanczos.pci.uni-heidelberg.de>
-From: Frank Otto <Frank.Otto@tc.pci.uni-heidelberg.de>
+	Wed, 21 Apr 2004 12:10:54 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:3456 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263324AbUDUQKG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 12:10:06 -0400
+Date: Wed, 21 Apr 2004 12:02:22 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tcp vulnerability?  haven't seen anything on it here...
+In-Reply-To: <40869267.30408@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.53.0404211153550.1169@chaos>
+References: <40869267.30408@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Steffl <steffl@bigfoot.com> wrote:
-:    it looks that after update to 2.6.5 kernel (debian source package but 
-: I guess it would be the same with stock 2.6.5) the mouse wheel and side 
-: button on Logitech Cordless MouseMan Wheel mouse do not work.
-:
-: [snip]
-:
-:    BTW X windows is confused in the same way (I guess because that's 
-: what it gets from kernel driver - using xev I found that it thinks the 
-: sidebutton is button 2 and that turning the wheel is not an event at all).
+On Wed, 21 Apr 2004, Chris Friesen wrote:
 
-What worked for me is to make a change to my XF86Config:
-use /dev/psaux for the mouse device, and choose "ExplorerPS/2"
-for the mouse protocol (I previously used "MouseManPlusPS/2").
+>
+> There has been some discussion about this on the Debian and OpenBSD
+> lists, but I haven't seen anything on it here.  I know my boss is going
+> to hear about this and want more information, so where does Linux stand
+> with regards to this?
+>
+> http://www.uniras.gov.uk/vuls/2004/236929/index.htm
+>
+> Thanks,
+>
+> Chris
 
-HTH,
-Frank
+The vulnerabilities were discussed on US news reports as being
+like somebody discovered they could disconnect your electricity
+if they had some wire-cutters.
 
-[Sorry if this post falls out of its thread, I'm not subscribed to
-LKML and only read it via the newsgroup interface but that currently
-doesn't allow posting.]
+Those guys in the UK just don't have anything else to do! It
+seems that they discovered that if you tap-into some network
+physical media you could disrupt it! Since it has been taking
+so long for IP/V6 to take hold, those proponents claim that
+it will be a solution. Me-thinks it's a solution waiting for
+a problem. The IP/V6 folks want to force (using government and
+industry FUD) to discontinue IP/V4 as a "security risk!!!"
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

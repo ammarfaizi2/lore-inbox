@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316580AbSGLPH7>; Fri, 12 Jul 2002 11:07:59 -0400
+	id <S316578AbSGLP0z>; Fri, 12 Jul 2002 11:26:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316582AbSGLPH6>; Fri, 12 Jul 2002 11:07:58 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24069 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316580AbSGLPH4>; Fri, 12 Jul 2002 11:07:56 -0400
-Subject: Re: strange IP stack behavior
-To: Jack.Bloch@icn.siemens.com (Bloch, Jack)
-Date: Fri, 12 Jul 2002 16:34:00 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <180577A42806D61189D30008C7E632E879398E@boca213a.boca.ssc.siemens.com> from "Bloch, Jack" at Jul 12, 2002 10:41:43 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S316582AbSGLP0y>; Fri, 12 Jul 2002 11:26:54 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:29450
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316578AbSGLP0y>; Fri, 12 Jul 2002 11:26:54 -0400
+Date: Fri, 12 Jul 2002 08:26:18 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <Pine.LNX.4.44.0207120649180.3421-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.10.10207120822400.20499-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17T2Qj-0003Df-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am running Red Hat 7.2 (Kernel Version 2.4.7-10) and have the following
 
-You should update to the errata kernel firstly.
+Maybe because I showed him the various docs and he knows better.
+But Please continue to self propagate, eventually it will halt.
 
-> communication is accomplished via UDP/IP. During my application
-> initialization, I use the SIOCSARP IOCTL to force permanent cache entries
-> for the devices that I communicate with. The problem that I see is that
-> sporadically, when I want to transmit the first message to a device, the
-> destination MAC address is 0. All subsequent messages contain the correct
-> MAC address. 
+Of the four of you, which one has ever successful written a storage driver
+with old and modern hardware  mixed that has worked properly?
 
-The kernel should never try to send out a packet with an incomplete header.
-That may well indicate a bug
+Never mind this is a waste of electons.
 
-	https://bugzilla.redhat.com/bugzilla
 
-but please reproduce with the errata kernel first
+On Fri, 12 Jul 2002, Thunder from the hill wrote:
+
+> Hi,
+> 
+> On Fri, 12 Jul 2002, Martin Dalecki wrote:
+> > Against:
+> > 
+> > 1. Bartlomiej Zolnierkiewcz.
+> 
+> What's your reason to vote against him? Something personal?
+> 
+> 							Regards,
+> 							Thunder
+> -- 
+> (Use http://www.ebb.org/ungeek if you can't decode)
+> ------BEGIN GEEK CODE BLOCK------
+> Version: 3.12
+> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+> e++++ h* r--- y- 
+> ------END GEEK CODE BLOCK------
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

@@ -1,76 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273800AbRIXFT0>; Mon, 24 Sep 2001 01:19:26 -0400
+	id <S273799AbRIXFTQ>; Mon, 24 Sep 2001 01:19:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273801AbRIXFTQ>; Mon, 24 Sep 2001 01:19:16 -0400
-Received: from donna.siteprotect.com ([64.41.120.44]:5905 "EHLO
-	donna.siteprotect.com") by vger.kernel.org with ESMTP
-	id <S273800AbRIXFTH>; Mon, 24 Sep 2001 01:19:07 -0400
-Date: Mon, 24 Sep 2001 01:19:19 -0400 (EDT)
-From: John Clemens <john@deater.net>
-X-X-Sender: <john@pianoman.cluster.toy>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Enable SSE on K7's with old/broken BIOS's. 
-In-Reply-To: <E15lJDP-0000qe-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0109240106440.6419-100000@pianoman.cluster.toy>
+	id <S273801AbRIXFTH>; Mon, 24 Sep 2001 01:19:07 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:43533 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S273799AbRIXFSz>; Mon, 24 Sep 2001 01:18:55 -0400
+Message-ID: <3BAEC254.2A29B495@zip.com.au>
+Date: Sun, 23 Sep 2001 22:19:16 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Aaron Lehmann <aaronl@vitelus.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.10 + ext3
+In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <1001280620.3540.33.camel@gromit.house> <9om4ed$1hv$1@penguin.transmeta.com>, <9om4ed$1hv$1@penguin.transmeta.com> <20010923193008.A13982@vitelus.com> <3BAEAC52.677C064C@zip.com.au>,
+		<3BAEAC52.677C064C@zip.com.au> <20010923214507.A15014@vitelus.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Aaron Lehmann wrote:
+> 
+> ...
+> I simply was hoping for insted of:
+> 
+>  <*> EXT2 fs
+>  <*> EXT3 fs
+> 
+> (which is required today for most ext3-using people who want to do ext2
+> mounts)
+> 
+> ... there could be:
+> 
+>  <*> EXT2 fs
+>  <*>   EXT3 journalling extensions
+> 
+> AFAIK this would eliminate a lot of duplicate kernel code for ext3
+> users.
+> 
 
-Linus, Alan..
+mm..  The filesystems could be pretty much identical on the reading
+path, but they're quite dissimilar on the writing path. So the
+reading-stuff code could be commoned up.
 
-Please consider applying the attached patch to the mainstream kernel(s).
-It enables SSE support on Athlon4/MP/XP (later model) Athlon's if the BIOS
-does not.  This is done by zero-ing bit 15 of the Athlon's HWCR.  The
-patch has been tested for a few days by me and a few other people with
-AthlonMP's and Athlon4's, with no negative reports.
+I don't think it'd buy much, though.  They are different filesystems
+and the fact that ext3 borrows a lot of ext2 code is a useful
+consequence of it having the same on-disk format.
 
-It's a very simple patch, please consider applying.
+And the main reason for having the same on-disk format is not, IMO, to
+ease migration between the two filesystems.  That's just a once-off
+activity.  The main reason for preserving compatibility is so that ext3
+can leverage e2fsprogs, and the wealth of knowledge and understanding
+of ext2 performance and behaviour.
 
-john.c
+The ext2-compatibility seems to be a bit of a political albatross
+for ext3, really - people appear to be of the opinion that the
+ext3 design was somehow compromised by the compatibility requirement.
+This isn't so - ext3 is a block-level journalled filesystem.  It
+could have been based on minixfs, UFS, sysvfs, etc.  Or it could
+have been something altogether new.  But I can't think of any benefit
+in changing the on-disk format from its current ext2ness.
 
--- 
-John Clemens          http://www.deater.net/john
-john@deater.net     ICQ: 7175925, IM: PianoManO8
-      "I Hate Quotes" -- Samuel L. Clemens
-
-diff -u --recursive linux-orig/arch/i386/kernel/setup.c linux/arch/i386/kernel/setup.c
---- linux-orig/arch/i386/kernel/setup.c	Wed Sep 19 22:49:11 2001
-+++ linux/arch/i386/kernel/setup.c	Fri Sep 21 01:23:22 2001
-@@ -1272,6 +1272,21 @@
-
- 		case 6:	/* An Athlon/Duron. We can trust the BIOS probably */
- 			mcheck_init(c);
-+
-+	                /* Bit 15 of Athlon specific MSR 15, needs to be 0
-+			 * to enable SSE on Palomino/Morgan CPU's.
-+			 * If the BIOS didn't enable it already, enable it
-+			 * here.
-+			 */
-+			if (c->x86_model == 6 || c->x86_model == 7) {
-+				if (!test_bit(X86_FEATURE_XMM, &c->x86_capability)) {
-+					printk(KERN_INFO "Enabling K7/SSE support, since BIOS did not\n");
-+				        rdmsr(MSR_K7_HWCR, l, h);
-+				        l &= ~0x00008000;
-+					wrmsr(MSR_K7_HWCR, l, h);
-+					set_bit(X86_FEATURE_XMM, &c->x86_capability);
-+				}
-+			}
- 			break;
- 	}
-
-diff -u --recursive linux-orig/include/asm-i386/msr.h linux/include/asm-i386/msr.h
---- linux-orig/include/asm-i386/msr.h	Wed Sep 19 22:49:27 2001
-+++ linux/include/asm-i386/msr.h	Wed Sep 19 22:57:32 2001
-@@ -81,6 +81,7 @@
-
- #define MSR_K7_EVNTSEL0			0xC0010000
- #define MSR_K7_PERFCTR0			0xC0010004
-+#define MSR_K7_HWCR			0xC0010015
-
- /* Centaur-Hauls/IDT defined MSRs. */
- #define MSR_IDT_FCR1			0x107
-
+-

@@ -1,83 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVBFLtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVBFLxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbVBFLtc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 06:49:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVBFLnT
+	id S261298AbVBFLxA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 06:53:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVBFLw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 06:43:19 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:37580 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261205AbVBFLlJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 06:41:09 -0500
-Message-ID: <4206024B.2030403@drzeus.cx>
-Date: Sun, 06 Feb 2005 12:40:59 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adam Belay <ambx1@neo.rr.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Strange device init
-References: <4204FDEA.3090306@drzeus.cx> <20050205215504.GA3621@neo.rr.com>
-In-Reply-To: <20050205215504.GA3621@neo.rr.com>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Feb 2005 06:52:59 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:17939 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261351AbVBFLsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 06:48:09 -0500
+Date: Sun, 6 Feb 2005 11:47:59 +0000
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, torvalds@osdl.org, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, drepper@redhat.com
+Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
+Message-ID: <20050206114758.GA8437@infradead.org>
+References: <20050206113635.GA30109@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050206113635.GA30109@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Belay wrote:
+On Sun, Feb 06, 2005 at 12:36:35PM +0100, Andi Kleen wrote:
 
->On Sat, Feb 05, 2005 at 06:10:02PM +0100, Pierre Ossman wrote:
->  
->
->>I'm having problem with a card reader on a laptop (Acer Aspire 1501). 
->>The device doesn't get its resources configured properly.
->>
->>The reader is connected to the LPC bus so there is no standardised way 
->>to configure the device. On other laptops the configuration is done via 
->>ACPI (_STA & co. in the DSDT). On this laptop these functions don't do a 
->>damn thing.
->>In Windows this device gets configured through some other means. It's 
->>not in the driver (I've disected it to confirm this). But under Linux 
->>the device is left unconfigured.
->>
->>So my question is if anyone has any ideas on how this device gets 
->>configured by Windows and possibly how we can get this to work on Linux.
->>
->>The reason this is an issue is that one cannot detect all the quirks of 
->>the hardware so a PNP solution is prefered. In those cases the 
->>manufacturer has chosen resources that work ok.
->>
->>For some context: I am the maintainer of the driver for this hardware. I 
->>have a laptop where the DSDT properly sets up the hardware. The Acer 
->>belongs to some of my users but they are not familiar with the kernel so 
->>I'm trying to fix this for them.
->>
->>Rgds
->>Pierre
->>    
->>
->
->So the device is not listed in the DSDT, or _SRS doesn't work?  Does _STA
->succeed?  Finally have you checked if PnPBIOS detects the device?  Any
->additional information you could provide would be appreciated.
->
->  
->
-The device is listed in the DSDT but the functions are empty. E.g. _SRS:
+> PT_GNU_STACK assumes that any program with a PT_GNU_STACK header
+> always pass correct PROT_EXEC flags to mmap/mprotect etc. before
+> allocating mappings. 
 
-Method (_SRS, 1, NotSerialized)
-{
-}
+that is incorrect and was introduced later
 
-_PRS and _CRS at least returns the proper resources that should be used.
 
-PNPBIOS cannot be compiled in. This is a x86_64 machine and PNPBIOS is 
-dependent on ISA. Are there any user-space tools that can do the same 
-thing? Just to do some testing.
+> Worse is that even when the program has trampolines and has PT_GNU_STACK
+> header with an E bit on the stack it still won't get an executable
+> heap by default  (this is what broke grub) 
 
-Rgds
-Pierre
+this I can fix easy, see the patch below
 
+the problem is in the read_implies_exec() design, it passed in "does it have
+a PT_GNU_STACK flag" not the value. Easy fix.
+
+
+Your main objection is that *incorrect* programs that assume they can
+execute malloc() code without PROT_EXEC protection. For legacy binaries
+keeping this behavior makes sense, no objection from me.
+
+For newly compiled programs this is just wrong and incorrect.
+
+You mention grub (which has RWE and the patch below thus makes that work)
+and mono. mono has patches for this on their mailinglist and bugzilla since
+2003 according to google, I'm surprised the novell mono guys haven't fixed
+this bug in their code.
+
+FWIW all jvm's don't suffer from this. They are either legacy binaries or
+mprotect properly (only i386 traditionally had this behavior, all others
+already required PROT_EXEC anyway so any half portable app already did this,
+as well as any app portable to BSD since they enforce this on x86 as well)
+
+So I rather see the patch below merged instead; it fixes the worst problems
+(RWE not marking the heap executable) while keeping this useful feature
+enabled.
+
+
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+
+
+diff -purN linux-2.6.11-rc2-bk4/fs/binfmt_elf.c linux-foo/fs/binfmt_elf.c
+--- linux-2.6.11-rc2-bk4/fs/binfmt_elf.c	2005-01-26 18:24:50.000000000 +0100
++++ linux-foo/fs/binfmt_elf.c	2005-02-06 12:29:02.000000000 +0100
+@@ -757,7 +757,7 @@ static int load_elf_binary(struct linux_
+ 	/* Do this immediately, since STACK_TOP as used in setup_arg_pages
+ 	   may depend on the personality.  */
+ 	SET_PERSONALITY(loc->elf_ex, ibcs2_interpreter);
+-	if (elf_read_implies_exec(loc->elf_ex, have_pt_gnu_stack))
++	if (elf_read_implies_exec(loc->elf_ex, executable_stack))
+ 		current->personality |= READ_IMPLIES_EXEC;
+ 
+ 	arch_pick_mmap_layout(current->mm);
+diff -purN linux-2.6.11-rc2-bk4/include/asm-i386/elf.h linux-foo/include/asm-i386/elf.h
+--- linux-2.6.11-rc2-bk4/include/asm-i386/elf.h	2004-12-24 22:35:15.000000000 +0100
++++ linux-foo/include/asm-i386/elf.h	2005-02-06 12:29:55.000000000 +0100
+@@ -123,7 +123,7 @@ typedef struct user_fxsr_struct elf_fpxr
+  * An executable for which elf_read_implies_exec() returns TRUE will
+  * have the READ_IMPLIES_EXEC personality flag set automatically.
+  */
+-#define elf_read_implies_exec(ex, have_pt_gnu_stack)	(!(have_pt_gnu_stack))
++#define elf_read_implies_exec(ex, executable_stack)	(executable_stack != EXSTACK_DISABLE_X)
+ 
+ extern int dump_task_regs (struct task_struct *, elf_gregset_t *);
+ extern int dump_task_fpu (struct task_struct *, elf_fpregset_t *);
+diff -purN linux-2.6.11-rc2-bk4/include/asm-ia64/elf.h linux-foo/include/asm-ia64/elf.h
+--- linux-2.6.11-rc2-bk4/include/asm-ia64/elf.h	2004-12-24 22:35:18.000000000 +0100
++++ linux-foo/include/asm-ia64/elf.h	2005-02-06 12:32:47.000000000 +0100
+@@ -186,8 +186,8 @@ extern void ia64_elf_core_copy_regs (str
+ 
+ #ifdef __KERNEL__
+ #define SET_PERSONALITY(ex, ibcs2)	set_personality(PER_LINUX)
+-#define elf_read_implies_exec(ex, have_pt_gnu_stack)					\
+-	(!(have_pt_gnu_stack) && ((ex).e_flags & EF_IA_64_LINUX_EXECUTABLE_STACK) != 0)
++#define elf_read_implies_exec(ex, executable_stack)					\
++	((executable_stack!=EXSTACK_DISABLE_X) && ((ex).e_flags & EF_IA_64_LINUX_EXECUTABLE_STACK) != 0)
+ 
+ struct task_struct;
+ 
+diff -purN linux-2.6.11-rc2-bk4/include/asm-x86_64/elf.h linux-foo/include/asm-x86_64/elf.h
+--- linux-2.6.11-rc2-bk4/include/asm-x86_64/elf.h	2004-12-24 22:35:24.000000000 +0100
++++ linux-foo/include/asm-x86_64/elf.h	2005-02-06 12:31:39.000000000 +0100
+@@ -147,14 +147,7 @@ extern void set_personality_64bit(void);
+  * An executable for which elf_read_implies_exec() returns TRUE will
+  * have the READ_IMPLIES_EXEC personality flag set automatically.
+  */
+-#define elf_read_implies_exec(ex, have_pt_gnu_stack)	(!(have_pt_gnu_stack))
+-	
+-/*
+- * An executable for which elf_read_implies_exec() returns TRUE will
+- * have the READ_IMPLIES_EXEC personality flag set automatically.
+- */
+-#define elf_read_implies_exec_binary(ex, have_pt_gnu_stack)   \
+-	 (!(have_pt_gnu_stack))
++#define elf_read_implies_exec(ex, executable_stack)	(executable_stack != EXSTACK_DISABLE_X)
+ 
+ extern int dump_task_regs (struct task_struct *, elf_gregset_t *);
+ extern int dump_task_fpu (struct task_struct *, elf_fpregset_t *);

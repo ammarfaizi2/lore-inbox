@@ -1,88 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUKXNWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbUKXN1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbUKXNWL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 08:22:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbUKXNUN
+	id S262652AbUKXN1z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 08:27:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbUKXN1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 08:20:13 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:58516 "HELO
+	Wed, 24 Nov 2004 08:27:38 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:46996 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262648AbUKXNCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:02:43 -0500
-Subject: Suspend 2 merge: 24/51: Keyboard and serial console hooks.
+	id S262652AbUKXNB7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:01:59 -0500
+Subject: Suspend 2 merge: 19/51: Remove MTRR sysdev support.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
 Content-Type: text/plain
-Message-Id: <1101296414.5805.286.camel@desktop.cunninghams>
+Message-Id: <1101295453.5805.263.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 24 Nov 2004 23:59:02 +1100
+Date: Wed, 24 Nov 2004 23:58:16 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here we add simple hooks so that the user can interact with suspend
-while it is running. (Hmm. The serial console condition could be
-simplified :>). The hooks allow you to do such things as:
+This patch removes sysdev support for MTRRs (potential SMP hang and
+shouldn't be done with interrupts done anyway). Instead, we save and
+restore MTRRs when entering and exiting the processor freezers (ie when
+saving the registers & context for each CPU via an SMP call).
 
-- cancel suspending
-- change the amount of detail of debugging info shown
-- change what debugging info is shown
-- pause the process
-- single step
-- toggle rebooting instead of powering down
-
-diff -ruN 702-keyboard-and-8250-hooks-old/drivers/char/keyboard.c 702-keyboard-and-8250-hooks-new/drivers/char/keyboard.c
---- 702-keyboard-and-8250-hooks-old/drivers/char/keyboard.c	2004-11-24 18:50:00.959995424 +1100
-+++ 702-keyboard-and-8250-hooks-new/drivers/char/keyboard.c	2004-11-24 18:03:32.040404608 +1100
-@@ -33,6 +33,7 @@
- #include <linux/string.h>
- #include <linux/random.h>
- #include <linux/init.h>
-+#include <linux/suspend.h>
- #include <linux/slab.h>
- 
- #include <linux/kbd_kern.h>
-@@ -1091,6 +1092,10 @@
- 		return;
- 	}
+diff -ruN 510-mtrr-remove-sysdev-old/arch/i386/kernel/cpu/mtrr/main.c 510-mtrr-remove-sysdev-new/arch/i386/kernel/cpu/mtrr/main.c
+--- 510-mtrr-remove-sysdev-old/arch/i386/kernel/cpu/mtrr/main.c	2004-11-03 21:51:13.000000000 +1100
++++ 510-mtrr-remove-sysdev-new/arch/i386/kernel/cpu/mtrr/main.c	2004-11-04 16:27:40.000000000 +1100
+@@ -167,7 +167,6 @@
+ 	atomic_dec(&data->count);
+ 	local_irq_restore(flags);
+ }
+-
  #endif
-+	if (down && (test_suspend_state(SUSPEND_RUNNING))) {
-+		suspend_handle_keypress(keycode, SUSPEND_KEY_KEYBOARD);
-+		return;
-+	}
- #if defined(CONFIG_SPARC32) || defined(CONFIG_SPARC64)
- 	if (keycode == KEY_A && sparc_l1_a_state) {
- 		sparc_l1_a_state = 0;
-diff -ruN 702-keyboard-and-8250-hooks-old/drivers/serial/8250.c 702-keyboard-and-8250-hooks-new/drivers/serial/8250.c
---- 702-keyboard-and-8250-hooks-old/drivers/serial/8250.c	2004-11-24 18:50:00.962994968 +1100
-+++ 702-keyboard-and-8250-hooks-new/drivers/serial/8250.c	2004-11-24 18:49:53.882071432 +1100
-@@ -39,6 +39,7 @@
- #include <linux/serial_core.h>
- #include <linux/serial.h>
- #include <linux/serial_8250.h>
-+#include <linux/suspend.h>
  
- #include <asm/io.h>
- #include <asm/irq.h>
-@@ -1068,6 +1069,15 @@
- 		}
- 		if (uart_handle_sysrq_char(&up->port, ch, regs))
- 			goto ignore_char;
-+
-+#if defined(CONFIG_SERIAL_CORE_CONSOLE) && defined(CONFIG_SOFTWARE_SUSPEND2)
-+		if (test_suspend_state(SUSPEND_SANITY_CHECK_PROMPT) ||
-+		    test_suspend_state(SUSPEND_RUNNING)) {
-+			suspend_handle_keypress(ch, SUSPEND_KEY_SERIAL);
-+			goto ignore_char;
-+		}
-+#endif
-+
- 		if ((lsr & up->port.ignore_status_mask) == 0) {
- 			tty_insert_flip_char(tty, ch, flag);
- 		}
+ /**
+@@ -564,7 +563,7 @@
+ 
+ static struct mtrr_value * mtrr_state;
+ 
+-static int mtrr_save(struct sys_device * sysdev, u32 state)
++int mtrr_save(void)
+ {
+ 	int i;
+ 	int size = num_var_ranges * sizeof(struct mtrr_value);
+@@ -584,28 +583,27 @@
+ 	return 0;
+ }
+ 
+-static int mtrr_restore(struct sys_device * sysdev)
++/* Restore mtrrs on this CPU only.
++ * Done with interrupts disabled via __smp_lowlevel_suspend
++ */
++int mtrr_restore_one_cpu(void)
+ {
+ 	int i;
+ 
+ 	for (i = 0; i < num_var_ranges; i++) {
+ 		if (mtrr_state[i].lsize) 
+-			set_mtrr(i,
++			mtrr_if->set(i,
+ 				 mtrr_state[i].lbase,
+ 				 mtrr_state[i].lsize,
+ 				 mtrr_state[i].ltype);
+ 	}
+-	kfree(mtrr_state);
+ 	return 0;
+ }
+ 
+-
+-
+-static struct sysdev_driver mtrr_sysdev_driver = {
+-	.suspend	= mtrr_save,
+-	.resume		= mtrr_restore,
+-};
+-
++void mtrr_restore_finish(void)
++{
++	kfree(mtrr_state);
++}
+ 
+ /**
+  * mtrr_init - initialize mtrrs on the boot CPU
+@@ -692,8 +690,7 @@
+ 		init_table();
+ 		init_other_cpus();
+ 
+-		return sysdev_driver_register(&cpu_sysdev_class,
+-					      &mtrr_sysdev_driver);
++		return 0;
+ 	}
+ 	return -ENXIO;
+ }
 
 

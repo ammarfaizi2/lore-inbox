@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUF1MNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264920AbUF1MQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUF1MNt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 08:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264920AbUF1MNt
+	id S264920AbUF1MQT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 08:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUF1MQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 08:13:49 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:1152 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264917AbUF1MNp (ORCPT
+	Mon, 28 Jun 2004 08:16:18 -0400
+Received: from mx2.magma.ca ([206.191.0.250]:44263 "EHLO mx2.magma.ca")
+	by vger.kernel.org with ESMTP id S264920AbUF1MQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 08:13:45 -0400
-Date: Mon, 28 Jun 2004 14:13:48 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/19] New set of input patches
-Message-ID: <20040628121348.GA1141@ucw.cz>
-References: <200406280008.21465.dtor_core@ameritech.net> <20040628065259.GA1291@ucw.cz> <16607.62404.597786.924454@cse.unsw.edu.au>
+	Mon, 28 Jun 2004 08:16:17 -0400
+Subject: Re: Kernel freezes- Init process in console driver
+From: Jesse Stockall <stockall@magma.ca>
+To: Deshpande M <pdspartan@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040628100743.14712.qmail@web90107.mail.scd.yahoo.com>
+References: <20040628100743.14712.qmail@web90107.mail.scd.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1088424926.8621.28.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16607.62404.597786.924454@cse.unsw.edu.au>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 28 Jun 2004 08:15:26 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 08:32:36PM +1000, Neil Brown wrote:
-> On Monday June 28, vojtech@suse.cz wrote:
-> > On Mon, Jun 28, 2004 at 12:08:21AM -0500, Dmitry Torokhov wrote:
-> > 
-> > > 10-serio_raw.patch
-> > >         - raw access to serio data ala 2.4 /dev/psaux
-> > 
-> > OK, finally those who insist on /dev/psaux can shut up
-> > 
-> 
-> Alternatively, we could say thank you.  So..
-> 
->    Thank you, very much!
- 
-You're welcome.
+On Mon, 2004-06-28 at 06:07, Deshpande M wrote:
+> I am porting 2.6.0 (plain vanilla kernel) on Arm926 EJ
+
+Have looked on the ARM Linux page or posted to their mailing lists?
+
+http://www.arm.linux.org.uk/
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Jesse Stockall <stockall@magma.ca>
+

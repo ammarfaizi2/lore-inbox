@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275389AbRIZR7V>; Wed, 26 Sep 2001 13:59:21 -0400
+	id <S275399AbRIZSBb>; Wed, 26 Sep 2001 14:01:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275391AbRIZR7L>; Wed, 26 Sep 2001 13:59:11 -0400
-Received: from ns.suse.de ([213.95.15.193]:20238 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S275389AbRIZR7H>;
-	Wed, 26 Sep 2001 13:59:07 -0400
-Date: Wed, 26 Sep 2001 19:59:34 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, <bcrl@redhat.com>,
-        <marcelo@conectiva.com.br>, <andrea@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Locking comment on shrink_caches()
-In-Reply-To: <E15mIoy-0001Hd-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0109261958290.8655-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275391AbRIZSBM>; Wed, 26 Sep 2001 14:01:12 -0400
+Received: from borg.org ([208.218.135.231]:4101 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S275392AbRIZSBF>;
+	Wed, 26 Sep 2001 14:01:05 -0400
+Date: Wed, 26 Sep 2001 14:01:30 -0400
+From: Kent Borg <kentborg@borg.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]  Re: 2.4.9-ac15 painfully sluggish
+Message-ID: <20010926140130.A32255@borg.org>
+In-Reply-To: <Pine.LNX.4.33.0109251819520.1401-100000@pau.intranet.ct> <Pine.LNX.4.33L.0109251628460.26091-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33L.0109251628460.26091-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Sep 25, 2001 at 04:32:13PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Sep 2001, Alan Cox wrote:
+On Tue, Sep 25, 2001 at 04:32:13PM -0300, Rik van Riel wrote:
+> I've made a small patch to 2.4.9-ac15 which should make
+> page_launder() smoother, make some (very minor) tweaks
+> to page aging and updates various comments in vmscan.c
 
-> VIA Cyrix CIII (original generation 0.18u)
->
-> nothing: 28 cycles
-> locked add: 29 cycles
-> cpuid: 72 cycles
+Works for me.  I have the premption patch turned on.
 
-Interesting. From a newer C3..
+On a 192 MB PIII laptop running at 500 MHz I have two X sessions
+running, and have opened a zillion application windows on each,
+including over a dozen Netscape windows, some Mozilla's, a couple
+emacs's, a kernel compile, Staroffice.  About every app I can
+immediately think of.  I haven't tried malloc-ing a ton of memory, but
+this contrived real-world test works.
 
-nothing: 30 cycles
-locked add: 31 cycles
-cpuid: 79 cycles
+Swap is at 238 MB.  Lower than I would have expected, but that doesn't
+mean I know anything.
 
-Only slightly worse, but I'd not expected this.
-This was from a 866MHz part too, whereas you have a 533 iirc ?
+Switching between X sessions just took near 10-seconds going, and only
+about 5-seconds coming back.  Switching in Staroffice is painful, but
+generally the responsiveness feels quite nice.
 
-regards,
+I like it.  Thanks,
 
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+-kb, the Kent who will be staying with 2.4.9-ac15, plus preemption
+patch, plus this patch--once he figures out how to close all those
+windows.

@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262681AbSJEV6L>; Sat, 5 Oct 2002 17:58:11 -0400
+	id <S262688AbSJEWG0>; Sat, 5 Oct 2002 18:06:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262688AbSJEV6L>; Sat, 5 Oct 2002 17:58:11 -0400
-Received: from nl-ams-slo-l4-02-pip-4.chellonetwork.com ([213.46.243.20]:4947
-	"EHLO amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S262681AbSJEV6K>; Sat, 5 Oct 2002 17:58:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jos Hulzink <josh@stack.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40: some results...
-Date: Sun, 6 Oct 2002 00:03:40 +0200
-X-Mailer: KMail [version 1.3.1]
-References: <20021005214508.IKVD1253.amsfep12-int.chello.nl@there>
-In-Reply-To: <20021005214508.IKVD1253.amsfep12-int.chello.nl@there>
+	id <S262696AbSJEWG0>; Sat, 5 Oct 2002 18:06:26 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:6540 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S262688AbSJEWGZ>;
+	Sat, 5 Oct 2002 18:06:25 -0400
+Date: Sat, 5 Oct 2002 17:10:58 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+Subject: Re: 2.5 Problem Report Status
+In-Reply-To: <200210052021.WAA04976@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.44.0210051707550.13901-100000@dad.molina>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20021005220341.FKPB1314.amsfep11-int.chello.nl@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor detail:
+On Sat, 5 Oct 2002, Mikael Pettersson wrote:
 
-Selecting the ALSA driver in Menuconfig aborts Menuconfig, while xconfig 
-configures ALSA fine. Guess this is old news for you, but I got to catch the 
-kernel train again, so I'm still not up to date with reading emails...
+> On Sat, 5 Oct 2002 11:57:59 -0500 (CDT), Thomas Molina wrote:
+> >-------------------------------------------------------------------------
+> >   open                   29 Sep 2002 IDE problems on prePCI
+> >   8. http://marc.theaimsgroup.com/?l=linux-kernel&m=103277899317468&w=2
+> >
+> >Mikael Pettersson <mikpe@csd.uu.se> reported this problem and proposed a 
+> >patch.  Was the patch accepted, and did it fix the problem?
+> 
+> The patch was for minor subproblem, not the instant reboot problem.
+> The reboot still occurs in 2.5.40.
+> 
+> Another issue: initrd appears to be broken since 2.5.38. See the
+> "initrd breakage in 2.5.38-2.5.40" thread.
 
-Jos
+
+I misunderstood the timing of Al Viro's proposed fix for the problem.  I 
+thought it was going in right away and the issue would be moot.  I've 
+added it to my list.  Unfortunately, I'm getting connection refused 
+messages when trying to connect to bkbits, so I'm unable to browse the 
+comments like I usually do when researching this stuff.
 

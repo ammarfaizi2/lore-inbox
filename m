@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbTITROY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 13:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbTITROY
+	id S261914AbTITRrF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 13:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTITRrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 13:14:24 -0400
-Received: from fluent2.pyramid.net ([206.100.220.213]:12417 "EHLO
-	fluent2.pyramid.net") by vger.kernel.org with ESMTP id S261912AbTITROX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 13:14:23 -0400
-X-Not-Legal-Opinion: IANAL I am not a lawyer
-X-For-Entertainment-Purposes-Only: True
-X-message-flag: Please update my contact to send plain-text mail only.
-Message-Id: <5.2.1.1.0.20030920101222.01123c28@fluent2.pyramid.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Sat, 20 Sep 2003 10:14:19 -0700
-To: Larry McVoy <lm@bitmover.com>, Andrea Arcangeli <andrea@suse.de>
-From: Stephen Satchell <list@fluent2.pyramid.net>
-Subject: Flames (was: Fix for wrong OOM killer trigger?)
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030920151332.GA18387@work.bitmover.com>
-References: <20030920142314.GA1338@velociraptor.random>
- <20030919191613.36750de3.bless@tm.uka.de>
- <20030919192544.GC1312@velociraptor.random>
- <20030919203538.D1919@flint.arm.linux.org.uk>
- <20030919200117.GE1312@velociraptor.random>
- <20030919205220.GA19830@work.bitmover.com>
- <20030920033153.GA1452@velociraptor.random>
- <20030920043026.GA10836@work.bitmover.com>
- <20030920142314.GA1338@velociraptor.random>
+	Sat, 20 Sep 2003 13:47:05 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:45497 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261914AbTITRrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 13:47:03 -0400
+Subject: Re: 2.4.2[12] v VIA Rhine and VIA82x audio (working with a fight)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux@treblig.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030920163835.GA723@gallifrey>
+References: <20030920163835.GA723@gallifrey>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1064079929.22995.7.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
+Date: Sat, 20 Sep 2003 18:45:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:13 AM 9/20/2003 -0700, Larry McVoy wrote:
->Really?  So where's the source to the BIOS of your machine?  Your drive
->firmware?  Do you drive a car?  Turn on a microwave?  Use a cell phone?
+On Sad, 2003-09-20 at 17:38, Dr. David Alan Gilbert wrote:
+>   The motherboard has onboard via-rhine ether; this wouldn't work
+> with the first kernels I tried.  With 2.4.22 it needs the 'noapic'
+> option to work (2.4.22 wouldn't build for me single processor).
+> The errors are timeouts on transmit; the same happens on 2.4.21
 
-And when you start flaming, PLEASE CHANGE THE SUBJECT LINE!
+I've done some work on this for -ac. I thought 2.4.22 had enough stuff
+to deal with it (at least for the non ACPI case). VIA v-bus cares that
+both PCI_INTERRUPT_PIN and PCI_INTERRUPT_LINE are both set.
 
-I am EXCEEDINGLY INTERESTED in finding a solution to the 
-killing-the-wrong-task problem, because I have 50 Linux boxes that do it 
-all the time.  ANY discussion to that topic deserves my time.  Discussions 
-of signature blocks does not -- nothing bores me more, in fact.
+> 2) Audio
+> 
+> This was much more of a fight. The standard 2.4.21/22 via82xxx drivers
+> were very problematic.  For example random hanging apps, buzzing when
+> an app had sound open but wasn't actually sending stuff, and a complete
+> failure to have any sound input.
 
-So either post on topic, or change the subject line.
+Do you have VIA 8233 or 8235 hardware ?
 
-I'm saying "please."
+> Except for playing CDs - which don't do anything - I suspect that might
+> be hardware, but am not sure.
 
-
--- 
-Human beings, who are almost unique in having the ability to learn from the 
-experience of others, are also remarkable for their apparent disinclination 
-to do so.  -- Douglas Adams  
+Check there is an analog cable fitted on the CD->Sound. Many new WinXP
+boxes are shipped with XP configured to digitally rip the CD data and no
+audio link cable. If so you need to pick a different CD player app or
+fit the cable.
 

@@ -1,141 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261304AbTCFXoy>; Thu, 6 Mar 2003 18:44:54 -0500
+	id <S261288AbTCFXzr>; Thu, 6 Mar 2003 18:55:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261305AbTCFXoy>; Thu, 6 Mar 2003 18:44:54 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:51441 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261304AbTCFXov>;
-	Thu, 6 Mar 2003 18:44:51 -0500
-Message-ID: <3E67DF8E.9080005@mvista.com>
-Date: Thu, 06 Mar 2003 15:53:50 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S261291AbTCFXzr>; Thu, 6 Mar 2003 18:55:47 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60680 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261288AbTCFXzq>; Thu, 6 Mar 2003 18:55:46 -0500
+Date: Thu, 6 Mar 2003 16:02:54 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: digitale@digitaleric.net, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@digeo.com>,
+       <rml@tech9.net>, <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <24000000.1046994021@flay>
+Message-ID: <Pine.LNX.4.44.0303061554250.9387-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
-Subject: Re: POSIX timer syscalls
-References: <200303062306.h26N6hrd008442@napali.hpl.hp.com>
-In-Reply-To: <200303062306.h26N6hrd008442@napali.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
-> Syscall stubs must be declared to return "long", to ensure things work
-> properly on all 64-bit platforms (see earlier discussion on this
-> topic).  Patch below.
-> 
-> On a related note: as far as I can see, timer_t is declared as "int"
-> on all platforms (both by kernel and glibc).  Yet if my reading of the
-> kernel code is right, it's supposed to be "long" (and allegedly some
-> standard claims that timer_t should be the "widest" integer on a
-> platform).  But then again, I'm not familiar with the POSIX timer
-> interface myself, so perhaps I'm completely off base here.
 
-Leaving the standard aside, I think there is a bit of a problem in the 
-idr code (.../lib/idr.c) which manages the id allocation.  Seems we 
-are returning "long" from functions declared as int.  If I remember 
-the code correctly this will work, but it does eliminate the sequence 
-number that should be in the high 8 bits of the id.  This assumes that 
-you never allocate more than 2,147,483,647 timers at once :)  I will 
-look at this and send in a patch.  I think we should return what ever 
-timer_t is, so we should run that to ground first.
-
-I suspect we should also have a look at all the structures with a view 
-to alignment issues or is this not a problem?  I.e. is this struct ok:
-
-struct {
-	long a;
-	int  b;
-	long c;
-}
-
--g
+On Thu, 6 Mar 2003, Martin J. Bligh wrote:
 > 
-> 	--david
-> 
-> diff -Nru a/kernel/posix-timers.c b/kernel/posix-timers.c
-> --- a/kernel/posix-timers.c	Thu Mar  6 14:59:46 2003
-> +++ b/kernel/posix-timers.c	Thu Mar  6 14:59:46 2003
-> @@ -423,7 +423,7 @@
->  
->  /* Create a POSIX.1b interval timer. */
->  
-> -asmlinkage int
-> +asmlinkage long
->  sys_timer_create(clockid_t which_clock,
->  		 struct sigevent *timer_event_spec, timer_t * created_timer_id)
->  {
-> @@ -663,7 +663,7 @@
->  	}
->  }
->  /* Get the time remaining on a POSIX.1b interval timer. */
-> -asmlinkage int
-> +asmlinkage long
->  sys_timer_gettime(timer_t timer_id, struct itimerspec *setting)
->  {
->  	struct k_itimer *timr;
-> @@ -695,7 +695,7 @@
->  
->   */
->  
-> -asmlinkage int
-> +asmlinkage long
->  sys_timer_getoverrun(timer_t timer_id)
->  {
->  	struct k_itimer *timr;
-> @@ -848,7 +848,7 @@
->  }
->  
->  /* Set a POSIX.1b interval timer */
-> -asmlinkage int
-> +asmlinkage long
->  sys_timer_settime(timer_t timer_id, int flags,
->  		  const struct itimerspec *new_setting,
->  		  struct itimerspec *old_setting)
-> @@ -922,7 +922,7 @@
->  }
->  
->  /* Delete a POSIX.1b interval timer. */
-> -asmlinkage int
-> +asmlinkage long
->  sys_timer_delete(timer_t timer_id)
->  {
->  	struct k_itimer *timer;
-> @@ -1054,7 +1054,7 @@
->  	return -EINVAL;
->  }
->  
-> -asmlinkage int
-> +asmlinkage long
->  sys_clock_settime(clockid_t which_clock, const struct timespec *tp)
->  {
->  	struct timespec new_tp;
-> @@ -1069,7 +1069,7 @@
->  	new_tp.tv_nsec /= NSEC_PER_USEC;
->  	return do_sys_settimeofday((struct timeval *) &new_tp, NULL);
->  }
-> -asmlinkage int
-> +asmlinkage long
->  sys_clock_gettime(clockid_t which_clock, struct timespec *tp)
->  {
->  	struct timespec rtn_tp;
-> @@ -1088,7 +1088,7 @@
->  	return error;
->  
->  }
-> -asmlinkage int
-> +asmlinkage long
->  sys_clock_getres(clockid_t which_clock, struct timespec *tp)
->  {
->  	struct timespec rtn_tp;
-> 
-> 
+> Yes, you should be able to frig with policy decisions from userspace, if
+> you really want to BUT the kernel should do something pretty sane by 
+> default without user intervention.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Amen, brother!
+
+One thing that I've often disliked about "tuning parameters" is that many 
+people take them to be valid excuses for bad behaviour under some load. 
+For example, when some benchmark does badly, or something stutters, you'll 
+always find somebody pointing out that it can be fixed by doing a
+
+	echo 55 > /proc/sys/mm/dirty_ratio
+
+or similar.  And the fact that you can tune the thing for certain loads 
+somehow thus makes the bug ok..
+
+IT AIN'T SO! Tuning constants are wonderfully useful for developers tuning 
+their guesses a bit, and to give more information about what knobs make a 
+difference.
+
+In other words, it's ok for a developer to say: "Ok, what happens if you
+do the above echo?" to figure out whether maybe the problem is due to
+excessive spurgel-production in the VM frobnicator, but it is NOT OK to 
+say "you can tweak it for your use, so don't complain about the bad
+behaviour".
+
+This is the same thing as "'nice -10' the X-server". Something is wrong, 
+and we couldn't fix it, so here's the band-aid to avoid that problem for 
+hat particular case. It's acceptable as a band-aid, but if you don't 
+realize that it's indicative of a problem, then you're just kidding 
+yourself.
+
+Can we do perfectly all the time? No. Sometimes best performance _will_
+require tuning for the load. But it should be seen as a failure of the
+generic algorithm, not as a success.
+
+Btw, "success" is often "being good enough". We shouldn't _suck_, but you 
+should always remember the old "perfect is the enemy of good" thing. 
+Trying to get perfect behaviour under some circumstances often means that 
+you suck under others, and then the right answer is usually not to try to 
+be so damn perfect, but "just being good".
+
+		Linus
 

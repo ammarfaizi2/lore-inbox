@@ -1,78 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293051AbSB0X1a>; Wed, 27 Feb 2002 18:27:30 -0500
+	id <S293060AbSB0XdE>; Wed, 27 Feb 2002 18:33:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293055AbSB0X1C>; Wed, 27 Feb 2002 18:27:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56850 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293051AbSB0X0w>; Wed, 27 Feb 2002 18:26:52 -0500
-Subject: Re: Linux 2.4.19pre1-ac1
-To: afranck@gmx.de (Andreas Franck)
-Date: Wed, 27 Feb 2002 23:41:26 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), florin@iucha.net (Florin Iucha),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <02022723312400.01097@dg1kfa> from "Andreas Franck" at Feb 27, 2002 11:31:24 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292984AbSB0XcV>; Wed, 27 Feb 2002 18:32:21 -0500
+Received: from zero.tech9.net ([209.61.188.187]:39686 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S293058AbSB0Xbn>;
+	Wed, 27 Feb 2002 18:31:43 -0500
+Subject: [PATCH] 2.5: syscalls for setting task affinity
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16gDhO-0006OL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0.2 
+Date: 27 Feb 2002 18:31:49 -0500
+Message-Id: <1014852709.1109.214.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I can reproduce this too on ext2, so this does not seem to be FS related. 
-> 
-> However, I do not get this error messages, the patch runs just fine,
-> but corrupts all files it touches, leaving them to be all a bit less than 
-> 1MiB of size, and all exactly the same size.
-> 
-> There is no filesystem corruption however, e2fsck runs just fine without any 
-> error. Just the files are all damaged. I looked inside them, and it seems 
-> huge parts of other files from the patch have been "attached" to them.
-> 
-> > 18-rc2-ac1 works fine on the same partition.
-> 
-> ACK, for me too; as well as 2.4.18-rc2-ac2 for me. The breakage starts with
-> 2.4.18-ac1 here.  Plain 2.4.18 from Marcelo works fine as well.
+The attached patch implements a syscall interface for setting and
+retrieving a task's CPU affinity (task->cpus_allowed):
 
-What compiler firstly, and what I/O subsystem. Are you using highmem,
-did you build from a clean tree ?
+	int sched_set_affinity(pid_t pid, unsigned long *new_mask_ptr);
 
-I also think your report is unrelated to the reiserfs one. 2.4.18 proper
-and -ac have a small reiserfs fix which is a viable candidate for 
-reiserfs funnies while what you report is somewhat different
+	int sched_get_affinity(pid_t pid)
 
+sched_set_affinity uses the set_cpus_allowed function in Ingo's new
+scheduler to do all the hard work.  Additionally, this patch is based
+off Ingo's previous syscall affinity patch and my proc-based affinity
+patch.  Much credit to Ingo for this past work and his current
+scheduler.
 
-The actual differences between 2.4.18-rc2-ac2 and 2.4.18-ac2 that are not
-in 2.4.18 are:
+Security is enforced: calling user must match task's uid or euid or
+possess CAP_SYS_NICE.
 
-Maybe a candidate
-	shared memory filesystem fixes (also used for sys5 shm
-		and anonymous shared maps)
-		[copy mm/shmem.c from the working -ac to the current -ac 
-		 and retest]
-	Small pnpbios update (only relevant if building with PNPBIOS)
-		[Build without PNPbios and retest]
+I think exporting cpus_allowed as a bit mask is the proper user
+interface for CPU affinity.  Certainly more complicated solutions exist,
+but this should get the job done.  I have also updated my proc-based
+solution although Ingo and others have flamed^Wconvinced me a
+syscall-based interface is ideal.  I agree, mostly on the basis that
+/proc may not be mounted but I will post an updated proc-based solution
+anyhow for proper discussion.
 
-Wildly improbable
-	Correct NULL check in the sd scsi code
-	open fix for ps2 driver
+Patch is against 2.5.6-pre1.  Enjoy,
 
-Hw specific (check your hardware and config and you can rule these out I guess)
-	JFS specific fixes
-	A sparc64 specific compile fix
-	An off by one fix for loop that only affects using a specific
-		option with maxloop=256
-	Patches that only impact users of nbd
-	An AMD ELan specific driver for watchdog - no affect on others
-	Locking fixes for the softdog driver
-	A serverworks specific ide=nodma fix
-	LS220 experimental code (which shouldnt be enabled or matter)
-	Tiny tweaks to the margi DVD card driver
-	Ifdef of two lines specific to promise sx6000 raid
-	3c359 token ring driver (doesnt touch generic code)
-	olypmic token ring specific locking change
-	netrom specific fixes
+	Robert Love
 
-Alan
+diff -urN linus/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linus/arch/i386/kernel/entry.S	Tue Feb 26 20:17:01 2002
++++ linux/arch/i386/kernel/entry.S	Tue Feb 26 20:44:06 2002
+@@ -716,6 +716,8 @@
+ 	.long SYMBOL_NAME(sys_lremovexattr)
+ 	.long SYMBOL_NAME(sys_fremovexattr)
+ 	.long SYMBOL_NAME(sys_tkill)
++	.long SYMBOL_NAME(sys_sched_set_affinity)
++	.long SYMBOL_NAME(sys_sched_get_affinity)	/* 240 */
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long SYMBOL_NAME(sys_ni_syscall)
+diff -urN linus/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
+--- linus/include/asm-i386/unistd.h	Tue Feb 26 20:17:14 2002
++++ linux/include/asm-i386/unistd.h	Tue Feb 26 23:54:21 2002
+@@ -243,6 +243,8 @@
+ #define __NR_lremovexattr	236
+ #define __NR_fremovexattr	237
+ #define __NR_tkill		238
++#define __NR_sched_set_affinity 239
++#define __NR_sched_get_affinity 240
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+ 
+diff -urN linus/kernel/sched.c linux/kernel/sched.c
+--- linus/kernel/sched.c	Tue Feb 26 20:17:37 2002
++++ linux/kernel/sched.c	Tue Feb 26 21:10:18 2002
+@@ -1215,6 +1215,72 @@
+ 	return retval;
+ }
+ 
++/**
++ * sys_sched_set_affinity - set the cpu affinity of a process
++ * @pid: pid of the process
++ * @new_mask: user-space pointer to the new cpu mask
++ */
++asmlinkage int sys_sched_set_affinity(pid_t pid, unsigned long *new_mask_ptr)
++{
++	unsigned long new_mask;
++	task_t *p;
++	int retval;
++
++	if (!new_mask_ptr)
++		return -EINVAL;
++
++	if (copy_from_user(&new_mask, new_mask_ptr, sizeof(new_mask)))
++		return -EFAULT;
++
++	new_mask &= cpu_online_map;
++	if (!new_mask)
++		return -EINVAL;
++
++	read_lock(&tasklist_lock);
++
++	retval = -ESRCH;
++	p = find_process_by_pid(pid);
++	if (!p)
++		goto out_unlock;
++
++	retval = -EPERM;
++	if ((current->euid != p->euid) && (current->euid != p->uid) &&
++			!capable(CAP_SYS_NICE))
++		goto out_unlock;
++
++	retval = 0;
++#ifdef CONFIG_SMP
++	set_cpus_allowed(p, new_mask);
++#endif
++
++out_unlock:
++	read_unlock(&tasklist_lock);
++out:
++	return retval;
++}
++
++/**
++ * sys_sched_get_affinity - get the cpu affinity of a process
++ * @pid: pid of the process
++ */
++asmlinkage int sys_sched_get_affinity(pid_t pid)
++{
++	task_t *p;
++	int retval;
++
++	read_lock(&tasklist_lock);
++
++	retval = -ESRCH;
++	p = find_process_by_pid(pid);
++	if (!p)
++		goto out_unlock;
++	retval = p->cpus_allowed & cpu_online_map;
++
++out_unlock:
++	read_unlock(&tasklist_lock);
++	return retval;
++}
++
+ asmlinkage long sys_sched_yield(void)
+ {
+ 	runqueue_t *rq;
+

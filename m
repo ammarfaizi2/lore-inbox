@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293070AbSBZWAY>; Tue, 26 Feb 2002 17:00:24 -0500
+	id <S293606AbSBZWAY>; Tue, 26 Feb 2002 17:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293065AbSBZWAO>; Tue, 26 Feb 2002 17:00:14 -0500
-Received: from f227.law15.hotmail.com ([64.4.23.227]:32521 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S293610AbSBZWAD>;
-	Tue, 26 Feb 2002 17:00:03 -0500
-X-Originating-IP: [80.225.54.199]
-From: "Jason Algol" <fooooobar@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: i810_audio support 
-Date: Tue, 26 Feb 2002 21:59:57 +0000
+	id <S293070AbSBZWAN>; Tue, 26 Feb 2002 17:00:13 -0500
+Received: from tolkor.sgi.com ([192.48.180.13]:44674 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S293065AbSBZV77>;
+	Tue, 26 Feb 2002 16:59:59 -0500
+Subject: Re: Congrats Marcelo,
+From: Steve Lord <lord@sgi.com>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020226140644.U12832@lynx.adilger.int>
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> 
+	<20020226140644.U12832@lynx.adilger.int>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 26 Feb 2002 15:56:21 -0600
+Message-Id: <1014760581.5993.159.camel@jen.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F227XhGJPohZC46seCo00014395@hotmail.com>
-X-OriginalArrivalTime: 26 Feb 2002 21:59:58.0070 (UTC) FILETIME=[EE40F160:01C1BF10]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi guys, and congratulations on another great release (2.4.18) :-)
+On Tue, 2002-02-26 at 15:06, Andreas Dilger wrote:
+> On Feb 26, 2002  12:38 -0800, Dennis, Jim wrote:
+> >  Now I need to know about the status of several unofficial patches:
+> 
+> While my word is by no means official, my general understanding is:
+> 
+> > 	XFS
+> 
+> Not for 2.4 - just too many changes to the core kernel code.
 
-I have been patiently waiting for support for the i810_audio to be improved, 
-it currently works, and it has flawless stability, but the sound quality it 
-produces it dreadful. I realise this is no life and death problem, and i 
-would imagine a low priority request, but i would really appreciate some 
-info on if it is still being maintained / developed.
+Someone has got to kill this assumption people have about XFS, it
+makes much smaller changes than some things which have gone in,
+the odd VM rewrite here and there to name some. Given that we now
+have official EA system calls, the last chunk of stuff to resolve
+is quota. This is being worked on with Jan Kara.
 
-I am currently running 2.4.18 , but have recently downloaded and tried the 
-2.5.5 release, just as a taster, to see if the ALSA integration had fixed my 
-problem, no such luck :-(
+Steve
 
-I have also been watching the changelogs and have downloaded any 
-kernel/patch release that even mentions the i810 :-) ( I dont run a 
-development kernel, but I have tried them just as a taster :-) )
 
-I dont know very much about the workings of sound cards, but the problem is 
-that when playing anything a total crackling in the background that makes 
-the audio almost unusable...a real pity.
+-- 
 
->From reading the comments at the top of the i810_audio.c code, I think the 
-authors have had some difficulty, i guess the hardware is awkward to write 
-for or something :-)
-
-I was so looking forward to the 2.5.5 ALSA release, but as it didnt fix my 
-problem, does anyone know if there are plans to? or am i better off 
-abandoning all hope and getting a new card?
-
-Thanks for any help guys! and keep up the excellent, excellent work your all 
-doing!
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
-
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

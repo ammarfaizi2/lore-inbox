@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262116AbSIYUXf>; Wed, 25 Sep 2002 16:23:35 -0400
+	id <S262122AbSIYUcL>; Wed, 25 Sep 2002 16:32:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262117AbSIYUXf>; Wed, 25 Sep 2002 16:23:35 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:45461 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262116AbSIYUXe>; Wed, 25 Sep 2002 16:23:34 -0400
-Date: Wed, 25 Sep 2002 17:28:24 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] exit-fix-2.5.38-E3
-In-Reply-To: <20020925201338.GA32366@nevyn.them.org>
-Message-ID: <Pine.LNX.4.44L.0209251727380.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262125AbSIYUcL>; Wed, 25 Sep 2002 16:32:11 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:4483 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262122AbSIYUcK>;
+	Wed, 25 Sep 2002 16:32:10 -0400
+Date: Wed, 25 Sep 2002 21:41:01 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: tytso@mit.edu
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020925204101.GA5420@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>, tytso@mit.edu,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17uINs-0003bG-00@think.thunk.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Sep 2002, Daniel Jacobowitz wrote:
-> On Wed, Sep 25, 2002 at 09:20:01PM +0200, Ingo Molnar wrote:
-> > @@ -57,31 +58,31 @@
-> >  void release_task(struct task_struct * p)
-> >  {
-> >  	struct dentry *proc_dentry;
-> > +	task_t *leader;
-> >
-> > -	if (p->state != TASK_ZOMBIE)
-> > +	if (p->state < TASK_ZOMBIE)
->
-> Could you check TASK_ZOMBIE and TASK_DEAD explicitly, or add a comment
-> in sched.h saying that only DEAD should be above ZOMBIE?  Otherwise, if
-> someone needs a new task state, this'll get out of sync.
+On Wed, Sep 25, 2002 at 04:03:44PM -0400, tytso@mit.edu wrote:
 
-A comment would be nice indeed.
+ > This patch significantly increases the speed of using large directories.
+ > Creating 100,000 files in a single directory took 38 minutes without
+ > directory indexing... and 11 seconds with the directory indexing turned on.
 
-I still have plans and (outdated) code for TASK_SWAPPED, since
-I want Linux to be able to handle load spikes instead of spiralling
-down thrashing ;)
+Just curious.. what measurable overhead (if any) is there of indexing
+dirs with smaller numbers of files vs non-indexed ?
+If so, where would be the break-even point ?
 
-cheers,
+		Dave
 
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

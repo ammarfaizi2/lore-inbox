@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276534AbRJUSXp>; Sun, 21 Oct 2001 14:23:45 -0400
+	id <S276511AbRJUSXp>; Sun, 21 Oct 2001 14:23:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276522AbRJUSXg>; Sun, 21 Oct 2001 14:23:36 -0400
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:28565 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S276511AbRJUSX0>;
-	Sun, 21 Oct 2001 14:23:26 -0400
-Message-ID: <3BD31287.6010105@stesmi.com>
-Date: Sun, 21 Oct 2001 20:23:03 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S276534AbRJUSXg>; Sun, 21 Oct 2001 14:23:36 -0400
+Received: from gusi.leathercollection.ph ([202.163.192.10]:64385 "EHLO
+	gusi.leathercollection.ph") by vger.kernel.org with ESMTP
+	id <S276522AbRJUSX3>; Sun, 21 Oct 2001 14:23:29 -0400
+Date: Mon, 22 Oct 2001 02:23:57 +0800 (PHT)
+From: Federico Sevilla III <jijo@leathercollection.ph>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] updated preempt-kernel
+In-Reply-To: <1003562833.862.65.camel@phantasy>
+Message-ID: <Pine.LNX.4.40.0110220216500.21933-100000@gusi.leathercollection.ph>
 MIME-Version: 1.0
-To: Federico Sevilla III <jijo@leathercollection.ph>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VIA 686b Bug - once again :(
-In-Reply-To: <Pine.LNX.4.40.0110220136040.21933-100000@gusi.leathercollection.ph>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On 20 Oct 2001 at 03:27, Robert Love wrote:
+> A preemptible kernel.  It lowers your latency.
 
->>You should be aware of that 3ware is dropping all their IDE RAID
->>controllers so if you want it, buy it fast. They're going out of
->>production. That is... if you want a product that won't be supported
->>RSN.
->>
-> 
-> Eh? This is interesting. I haven't heard of anything like this before, and
-> can't find anything in their website. Maybe you can point me to where you
-> got this bit of information? Rather alarming because I've got a 3ware
-> controller myself.
+I'm using 2.4.12-xfs with the preempt-kernel-rml-1 patch. Just this
+morning I noticed a minute or so of the system being in "freeze". There
+was no significant disk activity, my open windows were working (ICQ,
+IPTraf under wterm, Opera), but things like opening a new wterm would work
+but no prompt (bash) would come out, or "ps ax" on a system with stay
+there.
 
-The Linux XFS development list had a discussion about it a few weeks 
-ago. I even think someone from 3ware joined in or if someone had a quote 
-from someone at 3ware. But just go there and you'll see the site has 
-changed. The only graphic on the front page is now their IP storage 
-thing. The Palisade.
+In the IPTraf window I saw a lot of domain lookups going back and forth.
+Since IPTraf does reverse name lookups I quit it to hopefully bring down
+the load. I'm running bind 9.1.3. After the freeze everything was 100%
+normal. I checked the syslog and found close to a hundred lines one after
+the other about named complaining of a lame server.
 
-Go to Products on their page. Notice the lack of information on the 
-Escalades.
+I am under the impression that it was bind hogging system resources,
+although I do not know how to look at historical data of memory usage and
+CPU usage for such a small time.
 
-http://www.3ware.com, but I think you got that already.
+I am curious, what does the preempt patch do for such situations? I
+honestly don't know how the system would have felt otherwise (if I didn't
+have support for preemption). And it's not so easy to reproduce since I
+don't cause this myself.
 
-Only info on Escalades is:
+Thanks for your input, and I'll give your second patch a shot as soon as I
+can. :)
 
-" Inquires regarding Escalade Storage Switch products should be directed 
-to 650.327.8600 or info@3ware.com."
+ --> Jijo
 
-and a picture...
-
-// Stefan
-
+--
+Federico Sevilla III  :: jijo@leathercollection.ph
+Network Administrator :: The Leather Collection, Inc.
+GnuPG Key: <http://jijo.leathercollection.ph/jijo.gpg>
 

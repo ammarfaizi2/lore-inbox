@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266291AbTGJH05 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 03:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266292AbTGJH04
+	id S269016AbTGJHi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 03:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269017AbTGJHi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 03:26:56 -0400
-Received: from astra.telenet-ops.be ([195.130.132.58]:44177 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S266291AbTGJH0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 03:26:55 -0400
-Date: Thu, 10 Jul 2003 09:43:54 +0200
-From: Vincent Touquet <vincent.touquet@pandora.be>
-To: David Lewis <dlewis@vnxsolutions.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI Bridge problems
-Message-ID: <20030710074354.GC26717@ns.mine.dnsalias.org>
-Reply-To: vincent.touquet@pandora.be
-References: <EMEOIBCHEHCPNABJGHGOKEJOCOAA.dlewis@vnxsolutions.com>
+	Thu, 10 Jul 2003 03:38:56 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:24077 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269016AbTGJHiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 03:38:54 -0400
+Date: Thu, 10 Jul 2003 08:53:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: RFC:  what's in a stable series?
+Message-ID: <20030710085332.B28672@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <3F0CBC08.1060201@pobox.com> <20030710033409.GA1498@www.13thfloor.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <EMEOIBCHEHCPNABJGHGOKEJOCOAA.dlewis@vnxsolutions.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030710033409.GA1498@www.13thfloor.at>; from herbert@13thfloor.at on Thu, Jul 10, 2003 at 05:34:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 09, 2003 at 11:47:24PM -0400, David Lewis wrote:
->Greetings,
->I am running into a problem with some PCI cards and I believe I have it
->narrowed down to the fact that they have PCI-PCI bridges and they dont seem
->to be agreeing with the kernel (2.4.18, 2.4.20, 2.4.21-ac4).
+On Thu, Jul 10, 2003 at 05:34:09AM +0200, Herbert Pötzl wrote:
+> In my opinion (and you requested input *g*), the
+> kernel userland API can be changed as much as is
+> required to improve/stabilize/bugfix the kernel,
+> unless this change breaks something in userland
+> without an already available update/upgrade/etc ...
 
-How do you check this ? :)
-I wonder if I have the same problem on my mainboard.
-Everything is ok under moderate load, but on high load it breaks down
-(the system locks up, which makes me suspect some low level issue, like
-incorrectly setup PCI bridges ?).
-
->The cards are a Adlink PCI-8214 dual ethernet nic (Intel 82559 eth
->controller and 21154 pci bridge) and IDS imaging Falcon quatto (4 Bt878
->frame grabbers and a ethernet bridge). Both cards work well with 2.4.18 in a
->motherboard with a single pci bus (Tyan Tiger 200 Apollo Pro 133A dual P3),
->but when used with an Intel SE7500CW2 Dual Xeon (multiple pci busses) they
->become very flaky. My suspicion is that the busses are not being recognized
->correctly, but everything does show up in lspci.
-
-Ah, you have multiple PCI busses and a PCI-PCI bridge, which I don't, so
-its not like my problem probably (hm).
-
-vincent@kalimero:~$ lspci
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P]
-System Controller (rev 11)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P]
-AGP Bridge
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev
-05)
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE
-(rev 04)
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev
-03)
-00:08.0 RAID bus controller: 3ware Inc 3ware 7000-series ATA-RAID (rev
-01)
-00:0b.0 Ethernet controller: Intel Corp. 82545EM Gigabit Ethernet
-Controller (Copper) (rev 01)
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev
-05)
-02:07.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-02:08.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
-(rev 10)
-
-regards,
-
-v
+Changing the kernel/userland API and ABI is totally out of question - 
+we _really_ can't do that.  This is about inkernel APIs for modules.

@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131878AbRCVHiA>; Thu, 22 Mar 2001 02:38:00 -0500
+	id <S131899AbRCVH6W>; Thu, 22 Mar 2001 02:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131887AbRCVHhv>; Thu, 22 Mar 2001 02:37:51 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:4973 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S131878AbRCVHhh>; Thu, 22 Mar 2001 02:37:37 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Greg Billock <greg@thebilberry.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] kernel BUG at slab.c:1402! -- 2.4.2-0.1.28 
-In-Reply-To: Your message of "Wed, 21 Mar 2001 23:15:14 -0800."
-             <3AB9A682.43D20AD7@thebilberry.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 22 Mar 2001 18:36:51 +1100
-Message-ID: <32245.985246611@kao2.melbourne.sgi.com>
+	id <S131904AbRCVH6M>; Thu, 22 Mar 2001 02:58:12 -0500
+Received: from www.wen-online.de ([212.223.88.39]:34316 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131899AbRCVH6D>;
+	Thu, 22 Mar 2001 02:58:03 -0500
+Date: Thu, 22 Mar 2001 08:57:18 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: kswapd deadlock 2.4.3-pre6
+In-Reply-To: <Pine.LNX.4.31.0103212217320.10817-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0103220855370.1539-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Mar 2001 23:15:14 -0800, 
-Greg Billock <greg@thebilberry.com> wrote:
->Summary: Hotplugging a USB device causes an unrecoverable kernel Aiee!
->
->Copied from screen after interrupt handler killed, so sorry for
->incompleteness. This
->bug is reproducable so if necessary, I can try it again....
+On Wed, 21 Mar 2001, Linus Torvalds wrote:
 
-The complete oops report is required, and it needs to be run through
-ksymoops.  See Documentation/oops-tracing.txt.
+> Ho humm. Does the appended patch fix it for you? Looks obvious enough, but
+
+Confirmed.
+
+	-Mike
 

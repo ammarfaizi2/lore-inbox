@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290881AbSBLJ7J>; Tue, 12 Feb 2002 04:59:09 -0500
+	id <S290891AbSBLKCt>; Tue, 12 Feb 2002 05:02:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290891AbSBLJ7A>; Tue, 12 Feb 2002 04:59:00 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:7942 "HELO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with SMTP
-	id <S290881AbSBLJ6q>; Tue, 12 Feb 2002 04:58:46 -0500
-Date: Tue, 12 Feb 2002 10:58:44 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Semaphore behavior
-Message-ID: <20020212105844.A22247@artax.karlin.mff.cuni.cz>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <F327LiHdlQgdYXSVvR0000174b6@hotmail.com>
+	id <S290913AbSBLKCk>; Tue, 12 Feb 2002 05:02:40 -0500
+Received: from adsl-203-134.38-151.net24.it ([151.38.134.203]:4086 "EHLO
+	morgana.systemy.it") by vger.kernel.org with ESMTP
+	id <S290891AbSBLKCZ>; Tue, 12 Feb 2002 05:02:25 -0500
+Date: Tue, 12 Feb 2002 11:01:09 +0100
+From: Alessandro Rubini <rubini@gnu.org>
+To: pasky@pasky.ji.cz, linuxconsole-dev@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, gpm@lists.linux.it, salvador@inti.gov.ar,
+        jsimmons@transvirtual.com
+Subject: Re: [gpm]Reworking the selection API and moving it to userspace (gpm)?
+Message-ID: <20020212110109.A20350@morgana.systemy.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <F327LiHdlQgdYXSVvR0000174b6@hotmail.com>; from balbir_soni@hotmail.com on Mon, Feb 11, 2002 at 04:22:50PM -0800
+Organization: Free Lance in Pavia, Italy.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I wanted to clarify my understanding of the behavior of semaphores
-> on the i386 architecture, as I understand it.
-> 
-> 1. I grab a semaphore and I am open to accepting signals
->    (down_interruptible)
-> 2. I am interrupted by a user process using ctrl-C or some other
->    method of signal delivery.
-> 3. After this point, I cannot grab *ANY* semaphore using
->    (down_interruptible), since the semaphore implementation checks for
->    pending signals and if there are signals pending, it does not
->    grant me the semaphore.
-> 
-> So, the only option I have after (2) to use down_interruptible again
-> is
-> 
-> a. Flush the signal.
-> b. Handle the signal.
-> 
-> Please cc your replies to me
-> 
-> Is my assessment correct?
 
-You are right, AFAIK. You should do down_interruptible if you expect it may
-take long to get the semaphore. If you are interrupted, you should return
-to userland (with ERESTARTSYS or EINTR error) to have the signal handled.
-The trouble is, that when you return ERESTARTSYS, the syscall may, but need not
-to be restarted. And unfortunately you can never tell the restarted syscall from
-a new invocation.
+On Feb 6th, Petr Baudis:
+> [...] However, James Simmons said that he will be working on
+> this for 2.5 and move it to userspace completely, reworking gpm.
 
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+That would be great. We (gpm list) have been talking about it a few
+years ago, but Ian Zimmerman reported a problem with mapping glyphs to
+keyboard input: there was no mean (at least back then) to pass the
+complete mapping from the kernel to user space.  Sure doing it for the
+trivial mapping is trivial, and I think it would be an interesting
+experiment.  I was even thinking to have a try some time ago, when I
+was the gpm maintainer.
+
+> I would like to ask if there's any movement in this issue. I would
+> be even willing to help, if possible :).
+
+Please get on the gpm mailing list (gpm@lists.linux.it) and let's put
+together an implementation.
+
+Best
+/alessandro

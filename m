@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262683AbRE3Jim>; Wed, 30 May 2001 05:38:42 -0400
+	id <S262684AbRE3Jim>; Wed, 30 May 2001 05:38:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262684AbRE3Jie>; Wed, 30 May 2001 05:38:34 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:41756 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262683AbRE3Ji1>; Wed, 30 May 2001 05:38:27 -0400
-Date: Wed, 30 May 2001 05:38:07 -0400
-From: Arjan van de Ven <arjanv@redhat.com>
-To: ankry@green.mif.pg.gda.pl
+	id <S262685AbRE3Jid>; Wed, 30 May 2001 05:38:33 -0400
+Received: from ns.suse.de ([213.95.15.193]:63243 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262684AbRE3JiT>;
+	Wed, 30 May 2001 05:38:19 -0400
+To: "David S. Miller" <davem@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Generating valid random .configs
-Message-ID: <20010530053807.A3083@devserv.devel.redhat.com>
-In-Reply-To: <3B14AEFC.B522A7B4@redhat.com> <200105300929.LAA02627@sunrise.pg.gda.pl>
-Mime-Version: 1.0
+Subject: Re: [CHECKER] 4 security holes in 2.4.4-ac8
+In-Reply-To: <15124.10785.10143.242660@pizda.ninka.net.suse.lists.linux.kernel> <200105292316.QAA00305@csl.Stanford.EDU.suse.lists.linux.kernel> <15124.12421.609194.476097@pizda.ninka.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 30 May 2001 11:38:13 +0200
+In-Reply-To: "David S. Miller"'s message of "30 May 2001 01:33:41 +0200"
+Message-ID: <oupn17vp46y.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105300929.LAA02627@sunrise.pg.gda.pl>; from ankry@pg.gda.pl on Wed, May 30, 2001 at 11:29:42AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 30, 2001 at 11:29:42AM +0200, Andrzej Krzysztofowicz wrote:
+"David S. Miller" <davem@redhat.com> writes:
+
+> Dawson Engler writes:
+>  > Is there any way to automatically find these?  E.g., is any routine
+>  > with "asmlinkage" callable from user space?
 > 
-> Some things cannot be properly fixed in CML1.
->   "$CONFIG_BINFMT_MISC" = "y" -a "$CONFIG_PROC_FS" = "n"
-> is a good example.
-> 
+> This is only universally done in generic and x86 specific code,
+> other ports tend to forget asmlinkage simply because most ports
+> don't need it.
 
-This one has gone away btw....
+Even i386 doesn't need it because the stack frame happens to have the
+right order of the arguments at the right position. Just you can get into 
+weird bugs when any function modifies their argument because it'll be still 
+modified after syscall restart but only depending if the compiler used a 
+temporary register or not.
 
-But in general, the current TOOLS cannot do forward dependencies, true.
-It's not a language problem, the dependencies can be expressed and should be
-checked by the tools, they just don't; I had a fix for that in the 2.1.125 times but
-nobody cared enough.
-
-Greetings,
-   Arjan van de Ven
+-Andi

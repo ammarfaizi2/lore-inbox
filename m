@@ -1,77 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbULFTLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbULFTNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbULFTLR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 14:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbULFTLR
+	id S261614AbULFTNt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 14:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbULFTNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 14:11:17 -0500
-Received: from 213-0-210-244.dialup.nuria.telefonica-data.net ([213.0.210.244]:18315
-	"EHLO dardhal.24x7linux.com") by vger.kernel.org with ESMTP
-	id S261579AbULFTLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 14:11:07 -0500
-Date: Mon, 6 Dec 2004 20:11:07 +0100
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ip contrack problem, not strictly followed RFC, DoS very much possible
-Message-ID: <20041206191107.GA7192@localhost>
-Mail-Followup-To: kernel list <linux-kernel@vger.kernel.org>
-References: <41B464B3.8020807@pointblue.com.pl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
+	Mon, 6 Dec 2004 14:13:49 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:58788 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261614AbULFTNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 14:13:43 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: Jon Masters <jonathan@jonmasters.org>
+Subject: Re: [PATCH] UML - SYSEMU fixes
+Date: Mon, 6 Dec 2004 20:17:28 +0100
+User-Agent: KMail/1.7.1
+Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+References: <200412032145.iB3LjQZW004710@ccure.user-mode-linux.org> <200412050819.iB58Jlhj006511@ccure.user-mode-linux.org> <41B30D6B.3060506@jonmasters.org>
+In-Reply-To: <41B30D6B.3060506@jonmasters.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41B464B3.8020807@pointblue.com.pl>
-User-Agent: Mutt/1.5.6+20040523i
+Message-Id: <200412062017.29011.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 05 December 2004 14:30, Jon Masters wrote:
+> Jeff Dike wrote:
+> | jonmasters@gmail.com said:
+> |>That's great, but do any of these patches address various undefines in
+> |>arch/um/kernel/process.c:check_sysemu when built without skas?
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> | Apparently they did.  I just checked with skas turned off and got a
 
-On Monday, 06 December 2004, at 14:54:59 +0100,
-Grzegorz Piotr Jaskiewicz wrote:
+> successful
 
-> If someone has argumentation for 5 days timeout, please speak out. In=20
-> everyday life, router, desktop, server usage 100s is enough there, and=20
-> makes my life easier, as many other linux admins.
->=20
-Maybe five days is a bit high, but there are definitely many (maybe badly
-designed) applications that expect a TCP connection to remain open (and
-traffic not dropped) for much longer than your proposed 100 seconds.
+> | build.
 
-It is not unusual the need to tweak the settings for several commercial
-firewalls I work with in several customers to raise the default timeouts
-for TCP connection tracking, because some application breaks if the
-connection gets put out of the firewalls' connection tables and the
-traffic dropped.
+They don't - check_sysemu is used also in TT mode.
 
-Many times is just "my users are too lazy to double click the 'start
-connection' icon again when they come from their breakfast, and want to be
-able to enter commands on the remote host again". But at least, the
-parameter is tunable in recent kernel versions, and not hardcoded in the
-kernel sources like it was some time ago.
+> Good. I've got a working build on an Intel box but it's being more
+> stubburn building for ppc in 2.6.9 - I'll post an update when I've
+> actually looked at it.
 
-Greetings.
+PPC port is not maintained at the moment - there are some rumors of somebody 
+reviving it, but nothing is certain.
 
---=20
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.10-rc3)
+> |>Also, on 2.6.9, I get dud CFLAGS defined when CONFIG_PROF is set *and*
+> |>CONFIG_FRAME_POINTER is also set - gcc complains about use of "-gp"
+> |>and "-fomit-frame-pointer" but surely it should be building with frame
+> |>pointers anyway if I've asked it to do so?
 
+I saw that from someone else - I don't remember what was the problem, but it 
+seemed to be some strange kind of .config. Make sure that CONFIG_DEBUG_INFO 
+and CONFIG_FRAME_POINTER are both set (the second is the needed one, the 
+first implies the second for UML).
 
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+"make oldconfig ARCH=um" should fix such problems.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+> | I just checked with that config, and it builds fine.
 
-iD8DBQFBtK7Lao1/w/yPYI0RAl2mAJwPU5ZJzPS5lJSjczd0DFIRzCzmsACfQqOl
-sxJ72f5uw9qUlGYWmpbXwrY=
-=qC9W
------END PGP SIGNATURE-----
+> Oh good. Then it works now.
 
---DocE+STaALJfprDB--
+> Cheers,
+
+> Jon.
+
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade

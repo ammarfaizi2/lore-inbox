@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316185AbSGYUXv>; Thu, 25 Jul 2002 16:23:51 -0400
+	id <S315536AbSGYUUA>; Thu, 25 Jul 2002 16:20:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316210AbSGYUXv>; Thu, 25 Jul 2002 16:23:51 -0400
-Received: from 12-225-96-71.client.attbi.com ([12.225.96.71]:31361 "EHLO
-	p3.coop.hom") by vger.kernel.org with ESMTP id <S316185AbSGYUXv>;
-	Thu, 25 Jul 2002 16:23:51 -0400
-Date: Thu, 25 Jul 2002 13:26:55 -0700
-From: Jerry Cooperstein <coop@axian.com>
-To: trivial@rustcorp.com.au, marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Trivial Patch to sched.h for wake_up_interruptible_sync_nr
-Message-ID: <20020725132655.A10660@p3.attbi.com>
+	id <S315946AbSGYUUA>; Thu, 25 Jul 2002 16:20:00 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:967 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S315536AbSGYUUA>;
+	Thu, 25 Jul 2002 16:20:00 -0400
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Thu, 25 Jul 2002 14:16:21 -0600
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cheap lookup of symbol names on oops()
+Message-ID: <20020725141621.M2276@host110.fsmlabs.com>
+References: <20020725110033.G2276@host110.fsmlabs.com> <20020725181126.A17859@infradead.org> <20020725112142.I2276@host110.fsmlabs.com> <20020725144913.E8839@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020725144913.E8839@redhat.com>; from bcrl@redhat.com on Thu, Jul 25, 2002 at 02:49:13PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+Nearly all of the code scattered through arch/ppc uses the Cort indention
+style, it hasn't done any damage.  I don't think a 50 line patch is going
+to drag Linux down into the mudpits because of an extra \n.  If the
+indention is an issue it can be quickly changed when it's applied.
 
-This is gone in 2.5, but it is not right for 2.4. 
-No one seems to use it, but suppose someone does.
+Aunt Tillie is, after all, a non-coder.  She was just barely able to
+configure the kernel thanks to CML2.  If Penelope hadn't been helped out by
+the creepy guy and the good looking guy she wouldn't even have started
+emacs.
 
---- linux-2.4.19-rc3/include/linux/sched.h	Mon Jul 22 08:04:48 2002
-+++ sched.h	Thu Jul 25 13:10:45 2002
-@@ -611,7 +611,7 @@
- #define wake_up_interruptible_nr(x, nr)	__wake_up((x),TASK_INTERRUPTIBLE, nr)
- #define wake_up_interruptible_all(x)	__wake_up((x),TASK_INTERRUPTIBLE, 0)
- #define wake_up_interruptible_sync(x)	__wake_up_sync((x),TASK_INTERRUPTIBLE, 1)
--#define wake_up_interruptible_sync_nr(x) __wake_up_sync((x),TASK_INTERRUPTIBLE,  nr)
-+#define wake_up_interruptible_sync_nr(x, nr) __wake_up_sync((x),TASK_INTERRUPTIBLE,  nr)
- asmlinkage long sys_wait4(pid_t pid,unsigned int * stat_addr, int options, struct rusage * ru);
- 
- extern int in_group_p(gid_t);
+As for myself, I think 50 locking primitives are spurious but a couple
+extra whitespace chars are just a minor issue :)
 
-
-======================================================================
- Jerry Cooperstein,  <coop@axian.com>
- Axian, Inc. Software Consulting and Training
- Beaverton, OR  97005 USA
- http://www.axian.com/               
-======================================================================
+} It looks like she still has to ready the Documentation/CodingStyle.  The 
+} space after the ( and before the ) are spurious, and thes { belongs on 
+} the same line as the if.

@@ -1,65 +1,265 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263336AbTCNOv1>; Fri, 14 Mar 2003 09:51:27 -0500
+	id <S263340AbTCNO6m>; Fri, 14 Mar 2003 09:58:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263340AbTCNOv1>; Fri, 14 Mar 2003 09:51:27 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:47571
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263336AbTCNOvZ>; Fri, 14 Mar 2003 09:51:25 -0500
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Lars Marowsky-Bree <lmb@suse.de>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-In-Reply-To: <20030314144347.GA8937@work.bitmover.com>
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
-	 <20030314115055.GR1211@marowsky-bree.de>
-	 <20030314144347.GA8937@work.bitmover.com>
-Content-Type: text/plain
+	id <S263343AbTCNO6m>; Fri, 14 Mar 2003 09:58:42 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:44064 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S263340AbTCNO6i>; Fri, 14 Mar 2003 09:58:38 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200303141509.h2EF9R017016@devserv.devel.redhat.com>
+Subject: Linux 2.5.64-ac4
+To: linux-kernel@vger.kernel.org
+Date: Fri, 14 Mar 2003 10:09:27 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047658249.29595.34.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 14 Mar 2003 16:10:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-14 at 14:43, Larry McVoy wrote:
-> You might want to stop and consider what SuSE would do if someone decided
-> they didn't like SuSE and came up with a pathetic shell script and started
-> describing it as "a system compatible with SuSE".  I'm pretty sure that
-> your lawyers would be all over them in about 30 seconds.  Ditto for Red
-> Hat, Alan.  I believe it is your founder who has carefully explained to
-> all of us the importance of brand.  In fact, isn't the point that Red Hat
-> is nothing *but* brand?  So how fast would I get sued if I came out with
-> "Larry's Red Hat Linux"?  Pretty fast, right?
-> 
-> I stand behind my statements.  If you don't like them, oh, darn.
+Linux 2.5.64-ac4
+o	Fix compile error in ide-default		(Maciej Soltysiak)
+o	Fix ide-default panic case			(Osamu Tomita)
+o	Remove seperation of PCI bus from I2O layer	(me)
+o	Fix i2o_proc stack abuse			(Joern Engel)
+o	Fix memory leak in ixj driver			(Oleg Drokin)
+o	Fix memory leak in emu10k1			(Oleg Drokin)
+o	Fix memory leak in cpqfc			(Oleg Drokin)
+o	Fix memory leak in specialix serial		(Oleg Drokin)
+o	Fix memory leak in kobil driver			(Oleg Drokin)
+o	Fix memory leak in clone_thread			(Andi Kleen)
+o	Fix pbus_size_mem mis-estimation		(Ivan Kokshaysky)
+o	Fix ide-cd queue cleanup			(Alexander Atanasov)
+o	Fix cmd640 deadlocks				(Alexander Atanasov)
+o	Documentation updates				(Steven Cole)
+o	Fix docbook reference to file now gone		(Rusty Lynch)
+o	Mass extermination of __NO_VERSION__		(Adrian Bunk)
+o	Fix incorrect intel PCI ident in 2.5		(me)
+	|Noted by Adrian Bunk
+o	Fix jiffies sign problems in aha152x		(Christoph Hellwig)
+o	Fix jiffies sign problems in osst		(Christoph Hellwig)
+o	v850 updates for NB85CE				(Miles Bader)
+o	Fix 8012q memory leak				(Oleg Drokin)
+o	Fix ircomm memory leak				(Oleg Drokin)
+o	NCPfs mishandling of userspace access fix	(Oleg Drokin)
+o	UFS memory leak fix				(Oleg Drokin)
+o	Fix do_clock_nanosleep and other resulting	(Todd Mokros)
+	timeout hangs
+o	Bring oprofile back into line with 2.4		(John Levon)
+o	i386 Kconfig typo fixes				(Andreas Mohr)
+o	Remove some boot98 Makefile junk		(Osamu Tomita)
+o	Update 98kbd driver				(Osamu Tomita)
+o	Pull cmos clock handling into mach_ and add	(Osamu Tomita)
+	PC9800 support
+o	Add PC9800 serial support			(Osamu Tomita)
+o	Move base PC resources into mach_ and add	(Osamu Tomita)
+	PC9800 support
+o	Extract some of the arch specific SMP bits	(Osamu Tomita)
+	into mach_ for x86 and add PC9800
+o	Fix pcmcia configuration register crash		(Pavel Roskin)
+o	Extended attribute handling fix			(Tony Dziedzic)
+o	Fix initialisation of i2o retry lock		(Randy Dunlap)
+o	Pull timers into mach_ on x86 and add		(Osamu Tomita)
+	PC9800 support
+o	Add part of the PC9800 ide/hd support		(Osamu Tomita)
+o	Update PC9800 core code				(Osamu Tomita)
+o	Update PC9800 specific char drivers		(Osamu Tomita)
+o	Fix -ac visws mach breakage			(Osamu Tomita)
+o	Revert alpha inline change			(Ivan Kokshaysky)
+o	Serial8250 warning fix				(Martin Bligh)
+o	Fix ethtool lockup with unused interface on	(Jason Lunz)
+	e100
+o	Update random number generator drivers		(Jeff Garzik)
 
-I thought you were above deliberately tangling unrelated questions to
-try and make a bogus point. Lets think about this clearly.
+Linux 2.5.64-ac3
+o	Bring core IDE code into sync with the latest	(me)
+	2.4.21pre5-ac code base. The drivers are not
+	quite current with it yet.
 
-"XYZ runs on Red Hat Linux"
-"XYZ reads Red Hat Linux RPM databases"
-"XYZ imports Oracle Databases into Bananavision"
+Linux 2.5.64-ac2
+o	Fix missing ; in w9966 (#310)			(Frank Davies)
+o	Fix missing ; in whiteheat (#314)		(Frank Davies)
+o	Fix missing ; in cs46xx (#317)			(Frank Davies)
+o	Fix double logical operator in ite_gpio (#321)	(Frank Davies)
+o	Fix double logical opeator in advansys (#324)	(me)
+o	Fix aha1542 setup to allow full config by	(Hanna Linder)
+	setup options (#242)
+o	Fix /proc bug in via ide handlers (#374)	(Faik Uygur)
+o	Add #error for the mwave race (#185)		(me)
+	| Fixing it needs rather more thought
+o	Fix apic compile problem			(Adriank Bunk)
+o	Fix mremap slab corruption			(Hugh Dickins)
+o	Fix sysfs mount permissions			(Patrick Mochel)
+o	v850 updates					(Miles Bader)
+o	Update all the parport layer to new module	(Bob Miller)
+	API's remove check region misuse etc
+o	Updated gdth driver from Intel			(Achim Leubner)
+o	Small ALi ide setup fixes			(Ivan Kokshaysky)
+	| Basically mirror those applied to 2.4 before the 1563
+	| support was added
+o	Add kerneldoc for user space access		(Jon Foster)
+o	Fix incorrect unregister for cciss		(Herbert Xu)
+o	cciss hotplug crash fix				(Stephen Cameron)
+o	Fix error in 3c501 comments			(Steven Cole)
+o	More c99 intialisers 				(Art Haas)
+o	Updated mwave driver (still broken in part)	(Paul Schroeder,
+							 Wes Schreiner)
+o	Fdomain scsi cleanups, fix host list walk etc	(Christoph Hellwig)
+o	Qlogic pcmcia scsi update			(Christoph Hellwig)
+	| Still needs shared IRQ fix from 2.4.21pre5-ac
+o	Fix bracketing error in maestro oss driver	(John Levon)
+o	Don't claim too many ports for rtc		(Rusty Lynch)
+o	Fix broken checks in i810_audio			(John Levon)
+	| Still wants 2.4.21pre5-ac ac97/i810 fixes pulling
+o	Fix e1000 hung zerop copy transfer on 82544
+o	Add new board to cciss driver			(Stephen Cameron)
+o	Fix piix build with CONFIG_PROC_FS=n		(Randy Dunlap)
+o	Fix kmod SIGCLD problem				(Stelian Pop)
+o	Fix check_region use in ht6560b			(Christoph Hellwig)
+o	Fix check/requests in ide-dma			(Christoph Hellwig)
+o	Remove dead __NO_VERSION__ from ide		(Christoph Hellwig)
+o	Add PC9800 sound driver for CS4232		(Osamu Tomita)
+o	Add per mach support for APM (for PC9800)	(Osamu Tomita)
+o	PC9800 has different PnP locations to		(Osamu Tomita)
+	normal
+o	Handle NMI using mach-* scheme			(Osamu Tomita)
+o	Fix /proc on slc90e66,sis5513, siimage, 	(Faik Uygur)
+	serverworks, sc1200, piix, pdc202xx_old,
+	pdc202xx_new, htp366, htp34x, cs5520, 
+	amd74xx, aec62xx
+o	IRQ stacks are back				(Dave Hansen)
+o	Update 3c527 to modern locking (untested)	(James Bottomley)
+o	PC9800 FAT handling				(Osamu Tomita)
+o	PC9800 partition table handling	(Kyoto University Microcomputer Club)
+o	CPIA updates/fixes				(Duncan Haldane)
+o	IRDA timer fix					(Jean Tourrilhes)
+o	Fix locking in irda discover code		(Jean Tourrilhes)
+o	IrLap dynamic window fixes			(Jean Tourrilhes)
+o	irda-usb cleanup and fixes			(Jean Tourrilhes)
+o	Zerocopy rx for SIR				(Jean Tourrilhes)
+o	Fix IrNET refcounting and discovery hints	(Jean Tourrilhes)
+o	Fix kernel command line documentation		(Pavel Machek)
+o	Fix incorrect __init in mpu401			(Daniel Ritz)
+o	Remove unused LINUX_VERSION_CODE from sym53c416	(Adrian Bunk)
+o	Fix check_region/request_region for ALSA isa	(Marcus Alanen)
+	opti92x/ad1848
+o	Update depca driver to eisa/sysfs		(Marc Zyngier)
+o	Depca compile fix				(me)
+o	Fix serial core stuff, remove obsolete		(me)
+	baud changes
+o	Fix jiffies wrap check code for 64bit		(Andi Kleen)
+o	PCI quirk typo fix				(Geert Uytterhoeven)
+o	Fix console initcall on Alpha			(Marc Zyngier)
+o	Fix missing return value in pci irq changes	(Andrew Morton)
+O	Fix usb-serial warnings with gcc 3.2		(David Gibson)
+o	Fix warning in ohci on pwoerbook		(David Gibson)
+o	IA64 needs syscall returns to be long		(David Mosberger)
+o	S/390 updates					(Martin Schwidefsky)
 
-versus
+Linux 2.5.64-ac1
+	Merge Linus 2.5.63
+	Merge Linus 2.5.64
+	Revert broken watchdog changes
+	Restore half removed make rpm
+o	Revert wrong -ac change to keyboard.c		(me)
+o	Fix cpufreq compile				(Bob Miller)
+o	Remove incorrect keyboard patch (#407)
 
-"Larry's Red Hat Linux"
+Linux 2.5.62-ac1
+	Merge Linus 2.5.62
+o	UNEXPECTED_IO_APIC can be static		(Pavel Machek)
+o	Update IPMI driver to version 18		(Corey Minyard)
+o	Tons of spelling fixes				(Steven Cole)
+o	FBdev updates					(James Simmons)
+o	PC-9800 update					(Osamu Tomita)
+o	Remove dead scripts				(Brian Gerst)
+o	v850 updates					(Miles Bader)
+o	Update 3c523 to new MCA api (untested)		(James Bottomley)
+o	Toshiba keyboard workaround			(Pavel Machek)
+o	Fix mremap file name in comments		(Paul Larson)
+o	Firestream typo fixes				(Maciej Soltysiak)
+o	Backport trident reset fix from 2.4		(Muli Ben-Yehuda)
+o	Morse code panics are back!			(Tomas Szepe)
+o	Fix aicasm build				(Bob Tracy)
+o	Fixes for 700/710 drivers			(Rolf Eike Beer)
+o	Spelling fixes					(Rolf Eike Beer)
+o	Optimise CRC32					(Joakim Tjernlund)
+o	Next batch of v850 updates			(Miles Bader)
+o	Takayoshi Kochi has moved email			(Takayoshi Kochi)
+o	SunRPC race fix					(Trond Myklebust)
+o	Refix addr/port naming confusion in IDE iops	(me)
+o	Forward port VIA APIC handling quirks		(me)
+o	Forward port ALi magick quirk flag handler	(me)
+	| Needs bt848 etc to acquire the fix too
+o	Forward port IDE bases fix			(me)
+o	Forward port pci irq search for legacy IDE	(me)
 
-"compatible" is a tricky word. Claiming compatibility at least in the
-EU isn't about trademarks its about truth. If I say "compatible with all
-Ford cars", it should be exactly that.
+Linux 2.5.61-ac1
+	Merge Linus 2.5.61
+o	Fix aic7xxx makefile				(Sam Ravnborg)
+o	Fix ieee1394 build on Alpha			(Ben Collins)
+o	Fix isdn_net build with X.25			(Adriank Bunk)
+o	Typo fix					(Steven Bosscher)
+o	A pile of other typo fixes			(Steven Cole)
+o	C99 initializers				(Art Haas)
+o	dasd typo fix					(Maciej Soltysiak)
+o	Remove an unused variable in sunrpc		(Robert Love)
+o	Remove duplicate different BSD partition names	(Andries Brouwer)
+o	PPC plural fix					(Steven Cole)
+o	EISA driver class patches			(Marc Zyngier)
+o	VIA Rhine updates				(Roger Luethi)
+o	Further ppa scsi fix				(John Kim)
+o	Kill unused __beep				(Hugh Dickins)
+o	Merge visws support 				(Andrey Panin)
+	| Some collisions with pc9800 but should be ok
+o	Limits for upward growing stacks		(Matthew Wilcox)
+o	ucLinux updates					(Greg Ungerer)
+o	68328 frame buffer updates			(Greg Ungerer)
+o	Merge ucLinux H8300 support			(Yoshinori Sato)
+o	Fix aironet compile				(Ookhoi)
+o	Fix DMA mask on OSS trident driver		(Ivan Kokshaysky)
+o	Kill some old 2.4 glue code in DRM		(John Kim)
+o	Fix compile of old "hd.c" driver		(Paul Gortmaker)
+o	Add experimental BOCHS virtualisation		(Kevin Lawton)
+o	Clean up intermezzo driver			(Adrian Bunk)
+o	Clean up rio use of compatmac			(Adrian Bunk)
+o	Remove 2.0 ifdefs from ipchains code		(Adrian Bunk)
+o	Remove old junk from efs 			(Adrian Bunk)
+o	Remove old 2.0/2.2 junk from media/video	(Adrian Bunk)
+o	Remove unused variable in ali-ircc		(Adrian Bunk)
+o	Remove 2.0 ifdefs from network drivers		(Adrian Bunk)
+o	Clean up uglies in inia100			(Adrian Bunk)
+o	Clean up uglies in i91u scsi 			(Adrian Bunk)
+o	Clean up wan drivers 2.0/2.2 code		(Adrian Bunk)
+o	Restore ontrack remap support			(Jim Houston)
+	| I'd really like to see this get turned into device mapper..
+o	Forward port emu10k1 driver to 2.5		(Rui Souza)
+o	Fix boot on EPOX 4BEA-R and friends		(Alexandar Achenbach)
+o	Switch alpha cia code to static inline		(Matt Reppert)
+o	Fix pcmcia scsi compile breakages		(Mike Anderson)
+o	EHCI workarounds				(David Brownell)
 
-I'd certainly expect people to say things like "does [xyz] with [app]
-whatever" not "compatible with". So its fair for example IMHO to say
-"bitbucket is a tool for freeing bitkeeper data" but not to
-say things like "bitbucket is a bk replacement" 
-
-And Red Hat is a lot more than brand. The value of a brand is not just
-the brand but what it delivers. Same with Bitkeeper as a brand.
-
-Alan
-
+Linux 2.5.60-ac1 (not published)
+	Includes Linus BK snapshot
+	Merge relevant pieces from old -ac		(me)
+	| Dropped visws and stuff thats been redone
+	| also dropped out IRQ stacks (port is tricky!)
+o	Fix build of cciss driver			(me)
+o	Fix build of 3036 tv tuner			(me)
+o	Remove i2o_lan					(me)
+o	Fix i2o_scsi					(Randy Dunlap)
+o	Fix iph5526 scsi changes (not fixed DMA)	(me)
+o	Make starfire compile				(me)
+o	Make mca-legacy warn if used			(me)
+o	Make sim710 build with EISA			(me)
+o	Make ultrastor compile				(me)
+o	Make aha152x/aha154x build			(Randy Dunlap)
+o	Fix aha154x/mca bits				(me)
+o	Fix fd_mcs build				(me)
+o	Fix NCR53c406a.c				(me)
+o	Fix sym53c416.c					(me)
+o	Fix ibmmca compile				(me)
+o	Fix ppa compile					(me)
+o	Fix NCR539x compile				(John Kim)
+o	Fix mca_53c9x compile				(me)

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270451AbRHHLEO>; Wed, 8 Aug 2001 07:04:14 -0400
+	id <S270453AbRHHLHy>; Wed, 8 Aug 2001 07:07:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270453AbRHHLEF>; Wed, 8 Aug 2001 07:04:05 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50183 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270451AbRHHLEA>; Wed, 8 Aug 2001 07:04:00 -0400
-Subject: Re: is this a bug?
-To: kernel@blackhole.compendium-tech.com (Dr. Kelsey Hudson)
-Date: Wed, 8 Aug 2001 12:05:54 +0100 (BST)
-Cc: thodoris@cs.teiher.gr (Thodoris Pitikaris), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108071916100.23797-100000@sol.compendium-tech.com> from "Dr. Kelsey Hudson" at Aug 07, 2001 07:19:16 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S270454AbRHHLHo>; Wed, 8 Aug 2001 07:07:44 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:63238 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S270453AbRHHLHk>;
+	Wed, 8 Aug 2001 07:07:40 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: john slee <indigoid@higherplane.net>
+cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1 is available. 
+In-Reply-To: Your message of "Wed, 08 Aug 2001 17:38:00 +1000."
+             <20010808173800.C2770@higherplane.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15UR9v-000546-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Wed, 08 Aug 2001 21:07:45 +1000
+Message-ID: <906.997268865@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > cputype=Athlon I continiusly experienced this crash.When I compiled with
-> > cputype=i686 everything went smooth (OS is Redhat 7.1)
-> 
-> It's a bug in that screwed up compiler redhat shipped with 7.1. AFAIK, the
-> only difference between an athlon-specific kernel and an i686-specific
-> kernel are the options in the compiler command line when compiling the
-> kernel.
+On Wed, 8 Aug 2001 17:38:00 +1000, 
+john slee <indigoid@higherplane.net> wrote:
+>On Wed, Aug 08, 2001 at 04:58:01PM +1000, Keith Owens wrote:
+>>   Multiple targets can be specified on the same make command.  You
+>>   cannot mix clean or mrproper with other targets but everything else
+>>   can be put on one command.
+>>     make -j oldconfig installable && sudo make -j install
+>>   works beautifully.
+>
+>'make dep bzImage modules modules_install' has worked for me for a long
+>long time...  am i just lucky?
 
-Please stop deliberately spreading misinformation. The last thing an end
-user with a problem needs is a bigot with an axe to grind lying to them to
-make a political point.
+make dep and modules_install could not be parallel run.  make bzImage
+and make modules could parallel run using make -j.
 
-Its the classic 'bought the wrong VIA chipset mainboard' problem
-
-Alan

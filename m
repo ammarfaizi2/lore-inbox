@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289089AbSBMXK3>; Wed, 13 Feb 2002 18:10:29 -0500
+	id <S289099AbSBMXMT>; Wed, 13 Feb 2002 18:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289096AbSBMXKT>; Wed, 13 Feb 2002 18:10:19 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:57863 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S289089AbSBMXKF>; Wed, 13 Feb 2002 18:10:05 -0500
-Date: Wed, 13 Feb 2002 18:08:59 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ? 
-In-Reply-To: <Pine.LNX.3.95.1020213165845.22523A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.96.1020213180317.12448K-100000@gatekeeper.tmr.com>
+	id <S289096AbSBMXMK>; Wed, 13 Feb 2002 18:12:10 -0500
+Received: from melancholia.rimspace.net ([210.23.138.19]:32268 "EHLO
+	melancholia.danann.net") by vger.kernel.org with ESMTP
+	id <S289098AbSBMXLt>; Wed, 13 Feb 2002 18:11:49 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What does AddrMarkNotFound mean?
+In-Reply-To: <E16b8Ab-0006f6-00@the-village.bc.nu>
+In-Reply-To: <E16b8Ab-0006f6-00@the-village.bc.nu> (Alan Cox's message of
+ "Wed, 13 Feb 2002 22:46:33 +0000 (GMT)")
+From: Daniel Pittman <daniel@rimspace.net>
+Organization: Not today, thank you, Mother.
+Date: Thu, 14 Feb 2002 10:11:37 +1100
+Message-ID: <871yfpf046.fsf@inanna.rimspace.net>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.5 (bamboo,
+ i686-pc-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Richard B. Johnson wrote:
-
-> On Wed, 13 Feb 2002, Bill Davidsen wrote:
+On Wed, 13 Feb 2002, Alan Cox wrote:
+>> Is this typical behavior for a hard drive which has developed bad
+>> blocks?  And if I blacklist the affected blocks in the filesystem,
+>> should I also blacklist a few previous blocks in order to avoid
+>> problems with the readahead feature of the IDE drivers?
 > 
-> > On Wed, 13 Feb 2002, Richard B. Johnson wrote:
-> > 
-> > > The advantage, of course is that if you are executing the kernel,
-> > > it can give you all the information necessary to recreate a
-> > > new one from the sources because its .config is embeded into
-> > > itself. Once you have the ".config" file, you just do `make oldconfig`
-> > > and you are home free.
-> > 
-> > But it does no such thing! You not only need the config file, you need the
-> > source. So you now need to add to the kernel the entire source tree from
-> > which it was built, or perhaps just a diff file from a kernel.org source,
-> > which you will suitably compress, of course.
+> Its a disk error (it can't find the index marks for a sector). In
+> general its a bad sign and you might want to check the smart data for
+> the disk.
 > 
-> What the F..? You are outa your mind. The PURPOSE is to create a .config
-> from which one can do a `make oldconfig` and get the same drivers,
-> modules, etc., that you have in the running kernel.
-> 
-> Of course you need a kernel source-code tree.
+> If you bought an IBM disk within the last 18 months or so check for
+> new firmware, flash it if so and reformat it before panicing and
+> assuming the worst.
 
-If you are going to build the same kernel you don't need *a* kernel source
-code tree, you need the same kernel source code tree. Anyone who has
-turned off an option because it had a bug in one kernel release will
-assure you that config files for one kernel are not always safe or
-functional on another.
+Having done precisely that, and ended up owning an IBM hard drive that
+has hit exactly this problem, like so many before this, this firmware
+upgrade idea is rather appealing. It would be nice to be able to trust
+the drive...
 
-I didn't think anyone would take that literally, I was making the point
-that the config is "necessary but not sufficient" to borrow an engineering
-term, and that the config is not the whole solution.
+...but I can't seem to find the firmware anywhere on the IBM storage
+site or, in fact, anywhere.  Have you any hints as to where I might
+look?
 
-Did you build your mail reader with the sarcasm and hyperbole detector
-option off?
+It's a DTLA-307030, made in Hungary, if that makes it easier to help. :)
+
+Thanks,
+        Daniel
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+What was once called the objective world is a sort of Rorschach ink blot,
+into which each culture, each system of science and religion, each type of
+personality, reads a meaning only remotely derived from the shape and color
+of the blot itself.
+        -- Lewis Mumford

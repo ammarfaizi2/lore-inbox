@@ -1,38 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266383AbTGJQw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 12:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbTGJQw7
+	id S269379AbTGJQyd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 12:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269390AbTGJQyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 12:52:59 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:52137 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266383AbTGJQw6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 12:52:58 -0400
-Date: Thu, 10 Jul 2003 10:01:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] minor optimization for EXT3
-Message-Id: <20030710100102.32950703.akpm@osdl.org>
-In-Reply-To: <877k6qgldo.fsf@gw.home.net>
-References: <87smpeigio.fsf@gw.home.net>
-	<20030710042016.1b12113b.akpm@osdl.org>
-	<87isqaiegy.fsf@gw.home.net>
-	<20030710085155.40c78883.akpm@osdl.org>
-	<877k6qgldo.fsf@gw.home.net>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Thu, 10 Jul 2003 12:54:33 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:15624 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S269379AbTGJQy0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 12:54:26 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-Id: <1057856944622@movementarian.org>
+Subject: [PATCH 1/3] OProfile: __exit fixes
+In-Reply-To: 
+From: John Levon <levon@movementarian.org>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Thu, 10 Jul 2003 18:09:04 +0100
+Content-Transfer-Encoding: 7BIT
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19aeun-000AiV-J7*HNAT4HOD.BI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas <bzzz@tmi.comex.ru> wrote:
->
-> OK. fixed version:
+ 
+oprofile_arch_exit() can be called from an __init routine now. Remove the remaining
+incorrect __exit markers.
 
-Looks nice.  Now, Andreas did mention a while back that the locking rework
-added an additional complexity to this optimization.  Perhaps he can remind
-us of the details there?
+diff -Naur -X dontdiff linux-cvs/arch/i386/oprofile/init.c linux-fixes/arch/i386/oprofile/init.c
+--- linux-cvs/arch/i386/oprofile/init.c	2003-06-18 15:06:05.000000000 +0100
++++ linux-fixes/arch/i386/oprofile/init.c	2003-06-20 00:19:14.000000000 +0100
+@@ -34,7 +34,7 @@
+ }
+ 
+ 
+-void __exit oprofile_arch_exit(void)
++void oprofile_arch_exit(void)
+ {
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	nmi_exit();
+diff -Naur -X dontdiff linux-cvs/arch/parisc/oprofile/init.c linux-fixes/arch/parisc/oprofile/init.c
+--- linux-cvs/arch/parisc/oprofile/init.c	2003-06-17 15:58:45.000000000 +0100
++++ linux-fixes/arch/parisc/oprofile/init.c	2003-06-20 00:19:24.000000000 +0100
+@@ -20,6 +20,6 @@
+ }
+ 
+ 
+-void __exit oprofile_arch_exit()
++void oprofile_arch_exit()
+ {
+ }
+diff -Naur -X dontdiff linux-cvs/arch/ppc64/oprofile/init.c linux-fixes/arch/ppc64/oprofile/init.c
+--- linux-cvs/arch/ppc64/oprofile/init.c	2003-05-04 02:42:02.000000000 +0100
++++ linux-fixes/arch/ppc64/oprofile/init.c	2003-06-20 00:19:32.000000000 +0100
+@@ -19,6 +19,6 @@
+ }
+ 
+ 
+-void __exit oprofile_arch_exit(void)
++void oprofile_arch_exit(void)
+ {
+ }
+diff -Naur -X dontdiff linux-cvs/arch/sparc64/oprofile/init.c linux-fixes/arch/sparc64/oprofile/init.c
+--- linux-cvs/arch/sparc64/oprofile/init.c	2003-05-04 19:01:46.000000000 +0100
++++ linux-fixes/arch/sparc64/oprofile/init.c	2003-06-20 00:19:40.000000000 +0100
+@@ -20,6 +20,6 @@
+ }
+ 
+ 
+-void __exit oprofile_arch_exit(void)
++void oprofile_arch_exit(void)
+ {
+ }
 

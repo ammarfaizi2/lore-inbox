@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279814AbRKILR4>; Fri, 9 Nov 2001 06:17:56 -0500
+	id <S279818AbRKIL3r>; Fri, 9 Nov 2001 06:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279824AbRKILRr>; Fri, 9 Nov 2001 06:17:47 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:26892 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S279813AbRKILRg>; Fri, 9 Nov 2001 06:17:36 -0500
-Message-ID: <3BEBBB21.357149FC@idb.hist.no>
-Date: Fri, 09 Nov 2001 12:16:49 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.15-pre1 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: speed difference between using hard-linked and modular drives?
-In-Reply-To: <Pine.LNX.4.33.0111081802380.15975-100000@localhost.localdomain.suse.lists.linux.kernel>
-		<Pine.LNX.4.33.0111081836080.15975-100000@localhost.localdomain.suse.lists.linux.kernel>
-		<p731yj8kgvw.fsf@amdsim2.suse.de> <20011109141215.08d33c96.rusty@rustcorp.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S279824AbRKIL3i>; Fri, 9 Nov 2001 06:29:38 -0500
+Received: from [213.96.124.18] ([213.96.124.18]:9707 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S279818AbRKIL3X>;
+	Fri, 9 Nov 2001 06:29:23 -0500
+Date: Fri, 9 Nov 2001 12:29:44 +0000
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: bonding driver - linux kernel
+Message-ID: <20011109122944.A1138@dardhal.mired.net>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1005299191.5985.32.camel@praetorian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1005299191.5985.32.camel@praetorian>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+On Friday, 09 November 2001, at 04:46:31 -0500,
+Phil Sorber wrote:
 
-> Modules have lots of little disadvantages that add up.  The speed penalty
-> on various platforms is one, the load/unload race complexity is another.
+> hello,
 > 
-Races can be fixed.  (Isn't that one of the things considered for 2.5?)
+> i have an HP Procurve 4000M and a linux box with an Intel Pro/100 Dual
+> Port Server Adapter (eepro.c). we have the switch set to do cicso
+> etherchannel, which the procurve supports. but it seems not to work in
+> this mode. we have to back down to trunking mode, giving us 200Mbit
+> upstream, but only 100Mbit down stream.
+> 
+Don't know what the problem can be, but as you seem interested in the
+code, apart from the bonding driver in official kernels, there an
+alternative (and more featureful) implementation here:
+http://sf.net/projects/bonding/
 
-Speed penalties on various platforms is there to stay, so you simply
-have to weigh that against having more swappable RAM.
+It is a patch against recent 2.4.x kernels (lat 2.4.13). Apart from
+traditional bonding/trunking (two or more cards give you aggregated
+bandwith) it implements "link failover". Give it a try :)
 
-I use the following rules of thumb:
+-- 
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
 
-1. Modules only for seldom-used devices.  A module for
-   the mouse is no use if you do all your work in X.  
-   There's simply no gain from a module that never unloads.
-   A seldom used fs may be modular though.  I rarely
-   use cd's, so isofs is a module on my machine.
-2. No modules for high-speed stuff like harddisks and network,
-   that's where you might feel the slowdown.  Low-speed stuff
-   like floppy and cdrom drivers are modular though.
-
-Helge Hafting

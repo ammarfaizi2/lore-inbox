@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267148AbRGKBc7>; Tue, 10 Jul 2001 21:32:59 -0400
+	id <S267178AbRGKBeT>; Tue, 10 Jul 2001 21:34:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267178AbRGKBct>; Tue, 10 Jul 2001 21:32:49 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:46097
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S267148AbRGKBce>; Tue, 10 Jul 2001 21:32:34 -0400
-Date: Tue, 10 Jul 2001 21:38:30 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: daniel sheltraw <l5gibson@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: CardBus and PCI
-Message-ID: <20010710213830.A13597@animx.eu.org>
-In-Reply-To: <F34guA8M6XQQez1enAq000153a1@hotmail.com> <3B4B6DB8.F26663A1@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <3B4B6DB8.F26663A1@mandrakesoft.com>; from Jeff Garzik on Tue, Jul 10, 2001 at 05:03:52PM -0400
+	id <S267180AbRGKBeJ>; Tue, 10 Jul 2001 21:34:09 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:40207 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S267178AbRGKBeH>; Tue, 10 Jul 2001 21:34:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jun Sun <jsun@mvista.com>, linux-kernel@vger.kernel.org,
+        linux-mips@oss.sgi.com
+Subject: Re: memory alloc failuer : __alloc_pages: 1-order allocation failed.
+Date: Wed, 11 Jul 2001 03:37:59 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <3B4BA24E.1FB614B0@mvista.com>
+In-Reply-To: <3B4BA24E.1FB614B0@mvista.com>
+MIME-Version: 1.0
+Message-Id: <0107110337590G.22952@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If a CardBus card is in a slot at boot time is it treated as PCI device
-> > would be? Is it just another device on another PCI bus?
-> 
-> In kernel 2.4 and using kernel cardbus support, yes.
+On Wednesday 11 July 2001 02:48, Jun Sun wrote:
+> Content-Type: text/plain; charset=us-ascii
+> Content-Transfer-Encoding: 7bit
+>
+> I am running 2.4.2 on a linux/mips box, with 32MB system RAM (no
+> swap).  When I run a stress test, I will hit memory allocation
+> failure:
+>
+> __alloc_pages: 1-order allocation failed.
+> IP: queue_glue: no memory for gluing queue 8108cce0
 
-But is it possible for it to be configured at boot time (like to use it for
-nfsroot)
+Next step: install the latest stable kernel and see if the problem 
+persists.  (In this case I doubt it will)
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+--
+Daniel

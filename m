@@ -1,71 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262904AbUCYAYp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 19:24:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbUCYAWd
+	id S262967AbUCYA2p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 19:28:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbUCYAZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 19:22:33 -0500
-Received: from fed1mtao07.cox.net ([68.6.19.124]:46494 "EHLO
-	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S262902AbUCYABi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 19:01:38 -0500
-Subject: [patch 21/22] __early_param for v850
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-From: trini@kernel.crashing.org
-Message-Id: <20040325000135.RGPI4381.fed1mtao07.cox.net@localhost.localdomain>
-Date: Wed, 24 Mar 2004 19:01:35 -0500
+	Wed, 24 Mar 2004 19:25:26 -0500
+Received: from gprs214-165.eurotel.cz ([160.218.214.165]:11396 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262902AbUCYAX1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 19:23:27 -0500
+Date: Thu, 25 Mar 2004 01:23:02 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]
+Message-ID: <20040325002302.GG290@elf.ucw.cz>
+References: <20040323214734.GD364@elf.ucw.cz> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <1080081653.22670.15.camel@calvin.wpcb.org.au> <20040323234449.GM364@elf.ucw.cz> <opr5ci61g54evsfm@smtp.pacific.net.th> <20040324101704.GA512@elf.ucw.cz> <opr5d1jave4evsfm@smtp.pacific.net.th> <20040324232338.GE290@elf.ucw.cz> <opr5d4r0il4evsfm@smtp.pacific.net.th>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <opr5d4r0il4evsfm@smtp.pacific.net.th>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Čt 25-03-04 07:56:14, Michael Frank wrote:
+> On Thu, 25 Mar 2004 00:23:38 +0100, Pavel Machek <pavel@ucw.cz> wrote:
+> >On Čt 25-03-04 06:46:12, Michael Frank wrote:
+> >>On Wed, 24 Mar 2004 11:17:04 +0100, Pavel Machek <pavel@ucw.cz> wrote:
 
-- Remove saved_command_line (and saving of the command line).
-- Call parse_early_options
+> >Yes, having -nice patch with bootsplashes, translated kernel messages,
+> >and swsusp eye-candy would work for me.
+> 
+> If a -nice _tree_ is useful, your guys just have to launch it. Gosh this 
+> could reduce
+> arguments about what goes into the kernel and save Linus and Andrew lots of 
+> work.
 
+Yes.
+ 
+> >Feel free to maintain it.
+> 
+> Busy enough with testing, actually far too busy for being on a volunteer 
+> basis ;)
+> 
+> I am sure that better qualified and properly supported/sponsored individuals
+> will queue up as long as it is an _official_ -nice tree with the good 
+> purpose
+> of centralizing useful non-core functions :)
 
----
+I'd say that having official -anything tree is an oxymoron (is -ac
+tree official? is -mm tree official?), but yes, I hope someone picks
+this up
 
- linux-2.6-early_setup-trini/arch/v850/kernel/setup.c       |    5 +----
- linux-2.6-early_setup-trini/arch/v850/kernel/vmlinux.lds.S |    5 +++++
- 2 files changed, 6 insertions(+), 4 deletions(-)
+> >You see, 10 lines in printk is probably good enough reason not to
+> >include that patch in kernel, because its "too ugly".
+> 
+> Pretty does not count above, Ugly does not count here, Functionality always 
+> does.
+> Besides that patch might be in the -nice tree.
 
-diff -puN arch/v850/kernel/setup.c~v850 arch/v850/kernel/setup.c
---- linux-2.6-early_setup/arch/v850/kernel/setup.c~v850	2004-03-24 16:15:10.470829791 -0700
-+++ linux-2.6-early_setup-trini/arch/v850/kernel/setup.c	2004-03-24 16:15:10.474828890 -0700
-@@ -41,7 +41,6 @@ extern char _root_fs_image_end __attribu
- 
- 
- char command_line[512];
--char saved_command_line[512];
- 
- /* Memory not used by the kernel.  */
- static unsigned long total_ram_pages;
-@@ -61,10 +60,8 @@ void set_mem_root (void *addr, size_t le
- 
- void __init setup_arch (char **cmdline)
- {
--	/* Keep a copy of command line */
- 	*cmdline = command_line;
--	memcpy (saved_command_line, command_line, sizeof saved_command_line);
--	saved_command_line[sizeof saved_command_line - 1] = '\0';
-+	parse_early_options(cmdline_p);
- 
- 	console_verbose ();
- 
-diff -puN arch/v850/kernel/vmlinux.lds.S~v850 arch/v850/kernel/vmlinux.lds.S
---- linux-2.6-early_setup/arch/v850/kernel/vmlinux.lds.S~v850	2004-03-24 16:15:10.472829340 -0700
-+++ linux-2.6-early_setup-trini/arch/v850/kernel/vmlinux.lds.S	2004-03-24 16:15:10.474828890 -0700
-@@ -109,6 +109,11 @@
- 			*(.init.setup)	/* 2.5 convention */		      \
- 			*(.setup.init)	/* 2.4 convention */		      \
- 		___setup_end = . ;					      \
-+
-+		__early_begin = .;
-+			*(__early_param)
-+		__early_end = .;
-+
- 		___start___param = . ;					      \
- 			*(__param)					      \
- 		___stop___param = . ;					      \
+Prettyness *does* count in -linus tree. -nice tree is likely to have
+different criteria.
 
-_
+> >swsusp really should not have patch any code outside kernel/power.
+> 
+> Which is extremely ideal, but one thing at the time...
+
+Okay, lets not please add more of outside changes (for -linus merge).
+
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

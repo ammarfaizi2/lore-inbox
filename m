@@ -1,60 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264182AbUEICAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264247AbUEICEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264182AbUEICAY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 22:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbUEICAX
+	id S264247AbUEICEN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 22:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbUEICEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 22:00:23 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:30855 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264182AbUEICAS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 22:00:18 -0400
-Date: Sat, 8 May 2004 22:04:30 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Vincent Lefevre <vincent@vinc17.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.26] overcommit_memory documentation clarification
-In-Reply-To: <20040509001045.GA23263@ay.vinc17.org>
-Message-ID: <Pine.LNX.4.53.0405082142100.25076@chaos>
-References: <20040509001045.GA23263@ay.vinc17.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 8 May 2004 22:04:13 -0400
+Received: from [61.135.145.20] ([61.135.145.20]:37713 "EHLO sohumx05.sohu.com")
+	by vger.kernel.org with ESMTP id S264247AbUEICED (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 22:04:03 -0400
+Message-ID: <6918778.1084068239397.JavaMail.postfix@mx0.mail.sohu.com>
+Date: Sun, 9 May 2004 10:03:54 +0800 (CST)
+From: <dongzai007@sohu.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: vid&pid problems in usb_probe()
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Sohu Web Mail 2.0.13
+X-SHIP: 218.107.149.1
+X-Priority: 3
+X-SHMOBILE: 0
+X-SHBIND: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 May 2004, Vincent Lefevre wrote:
+Sorry, I forgot to tell you, I have copied all the header files in 
+"linux2.4.18/include/linux" to "/usr/include/linux". I am sure that
+there is no difference between "linux2.4.18/include/linux" and "/usr/include/linux"
 
-> Hi,
->
-> The documentation of overcommit_memory in Documentation/sysctl/vm.txt
-> should be clarified, as with the following simple program, malloc()
-> never returns 0 on an official 2.4.26 kernel, even if overcommit_memory
-> has been set to 0. Running it has the effect of having random processes
-> killed, and eventually this process itself.
+I build this driver like this:
 
-What made you think that malloc would return 0 if the system
-was "out of memory??" Malloc will return NULL, which is not 0 BTW,
-if you are out of address-space or have corrupted it by writing
-past a previous allocation. Malloc's return value is a void *. It
-should be compared against NULL, not zero.
+#gcc -c usb.c
+#insmod -f usb.o  //due to version dismatch, i should use -f
 
-When malloc() needs new "memory". It just asks the kernel to
-set the new break address or, in the case of mmap() mallocs, asks
-to extend a mapped region. Until somebody actually uses those
-regions, you haven't used any memory. So there is no way for
-malloc() to "know" ahead of time.
-
-If you run a malloc() bomb from the root account you should
-end up killing off a lot of processes. If you run it from
-a normal user account, and you have set the user's resource
-quotas properly, only the user should get into trouble.
+then plug a usb device.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Could you help me test this program? Do you have an usb device? You can write a program 
+like this, and test if it can report the right vid & pid.
+I downloaded a new kernel 2.6.5, after i started with the new kernel, lots of modules
+can not be loaded, so i changed back to 2.4.18, then I found my X-windows can not
+start. Did this error have something to do with this unstablity?
 
+
+-----  Original Message  -----
+From: Randy.Dunlap 
+To: dongzai007@sohu.com 
+Cc: linux-kernel@vger.kernel.org 
+Subject: Re: vid&pid problems in usb_probe()
+Sent: Sun May 09 01:25:34 CST 2004
+
+> On Sat, 8 May 2004 17:05:24 +0800 (CST) <dongzai007@sohu.com> wrote:
+> 
+> | Thank you for replying,but I don't know what you mean,
+> | USB descriptor data structure is defined in 
+> | "/usr/include/linux/usb.h"
+> | 
+> | my kernel version is 2.4.18.
+> 
+> Are you saying that your driver uses /usr/include/linux/usb.h ?
+> If so, that's wrong.  It should use linux-2.4.18/include/linux/usb.h
+> instead, and it will if you build/make the driver correctly.
+> 
+> So, how do you build this driver?  Show the Makefile or command
+> line that you use.
+> 
+> Regarding the data structure, I don't know what /usr/include/linux/usb.h
+> on your system contains since that is not a kernel header file (and
+> drivers shouldn't use those).  I do recall, however, that many moons
+> ago, there were some usb structs in usb.h that were not defined
+> with __attribute__((packed)), and that could cause field offsets
+> to be off a bit, er, byte (or more).
+> 
+> And what processor arch. are you doing this on?
+> 
+> Driver source code?
+> 
+> ~Randy
+> 
+> 
+> | -----  Original Message  -----
+> | From: Randy.Dunlap 
+> | To: dongzai007@sohu.com 
+> | Cc: linux-kernel@vger.kernel.org 
+> | Subject: Re: vid&pid problems in usb_probe()
+> | Sent: Sat May 08 12:45:54 CST 2004
+> | 
+> | > On Sat, 8 May 2004 11:48:44 +0800 (CST) <dongzai007@sohu.com> wrote:
+> | > 
+> | > | 
+> | > | 
+> | > | I am writting an usb driver.You know function usb_probe(...) is used to determine whether the usbdevices just pluged in is what the driver is for.
+> | > 
+> | > a.  Please learn to use the Enter/Return key around character position
+> | > 70 (or before) on each line.
+> | > 
+> | > b.  what kernel version?   (*always*)
+> | > 
+> | > c.  You should ask this on the linux-usb-development mailing list:
+> | > linux-usb-devel@lists.sf.net
+> | > 
+> | > 
+> | > | The Vid and Pid of my usb device are 0x1111 and 0x0000 respectively.
+> | > | 
+> | > | the program is :
+> | > | 
+> | > | static void* usb_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id)
+> | > | {
+> | > |     ..............
+> | > |     ..............
+> | > |     
+> | > |     printk("<1>Vid:%x
+> | Pid:%x
+> | ",udev->descriptor.idVendor,udev->descriptor.idProduct);
+> | > | 
+> | > |     if ((udev->descriptor.idVendor!=0x1111)
+> | > |          ||(udev->descriptor.idProduct!=0x0000)) return NULL;
+> | > | 
+> | > |     ..............
+> | > | }
+> | > | 
+> | > | when I plug the device whose vid & pid is 0x1111 & 0x0000 respectively.
+> | > | this Module displayed
+> | > | 
+> | > | 
+> | > | Vid:0
+> | > | Pid:201
+> | > | 
+> | > | usb.c ........ no active driver for this device;
+> | > | 
+> | > | and when I plug another device , I also got wrong vid & pid.
+> | > | 
+> | > | But when I wrote program as below:
+> | > | 
+> | > | __u16 tmp=0x1111;
+> | > | printk("<1>%x",tmp);
+> | > | 
+> | > | it can print "1111" on the screen. That means my syntax is correct.
+> | > | I mean, the problem may be at the data transfered into function usb_probe()
+> | > | Maybe data transfered into function usb_probe() is wrong.
+> | > | 
+> | > | I wonder where is the problem, how can i solve.
+> | > 
+> | > Seeing more (or all) of your source code could help.
+> | > I'm especially curious (suspicious) about your USB descriptor data
+> | > structures.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,70 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264348AbUD2M0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264381AbUD2Mke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264348AbUD2M0y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 08:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264355AbUD2M0y
+	id S264381AbUD2Mke (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 08:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbUD2Mke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 08:26:54 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:11993 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264348AbUD2M0u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 08:26:50 -0400
-Date: Thu, 29 Apr 2004 14:26:49 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Ross Dickson <ross@datscreative.com.au>,
-       Jesse Allen <the3dfxdude@hotmail.com>, Len Brown <len.brown@intel.com>,
-       a.verweij@student.tudelft.nl,
-       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
-       linux-kernel@vger.kernel.org, Daniel Drake <dan@reactivated.net>,
-       Ian Kumlien <pomac@vapor.com>, Allen Martin <AMartin@nvidia.com>
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
- for idle=C1halt, 2.6.5
-In-Reply-To: <20040429120017.GB7077@mail.shareable.org>
-Message-ID: <Pine.LNX.4.55.0404291403410.11691@jurand.ds.pg.gda.pl>
-References: <Pine.GHP.4.44.0404271807470.6154-100000@elektron.its.tudelft.nl>
- <200404282133.34887.ross@datscreative.com.au> <20040428205938.GA1995@tesore.local>
- <200404292144.37479.ross@datscreative.com.au> <Pine.LNX.4.55.0404291352200.11691@jurand.ds.pg.gda.pl>
- <20040429120017.GB7077@mail.shareable.org>
-Organization: Technical University of Gdansk
+	Thu, 29 Apr 2004 08:40:34 -0400
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:438 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264367AbUD2MkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 08:40:25 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: locking in psmouse
+Date: Thu, 29 Apr 2004 07:40:17 -0500
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+References: <20040428213040.GA954@elf.ucw.cz> <200404282347.47411.dtor_core@ameritech.net> <20040429095830.GD390@elf.ucw.cz>
+In-Reply-To: <20040429095830.GD390@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404290740.18182.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Apr 2004, Jamie Lokier wrote:
+Hi Pavel,
 
-> >  Not necessarily related to the PSU, but the noise may actually be the
-> > reason of spurious timer interrupts.
+On Thursday 29 April 2004 04:58 am, Pavel Machek wrote:
+> Hi!
 > 
-> With most device interrupts, additional spurious ones don't cause any
-> malfunction because the driver's handler checks whether the device
-> actually has a condition pending.
+> > > psmouse-base.c does not have any locking. For example psmouse_command
+> > > could race with data coming from the mouse, resulting in problem. This
+> > > should fix it.
+> > 
+> > Although I am not arguing that locking might be needed in psmouse module I
+> > am somewhat confused how it will help in case of data stream coming from the
+> > mouse... If mouse sent a byte before the kernel issue a command then it will
+> > be delivered by KBC controller and will be processed by the interrupt handler,
+> > probably messing up detection process. That's why as soon as we decide that
+> > the device behind PS/2 port is some kind of mouse we disable the stream mode.
+> 
+> Does that mean that mouse can not talk while we are sending commands
+> to it? That would help a bit.
+> 
 
- Note the 8254 timer uses edge-triggered interrupts and is just a square
-wave signal.  There's no acking to deassert the interrupt -- it goes away
-spontaneously after a predefined time.
+Yes, check psmouse_probe. As soon as PSMOUSE_CMD_RESET_DIS acknowledged mouse
+should cease sending motion data. That still leaves possibility of screwing up
+detection if you are moving mouse while psmouse doing PSMOUSE_CMD_GETID.
+But I don't think we can do much about it as we'd like to know that the device
+is some kind of a mouse before we start messing with it.
 
-> This is the basis of shared interrupts, of course.
+> Anyway, locking still seems to be needed: 
+> 
+>         while (psmouse->cmdcnt && timeout--) {
+> 
+>                 if (psmouse->cmdcnt == 1 && command == PSMOUSE_CMD_RESET_BAT &&
+>                                 timeout > 100000) /* do not run in a endless loop */
+>                         timeout = 100000; /* 1 sec */
+> 
+>                 if (psmouse->cmdcnt == 1 && command == PSMOUSE_CMD_GETID &&
+>                     psmouse->cmdbuf[1] != 0xab && psmouse->cmdbuf[1] != 0xac) {
+>                         psmouse->cmdcnt = 0;
+>                         break;
+>                 }
+> 
+>                 spin_unlock_irq(&psmouse_lock);
+>                 udelay(1);
+>                 spin_lock_irq(&psmouse_lock);
+>         }
+> 
+> racing with
+> 
+>         if (psmouse->cmdcnt) {
+>                 psmouse->cmdbuf[--psmouse->cmdcnt] = data;
+>                 goto out;
+>         }
+> 
+> now... if each runs on different CPU, it can be possible that
+> psmouse->cmdcnt is seen as 1 but data are not yet in
+> psmouse->cmdbuf... Locking seems neccessary here.
 
- Yep, but the timer is non-shareable by definition.
-
-> Is there any way we can check the timer itself to see whether an
-> interrupt was caused by it, so that spurious timer interrupts are ignored?
-
- This may be possible, but complicated and likely unreliable -- an I/O
-APIC may deliver a spurious interrupt at the time a real one would be
-probable and you can't check if a period between two consecutive timer
-interrupts is appropriate without an additional time reference, which may
-be unavailable (like the TSC).
-
- Note the timer is special -- we don't really do any device handling, but
-we want to get periodic interrupts at the right times to have a time
-reference.  Coalescing interrupts or discarding spurious ones, which is
-normal and acceptable for regular devices, doesn't work here.
+I see.. but this particular case can be resolved but rearranging the code to
+write command response first and then decrementing the counter... and putting
+a barrier? Or just make cmdcnt atomic... spin_lock_irq feels heavier than
+absolutely necessary.
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Dmitry

@@ -1,75 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316434AbSIAHIn>; Sun, 1 Sep 2002 03:08:43 -0400
+	id <S316499AbSIAHUG>; Sun, 1 Sep 2002 03:20:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316499AbSIAHIm>; Sun, 1 Sep 2002 03:08:42 -0400
-Received: from p508EBDAF.dip.t-dialin.net ([80.142.189.175]:34317 "EHLO
-	tigra.home") by vger.kernel.org with ESMTP id <S316434AbSIAHIm>;
-	Sun, 1 Sep 2002 03:08:42 -0400
-Date: Sun, 1 Sep 2002 09:13:27 +0200
-From: Alex Riesen <fork0@users.sf.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: sct@redhat.com, akpm@zip.com.au, adilger@clusterfs.com
-Subject: 2.4.20-pre1-ac1: Filesystem panic attempting to mount ext3
-Message-ID: <20020901071327.GA404@steel>
-Reply-To: Alex Riesen <fork0@users.sf.net>
+	id <S316532AbSIAHUG>; Sun, 1 Sep 2002 03:20:06 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57040 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S316499AbSIAHUF>; Sun, 1 Sep 2002 03:20:05 -0400
+Date: Sun, 1 Sep 2002 03:24:26 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Michal Wronski <wrona@mat.uni.torun.pl>
+Subject: Re: [PATCH] POSIX message queues
+Message-ID: <20020901032426.X7920@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20020827231625.A7961@infradead.org> <Pine.GSO.4.40.0208311516100.7165-100000@ultra60>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.40.0208311516100.7165-100000@ultra60>; from golbi@mat.uni.torun.pl on Sat, Aug 31, 2002 at 03:28:43PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, Aug 31, 2002 at 03:28:43PM +0200, Krzysztof Benedyczak wrote:
+> Hello,
+> 
+> On Tue, 27 Aug 2002, Christoph Hellwig wrote:
+> > The multiplexer syscall is horribly ugly. I'd suggest implementing it
+> > as filesystems so each message queue object can be represented as file,
+> > using defined file methods as much as possible.
+> 
+> It seems clever. In fact previous version used file representation in
+> very simple and rather undesirable way so we resigned from it. But we
+> can try to change it.
 
-the problem appeared on the first partition of an ide
-IBM-DHEA-36481 with one fat partition on it. I repartioned
-the device (4 primaries) and "mke2fs -j" three of them.
+I have written MQ as filesystem about 2 years ago, see:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0011.2/0639.html
+(though did not manage to update it since then).
+Dunno if it is easier to update the patch or write it from scratch though...
 
-Than i tried to mount the newly created filesystems and got
-this in syslog:
-
-Sep  1 08:47:32 steel kernel: FAT: Did not find valid FSINFO signature.
-Sep  1 08:47:32 steel kernel: Found signature1 0x0 signature2 0x0 sector=1.
-Sep  1 08:47:32 steel kernel: Directory 1: bad FAT
-Sep  1 08:47:32 steel kernel: attempt to access beyond end of device
-Sep  1 08:47:32 steel kernel: 16:41: rw=0, want=902238098, limit=3903763
-Sep  1 08:47:32 steel kernel: attempt to access beyond end of device
-Sep  1 08:47:32 steel kernel: 16:41: rw=0, want=902238099, limit=3903763
-Sep  1 08:47:32 steel kernel: attempt to access beyond end of device
-Sep  1 08:47:32 steel kernel: 16:41: rw=0, want=902238099, limit=3903763
-Sep  1 08:47:32 steel kernel: attempt to access beyond end of device
-Sep  1 08:47:32 steel kernel: 16:41: rw=0, want=902238100, limit=3903763
-Sep  1 08:47:32 steel kernel: attempt to access beyond end of device
-Sep  1 08:47:32 steel kernel: 16:41: rw=0, want=902238100, limit=3903763
-Sep  1 08:47:32 steel kernel: attempt to access beyond end of device
-Sep  1 08:47:32 steel kernel: 16:41: rw=0, want=902238101, limit=3903763
-Sep  1 08:47:32 steel kernel: attempt to access beyond end of device
-Sep  1 08:47:32 steel kernel: 16:41: rw=0, want=902238101, limit=3903763
-Sep  1 08:47:32 steel kernel: attempt to access beyond end of device
-Sep  1 08:47:32 steel kernel: 16:41: rw=0, want=902238102, limit=3903763
-Sep  1 08:47:32 steel kernel: Filesystem panic (dev 16:41).
-Sep  1 08:47:32 steel kernel:   FAT error
-Sep  1 08:47:32 steel kernel:   File system has been set read-only
-
-Umount produced something as well:
-
-Sep  1 08:47:54 steel kernel: FAT: Did not find valid FSINFO signature.
-Sep  1 08:47:54 steel kernel: Found signature1 0x0 signature2 0x0 sector=1.
-
-Assuming that some garbage was left on the disk event after mke2fs,
-i did "dd if=/dev/zero of=/dev/hdd1 bs=512", which cured the problem,
-after being followed by mke2fs.
-
-# fdisk -l /dev/hdd
-
-Disk /dev/hdd: 255 heads, 63 sectors, 790 cylinders
-Units = cylinders of 16065 * 512 bytes
-
-   Device Boot    Start       End    Blocks   Id  System
-/dev/hdd1   *         1       486   3903763+  83  Linux
-/dev/hdd2           487       608    979965   83  Linux
-/dev/hdd3           609       632    192780   82  Linux swap
-/dev/hdd4           633       790   1269135   83  Linux
-
-
+	Jakub

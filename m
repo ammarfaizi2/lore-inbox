@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262243AbSJFW06>; Sun, 6 Oct 2002 18:26:58 -0400
+	id <S262241AbSJFW0q>; Sun, 6 Oct 2002 18:26:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262244AbSJFW05>; Sun, 6 Oct 2002 18:26:57 -0400
-Received: from mail.zedat.fu-berlin.de ([130.133.1.48]:34089 "EHLO
+	id <S262242AbSJFW0q>; Sun, 6 Oct 2002 18:26:46 -0400
+Received: from mail.zedat.fu-berlin.de ([130.133.1.48]:28457 "EHLO
 	Mail.ZEDAT.FU-Berlin.DE") by vger.kernel.org with ESMTP
-	id <S262243AbSJFW04>; Sun, 6 Oct 2002 18:26:56 -0400
-Message-Id: <m17yJwe-006imWC@Mail.ZEDAT.FU-Berlin.DE>
+	id <S262241AbSJFW0p>; Sun, 6 Oct 2002 18:26:45 -0400
+Message-Id: <m17yJwh-006imUC@Mail.ZEDAT.FU-Berlin.DE>
 Content-Type: text/plain; charset=US-ASCII
 From: Oliver Neukum <oliver@neukum.name>
 To: "John Tyner" <jtyner@cs.ucr.edu>, "Greg KH" <greg@kroah.com>
 Subject: Re: Vicam/3com homeconnect usb camera driver
-Date: Sun, 6 Oct 2002 23:44:02 +0200
+Date: Mon, 7 Oct 2002 00:01:55 +0200
 X-Mailer: KMail [version 1.3.2]
 Cc: <linux-kernel@vger.kernel.org>
-References: <000c01c26d7f$e3a068d0$0a00a8c0@refresco>
-In-Reply-To: <000c01c26d7f$e3a068d0$0a00a8c0@refresco>
+References: <001c01c26ce4$39b67f80$0a00a8c0@refresco> <m17yAhF-006i5XC@Mail.ZEDAT.FU-Berlin.DE> <001601c26d5e$b7a20fc0$0a00a8c0@refresco>
+In-Reply-To: <001601c26d5e$b7a20fc0$0a00a8c0@refresco>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 October 2002 23:32, John Tyner wrote:
-> > And you should probably kill the tasklet before you unregister the video
-> > device.
+On Sunday 06 October 2002 19:35, John Tyner wrote:
+> > In vicam_v4l_open:
+> >
+> > Why is only the first control message checked for errors?
 >
-> The more I think about this, the more I think that killing the tasklet
-> after unregistering the device is the correct way.
+> The second one turns on the LED. I didn't check it because I figured the
+> LED actually turning on was not a big deal. Though, I suppose that if an
+> error occurred, that could be indicative of some other problem.
 >
-> From what I can tell, there are two ways that the disconnect function can
-> be called: a physical disconnect or a module removal.
 
-And as a result of an ioctl() through usbfs.
+Exactly.
 
-> In the case of a physical disconnect, the ordering probably doesn't matter
-> because the tasklet won't be scheduled again because urb's would fail to
-> complete successfully.
+> > vicam_usb_probe:
+> >
+> > __devinit ???
+> >
+> > vicam_usb_disconnect:
+> >
+> > __devexit ???
 >
-> The case of module removal becomes a bit more complicated (for reasons
-> concerning module unload races that are being discussed by people far
-> smarter than I). But in any event, I think that it makes more sense to
-> unregister the open/close/etc. interface so that there is less chance of
-> trying to send another urb (thus causing another schedule of the tasklet)
-> before actually killing the tasklet.
->
-> This also brings up the (somewhat) rhetorical question I posed in the
-> driver's disconnect function. What happens when a disconnect occurs while
-> the device is open?
+> I'm not sure I see the problem here. __devinit is only defined when HOTPLUG
+> is not defined, which seems right to me. If there is no HOTPLUG then we can
+> throw away the code as soon as init is completed. ...similar argument for
+> __devexit. Correct me if I'm wrong.
 
-I can't tell right now. I'll sync up after returning home and look into the 
-matter.
+But usbcore will happily call probe if  HOTPLUG is not defined and AFAICT
+usb will compile without HOTPLUG.
 
 	Regards
 		Oliver

@@ -1,73 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270772AbTGNUAf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 16:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270773AbTGNUAG
+	id S270826AbTGNUQT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 16:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270820AbTGNUOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 16:00:06 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:51349 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270772AbTGNT5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 15:57:18 -0400
-Date: Mon, 14 Jul 2003 17:09:40 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrea Arcangeli <andrea@suse.de>, Chris Mason <mason@suse.com>,
+	Mon, 14 Jul 2003 16:14:34 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:23952
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S270812AbTGNUNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 16:13:00 -0400
+Date: Mon, 14 Jul 2003 22:27:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Jens Axboe <axboe@suse.de>, Chris Mason <mason@suse.com>,
        lkml <linux-kernel@vger.kernel.org>,
        "Stephen C. Tweedie" <sct@redhat.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
        Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
 Subject: Re: RFC on io-stalls patch
-In-Reply-To: <20030714195138.GX833@suse.de>
-Message-ID: <Pine.LNX.4.55L.0307141708210.8994@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva>
- <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com>
- <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com>
- <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random>
- <20030714054918.GD843@suse.de> <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva>
- <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030714202728.GT16313@dualathlon.random>
+References: <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com> <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random> <20030714054918.GD843@suse.de> <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva> <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de> <20030714201637.GQ16313@dualathlon.random> <Pine.LNX.4.55L.0307141716400.8994@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0307141716400.8994@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 14, 2003 at 05:17:16PM -0300, Marcelo Tosatti wrote:
+> 
+> 
+> On Mon, 14 Jul 2003, Andrea Arcangeli wrote:
+> 
+> > On Mon, Jul 14, 2003 at 09:51:39PM +0200, Jens Axboe wrote:
+> > > -	rl = &q->rq;
+> > > -	if (!list_empty(&rl->free) && !blk_oversized_queue(q)) {
+> > > +	if ((rw == WRITE) && (blk_oversized_queue(q) || (rl->count < 4)))
+> >
+> > did you disable the oversized queue check completely for reads? This
+> > looks unsafe, you can end with loads of ram locked up this way, the
+> > request queue cannot be limited in requests anymore. this isn't the
+> > "request reservation", this a "nearly unlimited amount of ram locked in
+> > for reads".
+> >
+> > Of course, the more reads can be in the queue, the less the background
+> > write loads will hurt parallel apps like a kernel compile as shown in
+> > xtar_load.
+> >
+> > This is very different from the schedule advantage provided by the old
+> > queue model. If you allow an unlimited I/O queue for reads, that means
+> > the I/O queues will be filled by an huge amount of reads and a few
+> > writes (no matter how fast the xtar_load is writing to disk).
+> >
+> > In the past (2.4.22pre4) the I/O queue would been at most 50/50, with
+> > your patch it can be 90/10, hence it can generate an huge performance
+> > difference, that can penealize tremendously the writers in server loads
+> > using fsync plus it can hurt the VM badly if all ram is locked up by
+> > parallel reads. Of course contest mostly cares about reads, not writes.
+> >
+> > Overall I think your patch is unsafe and shouldn't be applied.
+> >
+> > Still if you want to allow 50/50, go ahead, that logic in pre4 was an
+> > order of magnitude more fair and generic than this patch.
+> 
+> Well, I change my mind and wont apply it as-is in -pre6.
 
+I would at least wait a clarification from Jens first. If I missed
+something fundamental in my analysis of his patch, of course we could
+apply it then, but at the moment it looks not safe and a bit cheating ;)
 
-On Mon, 14 Jul 2003, Jens Axboe wrote:
+thanks,
 
-> Some initial results with the attached patch, I'll try and do some more
-> fine grained tomorrow. Base kernel was 2.4.22-pre5 (obviously), drive
-> tested is a SCSI drive (on aic7xxx, tcq fixed at 4), fs is ext3. I would
-> have done ide testing actually, but the drive in that machine appears to
-> have gone dead. I'll pop in a new one tomorrow and test on that too.
->
-> no_load:
-> Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.22-pre5            2        134     196.3   0.0     0.0     1.00
-> 2.4.22-pre5-axboe      3        133     196.2   0.0     0.0     1.00
-> ctar_load:
-> Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.22-pre5            3        235     114.0   25.0    22.1    1.75
-> 2.4.22-pre5-axboe      3        194     138.1   19.7    20.6    1.46
-> xtar_load:
-> Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.22-pre5            3        309     86.4    15.0    14.9    2.31
-> 2.4.22-pre5-axboe      3        249     107.2   11.3    14.1    1.87
-> io_load:
-> Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.22-pre5            3        637     42.5    120.2   18.5    4.75
-> 2.4.22-pre5-axboe      3        540     50.0    103.0   18.1    4.06
-> io_other:
-> Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.22-pre5            3        576     47.2    107.7   19.8    4.30
-> 2.4.22-pre5-axboe      3        452     59.7    85.3    19.5    3.40
-> read_load:
-> Kernel            [runs]        Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.22-pre5            3        150     181.3   8.1     9.3     1.12
-> 2.4.22-pre5-axboe      3        152     178.9   8.2     9.9     1.14
-
-Awesome. I'll add it in -pre6.
-
-Thanks a lot Jens.
-
+Andrea

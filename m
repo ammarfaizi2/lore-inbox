@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263967AbRFSHvS>; Tue, 19 Jun 2001 03:51:18 -0400
+	id <S263975AbRFSICv>; Tue, 19 Jun 2001 04:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263974AbRFSHvI>; Tue, 19 Jun 2001 03:51:08 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23309 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263967AbRFSHu5>; Tue, 19 Jun 2001 03:50:57 -0400
-Subject: Re: 2.4.5 data corruption
-To: stefan@hello-penguin.com
-Date: Tue, 19 Jun 2001 08:49:39 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), lm@bitmover.com (Larry McVoy),
-        linux-kernel@vger.kernel.org, tytso@thunk.org
-In-Reply-To: <20010619050037.B2512@stefan.sime.com> from "Stefan Traby" at Jun 19, 2001 05:00:37 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S263992AbRFSICk>; Tue, 19 Jun 2001 04:02:40 -0400
+Received: from htt06-acc.tin.it ([212.216.176.133]:49551 "EHLO
+	fep41-svc.tin.it") by vger.kernel.org with ESMTP id <S263975AbRFSIC3>;
+	Tue, 19 Jun 2001 04:02:29 -0400
+From: "Delio Brignoli" <nordkyn@tin.it>
+Date: Tue, 19 Jun 2001 09:57:33 +0200
+To: Michael <public@dgmo.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i810 audio problem
+Message-ID: <20010619095733.B1569@argo.tin.it>
+In-Reply-To: <20010618141715.A534@argo.tin.it> <m1wv6945ub.fsf@mo.optusnet.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15CGGZ-0005Yl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1wv6945ub.fsf@mo.optusnet.com.au>; from public@dgmo.org on Tue, Jun 19, 2001 at 11:27:08AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, I do not understand how the driver is distributed.
-> The actual 3ware stuff won't compile on 2.4.x, and the stuff in kernel
-> is always different from 3ware releases.
+On Tue, Jun 19, 2001 at 11:27:08AM +1000, Michael wrote:
+> [snip] This cures the hang
+> but it isn't an optimal solutions.
 
-The stuff in the -ac tree is directly from 3ware
+Thank you, but sadly the cure doesn't work for me (it just takes more time to die)
+I tried it against 2.4.5 tree.
+I'll take a look at the specs later and hope for inspiration :)
+
+Regards
+
+--
+Delio

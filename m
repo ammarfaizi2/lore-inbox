@@ -1,56 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317278AbSGCXpY>; Wed, 3 Jul 2002 19:45:24 -0400
+	id <S317280AbSGCXwT>; Wed, 3 Jul 2002 19:52:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317279AbSGCXpX>; Wed, 3 Jul 2002 19:45:23 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:62951 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S317278AbSGCXpW>; Wed, 3 Jul 2002 19:45:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Pavel Machek <pavel@ucw.cz>,
-       "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: simple handling of module removals Re: [OKS] Module removal
-Date: Thu, 4 Jul 2002 01:48:59 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20020702123718.A4711@redhat.com> <Pine.LNX.3.95.1020702075957.24872A-100000@chaos.analogic.com> <20020703034809.GI474@elf.ucw.cz>
-In-Reply-To: <20020703034809.GI474@elf.ucw.cz>
+	id <S317282AbSGCXwS>; Wed, 3 Jul 2002 19:52:18 -0400
+Received: from pophost.cs.tamu.edu ([128.194.130.106]:63948 "EHLO cs.tamu.edu")
+	by vger.kernel.org with ESMTP id <S317280AbSGCXwR>;
+	Wed, 3 Jul 2002 19:52:17 -0400
+Date: Wed, 3 Jul 2002 18:54:47 -0500 (CDT)
+From: Xinwen - Fu <xinwenfu@cs.tamu.edu>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: timer queue is still influenced by network load
+In-Reply-To: <Pine.LNX.3.95.1020703143207.1862A-100000@chaos.analogic.com>
+Message-ID: <Pine.SOL.4.10.10207031839020.4769-100000@dogbert>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020703234750Z16173-11563+874@humbolt.nl.linux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 July 2002 05:48, Pavel Machek wrote:
-> Hi!
+Richard,
+	I did a few experiments using the example (jiq, I changed jiffies 
+to do_gettimeofday() ) from Linux Device
+Driver, 2nd version (p196). 
+
+	I have two machines m1 and m2. On m1, I run a timer queue (jiq)
+module. Then I download a big file from m1 to m2. The timings are
+different between before ftp and during ftp.
+
+----------------------------------------
+before ftp
+----------------------------------------
+time       pid     cpu command
+   420590   1       0   0 swapper
+   430580   1       0   0 swapper
+   440579   1       0   0 swapper
+   450579   1       0   0 swapper
+   460579   1       0   0 swapper
+   470579   1       0   0 swapper
+   480579   1       0   0 swapper
+   490579   1       0   0 swapper
+   500579   1       0   0 swapper
+
+----------------------------------------
+during ftp
+----------------------------------------
+time       pid       cpu command
+   370605   1524      0 in.ftpd
+   380645   0         0 swapper
+   390583   0         0 swapper
+   400667   0         0 swapper
+   410703   1524      0 in.ftpd
+   420679   0         0 swapper
+   430634   0         0 swapper
+   440624   0         0 swapper
+   450648   0         0 swapper
+	
+
+
+It shows that
+timer queue is still not accurate. So
+the conclusion of " you're guaranteed that the queue will run at the next
+clock tick, thus eliminating latency caused by system load" is WRONG!!!
+
+	What is your opinion?
+
+Xinwen Fu
+
+
+On Wed, 3 Jul 2002, Richard B. Johnson wrote:
+
+> On Wed, 3 Jul 2002, Xinwen - Fu wrote:
 > 
-> Okay. So we want modules and want them unload. And we want it bugfree.
+> > Hi, all,
+> > 	I'm curious that if a network card interrupt happens at the same
+> > time as the kernel timer expires, what will happen?
+> > 
+> > 	It's said the kernel timer is guaranteed accurate. But if
+> > interrupts are not masked off, the network interrupt also should get
+> > response when a kernel timer expires. So I don't know who will preempt
+> > who.
+> > 
+> > 	Thanks for information!
+> > 
+> > Xinwen Fu
 > 
-> So... then its okay if module unload is *slow*, right?
+> The highest priority interrupt will get serviced first. It's the timer.
+> Interrupts are serviced in priority-order. Hardware "remembers" which
+> ones are pending so none are lost if some driver doesn't do something
+> stupid.
 > 
-> I believe you can just freeze_processes(), unload module [now its
-> safe, you *know* noone is using that module, because all processes are
-> in your refrigerator], thaw_processes().
+> Cheers,
+> Dick Johnson
 > 
-> That's going to take *lot* of time, but should be very simple and very
-> effective.
+> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+> 
+>                  Windows-2000/Professional isn't.
+> 
+> 
 
-Hi Pavel,
-
-Is it just the mod_dec_use_count; return/unload race we're worried about?  
-I'm not clear on why this is hard.  I'd think it would be sufficient just to 
-walk all runnable processes to ensure none has an execution address inside the
-module.  For smp, an ipi would pick up the current process on each cpu.
-
-At this point the use count must be zero and the module deregistered, so all 
-we're interested in is that every process that dec'ed the module's use count 
-has succeeded in executing its way out of the module.  If not, we try again 
-later, or if we're impatient, also bump any processes still inside the module 
-to the front of the run queue.
-
-I'm sure I must have missed something.
-
--- 
-Daniel

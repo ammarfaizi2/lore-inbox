@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266743AbUG1ARk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUG1Af2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266743AbUG1ARk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 20:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266741AbUG1ARk
+	id S266741AbUG1Af2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 20:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266744AbUG1Af2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 20:17:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44456 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266743AbUG1ARf (ORCPT
+	Tue, 27 Jul 2004 20:35:28 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:18375 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S266741AbUG1AfU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 20:17:35 -0400
-Date: Tue, 27 Jul 2004 17:15:48 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bh_lru_install
-Message-Id: <20040727171548.75c3b14c.davem@redhat.com>
-In-Reply-To: <20040727160617.321ce504.akpm@osdl.org>
-References: <20040723170338.0c9a38ef.davem@redhat.com>
-	<20040727160617.321ce504.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 27 Jul 2004 20:35:20 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] Allow x86_64 to reenable interrupts on contention 
+In-reply-to: Your message of "Tue, 27 Jul 2004 17:14:15 MST."
+             <20040728001415.GI2334@holomorphy.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 28 Jul 2004 10:35:08 +1000
+Message-ID: <21964.1090974908@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004 16:06:17 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+On Tue, 27 Jul 2004 17:14:15 -0700, 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>On Tue, 27 Jul 2004, Andi Kleen wrote:
+>>>> This will likely increase code size. Do you have numbers by how
+>>>> much? And is it really worth it?
+>
+>Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+>>>  Yes there is a growth;
+>>>     text    data     bss     dec     hex filename
+>>>  3655358 1340511  486128 5481997  53a60d vmlinux-after
+>>>  3648445 1340511  486128 5475084  538b0c vmlinux-before
+>
+>On Tue, Jul 27, 2004 at 12:01:25PM -0700, Andrew Morton wrote:
+>> The growth is all in the out-of-line section, so there should be no
+>> significant additional icache pressure.
+>
+>There are also flash and similar absolute space footprints to consider.
+>Experiments seem to suggest that consolidating the lock sections and
+>other spinlock code can reduce kernel image size by as much as 220KB on
+>ia32 with no performance impact (rigorous benchmarks still in progress).
 
-> > It shouldn't be too hard to make the code just work without
-> > an on-stack copy, shuffling the lru->bh[] array entries
-> > directly.
-> 
-> Yup, that plus making it a ringbuffer maybe.
+I consolidated the spinlock contention path to a single routine on
+ia64, with big space savings.  The problem with the ia64 consolidation
+was backtracing through a contended lock; the ia64 unwind API is not
+designed for code that is shared between multiple code paths but uses
+non-standard entry and exit conventions.  In the end, David Mosberger
+did a patch to gcc to do lightweight calls to the out of line
+contention code, just to get reliable backtraces.
 
-It seems implementable using two roving indexes, one for
-reading and one for writing.  So it's just like the existing
-code sans the on-stack+memcpy stuff :-)
+kdb has workarounds for backtracing through ia64 contended locks when
+the kernel is built with older versions of gcc.  gdb (and hence kgdb)
+has no idea about the special out of line code.  Mind you, the same is
+true right now with the out of line i386 code, you need special
+heuristics to backtrace the existing spinlock code reliably.  That will
+only get worse with Zwane's patch, interrupts can now occur in the out
+of line code.
 
-Do you see any logic errors in this new code below?
+Are you are planning to consolidate the out of line code for i386?  Is
+there a patch (even work in progress) so I can start thinking about
+doing reliable backtraces?
 
-static void bh_lru_install(struct buffer_head *bh)
-{
-	struct buffer_head *e = NULL;
-	struct bh_lru *lru;
-
-	check_irqs_on();
-	bh_lru_lock();
-	lru = &__get_cpu_var(bh_lrus);
-	if ((e = lru->bhs[0]) != bh) {
-		int rd_idx, wr_idx;
-
-		wr_idx = 0;
-
-		get_bh(bh);
-		lru->bhs[wr_idx++] = bh;
-
-		for (rd_idx = 1; rd_idx < BH_LRU_SIZE; rd_idx++) {
-			struct buffer_head *nxt = lru->bhs[rd_idx];
-
-			if (e != NULL)
-				lru->bhs[wr_idx++] = e;
-			e = nxt;
-			if (e == bh) {
-				__brelse(e);
-				e = NULL;
-			} else if (e == NULL)
-				break;
-		}
-
-		while (wr_idx < BH_LRU_SIZE)
-			lru->bhs[wr_idx++] = NULL;
-
-	}
-	bh_lru_unlock();
-
-	if (e)
-		__brelse(e);
-}

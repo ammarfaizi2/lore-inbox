@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135297AbRARMn3>; Thu, 18 Jan 2001 07:43:29 -0500
+	id <S132881AbRARMuk>; Thu, 18 Jan 2001 07:50:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135307AbRARMnT>; Thu, 18 Jan 2001 07:43:19 -0500
-Received: from the.earth.li ([195.149.39.90]:33284 "EHLO the.earth.li")
-	by vger.kernel.org with ESMTP id <S135297AbRARMnE>;
-	Thu, 18 Jan 2001 07:43:04 -0500
-Date: Thu, 18 Jan 2001 13:42:50 +0100
-From: Simon Huggins <huggie@earth.li>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: eepro100@scyld.com, linux-kernel@vger.kernel.org
-Subject: Re: eepro cmd_wait
-Message-ID: <20010118134250.C19784@the.earth.li>
-Mail-Followup-To: Andrey Savochkin <saw@saw.sw.com.sg>, eepro100@scyld.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010118131011.B19784@the.earth.li> <20010118201731.A8492@saw.sw.com.sg>
+	id <S132543AbRARMua>; Thu, 18 Jan 2001 07:50:30 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:26631 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130139AbRARMuR>; Thu, 18 Jan 2001 07:50:17 -0500
+Date: Thu, 18 Jan 2001 06:50:12 -0600
+To: James Bottomley <J.E.J.Bottomley@HansenPartnership.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+Message-ID: <20010118065012.B26045@cadcamlab.org>
+In-Reply-To: <mike@UDel.Edu> <200101171616.LAA01194@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010118201731.A8492@saw.sw.com.sg>; from saw@saw.sw.com.sg on Thu, Jan 18, 2001 at 08:17:31PM +0800
-Organization: Black Cat Networks, http://www.blackcatnetworks.co.uk/
-X-Attribution: huggie
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200101171616.LAA01194@localhost.localdomain>; from J.E.J.Bottomley@HansenPartnership.com on Wed, Jan 17, 2001 at 11:16:58AM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya Andrey,
+[James Bottomley]
+> The fundamental problem that we all agree on is that SCSI devices are
+> detected in the order that the mid-layer hosts.c file calls their
+> detect routines.
 
-On Thu, Jan 18, 2001 at 08:17:31PM +0800, Andrey Savochkin wrote:
-> On Thu, Jan 18, 2001 at 01:10:11PM +0100, Simon Huggins wrote:
-> > We have a server running 2.2.18 + RAID which has an eepro100 in it.
-> > It's connected to a Dlink DFE 816 100 16port 100baseTX hub.
-> > When the machine boots we get a whole series of timeout errors.
-> > Jan 18 11:58:09 miguet kernel: eepro100: cmd_wait for(0x70) timedout with(0x70)!
-> Could you try to add
-> 	inl(ioaddr + SCBPointer);
-> 	udelay(10);
-> before
-> 	outb(RxAddrLoad, ioaddr + SCBCmd);
-> in speedo_resume()?
+That was yesterday.  Today they are detected in the order they are
+linked into the kernel, cf. the Makefile.  But yes, the problem is
+basically the same.
 
-> These two line are a workaround for the RxAddrLoad timing bug,
-> developed by Donald Becker.  wait_for_cmd_done timeouts may be related
-> to this bug, too.
+> Further, for multiple cards of the same type, the detection order is
+> up to the individual driver.
 
-Well it now boots :)
-I'll let you know if there are any more problems with it in use.
+Yes.  PCI-based drivers will most likely use bus order since the kernel
+provides facilities to do this easily.  For a single driver driving
+multiple cards on multiple bus types, who knows.
 
--- 
-----------(   "Clear?" - Holly. "No." - Lister. "Tough." -   )----------
-Simon ----(                      Holly.                      )---- Nomis
-                             Htag.pl 0.0.17
+> One of the ways this could be solved would be to impose bus ordering
+> on the detection sequence.
+
+This would be rather an intrusive change, since it puts the burden on
+hosts.c to know what devices are where rather than on each driver.
+
+A much less intrusive (?) variation: scsi_register() is given the
+device location in some form.  It would then use insertion sort to add
+the new adapter to the list of known ones.  Obviously this behavior
+should only apply until the end of the boot sequence -- modules always
+get put on the end of the list.  The bus location would be a 32-bit
+number, perhaps, with the high 8 bits for bus type and the low 24 bits
+for further enumeration (for PCI: 8 bits each for bus, slot, and fn).
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268955AbUIHI5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268957AbUIHJCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268955AbUIHI5v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 04:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268404AbUIHI5u
+	id S268957AbUIHJCn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 05:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUIHJCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 04:57:50 -0400
-Received: from schiffbauer.net ([212.112.227.138]:45243 "EHLO
-	pluto.schiffbauer.net") by vger.kernel.org with ESMTP
-	id S268955AbUIHI5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 04:57:38 -0400
-Date: Wed, 8 Sep 2004 02:11:40 +0200
-From: Marc Schiffbauer <marc@schiffbauer.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NETWORK broken at least for 2.6.8.1 and 2.6.9-rc1
-Message-ID: <20040908001140.GC31868@lisa>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
-References: <413E4A7D.8010401@esoterica.pt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <413E4A7D.8010401@esoterica.pt>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.20-hpt i686
-X-Editor: vim 6.1.018-1
-X-Homepage: http://www.links2linux.de
+	Wed, 8 Sep 2004 05:02:43 -0400
+Received: from imap.gmx.net ([213.165.64.20]:7321 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268957AbUIHJCl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 05:02:41 -0400
+X-Authenticated: #20450766
+Date: Wed, 8 Sep 2004 10:15:43 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: xuhaoz <xuhaoz@neonetech.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: beginner met kernel BUG at slab.c 871
+In-Reply-To: <NNT6PcyfAWZdVbOnoPx00000024@nnt.neonetech.com>
+Message-ID: <Pine.LNX.4.60.0409081013210.3925@poirot.grange>
+References: <NNT6PcyfAWZdVbOnoPx00000024@nnt.neonetech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Paulo da Silva schrieb am 08.09.04 um 01:55 Uhr:
-> Hi:
-> 
-> For almost all sites I cannot download using wget or ftp for example.
-> I can comunicate between two PCs using ssh and rsync however.
-> ping and traceroute also work fine.
-> I discovered this problem because I was unable to fetch any
-> file when using "emerge -f".
-> I tried with k 2.6.7 with exactly the same configuration and it works!
-> 
-> I am using gentoo in a laptop Compaq presario 2541EA.
-> The module is natsemi.c. I tried to copy this file from 2.6.7 into
-> 2.6.9-rc1 and recompile the kernel without any success.
-> The problem still remains.
-> If any further information is need, pls. email me.
-> Thank you.
+On Tue, 7 Sep 2004, xuhaoz wrote:
 
-This describes your problem:
+> linux-kernelhi:
+>
+> 	I met a kernel BUG at slab.c , exactly at here:
+>
+> 			down(&cache_chain_sem);
+> 			{
+> 				struct list_head *p;
+> 				list_for_each(p,&cache_chain){
+> 					kmem_cache_t *pc=list_entry(p,kmem_cache_t,next);
+> 					if(!strcmp(pc->name,name))
+> 						BUG();
+> 				}
+> 			}
+> 	I also print the pc->name and name to the terminal, the pc->name is files_cache, certainly the name is files_cache.
+>
+>     the version is linux-2.4.19
+>
+> 	Would you please give some advice about the cause of the Kernel BUG?
+> 	Maybe I haven't give you enough information, but I really don't know what message I should give, please tell me,
+> 	and I will post them .
 
-http://lwn.net/Articles/92727/
+See /your/linux/kernel/sources/REPORTING_BUGS.
 
--Marc
--- 
-+-O . . . o . . . O . . . o . . . O . . .  ___  . . . O . . . o .-+
-| Ein Service von Links2Linux.de:         /  o\   RPMs for SuSE   |
-| --> PackMan! <-- naeheres unter        |   __|   and  others    |
-| http://packman.links2linux.de/ . . . O  \__\  . . . O . . . O . |
+Regards
+Guennadi
+
+> 	 Any suggestion will be appreciated.
+> 	Thank you .
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+
+---
+Guennadi Liakhovetski
+

@@ -1,130 +1,147 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272058AbRIOFOA>; Sat, 15 Sep 2001 01:14:00 -0400
+	id <S272012AbRIOFXx>; Sat, 15 Sep 2001 01:23:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272012AbRIOFNv>; Sat, 15 Sep 2001 01:13:51 -0400
-Received: from mclean.mail.mindspring.net ([207.69.200.57]:12292 "EHLO
-	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S272058AbRIOFN3> convert rfc822-to-8bit; Sat, 15 Sep 2001 01:13:29 -0400
-Subject: Re: Feedback on preemptible kernel patch
-From: Robert Love <rml@tech9.net>
-To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        ReiserFS List <reiserfs-list@namesys.com>,
-        DRI-Devel <dri-devel@lists.sourceforge.net>
-In-Reply-To: <200109150444.f8F4iEG19063@zero.tech9.net>
-In-Reply-To: <200109140302.f8E32LG13400@zero.tech9.net>
-	<1000442113.3897.19.camel@phantasy> 
-	<200109150444.f8F4iEG19063@zero.tech9.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
-Date: 15 Sep 2001 01:14:07 -0400
-Message-Id: <1000530869.32365.21.camel@phantasy>
+	id <S272061AbRIOFXn>; Sat, 15 Sep 2001 01:23:43 -0400
+Received: from [211.100.88.207] ([211.100.88.207]:260 "HELO linux.tcpip.cxm")
+	by vger.kernel.org with SMTP id <S272012AbRIOFXc>;
+	Sat, 15 Sep 2001 01:23:32 -0400
+Date: Sat, 15 Sep 2001 13:23:59 +0800
+From: hugang <linuxbest@soul.com.cn>
+To: "John D. Kim" <johnkim@aslab.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Patch]:New patch for dhcp and nfsroot.
+Message-Id: <20010915132359.38038071.linuxbest@soul.com.cn>
+In-Reply-To: <Pine.LNX.4.31.0109141503020.32576-100000@postbox.aslab.com>
+In-Reply-To: <20010914085103.493e30b1.linuxbest@soul.com.cn>
+	<Pine.LNX.4.31.0109141503020.32576-100000@postbox.aslab.com>
+Organization: soul
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Sat__15_Sep_2001_13:23:59_+0800_08bd1670"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-09-15 at 00:25, Dieter N黷zel wrote:
-> > > >  ReiserFS may be another problem.
-> > > Can't wait for that.
-> Most wanted, now.
+This is a multi-part message in MIME format.
 
-I am working on it, but I am unfamilar with it all.
+--Multipart_Sat__15_Sep_2001_13:23:59_+0800_08bd1670
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 8bit
 
-Are you seeing any specific problems, now?  With the latest preemption
-patch on 2.4.10-pre9, do you crash? oops?
+On Fri, 14 Sep 2001 15:06:55 -0700 (PDT)
+"John D. Kim" <johnkim@aslab.com> wrote:
+>Hmmm...  I've tried the patch with 2.4.8, 2.4.8-ac12, and 2.4.9-ac8.  All
+>three says "couldn't find the kernel version the module was compiled for"
+>when insmod tries to load the ipconfig module.  I've also tried different
+>versions of insmod(2.4.0, 2.4.2, and 2.4.8).  I have not yet tried your
+>kernel yet since I'm working with pcmcia devices, but I'll give it a try
+>as well, just to see if ipconfig would load or not.
+>
+>Anyone else here have a clue?
+>
 
-The only outstanding issue now is ReiserFS issues.
-
-> Tried it and it works so far.
-> 
-> It seems to be that kswap put some additional "load" on the disk from time
-> to time. Or is it the ReiserFS thing, again?
-
-I don't think its related to ReiserFS.
-
-What sort of activity are you seeing?  How often?  How do you know its
-kswapd?
-
-> Have you a copy of my posted ksymoops file?
-> But the oopses seems to be cured.
-
-Yah, I just am having a problem sorting  who said what running what and
-when :)
-
-I am glad the patch fixed it, the final version of that is going into
-the next preemption patch.  Stay tuned.
-
-> I don't know exactly 'cause kernel hacking is not my main focus.
-> 
-> But have you thought about the MMX/3DNow! stuff in Mesa/OpenGL (XFree86 DRI)?
-> And what do you think about the XFree86 Xv extentions (video) or the whole 
-> MPEG2/3/4, Ogg-Vorbis, etc. (multimedia stuff)?
-> 
-> Do all these libraries (progs) need some preempt patches?
-> That's why I cross posted to the DRI-Devel List (sorry).
-
-No, these are unrelated.
-
-Sorry for the cross-post, DRI :)
-
-The kernel takes care of saving state for FPU operations for userspace. 
-Indeed, it takes care of everything for userspace.  In kernel land, we
-don't have that beauty, we have to worry about everything we do and
-everything we change, and thus we have this problem.
-
-What exactly happens is another operation is preempting the current
-process during an FPU operation, when the CPU is in a different state,
-and then everything barfs since it is not as it wants to be.
-
-This is not an issue for userspace.
-
-> I understand ;-)
-> It seems to calm it.
-
-Good.
-
-> Now, here are my results.
-> <snip>
-
-These results are pretty good.  Throughput seems down 2-3% in many
-cases, although latency is greatly improved.  Look at those latency
-changes!  From thousands of ms to hundreds of us in bonnie.  Wow.
-
-Even if you don't care about latency (I'm not an audio person or
-anything), these changes should be worth it.
-
-> Deleting with ReiserFS and the preempt kernel is GREAT!
-
-Good. I/O latency should be great now, with little change in
-throughput...
-
-> But I get some hiccup during noatun (mp3, ogg, etc. player for KDE-2.2) or 
-> plaympeg together with dbench (16, 32). ReiserFS needs some preemption
-> fixes, too?
-
-You may still get some small hiccups ( < 1 second?) even with the
-preemption patch, as kernel locks prevent preemption (the patch can't
-guarentee low latency, just preemption outside of the locks).
-
-However, how bad was the hiccups with preemption disabled?  I have heard
-reports where it is 3-5sec at times.
-
-As the kernel becomes more scalable (finer-grain locking), preemption
-will improve.  Past that, perhaps during 2.5, we can work on some other
-things to improve preemption.
-
-> I've attached two small compressed bonnie++ HTML files.
-
-These were neat, thanks.
-
-Thank you for your feedback and support.  Stay current with the kernel
-and the preemption patches, and I will try to figure the ReiserFS
-crashes out.
+Sorry .I check the ipconfig.c .I loss some things. Try the 2.4.9nfsroot.patch
+1:Your must compile the nfs and nfsroot in kernel.
 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+Best Regard!
+礼！
+----------------------------------------------------
+hugang : 胡刚 	GNU/Linux User
+email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
+Tel    : +861068425741/2/3/4
+Web    : http://www.soul.com.cn
 
+	Beijing Soul technology Co.Ltd.
+	   北京众志和达科技有限公司
+----------------------------------------------------
+
+--Multipart_Sat__15_Sep_2001_13:23:59_+0800_08bd1670
+Content-Type: application/octet-stream;
+ name="2.4.9.nfsroot.patch"
+Content-Disposition: attachment;
+ filename="2.4.9.nfsroot.patch"
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdSAtciBsaW51eC9mcy9Db25maWcuaW4gbGludXgtbmZzcm9vdC9mcy9Db25maWcuaW4K
+LS0tIGxpbnV4L2ZzL0NvbmZpZy5pbglUdWUgSnVsICAzIDA1OjAzOjA0IDIwMDEKKysrIGxpbnV4
+LW5mc3Jvb3QvZnMvQ29uZmlnLmluCVNhdCBTZXAgMTUgMTM6MDY6MjkgMjAwMQpAQCAtODAsNyAr
+ODAsNyBAQAogICAgZGVwX3RyaXN0YXRlICdDb2RhIGZpbGUgc3lzdGVtIHN1cHBvcnQgKGFkdmFu
+Y2VkIG5ldHdvcmsgZnMpJyBDT05GSUdfQ09EQV9GUyAkQ09ORklHX0lORVQKICAgIGRlcF90cmlz
+dGF0ZSAnTkZTIGZpbGUgc3lzdGVtIHN1cHBvcnQnIENPTkZJR19ORlNfRlMgJENPTkZJR19JTkVU
+CiAgICBkZXBfbWJvb2wgJyAgUHJvdmlkZSBORlN2MyBjbGllbnQgc3VwcG9ydCcgQ09ORklHX05G
+U19WMyAkQ09ORklHX05GU19GUwotICAgZGVwX2Jvb2wgJyAgUm9vdCBmaWxlIHN5c3RlbSBvbiBO
+RlMnIENPTkZJR19ST09UX05GUyAkQ09ORklHX05GU19GUyAkQ09ORklHX0lQX1BOUAorICAgZGVw
+X2Jvb2wgJyAgUm9vdCBmaWxlIHN5c3RlbSBvbiBORlMnIENPTkZJR19ST09UX05GUyAkQ09ORklH
+X05GU19GUwogCiAgICBkZXBfdHJpc3RhdGUgJ05GUyBzZXJ2ZXIgc3VwcG9ydCcgQ09ORklHX05G
+U0QgJENPTkZJR19JTkVUCiAgICBkZXBfbWJvb2wgJyAgUHJvdmlkZSBORlN2MyBzZXJ2ZXIgc3Vw
+cG9ydCcgQ09ORklHX05GU0RfVjMgJENPTkZJR19ORlNECmRpZmYgLXUgLXIgbGludXgvZnMvbmZz
+L25mc3Jvb3QuYyBsaW51eC1uZnNyb290L2ZzL25mcy9uZnNyb290LmMKLS0tIGxpbnV4L2ZzL25m
+cy9uZnNyb290LmMJRnJpIEF1ZyAxNyAwMDo1NTo1MiAyMDAxCisrKyBsaW51eC1uZnNyb290L2Zz
+L25mcy9uZnNyb290LmMJU2F0IFNlcCAxNSAxMzowNjoyOSAyMDAxCkBAIC04Miw2ICs4Miw3IEBA
+CiAjaW5jbHVkZSA8bGludXgvbWFqb3IuaD4KICNpbmNsdWRlIDxsaW51eC91dHNuYW1lLmg+CiAj
+aW5jbHVkZSA8bmV0L2lwY29uZmlnLmg+CisjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CiAKIC8q
+IERlZmluZSB0aGlzIHRvIGFsbG93IGRlYnVnZ2luZyBvdXRwdXQgKi8KICN1bmRlZiBORlNST09U
+X0RFQlVHCkBAIC0xMDQsNiArMTA1LDggQEAKIHN0YXRpYyBpbnQgbmZzX3BvcnQgX19pbml0ZGF0
+YSA9IDA7CQkvKiBQb3J0IHRvIGNvbm5lY3QgdG8gZm9yIE5GUyAqLwogc3RhdGljIGludCBtb3Vu
+dF9wb3J0IF9faW5pdGRhdGEgPSAwOwkJLyogTW91bnQgZGFlbW9uIHBvcnQgbnVtYmVyICovCiAK
+K3UzMiByb290X3NlcnZlcl9hZGRyIF9faW5pdGRhdGEgID0gSU5BRERSX05PTkU7ICAgICAvKiBB
+ZGRyZXNzIG9mIE5GUyBzZXJ2ZXIgKi8KK3U4IHJvb3Rfc2VydmVyX3BhdGhbMjU2XSBfX2luaXRk
+YXRhID0geyAwLCB9IDsgICAgICAvKiBQYXRoIHRvIG1vdW50IGFzIHJvb3QgKi8KIAogLyoqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKgogCkBAIC00NjQsMyArNDY3LDUgQEAKIAlzZXRfc29ja2FkZHIoKHN0cnVj
+dCBzb2NrYWRkcl9pbiAqKSAmbmZzX2RhdGEuYWRkciwgc2VydmFkZHIsIG5mc19wb3J0KTsKIAly
+ZXR1cm4gKHZvaWQqKSZuZnNfZGF0YTsKIH0KK0VYUE9SVF9TWU1CT0wocm9vdF9zZXJ2ZXJfYWRk
+cik7CitFWFBPUlRfU1lNQk9MKHJvb3Rfc2VydmVyX3BhdGgpOwpkaWZmIC11IC1yIGxpbnV4L2lu
+Y2x1ZGUvbmV0L2lwY29uZmlnLmggbGludXgtbmZzcm9vdC9pbmNsdWRlL25ldC9pcGNvbmZpZy5o
+Ci0tLSBsaW51eC9pbmNsdWRlL25ldC9pcGNvbmZpZy5oCVdlZCBNYXkgIDIgMTE6NTk6MjQgMjAw
+MQorKysgbGludXgtbmZzcm9vdC9pbmNsdWRlL25ldC9pcGNvbmZpZy5oCVNhdCBTZXAgMTUgMTM6
+MDY6MjkgMjAwMQpAQCAtMjEsNyArMjEsNyBAQAogZXh0ZXJuIHUzMiBpY19zZXJ2YWRkcjsJCS8q
+IEJvb3Qgc2VydmVyIElQIGFkZHJlc3MgKi8KIAogZXh0ZXJuIHUzMiByb290X3NlcnZlcl9hZGRy
+OwkvKiBBZGRyZXNzIG9mIE5GUyBzZXJ2ZXIgKi8KLWV4dGVybiB1OCByb290X3NlcnZlcl9wYXRo
+W107CS8qIFBhdGggdG8gbW91bnQgYXMgcm9vdCAqLworZXh0ZXJuIHU4IHJvb3Rfc2VydmVyX3Bh
+dGhbMjU2XTsJLyogUGF0aCB0byBtb3VudCBhcyByb290ICovCiAKIAogCkBAIC0zNiwzICszNiw0
+IEBACiAjZGVmaW5lIElDX0JPT1RQCTB4MDEJLyogICBCT09UUCAob3IgREhDUCwgc2VlIGJlbG93
+KSAqLwogI2RlZmluZSBJQ19SQVJQCQkweDAyCS8qICAgUkFSUCAqLwogI2RlZmluZSBJQ19VU0Vf
+REhDUCAgICAweDEwMAkvKiBJZiBvbiwgdXNlIERIQ1AgaW5zdGVhZCBvZiBCT09UUCAqLworCmRp
+ZmYgLXUgLXIgbGludXgvbmV0L2NvcmUvZGV2LmMgbGludXgtbmZzcm9vdC9uZXQvY29yZS9kZXYu
+YwotLS0gbGludXgvbmV0L2NvcmUvZGV2LmMJRnJpIEF1ZyAxNyAwMDo1NjoxMCAyMDAxCisrKyBs
+aW51eC1uZnNyb290L25ldC9jb3JlL2Rldi5jCVNhdCBTZXAgMTUgMTM6MDY6MjkgMjAwMQpAQCAt
+MjgxOCwzICsyODE4LDUgQEAKIAlyZXR1cm4gY2FsbF91c2VybW9kZWhlbHBlcihhcmd2IFswXSwg
+YXJndiwgZW52cCk7CiB9CiAjZW5kaWYKKworRVhQT1JUX1NZTUJPTChkZXZfY2hhbmdlX2ZsYWdz
+KTsKZGlmZiAtdSAtciBsaW51eC9uZXQvaXB2NC9Db25maWcuaW4gbGludXgtbmZzcm9vdC9uZXQv
+aXB2NC9Db25maWcuaW4KLS0tIGxpbnV4L25ldC9pcHY0L0NvbmZpZy5pbglXZWQgTWF5ICAyIDEx
+OjU5OjI0IDIwMDEKKysrIGxpbnV4LW5mc3Jvb3QvbmV0L2lwdjQvQ29uZmlnLmluCVNhdCBTZXAg
+MTUgMTM6MDY6MjkgMjAwMQpAQCAtMTgsOCArMTgsOCBAQAogICAgYm9vbCAnICAgIElQOiB2ZXJi
+b3NlIHJvdXRlIG1vbml0b3JpbmcnIENPTkZJR19JUF9ST1VURV9WRVJCT1NFCiAgICBib29sICcg
+ICAgSVA6IGxhcmdlIHJvdXRpbmcgdGFibGVzJyBDT05GSUdfSVBfUk9VVEVfTEFSR0VfVEFCTEVT
+CiBmaQotYm9vbCAnICBJUDoga2VybmVsIGxldmVsIGF1dG9jb25maWd1cmF0aW9uJyBDT05GSUdf
+SVBfUE5QCi1pZiBbICIkQ09ORklHX0lQX1BOUCIgPSAieSIgXTsgdGhlbgordHJpc3RhdGUgJyAg
+SVA6IGtlcm5lbCBsZXZlbCBhdXRvY29uZmlndXJhdGlvbicgQ09ORklHX0lQX1BOUAoraWYgWyAi
+JENPTkZJR19JUF9QTlAiICE9ICJuIiAgXTsgdGhlbgogICAgYm9vbCAnICAgIElQOiBESENQIHN1
+cHBvcnQnIENPTkZJR19JUF9QTlBfREhDUAogICAgYm9vbCAnICAgIElQOiBCT09UUCBzdXBwb3J0
+JyBDT05GSUdfSVBfUE5QX0JPT1RQCiAgICBib29sICcgICAgSVA6IFJBUlAgc3VwcG9ydCcgQ09O
+RklHX0lQX1BOUF9SQVJQCmRpZmYgLXUgLXIgbGludXgvbmV0L2lwdjQvaXBjb25maWcuYyBsaW51
+eC1uZnNyb290L25ldC9pcHY0L2lwY29uZmlnLmMKLS0tIGxpbnV4L25ldC9pcHY0L2lwY29uZmln
+LmMJV2VkIE1heSAgMiAxMTo1OToyNCAyMDAxCisrKyBsaW51eC1uZnNyb290L25ldC9pcHY0L2lw
+Y29uZmlnLmMJU2F0IFNlcCAxNSAxMzowNzo1MSAyMDAxCkBAIC0yOSw2ICsyOSw3IEBACiAgKi8K
+IAogI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPgorI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgog
+I2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CiAjaW5jbHVkZSA8bGludXgvc3RyaW5nLmg+CiAjaW5j
+bHVkZSA8bGludXgva2VybmVsLmg+CkBAIC0xMjMsOCArMTI0LDggQEAKIAogdTMyIGljX3NlcnZh
+ZGRyIF9faW5pdGRhdGEgPSBJTkFERFJfTk9ORTsJLyogQm9vdCBzZXJ2ZXIgSVAgYWRkcmVzcyAq
+LwogCi11MzIgcm9vdF9zZXJ2ZXJfYWRkciBfX2luaXRkYXRhID0gSU5BRERSX05PTkU7CS8qIEFk
+ZHJlc3Mgb2YgTkZTIHNlcnZlciAqLwotdTggcm9vdF9zZXJ2ZXJfcGF0aFsyNTZdIF9faW5pdGRh
+dGEgPSB7IDAsIH07CS8qIFBhdGggdG8gbW91bnQgYXMgcm9vdCAqLworLy91MzIgcm9vdF9zZXJ2
+ZXJfYWRkciBfX2luaXRkYXRhID0gSU5BRERSX05PTkU7CS8qIEFkZHJlc3Mgb2YgTkZTIHNlcnZl
+ciAqLworLy91OCByb290X3NlcnZlcl9wYXRoWzI1Nl0gX19pbml0ZGF0YSA9IHsgMCwgfTsJLyog
+UGF0aCB0byBtb3VudCBhcyByb290ICovCiAKIC8qIFBlcnNpc3RlbnQgZGF0YTogKi8KIApAQCAt
+MTIxMiw3ICsxMjEzLDcgQEAKIAlyZXR1cm4gMDsKIH0KIAotbW9kdWxlX2luaXQoaXBfYXV0b19j
+b25maWcpOworLy9tb2R1bGVfaW5pdChpcF9hdXRvX2NvbmZpZyk7CiAKIAogLyoKQEAgLTEzNDAs
+NSArMTM0MSwxMyBAQAogCXJldHVybiBpcF9hdXRvX2NvbmZpZ19zZXR1cChhZGRycyk7CiB9CiAK
+K2ludCBpbml0X21vZHVsZSh2b2lkKQoreworI2lmZGVmIE1PRFVMRQorICBpY19lbmFibGUgPSAx
+OworI2VuZGlmCisgIGlwX2F1dG9fY29uZmlnKCk7CisgIHJldHVybiAwOworfQogX19zZXR1cCgi
+aXA9IiwgaXBfYXV0b19jb25maWdfc2V0dXApOwogX19zZXR1cCgibmZzYWRkcnM9IiwgbmZzYWRk
+cnNfY29uZmlnX3NldHVwKTsK
+
+--Multipart_Sat__15_Sep_2001_13:23:59_+0800_08bd1670--

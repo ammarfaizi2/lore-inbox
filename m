@@ -1,99 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276945AbRJHPnG>; Mon, 8 Oct 2001 11:43:06 -0400
+	id <S276912AbRJHPm0>; Mon, 8 Oct 2001 11:42:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276953AbRJHPmr>; Mon, 8 Oct 2001 11:42:47 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:11268 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S276945AbRJHPmi>; Mon, 8 Oct 2001 11:42:38 -0400
-Date: Mon, 8 Oct 2001 19:42:57 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Richard Henderson <rth@twiddle.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 2.4.11-pre5] atomic_dec_and_lock() for alpha
-Message-ID: <20011008194257.A705@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S276945AbRJHPmQ>; Mon, 8 Oct 2001 11:42:16 -0400
+Received: from nh.pace.co.uk ([136.170.50.9]:63179 "EHLO nh.pace.co.uk")
+	by vger.kernel.org with ESMTP id <S276912AbRJHPmM>;
+	Mon, 8 Oct 2001 11:42:12 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Nick Lockyer" <nick.lockyer@pace.co.uk>
+Newsgroups: local.linux.kernel
+Subject: Re: Question concerning SBLIVE! driver.
+Date: Mon, 8 Oct 2001 16:42:42 +0100
+Organization: Posted on a server owned by Pace Micro Technology plc
+Distribution: local
+Message-ID: <9pshhi$1i8$2@nh.pace.co.uk>
+In-Reply-To: <3BC0F7DD.9129242A@starband.net>
+NNTP-Posting-Host: dhcp-130-239.cam.pace.co.uk
+X-Trace: nh.pace.co.uk 1002555762 1608 136.170.130.239 (8 Oct 2001 15:42:42 GMT)
+X-Complaints-To: newsmaster@news.cam.pace.co.uk
+NNTP-Posting-Date: 8 Oct 2001 15:42:42 GMT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Similar to x86 version, but somewhat simpler due to ll/sc.
+I too have seen this.  I am not sure if there is a newer driver available
+now.  Also try oss from soundfont.
 
-Ivan.
+"war" <war@starband.net> wrote in message
+news:3BC0F7DD.9129242A@starband.net...
+> I've noticed in Kernel 2.4.10 that the emu10k1 driver produces cracks in
+> the sound output.
+>
+> Is there a stable emu10k1?
+>
+> The emu10k1 driver in all kernels < 2.4.7 is from 04-12-2000, which
+> produce excellent sound.
+>
+> I've spoken with a few other guys on IRC, and they also have this
+> problem [of crackling, etc].
+>
+> What would be the best course of action if one wants good sound in
+> kernels > 2.4.7?
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
---- 2.4.11p5/arch/alpha/lib/dec_and_lock.c	Thu Jan  1 00:00:00 1970
-+++ linux/arch/alpha/lib/dec_and_lock.c	Fri Oct  5 17:37:20 2001
-@@ -0,0 +1,35 @@
-+/*
-+ * arch/alpha/lib/dec_and_lock.c
-+ *
-+ * ll/sc version of atomic_dec_and_lock()
-+ */
-+
-+#include <linux/spinlock.h>
-+#include <asm/atomic.h>
-+
-+int atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
-+{
-+	int cnt;
-+	__asm__ __volatile__(
-+	"1:	ldl_l	%0,%1\n"
-+	"	subl	%0,1,%0\n"
-+	"	beq	%0,2f\n"
-+	"	stl_c	%0,%1\n"
-+	"	beq	%0,3f\n"
-+	"	mb\n"
-+	"	mov	$31,$0\n"
-+	"	ret\n"
-+	"2:\n"
-+	".subsection 2\n"
-+	"3:	br	1b\n"
-+	".previous"
-+	:"=&r" (cnt), "=m" (atomic->counter)
-+	:"m" (atomic->counter) : "$0", "memory");
-+
-+	/* Slow path */
-+	spin_lock(lock);
-+	if (atomic_dec_and_test(atomic))
-+		return 1;
-+	spin_unlock(lock);
-+	return 0;
-+}
---- 2.4.11p5/arch/alpha/lib/Makefile	Wed Jun 20 22:10:27 2001
-+++ linux/arch/alpha/lib/Makefile	Fri Oct  5 17:37:20 2001
-@@ -49,6 +49,10 @@ OBJS =	__divqu.o __remqu.o __divlu.o __r
- 	fpreg.o \
- 	callback_srm.o srm_puts.o srm_printk.o
- 
-+ifeq ($(CONFIG_SMP),y)
-+  OBJS += dec_and_lock.o
-+endif
-+
- lib.a: $(OBJS)
- 	$(AR) rcs lib.a $(OBJS)
- 
---- 2.4.11p5/arch/alpha/kernel/alpha_ksyms.c	Fri Sep 14 02:21:32 2001
-+++ linux/arch/alpha/kernel/alpha_ksyms.c	Fri Oct  5 19:56:39 2001
-@@ -215,6 +215,7 @@ EXPORT_SYMBOL(__global_cli);
- EXPORT_SYMBOL(__global_sti);
- EXPORT_SYMBOL(__global_save_flags);
- EXPORT_SYMBOL(__global_restore_flags);
-+EXPORT_SYMBOL(atomic_dec_and_lock);
- #if DEBUG_SPINLOCK
- EXPORT_SYMBOL(spin_unlock);
- EXPORT_SYMBOL(debug_spin_lock);
---- 2.4.11p5/arch/alpha/config.in	Fri Oct  5 17:27:50 2001
-+++ linux/arch/alpha/config.in	Fri Oct  5 17:37:20 2001
-@@ -217,6 +217,10 @@ then
- 	bool 'Symmetric multi-processing support' CONFIG_SMP
- fi
- 
-+if [ "$CONFIG_SMP" = "y" ]; then
-+   define_bool CONFIG_HAVE_DEC_LOCK y
-+fi
-+
- if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-    bool 'Discontiguous Memory Support' CONFIG_DISCONTIGMEM
-    if [ "$CONFIG_DISCONTIGMEM" = "y" ]; then
+

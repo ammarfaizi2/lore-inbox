@@ -1,95 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132016AbQLJADb>; Sat, 9 Dec 2000 19:03:31 -0500
+	id <S131103AbQLJAEB>; Sat, 9 Dec 2000 19:04:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131989AbQLJADV>; Sat, 9 Dec 2000 19:03:21 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:41736 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131103AbQLJADO>; Sat, 9 Dec 2000 19:03:14 -0500
-Date: Sat, 9 Dec 2000 18:33:33 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-To: John Summerfield <summer@OS2.ami.com.au>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.0-test11 does not build:
-In-Reply-To: <200012091233.eB9CW7Z27402@emu.os2.ami.com.au>
-Message-ID: <Pine.LNX.4.30.0012091832330.620-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+	id <S131989AbQLJADz>; Sat, 9 Dec 2000 19:03:55 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:1556 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S131103AbQLJADa>; Sat, 9 Dec 2000 19:03:30 -0500
+Message-ID: <3A32C128.1ED29FA2@holly-springs.nc.us>
+Date: Sat, 09 Dec 2000 18:32:56 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.18pre21 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18 almost...
+In-Reply-To: <E144syy-0005sE-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2000, John Summerfield wrote:
-
->/usr/src/linux/include/linux/modules/irmod.ver:139: warning: this is the
->location of the previous definition
->/usr/src/linux/include/linux/modules/irsyms.ver:145: warning:
->`__ver_irda_task_kick' redefined
->/usr/src/linux/include/linux/modules/irmod.ver:141: warning: this is the
->location of the previous definition
->/usr/src/linux/include/linux/modules/irsyms.ver:147: warning:
->`__ver_irda_task_next_state' redefined
->/usr/src/linux/include/linux/modules/irmod.ver:143: warning: this is the
->location of the previous definition
->/usr/src/linux/include/linux/modules/irsyms.ver:149: warning:
->`__ver_irda_task_delete' redefined
->/usr/src/linux/include/linux/modules/irmod.ver:145: warning: this is the
->location of the previous definition
->/usr/src/linux/include/linux/modules/irsyms.ver:151: warning:
->`__ver_async_wrap_skb' redefined
->/usr/src/linux/include/linux/modules/irmod.ver:147: warning: this is the
->location of the previous definition
->/usr/src/linux/include/linux/modules/irsyms.ver:153: warning:
->`__ver_async_unwrap_char' redefined
->/usr/src/linux/include/linux/modules/irmod.ver:149: warning: this is the
->location of the previous definition
->In file included from /usr/src/linux/include/linux/modversions.h:40,
->                 from /usr/src/linux/include/linux/module.h:21,
->                 from ksyms.c:14:
->/usr/src/linux/include/linux/modules/ksyms.ver:504: warning: `del_timer_sync'
->redefined
->/usr/src/linux/include/linux/timer.h:34: warning: this is the location of the
->previous definition
->In file included from /usr/src/linux/include/linux/interrupt.h:45,
->                 from ksyms.c:21:
->/usr/src/linux/include/asm/hardirq.h:37: warning: `synchronize_irq' redefined
->/usr/src/linux/include/linux/modules/i386_ksyms.ver:84: warning: this is the
->location of the previous definition
->In file included from ksyms.c:17:
->/usr/src/linux/include/linux/kernel_stat.h: In function `kstat_irqs':
->/usr/src/linux/include/linux/kernel_stat.h:48: `smp_num_cpus' undeclared
->(first use in this function)
->/usr/src/linux/include/linux/kernel_stat.h:48: (Each undeclared identifier is
->reported only once
->/usr/src/linux/include/linux/kernel_stat.h:48: for each function it appears
->in.)
->make[2]: *** [ksyms.o] Error 1
->make[2]: Leaving directory `/usr/src/linux/kernel'
->make[1]: *** [first_rule] Error 2
->make[1]: Leaving directory `/usr/src/linux/kernel'
->make: *** [_dir_kernel] Error 2
->[summer@possum linux]$
->
->I HAVE built this kernel for another computer. I was having problems with
->this, so I remove the .config, created a new one with "make oldconfig" and the
->customised with make xconfig"
-
-Try doing a "make distclean" or "make mrproper" first.  Are you
-using kgcc?
+Alan Cox wrote:
+> 
+> The patch I intend to be 2.2.18 is out as 2.2.18pre26 in the usual place.
+> I'll move it over tomorrow if nobody reports any horrors, missing files etc
 
 
-----------------------------------------------------------------------
-      Mike A. Harris  -  Linux advocate  -  Open source advocate
-          This message is copyright 2000, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
+Fresh 2.2.17, "patch -p1 < /pre-patch-2.2.18-26"
 
-If you're interested in computer security, and want to stay on top of the
-latest security exploits, and other information, visit:
-
-http://www.securityfocus.com
-
+can't find file to patch at input line 38909
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff -u --new-file --recursive --exclude-from /usr/src/exclude
+v2.2.17/arch/i386/vmlinux.lds linux/arch/i386/vmlinux.lds
+|--- v2.2.17/arch/i386/vmlinux.lds	Wed May  3 21:22:13 2000
+|+++ linux/arch/i386/vmlinux.lds	Sat Dec  9 21:23:21 2000
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

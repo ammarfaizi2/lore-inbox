@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268133AbTB1Ty5>; Fri, 28 Feb 2003 14:54:57 -0500
+	id <S268111AbTB1T4y>; Fri, 28 Feb 2003 14:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268137AbTB1Ty5>; Fri, 28 Feb 2003 14:54:57 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:18912 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S268133AbTB1Ty4>; Fri, 28 Feb 2003 14:54:56 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A84725A1B9@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Jeff Garzik <jgarzik@pobox.com>, Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: ACPI request/release generic address
-Date: Fri, 28 Feb 2003 08:49:44 -0800
+	id <S268112AbTB1T4y>; Fri, 28 Feb 2003 14:56:54 -0500
+Received: from adsl-63-195-13-67.dsl.chic01.pacbell.net ([63.195.13.67]:39433
+	"EHLO mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id <S268111AbTB1T4x>; Fri, 28 Feb 2003 14:56:53 -0500
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: linux-kernel@vger.kernel.org
+Date: Fri, 28 Feb 2003 12:07:06 -0800
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Kernel 2.5 input layer info?
+Message-ID: <3E5F50EA.13587.3FA4953@localhost>
+In-reply-to: <1786144585.20030228074127@wlink.com.np>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Jeff Garzik [mailto:jgarzik@pobox.com] 
-> Can you define a generic address?
-> 
-> IIRC, ACPI needs some work in this area.
-> 
-> If the "generic address" is host RAM, that's easy.
-> If the generic address is PIO address, that's mostly easy.
-> If the generic address is MMIO address, that takes a bit of care with
-> mapping, and I'm not sure ACPI gets it right in these cases.
+Hi Guys,
 
-The Generic Address Structure (GAS) is basically a 64 bit address and a
-type field. The type can be:
+I have heard about the new 2.5 input layer work that is being done in the 
+kernel, and I am interested in using this for a userland mouse/keyboard 
+daemon I am looking at building. The intention of the daemon is to 
+provide a common interface for event driven mouse and keyboard 
+applications (ie: XFree86, Qt/E, SDL, MGL, SVGALib etc) on Linux. Since 
+it appears that a lot of work is already being done on a new set of event 
+driven input layers in the kernel, what I would like to do is build this 
+daemon such that it will use the new 2.5 kernel interfaces when they are 
+available, but fall back on the old compatible methods when not. 
+Essentially I am planning on taking the existing XFree86 code and using 
+it to make a common user land input daemon.
 
-System memory
-System IO
-PCI Config space
-Embedded Controller
-SMBus
-Functional fixed hardware
+Anyway, let me know if you think this is a good idea, bad idea or if 
+there is a better way to do it. The new input interfaces sound like a 
+great idea, but we are looking for something that will work on as many 
+versions of Linux as possible.
 
-I don't think this will very easily handle a clean request/release API.
-Corey, what is the specific table you are concerned with? At least with
-the GASes ACPI uses internally, they point to resource regions already
-marked as used via other means (e820 or _CRS, for example.)
+Finally where can I find more information on the new input interfaces in 
+the 2.5 kernel? I just downloaded the latest 2.5.63 release and will take 
+a look at it, but if there are any external docs on this I would like to 
+peruse them first.
 
-Regards -- Andy
+Thanks!
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+

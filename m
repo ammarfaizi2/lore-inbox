@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132473AbRDJXUs>; Tue, 10 Apr 2001 19:20:48 -0400
+	id <S132479AbRDJXaI>; Tue, 10 Apr 2001 19:30:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132470AbRDJXUh>; Tue, 10 Apr 2001 19:20:37 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:58889 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S132472AbRDJXUZ>; Tue, 10 Apr 2001 19:20:25 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Let init know user wants to shutdown
-Date: Tue, 10 Apr 2001 23:20:24 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9b04fo$9od$3@ncc1701.cistron.net>
-In-Reply-To: <20010405000215.A599@bug.ucw.cz>
-X-Trace: ncc1701.cistron.net 986944824 9997 195.64.65.67 (10 Apr 2001 23:20:24 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S132478AbRDJX3t>; Tue, 10 Apr 2001 19:29:49 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:34298 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S132474AbRDJX33>; Tue, 10 Apr 2001 19:29:29 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104102329.f3ANTMCb000474@webber.adilger.int>
+Subject: [PATCH] minor PCI fixup
+To: Linux kernel development list <linux-kernel@vger.kernel.org>
+Date: Tue, 10 Apr 2001 17:29:22 -0600 (MDT)
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010405000215.A599@bug.ucw.cz>,
-Pavel Machek  <pavel@suse.cz> wrote:
->Hi!
->
->Init should get to know that user pressed power button (so it can do
->shutdown and poweroff). Plus, it is nice to let user know that we can
->read such event. [I hunted bug for few hours, thinking that kernel
->does not get the event at all].
->
->Here's patch to do that. Please apply,
+Attached is a very minor patch that is in my tree (I don't even remember why
+I was in there) which uses the defined PCI vendor ID instead of a number.
 
-Not so hasty ;)
-
->+		printk ("acpi: Power button pressed!\n");
->+		kill_proc (1, SIGTERM, 1);
-
-SIGTERM is a bad choise. Right now, init ignores SIGTERM. For
-good reason; on some (many?) systems, the shutdown scripts
-include "kill -15 -1; sleep 2; kill -9 -1". The "-1" means
-"all processes except me". That means init will get hit with
-SIGTERM occasionally during shutdown, and that might cause
-weird things to happen.
-
-Perhaps SIGUSR1 ?
-
-Mike.
-
+Cheers, Andreas
+============================================================================
+diff -ru linux.orig/drivers/scsi/atp870u.c linux/drivers/scsi/atp870u.c
+--- linux.orig/drivers/scsi/atp870u.c	Sat Nov 11 20:01:11 2000
++++ linux/drivers/scsi/atp870u.c	Wed Mar  7 12:58:10 2001
+@@ -1668,7 +1668,7 @@
+        }
+        h = 0;
+        while (devid[h] != 0) {
+-               pdev[2] = pci_find_device(0x1191, devid[h], pdev[2]);
++               pdev[2] = pci_find_device(PCI_VENDOR_ID_ARTOP,devid[h],pdev[2]);
+ 		if (pdev[2] == NULL || pci_enable_device(pdev[2])) {
+ 			h++;
+ 			index = 0;
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

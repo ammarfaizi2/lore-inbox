@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310835AbSCHML7>; Fri, 8 Mar 2002 07:11:59 -0500
+	id <S310832AbSCHMiY>; Fri, 8 Mar 2002 07:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310832AbSCHMLt>; Fri, 8 Mar 2002 07:11:49 -0500
-Received: from gra-lx1.iram.es ([150.214.224.41]:62219 "EHLO gra-lx1.iram.es")
-	by vger.kernel.org with ESMTP id <S310823AbSCHMLh>;
-	Fri, 8 Mar 2002 07:11:37 -0500
-Date: Fri, 8 Mar 2002 13:11:22 +0100 (CET)
-From: Gabriel Paubert <paubert@iram.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: FPU precision & signal handlers (bug?)
-In-Reply-To: <E16j3Vx-0003K5-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0203081254130.22832-100000@gra-lx1.iram.es>
+	id <S310831AbSCHMiO>; Fri, 8 Mar 2002 07:38:14 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:43268 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310828AbSCHMiF>; Fri, 8 Mar 2002 07:38:05 -0500
+Message-ID: <3C88B049.5030906@evision-ventures.com>
+Date: Fri, 08 Mar 2002 13:36:25 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH][2.5] BUG check in elevator.c:237
+In-Reply-To: <Pine.LNX.4.44.0203081350190.5383-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zwane Mwaikambo wrote:
+> On Fri, 8 Mar 2002, Martin Dalecki wrote:
+> 
+> 
+>>Please let me elaborate a bit on this, to give you may be
+>>some hints about where to look for an actual solution of
+>>the problem:
+>>
+> 
+> Thanks for taking the time to explain.
+> 
+> 
+>>However for cd-rom there are commands, which can
+>>take quite a long time. Therefore there is the possiblity there
+>>to provide a polling function, which will be engaged after the
+>>interrupt happens in the above function:
+>>
+> 
+> So are you suggesting perhaps that we change the request servicing to 
+> polling? I'm a bit confused as to how this would fit in with 
 
+At lest we should change the way the transition between intr
+controlled mode and polling is done.
 
-On 8 Mar 2002, Alan Cox wrote:
+> cdrom_decode_status (which in this case is called from the read_intr). You 
+> might need to whip out a larger clue stick ;)
 
-> > I agree with the second part, but actually what you want is to start with
-> > an empty stack. Whether the contents are FP or MMX is irrelevant.
-> > Actually the support of applications using MMX did not require any change
-> > to the kernel (Intel carefully designed it that way).
->
-> Not the case. If you drop into a signal or exception handler and it uses
-> FPU while MMX is on it'll get a nasty shock. As it happens Linux already
-> did the right thing.
+Well if your error is deterministically reproducable, it's
+quite propably I would dare to have a look after it.
+Could you just explain how to trigger it (Unfortunately I have
+already deleted yours mail about this...)
 
-You are in for the same shock if you the FPU is in non MMX mode. Think of
-the case when all stack entries are marked valid in the interrupted
-process: stack overflow on the first fld.
-
-Or alernatively show me how you could simplify the signal delivery FPU
-logic for non MMX processor.
-
-Answer: you can't. I still stand by my statement that MMX is
-completely irrelevant and does not add any special case.
-
-> Intel minimised it and did pretty much the best job that could be done for
-> it.
-
-Better than this, they made it completely transparent.
-
-	Gabriel.
 

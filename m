@@ -1,85 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291279AbSCRSYl>; Mon, 18 Mar 2002 13:24:41 -0500
+	id <S291306AbSCRSZL>; Mon, 18 Mar 2002 13:25:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291306AbSCRSYc>; Mon, 18 Mar 2002 13:24:32 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:35982 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S291372AbSCRSYP>; Mon, 18 Mar 2002 13:24:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Keys <akeys@post.cis.smu.edu>
+	id <S291372AbSCRSZC>; Mon, 18 Mar 2002 13:25:02 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14099 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291306AbSCRSY4>; Mon, 18 Mar 2002 13:24:56 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [BK][PATCH] Fix tags rules
-Date: Mon, 18 Mar 2002 12:23:39 -0600
-X-Mailer: KMail [version 1.3.2]
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
+Date: 18 Mar 2002 10:24:38 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a75bd6$mb5$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33L2.0203180809120.2434-100000@dragon.pdx.osdl.net> <Pine.LNX.3.95.1020318112042.740A-100000@chaos.analogic.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020318182409.OZBE2626.rwcrmhc51.attbi.com@there>
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When using Bitkeeper, having all sorts of SCCS directories lying around 
-breaks the rules that generate tag tables for use by vi, emacs and friends.  
-The following patch fixes the rules to ignore SCCS directories.  
+Followup to:  <Pine.LNX.3.95.1020318112042.740A-100000@chaos.analogic.com>
+By author:    "Richard B. Johnson" <root@chaos.analogic.com>
+In newsgroup: linux.dev.kernel
+> 
+> Is it a standard or is it something in-process? The reason I ask is
+> that neither KB nor KiB can possibly be correct.
+> 
+> According to the standards, where capitalization is used:
+> 	(1) For a proper name.
+> 	(2) To differentiate between otherwise identical symbols.
+> 
 
-I have tested the generated TAGS file in XEmacs.  I have not tested the tags 
-rule with any vi clones.  The output is the same with my new rule and the old 
-rule so I'm making a wild presumption it is doing the same thing.  vi users, 
-please let me know if I messed up the tags rule.
+This is obviously untrue for prefixes.  Consider the prefix T (10^12),
+which has no lower-case equivalent.
 
-Makefile |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+The unit here is B, which does conflict with the unit bel, but is
+widely used to mean byte in computer contexts.
+
+I don't like the pronunciations used in the new standard, but I think
+using Ki, Mi, Gi, ... at least in writing is a good thing, to
+disambiguate between binary and decimal powers.  I just read them as
+"binary kilobytes" etc if I need to be clear.
+
+	-hpa
 -- 
-akk~
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.525   -> 1.526  
-#	            Makefile	1.182   -> 1.183  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/03/18	akeys@mail.smu.edu	1.526
-# Fixed tag rules to ignore SCCS directories.
-# --------------------------------------------
-#
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	Mon Mar 18 12:13:17 2002
-+++ b/Makefile	Mon Mar 18 12:13:17 2002
-@@ -355,16 +355,16 @@
- 	$(MAKE) CFLAGS="$(CFLAGS) $(CFLAGS_KERNEL)" $(subst $@, _dir_$@, $@)
- 
- TAGS: dummy
--	etags `find include/asm-$(ARCH) -name '*.h'`
--	find include -type d \( -name "asm-*" -o -name config \) -prune -o -name 
-'*.h' -print | xargs etags -a
--	find $(SUBDIRS) init -name '*.[ch]' | xargs etags -a
-+	find include/asm-$(ARCH) -path 'include/asm-$(ARCH)/SCCS' -prune -o -name 
-'*.h' -print | xargs etags
-+	find include -path '*/SCCS' -prune -o -type d \( -name "asm-*" -o -name 
-config \) -prune -o -name '*.h' -print | xargs etags -a
-+	find $(SUBDIRS) init  -path '*/SCCS' -prune -not -type d -o -name *.[ch] | 
-xargs etags -a
- 
- # Exuberant ctags works better with -I
- tags: dummy
--	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I 
-__initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_NOVERS"`; \
--	ctags $$CTAGSF `find include/asm-$(ARCH) -name '*.h'` && \
--	find include -type d \( -name "asm-*" -o -name config \) -prune -o -name 
-'*.h' -print | xargs ctags $$CTAGSF -a && \
--	find $(SUBDIRS) init -name '*.[ch]' | xargs ctags $$CTAGSF -a
-+	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I 
-__initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_NOVERS"`;
-+	find include/asm-$(ARCH) -path 'include/asm-$(ARCH)/SCCS' -prune -o  -name 
-'*.h' | xargs ctags $$CTAGSF
-+	find include -path '*/SCCS' -prune -o -type d \( -name "asm-*" -o -name 
-config \) -prune -o -name '*.h' -print | xargs ctags $$CTAGSF -a
-+	find $(SUBDIRS) init -path '*/SCCS' -prune -not -type d -o -name '*.[ch]' | 
-xargs ctags $$CTAGSF -a
- 
- ifdef CONFIG_MODULES
- ifdef CONFIG_MODVERSIONS
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

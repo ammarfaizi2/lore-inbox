@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262696AbUKEONh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbUKEON1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262696AbUKEONh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 09:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbUKEONh
+	id S262699AbUKEON1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 09:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbUKEON0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 09:13:37 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:4253 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262696AbUKEONc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 09:13:32 -0500
-Message-ID: <418B8A8B.9020507@free.fr>
-Date: Fri, 05 Nov 2004 15:13:31 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
+	Fri, 5 Nov 2004 09:13:26 -0500
+Received: from mail-red.bigfish.com ([216.148.222.61]:10461 "EHLO
+	mail16-red-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S262700AbUKEOKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 09:10:42 -0500
+X-BigFish: VPC
+Subject: non_linear memory on ARM
 To: linux-kernel@vger.kernel.org
-Subject: [patch} turn off pcspeaker when unloading
-Content-Type: multipart/mixed;
- boundary="------------060307010609020305050804"
+Cc: linux-arm-kernel@lists.arm.linux.org.uk
+X-Mailer: Lotus Notes Release 5.0.10  March 22, 2002
+Message-ID: <OFC878058C.F34D3F6A-ONC1256F43.004C88F3-C1256F43.004DDB20@nice.mindspeed.com>
+From: remy.gauguey@mindspeed.com
+Date: Fri, 5 Nov 2004 15:10:12 +0100
+MIME-Version: 1.0
+X-MIMETrack: Serialize by Router on SOPHIAM1/Server/Mindspeed(Release 5.0.12  |February
+ 13, 2003) at 11/05/2004 03:10:22 PM,
+	Itemize by SMTP Server on NPBLNH1/Server/Conexant(Release 5.0.12  |February
+ 13, 2003) at 11/05/2004 06:10:22 AM,
+	Serialize by Router on NPBLNH1/Server/Conexant(Release 5.0.12  |February 13, 2003) at
+ 11/05/2004 06:10:24 AM,
+	Serialize complete at 11/05/2004 06:10:24 AM
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060307010609020305050804
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi,
 
-this patch turn off the pc speaker when you unload it : with whe current 
-version if you unload it when the speacker beep, the beep never stop.
 
-Signed-Off-By: Matthieu Castet <castet.matthieu@free.fr>
 
---------------060307010609020305050804
-Content-Type: text/x-patch;
- name="pcspkr.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pcspkr.patch"
+Hello,
 
---- linux/drivers/input/misc/pcspkr.c	2004-10-18 23:54:32.000000000 +0200
-+++ linux/drivers/input/misc/pcspkr.c	2004-11-05 15:08:57.000000000 +0100
-@@ -89,6 +89,8 @@
- static void __exit pcspkr_exit(void)
- {
-         input_unregister_device(&pcspkr_dev);
-+	/* turn off the speaker */
-+	pcspkr_event(NULL, EV_SND, SND_BELL, 0);
- }
- 
- module_init(pcspkr_init);
+I'm currently working on a ARM920 platform with 2 SDRAM controllers on 2
+separate AHB bus layers.
+To improve performances (data routing) I would like the kernel to use those
+2 SDRAM controllers.
+Unfortunnately, there's a big gap between them :
+The first SDRAM is mapped at (physical) 0x00000000 to 0x07FFFFFF (128Mb).
+The second SDRAM is mapped at 0xA0000000 to 0xA7FFFFFF (128Mb).
 
---------------060307010609020305050804--
+I've tried to use the CONFIG_DISCONTIGMEM, but it seems that the large gap
+of 2,5 Gb is a problem.
+I've read about a patch  CONFIG_NONLINEAR which perhaps could be helpfull
+in case of sparse memory.
+
+Is this patch available for ARM ?
+If not, is there any other way to efficiently use those 2 SDRAM
+controllers.
+
+The ultimate goal would be to allocate data buffer (skb) on one controller
+while running code from the other one....
+
+Thanks for any usefull feedback.
+
+Remy
+
+
+
+

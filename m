@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266971AbTBCTAJ>; Mon, 3 Feb 2003 14:00:09 -0500
+	id <S266983AbTBCTFc>; Mon, 3 Feb 2003 14:05:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266976AbTBCTAJ>; Mon, 3 Feb 2003 14:00:09 -0500
-Received: from mh57-mps.martin.mh57.de ([213.68.114.153]:6294 "EHLO
-	mh57-mps.martin.mh57.de") by vger.kernel.org with ESMTP
-	id <S266971AbTBCTAI>; Mon, 3 Feb 2003 14:00:08 -0500
-Date: Mon, 3 Feb 2003 20:09:20 +0100
-From: Martin Hermanowski <martin@martin.mh57.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: John Bradford <john@grabjohn.com>, Seamus <assembly@gofree.indigo.ie>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CPU throttling??
-Message-ID: <20030203190920.GO1472@martin.mh57.de>
-References: <200302031713.h13HD2K8000181@darkstar.example.net> <200302031857.h13IvHa0025735@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PpAOPzA3dXsRhoo+"
-Content-Disposition: inline
-In-Reply-To: <200302031857.h13IvHa0025735@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.3.28i
-X-Authenticated-ID: martin
+	id <S266986AbTBCTFc>; Mon, 3 Feb 2003 14:05:32 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:44631 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S266983AbTBCTFb>; Mon, 3 Feb 2003 14:05:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jos Hulzink <josh@stack.nl>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [PATCH] 2.5.59 morse code panics
+Date: Mon, 3 Feb 2003 20:14:57 +0100
+User-Agent: KMail/1.4.3
+References: <Pine.LNX.3.96.1030202104101.22592E-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1030202104101.22592E-100000@gatekeeper.tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302032014.57518.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 02 February 2003 16:42, Bill Davidsen wrote:
+> On Fri, 31 Jan 2003, John Bradford wrote:
+> > Well, there are typically *three* keyboard LEDs...  Why not use one
+> > the middle one for morse, and outside two for plain blinking?
+>
+> Sure, alternating on/off between the outside LEDs at a rate of about
+> 1/sec, like the warning lights on a railroad crossing (in the USA).
 
---PpAOPzA3dXsRhoo+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+<nonsense>
+As long as this doesn't mean a 50.000 kilo locomotive will ride over my 
+keyboard, it is fine with me.
 
-On Mon, Feb 03, 2003 at 01:57:17PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 03 Feb 2003 17:13:02 GMT, John Bradford said:
->=20
-> > Incidently, Linux has always halted the processor, rather than spun in
-> > an idle loop, which saves power.
->=20
-> It's conceivable that a CPU halted at 1.2Gz takes less power than one
-> at 1.6Gz - anybody have any actual data on this?  Alternately phrased,
-> does CPU throttling save power over and above what the halt does?
+Oh, and I don't want to destroy the American dream, but blinking lights on 
+railroad crossings even exist in the poorest countries in Africa... Or do the 
+Americans even have a patent on the blinking speed ? :-P
 
-If I slow down my 1GHz CPU to 732MHz, I get 15min more (195min total).
-So it is not much, but noticeable.
+Sidenote: you can't speak of "the middle", the LED ordering is free :) At 
+least here in Europe...
+</nonsense>
 
-Regards,
-Martin
+Besides, I'd like to see some beeps (not too annoying please) besides the 
+blinking. Sometimes while debugging KGI I don't even notice the kernel 
+entered kdb (also blinking LEDs, and kdb shows up on a remote terminal). 
+Also: servers will usually have keyboard switches, making the blinks unnoted. 
+But I assume that has been said before.
 
---PpAOPzA3dXsRhoo+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+Pr5gV3BRtc7IW1wRAuuIAJoCnk1VAATNE4XpmlQFTzNzombCnwCfUaPw
-yfKBHJN+2YfRt8vzVOxQAqw=
-=pj4X
------END PGP SIGNATURE-----
-
---PpAOPzA3dXsRhoo+--
+Jos

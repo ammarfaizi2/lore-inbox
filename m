@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315179AbSHIRAY>; Fri, 9 Aug 2002 13:00:24 -0400
+	id <S312938AbSHIRHz>; Fri, 9 Aug 2002 13:07:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315200AbSHIRAX>; Fri, 9 Aug 2002 13:00:23 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59666 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315179AbSHIRAX>; Fri, 9 Aug 2002 13:00:23 -0400
-Date: Fri, 9 Aug 2002 09:51:30 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@arcor.de>
-cc: frankeh@watson.ibm.com, <davidm@hpl.hp.com>,
-       David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, <gh@us.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch (fwd) (fwd)
-In-Reply-To: <E17dCQa-0001Nv-00@starship>
-Message-ID: <Pine.LNX.4.44.0208090949240.1436-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314680AbSHIRHz>; Fri, 9 Aug 2002 13:07:55 -0400
+Received: from host.greatconnect.com ([209.239.40.135]:30226 "EHLO
+	host.greatconnect.com") by vger.kernel.org with ESMTP
+	id <S312938AbSHIRHz>; Fri, 9 Aug 2002 13:07:55 -0400
+Subject: Re: 2.4.19: drivers/usb/printer.c usblpX on fire
+From: Samuel Flory <sflory@rackable.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Pete de Zwart <dezwart@froob.net>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+In-Reply-To: <15699.31589.634056.607809@kim.it.uu.se>
+References: <20020809060344.GC6340@niflheim> 
+	<15699.31589.634056.607809@kim.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 09 Aug 2002 10:10:56 -0700
+Message-Id: <1028913064.1380.493.camel@flory.corp.rackablelabs.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 9 Aug 2002, Daniel Phillips wrote:
-> > 
-> > Note that even active defrag won't be able to handle the case where you 
-> > want have lots of big pages, consituting a large percentage of available 
-> > memory.
+On Fri, 2002-08-09 at 01:20, Mikael Pettersson wrote:
+> Pete de Zwart writes:
+>  > Is there a reason that in 2.4.19's drivers/usb/printer.c if the printer status
+>  > code from is greater than 2 it states that it is on fire instead of printing
+>  > the unknown error code?
 > 
-> Perhaps I'm missing something, but I don't see why.
+> Dunno, but the parport lp.c also goes into "printer on fire" mode, in my case
+> whenever the black ink cartridge becomes empty :-(
+> 
 
-The statistics are against you. rmap won't help at all with all the other 
-kernel allocations, and the dcache/icache is often large, and on big 
-machines while there may be tens of thousands of idle entries, there will 
-also be hundreds of _non_idle entries that you can't just remove.
 
-> Slab allocations would not have GFP_DEFRAG (I mistakenly wrote GFP_LARGE 
-> earlier) and so would be allocated outside ZONE_LARGE.
+  The printer on fire message is the traditional Un*x error message for
+unknown error on a printer.
 
-.. at which poin tyou then get zone balancing problems.
-
-Or we end up with the same kind of special zone that we have _anyway_ in
-the current large-page patch, in which case the point of doing this is
-what?
-
-		Linus
 

@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263056AbUKTEkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUKTCkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263056AbUKTEkI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 23:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbUKTEef
+	id S263062AbUKTCkv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 21:40:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbUKTCkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 23:34:35 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:49912 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S261432AbUKTEdO
+	Fri, 19 Nov 2004 21:40:21 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:36232 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S263093AbUKTCb7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 23:33:14 -0500
-Message-ID: <419EC91D.5030907@verizon.net>
-Date: Fri, 19 Nov 2004 23:33:33 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: maximilian attems <janitor@sternwelten.at>
-CC: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [KJ] [PATCH] floppy: Reorganize drivers/block/floppy.c
-References: <20041105014000.11993.38553.30904@localhost.localdomain> <20041119223142.GJ2202@stro.at>
-In-Reply-To: <20041119223142.GJ2202@stro.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [209.158.220.243] at Fri, 19 Nov 2004 22:33:11 -0600
+	Fri, 19 Nov 2004 21:31:59 -0500
+Subject: [patch 6/9]  list_for_each_entry: 	arch-i386-mm-pageattr.c
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org
+From: janitor@sternwelten.at
+Date: Sat, 20 Nov 2004 03:31:58 +0100
+Message-ID: <E1CVL2c-0000uE-Bq@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-maximilian attems wrote:
-> On Thu, 04 Nov 2004, james4765@verizon.net wrote:
-> 
-> 
->>Organization of global variables, macros, and #defines in floppy.c
->>
->>Signed-off-by: James Nelson <james4765@gmail.com>
->>
->>diff -urN --exclude='*~' linux-2.6.9-original/drivers/block/floppy.c linux-2.6.9/drivers/block/floppy.c
->>--- linux-2.6.9-original/drivers/block/floppy.c	2004-10-18 17:53:22.000000000 -0400
->>+++ linux-2.6.9/drivers/block/floppy.c	2004-11-04 20:25:28.180478012 -0500
-> 
-> 
-> hmm could you split up your patch in logical hunks?
 
-Well, it won't apply to 2.6.10-rc2 anyway (sone ACPI stuff was added), so it 
-wouldn't be any less work to re-do it ;)
 
-I guess I'll just take it in smaller chunks, then - spread out over a few -rc's.
 
-> nitpicking: your patch adds whitespace.
-> 
-> a++ maks
-> -
-> 
+Hi.
 
+Make code more readable with list_for_each_entry*
+Compile tested.
+
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+---
+
+ linux-2.6.10-rc2-bk4-max/arch/i386/mm/pageattr.c |    8 ++------
+ 1 files changed, 2 insertions(+), 6 deletions(-)
+
+diff -puN arch/i386/mm/pageattr.c~list-for-each-entry-safe-arch_i386_mm_pageattr arch/i386/mm/pageattr.c
+--- linux-2.6.10-rc2-bk4/arch/i386/mm/pageattr.c~list-for-each-entry-safe-arch_i386_mm_pageattr	2004-11-19 17:15:01.000000000 +0100
++++ linux-2.6.10-rc2-bk4-max/arch/i386/mm/pageattr.c	2004-11-19 17:15:02.000000000 +0100
+@@ -178,7 +178,7 @@ int change_page_attr(struct page *page, 
+ void global_flush_tlb(void)
+ { 
+ 	LIST_HEAD(l);
+-	struct list_head* n;
++	struct page *pg, *next;
+ 
+ 	BUG_ON(irqs_disabled());
+ 
+@@ -186,12 +186,8 @@ void global_flush_tlb(void)
+ 	list_splice_init(&df_list, &l);
+ 	spin_unlock_irq(&cpa_lock);
+ 	flush_map();
+-	n = l.next;
+-	while (n != &l) {
+-		struct page *pg = list_entry(n, struct page, lru);
+-		n = n->next;
++	list_for_each_entry_safe(pg, next, &l, lru)
+ 		__free_page(pg);
+-	}
+ } 
+ 
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+_

@@ -1,50 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264936AbSLTTwY>; Fri, 20 Dec 2002 14:52:24 -0500
+	id <S265177AbSLTTyP>; Fri, 20 Dec 2002 14:54:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264969AbSLTTwY>; Fri, 20 Dec 2002 14:52:24 -0500
-Received: from ns.suse.de ([213.95.15.193]:62737 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S264936AbSLTTwX>;
-	Fri, 20 Dec 2002 14:52:23 -0500
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, bjorn_helgaas@hp.com
-Subject: Re: [PATCH] Fix CPU bitmask truncation
-References: <200212161213.29230.bjorn_helgaas@hp.com>
-	<20021220103028.GB9704@holomorphy.com> <je7ke4yje3.fsf@sykes.suse.de>
-	<1040408597.1867.24.camel@ixodes.goop.org>
-X-Yow: I'm reporting for duty as a modern person.  I want to do
- the Latin Hustle now!
-From: Andreas Schwab <schwab@suse.de>
-Date: Fri, 20 Dec 2002 21:00:23 +0100
-In-Reply-To: <1040408597.1867.24.camel@ixodes.goop.org> (Jeremy
- Fitzhardinge's message of "20 Dec 2002 10:23:17 -0800")
-Message-ID: <je3cosxxyg.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
+	id <S265222AbSLTTyO>; Fri, 20 Dec 2002 14:54:14 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:33008 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S265177AbSLTTyM>;
+	Fri, 20 Dec 2002 14:54:12 -0500
+Message-ID: <3E03772A.D5D85171@mvista.com>
+Date: Fri, 20 Dec 2002 12:01:46 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@digeo.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH]Timer list init is done AFTER use
+References: <3E02D81F.13A5A59D@mvista.com> <3E02F073.BF57207C@digeo.com> <3E0350CA.6B99F722@mvista.com> <3E0370C1.21909EF5@digeo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge <jeremy@goop.org> writes:
+Andrew Morton wrote:
+> 
+> george anzinger wrote:
+> >
+> > Andrew Morton wrote:
+> > >
+> > > george anzinger wrote:
+> > > >
+> > > > On SMP systems the timer list init is done by way of a
+> > > > cpu_notifier call.  This has two problems:
+> > > >
+> > > > 1.) Timers are started WAY before the cpu_notifier call
+> > > > chain is executed.  In particular the console blanking timer
+> > > > is deleted and inserted every time printk() is called.  That
+> > > > this does not fail is only because the kernel has yet to
+> > > > protect location zero.
+> > >
+> > > But init_timers() directly calls timer_cpu_notify(), which directly
+> > > calls init_timers_cpu().
+> > >
+> > > So your patch appears to be a no-op for the boot CPU.
+> >
+> > That is correct.  The problem is when cpu_init is called for
+> > the secondary cpus.  It almost immediately calls printk.
+> 
+> OK.  So until that CPU sees it bit come on in smp_commenced_mask()
+> it's not allowed to assume that it is running yet.
+> 
+> > ...
+> > My comments here are a wonderment if
+> > this is the right thing to do when doing a hot swap of the
+> > cpu.  I sort of doubt that this is correct.
+> 
+> I agree.  And from a quick read it does seem that ia32 is
+> doing the right thing apart from calling printk.
+> 
+> I don't think we should make changes to the timer code because
+> who knows what assumptions other console drivers could be making?
+> 
+> I don't think we should carefully remove all printk() calls because
+> printk() is supposed to be robust, and always callable.
+> 
+> The logical thing is to implement arch_consoles_callable().  Does
+> this look workable?
 
-|> On Fri, 2002-12-20 at 04:17, Andreas Schwab wrote:
-|> > This is useless.  Assigning -1 to any unsigned type is garanteed to give
-|> > you all bits one, and with two's complement this also holds for any signed
-|> > type.
-|> 
-|> Only if the -1 is the same size as the unsigned type.  Otherwise it will
-|> be 0-extended.
+I am not sure.  The first question is when does the online
+bit get set for cpu 0.  The next is that it does inhibit a
+rather large block of printks.  Is this ok?
 
-Wrong.  Unsigned arithmetics is defined as modulo MAX+1, and -1 equals MAX
-modulo MAX+1 for every MAX.
+Mind you, I have not tried it yet...
 
-Andreas.
+-g
+> 
+> --- 25/kernel/printk.c~ga       Fri Dec 20 11:32:05 2002
+> +++ 25-akpm/kernel/printk.c     Fri Dec 20 11:33:14 2002
+> @@ -43,7 +43,11 @@
+>  #define LOG_BUF_MASK   (LOG_BUF_LEN-1)
+> 
+>  #ifndef arch_consoles_callable
+> -#define arch_consoles_callable() (1)
+> +/*
+> + * Some console drivers may assume that per-cpu resources have been allocated.
+> + * So don't allow them to be called by this CPU until it is officially up.
+> + */
+> +#define arch_consoles_callable() cpu_online(smp_processor_id())
+>  #endif
+> 
+>  /* printk's without a loglevel use this.. */
+> 
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

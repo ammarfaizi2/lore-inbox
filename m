@@ -1,54 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTD3Nt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 09:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbTD3Nt5
+	id S262174AbTD3NrF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 09:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTD3NrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 09:49:57 -0400
-Received: from mx01.arcor-online.net ([151.189.8.96]:28292 "EHLO mx01.nexgo.de")
-	by vger.kernel.org with ESMTP id S262176AbTD3Nt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 09:49:56 -0400
-From: Daniel Phillips <dphillips@sistina.com>
-Reply-To: dphillips@sistina.com
-Organization: Sistina
-To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Subject: Re: [RFC][PATCH] Faster generic_fls
-Date: Wed, 30 Apr 2003 16:07:59 +0200
-User-Agent: KMail/1.5.1
-Cc: <linux-kernel@vger.kernel.org>
-References: <200304300446.24330.dphillips@sistina.com> <200304301503.38650.dphillips@sistina.com> <87znm8w2ee.fsf@student.uni-tuebingen.de>
-In-Reply-To: <87znm8w2ee.fsf@student.uni-tuebingen.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Apr 2003 09:47:05 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:51897 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262174AbTD3NrD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 09:47:03 -0400
+Date: Wed, 30 Apr 2003 06:59:19 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "Downing, Thomas" <Thomas.Downing@ipc.com>
+Cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030430135919.GB32300@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Downing, Thomas" <Thomas.Downing@ipc.com>,
+	Larry McVoy <lm@bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <170EBA504C3AD511A3FE00508BB89A9202032858@exnanycmbx4.ipc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304301607.59835.dphillips@sistina.com>
+In-Reply-To: <170EBA504C3AD511A3FE00508BB89A9202032858@exnanycmbx4.ipc.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 30 Apr 03 15:17, Falk Hueffner wrote:
-> Daniel Phillips <dphillips@sistina.com> writes:
-> > It's somewhat annoying that __builtin_clz leaves the all-ones case
-> > dangling instead of returning -1.
->
-> I assume you mean all-zero...
+On Wed, Apr 30, 2003 at 09:11:57AM -0400, Downing, Thomas wrote:
+> > The DMCA, DRM, all that stuff is just the beginning.  You will respond
+> > with all sorts of clever hacks to get around it and they will respond
+> > with even more clever hacks to stop you.  They have both more resources
+> > and more at stake so they will win.
+> 
+> The point is that they don't (with a couple of clever and amusing 
+> exceptions) respond with "even more clever hacks", they respond with
+> things like DMCA.  This is also the danger of the motives behind DRM;
+> just pass a law making it a felony to produce, use, etc. hardware which
+> does _not_ enforce corporate controlled DRM.
+> 
+> This is why in my first post on this topic I said it was a political
+> issue, not a technical one.
+> 
+> > The depressing thing is that it is so obvious to me that the corporations
+> > will win, they will protect themselves, they have the money to lobby the
+> > government to get the laws they want and build the technology they need.
+> > The more you push back the more locked up things will become.
+> 
+> Unfortunately, this may very well prove to be true.  But laying it at the
+> door of the open source community (or even piracy other than commercial
+> piracy, viz. China) is buying into the FUD that MPAA and RIAA spew.
+> Remember, that when the courts asked the MPAA to produce _any_ evidence
+> of harm from DeCSS, they were unable to produce _anything_.
 
-:-)
+I'm probably the world's worst communicator because you're right at the
+edge of getting the point and then it gets missed again.  I think you're
+outraged thinking that I'm saying the open source guys are all bad people
+or whatever.  I'm not trying to make a bad/good argument, I'm trying to
+make a cause and effect argument.  
 
-> Well, the semantics of the corresponding
-> instructions simply differ too much. clz(0) is 31 on some, 32 on some
-> others, and undefined on some more architectures. So nailing it down
-> would incur some performance penalty.
+Take everything that I said which is not an action on the part of the
+corporations and just call it A.  Ignore what A is or even if A exists
+or is true, whatever.  Concentrate on what I claim to be the reaction.
+I tried to make the case that A is the cause, you got mad, the fact that
+the reaction is the problem is lost in the anger.
 
-It would only penalize stupidly broken architectures; it would help the ones 
-that got it right.  It's hard to imagine how a sane person could think the 
-result of clz((u32)0) should be other than 32.
+Your post shows that you think that the reaction is bad and you even say
+that the reaction is likely.  You vigourously disagree with my conclusions
+as to why the reaction is happening, I see that.  OK, so let's try it
+with a question rather than a statement: why are things like the DMCA and
+DRM happening?  It isn't the open source guys pushing those, obviously,
+it's the corporations.  So why are they doing it?
 
-Sigh.
+Your answer has to be interesting because it seems to me that they are
+doing it to protect their products, their product is sometimes content,
+sometimes programs, sometimes both.  An answer which says that open source
+is not part of the cause also says that open source is irrelevant.
 
-Regards,
-
-Daniel
-
+You can't be both a force and not a force.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

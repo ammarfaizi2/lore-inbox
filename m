@@ -1,34 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVBQVYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVBQVZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVBQVYE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 16:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVBQVYD
+	id S261171AbVBQVZP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 16:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVBQVZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 16:24:03 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:31713 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261162AbVBQVX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 16:23:57 -0500
-To: linux-os@analogic.com
+	Thu, 17 Feb 2005 16:25:15 -0500
+Received: from fire.osdl.org ([65.172.181.4]:38529 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261171AbVBQVZJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 16:25:09 -0500
+Date: Thu, 17 Feb 2005 13:25:06 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: linux-os <linux-os@analogic.com>
 Cc: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: "Needlessly global functions static...."
-X-Message-Flag: Warning: May contain useful information
+Message-ID: <20050217212506.GA21662@shell0.pdx.osdl.net>
 References: <Pine.LNX.4.61.0502171607500.18275@chaos.analogic.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 17 Feb 2005 13:23:52 -0800
-In-Reply-To: <Pine.LNX.4.61.0502171607500.18275@chaos.analogic.com> (linux-os@analogic.com's
- message of "Thu, 17 Feb 2005 16:12:32 -0500 (EST)")
-Message-ID: <52wtt6vq1j.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 17 Feb 2005 21:23:52.0851 (UTC) FILETIME=[FAB4FE30:01C51536]
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0502171607500.18275@chaos.analogic.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    linux-os> Hello, Tell me. When all those kernel functions are made
-    linux-os> static how does one use a kernel debugger? How does the
-    linux-os> OOPS get decoded if nothing is in /proc/kallsyms or
-    linux-os> System.map???
+* linux-os (linux-os@analogic.com) wrote:
+> 
+> Hello,
+> Tell me. When all those kernel functions are made static
+> how does one use a kernel debugger? How does the OOPS
+> get decoded if nothing is in /proc/kallsyms or System.map???
 
-Dude, static symbols are still in System.map and /proc/kallsyms.
+static != inline.  Locally scoped symbols, 't',  and global, 'T', 
+are in kallsyms or System.map.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

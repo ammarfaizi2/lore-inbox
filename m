@@ -1,118 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVCUVwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVCUV5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbVCUVwu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 16:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVCUVtt
+	id S261907AbVCUV5G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 16:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbVCUVAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 16:49:49 -0500
-Received: from orb.pobox.com ([207.8.226.5]:16011 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262040AbVCUVps (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 16:45:48 -0500
-Date: Mon, 21 Mar 2005 15:45:37 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Anton Blanchard <anton@samba.org>, lkml <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev@ozlabs.org
-Subject: ppc64 pSeries build broken in 2.6.12-rc1-bk1
-Message-ID: <20050321214537.GC16469@otto>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 21 Mar 2005 16:00:40 -0500
+Received: from digitalimplant.org ([64.62.235.95]:14988 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261875AbVCUUsm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 15:48:42 -0500
+Date: Mon, 21 Mar 2005 12:48:32 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: linux-kernel@vger.kernel.org
+cc: greg@kroah.com
+Subject: [1/9] [RFC] Steps to fixing the driver model locking
+Message-ID: <Pine.LNX.4.50.0503211243090.20647-100000@monsoon.he.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi-
 
-It seems that the "pSeries reconfig" patch series which Paul sent on
-March 17th to Andrew on my behalf was incompletely merged into bk?  It
-looks like only the last two of the series are in -bk as of today
-(2.6.12-rc1-mm1 has them all).
+ChangeSet@1.2230, 2005-03-21 10:41:04-08:00, mochel@digitalimplant.org
+  [driver core] Add a semaphore to struct device to synchronize calls to its driver.
 
-Subject lines and URLs for the series in question:
+  This adds a per-device semaphore that is taken before every call from the core to a
+  driver method. This prevents e.g. simultaneous calls to the ->suspend() or ->resume()
+  and ->probe() or ->release(), potentially saving a whole lot of headaches.
 
-[PATCH 1/8] PPC64 preliminary changes to OF fixup functions
-       http://lkml.org/lkml/2005/3/17/41
-
-[PATCH 2/8] PPC64 make OF node fixup code usable at runtime
-       http://lkml.org/lkml/2005/3/17/40
-
-[PATCH 3/8] PPC64 introduce pSeries_reconfig.[ch]
-       http://lkml.org/lkml/2005/3/17/43
-
-[PATCH 4/8] PPC64 prom.c: use pSeries reconfig notifier
-       http://lkml.org/lkml/2005/3/17/56
-
-[PATCH 5/8] PPC64 pci_dn.c: use pSeries reconfig notifier
-       http://lkml.org/lkml/2005/3/17/57
-
-[PATCH 6/8] PPC64 pSeries_iommu.c: use pSeries reconfig notifier
-       http://lkml.org/lkml/2005/3/17/54
-
-[PATCH 7/8] PPC64 use pSeries reconfig notifier for cpu DLPAR
-       http://lkml.org/lkml/2005/3/17/44
-
-[PATCH 8/8] PPC64 make cpu hotplug play well with maxcpus and smt-enabled
-       http://lkml.org/lkml/2005/3/17/55
-
-With 2.6.12-rc1-bk1, if CONFIG_PPC_PSERIES and CONFIG_SMP are enabled,
-the build errors out:
-
-  CC      arch/ppc64/kernel/pSeries_smp.o
-arch/ppc64/kernel/pSeries_smp.c:47:34: asm/pSeries_reconfig.h: No such
-file or directory
-
-If people would like something to use in the meantime, below is a
-throwaway patch to work around the breakage (not intended for
-inclusion).  Disabling CONFIG_PPC_PSERIES should work around it also.
-The real fix is to either revert patches 7 and 8, or merge 1-6 :)
-
-
-Nathan
+  It also moves us a step closer to removing the bus rwsem, since it protects the fields
+  in struct device that are modified by the core.
 
 
 
-Index: linux-2.6.12-rc1-bk1/arch/ppc64/kernel/pSeries_smp.c
-===================================================================
---- linux-2.6.12-rc1-bk1.orig/arch/ppc64/kernel/pSeries_smp.c	2005-03-21 20:28:22.000000000 +0000
-+++ linux-2.6.12-rc1-bk1/arch/ppc64/kernel/pSeries_smp.c	2005-03-21 21:00:16.000000000 +0000
-@@ -44,7 +44,7 @@
- #include <asm/system.h>
- #include <asm/rtas.h>
- #include <asm/plpar_wrappers.h>
--#include <asm/pSeries_reconfig.h>
-+/* #include <asm/pSeries_reconfig.h> */
- 
- #include "mpic.h"
- 
-@@ -135,6 +135,7 @@ void pSeries_cpu_die(unsigned int cpu)
-  * the logical ids for sibling SMT threads x and y are adjacent, such
-  * that x^1 == y and y^1 == x.
+  Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
+--- a/drivers/base/bus.c	2005-03-21 12:30:51 -08:00
++++ b/drivers/base/bus.c	2005-03-21 12:30:51 -08:00
+@@ -283,18 +283,22 @@
   */
-+#if 0
- static int pSeries_add_processor(struct device_node *np)
+ int driver_probe_device(struct device_driver * drv, struct device * dev)
  {
- 	unsigned int cpu;
-@@ -247,7 +248,7 @@ static int pSeries_smp_notifier(struct n
- static struct notifier_block pSeries_smp_nb = {
- 	.notifier_call = pSeries_smp_notifier,
- };
++	int error = 0;
++
+ 	if (drv->bus->match && !drv->bus->match(dev, drv))
+ 		return -ENODEV;
+
++	down(&dev->sem);
+ 	dev->driver = drv;
+ 	if (drv->probe) {
+-		int error = drv->probe(dev);
++		error = drv->probe(dev);
+ 		if (error) {
+ 			dev->driver = NULL;
++			up(&dev->sem);
+ 			return error;
+ 		}
+ 	}
 -
-+#endif /* 0 */
- #endif /* CONFIG_HOTPLUG_CPU */
- 
++	up(&dev->sem);
+ 	device_bind_driver(dev);
+ 	return 0;
+ }
+@@ -385,7 +389,10 @@
+
+ void device_release_driver(struct device * dev)
+ {
+-	struct device_driver * drv = dev->driver;
++	struct device_driver * drv;
++
++	down(&dev->sem);
++	drv = dev->driver;
+ 	if (drv) {
+ 		sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
+ 		sysfs_remove_link(&dev->kobj, "driver");
+@@ -395,6 +402,7 @@
+ 			drv->remove(dev);
+ 		dev->driver = NULL;
+ 	}
++	up(&dev->sem);
+ }
+
+
+diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c	2005-03-21 12:30:51 -08:00
++++ b/drivers/base/core.c	2005-03-21 12:30:51 -08:00
+@@ -215,6 +215,7 @@
+ 	INIT_LIST_HEAD(&dev->driver_list);
+ 	INIT_LIST_HEAD(&dev->bus_list);
+ 	INIT_LIST_HEAD(&dev->dma_pools);
++	init_MUTEX(&dev->sem);
+ }
+
  /**
-@@ -421,9 +422,11 @@ void __init smp_init_pSeries(void)
- 	smp_ops->cpu_die = pSeries_cpu_die;
- 
- 	/* Processors can be added/removed only on LPAR */
-+#if 0
- 	if (systemcfg->platform == PLATFORM_PSERIES_LPAR)
- 		pSeries_reconfig_notifier_register(&pSeries_smp_nb);
- #endif
-+#endif
- 
- 	/* Mark threads which are still spinning in hold loops. */
- 	if (cur_cpu_spec->cpu_features & CPU_FTR_SMT)
+diff -Nru a/drivers/base/power/resume.c b/drivers/base/power/resume.c
+--- a/drivers/base/power/resume.c	2005-03-21 12:30:51 -08:00
++++ b/drivers/base/power/resume.c	2005-03-21 12:30:51 -08:00
+@@ -22,9 +22,13 @@
+
+ int resume_device(struct device * dev)
+ {
++	int error = 0;
++
++	down(&dev->sem);
+ 	if (dev->bus && dev->bus->resume)
+-		return dev->bus->resume(dev);
+-	return 0;
++		error = dev->bus->resume(dev);
++	up(&dev->sem);
++	return error;
+ }
+
+
+diff -Nru a/drivers/base/power/suspend.c b/drivers/base/power/suspend.c
+--- a/drivers/base/power/suspend.c	2005-03-21 12:30:51 -08:00
++++ b/drivers/base/power/suspend.c	2005-03-21 12:30:51 -08:00
+@@ -41,11 +41,11 @@
+
+ 	dev_dbg(dev, "suspending\n");
+
++	down(&dev->sem);
+ 	dev->power.prev_state = dev->power.power_state;
+-
+ 	if (dev->bus && dev->bus->suspend && !dev->power.power_state)
+ 		error = dev->bus->suspend(dev, state);
+-
++	up(&dev->sem);
+ 	return error;
+ }
+
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	2005-03-21 12:30:51 -08:00
++++ b/include/linux/device.h	2005-03-21 12:30:51 -08:00
+@@ -265,6 +265,10 @@
+ 	struct kobject kobj;
+ 	char	bus_id[BUS_ID_SIZE];	/* position on parent bus */
+
++	struct semaphore	sem;	/* semaphore to synchronize calls to
++					 * its driver.
++					 */
++
+ 	struct bus_type	* bus;		/* type of bus device is on */
+ 	struct device_driver *driver;	/* which driver has allocated this
+ 					   device */

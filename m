@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287149AbSAUPl1>; Mon, 21 Jan 2002 10:41:27 -0500
+	id <S287439AbSAUPks>; Mon, 21 Jan 2002 10:40:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287148AbSAUPlR>; Mon, 21 Jan 2002 10:41:17 -0500
-Received: from colorfullife.com ([216.156.138.34]:5394 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S287149AbSAUPlM>;
-	Mon, 21 Jan 2002 10:41:12 -0500
-Message-ID: <3C4C3680.39DD06D8@colorfullife.com>
-Date: Mon, 21 Jan 2002 16:40:48 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en, de
+	id <S287163AbSAUPkh>; Mon, 21 Jan 2002 10:40:37 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63053 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S287148AbSAUPkT>; Mon, 21 Jan 2002 10:40:19 -0500
+To: Hans Reiser <reiser@namesys.com>
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <Pine.LNX.4.33.0201201247270.6499-100000@coffee.psychology.mcmaster.ca>
+	<3C4B35AB.4040801@namesys.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Jan 2002 08:37:12 -0700
+In-Reply-To: <3C4B35AB.4040801@namesys.com>
+Message-ID: <m1r8ojg1g7.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: mingo@elte.hu
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [sched] [patch] migration-fixes-2.5.3-pre2-A1
-In-Reply-To: <Pine.LNX.4.33.0201202254440.14434-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> So i think the P6 documentation is a pessimisation of the true situation,
-> and that we can very well have multiple interrupts on the same priority
-> level even on older APICs - as long as the local timer interrupt is not
-> amongst them.
->
-You are right.
-I tried to reproduce it (force cpu1 to priority 15, send 4 ipis to
-priority 14 from cpu0, check that all arrive), and it seems that the
-pIII doesn't drop ipi messages.
+Hans Reiser <reiser@namesys.com> writes:
 
---
-	Manfred
+> Mark Hahn wrote:
+> 
+> >On Sun, 20 Jan 2002, Hans Reiser wrote:
+> >
+> >> Write clustering is one thing it achieves.   When we flush a slum, the
+> >
+> >sure, that's fine.  when the VM tells you to write a page,
+> >you're free to write *more*, but you certainly must give back
+> > that particular page.  afaicr, this was the conclusion of the long-ago thread
+> > that you're referring to.
+> >
+> >regards, mark hahn.
+> >
+> >
+> >
+> This is bad for use with internal nodes.  It simplifies version 4 a bunch to
+> assume that if a node is in cache, its parent is also.  Not sure what to do
+> about it, maybe we need to copy the node.  Surely we don't want to copy it
+> unless it is a DMA related page cleaning.
+
+Increment the count on the parent page, and don't decrement it until
+the child goes away.  This might need a notification from
+page_cache_release when so you can decrement the count at the
+appropriate time.  But internal nodes are ``meta'' data which has
+always had special freeing rules.
+
+Eric

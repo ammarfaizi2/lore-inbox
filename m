@@ -1,96 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbTJDADe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 20:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbTJDABm
+	id S261683AbTJCX6g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 19:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTJCX4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 20:01:42 -0400
-Received: from mail.kroah.org ([65.200.24.183]:55437 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261673AbTJCX7K (ORCPT
+	Fri, 3 Oct 2003 19:56:41 -0400
+Received: from users.ccur.com ([208.248.32.211]:19060 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S261549AbTJCXy6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 19:59:10 -0400
-Date: Fri, 3 Oct 2003 16:57:00 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB fixes for 2.6.0-test6
-Message-ID: <20031003235700.GA4329@kroah.com>
+	Fri, 3 Oct 2003 19:54:58 -0400
+Date: Fri, 3 Oct 2003 19:54:16 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, riel@redhat.com, andrea@suse.de
+Subject: Re: mlockall and mmap of IO devices don't mix
+Message-ID: <20031003235416.GA27201@rudolph.ccur.com>
+References: <20031003214411.GA25802@rudolph.ccur.com> <20031003152349.7194b73d.akpm@osdl.org> <20031003225509.GA26590@rudolph.ccur.com> <20031003161540.42ff98bb.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031003161540.42ff98bb.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Oct 03, 2003 at 04:15:40PM -0700, Andrew Morton wrote:
+>> Sigh.  No go; it *looks* good but my app still locks up....
+> 
+> Or we could use that VM_RESERVED thing?
 
-Here are some USB fixes for 2.6.0-test6.  These are all bugfixes or
-added support for new USB devices.  The patches here fix a number of
-different bugzilla entries:
-	- problems with UHCI controllers
-	- freecom device breakage
-	- usbfs options not working properly.
-I've also fixed up some improper license wording in some of the keyspan
-header files, as per conversations with that company.
+Hi Andrew,
+ Your third patch worked perfectly for all the tested cases:
+    o /dev/mem at offset fd000000 (my video card mem addr)
+    o /dev/mem at offset 0
+    o with an mmapable device driver.
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.6
+I did have to make two changes to get it to compile:
 
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
+--- mm/memory.c.am3	2003-10-03 19:44:17.000000000 -0400
++++ mm/memory.c	2003-10-03 19:43:47.000000000 -0400
+@@ -738,7 +738,7 @@
+ #endif
+ 
+ 		special = vma->vm_flags & (VM_IO | VM_RESERVED);
+-		if (!vma || (pages && vm_io) || !(flags & vma->vm_flags))
++		if (!vma || (pages && special) || !(flags & vma->vm_flags))
+ 			return i ? : -EFAULT;
+ 
+ 		if (is_vm_hugetlb_page(vma)) {
+@@ -755,7 +755,7 @@
+ 			 * mappings of /dev/mem - they may have no pageframes.
+ 			 * And the caller passed NULL for `pages' anyway.
+ 			 */
+-			while (!special && !(map=follow_page(mm,start,write)) {
++			while (!special && !(map=follow_page(mm,start,write))) {
+ 				spin_unlock(&mm->page_table_lock);
+ 				switch (handle_mm_fault(mm,vma,start,write)) {
+ 				case VM_FAULT_MINOR:
 
-thanks,
+In the first change, 'special' != '(vma->vma_flags & VM_IO)' which
+was what was originally being tested.  Could that cause a problem?
 
-greg k-h
+Also, could the use of VM_RESERVED cause in some cases memory with
+pageframes to skip adjustment/use of those pageframes?
 
- drivers/usb/core/inode.c              |  149 ++++++------
- drivers/usb/host/uhci-debug.c         |  166 ++++++-------
- drivers/usb/host/uhci-hcd.c           |    2 
- drivers/usb/input/Kconfig             |    7 
- drivers/usb/misc/brlvger.c            |    6 
- drivers/usb/misc/speedtch.c           |  120 +++++----
- drivers/usb/serial/keyspan.c          |  420 ++++++++++++++++++++++++++++++++--
- drivers/usb/serial/keyspan.h          |   33 ++
- drivers/usb/serial/keyspan_usa26msg.h |    8 
- drivers/usb/serial/keyspan_usa28msg.h |    8 
- drivers/usb/serial/keyspan_usa49msg.h |    8 
- drivers/usb/serial/keyspan_usa90msg.h |  198 ++++++++++++++++
- drivers/usb/storage/freecom.c         |   16 -
- drivers/usb/storage/unusual_devs.h    |    8 
- include/linux/usb.h                   |    6 
- 15 files changed, 884 insertions(+), 271 deletions(-)
------
-
-<amn3s1a:ono.com>:
-  o USB: New unusual_devs.h entry (Minolta DiMAGE E223 Digital Camera)
-
-Alan Stern:
-  o USB: unusual_devs.h update
-
-Daniel Drake:
-  o USB brlvger: Debug code fixes
-
-Duncan Sands:
-  o USB speedtouch: neater check
-  o USB speedtouch: reduce memory usage
-  o USB speedtouch: extra debug messages
-
-Greg Kroah-Hartman:
-  o USB: fix up some non-GPL friendly license wording
-  o USB: port keyspan patch from 2.4 to 2.6
-  o USB: convert usbfs to use new fs parser code
-
-Joe Perches:
-  o USB: include/linux/usb.h
-
-Luiz Capitulino:
-  o USB: fix drivers/usb/host/uhci-debug.c warning when !CONFIG_PROC_FS
-
-Matthew Dharm:
-  o USB: fix freecom.c
-
-Steven Cole:
-  o USB: remove reference to modules.txt in drivers/usb/input/Kconfig
-
-Wim Van Sebroeck:
-  o USB: problem with uhci-hcd in versions 2.6.0-test5 and 2.6.0-test6
-
+Regards, and thanks,
+Joe

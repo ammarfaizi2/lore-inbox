@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316822AbSGVLRl>; Mon, 22 Jul 2002 07:17:41 -0400
+	id <S315971AbSGVETD>; Mon, 22 Jul 2002 00:19:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316821AbSGVLQR>; Mon, 22 Jul 2002 07:16:17 -0400
-Received: from ns.suse.de ([213.95.15.193]:27404 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316820AbSGVLQI>;
-	Mon, 22 Jul 2002 07:16:08 -0400
-Date: Mon, 22 Jul 2002 13:19:15 +0200
-From: Dave Jones <davej@suse.de>
-To: martin@dalecki.de
-Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.27 sysctl
-Message-ID: <20020722131915.K27749@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>, martin@dalecki.de,
-	Christoph Hellwig <hch@lst.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> <3D3BE17F.3040905@evision.ag> <20020722125347.B16685@lst.de> <3D3BE4C7.2060203@evision.ag>
-Mime-Version: 1.0
+	id <S316070AbSGVETD>; Mon, 22 Jul 2002 00:19:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48904 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315971AbSGVETC>;
+	Mon, 22 Jul 2002 00:19:02 -0400
+Message-ID: <3D3B8A4E.78944941@zip.com.au>
+Date: Sun, 21 Jul 2002 21:30:06 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cantab.net>
+CC: Stephen Lord <lord@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT read and holes in 2.5.26
+References: <3D3B6D57.BB5C0F38@zip.com.au> <5.1.0.14.2.20020722040423.042eb710@pop.cus.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3D3BE4C7.2060203@evision.ag>; from dalecki@evision.ag on Mon, Jul 22, 2002 at 12:56:07PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 12:56:07PM +0200, Marcin Dalecki wrote:
+Anton Altaparmakov wrote:
+> 
+> Hi Andrew,
+> 
+> At 03:26 22/07/02, Andrew Morton wrote:
+> >Stephen Lord wrote:
+> > > Did you realize that the new O_DIRECT code in 2.5 cannot read over holes
+> > > in a file.
+> >
+> >Well that was intentional, although I confess to not having
+> >put a lot of thought into the decision.  The user wants
+> >O_DIRECT and we cannot do that.  The CPU has to clear the
+> >memory by hand.  Bad.
+> >
+> >Obviously it's easy enough to put in the code to clear the
+> >memory out.  Do you think that should be done?
+> 
+> I would vote for yes because whether a file is sparse or not cannot be
+> trivially controlled by the file creator (unless you actually write the
+> whole file with non-zero content) but is dependent on the underlying file
+> system...
 
- > > Please don't remove the trailing commas in the enums.  they make adding
- > > to them much easier and are allowed by gcc (and maybe C99, I'm not
- > > sure).
- > It's an GNU-ism. If you have any problem with "adding vales", just
- > invent some dummy end-value. I have a problem with using -pedantic.
+O_DIRECT tends to be used in specialised applications.  They're
+being silly if they're reading from holes.
 
-If you feel like doing 'warnings patrol', then there are a bunch of
-more important regular warnings[1] that need fixing up without having to look
-through the pedantic output. Last I checked the pedantic stuff flagged
-a lot of bits that the fix ended up uglier than the warning
-(which 99.9% of people won't ever see anyway)
+> And on the grounds that a memset() is going to be a lot faster
+> than a read from device I don't see why it shouldn't be done.
 
-        Dave
+It's actually tons more expensive - wiping the page by hand
+goes against the whole reason for using O_DIRECT.
 
-[1] Although more important would be stabilising IDE, but thats a sidenote.
+But it is the expected behaviour of the read() system call
+so yeah, I'll do it.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+> ...
+> [ get_blocks() stuff ]
+>
+
+This is going to be fairly involved.  Probably the top-level
+IO code gets ripped up and redone to expect a get_blocks()
+interface.  A default implementation of get_blocks() would
+be provided for naive filesystems - it just calls get_block()
+a lot.  Quite possibly, we say to heck with purity and get_block()
+and get_blocks() become a_ops, too.
+
+I'd really like to see a solid reason for doing all this.
+That means numbers ;)  Even good old ext2 would be able to show
+benefit from batching up the get_block() work, but not a lot.
+
+You won't buy much on writes, I expect - 8k write requests
+will probably remain the ideal size.
+
+-

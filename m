@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281968AbRKUXHy>; Wed, 21 Nov 2001 18:07:54 -0500
+	id <S281771AbRKUXHJ>; Wed, 21 Nov 2001 18:07:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281990AbRKUXHk>; Wed, 21 Nov 2001 18:07:40 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44817 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281968AbRKUXHa>; Wed, 21 Nov 2001 18:07:30 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Again Multiboot-Standard for Linux ?
-Date: 21 Nov 2001 15:07:16 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9thc34$8lb$1@cesium.transmeta.com>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D772@orsmsx111.jf.intel.com> <166g3I-0ksq00C@fwd06.sul.t-online.com>
-MIME-Version: 1.0
+	id <S281968AbRKUXHA>; Wed, 21 Nov 2001 18:07:00 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:26661 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S281771AbRKUXGm>;
+	Wed, 21 Nov 2001 18:06:42 -0500
 Content-Type: text/plain; charset=US-ASCII
+From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Ext3 not supported by kernel !!!!!
+Date: Wed, 21 Nov 2001 23:07:31 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Message-ID: <EXCH01SMTP01eaCYPct00001063@smtp.netcabo.pt>
+X-OriginalArrivalTime: 21 Nov 2001 23:06:14.0072 (UTC) FILETIME=[1E10F380:01C172E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <166g3I-0ksq00C@fwd06.sul.t-online.com>
-By author:    "ChristianK."@t-online.de (Christian Koenig)
-In newsgroup: linux.dev.kernel
-> 
-> Beside that, this it is a very nice feature for making an Installation Disk / 
-> Distributions.
-> AFAIK the newest RedHat distribution use grub as standard Linux Loader,
-> if the Linux Kernel is able to load modules before mounting root, you can 
-> make a Kernel without any block/bus driver compiled in.
-> 
+Hi again guys, i manage to compile the 2.4.14 kernel just fine, and did all 
+the steps:
 
-That's already what initrd does.  What would make this interesting --
-and why, at least in my opinion, Multiboot is the wrong solution -- is
-to make the bootloader smarter about what it loads.  If the boot
-loader can *probe* for the device- and filesystem drivers it needs and
-thus dynamically compose the kernel in a dynamic manner, then it is
-suddenly a win; not sooner.  Multiboot doesn't do that, although it
-might be possible to build on top of it to get there.
+make  menuconfig
+make dep
+( didn't do make clean though )
+make modules
+make modules install
+cp arch/i386/boot/bzImage /boot/vzmiluz-2.4.14
+mkinitrd /boot/initrd-2.4.14.img
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+edited my lilo and updated it ( /sbin/lilo )
+
+Then i rebooted and was expecting a happy ending though it not happened.
+after loading the kernel, when linux was suppose to mount the modules, the 
+file system and so, an error appeard!!
+
+fs ext3 not supported by kernel
+
+kernel panic...... bla bla bla
+
+after that i reentered linux with my working kernel and did bzdisk just to 
+check!
+
+then i rebooted and linux booted because the kernel needn't be mounted as it 
+is in the floppy and initrf.immg as well.
+
+though when red hat came to mount the file system, instead of the beautifull 
+[ ok ], a [ failed ] appeard, again with the error message:
+
+fs ext3 not supported by kernel!
+
+This was for what i  think something i misschoose in the make config step am 
+i right??'
+
+If so can one of u tell me which menu contains the ext3 support for the 
+kernel compilation.
+
+tks again, Astinus

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262952AbTC0Ooy>; Thu, 27 Mar 2003 09:44:54 -0500
+	id <S262991AbTC0OsR>; Thu, 27 Mar 2003 09:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262991AbTC0Ooy>; Thu, 27 Mar 2003 09:44:54 -0500
-Received: from 015.atlasinternet.net ([212.9.93.15]:50640 "EHLO
-	antoli.gallimedina.net") by vger.kernel.org with ESMTP
-	id <S262952AbTC0Oox>; Thu, 27 Mar 2003 09:44:53 -0500
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-pre6 (about PPC32)
-Date: Thu, 27 Mar 2003 15:55:55 +0100
-User-Agent: KMail/1.5.1
+	id <S262994AbTC0OsR>; Thu, 27 Mar 2003 09:48:17 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:3336 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262991AbTC0OsQ>; Thu, 27 Mar 2003 09:48:16 -0500
+Date: Thu, 27 Mar 2003 09:55:08 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swap 13/13 may_enter_fs?
+In-Reply-To: <Pine.LNX.4.44.0303261841070.1439-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1030327095113.12939A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303271555.55944.gallir@uib.es>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Support Radeon 9K variants in radeonfb.
+On Wed, 26 Mar 2003, Hugh Dickins wrote:
+
+> On Wed, 26 Mar 2003, Bill Davidsen wrote:
+> > 
+> > Unless there's a subtle difference in functionality here that I'm missing,
+> > you are doing the same thing in a larger and slower way, and the logic is
+> > less clear.
+> > 
+> > Is there some benefit I'm missing?
 > 
-> Well...
->  
-> I have a bunch of quite important radeonfb updates (including all
-> these new chipset support stuffs) that are waiting for Ani (the
-> maintainer) to send them to Marcelo.
+> No, it's just that Andrew finds the logic clearer when written out his way.
 
-I don't know how they are related to you benX version available via rsync, 
-but in ben9 the X server goes to a loop right after resuming on a iBook 
-G3-500 with 7500-M. I was reported it happens also on G3-800 with radeon.
+Looking a code generated from fragments, I don't think gcc shares that
+opinion ;-) Actually I find it more obvious with the ? notation, and it
+prevents someone in the future changing the logic in one line of code when
+it needs to change in both.
 
-Also, dmasound stopped working in the G3-500, it gives a "No space left in 
-device" error while trying to write to /dev/dsp. My last working version 
-is 2.4.20-rc1-ben0. I think I already reported to you, but just in case.
-
-Regards,
-
+Oh well, I expect the ? form to stay, since it uses less cache.
 
 -- 
-  ricardo galli       GPG id C8114D34
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

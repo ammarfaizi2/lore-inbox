@@ -1,60 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285136AbRLXQLy>; Mon, 24 Dec 2001 11:11:54 -0500
+	id <S285147AbRLXQSO>; Mon, 24 Dec 2001 11:18:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285138AbRLXQLr>; Mon, 24 Dec 2001 11:11:47 -0500
-Received: from dcn237-32.dcn.davis.ca.us ([168.150.237.32]:18436 "EHLO
-	barn.psychohorse.com") by vger.kernel.org with ESMTP
-	id <S285136AbRLXQLc>; Mon, 24 Dec 2001 11:11:32 -0500
-Message-Id: <200112241611.fBOGB5022430@barn.psychohorse.com>
+	id <S285148AbRLXQSF>; Mon, 24 Dec 2001 11:18:05 -0500
+Received: from jalon.able.es ([212.97.163.2]:3776 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S285147AbRLXQRx>;
+	Mon, 24 Dec 2001 11:17:53 -0500
+Date: Mon, 24 Dec 2001 17:19:54 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Astinus <Astinus@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WHICH MACHINE?????
+Message-ID: <20011224171954.A2539@werewolf.able.es>
+In-Reply-To: <m16IMMg-0005khC@gherkin.frus.com> <002a01c18c85$30136140$d500a8c0@mshome.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Matthew Johnson <matthew@psychohorse.com>
-Reply-To: matthew@psychohorse.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Maybe I have a bad day or something
-Date: Mon, 24 Dec 2001 08:11:28 -0800
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <01122415075100.02141@manta> <3C273A67.7BA0F5AC@monmouth.com>
-In-Reply-To: <3C273A67.7BA0F5AC@monmouth.com>
-MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
+In-Reply-To: <002a01c18c85$30136140$d500a8c0@mshome.net>; from Astinus@netcabo.pt on Mon, Dec 24, 2001 at 15:13:35 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 December 2001 06:23 am, Pat Villani wrote:
-> You're not alone.  Frankly, I just skim the subjects and some messages to
-> figure out whether or not to read further.
+
+First of all, merry Christmas to everybody !!
+
+On 20011224 Astinus wrote:
 >
-> Don't get discouraged.  There are way more readers who don't post than the
-> vocal minority who whine about coding styles or why Linus didn't pick up
-> their patch.  I found this out a while ago.  I wrote the original FreeDOS
-> code and ran into this constantly.  I admire Linus for not letting it get
-> him down; it did for me.  I eventually quit the project altogether,
-> disgusted with the bozos.
+>I talked to some guys, and came up with this machine:
 >
 
-I am one of those readers that don't post, well to now. I don't want to make 
-a fool out of myself, plus nothing yet has really piqued my interest and I 
-never went to University to do CS or CE, played too much Rugby instead (but I 
-want to go sometime perhaps), so my prgramming really is not up to scratch 
-yet. Perhaps this is reflected on others too. Not above beta testing of 
-course.
+Disclaimer: obviously, this are just my humble ideas...
 
-Whining occurs pretty much everywhere, not just here. As this is an open and 
-free development perhaps people feel free to be a little less professional in 
-their words, rather than just reporting facts. Linus seems to be very Hobbit 
-like, very humble indeed. Only Linus probably knows why it does not seem to 
-get him down.
+>        Motherboard => Intel D850GB Al ( with network and sound )
 
+Unless you plan to plug a ton of pci cards and run out of slots, do not
+buy anything integrated. If something breaks, your entire box goes to hell,
+instead of unplugging your sound card and sendin it to repair (or to trash...)
+Do not know about Intel's mobos, but I like SuperMicro's. I have an oldie
+(a P6DGU, 400GX, and it runs more stable than anything I have tested - well,
+recently we bought some 370DLE with SeverWorks HE-LS and they look fine also).
+Apart from the UDE UDMA issue with ServerWorks, nowadays I would reccommend
+those, a SuperMicro with LE chipset. And I will never even look at a Via.
+I have only suffered with them.
 
-> Well, I know I'm going to get flames on this one.  That's OK, it'll keep me
-> warm this Christmas.  May everyone have a safe and happy Holiday Season.
+>        Processor => Intel P4 2 GHz
+
+I do not follow the MHz war, but that sounds the latest-and-greatest-and-
+heatsink-burning. Do you really need it ? Think of a one of those new
+1.2-1.3GHz Tualatins. They look like halfway a PIII and a Xeon. Save money
+on the processor and invest it on the mobo. I will tell you to look at
+the cache amount, but nowadays processor manufacturers are trading MHz
+for cache. Brute force instead of cleverness...
+
+>        Hard Drive => Seagate SCSI Cheata 10 000 rmp ( i think it is written
+>like this: Cheata ) with 16 megs of cache
+>        Scsi controler => adaptec scsi ultra 160 whith two channels
+
+I have dealed with IBMs and Fujitsus. IBMs get my vote.
+(btw, I think it's spelled 'cheeta', like the panthers...)
+
+>        Ram => 1000 mb ram 2x 512 rims
+
+Those SuperMicro I talked about allow 2 (and perjaps 4) way interleaving
+with DIMM (133). They run fast, very fast...
+
+>        Video card => (haven't decided but probably a geforce 2 with 64 mb
+>ram )
 >
 
-Nope, they may let you freeze instead. Happy Christmas  and New Year to 
-everyone, may 2002 be very much more successful than 2001. 2001 was probably 
-jinxed due to Arthur C Clark anyway...
+If you do not plan a very heavy 3D, a GeForce2MX400 is the best price-feature
+rate. The highest of the low-end. I think they are changing it now for some
+called Titanium.
 
-> Pat
+>Well these are the main components that i am thinking to use for building a
+>new machine.
+>
+>I would like u to tell me if it is a good choice, or if i should buy a dual
+>xenon processor machine instead.....
+>
 
-Matt
+A dual box will feel much more responsive for interactive work, even if the
+processors are not too fast. I have 2 PII@400MHz (yes, PII, did not loose
+a I), and the box runs smoother than some GHz boxes (well, some cheating
+here, the PII have 512KB caches, not like newest processors that even drop
+it to 128KB).
+
+Happy Christmas gift...
+
+By.
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.17-beo #1 SMP Sun Dec 23 01:12:10 CET 2001 i686

@@ -1,49 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263516AbTEJFmw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 01:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTEJFmv
+	id S263661AbTEJFx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 01:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbTEJFx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 01:42:51 -0400
-Received: from holomorphy.com ([66.224.33.161]:38564 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263516AbTEJFmv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 01:42:51 -0400
-Date: Fri, 9 May 2003 22:55:16 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Greg KH <greg@kroah.com>
-Cc: David Brownell <david-b@pacbell.net>, Max Krasnyansky <maxk@qualcomm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
-Message-ID: <20030510055516.GD8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-	Max Krasnyansky <maxk@qualcomm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-usb-devel@lists.sourceforge.net
-References: <200304290317.h3T3HOdA027579@hera.kernel.org> <200304290317.h3T3HOdA027579@hera.kernel.org> <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com> <5.1.0.14.2.20030429145523.10c52e50@unixmail.qualcomm.com> <5.1.0.14.2.20030508123858.01c004f8@unixmail.qualcomm.com> <3EBBFC33.7050702@pacbell.net> <1052517124.10458.199.camel@localhost.localdomain> <20030509230542.GA3267@kroah.com> <3EBC4C50.8040304@pacbell.net> <20030510054015.GA1865@kroah.com>
+	Sat, 10 May 2003 01:53:58 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:60081 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263661AbTEJFx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 01:53:56 -0400
+Date: Sat, 10 May 2003 08:04:40 +0200
+From: norbert_wolff@t-online.de (Norbert Wolff)
+To: Andy Pfiffer <andyp@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA busted in 2.5.69
+Message-Id: <20030510080440.3446cc96.norbert_wolff@t-online.de>
+In-Reply-To: <1052507530.15922.37.camel@andyp.pdx.osdl.net>
+References: <fa.j6n4o02.sl813a@ifi.uio.no>
+	<fa.juutvqv.1inovpj@ifi.uio.no>
+	<3EBBF00D.8040108@hotmail.com>
+	<1052507530.15922.37.camel@andyp.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.8.11
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030510054015.GA1865@kroah.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/mixed;
+ boundary="Multipart_Sat__10_May_2003_08:04:40_+0200_08244e00"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 05:48:16PM -0700, David Brownell wrote:
->> "u32" is prettier, but is there actually a policy against using
->> the more standard type names?  (POSIX, someone had said.)
+This is a multi-part message in MIME format.
 
-On Fri, May 09, 2003 at 10:40:15PM -0700, Greg KH wrote:
-> Yes there is.  Linus has stated this a few times on lkml in the past.  I
-> have an old linux journal article that talks about this that I need to
-> turn into docbook and add to the kernel tree to set it in stone.
+--Multipart_Sat__10_May_2003_08:04:40_+0200_08244e00
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-If someone could clarify the motive I'd be much obliged.
+On 09 May 2003 12:12:10 -0700
+Andy Pfiffer <andyp@osdl.org> wrote:
 
-Thanks.
+> I'm not using devfs, and I've had no luck getting ALSA to work on my
+> i810-audio system.  OSS works fine.
+> 
+> Is there a step-by-step writeup available for morons like me that
+> haven't gotten ALSA working?
+
+Hi Andy !
+
+The Problem seems to be that ALSA has moved their devices some weeks ago.
+In the alsa-driver-0.9.3a-Package (ftp://ftp.alsa-project.org) is a script
+called snddevices (attached) which creates the needed devices and links.
+
+Execute it as root and all should be fine ...
+
+Maybe this Script should be distributed with the Kernel too ?
+
+Regards,
+
+	Norbert
 
 
--- wli
+-- 
+ Norbert Wolff
+ OpenPGP-Key:
+   http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xF13BD6F6
+
+
+--Multipart_Sat__10_May_2003_08:04:40_+0200_08244e00
+Content-Type: application/octet-stream;
+ name="snddevices"
+Content-Disposition: attachment;
+ filename="snddevices"
+Content-Transfer-Encoding: base64
+
+IyEvYmluL2Jhc2gKCk1BSk9SPTExNgpPU1NNQUpPUj0xNApNQVhfQ0FSRFM9NApQRVJNPTY2NgpT
+VEFUSUM9MApPV05FUj1yb290LnJvb3QKCmlmIFsgImBncmVwIC13IC1FICJeYXVkaW8iIC9ldGMv
+Z3JvdXBgeCIgIT0geCBdOyB0aGVuCiAgUEVSTT02NjAKICBPV05FUj1yb290LmF1ZGlvCmZpCgpm
+dW5jdGlvbiBjcmVhdGVfb2RldmljZSAoKSB7CiAgcm0gLWYgJDEKICBlY2hvIC1uICJDcmVhdGlu
+ZyAkMS4uLiIKICBta25vZCAtbSAkUEVSTSAkMSBjICRPU1NNQUpPUiAkMgogIGNob3duICRPV05F
+UiAkMQogIGVjaG8gIiBkb25lIgp9CgpmdW5jdGlvbiBjcmVhdGVfb2RldmljZXMgKCkgewogIHRt
+cD0wCiAgdG1wMT0wCiAgcm0gLWYgJDEgJDE/CiAgZWNobyAtbiAiQ3JlYXRpbmcgJDE/Li4uIgog
+IHdoaWxlIFsgJHRtcDEgLWx0ICRNQVhfQ0FSRFMgXTsgZG8KICAgIG1pbm9yPSRbICQyICsgJHRt
+cCBdCiAgICBta25vZCAtbSAkUEVSTSAkMSR0bXAxIGMgJE9TU01BSk9SICRtaW5vcgogICAgY2hv
+d24gJE9XTkVSICQxJHRtcDEKICAgIHRtcD0kWyAkdG1wICsgMTYgXQogICAgdG1wMT0kWyAkdG1w
+MSArIDEgXQogIGRvbmUKICBlY2hvICIgZG9uZSIKfQoKZnVuY3Rpb24gY3JlYXRlX2RldmljZTEg
+KCkgewogIHJtIC1mICQxCiAgbWlub3I9JDIKICBlY2hvIC1uICJDcmVhdGluZyAkMS4uLiIKICBt
+a25vZCAtbSAkUEVSTSAkMSBjICRNQUpPUiAkbWlub3IKICBjaG93biAkT1dORVIgJDEKICBlY2hv
+ICIgZG9uZSIKfQoKZnVuY3Rpb24gY3JlYXRlX2RldmljZXMgKCkgewogIHRtcD0wCiAgcm0gLWYg
+JDEgJDE/CiAgZWNobyAtbiAiQ3JlYXRpbmcgJDE/Li4uIgogIHdoaWxlIFsgJHRtcCAtbHQgJE1B
+WF9DQVJEUyBdOyBkbwogICAgbWlub3I9JFsgJHRtcCAqIDMyIF0KICAgIG1pbm9yPSRbICQyICsg
+JG1pbm9yIF0KICAgIG1rbm9kIC1tICRQRVJNICIkezF9QyR7dG1wfSIgYyAkTUFKT1IgJG1pbm9y
+CiAgICBjaG93biAkT1dORVIgIiR7MX1DJHt0bXB9IgogICAgdG1wPSRbICR0bXAgKyAxIF0KICBk
+b25lCiAgZWNobyAiIGRvbmUiCn0KCmZ1bmN0aW9uIGNyZWF0ZV9kZXZpY2VzMiAoKSB7CiAgdG1w
+PTAKICBybSAtZiAkMSAkMT8KICBlY2hvIC1uICJDcmVhdGluZyAkMT8/Li4uIgogIHdoaWxlIFsg
+JHRtcCAtbHQgJE1BWF9DQVJEUyBdOyBkbwogICAgdG1wMT0wCiAgICB3aGlsZSBbICR0bXAxIC1s
+dCAkMyBdOyBkbwogICAgICBtaW5vcj0kWyAkdG1wICogMzIgXQogICAgICBtaW5vcj0kWyAkMiAr
+ICRtaW5vciArICR0bXAxIF0KICAgICAgbWtub2QgLW0gJFBFUk0gIiR7MX1DJHt0bXB9RCR7dG1w
+MX0iIGMgJE1BSk9SICRtaW5vcgogICAgICBjaG93biAkT1dORVIgIiR7MX1DJHt0bXB9RCR7dG1w
+MX0iCiAgICAgIHRtcDE9JFsgJHRtcDEgKyAxIF0KICAgIGRvbmUKICAgIHRtcD0kWyAkdG1wICsg
+MSBdCiAgZG9uZQogIGVjaG8gIiBkb25lIgp9CgpmdW5jdGlvbiBjcmVhdGVfZGV2aWNlczMgKCkg
+ewogIHRtcD0wCiAgcm0gLWYgJDEgJDE/CiAgZWNobyAtbiAiQ3JlYXRpbmcgJDE/PyQ0Li4uIgog
+IHdoaWxlIFsgJHRtcCAtbHQgJE1BWF9DQVJEUyBdOyBkbwogICAgdG1wMT0wCiAgICB3aGlsZSBb
+ICR0bXAxIC1sdCAkMyBdOyBkbwogICAgICBtaW5vcj0kWyAkdG1wICogMzIgXQogICAgICBtaW5v
+cj0kWyAkMiArICRtaW5vciArICR0bXAxIF0KICAgICAgbWtub2QgLW0gJFBFUk0gIiR7MX1DJHt0
+bXB9RCR7dG1wMX0kezR9IiBjICRNQUpPUiAkbWlub3IKICAgICAgY2hvd24gJE9XTkVSICIkezF9
+QyR7dG1wfUQke3RtcDF9JHs0fSIKICAgICAgdG1wMT0kWyAkdG1wMSArIDEgXQogICAgZG9uZQog
+ICAgdG1wPSRbICR0bXAgKyAxIF0KICBkb25lCiAgZWNobyAiIGRvbmUiCn0KCmlmIHRlc3QgIiQx
+IiA9ICItPyIgfHwgdGVzdCAiJDEiID0gIi1oIiB8fCB0ZXN0ICIkMSIgPSAiLS1oZWxwIjsgdGhl
+bgogIGVjaG8gIlVzYWdlOiBzbmRkZXZpY2VzIFttYXhdIgogIGV4aXQKZmkKCmlmIHRlc3QgIiQx
+IiA9ICJtYXgiOyB0aGVuCiAgRFNQX01JTk9SPTE5CmZpCgojIE9TUyAoTGl0ZSkgY29tcGF0aWJs
+ZSBkZXZpY2VzLi4uCgppZiB0ZXN0ICRPU1NNQUpPUiAtZXEgMTQ7IHRoZW4KICBjcmVhdGVfb2Rl
+dmljZXMgL2Rldi9taXhlcgkJMAogIGNyZWF0ZV9vZGV2aWNlIC9kZXYvc2VxdWVuY2VyCQkxCiAg
+Y3JlYXRlX29kZXZpY2VzIC9kZXYvbWlkaQkJMgogIGNyZWF0ZV9vZGV2aWNlcyAvZGV2L2RzcAkJ
+MwogIGNyZWF0ZV9vZGV2aWNlcyAvZGV2L2F1ZGlvCQk0CiAgY3JlYXRlX29kZXZpY2UgL2Rldi9z
+bmRzdGF0CQk2CiAgY3JlYXRlX29kZXZpY2UgL2Rldi9tdXNpYwkJOAogIGNyZWF0ZV9vZGV2aWNl
+cyAvZGV2L2RtbWlkaQkJOQogIGNyZWF0ZV9vZGV2aWNlcyAvZGV2L2RtZm0JCTEwCiAgY3JlYXRl
+X29kZXZpY2VzIC9kZXYvYW1peGVyCQkxMQkjIGFsdGVybmF0ZSBtaXhlcgogIGNyZWF0ZV9vZGV2
+aWNlcyAvZGV2L2Fkc3AJCTEyCSMgYWx0ZXJuYXRlIGRzcAogIGNyZWF0ZV9vZGV2aWNlcyAvZGV2
+L2FtaWRpCQkxMwkjIGFsdGVybmF0ZSBtaWRpCiAgY3JlYXRlX29kZXZpY2VzIC9kZXYvYWRtbWlk
+aQkJMTQJIyBhbHRlcm5hdGUgZGlyZWN0IG1pZGkKICAjIGNyZWF0ZSBzeW1saW5rcwogIGxuIC1z
+dmYgL2Rldi9taXhlcjAgL2Rldi9taXhlcgogIGxuIC1zdmYgL2Rldi9taWRpMCAvZGV2L21pZGkK
+ICBsbiAtc3ZmIC9kZXYvZHNwMCAvZGV2L2RzcAogIGxuIC1zdmYgL2Rldi9hdWRpbzAgL2Rldi9h
+dWRpbwogIGxuIC1zdmYgL2Rldi9tdXNpYyAvZGV2L3NlcXVlbmNlcjIKICBsbiAtc3ZmIC9kZXYv
+YWRzcDAgL2Rldi9hZHNwCiAgbG4gLXN2ZiAvZGV2L2FtaWRpMCAvZGV2L2FtaWRpCmZpCgojIE5l
+dyBkZXZpY2VzIChvYnNvbGV0ZSBub3cpLi4uCgptdiAtZiAvZGV2L3NuZHN0YXQgL2Rldi8xc25k
+c3RhdApybSAtZiAvZGV2L3NuZCoKbXYgLWYgL2Rldi8xc25kc3RhdCAvZGV2L3NuZHN0YXQKaWYg
+WyAtZCAvZGV2L3NuZCBdOyB0aGVuCiAgcm0gLWYgL2Rldi9zbmQvKgogIHJtZGlyIC9kZXYvc25k
+CmZpCmlmIFsgJFNUQVRJQyAtZ3QgMCBdOyB0aGVuCiAgbWtkaXIgLXAgL2Rldi9zbmQKICBjcmVh
+dGVfZGV2aWNlcyAgL2Rldi9zbmQvY29udHJvbAkwCiAgY3JlYXRlX2RldmljZTEgIC9kZXYvc25k
+L3NlcQkJMQogIGNyZWF0ZV9kZXZpY2UxICAvZGV2L3NuZC90aW1lcgkzMwogIGNyZWF0ZV9kZXZp
+Y2VzMiAvZGV2L3NuZC9odwkJNAk0CiAgY3JlYXRlX2RldmljZXMyIC9kZXYvc25kL21pZGkJCTgJ
+OAogIGNyZWF0ZV9kZXZpY2VzMyAvZGV2L3NuZC9wY20JCTE2CTgJcAogIGNyZWF0ZV9kZXZpY2Vz
+MyAvZGV2L3NuZC9wY20JCTI0CTgJYwpmaQoKIyBOZXcgZHluYW1pYyBzb3VuZCBkZXZpY2UgZmls
+ZXN5c3RlbQoKaWYgWyAkU1RBVElDIC1sZSAwIF07IHRoZW4KICBlY2hvICJBTFNBIGR5bmFtaWMg
+c291bmQgZGV2aWNlIGZpbGVzeXN0ZW0iCiAgbG4gLXNmdiAvcHJvYy9hc291bmQvZGV2IC9kZXYv
+c25kCmZpCgojIExvYWRlciBkZXZpY2VzCgplY2hvICJBTFNBIGxvYWRlciBkZXZpY2VzIgpybSAt
+ZiAvZGV2L2Fsb2FkKgpjcmVhdGVfZGV2aWNlcyAgL2Rldi9hbG9hZAkJMApjcmVhdGVfZGV2aWNl
+MSAgL2Rldi9hbG9hZFNFUQkJMQo=
+
+--Multipart_Sat__10_May_2003_08:04:40_+0200_08244e00--

@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264867AbSKVOAB>; Fri, 22 Nov 2002 09:00:01 -0500
+	id <S264875AbSKVOGx>; Fri, 22 Nov 2002 09:06:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264872AbSKVOAB>; Fri, 22 Nov 2002 09:00:01 -0500
-Received: from mail.gmx.de ([213.165.64.20]:47927 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S264867AbSKVOAB>;
-	Fri, 22 Nov 2002 09:00:01 -0500
-Message-Id: <5.1.1.6.2.20021122145546.00c236e8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Fri, 22 Nov 2002 15:04:04 +0100
-To: jim.houston@attbi.com, linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.47 scheduler problems?
-Cc: riel@conectiva.com.br
-In-Reply-To: <5.1.1.6.2.20021122134045.00cc9680@pop.gmx.net>
-References: <5.1.1.6.2.20021122120405.00c236e8@pop.gmx.net>
- <3DDDC37F.5AC219D5@attbi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S264877AbSKVOGx>; Fri, 22 Nov 2002 09:06:53 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:48025 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S264875AbSKVOGw> convert rfc822-to-8bit; Fri, 22 Nov 2002 09:06:52 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Where is ext2/3 secure delete ("s") attribute?
+Date: Fri, 22 Nov 2002 08:13:12 -0600
+User-Agent: KMail/1.4.1
+Cc: kentborg@borg.org, alan@lxorguk.ukuu.org.uk, jgarzik@pobox.com
+References: <200211220122.gAM1MQY305783@saturn.cs.uml.edu>
+In-Reply-To: <200211220122.gAM1MQY305783@saturn.cs.uml.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211220813.12136.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:51 PM 11/22/2002 +0100, Mike Galbraith wrote:
->At 12:07 PM 11/22/2002 +0100, Mike Galbraith wrote:
->>At 12:41 AM 11/22/2002 -0500, Jim Houston wrote:
->>
->>>I just gave this a spin with.  The patches still apply cleanly
->>>to linux-2.5.48 and it seems well behaved:-)
->>
->>It seems a little choppy still for a not swapping load, but greatly improved.
->>
->>Thanks!
+On Thursday 21 November 2002 07:22 pm, Albert D. Cahalan wrote:
+> Alan Cox writes:
+> > On Thu, 2002-11-21 at 19:05, Kent Borg wrote:
+> >> Another example of why this needs to be done in the file system.  (And
+> >> that help is sometimes needed from the "disk" particularly in cases
+> >> like flash IDE rives.)
+> >
+> > The file system can't do it
+> > The flash device won't give you the info to do it
+> > The ide disk wont give you the info to do it
 >
->(I put it into virgin 2.5.47 fwiw)   I have some very odd behavior.  I 
->wanted to see how the kernel did at make -j30 bzImage on my test box to 
->see what effect it has on throughput (box is 500 Mhz PIII + 128Mb ram), 
->and get vmstat output like the attached.  I should be roughly 30Mb into 
->swap and paging heftily at this point.
+> That's being an idealist. You can protect against everybody
+> except the NSA and the disk manufacturer. Most likely they'd
+> need to spend lots of money in a clean room to get your data.
 
-Never mind the vmstat output.. it seems you need both patches.  With both 
-in 2.5.48, the build progressed in a much more normal looking fashion.  I'm 
-not losing control of my box any more under load.
+incomplete list....
+	NSA
+	DoD
+	Homeland Defense gestapo
+	disk manufacturer
+	anybody willing to spend about $1000-$5000.
 
-         -Mike  
+And I'm not sure it is impossible to just reset the bad block list either.
+I've been able to do that to SCSI drives in the past, so I think it is
+still possible to do.
+	
+> Forget the shred program. It's less useful than having the
+> filesystem simply zero the blocks, because it's slow and you
+> can't be sure to hit the OS-visible blocks. Aside from encryption,
+> the useful options are:
+>
+> 1. plain old rm  (protect from users)
+> 2. filesystem clears the blocks  (protect from root/kernel)
+> 3. physically destroy the disk  (protect from NSA & manufacturer)
 
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

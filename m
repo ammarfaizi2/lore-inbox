@@ -1,124 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbUCaRAT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 12:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbUCaRAS
+	id S262088AbUCaRAf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 12:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbUCaRAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 12:00:18 -0500
-Received: from numenor.qualcomm.com ([129.46.51.58]:25807 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id S262070AbUCaRAF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 12:00:05 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
+	Wed, 31 Mar 2004 12:00:35 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:52232 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262088AbUCaRA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 12:00:26 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: ulrich.windl@rz.uni-regensburg.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 on Itanium2: floating-point assist fault at ip 400000000062ada1, isr 0000020000000008
+Date: Wed, 31 Mar 2004 19:00:17 +0200
+User-Agent: KMail/1.5.4
+References: <406AE0D5.10359.1930261@localhost>
+In-Reply-To: <406AE0D5.10359.1930261@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: kernel BUG at kernel/timer.c:370!
-Date: Wed, 31 Mar 2004 08:59:47 -0800
-Message-ID: <0320111483D8B84AAAB437215BBDA526847F6F@NAEX01.na.qualcomm.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel BUG at kernel/timer.c:370!
-Thread-Index: AcPy1DN2GYH79VZ8ToCXWApgQLhGrgkbSVbQ
-From: "Craig, Dave" <dwcraig@qualcomm.com>
-To: "Andrew Morton" <akpm@osdl.org>,
-       "Rafael D'Halleweyn \(List\)" <list@noduck.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 31 Mar 2004 16:59:48.0736 (UTC) FILETIME=[9373A800:01C41741]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403311900.17293.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just observed this failure on two separate systems this morning.  I
-added the patch in the hopes that it will provide some useful
-information.
-
-	Dave Craig
-
-QUALCOMM Incorporated
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Andrew Morton
-Sent: Saturday, February 14, 2004 12:22 AM
-To: Rafael D'Halleweyn (List)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at kernel/timer.c:370!
-
-"Rafael D'Halleweyn (List)" <list@noduck.net> wrote:
+On Wednesday 31 March 2004 15:16, Ulrich Windl wrote:
+> Hello,
 >
-> I sometimes get the following BUG (transcribed from a digital camera
->  snapshot, so it might contain errors). I did not copy the stack
-trace,
->  let me know if you want it.
-> 
->  kernel BUG at kernel/timer.c:370!
->  invalid operand: 0000 [#1]
->  CPU:    0
->  EIP:    0060:[<c01284f8>]    Not tainted
->  EFLAGS: 00010003
->  EIP is at cascade+0x50/0x70
->  eax: d0a77724   ebx: d0a77724   ecx: c04aaa28   edx: 0000001c
->  esi: c04aab08   edi: c04aa220   ebp: 0000001c   esp: c0457e9e
->  ds: 007b   es: 007b   ss: 0068
->  Process swapper (pid: 0, threadinfo=c0456000 task=c03d2de0)
->  Stack: ...
->  Call Trace:
->   [<c01289e4>] update_process_times+0x44/0x50
->   [<c0128b3f>] run_timer_softirq+0x12f/0x1c0
->   [<c0124695>] do_softirq+0x95/0xa0
->   [<c010d2fb>] do_IRQ+0xfb/0x130
->   [<c010b5e8>] common_interrupt+0x18/0x20
+> I did try to find an answer is SuSE's support database, not in SAP's
+> support database, and also did search Google, but could not find an answer:
+>
+> We run SuSE Linux Enterprise Server 8 (SLES8) on a HP rx4640 Itanium2
+> server with 2 CPUs (family: Itanium 2, model: 1, revision: 5, archrev: 0).
+>
+> In syslog is do see periodic kernel messages (with no implicit priority)
+> that read:
+>
+> dw.sapC11_DVS02(14393): floating-point assist fault at ip 400000000062ada1,
+> isr 0000020000000008
+>
+> ("dw.sapC11_DVS02" is a SAP R/3 work process (46D_EXT, patch 1754, for
+> those who care)
+>
+> Can anybody explain what this message means? Is it an application problem,
+> or is it a kernel problem?
 
-This could be a hardware problem.  Or it could be a bug basically
-anywhere
-in the kernel.
+        static int fpu_swa_count = 0;
+        static unsigned long last_time;
+...
+        if (jiffies - last_time > 5*HZ)
+                fpu_swa_count = 0;
+        if ((fpu_swa_count < 4) && !(current->thread.flags & IA64_THREAD_FPEMU_NOPRINT)) {
+                last_time = jiffies;
+                ++fpu_swa_count;
+                printk(KERN_WARNING "%s(%d): floating-point assist fault at ip %016lx, isr %016lx\n",
+                       current->comm, current->pid, regs->cr_iip + ia64_psr(regs)->ri, isr);
+        }
 
-Are you using CONFIG_DEBUG_SLAB?
-
-Could you please apply the below patch, wait for the problem to reoccur,
-then let us know?
-
-diff -puN kernel/timer.c~a kernel/timer.c
---- 25/kernel/timer.c~a	2004-02-14 00:14:46.000000000 -0800
-+++ 25-akpm/kernel/timer.c	2004-02-14 00:20:09.000000000 -0800
-@@ -31,6 +31,7 @@
- #include <linux/time.h>
- #include <linux/jiffies.h>
- #include <linux/cpu.h>
-+#include <linux/kallsyms.h>
- 
- #include <asm/uaccess.h>
- #include <asm/div64.h>
-@@ -367,7 +368,15 @@ static int cascade(tvec_base_t *base, tv
- 		struct timer_list *tmp;
- 
- 		tmp = list_entry(curr, struct timer_list, entry);
--		BUG_ON(tmp->base != base);
-+		if (tmp->base != base) {
-+			printk("%s: %p != %p\n",
-+				__FUNCTION__, tmp->base, base);
-+			printk("handler=%p", tmp->function);
-+			print_symbol(" (%s)", (unsigned
-long)tmp->function);
-+			printk("\n");
-+			dump_stack();
-+			tmp->base = base;
-+		}
- 		curr = curr->next;
- 		internal_add_timer(base, tmp);
- 	}
-
-_
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+kernel says that you have them too frequently, which probably
+impairs efficiency. It's a hint to programmer.
+--
+vda
 

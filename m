@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUHKPZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268082AbUHKP3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268080AbUHKPZV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 11:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268081AbUHKPZV
+	id S268082AbUHKP3i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 11:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268083AbUHKP3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 11:25:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40936 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268080AbUHKPZQ (ORCPT
+	Wed, 11 Aug 2004 11:29:38 -0400
+Received: from cantor.suse.de ([195.135.220.2]:1716 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268082AbUHKP3g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 11:25:16 -0400
-Date: Wed, 11 Aug 2004 08:25:10 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: davidm@hpl.hp.com
-Cc: James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kurt Garloff <garloff@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] [LSM] Rework LSM hooks
-Message-ID: <20040811082510.D1924@build.pdx.osdl.net>
-References: <20040810131217.Q1924@build.pdx.osdl.net> <Xine.LNX.4.44.0408101630250.9412-100000@dhcp83-76.boston.redhat.com> <16665.56613.143598.768389@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16665.56613.143598.768389@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Wed, Aug 11, 2004 at 01:47:33AM -0700
+	Wed, 11 Aug 2004 11:29:36 -0400
+Message-ID: <411A3B1F.3010800@suse.de>
+Date: Wed, 11 Aug 2004 17:28:31 +0200
+From: Thomas Renninger <trenn@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Len Brown <len.brown@intel.com>
+Cc: Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
+       seife@suse.de, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Allow userspace do something special on overtemp
+References: <20040811085326.GA11765@elf.ucw.cz>	 <1092215024.2816.8.camel@laptop.fenrus.com>	 <20040811090622.GC674@elf.ucw.cz> <1092235779.5028.93.camel@dhcppc4>
+In-Reply-To: <1092235779.5028.93.camel@dhcppc4>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Mosberger (davidm@napali.hpl.hp.com) wrote:
-> >>>>> On Tue, 10 Aug 2004 16:31:12 -0400 (EDT), James Morris <jmorris@redhat.com> said:
+Len Brown wrote:
+> On Wed, 2004-08-11 at 05:06, Pavel Machek wrote:
 > 
->   James> On Tue, 10 Aug 2004, Chris Wright wrote:
->   >> Thanks, James.  Since these are the only concrete numbers and
->   >> they are in the noise, I see no compelling reason to change to
->   >> unlikely().
+>>Hi!
+>>
+>>
+>>>>.adds possibility to react to
+>>>>critical overtemp: it tries to call /sbin/overtemp, and only if
+>>
+>>that fails calls /sbin/poweroff.
 > 
->   James> There may be some way to make it ia64 specific.  Is it a cpu
->   James> issue, or compiler?
 > 
-> I'm pretty sure the "unlikely()" part could be dropped with little/no
-> downside.  The part that's relatively expensive (10 cycles when
-> mispredicted) is the indirect call.  GCC doesn't handle this well on
-> ia64 and as a result, most indirect calls are mispredicted.
-> 
-> An alternative solution might be to have a call_likely() macro, where
-> you could predict the most likely target of an indirect call.  Perhaps
-> that could help other platforms as well.
+> Does /sbin/overtemp exist anyplace, or is this a proposal
+> to create it?  What might it do?
 
-Hmm, the pointers are generally quite static, set once near boot time
-typically, and that's it.  Seems like a plausible win.  Do you have an
-example of what call_likely() would look like?
+save some user info, suspend, standby, extreme throttling?
+It should be somehow configurable in userspace.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+For my opinion it would be nicest if kernel just throws a thermal event 
+to /proc/acpi/event (it already does this, but immediately shuts down) 
+and acpid or others should decide whether shutdown/suspend/standby or 
+whatever should be done next.
+I have a machine with a broken DSDT which sets the critical tp to 200°C, 
+there always must be some HW shutdown..., or do you think this is too risky?
+
+Some other related thing:
+Why are no thermal events thrown if active/passive trip points are 
+reached/sub-ceeded?
+The only way at the moment to figure out in userspace whether the system 
+is actively cooled or even slowed down by throttling (passive) is by 
+polling /proc/acpi/thermal/*/state. Isn't the purpose of thermal events 
+exactly for this?
+I think about a possiblity to notify user if machine is slowed down.
+
+
+       Thomas

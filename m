@@ -1,63 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317564AbSFMJfs>; Thu, 13 Jun 2002 05:35:48 -0400
+	id <S317566AbSFMJiN>; Thu, 13 Jun 2002 05:38:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317565AbSFMJfr>; Thu, 13 Jun 2002 05:35:47 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:46855 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S317564AbSFMJfr>; Thu, 13 Jun 2002 05:35:47 -0400
-Message-ID: <3D0867EA.8090809@loewe-komp.de>
-Date: Thu, 13 Jun 2002 11:37:46 +0200
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org, frankeh@watson.ibm.com
-Subject: Re: [PATCH] Futex Asynchronous Interface
-In-Reply-To: <E17IKo3-000341-00@wagner.rustcorp.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317568AbSFMJiM>; Thu, 13 Jun 2002 05:38:12 -0400
+Received: from h-64-105-136-45.SNVACAID.covad.net ([64.105.136.45]:57059 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317566AbSFMJiL>; Thu, 13 Jun 2002 05:38:11 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 13 Jun 2002 02:37:55 -0700
+Message-Id: <200206130937.CAA23202@adam.yggdrasil.com>
+To: martin@dalecki.de
+Subject: Patch: linux-2.5.21/drivers/ide-disk.c crashed at shutdown
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> In message <Pine.LNX.4.44.0206120946100.22189-100000@home.transmeta.com> you wr
-> ite:
-> 
->>
->>
->>On Wed, 12 Jun 2002, Peter W=E4chtler wrote:
->>
->>>For the uncontended case: their is no blocked process...
->>>
->>Wrong.
->>
->>The process that holds the lock can die _before_ it gets contended.
->>
->>When another thread comes in, it now is contended, but the kernel doesn't
->>know about anything.
->>
-> 
-> Note also: this is a feature.
-> 
-> I have a little helper program which can grab or release a futex in a
-> (mmapped) file.  It's great for shell scripts to grab locks.  In this
-> case the helper exits with the lock held, and a later invocation
-> releases a lock it never held.
-> 
-> *AND* the lock is persistent across reboots, since it's in a file.
-> How cool is that!
-> 
+	There are two reasons why ide-disk crashes at system shutdown.
 
-Don't want to bugg you: but you would have to clean them up in any case
-when you restart your system of cooperating programs.
+1. idedisk_devdrv.lock is not initialized (RW_LOCK_UNLOCKED is not all
+    zeroes on x86).
 
-Posix shmem would be a nice place to store your mmaped file so that it's
-gone after reboot - but gives "kernel life time".
+2. The ide-disk module "manually" sets device->driver, but
+   drivers/base/core.c assumes that if device->driver != NULL then
+   a bunch of other fields also have valid data (driver->driver_list,
+   for example).  In this patch, I just clear drive->device.driver
+   before calling put_device as a first step.  Eventually, I would
+   like to use {driver,device}_register than their generic
+   matching facility, but that might take a day to get right and
+   I would like to get this first step into the kernel tree and
+   get your input on this idea.
 
-And not that I want to put the futexes down: but now I understand why
-the PROCESS_SHARED locks on Irix live in the kernel. Yes, perhaps we
-should provide both and the app can choose what suits best.
+	In my patch, I also reindented the fields for idedisk_devdrv.
+It's just a suggestion.
 
+	I'll cc this to linux-kernel since others have reported
+this kernel BUG().
+
+	By the way, with this patch I now get a crash at about
+the same time in usbdevfs, but I believe that is not part of
+this problem.
+
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+--- linux-2.5.21/drivers/ide/ide-disk.c 2002-06-08 22:26:29.000000000 -0700
++++ linux/drivers/ide/ide-disk.c        2002-06-13 02:08:46.000000000 -0700
+@@ -822,8 +822,9 @@
+  */
+ 
+ static struct device_driver idedisk_devdrv = {
+-       suspend: idedisk_suspend,
+-       resume: idedisk_resume,
++       suspend:        idedisk_suspend,
++       resume:         idedisk_resume,
++       lock:           RW_LOCK_UNLOCKED,
+ };
+ 
+ /*
+@@ -1196,6 +1197,9 @@
+        if (!drive)
+            return 0;
+ 
++       /* Kludge: we never registered with device_attach, so prevent
++          put_device from trying to remove us from device->driver_list */
++       drive->device.driver = NULL;
+        put_device(&drive->device);
+        if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
+                if (idedisk_flushcache(drive))
 

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbTERUhH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 16:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTERUhG
+	id S262196AbTERUvn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 16:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTERUvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 16:37:06 -0400
-Received: from holomorphy.com ([66.224.33.161]:58849 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262195AbTERUhG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 16:37:06 -0400
-Date: Sun, 18 May 2003 13:49:56 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: KML <linux-kernel@vger.kernel.org>
-Subject: Re: Recent changes to sysctl.h breaks glibc
-Message-ID: <20030518204956.GB8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Martin Schlemmer <azarah@gentoo.org>,
-	KML <linux-kernel@vger.kernel.org>
-References: <1053289316.10127.41.camel@nosferatu.lan>
+	Sun, 18 May 2003 16:51:43 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:3955 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262196AbTERUvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 16:51:42 -0400
+Date: Sun, 18 May 2003 14:06:42 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Felix von Leitner <felix-kernel@fefe.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: need better I/O scheduler for bulk file serving
+Message-Id: <20030518140642.64c7d619.akpm@digeo.com>
+In-Reply-To: <20030518195913.GA19275@codeblau.de>
+References: <20030518195913.GA19275@codeblau.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1053289316.10127.41.camel@nosferatu.lan>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 May 2003 21:04:34.0173 (UTC) FILETIME=[154B02D0:01C31D81]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 18, 2003 at 10:21:56PM +0200, Martin Schlemmer wrote:
-> Some recent changes to include/linux/sysctl.h breaks glibc.
-> Problem is that __sysctl_args have been modified to use '__user',
-> but that is only defined if __KERNEL__ is defined, because that
-> is the only time compiler.h is included.
+Felix von Leitner <felix-kernel@fefe.de> wrote:
+>
+> Larger read-ahead maybe?
 
-Don't include the kernel headers in userspace.
+Or an anticipatory scheduler.  You don't say what kernel you're
+using.
 
-
--- wli
+We can set the readahead per-fd now, but the fcntl/ioctl hasn't
+been implemented.

@@ -1,83 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVBNI0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVBNIcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVBNI0z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 03:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVBNI0z
+	id S261371AbVBNIcX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 03:32:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVBNIcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 03:26:55 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:33682 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261366AbVBNI0w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 03:26:52 -0500
-Subject: Re: [RFC][PATCH 2.6.11-rc3-mm2] Relay Fork Module
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Jay Lan <jlan@engr.sgi.com>
-In-Reply-To: <20050211191112.GB19139@kroah.com>
-References: <1107786245.9582.27.camel@frecb000711.frec.bull.fr>
-	 <20050207154623.33333cda.akpm@osdl.org>
-	 <1108109504.30559.43.camel@frecb000711.frec.bull.fr>
-	 <20050211005446.081aa075.akpm@osdl.org>
-	 <1108134520.14068.66.camel@frecb000711.frec.bull.fr>
-	 <20050211191112.GB19139@kroah.com>
-Date: Mon, 14 Feb 2005 09:26:49 +0100
-Message-Id: <1108369609.25606.29.camel@frecb000711.frec.bull.fr>
+	Mon, 14 Feb 2005 03:32:22 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:61502 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261371AbVBNIcU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 03:32:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Ebn8/Ob8vWIZeR4/tA7K7/CX86yYBHgkkXFbfOE1skAR4Ua1rRGejuJl7cz1AqzIuTcRpys5BHzKuMQ/f86P0GZzXRf8jgpIS64/dnwQrbkk8i7EF9Qw2Jtlh7DkbOEmk1rs5qovdsKFhFS1+5R6ELEfao9vuHnS9EUD010w/wY=
+Message-ID: <4d8e3fd305021400323fa01fff@mail.gmail.com>
+Date: Mon, 14 Feb 2005 09:32:19 +0100
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+Cc: Greg KH <gregkh@suse.de>, Patrick McFarland <pmcfarland@downeast.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <1108354011.25912.43.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 14/02/2005 09:35:32,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 14/02/2005 09:35:36,
-	Serialize complete at 14/02/2005 09:35:36
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>
+	 <20050211011609.GA27176@suse.de>
+	 <1108354011.25912.43.camel@krustophenia.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-11 at 11:11 -0800, Greg KH wrote:
-> > +	char *kobj_path = NULL;
-> > +	char *action_string = NULL;
-> > +	char **envp = NULL;
-> > +	char ppid_string[FORK_BUFFER_SIZE];
-> > +	char cpid_string[FORK_BUFFER_SIZE];
-> > +
-> > +	if (!uevent_sock)
-> > +		return;
-> > +	
-> > +	action_string = action_to_string(KOBJ_FORK);
-> > +	if (!action_string)
-> > +		return;
-> > +	
-> > +	kobj_path = kobject_get_path(kobj, GFP_KERNEL);
-> > +	if (!kobj_path)
-> > +		return;
+On Sun, 13 Feb 2005 23:06:51 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Thu, 2005-02-10 at 17:16 -0800, Greg KH wrote:
+> > All distros are trying to reduce boot time.
 > 
-> How is there a path for a kobject that is never registered with sysfs?
+> They certainly aren't all trying very hard.  Debian and Fedora (last
+> time I checked) do not even run the init scripts in parallel.
 
-My kobject has a name, kobject_set_name(&fork_kobj, "fork_kobj"), and no
-parent so I thought that the path returned by kobject_get_path() was
-"/fork_kobj" even if the kobject is not registered with sysfs. As
-send_uevent() function needs an object path, I used the
-kobject_get_path() routine.
-
-> I agree with Andrew, why are you using a kobject for this?  Have you
-> looked at the "connector" code that is in the -mm tree?  That might be a
-> better solution for this, and it will be going into the kernel tree
-> after 2.6.11 is released.
-
- I'm using kobject because it allows to notify user space application by
-sending an event and as I need to send a kernel event (fork event) to a
-user space application I thought about kobject. Do you think that it's
-not the good solution because it's a too big mechanism for what I want
-to do?
- 
- I haven't looked at the "connector" code and I will have a look now.
-Thank you very much to point this. 
-
-Thank you for your comments and your help, 
-Regards,
-Guillaume
-
+Is there any distro that is running the init scripts in parallel ?
+-- 
+Paolo <paolo dot ciarrocchi at gmail dot com>
+msn: paolo407@hotmail.com
+hello: ciarrop

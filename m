@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272032AbRH2SEm>; Wed, 29 Aug 2001 14:04:42 -0400
+	id <S272021AbRH2SSD>; Wed, 29 Aug 2001 14:18:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272036AbRH2SEc>; Wed, 29 Aug 2001 14:04:32 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:13832 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S272032AbRH2SEU>; Wed, 29 Aug 2001 14:04:20 -0400
-Message-ID: <3B8D2EB1.14B9C3A@namesys.com>
-Date: Wed, 29 Aug 2001 22:04:33 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: ext2 -> reiserfs conversion?
-In-Reply-To: <Pine.LNX.4.30.0108291640540.4463-100000@mustard.heime.net> <20010829114126.G24270@turbolinux.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S272036AbRH2SRx>; Wed, 29 Aug 2001 14:17:53 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:34551 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S272021AbRH2SRn>; Wed, 29 Aug 2001 14:17:43 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Wed, 29 Aug 2001 12:17:32 -0600
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fsck root fs: fsck, devfs, /proc/mounts miscooperate.
+Message-ID: <20010829121732.I24270@turbolinux.com>
+Mail-Followup-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <22075604.20010829095413@port.imtp.ilyichevsk.odessa.ua> <20010829021304.D24270@turbolinux.com> <6410958637.20010829151417@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6410958637.20010829151417@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Aug 29, 2001  15:14 +0300, VDA wrote:
+> Installed e2fsprogs 1.23. It does not print warning now on
+> "fsck /dev/scsi/host0/bus0/target1/lun0/part1"
+> However, it still cannot fs check root fs when given "fsck /" which I
+> really need in my init script. Now the only way to do root fs check
+> for me is to parse /proc/mounts and extract mount point for / via sed
+> (I have never used sed yet...).
 > 
-> On Aug 29, 2001  16:44 +0200, Roy Sigurd Karlsbakk wrote:
-> > does any of you know if there are any plans to create an ext22reiserfs
-> > utility?
-> 
-> It is probably more dangerous and difficult than it is worth.  Use a
-> backup/restore, that way you also have a backup in case there is a
-> problem with the conversion.
-> 
-> Since you would ALWAYS do a backup before performing such an operation
-> (right????) then doing the restore to the newly formatted reiserfs
-> partition would probably take less time than any kind of conversion
-> would take (and be a LOT more robust, as well as doing a "defrag"),
-> so you are way better off to do it that way.
-> 
-> Cheers, Andreas
-> --
-> Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
->                  \  would they cancel out, leaving him still hungry?"
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> # fsck /
+> Parallelizing fsck version 1.15 (18-Jul-1999)
+> e2fsck 1.15, 18-Jul-1999 for EXT2 FS 0.5b, 95/08/09
+> /sbin/e2fsck: Is a directory while trying to open /
 
+That's because "/" is a directory and not a device.  fsck works with
+devices.  If you want to avoid specifying your root partition in
+/etc/fstab explicitly, then you can use an ext2 label instead.  Set
+the label on the filesystem with "tune2fs -L root <root_dev>", and
+then put "LABEL=root" in /etc/fstab instead of a device name.  This
+way if your root device gets moved around you are still OK.  This
+of course works with filesystems other than root as long as they are
+ext2/ext3/xfs (reiserfs does not have labels yet).
 
-Yes, it was the fear of a long debugging cycle that made me decide that tar over
-VFS was the most reliable conversion method, and to not attempt to do more.  If
-someone was to write a tar plus resize based script, that might be reliable, and
-I would be interested to see it.
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Hans

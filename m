@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263013AbTCSL3f>; Wed, 19 Mar 2003 06:29:35 -0500
+	id <S263021AbTCSLbE>; Wed, 19 Mar 2003 06:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263014AbTCSL3f>; Wed, 19 Mar 2003 06:29:35 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:23728 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S263013AbTCSL3d>; Wed, 19 Mar 2003 06:29:33 -0500
-Message-ID: <20030319114026.25191.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S263022AbTCSLbE>; Wed, 19 Mar 2003 06:31:04 -0500
+Received: from holomorphy.com ([66.224.33.161]:16003 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S263021AbTCSLbD>;
+	Wed, 19 Mar 2003 06:31:03 -0500
+Date: Wed, 19 Mar 2003 03:41:44 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: pgcl-2.5.65-1
+Message-ID: <20030319114144.GA1350@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: efault@gmx.de, jeremy@goop.org
-Cc: akpm@digeo.com, mingo@elte.hu, linux-kernel@vger.kernel.org
-Date: Wed, 19 Mar 2003 12:40:26 +0100
-Subject: Re: [patch] sched-2.5.64-D3, more interactivity changes
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-7.us4.outblaze.com
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: Mike Galbraith <efault@gmx.de> 
-Date: 	Wed, 19 Mar 2003 09:21:00 +0100 
-To: Jeremy Fitzhardinge <jeremy@goop.org> 
-Subject: Re: [patch] sched-2.5.64-D3, more interactivity changes 
- 
-> At 11:13 PM 3/18/2003 -0800, Jeremy Fitzhardinge wrote: 
-> >I'm still getting starvation problems.  If I run xmms with the "Goom" 
-> >visualizer (with the window large enough that it is CPU-bound), then 
-> >type a command into a shell window (say, ps), it will not run the 
-> >command until I close or shrink the goom window.  xmms itself plays 
-> >fine, though sometimes it fails to go to the next track, apparently for 
-> >the same reason (ie, it starts the next track when I disable the 
-> >visualizer). 
->  
-> I'm hot on the trail (woof) of this.  If I get it working "right", are you  
-> willing to test a patch?  I don't want to bug Ingo until I've got something  
-> worth arm waving about ;-) 
- 
-I'll do :-) 
- 
-   Felipe 
- 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+(1) PCI DMA fix (zwane probably did it and I accidentally dropped it later)
+(2) brute-force merge to 2.5.65
 
-Powered by Outblaze
+Given the brutality of the merge I wouldn't be surprised by a few bugs.
+
+The stronger antifragmentation heuristics are still being debugged.
+I wouldn't expect very good performance until they're sorted out.
+
+Also, badari's working on a fix for q->max_sectors*512 < PAGE_SIZE for
+fs/mpage.c and possibly others. If anyone besides me and badari are
+interested in that, either he or I will send the patch out for review.
+
+Tested on 48GB NUMA-Q only (successfully so). No testing elsewhere yet.
+
+Non-incremental vs. virgin 2.5.65.
+
+As usual, available from
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
+
+
+-- wli

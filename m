@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267501AbRGMQaw>; Fri, 13 Jul 2001 12:30:52 -0400
+	id <S267500AbRGMQ0W>; Fri, 13 Jul 2001 12:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267502AbRGMQam>; Fri, 13 Jul 2001 12:30:42 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:38916 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267501AbRGMQae>; Fri, 13 Jul 2001 12:30:34 -0400
-Date: Fri, 13 Jul 2001 17:30:07 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mike Black <mblack@csihq.com>
-Cc: Andrew Morton <andrewm@uow.edu.au>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
-        ext2-devel@lists.sourceforge.net, Stephen Tweedie <sct@redhat.com>
-Subject: Re: [Ext2-devel] Re: 2.4.6 and ext3-2.4-0.9.1-246
-Message-ID: <20010713173007.G13419@redhat.com>
-In-Reply-To: <02ae01c10925$4b791170$e1de11cc@csihq.com> <3B4BD13F.6CC25B6F@uow.edu.au> <021801c10a03$62434540$e1de11cc@csihq.com> <3B4C729B.6352A443@uow.edu.au> <05c401c10ac1$0e81ad70$e1de11cc@csihq.com> <3B4D8B5D.E9530B60@uow.edu.au> <036e01c10b96$72ce57d0$e1de11cc@csihq.com> <111501c10ba3$664a1370$e1de11cc@csihq.com>
+	id <S267501AbRGMQ0O>; Fri, 13 Jul 2001 12:26:14 -0400
+Received: from mehl.gfz-potsdam.de ([139.17.1.100]:6048 "EHLO
+	mehl.gfz-potsdam.de") by vger.kernel.org with ESMTP
+	id <S267500AbRGMQ0B> convert rfc822-to-8bit; Fri, 13 Jul 2001 12:26:01 -0400
+Date: Fri, 13 Jul 2001 18:26:01 +0200
+From: Steffen Grunewald <steffen@gfz-potsdam.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs error message
+Message-ID: <20010713182600.B29470@dss19>
+In-Reply-To: <20010712133544.R10669@dss19> <630460000.995033868@tiny>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <111501c10ba3$664a1370$e1de11cc@csihq.com>; from mblack@csihq.com on Fri, Jul 13, 2001 at 09:54:56AM -0400
+In-Reply-To: <630460000.995033868@tiny>; from mason@suse.com on Fri, Jul 13, 2001 at 10:17:49AM -0400
+X-Disclaimer: I don't speak for no one else. And vice versa
+X-Operating-System: SunOS
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by dss19.gfz-potsdam.de id SAA29700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri 2001-07-13 (10:17), Chris Mason wrote:
+> 
+> 
+> On Thursday, July 12, 2001 01:35:44 PM +0200 Steffen Grunewald
+> <steffen@gfz-potsdam.de> wrote:
+> 
+> > Should I worry about
+> > 
+> > kernel: vs-13048: reiserfs_iget: key in inode [62743 393750 0 0] and key
+> > 	in entry [62444 393750 0 0] do not match
+> > 
+> > ? This is SuSE 7.1 kernel 2.2.18, with automatic FTP updates.
+> > 
+> 
+> This is due to two files sharing the same inode number, which isn't supposed
+> to happen.  You can find the two files by doing a find -inum 393750 on the
+> filesystem.  You probably want to grab the latest reiserfsck from
+> ftp.namesys.com/pub/reiserfsprogs/pre and check the entire FS.
 
-On Fri, Jul 13, 2001 at 09:54:56AM -0400, Mike Black wrote:
-> I give up!  I'm getting file system corruption now on the ext3 partition...
-> and I've got a kernel oops (soon to be decoded)
+Unfortunately I now have to guess which FS is affected.
 
-Please, do send details.  We already know that the VM has a hard job
-under load, and journaling exacerbates that --- ext3 cannot always
-write to disk without first allocating more memory, and the VM simply
-doesn't have a mechanism for dealing with that reliably.  It seems to
-be compounded by (a) 2.4 having less write throttling than 2.2 had,
-and (b) the zoned allocator getting confused about which zones
-actually need to be recycled.
+I'll look for an upgrade from SuSE.
 
-It's not just ext3 --- highmem bounce buffering and soft raid buffers
-have the same problem, and work around it by doing their own internal
-preallocation of emergency buffers.  Loop devices and nbd will have a
-similar problem if you use those for swap or writable mmaps, as will
-NFS.
+> The only known way to trigger this problems involves running an older version
+> of reiserfsck --rebuild-tree.  Have you done that?
 
-One proposed suggestion is to do per-zone memory reservations for the
-VM's use: Ben LaHaise has prototype code for that and we'll be testing
-to see if it makes for an improvement when used with ext3.
+No. But perhaps the system did it when I changed from 7.0 to 7.1?
 
-Cheers,
- Stephen
+Steffen
+-- 
+ Steffen Grunewald | GFZ | PB 2.2 | Telegrafenberg E3 | D-14473 Potsdam
+ » email: steffen(at)gfz-potsdam.de | fax/fon: +49-331-288-1266/-1245 «
+       Success is a journey, not a destination. So stop running.
+                                             --- www.despair.com

@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130276AbRBZOeh>; Mon, 26 Feb 2001 09:34:37 -0500
+	id <S130271AbRBZOeg>; Mon, 26 Feb 2001 09:34:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130356AbRBZOcB>; Mon, 26 Feb 2001 09:32:01 -0500
+	id <S130368AbRBZOcI>; Mon, 26 Feb 2001 09:32:08 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130299AbRBZOaI>;
-	Mon, 26 Feb 2001 09:30:08 -0500
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 26 Feb 2001 10:36:54 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.2.18: static rtc_lock in nvram.c
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3A9A31C5.22343.9BE580@localhost>
-In-Reply-To: <3A9A0AF9.17727.45317@localhost> from "Ulrich Windl" at Feb 26, 2001 07:51:22 AM
-In-Reply-To: <E14XK2K-0000sY-00@the-village.bc.nu>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	by vger.kernel.org with ESMTP id <S130253AbRBZO3T>;
+	Mon, 26 Feb 2001 09:29:19 -0500
+Date: Mon, 26 Feb 2001 12:07:04 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Chris Mason <mason@suse.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Nick Pasich <npasich@crash.cts.com>, reiserfs-list@namesys.com
+Subject: Re: [PATCH] Re: reiserfs: still problems with tail conversion
+Message-ID: <20010226120704.A12809@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010225183201.D866@arthur.ubicom.tudelft.nl> <1136530000.983155244@tiny>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1136530000.983155244@tiny>; from mason@suse.com on Sun, Feb 25, 2001 at 09:40:44PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Feb 2001, at 9:33, Alan Cox wrote:
-
-> > browsing the sources for some problem I wondered why nvram.c uses a 
-> > static spinlock named rtc_lock, hiding the global one.
+On Sun, Feb 25, 2001 at 09:40:44PM -0500, Chris Mason wrote:
+> This patch should take care of the other cause for null bytes
+> in small files.  It has been through a few hours of testing,
+> with some of the usual load programs + Erik's code concurrently.
 > 
-> It only does that for the atari, where the driver isnt used by other things
+> I'll let things run overnight to try and find more bugs.  The
+> patch is against 2.4.2, and does a few things:
+> 
+> don't dirty the direct->indirect target until all direct items
+> have been copied in.  Before it was dirtied for each direct item.
+> 
+> make the target up to date before dirtying (it was done after).
+> 
+> don't try to zero the unused part of the target until all bytes
+> have been copied.  This was the big bug, it was zeroing previously
+> copied bytes.
+> 
+> Any testing on non-production machines would be appreciated,
+> I'll forward to Linus/Alan once I've gotten more feedback.
 
-Hmm.. are there different nvram.c drivers? I noticed that SuSE 7.1 
-loads that driver in i386....
-
-Also doesn't look a lot like Atari:
- * This driver allows you to access the contents of the non-volatile 
-memory in
- * the mc146818rtc.h real-time clock. This chip is built into all PCs 
-and into
- * many Atari machines. In the former it's called "CMOS-RAM", in the 
-latter
- * "NVRAM" (NV stands for non-volatile).
+Yes, this did the trick, I can't repeat it anymore after a first run.
+I'll let my code run for a couple of times to stress the system, but at
+first glance the bug seems to be fixed.
 
 
-Regards,
-Ulrich
+Thanks for your efforts,
+Erik
 
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

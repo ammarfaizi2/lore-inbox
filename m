@@ -1,74 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264353AbTJOVON (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 17:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbTJOVOC
+	id S261732AbTJOV1k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 17:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTJOV1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 17:14:02 -0400
-Received: from babyruth.hotpop.com ([204.57.55.14]:63981 "EHLO
-	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S264351AbTJOVNS
+	Wed, 15 Oct 2003 17:27:40 -0400
+Received: from 194-179-2-161.mad.ttd.net ([194.179.2.161]:27344 "EHLO
+	pc22.admin.cnc") by vger.kernel.org with ESMTP id S261732AbTJOV1i
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 17:13:18 -0400
-Message-ID: <3F8DB745.5030401@hotpop.com>
-Date: Thu, 16 Oct 2003 02:38:21 +0530
-From: dacin <dacin@hotpop.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031005
-X-Accept-Language: en-us, en
+	Wed, 15 Oct 2003 17:27:38 -0400
+Date: Wed, 15 Oct 2003 23:27:35 +0200 (MEST)
+From: Javier Achirica <achirica@telefonica.net>
+To: Celso =?iso-8859-1?Q?Gonz=E1lez?= <celso@mitago.net>
+cc: Marc Giger <gigerstyle@gmx.ch>,
+       "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: airo regression with Linux 2.4.23-pre2
+In-Reply-To: <20031015194754.GA14859@viac3>
+Message-ID: <Pine.SOL.4.30.0310152323320.21600-100000@tudela.mad.ttd.net>
 MIME-Version: 1.0
-To: sting sting <zstingx@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hotplug and /etc/init.d/hotplug
-References: <Sea2-F47xegIqunLOyD000050c7@hotmail.com>
-In-Reply-To: <Sea2-F47xegIqunLOyD000050c7@hotmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See /etc/rc.d/rc.sysinit for the magic ....
 
-Regards
-Dacodecz
+Hello,
 
-sting sting wrote:
+I've been out for a few days, so I'm now catching up with e-mail...
 
-> Hello,
-> I am running RedHat 9 with 2.4.20-8  kernel ;
-> Now , I have a questo about hotplug:
-> I have hotplug-2002_04_01-17 installed (rpm);
+Anyway, I've been discussing this issue with Celso and looks like the line
+he mentions make his configuration fail. I added it because in other cases
+it makes it work. Anyway, please test the driver removing that line and if
+it fixes the problem I'll just try to figure out the exact cases when it's
+neede (Cisco hasn't been very helpful about it)..
+
+On Wed, 15 Oct 2003, Celso González wrote:
+
+> On Wed, Oct 15, 2003 at 07:32:02PM +0200, Udo A. Steinberg wrote:
+> >
+> > Hi,
+> >
+> > My Cisco Aironet 350 Series PCMCIA network card does no longer work with the
+> > latest 2.4 and 2.6 kernels. For 2.4.23 I have been able to identify the point
+> > in time at which things broke. 2.4.23-pre1 still works and -pre2 does not.
+> > The card is unable to acquire an IP address via DHCP and also doesn't seem to
+> > receive any networking traffic at all with -pre2 and later.
+> >
+> > Looking at the 2.4 changelog it seems that the following patch introduced
+> > the problem.
+> >
+> > MT> Summary of changes from v2.4.23-pre1 to v2.4.23-pre2
+> > MT> ============================================
+> > MT> <javier:tudela.mad.ttd.net>:
+> > MT>   o [wireless airo] add support for MIC and latest firmwares
+> >
+> > Do you have any idea what is going wrong here? If you need more information
+> > to narrow down the problem, just ask.
 >
-> Now , I read the readme of this rpm ;
-> in their "installing"  section , clause 5 , it says:
-> # cp etc/rc.d/init.d/hotplug /etc/rc.d/init.d/hotplug
-> # cd /etc/rc.d/init.d
-> # chkconfig --add hotplug
+> Same simptoms as me
+> Try removing this line on airo.c
+> Line 2948
+> ai->config._reserved1a[0] = 2 /* ??? */
 >
-> I checked on my machine and there is no "hotplug" file in that folder.
-> Nevertheless, hotplugin works (because when I plug a USB camera
-> I can see in the kernel log (/var/log/messages)  messages which start 
-> with
-> /etc/hotplug/usb.agent
+> It works for me
 >
-> I also looked at the kernel code (method "call_polcy" in usb.c )
-> and it doesn't seems to me that the hotplug in /etc/init.d is needed .
+> --
+> Celso
 >
-> can anybody make some clarifications ?
-> sting
 >
-> _________________________________________________________________
-> The new MSN 8: advanced junk mail protection and 2 months FREE* 
-> http://join.msn.com/?page=features/junkmail
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
 

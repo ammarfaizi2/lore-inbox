@@ -1,96 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbULAAfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbULAAfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbULAAfX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 19:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbULAAet
+	id S261186AbULAAfY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 19:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbULAAec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:34:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32435 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261227AbULAA1h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:27:37 -0500
-Date: Tue, 30 Nov 2004 15:00:31 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Manfred Schwarb <manfred99@gmx.ch>, chas@cmf.nrl.navy.mil,
-       linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net
-Subject: Re: [2.6 patch] Build Error 2: build of pca200e.bin fails
-Message-ID: <20041130170031.GD5009@dmt.cyclades>
-References: <20041119100327.32511.6195.54797@tp-meteodat6.cyberlink.ch> <20041128192121.GE4390@stusta.de>
+	Tue, 30 Nov 2004 19:34:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59627 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261171AbULAAaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 19:30:06 -0500
+Date: Tue, 30 Nov 2004 16:33:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Blaisorblade <blaisorblade_spam@yahoo.it>
+Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
+       bstroesser@fujitsu-siemens.com,
+       user-mode-linux-devel@lists.sourceforge.net, kraxel@bytesex.org
+Subject: Re: VFS interactions with UML and other big UML changes (was: Re:
+ [patch 1/2] Uml - first part rework of run_helper() and users.)
+Message-Id: <20041130163352.62840d12.akpm@osdl.org>
+In-Reply-To: <200412010120.39579.blaisorblade_spam@yahoo.it>
+References: <20041130200845.2C5058BAFE@zion.localdomain>
+	<20041130152017.129e134c.akpm@osdl.org>
+	<200412010120.39579.blaisorblade_spam@yahoo.it>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041128192121.GE4390@stusta.de>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 28, 2004 at 08:21:21PM +0100, Adrian Bunk wrote:
-> On Fri, Nov 19, 2004 at 05:03:29AM -0500, Manfred Schwarb wrote:
-> > Hi,
-> > 
-> > OK, I know I'm stupid...
-> > I always forget to unset my GZIP options, as I have
-> > "export GZIP='-9 -N'" in my .bashrc.
-> > 
-> > This results in the following:
-> > 
-> > objcopy -Iihex pca200e.data -Obinary pca200e.bin.gz
-> > gzip -df pca200e.bin.gz
-> > ./fore200e_mkfirm -k -b _fore200e_pca_fw \
-> >   -i pca200e.bin -o fore200e_pca_fw.c
-> > ./fore200e_mkfirm: can't open pca200e.bin for reading
-> > make[2]: *** [fore200e_pca_fw.c] Error 254
-> > make[2]: Leaving directory `/usr/src/linux-2.4.28/drivers/atm'
-> > make[1]: *** [_modsubdir_atm] Error 2
-> > make[1]: Leaving directory `/usr/src/linux-2.4.28/drivers'
-> > make: *** [_mod_drivers] Error 2
-> > 
-> > 
-> > The following patch would correct this:
-> > 
-> > --- linux-2.4.28/drivers/atm/Makefile.orig	2004-11-19 09:33:21.000000000 +0000
-> > +++ linux-2.4.28/drivers/atm/Makefile	2004-11-19 09:38:07.000000000 +0000
-> > @@ -92,7 +92,7 @@
-> >  # deal with the various suffixes of the binary firmware images
-> >  %.bin %.bin1 %.bin2: %.data
-> >  	objcopy -Iihex $< -Obinary $@.gz
-> > -	gzip -df $@.gz
-> > +	gzip -n -df $@.gz
-> >  
-> >  fore_200e.o: $(fore_200e-objs)
-> >  	$(LD) -r -o $@ $(fore_200e-objs)
+Blaisorblade <blaisorblade_spam@yahoo.it> wrote:
+>
+> static struct address_space_operations hostfs_aops = {
+>         .writepage      = hostfs_writepage,
+>         .readpage       = hostfs_readpage,
+> /*      .set_page_dirty = __set_page_dirty_nobuffers, */
+>         .prepare_write  = hostfs_prepare_write,
+>         .commit_write   = hostfs_commit_write
+> };
 > 
+> Actually, hostfs is a nodev filesystem, but I simply don't know if that 
+> implies that it uses no buffers. So, should
 > 
-> I have no problems with this patch, but shouldn't the same be done
-> in 2.6?
+>  .set_page_dirty = __set_page_dirty_nobuffers
 > 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.10-rc2-mm3-full/drivers/atm/Makefile.old	2004-11-28 20:18:04.000000000 +0100
-> +++ linux-2.6.10-rc2-mm3-full/drivers/atm/Makefile	2004-11-28 20:18:15.000000000 +0100
-> @@ -68,4 +68,4 @@
->  # deal with the various suffixes of the binary firmware images
->  $(obj)/%.bin $(obj)/%.bin1 $(obj)/%.bin2: $(src)/%.data
->  	objcopy -Iihex $< -Obinary $@.gz
-> -	gzip -df $@.gz
-> +	gzip -n -df $@.gz
+> be uncommented? Or should it be deleted (leaving it there is not a good 
+> option).
 
-Isnt it exactly the same of what has been merged in v2.4?
+See the operation of set_page_dirty().
 
-I can't see any difference.
+If you have NULL ->set_page_dirty a_op then set_page_dirty() will fall
+through to __set_page_dirty_buffers().
 
-[marcelo@dmt atm]$ bk diffs -u -r1.8 -r1.9 Makefile 
-===== Makefile 1.8 vs 1.9 =====
---- 1.8/drivers/atm/Makefile    Mon Jul 28 11:35:31 2003
-+++ 1.9/drivers/atm/Makefile    Mon Nov 22 21:54:09 2004
-@@ -92,7 +92,7 @@
- # deal with the various suffixes of the binary firmware images
- %.bin %.bin1 %.bin2: %.data
-        objcopy -Iihex $< -Obinary $@.gz
--       gzip -df $@.gz
-+       gzip -n -df $@.gz
- 
- fore_200e.o: $(fore_200e-objs)
-        $(LD) -r -o $@ $(fore_200e-objs)
+If your fs never sets PG_private then __set_page_dirty_buffers() will just
+do what __set_page_dirty_nobuffers() does.
+
+Without having looked at it, I'm sure that hostfs does not use
+buffer_heads.  So setting your ->set_page_dirty a_op to point at
+__set_page_dirty_nobuffers() is a reasonable thing to do - it'll provide a
+slight speedup.
+

@@ -1,59 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbUCPPWp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 10:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbUCPPUT
+	id S263030AbUCPP0K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 10:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUCPOlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 10:20:19 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:699 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262917AbUCPPR5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 10:17:57 -0500
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: deactivate dm disks?
-Date: Tue, 16 Mar 2004 09:17:03 -0600
-User-Agent: KMail/1.6
-Cc: EVMS <evms-devel@lists.sourceforge.net>, Wakko Warner <wakko@animx.eu.org>
-References: <20040315205650.A11865@animx.eu.org>
-In-Reply-To: <20040315205650.A11865@animx.eu.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403160917.03810.kevcorry@us.ibm.com>
+	Tue, 16 Mar 2004 09:41:09 -0500
+Received: from styx.suse.cz ([82.208.2.94]:57729 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S261913AbUCPOTg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 09:19:36 -0500
+Content-Transfer-Encoding: 7BIT
+Message-Id: <10794467762870@twilight.ucw.cz>
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH 10/44] Make enabling IBM RapidAccess special features its own option
+X-Mailer: gregkh_patchbomb_levon_offspring
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Date: Tue, 16 Mar 2004 15:19:36 +0100
+In-Reply-To: <10794467761141@twilight.ucw.cz>
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Wakko,
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/input
 
-On Monday 15 March 2004 7:56 pm, Wakko Warner wrote:
-> I was playing with evms (2.2 kernel 2.6.3 vanilla) and some reason, it
-> grabbed my usb disk (sde) and won't let go of it.  Is there any way I can
-> make it let go of the disk?  It grabbed sde1 and sde2 of the disk.
+===================================================================
 
-You can put entries in your /etc/evms.conf file to tell EVMS to ignore certain 
-disks (e.g. if you don't want it to examine sde). See the "legacy_devices" 
-section (for 2.4 kernels) and/or the "sysfs_devices" section (for 2.6 
-kernels).
+ChangeSet@1.1474.188.10, 2004-01-26 13:57:19+01:00, vojtech@suse.cz
+  input: Create an extra option for enabling IBM RapidAccess keyboard
+         special features (atkbd.extra), instead of abusing the
+         atkbd.set option for this.
 
-> I tried the deactivate which just gave me an invalid argument. I really do
-> not wish to reboot this machine just to remove the usb disk.
 
-If you have the "dmsetup" tool, you can issue a "dmsetup remove_all" command 
-to deactivate all the DM devices. Just make sure all the DM devices are 
-unmounted, or it won't actually release the underlying disks. Dmsetup is part 
-of the device-mapper package, available at ftp://sources.redhat.com/pub/dm/.
+ Documentation/kernel-parameters.txt |   13 ++++++++++---
+ drivers/input/keyboard/atkbd.c      |   35 ++++++++++++++++++++---------------
+ 2 files changed, 30 insertions(+), 18 deletions(-)
 
-> I also noticed it wanted to grab my partitions on sda which were already
-> mounted and couldn't grab them.
+===================================================================
 
-Again, you can add an "exclude" entry in your /etc/evms.conf if you want EVMS 
-to ignore sda. Otherwise, have a look at
-http://evms.sf.net/install/kernel.html#bdclaim
+diff -Nru a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+--- a/Documentation/kernel-parameters.txt	Tue Mar 16 13:19:43 2004
++++ b/Documentation/kernel-parameters.txt	Tue Mar 16 13:19:43 2004
+@@ -157,11 +157,18 @@
+ 
+ 	atascsi=	[HW,SCSI] Atari SCSI
+ 
+-	atkbd.set=	[HW] Select keyboard code set
+-			Format: <int>
++	atkbd.extra=	[HW] Enable extra LEDs and keys on IBM RapidAccess, EzKey
++			and similar keyboards
++
++	atkbd.reset=	[HW] Reset keyboard during initialization
++
++	atkbd.set=	[HW] Select keyboard code set 
++			Format: <int> (2 = AT (default) 3 = PS/2)
++
++	atkbd.scroll=	[HW] Enable scroll wheel on MS Office and similar keyboards
++	
+ 	atkbd.softrepeat=
+ 			[HW] Use software keyboard repeat
+-	atkbd.reset=	[HW] Reset keyboard during initialization
+ 
+ 	autotest	[IA64]
+ 
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Tue Mar 16 13:19:43 2004
++++ b/drivers/input/keyboard/atkbd.c	Tue Mar 16 13:19:43 2004
+@@ -33,12 +33,11 @@
+ MODULE_PARM(atkbd_set, "1i");
+ MODULE_PARM(atkbd_reset, "1i");
+ MODULE_PARM(atkbd_softrepeat, "1i");
+-MODULE_PARM(atkbd_scroll, "1i");
+ MODULE_LICENSE("GPL");
+ 
+ static int atkbd_set = 2;
+ module_param_named(set, atkbd_set, int, 0);
+-MODULE_PARM_DESC(set, "Select keyboard code set (2 = default, 3, 4)");
++MODULE_PARM_DESC(set, "Select keyboard code set (2 = default, 3 = PS/2 native)");
+ 
+ #if defined(__i386__) || defined(__x86_64__) || defined(__hppa__)
+ static int atkbd_reset;
+@@ -53,8 +52,12 @@
+ MODULE_PARM_DESC(softrepeat, "Use software keyboard repeat");
+ 
+ static int atkbd_scroll;
+-module_parm_named(scroll, atkbd_scroll, bool, 0);
+-MODULE_PARM_DESC_(scroll, "Enable scroll-wheel on office keyboards");
++module_param_named(scroll, atkbd_scroll, bool, 0);
++MODULE_PARM_DESC(scroll, "Enable scroll-wheel on MS Office and similar keyboards");
++
++static int atkbd_extra;
++module_param_named(extra, atkbd_extra, bool, 0);
++MODULE_PARM_DESC(extra, "Enable extra LEDs and keys on IBM RapidAcces, EzKey and similar keyboards");
+ 
+ /*
+  * Scancode to keycode tables. These are just the default setting, and
+@@ -175,6 +178,7 @@
+ 	unsigned char cmdbuf[4];
+ 	unsigned char cmdcnt;
+ 	unsigned char set;
++	unsigned char extra;
+ 	unsigned char release;
+ 	int lastkey;
+ 	volatile signed char ack;
+@@ -463,7 +467,7 @@
+ 			         | (test_bit(LED_CAPSL,   dev->led) ? 4 : 0);
+ 		        atkbd_command(atkbd, param, ATKBD_CMD_SETLEDS);
+ 
+-			if (atkbd->set == 4) {
++			if (atkbd->extra) {
+ 				param[0] = 0;
+ 				param[1] = (test_bit(LED_COMPOSE, dev->led) ? 0x01 : 0)
+ 					 | (test_bit(LED_SLEEP,   dev->led) ? 0x02 : 0)
+@@ -572,21 +576,22 @@
+ 		return 3;
+ 	}
+ 
+-	if (atkbd_set != 2) 
+-		if (!atkbd_command(atkbd, param, ATKBD_CMD_OK_GETID)) {
+-			atkbd->id = param[0] << 8 | param[1];
++	if (atkbd_extra) {
++		param[0] = 0x71;
++		if (!atkbd_command(atkbd, param, ATKBD_CMD_EX_ENABLE)) {
++			atkbd->extra = 1;
+ 			return 2;
+ 		}
+-
+-	if (atkbd_set == 4) {
+-		param[0] = 0x71;
+-		if (!atkbd_command(atkbd, param, ATKBD_CMD_EX_ENABLE))
+-			return 4;
+ 	}
+ 
+ 	if (atkbd_set != 3) 
+ 		return 2;
+ 
++	if (!atkbd_command(atkbd, param, ATKBD_CMD_OK_GETID)) {
++		atkbd->id = param[0] << 8 | param[1];
++		return 2;
++	}
++
+ 	param[0] = 3;
+ 	if (atkbd_command(atkbd, param, ATKBD_CMD_SSCANSET))
+ 		return 2;
+@@ -739,9 +744,9 @@
+ 		atkbd->id = 0xab00;
+ 	}
+ 
+-	if (atkbd->set == 4) {
++	if (atkbd->extra) {
+ 		atkbd->dev.ledbit[0] |= BIT(LED_COMPOSE) | BIT(LED_SUSPEND) | BIT(LED_SLEEP) | BIT(LED_MUTE) | BIT(LED_MISC);
+-		sprintf(atkbd->name, "AT Set 2 Extended keyboard");
++		sprintf(atkbd->name, "AT Set 2 Extra keyboard");
+ 	} else
+ 		sprintf(atkbd->name, "AT %s Set %d keyboard",
+ 			atkbd->translated ? "Translated" : "Raw", atkbd->set);
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/

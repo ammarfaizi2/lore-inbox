@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbTAaRDj>; Fri, 31 Jan 2003 12:03:39 -0500
+	id <S261615AbTAaRCD>; Fri, 31 Jan 2003 12:02:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261640AbTAaRDj>; Fri, 31 Jan 2003 12:03:39 -0500
-Received: from vider.out.octet.spb.ru ([194.105.207.66]:38043 "EHLO
-	vider.octet.spb.ru") by vger.kernel.org with ESMTP
-	id <S261624AbTAaRDR>; Fri, 31 Jan 2003 12:03:17 -0500
-Message-ID: <001801c2c94b$f1cc8d80$15cf69c2@nick>
-From: "Nick Evgeniev" <nick@octet.spb.ru>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.19-pre10-ac2 hangs on OOM
-Date: Fri, 31 Jan 2003 20:12:33 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-Scanner: exiscan *18eeiP-0002Qr-00*xVy/my4C0Oc* (M.Y.T.H. Inc)
+	id <S261600AbTAaRCD>; Fri, 31 Jan 2003 12:02:03 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:7940 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261615AbTAaRCC>;
+	Fri, 31 Jan 2003 12:02:02 -0500
+Date: Thu, 30 Jan 2003 08:46:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Christian Fredrik Kalager Schaller <Uraeus@linuxrising.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Permission to use atomic code under LGPL
+Message-ID: <20030130074617.GB559@zaurus>
+References: <1043776362.2939.14.camel@thebox>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1043776362.2939.14.camel@thebox>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-I've 2.4.19-pre10-ac2 running threaded applications (java application
-server).... And I've got a problem with OOM killer -- it just unable to kill
-threaded application (it writes thousands lines to kernel.log, but machine
-still not responsive till reboot).
+> I am with the GStreamer project (www.gstreamer.net). We did a small
+> license audit the other day and discovered we included some code from
+> the kernel. GStreamer uses the LGPL so this is a problem for us. 
+> 
+> The code in question is the atomic code and is included in our
+> sourcefile below. Do the person(s) in 
+atomic stuff is widely considered "too trivial
+for copyrights to apply", so LGPL should be OK.
 
-I've tried to play with overcommit setting 2, but w/o much success. It gives
-me OOM condition in a few minutes after boot. With overcommit 0 (zero)
-server runs just fine for months.
-
-I've seen notes about ingo-oom-killer.patch for 2.5 that should resolve
-issues with threaded applications. Do we have it for 2.4 ???
-
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

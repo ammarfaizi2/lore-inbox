@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267771AbRGURgF>; Sat, 21 Jul 2001 13:36:05 -0400
+	id <S267773AbRGUR5T>; Sat, 21 Jul 2001 13:57:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267773AbRGURfz>; Sat, 21 Jul 2001 13:35:55 -0400
-Received: from zero.tech9.net ([209.61.188.187]:64012 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S267771AbRGURfs>;
-	Sat, 21 Jul 2001 13:35:48 -0400
-Subject: Re: [PATCH] init/main.c
-From: Robert Love <rml@tech9.net>
-To: Stefan Becker <stefan@oph.rwth-aachen.de>
+	id <S267782AbRGUR5J>; Sat, 21 Jul 2001 13:57:09 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:30480 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267773AbRGUR4x>; Sat, 21 Jul 2001 13:56:53 -0400
+Date: Sat, 21 Jul 2001 13:56:54 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0107211840250.27803-100000@die-macht>
-In-Reply-To: <Pine.LNX.4.21.0107211840250.27803-100000@die-macht>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.11 (Beta Release)
-Date: 21 Jul 2001 13:36:20 -0400
-Message-Id: <995736983.2509.1.camel@phantasy>
+Subject: patch to ide-tape once again
+Message-ID: <20010721135654.A20306@devserv.devel.redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On 21 Jul 2001 18:51:07 +0200, Stefan Becker wrote:
->  static int __init profile_setup(char *str)
->  {
-> -    int par;
-> -    if (get_option(&str,&par)) prof_shift = par;
-> +	int par;
-> +	if (get_option(&str,&par))
-> +		prof_shift = par;
->  	return 1;
->  }
+I am disappointed that my fix did not make it into 2.4.7,
+but perhaps it had something to do with the diff filenames?
+I tried to work through a maintainer, but apparently Gadi quit
+(Andre told me).
 
-I wrote a similar patch awhile back and submitted it, to no avail.  So,
-this is good -- but 2.4.7 already has this fix merged.
+http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=38404
+ (data corruption while reading near EOF mark).
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+--- linux-2.4.7/drivers/ide/ide-tape.c	Sat Jul 21 10:44:24 2001
++++ linux-2.4.7-tr5/drivers/ide/ide-tape.c	Sat Jul 21 10:45:41 2001
+@@ -4099,9 +4099,14 @@
+ 	}
+ 	if (rq_ptr->errors == IDETAPE_ERROR_EOD)
+ 		return 0;
+-	else if (rq_ptr->errors == IDETAPE_ERROR_FILEMARK)
++	if (rq_ptr->errors == IDETAPE_ERROR_FILEMARK) {
++		idetape_switch_buffers (tape, tape->first_stage);
+ 		set_bit (IDETAPE_FILEMARK, &tape->flags);
+-	else {
++#if USE_IOTRACE
++		IO_trace(IO_IDETAPE_FIFO, tape->pipeline_head, tape->buffer_head, tape->tape_head, tape->minor);
++#endif
++		calculate_speeds(drive);
++	} else {
+ 		idetape_switch_buffers (tape, tape->first_stage);
+ 		if (rq_ptr->errors == IDETAPE_ERROR_GENERAL) {
+ #if ONSTREAM_DEBUG

@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268196AbUH1Gsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUH1Gsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268196AbUH1Gsa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 02:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUH1Gsa
+	id S268206AbUH1Gsg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 02:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268207AbUH1Gsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 02:48:30 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:23008 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268196AbUH1Gs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 02:48:28 -0400
-Message-ID: <41302A8D.1010903@comcast.net>
-Date: Sat, 28 Aug 2004 02:47:41 -0400
-From: Clem Taylor <clemtaylor@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040809
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: QuantumG <qg@biodome.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: reverse engineering pwcx
-References: <412FD751.9070604@biodome.org>
-In-Reply-To: <412FD751.9070604@biodome.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 02:48:36 -0400
+Received: from holomorphy.com ([207.189.100.168]:48804 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268206AbUH1Gse (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 02:48:34 -0400
+Date: Fri, 27 Aug 2004 23:48:29 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: oleg@tv-sign.ru, linux-kernel@vger.kernel.org
+Subject: Re: [1/4] standardize bit waiting data type
+Message-ID: <20040828064829.GB5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, oleg@tv-sign.ru,
+	linux-kernel@vger.kernel.org
+References: <20040826014745.225d7a2c.akpm@osdl.org> <20040828052627.GA2793@holomorphy.com> <20040828053112.GB2793@holomorphy.com> <20040827231713.212245c5.akpm@osdl.org> <20040828063419.GA5492@holomorphy.com> <20040827234033.2b6e1525.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040827234033.2b6e1525.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-QuantumG wrote:
-> There is no secret algorithm or complex image processing in this
-> code.  Having worked on reverse engineering a complex audio
-> processing application (see our paper Using a Decompiler for
-> Real-World Source Recovery, to appear WCRE 2004), I expected to see
-> some serious floating point calculations or at least something
-> recognisable as a FFT or some other known algorithm.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> You mean a big-endian one? I did check to be sure none did so; only
+>> x86-64 does. Easy enough to dress up so BE arches can do it too.
 
-I think you need to look a little closer. This type of decompression is 
-surely not going to be done with floating point (can you even do 
-floating point ops in the kernel?).
+On Fri, Aug 27, 2004 at 11:40:33PM -0700, Andrew Morton wrote:
+> hm.  Actually, the page_flags_t hack can only work on little-endian
+> hardware anyway.
+> perhaps your implementation should imitate x86_64/bitops.h and use a void*,
+> along with apologetic comments.
 
-This class of camera chip uses a greatly simplified JPEG like 
-compression. The compression is a 4x4 DCT (JPEG uses a 8x8 DCT), a 
-quantize step and some sort of simple VLC. The algorithm was chosen to 
-be easy to implement in an absolutely minimal number of gates. At this 
-point true JPEG encode hardware is enough of a commodity that it would 
-be silly not to use JPEG in a new design.
+Okay, I'll resend it done that way.
 
-I'm pretty sure this class of camera chip uses a 4x4 DCT and some sort 
-of VLC. Most of the meat of the decoder would be table lookups to decode 
-the symbols and then a small multiply accumulate loop to do the inverse 
-DCT and another series of table lookups and multiplies to do the inverse 
-quant. Pretty basic stuff at this point.
 
-The white paper I read a while back on this chipset family had been out 
-of NDA for a number of years, so I was never sure why the pwcx driver 
-wasn't opened up. A competitor wouldn't gain much knowing the exact 
-details of the decompression algorithm. If I was a competitor designing 
-a new webcam chip, I wouldn't waste my time reverse engineering Philips 
-compression scheme, I'd just use JPEG and be done with it.
-
-Has anyone even asked Philips if they would be willing to open up the 
-algorithm? Maybe they would have said NO a few years ago, but at this 
-point does it matter?
-
-                    --Clem
+-- wli

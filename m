@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265362AbSJaSrR>; Thu, 31 Oct 2002 13:47:17 -0500
+	id <S265321AbSJaShb>; Thu, 31 Oct 2002 13:37:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265363AbSJaSrR>; Thu, 31 Oct 2002 13:47:17 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:39558 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265362AbSJaSrO>; Thu, 31 Oct 2002 13:47:14 -0500
-Subject: RE: [PATCH] fixes for building kernel 2.5.45 using Intel compiler
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000EFF43C9@fmsmsx103.fm.intel.com>
-References: <F2DBA543B89AD51184B600508B68D4000EFF43C9@fmsmsx103.fm.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Oct 2002 19:13:37 +0000
-Message-Id: <1036091617.8852.108.camel@irongate.swansea.linux.org.uk>
+	id <S265322AbSJaShb>; Thu, 31 Oct 2002 13:37:31 -0500
+Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:45931 "EHLO
+	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S265321AbSJaSh3>;
+	Thu, 31 Oct 2002 13:37:29 -0500
+Date: Thu, 31 Oct 2002 19:43:48 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Bernd Petrovitsch <bernd@gams.at>
+Cc: Matt Porter <porter@cox.net>, Mark Mielke <mark@mark.mielke.cc>,
+       Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+Message-ID: <20021031194348.A12469@jaquet.dk>
+References: <20021031100855.A3407@home.com> <22051.1036083179@frodo.gams.co.at>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <22051.1036083179@frodo.gams.co.at>; from bernd@gams.at on Thu, Oct 31, 2002 at 05:52:59PM +0100
+X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
+X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 16:37, Nakajima, Jun wrote:
-> > Why is this needed ?
-> 
-> Becaues the compiler optimization removes the following code without it.
-> 	regs->eflags = (regs->eflags & 0xffffcfff) | (level << 12);
-> 
-> The compiler provides access to the argument 'unused' in the stack
-> (asmlinkage, 
-> i.e. __attribute__ ((regparm(0))), but it thinks modifying the stack 
-> more than that is not effective anyway. So it elimites the code under
-> optimizations. 
 
-The compiler at function entry cannot know anything about the scope of 
-objects above the return address. It could equally be a valid pointer to
-data above the stack with a global context created by a thread library.
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm curious if the optimisation is actually legal
+On Thu, Oct 31, 2002 at 05:52:59PM +0100, Bernd Petrovitsch wrote:
+> Matt Porter <porter@cox.net> wrote:
+> >Thank you.  This is exactly why in the last CONFIG_TINY thread I made
+> >it clear that a one-size-fits-all option is not all that helpful for
+> >serious embedded systems designers.
+> >
+> >Collecting these parameters in a single tweaks.h file and perhaps using
+> >things like CONFIG_TINY, CONFIG_DESKTOP, CONFIG_FOO as profile selectors
+>=20
+> In an ideal world there would be several options invidually=20
+> selectable.
 
+But there is? Please look at 2.5.44-config. Or did I misunderstand
+you. Anyways, this work is far from the point where how this is
+selected is a major concern.=20
 
-> > > -	IGNLABEL "HmacRxUc",
-> > > -	IGNLABEL "HmacRxDiscard",
-> > > -	IGNLABEL "HmacRxAccepted",
-> > > +	IGNLABEL /* "HmacTxMc", */
-> > > +	IGNLABEL /* "HmacTxBc", */
-> > 
-> > You seem to be removing fields from the struct - have you 
-> > tested this ?
-> > 
-> No, it's not removing fields from there. The original definition of IGNLABLE
-> is 
-> 	#define IGNLABEL 0&(int)
-> And
-> 	IGNLABEL "HmacRxUc",
-> simpile ends up 0, (in gcc). But this is just causing (a lot of) warnings,
-> so I take this out.
+Regards,
+  Rasmus
 
-You removed the comma in the patch above its gone from IGNLABEL foo, to
-IGNLABEL foo. I don't see where your comma is coming back from.
-Otherwise I've no problem (although maybe IGNLABEL("HmacRxAccepted")
-would be neater since it conveniently lets people put them back.
+--VS++wcV0S1rZb1Fb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Alan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
+iD8DBQE9wXnklZJASZ6eJs4RAkt2AJ0Z8hoHZvJ3itLhRCMiSWdDjZB7lACcDvj8
+N5rRM3++lzZcm51tqx4AZck=
+=X58K
+-----END PGP SIGNATURE-----
+
+--VS++wcV0S1rZb1Fb--

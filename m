@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287003AbSBIAGS>; Fri, 8 Feb 2002 19:06:18 -0500
+	id <S287865AbSBIANt>; Fri, 8 Feb 2002 19:13:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287865AbSBIAGI>; Fri, 8 Feb 2002 19:06:08 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:2543
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S287003AbSBIAF4>; Fri, 8 Feb 2002 19:05:56 -0500
-Date: Fri, 8 Feb 2002 16:05:33 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] New locking primitive for 2.5
-Message-ID: <20020209000533.GA372@matchmail.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020208211628.GC343@mis-mike-wstn> <E16ZL4i-0005Ri-00@the-village.bc.nu>
+	id <S287866AbSBIANj>; Fri, 8 Feb 2002 19:13:39 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:5390 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S287865AbSBIANY>;
+	Fri, 8 Feb 2002 19:13:24 -0500
+Date: Fri, 8 Feb 2002 16:10:22 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel panic: EXT2-fs panic on 2.5.4-pre3
+Message-ID: <20020209001022.GF27610@kroah.com>
+In-Reply-To: <20020208234310.GA27610@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16ZL4i-0005Ri-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20020208234310.GA27610@kroah.com>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 11 Jan 2002 21:40:55 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 12:09:04AM +0000, Alan Cox wrote:
-> > SMP 486s would need that (if there is such a beast).  What point does x86
-> > get the 64 bit instructions?  If after 586, then it would definitely need a
-> > spin-lock or some-such in those functions.
+On Fri, Feb 08, 2002 at 03:43:10PM -0800, Greg KH wrote:
+> I got this when unmounting my drive after running e2fsck after a kernel
+> oops (different problem... :)
 > 
-> There are SMP 486 class x86 machines that are MP 1.1 compliant. They are
-> sufficiently rare that I think its quite acceptable to "implement" a
-> cmpxchg8b macro on 486 as spin_lock_irqsave/blah/spin_unlock_irqrestore. It
-> would be wrong to cripple the other 99.99% of SMP users
-> 
+> Kernel panic: EXT2-fs panic (device ide0(3,5)): load_block_bitmap: block_group >= groups_count - block_group = 131071, groups_count = 33
 
-Sorry, I only meant to say that the only question is where the split should
-be between spin-lock and 64bit instruction...
+Just to be clearer, this happend from a fresh boot.  No oops had
+happened, just e2fsck, and then umount, which caused the above panic.
 
-This would be included in the appropriate config option.
+thanks,
 
-Mike
+greg k-h

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129990AbRAaSNw>; Wed, 31 Jan 2001 13:13:52 -0500
+	id <S130069AbRAaSQw>; Wed, 31 Jan 2001 13:16:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130069AbRAaSNl>; Wed, 31 Jan 2001 13:13:41 -0500
-Received: from Cantor.suse.de ([213.95.15.193]:13842 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129990AbRAaSN3>;
-	Wed, 31 Jan 2001 13:13:29 -0500
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Looking for comparison data on network stack prowess
-In-Reply-To: <E14O11D-0002jM-00@the-village.bc.nu>
-From: Andi Kleen <freitag@alancoxonachip.com>
-Date: 31 Jan 2001 19:13:14 +0100
-In-Reply-To: Alan Cox's message of "31 Jan 2001 18:28:47 +0100"
-Message-ID: <oupu26fsi85.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S130968AbRAaSQm>; Wed, 31 Jan 2001 13:16:42 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21769 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130069AbRAaSQZ>; Wed, 31 Jan 2001 13:16:25 -0500
+Subject: Re: [PATCH] Making Cyrix III boot
+To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
+Date: Wed, 31 Jan 2001 18:16:16 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <20010129034300.I1173@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Jan 29, 2001 03:43:00 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14O1nm-0002pG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> The Cyrix III of my employer doesn't boot without this patch.
+> Reason: There are no MSRs in this range.
+> 
+> Since hpa didn't send a better fix, I attached the band-aid fix
+> for you, so that people can boot.
 
-> Someone in .de (Alas I forget their name now) actually did port BSD net/2 to
-> Linux.
+HPA's suggested fix is in the -ac tree
 
-Matthias Urlichs iirc
+> Linus, please apply.
 
-He also later implemented a minimal STREAMS clone on Linux for his
-ISDN stack. 
-
-[and today Linux is reinventing non shouted streams with netfilter..]
-
--Andi
+Linus please apply hpa's correct fix instead
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

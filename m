@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288991AbSANTa0>; Mon, 14 Jan 2002 14:30:26 -0500
+	id <S288990AbSANTa0>; Mon, 14 Jan 2002 14:30:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288992AbSANT3L>; Mon, 14 Jan 2002 14:29:11 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:22773 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S288973AbSANT16>;
-	Mon, 14 Jan 2002 14:27:58 -0500
-Date: Mon, 14 Jan 2002 14:27:55 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Lang <david.lang@digitalinsight.com>
-cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-        Giacomo Catenazzi <cate@debian.org>,
+	id <S288991AbSANT3I>; Mon, 14 Jan 2002 14:29:08 -0500
+Received: from arsenal.visi.net ([206.246.194.60]:20675 "EHLO visi.net")
+	by vger.kernel.org with ESMTP id <S288985AbSANT2j>;
+	Mon, 14 Jan 2002 14:28:39 -0500
+X-Virus-Scanner: McAfee Virus Engine
+Date: Mon, 14 Jan 2002 14:28:36 -0500
+From: Ben Collins <bcollins@debian.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Eli Carter <eli.carter@inet.com>,
+        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <Pine.LNX.4.40.0201141045130.22904-100000@dlang.diginsite.com>
-Message-ID: <Pine.GSO.4.21.0201141419581.224-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020114192836.GE22175@blimpo.internal.net>
+In-Reply-To: <20020114125228.B14747@thyrsus.com> <E16QBwD-0002So-00@the-village.bc.nu> <20020114132618.G14747@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020114132618.G14747@thyrsus.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 14 Jan 2002, David Lang wrote:
-
-> I can see a couple reasons for building a kernel without useing modules.
+On Mon, Jan 14, 2002 at 01:26:18PM -0500, Eric S. Raymond wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > Now to do everything you describe does not need her to configure a custom
+> > kernel tree. Not one bit. You think apt or up2date build each user a custom
+> > kernel tree ?
 > 
-> 1. security, if you don't need any modules you can disable modules entirly
-> and then it's impossible to add a module without patching the kernel first
-> (the module load system calls aren't there)
+> Is it OK in your world that Aunt Tillie is dependent on a distro maker?  Is
+> it OK that she never gets to have a kernel compiled for anything above the
+> least-common-denominator chip?  
+> 
+> Not that I'm running down distro makers.  They do a valuable job, and in fact
+> my approach relies on Aunt Tillie's machine starting life with an all-modular
+> distro kernel.
+> 
+> But the point of this game is for Aunt Tillie to have more and better
+> choices.  Isn't that what we're supposed to be about?
 
-Oh, please...  Give me permissions sufficient to make these syscalls
-and in a couple of minutes your kernel will be replaced with ELIZA.
-As a bonus - ELIZA running under TOPS-10 on PDP-10 emulator.  And talking
-to PARRY.
+Wouldn't it be better for Aunt Tillie to continue using an all modular
+kernel (from a distro) so she doesn't have to "update" (in your example,
+that means recompile) a new one everytime she adds new hardware? Does
+she have to connect all of here 1394 and USB devices to the computer
+during this phase in order to have them all supported?
 
-Anyway, it's trivial to disable said system calls just before doing
-execve("/sbin/init",...).  It won't buy you any security, but if you
-insist...
 
-> 2. speed, there was a discussion a few weeks ago pointing out that there
-> is some overhead for useing modules (far calls need to be used just in
-> case becouse the system can't know where the module will be located IIRC)
+Ben
 
-_That_ has to be addressed - regardless of anything else, if that suckitude
-can be fixed it should be.
-
-> 3. simplicity in building kernels for other machines. with a monolithic
-> kernel you have one file to move (and a bootloader to run) with modules
-> you have to move quite a few more files.
-
-FVO"quite a few" equal to 2.  Kernel and initramfs.cpio.gz
-
+-- 
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/                   Ben Collins    --    Debian GNU/Linux                  \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

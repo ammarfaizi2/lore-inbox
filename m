@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264992AbSKVCHT>; Thu, 21 Nov 2002 21:07:19 -0500
+	id <S264986AbSKVCPb>; Thu, 21 Nov 2002 21:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265034AbSKVCHT>; Thu, 21 Nov 2002 21:07:19 -0500
-Received: from holomorphy.com ([66.224.33.161]:10884 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264992AbSKVCHS>;
-	Thu, 21 Nov 2002 21:07:18 -0500
-Date: Thu, 21 Nov 2002 18:11:31 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.48 hangs during boot
-Message-ID: <20021122021131.GW23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <3DDD8F4D.8080103@us.ibm.com>
-Mime-Version: 1.0
+	id <S264823AbSKVCPb>; Thu, 21 Nov 2002 21:15:31 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:55962 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S264986AbSKVCPa>; Thu, 21 Nov 2002 21:15:30 -0500
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: Re: New kconfig: Please add define_*
+References: <20021121133320.GD18869@fs.tum.de>
+	<Pine.LNX.4.44.0211211740130.2113-100000@serv>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 22 Nov 2002 11:22:13 +0900
+In-Reply-To: <Pine.LNX.4.44.0211211740130.2113-100000@serv>
+Message-ID: <buon0o2fine.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DDD8F4D.8080103@us.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 05:58:37PM -0800, Matthew Dobson wrote:
-> Hello all,
-> 	2.5.48 + Bill/Martin's noearlyirq patch hangs on boot on our NUMA-Q 
-> machines.  It boots normally up to
-> TCP: Hash tables configured (established 524288 bind 65536)
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> VFS: Mounted root (ext2 filesystem) readonly.
-> Freeing unused kernel memory: 268k freed
-> Then it *VERY* slowly proceeds to output a few more lines before hanging 
-> completely.  The lines come out one at a time, with large time delays 
-> between each line.  The last bit of output I get is the enabling swap line.
-> The -mm1 patch fixes this problem, and I'm in the process of determining 
-> exactly what fixes it.  Any input/ideas would be greatly appreciated.
-> Thanks!
-> -Matt
+Roman Zippel <zippel@linux-m68k.org> writes:
+> Also note that the role of the default has changed, a default cannot 
+> override a prompt anymore (it only provides a default value to the 
+> prompt). The define_* syntax might imply that this is possible, but it 
+> won't.
 
-get the axboe/akpm fixes for the elevator deadlock and/or an intermediate
-bk tree. This is an io scheduling issue.
+I'd like to be able to override a prompt.
 
+The reason is that in general it's nice for the arch-specific Kconfig
+file to include various other Kconfig files (using `source'), but
+sometimes an option that usually makes sense as user-definable -- and
+thus has a prompt -- _doesn't_ make sense on that particular
+architecture.
 
-Bill
+Currently it seems as if the arch-specific Kconfig can do several things
+in this case:
+
+  (1) Inline the more general Kconfig into the arch-specific Kconfig
+      (with the offending option removed, and omit the `source').  This
+      is undesirable for all the usual reasons (code duplication causes
+      bit-rot etc).
+
+  (2) Document somewhere that users shouldn't ever set option FOO, even
+      though it asks the question.  This is confusing for users.
+
+  (3) Add a dependency on ARCH_BLAH or something to the definition of
+      FOO.  This is probably the cleanest solution, but tends to result in
+      arch-specific knowledge being littered all over the place (though
+      this is already a general problem with the config system).
+
+It would nice if I could just say in my arch-specific Kconfig:
+
+   option FOO
+           bool
+           set n
+
+which would force FOO to `n' regardless of any later declarations.
+
+-Miles
+-- 
+`Life is a boundless sea of bitterness'

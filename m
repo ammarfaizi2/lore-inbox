@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTFTQcy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 12:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTFTQcy
+	id S263310AbTFTQcs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 12:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTFTQcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 12:32:54 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:29636 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263311AbTFTQcr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 20 Jun 2003 12:32:47 -0400
-Message-ID: <3EF33AD4.6020108@austin.ibm.com>
-Date: Fri, 20 Jun 2003 11:48:20 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:12702 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263310AbTFTQcn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 12:32:43 -0400
+Date: Fri, 20 Jun 2003 18:46:17 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Matthew Wilcox <willy@debian.org>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PCI direct access resources
+In-Reply-To: <20030620162929.GT24357@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.SOL.4.30.0306201842290.15091-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext3 umount hangs
-References: <3EF1EC73.4070305@austin.ibm.com>	<20030619105817.51613df2.akpm@digeo.com>	<3EF20E86.3030102@austin.ibm.com> <20030619131034.5be8232b.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Fri, 20 Jun 2003, Matthew Wilcox wrote:
 
-Andrew Morton wrote:
+> +	if (!pci_probe & PCI_PROBE_CONF1)
+> +		goto type2;
 
->Steven Pratt <slpratt@austin.ibm.com> wrote:
->  
->
->>Here is the trace of the hung process:
->>
->> umount        D 00000001 290213268 18747  18746                     (NOTLB)
->> Call Trace:
->>  [<c01a1ae8>] journal_kill_thread+0xa8/0xe0
->>    
->>
->
->whoops.  I bet you're seeing this when using some script which does the
->unmount.
->
->Might this help?
->  
->
-Yes, this fixed the problem. Thanks.
+(!pci_probe & PCI_PROBE_CONF1) will be always FALSE if pci_probe != 0,
+correct check is:
 
-Steve
+	if ((pci_probe & PCI_PROBE_CONF1) == 0)
+
+> +	if (!pci_probe & PCI_PROBE_CONF2)
+> +		goto out;
+
+Same comment here.
+
+--
+Bartlomiej
 

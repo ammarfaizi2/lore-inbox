@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271534AbRHPI75>; Thu, 16 Aug 2001 04:59:57 -0400
+	id <S271537AbRHPJMr>; Thu, 16 Aug 2001 05:12:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271532AbRHPI7r>; Thu, 16 Aug 2001 04:59:47 -0400
-Received: from mx6.port.ru ([194.67.57.16]:48140 "EHLO mx6.port.ru")
-	by vger.kernel.org with ESMTP id <S271531AbRHPI7k>;
-	Thu, 16 Aug 2001 04:59:40 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Apps losing control tty...
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.196]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15XJ0J-000JGh-00@f11.mail.ru>
-Date: Thu, 16 Aug 2001 12:59:51 +0400
+	id <S271538AbRHPJMh>; Thu, 16 Aug 2001 05:12:37 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55815 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271537AbRHPJMW>; Thu, 16 Aug 2001 05:12:22 -0400
+Date: Thu, 16 Aug 2001 04:43:51 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Daniel Phillips <phillips@innominate.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Write drop behind logic with used-once patch
+Message-ID: <Pine.LNX.4.21.0108160423440.27203-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-prerequisities: 2.4.7-vanille
-     Recently (i cant recall when), i realised, that
-some _different_ applications (like mikmod or something)
- are losing tty. I start these apps like that:
-mikmod <random stuff skipped> > /dev/ttyXX 2>/dev/ttyXX < /dev/ttyXX &
-and after some period of time, they loses the
-tty, but this is not a 100% probability.
 
- I think it is relevant only for 2.4.7 in my situation...
+Hi Daniel,
 
-thanks in advance...
+As far as I can see, the write drop behind logic with the used-once patch
+is partly "gone" now: "check_used_once()" at generic_file_write() will set
+all "write()n" pages to have age == PAGE_AGE_START (in case those pages
+were not in cache before), which means they will be moved to the active
+list later by page_launder(), effectively causing excessive pressure on
+the current "active" pages since we have exponential page aging.
 
----
+I'm I overlooking some here or my thinking is correct ?
 
 
-cheers,
-
-
-   Samium Gromoff

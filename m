@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272620AbRJETyH>; Fri, 5 Oct 2001 15:54:07 -0400
+	id <S271741AbRJET5r>; Fri, 5 Oct 2001 15:57:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272549AbRJETx5>; Fri, 5 Oct 2001 15:53:57 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:6016 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S271741AbRJETxp>;
-	Fri, 5 Oct 2001 15:53:45 -0400
-Date: Fri, 5 Oct 2001 20:51:37 +0200
-From: Pavel Machek <pavel@Elf.ucw.cz>
-To: Jeremy Elson <jelson@circlemud.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
-Message-ID: <20011005205136.A1272@elf.ucw.cz>
-In-Reply-To: <20011002204836.B3026@bug.ucw.cz> <200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu>
-User-Agent: Mutt/1.3.22i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S272549AbRJET5j>; Fri, 5 Oct 2001 15:57:39 -0400
+Received: from ares.sot.com ([195.74.13.236]:49419 "EHLO ares.sot.com")
+	by vger.kernel.org with ESMTP id <S271741AbRJET5U>;
+	Fri, 5 Oct 2001 15:57:20 -0400
+Date: Fri, 5 Oct 2001 22:57:39 +0300 (EEST)
+From: Yaroslav Popovitch <yp@sot.com>
+To: Per Persson <per.persson@gnosjo.pp.se>
+cc: linux-kernel@vger.kernel.org
+Subject: RE:[PATCH] triple_down in fs.h
+Message-ID: <Pine.LNX.4.10.10110052242150.17293-100000@ares.sot.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >> Sorry to follow-up to my own post.  A few people pointed out that
-> >> v1.00 had some Makefile problems that prevented it from building.
-> >> I've released v1.02, which should be fixed.
-> >
-> >This should be forwared to linmodem list... Killing all those
-> >binary-only modem drivers from kernel modules would be good
-> >thing... Hmm, and maybe we can just hack telephony API over ltmodem
-> >and be done with that. That would be good.
-[snip]
-> Perhaps I don't understand how linmodems work to understand well
-> enough how FUSD would apply - do you talk to linmodems through the
-> serial driver?  If so, sounds like a good application - but we might
+Hi! I aplied you patch to kernel-2.4.10 and tried to compile it.But during
+compiling got error,which was caused by double definition of sort. It is
+already in scsi/u14-34f.c,function with 4 parameters,declared as static.
+As your #define sort is used only in fs.h,so I renamed it by adding some
+symbols to name for ex. _sort,or hihahasort,(that is joke :)
 
-Yep. And linmodem driver does signal processing, so it is big and
-ugly. And up till now, it had to be in kernel. With your patches, such
-drivers could be userspace (where they belong!). Of course, it would be 
-very good if your interface did not change...
-								Pavel
+Cheers,YP
+
 

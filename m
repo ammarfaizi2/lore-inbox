@@ -1,61 +1,141 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277667AbRJ1Epc>; Sun, 28 Oct 2001 00:45:32 -0400
+	id <S277708AbRJ1ErW>; Sun, 28 Oct 2001 00:47:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277692AbRJ1EpW>; Sun, 28 Oct 2001 00:45:22 -0400
-Received: from gateway.wvi.com ([204.119.27.10]:10891 "HELO gateway.wvi.com")
-	by vger.kernel.org with SMTP id <S277667AbRJ1EpK>;
-	Sun, 28 Oct 2001 00:45:10 -0400
-Message-ID: <3BDB8E09.2F909138@wvi.com>
-Date: Sat, 27 Oct 2001 21:48:10 -0700
-From: Jim Potter <jrp@wvi.com>
-X-Mailer: Mozilla 4.75 (Macintosh; U; PPC)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Thomas Hood <jdthood@mail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHH!
-In-Reply-To: <1004243645.1081.448.camel@thanatos>
-Content-Type: text/plain; charset=us-ascii; x-mac-type="54455854"; x-mac-creator="4D4F5353"
-Content-Transfer-Encoding: 7bit
+	id <S277703AbRJ1ErN>; Sun, 28 Oct 2001 00:47:13 -0400
+Received: from gull.mail.pas.earthlink.net ([207.217.121.85]:45797 "EHLO
+	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S277702AbRJ1ErG>; Sun, 28 Oct 2001 00:47:06 -0400
+Date: Sun, 28 Oct 2001 00:49:34 -0400
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: VM tests on 2.4.14-pre3 and 2.4.13-ac3
+Message-ID: <20011028004934.A22539@earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, go gupple somebody else...     :)
+
+Summary:
+
+2.4.14-pre3		The greased weasel is back
+2.4.13-ac3		Inconsistent results on mtest01
+2.4.13-ac3-freeswap	patch for 2.4.12-ac3 makes results consistent in mtest01
+
+Test:	Run mtest01 and mmap001 from Linux Test Project.  
+	Listen to long running (50+ minutes) mp3 sampled at 128k.
+
+Default kernel parameters.
+
+Light interactive use: lynx, 2 bitchx (console IRC client) sessions,
+vmstat 8, iostat -d 10.  (52k link to net - mostly idle).
+
+2.4.13-pre3 had much better interactive response than 2.4.13-ac3
+during these tests.  No X.
+
+Hardware:
+AMD 1333 Athlon
+512 MB RAM
+1024 MB swap
+
+mtest01
+=======
+
+2.4.14-pre3
+
+mp3blaster did not skip.  Best time I ever recorded for this test 
+without mp3 skipping.  Previous "best" with no mp3 skips was:
+2.4.13-pre3aa1-page-cluster=2	
+Elapsed (wall clock) time:          47.878
+
+Averages for 10 mtest01 runs
+bytes allocated:                    1233859379
+User time (seconds):                2.034
+System time (seconds):              3.036
+Elapsed (wall clock) time:          30.517
+Percent of CPU this job got:        16.10
+Major (requiring I/O) page faults:  107.0
+Minor (reclaiming a frame) faults:  302029.3
+
+2.4.13-ac3
+
+Played about 90 seconds of mp3 during 200 second run.
+747634688 - 1181745152 bytes allocated per iteration.  
+
+Averages for 10 mtest01 runs
+bytes allocated:                    894120755
+User time (seconds):                1.499
+System time (seconds):              2.744
+Elapsed (wall clock) time:          20.646
+Percent of CPU this job got:        20.40
+Major (requiring I/O) page faults:  101.9
+Minor (reclaiming a frame) faults:  218898.0
 
 
-> M. Edward Borasky wrote:
-> > Dang! I'm in Oregon ... now you gotta kill me :-).
->
-> Yesssss ...  but how?  (drums fingers)
->
-> But wait, what am I thinking?  Am I sliding down the
-> slipperly slope of crime so quickly?  This is how Osama
-> Bin Laden got started you know: with a pirated copy of
-> DOS 3.2 on his old Osborne.  It wasn't too long after
-> that that he was first seen in the company of Bert.
->
-> I think what I'll do is send out a GPL.  I've been told
-> it's a destroyer of intellectual property, so maybe it
-> will erase your memory that they have seen these messages.
->
-> GPL GPL GPL
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+2.4.13-ac3-freeswap
 
---
-Sincerely,
+Played about 120 seconds of mp3 during 350 second run.
 
-Jim Potter
-45th Parallel Processing
-jrp@wvi.com
+Averages for 10 mtest01 runs
+bytes allocated:                    1244449996
+User time (seconds):                2.033
+System time (seconds):              3.761
+Elapsed (wall clock) time:          35.219
+Percent of CPU this job got:        16.00
+Major (requiring I/O) page faults:  114.1
+Minor (reclaiming a frame) faults:  304611.1
 
-  Those that would give up a necessary freedom for
-  temporary safety deserve neither freedom nor safety.
-    -- Ben Franklin
 
+mmap001 test
+============
+
+2.4.14-pre3
+
+mp3 did not skip.
+
+Average for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                19.578
+System time (seconds):              17.388
+Elapsed (wall clock seconds) time:  171.45
+Percent of CPU this job got:        21.20
+Major (requiring I/O) page faults:  500158.8
+Minor (reclaiming a frame) faults:  41.4
+
+About 2-3 seconds of mp3 skip for entire run.
+
+2.4.13-ac3
+Average for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                19.412
+System time (seconds):              16.974
+Elapsed (wall clock seconds) time:  151.49
+Percent of CPU this job got:        23.40
+Major (requiring I/O) page faults:  500180.2
+Minor (reclaiming a frame) faults:  20.0
+
+About 2-3 seconds of mp3 skip for entire run.
+
+2.4.13-ac3-freeswap
+Average for 5 mmap001 runs
+bytes allocated:                    2048000000
+User time (seconds):                19.260
+System time (seconds):              17.456
+Elapsed (wall clock seconds) time:  151.44
+Percent of CPU this job got:        23.80
+Major (requiring I/O) page faults:  500174.0
+Minor (reclaiming a frame) faults:  20.0
+
+runalltests.sh
+==============
+
+When executing runalltests.sh from LTP, 2.4.14-pre3 returns
+FAIL on the personality01 tests (11 FAIL) whereas 2.4.13-ac3
+returns PASS on the same tests.
+
+-- 
+Randy Hron
 

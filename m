@@ -1,40 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276977AbRJQQsJ>; Wed, 17 Oct 2001 12:48:09 -0400
+	id <S272244AbRJQQut>; Wed, 17 Oct 2001 12:50:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272244AbRJQQr7>; Wed, 17 Oct 2001 12:47:59 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:10368 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S276977AbRJQQrz>;
-	Wed, 17 Oct 2001 12:47:55 -0400
-Date: Wed, 17 Oct 2001 09:48:22 -0700 (PDT)
-Message-Id: <20011017.094822.85411855.davem@redhat.com>
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.4.14prex and qlogicfc
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3BCDB039.8F00D818@redhat.com>
-In-Reply-To: <20011017081837.C3035@suse.de>
-	<20011016.233534.48799017.davem@redhat.com>
-	<3BCDB039.8F00D818@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S276978AbRJQQu3>; Wed, 17 Oct 2001 12:50:29 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:52746 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S272244AbRJQQu0>; Wed, 17 Oct 2001 12:50:26 -0400
+Date: Wed, 17 Oct 2001 10:55:35 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: SCSI tape load problem with Exabyte Drive
+Message-ID: <20011017105535.C24698@vger.timpanogas.org>
+In-Reply-To: <20011016153623.A21324@vger.timpanogas.org> <Pine.LNX.4.33.0110170935300.2271-100000@kai.makisara.local>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.33.0110170935300.2271-100000@kai.makisara.local>; from Kai.Makisara@kolumbus.fi on Wed, Oct 17, 2001 at 09:43:42AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arjan van de Ven <arjanv@redhat.com>
-   Date: Wed, 17 Oct 2001 17:22:17 +0100
+On Wed, Oct 17, 2001 at 09:43:42AM +0300, Kai Makisara wrote:
+> On Tue, 16 Oct 2001, Jeff V. Merkey wrote:
+> 
+> >
+> >
+> > On 2.4.6 with st and AICXXXX driver, issuance of an MTLOAD command
+> > via st ioctl() calls results in a unit attention and failure of
+> > the drive while loading a tape from an EXB-480 robotics tape
+> > library.
+> >
+> > Code which generates this error is attached.  The error will not
+> > clear unless the code first closes the open handle to the device,
+> > then reopens the handle and retries the load command.  The failure
+> > scenario is always the same.  The first MTLOAD command triggers
+> > the tape drive to load the tape, then all subsequent commands
+> > fail until the handle is closed and the device is reopened and
+> > a second MTLOAD command gets issued, then the drive starts
+> > working.
+> >
+> This is a "feature" of the st driver: if you get UNIT ATTENTION anywhere
+> else than within open(), it is considered an error. In most cases this is
+> true but MTLOAD is an exception. I have not thought about this exception
+> and noone before you has reported it ;-)
+> 
+> As you say, the workaround is to close and reopen the device after MTLOAD.
+> You should not need the second MTLOAD.
+> 
+> I will think about a fix to this problem. The basic reason for not
+> allowing UNIT ATTENTION anywhere is that flushing the driver state
+> properly in any condition is complicated and there has been no legitimate
+> reason to allow this. However, here it should be sufficient to use a no-op
+> SCSI command after LOAD to get the UNIT ATTENTION.
+> 
+> 	Kai
+>
 
-   "David S. Miller" wrote:
-   > Not if it broke in pre1 since the pci64 stuff went into pre2 :-)
-   
-   since it broke as of pre2, the following things are suspect:
-   
-Wrong qlogic driver arjan :-)  There never was ever a reference
-to virt_to_bus anything in the qlogicfc driver since early 2.3.x
-days when the PCI DMA api first went into the tree.
+Kai,
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Thanks for the prompt response.  We will continue using the current
+recovery method since this appears to work based upon your 
+description of what is happening here.  I will remove the second MTLOAD 
+command and test with the robotics library.  Sounds like it should
+work OK.  Please let us know what you decide if you feel a workaround
+is needed for this problem, and we will be happy to test it for 
+you.
+
+Do-na-da Go-hv-e
+
+Wa-do
+
+Thanks
+
+Jeff
+ 

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264654AbSJ3KgY>; Wed, 30 Oct 2002 05:36:24 -0500
+	id <S264658AbSJ3Kim>; Wed, 30 Oct 2002 05:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264655AbSJ3KgY>; Wed, 30 Oct 2002 05:36:24 -0500
-Received: from c-66-176-164-150.se.client2.attbi.com ([66.176.164.150]:23965
-	"EHLO schizo.psychosis.com") by vger.kernel.org with ESMTP
-	id <S264654AbSJ3KgX>; Wed, 30 Oct 2002 05:36:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
-Date: Wed, 30 Oct 2002 05:42:47 -0500
-User-Agent: KMail/1.4.2
-Cc: linux-kernel@vger.kernel.org
-References: <200210272017.56147.landley@trommello.org> <200210300514.57193.dcinege@psychosis.com> <3DBFB362.2070506@pobox.com>
-In-Reply-To: <3DBFB362.2070506@pobox.com>
+	id <S264663AbSJ3Kim>; Wed, 30 Oct 2002 05:38:42 -0500
+Received: from k100-23.bas1.dbn.dublin.eircom.net ([159.134.100.23]:39693 "EHLO
+	corvil.com.") by vger.kernel.org with ESMTP id <S264658AbSJ3Kik>;
+	Wed, 30 Oct 2002 05:38:40 -0500
+Message-ID: <3DBFB7AE.6030306@corvil.com>
+Date: Wed, 30 Oct 2002 10:42:54 +0000
+From: Padraig Brady <padraig.brady@corvil.com>
+Organization: Corvil Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210300542.47207.dcinege@psychosis.com>
+To: Khalid Aziz <khalid_aziz@hp.com>
+CC: Paul.Clements@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] Retrieve configuration information from kernel
+References: <Pine.LNX.4.10.10210291204590.28595-100000@clements.sc.steeleye.com> <3DBED111.96A3A1E8@hp.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 October 2002 5:24, Jeff Garzik wrote:
+Khalid Aziz wrote:
+> Paul Clements wrote:
+> 
+>>Have you considered compressing the config info in order to reduce
+>>the space wastage in the loaded kernel image? Could easily be 10's of KB
+>>(not that that's a lot these days). The info would then be retrieved via
+>>"gunzip -c", et al. instead of a simple "cat".
+> 
+> I wanted to start with a simple implementation first. There are a couple
+> of things that can be done in future to further improve meory usage: (1)
+> Drop "CONFIG_" and "# CONFIG_" from each line and add it back when
+> printing from /proc/ikconfig and extract-ikconfig script, (2) Compress
+> the resulting configuration. Something to do in near future :)
 
-> You appear to be unaware of early userspace. Moving code out of the
-> kernel does _not_ mean eliminating that code completely. 
+$ wc -c /usr/src/linux-2.4/.config
+   38092 /usr/src/linux-2.4/.config
+$ gzip -c /usr/src/linux-2.4/.config | wc -c
+   10305
+$ sed '/^ *$/d;/^#/d;s/^CONFIG_//'  /usr/src/linux-2.4/.config | wc -c
+   17267
+$ sed '/^ *$/d;/^#/d;s/^CONFIG_//'  /usr/src/linux-2.4/.config | gzip | wc -c
+    6155
 
-My appologies, I thought you meant do_mounts.c was being yanked
-entirly if initramfs goes in.
+Also it seems like it would be more useful to have the config in the
+kernel image rather than (just) proc?
 
-> do_mounts.c performs -- otherwise a Linux system would never have a root
-> filesystem mounted.
-
-Actually it's very possible to eliminate it....require an initramfs image
-to have scripts and tools (mount and pivotroot) to do it all and mount that
-as the root. (An interesting but pretty bad idea IMO) This is what I thought
-you meant.
-
-> Being unaware of early userspace implies that you are not familiar with
-> initramfs.
-
-I'll accept your apology after you see how nicely I cleaned up do_mounts.c
-(It's 11K now) However I did not know the 'rootfs' was called 'early 
-userspace'. (Or was my above assumption correct?)
-
-> Which implies you wish you merge your own code in place of something you
-> do not understand.
-
-Jeff, be nice. I'm trying very hard myself...and if you knew me, you'd know
-it's a difficult task. : >
-
-Dave
+Pádraig.
 

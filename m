@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264663AbUFGOL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUFGOLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264663AbUFGOL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 10:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUFGOL6
+	id S264677AbUFGOLr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 10:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbUFGOJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 10:11:58 -0400
-Received: from zork.zork.net ([64.81.246.102]:50560 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S264663AbUFGOKN (ORCPT
+	Mon, 7 Jun 2004 10:09:53 -0400
+Received: from holomorphy.com ([207.189.100.168]:18615 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264655AbUFGOHS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 10:10:13 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Russell Leighton <russ@elegant-software.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Using getpid() often, another way? [was Re: clone() <->
- getpid() bug in 2.6?]
-References: <40C1E6A9.3010307@elegant-software.com>
-	<Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
-	<40C32A44.6050101@elegant-software.com>
-	<40C33A84.4060405@elegant-software.com>
-	<1086537490.3041.2.camel@laptop.fenrus.com>
-	<40C3AD9E.9070909@elegant-software.com>
-	<20040607121300.GB9835@devserv.devel.redhat.com>
-	<6uu0xn5vio.fsf@zork.zork.net> <20040607140009.GA21480@infradead.org>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, Arjan van de Ven
-	<arjanv@redhat.com>, Russell Leighton <russ@elegant-software.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Mon, 07 Jun 2004 15:10:08 +0100
-In-Reply-To: <20040607140009.GA21480@infradead.org> (Christoph Hellwig's
-	message of "Mon, 7 Jun 2004 15:00:09 +0100")
-Message-ID: <6upt8b5uin.fsf@zork.zork.net>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 7 Jun 2004 10:07:18 -0400
+Date: Mon, 7 Jun 2004 07:07:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
+Message-ID: <20040607140714.GB21007@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Con Kolivas <kernel@kolivas.org>,
+	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>
+References: <200406070139.38433.kernel@kolivas.org> <20040607135631.GY21007@holomorphy.com> <20040607135738.GZ21007@holomorphy.com> <20040607140445.GA21007@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Disposition: inline
+In-Reply-To: <20040607140445.GA21007@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+On Mon, Jun 07, 2004 at 07:04:45AM -0700, William Lee Irwin III wrote:
+> array->nr_active only ever modified, never examined.
 
-> On Mon, Jun 07, 2004 at 02:48:31PM +0100, Sean Neakums wrote:
->> > for example ia64 doesn't have it.
->> 
->> Then what is the sys_clone2 implementation in arch/is64/kernel/entry.S for?
->
-> It's clone with a slightly different calling convention.
+cpu_to_node_mask() is dead.
 
-Ah.  I misintereted Arjan as saying that ia64 didn't have a clone at
-all, which would have been pretty wacky.  Sorry for the noise.
+
+Index: kolivas-2.6.7-rc2/kernel/sched.c
+===================================================================
+--- kolivas-2.6.7-rc2.orig/kernel/sched.c	2004-06-07 07:03:00.910109000 -0700
++++ kolivas-2.6.7-rc2/kernel/sched.c	2004-06-07 07:06:28.072616000 -0700
+@@ -46,12 +46,6 @@
+ 
+ #include <asm/unistd.h>
+ 
+-#ifdef CONFIG_NUMA
+-#define cpu_to_node_mask(cpu) node_to_cpumask(cpu_to_node(cpu))
+-#else
+-#define cpu_to_node_mask(cpu) (cpu_online_map)
+-#endif
+-
+ /*
+  * Convert user-nice values [ -20 ... 0 ... 19 ]
+  * to static priority [ MAX_RT_PRIO..MAX_PRIO-1 ],

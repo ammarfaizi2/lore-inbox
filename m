@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290309AbSA3TAt>; Wed, 30 Jan 2002 14:00:49 -0500
+	id <S290475AbSA3TF0>; Wed, 30 Jan 2002 14:05:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290351AbSA3S7a>; Wed, 30 Jan 2002 13:59:30 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:32967 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S290347AbSA3S5o>;
-	Wed, 30 Jan 2002 13:57:44 -0500
-Date: Wed, 30 Jan 2002 20:57:30 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Nickolaos Fotopoulos <nick@rsvpusa.com>
-Cc: "Linux kernel list (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-Message-ID: <20020130205730.C5808@mea-ext.zmailer.org>
-In-Reply-To: <21B5EAC6675ED411B62500105A9C006018D42A@XCHANGE>
+	id <S289359AbSA3TFS>; Wed, 30 Jan 2002 14:05:18 -0500
+Received: from peabody.ximian.com ([141.154.95.10]:42501 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP
+	id <S290347AbSA3TFD>; Wed, 30 Jan 2002 14:05:03 -0500
+Subject: Follow-up on ethernet corruption
+From: Kevin Breit <mrproper@ximian.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 30 Jan 2002 14:07:26 -0600
+Message-Id: <1012421247.3133.5.camel@kbreit.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21B5EAC6675ED411B62500105A9C006018D42A@XCHANGE>; from nick@rsvpusa.com on Wed, Jan 30, 2002 at 01:21:17PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 01:21:17PM -0500, Nickolaos Fotopoulos wrote:
-> I'm new to this list.  Does it get spammed often, like this guy
-> (grumph@pakistanmail.com) is doing?  It is allready becoming quite anouying!
+Hey,
+	The other day (some of you may remember), I emailed the list talking
+about ethernet packet corruption.  Suck, don't it?  We came to the
+conclusion that it could be a couple of items:
+* bad hardware on my end
+* bad firewall
+* something else?
 
-  I already asked about the phenomena, and the guy(?) replied that
-  he won't use that system anymore as it is doing those repeated
-  sends all by itself.
+	Well, I was talking to a friend who JUST installed Linux on the
+previous version of my laptop (2000 model instead of 2001).  He said he
+downloaded the Java JDK about 20 times yesterday, and it was corrupted
+all but the last time.
+	How would I go about testing things out and figuring out which is the
+bad component?
 
-> This is by far the busiest list I have ever subscribed to, and there does
-> not seem to be any sort of spam blocker working here.  I thought Majodomo
-> had stuff like this built in?  If not maybe a list moderator could address
-> this.
+Thanks
 
-  http://vger.kernel.org/majordomo-info.html
+Kevin Breit
 
-  Trust me, there is HEAVY filtering.
-  Still some spams do get thru.
-
-> 				Nick Fotopoulos
-
-/Matti Aarnio

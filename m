@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316569AbSGBBl1>; Mon, 1 Jul 2002 21:41:27 -0400
+	id <S316598AbSGBCX1>; Mon, 1 Jul 2002 22:23:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316594AbSGBBl0>; Mon, 1 Jul 2002 21:41:26 -0400
-Received: from bitmover.com ([192.132.92.2]:62612 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S316569AbSGBBl0>;
-	Mon, 1 Jul 2002 21:41:26 -0400
-Date: Mon, 1 Jul 2002 18:43:53 -0700
-From: Larry McVoy <lm@bitmover.com>
+	id <S316599AbSGBCX0>; Mon, 1 Jul 2002 22:23:26 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:20357 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S316598AbSGBCX0>;
+	Mon, 1 Jul 2002 22:23:26 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: missing BK architectures?
-Message-ID: <20020701184353.Q10782@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
+Subject: Re: RE2: [OKS] Module removal 
+In-reply-to: Your message of "Mon, 01 Jul 2002 22:40:34 -0300."
+             <20020701224034.C2295@almesberger.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Date: Tue, 02 Jul 2002 12:25:45 +1000
+Message-ID: <31042.1025576745@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At OLS I got a number of requests for a PARISC BK release.  One of the 
-the PARISC guys (Wilcox?  I apologize, I can picture the person but not
-the name, nice guy, black hair, pony tail, medium height, glasses) who
-works at HP was kind enough to offer a loan/donation of a box on which
-to run Linux/PARISC.  Which is way cool and we promised that within 24
-hours of getting the box we'd have finished the port (Linux on different
-architectures is so easy to port to that if it takes more than a few 
-minutes, we're positive it's our code).
+On Mon, 1 Jul 2002 22:40:34 -0300, 
+Werner Almesberger <wa@almesberger.net> wrote:
+>If I remember right, the main arguments why module removal can
+>race with references were:
+>....
+> - removal happening immediately after module usage count is
+>   decremented to zero may unload module before module has
+>   executed "return" instruction
+>For the removal-before-return problem, I thought a bit about it
+>on my return flight. It would seem to me that an "atomic"
+>"decrement_module_count_and_return" function would do the trick.
 
-Anyway, kudos to the HP guys aside, are there other architectures for
-which someone wants a Linux port of BK?  I know we need to release a 
-zseries version, that's in the works (noone is donating a zseries and
-I'm pretty sure we couldn't afford the power bill anyway, but I have
-an account on their public server), but what about other archs?  Are
-we missing any you care about?
+This is just one symptom of the overall problem, which is module code
+that adjusts its use count by executing code that belongs to the
+module.  The same problem exists on entry to a module function, the
+module can be removed before MOD_INC_USE_COUNT is reached.
 
-Cheers,
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Apart from abandoning module removal, there are only two viable fixes:
+
+1) Do the reference counting outside the module, before it is entered.
+
+   This is why Al Viro added the owner: __THIS_MODULE; line to various
+   structures.  The problem is that it spreads like a cancer.  Every
+   structure that contains function pointers needs an owner field.
+   Every bit of code that dereferences a function pointer must first
+   bump the owner's use count (using atomic ops) and must cope with the
+   owner no longer existing.
+
+   Not only does this pollute all structures that contain function
+   pointers, it introduces overhead on every function dereference.  All
+   of this just to cope with the relatively low possibility that a
+   module will be removed.
+
+2) Introduce a delay after unregistering a module's services and before
+   removing the code from memory.
+
+   This puts all the penalty and complexity where it should be, in the
+   unload path.  However it requires a two stage rmmod process (check
+   use count, unregister, delay, recheck use count, remove if safe)
+   so all module cleanup routines need to be split into unregister and
+   final remove routines.
+
+   This is relatively easy to do without preemption, it is
+   significantly harder with preempt.  There are also unsolved problems
+   with long running device commands with callbacks (e.g. CD-R fixate)
+   and with kernel threads started from a module (must wait until
+   zombies have been reaped).
+
+Rusty and I agree that option (2) is the only sane way to do module
+unload, assuming that we retain module unloading.  First decide if the
+extra work is justified.
+

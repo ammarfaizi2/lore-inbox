@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUCZUGP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 15:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbUCZUGP
+	id S264129AbUCZUZM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 15:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264133AbUCZUZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 15:06:15 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:37770 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261169AbUCZUGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 15:06:14 -0500
-Message-ID: <40648D2D.2000201@nortelnetworks.com>
-Date: Fri, 26 Mar 2004 15:06:05 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Fri, 26 Mar 2004 15:25:12 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:52922 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264129AbUCZUZH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 15:25:07 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.18-2.4.22 signal handling speed regression
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16484.37279.839961.375027@napali.hpl.hp.com>
+Date: Fri, 26 Mar 2004 12:25:03 -0800
+To: Andrew Morton <akpm@osdl.org>
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, davej@redhat.com,
+       mpm@selenic.com, linux-kernel@vger.kernel.org
+Subject: Re: Fw: potential /dev/urandom scalability improvement
+In-Reply-To: <20040326104904.59f7a156.akpm@osdl.org>
+References: <20040325141923.7080c6f0.akpm@osdl.org>
+	<20040325224726.GB8366@waste.org>
+	<16483.35656.864787.827149@napali.hpl.hp.com>
+	<20040325180014.29e40b65.akpm@osdl.org>
+	<20040326110619.GA25210@redhat.com>
+	<16484.29095.842735.102236@napali.hpl.hp.com>
+	<20040326104904.59f7a156.akpm@osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Fri, 26 Mar 2004 10:49:04 -0800, Andrew Morton <akpm@osdl.org> said:
 
-We have an app that uses signals heavily (30K/sec at times).  When 
-moving it from 2.4.18 to 2.4.22, we noticed a significant speed 
-decrease, to the point where it is about 2.5 times slower on 2.4.22.
+  Andrew> But the start address which is fed into prefetch_range() may
+  Andrew> not be cacheline-aligned.  So if appropriately abused, a
+  Andrew> prefetch_range() could wander off the end of the user's
+  Andrew> buffer and into a new page.
 
-We're trying to figure out what is causing the problem, but I thought 
-I'd see if anyone has any ideas off the top of their heads.
+  Andrew> I think this gets it right, but I probably screwed something
+  Andrew> up.
 
-PowerPC hardware, 1 cpu, single-threaded app.
+Please, let's not make this more complicated than it is.  The
+cacheline alignment doesn't matter at all.  Provided prefetch_range()
+is given a range of guaranteed to be valid memory, then it will be
+fine.  It never touches anything outside the specified range.
 
-Thanks,
-
-Chris
+	--david

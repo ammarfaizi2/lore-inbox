@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279702AbRJYEPm>; Thu, 25 Oct 2001 00:15:42 -0400
+	id <S279704AbRJYER0>; Thu, 25 Oct 2001 00:17:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279701AbRJYEPc>; Thu, 25 Oct 2001 00:15:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39944 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279699AbRJYEPR>; Thu, 25 Oct 2001 00:15:17 -0400
-Date: Wed, 24 Oct 2001 21:14:06 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
-        Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [RFC] New Driver Model for 2.5
-In-Reply-To: <E15wWr6-0002wx-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110242111260.9147-100000@penguin.transmeta.com>
+	id <S279706AbRJYERD>; Thu, 25 Oct 2001 00:17:03 -0400
+Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:30980 "EHLO
+	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
+	id <S279704AbRJYEQ6>; Thu, 25 Oct 2001 00:16:58 -0400
+Message-ID: <3BD791C6.70200@ndsu.nodak.edu>
+Date: Wed, 24 Oct 2001 23:15:02 -0500
+From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011018
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Dan Maas <dmaas@dcine.com>, jamagallon@able.es
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+In-Reply-To: <fa.fm7f5dv.1cn8eg6@ifi.uio.no> <fa.hbvlhav.v369au@ifi.uio.no> <023001c15cf4$4fd5ecc0$1a01a8c0@allyourbase>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dan Maas wrote:
 
-On Wed, 24 Oct 2001, Alan Cox wrote:
->
-> Well I don't want my laptop to suspend during a CD burn or firmware update.
-> The device itself doesn't know anything about how busy it is since its
-> just sending packets, only the subsystem driver controller it does
+>>As I see it, that is exactly what should not be done. Lets suppose you are
+>>running 2.4.12. You want to upgrade. So you unpack 2.4.13 and build it.
+>>If you go now to build nVidia drivers, with the shipped Makefile they
+>>still build and install against 2.4.12.
+>>
+> 
+> You don't have to reboot into the new kernel, just do as the README says:
+> 
+>     If you want to build NVdriver for a system other than the compiling
+>     system, then you'll need to run the make as:
+> 
+>         $ make SYSINCLUDE=/src/kern/my-smp-kernel/include
+> 
+>     to generate an NVdriver that will work on the kernel whose include
+>     files are in /src/kern/my-smp-kernel/include.  This kernel must
+>     have been completely configured (make menuconfig dep).
+> 
+> So you still only need to reboot once when upgrading your kernel.
+> 
+> The only thing I find annoying is that the kernel's 'make modules_install'
+> wipes out /lib/modules/<version>, so when I'm in the compile/debug cycle on
+> my own driver I have to keep reinstalling NVdriver.
+> 
+> Regards,
+> Dan
 
-But that's _your_ problem. Not the kernels.
 
-If you have a acpi deamon that decides to make the machine go to sleep
-while burning a CD, that's nothign to do with the kernel at all.
+Thanks for the info. I hadn't looked at the makefile myself, but now 
+that you mention it do remember the SYSINCLUDE directive from before.
 
-It has nothing to do with sg.c either, for that matter.
+For me personally, I've always booted in runlevel 3, so it's no problem 
+for me to recompile NVdriver after the reboot. To each his own I guess.
 
-> > Remember: the main point of suspend is to have a laptop go to sleep, and
-> > come back up on the order of a few _seconds_.
->
-> It also has to avoid unpleasant situations
-
-Absolutely NOT.
-
-The kernel does not set policy. If the user says "suspend now", then we
-suspend now. Whether a CD burn or anything else is going on is totally
-irrelevant.
-
-> There are certain practicalities here with trying to make user space dig
-> around in fuser innards or patching every cd burner. The sg layer is one
-> that has to get involved (be it as a driver call back or a virtual driver)
-
-Not a way in hell. If the sg layer wants to export a "/proc/sgbusy",
-that's its problem.
-
-But if I say "suspend", and the kernel refuses, I will kill the offending
-piece of crap from sg.c before you can blink an eye.
-
-		Linus
+Regards,
+Reid
 

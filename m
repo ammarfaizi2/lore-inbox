@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268378AbUHQSSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268381AbUHQSYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268378AbUHQSSL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 14:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268380AbUHQSSL
+	id S268381AbUHQSYc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 14:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268382AbUHQSYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 14:18:11 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:10142 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S268378AbUHQSSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 14:18:01 -0400
-Message-ID: <41224BD7.5070008@grupopie.com>
-Date: Tue, 17 Aug 2004 19:17:59 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+	Tue, 17 Aug 2004 14:24:31 -0400
+Received: from s0003.shadowconnect.net ([213.239.201.226]:40837 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S268381AbUHQSYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 14:24:30 -0400
+Message-ID: <4122507A.3070500@shadowconnect.com>
+Date: Tue, 17 Aug 2004 20:37:46 +0200
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Keith Owens <kaos@ocs.com.au>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-References: <6450.1092747900@ocs3.ocs.com.au> <41220FEA.9050106@grupopie.com> <20040817162323.GA7689@mars.ravnborg.org> <20040817175511.GA29763@elte.hu>
-In-Reply-To: <20040817175511.GA29763@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>
+CC: Warren Togami <wtogami@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Merge I2O patches from -mm
+References: <411F37CC.3020909@redhat.com> <20040817125303.A21238@infradead.org> <412208A6.7020104@shadowconnect.com> <20040817175624.A24038@infradead.org>
+In-Reply-To: <20040817175624.A24038@infradead.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.4; VDF: 6.27.0.13; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Sam Ravnborg <sam@ravnborg.org> wrote:
-> 
-> 
->>That said do not put too much effort moving kode from the kernel to
->>kallsyms.c. kallsyms support can be deselected, and users will not
->>care about the little extra overhead (down in noise compared with the
->>symbols).
+Hello,
 
-I know I'm probably putting to much effort on a low priority task 
-(understatement of the year), but I was having fun doing it, so I saw no 
-reason to stop :)
+Christoph Hellwig wrote:
+> The patch below adds a __scsi_add_device that can "preload" sdev->hostdata.
 
-The new algorithm that I was thinking about is quite simple from the 
-kernel point of view. It takes advantage of the fact that not all 
-characters are allowed on symbols.
+Thank you very much for changing it!
 
-It uses these extra chars to feed a table that maps "special unused 
-char"->"small string". For instance, it can say char \x85 is in fact 
-"write_". Interesting enough the best string on my test data is "acpi_", 
-and saves about 3kb of data to map it to just one char :)
+At the moment i only have a patch without the i2o_scsi changes, but that 
+will follow ASAP...
 
-So the work in the kernel is quite easy, and I believe it will in fact 
-be faster than now, using less code.
 
-The real problem is that the algorithm has to give the best strings to 
-use in the table fast enough as to not be noticed in the total kernel 
-compile time. Selecting the best strings is a really interesting problem 
-from a mathematical point of view, and I was trying to solve it just for 
-the fun of doing it :)
 
-> distributions tend to enable it though, so saving 64K of kernel RAM is 
-> good indeed. Good compression of the symbols increases the applicability 
-> of kallsyms.
+Best regards,
 
-I'm glad you also found this scheme to be useful.
 
-The code might be useful on other situations where we need to compress 
-english text (or something like that) in a way that uncompressing a 
-small string is quite fast. (I remember a thread a long time ago about 
-compressing all the printk texts in the kernel, so maybe this could be 
-useful there too)
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
 
--- 
-Paulo Marques - www.grupopie.com
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

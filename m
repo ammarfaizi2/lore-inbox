@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbULGITl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbULGIXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbULGITl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 03:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULGITl
+	id S261621AbULGIXO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 03:23:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULGIXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 03:19:41 -0500
-Received: from knserv.hostunreachable.de ([212.72.163.70]:63393 "EHLO
-	mail.hostunreachable.de") by vger.kernel.org with ESMTP
-	id S261556AbULGITk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 03:19:40 -0500
-Message-ID: <41B56798.4070505@syncro-community.de>
-Date: Tue, 07 Dec 2004 09:19:36 +0100
-From: Hendrik Wiese <7.e.Q@syncro-community.de>
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKLM <linux-kernel@vger.kernel.org>
-Subject: wait_event_interruptible
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Dec 2004 03:23:14 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:29836 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261621AbULGIXL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 03:23:11 -0500
+Date: Tue, 7 Dec 2004 09:21:06 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Lenar =?unknown-8bit?Q?L=C3=B5hmus?= <lenar@vision.ee>
+Cc: Johan <johan@ccs.neu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: status of via velocity in 2.6.9
+Message-ID: <20041207082106.GA24306@electric-eye.fr.zoreil.com>
+References: <41B4F447.2060808@ccs.neu.edu> <41B56518.2070108@vision.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41B56518.2070108@vision.ee>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Lenar Lõhmus <lenar@vision.ee> :
+[...]
+> the machine just locked up after ifconfig up. With 2.6.9, it doesn't 
+> lock up, but it doesn't work either (data seems to go to black hole
+> or sth). But there seem to be some success reports too with this kernel.
 
-I created a kernel thread inside of my driver by calling the function 
-kernel_thread with a function pointer. Now this thread calls daemonize 
-and allow_signal and then it runs a forever loop until it is terminated 
-by the kernel (unloading the driver etc). And because it is written in 
-the documentation I put the thread asleep by calling 
-wait_event_interruptible with a wait queue called "dpn_wq_run" inside 
-the forever loop. Now is it right that a wake_up_interruptible in the 
-ISR has to wake up the thread so it continues its work? If yes... why 
-isn't that working for me? I called wait_event_interruptible with that 
-dpn_wq_run inside the kernel thread and do a wake_up_interruptible 
-inside the ISR with the same dpn_wq_run. But my kernel thread won't wake 
-up. Is there anything else I have to do to the wait queue, but calling 
-init_wait_queue on it?
+Can you check if the computer hosts the latest bios from its vendor and
+if booting with "acpi=off" makes a difference ?
 
-Thanks a lot
+The content of /proc/interrupts after a known number of TX packets could
+give some hint (use ping or such and correlate ifconfig output with
+/proc/interrupts).
 
-Hendrik
+Please direct/Cc: further messages to netdev@oss.sgi.com.
+
+--
+Ueimor

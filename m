@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264596AbUFEIiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUFEIr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264596AbUFEIiL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 04:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265813AbUFEIiL
+	id S265973AbUFEIr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 04:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264572AbUFEIr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 04:38:11 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:21188 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S264596AbUFEIiH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 04:38:07 -0400
-Date: Sat, 5 Jun 2004 09:38:06 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [bk pull] drm tree update and bugfix..
-Message-ID: <Pine.LNX.4.58.0406050934540.21707@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 5 Jun 2004 04:47:57 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:8131 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S266045AbUFEIqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 04:46:54 -0400
+Subject: Re: jff2 filesystem in vanilla
+From: David Woodhouse <dwmw2@infradead.org>
+To: Daniel Egger <de@axiros.com>
+Cc: cijoml@volny.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <3F4B6D09-B6CA-11D8-B781-000A958E35DC@axiros.com>
+References: <200406041000.41147.cijoml@volny.cz>
+	 <F84CE3DA-B605-11D8-B781-000A958E35DC@axiros.com>
+	 <1086390590.4588.70.camel@imladris.demon.co.uk>
+	 <3F4B6D09-B6CA-11D8-B781-000A958E35DC@axiros.com>
+Content-Type: text/plain
+Message-Id: <1086425211.4588.88.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sat, 05 Jun 2004 09:46:51 +0100
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2004-06-05 at 10:27 +0200, Daniel Egger wrote:
+> The original version in the 2.4 kernel has a dramatic problem
+> leading to FS corruption, at least when used with blkmtd on CF.
+> That's why I'm using 2.4 and a CVS snapshot, not only because
+> it is much faster.
 
-Hi Linus,
+Can you be more specific? I don't know of any such problems. If they
+exist, they give me a potential excuse to update 2.4 to the current code
+-- but to be honest I'd rather just leave it in maintenance mode.
 
-There is an issue with the last merge and AGP in certain situations, this
-merge fixes that, adds some missing macros and adds a new feature to the
-r200 drm,
+> Believe it or not but JFFS2 is the only filesystem that works
+> reasonably on CF, especially when the system is used mostly read
+> only and the device is cut off from power every now and then. ;)
 
-Please do a
+CF is bog-roll technology. I wouldn't want to use it in production even
+with JFFS2 on it -- but at least when it gets confused you'll only lose
+a limited amount of data with JFFS2.
 
-	bk pull bk://drm.bkbits.net/drm-2.6
+If you're going to use JFFS2 on CF, you should really investigate using
+the write-buffer we implemented for NAND flash, but without the ECC
+parts. It'll mean you write each CF sector once rather than overwriting
+the sector each time you add a few bytes to the log.
 
-This will include the latest DRM changes and will update the following files:
+-- 
+dwmw2
 
- drivers/char/drm/drm_agpsupport.h |    2 --
- drivers/char/drm/r128_state.c     |    8 ++++----
- drivers/char/drm/radeon.h         |    4 +++-
- drivers/char/drm/radeon_drm.h     |    3 ++-
- drivers/char/drm/radeon_drv.h     |    1 +
- drivers/char/drm/radeon_mem.c     |    4 ++--
- drivers/char/drm/radeon_state.c   |    2 ++
- 7 files changed, 14 insertions(+), 10 deletions(-)
-
-through these ChangeSets:
-
-<airlied@starflyer.(none)> (04/06/06 1.1608.1.13)
-   Remove check that is needed only for 2.4 kernel fixes bug reports on lk.
-
-   Signed-off-by: Colin Leroy <colin@colino.net>
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (04/06/01 1.1608.1.12)
-   add R200_EMIT_RB3D_BLENDCOLOR state packet to support GL_EXT_blend_color, GL_EXT_blend_func_separate and GL_EXT_blend_equation_separate on r200
-   from Roland Scheidegger
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (04/06/01 1.1608.1.11)
-   fix missing DRM_ERR()s - Eric Anholt
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
 

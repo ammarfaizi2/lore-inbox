@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263771AbTL2RZd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 12:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTL2RZc
+	id S263762AbTL2RYO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 12:24:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbTL2RYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 12:25:32 -0500
-Received: from hibernia.jakma.org ([213.79.33.168]:24218 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S263771AbTL2RZX
+	Mon, 29 Dec 2003 12:24:14 -0500
+Received: from mail.actcom.net.il ([192.114.47.15]:31447 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S263762AbTL2RYK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 12:25:23 -0500
-Date: Mon, 29 Dec 2003 17:25:01 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: chmod of active swap file blocks
-In-Reply-To: <20031229013040.0a953dd0.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.56.0312291719160.16956@fogarty.jakma.org>
-References: <Pine.LNX.4.56.0312290434360.2270@fogarty.jakma.org>
- <20031229013040.0a953dd0.akpm@osdl.org>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Dec 2003 12:24:10 -0500
+Date: Mon, 29 Dec 2003 19:24:02 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: "Sirotkin, Alexander" <demiurg@ti.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: network driver that uses skb destructor
+Message-ID: <20031229172402.GG13481@actcom.co.il>
+References: <3FF05C27.5030706@ti.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+Hr//EUsa8//ouuB"
+Content-Disposition: inline
+In-Reply-To: <3FF05C27.5030706@ti.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Dec 2003, Andrew Morton wrote:
 
-> The kernel holds the swapfile's i_sem while it is in use.  This is
-> to prevent the filesystem destruction which would result if some
-> silly person were to truncate a swapfile while it was in active
-> use.
+--+Hr//EUsa8//ouuB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ah, ok. /sort/ of makes sense..
+On Mon, Dec 29, 2003 at 06:53:59PM +0200, Sirotkin, Alexander wrote:
 
-> It is not a particularly important safety feature ("don't do that")
-> and it can be taken out if it is causing serious side-effects.
+> Anybody tried to implement similar approach ?
+> Any thoughts why this would (or would not) work ?
 
-though i'd err more on the side of "dont do that" :)
+It's a nice idea in theory, but the reality is that as the code
+currently stands, the upper layers 'hijack' the skb->destructor
+without regards to whether it was set previously, causing your memory
+to leak. See skb_set_owner_w(), skb_set_owner_r().=20
 
-> Is chmod of an in-use swapfile an important thing to be able to do?
+I wrote a patch to allow chaining of skb destructors, which was fairly
+simple and would allow both the driver and the upper layers to set
+their destructors. If there's any interet, I could probably resurrect
+it.
 
-Had a box under memory pressure and had to add a swapfile to relieve
-said pressure. Noticed afterwards that it had been created under
-umask 0022 - not good, and the chmod to remove read rights for all 
-blocked. Thankfully, it was my desktop, not a multiple user server :)
+Cheers,=20
+Muli
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
-I dont know, I think I'd prefer ability to change attributes of the
-swap file while its still swapped - there are many other, and far
-more catastrophic, ways for root to kill the box, does it make sense
-to guard against this one if it interferes with normal operations?
+"the nucleus of linux oscillates my world" - gccbot@#offtopic
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-"...and scantily clad females, of course.  Who cares if it's below zero
-outside"
-(By Linus Torvalds)
+
+--+Hr//EUsa8//ouuB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/8GMxKRs727/VN8sRAiyeAKCLi1FakwPt/Bm6Kqrx0MfuVNd1gQCgivpR
+A5Ycg86lRoin9mnilkWSsvc=
+=Sa4U
+-----END PGP SIGNATURE-----
+
+--+Hr//EUsa8//ouuB--

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319376AbSH2Xzr>; Thu, 29 Aug 2002 19:55:47 -0400
+	id <S319462AbSH2X6e>; Thu, 29 Aug 2002 19:58:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319404AbSH2Xzr>; Thu, 29 Aug 2002 19:55:47 -0400
-Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:34949 "EHLO
+	id <S319463AbSH2X6e>; Thu, 29 Aug 2002 19:58:34 -0400
+Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:36485 "EHLO
 	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S319376AbSH2Xzr>; Thu, 29 Aug 2002 19:55:47 -0400
-Date: Fri, 30 Aug 2002 00:59:31 +0100
+	id <S319462AbSH2X6c>; Thu, 29 Aug 2002 19:58:32 -0400
+Date: Fri, 30 Aug 2002 01:02:50 +0100
 From: "Stephen C. Tweedie" <sct@redhat.com>
-To: walt <walt@nea-fast.com>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: 2.4.19 ext3 oops with file system damage - possible nfs and ext3 not playing nice together
-Message-ID: <20020830005931.D23868@redhat.com>
-References: <200208281451.12117.walt@nea-fast.com>
+To: cfraas <chris@weh.rwth-aachen.de>
+Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: PROBLEM: found kernelbug about ext3 filesystem journaling
+Message-ID: <20020830010250.E23868@redhat.com>
+References: <3D6D2971.4030509@weh.rwth-aachen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208281451.12117.walt@nea-fast.com>; from walt@nea-fast.com on Wed, Aug 28, 2002 at 02:51:12PM -0400
+In-Reply-To: <3D6D2971.4030509@weh.rwth-aachen.de>; from chris@weh.rwth-aachen.de on Wed, Aug 28, 2002 at 09:50:09PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Wed, Aug 28, 2002 at 02:51:12PM -0400, walt wrote:
- 
-> without any errors being reported. When I'd try gunzip the file from CD, I'd 
-> get CRC errors. I then tried mounting the ISO image and running gunzip and 
-> I'd get the same CRC errors. 
+On Wed, Aug 28, 2002 at 09:50:09PM +0200, cfraas wrote:
 
-That's usually a hardware or driver, not filesystem, problem.  I've
-had a couple of environments which have given data corruptions like
-that on IDE drivers in UDMA mode but which were fine in MDMA or PIO
-mode.  
+> Aug 28 20:57:17 chris kernel: Assertion failure in 
+> journal_unmap_buffer() at transaction.c:1859: "transaction == 
+> journal->j_running_transaction"
 
-> no problems. All this was repeatable. I upgraded kernels from RedHat 7.3 
-> stock  2.4.18-3 to vanilla 2.4.19 and problem seemed to go away. 
+There have been a couple of bugs fixed in ext3 that _might_ relate to
+that, but no recent ones I can think of which are definitely
+associated with that sort of sympton.  
 
-That can be just a matter of the config options used masking a driver
-problem.  Can you still reproduce with "ide=nodma"?  That would
-certainly point towards a driver or hardware fault.
+> kernel version from /proc/version:
+> Linux version 2.4.18-6mdk (quintela@bi.mandrakesoft.com) (gcc version 
+> 2.96 20000731 (Mandrake Linux 8.2 2.96-0.76mdk)) #1 Fri Mar 15 02:59:08
+> CET 2002
+
+I'm not sure just what version of the code Mandrake are shipping,
+though.  The latest ext3 is almost completely merged into Marcelo's bk
+tree now --- can you reproduce with that code?
+
+Without ksymoops output for the oops, there's not much else I can do
+with this.
 
 --Stephen

@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVDEHVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVDEHZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVDEHVM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 03:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVDEHO5
+	id S261609AbVDEHZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 03:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVDEHXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:14:57 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:13324 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261592AbVDEHLY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:11:24 -0400
-Date: Tue, 5 Apr 2005 17:10:02 +1000
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, "David S. Miller" <davem@davemloft.net>,
-       rml@novell.com, Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Netlink Connector / CBUS
-Message-ID: <20050405071002.GA19186@gondor.apana.org.au>
-References: <Xine.LNX.4.44.0504050030230.9273-100000@thoron.boston.redhat.com> <1112684596.28858.4.camel@uganda>
+	Tue, 5 Apr 2005 03:23:08 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:22588 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261589AbVDEHVX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 03:21:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=MOUhbMhv4iBN5oGtvneqopPuQbRcFndlYcsq+ESmxFL6a57iIG6z/PhdkLAe1Cgbm2nbb2M4IQ+NLtDYWy41w4o742YFTGEz8adCU6Ok1eMLW9vPXfJWi17o4Z8Z5CaSsCpAM3RvrCD3CZbkPRu40JhImV1pPBuYyfK4tjOnvIA=
+Message-ID: <21d7e9970504050021419911b0@mail.gmail.com>
+Date: Tue, 5 Apr 2005 17:21:20 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc2-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050405000524.592fc125.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112684596.28858.4.camel@uganda>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050405000524.592fc125.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 11:03:16AM +0400, Evgeniy Polyakov wrote:
 > 
-> I received comments and feature requests from Herbert Xu and Jamal Hadi
-> Salim,
-> almost all were successfully resolved.
+> - Nobody said anything about the PM resume and DRI behaviour in
+>   2.6.12-rc1-mm4.  So it's all perfect now?
 
-Please do not construe my involvement in these threads as endorsement
-for this system.
+Well the DRI is, both reports of bugs have been fixed :-), the bug
+should be closed on bugs.kernel.org I think, and it looks rock solid
+on my box both FC3 and Debian sarge..
 
-In fact to this day I still don't understand what problems this thing is
-meant to solve.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Dave.

@@ -1,68 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbSKTVNO>; Wed, 20 Nov 2002 16:13:14 -0500
+	id <S262631AbSKTVXD>; Wed, 20 Nov 2002 16:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSKTVNN>; Wed, 20 Nov 2002 16:13:13 -0500
-Received: from elin.scali.no ([62.70.89.10]:45835 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S262648AbSKTVNL>;
-	Wed, 20 Nov 2002 16:13:11 -0500
-Date: Wed, 20 Nov 2002 22:22:40 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [REPOST][PATCH] Fixup pci_alloc_consistent with 64bit DMA masks on
- i386
-In-Reply-To: <Pine.LNX.4.44.0211112348570.1118-200000@sp-laptop.isdn.scali.no>
-Message-ID: <Pine.LNX.4.44.0211202221160.15336-200000@sp-laptop.isdn.scali.no>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463794943-1980090718-1037827360=:15336"
+	id <S262662AbSKTVXD>; Wed, 20 Nov 2002 16:23:03 -0500
+Received: from whfirewall.nwtel.ca ([199.85.228.1]:15233 "EHLO
+	whfirewall.nwtel.ca") by vger.kernel.org with ESMTP
+	id <S262631AbSKTVXB>; Wed, 20 Nov 2002 16:23:01 -0500
+Message-Id: <5.1.1.6.0.20021120131444.02482858@gnat.nwtel.ca>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Wed, 20 Nov 2002 13:30:03 -0800
+To: linux-kernel@vger.kernel.org
+From: Richard Whittaker <rwhittak@gnat.nwtel.ca>
+Subject: Semaphore and Shared memory questions...
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Greetings:
 
----1463794943-1980090718-1037827360=:15336
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I'm building a Linux box up for use with Oracle 8i.
 
+The machine I'm using is a Dell Poweredge 2650 server with a pair of Xeon 
+Processors, 2GB of RAM, a disk array, etc, etc...
 
-On Mon, 11 Nov 2002, Steffen Persvold wrote:
+Part of building this machine up is tuning the kernel parameters for 
+shmmax, semmni, semmsl, semmns, etc...
 
-> Hi Marcelo,
-> 
-> I posted this small one-liner to Alan Cox (and to the lkml) in August but 
-> it doesn't seem to have gotten into the mainline yet (I think it is in -ac).
-> 
-> The issue is that PCI drivers which uses 64bit DMA masks (in order to do 
-> DAC) is making unnecessary use of the DMA zone memory (the <16Meg region 
-> on i386) when doing pci_alloc_consitent().
-> 
-> Hope this gets into the next -rc or .21-pre
-> 
-> Regards,
-> 
+In reading, this should be fairly ieasy... Make some changes to 
+/usr/include/linux/sem.h and /usr/include/linux/shm.h, recompile, install, 
+LILO, reboot, and yer done... Well, my experience wasn't that simple...
 
--- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+Here's a clip of my /usr/include/linux/shm.h
 
----1463794943-1980090718-1037827360=:15336
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pci-dma.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0211202222400.15336@sp-laptop.isdn.scali.no>
-Content-Description: 
-Content-Disposition: attachment; filename="pci-dma.patch"
+#define SHMMAX 0x3E00000                 /* max shared seg size (bytes) */
+#define SHMMIN 1                         /* min shared seg size (bytes) */
+#define SHMMNI 4096                      /* max num of segs system wide */
+#define SHMALL (SHMMAX/PAGE_SIZE*(SHMMNI/16)) /* max shm system wide (pages) */
+#define SHMSEG SHMMNI                    /* max shared segs per process */
 
-LS0tIGxpbnV4LTIuNC4xOS1vbGQvYXJjaC9pMzg2L2tlcm5lbC9wY2ktZG1h
-LmMufjF+CVdlZCBBdWcgMTQgMTU6MDY6NDkgMjAwMg0KKysrIGxpbnV4LTIu
-NC4xOS9hcmNoL2kzODYva2VybmVsL3BjaS1kbWEuYwlXZWQgQXVnIDE0IDE1
-OjA4OjI5IDIwMDINCkBAIC0xOSw3ICsxOSw3IEBADQogCXZvaWQgKnJldDsN
-CiAJaW50IGdmcCA9IEdGUF9BVE9NSUM7DQogDQotCWlmIChod2RldiA9PSBO
-VUxMIHx8IGh3ZGV2LT5kbWFfbWFzayAhPSAweGZmZmZmZmZmKQ0KKwlpZiAo
-aHdkZXYgPT0gTlVMTCB8fCBod2Rldi0+ZG1hX21hc2sgPCAweGZmZmZmZmZm
-KQ0KIAkJZ2ZwIHw9IEdGUF9ETUE7DQogCXJldCA9ICh2b2lkICopX19nZXRf
-ZnJlZV9wYWdlcyhnZnAsIGdldF9vcmRlcihzaXplKSk7DQogDQo=
----1463794943-1980090718-1037827360=:15336--
+...and what sysctl shows...
+
+root@tom:/usr/include/linux# sysctl -a | grep shmmax
+kernel/shmmax = 33554432
+root@tom:/usr/include/linux#
+
+I can change this value with sysctl -p at boot time, but I would really 
+prefer it to be built into the kernel...
+
+...now for semaphores...
+
+/usr/include/linux/sem.h
+
+#define SEMMNI  128             /* <= IPCMNI  max # of semaphore identifiers */
+#define SEMMSL  450             /* <= 8 000 max num of semaphores per id */
+#define SEMMNS  1000            /* <= INT_MAX max # of semaphores in system */
+#define SEMOPM  100             /* <= 1 000 max num of ops per semop call */
+#define SEMVMX  32767           /* <= 32767 semaphore maximum value */
+#define SEMAEM  SEMVMX          /* adjust on exit max value */
+
+The only values I've changed are SEMMSL, and SEMMNS...
+
+Looking at the semaphores, here's what I see...
+
+root@tom:/usr/include/linux# cat /proc/sys/kernel/sem
+250     32000   32      128
+root@tom:/usr/include/linux#
+
+How would I sysctl these values?...
+
+I would prefer them to be statically built into the kernel...
+
+I know that the kernel SHOULD be the right version, and I've done a make 
+dep ; make clean ; make bzImage
+
+My kernel version info...
+
+root@tom:/usr/include/linux# cat /proc/sys/kernel/osrelease
+2.4.19
+root@tom:/usr/include/linux# cat /proc/sys/kernel/version
+#4 SMP Tue Nov 19 16:21:21 PST 2002
+
+Thanks muchly in advance!!!
+
+Regards,
+Richard.
+---
+
+Richard Whittaker,
+System Manager,
+NorthwesTel Inc.
+Whitehorse, Yukon, Canada.
+

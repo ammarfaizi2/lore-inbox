@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267666AbUHPOMC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267659AbUHPOMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267666AbUHPOMC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 10:12:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267665AbUHPOMC
+	id S267659AbUHPOMw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 10:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267664AbUHPOMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 10:12:02 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:25512 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S267664AbUHPOLp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 10:11:45 -0400
-Message-ID: <4120C093.3070403@adaptec.com>
-Date: Mon, 16 Aug 2004 10:11:31 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
+	Mon, 16 Aug 2004 10:12:52 -0400
+Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:1408 "EHLO
+	dedasys.com") by vger.kernel.org with ESMTP id S267659AbUHPOMs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 10:12:48 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>, j.s@lmu.de,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8 (or 7?) regression: sleep on older tibooks broken
+References: <873c2ohjrv.fsf@dedasys.com> <1092569364.9539.16.camel@gaston>
+From: davidw@dedasys.com (David N. Welton)
+Date: 16 Aug 2004 16:10:55 +0200
+Message-ID: <873c2n41hs.fsf@dedasys.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-CC: Greg KH <greg@kroah.com>, martins@au.ibm.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: VPD in sysfs
-References: <20040814182932.GT12936@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040814182932.GT12936@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Aug 2004 14:11:40.0805 (UTC) FILETIME=[F3950B50:01C4839A]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> 
-> I've been sent a patch that reads some VPD from the Symbios NVRAM and
-> displays it in sysfs.  I'm not sure whether the way the author chose
-> to present it is the best.  They put it in 0000:80:01.0/host0/vpd_name
-> which seems a bit too scsi-specific and insufficiently forward-looking
-> (I bet we want to expose more VPD data than that in the future, so we
-> should probably use a directory).
-> 
-> I actually have a feeling (and please don't kill me for saying this), that
-> we should add a struct vpd * to the struct device.  Then we need something
-> like the drivers/base/power/sysfs.c file (probably drivers/base/vpd.c)
-> that takes care of adding vpd to each device that wants it.
-> 
-> Thoughts?  Since there's at least four and probably more ways of getting
-> at VPD, we either need to fill in some VPD structs at initialisation or
-> have some kind of vpd_ops that a driver can fill in so the core can get
-> at the data.
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-I like this idea.  Certain VPD parameters are standard across SCSI devices,
-so they could be shown in a standard way.
+> On Sun, 2004-08-15 at 18:45, David N. Welton wrote:
 
-Not sure on the format of vpd_ops, _but_ getting the VPD data via
-the EVPD bit in INQUIRY, could be pretty standard method, so that
-if the LLDD doesn't set vpd_ops, they could be set to point to
-the (this) generic way*. (The LLDD can snoop the INQUIRY data if
-it wishes to, for further control.)
+> > but it's not the same problem... I removed the ohci_hcd module
+> > from the kernel (it's present at boot), and sleep still doesn't
+> > happen.  I don't even get the "breathing" light, and yet the
+> > computer still seems warm after some time, seemingly indicative
+> > that it's not really asleep or dead.  I can only restart it via
+> > the Ctrl-Command-Power combination.
 
-*I.e. the vpd_ops method(s) would be generic enough to abstract out
-the actual method of getting the VPD...
+> Best thing at this point is to hack out the sleep code in the video
+> driver to see where it dies during the sleep process...
 
-Certainly, providing a vpd node in sysfs would help user level
-apps id devices more easily.  This could also be used by multipathing
-sofware and other apps.  I think it's a good idea.
+I made the video driver's sleep routing return 0 immediately.
 
-			Luben
+That was enough to at least get a couple of reports from xmon about a
+vector 200 corresponding to an address in powerbook_sleep_Core99...
+Still investigating, but this is new territory for me, and it's
+certainly at a tricky moment in the life of the kernel.  Suggestions
+appreciated as to what might have changed and what to look for.
 
-
+Thankyou,
+-- 
+David N. Welton
+     Personal: http://www.dedasys.com/davidw/
+Free Software: http://www.dedasys.com/freesoftware/
+   Apache Tcl: http://tcl.apache.org/
+       Photos: http://www.dedasys.com/photos/

@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbUC0BTe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 20:19:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUC0BTe
+	id S261541AbUC0BSB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 20:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbUC0BSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 20:19:34 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13014 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261558AbUC0BTd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 20:19:33 -0500
-Date: Fri, 26 Mar 2004 17:21:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.6.5-rc2-mm4
-Message-Id: <20040326172142.5d39a23f.akpm@osdl.org>
-In-Reply-To: <1080349825.9689.9.camel@debian>
-References: <20040326131816.33952d92.akpm@osdl.org>
-	<1080349825.9689.9.camel@debian>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 26 Mar 2004 20:18:01 -0500
+Received: from mail.kroah.org ([65.200.24.183]:13214 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261541AbUC0BSA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 20:18:00 -0500
+Date: Fri, 26 Mar 2004 17:14:36 -0800
+From: Greg KH <greg@kroah.com>
+To: "Frank A. Uepping" <Frank.A.Uepping@t-online.de>
+Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: struct device::release issue
+Message-ID: <20040327011436.GB14076@kroah.com>
+References: <200403061247.24251.Frank.A.Uepping@t-online.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403061247.24251.Frank.A.Uepping@t-online.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ramón Rey Vicente <ramon.rey@hispalinux.es> wrote:
->
-> -static inline int register_profile_notifier*struct notifier_block * nb)
-> +static inline int register_profile_notifier(struct notifier_block * nb)
+On Sat, Mar 06, 2004 at 12:47:24PM +0100, Frank A. Uepping wrote:
+> Hi,
+> if device_add fails (e.g. bus_add_device returns an error) then the release 
+> method will be called for the device. Is this a bug or a feature?
 
-You have a single-bit error.  Treat yourself to a new computer ;)
+Are you sure this will happen?  device_initialize() gets a reference
+that is still present after device_add() fails, right?  So release()
+will not get called.
+
+thanks,
+
+greg k-h

@@ -1,76 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbVBYATx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbVBYAac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262563AbVBYATx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 19:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVBYAPf
+	id S262594AbVBYAac (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:30:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbVBYA3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 19:15:35 -0500
-Received: from mail.kroah.org ([69.55.234.183]:57504 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262590AbVBYAMI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 19:12:08 -0500
-Date: Thu, 24 Feb 2005 16:11:50 -0800
-From: Greg KH <gregkh@suse.de>
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] USB: fix bug in acm's open function
-Message-ID: <20050225001150.GA27481@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Thu, 24 Feb 2005 19:29:42 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:36322 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262625AbVBYATk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 19:19:40 -0500
+Message-ID: <421E6F10.4060205@zytor.com>
+Date: Thu, 24 Feb 2005 16:19:28 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Schwab <schwab@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: raid6altivec does not compile on ppc32
+References: <jebra9fq6t.fsf@sykes.suse.de>
+In-Reply-To: <jebra9fq6t.fsf@sykes.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a patch for 2.6.11-rc5 that a lot of cdc-acm driver users are
-clammering for.
+Andreas Schwab wrote:
+> On ppc32 cur_cpu_spec is an array of pointers, not just a pointer like on
+> ppc64.
+> 
+> drivers/md/raid6altivec1.c: In function `raid6_have_altivec':
+> drivers/md/raid6altivec1.c:111: error: request for member `cpu_features' in something not a structure or union
+> 
 
+I think this is being discussed on the ppc development list.  It's 
+apparently turned into a "we have a problem, let's fix it the right way."
 
-There's a bug introduced in a cleanup which will lead
-to a race making reopenings fail. This fix is by Alexander Lykanov.
-
-Signed-off-by: Oliver Neukum <oliver@neukum.name>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-
-diff -Nru a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
---- a/drivers/usb/class/cdc-acm.c	2005-02-19 10:02:21 +01:00
-+++ b/drivers/usb/class/cdc-acm.c	2005-02-19 10:02:21 +01:00
-@@ -278,15 +278,14 @@
- 
- 
- 
--	if (acm->used) {
-+	if (acm->used++) {
- 		goto done;
-         }
- 
- 	acm->ctrlurb->dev = acm->dev;
- 	if (usb_submit_urb(acm->ctrlurb, GFP_KERNEL)) {
- 		dbg("usb_submit_urb(ctrl irq) failed");
--		rv = -EIO;
--		goto err_out;
-+		goto bail_out;
- 	}
- 
- 	acm->readurb->dev = acm->dev;
-@@ -303,7 +302,6 @@
- 	tty->low_latency = 1;
- 
- done:
--	acm->used++;
- err_out:
- 	up(&open_sem);
- 	return rv;
-@@ -312,6 +310,8 @@
- 	usb_kill_urb(acm->readurb);
- bail_out_and_unlink:
- 	usb_kill_urb(acm->ctrlurb);
-+bail_out:
-+	acm->used--;
- 	up(&open_sem);
- 	return -EIO;
- }
-
-
+	-hpa

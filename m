@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263272AbSJCNoX>; Thu, 3 Oct 2002 09:44:23 -0400
+	id <S263290AbSJCOEq>; Thu, 3 Oct 2002 10:04:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263273AbSJCNoX>; Thu, 3 Oct 2002 09:44:23 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:25840 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263272AbSJCNoW>; Thu, 3 Oct 2002 09:44:22 -0400
-Subject: Re: [PATCH] EVMS core 4/4: evms_biosplit.h
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kevin Corry <corryk@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       evms-devel@lists.sourceforge.net
-In-Reply-To: <02100307382404.05904@boiler>
-References: <02100307382404.05904@boiler>
-Content-Type: text/plain
+	id <S263291AbSJCOEq>; Thu, 3 Oct 2002 10:04:46 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:3050 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S263290AbSJCOEp>; Thu, 3 Oct 2002 10:04:45 -0400
+Message-ID: <3D9C4FA8.10201@metaparadigm.com>
+Date: Thu, 03 Oct 2002 22:09:44 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alexander Viro <viro@math.psu.edu>, Andreas Dilger <adilger@clusterfs.com>,
+       Lars Marowsky-Bree <lmb@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+References: <Pine.GSO.4.21.0210021922200.13480-100000@weyl.math.psu.edu> 	<3D9BDA8D.5080700@metaparadigm.com> <1033648730.28022.8.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Oct 2002 14:57:03 +0100
-Message-Id: <1033653423.28255.18.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +static void
-> +bio_split_setup(char * split_name, char * bio_name)
-> +{
-> +	/* initialize MY bio split record pool */
-> +	my_bio_split_slab = kmem_cache_create(split_name,
-> +						sizeof
-> +						(struct bio_split_cb),
-> +						0, SLAB_HWCACHE_ALIGN,
-> +                                                NULL, NULL);
-> +	if (!my_bio_split_slab) {
-> +		panic("unable to create EVMS Bio Split cache.");
+On 10/03/02 20:38, Alan Cox wrote:
+> On Thu, 2002-10-03 at 06:50, Michael Clark wrote:
+> 
+>>>... and you don't need EVMS for that.
+>>
+>>But EVMS would be an excellent substitute in the mean time.
+>>
+>>Better to having something excellent now than something perfect but
+>>too late.
+> 
+> 
+> You can see who around here has maintained kernel code and who hasnt.
+> You don't want a substitute in the mean time, because then you have to
+> get rid of it
 
-If IBM are going to be doing telco grade stuff you could start now by
-failing politely in this case 8)
+Like LVM ;)
 
+/me submits to the masters and waits in subjugation.
 
+Just hoping for good Volume Manager in 2.6 and EVMS looks good
+to me from an end user perspective, and also seems quite timely.
+
+~mc
 

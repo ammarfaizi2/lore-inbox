@@ -1,33 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265530AbUFON3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUFONjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265530AbUFON3g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 09:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265537AbUFON3e
+	id S261300AbUFONjE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 09:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265539AbUFONjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 09:29:34 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:44160 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S265530AbUFON2t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 09:28:49 -0400
-Date: Tue, 15 Jun 2004 13:28:49 +0000
-From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: Switching off PS/2 keyboard
-Message-ID: <20040615132849.A5968@beton.cybernet.src>
-References: <E1BaDva-0001Y8-LK@beton.cybernet.src>
+	Tue, 15 Jun 2004 09:39:04 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:12044 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261300AbUFONjC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 09:39:02 -0400
+Date: Tue, 15 Jun 2004 15:41:53 +0200
+To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HID vs. Input Core
+Message-ID: <20040615134153.GA8625@hh.idb.hist.no>
+References: <20040615125800.B5811@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1BaDva-0001Y8-LK@beton.cybernet.src>; from Mailer-Daemon@twibright.com on Tue, Jun 15, 2004 at 01:24:38PM +0000
-X-Orientation: Gay
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040615125800.B5811@beton.cybernet.src>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Tue, Jun 15, 2004 at 12:58:00PM +0000, Karel Kulhavý wrote:
+> Hello
+> 
+> I would like to know what's the difference between
+> Input Core (CONFIG_INPUT) and USB HID (CONFIG_USB_HID) in 2.4.25
+> 
+> They seem to enable the same thing - USB HID. However I don't
+> know which one should I enable or if I should enable both. I find
+> existence of two options with seemingly the same function confusing.
+> 
+They aren't the same:
 
-Is it possible to switch off PS/2 keyboard support in 2.4.25 make menuconfig?
-I have searched through the make menuconfig and didn't find anything looking
-like that.
+Enable CONFIG_INPUT if you want to use any input devices _at all_,
+i.e. if you plan on using some kind of keyboard, mouse, joystick, ...
+Enable CONFIG_USB_HID also, _if_ such a device might be connected
+via USB.  (Older devices are not USB, newer may be usb.)
 
-Cl<
+Helge Hafting

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263291AbTANPPV>; Tue, 14 Jan 2003 10:15:21 -0500
+	id <S263228AbTANPV2>; Tue, 14 Jan 2003 10:21:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263589AbTANPPV>; Tue, 14 Jan 2003 10:15:21 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:40303
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S263291AbTANPPV>; Tue, 14 Jan 2003 10:15:21 -0500
-Date: Tue, 14 Jan 2003 10:24:54 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Capaul Giachen F (KADA 12)" <flurin.capaul@csfs.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [Question] Assinging of IRQ to an ethernet card
-In-Reply-To: <F12E8D9F1EA37D4E9165C8D13ECA6952013672FE@sxchs017.csintra.net>
-Message-ID: <Pine.LNX.4.44.0301141020120.14166-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263544AbTANPV2>; Tue, 14 Jan 2003 10:21:28 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:57863 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S263228AbTANPV1>; Tue, 14 Jan 2003 10:21:27 -0500
+Message-Id: <200301141530.h0EFUGH02371@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "David S. Miller" <davem@redhat.com>
+cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK-2.5] Update the generic DMA API to take GFP_ flags on
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 14 Jan 2003 10:30:15 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Jan 2003, Capaul Giachen F (KADA 12) wrote:
+> What about platforms that can only use GFP_ATOMIC due to
+> implementation side issues?  Is that "OK"?
 
-> My ethernet card is unfortunately being assigned IRQ 19 instead of IRQ 
-> 11. My C and kernel knowledge is virtually inexisten, yet I'd like to try 
-> and fix that myself, by  basically telling my kernel that IRQ 11 is the 
-> one to take. I had a look at a driver code (8139too.c) and was under the 
-> impression that the assignment of the IRQ is done somewhere else. I'm 
-> currently looking at irq.c in the arch\i386\pci\ directory. Is that the 
-> . right place to attempt this, or should I be looking somewhere else? 
+Yes.
 
-It could be your irq line wiring to the IOAPIC, can you try booting with 
-the 'noapic' kernel parameter?
+A GFP_KERNEL request is safely implemented as GFP_ATOMIC as long as the caller 
+checks return for NULL.  for dma_alloc_coherent return checking is a 
+requirement because the system may return NULL anyway if it is out of mappings 
+even with a GFP_KERNEL flag.
 
-	Zwane
--- 
-function.linuxpower.ca
+James
 
 

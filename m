@@ -1,96 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274707AbRITXfs>; Thu, 20 Sep 2001 19:35:48 -0400
+	id <S274701AbRITXjj>; Thu, 20 Sep 2001 19:39:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274702AbRITXfi>; Thu, 20 Sep 2001 19:35:38 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:16862 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S274699AbRITXfa>; Thu, 20 Sep 2001 19:35:30 -0400
-Importance: Normal
-Subject: Re: [PATCH] strict interface arp patch for Linux 2.4.2
-To: linux-kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.3  March 21, 2000
-Message-ID: <OFEC0F6C6D.00C73EFF-ON85256ACD.00818C46@raleigh.ibm.com>
-From: "Allen Lau" <pflau@us.ibm.com>
-Date: Thu, 20 Sep 2001 19:34:21 -0400
-X-MIMETrack: Serialize by Router on D04NMS38/04/M/IBM(Release 5.0.8 |June 18, 2001) at
- 09/20/2001 07:35:47 PM
+	id <S274706AbRITXjZ>; Thu, 20 Sep 2001 19:39:25 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:9857 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274701AbRITXjD>;
+	Thu, 20 Sep 2001 19:39:03 -0400
+Date: Thu, 20 Sep 2001 19:39:27 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Peter Bornemann <eduard.epi@t-online.de>
+cc: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: noexec-flag does not work in Linux 2.4.10-pre10
+In-Reply-To: <Pine.LNX.4.33.0109210114430.3966-100000@eduard.t-online.de>
+Message-ID: <Pine.GSO.4.21.0109201932220.5631-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Julian Anastasov <ja@ssi.bg> on 09/20/2001 06:19:04 PM
 
-To:   Allen Lau/Raleigh/IBM@IBMUS
-cc:   linux-kernel <linux-kernel@vger.kernel.org>
-Subject:  Re: [PATCH] strict interface arp patch for Linux 2.4.2
+On Fri, 21 Sep 2001, Peter Bornemann wrote:
 
+> This is no problem for me but an inconvenience. If You see all
+> the x-flags You believe in the executability (is that right?), moreover,
+> as on my system executables are displayed in red colour, I feel my eyes
+> are deceived to some extent.
 
+Then you've never used noexec on normal filesystems (after all, _that_
+is the intended use - prohibit execution of binaries from potentially
+unsafe place, and in that case you are interested in all mode bits, so
+you want them to be reported).  Try to remount some normal fs noexec
+(_not_ one that contains mount(8), or you'll have really big trouble
+on hands).  Then look at it - exec bits are still there and they
+are still reported.
 
-
-     Hello,
-
-On Thu, 20 Sep 2001, Allen Lau wrote:
-
->> I want to bring your attention to a Linux ARP patch we plan to use for
-load balancing and server
->> clustering.  The available arp filter and hidden patch are not
-completely satisfactory. The following
-
->    Can you explain what setup can't be build using arp_filter,
-> hidden or rp_filter and particulary where "hidden" fails for clusters,
-> it is very interesting?
-
-The function provided by "hidden" is a necessary element but not
-sufficient. I suppose arp_filter
-has to be combined with the hidden patch. I dislike hiding an interface,
-and the hidden patch is no
-longer included in the major distributions which makes delivering a
-solution difficult.
-
-In this example, 1.1.1.11 2.2.2.22 are virtual ip's which can float between
-boxes and interfaces.
-I want virtual ip 1.1.1.11 to be known to clients through eth0 node1
-(2.2.2.22 eth1 node2). Node1
-can redirect 1.1.1.11 traffic to eth0 node2.
-                          node1                                 node2
-                      lo:1 1.1.1.11                          lo:1 1.1.1.11
-                      lo:2 2.2.2.22                          lo:2 2.2.2.22
-
-              eth0   1.1.1.1     eth1 2.2.2.1         eth0  1.1.1.2   eth1
-2.2.2.2
-              eth0:1 1.1.1.11
-eth1:1 2.2.2.22
-
-On node1, does hiding loopback hide 1.1.1.11? and can 2.2.2.1 be advertised
-as source ip in arp
-requests from eth0?
-
->> To generalize, each real server may have multiple nic's of different
-types. The task becomes one of
-?> maintaining strict identity of each of the real and virtual ip
-addresses.  The Linux ARP has the
->> following behaviors which are problematic for maintaining strict
-interface identify.
->>
->>    1) box responds to arp on all interfaces on the same wire for an IP
-address (arp race)
-
->    rp_filter and arp_filter can help here but this "arp race" is not
-> an evil in some setups
-
-I believe "arp race" may cause purges in a switched network. It certainly
-is counter to maintaining
-strict interface identity.
-
-Regards
-Allen Lau
---
-Julian Anastasov <ja@ssi.bg>
-
-
-
-
+> But, as umask=111 works, I will switch to that.
+> 
+> Thanks a lot!
+> 
+> Peter B
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

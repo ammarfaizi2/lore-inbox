@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287631AbSBADkL>; Thu, 31 Jan 2002 22:40:11 -0500
+	id <S291510AbSBADlx>; Thu, 31 Jan 2002 22:41:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291510AbSBADkB>; Thu, 31 Jan 2002 22:40:01 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:17294 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S287631AbSBADjl>;
-	Thu, 31 Jan 2002 22:39:41 -0500
-Date: Thu, 31 Jan 2002 22:39:39 -0500
+	id <S291511AbSBADlb>; Thu, 31 Jan 2002 22:41:31 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:18318 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S291510AbSBADlT>;
+	Thu, 31 Jan 2002 22:41:19 -0500
+Date: Thu, 31 Jan 2002 22:41:17 -0500
 From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Tim Coleman <tim@timcoleman.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: usb-storage (was: Re: Oops in 2.5.1)
-Message-ID: <20020131223939.D21864@havoc.gtf.org>
-In-Reply-To: <1012445595.7956.4.camel@tux.epenguin.org> <20020130221605.C22862@havoc.gtf.org> <1012534229.1148.7.camel@tux.epenguin.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Bob Miller <rem@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.3 remove global semaphore_lock spin lock.
+Message-ID: <20020131224117.E21864@havoc.gtf.org>
+In-Reply-To: <20020131150139.A1345@doc.pdx.osdl.net> <3C59D956.4F2B85DB@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1012534229.1148.7.camel@tux.epenguin.org>; from tim@timcoleman.com on Thu, Jan 31, 2002 at 10:30:24PM -0500
+In-Reply-To: <3C59D956.4F2B85DB@zip.com.au>; from akpm@zip.com.au on Thu, Jan 31, 2002 at 03:55:02PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 10:30:24PM -0500, Tim Coleman wrote:
-> I can't really compile the 8139too into the kernel because I have two of
-> them. :)
+On Thu, Jan 31, 2002 at 03:55:02PM -0800, Andrew Morton wrote:
+> > +       unsigned long flags;
+> > +       wq_write_lock_irqsave(&sem->wait.lock, flags);
+> > -       spin_lock_irq(&semaphore_lock);
+> 
+> I rather dislike spin_lock_irq(), because it's fragile (makes
 
-huh?  You could have 40 8139 cards and build the driver into the kernel
-just fine.
+It's less flexible for architectures, too.
+
+spin_lock_irqsave is considered 100% portable AFAIK, and I make it my
+own policy to s/_irq/_irqsave/ when the opportunity strikes in my PCI
+drivers.
 
 	Jeff
-
-
 
 

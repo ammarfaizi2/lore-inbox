@@ -1,181 +1,339 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbUKODNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbUKODNC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbUKODNB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 22:13:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbUKODMh
+	id S261531AbUKODNC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 22:13:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUKODML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 22:12:37 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:22665 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261516AbUKODFA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 22:05:00 -0500
-Date: Mon, 15 Nov 2004 12:06:53 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Subject: Re: Futex queue_me/get_user ordering
-In-reply-to: <20041115020148.GA17979@mail.shareable.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: mingo@elte.hu, Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au, ahu@ds9a.nl
-Message-id: <41981D4D.9030505@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: ja, en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-References: <20041113164048.2f31a8dd.akpm@osdl.org>
- <20041114090023.GA478@mail.shareable.org>
- <20041114010943.3d56985a.akpm@osdl.org>
- <20041114092308.GA4389@mail.shareable.org> <4197FF42.9070706@jp.fujitsu.com>
- <20041115020148.GA17979@mail.shareable.org>
+	Sun, 14 Nov 2004 22:12:11 -0500
+Received: from almesberger.net ([63.105.73.238]:63236 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261481AbUKODFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 22:05:17 -0500
+Date: Mon, 15 Nov 2004 00:05:06 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC] prio_tree debugging functions (3/3)
+Message-ID: <20041115000506.B23273@almesberger.net>
+References: <20041114235646.K28802@almesberger.net> <20041114235936.A23273@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041114235936.A23273@almesberger.net>; from werner@almesberger.net on Sun, Nov 14, 2004 at 11:59:36PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> Third possibility: your test is buggy.  Do you actually use a mutex in
-> your test when you call pthread_cond_wait, and does the waker hold it
-> when it calls pthread_cond_signal?
-> 
-> If you don't use a mutex as you are supposed to with condvars, then it
-> might not be a kernel or NPTL bug.  I'm not sure if POSIX-specified
-> behaviour is defined when you use condvars without a mutex.
-> 
-> If you do use a mutex (and you just didn't mention it), then the code
-> above is not enough to decide if there's an NPTL bug.  We need to look
-> at pthread_cond_wait as well, to see how it does the "atomic" wait and
-> mutex release.
-> 
-> -- Jamie
+The third and last part, which actually contains new code: debugging
+functions for radix priority search trees. They're useful if some bug
+happens to mess up the RPST, and you have no clue what is going on.
+(Particularly since the RPST isn't exactly the most trivial data
+structure either ;-)
 
-Now I'm asking our test team about that.
+I'd just add this to lib/prio_tree.c. Since I don't like overlapping
+patches, this isn't in the form of a patch. I'll make one for
+submission to mainline.
 
-Again, from glibc-2.3.3(RHEL4b2):
+- Werner
 
-[nptl/sysdeps/pthread/pthread_cond_wait.c]
-   85 int
-   86 __pthread_cond_wait (cond, mutex)
-   87      pthread_cond_t *cond;
-   88      pthread_mutex_t *mutex;
-   89 {
-   90   struct _pthread_cleanup_buffer buffer;
-   91   struct _condvar_cleanup_buffer cbuffer;
-   92   int err;
-   93
-   94   /* Make sure we are along.  */
-   95   lll_mutex_lock (cond->__data.__lock);
-   96
-   97   /* Now we can release the mutex.  */
-   98   err = __pthread_mutex_unlock_usercnt (mutex, 0);
-   99   if (__builtin_expect (err, 0))
-  100     {
-  101       lll_mutex_unlock (cond->__data.__lock);
-  102       return err;
-  103     }
-  104
-  105   /* We have one new user of the condvar.  */
-  106   ++cond->__data.__total_seq;
-  107   ++cond->__data.__futex;
-  108   cond->__data.__nwaiters += 1 << COND_CLOCK_BITS;
-  109
-  110   /* Remember the mutex we are using here.  If there is already a
-  111      different address store this is a bad user bug.  Do not store
-  112      anything for pshared condvars.  */
-  113   if (cond->__data.__mutex != (void *) ~0l)
-  114     cond->__data.__mutex = mutex;
-  115
-  116   /* Prepare structure passed to cancellation handler.  */
-  117   cbuffer.cond = cond;
-  118   cbuffer.mutex = mutex;
-  119
-  120   /* Before we block we enable cancellation.  Therefore we have to
-  121      install a cancellation handler.  */
-  122   __pthread_cleanup_push (&buffer, __condvar_cleanup, &cbuffer);
-  123
-  124   /* The current values of the wakeup counter.  The "woken" counter
-  125      must exceed this value.  */
-  126   unsigned long long int val;
-  127   unsigned long long int seq;
-  128   val = seq = cond->__data.__wakeup_seq;
-  129   /* Remember the broadcast counter.  */
-  130   cbuffer.bc_seq = cond->__data.__broadcast_seq;
-  131
-  132   do
-  133     {
-  134       unsigned int futex_val = cond->__data.__futex;
-  135
-  136       /* Prepare to wait.  Release the condvar futex.  */
-  137       lll_mutex_unlock (cond->__data.__lock);
-  138
-  139       /* Enable asynchronous cancellation.  Required by the standard.  */
-  140       cbuffer.oldtype = __pthread_enable_asynccancel ();
-  141
-  142       /* Wait until woken by signal or broadcast.  */
-  143       lll_futex_wait (&cond->__data.__futex, futex_val);
-  144
-  145       /* Disable asynchronous cancellation.  */
-  146       __pthread_disable_asynccancel (cbuffer.oldtype);
-  147
-  148       /* We are going to look at shared data again, so get the lock.  */
-  149       lll_mutex_lock (cond->__data.__lock);
-  150
-  151       /* If a broadcast happened, we are done.  */
-  152       if (cbuffer.bc_seq != cond->__data.__broadcast_seq)
-  153         goto bc_out;
-  154
-  155       /* Check whether we are eligible for wakeup.  */
-  156       val = cond->__data.__wakeup_seq;
-  157     }
-  158   while (val == seq || cond->__data.__woken_seq == val);
-  159
-  160   /* Another thread woken up.  */
-  161   ++cond->__data.__woken_seq;
-  162
-  163  bc_out:
-  164
-  165   cond->__data.__nwaiters -= 1 << COND_CLOCK_BITS;
-  166
-  167   /* If pthread_cond_destroy was called on this varaible already,
-  168      notify the pthread_cond_destroy caller all waiters have left
-  169      and it can be successfully destroyed.  */
-  170   if (cond->__data.__total_seq == -1ULL
-  171       && cond->__data.__nwaiters < (1 << COND_CLOCK_BITS))
-  172     lll_futex_wake (&cond->__data.__nwaiters, 1);
-  173
-  174   /* We are done with the condvar.  */
-  175   lll_mutex_unlock (cond->__data.__lock);
-  176
-  177   /* The cancellation handling is back to normal, remove the handler.  */
-  178   __pthread_cleanup_pop (&buffer, 0);
-  179
-  180   /* Get the mutex before returning.  */
-  181   return __pthread_mutex_cond_lock (mutex);
-  182 }
+---------------------------------- cut here -----------------------------------
 
-I'm not sure but it seems that the pseudo-code could be:
-
-(mutex must be locked before calling pthread_cond_wait.)
--A01 pthread_cond_wait {
-+A01 pthread_cond_wait (futex,mutex) {
-+A0*   mutex_unlock(mutex);
-  A02   timeout = 0;
-  A03   lock(counters);
-  A04     total++;
-  A05     val = get_from(futex);
-  A06   unlock(counters);
-  A07
-  A08   sys_futex(futex, FUTEX_WAIT, val, timeout);
-  A09
-  A10   lock(counters);
-  A11     woken++;
-  A12   unlock(counters);
-+A1*   mutex_lock(mutex);
-  A13 }
-
-(and it's better to replace var "futex" to "cond".)
-
-Is it possible that NPTL shut the window between mutex_unlock()
-and actual queueing in futex_wait?
+/*
+ * The following functions validate the internal consistency of an RPST. They
+ * all have O(n) run time, so use them only on small trees, or in emergencies.
+ *
+ * prio_tree_validate_tree validates the internal consistency of an RPST.
+ *
+ * prio_tree_absent checks that no tree node points to the "absentee" node.
+ *
+ * prio_tree_string turns the tree into a nested list and prints it into a
+ * string buffer.
+ */
 
 
-Thanks,
-H.Seto
+#ifdef PRIO_TREE_DEBUG
 
+#define CHECK_BUG(cond) \
+	if (cond) { \
+		printk(KERN_EMERG #cond "\n"); \
+		return -1; \
+ 	}
+
+
+enum prio_tree_walk_state {
+	prio_tree_walk_down,
+	prio_tree_walk_left,
+	prio_tree_walk_right,
+};
+
+
+static int prio_tree_validate_child(const struct prio_tree_node *node,
+    int right, int bit, int in_size)
+{
+	unsigned long r_parent, h_parent;
+	unsigned long r_child, h_child;
+	unsigned long i_parent,i_child;
+
+	GET_INDEX(node->parent, r_parent, h_parent);
+	GET_INDEX(node, r_child, h_child);
+
+	CHECK_BUG(r_child > h_child);	/* left edge > right edge */
+	CHECK_BUG(h_parent < h_child);	/* sort order wrong */
+
+	if (in_size) {
+		i_parent = r_parent;
+		i_child = r_child;
+	}
+	else {
+		i_parent = h_parent-r_parent;
+		i_child = h_child-r_child;
+	}
+
+	/*
+	 * Parent and child can differ only in the lower "bit" bits. Also, the
+	 * value of the next bit is determined by the branch we're taking.
+	 */
+	CHECK_BUG(i_parent >> bit != i_child >> bit);
+	CHECK_BUG(((i_child >> (bit-1)) & 1) != right);
+
+	return 0;
+}
+
+
+static int do_prio_tree_validate(const struct prio_tree_node *node, int bits)
+{
+	enum prio_tree_walk_state state = prio_tree_walk_down;
+	int bit = bits;
+	int in_start = 1;
+	int bad;
+
+	while (1) {
+		switch (state) {
+			/*
+			 * The tree is an RPST keyed by (start,end) down to
+			 * individual start locations. Then it changes to an
+			 * RPST keyed by (size,end).
+			 */
+			case prio_tree_walk_down:
+				if (!prio_tree_left_empty(node)) {
+					if (!bit) {
+						CHECK_BUG(!in_start);
+						bit = bits;
+						in_start = 0;
+					}
+					CHECK_BUG(node->left->parent != node);
+
+					node = node->left;
+					bad = prio_tree_validate_child(node, 0,
+					    bit, in_start);
+					if (bad)
+						return bad;
+					bit--;
+					break;
+				}
+				/* fall through */
+			case prio_tree_walk_left:
+				if (!prio_tree_right_empty(node)) {
+					if (!bit) {
+						CHECK_BUG(!in_start);
+						bit = bits;
+						in_start = 0;
+					}
+					CHECK_BUG(node->right->parent != node);
+
+					node = node->right;
+					bad = prio_tree_validate_child(node, 1,
+					    bit, in_start);
+					if (bad)
+						return bad;
+					state = prio_tree_walk_down;
+					bit--;
+					break;
+				}
+				/* fall through */
+			case prio_tree_walk_right:
+				if (prio_tree_root(node))
+					return 0;
+				state = node->parent->left == node ?
+				    prio_tree_walk_left : prio_tree_walk_right;
+				node = node->parent;
+				bit++;
+				if (bit == bits && !in_start) {
+					bit = 0;
+					in_start = 1;
+				}
+				break;
+			default:
+				BUG();
+		}
+	}
+	return 0;
+}
+
+
+/*
+ * We use a slightly different algorithm than the one found in
+ * abiss_prio_tree_init on purpose.
+ */
+
+static int prio_tree_validate_index_map(void)
+{
+	const unsigned long *p;
+
+	for (p = prio_tree_index_bits_to_maxindex;
+	    p != (void *) prio_tree_index_bits_to_maxindex+
+	    sizeof(prio_tree_index_bits_to_maxindex); p++) {
+		int n = p-prio_tree_index_bits_to_maxindex;
+
+		CHECK_BUG(*p != ((((1UL << n)-1) << 1) | 1));
+	}
+	return 0;
+}
+
+
+int prio_tree_validate(const struct prio_tree_root *root)
+{
+	unsigned long r_root, h_root;
+	int bad;
+
+	bad = prio_tree_validate_index_map();
+	if (bad)
+		return bad;
+
+	if (prio_tree_empty(root))
+		return 0;
+
+	CHECK_BUG(!root->index_bits);
+	CHECK_BUG(root->index_bits > sizeof(unsigned long)*8);
+
+	/*
+	 * Check the root node now, so that we don't have to check parent and
+	 * child everywhere on the way down the tree.
+	 */
+	GET_INDEX(root->prio_tree_node, r_root, h_root);
+	CHECK_BUG(r_root > h_root);
+	CHECK_BUG(!prio_tree_root(root->prio_tree_node));
+
+	return do_prio_tree_validate(root->prio_tree_node, root->index_bits);
+}
+
+#undef CHECK_BUG
+
+
+static void do_prio_tree_absent(const struct prio_tree_node *node,
+    const struct prio_tree_node *absentee)
+{
+	enum prio_tree_walk_state state = prio_tree_walk_down;
+
+	while (1) {
+		BUG_ON(node == absentee);
+		switch (state) {
+			case prio_tree_walk_down:
+				if (!prio_tree_left_empty(node)) {
+					node = node->left;
+					break;
+				}
+				/* fall through */
+			case prio_tree_walk_left:
+				if (!prio_tree_right_empty(node)) {
+					state = prio_tree_walk_down;
+					node = node->right;
+					break;
+				}
+				/* fall through */
+			case prio_tree_walk_right:
+				if (prio_tree_root(node))
+					return;
+				state = node->parent->left == node ?
+				    prio_tree_walk_left : prio_tree_walk_right;
+				node = node->parent;
+				break;
+			default:
+				BUG();
+		}
+	}
+}
+
+
+void prio_tree_absent(const struct prio_tree_root *root,
+    const struct prio_tree_node *absentee)
+{
+	if (prio_tree_empty(root))
+		return;
+	do_prio_tree_absent(root->prio_tree_node, absentee);
+}
+
+
+static void do_prio_tree_string(const struct prio_tree_node *node, char **buf,
+     const char *end)
+{
+	enum prio_tree_walk_state state = prio_tree_walk_down;
+	unsigned long r_index, h_index;
+	int len;
+
+	while (1) {
+		GET_INDEX(node, r_index, h_index);
+		switch (state) {
+			case prio_tree_walk_down:
+				len = scnprintf(*buf, end-*buf,
+				    "(%lu[0x%lx] %lu,", r_index, r_index,
+				    h_index);
+				BUG_ON(len+1 == end-*buf);
+				*buf += len;
+				if (!prio_tree_left_empty(node)) {
+					node = node->left;
+					break;
+				}
+				/* fall through */
+			case prio_tree_walk_left:
+				BUG_ON(*buf == end);
+				*(*buf)++ = ',';
+				if (!prio_tree_right_empty(node)) {
+					state = prio_tree_walk_down;
+					node = node->right;
+					break;
+				}
+				/* fall through */
+			case prio_tree_walk_right:
+				BUG_ON(*buf == end);
+				*(*buf)++ = ')';
+				if (prio_tree_root(node))
+					return;
+				state = node->parent->left == node ?
+				    prio_tree_walk_left : prio_tree_walk_right;
+				node = node->parent;
+				break;
+			default:
+				BUG();
+		}
+	}
+}
+
+
+int prio_tree_string(const struct prio_tree_root *root, char *buf, size_t size)
+{
+	const char *start = buf;
+	int len;
+
+	len = scnprintf(buf, size, "%d@%p:", root->index_bits, root);
+	BUG_ON(len+1 == size);
+	buf += len;
+	if (!prio_tree_empty(root))
+		do_prio_tree_string(root->prio_tree_node, &buf, start+size);
+	BUG_ON(buf == start+size);
+	*buf = 0;
+	return buf-start;
+}
+
+
+#else
+
+#define prio_tree_validate(root)
+#define prio_tree_absent(root, absentee)
+#define prio_tree_string(root, buf, size) (*(buf) = 0)
+
+#endif
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

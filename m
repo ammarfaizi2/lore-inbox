@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285666AbRL3XP4>; Sun, 30 Dec 2001 18:15:56 -0500
+	id <S285691AbRL3Xlh>; Sun, 30 Dec 2001 18:41:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285668AbRL3XPq>; Sun, 30 Dec 2001 18:15:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16655 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285666AbRL3XPf>; Sun, 30 Dec 2001 18:15:35 -0500
-Message-ID: <3C2FA013.4040000@zytor.com>
-Date: Sun, 30 Dec 2001 15:15:31 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: robert@schwebel.de
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: AMD SC410 boot problems with recent kernels
-In-Reply-To: <Pine.LNX.4.33.0112302247150.3056-100000@callisto.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S285692AbRL3Xl1>; Sun, 30 Dec 2001 18:41:27 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:50576 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S285691AbRL3XlO>; Sun, 30 Dec 2001 18:41:14 -0500
+Date: Sun, 30 Dec 2001 23:43:33 +0000
+From: Dave Jones <davej@suse.de>
+To: reiserfs-dev@namesys.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Resyncing reiserfs changes to 2.5.
+Message-ID: <20011230234333.F16788@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>, reiserfs-dev@namesys.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Schwebel wrote:
+Folks,
+ The forward ported changes from 2.4 -> 2.5 for reiserfs
+in my tree are nearly entirely hand merged by myself.
 
-> On 23 Dec 2001, H. Peter Anvin wrote:
-> 
->>#ifdef CONFIG_SC410 time?
->>
-> 
-> What would be the best place to include this into the kernel config
-> scheme?  Make an option, e.g. 'AMD Elan SC410 support' in "Processor type
-> and features"?
-> 
+Whilst I've tested them with no problems, I'd prefer that
+some of the reiserfs guys take a look at what I've done to
+make sure I've not screwed up something obscure before I start
+pushing this to Linus.
 
+Jumbo patch as always is at...
+  http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj9.diff.bz2
 
-All of this is really a chipset issue, not a processor issue; I think it 
-should go in the same place as "Toshiba laptop support" and such...
+regards,
+Dave.
 
-
-> I'll make an update for my SC410 patchlet on
-> 
->   http://www.schwebel.de/software/dnp/index_en.html
-> 
-> during the next days, to add the fix for the serial port bug and the A20
-> problem.
-> 
-> Do these problems (A20, serial port, timer) only exist on AMD's SC410
-> chips or are they also present on the SC520s?
-
-
-Don't know.  Perhaps someone at AMD can say?
-
-	-hpa
-
-
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

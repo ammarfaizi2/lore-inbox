@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUHVUoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268191AbUHVUoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266603AbUHVUoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 16:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268191AbUHVUoL
+	id S268191AbUHVUoU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 16:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268193AbUHVUoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 16:44:11 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:37863 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S266603AbUHVUoI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 16:44:08 -0400
-Message-ID: <41290606.10101@drzeus.cx>
-Date: Sun, 22 Aug 2004 22:45:58 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
-X-Accept-Language: en-us, en
+	Sun, 22 Aug 2004 16:44:20 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:27076 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S268191AbUHVUoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 16:44:16 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Sun, 22 Aug 2004 22:43:11 +0200
+To: tonnerre@thundrix.ch, schilling@fokus.fraunhofer.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+Message-ID: <4129055F.nail9V911J6JH@burner>
+References: <2vipq-7O8-15@gated-at.bofh.it>
+ <2vj2b-8md-9@gated-at.bofh.it> <2vDtS-bq-19@gated-at.bofh.it>
+ <E1ByXMd-00007M-4A@localhost> <412770EA.nail9DO11D18Y@burner>
+ <412889FC.nail9MX1X3XW5@burner>
+ <Pine.LNX.4.58.0408221450540.297@neptune.local>
+ <m37jrr40zi.fsf@zoo.weinigel.se> <20040822192646.GH19768@thundrix.ch>
+ <4128FE94.nail9U42DA799@burner> <20040822203321.GI19768@thundrix.ch>
+In-Reply-To: <20040822203321.GI19768@thundrix.ch>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: platform bus, usage?
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm in the process of writing a driver for a SD/MMC card reader. Since 
-this is the first driver I'm writing I'm having some difficulties 
-fitting it into the linux driver model. I've read all the documentation 
-I can find to no avail.
+Tonnerre <tonnerre@thundrix.ch> wrote:
 
-The device is attached to the LPC bus and cannot be found using PNP. 
- From what I can gather this driver should therefore be organised under 
-the platform bus. I can't figure out how to do this though. I've created 
-the device structure, with platform_bus_type at .bus. I've called 
-device_register with the structure. Now how to I create a device object 
-and attach this to the bus? With PCI I guess this handles itself using 
-the PCI id:s.
+> > -	What are the minimum requirements for a machine to run Linux?
+>
+> Intel 8086  processor with  a few ko  of RAM,  with a floppy  drive, a
+> monitor and a floppy, I think. If you take only the normal kernel into
+> account that will be an 80386 processor.
 
-At the moment I just let the driver play by itself. But that doesn't 
-seem to be using the driver model properly.
+A few k ?????
 
-Any pointers would be helpful. Documentation, functions, example 
-drivers, anything.
+> > -	What are the minimum requirements for a machine to run Solaris?
+>
+> At least more RAM and a more capable processor.
 
-Rgds
-Pierre Ossman
+Looks like a speculation. 
 
+> > And hey, Brian is even able to make a 4 hour demo within a single hour on this 
+> > machine ;-)
+>
+> Greeeat. I can do that too on my Powerbook G5.
+
+Can you do it by typing in _all_ commands and dtrace programs in real time?
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312713AbSDFSpt>; Sat, 6 Apr 2002 13:45:49 -0500
+	id <S312716AbSDFStT>; Sat, 6 Apr 2002 13:49:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312716AbSDFSps>; Sat, 6 Apr 2002 13:45:48 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:45480 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S312713AbSDFSpr>;
-	Sat, 6 Apr 2002 13:45:47 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 6 Apr 2002 18:45:11 GMT
-Message-Id: <UTC200204061845.SAA545386.aeb@cwi.nl>
-To: torvalds@transmeta.com, viro@math.psu.edu
-Subject: Re: [WTF] ->setattr() locking changes
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-        trond.myklebust@fys.uio.no
+	id <S312718AbSDFStS>; Sat, 6 Apr 2002 13:49:18 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:6016 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S312716AbSDFStR>; Sat, 6 Apr 2002 13:49:17 -0500
+Date: Sat, 6 Apr 2002 13:49:04 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: joeja@mindspring.com, <linux-kernel@vger.kernel.org>
+Subject: Re: Re: Re: faster boots?
+In-Reply-To: <E16tuNx-0002LL-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0204061348370.726-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-    > Hmm...  While we are at it, why don't we remove suid/sgid on truncate(2)?
+	Hello Alan ,  ONLY in YOUR opinion .  Not mine '.' .  JimL
 
-    Are there any standards saying either way? But yes, it sounds logical.
+On Sat, 6 Apr 2002, Alan Cox wrote:
 
-"This function shall not modify the file offset for any open file
- descriptions associated with the file. Upon successful completion,
- if the file size is changed, this function shall mark for update
- the st_ctime and st_mtime fields of the file, and the S_ISUID and
- S_ISGID bits of the file mode may be cleared."
+> > So what is the best way in Linux to figure out what you can remove from the
+> > kernel to make it smaller and boot hopefully faster on low end machines?
+>
+> Say "M" to everything that isnt your root file system or directly dependant
+> on it. The whole "build a custom kernel" thing is mostly a red herring.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Andries
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+

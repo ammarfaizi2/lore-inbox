@@ -1,302 +1,327 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316571AbSFULbX>; Fri, 21 Jun 2002 07:31:23 -0400
+	id <S316577AbSFULxY>; Fri, 21 Jun 2002 07:53:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316572AbSFULbW>; Fri, 21 Jun 2002 07:31:22 -0400
-Received: from zwanebloem.xs4all.nl ([213.84.22.107]:8884 "EHLO
-	thuis.zwanebloem.nl") by vger.kernel.org with ESMTP
-	id <S316571AbSFULbT>; Fri, 21 Jun 2002 07:31:19 -0400
-Date: Fri, 21 Jun 2002 13:52:16 +0200
-From: faasen@xs4all.nl
-To: Andre Bonin <kernel@bonin.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Makes NVidia's driver work with kernel 2.5.24
-Message-ID: <20020621115216.GA4687@router.zwanebloem.xs4all.nl>
-References: <3D1300D1.8020903@bonin.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D1300D1.8020903@bonin.ca>
-User-Agent: Mutt/1.4i
+	id <S316574AbSFULxX>; Fri, 21 Jun 2002 07:53:23 -0400
+Received: from albert.physik.hu-berlin.de ([141.20.40.11]:60943 "EHLO
+	albert.physik.hu-berlin.de") by vger.kernel.org with ESMTP
+	id <S316573AbSFULxR>; Fri, 21 Jun 2002 07:53:17 -0400
+Date: Fri, 21 Jun 2002 13:53:08 +0200 (MEST)
+From: Burkhard Bunk <bunk@physik.hu-berlin.de>
+To: David McIlwraith <quack@bigpond.net.au>
+cc: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
+Subject: Re: PROBLEM: DAC960 kernel driver hangs with SMP enabled
+In-Reply-To: <004101c218c2$2c5e6120$0100000a@ValVenus>
+Message-ID: <Pine.LNX.4.21.0206211348320.24582-100000@irz11.physik.hu-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 21, 2002 at 05:32:49AM -0500, Andre Bonin wrote:
-> Hi!
-> 
-> I found a patch that makes the NVidia's driver (NVIDIA_kernel-1.0-2960) 
-> work with the 2.5 series kernels.  Unfortunatly it breaks because of the 
-> deprecation of suser in 2.5.24.  I have created a patch for this (from 
-> the 'stable' NVIDIA_kernel-1.0-2960 driver).
-> 
-> Most of the patch is not my doing but an unamed person somewhere on the 
-> net. If you are that person, you can reply to this mail and take your 
-> valid credit.
-> 
-> This is my first module change and my first patch so if there is 
-> anything 'wierd' or 'wrong' please tell me, there's only one way to learn.
-> 
-> Thanks!
->
-Great work, except I made the same patch some days ago since suser broke in 2.5.21 ;)
-Look here 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102424991602260&w=2
-and here
-http://thuis.zwanebloem.nl/nvidia
+Hallo,
 
-Guess it's better to have 2 patches then no patch :)
+I understand that your system works with boot option "nosmp", right?
+This implies "noapic" in a sence, AFAIK.
 
-Tommy
- 
-> ---
-> ***********************************
-> Andre Bonin
-> Computer Engineering Technologist
-> Student in Software Engineering
-> Ottawa, Ontario
-> Canada
-> ***********************************
+Try with "noapic" alone, this may allow you to use both processors.
 
-> diff -ruN stable/NVIDIA_kernel-1.0-2960/Makefile NVIDIA_kernel-1.0-2960/Makefile
-> --- stable/NVIDIA_kernel-1.0-2960/Makefile	Tue May 14 10:26:15 2002
-> +++ NVIDIA_kernel-1.0-2960/Makefile	Fri Jun 21 04:16:51 2002
-> @@ -9,6 +9,7 @@
->  HEADERS=os-interface.h nv-linux.h nv.h  nvrm.h nvtypes.h $(VERSION_HDR)
->  
->  CFLAGS=-Wall -Wimplicit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wpointer-arith -Wcast-qual -Wno-multichar  -O -MD $(DEFINES) $(INCLUDES) -Wno-cast-qual
-> +                        
->  
->  RESMAN_KERNEL_MODULE=Module-nvkernel
->  
-> diff -ruN stable/NVIDIA_kernel-1.0-2960/nv-linux.h NVIDIA_kernel-1.0-2960/nv-linux.h
-> --- stable/NVIDIA_kernel-1.0-2960/nv-linux.h	Tue May 14 10:26:16 2002
-> +++ NVIDIA_kernel-1.0-2960/nv-linux.h	Fri May 31 12:35:41 2002
-> @@ -38,7 +38,7 @@
->  #elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->  #  define KERNEL_2_4
->  #elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
-> -#  error This driver does not support 2.5.x development kernels!
-> +//#  error This driver does not support 2.5.x development kernels!
->  #  define KERNEL_2_5
->  #else
->  #  error This driver does not support 2.6.x or newer kernels!
-> diff -ruN stable/NVIDIA_kernel-1.0-2960/nv.c NVIDIA_kernel-1.0-2960/nv.c
-> --- stable/NVIDIA_kernel-1.0-2960/nv.c	Tue May 14 10:26:16 2002
-> +++ NVIDIA_kernel-1.0-2960/nv.c	Fri May 31 12:35:41 2002
-> @@ -50,6 +50,12 @@
->  #include <linux/devfs_fs_kernel.h>
->  #endif
->  
-> +/* Since 2.5.x this is needed for the coorect lookup of the page table entry */
-> +#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 0)
-> +#include <asm/kmap_types.h>
-> +#include <linux/highmem.h>
-> +#endif
-> +
->  #include <asm/page.h>
->  #include <asm/pgtable.h>  		// pte bit definitions
->  #include <asm/system.h>                 // cli(), *_flags
-> @@ -1155,11 +1161,22 @@
->  
->      /* for control device, just jump to its open routine */
->      /* after setting up the private data */
-> +
-> +    /* I don't really know the correct kernel version since when it changed */ 
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0) 
->      if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
->          return nv_kern_ctl_open(inode, file);
+It worked for me in a similar case (dual Pentium Pro 200, old hardware).
+
+Regards,
+Burkhard Bunk.
+----------------------------------------------------------------------
+ bunk@physik.hu-berlin.de      Physics Institute, Humboldt University
+ fax:    ++49-30 2093 7628     Invalidenstr. 110
+ phone:  ++49-30 2093 7980     10115 Berlin, Germany
+----------------------------------------------------------------------
+
+On Fri, 21 Jun 2002, David McIlwraith wrote:
+
+> [1.] One line summary of the problem:
+> DAC960 driver hangs at boot with SMP enabled
+> [2.] Full description of the problem/report:
+> The DAC960 driver, after displaying its 2-line initial version message,
+> hangs at boot, on a Linux 2.4.18 kernel with SMP enabled. I tested Linux
+> version 2.2.21 kernel as well; I encountered the same problem. After
+> disabling SMP [and no other options] the driver performed correctly.
+> The controller in question is a DAC960PG, running with the latest
+> firmware from http://www.mylex.com/. No problems have been encountered
+> with any other operating systems.
+> 
+> I attempted to use patches I had found on the [linux-smp], [linux-kernel]
+> mailing lists, referring to
+> a deadlock occurring with this driver and SMP. However, the kernel still
+> refused to boot correctly.
+> [3.] Keywords:
+> kernel, DAC960, Mylex, RAID, SCSI
+> [4.] Kernel version:
+> Linux version 2.4.x with SMP, 2.2.x with SMP
+> [5.] Output of Oops.. message:
+> Not applicable.
+> [6.] A small shell script or program which triggers the problem:
+> Not applicable.
+> [7.] Environment
+> The machine in question is an NEC Express5800/130A Pro dual processor
+> system, with 2x Pentium Pro 200MHz processors, running Debian 2.2.
+> [7.1.] Software
+> Linux linux 2.4.18 #7 Thu Jun 20 15:09:48 EST 2002 i686 unknown
+> 
+> Gnu C                  2.95.2
+> Gnu make               3.79.1
+> binutils               2.9.5.0.37
+> util-linux
+> util-linux             Note: /usr/bin/fdformat is obsolete and is no longer
+> available.
+> util-linux             Please use /usr/bin/superformat instead (make sure
+> you have the
+> util-linux             fdutils package installed first).  Also, there had
+> been some
+> util-linux             major changes from version 4.x.  Please refer to the
+> documentation.
+> util-linux
+> mount                  2.10f
+> modutils               2.3.11
+> e2fsprogs              1.18
+> PPP                    2.3.11
+> Linux C Library        2.1.3
+> ldd: version 1.9.11
+> Procps                 2.0.6
+> Net-tools              1.54
+> Console-tools          0.2.3
+> Sh-utils               2.0
+> [7.2.] Processor information:
+> Note: only one processor shown, since kernel with SMP fails to boot;
+> however, both processors are identical.
+> 
+> processor : 0
+> vendor_id : GenuineIntel
+> cpu family : 6
+> model  : 1
+> model name : Pentium Pro
+> stepping : 9
+> cpu MHz  : 198.961
+> cache size : 256 KB
+> fdiv_bug : no
+> hlt_bug  : no
+> f00f_bug : no
+> coma_bug : no
+> fpu  : yes
+> fpu_exception : yes
+> cpuid level : 2
+> wp  : yes
+> flags  : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+> bogomips : 396.49
+> [7.3.] Module information:
+> Not applicable; kernel was built without module support.
+> [7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+> IO ports:
+> 0000-001f : dma1
+> 0020-003f : pic1
+> 0040-005f : timer
+> 0060-006f : keyboard
+> 0070-007f : rtc
+> 0080-008f : dma page reg
+> 00a0-00bf : pic2
+> 00c0-00df : dma2
+> 00f0-00ff : fpu
+> 0170-0177 : Compaq Computer Corporation Triflex Dual EIDE Controller
+> 01f0-01f7 : Compaq Computer Corporation Triflex Dual EIDE Controller
+>   01f0-01f7 : ide0
+> 02f8-02ff : serial(set)
+> 0376-0376 : Compaq Computer Corporation Triflex Dual EIDE Controller
+> 03c0-03df : vga+
+> 03f6-03f6 : Compaq Computer Corporation Triflex Dual EIDE Controller
+>   03f6-03f6 : ide0
+> 03f8-03ff : serial(set)
+> 0cf8-0cff : PCI conf1
+> d000-dfff : PCI Bus #02
+>   d400-d4ff : Realtek Semiconductor Co., Ltd. RTL-8139
+>     d400-d4ff : 8139too
+>   d800-d8ff : Adaptec AIC-7860
+>     d800-d8ff : aic7xxx
+>   dce0-dcff : Intel Corp. 82557 [Ethernet Pro 100]
+>     dce0-dcff : eepro100
+> ecf0-ecff : Compaq Computer Corporation Triflex Dual EIDE Controller
+>   ecf0-ecf7 : ide0
+> 
+> IO memory:
+> 00000000-0009efff : System RAM
+> 0009f000-0009ffff : reserved
+> 000a0000-000bffff : Video RAM area
+> 000c0000-000c7fff : Video ROM
+> 000c8000-000c87ff : Extension ROM
+> 000c8800-000cb7ff : Extension ROM
+> 000f0000-000fffff : System ROM
+> 00100000-0fffffff : System RAM
+>   00100000-0021332e : Kernel code
+>   0021332f-002582cb : Kernel data
+> fceee000-fceeffff : Mylex Corporation DAC960PX
+> fd000000-fe9fffff : PCI Bus #02
+>   fd000000-fdffffff : Cirrus Logic GD 5446
+>   fe800000-fe8fffff : Intel Corp. 82557 [Ethernet Pro 100]
+>   fe9fd000-fe9fdfff : Intel Corp. 82557 [Ethernet Pro 100]
+>     fe9fd000-fe9fdfff : eepro100
+>   fe9fe000-fe9fefff : Adaptec AIC-7860
+>     fe9fe000-fe9fefff : aic7xxx
+>   fe9ff800-fe9ff8ff : Realtek Semiconductor Co., Ltd. RTL-8139
+>     fe9ff800-fe9ff8ff : 8139too
+> fec00000-fec00fff : reserved
+> fee00000-fee00fff : reserved
+> ffff8119-ffffffff : reserved
+> [7.5.] PCI information ('lspci -vvv' as root)
+> 
+> 00:00.0 Host bridge: Relience Computer: Unknown device 0005
+>  Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+
+> Stepping- SERR+ FastB2B-
+>  Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort+ >SERR- <PERR-
+>  Latency: 48 set, cache line size 08
+> 
+> 00:0a.0 PCI bridge: Intel Corporation 80960RP [i960 RP
+> Microprocessor/Bridge] (rev 01) (prog-if 00 [Normal decode])
+>  Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>  Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>  Latency: 64 set, cache line size 08
+>  Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+>  I/O behind bridge: 0000f000-00000fff
+>  Memory behind bridge: fff00000-000fffff
+>  Prefetchable memory behind bridge: ff000000-000fffff
+>  BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+> 
+> 00:0a.1 RAID bus controller: Mylex Corporation DAC960PX (rev 01)
+>  Subsystem: Mylex Corporation: Unknown device 0010
+>  Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>  Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>  Latency: 64 set, cache line size 08
+>  Interrupt: pin A routed to IRQ 9
+>  Region 0: Memory at fceee000 (32-bit, prefetchable) [size=8K]
+>  Expansion ROM at <unassigned> [disabled] [size=32K]
+> 
+> 00:0b.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 01)
+> (prog-if 00 [Normal decode])
+>  Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+
+> Stepping- SERR+ FastB2B-
+>  Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>  Latency: 123 set, cache line size 08
+>  Bus: primary=00, secondary=02, subordinate=02, sec-latency=68
+>  I/O behind bridge: 0000d000-0000dfff
+>  Memory behind bridge: fd000000-fe9fffff
+>  Prefetchable memory behind bridge: 00000000ff000000-0000000000000000
+>  BridgeCtl: Parity+ SERR+ NoISA+ VGA+ MAbort- >Reset- FastB2B-
+> 
+> 00:0f.0 ISA bridge: Compaq Computer Corporation Triflex PCI to ISA Bridge
+> (rev 0c)
+>  Subsystem: Compaq Computer Corporation: Unknown device a0f3
+>  Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>  Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>  Latency: 0 set
+> 
+> 00:0f.1 IDE interface: Compaq Computer Corporation: Unknown device ae33 (rev
+> 0a) (prog-if ea)
+>  Subsystem: Compaq Computer Corporation: Unknown device ae33
+>  Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>  Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>  Latency: 0 set
+>  Interrupt: pin A routed to IRQ 0
+>  Region 0: I/O ports at 01f0 [size=8]
+>  Region 1: I/O ports at 03f4
+>  Region 2: I/O ports at 0170 [size=8]
+>  Region 3: I/O ports at 0374
+>  Region 4: I/O ports at ecf0 [size=16]
+> 
+> 02:06.0 VGA compatible controller: Cirrus Logic GD 5446 (prog-if 00 [VGA])
+>  Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>  Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>  Region 0: Memory at fd000000 (32-bit, prefetchable) [size=16M]
+>  Expansion ROM at <unassigned> [disabled] [size=32K]
+> 
+> 02:07.0 SCSI storage controller: Adaptec AIC-7860 (rev 01)
+>  Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>  Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>  Latency: 4 min, 4 max, 64 set, cache line size 08
+>  Interrupt: pin A routed to IRQ 11
+>  Region 0: I/O ports at d800 [disabled] [size=256]
+>  Region 1: Memory at fe9fe000 (32-bit, non-prefetchable) [size=4K]
+> 
+> 02:08.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev
+> 01)
+>  Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>  Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>  Latency: 8 min, 56 max, 66 set
+>  Interrupt: pin A routed to IRQ 5
+>  Region 0: Memory at fe9fd000 (32-bit, prefetchable) [size=4K]
+>  Region 1: I/O ports at dce0 [size=32]
+>  Region 2: Memory at fe800000 (32-bit, non-prefetchable) [size=1M]
+>  Expansion ROM at <unassigned> [disabled] [size=1M]
+> 
+> 02:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RT8139 (rev 10)
+>  Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+>  Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+> Stepping- SERR- FastB2B-
+>  Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>  Latency: 32 min, 64 max, 64 set
+>  Interrupt: pin A routed to IRQ 9
+>  Region 0: I/O ports at d400 [size=256]
+>  Region 1: Memory at fe9ff800 (32-bit, non-prefetchable) [size=256]
+>  Expansion ROM at <unassigned> [disabled] [size=64K]
+>  Capabilities: [50] Power Management version 2
+>   Flags: PMEClk- AuxPwr- DSI- D1+ D2+ PME-
+>   Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> [7.6.] SCSI information (from /proc/scsi/scsi)
+> Attached devices: none
+> [7.7.] Other information that might be relevant to the problem
+> Data from: /proc/rd/c0/current_status [controller 0 information]
+> 
+> ***** DAC960 RAID Driver Version 2.4.11 of 11 October 2001 *****
+> Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
+> Configuring Mylex DAC960PG PCI RAID Controller
+>   Firmware Version: 4.06-0-08, Channels: 1, Memory Size: 4MB
+>   PCI Bus: 0, Device: 10, Function: 1, I/O Address: Unassigned
+>   PCI Address: 0xFCEEE000 mapped at 0xD0800000, IRQ Channel: 9
+>   Controller Queue Depth: 64, Maximum Blocks per Command: 128
+>   Driver Queue Depth: 63, Scatter/Gather Limit: 33 of 33 Segments
+>   Stripe Size: 64KB, Segment Size: 8KB, BIOS Geometry: 128/32
+>   Physical Devices:
+>     0:0  Vendor: SEAGATE   Model: ST34371W          Revision: 0484
+>          Serial Number: JDP417330J6N3C
+>          Disk Status: Online, 8495104 blocks
+>     0:1  Vendor: SEAGATE   Model: ST34371W          Revision: 0484
+>          Serial Number: JDY9579709XP48
+>          Disk Status: Online, 8495104 blocks
+>     0:2  Vendor: SEAGATE   Model: ST34572WC         Revision: 0784
+>          Serial Number: JK2616440V0B9K
+>          Disk Status: Online, 8888320 blocks
+>     0:6  Vendor: SDR       Model: GEM200            Revision: 1
+>   Logical Drives:
+>     /dev/rd/c0d0: RAID-0, Online, 25485312 blocks, Write Thru
+>   No Rebuild or Consistency Check in Progress
+> [X.] Other notes, patches, fixes, workarounds:
+> In order to boot this kernel, I also had to add a patch which is
+> referenced at http://linux-kernel.skylab.org/20011125/msg01431.html. As
+> the author of the DAC960 driver notes, "the Linux kernel team has
+> consistently refused to add the boot patches to init/main.c". However,
+> this is an entirely separate issue to the SMP conflict.
+> 
 > -
-> +#else
-> +    if (NV_DEVICE_IS_CONTROL_DEVICE(kdev_val(inode->i_rdev)))
-> +        return nv_kern_ctl_open(inode, file);
-> +#endif
->      /* what device are we talking about? */
-> +
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->      devnum = NV_DEVICE_NUMBER(inode->i_rdev);
-> +#else
-> +    devnum = NV_DEVICE_NUMBER(kdev_val(inode->i_rdev));
-> +#endif
->      if (devnum >= NV_MAX_DEVICES)
->      {
->          rc = -ENODEV;
-> @@ -1265,9 +1282,14 @@
->  
->      /* for control device, just jump to its open routine */
->      /* after setting up the private data */
-> +
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->      if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
-> +       return nv_kern_ctl_close(inode, file);
-> +#else
-> +    if(NV_DEVICE_IS_CONTROL_DEVICE(kdev_val(inode->i_rdev)))
->          return nv_kern_ctl_close(inode, file);
-> -
-> +#endif
->      NV_DMSG(nv, "close");
->  
->      nv_unix_free_all_unused_clients(nv, current->pid, (void *) file);
-> @@ -1386,11 +1408,21 @@
->  #if defined(IA64)
->          vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
->  #endif
-> +
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->          if (remap_page_range(vma->vm_start,
->                               (u32)(nv->regs.address) + LINUX_VMA_OFFS(vma) - NV_MMAP_REG_OFFSET,
->                               vma->vm_end - vma->vm_start,
->                               vma->vm_page_prot))
->              return -EAGAIN;
-> +#else
-> +        if (remap_page_range(vma,
-> +                            vma->vm_start,
-> +                             (u32) (nv->regs.address) + LINUX_VMA_OFFS(vma) - NV_MMAP_REG_OFFSET,
-> +                             vma->vm_end - vma->vm_start,
-> +                             vma->vm_page_prot))
-> +            return -EAGAIN;
-> +#endif
->  
->          /* mark it as IO so that we don't dump it on core dump */
->          vma->vm_flags |= VM_IO;
-> @@ -1403,11 +1435,20 @@
->  #if defined(IA64)
->          vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
->  #endif
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->          if (remap_page_range(vma->vm_start,
->                               (u32)(nv->fb.address) + LINUX_VMA_OFFS(vma) - NV_MMAP_FB_OFFSET,
->                               vma->vm_end - vma->vm_start,
->                               vma->vm_page_prot))
->              return -EAGAIN;
-> +#else
-> +        if (remap_page_range(vma,
-> +                            vma->vm_start,
-> +                             (u32) (nv->fb.address) + LINUX_VMA_OFFS(vma) - NV_MMAP_FB_OFFSET,
-> +                             vma->vm_end - vma->vm_start,
-> +                             vma->vm_page_prot))
-> +            return -EAGAIN;
-> +#endif
->  
->          // mark it as IO so that we don't dump it on core dump
->          vma->vm_flags |= VM_IO;
-> @@ -1437,8 +1478,13 @@
->          while (pages--)
->          {
->              page = (unsigned long) at->page_table[i++];
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->              if (remap_page_range(start, page, PAGE_SIZE, PAGE_SHARED))
->                	return -EAGAIN;
-> +#else
-> +            if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-> +                 return -EAGAIN;
-> +#endif
->              start += PAGE_SIZE;
->              pos += PAGE_SIZE;
->         	}
-> @@ -2273,7 +2319,11 @@
->      pte_kunmap(pte__);
->  #else
->      pte__ = NULL;
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->      pte = *pte_offset(pg_mid_dir, address);
-> +#else
-> +    pte = *pte_offset_map(pg_mid_dir, address);
-> +#endif
->  #endif
->  
->      if (!pte_present(pte)) 
-> diff -ruN stable/NVIDIA_kernel-1.0-2960/os-interface.c NVIDIA_kernel-1.0-2960/os-interface.c
-> --- stable/NVIDIA_kernel-1.0-2960/os-interface.c	Tue May 14 10:26:16 2002
-> +++ NVIDIA_kernel-1.0-2960/os-interface.c	Fri Jun 21 04:54:35 2002
-> @@ -41,6 +41,7 @@
->  #include <linux/stddef.h>
->  #include <linux/kernel.h>       // printk()
->  #include <linux/errno.h>        // error codes
-> +#include <linux/sched.h>        // capable(int)
->  #include <linux/types.h>        // size_t
->  #include <linux/interrupt.h>    // in_interrupt()
->  #include <linux/delay.h>        // udelay()
-> @@ -114,13 +115,13 @@
->  #endif // DEBUG
->  
->  // return TRUE if the caller is the super-user
-> -BOOL osIsAdministrator(
-> -    PHWINFO pDev
-> -)
-> -{
-> -    return suser();
-> +
-> +BOOL osIsAdministrator( PHWINFO pDev ) {
-> +    return capable( CAP_SYS_ADMIN );
->  }
->  
-> +
-> +
->  //
->  // Some quick and dirty library functions.
->  // This is an OS function because some operating systems supply their
-> @@ -1458,9 +1459,14 @@
->      uaddr = *priv;
->  
->      /* finally, let's do it! */
-> -    err = remap_page_range( (size_t) uaddr, (size_t) paddr, size_bytes, 
-> +    
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-> +    err = remap_page_range( (size_t) uaddr, (size_t) paddr, size_bytes,
-> +                           PAGE_SHARED);
-> +#else
-> +    err = remap_page_range( kaddr, (size_t) uaddr, (size_t) paddr, size_bytes,
->                              PAGE_SHARED);
-> -
-> +#endif
->      if (err != 0)
->      {
->          return (void *) NULL;
-> @@ -1485,10 +1491,14 @@
->  
->      uaddr = *priv;
->  
-> -    /* finally, let's do it! */
-> -    err = remap_page_range( (size_t) uaddr, (size_t) start, size_bytes, 
-> +    /* finally, let's do it! */ 
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-> +    err = remap_page_rage( (size_t) uaddr, (size_t) start, size_bytes,
-> +                          PAGE_SHARED);    
-> +#else
-> +    err = remap_page_range( *priv, (size_t) uaddr, (size_t) start, size_bytes, 
->                              PAGE_SHARED);
-> -
-> +#endif
->      if (err != 0)
->      {
->          return (void *) NULL;
-> @@ -2032,15 +2042,25 @@
->          return RM_ERROR;
->  
->      agp_addr = agpinfo.aper_base + (agp_data->offset << PAGE_SHIFT);
-> -
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->      err = remap_page_range(vma->vm_start, (size_t) agp_addr, 
->                             agp_data->num_pages << PAGE_SHIFT,
->  #if defined(IA64)
->                             vma->vm_page_prot);
->  #else
->                             PAGE_SHARED);
-> -#endif
-> -        
-> +#endif /* IA64 */
-> +
-> +#else
-> +    err = remap_page_range(vma,
-> +                          vma->vm_start, (size_t) agp_addr, 
-> +                           agp_data->num_pages << PAGE_SHIFT,
-> +#if defined(IA64)
-> +                           vma->vm_page_prot);
-> +#else
-> +                           PAGE_SHARED);
-> +#endif /* IA64 */
-> +#endif /* LINUX_VERSION_CODE */
->      if (err) {
->          printk(KERN_ERR "NVRM: AGPGART: unable to remap %lu pages\n",
->                 (unsigned long)agp_data->num_pages);
+> To unsubscribe from this list: send the line "unsubscribe linux-smp" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 

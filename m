@@ -1,115 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVDFKCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVDFKPx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbVDFKCG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 06:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVDFKCG
+	id S262157AbVDFKPx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 06:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVDFKPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 06:02:06 -0400
-Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:53944 "EHLO
-	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S262156AbVDFKB6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 06:01:58 -0400
-Message-Id: <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
-X-Mailer: QUALCOMM Windows Eudora Version 6J-Jr3
-Date: Wed, 06 Apr 2005 19:01:18 +0900
-To: "Stephen C. Tweedie" <sct@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-From: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please
-  check)
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       vherva@viasys.com, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk
- >
-References: <20050326162801.GA20729@logos.cnet>
- <20050328073405.GQ16169@viasys.com>
- <20050328165501.GR16169@viasys.com>
- <16968.40186.628410.152511@cse.unsw.edu.au>
- <20050329215207.GE5018@logos.cnet>
- <16970.9679.874919.876412@cse.unsw.edu.au>
- <20050330115946.GA7331@logos.cnet>
- <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 6 Apr 2005 06:15:53 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:52939 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262157AbVDFKPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 06:15:33 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Christophe Saout <christophe@saout.de>
+Subject: Re: [BUG mm] "fixed" i386 memcpy inlining buggy
+Date: Wed, 6 Apr 2005 13:14:27 +0300
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>, Jan Hubicka <hubicka@ucw.cz>,
+       Gerold Jury <gerold.ml@inode.at>, jakub@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       gcc@gcc.gnu.org
+References: <200503291542.j2TFg4ER027715@earth.phy.uc.edu> <200504021526.53990.vda@ilport.com.ua> <1112718844.22591.15.camel@leto.cs.pocnet.net>
+In-Reply-To: <1112718844.22591.15.camel@leto.cs.pocnet.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504061314.27740.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tuesday 05 April 2005 19:34, Christophe Saout wrote:
+> Hi Denis,
+> 
+> the new i386 memcpy macro is a ticking timebomb.
+> 
+> I've been debugging a new mISDN crash, just to find out that a memcpy
+> was not inlined correctly.
+> 
+> Andrew, you should drop the fix-i386-memcpy.patch (or have it fixed).
+> 
+> This source code:
+> 
+>         mISDN_pid_t     pid;
+> 	[...]
+>         memcpy(&st->mgr->pid, &pid, sizeof(mISDN_pid_t));
+> 
+> was compiled as:
+> 
+>         lea    0xffffffa4(%ebp),%esi    <---- %esi is loaded
+> (       add    $0x10,%ebx                      )
+> (       mov    %ebx,%eax                       ) something else
+> (       call   1613 <test_stack_protocol+0x83> ) %esi preserved
+>         mov    0xffffffa0(%ebp),%edx
+>         mov    0x74(%edx),%edi          <---- %edi is loaded
+>         add    $0x20,%edi                     offset in structure added
+> !       mov    $0x14,%esi        !!!!!! <---- %esi overwritten!
+>         mov    %esi,%ecx                <---- %ecx loaded
+>         repz movsl %ds:(%esi),%es:(%edi)
+> 
+> Apparently the compiled decided that the value 0x14 could be reused
+> afterwards (which it does for an inlined memset of the same size some
+> instructions below) and clobbers %esi.
+> 
+> Looking at the macro:
+> 
+>                 __asm__ __volatile__(
+>                         ""
+>                         : "=&D" (edi), "=&S" (esi)
+>                         : "0" ((long) to),"1" ((long) from)
+>                         : "memory"
+>                 );
+>         }
+>         if (n >= 5*4) {
+>                 /* large block: use rep prefix */
+>                 int ecx;
+>                 __asm__ __volatile__(
+>                         "rep ; movsl"
+>                         : "=&c" (ecx)
+> 
+> it seems obvious that the compiled assumes it can reuse %esi and %edi
+> for something else between the two __asm__ sections. These should
+> probably be merged.
 
-At 07:40 05/04/06, Stephen C. Tweedie wrote:
- >Sorry, was offline for a week last week; I'll try to look at this more
- >closely tomorrow.  Checking the buffer_uptodate() without either a
- >refcount or a lock certainly looks unsafe at first glance.
- >
- >There are lots of ways to pin the bh in that particular bit of the
- >code.  The important thing will be to do so without causing leaks if
- >we're truly finished with the buffer after this flush.
- >
+Oh shit. I was trying to be too clever. I still run with this patch,
+so it must be happening very rarely.
 
-I have measured the bh refcount before the buffer_uptodate() for a few days.
-I found out that the bh refcount sometimes reached to 0 .
-So, I think following modifications are effective.
+Does this one compile ok?
 
-diff -Nru 2.4.30-rc3/fs/jbd/commit.c 2.4.30-rc3_patch/fs/jbd/commit.c
---- 2.4.30-rc3/fs/jbd/commit.c	2005-04-06 17:14:47.000000000 +0900
-+++ 2.4.30-rc3_patch/fs/jbd/commit.c	2005-04-06 17:18:49.000000000 +0900
-@@ -295,6 +295,7 @@
-  		struct buffer_head *bh;
-  		jh = jh->b_tprev;	/* Wait on the last written */
-  		bh = jh2bh(jh);
-+		get_bh(bh);
-  		if (buffer_locked(bh)) {
-  			spin_unlock(&journal_datalist_lock);
-  			unlock_journal(journal);
-@@ -302,11 +303,14 @@
-  			if (unlikely(!buffer_uptodate(bh)))
-  				err = -EIO;
-  			/* the journal_head may have been removed now */
-+			put_bh(bh);
-  			lock_journal(journal);
-  			goto write_out_data;
-  		} else if (buffer_dirty(bh)) {
-+			put_bh(bh);
-  			goto write_out_data_locked;
-  		}
-+		put_bh(bh);
-  	} while (jh != commit_transaction->t_sync_datalist);
-  	goto write_out_data_locked;
-
-
-
- >
- >> > If some of the write succeeded and some failed, then I believe the
- >> > correct behaviour is to return the number of bytes that succeeded.
- >> > However this change to the return status (remember the above patch is
- >> > a reversal) causes any failure to over-ride any success. This, I
- >> > think, is wrong.
- >>
- >> Yeap, that part also looks wrong.
- >
- >Certainly it's normal for a short read/write to imply either error or
- >EOF, without the error necessarily needing to be returned explicitly.
- >I'm not convinced that the Singleunix language actually requires that,
- >but it seems the most obvious and consistent behaviour.
- >
- >--Stephen
-
-When an O_SYNC flag is set , if commit_write() succeed but 
-generic_osync_inode() return
-error due to I/O failure, write() must fail .
-
-I think that following error handling code is rational in 
-do_generic_file_write() .
-
-	if (file->f_flags & O_SYNC)
-		err = (status < 0) ? status : written;
-	else
-		err = written ? written : status;
-	out:
-
-	return err;
-
-
-Thanks. 
+static inline void * __constant_memcpy(void * to, const void * from, size_t n)
+{
+	long esi, edi;
+#if 1	/* want to do small copies with non-string ops? */
+	switch (n) {
+		case 0: return to;
+		case 1: *(char*)to = *(char*)from; return to;
+		case 2: *(short*)to = *(short*)from; return to;
+		case 4: *(int*)to = *(int*)from; return to;
+#if 1	/* including those doable with two moves? */
+		case 3: *(short*)to = *(short*)from;
+			*((char*)to+2) = *((char*)from+2); return to;
+		case 5: *(int*)to = *(int*)from;
+			*((char*)to+4) = *((char*)from+4); return to;
+		case 6: *(int*)to = *(int*)from;
+			*((short*)to+2) = *((short*)from+2); return to;
+		case 8: *(int*)to = *(int*)from;
+			*((int*)to+1) = *((int*)from+1); return to;
+#endif
+	}
+#else
+	if (!n) return to;
+#endif
+	{
+		/* load esi/edi */
+		__asm__ __volatile__(
+			""
+			: "=&D" (edi), "=&S" (esi)
+			: "0" ((long) to),"1" ((long) from)
+			: "memory"
+		);
+	}
+	if (n >= 5*4) {
+		/* large block: use rep prefix */
+		int ecx;
+		__asm__ __volatile__(
+			"rep ; movsl"
+			: "=&c" (ecx), "=&D" (edi), "=&S" (esi)
+			: "0" (n/4), "1" (edi),"2" (esi)
+			: "memory"
+		);
+	} else {
+		/* small block: don't clobber ecx + smaller code */
+		if (n >= 4*4) __asm__ __volatile__("movsl":"=&D"(edi),"=&S"(esi):"0"(edi),"1"(esi):"memory");
+		if (n >= 3*4) __asm__ __volatile__("movsl":"=&D"(edi),"=&S"(esi):"0"(edi),"1"(esi):"memory");
+		if (n >= 2*4) __asm__ __volatile__("movsl":"=&D"(edi),"=&S"(esi):"0"(edi),"1"(esi):"memory");
+		if (n >= 1*4) __asm__ __volatile__("movsl":"=&D"(edi),"=&S"(esi):"0"(edi),"1"(esi):"memory");
+	}
+	switch (n % 4) {
+		/* tail */
+		case 0: return to;
+		case 1: __asm__ __volatile__("movsb":"=&D"(edi),"=&S"(esi):"0"(edi),"1"(esi):"memory"); return to;
+		case 2: __asm__ __volatile__("movsw":"=&D"(edi),"=&S"(esi):"0"(edi),"1"(esi):"memory"); return to;
+		default: __asm__ __volatile__("movsw\n\tmovsb":"=&D"(edi),"=&S"(esi):"0"(edi),"1"(esi):"memory"); return to;
+	}
+}
+--
+vda
 

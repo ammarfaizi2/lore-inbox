@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263270AbSJaSRv>; Thu, 31 Oct 2002 13:17:51 -0500
+	id <S263188AbSJaSQ5>; Thu, 31 Oct 2002 13:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263279AbSJaSRu>; Thu, 31 Oct 2002 13:17:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24074 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263270AbSJaSRm>; Thu, 31 Oct 2002 13:17:42 -0500
-Date: Thu, 31 Oct 2002 10:22:23 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: What's left over.
-In-Reply-To: <3DC171FF.5000803@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.44.0210311015380.1410-100000@penguin.transmeta.com>
+	id <S263204AbSJaSQ5>; Thu, 31 Oct 2002 13:16:57 -0500
+Received: from [202.54.110.230] ([202.54.110.230]:10250 "EHLO
+	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
+	id <S263188AbSJaSQI>; Thu, 31 Oct 2002 13:16:08 -0500
+Message-ID: <E04CF3F88ACBD5119EFE00508BBB2121053DD18E@exch-01.noida.hcltech.com>
+From: "Deepak Kumar Gupta, Noida" <dkumar@noida.hcltech.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: RE: [lkcd-devel] Re: What's left over.
+Date: Thu, 31 Oct 2002 23:47:38 +0530
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 31 Oct 2002, Chris Friesen wrote:
+> Linus Torvalds wrote:
 > 
-> How do you deal with netdump when your network driver is what caused the 
+> > 	In particular when it comes to this project, I'm told about
+> > 	"netdump", which doesn't try to dump to a disk, but 
+> over the net.
+> > 	And quite frankly, my immediate reaction is to say "Hell, I
+> > 	_never_ want the dump touching my disk, but over the network
+> > 	sounds like a great idea".
+> > 
+> > To me this says "LKCD is stupid". Which means that I'm not 
+> going to apply 
+> > it, and I'm going to need some real reason to do so - ie 
+> being proven 
+> > wrong in the field.
+> 
+> How do you deal with netdump when your network driver is what 
+> caused the 
 > crash?
+> 
+> Ideally I would like to see a dump framework that can have a 
+> number of 
+> possible dump targets.  We should be able to dump to any 
+> combination of 
+> network, serial, disk, flash, unused ram that isn't wiped 
+> over restarts, 
+> etc...
+This is what the LKCD with generic interface is .. LKCD with generic
+interface has the capability to include various dump targets in a very clean
+way. Originally the LKCD meant for saving dump only on the disks, but its
+generic interface has provided the option to have a number of dump targets.
 
-Actually, from a driver perspective, _the_ most likely driver to crash is 
-the disk driver. 
-
-That's from years of experience. The network drivers are a lot simpler,
-the hardware is simpler and more standardized, and doesn't do as many
-things. It's just plain _easier_ to write a network driver than a disk
-driver.
-
-Ask anybody who has done both.
-
-But that's not the real issue. The real issue is that I have no personal
-incentives to try to merge the thing, and as a result I think I'm the
-wrong person to do so. I've told people over and over again that I think
-this is a "vendor merge", and I'm fed up with people not _getting_ it.
-
-Don't bother to ask me to merge the thing, that only makes me get even
-more fed up with the whole discussion. This is open source, guys. Anybody 
-can merge it. Because I don't particularly believe in it doesn't mean that 
-it cannot be used. It only means that I want to see users flock to it and 
-show my beliefs wrong.
-
-		Linus
-
+Regards
+Deepak.

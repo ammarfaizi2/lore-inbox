@@ -1,39 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262450AbUCHKit (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 05:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUCHKit
+	id S262458AbUCHKnX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 05:43:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbUCHKnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 05:38:49 -0500
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:12160 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S262450AbUCHKis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 05:38:48 -0500
-Message-ID: <404C4D32.1080609@uni-paderborn.de>
-Date: Mon, 08 Mar 2004 11:38:42 +0100
-From: Bjoern Schmidt <lucky21@uni-paderborn.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: fsb of older cpu
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
-X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
-X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=1.594,
-	required 4, FROM_ENDS_IN_NUMS 0.87, RCVD_IN_NJABL 0.10,
-	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
-X-UNI-PB_FAK-EIM-MailScanner-SpamScore: s
+	Mon, 8 Mar 2004 05:43:23 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:46474 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262458AbUCHKnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 05:43:17 -0500
+Date: Mon, 08 Mar 2004 19:46:45 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: RE: [PATCH] fix PCI interrupt setting for ia64
+In-reply-to: <20040308.182552.55855095.t-kochi@bq.jp.nec.com>
+To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, benjamin.liu@intel.com
+Cc: iod00d@hp.com, kaneshige.kenji@jp.fujitsu.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Message-id: <MDEEKOKJPMPMKGHIFAMAEEDEDGAA.kaneshige.kenji@jp.fujitsu.com>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Content-type: text/plain;	charset="us-ascii"
+Content-transfer-encoding: 7bit
+Importance: Normal
+X-Priority: 3 (Normal)
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-is there a way to measure/change the fsb of a PII/233/Tonga/440BX while running
-linux? Google has no answer...
+Hi,
 
--- 
-Greetings
-Bjoern Schmidt
+> Kaneshige-san, could you confirm your changes are compatible
+> with probe_irq_on()?
 
+OK. I'll confirm.
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Takayoshi Kochi
+> Sent: Monday, March 08, 2004 6:26 PM
+> To: benjamin.liu@intel.com
+> Cc: iod00d@hp.com; kaneshige.kenji@jp.fujitsu.com;
+> linux-ia64@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] fix PCI interrupt setting for ia64
+>
+>
+> Hi,
+>
+> From: "Liu, Benjamin" <benjamin.liu@intel.com>
+> Subject: RE: [PATCH] fix PCI interrupt setting for ia64
+> Date: Mon, 8 Mar 2004 15:44:16 +0800
+>
+> > ISA is legacy to IA64. The configuration script of 2.4.23 has
+> > CONFIG_ISA off explicitly for IA64, 2.6.2 doesn't have this
+> > option for IA64. I just wonder whether the legacy probing
+> > method still exists on IA64.
+>
+> I think that's still true for IDE / serial port drivers.
+> Kaneshige-san, could you confirm your changes are compatible
+> with probe_irq_on()?
+>
+> Itanium-generation machines (such as BigSur) depends on
+> probe_irq_on() for finding serial port IRQ.
+>
+> ---
+> Takayoshi Kochi <t-kochi@bq.jp.nec.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

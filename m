@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVCZCDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVCZCGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVCZCDu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 21:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVCZCDu
+	id S261913AbVCZCGx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 21:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVCZCGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 21:03:50 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17044 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261912AbVCZCDt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 21:03:49 -0500
-Date: Fri, 25 Mar 2005 18:02:13 -0800
-From: Jason Uhlenkott <jasonuhl@sgi.com>
-To: Len Brown <len.brown@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: 2.6.12-rc1-mm3
-Message-ID: <20050326020212.GC207782@dragonfly.engr.sgi.com>
-References: <20050325002154.335c6b0b.akpm@osdl.org> <20050326014327.GB207782@dragonfly.engr.sgi.com> <1111802218.19916.59.camel@d845pe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111802218.19916.59.camel@d845pe>
-User-Agent: Mutt/1.5.6i
+	Fri, 25 Mar 2005 21:06:52 -0500
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:45924 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261913AbVCZCGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 21:06:51 -0500
+Message-ID: <4244C3B7.4020409@yahoo.com.au>
+Date: Sat, 26 Mar 2005 13:06:47 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, davem@davemloft.net,
+       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <20050325212234.F12715@flint.arm.linux.org.uk>
+In-Reply-To: <20050325212234.F12715@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 08:56:58PM -0500, Len Brown wrote:
-> Please send me the .config you'd like to build.
+Russell King wrote:
+> On Wed, Mar 23, 2005 at 05:10:15PM +0000, Hugh Dickins wrote:
+> 
+>>Here's the recut of those patches, including David Miller's vital fixes.
+>>I'm addressing these to Nick rather than Andrew, because they're perhaps
+>>not fit for -mm until more testing done and the x86_64 32-bit vdso issue
+>>handled.  I'm unlikely to be responsive until next week, sorry: over to
+>>you, Nick - thanks.
+> 
+> 
+> I thought I'd try these out on ARM, but alas they don't apply to
+> 2.6.12-rc1. ;(  This means I won't be testing them, sorry.
+> 
 
-arch/ia64/configs/sn2_defconfig
+The reject should be confined to include/asm-ia64, so it will still
+work for you.
 
-> I believe that what we want to do is include CONFIG_PM.
+But I've put a clean rollup of all Hugh's patches here in case you'd
+like to try it.
 
-At first glance, it looks like that will enable suspend/resume
-functionality (which I don't think we want on SGI sn2) for a bunch of
-drivers.
+http://www.kerneltrap.org/~npiggin/freepgt-2.6.12-rc1.patch
+

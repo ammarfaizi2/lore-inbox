@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262774AbSJCKpj>; Thu, 3 Oct 2002 06:45:39 -0400
+	id <S263230AbSJCKuy>; Thu, 3 Oct 2002 06:50:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263233AbSJCKpj>; Thu, 3 Oct 2002 06:45:39 -0400
-Received: from mail.hometree.net ([212.34.181.120]:6801 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S262774AbSJCKpi>; Thu, 3 Oct 2002 06:45:38 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Sequence of IP fragment packets on the wire
-Date: Thu, 3 Oct 2002 10:51:08 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <anh7es$mpl$1@forge.intermeta.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1033642268 31782 212.34.181.4 (3 Oct 2002 10:51:08 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 3 Oct 2002 10:51:08 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S263234AbSJCKuy>; Thu, 3 Oct 2002 06:50:54 -0400
+Received: from cmailm1.svr.pol.co.uk ([195.92.193.18]:50694 "EHLO
+	cmailm1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S263230AbSJCKux>; Thu, 3 Oct 2002 06:50:53 -0400
+Date: Thu, 3 Oct 2002 11:56:10 +0100
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: block device size in 2.5
+Message-ID: <20021003105610.GA12071@fib011235813.fsnet.co.uk>
+References: <20021003103414.GA11966@fib011235813.fsnet.co.uk> <Pine.GSO.4.21.0210030645200.13480-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0210030645200.13480-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 03, 2002 at 06:46:30AM -0400, Alexander Viro wrote:
+> 
+> 
+> On Thu, 3 Oct 2002, Joe Thornber wrote:
+> 
+> > Why is the total size of a block device held in struct gendisk rather
+> > than struct block_device ?
+> 
+> It is mirrored into bdev->bd_inode->i_size.  However, struct block_device
+> is not persistent - persistent stuff lives in struct gendisk.
 
-as far as I can see, Linux sends out fragmented IP packets
-"butt-first":
+Thanks.
 
-11:34:53.927146 alice > bob: (frag 44605:343@1480)
-11:34:53.927189 alice.4831 > bob.udpdemo:  udp 1815 (frag 44605:1480@0+)
+Is gendisk the right name for that structure now ?  Since all block
+devices now have to use it.  I've always avoided using gendisk before,
+arguing that dm produces block devices, not disks.  I don't need
+partitions and I don't particularly want the devices to appear in
+/proc/partitions.
 
-(where the first packet is actually the fragmented 2nd part of the
-second packet).
-
-This confuses at least one firewall appliance. As I understand it,
-this is done for efficency reasons. Still, is there any way to
-suppress this and get the packets sent out in "head first" sequence? I
-know that routers might resort the fragments again but in my case I
-have an "alice -- firewall -- bob" topology which at the moment drops
-the fragment on the floor...
-
-Is there a way to configure this? Maybe even connection specific? 
-
-I tested 2.2.19 and 2.4.18 with 100 MBit Ethernet (3Com and eepro100).
-Both show the same behaviour.
-
-	Regards
-		Henning
-
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Joe Thornber

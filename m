@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263288AbRFEHIH>; Tue, 5 Jun 2001 03:08:07 -0400
+	id <S263269AbRFEHRr>; Tue, 5 Jun 2001 03:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbRFEHH5>; Tue, 5 Jun 2001 03:07:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22032 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263291AbRFEHHp>; Tue, 5 Jun 2001 03:07:45 -0400
-Subject: Re: TRG vger.timpanogas.org hacked
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Tue, 5 Jun 2001 08:05:34 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-In-Reply-To: <20010604183642.A855@vger.timpanogas.org> from "Jeff V. Merkey" at Jun 04, 2001 06:36:42 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263272AbRFEHR2>; Tue, 5 Jun 2001 03:17:28 -0400
+Received: from beasley.gator.com ([63.197.87.202]:37380 "EHLO
+	beasley.gator.com") by vger.kernel.org with ESMTP
+	id <S263269AbRFEHRU>; Tue, 5 Jun 2001 03:17:20 -0400
+From: "George Bonser" <george@gator.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.6-pre1 unresolved symbols
+Date: Tue, 5 Jun 2001 00:20:33 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJKENIDDAA.george@gator.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E157AuE-0006Wc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> is curious as to how these folks did this.  They exploited BIND 8.2.3
-> to get in and logs indicated that someone was using a "back door" in 
 
-Bind runs as root.
-
-> We are unable to determine just how they got in exactly, but they 
-> kept trying and created an oops in the affected code which allowed 
-> the attack to proceed.  
-
-Are you sure they didnt in fact simply screw up live patching the kernel to
-cover their traces
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/3c59x.o
+depmod:         do_softirq
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/bonding.o
+depmod:         do_softirq
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/plip.o
+depmod:         tasklet_hi_schedule
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/ppp_generic.o
+depmod:         do_softirq
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/slip.o
+depmod:         do_softirq
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/scsi/imm.o
+depmod:         tasklet_hi_schedule
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/scsi/ppa.o
+depmod:         tasklet_hi_schedule
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/net/ipv6/ipv6.o
+depmod:         do_softirq
 

@@ -1,67 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVCaSaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVCaSbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVCaSaD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 13:30:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVCaS3j
+	id S262050AbVCaSbW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 13:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVCaSbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 13:29:39 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:58440 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262023AbVCaS3U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 13:29:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=VcN1kmxVXEyhrJKtLBxNUISFvnlhevCAkoP23n9LahJMVo6FzeeuI2DXMZBG2iRr1fDEIKoTOEwp2K7HAhEJ6nrWsArmSLMEgzV4/H7tD7k5Min6CyktB/vQfos9URJ1Y1TrFg/nLMu+KS4cc5tESAYhKDO9kVuf3QZgbdea2tU=
-Message-ID: <40f323d005033110292934aa1d@mail.gmail.com>
-Date: Thu, 31 Mar 2005 13:29:17 -0500
-From: Benoit Boissinot <bboissin@gmail.com>
-Reply-To: Benoit Boissinot <bboissin@gmail.com>
-To: romano@dea.icai.upco.es, dtor_core@ameritech.net,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc1 swsusp broken [Was Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel]
-In-Reply-To: <20050331165007.GA29674@pern.dea.icai.upco.es>
+	Thu, 31 Mar 2005 13:31:21 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:728
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262050AbVCaSbK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 13:31:10 -0500
+Date: Thu, 31 Mar 2005 10:30:04 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: randy.dunlap@verizon.net, ioe-lkml@axxeo.de, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [RFC/PATCH] network configs: disconnect network options from
+ drivers
+Message-Id: <20050331103004.162070e6.davem@davemloft.net>
+In-Reply-To: <424C2975.2090009@nortel.com>
+References: <20050330234709.1868eee5.randy.dunlap@verizon.net>
+	<424C2975.2090009@nortel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20050329110309.GA17744@pern.dea.icai.upco.es>
-	 <20050329132022.GA26553@pern.dea.icai.upco.es>
-	 <20050329170238.GA8077@pern.dea.icai.upco.es>
-	 <20050329181551.GA8125@elf.ucw.cz>
-	 <20050331144728.GA21883@pern.dea.icai.upco.es>
-	 <d120d5000503310715cbc917@mail.gmail.com>
-	 <20050331165007.GA29674@pern.dea.icai.upco.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Mar 2005 18:50:07 +0200, Romano Giannetti <romanol@upco.es> wrote:
-> On Thu, Mar 31, 2005 at 10:15:26AM -0500, Dmitry Torokhov wrote:
-> > On Thu, 31 Mar 2005 16:47:29 +0200, Romano Giannetti <romanol@upco.es> wrote:
-> > >
-> > > The bad news is that with 2.6.12-rc1 (no preempt) swsusp fails to go.
-> >
-> > Ok, I see you have an ALPS touchpad. I think this patch will help you
-> > with swsusp:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=111212532524998&q=raw
+On Thu, 31 Mar 2005 10:46:45 -0600
+Chris Friesen <cfriesen@nortel.com> wrote:
+
+> > Any comments?
 > 
-> Yes! With this it works ok.
-> 
-> > Also, could you please try sticking psmouse_reset(psmouse) call at the
-> > beginning of drivers/input/mouse/alps.c::alps_reconnect() and see if
-> > it can suspend _without_ the patch above.
->
+> Makes sense to me...
 
-Both patches are working for me (Dell D600). before i was unable to
-suspend to disk on this laptop (it was stuck in alps code).
-
-By the way, i have an unrelated problem:
-if the kernel was booted with the "noresume" option, it cannot be
-suspended, it fails with:
-
-swsusp: FATAL: cannot find swap device, try swapon -a!
-
-Thanks,
-
-Benoit
+Me too.

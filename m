@@ -1,61 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262594AbREOBEE>; Mon, 14 May 2001 21:04:04 -0400
+	id <S262593AbREOBCo>; Mon, 14 May 2001 21:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262595AbREOBDy>; Mon, 14 May 2001 21:03:54 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:1265 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S262594AbREOBDn>; Mon, 14 May 2001 21:03:43 -0400
-Message-ID: <3B008169.6A6F46E@resilience.com>
-Date: Mon, 14 May 2001 18:07:53 -0700
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Wayne Whitney <whitney@math.berkeley.edu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 kernel reports wrong amount of physical memory
-In-Reply-To: <Pine.LNX.4.33.0105142143190.18102-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262594AbREOBCe>; Mon, 14 May 2001 21:02:34 -0400
+Received: from odin.sinectis.com.ar ([216.244.192.158]:30993 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S262593AbREOBC0>; Mon, 14 May 2001 21:02:26 -0400
+Date: Mon, 14 May 2001 14:07:53 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        arjanv@redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
+        "Manuel A. McLure" <mmt@unify.com>,
+        Rasmus =?iso-8859-1?B?Qvhn?= Hansen <moffe@amagerkollegiet.dk>,
+        ARND BERGMANN <std7652@et.fh-osnabrueck.de>,
+        "Dunlap, Randy" <randy.dunlap@intel.com>,
+        Martin Diehl <mdiehlcs@compuserve.de>,
+        Adrian Cox <adrian@humboldt.co.uk>, Capricelli Thomas <orzel@kde.org>,
+        Ian Bicking <ianb@colorstudy.com>
+Subject: Re: PATCH 2.4.5.1: Fix Via interrupt routing issues
+Message-ID: <20010514140752.B19662@grulic.org.ar>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	arjanv@redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
+	"Manuel A. McLure" <mmt@unify.com>,
+	 Rasmus =?iso-8859-1?B?Qvhn?= Hansen <moffe@amagerkollegiet.dk>,
+	ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>,
+	"Dunlap, Randy" <randy.dunlap@intel.com>,
+	Martin Diehl <mdiehlcs@compuserve.de>,
+	Adrian Cox <adrian@humboldt.co.uk>,
+	Capricelli Thomas <orzel@kde.org>,
+	Ian Bicking <ianb@colorstudy.com>
+In-Reply-To: <3AFEC426.50B00B78@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eHhjakXzOLJAF9wJ"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <3AFEC426.50B00B78@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sun, May 13, 2001 at 01:28:06PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Mon, 14 May 2001, Jeff Golds wrote:
-> 
-> > Ahh, it's totally obvious.  1 GB option = 890 MB, 4 GB option =
-> > 4GB.  Can I assume a linear relation and get 66.2 MB when I
-> > select the 64 MB option?
-> 
-> Where did you get the mythical "1GB" option?
-> 
-> Last I looked we had "off", "4GB" and "64GB" ;)
-> 
 
-Good try, except:
+--eHhjakXzOLJAF9wJ
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If you are compiling a kernel which will never run on a machine with
-more than 1 Gigabyte total physical RAM, answer "off" here (default
-choice and suitable for most users). This will result in a "3GB/1GB"
-split: 3GB are mapped so that each process sees a 3GB virtual memory  
-space and the remaining part of the 4GB virtual memory space is used
-by the kernel to permanently map as much physical memory as
-possible.
+On Sun, May 13, 2001 at 01:28:06PM -0400, Jeff Garzik wrote:
+> For those of you with Via interrupting routing issues (or
+> interrupt-not-being-delivered issues, etc), please try out this patch
+> and let me know if it fixes things.  It originates from a tip from
+> Adrian Cox... thanks Adrian!
 
-If the machine has between 1 and 4 Gigabytes physical RAM, then
-answer "4GB" here.
+Just to add a little noise: My box (msi 694d pro AI motherboard,
+revI, i.e. vt82c686a) been a *lot* stabler since I removed the
+Live! and dropped back to the onboard soundcard.
 
+The only time it has frozen has been when checking to see if this
+also fixed the X-freezes-on-reentry thing (which I know was
+silly, since CVS X has had that fixed for some time and the fix
+is on the slow path to 4.1).
 
+I used to get a freeze (that is a lock-up where I have to reset
+the box, unable to even alt-sysrq my way out) between one and
+five times per day, nearly always in X, nearly always with sound,
+nearly always using up a lot of (memtested) memory.
 
-1 GB is not more than 1 GB so "off" is the correct choice, according to the docs.
-
-Oh I get it NOW.  "Off" means the docs are just plain "off".
-
--Jeff
+'nearly always' means 'at least once not' -- scientific as hell.
 
 
--- 
-Jeff Golds
-jgolds@resilience.com
+If I could put in words the difference between the Live! and the
+via, I would. Alas, I can't, so you're stuck with this inane
+rant:
+
+    please please please fix it.
+
+--=20
+John Lenton (john@grulic.org.ar) -- Random fortune:
+Las palabras, cera; las obras acero.
+        -- Luis de Argote y G=F3ngora. (1561-1627) Poeta espa=F1ol.=20
+
+--eHhjakXzOLJAF9wJ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7ABDogPqu395ykGsRAuKYAKC39RM2K0f+n6qjL2Tr1cCcVcoKZQCeMGPe
+y5sWiTP2UODfP4bbTMX4gqI=
+=dZBZ
+-----END PGP SIGNATURE-----
+
+--eHhjakXzOLJAF9wJ--

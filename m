@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUHVPu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267491AbUHVP74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267507AbUHVPu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 11:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbUHVPu0
+	id S267491AbUHVP74 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 11:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUHVP74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 11:50:26 -0400
-Received: from legaleagle.de ([217.160.128.82]:59593 "EHLO www.legaleagle.de")
-	by vger.kernel.org with ESMTP id S267507AbUHVPuW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 11:50:22 -0400
-Message-ID: <4128C0BB.9060503@trash.net>
-Date: Sun, 22 Aug 2004 17:50:19 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Voluspa <lista4@comhem.se>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.8-rc4-bk1 problem: unregister_netdevice: waiting for ppp0
-References: <200408221504.i7MF4Z719895@d1o404.telia.com>
-In-Reply-To: <200408221504.i7MF4Z719895@d1o404.telia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Aug 2004 11:59:56 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:64204 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S267491AbUHVP7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 11:59:55 -0400
+From: jmerkey@comcast.net
+To: linux-kernel@vger.kernel.org
+Cc: jmerkey@drdos.com
+Subject: 2.6.8.1 sockets create-bind-unbind-bind 
+Date: Sun, 22 Aug 2004 15:59:54 +0000
+Message-Id: <082220041559.15319.4128C2FA000A76E900003BD72200734840970A059D0A0306@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
+X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Voluspa wrote:
+In 2.6.8.1 af_packet.c the logic in create and bind wastes cycles.  When you create a socket 
+it calls 
+create which sets the socket state on po-> to "running".  Then when bind is 
+first called 
+it checks this "running" flag, unbinds the previous state created with "create" 
+frees the sk and 
+prot hook structures sets the state to running=0 then resets the state again to 
+running=1 and
+reallocates these structures.  This seems to waste some cycles.   caught this 
+since I hook create, bind, and unbind in af_packet for our software.  It looks 
+like the logic in the sockets layer above causes this behavior.
 
->Greetings,
->
->NOTE
->I wrote the text below just prior to the posting of
->01-2.6-cbq-leaks.diff but applying it doesn't change the
->situation here. I still get the same Oops as below. Slight
->changes in memory address but the Call Trace is identical.
->So, different problem?
->ENDNOTE
->
-Yes, your problem is a different one, but looks related to
-the one in the thread "Oops: Process zebra, EIP is at
-fib_create_info+0x22b/0x580".
+Is there a reason it should act this way.  Seems wasteful of cycles since most 
+peoples just 
+call create, bind,   send send rcv rcv rcv send send, unbind 
 
-Regards
-Patrick
+Jeff
+
+

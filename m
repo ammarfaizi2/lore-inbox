@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318501AbSHURS2>; Wed, 21 Aug 2002 13:18:28 -0400
+	id <S318502AbSHURSi>; Wed, 21 Aug 2002 13:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318502AbSHURS2>; Wed, 21 Aug 2002 13:18:28 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:26603 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318501AbSHURS1>; Wed, 21 Aug 2002 13:18:27 -0400
-Message-ID: <3D63CC35.6030404@us.ibm.com>
-Date: Wed, 21 Aug 2002 10:21:57 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020808
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: "Feldman, Scott" <scott.feldman@intel.com>,
-       "'Troy Wilson'" <tcw@tempest.prismnet.com>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-       tcw@prismnet.com
-Subject: Re: mdelay causes BUG, please use udelay
-References: <288F9BF66CD9D5118DF400508B68C4460283E4AF@orsmsx113.jf.intel.com> <2544596606.1029920638@[10.10.2.3]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S318503AbSHURSi>; Wed, 21 Aug 2002 13:18:38 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:63471 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318502AbSHURSh>; Wed, 21 Aug 2002 13:18:37 -0400
+Subject: Re: Overcommit_memory logic fails when swap is off
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: josip@icase.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D63C9DE.7479D2E9@icase.edu>
+References: <3D63C9DE.7479D2E9@icase.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 21 Aug 2002 18:23:39 +0100
+Message-Id: <1029950619.26845.106.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->>>-    msec_delay(10);
->>>+    usec_delay(10000);
->>
->>Jeff, 10000 seems on the border of what's OK.  If it's acceptable, 
->>then let's go for that.  Otherwise, we're going to have to chain 
->>several mod_timer callbacks together to do a controller reset.
+On Wed, 2002-08-21 at 18:11, Josip Loncaric wrote:
+> Hello,
 > 
-> Whilst this sort of delay in interrupt context is undoubtedly bad
-> any way we do it, I'd question the context a little more before we
-> make a decision. This is called from e1000_reset_hw - are we likely
-> to ever actually call this except under initialisation?
+> I've found some minor logic flaws in mmap.c::vm_enough_memory() which you may
+> want to fix.  The problem is simple: overcommit_memory strategies "2" and "3"
+> misbehave on machines operated without swap space.  Strategy "2" results in a
+> very restrictive memory policy, while strategy "3" crashes the system because
+> no memory can be allocated when total_swap_pages is zero.  May I suggest that
 
-It doesn't happen often, or under good circumstances.  In certain 
-cases, the driver detects that something timed out and it assumes 
-something on the card to be dead.  Instead of delaying the 
-reinitialization of the dead card with a timer, they just do it during 
-the interrupt where the problem was detected.
+The behaviour it provides is correct and intentional. The documentation
+is also quite plain on the fact you need swap for mode 3.
 
+Since the kernel needs memory for its own purposes you cannot run
+swapless with no overcommit and allow user space all of memory.
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+2.5 propses including the ability to set the %age between the 0% of mode
+3, the 50 of mode 2 and upwards to things relevant in some embedded
+system cases. So for 2.6 you will be able to tune it in different ways
+according to precise understanding of workload.
+
+As far as your hang goes I'd grab a standard 2.4.19 or 2.4.19-ac4 kernel
+and try that.
 

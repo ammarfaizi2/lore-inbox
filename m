@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbULAIiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbULAInZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbULAIiF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 03:38:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbULAIiE
+	id S261332AbULAInZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 03:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbULAInZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 03:38:04 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:2519 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261345AbULAIhs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 03:37:48 -0500
-Date: Wed, 1 Dec 2004 09:37:43 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: Walking all the physical memory in an x86 system
-In-Reply-To: <C863B68032DED14E8EBA9F71EB8FE4C205805A9F@azsmsx406>
-Message-ID: <Pine.LNX.4.53.0412010936560.17975@yvahk01.tjqt.qr>
-References: <C863B68032DED14E8EBA9F71EB8FE4C205805A9F@azsmsx406>
+	Wed, 1 Dec 2004 03:43:25 -0500
+Received: from CPE-203-51-26-55.nsw.bigpond.net.au ([203.51.26.55]:51959 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S261332AbULAInW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 03:43:22 -0500
+Message-ID: <41AD8423.8030201@eyal.emu.id.au>
+Date: Wed, 01 Dec 2004 19:43:15 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-mm4 - cifs.ko needs unknown symbol CIFSSMBSetPosixACL
+References: <20041130095045.090de5ea.akpm@osdl.org>
+In-Reply-To: <20041130095045.090de5ea.akpm@osdl.org>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->[Jon M. Hanson] I tried the filp_open() approach like this:
->
->struct file *mem_fd;
->
->mem_fd = filp_open("/dev/mem", O_RDONLY | O_LARGEFILE, 0);
->
->I then have a check if IS_ERR(mem_fd) is true immediately afterwards
->along with a printk saying it failed. This condition is true when I ran
->it. It seems to fail with -EACCES (permission denied) as the error code.
->
->I can see the exact code that's causing the -EACCES in open_namei(). It
->makes a check if the thing being opened is a character device and
->returns the -EACCES, so obviously filp_open() can't do this.
+Forgot to say that I have:
 
-Mh, non-files... here's a real blind shot: cdev_open
+CONFIG_CIFS=m
+# CONFIG_CIFS_STATS is not set
+CONFIG_CIFS_XATTR=y
+# CONFIG_CIFS_POSIX is not set
 
-
-
-Jan Engelhardt
 -- 
-ENOSPC
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+	If attaching .zip rename to .dat

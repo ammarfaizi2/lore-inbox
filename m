@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310745AbSCHI63>; Fri, 8 Mar 2002 03:58:29 -0500
+	id <S310740AbSCHIwt>; Fri, 8 Mar 2002 03:52:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310747AbSCHI6T>; Fri, 8 Mar 2002 03:58:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54030 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310745AbSCHI6H>;
-	Fri, 8 Mar 2002 03:58:07 -0500
-Message-ID: <3C887D34.4BE740F9@mandrakesoft.com>
-Date: Fri, 08 Mar 2002 03:58:28 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux-Kernel list <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@transmeta.com>
-Subject: Caution about e100...
+	id <S310741AbSCHIwj>; Fri, 8 Mar 2002 03:52:39 -0500
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:43484 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S310740AbSCHIwV>;
+	Fri, 8 Mar 2002 03:52:21 -0500
+Date: Fri, 8 Mar 2002 08:50:28 +0000
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+Message-ID: <20020308085028.A14375@fenrus.demon.nl>
+In-Reply-To: <200203080823.g288NC514338@fenrus.demon.nl> <3C8877D7.2020708@evision-ventures.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C8877D7.2020708@evision-ventures.com>; from dalecki@evision-ventures.com on Fri, Mar 08, 2002 at 09:35:35AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Note to all,
+On Fri, Mar 08, 2002 at 09:35:35AM +0100, Martin Dalecki wrote:
+> Please look closer at my posting. I just think, that since there
+> are apparently no tru hardware raid devices out there it would
+> be sufficient to expand the detection code to not ignore
+> RAID class devices at all. This would just prevent
+> us from having two different entries in the
+> device detection list. Not much more involved I think.
 
-I merged e100 into 2.5.x to get it some wider testing and feedback.  The
-driver currently has several PCI posting bugs particularly, and other
-outstanding bugs that need zapping before the driver will be considered
-stable.
+There's one tiny glitch: there are exactly 2 "real" raid devices out there
+(that I know of at least). But anyway, a "don't look at" list will be
+MUCH shorter than a "look also at" list.
 
-DO NOT USE THIS DRIVER IN PRODUCTION.
-
-After these bugs are fixed and it has received wider testing and
-feedback, only then will it be merged into the stable 2.4.x series.
-
-I recommend all vendors avoid this driver, for the moment.  It is for
-developers, testers, and early adopters only.  It should be ok for
-normal use, but edge cases are not yet zapped.
-
-</PSA>
-
--- 
-Jeff Garzik      | Usenet Rule #2 (John Gilmore): "The Net interprets
-Building 1024    | censorship as damage and routes around it."
-MandrakeSoft     |

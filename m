@@ -1,421 +1,284 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265154AbUGCRTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265175AbUGCRga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265154AbUGCRTt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 13:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUGCRTs
+	id S265175AbUGCRga (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 13:36:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbUGCRga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 13:19:48 -0400
-Received: from grex.cyberspace.org ([216.93.104.34]:62981 "HELO
-	grex.cyberspace.org") by vger.kernel.org with SMTP id S265154AbUGCRTd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 13:19:33 -0400
-Date: Sat, 3 Jul 2004 13:20:11 -0400 (EDT)
-From: Joshua <jhudson@cyberspace.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PACH] updated patch to restore bootsect
-Message-ID: <Pine.SUN.3.96.1040703131807.4186A-100000@grex.cyberspace.org>
+	Sat, 3 Jul 2004 13:36:30 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:30087 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S265161AbUGCRgI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 13:36:08 -0400
+Message-ID: <40E6EE71.9050402@colorfullife.com>
+Date: Sat, 03 Jul 2004 19:35:45 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] ipc 1/3: Add refcount to ipc_rcu_alloc
+Content-Type: multipart/mixed;
+ boundary="------------020907050100030008010003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -rup linux-2.6.7/arch/i386/boot/bootsect.S
-linux-2.6.7c/arch/i386/boot/bootsect.S
---- linux-2.6.7/arch/i386/boot/bootsect.S	Tue Jun 15 22:19:23 2004
-+++ linux-2.6.7c/arch/i386/boot/bootsect.S	Fri Jul  2 04:22:08 2004
-@@ -5,12 +5,17 @@
-  *	modified by Bruce Evans (bde)
-  *	modified by Chris Noe (May 1999) (as86 -> gas)
-  *	gutted by H. Peter Anvin (Jan 2003)
-+ *	rewritten by Joshua Hudson (June 2004)
-  *
-  * BIG FAT NOTE: We're in real mode using 64k segments.  Therefore
-segment
-  * addresses must be multiplied by 16 to obtain their respective linear
-  * addresses. To avoid confusion, linear addresses are written using
-leading
-  * hex while segment addresses are written as segment:offset.
-  *
-+ * BIG FAT NOTE: It is simply not possible to boot a kernel bigger than
-+ * 1MB this way (the syssize field will have overflowed). There is no
-easy
-+ * way to check for this in the bootloader, but CRC error will happen
-rather
-+ * than an obscure crash, so it is OK.
-  */
- 
- #include <asm/boot.h>
-@@ -43,50 +48,332 @@ SWAP_DEV	= 0			/* SWAP_DEV is now
-writte
- .global _start
- _start:
- 
--	# Normalize the start address
--	jmpl	$BOOTSEG, $start2
-+#define KS_LOAD 0x2000
- 
--start2:
--	movw	%cs, %ax
--	movw	%ax, %ds
--	movw	%ax, %es
--	movw	%ax, %ss
--	movw	$0x7c00, %sp
--	sti
--	cld
-+/* 
-+ * Actually, ld86 has no clue what is going on here.
-+ * We are at 0000:7C00, not 7C0:0000
-+ * Therefore, we correct it.
-+ */
- 
--	movw	$bugger_off_msg, %si
-+	nop				/* Place to insert debug trap */
-+	ljmp	$0x7C0, $6		/* Didn't assemble "realstart" */
-+realstart:
-+	xor	%dx, %dx
-+	mov	%dx, %ss		/* This is a 386 (I should hope)
-*/
-+	mov	$0x7C00, %sp		/* You don't need a cli first. */
-+
-+	/*
-+	 * Many BIOS's default disk parameter tables will not
-+	 * recognize multi-sector reads beyond the maximum sector number
-+	 * specified in the default diskette parameter tables - this may
-+	 * mean 7 sectors in some cases.
-+	 *
-+	 * Since single sector reads are slow and out of the question,
-+	 * we must take care of this by creating new parameter tables
-+	 * (for the first disk) in RAM.  We will set the maximum sector
-+	 * count to 36 - the most we will encounter on an ED 2.88.
-+	 *
-+	 * High doesn't hurt.  Low does.
-+	 *
-+	 * We will put the param table at 0000:0600, which should be safe
-+	 * (this memory region is overwritten by the MS-DOS mbr.)
-+	 */
-+	mov	%dx, %ds
-+	mov	%dx, %es
-+	mov	0x78, %si	/* Get addr of old param table */
-+	mov	0x7A, %cx
-+	mov	%cx, %ds
-+	mov	$0x600, %di
-+	mov	$6, %cx
-+	push	%di
-+	cld
-+	rep	movsw
-+	pop	%di
-+	mov	%cx, %ds
-+	mov	%di, 0x78
-+	mov	%cx, 0x7A		/* CX contains zero after rep */
-+
-+	movb	$36, 4(%di)		/* Patch sector count */
-+	mov	$01, %ah
-+	int	$0x13
-+
-+	/* Now correct ds to normalized load position */
-+	push	%cs
-+	pop	%ds
-+
-+	/*
-+	 * Determine how many sectors we have. Since there is no call
-+	 * that will determine how many sectors (int 13h, ah=8h doesn't
-+	 * always work on floppies, probe it)
-+	 *
-+	 * We probe by determining what highest sector we can load.
-+	 * Never probe by trying to read X sectors. Some bioses will
-+	 * actually span tracks.
-+	 */
-+	mov	$dflags, %si
-+	mov	$KS_LOAD, %ax
-+	mov	%ax, %es
-+	push	%ax		/* $$$ Remember this for later */
-+	xor	%bx, %bx
- 
--msg_loop:
-+	mov	$0, %ch
-+	lodsb
-+probe:
-+	mov	%al, %cl
-+	mov	$0x201, %ax
-+	int	$0x13
-+	cmp	$0, %ah
-+	je	probeok
- 	lodsb
--	andb	%al, %al
--	jz	die
--	movb	$0xe, %ah
--	movw	$7, %bx
-+	cmp	$0, %al
-+	jne	probe
-+	call	errcode
-+halt:	jmp	halt
-+probeok:
-+
-+	/* Load first track */
-+	xchg	%al, %cl
-+load1:	mov	$2, %ah
-+	int	$0x13
-+	jnc	load1ok
-+	call	errcode
-+	jmp	load1
-+load1ok:
-+
-+	/*
-+	 * Print some innane message...
-+	 */
-+	push	%ax
-+	mov	$msg, %si
-+	mov	$0xE, %ah
-+	mov	$7, %bx
-+	lodsb
-+mloop:	int	$0x10
-+	lodsb
-+	cmp	$0, %al
-+	jne	mloop
-+	pop	%ax
-+
-+	/*
-+	 * If the root device is set to FLOPPY (0), set to the
-+	 * appropriate kind of floppy. /dev/fd0 will correctly
-+	 * autodetect everything but /dev/fd0u1722 (2, 60).
-+	 */
-+
-+	push	%ds
-+	push	%es
-+	pop	%ds
-+	cmpw	$0, root_dev
-+	jne	rootok
-+	movb	$0x2, root_dev + 1
-+	cmp	$21, %al
-+	jne	rootok
-+	movb	$60, root_dev
-+rootok:
-+	pop	%ds
-+
-+	/*
-+	 * I would like to assume that setup is less than 9 sectors, but
-+	 * it is not. This is too much code.
-+	 */
-+	movzx	setup_sects, %si
-+	or	%si, %si		/* If setup_sects is zero */
-+	jnz	sv_ok
-+	mov	$4, %si			/* The real value is 4 */
-+sv_ok:	inc	%si			/* Tricky: count bootsect as setup
-*/
-+	jmp	fix_setup
-+
-+more_setup:
-+	call	next_track
-+load_setup:
-+	int	$0x13
-+	cmp	$0, %ah
-+	je	fix_setup
-+	pusha
-+	call	errcode
-+	popa
-+	jmp	load_setup
-+
-+fix_setup:
-+	push	%ax
-+	shl	$9, %ax		/* ax *= 512 */
-+	add	%ax, %bx
-+	pop	%ax
-+	sub	%ax, %si
-+	or	%si, %si
-+	jns	more_setup
-+
-+	/*
-+	 * 3. Compute the slop, and load it high
-+	 */
-+	neg	%si		/* How many sectors too many */
-+	mov	%ax, %bx
-+	sub	%si, %bx	/* How many sectors to skip */
-+	shl	$5, %bx
-+	add	$KS_LOAD, %bx
-+	mov	syssize, %bp	/* Get system size */
-+	add	$31, %bp	/* Convert 16 byte clicks to sectors */
-+	shr	$5, %bp
-+	mov	%bx, %es	/* New high memory ptr */
-+	mov	%bx, %ds
-+	xor	%bx, %bx
-+
-+	/*
-+	 * 4. Load the rest.
-+	 */
-+ldr_ct:
-+	call	upload
-+	sub	%si, %bp
-+	jna	enter
-+	call	next_track
-+loader:
-+	mov	$2, %ah
-+	int	$0x13
-+	cmp	$0, %ah
-+	je	ldr_ok
-+	pusha
-+	call	errcode
-+	popa
-+	jmp	loader
-+ldr_ok:
-+	mov	%ax, %si
-+	jmp	ldr_ct
-+
-+enter:
-+	/*
-+	 * This procedure turns off the floppy drive motor, so
-+	 * that we enter the kernel in a known state, and
-+	 * don't have to worry about it later.
-+	 *
-+	 * Actually, all this does is not annoy sysadmin, when he is
-+	 * forced to use this method of booting, because if the floppy
-+	 * is a demand-loaded module, the motor just won't turn off
-+	 * otherwise.
-+	 */
-+
-+	mov	$0x3f2, %dx
-+	mov	$0, %al
-+	/* outb */
-+	.byte	0xEE		/* I don't have time to figure out
-+				 * why this didn't assemble. */
-+
-+	/*
-+	 * 5. Set up entry paramiters
-+	 */
-+	pop	%ax		/* Pointer to setup area (see $$$ above)
-*/
-+	mov	%ax, %ds
-+	mov	%ax, %es
-+	mov	%ax, %fs
-+	mov	%ax, %gs
-+	movb	$0x20, 0x210	/* Tell setup.S that we are the bootsect
-*/
-+	orb	$0x1, 0x211	/* Covert any zImage to bzImage (weird) */
-+	movw	$0x0, 0x214	/* This is where we loaded it */
-+	movw	$0x10, 0x216
-+	/*
-+	 * Enter kernel with interrupts off, and at segment +20 from
-+	 * legacy bootsect location
-+	 */
-+	cli
-+	mov	%ax, %ss
-+	mov	$0xFFF0, %sp	/* Plenty heap */
-+	ljmp	$KS_LOAD + 0x20, $0
-+	
-+/*
-+ * This routine skips to next track.
-+ */
-+next_track:
-+	test	$1, %dh
-+	jnz	nt2
-+	inc	%dh
-+	ret
-+nt2:	mov	$0, %dh
-+	inc	%ch
-+	ret
-+
-+/*
-+ * Routine errcode prints a diagnostic to the screen
-+ * Used for debugging and for printing BIOS error codes
-+ */
-+errcode:
-+	mov	%ah, %dh
-+	mov	$2, %cx
-+print_hex:
-+	mov	$10, %ah
-+	mov	$7, %bx
-+phl:	mov	%dh, %al
-+	shr	$4, %al
-+	and	15, %al
-+	add	$0x90, %al
-+	daa
-+	add	$0x40, %al
-+	daa
-+	int	$0x10
-+	shl	$4, %dx
-+	loop	phl
-+	mov	$32, %al
-+	int	$0x10
-+	ret
-+
-+/* Routine to upload memory into high region */
-+upload:
-+	pusha			/* Remember registers */
-+	push	%si		/* Prepare GDT */
-+	mov	$0xFF00, %di
-+	push	%di
-+	mov	$25, %cx
-+	xor	%ax, %ax
-+	rep	stosw
-+	pop	%si
-+	pop	%cx
-+	dec	%ax
-+	mov	%ax, 16(%si)
-+	mov	%ax, 24(%si)
-+	movb	$0x93, 21(%si)
-+	movb	$0x93, 29(%si)
-+
-+	mov	%bx, 18(%si)	/* Compute soruce */
-+	mov	%es, %ax
-+	shl	$4, %ax
-+	add	%ax, 18(%si)
-+	pushf
-+	mov	%es, %ax
-+	shr	$12, %ax
-+	popf
-+	adc	$0, %al
-+	mov	%al, 20(%si)
-+
-+	push	%ds		/* So that we can read dest ptr */
-+	push	%cs
-+	pop	%ds
-+	mov	hiptr, %ax	/* Copy in dest */
-+	shl	$1, %cx
-+	add	%cx, hiptr	/* Apply delta to dest */
-+	pop	%ds		/* Restore old data segment */
-+	mov	%ax, 27(%si)
-+
-+	shl	$7, %cx		/* Number of words to upload */
-+	mov	$0x8700, %ax	/* ??? */
-+	int	$0x15		/* Do upload */
-+	jc	uperr
-+	/*
-+	 * Stuff has been loaded. Tick the delay bar.
-+	 */
-+	mov	$0x0E2E, %ax
-+	mov	$7, %bx
- 	int	$0x10
--	jmp	msg_loop
-+	popa
-+	ret
- 
--die:
--	# Allow the user to press a key, then reboot
--	xorw	%ax, %ax
--	int	$0x16
--	int	$0x19
--
--	# int 0x19 should never return.  In case it does anyway,
--	# invoke the BIOS reset code...
--	ljmp	$0xf000,$0xfff0
--
--
--bugger_off_msg:
--	.ascii	"Direct booting from floppy is no longer supported.\r\n"
--	.ascii	"Please use a boot loader program instead.\r\n"
--	.ascii	"\n"
--	.ascii	"Remove disk and press any key to reboot . . .\r\n"
-+uperr:	call	errcode
-+hltx:	jmp	hltx
-+
-+hiptr:	.word	0x1000
-+dflags:	.byte	36, 21, 18, 15, 9, 0
-+msg:	.ascii	"Loading"
- 	.byte	0
--	
- 
- 	# Kernel attributes; used by setup
--
- 	.org 497
- setup_sects:	.byte SETUPSECTS
- root_flags:	.word ROOT_RDONLY
+This is a multi-part message in MIME format.
+--------------020907050100030008010003
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Hi,
+
+the lifetime of the ipc objects (sem array, msg queue, shm mapping) is 
+controlled by kern_ipc_perms->lock - a spinlock. There is no simple way 
+to reacquire this spinlock after it was dropped to 
+schedule()/kmalloc/copy_{to,from}_user/whatever.
+
+The attached patch adds a reference count as a preparation to get rid of 
+sem_revalidate().
+
+Andrew, could you add it to -mm?
+
+Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
+
+
+--------------020907050100030008010003
+Content-Type: text/plain;
+ name="patch-ipc-01-rcu_refcount"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-ipc-01-rcu_refcount"
+
+diff -u 2.6/ipc/msg.c build-2.6/ipc/msg.c
+--- 2.6/ipc/msg.c	2004-07-03 19:08:47.273962648 +0200
++++ build-2.6/ipc/msg.c	2004-07-03 19:16:03.445654472 +0200
+@@ -100,14 +100,14 @@
+ 	msq->q_perm.security = NULL;
+ 	retval = security_msg_queue_alloc(msq);
+ 	if (retval) {
+-		ipc_rcu_free(msq, sizeof(*msq));
++		ipc_rcu_putref(msq);
+ 		return retval;
+ 	}
+ 
+ 	id = ipc_addid(&msg_ids, &msq->q_perm, msg_ctlmni);
+ 	if(id == -1) {
+ 		security_msg_queue_free(msq);
+-		ipc_rcu_free(msq, sizeof(*msq));
++		ipc_rcu_putref(msq);
+ 		return -ENOSPC;
+ 	}
+ 
+@@ -193,7 +193,7 @@
+ 	}
+ 	atomic_sub(msq->q_cbytes, &msg_bytes);
+ 	security_msg_queue_free(msq);
+-	ipc_rcu_free(msq, sizeof(struct msg_queue));
++	ipc_rcu_putref(msq);
+ }
+ 
+ asmlinkage long sys_msgget (key_t key, int msgflg)
+diff -u 2.6/ipc/sem.c build-2.6/ipc/sem.c
+--- 2.6/ipc/sem.c	2004-07-03 19:08:47.274962496 +0200
++++ build-2.6/ipc/sem.c	2004-07-03 19:16:08.845833520 +0200
+@@ -179,14 +179,14 @@
+ 	sma->sem_perm.security = NULL;
+ 	retval = security_sem_alloc(sma);
+ 	if (retval) {
+-		ipc_rcu_free(sma, size);
++		ipc_rcu_putref(sma);
+ 		return retval;
+ 	}
+ 
+ 	id = ipc_addid(&sem_ids, &sma->sem_perm, sc_semmni);
+ 	if(id == -1) {
+ 		security_sem_free(sma);
+-		ipc_rcu_free(sma, size);
++		ipc_rcu_putref(sma);
+ 		return -ENOSPC;
+ 	}
+ 	used_sems += nsems;
+@@ -473,7 +473,7 @@
+ 	used_sems -= sma->sem_nsems;
+ 	size = sizeof (*sma) + sma->sem_nsems * sizeof (struct sem);
+ 	security_sem_free(sma);
+-	ipc_rcu_free(sma, size);
++	ipc_rcu_putref(sma);
+ }
+ 
+ static unsigned long copy_semid_to_user(void __user *buf, struct semid64_ds *in, int version)
+diff -u 2.6/ipc/shm.c build-2.6/ipc/shm.c
+--- 2.6/ipc/shm.c	2004-07-03 19:08:47.281961432 +0200
++++ build-2.6/ipc/shm.c	2004-07-03 19:09:16.646497344 +0200
+@@ -117,7 +117,7 @@
+ 		shmem_lock(shp->shm_file, 0);
+ 	fput (shp->shm_file);
+ 	security_shm_free(shp);
+-	ipc_rcu_free(shp, sizeof(struct shmid_kernel));
++	ipc_rcu_putref(shp);
+ }
+ 
+ /*
+@@ -194,7 +194,7 @@
+ 	shp->shm_perm.security = NULL;
+ 	error = security_shm_alloc(shp);
+ 	if (error) {
+-		ipc_rcu_free(shp, sizeof(*shp));
++		ipc_rcu_putref(shp);
+ 		return error;
+ 	}
+ 
+@@ -234,7 +234,7 @@
+ 	fput(file);
+ no_file:
+ 	security_shm_free(shp);
+-	ipc_rcu_free(shp, sizeof(*shp));
++	ipc_rcu_putref(shp);
+ 	return error;
+ }
+ 
+diff -u 2.6/ipc/util.c build-2.6/ipc/util.c
+--- 2.6/ipc/util.c	2004-07-03 19:08:47.286960672 +0200
++++ build-2.6/ipc/util.c	2004-07-03 19:20:00.162668016 +0200
+@@ -135,7 +135,6 @@
+ 		new[i].p = NULL;
+ 	}
+ 	old = ids->entries;
+-	i = ids->size;
+ 
+ 	/*
+ 	 * before setting the ids->entries to the new array, there must be a
+@@ -147,7 +146,7 @@
+ 	smp_wmb();	/* prevent indexing into old array based on new size. */
+ 	ids->size = newsize;
+ 
+-	ipc_rcu_free(old, sizeof(struct ipc_id)*i);
++	ipc_rcu_putref(old);
+ 	return ids->size;
+ }
+ 
+@@ -292,10 +291,21 @@
+ 	void *data[0];
+ };
+ 
++struct ipc_rcu_hdr
++{
++	int refcount;
++	int is_vmalloc;
++};
++
++#define HDRLEN_KMALLOC		(sizeof(struct ipc_rcu_kmalloc) > sizeof(struct ipc_rcu_hdr) ? \
++					sizeof(struct ipc_rcu_kmalloc) : sizeof(struct ipc_rcu_hdr))
++#define HDRLEN_VMALLOC		(sizeof(struct ipc_rcu_vmalloc) > sizeof(struct ipc_rcu_hdr) ? \
++					sizeof(struct ipc_rcu_vmalloc) : sizeof(struct ipc_rcu_hdr))
++
+ static inline int rcu_use_vmalloc(int size)
+ {
+ 	/* Too big for a single page? */
+-	if (sizeof(struct ipc_rcu_kmalloc) + size > PAGE_SIZE)
++	if (HDRLEN_KMALLOC + size > PAGE_SIZE)
+ 		return 1;
+ 	return 0;
+ }
+@@ -317,16 +327,29 @@
+ 	 * workqueue if necessary (for vmalloc). 
+ 	 */
+ 	if (rcu_use_vmalloc(size)) {
+-		out = vmalloc(sizeof(struct ipc_rcu_vmalloc) + size);
+-		if (out) out += sizeof(struct ipc_rcu_vmalloc);
++		out = vmalloc(HDRLEN_VMALLOC + size);
++		if (out) {
++			out += HDRLEN_VMALLOC;
++			((struct ipc_rcu_hdr *)out)[-1].is_vmalloc = 1;
++			((struct ipc_rcu_hdr *)out)[-1].refcount = 1;
++		}
+ 	} else {
+-		out = kmalloc(sizeof(struct ipc_rcu_kmalloc)+size, GFP_KERNEL);
+-		if (out) out += sizeof(struct ipc_rcu_kmalloc);
++		out = kmalloc(HDRLEN_KMALLOC + size, GFP_KERNEL);
++		if (out) {
++			out += HDRLEN_KMALLOC;
++			((struct ipc_rcu_hdr *)out)[-1].is_vmalloc = 0;
++			((struct ipc_rcu_hdr *)out)[-1].refcount = 1;
++		}
+ 	}
+ 
+ 	return out;
+ }
+ 
++void ipc_rcu_getref(void *ptr)
++{
++	((struct ipc_rcu_hdr *)ptr)[-1].refcount++;
++}
++
+ /**
+  *	ipc_schedule_free	- free ipc + rcu space
+  * 
+@@ -355,11 +378,12 @@
+ 	kfree(free);
+ }
+ 
+-
+-
+-void ipc_rcu_free(void* ptr, int size)
++void ipc_rcu_putref(void *ptr)
+ {
+-	if (rcu_use_vmalloc(size)) {
++	if (--((struct ipc_rcu_hdr *)ptr)[-1].refcount > 0)
++		return;
++
++	if (((struct ipc_rcu_hdr *)ptr)[-1].is_vmalloc) {
+ 		struct ipc_rcu_vmalloc *free;
+ 		free = ptr - sizeof(*free);
+ 		call_rcu(&free->rcu, ipc_schedule_free);
+@@ -368,7 +392,6 @@
+ 		free = ptr - sizeof(*free);
+ 		call_rcu(&free->rcu, ipc_immediate_free);
+ 	}
+-
+ }
+ 
+ /**
+@@ -506,6 +529,12 @@
+ 	return out;
+ }
+ 
++void ipc_lock_by_ptr(struct kern_ipc_perm *perm)
++{
++	rcu_read_lock();
++	spin_lock(&perm->lock);
++}
++
+ void ipc_unlock(struct kern_ipc_perm* perm)
+ {
+ 	spin_unlock(&perm->lock);
+diff -u 2.6/ipc/util.h build-2.6/ipc/util.h
+--- 2.6/ipc/util.h	2004-07-03 19:08:47.287960520 +0200
++++ build-2.6/ipc/util.h	2004-07-03 19:09:16.647497192 +0200
+@@ -45,14 +45,20 @@
+  */
+ void* ipc_alloc(int size);
+ void ipc_free(void* ptr, int size);
+-/* for allocation that need to be freed by RCU
+- * both function can sleep
++
++/* 
++ * For allocation that need to be freed by RCU.
++ * Objects are reference counted, they start with reference count 1.
++ * getref increases the refcount, the putref call that reduces the recount
++ * to 0 schedules the rcu destruction. Caller must guarantee locking.
+  */
+ void* ipc_rcu_alloc(int size);
+-void ipc_rcu_free(void* arg, int size);
++void ipc_rcu_getref(void *ptr);
++void ipc_rcu_putref(void *ptr);
+ 
+ struct kern_ipc_perm* ipc_get(struct ipc_ids* ids, int id);
+ struct kern_ipc_perm* ipc_lock(struct ipc_ids* ids, int id);
++void ipc_lock_by_ptr(struct kern_ipc_perm *ipcp);
+ void ipc_unlock(struct kern_ipc_perm* perm);
+ int ipc_buildid(struct ipc_ids* ids, int id, int seq);
+ int ipc_checkid(struct ipc_ids* ids, struct kern_ipc_perm* ipcp, int uid);
+
+--------------020907050100030008010003--

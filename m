@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129114AbQJ3HaN>; Mon, 30 Oct 2000 02:30:13 -0500
+	id <S129150AbQJ3Heo>; Mon, 30 Oct 2000 02:34:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129151AbQJ3HaE>; Mon, 30 Oct 2000 02:30:04 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:37894 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S129114AbQJ3H3t>;
-	Mon, 30 Oct 2000 02:29:49 -0500
-Date: Mon, 30 Oct 2000 09:39:37 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <20001030002019.B19136@vger.timpanogas.org>
-Message-ID: <Pine.LNX.4.21.0010300934200.872-100000@elte.hu>
+	id <S129151AbQJ3Hed>; Mon, 30 Oct 2000 02:34:33 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19723 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129150AbQJ3HeW>; Mon, 30 Oct 2000 02:34:22 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: / on ramfs, possible?
+Date: 29 Oct 2000 23:34:01 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8tj899$dqg$1@cesium.transmeta.com>
+In-Reply-To: <200010300727.IAA12250@hell.wii.ericsson.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <200010300727.IAA12250@hell.wii.ericsson.net>
+By author:    Anders Eriksson <aer-list@mailandnews.com>
+In newsgroup: linux.dev.kernel
+> 
+> I want my / to be a ramfs filesystem. I intend to populate it from an 
+> initrd image, and then remount / as the ramfs filesystem. Is that at 
+> all possible? The way I see it the kernel requires / on a device 
+> (major,minor) or nfs.
+> 
+> Am I out of luck using ramfs as /? If it's easy to fix, how do I fix it?
+> 
 
-On Mon, 30 Oct 2000, Jeff V. Merkey wrote:
+Use pivot_root instead of the initrd stuff in /proc/sys.
 
-> Is there an option to map Linux into a flat address space [...]
+	-hpa
 
-nope, Linux is fundamentally multitasked.
-
-what you can do to hack around this is to not switch to the idle thread
-after having done work in nfsd. Some simple & stupid thing in schedule:
-
-	if (next == idle_task) {
-		while (nr_running)
-			barrier();
-		goto repeat_schedule;
-	}
-
-(provided you are testing this on a UP system.) This way we do not destroy
-the TLB cache when we wait a few microseconds for the next network
-interrupt.
-
-we do this in 2.4 already - ie. nfsd doesnt have to mark itself lazy-MM,
-the idle thread will automatically 'inherit' the MM of nfsd, and is going
-to switch CR3 only if the next process is not nfsd. So you can get an
-apples to apples comparison by using 2.4.
-
-	Ingo
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267655AbTAQUFh>; Fri, 17 Jan 2003 15:05:37 -0500
+	id <S267658AbTAQUFw>; Fri, 17 Jan 2003 15:05:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267656AbTAQUFg>; Fri, 17 Jan 2003 15:05:36 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61191 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267655AbTAQUFf>; Fri, 17 Jan 2003 15:05:35 -0500
-Date: Fri, 17 Jan 2003 20:14:32 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Initcall / device model meltdown?
-Message-ID: <20030117201432.G13888@flint.arm.linux.org.uk>
-Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	linux-kernel@vger.kernel.org
-References: <20030117192356.F13888@flint.arm.linux.org.uk> <Pine.LNX.4.44.0301171342410.15056-100000@chaos.physics.uiowa.edu>
+	id <S267661AbTAQUFw>; Fri, 17 Jan 2003 15:05:52 -0500
+Received: from stingr.net ([212.193.32.15]:11277 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S267658AbTAQUFu>;
+	Fri, 17 Jan 2003 15:05:50 -0500
+Date: Fri, 17 Jan 2003 23:14:45 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: cs89x0 in 2.5 (was Re: eepro100 - 802.1q - mtu size)
+Message-ID: <20030117201445.GS12676@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030117145357.GA1139@paradigm.rfc822.org> <20030117160840.GR12676@stingr.net> <20030117162818.GA1074@gtf.org> <20030117172719.GA31343@codemonkey.org.uk> <20030117174928.GA8304@gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0301171342410.15056-100000@chaos.physics.uiowa.edu>; from kai@tp1.ruhr-uni-bochum.de on Fri, Jan 17, 2003 at 01:56:07PM -0600
+In-Reply-To: <20030117174928.GA8304@gtf.org>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 17, 2003 at 01:56:07PM -0600, Kai Germaschewski wrote:
-> o Make the init order not matter. That is, make sure that the registration
->   routines ("pci_register_driver()") can be run safely even before
->   the corresponding __initcall() has executed. E.g. have 
->   pci_register_driver() only add the driver to a (statically initialized)
->   list of drivers. Then, when pci_init() gets executed, walk the list of
->   registered drivers, call ->probe() etc.
+Replying to Jeff Garzik:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/2.5.48/split-dj1/net-cs89x0-media-corrections.diff
+> 
+> 
+> IIRC it came from -ac tree without explanation, and I think akpm said it
+> broke stuff.  Since it has an alive maintainer (akpm), I would rather
+> let Alan and Andrew fight it out :)  Whatever they decide is fine with
+> me for 2.5.
 
-For each driver, you have up to two objects that have to be pre-initialised
-and registered with the device model:
+It is not a magic number in net drivers. I was author of this bit, and
+without it I cannot start onboard nic on IBM PC300 GL (a lot of them I
+have here). Actually, to _understand_ what this bit do you just need
+to look at the driver source and see _how_ it works with
+A_CNF_MEDIA_10B_2 constants. More specific, it expects that there are
+single bits, and before my patch A_CNF_MEDIA_10B_2 was 0x60. 0x60 is
+not a single bit.
 
-- the bus_type structure
-- the device_class structure
-
-The bus type is registered by the bus subsystem (eg, PCI), and the
-device_class is registered by the driver subsystem (eg, input).
-
-Until both of those have been initialised, you can't register the
-driver (without oopsing.)  It isn't sufficient to wait for the bus
-subsystem to be initialised, you need to wait for both the bus
-and driver subsystems.
-
-I suppose a solution would be for the device model could accept the
-registration of a driver or device, but if the referenced objects
-are not initialised, set a count of "objects requiring initialisation".
-
-As each object is initialised, look for unregistered drivers and
-decrement their initialisation count.  When it hits zero, finis the
-driver registration.
+I've thought this change is obvious, and as far as I can remember
+Andrew has nothing against it.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Paul P 'Stingray' Komkoff Jr /// (icq)23200764 /// (http)stingr.net
+ This message represents the official view of the voices in my head

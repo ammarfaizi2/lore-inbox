@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVCEXej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVCFA0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVCEXej (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 18:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVCEXdK
+	id S261261AbVCFA0m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 19:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVCFAYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 18:33:10 -0500
-Received: from fire.osdl.org ([65.172.181.4]:9124 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261227AbVCEXaj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 18:30:39 -0500
-Date: Sat, 5 Mar 2005 15:30:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] ppc64-implement-a-vdso-and-use-it-for-signal-trampoline
- gas workaround
-Message-Id: <20050305153010.4a621d92.akpm@osdl.org>
-In-Reply-To: <1110062967.13607.82.camel@gaston>
-References: <200503051830.j25IU4Vq007528@hera.kernel.org>
-	<1110062967.13607.82.camel@gaston>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 5 Mar 2005 19:24:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:24461 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261264AbVCEX6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 18:58:50 -0500
+Date: Sat, 5 Mar 2005 23:58:38 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Kai Germaschewski <kai.germaschewski@unh.edu>
+Cc: Adrian Bunk <bunk@stusta.de>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       Vincent Vanackere <vincent.vanackere@gmail.com>, keenanpepper@gmail.com,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+Message-ID: <20050305235837.GB31261@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Kai Germaschewski <kai.germaschewski@unh.edu>,
+	Adrian Bunk <bunk@stusta.de>, Rusty Russell <rusty@rustcorp.com.au>,
+	Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+	Vincent Vanackere <vincent.vanackere@gmail.com>,
+	keenanpepper@gmail.com,
+	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050305153638.GD6373@stusta.de> <Pine.LNX.4.44.0503051108300.20560-100000@chaos.sr.unh.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0503051108300.20560-100000@chaos.sr.unh.edu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
-> On Sat, 2005-03-05 at 17:33 +0000, Linux Kernel Mailing List wrote:
->  > ChangeSet 1.2212, 2005/03/05 09:33:46-08:00, akpm@osdl.org
->  > 
->  > 	[PATCH] ppc64-implement-a-vdso-and-use-it-for-signal-trampoline gas workaround
->  > 	
->  > 	I cannot find a version of binutils which doesn't either do
->  > 	
->  > 	arch/ppc64/kernel/vdso32/gettimeofday.S: Assembler messages:
->  > 	arch/ppc64/kernel/vdso32/gettimeofday.S:33: Error: syntax error; found `@' but expected `,'
-> 
->  Ugh... Do that still happen once you finally get it to build with a 32
->  bits compiler and not a 64 bits one ? The @local is actually needed for
->  the 32 bits build.
+On Sat, Mar 05, 2005 at 11:36:23AM -0500, Kai Germaschewski wrote:
+> However, I spoke too soon. There actually is a legitimate use for 
+> EXPORT_SYMBOL() in a lib-y object, e.g. lib/dump_stack.c. This provides a 
+> default implementation for dump_stack(). Most archs provide their own 
+> implementation (and EXPORT_SYMBOL() it), and in this case we definitely 
+> want the default version in lib to be thrown away, including its 
+> EXPORT_SYMBOL. So the appended patch throws false positives and thus can 
+> not be applied.
 
-Yes, you're right.  We can revert 1.2212 please.
+.. and should be replaced by CONFIG_GENERIC_DUMP_STACK or
+__HAVE_ARCH_DUMP_STACK or something similar
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVAHVow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVAHVvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVAHVow (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 16:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVAHVop
+	id S261818AbVAHVvR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 16:51:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVAHVvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 16:44:45 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32516 "HELO
+	Sat, 8 Jan 2005 16:51:17 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:56068 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261779AbVAHVk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 16:40:29 -0500
-Date: Sat, 8 Jan 2005 22:40:22 +0100
+	id S261840AbVAHVr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 16:47:58 -0500
+Date: Sat, 8 Jan 2005 22:47:52 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, iss_storagedev@hp.com
-Subject: [2.6 patch] misc drivers/block/cciss* cleanups (fwd)
-Message-ID: <20050108214022.GV14108@stusta.de>
+To: jffs-dev@axis.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/jffs/: possible cleanups
+Message-ID: <20050108214752.GX14108@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,173 +22,413 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against 2.6.10-mm2.
-
-Please apply.
-
-
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
-
-Date:	Mon, 29 Nov 2004 13:26:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org, iss_storagedev@hp.com
-Subject: [2.6 patch] misc drivers/block/cciss* cleanups
-
-The patch below contains the following changes:
+The patch below contains the following possible cleanups:
 - make some needlessly global code static
-- fold init_cciss_module into init_cciss (there's no need for two
-  separate functions)
-- remove the unused global function cciss_scsi_info
+- #if 0 the following unused functions:
+  - intrep.c: jffs_print_file
+  - jffs_fm.c: jffs_print_node_ref
 
 
- drivers/block/cciss.c      |   18 +++++++-----------
- drivers/block/cciss_scsi.c |   35 ++++-------------------------------
- drivers/block/cciss_scsi.h |    1 -
- 3 files changed, 11 insertions(+), 43 deletions(-)
+diffstat output:
+ fs/jffs/inode-v23.c  |   10 +++----
+ fs/jffs/intrep.c     |   60 ++++++++++++++++++++++++++++++-------------
+ fs/jffs/intrep.h     |   32 +---------------------
+ fs/jffs/jffs_fm.c    |   12 ++++++--
+ fs/jffs/jffs_fm.h    |    6 +---
+ include/linux/jffs.h |    1 
+ 6 files changed, 61 insertions(+), 60 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/drivers/block/cciss.c.old	2004-11-06 19:45:19.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/block/cciss.c	2004-11-06 20:23:11.000000000 +0100
-@@ -61,7 +61,7 @@
- #include <linux/cciss_ioctl.h>
+--- linux-2.6.10-mm2-full/fs/jffs/inode-v23.c.old	2005-01-08 04:00:49.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs/inode-v23.c	2005-01-08 04:01:36.000000000 +0100
+@@ -334,7 +334,7 @@
+ } /* jffs_notify_change()  */
  
- /* define the PCI info for the cards we can control */
--const struct pci_device_id cciss_pci_device_id[] = {
-+static const struct pci_device_id cciss_pci_device_id[] = {
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISS,
- 			0x0E11, 0x4070, 0, 0, 0},
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSB,
-@@ -2908,21 +2908,17 @@
-  *  This is it.  Register the PCI driver information for the cards we control
-  *  the OS will call our registered routines when it finds one of our cards. 
-  */
--int __init cciss_init(void)
-+static int __init init_cciss(void)
+ 
+-struct inode *
++static struct inode *
+ jffs_new_inode(const struct inode * dir, struct jffs_raw_inode *raw_inode,
+ 	       int * err)
  {
-+	register_cciss_ioctl32();
-+
- 	printk(KERN_INFO DRIVER_NAME "\n");
- 
- 	/* Register for our PCI devices */
- 	return pci_module_init(&cciss_pci_driver);
+@@ -376,7 +376,7 @@
  }
  
--static int __init init_cciss_module(void)
+ /* Get statistics of the file system.  */
+-int
++static int
+ jffs_statfs(struct super_block *sb, struct kstatfs *buf)
+ {
+ 	struct jffs_control *c = (struct jffs_control *) sb->s_fs_info;
+@@ -410,7 +410,7 @@
+ 
+ 
+ /* Rename a file.  */
+-int
++static int
+ jffs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	    struct inode *new_dir, struct dentry *new_dentry)
+ {
+@@ -1739,7 +1739,7 @@
+ }
+ 
+ 
+-void
++static void
+ jffs_delete_inode(struct inode *inode)
+ {
+ 	struct jffs_file *f;
+@@ -1762,7 +1762,7 @@
+ }
+ 
+ 
+-void
++static void
+ jffs_write_super(struct super_block *sb)
+ {
+ 	struct jffs_control *c = (struct jffs_control *)sb->s_fs_info;
+--- linux-2.6.10-mm2-full/fs/jffs/intrep.h.old	2005-01-08 04:02:44.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs/intrep.h	2005-01-08 04:11:37.000000000 +0100
+@@ -20,9 +20,6 @@
+ struct jffs_node *jffs_alloc_node(void);
+ void jffs_free_node(struct jffs_node *n);
+ int jffs_get_node_inuse(void);
+-long jffs_get_file_count(void);
+-
+-__u32 jffs_checksum(const void *data, int size);
+ 
+ void jffs_cleanup_control(struct jffs_control *c);
+ int jffs_build_fs(struct super_block *sb);
+@@ -36,15 +33,9 @@
+ void jffs_free_node(struct jffs_node *node);
+ 
+ int jffs_foreach_file(struct jffs_control *c, int (*func)(struct jffs_file *));
+-int jffs_free_node_list(struct jffs_file *f);
+-int jffs_free_file(struct jffs_file *f);
+ int jffs_possibly_delete_file(struct jffs_file *f);
+-int jffs_build_file(struct jffs_file *f);
+-int jffs_insert_file_into_hash(struct jffs_file *f);
+ int jffs_insert_file_into_tree(struct jffs_file *f);
+-int jffs_unlink_file_from_hash(struct jffs_file *f);
+ int jffs_unlink_file_from_tree(struct jffs_file *f);
+-int jffs_remove_redundant_nodes(struct jffs_file *f);
+ int jffs_file_count(struct jffs_file *f);
+ 
+ int jffs_write_node(struct jffs_control *c, struct jffs_node *node,
+@@ -56,32 +47,13 @@
+ /* Garbage collection stuff.  */
+ int jffs_garbage_collect_thread(void *c);
+ void jffs_garbage_collect_trigger(struct jffs_control *c);
+-int jffs_garbage_collect_now(struct jffs_control *c);
+-
+-/* Is there enough space on the flash?  */
+-static inline int JFFS_ENOUGH_SPACE(struct jffs_control *c, __u32 space)
 -{
--	register_cciss_ioctl32();
--	return ( cciss_init());
+-	struct jffs_fmcontrol *fmc = c->fmc;
+-
+-	while (1) {
+-		if ((fmc->flash_size - (fmc->used_size + fmc->dirty_size)) 
+-			>= fmc->min_free_size + space) {
+-			return 1;
+-		}
+-		if (fmc->dirty_size < fmc->sector_size)
+-			return 0;
+-
+-		if (jffs_garbage_collect_now(c)) {
+-		  D1(printk("JFFS_ENOUGH_SPACE: jffs_garbage_collect_now() failed.\n"));
+-		  return 0;
+-		}
+-	}
 -}
--
--static void __exit cleanup_cciss_module(void)
-+static void __exit cleanup_cciss(void)
+ 
+ /* For debugging purposes.  */
+ void jffs_print_node(struct jffs_node *n);
+ void jffs_print_raw_inode(struct jffs_raw_inode *raw_inode);
++#if 0
+ int jffs_print_file(struct jffs_file *f);
++#endif  /*  0  */
+ void jffs_print_hash_table(struct jffs_control *c);
+ void jffs_print_tree(struct jffs_file *first_file, int indent);
+ 
+--- linux-2.6.10-mm2-full/include/linux/jffs.h.old	2005-01-08 04:12:11.000000000 +0100
++++ linux-2.6.10-mm2-full/include/linux/jffs.h	2005-01-08 04:12:16.000000000 +0100
+@@ -208,7 +208,6 @@
+ #define JFFS_MEMORY_DEBUG 0
+ 
+ extern long no_jffs_node;
+-extern long no_jffs_file;
+ #if defined(JFFS_MEMORY_DEBUG) && JFFS_MEMORY_DEBUG
+ extern long no_jffs_control;
+ extern long no_jffs_raw_inode;
+--- linux-2.6.10-mm2-full/fs/jffs/intrep.c.old	2005-01-08 04:01:56.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs/intrep.c	2005-01-08 04:12:28.000000000 +0100
+@@ -72,7 +72,7 @@
+ #include "jffs_fm.h"
+ 
+ long no_jffs_node = 0;
+-long no_jffs_file = 0;
++static long no_jffs_file = 0;
+ #if defined(JFFS_MEMORY_DEBUG) && JFFS_MEMORY_DEBUG
+ long no_jffs_control = 0;
+ long no_jffs_raw_inode = 0;
+@@ -85,6 +85,32 @@
+ 
+ static int jffs_scan_flash(struct jffs_control *c);
+ static int jffs_update_file(struct jffs_file *f, struct jffs_node *node);
++static int jffs_build_file(struct jffs_file *f);
++static int jffs_free_file(struct jffs_file *f);
++static int jffs_free_node_list(struct jffs_file *f);
++static int jffs_garbage_collect_now(struct jffs_control *c);
++static int jffs_insert_file_into_hash(struct jffs_file *f);
++static int jffs_remove_redundant_nodes(struct jffs_file *f);
++
++/* Is there enough space on the flash?  */
++static inline int JFFS_ENOUGH_SPACE(struct jffs_control *c, __u32 space)
++{
++	struct jffs_fmcontrol *fmc = c->fmc;
++
++	while (1) {
++		if ((fmc->flash_size - (fmc->used_size + fmc->dirty_size)) 
++			>= fmc->min_free_size + space) {
++			return 1;
++		}
++		if (fmc->dirty_size < fmc->sector_size)
++			return 0;
++
++		if (jffs_garbage_collect_now(c)) {
++		  D1(printk("JFFS_ENOUGH_SPACE: jffs_garbage_collect_now() failed.\n"));
++		  return 0;
++		}
++	}
++}
+ 
+ #if CONFIG_JFFS_FS_VERBOSE > 0
+ static __u8
+@@ -331,7 +357,7 @@
+ }
+ 
+ /* This routine calculates checksums in JFFS.  */
+-__u32
++static __u32
+ jffs_checksum(const void *data, int size)
  {
- 	int i;
- 
-@@ -2941,5 +2937,5 @@
- 	remove_proc_entry("cciss", proc_root_driver);
- }
- 
--module_init(init_cciss_module);
--module_exit(cleanup_cciss_module);
-+module_init(init_cciss);
-+module_exit(cleanup_cciss);
---- linux-2.6.10-rc1-mm3-full/drivers/block/cciss_scsi.c.old	2004-11-06 19:48:45.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/block/cciss_scsi.c	2004-11-06 20:30:38.000000000 +0100
-@@ -53,9 +53,7 @@
- 	int cmd_type);
- 
- 
--const char *cciss_scsi_info(struct Scsi_Host *sa);
--
--int cciss_scsi_proc_info(
-+static int cciss_scsi_proc_info(
- 		struct Scsi_Host *sh,
- 		char *buffer, /* data buffer */
- 		char **start, 	   /* where data in buffer starts */
-@@ -63,7 +61,7 @@
- 		int length, 	   /* length of data in buffer */
- 		int func);	   /* 0 == read, 1 == write */
- 
--int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
-+static int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
- 		void (* done)(struct scsi_cmnd *));
- 
- static struct cciss_scsi_hba_t ccissscsi[MAX_CTLR] = {
-@@ -712,8 +710,6 @@
- 	return 1;
- }
- 
--static void __exit cleanup_cciss_module(void);
--
- static void
- cciss_unmap_one(struct pci_dev *pdev,
- 		CommandList_struct *cp,
-@@ -1114,7 +1110,7 @@
+ 	__u32 sum = 0;
+@@ -344,7 +370,7 @@
  }
  
  
 -int
 +static int
- cciss_scsi_proc_info(struct Scsi_Host *sh,
- 		char *buffer, /* data buffer */
- 		char **start, 	   /* where data in buffer starts */
-@@ -1149,29 +1145,6 @@
- 			buffer, length);	
- } 
+ jffs_checksum_flash(struct mtd_info *mtd, loff_t start, int size, __u32 *result)
+ {
+ 	__u32 sum = 0;
+@@ -646,7 +672,7 @@
+   a (even) higher degree of confidence in your mount process. 
+   A higher number would of course slow down your mount.
+ */
+-int check_partly_erased_sectors(struct jffs_fmcontrol *fmc){
++static int check_partly_erased_sectors(struct jffs_fmcontrol *fmc){
  
--/* this is via the generic proc support */
--const char *
--cciss_scsi_info(struct Scsi_Host *sa)
--{
--	static char buf[300];
--	ctlr_info_t *ci;
--
--	/* probably need to work on putting a bit more info in here... */
--	/* this is output via the /proc filesystem. */
--
--	ci = (ctlr_info_t *) sa->hostdata[0];
--
--	sprintf(buf, "%s %c%c%c%c\n",
--		ci->product_name, 
--		ci->firm_ver[0],
--		ci->firm_ver[1],
--		ci->firm_ver[2],
--		ci->firm_ver[3]);
--
--	return buf; 
--}
--
--
- /* cciss_scatter_gather takes a struct scsi_cmnd, (cmd), and does the pci 
-    dma mapping  and fills in the scatter gather entries of the 
-    cciss command, cp. */
-@@ -1225,7 +1198,7 @@
+ #define NUM_REREADS             4 /* see note above */
+ #define READ_AHEAD_BYTES        4096 /* must be a multiple of 4, 
+@@ -1478,7 +1504,7 @@
+ 
+ /* Remove redundant nodes from a file.  Mark the on-flash memory
+    as dirty.  */
+-int
++static int
+ jffs_remove_redundant_nodes(struct jffs_file *f)
+ {
+ 	struct jffs_node *newest_node;
+@@ -1532,7 +1558,7 @@
+ 
+ 
+ /* Insert a file into the hash table.  */
+-int
++static int
+ jffs_insert_file_into_hash(struct jffs_file *f)
+ {
+ 	int i = f->ino % f->c->hash_len;
+@@ -1580,7 +1606,7 @@
+ 
+ 
+ /* Remove a file from the hash table.  */
+-int
++static int
+ jffs_unlink_file_from_hash(struct jffs_file *f)
+ {
+ 	D3(printk("jffs_unlink_file_from_hash(): f: 0x%p, "
+@@ -2038,7 +2064,7 @@
+ 
+ 
+ /* Free all nodes associated with a file.  */
+-int
++static int
+ jffs_free_node_list(struct jffs_file *f)
+ {
+ 	struct jffs_node *node;
+@@ -2058,7 +2084,7 @@
+ 
+ 
+ /* Free a file and its name.  */
+-int
++static int
+ jffs_free_file(struct jffs_file *f)
+ {
+ 	D3(printk("jffs_free_file: f #%u, \"%s\"\n",
+@@ -2073,7 +2099,7 @@
+ 	return 0;
  }
  
- 
--int 
-+static int 
- cciss_scsi_queue_command (struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *))
+-long
++static long
+ jffs_get_file_count(void)
  {
- 	ctlr_info_t **c;
---- linux-2.6.10-rc1-mm3-full/drivers/block/cciss_scsi.h.old	2004-11-06 19:54:18.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/block/cciss_scsi.h	2004-11-06 19:54:41.000000000 +0100
-@@ -39,7 +39,6 @@
- #define SCSI_CCISS_CAN_QUEUE 2
+ 	return no_jffs_file;
+@@ -2127,7 +2153,7 @@
  
- /* 
--	info:           	cciss_scsi_info,		\
+ /* Build up a file's range list from scratch by going through the
+    version list.  */
+-int
++static int
+ jffs_build_file(struct jffs_file *f)
+ {
+ 	struct jffs_node *n;
+@@ -2481,7 +2507,6 @@
+ 	return 0;
+ }
  
- Note, cmd_per_lun could give us some trouble, so I'm setting it very low.
- Likewise, SCSI_CCISS_CAN_QUEUE is set very conservatively.
-
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+ /* Print the contents of a node.  */
+ void
+ jffs_print_node(struct jffs_node *n)
+@@ -2541,6 +2566,7 @@
+ 
+ 
+ /* Print the contents of a file.  */
++#if 0
+ int
+ jffs_print_file(struct jffs_file *f)
+ {
+@@ -2580,7 +2606,7 @@
+ 	D(printk("}\n"));
+ 	return 0;
+ }
+-
++#endif  /*  0  */
+ 
+ void
+ jffs_print_hash_table(struct jffs_control *c)
+@@ -2655,7 +2681,7 @@
+ 
+ 
+ /* Rewrite `size' bytes, and begin at `node'.  */
+-int
++static int
+ jffs_rewrite_data(struct jffs_file *f, struct jffs_node *node, __u32 size)
+ {
+ 	struct jffs_control *c = f->c;
+@@ -2858,7 +2884,7 @@
+    process and is often called multiple times at each occasion of a
+    garbage collect.  */
+ 
+-int
++static int
+ jffs_garbage_collect_next(struct jffs_control *c)
+ {
+ 	struct jffs_fmcontrol *fmc = c->fmc;
+@@ -3097,7 +3123,7 @@
+ } /* jffs_clear_end_of_node()  */
+ 
+ /* Try to erase as much as possible of the dirt in the flash memory.  */
+-long
++static long
+ jffs_try_to_erase(struct jffs_control *c)
+ {
+ 	struct jffs_fmcontrol *fmc = c->fmc;
+@@ -3198,7 +3224,7 @@
+    collection can be.  */
+ 
+ 
+-int
++static int
+ jffs_garbage_collect_now(struct jffs_control *c)
+ {
+ 	struct jffs_fmcontrol *fmc = c->fmc;
+--- linux-2.6.10-mm2-full/fs/jffs/jffs_fm.h.old	2005-01-08 04:12:44.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs/jffs_fm.h	2005-01-08 04:15:45.000000000 +0100
+@@ -64,10 +64,6 @@
+ 
+ 
+ 
+-void jffs_free_fm(struct jffs_fm *n);
+-struct jffs_fm *jffs_alloc_fm(void);
+-
+-
+ struct jffs_node_ref
+ {
+ 	struct jffs_node *node;
+@@ -145,6 +141,8 @@
+ 
+ void jffs_print_fmcontrol(struct jffs_fmcontrol *fmc);
+ void jffs_print_fm(struct jffs_fm *fm);
++#if 0
+ void jffs_print_node_ref(struct jffs_node_ref *ref);
++#endif  /*  0  */
+ 
+ #endif /* __LINUX_JFFS_FM_H__  */
+--- linux-2.6.10-mm2-full/fs/jffs/jffs_fm.c.old	2005-01-08 04:12:57.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs/jffs_fm.c	2005-01-08 04:16:02.000000000 +0100
+@@ -25,6 +25,9 @@
+ static int jffs_mark_obsolete(struct jffs_fmcontrol *fmc, __u32 fm_offset);
+ #endif
+ 
++static struct jffs_fm *jffs_alloc_fm(void);
++static void jffs_free_fm(struct jffs_fm *n);
++
+ extern kmem_cache_t     *fm_cache;
+ extern kmem_cache_t     *node_cache;
+ 
+@@ -602,7 +605,7 @@
+ /* check if it's possible to erase the wanted range, and if not, return
+  * the range that IS erasable, or a negative error code.
+  */
+-long
++static long
+ jffs_flash_erasable_size(struct mtd_info *mtd, __u32 offset, __u32 size)
+ {
+          u_long ssize;
+@@ -700,7 +703,7 @@
+ 	return (ret >= 0 ? ret : 0);
+ }
+ 
+-struct jffs_fm *jffs_alloc_fm(void)
++static struct jffs_fm *jffs_alloc_fm(void)
+ {
+ 	struct jffs_fm *fm;
+ 
+@@ -710,7 +713,7 @@
+ 	return fm;
+ }
+ 
+-void jffs_free_fm(struct jffs_fm *n)
++static void jffs_free_fm(struct jffs_fm *n)
+ {
+ 	kmem_cache_free(fm_cache,n);
+ 	DJM(no_jffs_fm--);
+@@ -778,6 +781,7 @@
+ 	D(printk("}\n"));
+ }
+ 
++#if 0
+ void
+ jffs_print_node_ref(struct jffs_node_ref *ref)
+ {
+@@ -787,3 +791,5 @@
+ 	D(printk("       0x%p, /* next  */\n", ref->next));
+ 	D(printk("}\n"));
+ }
++#endif  /*  0  */
++
 

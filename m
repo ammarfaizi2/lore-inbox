@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbUKIBHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbUKIBMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbUKIBHs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 20:07:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbUKIBFZ
+	id S261363AbUKIBMY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 20:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUKIBLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 20:05:25 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:14858 "HELO
+	Mon, 8 Nov 2004 20:11:00 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:43530 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261335AbUKIBDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 20:03:52 -0500
-Date: Tue, 9 Nov 2004 02:03:17 +0100
+	id S261339AbUKIBIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 20:08:06 -0500
+Date: Tue, 9 Nov 2004 02:07:25 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Gerd Knorr <kraxel@bytesex.org>
 Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: [9/11] bttv-i2c.c: make two functions static
-Message-ID: <20041109010317.GX15077@stusta.de>
+Subject: [11/11] misc bttv statification
+Message-ID: <20041109010725.GZ15077@stusta.de>
 References: <20041107175017.GP14308@stusta.de> <20041108114008.GB20607@bytesex> <20041109004341.GO15077@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,47 +24,97 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the patch below makes two functions in drivers/media/video/bttv-i2c.c 
-without external users static.
+The patch below makes some bttv code static.
+
+It could be splitted into three patches, but has overlapping context 
+(and isn't too big altogether).
 
 
 diffstat output:
- drivers/media/video/bttv-i2c.c |    4 ++--
- drivers/media/video/bttv.h     |    2 --
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/media/video/bttv-cards.c  |    7 ++++---
+ drivers/media/video/bttv-driver.c |    6 +++---
+ drivers/media/video/bttvp.h       |    5 -----
+ 3 files changed, 7 insertions(+), 11 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv.h.old	2004-11-07 17:31:33.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv.h	2004-11-07 16:45:37.000000000 +0100
-@@ -328,8 +307,6 @@
- /* ---------------------------------------------------------- */
- /* i2c                                                        */
+--- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttvp.h.old	2004-11-07 16:34:44.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttvp.h	2004-11-07 16:47:42.000000000 +0100
+@@ -240,11 +221,6 @@
+ extern void bttv_gpio_tracking(struct bttv *btv, char *comment);
+ extern int init_bttv_i2c(struct bttv *btv);
+ extern int fini_bttv_i2c(struct bttv *btv);
+-extern int pvr_boot(struct bttv *btv);
+-
+-extern int bttv_common_ioctls(struct bttv *btv, unsigned int cmd, void *arg);
+-extern void bttv_reinit_bt848(struct bttv *btv);
+-extern void bttv_field_count(struct bttv *btv);
  
--extern void bttv_bit_setscl(void *data, int state);
--extern void bttv_bit_setsda(void *data, int state);
- extern void bttv_call_i2c_clients(struct bttv *btv, unsigned int cmd, void *arg);
- extern int bttv_I2CRead(struct bttv *btv, unsigned char addr, char *probe_for);
- extern int bttv_I2CWrite(struct bttv *btv, unsigned char addr, unsigned char b1,
---- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-i2c.c.old	2004-11-07 16:43:56.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-i2c.c	2004-11-07 16:44:33.000000000 +0100
-@@ -55,7 +55,7 @@
- /* ----------------------------------------------------------------------- */
- /* I2C functions - bitbanging adapter (software i2c)                       */
+ #define vprintk  if (bttv_verbose) printk
+ #define dprintk  if (bttv_debug >= 1) printk
+--- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-cards.c.old	2004-11-07 16:34:59.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-cards.c	2004-11-07 17:14:25.000000000 +0100
+@@ -84,12 +84,13 @@
+ static int tea5757_write(struct bttv *btv, int value);
+ static void identify_by_eeprom(struct bttv *btv,
+ 			       unsigned char eeprom_data[256]);
++static int __devinit pvr_boot(struct bttv *btv);
  
--void bttv_bit_setscl(void *data, int state)
-+static void bttv_bit_setscl(void *data, int state)
+ /* config variables */
+ static unsigned int triton1=0;
+ static unsigned int vsfx=0;
+ static unsigned int latency = UNSET;
+-unsigned int no_overlay=-1;
++static unsigned int no_overlay=-1;
+ 
+ static unsigned int card[BTTV_MAX]   = { [ 0 ... (BTTV_MAX-1) ] = UNSET };
+ static unsigned int pll[BTTV_MAX]    = { [ 0 ... (BTTV_MAX-1) ] = UNSET };
+@@ -2979,7 +2959,7 @@
+ 
+ extern int mod_firmware_load(const char *fn, char **fp);
+ 
+-int __devinit pvr_boot(struct bttv *btv)
++static int __devinit pvr_boot(struct bttv *btv)
  {
- 	struct bttv *btv = (struct bttv*)data;
+ 	u32 microlen;
+ 	u8 *micro;
+@@ -3003,7 +2983,7 @@
+ #else
+ /* new 2.5.x way -- via hotplug firmware loader */
  
-@@ -67,7 +67,7 @@
- 	btread(BT848_I2C);
+-int __devinit pvr_boot(struct bttv *btv)
++static int __devinit pvr_boot(struct bttv *btv)
+ {
+         const struct firmware *fw_entry;
+ 	int rc;
+--- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-driver.c.old	2004-11-07 16:40:15.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-driver.c	2004-11-07 16:41:55.000000000 +0100
+@@ -1071,7 +1071,7 @@
+ 	init_irqreg(btv);
  }
  
--void bttv_bit_setsda(void *data, int state)
-+static void bttv_bit_setsda(void *data, int state)
+-void bttv_reinit_bt848(struct bttv *btv)
++static void bttv_reinit_bt848(struct bttv *btv)
  {
- 	struct bttv *btv = (struct bttv*)data;
+ 	unsigned long flags;
  
+@@ -1275,7 +1275,7 @@
+ 	       btv->c.nr,outbits,data & outbits, data & ~outbits, comment);
+ }
+ 
+-void bttv_field_count(struct bttv *btv)
++static void bttv_field_count(struct bttv *btv)
+ {
+ 	int need_count = 0;
+ 
+@@ -1475,7 +1475,7 @@
+ 	"SMICROCODE", "GVBIFMT", "SVBIFMT" };
+ #define V4L1_IOCTLS ARRAY_SIZE(v4l1_ioctls)
+ 
+-int bttv_common_ioctls(struct bttv *btv, unsigned int cmd, void *arg)
++static int bttv_common_ioctls(struct bttv *btv, unsigned int cmd, void *arg)
+ {
+ 	switch (cmd) {
+         case BTTV_VERSION:
 

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbTILXEx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 19:04:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTILXEx
+	id S261935AbTILXKF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 19:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbTILXKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 19:04:53 -0400
-Received: from holomorphy.com ([66.224.33.161]:36030 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261813AbTILXEw (ORCPT
+	Fri, 12 Sep 2003 19:10:05 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:35560 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261935AbTILXKA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 19:04:52 -0400
-Date: Fri, 12 Sep 2003 16:06:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Breno <brenosp@brasilsec.com.br>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: stack overflow
-Message-ID: <20030912230601.GU4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Breno <brenosp@brasilsec.com.br>,
-	Kernel List <linux-kernel@vger.kernel.org>
-References: <002b01c37956$d88d67c0$f8e4a7c8@bsb.virtua.com.br> <20030912165047.Z18851@schatzie.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030912165047.Z18851@schatzie.adilger.int>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 12 Sep 2003 19:10:00 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 13 Sep 2003 01:09:58 +0200 (MEST)
+Message-Id: <UTC200309122309.h8CN9wn08090.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] Re: [PATCH][IDE] update qd65xx driver
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 04:50:47PM -0600, Andreas Dilger wrote:
-> Well, with the exception of the fact that STACK_LIMIT is 8MB, and kernel
-> stacks are only 8kB (on i386)...
-> Also, see "do_IRQ()" (i386) for CONFIG_DEBUG_STACKOVERFLOW to see this already.
+	From B.Zolnierkiewicz@elka.pw.edu.pl  Fri Sep 12 00:44:48 2003
 
-What he actually wants is in-kernel user stack overflow checking, which
-is basically impossible since user stacks are demand paged. He's been
-told this before and failed to absorb it.
+	> That reminds me, did I ever send you this?
+	>
+	> Andries
 
-There have been attempts to use i386 segmentation for stack limit
-checks written but they should probably not be confused with this.
+	No, only similar patch for hpt366.c.
 
+	I think the (almost) correct scheme is following ...
 
--- wli
+Yes, larger changes are possible - and in fact I have a directory
+full of IDE stuff, polishing, cleanup, non-urgent.
+
+I sent this mainly because the hpt366.c analog was needed to
+prevent filesystem corruption (on my own system). Similarly,
+I imagine this patch is needed to prevent filesystem corruption -
+no need to wait until someone actually reports a corrupted filesystem.
+
+Patches that allow people to set lower PIO modes than the max
+may be nice, but are less urgent than preventing modes higher
+than the max.
+
+Andries
+
+	> -		pio = ide_get_best_pio_mode(drive, pio, 255, &d);
+	> +		pio = ide_get_best_pio_mode(drive, 255, pio, &d);

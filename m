@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUJRQJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266821AbUJRQXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266802AbUJRQJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 12:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266821AbUJRQJ3
+	id S266821AbUJRQXp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 12:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUJRQXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 12:09:29 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:33522 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S266802AbUJRQJV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 12:09:21 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
+	Mon, 18 Oct 2004 12:23:45 -0400
+Received: from zero.aec.at ([193.170.194.10]:55824 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266821AbUJRQXo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 12:23:44 -0400
+To: Paul Mackerras <paulus@samba.org>
+cc: linux-kernel@vger.kernel.org, olh@suse.de
+Subject: Re: [PATCH] allow kernel compile with native ppc64 compiler
+References: <2Qoqo-Ou-41@gated-at.bofh.it> <2Qr4K-2P8-15@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 18 Oct 2004 18:23:27 +0200
+In-Reply-To: <2Qr4K-2P8-15@gated-at.bofh.it> (Paul Mackerras's message of
+ "Sun, 17 Oct 2004 23:50:10 +0200")
+Message-ID: <m3k6toc7wg.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [BUG] in i386 semaphores.
-Date: Mon, 18 Oct 2004 09:09:20 -0700
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3017FBE1C@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG] in i386 semaphores.
-Thread-Index: AcS0zgInqzh0y+AIROCRKAqMQVLHbgAXnXOg
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Oct 2004 16:09:20.0741 (UTC) FILETIME=[D3A80950:01C4B52C]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi.
+Paul Mackerras <paulus@samba.org> writes:
 
-I sent this yesterday, but seems like it missed the list somehow :
-	 
-  There are several assembly 'helpers' in arch/i386/semaphore.c, for
-example, __up_wakeup. __up_wakeup's purpose is to call C function:
-asmlinkage void __up(struct semaphore *sem)
-	 
-this is how it does it:
- 
-	pushl %eax
-	pushl %edx
-	pushl %ecx
-	call __up
-	popl %ecx
-	popl %edx
-	popl %eax
-	 
-  As one can see, actual parameter in %ecx is not only being copied in
-formal parameter sem (which is correct), but also being restored from it
-after function call via %ecx (which is incorrect). Since formal
-parameter is not a constant one, it may be overwritten inside C
-function, or gcc may (and in fact does that in some cases) use it for
-something else.
-If we want to keep %ecx, correct behavior would be
+> Olaf Hering writes:
+>
+>> The zImage is a 32bit binary, but a native powerpc64-linux gcc will
+>> produce 64bit objects in arch/ppc64/boot.
+>> This patch fixes it.
+>
+> ... and breaks the compile on older toolchains that don't understand
+> -m32.  We need to make the -m32 conditional on HAS_BIARCH as defined
+> in arch/ppc64/Makefile.
 
-	pushl %ecx
-	pushl %ecx
-	call _up
-	add $4, %ecx
-	popl %ecx
-	 
-Above applies for other functions in semaphore.c in latest 2.6 kernels.
-2.4 might also be affected.
-	 
-Thanks,
-Aleks.
+Wouldn't it be more user friendly to use $(call check_gcc,-m32,) ? 
 
+-Andi
 

@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbTDKRlz (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbTDKRlz (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 13:41:55 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:32130 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261246AbTDKRlw (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 13:41:52 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304111739.h3BHdIZM001716@81-2-122-30.bradfords.org.uk>
-Subject: Completely new idea to virtual memory (Was: Re: [RFC] first try for swap prefetch)
-To: 76306.1226@compuserve.com (Chuck Ebbert)
-Date: Fri, 11 Apr 2003 18:39:18 +0100 (BST)
-Cc: john@grabjohn.com (John Bradford),
-       linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <200304111259_MC3-1-3405-E07F@compuserve.com> from "Chuck Ebbert" at Apr 11, 2003 12:57:27 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S261242AbTDKRlL (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbTDKRlL (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 13:41:11 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:18570 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261242AbTDKRlK (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 13:41:10 -0400
+Date: Fri, 11 Apr 2003 10:51:58 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: devilkin-lkml@blindguardian.org, portnoy@tellink.net,
+       root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel support for non-english user messages
+Message-Id: <20030411105158.2d9b728e.rddunlap@osdl.org>
+In-Reply-To: <20030411054932.GC10992@conectiva.com.br>
+References: <3E93A958.80107@si.rr.com>
+	<Pine.LNX.4.53.0304101638010.4978@chaos>
+	<Pine.LNX.4.53.0304101903280.19136@cerberus.oppresses.us>
+	<200304110739.41947.devilkin-lkml@blindguardian.org>
+	<20030411054932.GC10992@conectiva.com.br>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > We could possibly avoid this by swapping the pages back
-> > in after one minute of inactivity, then letting the
-> > disk spin down.
-> 
-> 
-> Why not also write pages out to swap before it's really necessary?
-> If they were left mapped but marked as having up-to-date copies
-> on swap, they could be discarded immediately if the system needed
-> memory.  (Of course if they got written to they would have to be
-> paged out again.)
+On Fri, 11 Apr 2003 02:49:32 -0300 Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
 
-Hmmm, interesting...
+| Em Fri, Apr 11, 2003 at 07:39:35AM +0200, DevilKin escreveu:
+| > Why not turn it into a kernel flag that you can set at bootup through LILO or 
+| > some other obscure boot manager? Then you could boot linux like this:
+| > 
+| > linux dmesg=verbose
+| > 
+| > and
+| > 
+| > linux dmesg=quiet
+| 
+| Have you ever tried passing 'quiet' as a cmd line parameter to the kernel
+| in the bootloader? If not please try.
+| 
+| Try also 'debug'.
 
-The laptop-with-disk-configured-to-spin-down scenario would seem, (in
-theory), to benefit from a completely different approach to swapping
-to what we have at the moment.
+I use 'debug' all the time, but then some init script comes along and
+changes the loglevel setting to something < debug.  Ick.
 
-Instead of trying to minimise the I/O bandwidth used, we could more or
-less ignore it, but consider the initial request, (after a certain
-timeout), to be very expensive.
 
-So, all the time the disk was spinning, we'd make sure that the swap
-area contained the most useful data, possibly duplicating what was in
-RAM, and then spin the disk down at the earliest opportunity.  That
-way, you could effectively swap in and swap out without spinning the
-disk up.
-
-(Obviously, you can't do _both_ :-), but the idea would be to either
-swap out a lot, or swap in a lot, before spinning down, that way you
-get a 'free' swap either way, and consolidate disk reads/writes).
-
-John.
+--
+~Randy   ['tangent' is not a verb...unless you believe that
+          "in English any noun can be verbed."]

@@ -1,74 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262216AbSJKDnD>; Thu, 10 Oct 2002 23:43:03 -0400
+	id <S262331AbSJKDqG>; Thu, 10 Oct 2002 23:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262328AbSJKDnC>; Thu, 10 Oct 2002 23:43:02 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:53440 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S262216AbSJKDnB>; Thu, 10 Oct 2002 23:43:01 -0400
-Message-ID: <3DA64A79.6020401@snapgear.com>
-Date: Fri, 11 Oct 2002 13:50:17 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262334AbSJKDqF>; Thu, 10 Oct 2002 23:46:05 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:42937 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262331AbSJKDqE>; Thu, 10 Oct 2002 23:46:04 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: MD4 and MD5 library routines (was CIFS filesystem for Linux 2.5_
+To: Andi Kleen <ak@suse.de>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF7527F406.BAF41604-ON87256C4F.00141231@boulder.ibm.com>
+From: "Steven French" <sfrench@us.ibm.com>
+Date: Thu, 10 Oct 2002 22:51:41 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 10/10/2002 09:51:43 PM
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH]: linux-2.5.41uc1 (MMU-less support)
-References: <3DA5A42F.6030001@snapgear.com> <20021010171816.A21468@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
 
-Heres a tivial mm (MMU-less) patch that cleans up many of
-the "#ifdef COFNIG_MMU" littered all over the mm/* files.
-The Makefile now chooses which files to compile appropriately.
-
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc2-mm.patch.gz
-
-This leaves the following files as the only ones with
-conditionals:
-
-   mm/filemap.c
-   mm/mmap.c
-   mm/page_alloc.c
-   mm/page_io.c
-   mm/slab.c
-   mm/swap_state.c
-   mm/swapfile.c
-   mm/vmscan.c
-
-I have a patch from Christoph that will take care of much
-of the swap stuff still to apply.
-
-Regards
-Greg
-
-
-
-> On Fri, Oct 11, 2002 at 02:00:47AM +1000, Greg Ungerer wrote:
-> 
->>Hi All,
+>> sfrench@us.ibm.com said:
+>> >  fs/cifs/md4.c                      |  209 +++
+>> >  fs/cifs/md5.c                      |  363 +++++
+>> >  fs/cifs/md5.h                      |   38
 >>
->>An updated uClinux patch is available at:
->>
->>http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1.patch.gz
->>
->>This one has the long awaited merge of the mmnommu and mm directories.
->>Went pretty smoothly really. The patches are not too bad, but there is
->>still some cleaning to do. A couple of files are still heavily #ifdef'ed
->>(like mm/mmap.c, mm/swap_state.c and mm/swapfile.c) but I think these
->>can ironed out a bit.
+>> Unless these are somehow CIFS-specific, they should live in linux/lib/
+>
+>This would have the disadvantage that they would need to be always
+compiled into the
+>kernel, even though it may not need it. And we already have code bloat
+problems,
+>no need to make it worse.
+>
+>Making them modular also isn't good. Each module takes a 4k page at least,
+so you
+>would waste a lot of memory because they're smaller than 4k.
+>
+>As long as they are not used by anything else it's probably best to keep
+it
+>where they are.
+>
+>-Andi
 
+The routines are small enough, less than 500 loc total, that it would not
+make a whole lot of difference either way.   Although I noticed a few
+different places where MD5 is implemented in other parts of the kernel, the
+HMAC-MD5 support (in md5.c) needed for signing smb frames is probably not
+needed by anyone else (except PPP?).   I did not see any places (other than
+cifs) that depend on md4 so that seems like it would not make sense to move
+even though the code is pretty generic.    The ASN decoding routines on the
+other hand (used e.g. by snmp and also will be needed in the future by the
+cifs vfs for simple SPNEGO-like parsing of the session establishment frame)
+might end up being useful to move into a common library in the long run.
 
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVCCS1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVCCS31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbVCCS1J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 13:27:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVCCS0s
+	id S261241AbVCCS31 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 13:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVCCS1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 13:26:48 -0500
-Received: from fire.osdl.org ([65.172.181.4]:54998 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261241AbVCCSZt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 13:25:49 -0500
-Date: Thu, 3 Mar 2005 10:27:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-In-Reply-To: <422751C1.7030607@pobox.com>
-Message-ID: <Pine.LNX.4.58.0503031022100.25732@ppc970.osdl.org>
-References: <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net>
- <422674A4.9080209@pobox.com> <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
- <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
- <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
- <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
- <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
- <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com>
+	Thu, 3 Mar 2005 13:27:22 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6039 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261241AbVCCS0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 13:26:55 -0500
+Message-ID: <422756DC.6000405@pobox.com>
+Date: Thu, 03 Mar 2005 13:26:36 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rene Rebe <rene@exactcode.de>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
+References: <422751D9.2060603@exactcode.de>
+In-Reply-To: <422751D9.2060603@exactcode.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 3 Mar 2005, Jeff Garzik wrote:
+Rene Rebe wrote:
+> Hi,
 > 
-> The only problem I see with this -- and its a minor problem -- is that 
-> some patches that belong in the 2.6.X.Y tree go straight to you/Andrew, 
-> rather than to $sucker.
+> 
+> --- linux-2.6.11/drivers/md/raid6altivec.uc.vanilla    2005-03-02 
+> 16:44:56.407107752 +0100
+> +++ linux-2.6.11/drivers/md/raid6altivec.uc    2005-03-02 
+> 16:45:22.424152560 +0100
+> @@ -108,7 +108,7 @@
+>  int raid6_have_altivec(void)
+>  {
+>      /* This assumes either all CPUs have Altivec or none does */
+> -    return cur_cpu_spec->cpu_features & CPU_FTR_ALTIVEC;
+> +    return cur_cpu_spec[0]->cpu_features & CPU_FTR_ALTIVEC;
 
-Yes. I think people will have to be taught, and get used to the new world
-order, and that could take a long time. And don't get me wrong, I include
-myself in those people, ie it's not just that everybody else needs to
-learn to Cc: the new group (I assume it's best to have a mailing alias, to
-allow the thing to have multiple people involved even before it gets to
-the vetting stage, and then have a _separate_ mail alias for the "vettign
-group" people).
 
-Think of how the -mm tree has evolved - with me and Andrew learning how 
-the other side acts and works. This would be the same thing, except 
-hopefully on a smaller scale (ie the _volume_ of patches had better be an 
-order of magnited smaller not just in size but in number too). It wasn't 
-just "let's set up Andrew". It was a learning experience.
+I nominate this as a candidate for linux-2.6.11 release branch.  :)
 
-And yes, we'll probably get duplicated changes, _especially_ early on. But 
-at least nobody seems to hate this idea, so I think we should drop the 
-original even/odd suggestion for now, and see if this would make more 
-sense..
+	Jeff
 
-		Linus
+

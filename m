@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUITIfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUITIli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266137AbUITIfu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 04:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUITIfu
+	id S266155AbUITIli (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 04:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUITIli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 04:35:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18119 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266137AbUITIfr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 04:35:47 -0400
-Subject: Re: 2.6.8 link failure for powerpc-970?
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Dan Kegel <dank@kegel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <414E93BC.4080107@kegel.com>
-References: <414E93BC.4080107@kegel.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EgtjatEo4KtNbHYFeRwI"
-Organization: Red Hat UK
-Message-Id: <1095669339.2800.3.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 20 Sep 2004 10:35:39 +0200
+	Mon, 20 Sep 2004 04:41:38 -0400
+Received: from gizmo02ps.bigpond.com ([144.140.71.12]:55504 "HELO
+	gizmo02ps.bigpond.com") by vger.kernel.org with SMTP
+	id S266155AbUITIlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 04:41:37 -0400
+Message-ID: <414E97BD.6030808@bigpond.net.au>
+Date: Mon, 20 Sep 2004 18:41:33 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
+Subject: [PATCH, 2.6.9-rc2] V-5.0.1 Single Priority Array O(1) CPU Scheduler
+ Evaluation
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Version 5.0.1 of various single priority array scheduler patches for the
+2.6.9-rc2 kernel are now available for download and evaluation.
 
---=-EgtjatEo4KtNbHYFeRwI
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+ZAPHOD:
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.9-rc2-spa_zaphod_FULL-v5.0.1?download>
 
-On Mon, 2004-09-20 at 10:24, Dan Kegel wrote:
-> I'm trying to verify that I can build toolchains and compile
-> and link kernels for a large set of CPU types using simple kernel config =
-files.
-> I'm also somewhat foolishly trying to do all this with gcc-3.4.2.
-> So any problems I run into are a bit hard to pin down to
-> compiler, kernel, or user error, since this is mostly new territory for m=
-e.
+HYDRA:
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.9-rc2-spa_hydra_FULL-v5.0.1?download>
 
-use this patch
---- linux-2.6.8/arch/ppc64/Makefile~    2004-09-03 13:02:48.372244432
-+0200
-+++ linux-2.6.8/arch/ppc64/Makefile     2004-09-03 13:02:48.372244432
-+0200
-@@ -28,5 +28,7 @@
- LDFLAGS_vmlinux        :=3D -Bstatic -e $(KERNELLOAD) -Ttext
-$(KERNELLOAD)
- CFLAGS         +=3D -msoft-float -pipe -mminimal-toc -mtraceback=3Dnone
-+
-+CFLAGS +=3D $(call cc-option,-mcall-aixdesc)
-                                                                           =
-                               =20
- ifeq ($(CONFIG_POWER4_ONLY),y)
-        CFLAGS +=3D $(call cc-option,-mcpu=3Dpower4)
-                                                                           =
-                               =20
+Patches for 2.6.9-rc2-mm1 are undergoing testing and will be posted shortly.
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
---=-EgtjatEo4KtNbHYFeRwI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBTpZaxULwo51rQBIRAuUxAJ9QwsfJniICBBVRc27CHDAWQ9nfjACfT1KA
-dZWAGFoEn08tQ71cNNQP0AA=
-=FdAP
------END PGP SIGNATURE-----
-
---=-EgtjatEo4KtNbHYFeRwI--
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
 

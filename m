@@ -1,109 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbULVAbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbULVAcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbULVAbP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 19:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbULVA3p
+	id S261922AbULVAcc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 19:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbULVAcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 19:29:45 -0500
-Received: from ns2.priorweb.be ([213.193.229.2]:19915 "HELO ns2.priorweb.be")
-	by vger.kernel.org with SMTP id S261925AbULVA3E (ORCPT
+	Tue, 21 Dec 2004 19:32:03 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25987 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261924AbULVAaj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 19:29:04 -0500
-Message-ID: <41C8B330.8050803@joow.be>
-Date: Wed, 22 Dec 2004 00:35:12 +0100
-From: Pieter Palmers <pieterp@joow.be>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Tue, 21 Dec 2004 19:30:39 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] allow struct bin_attributes in class devices
+Date: Tue, 21 Dec 2004 16:30:36 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200412211619.52596.jbarnes@engr.sgi.com> <20041222002810.GA12886@kroah.com>
+In-Reply-To: <20041222002810.GA12886@kroah.com>
 MIME-Version: 1.0
-To: girish wadhwani <girish.wadh@gmail.com>
-CC: Lee Revell <rlrevell@joe-job.com>, Adrian Bunk <bunk@stusta.de>,
-       Arne Caspari <arnem@informatik.uni-bremen.de>, bcollins@debian.org,
-       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
-References: <20041220015320.GO21288@stusta.de>	 <41C694E0.8010609@informatik.uni-bremen.de>	 <20041220175156.GW21288@stusta.de>	 <1103576759.1252.93.camel@krustophenia.net> <e2e1047f04122013493f5b0151@mail.gmail.com>
-In-Reply-To: <e2e1047f04122013493f5b0151@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_sAMyBy2eHU7EDCH"
+Message-Id: <200412211630.36844.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-girish wadhwani wrote:
+--Boundary-00=_sAMyBy2eHU7EDCH
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->>Please, can't you just hold off on breaking the ieee1394 API at all for
->>now?  Currently there are no supported IEEE-1394 audio devices.  This is
->>a big deal as most new pro audio interfaces are IEEE-1394 devices.
->>There are a few under development, see http://freebob.sf.net.  But they
->>don't work yet.  If you rip out half the API you will make it that much
->>harder for these developers, by requiring them to be kernel hackers as
->>well as driver writers.
->>
->>How about waiting until there is _one_ IEEE-1394 audio driver in the
->>tree before breaking the API?
->>    
->>
+On Tuesday, December 21, 2004 4:28 pm, Greg KH wrote:
+> On Tue, Dec 21, 2004 at 04:19:52PM -0800, Jesse Barnes wrote:
+> > This small patch adds routines to create and remove bin_attribute files
+> > for class devices.  One intended use is for binary files corresponding to
+> > PCI busses, like bus legacy I/O ports or ISA memory.
+> >
+> >  drivers/base/class.c   |   16 ++++++++++++++++
+> >  include/linux/device.h |    5 ++++-
+> >  2 files changed, 20 insertions(+), 1 deletion(-)
+> >
+> > Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 >
->I don't think the symbols are an issue for the Freebob project.
->Atleast, not right now. The code doesn't use the symbols. Most of the
->driver is intended to be in userspace anyways.
->Moreover, if you are going to break in the interface, you might as
->well do it before the driver
->is written rather than after.
+> Ugh, we'll get this eventually... You forgot a EXPORT_SYMBOL_GPL() so
+> that modules can use these functions :)
 >
->Just my 2c.
->
->-Girish   
->  
->
-At this point were not looking at any kernel symbols at all. The driver 
-is intended indeed as a userspace driver, depending heavily on the 
-userspace libs available. I personally would go to kernel space only if 
-perfomance issues arise. Or maybe if implementing an ALSA kernel space 
-driver would be easier than implementing it in user space (small chance).
+> Third time's a charm :)
 
-So wrt to the kernel symbols, I personally don't mind them changing... I 
-have to learn them from scratch anyway (as you point out).
+Doh!  Here you go.
 
-And should we be implementing some sort of kernel driver, chances are 
-that it will only implement the AMDTP packaging and ISO transport. 
-Connection management and other non-RT tasks will most likely remain in 
-user space, based upon well-tested libs. So the number of interface 
-functions used will be rather small, and they will probably be available 
-anyway because other drivers also use them.
+Jesse
 
-And isn't driver writing a bit of kernel hacking anyway? As far as I 
-know, you have to be very aware of kernel issues/internals when writing 
-a driver...
 
-Greets,
+--Boundary-00=_sAMyBy2eHU7EDCH
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="class-device-bin-files-2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="class-device-bin-files-2.patch"
 
-Pieter Palmers
-Freebob developer
+===== drivers/base/class.c 1.56 vs edited =====
+--- 1.56/drivers/base/class.c	2004-11-12 03:45:39 -08:00
++++ edited/drivers/base/class.c	2004-12-21 16:29:34 -08:00
+@@ -179,6 +179,22 @@
+ 		sysfs_remove_file(&class_dev->kobj, &attr->attr);
+ }
+ 
++int class_device_create_bin_file(struct class_device *class_dev,
++				 struct bin_attribute *attr)
++{
++	int error = -EINVAL;
++	if (class_dev)
++		error = sysfs_create_bin_file(&class_dev->kobj, attr);
++	return error;
++}
++
++void class_device_remove_bin_file(struct class_device *class_dev,
++				  struct bin_attribute *attr)
++{
++	if (class_dev)
++		sysfs_remove_bin_file(&class_dev->kobj, attr);
++}
++
+ static int class_device_dev_link(struct class_device * class_dev)
+ {
+ 	if (class_dev->dev)
+@@ -576,6 +592,8 @@
+ EXPORT_SYMBOL_GPL(class_device_put);
+ EXPORT_SYMBOL_GPL(class_device_create_file);
+ EXPORT_SYMBOL_GPL(class_device_remove_file);
++EXPORT_SYMBOL_GPL(class_device_create_bin_file);
++EXPORT_SYMBOL_GPL(class_device_remove_bin_file);
+ 
+ EXPORT_SYMBOL_GPL(class_interface_register);
+ EXPORT_SYMBOL_GPL(class_interface_unregister);
+===== include/linux/device.h 1.133 vs edited =====
+--- 1.133/include/linux/device.h	2004-12-08 15:22:36 -08:00
++++ edited/include/linux/device.h	2004-12-21 16:16:06 -08:00
+@@ -228,7 +228,10 @@
+ 				    const struct class_device_attribute *);
+ extern void class_device_remove_file(struct class_device *, 
+ 				     const struct class_device_attribute *);
+-
++extern int class_device_create_bin_file(struct class_device *,
++					struct bin_attribute *);
++extern void class_device_remove_bin_file(struct class_device *,
++					 struct bin_attribute *);
+ 
+ struct class_interface {
+ 	struct list_head	node;
 
->>Lee
->>
->>
->>-------------------------------------------------------
->>SF email is sponsored by - The IT Product Guide
->>Read honest & candid reviews on hundreds of IT Products from real users.
->>Discover which products truly live up to the hype. Start reading now.
->>http://productguide.itmanagersjournal.com/
->>_______________________________________________
->>mailing list linux1394-devel@lists.sourceforge.net
->>https://lists.sourceforge.net/lists/listinfo/linux1394-devel
->>
->>    
->>
->
->
->-------------------------------------------------------
->SF email is sponsored by - The IT Product Guide
->Read honest & candid reviews on hundreds of IT Products from real users.
->Discover which products truly live up to the hype. Start reading now. 
->http://productguide.itmanagersjournal.com/
->_______________________________________________
->mailing list linux1394-devel@lists.sourceforge.net
->https://lists.sourceforge.net/lists/listinfo/linux1394-devel
->
->  
->
-
+--Boundary-00=_sAMyBy2eHU7EDCH--

@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263037AbUK0BoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263050AbUK0BoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbUK0BoG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 20:44:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263029AbUKZTiY
+	id S263050AbUK0BoA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 20:44:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUK0Bkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:38:24 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:62401 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262369AbUKZTV4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:21:56 -0500
-To: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: Re: Suspend 2 merge: 34/51: Includes
-In-Reply-To: <1101327443.3425.11.camel@desktop.cunninghams>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101297843.5805.324.camel@desktop.cunninghams> <20041124132558.GB13034@infradead.org> <20041124132558.GB13034@infradead.org> <1101327443.3425.11.camel@desktop.cunninghams>
-Date: Wed, 24 Nov 2004 23:19:09 +0000
-Message-Id: <E1CX6Pl-0002Gg-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Fri, 26 Nov 2004 20:40:31 -0500
+Received: from neopsis.com ([213.239.204.14]:63636 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S263053AbUK0BhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 20:37:12 -0500
+Message-ID: <41A7DAEF.9030503@dbservice.com>
+Date: Sat, 27 Nov 2004 02:39:59 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 36/51: Highlevel I/O routines.
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101298276.5805.334.camel@desktop.cunninghams> <20041125233629.GC2909@elf.ucw.cz>
+In-Reply-To: <20041125233629.GC2909@elf.ucw.cz>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+Pavel Machek wrote:
+> Hi!
+> 
+> 
+>>+extern volatile int suspend_io_time[2][2];
+> 
+> 
+> Why volatile?
 
-> I can see that it might look that way, but it's actually fundamental to
-> the support for building as modules (which is required for LVM &
-> encryption), and has been really helpful in creating clear distinctions
-> between the different parts of suspend. It also provides a clear method
-> for someone to add support for their new wizz-bang storage method or
-> compressor.
+I think Linus doesn't like this keyword very much. And I
+also think he said it should not be used.
 
-I'm not entirely clear on this. Surely all that's needed for LVM and
-encryption support is for that to be set up in userspace and then allow
-userspace to trigger a second attempt at resume? I have a hacky patch
-for swsusp that allows that (at the moment it just adds a "resume"
-method to /sys/power/state), which gives you the functionality without
-the module pain.
-
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+tom

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267640AbUBRRu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 12:50:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267643AbUBRRu2
+	id S267646AbUBRRxn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 12:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267647AbUBRRxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 12:50:28 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:26379 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267640AbUBRRuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 12:50:25 -0500
-Date: Wed, 18 Feb 2004 17:50:18 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm1
-In-Reply-To: <20040217232130.61667965.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0402181742020.10389-100000@phoenix.infradead.org>
+	Wed, 18 Feb 2004 12:53:43 -0500
+Received: from opersys.com ([64.40.108.71]:49676 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S267646AbUBRRxm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 12:53:42 -0500
+Message-ID: <4033A7C4.4010907@opersys.com>
+Date: Wed, 18 Feb 2004 12:58:28 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: relayfs patch for 2.6.3
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> - Added the fbdev cursor API patch.  Not sure what this does apart from
->   preventing the rivafb driver from linking.  I'll let others decide if this
->   is progress.
+A relayfs patch for 2.6.3 is available here:
+http://www.opersys.com/relayfs/index.html
 
-Oops. Missed updating the rivafb driver. That is a easy fix. The current 
-cursor api is focused on teh sofftware cursor. When I begain to program 
-different hardware cursors I begain to realize it was a really bad design.
-This patch breaks up the total cursor changes because it is quite big. 
+Enjoy,
 
-P.S There is another bug I missed as well. 
-
-I will send patches soon.
-
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 

@@ -1,56 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132842AbRA3XK2>; Tue, 30 Jan 2001 18:10:28 -0500
+	id <S132969AbRA3XMj>; Tue, 30 Jan 2001 18:12:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132946AbRA3XKS>; Tue, 30 Jan 2001 18:10:18 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7552 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132934AbRA3XKG>; Tue, 30 Jan 2001 18:10:06 -0500
-Date: Tue, 30 Jan 2001 18:09:48 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Keith Owens <kaos@ocs.com.au>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Version 2.4.1 cannot be built. 
-In-Reply-To: <5363.980895893@ocs3.ocs-net>
-Message-ID: <Pine.LNX.3.95.1010130180837.4483B-100000@chaos.analogic.com>
+	id <S133099AbRA3XM3>; Tue, 30 Jan 2001 18:12:29 -0500
+Received: from adsl-63-202-13-20.dsl.snfc21.pacbell.net ([63.202.13.20]:47376
+	"EHLO earth.zigamorph.net") by vger.kernel.org with ESMTP
+	id <S132969AbRA3XMZ>; Tue, 30 Jan 2001 18:12:25 -0500
+Date: Tue, 30 Jan 2001 23:12:48 +0000 (UTC)
+From: Adam Fritzler <mid@earth.zigamorph.net>
+To: linux-kernel@vger.kernel.org
+Subject: thread core dumps
+Message-ID: <Pine.LNX.4.21.0101302311270.26932-100000@earth.zigamorph.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Keith Owens wrote:
 
-> On Tue, 30 Jan 2001 17:57:44 -0500 (EST), 
-> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> >On Wed, 31 Jan 2001, Keith Owens wrote:
-> >
-> >> On Tue, 30 Jan 2001 16:45:16 -0500 (EST), 
-> >> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> >> >The subject says it all. `make dep` is now broken.
-> >> >make[4]: Entering directory `/usr/src/linux-2.4.1/drivers/acpi'
-> >> >Makefile:29: *** target pattern contains no `%'.  Stop.
-> >> 
-> >> Which version of make are you running?
-> >> 
-> >	3.74
-> >
-> >y'a mean even make isn't make anymore?
-> 
-> You mean that nobody reads Documentation/Changes any more?
+Is there a way to get threaded applications to dump core properly on
+2.4.0? There is a patch floating around for 2.2.x, but the patch is not
+applicable to the 2.4. code.
 
-Seldom, only once or twice a day. Guess that's not often enough
-to keep up on the new tool requirements.
+Any help is appreciated
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+af
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

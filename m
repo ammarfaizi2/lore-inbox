@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262461AbUBXVGh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 16:06:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbUBXVGh
+	id S262433AbUBXVIE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbUBXVIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 16:06:37 -0500
-Received: from web41204.mail.yahoo.com ([66.218.93.37]:19600 "HELO
-	web41204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262461AbUBXVFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 16:05:45 -0500
-Message-ID: <20040224210544.15843.qmail@web41204.mail.yahoo.com>
-Date: Tue, 24 Feb 2004 13:05:44 -0800 (PST)
-From: Jin Suh <jinssuh@yahoo.com>
-Subject: [2.4.25] hdb: dma-timer-expiry: dma status=0x61, error waiting for DMA
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 Feb 2004 16:08:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26752 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262433AbUBXVHQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 16:07:16 -0500
+Date: Tue, 24 Feb 2004 13:07:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, mason@suse.com
+Subject: Re: [FIX] CONFIG_REGPARM breaks non-asmlinkage syscalls
+Message-Id: <20040224130721.182c533b.akpm@osdl.org>
+In-Reply-To: <1077653156.3101.327.camel@nb.suse.de>
+References: <1077653156.3101.327.camel@nb.suse.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Andreas Gruenbacher <agruen@suse.de> wrote:
+>
+> with CONFIG_REGPARM=y, syscalls must be declared asmlinkage or else
+>  calling them will fail. Current gcc unfortunately does not warn about
+>  this. (I have already told one of our compiler developers.) Attached is
+>  a fix that adds a few missing declarations.
 
-I recently upgraded my kernel to 2.4.25 on Dell 530 dual Xeons/2gb RAM. I had
-the following error twice. 
+hm, thanks.  These should all be fixed by the "put all syscall decls in
+syscalls.h" patch.  I'll hurry that along a bit.
 
-hdb: dma-timer-expiry: dma status=0x61
-hdb: error waiting for DMA
-
-Then the system gets hung. It happens in the morning when I hit the enter key
-at the command prompt to refresh my system. Did I set the wrong DMA in the
-kernel configuration? I enabled the followings:
-
-Generic PCI bus-master DMA support
-Use PCI DMA by default when available
-
-Could someone help me?
-
-Thanks,
-Jin
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail SpamGuard - Read only the mail you want.
-http://antispam.yahoo.com/tools

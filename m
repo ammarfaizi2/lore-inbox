@@ -1,91 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264880AbTLHAgn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 19:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbTLHAgn
+	id S264796AbTLHAuh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 19:50:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbTLHAug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 19:36:43 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:27832 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264796AbTLHAgi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 19:36:38 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: 2.6.0-test11-bart1
-Date: Mon, 8 Dec 2003 01:38:32 +0100
-User-Agent: KMail/1.5.4
+	Sun, 7 Dec 2003 19:50:36 -0500
+Received: from ppp-168-253-10-94.den1.ip.ricochet.net ([168.253.10.94]:15620
+	"EHLO mercury.illtel.denver.co.us") by vger.kernel.org with ESMTP
+	id S264796AbTLHAu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 19:50:27 -0500
+Date: Sun, 7 Dec 2003 18:00:08 -0700 (MST)
+From: Alex Belits <abelits@phobos.illtel.denver.co.us>
+To: John Bradford <john@grabjohn.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Additional clauses to GPL in network drivers
+In-Reply-To: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.58.0312071753230.1236@mercury>
+References: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312080138.32388.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 7 Dec 2003, John Bradford wrote:
 
-Lets start the ball rolling...
+> For example, it brings up a few issues:
+>
+> 1. How is 'operating system' supposed to be defined in this context?
+>
+> I assume that if it meant just the kernel, it would say 'kernel'.
+>
+> If you define 'operating system' as including some userspace
+> utilities, it's going to cause problems, as some common utilities are
+> not GPL'ed, (the extra clause doesn't say 'GPL-compatible', it
+> specifically specifies GPL).
 
-If you have problems ide-tape.c, siimage.c or cmd640.c (in PCI mode)
-you should try this patch.
+  I guess, it really means, "kernel as distributed".
 
-It also contains untested fixes for Promise IDE driver (pdc202xx_old.c),
-they should be safe but better backup your data first :-), feedback needed.
+> 2. Is code licensed under this extra term actually compatible with
+> code placed under the GPL alone?
 
-Workarounds for nForce2 chipset are also included.
+  As I understand it, the statement was only meant to emphasize that the
+file is a part of a larger work that is licensed under GPL, and its (and
+derivations') distribution as a separate work is still governed by GPL
+(in particular, it does not allow incorporation into other products under
+other licenses) and the authors are unwilling to re-license it under any
+non-GPL terms. The way how it was expressed is unclear and formally
+incorrect, but I think, the intent of the statement is merely to re-state
+the restrictions that are already in GPL and discourage attempts to obtain
+(or assume) other licenses.
 
-Get it from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/
+> 3. I haven't tried to trace the history of this code, but if these
+> drivers were based on, and include, other developer's purely GPL'ed
+> code, applying this extra condition is presumably not valid, (unless
+> specific permission was sought to do so).
+>
+> 4. The obvious issue concerning binary modules - does loading a binary
+> module which is not licensed under the GPL invalidate your license to
+> use these network drivers?  Note that I personally have no interest
+> whatsoever in using such binary modules, but whatever ends up being
+> decided for the GPL'ed parts of the kernel, this extra clause suggests
+> to me that it specifically isn't OK whilst using these network
+> drivers.
 
-If you have some patches you think are worth merging just mail me
-(cleanups are also welcomed).
+  The statement is unclear on this, however if you read "operating system"
+as "kernel as distributed" and "use" as "distribute" it would make perfect
+sense. Otherwise it's meaningless.
 
---bart
-
-Merged:
-
-linux-2.6.0-test11-bk5.patch
-  -bk snapshot (patch-2.6.0-test11-bk5)
-
-extraversion.patch
-  add -bartX to EXTRAVERSION
-
-ide-tape-update.patch
-  [IDE] ide-tape.c update
-
-ide-tape-rq-special.patch
-  [IDE] ide-tape.c: stop abusing rq->flags
-
-ide-siimage-seagate.patch
-  [IDE] siimage.c: limit requests to 15kB only for Seagate SATA drives
-
-ide-siimage-stack-fix.patch
-  [IDE] siimage.c: fix PIO settings programming
-
-ide-siimage-sil3114.patch
-  [IDE] siimage.c: add very basic support for Silicon Image 3114 SATA
-
-ide-cmd640-pci1.patch
-  [IDE] cmd640.c: fix PCI type1 access
-
-ide-pdc_old-pio-fix.patch
-  [IDE] pdc202xx_old.c: fix PIO autotuning
-
-ide-pdc_old-udma66-fix.patch
-  [IDE] pdc202xx_old.c: fix enabling 66MHz clock for modes > UDMA2
-
-ide-pdc_old-66mhz_clock-fix.patch
-  [IDE] pdc202xx_old.c: sanitize 66MHz clock use
-
-nforce2-disconnect-quirk.patch
-  [x86] fix lockups with APIC support on nForce2
-
-nforce2-apic.patch
-  [x86] do not wrongly override mp_ExtINT IRQ
-
-ide-recovery-time.patch
-  [IDE] remove dead and broken DISK_RECOVERY_TIME support
-
-ide-pdc_new-proc.patch
-  [IDE] pdc202xx_new.c: remove useless /proc/ide/pdcnew
-
+-- 
+Alex

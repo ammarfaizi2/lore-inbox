@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261689AbSJYXju>; Fri, 25 Oct 2002 19:39:50 -0400
+	id <S261688AbSJYXjS>; Fri, 25 Oct 2002 19:39:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261690AbSJYXjt>; Fri, 25 Oct 2002 19:39:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30737 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261689AbSJYXjq>;
-	Fri, 25 Oct 2002 19:39:46 -0400
-Message-ID: <3DB9D79D.8090305@pobox.com>
-Date: Fri, 25 Oct 2002 19:45:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+	id <S261689AbSJYXjS>; Fri, 25 Oct 2002 19:39:18 -0400
+Received: from oak.sktc.net ([208.46.69.4]:40411 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id <S261688AbSJYXjR>;
+	Fri, 25 Oct 2002 19:39:17 -0400
+Message-ID: <3DB9D789.4020101@sktc.net>
+Date: Fri, 25 Oct 2002 18:45:13 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021012
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-CC: Robert Love <rml@tech9.net>, Daniel Phillips <phillips@arcor.de>,
+To: Robert Love <rml@tech9.net>
+CC: Jeff Garzik <jgarzik@pobox.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Daniel Phillips <phillips@arcor.de>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        "'Dave Jones'" <davej@codemonkey.org.uk>,
        "'akpm@digeo.com'" <akpm@digeo.com>,
@@ -21,37 +22,26 @@ CC: Robert Love <rml@tech9.net>, Daniel Phillips <phillips@arcor.de>,
        "'chrisl@vmware.com'" <chrisl@vmware.com>,
        "'Martin J. Bligh'" <mbligh@aracnet.com>
 Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
-References: <F2DBA543B89AD51184B600508B68D4000ECE70AE@fmsmsx103.fm.intel.com>
+References: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com>	<3DB9CC5D.7000600@pobox.com>  <3DB9D1FE.5010607@sktc.net> <1035588310.734.4165.camel@phantasy>
+In-Reply-To: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nakajima, Jun wrote:
+Robert Love wrote:
 
->No, the notion of "sibling" is not clear. The other day a person pointed out
->"the number of the siblings does not include yourself" when she saw the
->variable smp_num_siblings. So with HT enabled, for a cpu the number of the
->siblings should be 1, instead of 2, from an English language perspective.
->But we want to mean the number H/W threads in a processor package. 
 >
->And with multi-core, "sibling" is not clear enough to distiguish "core" in a
->processor package and "thread" in a "core".
->  
->
+> If there are subcores, then I think there must be some major core. 
 
+I would assert that, at least in the case of the P4, there IS a "major 
+core", as the 2 subcores share L1 and bus controller access, as well as 
+several other parts of the chip.
 
-That's fine.  I can be convinced away from "sibling", I'll leave that up 
-to others.  Personally I think I prefer "virtual core" over "sibling" 
-and "sub-core".
-
-However, "thread" is the least clear of the proposed choices, and should 
-not be used.  Anything-but-thread is my position :)  Thread is used to 
-describe processes in Linux, those active in hardware and also those 
-sleeping in memory, etc.
-
-    Jeff
-
+I beleive this is to some extent the case in the Power4 modules - that 
+each module contains resources shared by the execution units. However, I 
+might be full of it, and since there are plenty of @ibm.com's here I 
+expect to be corrected shortly....
 
 
 

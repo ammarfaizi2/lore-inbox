@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264805AbSJVSAq>; Tue, 22 Oct 2002 14:00:46 -0400
+	id <S261782AbSJVR7t>; Tue, 22 Oct 2002 13:59:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261641AbSJVSAS>; Tue, 22 Oct 2002 14:00:18 -0400
-Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:27155 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S261784AbSJVSAE>;
-	Tue, 22 Oct 2002 14:00:04 -0400
-Date: Tue, 22 Oct 2002 14:06:12 -0400 (EDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Larry McVoy <lm@bitmover.com>
-cc: Andrew Morton <akpm@digeo.com>, Jeff Garzik <jgarzik@pobox.com>,
-       <linux-kernel@vger.kernel.org>, <rms@gnu.org>
-Subject: Re: Listmaster request: Do not blacklist rms@gnu.org
-In-Reply-To: <20021021193131.G20688@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0210221401570.17678-100000@innerfire.net>
+	id <S264803AbSJVR7m>; Tue, 22 Oct 2002 13:59:42 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:24336 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S264799AbSJVR72>;
+	Tue, 22 Oct 2002 13:59:28 -0400
+Message-ID: <3DB59385.6050003@mvista.com>
+Date: Tue, 22 Oct 2002 13:05:57 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: dipankar@gamebox.net
+CC: linux-kernel@vger.kernel.org, levon@movementarian.org
+Subject: Re: [PATCH] NMI request/release
+References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <20021022232345.A25716@dikhow>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002, Larry McVoy wrote:
+Dipankar Sarma wrote:
 
-> We really ought to be able to be a lot more reasonable about all this
-> stuff, we all have the same goals, we are all trying to make the world a
-> better place (swell of violin music as I puke on myself for throwing out
-> cliches :)  More seriously, my view is that if we're fighting amongst
-> ourselves, we blew it.  We should be fighting Microsoft, they are the
-> real problem, Richard isn't, the GPL isn't, BK isn't.  Let's keep our
-> eye on the ball.
+>On Tue, Oct 22, 2002 at 03:10:06PM +0200, Corey Minyard wrote:
+>  
+>
+>>>If it's possible (and I have no idea, not having looked at RCU at all)
+>>>it seems the right way.
+>>>
+>>>      
+>>>
+>>I looked, and the rcu code relys on turning off interrupts to avoid 
+>>preemption.  So it won't work.
+>>
+>>    
+>>
+>
+>Hmm.. Let me see -
+>
+>You need to walk the list in call_nmi_handlers from nmi interrupt handler where
+>preemption is not an issue anyway. Using RCU you can possibly do a safe
+>walking of the nmi handlers. To do this, your update side code
+>(request/release nmi) will still have to be serialized (spinlock), but
+>you should not need to wait for completion of any other CPU executing
+>the nmi handler, instead provide wrappers for nmi_handler
+>allocation/free and there free the nmi_handler using an RCU callback
+>(call_rcu()). The nmi_handler will not be freed until all the CPUs
+>have done a contex switch or executed user-level or been idle.
+>This will gurantee that *this* nmi_handler is not in execution
+>and can safely be freed.
+>
+>This of course is a very simplistic view of the things, there could
+>be complications that I may have overlooked. But I would be happy
+>to help out on this if you want.
+>
+This doesn't sound any simpler than what I am doing right now.  In fact, 
+it sounds more complex.  Am I correct?  What I am doing is pretty simple 
+and correct.  Maybe more complexity would be required if you couldn't 
+atomically update a pointer, but I think simplicity should win here.
 
-Failing a more reasonable approach we could always arrange a celebrity
-death match. "The buisnessman" vs "st ignutious" has a nice ring to it..
-don't you think?
+Thanks,
 
-/me runs
-
-	Gerhard
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+-Corey
 

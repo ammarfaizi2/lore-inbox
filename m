@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUK0Ct0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbUK0CtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUK0Ct0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 21:49:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbUK0CFD
+	id S262824AbUK0CtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 21:49:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263049AbUK0CFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 21:05:03 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4360 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262605AbUKZTgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:36:19 -0500
-Date: Thu, 25 Nov 2004 16:36:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ghozlane Toumi <gtoumi@laposte.net>, Antonino Daplas <adaplas@pol.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [2.6 patch] sstfb.c: make some code static
-Message-ID: <20041125153607.GC3537@stusta.de>
-References: <20041121153646.GA2829@stusta.de> <1101336587.2571.1.camel@localhost.localdomain>
+	Fri, 26 Nov 2004 21:05:17 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262781AbUKZThS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:37:18 -0500
+Date: Thu, 25 Nov 2004 13:29:02 +0100
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
+       trond.myklebust@fys.uio.no, neilb@cse.unsw.edu.au, torvalds@osdl.org
+Subject: Re: [PATCH] NFS mount hang fix
+Message-ID: <20041125122902.GE27939@fi.muni.cz>
+References: <20041026141148.GM6408@fi.muni.cz> <20041026150640.GA24881@fieldses.org> <20041027121543.GH4724@fi.muni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1101336587.2571.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041027121543.GH4724@fi.muni.cz>
+User-Agent: Mutt/1.4.2i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24, 2004 at 10:49:47PM +0000, Alan Cox wrote:
-> On Sul, 2004-11-21 at 15:36, Adrian Bunk wrote:
-> > The patch below makes some needlessly global code static.
-> 
-> No it doesn't. It makes some functions static (which is fine) and adds
-> some nasty messy pointless #ifdefs. It touches no variable at all.
-> 
-> Please check your description texts and also don't fill the kernel with
-> ifdef crap. Probably the __setup stuff should be a module param new
-> style too.
+Jan Kasprzak wrote:
+: J. Bruce Fields wrote:
+: : Changing those buffers to static strikes me as potentially dangerous--we
+: : currently call the ->parse() methods under a semaphore, so it's safe for
+: : now, but that might change some day and then there'll be an ugly race
+: : condition.
+: : 
+: : Could you check whether the following fixes your problem?--b.
+: : 
+: 	Yes, it is OK with this patch. Thanks,
+: 
+	It seems this patch did not make it into Linus' tree
+(at least it is not in 2.6.10-rc2). Can you resend it to Linus, please?
 
-Yes, the description text could have been better.
+	Thanks,
 
-The "ifdef crap" comes from the fact, that after making the functions 
-static, gcc warns if they are unused.
-
-cu
-Adrian
+-Yenya
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> Whatever the Java applications and desktop dances may lead to, Unix will <
+> still be pushing the packets around for a quite a while.      --Rob Pike <

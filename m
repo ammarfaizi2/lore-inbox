@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261501AbSJYRTk>; Fri, 25 Oct 2002 13:19:40 -0400
+	id <S261504AbSJYR0L>; Fri, 25 Oct 2002 13:26:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261502AbSJYRTk>; Fri, 25 Oct 2002 13:19:40 -0400
-Received: from dsl-62-3-75-185.zen.co.uk ([62.3.75.185]:9088 "EHLO
-	giantx.co.uk") by vger.kernel.org with ESMTP id <S261501AbSJYRTj>;
-	Fri, 25 Oct 2002 13:19:39 -0400
-Date: Fri, 25 Oct 2002 18:25:48 +0100
-From: Nyk Tarr <nyk@giantx.co.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug] 2.5.44-ac2 cdrom eject panic
-Message-ID: <20021025172548.GA598@giantx.co.uk>
-References: <20021025103631.GA588@giantx.co.uk> <20021025103938.GN4153@suse.de> <20021025131050.GA593@giantx.co.uk> <20021025144608.GX4153@suse.de> <20021025144844.GY4153@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021025144844.GY4153@suse.de>
-User-Agent: Mutt/1.4i
+	id <S261505AbSJYR0K>; Fri, 25 Oct 2002 13:26:10 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14345 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261504AbSJYR0H>; Fri, 25 Oct 2002 13:26:07 -0400
+Date: Fri, 25 Oct 2002 13:31:41 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Dave McCracken <dmccr@us.ibm.com>, Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+In-Reply-To: <2832683854.1035444175@[10.10.2.3]>
+Message-ID: <Pine.LNX.3.96.1021025133002.19333A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 04:48:44PM +0200, Jens Axboe wrote:
-> On Fri, Oct 25 2002, Jens Axboe wrote:
-> > On Fri, Oct 25 2002, Nyk Tarr wrote:
-> > > On Fri, Oct 25, 2002 at 12:39:38PM +0200, Jens Axboe wrote:
-> > > > On Fri, Oct 25 2002, Nyk Tarr wrote:
-> > > > > 
-> > > > > Hi,
-> > > > > 
-> > > > > I got this nice error after doing an 'eject /cdrom'
-> > > > 
-> > > > [snip]
-> > > > 
-> > > > 2.5.44 and thus 2.5.44-acX has seriously broken REQ_BLOCK_PC, so it's no
-> > > > wonder that it breaks hard. Alan, I can sync the sgio patches for you if
-> > > > you want.
-> > > > 
-> > > > Nyk, if you could try
-> > > > 
-> > > > *.kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.44/sgio-15.bz2
-> > > > 
-> > > > that would be great, thanks.
-> > > 
-> > > This also seems to hang and die. No panic in the logs this time, but
-> > > some stuff scrolling off the screen on console. Sadly I've nothing to
-> > > use as serial console at the mo' but I'll try some other options...
-> > 
-> > Please try sgio-16 from the above location. Ejecting works fine for me,
-> > it even manages to close the tray when I ask it to.
+On Thu, 24 Oct 2002, Martin J. Bligh wrote:
+
+> > Another thought, how does this play with NUMA systems? I don't have the
+> > problem, but presumably there are implications.
 > 
-> Irk you are on SCSI, yes you need this incremental patch for that to
-> work. Sorry about that, I've put up 16b which contains this.
+> At some point we'll probably only want one shared set per node.
+> Gets tricky when you migrate processes across nodes though - will
+> need more thought
 
-That'll teach me to use ide-scsi ^_-.
-
-Working now, thanks. -ac3 applies over the top with 4 offset patches and
-seems to work fine (I can't get various bits of 2.5.44 to compile). I'll
-hammer it some more tomorrow.
+The whole issue of pages shared between nodes is a graduate thesis waiting
+to happen.
 
 -- 
-/__
-\_|\/
-   /\
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

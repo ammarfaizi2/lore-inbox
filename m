@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267920AbUHPT4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUHPT56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267920AbUHPT4q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 15:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUHPT4q
+	id S267921AbUHPT56 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 15:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267922AbUHPT55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 15:56:46 -0400
-Received: from vsmtp4alice-fr.tin.it ([212.216.176.150]:23721 "EHLO
-	vsmtp4.tin.it") by vger.kernel.org with ESMTP id S267920AbUHPTz3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 15:55:29 -0400
-Subject: Re: Packet writing problems
-From: Frediano Ziglio <freddyz77@tin.it>
-To: Peter Osterlund <petero2@telia.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <m3657iq4rk.fsf@telia.com>
-References: <1092669361.4254.24.camel@freddy> <m3acwuq5nc.fsf@telia.com>
-	 <m3657iq4rk.fsf@telia.com>
-Content-Type: text/plain
-Message-Id: <1092686149.4338.1.camel@freddy>
+	Mon, 16 Aug 2004 15:57:57 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14797 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267921AbUHPT5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 15:57:41 -0400
+Date: Mon, 16 Aug 2004 21:57:33 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER -> depends HOTPLUG]
+Message-ID: <20040816195733.GZ1387@fs.tum.de>
+References: <20040809203840.GB19748@mars.ravnborg.org> <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de> <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home> <20040814074953.GA20123@mars.ravnborg.org> <20040814210523.GG1387@fs.tum.de> <Pine.LNX.4.61.0408151932370.12687@scrub.home> <20040815174028.GM1387@fs.tum.de> <Pine.LNX.4.61.0408160043270.12687@scrub.home>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 16 Aug 2004 21:55:50 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0408160043270.12687@scrub.home>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il lun, 2004-08-16 alle 21:09, Peter Osterlund ha scritto:
-...
+On Mon, Aug 16, 2004 at 12:47:05AM +0200, Roman Zippel wrote:
+> Hi,
 > 
-> The second problem is in the dvdrw-support patch in the -mm kernel.
-> (This patch is also included in the patch you are using.)
+> On Sun, 15 Aug 2004, Adrian Bunk wrote:
 > 
-> The problem is that some drives fail the "GET CONFIGURATION" command
-> when asked to only return 8 bytes. This happens for example on my
-> drive, which is identified as:
+> > And what's the correct handling of dependencies the selected symbol has?
+> > 
+> > FW_LOADER depends on HOTPLUG, and this was the issue that started the 
+> > whole thread.
 > 
->         hdc: HL-DT-ST DVD+RW GCA-4040N, ATAPI CD/DVD-ROM drive
-> 
-> Since the cdrom_mmc3_profile() function already allocates 32 bytes for
-> the reply buffer, this patch is enough to make the command succeed on
-> my drive.
-> 
+> The use of select is already a crotch here, so there's no real correct 
+> handling. There are a few possibilities:
+> - if you select FW_LOADER, you have to select HOTPLUG too
+> - if you select FW_LOADER, you have to depend on HOTPLUG
+> - FW_LOADER itself can select HOTPLUG
 
-I'm forgetting... 
+Solution 2 is what my patch tried.
 
-mounting devices it reports that disk was CD-RW and speed was 15
-(DVD-RW) and 31 (DVD+RW).
+Thinking about them, I'd prefer solution 3. But with solution 1 or 3, 
+I'm sure people like Russell King will scream since this will make it 
+non-trivial to de-select HOTPLUG.
 
-freddy77
+> bye, Roman
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

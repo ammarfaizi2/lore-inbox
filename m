@@ -1,189 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261501AbTCJVok>; Mon, 10 Mar 2003 16:44:40 -0500
+	id <S261508AbTCJVvh>; Mon, 10 Mar 2003 16:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261503AbTCJVok>; Mon, 10 Mar 2003 16:44:40 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:34323 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261501AbTCJVof>;
-	Mon, 10 Mar 2003 16:44:35 -0500
-Date: Mon, 10 Mar 2003 13:44:43 -0800
-From: Greg KH <greg@kroah.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: PCI driver module unload race?
-Message-ID: <20030310214443.GA13145@kroah.com>
-References: <20030308104749.A29145@flint.arm.linux.org.uk> <20030308191237.GA26374@kroah.com> <20030308200943.F1896@flint.arm.linux.org.uk> <20030308202101.GA26831@kroah.com>
-Mime-Version: 1.0
+	id <S261510AbTCJVvh>; Mon, 10 Mar 2003 16:51:37 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:64475 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261508AbTCJVvf>; Mon, 10 Mar 2003 16:51:35 -0500
+Date: Mon, 10 Mar 2003 13:52:47 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Rechenberg, Andrew" <ARechenberg@shermanfinancialgroup.com>,
+       linux-kernel@vger.kernel.org
+Subject: RE: OOPS in do_try_to_free_pages with VERY large software RAID array
+Message-ID: <11810000.1047333167@flay>
+In-Reply-To: <8075D5C3061B9441944E1373776451180F0762@cinshrexc03.shermfin.com>
+References: <8075D5C3061B9441944E1373776451180F0762@cinshrexc03.shermfin.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030308202101.GA26831@kroah.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 12:21:01PM -0800, Greg KH wrote:
-> On Sat, Mar 08, 2003 at 08:09:43PM +0000, Russell King wrote:
-> > On Sat, Mar 08, 2003 at 11:12:37AM -0800, Greg KH wrote:
-> > > On Sat, Mar 08, 2003 at 10:47:49AM +0000, Russell King wrote:
-> > > > Hi,
-> > > > 
-> > > > What prevents the following scenario from happening?  It's purely
-> > > > theoretical - I haven't seen this occuring.
-> > > > 
-> > > > - Load PCI driver.
-> > > > 
-> > > > - PCI driver registers using pci_module_init(), and adds itself to sysfs.
-> > > > 
-> > > > - Hot-plugin a PCI device which uses this driver.  sysfs matches the PCI
-> > > >   driver, and calls the PCI drivers probe function.
-> > > 
-> > > Ugh, yes you are correct, I can't believe I missed this before.
-> > > 
-> > > How does this patch look?
-> > 
-> > Hrm, I'm wondering whether this should be part of the device model
-> > infrastructure.  After all, surely every subsystems device driver
-> > which could be a module would need this to prevent unload races?
+> I could see why that would be the problem why I would get the OOPS from
+> /proc/mdstat, but the other OOPS I'm getting is just when the box is
+> syncing the RAID arrays.  Could I get an OOPS from md_status_read_proc
+> overwriting it's buffer if I'm not looking at it?  I guess that is a
+> likely cause.
+
+/proc will just shoot off the end of the page,  overwriting whatever
+poor victim is next. So *if* you've done the read of that file (or something
+in the boot process has, possibly including the raid userspace tools)
+all bets are off on any other oops you get later. Silent data corruption
+is *evil* ;-)
+
+The stupid way to try it (ie what I'd do ;-)) is to fix that bug, and
+see if you still get the error ;-)
+
+M.
+
+> Let me know what you think.
 > 
-> Very good point, I can see myself duplicating this logic for every
-> subsystem :)
+> Thanks,
+> Andy.
 > 
-> I'll look into moving this into the driver core later today.
+> -----Original Message-----
+> From: Martin J. Bligh [mailto:mbligh@aracnet.com] 
+> Sent: Monday, March 10, 2003 2:28 PM
+> To: Rechenberg, Andrew; linux-kernel@vger.kernel.org
+> Subject: Re: OOPS in do_try_to_free_pages with VERY large software RAID
+> array
+> 
+> 
+>> Can anyone help me out please?  I'm trying to create a monster 
+>> software RAID array and the kernel is not behaving.  On some test 
+>> hardware I can get 17 RAID1 arrays to begin syncing and will sync with
+> 
+>> /proc/sys/dev/raid/speed_limit_max set to 100000 (the max allowed) 
+>> with no problem.
+>> 
+>> We wanted to use 26 RAID1 arrays and then stripe across them to get 
+>> very high performance.  When I tried to do that this weekend on our 
+>> production box we started getting kernel panics when the RAID1 arrays 
+>> started syncing.  This was with speed_limit_max set to 10000 so the 
+>> rate wasn't very high.  Since we knew 34 disks worked we decided to 
+>> put the box in to production with just 13 RAID1 arrays and striping 
+>> across those.  The performance is great compared to our hardware RAID,
+> 
+>> but I would like to get all the disks we purchase for this system 
+>> working.
+>> 
+>> This morning I connected 56 disks to our test hardware and tried to 
+>> reproduce the problem.  With the test hardware, the 26 RAID1 arrays 
+>> were working OK at speed_limit_max 10000 however the kernel OOPSed 
+>> when I 'less'ed /proc/mdstat.  It wasn't a hard crash because I could 
+>> still work.  However when I upped the speed_limit_max to 30000 there 
+>> was a hard crash.
+> 
+> At a wild guess (OK, I only looked for about 1 minute),
+> md_status_read_proc is generating more than 4K of information, and
+> overwriting the end of it's 4K page. Throw some debug in there, and get
+> it to printk how much of the buffer it thinks it's using (just printk sz
+> every time it changes it). If it's > 4K, convert it to the seq_file
+> interface.
+> 
+> May not be it, but it seems likely given the unusual scale of what
+> you're doing, and it's easy to check.
+> 
+> M.
+> 
+> 
+> 
+> 
+> 
 
-Ok, how about this patch?  It boots for me :)
 
-If no one has any complaints, I'll work on moving the USB core to using
-this pointer instead of its own in struct usb_driver.
-
-thanks,
-
-greg k-h
-
-
-# Driver core: add module owner to struct device_driver
-
-diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
---- a/drivers/base/bus.c	Mon Mar 10 13:52:15 2003
-+++ b/drivers/base/bus.c	Mon Mar 10 13:52:15 2003
-@@ -263,14 +263,25 @@
- 	if (dev->bus->match(dev,drv)) {
- 		dev->driver = drv;
- 		if (drv->probe) {
--			if ((error = drv->probe(dev))) {
--				dev->driver = NULL;
--				return error;
-+			if (!try_module_get(drv->owner)) {
-+				dev_err(dev,
-+					"Can't get a module reference for %s\n",
-+					drv->name);
-+				goto exit;
- 			}
-+
-+			if ((error = drv->probe(dev)))
-+				dev->driver = NULL;
-+
-+			module_put(drv->owner);
-+
-+			if (error)
-+				goto exit;
- 		}
- 		device_bind_driver(dev);
- 		error = 0;
- 	}
-+exit:
- 	return error;
- }
- 
-@@ -350,8 +361,16 @@
- 		sysfs_remove_link(&drv->kobj,dev->kobj.name);
- 		list_del_init(&dev->driver_list);
- 		devclass_remove_device(dev);
--		if (drv->remove)
--			drv->remove(dev);
-+		if (drv->remove) {
-+			if (!try_module_get(drv->owner)) {
-+				dev_err(dev,
-+					"Can't get a module reference for %s\n",
-+					drv->name);
-+			} else {
-+				drv->remove(dev);
-+				module_put(drv->owner);
-+			}
-+		}
- 		dev->driver = NULL;
- 	}
- }
-diff -Nru a/drivers/base/power.c b/drivers/base/power.c
---- a/drivers/base/power.c	Mon Mar 10 13:52:15 2003
-+++ b/drivers/base/power.c	Mon Mar 10 13:52:15 2003
-@@ -41,10 +41,17 @@
- 	list_for_each(node,&devices_subsys.kset.list) {
- 		struct device * dev = to_dev(node);
- 		if (dev->driver && dev->driver->suspend) {
--			pr_debug("suspending device %s\n",dev->name);
--			error = dev->driver->suspend(dev,state,level);
--			if (error)
--				printk(KERN_ERR "%s: suspend returned %d\n",dev->name,error);
-+			if (!try_module_get(dev->driver->owner)) {
-+				dev_err(dev,
-+					"Can't get a module reference for %s\n",
-+					dev->driver->name);
-+			} else {
-+				pr_debug("suspending device %s\n",dev->name);
-+				error = dev->driver->suspend(dev,state,level);
-+				if (error)
-+					printk(KERN_ERR "%s: suspend returned %d\n",dev->name,error);
-+				module_put(dev->driver->owner);
-+			}
- 		}
- 	}
- 	up_write(&devices_subsys.rwsem);
-@@ -67,8 +74,15 @@
- 	list_for_each_prev(node,&devices_subsys.kset.list) {
- 		struct device * dev = to_dev(node);
- 		if (dev->driver && dev->driver->resume) {
--			pr_debug("resuming device %s\n",dev->name);
--			dev->driver->resume(dev,level);
-+			if (!try_module_get(dev->driver->owner)) {
-+				dev_err(dev,
-+					"Can't get a module reference for %s\n",
-+					dev->driver->name);
-+			} else {
-+				pr_debug("resuming device %s\n",dev->name);
-+				dev->driver->resume(dev,level);
-+				module_put(dev->driver->owner);
-+			}
- 		}
- 	}
- 	up_write(&devices_subsys.rwsem);
-@@ -89,8 +103,15 @@
- 	list_for_each(entry,&devices_subsys.kset.list) {
- 		struct device * dev = to_dev(entry);
- 		if (dev->driver && dev->driver->shutdown) {
--			pr_debug("shutting down %s\n",dev->name);
--			dev->driver->shutdown(dev);
-+			if (!try_module_get(dev->driver->owner)) {
-+				dev_err(dev,
-+					"Can't get a module reference for %s\n",
-+					dev->driver->name);
-+			} else {
-+				pr_debug("shutting down %s\n",dev->name);
-+				dev->driver->shutdown(dev);
-+				module_put(dev->driver->owner);
-+			}
- 		}
- 	}
- 	up_write(&devices_subsys.rwsem);
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	Mon Mar 10 13:52:15 2003
-+++ b/include/linux/device.h	Mon Mar 10 13:52:15 2003
-@@ -112,6 +112,7 @@
- extern void bus_remove_file(struct bus_type *, struct bus_attribute *);
- 
- struct device_driver {
-+	struct module		* owner;
- 	char			* name;
- 	struct bus_type		* bus;
- 	struct device_class	* devclass;

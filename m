@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271973AbTGYKcT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 06:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272004AbTGYKcT
+	id S272006AbTGYKjj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 06:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272007AbTGYKjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 06:32:19 -0400
-Received: from gw-nl5.philips.com ([212.153.235.109]:139 "EHLO
-	gw-nl5.philips.com") by vger.kernel.org with ESMTP id S271973AbTGYKcR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 06:32:17 -0400
-Message-ID: <3F210AF9.4030606@basmevissen.nl>
-Date: Fri, 25 Jul 2003 12:48:25 +0200
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Fri, 25 Jul 2003 06:39:39 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:15885 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S272006AbTGYKji (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 06:39:38 -0400
+Date: Fri, 25 Jul 2003 12:54:24 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Nokia A036 and the GPL
+In-Reply-To: <Pine.LNX.4.10.10307250319000.23423-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.44.0307251244070.717-100000@serv>
+References: <Pine.LNX.4.10.10307250319000.23423-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: time for some drivers to be removed?
-References: <Pine.LNX.4.53.0307240817520.19533@localhost.localdomain>	 <1059058737.7994.25.camel@dhcp22.swansea.linux.org.uk>	 <3F1FFC94.7080409@basmevissen.nl> <1059073642.7993.31.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1059073642.7993.31.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi,
 
-> The OBSOLETE stuff is already used on a couple of drivers that are obsolete
-> since 2.2 (although I fixed two of them as they got fixed in 2.4 in the
-> end)
-> 
+On Fri, 25 Jul 2003, Andre Hedrick wrote:
 
-O.K. So if something is marked obsolete, you need to edit some config 
-file to make it to (try to) compile again.
+> Who cares, the world according to Roman .. it all should be free and to
+> pursue litigation of any kind will offend people and they will not use
+> Linux.
 
-Making it a config option doesn't make sense as you are going to edit 
-things anyway. (if I assume that obsolete stuff is mostly broken TOO).
+Sorry to anyone, who doesn't understand the context, but on irc I tried to 
+explain to Andre that there might be more civil and effective ways to 
+solve a conflict than immediately pursuing litigation, but Andre has a 
+hard time to understand this.
 
-Regards,
+> On Fri, 25 Jul 2003, Tomi Lapinlampi wrote:
+>
+> > How should I (and the Linux community) proceed to solve this problem?
+> > Perhaps someone at Nokia is reading this?
 
-Bas.
+Contacting Nokia and making them aware of this problem, would be a good 
+first step.
 
+bye, Roman
 

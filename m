@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289102AbSA3LKy>; Wed, 30 Jan 2002 06:10:54 -0500
+	id <S289108AbSA3LRp>; Wed, 30 Jan 2002 06:17:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289103AbSA3LKo>; Wed, 30 Jan 2002 06:10:44 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:1726 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S289102AbSA3LKd>;
-	Wed, 30 Jan 2002 06:10:33 -0500
-Date: Wed, 30 Jan 2002 12:09:34 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] KERN_INFO for devfs
-Message-ID: <20020130120934.R1735@khan.acc.umu.se>
-In-Reply-To: <200201291649.g0TGnnD8001332@tigger.cs.uni-dortmund.de> <200201300903.g0U933t08579@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200201300903.g0U933t08579@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Wed, Jan 30, 2002 at 11:03:05AM -0200
+	id <S289110AbSA3LR0>; Wed, 30 Jan 2002 06:17:26 -0500
+Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:11408 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289108AbSA3LRV>;
+	Wed, 30 Jan 2002 06:17:21 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 12:21:29 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
+        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201301123350.7341-100000@serv>
+In-Reply-To: <Pine.LNX.4.33.0201301123350.7341-100000@serv>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Vsny-0000Dj-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 11:03:05AM -0200, Denis Vlasenko wrote:
-> On 29 January 2002 14:49, Horst von Brand wrote:
-> > > diff -u --recursive linux-2.4.18-pre6mhv_ll/fs/devfs/base.c
-> > > linux-2.4.18-pre6mhv_ll.devfs/fs/devfs/base.c
-> > > --- linux-2.4.18-pre6mhv_ll/fs/devfs/base.c     Fri Jan 25 15:49:53 2002
-> > > +++ linux-2.4.18-pre6mhv_ll.devfs/fs/devfs/base.c       Mon Jan 28
-> > > 23:05:44 2002
-> > > @@ -3490,8 +3489,8 @@
-> > >      int err;
-> > >
-> > >      if ( !(boot_options & OPTION_MOUNT) ) return;
-> > > -    err = do_mount ("none", "/dev", "devfs", 0, "");
-> > > -    if (err == 0) printk ("Mounted devfs on /dev\n");
-> > > +    err = do_mount ("devfs", "/dev", "devfs", 0, "");
-> > > +    if (err == 0) printk (KERN_INFO "Mounted devfs on /dev\n");
-> > >      else printk ("Warning: unable to mount devfs, err: %d\n", err);
-> >
-> >                     ^^^^^
-> >                      Missed this one
+On January 30, 2002 11:39 am, Roman Zippel wrote:
+> Hi,
 > 
-> Hmm. KERN_WARNING can be added there, but it is the default level anyway.
+> On Wed, 30 Jan 2002, Daniel Phillips wrote:
+> 
+> > Yes, we should cc our patches to a patchbot:
+> >
+> >   patches-2.5@kernel.org -> goes to linus
+> >   patches-2.4@kernel.org -> goes to marcello
+> >   patches-usb@kernel.org -> goes to gregkh, regardless of 2.4/2.5
+> >   etc.
+> 
+> I'd rather make the patchbot more intelligent, that means it analyzes the
+> patch and produces a list of touched files. People can now register to get
+> notified about patches, which changes areas they are interested in.
 
-Yes, but that may change (in theory, at least.) Consistency is a virtue.
+But they can already do that, by subscribing to the respective mailing list 
+(obviously, the bot posts to the list as well as forwarding to the 
+maintainer) and running the mails through a filter of their choice.
 
+> In the simplest configuration nothing would change for Linus, but patches
+> wouldn't get lost and people could be notified if their patch was applied
+> or if it doesn't apply anymore.
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+OK, it would be nice, but you wouldn't want to pile on so many features that 
+this never gets implemented would you?  The minimal thing that forwards and 
+posts patches is what we need now.  Like any other software it can be 
+improved over time.
+
+> Other people have a place to search for patches and they can check whether 
+> something was already fixed.
+
+Automating the applied/dropped status is clearly the next problem to tackle, 
+but that's harder, it involves behavioral changes on the maintainers side.  
+(Pragmatically, providing a web interface so somebody whose job it is to do 
+that, can efficiently post 'applied' messages to the list would get the job 
+done without making anyone learn new tools or change the way they work.)
+
+By the way, who is going to code this?  Or are we determined to make 
+ourselves look like wankers once again, by putting considerably more time 
+into the lkml flamewar than goes into producing working code?
+
+(Hint: I am not going to code it, nor should I since I should be working in 
+the kernel.)
+
+-- 
+Daniel

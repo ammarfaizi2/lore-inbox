@@ -1,93 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbTI3Ohx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 10:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbTI3Ohx
+	id S261535AbTI3Ohq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 10:37:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTI3Ohq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 10:37:53 -0400
-Received: from thunk.org ([140.239.227.29]:31659 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261539AbTI3Oht (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 10:37:49 -0400
-Date: Tue, 30 Sep 2003 10:21:54 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "David S. Miller" <davem@redhat.com>, bunk@fs.tum.de,
-       acme@conectiva.com.br, netdev@oss.sgi.com, pekkas@netcore.fi,
-       lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-Message-ID: <20030930142154.GA28501@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	David Woodhouse <dwmw2@infradead.org>,
-	"David S. Miller" <davem@redhat.com>, bunk@fs.tum.de,
-	acme@conectiva.com.br, netdev@oss.sgi.com, pekkas@netcore.fi,
-	lksctp-developers@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20030928225941.GW15338@fs.tum.de> <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de> <20030929220916.19c9c90d.davem@redhat.com> <1064903562.6154.160.camel@imladris.demon.co.uk> <20030930000302.3e1bf8bb.davem@redhat.com> <1064907572.21551.31.camel@hades.cambridge.redhat.com> <20030930010855.095c2c35.davem@redhat.com> <1064910398.21551.41.camel@hades.cambridge.redhat.com>
+	Tue, 30 Sep 2003 10:37:46 -0400
+Received: from h80ad2612.async.vt.edu ([128.173.38.18]:34719 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261535AbTI3Ohp (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 10:37:45 -0400
+Message-Id: <200309301437.h8UEbSvl017305@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Robert Love <rml@tech9.net>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: -mregparm=3 (was Re: [PATCH] i386 do_machine_check() is redundant. 
+In-Reply-To: Your message of "Tue, 30 Sep 2003 00:55:13 EDT."
+             <1064897712.4568.32.camel@localhost> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org> <1064775868.5045.4.camel@laptop.fenrus.com> <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz> <20030929202604.GA23344@nevyn.them.org> <Pine.LNX.4.58.0309292309050.7824@artax.karlin.mff.cuni.cz> <200309300449.h8U4nSvl002308@turing-police.cc.vt.edu>
+            <1064897712.4568.32.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1064910398.21551.41.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.5.4i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+Content-Type: multipart/signed; boundary="==_Exmh_-228707008P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 30 Sep 2003 10:37:28 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 09:26:38AM +0100, David Woodhouse wrote:
-> > The suggestions I see do nothing to enhance the kernel tree as it currently
-> > stands.  If you wish to prevent the kernel image from changing due to
-> > out-of-tree modules being built, fine, but don't impose this restriction
-> > upon in-kernel modules.
+--==_Exmh_-228707008P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 30 Sep 2003 00:55:13 EDT, Robert Love said:
+
+> Hm, we may need to do something like:
 > 
-> It's a matter of taste. As I said, it's your right to disagree.
+> 	#define abs(n)	 __builtin_abs((n))
 > 
-> Some time during 2.7 I'm sure one of the many people who agree with
-> Adrian and myself will send patches to Linus and he'll get to arbitrate.
+> because -ffreestanding implies -fno-builtin, which disables use of
+> built-in functions that do not begin with __builtin.
 
+Well, abs() is the only one I tripped over in my config.  I'm sure there's others
+lurking elsewhere in the kernel tree.
 
-FWIW, I agree with Dave.  Most of the time, enabling a device driver
-won't cause the core kernel to change, sure.  
+The bigger question is whether a patch to support -ffreestanding would be a
+good idea - with proper use of the __builtin_* stuff it *should* work, and it will
+hopefully cause better kernel code hygiene..
 
-However, there will be cases (such as enabling wireless ethernet
-drivers as modules, for example) where in order to support those
-modules, some new core kernel infrastructure will need to be enabled.
+--==_Exmh_-228707008P
+Content-Type: application/pgp-signature
 
-Now, there are a couple of ways ways you can handle this.  One is that
-the core infrastructure could have its own CONFIG_infrastructure
-boolean, and if that symbol is 'no', then you won't be able to build
-those modules until you recompile the base kernel with
-CONFIG_infrastructure.  Another is that you can make enabling any one
-of the device driver modules "automatically" enable inclusion of the
-base core infrastructure.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-It then all boils down to tradeoffs and aesthetics.  By making
-CONFIG_infrastructure explicit, it makes it more clear what is going
-on --- but if it is defaulted on, or if you require that whatever is
-under the CONFIG_infrastructure ifdef is always compiled in, then that
-way leads to kernel boot.  But if it is defaulted off, then the user
-will be forced to recompile the kernel anyway, before he/she can
-enable the kernel module in question.  Including CONFIG_infrastructure
-explicitly also makes the kernel build process more complex, and can
-also make life more confusing to the user --- the question about
-whether or not you can build a particular device driver won't even
-appear until the user enables CONFIG_infrastructure, and the user may
-have a really hard time figuring out that CONFIG_infrastructure is the
-way to make a particular device driver appear.
+iD8DBQE/eZUncC3lWbTT17ARAhSmAKCwWue0In0Gxn0pVlgWDP/R9x1NWACg/ifX
+GOJ8tdJ+iaesBwUilQwe6cE=
+=4PWq
+-----END PGP SIGNATURE-----
 
-For that reason, I tend to prefer the approach of simply enabling a
-device driver, and then letting that force a change in the base kernel
-to include any necessary base infrastructure in the kernel if
-necessary.  It's simpler from a configuration perspective.  And if the
-user types "make modules" after making such a change, ideally the
-build system should warn the user that it will be necessary to rebuild
-the base kernel before it can build the module.
-
-						- Ted
+--==_Exmh_-228707008P--

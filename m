@@ -1,91 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264464AbTEaVlg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 17:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbTEaVlg
+	id S264465AbTEaVrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 17:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264467AbTEaVrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 17:41:36 -0400
-Received: from tehunlose.com ([68.15.181.213]:21378 "EHLO cerebellum")
-	by vger.kernel.org with ESMTP id S264464AbTEaVle (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 17:41:34 -0400
-From: Zack Gilburd <zack@tehunlose.com>
+	Sat, 31 May 2003 17:47:09 -0400
+Received: from ironbark.bendigo.latrobe.edu.au ([149.144.21.60]:15798 "EHLO
+	ironbark.bendigo.latrobe.edu.au") by vger.kernel.org with ESMTP
+	id S264465AbTEaVrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 17:47:07 -0400
+From: Grant <grant@ironbark.bendigo.latrobe.edu.au>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21rc6-ac1 Nforce2 AGP+ATI FireGL v2.9.12=hard lock
-Date: Sat, 31 May 2003 14:54:52 -0700
-User-Agent: KMail/1.5.2
-References: <3ED8E682.5020506@poczta.onet.pl>
-In-Reply-To: <3ED8E682.5020506@poczta.onet.pl>
+Subject: 2.4 -ac zip ppa --  'mount: /dev/sda4 is not a valid block device'
+Date: Sun, 01 Jun 2003 08:00:23 +1000
+Organization: Scattered
+Reply-To: gcoady@bendigo.net.au
+Message-ID: <2j5idv0eh05vpva8tqkd4lc97bbh3dhack@4ax.com>
+X-Mailer: Forte Agent 1.93/32.576 English (American)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_vSS2+xTy2S6yO6b";
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200305311454.55244.zack@tehunlose.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there,
 
---Boundary-02=_vSS2+xTy2S6yO6b
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+Mounting a ppa zip drive:
 
-On Saturday 31 May 2003 10:29, Gutko wrote:
-> Hi,
-> Just compiled 2.4.21rc6-ac1 with Nforce2 AGP as module.
-> Then tried to install Ati FGLRX 2.9.12 from
-> http://www.schneider-digital.de/html/download_ati.html
-> http://www.schneider-digital.de/download/ati/glx1_linux_X4.3.zip
-> because Ati didn't released XFree 4.3 driver on their www yet.
->
-> During install of this rpm i get something like this:
-> "Patching drmP.h  FAILED, saving rejects to....."
-> This *.rej file is in attachment.
-> Then module loads normally. I can start X on this driver, but only in 2d.
-> Trying to run Tuxracer and any other 3d game hardlocks my machine. 2d
-> games works ok.
->
-> Everything was OK on clean 2.4.21rc6 patched with this Nforce2 AGP patch.
-> http://etudiant.epita.fr:8000/~nonolk/nforce-agp.diff
-> but Dave Jones told me it is buggy.
->
-> My machine
-> Asus A7N8X-deluxe nforce2 mb
-> 1 GB of ram
-> Ati Radeon 9700 128M
-> Agp aperature set to 128M in bios
-> Mandrake 9.1
-> XFree86  v4.3
->
-> I'll be happy to provide more info if needed :)
->
-> Gutko
-<troll>
-	does anyone else find it ironic that when he uses ATi FireGL stuff on an=20
-nVidia chipset mobo, it hardlocks?  *snicker*
-</troll>
+2.4.21-rc5-ac2 and redhat 2.4.20-13.9 report sda4 as "not a 
+valid block device" and do not mount the drive.
 
-mod me down -5 troll accordingly, thanks.
-=2D-=20
-Zack Gilburd
-http://tehunlose.com
+2.4.21-rc6 and redhat 2.4.20-9 kernels work fine.
 
---Boundary-02=_vSS2+xTy2S6yO6b
-Content-Type: application/pgp-signature
-Content-Description: signature
+As two of these kernels are stock redhat releases, I doubt 
+my .config file is relevant.  My system has IDE HD & CDROM. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+File '/etc/modules.conf' has no references to scsi or parport 
+modules and I manually load modules with script zip-mount:
 
-iD8DBQA+2SSvp5pFZoJAq2wRAjnVAKCz4/IeJHelgdrVVP7/AALn0+sCoQCgk34M
-wNGBuHdK7agK314ME6BeARQ=
-=vG7G
------END PGP SIGNATURE-----
+#!/bin/sh
+echo "zip-mount: load modules & mount zip drive..."
+insmod scsi_mod
+insmod sd_mod
+insmod parport
+insmod parport_pc
+insmod ppa
+mount /mnt/zip
 
---Boundary-02=_vSS2+xTy2S6yO6b--
+- - -
+
+### Okay:
+
+[root@two root]# /home/system/zip-mount
+zip-mount: load modules & mount zip drive...
+Using /lib/modules/2.4.21-rc6/kernel/drivers/scsi/scsi_mod.o
+Using /lib/modules/2.4.21-rc6/kernel/drivers/scsi/sd_mod.o
+Using /lib/modules/2.4.21-rc6/kernel/drivers/parport/parport.o
+Using /lib/modules/2.4.21-rc6/kernel/drivers/parport/parport_pc.o
+Using /lib/modules/2.4.21-rc6/kernel/drivers/scsi/ppa.o
+ppa: Version 2.07 (for Linux 2.4.x)
+ppa: Found device at ID 6, Attempting to use EPP 32 bit
+ppa: Communication established with ID 6 using EPP 32 bit
+  Vendor: IOMEGA    Model: ZIP 100           Rev: D.17
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sda at scsi0, channel 0, id 6, lun 0
+SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
+sda: Write Protect is off
+[root@two root]#
+
+### Fail:
+
+[root@two root]# /home/system/zip-mount
+zip-mount: load modules & mount zip drive...
+Using /lib/modules/2.4.21-rc5-ac2/kernel/drivers/scsi/scsi_mod.o
+Using /lib/modules/2.4.21-rc5-ac2/kernel/drivers/scsi/sd_mod.o
+Using /lib/modules/2.4.21-rc5-ac2/kernel/drivers/parport/parport.o
+Using /lib/modules/2.4.21-rc5-ac2/kernel/drivers/parport/parport_pc.o
+Using /lib/modules/2.4.21-rc5-ac2/kernel/drivers/scsi/ppa.o
+ppa: Version 2.07 (for Linux 2.4.x)
+ppa: Found device at ID 6, Attempting to use EPP 32 bit
+ppa: Communication established with ID 6 using EPP 32 bit
+  Vendor: IOMEGA    Model: ZIP 100           Rev: D.17
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sda at scsi0, channel 0, id 6, lun 0
+SCSI device sda: 196608 512-byte hdwr sectors (101 MB)
+sda: Write Protect is off
+ I/O error: dev 08:00, sector 0
+ unable to read partition table
+mount: /dev/sda4 is not a valid block device
+[root@two root]#
+
+- - -
+
+Cheers,
+Grant.
 

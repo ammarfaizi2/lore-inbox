@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266365AbUAOAq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 19:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266369AbUAOAqz
+	id S266362AbUAOBML (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 20:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266369AbUAOBMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 19:46:55 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:22151 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S266365AbUAOAqW (ORCPT
+	Wed, 14 Jan 2004 20:12:10 -0500
+Received: from news.cistron.nl ([62.216.30.38]:6353 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S266362AbUAOBMI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 19:46:22 -0500
-Subject: Re: modprobe failed: digest_null
-From: Stian Jordet <liste@jordet.nu>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: David Rees <drees@greenhydrant.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040114154836.35614a92.rddunlap@osdl.org>
-References: <20040113215355.GA3882@piper.madduck.net>
-	 <20040113143053.1c44b97d.rddunlap@osdl.org>
-	 <20040113223739.GA6268@piper.madduck.net>
-	 <20040113144141.1d695c3d.rddunlap@osdl.org>
-	 <20040113225047.GA6891@piper.madduck.net>
-	 <20040113150319.1e309dcb.rddunlap@osdl.org>
-	 <3156.208.48.139.163.1074037125.squirrel@www.greenhydrant.com>
-	 <20040114154836.35614a92.rddunlap@osdl.org>
-Content-Type: text/plain
-Message-Id: <1074127568.3218.1.camel@chevrolet.hybel>
+	Wed, 14 Jan 2004 20:12:08 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: Slow NFS performance over wireless!
+Date: Thu, 15 Jan 2004 01:12:07 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bu4pd6$anf$1@news.cistron.nl>
+References: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange> <200401130155.32894.hackeron@dsl.pipex.com> <1074025508.1987.10.camel@lumiere> <1074026758.4524.65.camel@nidelv.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 15 Jan 2004 01:46:08 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1074129127 10991 62.216.29.200 (15 Jan 2004 01:12:07 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 15.01.2004 kl. 00.48 skrev Randy.Dunlap:
-> I don't know what needs to be done about these, if anything.
+In article <1074026758.4524.65.camel@nidelv.trondhjem.org>,
+Trond Myklebust  <trond.myklebust@fys.uio.no> wrote:
+>There are a couple of performance related patches that should be applied
+>to stock 2.6.0/2.6.1. One handles a problem with remove_suid()
+>generating a whole load of SETATTR calls if you are writing to a file
+>that has the "x" bit set. The other handles an efficiency issue related
+>to random write + read combinations.
+>
+>Either look for them on my website (under
+>http://www.fys.uio.no/~trondmy/src), or apply Andrew's 2.6.1-mm2 patch.
 
-As Steve Youngs wrote a couple of days ago:
+If one runs bonnie on a NFS mounted share, what should the rewrite
+throughput be?
 
-install <modulename> /bin/true
+On an NFS server locally (2.6.1-mm3) I get as write/rewrite/read
+speeds 107 / 25 / 110 MB/sec, CPU loads of a few percent.
 
-in your modprobe.conf will get rid of the messages,
-if you find them annoying.
+On an NFS client (2.6.1-mm3, filesystem mounted with options
+udp,nfsvers=3,rsize=32768,wsize=32768) I get for the same share as
+write/rewrite/read speeds 36 / 4 / 38 MB/sec. CPU load is also
+very high on the client for the rewrite case (80%).
 
-Best regards,
-Stian
+That's with back-to-back GigE, full duplex, MTU 9000, P IV 3.0 Ghz.
+(I tried MTU 5000 and 1500 as well, doesn't really matter).
+
+Is that what would be expected ?
+
+Mike.
 

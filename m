@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293030AbSCFQ2R>; Wed, 6 Mar 2002 11:28:17 -0500
+	id <S293669AbSCFQgk>; Wed, 6 Mar 2002 11:36:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293648AbSCFQ2H>; Wed, 6 Mar 2002 11:28:07 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59153 "EHLO
+	id <S293668AbSCFQga>; Wed, 6 Mar 2002 11:36:30 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2578 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293030AbSCFQ1w>; Wed, 6 Mar 2002 11:27:52 -0500
-Subject: Re: SSSCA: We're in trouble now
-To: petro@auctionwatch.com (Petro)
-Date: Wed, 6 Mar 2002 16:42:14 +0000 (GMT)
-Cc: jurgen@botz.org (Jurgen Botz), jdthood@mail.com (Thomas Hood),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020306050010.GK22934@auctionwatch.com> from "Petro" at Mar 05, 2002 09:00:10 PM
+	id <S293664AbSCFQgW>; Wed, 6 Mar 2002 11:36:22 -0500
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Wed, 6 Mar 2002 16:50:15 +0000 (GMT)
+Cc: jdike@karaya.com (Jeff Dike), hpa@zytor.com (H. Peter Anvin),
+        bcrl@redhat.com (Benjamin LaHaise),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <505.1015411792@redhat.com> from "David Woodhouse" at Mar 06, 2002 10:49:52 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16ieUY-0007MG-00@the-village.bc.nu>
+Message-Id: <E16iecJ-0007Nn-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     Just about every company big enough to have a corporate lawyer, and
->     many even smaller do have "media" they need or want to track and
->     control. 
+> You say 'at once'. Does UML somehow give pages back to the host when they're 
+> freed, so the pages that are no longer used by UML can be discarded by the 
+> host instead of getting swapped?
 
-One thing the SSSCA people must consider here is security impact. If a 
-document can be traced through its users then the ability of agencies to
-work against organised crime will be crippled. The SSSCA appears to have no
-provision to allow the FBI to remove watermarks, and makes it illegalf or
-other people to be subcontracted to write the tools
-
-Goodbye corporate whistleblowers, goodbye FBI plants in organised crime 
-bodies..
+Doesn't seem to but it looks like madvise might be enough to make that
+happen. That BTW is an issue for more than UML - it has a bearing on
+running lots of Linux instances on any supervisor/virtualising system
+like S/390

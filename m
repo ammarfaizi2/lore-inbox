@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132620AbRADEVD>; Wed, 3 Jan 2001 23:21:03 -0500
+	id <S129324AbRADEa5>; Wed, 3 Jan 2001 23:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132726AbRADEUn>; Wed, 3 Jan 2001 23:20:43 -0500
-Received: from s216-232-126-220.bc.hsia.telus.net ([216.232.126.220]:51708
-	"EHLO gatekeeper.merilus.com") by vger.kernel.org with ESMTP
-	id <S132620AbRADEUi>; Wed, 3 Jan 2001 23:20:38 -0500
-Message-ID: <00ce01c075aa$fae55ec0$c901a8c0@merilus.com>
-From: "Kevin Traas" <kevin@merilus.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Dell PERC RAID Controller
-Date: Wed, 3 Jan 2001 09:30:56 -0800
-Organization: Merilus Technologies
+	id <S129436AbRADEar>; Wed, 3 Jan 2001 23:30:47 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:41477 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129324AbRADEa2>; Wed, 3 Jan 2001 23:30:28 -0500
+Date: Thu, 4 Jan 2001 00:38:53 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: bdflush synchronous IO on prerelease-diff 
+In-Reply-To: <Pine.LNX.4.21.0101032241500.839-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0101040016580.839-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, and I forgot to mention....
 
-I'm not subscribed to this mailing list, so please be sure to
-reply privately with any comments, questions, etc.
+On Wed, 3 Jan 2001, Marcelo Tosatti wrote:
 
-Regards,
-Kevin
+> 
+> Hi Linus, 
+> 
+> I've noticed you changed bdflush to do synchronous IO on page_launder().
+> 
+> That seems to be a performance problem, since kflushd will have to wait
+> for dirty buffers to get synced instead looping on the inactive dirty
+> list more often. 
+> 
+> Here is a patch to change this. 
+> 
+> --- linux.orig/fs/buffer.c      Wed Jan  3 22:43:24 2001
+> +++ linux/fs/buffer.c   Thu Jan  4 00:28:50 2001
+> @@ -2710,7 +2710,7 @@
+>  
+>                 flushed = flush_dirty_buffers(0);
+>                 if (free_shortage())
+> -                       flushed += page_launder(GFP_KERNEL, 1);
+> +                       flushed += page_launder(GFP_KERNEL, 0);
+>  
+>                 /*
+>                  * If there are still a lot of dirty buffers around,
+
+And here are some dbench numbers:
+
+12 clients / 64M ram
+without the patch: 10.04 Mb/s  
+with the patch: 14.47 Mb/s
+
+48 clients / 256M ram 
+without the patch: 14.40 Mb/s
+with the patch: 15.69 Mb/s 
 
 
------ Original Message -----
-From: "Kevin Traas" <kevin@merilus.com>
-To: <linux-kernel@vger.rutgers.edu>; <debian-user@lists.debian.org>
-Sent: Wednesday, January 03, 2001 9:22 AM
-Subject: Dell PERC RAID Controller
-
-
-> Greetings everyone,
->
-> After much frustration in trying to get Debian GNU/Linux (my distro of
-> choice) installed on a Dell PowerEdge 2450, I've finally found success!
->
-> My problem was finding kernel support for the onboard PERC 3/Si RAID
-> Controller (Adaptec OEM chipset) so that I could store my root fs with a
-> RAID array container.  Turns out that Adaptec has recently open-sourced
-the
-> driver; however, it hasn't been accepted into any of the Linux kernel
-trees
-> as of yet.  So, I tracked down the driver sources (many thanks to Matt),
-> patched them (5 patches in total) into 2.2.18, and built my own, new patch
-> file to incorporate the aacraid 1.0.6 driver into this kernel in one, easy
-> step.
->
-> For anyone who's interested, you'll find the patch, a patched 2.2.18
-kernel
-> source archive, Debian (potato) installation disk images (with this new
-> kernel), and other info at:
->
-> http://www.merilus.com/~kevin/aacraid.html
->
->
-> Regards,
-> Kevin Traas
-> Chief Information Officer
-> Merilus Technologies, Inc.          .:|| Thinking inside the box ||:.
 
 
 -

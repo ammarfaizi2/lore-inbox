@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbTIMDAL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 23:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbTIMDAL
+	id S262004AbTIMC7F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 22:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTIMC7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 23:00:11 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:35437 "HELO
+	Fri, 12 Sep 2003 22:59:05 -0400
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:18285 "HELO
 	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262005AbTIMC7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 22:59:12 -0400
-Message-ID: <3F62881B.3060806@sbcglobal.net>
-Date: Fri, 12 Sep 2003 21:59:39 -0500
+	id S262004AbTIMC7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 22:59:02 -0400
+Message-ID: <3F628811.1010209@sbcglobal.net>
+Date: Fri, 12 Sep 2003 21:59:29 -0500
 From: Wes Janzen <superchkn@sbcglobal.net>
 User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
 X-Accept-Language: en-us, en

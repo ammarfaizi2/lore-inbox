@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbTEZUcc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 16:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbTEZUcc
+	id S262227AbTEZUhH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 16:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTEZUhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 16:32:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11021 "EHLO
+	Mon, 26 May 2003 16:37:06 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40205 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262222AbTEZUca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 16:32:30 -0400
-Date: Mon, 26 May 2003 13:45:25 -0700 (PDT)
+	id S262227AbTEZUhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 16:37:06 -0400
+Date: Mon, 26 May 2003 13:49:57 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+To: Jens Axboe <axboe@suse.de>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [BK PATCHES] add ata scsi driver
-In-Reply-To: <1053981380.1768.203.camel@mulgrave>
-Message-ID: <Pine.LNX.4.44.0305261339340.13489-100000@home.transmeta.com>
+In-Reply-To: <20030526203800.GP845@suse.de>
+Message-ID: <Pine.LNX.4.44.0305261345460.13489-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 26 May 2003, James Bottomley wrote:
+On Mon, 26 May 2003, Jens Axboe wrote:
 > 
-> > I'd hate for SATA to pick up these kinds of mistakes from the SCSI layer.
-> 
-> The elevator is based on linear head movements.
+> I know this is a pet peeve of yours (must be, I remember you bringing it
+> up at least 3 time before :), but I don't think that's necessarily true.
+> It shouldn't matter _one_ bit whether you leave the request there or
+> not, it's unmergeable.
 
-Historically, yes.
+It's not the merging that I worry about. It's latency and starvation.
 
-But we've been moving more and more towards a latency-based elevator, or
-at least one that takes latency into account. Which is exactly why you'd
-like to leave unfinished requests on the queue, because otherwise your
-queue doesn't really show what is really going on.
+Think of it this way: if you keep feeding a disk requests, and the disk 
+always tries to do the closest one (which is a likely algorithm), you can 
+easily have a situation where the disk _never_ actually schedules a 
+request that is at one "end" of the platter. 
 
-In particular, while the higher layers don't actually _do_ this yet, from 
-a latency standpoint the right thing to do when some request seems to get 
-starved is to refuse to feed more tagged requeusts to the device until the 
-starved request has finished. 
+Think of all the fairness issues we've had in the elevator code, and 
+realize that the low-level disk probably implements _none_ of those 
+fairness algorithms.
 
-As I mentioned, Andrew actually had some really bad latency numbers to
-prove that this is a real issue. SCSI with more than 4 tags or so results 
-in potentially _major_ starvation, because the disks themselves are not 
-even trying to avoid it.
+> As long as the io scheduler keeps track of this (and it does!) we are
+> golden.
 
-Also, even aside from the starvation issue with unfair disks, just from a
-"linear head movement" standpoint, you really want to sort the queue
-according to what is going on _now_ in the disk. If the disk eats the
-requests immediately (but doesn't execute them immediately), the sorting
-has nothing to go on, and you get tons of back-and-forth movements.
+Hmm.. Where does it keep track of request latency for requests that have 
+been removed from the queue?
 
-Basically, if you're trying to do an elevator, you need to know what the 
-outstanding commands are. Think it through on paper, and you'll see what I 
-mean.
-
-			Linus
+		Linus
 

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131338AbQKZXZs>; Sun, 26 Nov 2000 18:25:48 -0500
+        id <S130073AbQKZXdK>; Sun, 26 Nov 2000 18:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130767AbQKZXZi>; Sun, 26 Nov 2000 18:25:38 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:39274 "EHLO sgi.com")
-        by vger.kernel.org with ESMTP id <S131930AbQKZXZU>;
-        Sun, 26 Nov 2000 18:25:20 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: initdata for modules? 
-In-Reply-To: Your message of "Sun, 26 Nov 2000 07:30:44 -0800."
-             <200011261530.HAA09799@baldur.yggdrasil.com> 
-Mime-Version: 1.0
+        id <S130767AbQKZXcu>; Sun, 26 Nov 2000 18:32:50 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:47340 "EHLO
+        smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+        id <S130073AbQKZXcs>; Sun, 26 Nov 2000 18:32:48 -0500
+Message-ID: <3A21968B.5CDB12BF@haque.net>
+Date: Sun, 26 Nov 2000 18:02:35 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu> <20001126164556.B1665@vger.timpanogas.org>
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 27 Nov 2000 09:54:57 +1100
-Message-ID: <1175.975279297@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Nov 2000 07:30:44 -0800, 
-"Adam J. Richter" <adam@yggdrasil.com> wrote:
->	In reading include/linux/init.h, I was surprised to discover
->that __init{,data} expands to nothing when compiling a module.
->I was wondering if anyone is contemplating adding support for
->__init{,data} in module loading, to reduce the memory footprints
->of modules after they have been loaded.
+I'd rather have Anaconda changed rather than special casing standard
+utils to account for distro handling.
 
-It has been discussed a few times but nothing was ever done about it.
-AFAIK the savings were not seen to be that important because modules
-occupy complete pages.  __init would have to be stored in a separate
-page which was then discarded.  It would complicate insmod, rmmod,
-ksymoops and gdb.  gdb against the kernel already gets confused by
-vmlinux data that is discarded and gdb has problems with modules at the
-best of times.  Definitely 2.5 material, if at all.
+"Jeff V. Merkey" wrote:
+> 
+> Anaconda will barf and require over 850+ changes to the scripts without
+> it.  If you look at the patch, you will note that it's a silent switch
+> that's only there to avoid a noisy error message from depmod.  It
+> actually does nothing other than set a flag that also does nothing.
+> -m simply maps to -F.
+> 
 
+-- 
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

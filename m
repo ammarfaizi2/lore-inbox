@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318408AbSGYK4x>; Thu, 25 Jul 2002 06:56:53 -0400
+	id <S318409AbSGYLJl>; Thu, 25 Jul 2002 07:09:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318410AbSGYK4x>; Thu, 25 Jul 2002 06:56:53 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:17288 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318408AbSGYK4w>;
-	Thu, 25 Jul 2002 06:56:52 -0400
-Date: Thu, 25 Jul 2002 10:59:32 +1000
-From: Anton Blanchard <anton@samba.org>
-To: linux-kernel@vger.kernel.org
-Cc: wli@holomorphy.com, akpm@zip.com.au, torvalds@transmeta.com,
-       jsantos@austin.ibm.com
-Subject: [PATCH] Missing memory barrier in pte_chain_unlock
-Message-ID: <20020725005932.GA18140@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S318411AbSGYLJl>; Thu, 25 Jul 2002 07:09:41 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:57729 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318409AbSGYLJl>; Thu, 25 Jul 2002 07:09:41 -0400
+Date: Thu, 25 Jul 2002 07:14:13 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Kareem Dana <kareemy@earthlink.net>, Andrew Rodland <arodland@noln.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: loop.o device busy after umount
+In-Reply-To: <20020724212521.GA13196@win.tue.nl>
+Message-ID: <Pine.LNX.3.95.1020725070956.11258A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 24 Jul 2002, Andries Brouwer wrote:
 
-Hi,
+> On Wed, Jul 24, 2002 at 04:03:29PM -0400, Richard B. Johnson wrote:
+> 
+> > > Read mount(8), the places where losetup is mentioned.
+> > 
+> > It works in my system and `umount` is version 2.10o
+> > It works because (strace output), umount does the LOOP_CLR_FD ioctl().
+> 
+> Why do you repeat an imprecise answer? Read mount(8).
 
-On a ppc64 machine running 2.5.28 we were hitting this BUG in
-__free_pages_ok:
+Hardly imprecise. "Read mount(8)..." From what distribution? I gave
+the precise reason why umount 2.10o works, not some wise-guy retort
+that presumes that everybody has some specific distribution with
+your version of man pages.
 
-BUG_ON(page->pte.chain != NULL);
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 
-In pte_chain_lock we use test_and_set_bit which implies a memory
-barrier. In pte_chain_unlock we use clear_bit which has no memory
-barriers so we need to add one.
-
-Anton
-
-===== include/linux/page-flags.h 1.12 vs edited =====
---- 1.12/include/linux/page-flags.h	Wed Jul 17 07:46:30 2002
-+++ edited/include/linux/page-flags.h	Thu Jul 25 19:24:52 2002
-@@ -249,6 +248,7 @@
- 
- static inline void pte_chain_unlock(struct page *page)
- {
-+	smp_mb__before_clear_bit();
- 	clear_bit(PG_chainlock, &page->flags);
- 	preempt_enable();
- }

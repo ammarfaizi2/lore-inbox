@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265995AbTGAFiR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 01:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265975AbTGAFiR
+	id S265990AbTGAFig (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 01:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbTGAFif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 01:38:17 -0400
-Received: from rj.sgi.com ([192.82.208.96]:51691 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265995AbTGAFhu (ORCPT
+	Tue, 1 Jul 2003 01:38:35 -0400
+Received: from dp.samba.org ([66.70.73.150]:11654 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265990AbTGAFho (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 01:37:50 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Announce: kdb v4.3 is available for kernels 2.4.20, 2.4.21 
-In-reply-to: Your message of "Fri, 20 Jun 2003 17:07:47 +1000."
-             <29513.1056092867@kao1.melbourne.sgi.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 01 Jul 2003 15:50:47 +1000
-Message-ID: <6719.1057038647@kao2.melbourne.sgi.com>
+	Tue, 1 Jul 2003 01:37:44 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, trivial@rustcorp.com.au
+Subject: [PATCH] Make runqueues a per-cpu variable
+Date: Tue, 01 Jul 2003 15:49:55 +1000
+Message-Id: <20030701055206.5262D2C0B1@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ftp://oss.sgi.com/projects/kdb/download/v4.3/
+Linus, please apply.
 
-Current versions are kdb-v4.3-2.4.21-common-3.bz2 and
-kdb-v4.3-2.4.21-i386-3.bz2.
+Makes scheduler use per-cpu variables for the runqueues.
 
-common
+Name: Make Scheduler Use per-cpu 
+Author: Rusty Russell
+Status: Tested on 2.5.73-bk8
 
-2003-06-24 Keith Owens  <kaos@sgi.com>
+D: Makes scheduler use per-cpu variables for the runqueues.
 
-        * Add task and sigset commands.  Mark Goodwin, SGI.
-        * kdb v4.3-2.4.21-common-3.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27023-linux-2.5.73-bk4/kernel/sched.c .27023-linux-2.5.73-bk4.updated/kernel/sched.c
+--- .27023-linux-2.5.73-bk4/kernel/sched.c	2003-06-27 12:48:17.000000000 +1000
++++ .27023-linux-2.5.73-bk4.updated/kernel/sched.c	2003-06-27 14:59:00.000000000 +1000
+@@ -33,6 +33,7 @@
+ #include <linux/timer.h>
+ #include <linux/rcupdate.h>
+ #include <linux/cpu.h>
++#include <linux/percpu.h>
+ 
+ #ifdef CONFIG_NUMA
+ #define cpu_to_node_mask(cpu) node_to_cpumask(cpu_to_node(cpu))
+@@ -170,12 +171,12 @@ struct runqueue {
+ 	struct list_head migration_queue;
+ 
+ 	atomic_t nr_iowait;
+-} ____cacheline_aligned;
++};
+ 
+-static struct runqueue runqueues[NR_CPUS] __cacheline_aligned;
++static DEFINE_PER_CPU(struct runqueue, runqueues);
+ 
+-#define cpu_rq(cpu)		(runqueues + (cpu))
+-#define this_rq()		cpu_rq(smp_processor_id())
++#define cpu_rq(cpu)		(&per_cpu(runqueues, (cpu)))
++#define this_rq()		(&__get_cpu_var(runqueues))
+ #define task_rq(p)		cpu_rq(task_cpu(p))
+ #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
+ #define rt_task(p)		((p)->prio < MAX_RT_PRIO)
 
-2003-06-23 Keith Owens  <kaos@sgi.com>
-
-        * Sync with XFS 2.4.21 tree.
-        * kdb v4.3-2.4.21-common-2.
-
-i386
-
-2003-07-01 Keith Owens  <kaos@sgi.com>
-
-        * Convert kdba_find_return() to two passes to reduce false positives.
-        * Correct jmp disp8 offset calculation for out of line lock code.
-        * Use NMI for kdb IPI in clustered APIC mode.  Sachin Sant, IBM.
-        * kdb v4.3-2.4.21-i386-3.
-
-2003-06-23 Keith Owens  <kaos@sgi.com>
-
-        * Sync with XFS 2.4.21 tree.
-        * kdb v4.3-2.4.21-i386-2.
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,67 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129679AbRCTGAj>; Tue, 20 Mar 2001 01:00:39 -0500
+	id <S131729AbRCTGo0>; Tue, 20 Mar 2001 01:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129828AbRCTGA3>; Tue, 20 Mar 2001 01:00:29 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34313 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S129679AbRCTGAN>; Tue, 20 Mar 2001 01:00:13 -0500
-Date: Tue, 20 Mar 2001 01:15:20 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Mike Galbraith <mikeg@wen-online.de>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Manfred Spraul <manfred@colorfullife.com>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>
-Subject: Re: 3rd version of R/W mmap_sem patch available
-In-Reply-To: <Pine.LNX.4.31.0103191839510.1003-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0103200113550.8828-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131730AbRCTGoR>; Tue, 20 Mar 2001 01:44:17 -0500
+Received: from logger.gamma.ru ([194.186.254.23]:16908 "EHLO logger.gamma.ru")
+	by vger.kernel.org with ESMTP id <S131729AbRCTGoC>;
+	Tue, 20 Mar 2001 01:44:02 -0500
+To: linux-kernel@vger.kernel.org
+Path: pccross!not-for-mail
+From: crosser@average.org (Eugene Crosser)
+Newsgroups: linux.kernel
+Subject: Re: Mounting ISO via Loop Devices
+Date: 20 Mar 2001 09:35:30 +0300
+Organization: Average
+Message-ID: <996tni$eo8$1@pccross.average.org>
+In-Reply-To: <Pine.LNX.4.30.0103171105270.19525-100000@biglinux.tccw.wku.edu>
+Mime-Version: 1.0
+X-Newsreader: knews 0.9.8
+X-Comment-To: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+To: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+Content-Type: text/plain; charset=koi8-r
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.30.0103171105270.19525-100000@biglinux.tccw.wku.edu>,
+        "Brent D. Norris" <brent@biglinux.tccw.wku.edu> writes:
+> On my redhat 7.1 machine I have been using the 2.4.0 redhat kernel and
+> mounting ISO's to loop devices and it worked fine.  I upgraded to a 2.4.2
+> kernel and now none of the ISO's will mount.  They all hang when the
+> command is run.  Are there any other known occurences of this?
 
+I can confirm that mount over loopback hangs on 2.4.2 (from kernel.org),
+regardless of the filesystem type.
 
-On Mon, 19 Mar 2001, Linus Torvalds wrote:
-
-> 
-> There is a 2.4.3-pre5 in the test-directory on ftp.kernel.org.
-> 
-> The complete changelog is appended, but the biggest recent change is the
-> mmap_sem change, which I updated with new locking rules for pte/pmd_alloc
-> to avoid the race on the actual page table build.
-> 
-> This has only been tested on i386 without PAE, and is known to break other
-> architectures. Ingo, mind checking what PAE needs? Generally, the changes
-> are simple, and really only implies changing the pte/pmd allocation
-> functions to _only_ allocate (ie removing the stuff that actually modifies
-> the page tables, as that is now handled by generic code), and to make sure
-> that the "pgd/pmd_populate()" functions do the right thing.
-> 
-> I have also removed the xxx_kernel() functions - for architectures that
-> need them, I suspect that the right approach is to just make the
-> "populate" funtions notice when "mm" is "init_mm", the kernel context.
-> That removed a lot of duplicate code that had little good reason.
-> 
-> This pre-release is meant mainly as a synchronization point for mm
-> developers, not for generic use.
-> 
-> 	Thanks,
-> 
-> 		Linus
-> 
-> 
-> -----
-> -pre5:
->   - Rik van Riel and others: mm rw-semaphore (ps/top ok when swapping)
->   - IDE: 256 sectors at a time is legal, but apparently confuses some
->     drives. Max out at 255 sectors instead.
-
-Could the IDE one cause corruption ?
-
-EXT2-fs error (device ide0(3,1)): ext2_free_blocks: bit already cleared
-for block 6211
-
-Just hitted this now with pre3. 
-
+Eugene

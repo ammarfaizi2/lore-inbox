@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265198AbSJWUdb>; Wed, 23 Oct 2002 16:33:31 -0400
+	id <S265193AbSJWUa3>; Wed, 23 Oct 2002 16:30:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265203AbSJWUda>; Wed, 23 Oct 2002 16:33:30 -0400
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:54067 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S265198AbSJWUd3>;
-	Wed, 23 Oct 2002 16:33:29 -0400
-Date: Wed, 23 Oct 2002 22:39:34 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] CONFIG_TINY
-Message-ID: <20021023223934.A30492@jaquet.dk>
-References: <20021023215117.A29134@jaquet.dk> <20021023210845.A23157@infradead.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021023210845.A23157@infradead.org>; from hch@infradead.org on Wed, Oct 23, 2002 at 09:08:45PM +0100
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+	id <S265189AbSJWUa3>; Wed, 23 Oct 2002 16:30:29 -0400
+Received: from pc132.utati.net ([216.143.22.132]:28033 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S265194AbSJWUa0> convert rfc822-to-8bit; Wed, 23 Oct 2002 16:30:26 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: nwourms@netscape.net, linux-kernel@vger.kernel.org
+Subject: Re: Son of crunch time: the list v1.2.
+Date: Wed, 23 Oct 2002 10:36:33 -0500
+User-Agent: KMail/1.4.3
+References: <20021021135137.2801edd2.rusty@rustcorp.com.au> <3DB4BD8F.1010707@pobox.com> <ap420c$m3v$1@main.gmane.org>
+In-Reply-To: <ap420c$m3v$1@main.gmane.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210222139.32805.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 22 October 2002 12:32, Nicholas Wourms wrote:
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> As was stated by Dave Jones[1], this is something that will probably should
+> go in after the freeze.
 
-On Wed, Oct 23, 2002 at 09:08:45PM +0100, Christoph Hellwig wrote:
-> On Wed, Oct 23, 2002 at 09:51:17PM +0200, Rasmus Andersen wrote:
-> > o SWAP and BLOCK_DEV as modules
->=20
-> modules won't work I guess :)  but allowing to disable them is a good
-> idea.  Not that swap depends on the block device code, though.
+This is just a thought, and it's from somebody who's not going to actually be 
+making any of these decisions, but my idea of "goes in after the freeze" is 
+the same as my idea of "goes in during the stable series".
 
-The module approach was just a happy thought jotted down from an
-IRC log. I guess there is a number of reasons that that won't=20
-work.=20
+If you'd be happy including something between stable.0 and stable.1, or 
+stable.5 and stable.6, (whether "stable" is called "2.6", "3.0", or "fred") 
+then it makes sense to put it in after the freeze.  But if you don't think it 
+would be a good idea to insert it after stable.0, then inserting it after the 
+freeze at all is a bit hypocritical.  (Otherwise the freeze isn't too 
+meaningful.)
 
-I did not meant to imply that SWAP and block was related, just
-that both (perhaph) could be made modules.
+Now, given that, if it could go in during the stable series, why not wait 
+until then and not confuse the issue during stabilization and shutdown of the 
+-pre series?  (Or at least hold off until closer to dot-0 release date, and 
+give the existing infrastructure a chance to settle down a bit first.  At the 
+very least not rush to get too much in immediately after the freeze.)
 
-Thanks for your comments,
-  Rasmus
+Admittedly the first dozen releases of 2.4 are a bad example of "stable", but 
+reiserfs did go in circa 2.4.1 and nobody really minded that bit.  Maybe LVM 
+and EVMS are similar, self contained, can't possibly hurt anybody who isn't 
+using it type things.  (I don't know.  The word "maybe" is an important 
+weasel word in that sentence.)
 
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Rob
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+-- 
+http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
+CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
 
-iD4DBQE9twkGlZJASZ6eJs4RAuGnAJiz9Ck53F+6nbXMugUnlqI9kJgyAJ97Y4zo
-mc9tsADdoWt+c2lkrsHH9w==
-=9Eac
------END PGP SIGNATURE-----
 
---EVF5PPMfhYS0aIcm--

@@ -1,78 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVBGTxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVBGTxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVBGTxB (ORCPT <rfc822;willy@w.ods.org>);
+	id S261280AbVBGTxB (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 7 Feb 2005 14:53:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVBGTuw
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVBGTwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 14:50:52 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:47592 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261283AbVBGTj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 14:39:58 -0500
-Subject: [PATCH] [SERIAL] add TP560 data/fax/modem support
-From: Bjorn Helgaas <bjorn-helgaas@comcast.net>
-Reply-To: bjorn.helgaas@hp.com
-To: rmk+serial@arm.linux.org.uk, linux-serial@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 07 Feb 2005 12:39:42 -0700
-Message-Id: <1107805182.8074.35.camel@piglet>
+	Mon, 7 Feb 2005 14:52:31 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:33498 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S261279AbVBGTlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 14:41:13 -0500
+Subject: Re: [PATCH] Filesystem linking protections
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: Chris Wright <chrisw@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050207111235.Y24171@build.pdx.osdl.net>
+References: <1107802626.3754.224.camel@localhost.localdomain>
+	 <20050207111235.Y24171@build.pdx.osdl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AyL+hmaAQJJAkpDVZG/n"
+Date: Mon, 07 Feb 2005 20:40:43 +0100
+Message-Id: <1107805243.3754.240.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Claim Topic TP560 data/fax/voice modem.  This device reports as class 0x0780,
-so we don't claim it by default:
 
-	00:0d.0 Class 0780: 151f:0000
-		Subsystem: 151f:0000
-		Interrupt: pin A routed to IRQ 11
-		Region 0: I/O ports at a400 [size=8]
-	00: 1f 15 00 00 01 00 00 02 00 00 80 07 00 00 00 00
-	10: 01 a4 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-	20: 00 00 00 00 00 00 00 00 00 00 00 00 1f 15 00 00
-	30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 01 00 00
+--=-AyL+hmaAQJJAkpDVZG/n
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Some rc.serial scripts extract IRQ and I/O port information from
-/proc/pci and stuff it into an unused port using setserial.  That
-doesn't work reliably anymore because pci_enable_device() is never
-called, so the IRQ may not be enabled.
+El lun, 07-02-2005 a las 11:12 -0800, Chris Wright escribi=F3:
+> * Lorenzo Hern=E1ndez Garc=EDa-Hierro (lorenzo@gnu.org) wrote:
+> > This patch adds two checks to do_follow_link() and sys_link(), for
+> > prevent users to follow (untrusted) symlinks owned by other users in
+> > world-writable +t directories (i.e. /tmp), unless the owner of the
+> > symlink is the owner of the directory, users will also not be able to
+> > hardlink to files they do not own.
+> >=20
+> > The direct advantage of this pretty simple patch is that /tmp races wil=
+l
+> > be prevented.
+>=20
+> The disadvantage is that it can break things and places policy in the
+> kernel.
 
-Thanks to Evan Clarke for reporting and helping debug this problem.
+It's just like DAC then, because it never applies any policy than a
+simple check relying on kernel's DAC, and standard capabilities &
+permissions.DAC-related checks are placed all over the place, but maybe
+the place is lacking of some ones that may be important.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+About what things it can break, I haven't noticed any issue on it (at
+least regarding grSecurity or OpenWall), but of course I would
+appreciate a lot any information on them, so, I could report to the
+developers that are currently using this in their own solutions.
 
-===== drivers/serial/8250_pci.c 1.48 vs edited =====
---- 1.48/drivers/serial/8250_pci.c	2004-11-21 23:42:29 -07:00
-+++ edited/drivers/serial/8250_pci.c	2005-02-07 12:00:32 -07:00
-@@ -2212,6 +2212,13 @@
- 		0, pbn_exar_XR17C158 },
- 
- 	/*
-+	 * Topic TP560 Data/Fax/Voice 56k modem (reported by Evan Clarke)
-+	 */
-+	{	PCI_VENDOR_ID_TOPIC, PCI_DEVICE_ID_TOPIC_TP560,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+		pbn_b0_1_115200 },
-+
-+	/*
- 	 * These entries match devices with class COMMUNICATION_SERIAL,
- 	 * COMMUNICATION_MODEM or COMMUNICATION_MULTISERIAL
- 	 */
-===== include/linux/pci_ids.h 1.200 vs edited =====
---- 1.200/include/linux/pci_ids.h	2005-01-30 23:33:43 -07:00
-+++ edited/include/linux/pci_ids.h	2005-02-07 11:56:14 -07:00
-@@ -1972,6 +1972,9 @@
- #define PCI_DEVICE_ID_BCM4401		0x4401
- #define PCI_DEVICE_ID_BCM4401B0		0x4402
- 
-+#define PCI_VENDOR_ID_TOPIC		0x151f
-+#define PCI_DEVICE_ID_TOPIC_TP560	0x0000
-+
- #define PCI_VENDOR_ID_ENE		0x1524
- #define PCI_DEVICE_ID_ENE_1211		0x1211
- #define PCI_DEVICE_ID_ENE_1225		0x1225
+Thanks in advance,
+Cheers.
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
 
+--=-AyL+hmaAQJJAkpDVZG/n
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCB8Q7DcEopW8rLewRAks2AJ0Xr2Y+b3nGVg6/jAosSKXPbSL2+QCff62h
+SIR3wPkCLoY/YYSVWGVhC5k=
+=IijR
+-----END PGP SIGNATURE-----
+
+--=-AyL+hmaAQJJAkpDVZG/n--
 

@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265140AbUFRNn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265146AbUFRNvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265140AbUFRNn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 09:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUFRNn5
+	id S265146AbUFRNvx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 09:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUFRNvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 09:43:57 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:4823 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265140AbUFRNnz (ORCPT
+	Fri, 18 Jun 2004 09:51:53 -0400
+Received: from cantor.suse.de ([195.135.220.2]:30630 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265146AbUFRNvv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 09:43:55 -0400
-Date: Fri, 18 Jun 2004 15:43:13 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Finn Thain <ft01@webmastery.com.au>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Matt Mackall <mpm@selenic.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Subject: Re: make checkstack on m68k
-Message-ID: <20040618134313.GG18258@wohnheim.fh-wedel.de>
-References: <200406161930.VAA16618@pfultra.phil.uni-sb.de> <Pine.LNX.4.58.0406171812440.8197@bonkers.disegno.com.au> <20040617183616.GC29029@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406172127150.1495@waterleaf.sonytel.be> <20040618121813.GB18258@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406181537210.11779@waterleaf.sonytel.be>
+	Fri, 18 Jun 2004 09:51:51 -0400
+Date: Fri, 18 Jun 2004 15:47:32 +0200
+From: Olaf Hering <olh@suse.de>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       4Front Technologies <dev@opensound.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040618134732.GA21216@suse.de>
+References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com> <Pine.LNX.4.58.0406180313350.10292@scrub.local> <20040618095700.GA22955@vana.vc.cvut.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.GSO.4.58.0406181537210.11779@waterleaf.sonytel.be>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040618095700.GA22955@vana.vc.cvut.cz>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 June 2004 15:39:38 +0200, Geert Uytterhoeven wrote:
-> On Fri, 18 Jun 2004, [iso-8859-1] Jörn Engel wrote:
-> > On Thu, 17 June 2004 21:27:35 +0200, Geert Uytterhoeven wrote:
-> > > On Thu, 17 Jun 2004, [iso-8859-1] Jörn Engel wrote:
-> > > >
-> > > > It's not as ugly as my hack.  Can I get a success report from m68k?
-> > > > Thanks!
-> >
-> > Good.  Finn, can you resend to me with a signed-off-by: comment?  If
-> > you grow bored, you could seperate the i386 regexes (sub..., add...)
-> > as well.
-> 
-> If you insist...
-> 
-> Add m68k support to checkstack.pl
-> 
-> Regular expression combination by Andres Schwab
+ On Fri, Jun 18, Petr Vandrovec wrote:
 
-Ah, no.  I really wanted Finn's version with two seperate regexes,
-it's much cleaner.  An array of regexes might be the best, but in a
-perfect world, we would have compiler support instead, so I don't mind
-a little ugliness.
+> On Fri, Jun 18, 2004 at 03:20:48AM +0200, Roman Zippel wrote:
+> > On Thu, 17 Jun 2004, 4Front Technologies wrote:
+> > 
+> > > It's time everybody started to pay some attention to in-kernel interfaces because
+> > > Linux has graduated out of your personal sandbox to where other people want to use
+> > > Linux and they aren't kernel developers.
+> > 
+> > Look into your own diapers, learn the meaning of "documented interfaces" 
+> > and come back if you can show that SuSE broke exactly this.
+> 
+> If renaming /proc/bus/usb/devices to
+> /proc/bus/usb/devices_please-use-sysfs-instead is not breaking of
+> "documented interface" then I have no idea what "documented interface"
+> is...
 
-Jörn
+I would not call this file an interface, but utter bullshit. Just
+because it breaks all these bullshit devices...
 
 -- 
-Courage is not the absence of fear, but rather the judgement that
-something else is more important than fear.
--- Ambrose Redmoon
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÃœRNBERG

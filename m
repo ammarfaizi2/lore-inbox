@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263794AbSLaQLF>; Tue, 31 Dec 2002 11:11:05 -0500
+	id <S264644AbSLaQOG>; Tue, 31 Dec 2002 11:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263977AbSLaQLF>; Tue, 31 Dec 2002 11:11:05 -0500
-Received: from cs.huji.ac.il ([132.65.16.30]:59911 "EHLO cs.huji.ac.il")
-	by vger.kernel.org with ESMTP id <S263794AbSLaQLA>;
-	Tue, 31 Dec 2002 11:11:00 -0500
-Date: Tue, 31 Dec 2002 18:19:24 +0200 (IST)
-From: Amar Lior <lior@cs.huji.ac.il>
-To: linux-kernel@vger.kernel.org
-cc: Amar Lior <lior@cs.huji.ac.il>
-Subject: Problem
-Message-ID: <Pine.LNX.4.20_heb2.08.0212311818280.29471-100000@mos214.cs.huji.ac.il>
+	id <S264646AbSLaQOF>; Tue, 31 Dec 2002 11:14:05 -0500
+Received: from shay.ecn.purdue.edu ([128.46.209.11]:23273 "EHLO
+	shay.ecn.purdue.edu") by vger.kernel.org with ESMTP
+	id <S264644AbSLaQOF>; Tue, 31 Dec 2002 11:14:05 -0500
+From: Kevin Corry <corry@ecn.purdue.edu>
+Message-Id: <200212311622.gBVGMS5R028448@shay.ecn.purdue.edu>
+Subject: Re: [PATCH] dm.c : Check memory allocations
+To: joe@fib011235813.fsnet.co.uk (Joe Thornber)
+Date: Tue, 31 Dec 2002 11:22:28 -0500 (EST)
+Cc: dm-devel@sistina.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20021230105114.GB2703@reti> from "Joe Thornber" at Dec 30, 2002 10:51:14 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> 
+> On Fri, Dec 27, 2002 at 04:55:31PM -0500, Kevin Corry wrote:
+> > Check memory allocations when cloning bio's.
+> 
+> Rejected, clone_bio() cannot fail since it's allocating from a mempool
+> with __GFP_WAIT set.
+> 
+> - Joe
 
-I found a bug that cause the kernel to lockup.
+Hmm. Yep. I must have mistaken GFP_NOIO for GFP_ATOMIC.
 
-The problem is in mm/shmem.c do_shmem_file_read() (the tmpfs)
+But based on that reasoning, shouldn't the bio_alloc() call
+in split_bvec() always return a valid bio, and hence make the
+checks in split_bvec() and __clone_and_map() unnecessary?
 
-at line 959 there is a call to file_read_actor(desc, page, offset, nr);
-
-The problem is that inside the function file_read_actor() desc->error is
-set to -EFAULT (this happens when the buffer supplied by the user for the 
-read is wrong)
-but there is no check right after the return from file_read_actor() to
-test this situation.
-
-The result is that the desc->count field always stay the same and the
-while loop in do_shmem_file_read never end and the kernel locksup.
-
-The fix is very simple just add the following line after the call to 
-file_read_actor():
-
--------------------
-if(desc->error)
-        break
--------------------
-
-If you need any other info please mail me
-
-Regards
-
---lior
-
-
-________________________________________________________________   
-Lior Amar                       Distributed Computing Lab MOSIX
-E-mail  : lior@cs.huji.ac.il                           
-________________________________________________________________   
+Kevin
 

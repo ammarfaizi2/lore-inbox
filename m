@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292963AbSB0VsD>; Wed, 27 Feb 2002 16:48:03 -0500
+	id <S292992AbSB0Vu6>; Wed, 27 Feb 2002 16:50:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292839AbSB0VrW>; Wed, 27 Feb 2002 16:47:22 -0500
-Received: from ns.suse.de ([213.95.15.193]:16393 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S292963AbSB0VqR>;
-	Wed, 27 Feb 2002 16:46:17 -0500
-Date: Wed, 27 Feb 2002 22:46:15 +0100
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Sean DETTRICK <dettrick@uci.edu>, linux-kernel@vger.kernel.org,
-        support@asus.com, euro.cpu@amd.com
-Subject: Re: A7M266-D, dual athlon 1800+ kernel-smp APIC boot problem workaround
-Message-ID: <20020227224615.H16565@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Sean DETTRICK <dettrick@uci.edu>, linux-kernel@vger.kernel.org,
-	support@asus.com, euro.cpu@amd.com
-In-Reply-To: <Pine.GSO.4.44.0202271124590.22391-100000@e4e.oac.uci.edu> <E16gBRr-0005sg-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16gBRr-0005sg-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 27, 2002 at 09:17:15PM +0000
+	id <S292983AbSB0Vse>; Wed, 27 Feb 2002 16:48:34 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:15514 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S292994AbSB0VsT>;
+	Wed, 27 Feb 2002 16:48:19 -0500
+Date: Wed, 27 Feb 2002 16:48:07 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrew Morton <akpm@zip.com.au>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
+In-Reply-To: <3C7D374B.4621F9BA@zip.com.au>
+Message-ID: <Pine.GSO.4.21.0202271645560.12074-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 09:17:15PM +0000, Alan Cox wrote:
 
- > > BTW the Athlons, clearly marked in the boxes as MP, identified
- > > themselves as Athlon XP 1800+'s.   We thought this might be the
- > > problem at first but now we guess not.
- > 
- > The BIOS forgets to load the MP name string, like a load of other
- > problems it has. 
 
- x86info has proper descrimination of MP/XP using a readonly
- cpu-capability if theres any doubt here.
- 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+On Wed, 27 Feb 2002, Andrew Morton wrote:
+
+> "Martin J. Bligh" wrote:
+> > 
+> > ...
+> > looks a little distressing - the hold times on inode_lock by prune_icache
+> > look bad in terms of latency (contention is still low, but people are still
+> > waiting on it for a very long time). Is this a transient thing, or do people
+> > think this is going to be a problem?
+> 
+> inode_lock hold times are a problem for other reasons.
+
+ed mm/vmscan.c <<EOF
+/shrink_icache_memory/s/priority/1/
+w
+q
+EOF
+
+and repeat the tests.  Unreferenced inodes == useless inodes.  Aging is
+already taken care of in dcache and anything that had fallen through
+is fair game.
+

@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261547AbRFNIen>; Thu, 14 Jun 2001 04:34:43 -0400
+	id <S261616AbRFNIlx>; Thu, 14 Jun 2001 04:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261558AbRFNIed>; Thu, 14 Jun 2001 04:34:33 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:54225 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261547AbRFNIeU>;
-	Thu, 14 Jun 2001 04:34:20 -0400
-Date: Thu, 14 Jun 2001 04:34:17 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: David Luyer <david_luyer@pacific.net.au>, Rainer Mager <rmager@vgkk.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Download process for a "split kernel" (was: obsolete code must
- die)
-In-Reply-To: <01061409561702.00879@starship>
-Message-ID: <Pine.GSO.4.21.0106140432220.4122-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261684AbRFNIln>; Thu, 14 Jun 2001 04:41:43 -0400
+Received: from kivc.vstu.vinnica.ua ([62.244.53.242]:46464 "EHLO
+	kivc.vstu.vinnica.ua") by vger.kernel.org with ESMTP
+	id <S261616AbRFNIle>; Thu, 14 Jun 2001 04:41:34 -0400
+Date: Thu, 14 Jun 2001 11:35:28 +0300
+From: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: obsolete code must die
+Message-ID: <20010614113528.E1426@kivc.vstu.vinnica.ua>
+Mail-Followup-To: Bohdan Vlasyuk <bohdan>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x> <Pine.LNX.4.10.10106131903190.16254-100000@clueserver.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10106131903190.16254-100000@clueserver.org>; from alan@clueserver.org on Wed, Jun 13, 2001 at 07:22:38PM -0700
+X-Logged: Logged by kivc.vstu.vinnica.ua as f5E8ZSG02258 at Thu Jun 14 11:35:28 2001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 13, 2001 at 07:22:38PM -0700, Alan Olsen wrote:
+
+> > i386, i486
+> > The Pentium processor has been around since 1995. Support for these older
+> > processors should go so we can focus on optimizations for the pentium and
+> > better processors.
+> You are in a part of the world that can afford them.
+> 
+> In Third World countries, however, Pentiums are not always the norm. You
+> are cutting off a good chunk of the world here.
+I agree. There're REALLY much i386s around there. There're more ISA
+that PCI network cards here. And I'm really sad that a friend of mine
+can't install Linux on his 286, and he should use that bloated
+Dos/Windoze 3.1
 
 
-On Thu, 14 Jun 2001, Daniel Phillips wrote:
 
-> This sounds a lot like apt-get, doesn't it?
 
-Folks, RTFFAQ, please. URL is attached to the end of each posting.
 

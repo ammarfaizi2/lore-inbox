@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319583AbSIHJJk>; Sun, 8 Sep 2002 05:09:40 -0400
+	id <S319584AbSIHJTE>; Sun, 8 Sep 2002 05:19:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319585AbSIHJJk>; Sun, 8 Sep 2002 05:09:40 -0400
-Received: from holomorphy.com ([66.224.33.161]:23225 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S319583AbSIHJJj>;
-	Sun, 8 Sep 2002 05:09:39 -0400
-Date: Sun, 8 Sep 2002 02:12:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: akpm@digeo.com, ciarrocchi@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: Re: LMbench2.0 results
-Message-ID: <20020908091206.GL888@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, akpm@digeo.com,
-	ciarrocchi@linuxmail.org, linux-kernel@vger.kernel.org
-References: <3D7B0177.6A35FE9B@digeo.com> <20020908.003700.07120871.davem@redhat.com> <20020908082821.GK888@holomorphy.com> <20020908.012526.48196975.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020908.012526.48196975.davem@redhat.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S319585AbSIHJTE>; Sun, 8 Sep 2002 05:19:04 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:9233 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S319584AbSIHJTD>;
+	Sun, 8 Sep 2002 05:19:03 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200209080923.g889Ndp03091@oboe.it.uc3m.es>
+Subject: Re: [RFC] mount flag "direct"
+In-Reply-To: <20020907211452.GA24476@marowsky-bree.de> from Lars Marowsky-Bree
+ at "Sep 7, 2002 11:14:53 pm"
+To: Lars Marowsky-Bree <lmb@suse.de>
+Date: Sun, 8 Sep 2002 11:23:39 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
+       linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: William Lee Irwin III <wli@holomorphy.com>
-Date: Sun, 8 Sep 2002 01:28:21 -0700
->    But if this were truly the issue, the allocation and deallocation
->    overhead for pagetables should show up as additional pressure
->    against zone->lock.
+"A month of sundays ago Lars Marowsky-Bree wrote:"
+> > > In particular, they make them useless for the requirements you seem to
+> > > have. A petabyte filesystem without journaling? A petabyte filesystem with
+> > > a single write lock? Gimme a break.
+> > Journalling? Well, now you mention it, that would seem to be nice.
+> 
+> "Nice" ? ;-) You gotta be kidding. If you don't have journaling, distributed
+> recovery becomes near impossible - at least I don't have a good idea on how to
 
-On Sun, Sep 08, 2002 at 01:25:26AM -0700, David S. Miller wrote:
-> The big gain is not only that allocation/free is cheap, also
-> page table entries tend to hit in cpu cache for even freshly
-> allocated page tables.
-> I think that is the bit that would show up in the mmap lmbench
-> test.
+It's OK. The calculations are duplicated and the FS's are too. The
+calculation is highly parallel.
 
-I'd have to doublecheck to see how parallelized lat_mmap is. My
-machines are considerably more sensitive to locking uglies than cache
-warmth. (They're taking my machines out, not just slowing them down.)
-Cache warmth goodies are certainly nice optimizations, though.
+> do it if you don't know what the node had been working on prior to its
+> failure.
 
+Yes we do. Its place in the topology of the network dictates what it was
+working on, and anyway that's just a standard parallelism "barrier"
+problem.
 
-Cheers,
-Bill
+> Well, you are taking quite a risk trying to run a
+> not-aimed-at-distributed-environments fs and trying to make it distributed by
+> force. I _believe_ that you are missing where the real trouble lurks.
+
+There is no risk, because, as you say, we can always use nfs or another
+off the shelf solution. But 10% better is 10% more experiment for
+each timeslot for each group of investigators.
+
+> What does this supposed "flexibility" buy you? Is there any real value in it
+
+Ask the people ho might scream for 10% more experiment in their 2
+weeks.
+
+> > You mean "what's wrong with X"? Well, it won't be mainstream, for a start,
+> > and that's surely enough.
+> 
+> I have pulled these two sentences out because I don't get them. What "X" are
+> you referring to?
+
+Any X that is not a standard FS. Yes, I agree, not exact.
+
+> The insight I can offer you is look at OpenGFS, see and understand what it
+> does, why and how. The try to come up with a generic approach on how to put
+> this on top of a generic filesystem, without making it useless.
+> 
+> Then I shall be amazed.
+
+I have to catch a plane ..
+
+Peter

@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUHSMnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUHSM6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265872AbUHSMnU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 08:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUHSMnU
+	id S265971AbUHSM6T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 08:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUHSM6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 08:43:20 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:6653 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S265872AbUHSMnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 08:43:11 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 19 Aug 2004 14:42:12 +0200
-To: kernel@wildsau.enemy.org, diablod3@gmail.com
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <4124A024.nail7X62HZNBB@burner>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org>
- <d577e5690408190004368536e9@mail.gmail.com>
-In-Reply-To: <d577e5690408190004368536e9@mail.gmail.com>
-User-Agent: nail 11.2 8/15/04
+	Thu, 19 Aug 2004 08:58:19 -0400
+Received: from penguin.cohaesio.net ([212.97.129.34]:42982 "EHLO
+	mail.cohaesio.net") by vger.kernel.org with ESMTP id S261724AbUHSM6M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 08:58:12 -0400
+From: Anders Saaby <as@cohaesio.com>
+Organization: Cohaesio A/S
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: oom-killer 2.6.8.1
+Date: Thu, 19 Aug 2004 14:58:17 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <200408181455.42279.as@cohaesio.com> <200408181624.25131.as@cohaesio.com> <20040818211142.GH11200@holomorphy.com>
+In-Reply-To: <20040818211142.GH11200@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408191458.17551.as@cohaesio.com>
+X-OriginalArrivalTime: 19 Aug 2004 12:58:11.0603 (UTC) FILETIME=[2EBB7630:01C485EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Patrick McFarland <diablod3@gmail.com>
+On Wednesday 18 August 2004 23:11, William Lee Irwin III wrote:
+> On Wednesday 18 August 2004 16:05, William Lee Irwin III wrote:
+> >> Index: oom-2.6.8-rc1/mm/vmscan.c
+> >> ===================================================================
+> >> --- oom-2.6.8-rc1.orig/mm/vmscan.c	2004-07-14 06:17:13.876343912 -0700
+> >> +++ oom-2.6.8-rc1/mm/vmscan.c	2004-07-14 06:22:15.986416200 -0700
+> >> @@ -417,7 +417,8 @@
+> >>  				goto keep_locked;
+> >>  			if (!may_enter_fs)
+> >>  				goto keep_locked;
+> >> -			if (laptop_mode && !sc->may_writepage)
+> >> +			if (laptop_mode && !sc->may_writepage &&
+> >> +							!PageSwapCache(page))
+> >>  				goto keep_locked;
+> >>
+> >>  			/* Page is dirty, try to write it out here */
+>
+> On Wed, Aug 18, 2004 at 04:24:24PM +0200, Anders Saaby wrote:
+> > laptop_mode is not set on this server <- :-)
+> > - So I guess this is not relevant for my setup?
+>
+> Probably not. Please try to collect /proc/slabinfo snapshots while the
+> system is still functional as it degrades.
+>
+OK, I am now collecting /proc/slabinfo every hour to some logfiles - I will 
+send you the results when I have some interesting data.
 
->On Wed, 4 Aug 2004 14:33:09 +0200 (MET DST), H.Rosmanith (Kernel
->Mailing List) <kernel@wildsau.enemy.org> wrote:
->> Some stuff that started a flamewar.
+/Saaby
 
->If no one has noticed yet, thanks to the additional license
->restrictions Joerg Schilling has added to cdrecord (due to this
->thread), it may be now moved to non-free in Debian in the near future.
-
-It makes no sense to comment things if you don't know what's going on.
-So please avoid comments like this in the future.
-
-Your statement "it may be now moved to non-free in Debian in the near future"
-is just complete nonsense. Of course, I am in discussions with Debian people 
-about the best method to force SuSE not to publish broken versions of cdrtools 
-in the future.
-
-Let me comment what SuSE is currently doing with cdrtools:
-
-A program is an artwork (this is what the European Union did write into laws).
-
-Even though you may get the permission to modify an artwork, you will not get 
-the permission to create bad carricatures and call them just "modified 
-versions".
-
-The GPL requires you not to impact the original authors' reputations, but this 
-is what SuSE is doing by publishing defective variants.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+>
+> -- wli

@@ -1,66 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbVAPED0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVAPEEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbVAPED0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 23:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVAPED0
+	id S262419AbVAPEEL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 23:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVAPEEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 23:03:26 -0500
-Received: from gate.crashing.org ([63.228.1.57]:55998 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262418AbVAPEDH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 23:03:07 -0500
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@muc.de>, brking@us.ibm.com,
-       Paul Mackerras <paulus@samba.org>,
+	Sat, 15 Jan 2005 23:04:11 -0500
+Received: from fujitsu0.fna.fujitsu.com ([192.240.0.5]:44437 "EHLO
+	fujitsu0.fujitsu.com") by vger.kernel.org with ESMTP
+	id S262419AbVAPEDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 23:03:52 -0500
+Date: Sat, 15 Jan 2005 20:03:21 -0800
+From: Yasunori Goto <ygoto@us.fujitsu.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [RFC] Avoiding fragmentation through different allocator
+Cc: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       Linux Memory Management List <linux-mm@kvack.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1105829883.15835.6.camel@localhost.localdomain>
-References: <41E3086D.90506@us.ibm.com>
-	 <1105454259.15794.7.camel@localhost.localdomain>
-	 <20050111173332.GA17077@muc.de>
-	 <1105626399.4664.7.camel@localhost.localdomain>
-	 <20050113180347.GB17600@muc.de>
-	 <1105641991.4664.73.camel@localhost.localdomain>
-	 <20050113202354.GA67143@muc.de>
-	 <1105645491.4624.114.camel@localhost.localdomain>
-	 <20050113215044.GA1504@muc.de>
-	 <1105743914.9222.31.camel@localhost.localdomain>
-	 <20050115014440.GA1308@muc.de>
-	 <1105750898.9222.101.camel@localhost.localdomain>
-	 <1105770012.27411.72.camel@gaston>
-	 <1105829883.15835.6.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 16 Jan 2005 15:01:44 +1100
-Message-Id: <1105848104.27436.97.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+In-Reply-To: <Pine.LNX.4.58.0501122247390.18142@skynet>
+References: <D36CE1FCEFD3524B81CA12C6FE5BCAB008C77C45@fmsmsx406.amr.corp.intel.com> <Pine.LNX.4.58.0501122247390.18142@skynet>
+Message-Id: <20050115172317.3C0F.YGOTO@us.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.11.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-01-16 at 00:58 +0000, Alan Cox wrote:
-> On Sad, 2005-01-15 at 06:20, Benjamin Herrenschmidt wrote:
-> > I'm pretty sure similar situations can happen on other archs when
-> > pushing a bit on power management, especially things like handhelds
-> > (though not much of them are PCI based for now).
-> > 
-> > That's why a "generic" mecanism to hide such devices while providing
-> > cached data on config space read's would be useful to me as well.
+Hello.
+
+I'm also very interested in your patches, because I'm working for
+memory hotplug too.
+
+> On possibility is that we could say that the UserRclm and KernRclm pool
+> are always eligible for hotplug and have hotplug banks only satisy those
+> allocations pushing KernNonRclm allocations to fixed banks. How is it
+> currently known if a bank of memory is hotplug? Is there a node for each
+> hotplug bank? If yes, we could flag those nodes to only satisify UserRclm
+> and KernRclm allocations and force fallback to other nodes. 
+
+There are 2 types of memory hotplug.
+
+a)SMP machine case
+  A some part of memory will be added and removed.
+
+b)NUMA machine case.
+  Whole of a node will be able to remove and add.
+  However, if a block of memory like DIMM is broken and disabled,
+  Its close from a).
+
+How to know where is hotpluggable bank is platform/archtecture
+dependent issue. 
+ ex) Asking to ACPI.
+     Just node0 become unremovable, and other nodes are removable.
+     etc...
+
+In current your patch, first attribute of all pages are NoRclm.
+But if your patches has interface to decide where will be Rclm for
+each arch/platform, it might be good.
+
+
+> The danger is
+> that allocations would fail because non-hotplug banks were already full
+> and pageout would not happen because the watermarks were satisified.
+
+In this case, if user can change attribute Rclm area to 
+NoRclm, it is better than nothing. 
+In hotplug patches, there will be new zone as ZONE_REMOVABLE.
+But in this patch, this change attribute is a little bit difficult.
+(At first remove the pages from free_area of removable zone, 
+ then add them to free_area of Un-removable zone.)
+Probably its change is easier in your patch.
+
+
+> (Bear in mind I can't test hotplug-related issues due to lack of suitable
+> hardware)
+
+I also don't have real hotplug machine now. ;-)
+I just use software emulation.
+
+> > It looks like you left the per_cpu_pages as-is.  Did you
+> > consider separating those as well to reflect kernel vs. user
+> > pools?
+> >
 > 
-> That makes a lot of sense. So we need both a "blocked, will be back
-> soon" and "this PCI device is invisible" flags. A device going into
-> blocked and not coming back would presumably transition into
-> "invisible".  I'm assuming we can't just delete the PCI device because
-> the kernel needs to know that cell is there for future use/abuse.
+> I kept the per-cpu caches for UserRclm-style allocations only because
+> otherwise a Kernel-nonreclaimable allocation could easily be taken from a
+> UserRclm pool.
 
-Right. Though I think the "will be back soon" and "is invisible" are
-pretty much the same thing. That is, in both our cases (BIST and pmac
-PM), we want the device to still be visible to userland, as it actually
-exist, should be properly detected by userland config tools etc..., but
-may only be actually enabled when the interface is opened/used for PM
-reasons.
+I agree that dividing per-cpu caches is not good way.
+But if Kernel-nonreclaimable allocation use its UserRclm pool, 
+its removable memory bank will be harder to remove suddenly.
+Is it correct? If so, it is not good for memory hotplug.
+Hmmmm.
 
-Ben.
+Anyway, thank you for your patch. It is very interesting.
+
+Bye.
+
+-- 
+Yasunori Goto <ygoto at us.fujitsu.com>
 
 

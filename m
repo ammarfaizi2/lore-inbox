@@ -1,182 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUHBAgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266210AbUHBAqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266209AbUHBAgj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 20:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266210AbUHBAgj
+	id S266210AbUHBAqs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 20:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUHBAqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 20:36:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:3474 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266209AbUHBAgd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 20:36:33 -0400
-Subject: [PATCH] ppc32: Workaround new MPC745x CPU erratas
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>
+	Sun, 1 Aug 2004 20:46:47 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:27339 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266210AbUHBApx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 20:45:53 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Scott Wood <scott@timesys.com>
+In-Reply-To: <1091403477.862.4.camel@mindpipe>
+References: <1090732537.738.2.camel@mindpipe>
+	 <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu>
+	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
+	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	 <1091141622.30033.3.camel@mindpipe>  <20040730064431.GA17777@elte.hu>
+	 <1091228074.805.6.camel@mindpipe> <1091234100.1677.41.camel@mindpipe>
+	 <Pine.LNX.4.58.0408010725030.23711@devserv.devel.redhat.com>
+	 <1091403477.862.4.camel@mindpipe>
 Content-Type: text/plain
-Message-Id: <1091406817.7394.60.camel@gaston>
+Message-Id: <1091407585.862.40.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 02 Aug 2004 10:33:37 +1000
+Date: Sun, 01 Aug 2004 20:46:26 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Sun, 2004-08-01 at 19:37, Lee Revell wrote:
+> On Sun, 2004-08-01 at 07:28, Ingo Molnar wrote:
+> > could you try to repeat the '50 usecs' test with -L2 [that was the one you
+> > used?] to make sure it's repeatable?
+> 
+> Results with L2, soundcard + RTC interrupts 'direct', N=1,000,000:
+> 
+> Delay   Count
+> -----   -----
+> 6       24330
+> 7       429668
+> 8       34474
+> 9       26184
+> 10      12210
+> 11      9060
+> 12      9104
+> 13      8460
+> 14      11011
+> 15      13615
+> 16      14584
+> 17      13371
+> 18      12169
+> 19      10864
+> 20      11936
+> 21      7974
+> 22      6256
+> 23      4888
+> 24      2385
+> 25      640
+> 26      164
+> 27      113
+> 28      86
+> 29      105
+> 30      90
+> 31      86
+> 32      103
+> 33      140
+> 34      149
+> 35      183
+> 36      160
+> 37      141
+> 38      147
+> 39      146
+> 40      172
+> 41      140
+> 42      131
+> 43      89
+> 44      54
+> 45      10
+> 46      3
+> 47      2
+> 49      3
+> 
 
-The latest versions of Motorola erratas for the MPC745x CPUs (and 744x)
-adds a couple of nasty ones for which we really want workarounds in the
-kernel. One is to disable the BTIC branch target cache on some revs
-(too bad for performances...) and the other one is to force cacheable
-memory pages to always be marked as SMP coherent even on UP systems (I
-didn't measure significant perfs impact with this one).
+The above histogram was generated with normal desktop activity going
+on.  Another run under the same conditions produced the same three
+"humps".  Here are the results with an idle system:
 
-Please apply,
-Ben.
+Delay   Count
+-----   -----
+6       8460
+7       481093
+8       66311
+9       43167
+10      23021
+11      5536
+12      3883
+13      3370
+14      3635
+15      3923
+16      3419
+17      2892
+18      2615
+19      2659
+20      5239
+21      3607
+22      1289
+23      662
+24      237
+25      59
+26      28
+27      15
+28      17
+29      24
+30      29
+31      50
+32      65
+33      34
+34      34
+35      23
+36      29
+37      19
+38      25
+39      36
+40      42
+41      22
+42      18
+43      8
+44      5
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+The second hump centered at 20-21 usecs is still present, but smaller. 
+The third hump centered at 31-32 is barely detectable, but present, 
+repeating the test showed the same thing.
 
-===== arch/ppc/kernel/cpu_setup_6xx.S 1.4 vs edited =====
---- 1.4/arch/ppc/kernel/cpu_setup_6xx.S	2004-02-05 15:24:33 +11:00
-+++ edited/arch/ppc/kernel/cpu_setup_6xx.S	2004-07-16 02:16:53 +10:00
-@@ -218,7 +218,10 @@
- 
- 	/* All of the bits we have to set.....
- 	 */
--	ori	r11,r11,HID0_SGE | HID0_FOLD | HID0_BHTE | HID0_BTIC | HID0_LRSTK
-+	ori	r11,r11,HID0_SGE | HID0_FOLD | HID0_BHTE | HID0_LRSTK
-+BEGIN_FTR_SECTION
-+	ori	r11,r11,HID0_BTIC
-+END_FTR_SECTION_IFCLR(CPU_FTR_NO_BTIC)
- BEGIN_FTR_SECTION
- 	oris	r11,r11,HID0_DPM@h	/* enable dynamic power mgmt */
- END_FTR_SECTION_IFCLR(CPU_FTR_NO_DPM)
-===== arch/ppc/kernel/cputable.c 1.23 vs edited =====
---- 1.23/arch/ppc/kernel/cputable.c	2004-06-18 16:41:08 +10:00
-+++ edited/arch/ppc/kernel/cputable.c	2004-08-02 10:30:29 +10:00
-@@ -55,7 +55,8 @@
- #endif
- 
- /* We need to mark all pages as being coherent if we're SMP or we
-- * have a 754x and an MPC107 host bridge. */
-+ * have a 754x and an MPC107 host bridge.
-+ */
- #if defined(CONFIG_SMP) || defined(CONFIG_MPC10X_BRIDGE)
- #define CPU_FTR_COMMON                  CPU_FTR_NEED_COHERENT
- #else
-@@ -263,7 +264,7 @@
- 	CPU_FTR_COMMON |
-     	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB |
- 	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP | CPU_FTR_L3CR |
--	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450,
-+	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NEED_COHERENT,
- 	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
- 	32, 32,
- 	__setup_cpu_745x
-@@ -274,7 +275,7 @@
-     	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_CAN_NAP |
- 	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP | CPU_FTR_L3CR |
- 	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NAP_DISABLE_L2_PR |
--	CPU_FTR_L3_DISABLE_NAP,
-+	CPU_FTR_L3_DISABLE_NAP | CPU_FTR_NEED_COHERENT,
- 	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
- 	32, 32,
- 	__setup_cpu_745x
-@@ -284,7 +285,8 @@
- 	CPU_FTR_COMMON |
-     	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_CAN_NAP |
- 	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP | CPU_FTR_L3CR |
--	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NAP_DISABLE_L2_PR,
-+	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NAP_DISABLE_L2_PR |
-+	CPU_FTR_NEED_COHERENT,
- 	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
- 	32, 32,
- 	__setup_cpu_745x
-@@ -294,7 +296,8 @@
- 	CPU_FTR_COMMON |
-     	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB |
- 	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP | CPU_FTR_L3CR |
--	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_HAS_HIGH_BATS,
-+	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_HAS_HIGH_BATS |
-+	CPU_FTR_NEED_COHERENT,
- 	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
- 	32, 32,
- 	__setup_cpu_745x
-@@ -305,7 +308,7 @@
-     	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_CAN_NAP |
- 	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP | CPU_FTR_L3CR |
- 	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NAP_DISABLE_L2_PR |
--	CPU_FTR_L3_DISABLE_NAP | CPU_FTR_HAS_HIGH_BATS,
-+	CPU_FTR_L3_DISABLE_NAP | CPU_FTR_NEED_COHERENT | CPU_FTR_HAS_HIGH_BATS,
- 	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
- 	32, 32,
- 	__setup_cpu_745x
-@@ -316,18 +319,40 @@
-     	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_CAN_NAP |
- 	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP | CPU_FTR_L3CR |
- 	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NAP_DISABLE_L2_PR |
--	CPU_FTR_HAS_HIGH_BATS,
-+	CPU_FTR_HAS_HIGH_BATS | CPU_FTR_NEED_COHERENT,
-+	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
-+	32, 32,
-+	__setup_cpu_745x
-+    },
-+    {	/* 7447/7457 Rev 1.0 */
-+    	0xffffffff, 0x80020100, "7447/7457",
-+	CPU_FTR_COMMON |
-+    	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_CAN_NAP |
-+	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP | CPU_FTR_L3CR |
-+	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NAP_DISABLE_L2_PR |
-+	CPU_FTR_HAS_HIGH_BATS | CPU_FTR_NEED_COHERENT | CPU_FTR_NO_BTIC,
-+	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
-+	32, 32,
-+	__setup_cpu_745x
-+    },
-+    {	/* 7447/7457 Rev 1.1 */
-+    	0xffffffff, 0x80020101, "7447/7457",
-+	CPU_FTR_COMMON |
-+    	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_CAN_NAP |
-+	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP | CPU_FTR_L3CR |
-+	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NAP_DISABLE_L2_PR |
-+	CPU_FTR_HAS_HIGH_BATS | CPU_FTR_NEED_COHERENT | CPU_FTR_NO_BTIC,
- 	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
- 	32, 32,
- 	__setup_cpu_745x
-     },
--    {	/* 7457 */
--    	0xffff0000, 0x80020000, "7457",
-+    {	/* 7447/7457 Rev 1.2 and later */
-+    	0xffff0000, 0x80020000, "7447/7457",
- 	CPU_FTR_COMMON |
-     	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_CAN_NAP |
- 	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP | CPU_FTR_L3CR |
- 	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NAP_DISABLE_L2_PR |
--	CPU_FTR_HAS_HIGH_BATS,
-+	CPU_FTR_HAS_HIGH_BATS | CPU_FTR_NEED_COHERENT,
- 	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
- 	32, 32,
- 	__setup_cpu_745x
-@@ -338,7 +363,7 @@
-     	CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_CAN_NAP |
- 	CPU_FTR_L2CR | CPU_FTR_ALTIVEC_COMP |
- 	CPU_FTR_HPTE_TABLE | CPU_FTR_SPEC7450 | CPU_FTR_NAP_DISABLE_L2_PR |
--	CPU_FTR_HAS_HIGH_BATS,
-+	CPU_FTR_HAS_HIGH_BATS | CPU_FTR_NEED_COHERENT,
- 	COMMON_PPC | PPC_FEATURE_ALTIVEC_COMP,
- 	32, 32,
- 	__setup_cpu_745x
-===== include/asm-ppc/cputable.h 1.8 vs edited =====
---- 1.8/include/asm-ppc/cputable.h	2004-04-02 01:16:57 +10:00
-+++ edited/include/asm-ppc/cputable.h	2004-07-16 02:15:03 +10:00
-@@ -76,6 +76,7 @@
- #define CPU_FTR_NO_DPM			0x00008000
- #define CPU_FTR_HAS_HIGH_BATS		0x00010000
- #define CPU_FTR_NEED_COHERENT           0x00020000
-+#define CPU_FTR_NO_BTIC			0x00040000
- 
- #ifdef __ASSEMBLY__
- 
+So the first hump is the fast path, interrupt -> scheduler -> jackd with
+the fewest possible context switches, and a hot or warm cache.  The
+third would have to be the worst case scenario (relatively speaking),
+where we preempt another process in one of the longer common critical
+sections.
 
+The second hump seems like either the same situation as the fast path,
+except with a cold cache, or where we have to preempt another process
+that is not in a critical section at all, or a short one.
+
+If we have any suspects for the code paths involved, couldn't this be
+verified by adding a udelay(10) to the path, and verifying that the hump
+moves by 10?  This technique could also be used to distinguish different
+code paths with similar execution times.  It looks like they are finite
+and few in number.
+
+At this point there are no latency problems I can see, all that remains
+is to understand the causes of the observed latencies.  Then assuming
+any "direct-irq" drivers and anything you run SCHED_FIFO is realtime
+safe, what else remains to be done in order to make hard realtime
+guarantees?
+
+Lee
+
+Lee
 

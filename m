@@ -1,152 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264298AbUHNRwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUHNSPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264298AbUHNRwv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 13:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUHNRwv
+	id S264377AbUHNSPP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 14:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUHNSPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 13:52:51 -0400
-Received: from vsmtp14.tin.it ([212.216.176.118]:11670 "EHLO vsmtp14.tin.it")
-	by vger.kernel.org with ESMTP id S264298AbUHNRwp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 13:52:45 -0400
-Subject: PROBLEM: c2 error detection on CD-R broken with kernel 2.6.8
-	(since rc4)
-From: GhePeU <ghepeu@libero.it>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-15
-Message-Id: <1092505965.7913.17.camel@KazeNoTani>
+	Sat, 14 Aug 2004 14:15:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61386 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264377AbUHNSPE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 14:15:04 -0400
+Date: Sat, 14 Aug 2004 11:05:22 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] kconfig.debug for 2.6.8
+Message-Id: <20040814110522.4879ddd4.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 14 Aug 2004 19:52:46 +0200
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-c2 error detection performed by readcd (cdrtools 2.01alpha28) seems to
-be broken with vanilla kernel >= 2.6.8rc4 (didn't check with rc1, 2 and
-3). This happens with both CDRW and CDROM on ATA (not the old scsi
-emulation) on a VIA KT266A chipset with DMA enabled. CD-R/RW burning
-seems to work flawlessy and I didn't get any error from a surface scan
-on a different OS.
-kernel config is the same I used to have, I just did a make oldconfig
-and answered N to all new options.
+
+Here's the Kconfig.debug patch updated for 2.6.8:
+
+  http://developer.osdl.org/rddunlap/kconfig/kconfig-debug-268.patch
 
 
-this is the output I get with kernel 2.6.7:
+Localize Kconfig debug options into one file (lib/Kconfig.debug)
+for easier maintenance, searching, and menu-building.
 
-$ readcd dev=/dev/hdd -c2scan
-Read  speed:  7056 kB/s (CD  40x, DVD  5x).
-Write speed:     0 kB/s (CD   0x, DVD  0x).
-Capacity: 356199 Blocks = 712398 kBytes = 695 MBytes = 729 prMB
-Sectorsize: 2048 Bytes
-Copy from SCSI (1,1,0) disk to file '/dev/null'
-end:    356199
-addr:   356199 cnt: 39
-Time total: 171.991sec
-Read 920412.65 kB at 5351.5 kB/sec.
-Total of 0 hard read errors.
-C2 errors total: 0 bytes in 0 sectors on disk
-C2 errors rate: 0.000000%
-C2 errors on worst sector: 0, sectors with 100+ C2 errors: 0
+Updated to 2.6.8.
 
+Summary of changes:
 
-
-and this is what I get with newer kernel (same cd, obviously):
-
-$ readcd dev=/dev/hdd -c2scan
-readcd: Success. read dvd structure: scsi sendcmd: no error
-CDB:  AD 00 00 00 00 00 00 00 00 20 00 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 30 02 00 00
-Sense Key: 0x5 Illegal Request, Segment 0
-Sense Code: 0x30 Qual 0x02 (cannot read medium - incompatible format)
-Fru 0x0
-Sense flags: Blk 0 (not valid)
-resid: 32
-cmd finished after 0.000s timeout 240s
-readcd: Operation not permitted. set cd speed: scsi sendcmd: no error
-CDB:  BB 00 FF FF FF FF 00 00 00 00 00 00
-status: 0x0 (GOOD STATUS)
-cmd finished after 0.000s timeout 40s
-Read  speed:  7056 kB/s (CD  40x, DVD  5x).
-Write speed:     0 kB/s (CD   0x, DVD  0x).
-Capacity: 356199 Blocks = 712398 kBytes = 695 MBytes = 729 prMB
-Sectorsize: 2048 Bytes
-readcd: Operation not permitted. mode select g1: scsi sendcmd: no error
-CDB:  55 10 00 00 00 00 00 00 14 00
-status: 0x0 (GOOD STATUS)
-cmd finished after 0.000s timeout 40s
-Copy from SCSI (1,1,0) disk to file '/dev/null'
-end:    356199
-C2 in sector:   8 first at byte:    3 (0x14) total:  617 errors
-C2 in sector:  11 first at byte:    7 (0x01) total: 1129 errors
-C2 in sector:  12 first at byte:    2 (0x26) total: 1064 errors
-
-[...]
-
-C2 in sector: 356027 first at byte:   33 (0x66) total:  577 errors
-C2 in sector: 356028 first at byte:   32 (0xAE) total:  559 errors
-C2 in sector: 356029 first at byte:   33 (0x7A) total:  556 errors
-C2 in sector: 356030 first at byte:   35 (0x18) total:  567 errors
-C2 in sector: 356031 first at byte:   34 (0x22) total:  607 errors
-addr:   356199 cnt: 18
-Time total: 646.623sec
-Read 920412.65 kB at 1423.4 kB/sec.
-readcd: Operation not permitted. mode select g1: scsi sendcmd: no error
-CDB:  55 10 00 00 00 00 00 00 14 00
-status: 0x0 (GOOD STATUS)
-cmd finished after 0.000s timeout 40s
-Total of 0 hard read errors.
-C2 errors total: 262256530 bytes in 225476 sectors on disk
-C2 errors rate: 31.303833%
-C2 errors on worst sector: 1960, sectors with 100+ C2 errors: 225440
-readcd: Operation not permitted. mode select g1: scsi sendcmd: no error
-CDB:  55 10 00 00 00 00 00 00 14 00
-status: 0x0 (GOOD STATUS)
-cmd finished after 0.000s timeout 40s
+. localizes the following symbols in lib/Kconfig.debug:
+    DEBUG_KERNEL, MAGIC_SYSRQ, DEBUG_SLAB, DEBUG_SPINLOCK,
+    DEBUG_SPINLOCK_SLEEP, DEBUG_HIGHMEM, DEBUG_BUGVERBOSE,
+    DEBUG_INFO
+  and FRAME_POINTER for some instances of it (if it's freely
+  user-selectable) but not for the cases where it's forced or
+  it depends on some other options.
+. adds DEBUG_KERNEL requirement to some DEBUG_vars;
+. remove KALLSYMS from S390-specific kernel hacking menu;
+  use KALLSYMS in the EMBEDDED menu instead;
+. add CRIS and M68KNOMMU symbols for use in lib/Kconfig.debug;
+. eliminate duplicate "General setup" labels in sparc64 config;
+. whitespace cleanup;
+. fixed a few trival typos;
 
 
-kernel messages:
+Portions of the original patch were also done by
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci0000:00:11.1
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:DMA
-[...]
-hdc: LITE-ON LTR-52327S, ATAPI CD/DVD-ROM drive
-hdd: TOSHIBA DVD-ROM SD-M1612, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-[...]
-hdc: ATAPI 52X CD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-hdd: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
+ arch/alpha/Kconfig           |  104 ---------------------------
+ arch/alpha/Kconfig.debug     |   59 +++++++++++++++
+ arch/arm/Kconfig             |  163 -------------------------------------------
+ arch/arm/Kconfig.debug       |  115 ++++++++++++++++++++++++++++++
+ arch/arm26/Kconfig           |  117 ------------------------------
+ arch/arm26/Kconfig.debug     |   60 +++++++++++++++
+ arch/cris/Kconfig            |   56 +-------------
+ arch/cris/Kconfig.debug      |   28 +++++++
+ arch/h8300/Kconfig           |   75 -------------------
+ arch/h8300/Kconfig.debug     |   68 +++++++++++++++++
+ arch/i386/Kconfig            |  148 ++-------------------------------------
+ arch/i386/Kconfig.debug      |   58 +++++++++++++++
+ arch/ia64/Kconfig            |  114 ------------------------------
+ arch/ia64/Kconfig.debug      |   64 ++++++++++++++++
+ arch/m68k/Kconfig            |   43 -----------
+ arch/m68k/Kconfig.debug      |    5 +
+ arch/m68knommu/Kconfig       |   66 +----------------
+ arch/m68knommu/Kconfig.debug |   42 +++++++++++
+ arch/mips/Kconfig            |  146 ++------------------------------------
+ arch/mips/Kconfig.debug      |   76 ++++++++++++++++++++
+ arch/parisc/Kconfig          |   70 ------------------
+ arch/parisc/Kconfig.debug    |   14 +++
+ arch/ppc/Kconfig             |  131 +---------------------------------
+ arch/ppc/Kconfig.debug       |   72 ++++++++++++++++++
+ arch/ppc64/Kconfig           |   98 -------------------------
+ arch/ppc64/Kconfig.debug     |   57 +++++++++++++++
+ arch/s390/Kconfig            |   65 +----------------
+ arch/s390/Kconfig.debug      |    5 +
+ arch/sh/Kconfig              |  162 +-----------------------------------------
+ arch/sh/Kconfig.debug        |  124 ++++++++++++++++++++++++++++++++
+ arch/sh64/Kconfig            |   50 -------------
+ arch/sh64/Kconfig.debug      |   37 +++++++++
+ arch/sparc/Kconfig           |   78 --------------------
+ arch/sparc/Kconfig.debug     |   14 +++
+ arch/sparc64/Kconfig         |  109 ----------------------------
+ arch/sparc64/Kconfig.debug   |   44 +++++++++++
+ arch/um/Kconfig              |   73 +------------------
+ arch/um/Kconfig.debug        |   39 ++++++++++
+ arch/v850/Kconfig            |   32 --------
+ arch/v850/Kconfig.debug      |   10 ++
+ arch/x86_64/Kconfig          |  134 ++++-------------------------------
+ arch/x86_64/Kconfig.debug    |   56 ++++++++++++++
+ init/Kconfig                 |    3 
+ lib/Kconfig.debug            |  100 ++++++++++++++++++++++++++
+ 44 files changed, 1241 insertions(+), 1943 deletions(-)
 
-cdrecord output:
-
-$ cdrecord dev=ATAPI -scanbus
-Cdrecord-Clone 2.01a28 (i686-pc-linux-gnu) Copyright (C) 1995-2004 Jörg
-Schilling
-scsidev: 'ATAPI'
-devname: 'ATAPI'
-scsibus: -2 target: -2 lun: -2
-Warning: Using ATA Packet interface.
-Warning: The related libscg interface code is in pre alpha.
-Warning: There may be fatal problems.
-Using libscg version 'schily-0.8'.
-scsibus0:
-        0,0,0     0) 'LITE-ON ' 'LTR-52327S      ' 'QS0C' Removable
-CD-ROM
-        0,1,0     1) 'TOSHIBA ' 'DVD-ROM SD-M1612' '1806' Removable
-CD-ROM
-        0,2,0     2) *
-        0,3,0     3) *
-        0,4,0     4) *
-        0,5,0     5) *
-        0,6,0     6) *
-        0,7,0     7) *
-
-
-
-
+--

@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311611AbSCNNNm>; Thu, 14 Mar 2002 08:13:42 -0500
+	id <S311614AbSCNNSv>; Thu, 14 Mar 2002 08:18:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311613AbSCNNNc>; Thu, 14 Mar 2002 08:13:32 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:16119 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S311611AbSCNNNV>; Thu, 14 Mar 2002 08:13:21 -0500
-Date: Thu, 14 Mar 2002 18:46:09 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
+	id <S311615AbSCNNSl>; Thu, 14 Mar 2002 08:18:41 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:26377 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S311614AbSCNNSX>;
+	Thu, 14 Mar 2002 08:18:23 -0500
 To: Anton Blanchard <anton@samba.org>
 Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
         lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Message-ID: <20020314184609.D15394@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20020313085217.GA11658@krispykreme> <460695164.1016001894@[10.10.2.3]> <20020314112725.GA2008@krispykreme>
-Mime-Version: 1.0
+In-Reply-To: <20020313085217.GA11658@krispykreme>
+	<460695164.1016001894@[10.10.2.3]> <20020314112725.GA2008@krispykreme>
+X-No-CC: Reply to lists, not to me.
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <20020314112725.GA2008@krispykreme>
+Date: 14 Mar 2002 15:21:38 +0200
+Message-ID: <87wuwfxp25.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020314112725.GA2008@krispykreme>; from anton@samba.org on Thu, Mar 14, 2002 at 10:27:26PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14, 2002 at 10:27:26PM +1100, Anton Blanchard wrote:
->  
-> > >    554 .d_lookup                               
-> > 
-> > Did you try the dcache patches?
-> 
-> Not for this, I did do some benchmarking of the RCU dcache patches a
-> while ago which I should post.
+>>>>> "Anton" == Anton Blanchard <anton@samba.org> writes:
+Anton> Thats due to the way we manipulate the ppc hashed page table. Every
+Anton> time we update the linux page tables we have to update the hashed
+Anton> page table. There are some obvious optimisations we need to make,
 
-Please do ;-) This shows why we need to ease the pressure on dcache_lock.
+Out of curiousity, why there's a need to update the linux page tables ?
+Doesn't pte/pmd/pgd family functions provide enough abstraction in
+order to maintain _only_ the hashed page table ?
 
-> 
-> > Can you publish lockmeter stats?
-> 
-> I didnt get a chance to run lockmeter, I tend to use the kernel profiler
-> and use a hacked readprofile (originally from tridge) that displays
-> profile hits vs assembly instruction. Thats usually good enough to work
-> out which spinlocks are a problem.
-
-Is this a PPC only hack ? Also, where can I get it ?
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+Regards,
+-velco

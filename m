@@ -1,48 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLPIHt>; Sat, 16 Dec 2000 03:07:49 -0500
+	id <S130026AbQLPIZP>; Sat, 16 Dec 2000 03:25:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130026AbQLPIHk>; Sat, 16 Dec 2000 03:07:40 -0500
-Received: from icarus.com ([208.36.26.146]:12306 "EHLO icarus.com")
-	by vger.kernel.org with ESMTP id <S129183AbQLPIHc>;
-	Sat, 16 Dec 2000 03:07:32 -0500
-Message-Id: <200012160737.XAA26614@icarus.com>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: linux-kernel@vger.kernel.org
-cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Subject: Re: [paperboy@g2news.com: Client Server NEWS FLASH: Linus Savages Red Hat 7.0] 
-In-Reply-To: Message from Stephen Williams <steve@icarus.com> 
-   of "Fri, 15 Dec 2000 22:32:07 PST." <200012160632.WAA26178@icarus.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 15 Dec 2000 23:37:03 -0800
-From: Stephen Williams <steve@icarus.com>
+	id <S131516AbQLPIZF>; Sat, 16 Dec 2000 03:25:05 -0500
+Received: from queen.bee.lk ([203.143.12.182]:13572 "EHLO bee.lk")
+	by vger.kernel.org with ESMTP id <S130026AbQLPIYw>;
+	Sat, 16 Dec 2000 03:24:52 -0500
+Date: Sat, 16 Dec 2000 13:53:50 +0600 (LKT)
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Ulrich Drepper <drepper@cygnus.com>,
+        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 signal.h
+In-Reply-To: <20001215205721.I17781@inspiron.random>
+Message-ID: <Pine.LNX.4.21.0012161337220.1433-100000@bee.lk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-steve@icarus.com said:
-> As a producer of free software myself (Icarus Verilog) I've come to
-> the conclusion that the mass media is perfectly capable of turning
-> away the idiots that you don't really want as customers anyhow:-) 
+On Fri, 15 Dec 2000, Andrea Arcangeli wrote:
 
-Actually, I didn't intend that to go out to a public forum, as I am
-to a (very) small degree a public figure myself (I pressed the wrong
-button) but I stand by my statement. If a person is so easily swayed
-by such trivial propaganda then there is a pretty good chance that this
-same person is better inflicted on Cadence or Synopsys (or whomever is
-the big company in your field) who has people trained and willing to deal
-with this level of support.
+> On Fri, Dec 15, 2000 at 11:18:35AM -0800, Ulrich Drepper wrote:
+> > Andrea Arcangeli <andrea@suse.de> writes:
+> > 
+> > > x()
+> > > {
+> > > 
+> > > 	switch (1) {
+> > > 	case 0:
+> > > 	case 1:
+> > > 	case 2:
+> > > 	case 3:
+> > > 	;
+> > > 	}
+> > > }
+> > > 
+> > > Why am I required to put a `;' only in the last case and not in all
+> > > the previous ones? Or maybe gcc-latest is forgetting to complain about
+> > > the previous ones ;)
+> > 
+> > Your C language knowledge seems to have holes.  It must be possible to
+> > have more than one label for a statement.  Look through the kernel
+> > sources, there are definitely cases where this is needed.
+> 
+> I don't understand what you're talking about. Who ever talked about
+> "more than one label"?
 
-For my work, I've been blessed with conscientious feedback, and I've
-run with it. The only compensation I get for my efforts is a PR database
-loaded with bug reports; but somehow a detailed and well thought out bug
-report is so much more satisfying then a hollow pat on the back.
--- 
-Steve Williams                "The woods are lovely, dark and deep.
-steve@icarus.com              But I have promises to keep,
-steve@picturel.com            and lines to code before I sleep,
-http://www.picturel.com       And lines to code before I sleep."
+In simple terms all four `case'es form a single entity and therefore a
+statement is necessary AFTER them and not in the MIDDLE. That is why gcc
+doesn't complain about the `previous' ones.
+ 
+> The only issue here is having 1 random label at the end of a compound
+> statement. Nothing else.
+
+That is NOT the issue. It has nothing to do with the compound statement.
+There should be a statement after ONE OR MORE "case"s, but here
+
+case 0: case 1: case 2: case 3:
+
+is NOT followed by a statement.
+
+> And yes I can see that the whole point of the change is that they want
+> to also forbids this:
+> 
+> x()
+> {
+> 	goto out;
+> out:
+> }
+
+Again this is a similar case. But if you write
+
+x()
+{
+  goto out1;
+  goto out2;
+
+out1:
+out2:
+}
+
+GCC will complain the absence of a statement after `out1:out2:`, but not
+two complains for `out1' and `out2', because they form a single entity.
+
+
+Anuradha
+
+
 
 
 -

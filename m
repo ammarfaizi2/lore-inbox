@@ -1,102 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265058AbTAWJKV>; Thu, 23 Jan 2003 04:10:21 -0500
+	id <S262821AbTAWJ0l>; Thu, 23 Jan 2003 04:26:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbTAWJKV>; Thu, 23 Jan 2003 04:10:21 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:41151 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP
-	id <S265058AbTAWJKU>; Thu, 23 Jan 2003 04:10:20 -0500
-Message-ID: <00e201c2c2c0$838954c0$760010ac@edumazet>
-From: "dada1" <dada1@cosmosbay.com>
-To: <linux-kernel@vger.kernel.org>
-References: <E18bd5l-000Duj-00@f16.mail.ru>
-Subject: Strong kernel lock with linux-2.5.59 : futex in Huge Pages
-Date: Thu, 23 Jan 2003 10:19:21 +0100
+	id <S264702AbTAWJ0l>; Thu, 23 Jan 2003 04:26:41 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:45068 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S262821AbTAWJ0k>; Thu, 23 Jan 2003 04:26:40 -0500
+Message-Id: <200301230927.h0N9RHs22240@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Sam Gendler <SGendler@s8.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: completely undiagnosable (for me) kernel boot problem
+Date: Thu, 23 Jan 2003 11:26:23 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <8D587D949A61D411AFE300D0B74D75D7048C9F13@server.s8.com>
+In-Reply-To: <8D587D949A61D411AFE300D0B74D75D7048C9F13@server.s8.com>
+Cc: DragonK <dragon_krome@yahoo.com>, "W. Michael Petullo" <mike@flyn.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On 23 January 2003 06:20, Sam Gendler wrote:
+> the main one) fails.  It successfully uncompresses vmlinuz and
+> initrd.img, then clears the screen and displays the message
+> "Uncompressing Linux... Ok, booting the kernel." and leaves a
+> blinking cursor two lines below.  Nothing ever happens subsequent to
+> that.
 
-I found a way to lock a linux-2.5.59 in all cases, in using futexes landing
-in a HugeTLB page.
+Heh... you'll have to mess up with boot code. CCed to
+DragonK <dragon_krome@yahoo.com> (he had similar 'no boot'
+horror story, and was able to diagnose it).
 
-You need to be root to be able to obtain HugePages (or CAP_IPC_LOCK
-capability)
+> was complaining about a 2.88MB boot image.  Also, the same symptoms
+> occur whether I boot from the net or the CDR/DVD drive, so I don't
+> think it is the device.  I don't know how to go about finding out
+> what is hanging the system, and I don't have a system available to me
+> on which I can comple a custom kernel.  This is the only machine I
+> have, and it now has nothing but freeDOS on it.
 
-I suspect that the kernel/futex.c:__pin_page(unsigned long addr) or
-mm/memory.c:follow_page() are not HugeTLB page aware.
+Thats strange. How did you managed to try network boot without
+a second system available to you? Did you tried to copy kernel
+to DOS partition and load it with loadlin or linld?
 
-How you can reproduce it. (dont do it of course, unless you really want to
-debug the thing)
+http://www.imtp.ilyichevsk.odessa.ua/linux/vda/linld/
 
-# grep TLB .config
-CONFIG_HUGETLB_PAGE=y
-CONFIG_HUGETLBFS=y
-
-# mount -t hugetlbfs none /huge
-# echo 10 > /proc/sys/vm/nr_hugepages
-# ./prog
-Before futex() call
-*********** HANG *********
-
-# cat prog.c
-
-#include <sys/mman.h>
-#include <asm/unistd.h>
-#include <errno.h>
-#ifndef __NR_futex
-#define __NR_futex 240
-#endif
-_syscall4(int, futex, unsigned long, uaddr, int, op, int, val, struct
-timespec *,utime)
-res = futex((unsigned long)ptr, /*FUTEX_WAIT*/0, 3, 0) ;
-
-main(int argc, char *argv[])
-{
-int res ;
-int fd = open("/huge/futex_bug", O_RDWR | O_CREAT, 0644) ;
-char *ptr ;
-if (fd == -1) { perror("/huge/futex_bug") ; exit(1);}
-ptr = mmap(0x30000000, 4*1024*1024, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd,
-0) ;
-if (ptr == -1) { perror("mmap") ; exit(1);}
-*(int *)ptr = 2 ; /* init the futex with value 2 */
-printf("Before futex() call\n") ;
-res = futex((unsigned long)ptr, /*FUTEX_WAIT*/0, 3, 0) ;
-printf("futex->%d errno=%d\n", res, errno) ;
-}
-
-# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 6
-cpu MHz         : 801.570
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr sse
-bogomips        : 1585.15
-
-
-Thanks
-
-Eric Dumazet
-
+A long time ago I said to "W. Michael Petullo" <mike@flyn.org>:
+>> Since the kernel does not even peep an oops message, I'm not sure where
+>> to start debugging.  Is anyone else having similar problems?
+>
+>If noone will send you a suggestion, I'm afraid you'll have to put debug 
+>stores to video memory all over startup code.
+>
+>C example (assumes 1:1 address mapping)
+>
+>char *p = (char*)0x000b8000;  // color VGA text framebuffer
+>p[(col+row*80)*2] = 'Z';      // character
+>p[(col+row*80)*2+1] = 0x0f;   // attr (0x0f=white on black)
+>
+>You may try this first with booting kernel to be sure it works.
+>Good luck.
+--
+vda

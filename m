@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285229AbSCKTGV>; Mon, 11 Mar 2002 14:06:21 -0500
+	id <S288248AbSCKTFs>; Mon, 11 Mar 2002 14:05:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288921AbSCKTGD>; Mon, 11 Mar 2002 14:06:03 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:43713 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285229AbSCKTFz>;
-	Mon, 11 Mar 2002 14:05:55 -0500
-Date: Mon, 11 Mar 2002 11:02:36 -0800 (PST)
-Message-Id: <20020311.110236.133275094.davem@redhat.com>
-To: beezly@beezly.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sun GEM card looses TX on x86 32bit PCI
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1015871701.2832.1.camel@monkey>
-In-Reply-To: <1015849164.2153.3.camel@monkey>
-	<20020311.042124.103955441.davem@redhat.com>
-	<1015871701.2832.1.camel@monkey>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S285229AbSCKTFj>; Mon, 11 Mar 2002 14:05:39 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:16395 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S288248AbSCKTFa>; Mon, 11 Mar 2002 14:05:30 -0500
+Message-ID: <3C8CFFB8.70008@evision-ventures.com>
+Date: Mon, 11 Mar 2002 20:04:24 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: arjanv@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.6 IDE 19
+In-Reply-To: <E16kRZp-0000or-00@the-village.bc.nu> <3C8CDA0D.7020703@evision-ventures.com> <3C8CEEFC.8137F5C0@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Beezly <beezly@beezly.org.uk>
-   Date: 11 Mar 2002 18:35:01 +0000
+Arjan van de Ven wrote:
+>>And apparently we see that there is nothing special about them... Just don't
+>>enable the write cache and all should be well with a timeout of 30 seconds.
+>>
+> 
+> Quite a few controllers enable the write cache in their bootstrap before
+> the OS gets involved.
+> Just "don't enable" is not an option.
 
-   Sorry it took so long for me to get back to you. Sadly it also hung with
-   this patch ;) I was unable to get an oops out of it (machine was
-   completely hosed and in X so I couldn't even note the oops on paper :(
-   ).
-   
-So rerun the test not under X please?
+Right. But that can be already handled by the hdparm utility at boot.
+Please note as well that the controller we are talking about
+is basically the CardBus PCI-ISA bridge kind of ;-).
+It doesn't do much setup. (Fingers corssed becouse I didn't
+check the cs code thus far.)
+

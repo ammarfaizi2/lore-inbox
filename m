@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292130AbSDRQ7l>; Thu, 18 Apr 2002 12:59:41 -0400
+	id <S314398AbSDRRD4>; Thu, 18 Apr 2002 13:03:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314398AbSDRQ7k>; Thu, 18 Apr 2002 12:59:40 -0400
-Received: from web11801.mail.yahoo.com ([216.136.172.155]:4387 "HELO
-	web11801.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292130AbSDRQ7j>; Thu, 18 Apr 2002 12:59:39 -0400
-Message-ID: <20020418165939.22502.qmail@web11801.mail.yahoo.com>
-Date: Thu, 18 Apr 2002 18:59:39 +0200 (CEST)
-From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
-Subject: Re: [PATCH] x86 boot enhancements, Clean up the 32bit entry points 6/11
-To: linux-kernel@vger.kernel.org
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S314399AbSDRRDz>; Thu, 18 Apr 2002 13:03:55 -0400
+Received: from reload.namesys.com ([212.16.7.75]:1327 "HELO reload.namesys.com")
+	by vger.kernel.org with SMTP id <S314398AbSDRRDy>;
+	Thu, 18 Apr 2002 13:03:54 -0400
+Date: Thu, 18 Apr 2002 21:04:20 +0400
+From: Joshua MacDonald <jmacd@namesys.com>
+To: Kent Borg <kentborg@borg.org>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Versioning File Systems?
+Message-ID: <20020418170420.GE24887@reload.nmd.msu.ru>
+Mail-Followup-To: Kent Borg <kentborg@borg.org>,
+	Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020418110558.A16135@borg.org> <20020418082025.N2710@work.bitmover.com> <20020418172758.Q4498@marowsky-bree.de> <20020418125530.C16135@borg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Seems that previous message did not go through, rewrite.
+On Thu, Apr 18, 2002 at 12:55:30PM -0400, Kent Borg wrote:
+> On Thu, Apr 18, 2002 at 05:27:58PM +0200, Lars Marowsky-Bree wrote:
+> 
+> > That would actually be pretty interesting because it might also allow you to
+> > back out editor screwups ;-)
+> 
+> Writing an editor to take advantage of such underlying features would
+> be pretty interesting too, it could be integrated into undo/redo
+> features.  
+> 
+> Navigating such an historical fabric turns into a really interesting
+> user interface problem.
 
- I am sorry I did not check enough your patch.
- You are speaking of: arch/i386/boot/compressed/head.S
- I am speaking of:    arch/i386/kernel/head.S
+There was a paper presented at SCM8 on just such a system.  They used Emacs.
 
- Gujin skip completely arch/i386/boot/compressed/* and really
- boots the file '$$tmppiggy.gz' line 44 of file:
-arch/i386/boot/compressed/Makefile
+    Multi-Grain Version Control in the Historian System
+    Makram Abu-Shakra and Gene L. Fisher
+    California Polytechnic State University, USA
 
- So you can do whatever you want with the "first" 32 bits entry point,
- I am just concerned by the "second" kernel 32 bits entry point, in
- arch/i386/kernel/head.S
+    This paper describes Historian, a version control system that supports
+    comprehensive versioning and features to aid history
+    navigation. Comprehensive versioning is supported through frequent and
+    automated creation of versions which typically results in a large number
+    of versions. To reduce user overhead in history navigation, the
+    hierarchical structure present in most documents is utilized to support
+    fine-grained version control. The series of document editing operations is
+    also organized hierarchically and can be used for navigation as well.
 
- I still have a problem to detect the size of your decompressor, and that
- is my use of the "lss" instruction.
- This "lss SYMBOL_NAME(stack_start),%esp" gives an access to the symbol
- 'stack_start', so it is quite easy to find back the GZIP signature
- of the initial '$$tmppiggy.gz' in what I call my "compatibility" mode,
- i.e. booting the legacy vmlinuz files - and skipping all of the real mode
- code and the decompressor code.
-
- This "lss" line has not always been at the same offset, but is around
- since maybe even the 0.01 kernel, it is quite easy to find it from its
- hexadecimal form. (function vmlinuz_header_treat() in vmlinuz.c of
- Gujin).
-
- The loaded high/loaded low stuff is just to know if I have to remove
- 0x100000 or 0x1000 from this symbol to have the number of bytes
- to skip on the file.
- By the way, the bit in the kernel header is set by the bootloader to say
- where it has loaded the kernel, not by the compiler/linker chain.
-
- So is it possible to write somewhere how much code to skip or the offset
- of the kernel GZIP signature?
- Something like:
-  jmp next
-  lss SYMBOL_NAME(stack_start),%esp
-next:
- Would make me really happy, but is dirty.
- Changing the 'tmppiggy.lnk' in the Makefile can be done, but the value
- (to know the length of the decompressor code) has to be _before_ the code
- itself in the raw file.
- Else whatever signature at whatever fixed address with the code+rodata
- size following would make me happy.
-
-  Sorry again for the confusion,
-  Etienne.
-
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+-josh

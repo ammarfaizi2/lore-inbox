@@ -1,23 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283470AbRK3C1i>; Thu, 29 Nov 2001 21:27:38 -0500
+	id <S283471AbRK3C32>; Thu, 29 Nov 2001 21:29:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283471AbRK3C12>; Thu, 29 Nov 2001 21:27:28 -0500
-Received: from [211.155.253.66] ([211.155.253.66]:60556 "EHLO
-	mail.dawning.com.cn") by vger.kernel.org with ESMTP
-	id <S283470AbRK3C1V>; Thu, 29 Nov 2001 21:27:21 -0500
-Message-ID: <3C06EDA6.4020700@263.net>
-Date: Fri, 30 Nov 2001 10:23:34 +0800
-From: Isaac Claymore <claymore@263.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: test(NULL, sorry guys)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S283472AbRK3C3S>; Thu, 29 Nov 2001 21:29:18 -0500
+Received: from zero.tech9.net ([209.61.188.187]:10507 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S283471AbRK3C3L>;
+	Thu, 29 Nov 2001 21:29:11 -0500
+Subject: Re: [RFC] tree-based bootmem
+From: Robert Love <rml@tech9.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011128172304.E3921@holomorphy.com>
+In-Reply-To: <20011117011415.B1180@holomorphy.com>
+	<20011128010411.A14584@figure1.int.wirex.com> 
+	<20011128172304.E3921@holomorphy.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 29 Nov 2001 21:29:05 -0500
+Message-Id: <1007087353.28768.8.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2001-11-28 at 20:23, William Lee Irwin III wrote:
 
+> This patch has now been successfully tested on 32-bit SPARC.
+
+Add to your list SH4. Successfully patched and booted under kernel
+2.4.13-pre2 (latest from linux-sh CVS).
+
+Weee ...
+
+	Robert Love
 

@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285647AbRLWKoD>; Sun, 23 Dec 2001 05:44:03 -0500
+	id <S281004AbRLWKxn>; Sun, 23 Dec 2001 05:53:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282671AbRLWKny>; Sun, 23 Dec 2001 05:43:54 -0500
-Received: from t2.redhat.com ([199.183.24.243]:19707 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S286866AbRLWKnk>; Sun, 23 Dec 2001 05:43:40 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <4.3.2.7.2.20011222075342.00c11e00@10.1.1.42> 
-In-Reply-To: <4.3.2.7.2.20011222075342.00c11e00@10.1.1.42>  <Pine.GSO.4.30.0112221113120.2091-100000@balu> <E16H9C4-0005ST-00@sites.inka.de> <Pine.GSO.4.30.0112221113120.2091-100000@balu> 
-To: Stephen Satchell <list@fluent2.pyramid.net>
-Cc: Phil Howard <phil-linux-kernel@ipal.net>, linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help. 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 23 Dec 2001 10:43:34 +0000
-Message-ID: <32114.1009104214@redhat.com>
+	id <S286863AbRLWKxX>; Sun, 23 Dec 2001 05:53:23 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:32720 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S281004AbRLWKxM>;
+	Sun, 23 Dec 2001 05:53:12 -0500
+Date: Sun, 23 Dec 2001 10:53:03 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: How to fix false positives on references to discarded
+ text/data?
+Message-ID: <940624132.1009104782@[195.224.237.69]>
+In-Reply-To: <23259.1009099071@ocs3.intra.ocs.com.au>
+In-Reply-To: <23259.1009099071@ocs3.intra.ocs.com.au>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-list@fluent2.pyramid.net said:
->  Look, I agree that there is significant merit to KiB et. al., but the
->  marketplace has not always selected that which is best.  That's the
-> nature  of the marketplace. 
 
-The marketplace selected Windows.
+--On Sunday, 23 December, 2001 8:17 PM +1100 Keith Owens <kaos@ocs.com.au> 
+wrote:
 
-If you are more interested in the choices of the marketplace than in
-technical correctness, one has to wonder what you're doing on this mailing
-list.
+> (5) Post process the objects before ld sees them, remove the dangling
+>     references in safe sections.
+>
+>     Will probably mess up timestamps on objects, as well as requiring
+>     yet another program for kernel build.  Cross compiling would be
+>     "interesting".
+>
+
+1+5) (seeing as you seem to have already written some perl); would it
+     be possible to run our own perl code to check for whichever dangling
+     references we are concerned about (and not those we aren't), then do
+
+> (1) Drop the ld check for discarded sections.
+>
+>     I don't want to lose the ld check, it has already found several
+>     bits of buggy code.  For example, usb_uhci.c calls the exit routine
+>     from the init code on error, but the exit code has been discarded
+>     in vmlinux - oops.  New binutils flagged that bug and others.
+
+This would seem to have the advantage of better readability of errors
+too.
 
 --
-dwmw2
-
-
+Alex Bligh

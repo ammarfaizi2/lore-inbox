@@ -1,59 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271153AbTGPWBd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 18:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271152AbTGPWAZ
+	id S271159AbTGPWID (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 18:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271163AbTGPWID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 18:00:25 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:47254 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP id S271146AbTGPV6r
+	Wed, 16 Jul 2003 18:08:03 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:18859 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S271159AbTGPWFE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 17:58:47 -0400
-Message-ID: <3F15CE0B.6090106@tmsusa.com>
-Date: Wed, 16 Jul 2003 15:13:31 -0700
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Wed, 16 Jul 2003 18:05:04 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 16 Jul 2003 15:12:36 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Con Kolivas <kernel@kolivas.org>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [PATCH] O6int for interactivity
+In-Reply-To: <200307170030.25934.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.55.0307161241280.4787@bigblue.dev.mcafeelabs.com>
+References: <200307170030.25934.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Alan Cox <alan@redhat.com>, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test1-ac2
-References: <200307161816.h6GIGKH09243@devserv.devel.redhat.com> <20030716201339.GA618@sokrates> <1058392329.7677.1.camel@dhcp22.swansea.linux.org.uk> <3F15CB80.4020306@tmsusa.com> <20030716220801.GD1821@matchmail.com>
-In-Reply-To: <20030716220801.GD1821@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
+On Thu, 17 Jul 2003, Con Kolivas wrote:
 
->On Wed, Jul 16, 2003 at 03:02:40PM -0700, joe wrote:
->  
+> O*int patches trying to improve the interactivity of the 2.5/6 scheduler for
+> desktops. It appears possible to do this without moving to nanosecond
+> resolution.
 >
->>
->>hmm, it would be really cool if redhat shipped alsa utils......
->>
->>just a thought -
->>
->>    
->>
+> This one makes a massive difference... Please test this to death.
 >
->I'd be really shocked if it didn't.  Maybe you should search more?
+> Changes:
+> The big change is in the way sleep_avg is incremented. Any amount of sleep
+> will now raise you by at least one priority with each wakeup. This causes
+> massive differences to startup time, extremely rapid conversion to interactive
+> state, and recovery from non-interactive state rapidly as well (prevents X
+> stalling after thrashing around under high loads for many seconds).
 >
-That's an excellent "argument from incredulity" but alas, it has fatal 
-flaws.
+> The sleep buffer was dropped to just 10ms. This has the effect of causing mild
+> round robinning of very interactive tasks if they run for more than 10ms. The
+> requeuing was changed from (unlikely()) to an ordinary if.. branch as this
+> will be hit much more now.
 
-(10 points if you spot them)
+Con, I'll make a few notes on the code and a final comment.
 
->
->I'm sure the others do, (debian, suse, mandrake, gentoo, etc)
->
-Indeed they do - but that wasn't the issue at hand
 
-;-)
 
-Best Regards,
+> -#define MAX_BONUS		((MAX_USER_PRIO - MAX_RT_PRIO) * PRIO_BONUS_RATIO / 100)
+> +#define MAX_BONUS		(40 * PRIO_BONUS_RATIO / 100)
 
-Joe
+Why did you bolt in the 40 value ? It really comes from (MAX_USER_PRIO - MAX_RT_PRIO)
+and you will have another place to change if the number of slots will
+change. If you want to clarify better, stick a comment.
 
+
+
+> +			p->sleep_avg = (p->sleep_avg * MAX_BONUS / runtime + 1) * runtime / MAX_BONUS;
+
+I don't have the full code so I cannot see what "runtime" is, but if
+"runtime" is the time the task ran, this is :
+
+p->sleep_avg ~= p->sleep_avg + runtime / MAX_BONUS;
+
+(in any case a non-decreasing function of "runtime" )
+Are you sure you want to reward tasks that actually ran more ?
+
+
+Con, you cannot follow the XMMS thingy otherwise you'll end up bolting in
+the XMMS sleep->burn pattern and you'll probably break the make-j+RealPlay
+for example. MultiMedia players are really tricky since they require strict
+timings and forces you to create a special super-interactive treatment
+inside the code. Interactivity in my box running moderate high loads is
+very good for my desktop use. Maybe audio will skip here (didn't try) but
+I believe that following the fix-XMMS thingy is really bad. I believe we
+should try to make the desktop to feel interactive with human tollerances
+and not with strict timings like MM apps. If the audio skips when dragging
+like crazy a X window using the filled mode on a slow CPU, we shouldn't be
+much worried about it for example. If audio skip when hitting the refresh
+button of Mozilla, then yes it should be fixed. And the more you add super
+interactive patterns, the more the scheduler will be exploitable. I
+recommend you after doing changes to get this :
+
+http://www.xmailserver.org/linux-patches/irman2.c
+
+and run it with different -n (number of tasks) and -b (CPU burn ms time).
+At the same time try to build a kernel for example. Then you will realize
+that interactivity is not the bigger problem that the scheduler has right
+now.
+
+
+
+
+- Davide
 

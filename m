@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUEaOuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264641AbUEaOzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264640AbUEaOuY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 10:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbUEaOuY
+	id S264641AbUEaOzz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 10:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbUEaOzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 10:50:24 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:18676 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264640AbUEaOuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 10:50:21 -0400
-Message-ID: <40BB3751.6060200@kegel.com>
-Date: Mon, 31 May 2004 06:46:57 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en, de-de
+	Mon, 31 May 2004 10:55:55 -0400
+Received: from lvs00-fl-n04.valueweb.net ([216.219.253.138]:7822 "EHLO
+	ams004.ftl.affinity.com") by vger.kernel.org with ESMTP
+	id S264641AbUEaOzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 10:55:54 -0400
+Message-ID: <40BB474F.9050503@coyotegulch.com>
+Date: Mon, 31 May 2004 10:55:11 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040522)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: bjornw@axis.com, linux-kernel@vger.kernel.org
-Subject: Delete cris architecture?
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to use floating point in a module?
+References: <200405310152.i4V1qNk03732@mailout.despammed.com>
+In-Reply-To: <200405310152.i4V1qNk03732@mailout.despammed.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on linux-2.6.6, 'make oldconfig' fails on cris with
+ndiamond@despammed.com wrote:
+> And does anyone know a really safe method?
 
-scripts/kconfig/conf -o arch/cris/Kconfig
-arch/cris/Kconfig:158: can't open file "arch/cris/drivers/Kconfig"
-make[1]: *** [oldconfig] Error 1
+I recently built a 64-bit fixed-point library for a client, which they
+used in a device driver. I'd suggest following a similar pattern, thus
+avoiding the entire issues of "floating-point" in the kernel.
 
-This was reported about a year ago on 2.6.0-test2:	
-http://mhonarc.axis.se/dev-etrax/msg03456.html
-but it seems nothing has been done about it.
+..Scott
 
-Since step 1 of building a linux kernel for cris seems to have
-been dead in the water for almost a year with no
-action from the port's maintainer, perhaps the port
-should be deleted from the main kernel tree.
-
-Or perhaps the maintainer could submit a fix.  His choice :-)
-- Dan
 
 -- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+Software Invention for High-Performance Computing
+

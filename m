@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbUJ1J4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262865AbUJ1KEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbUJ1J4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 05:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbUJ1Jx1
+	id S262865AbUJ1KEH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 06:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbUJ1KEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 05:53:27 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:64979 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262868AbUJ1JwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 05:52:04 -0400
-Date: Thu, 28 Oct 2004 17:34:19 +0800 (CST)
-From: "Zhu, Yi" <yi.zhu@intel.com>
-X-X-Sender: chuyee@mazda.sh.intel.com
-Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix e100 suspend/resume w/ 2.6.10-rc1 and above (due to
- pci_save_state change)
-Message-ID: <Pine.LNX.4.44.0410281706070.26113-100000@mazda.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Oct 2004 06:04:07 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:31382 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262865AbUJ1KEB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 06:04:01 -0400
+Date: Thu, 28 Oct 2004 12:05:26 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH 0/8] sonypi driver update
+Message-ID: <20041028100525.GA3893@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-Recent 2.6.10-rc1 merged the pci_save_state change. This prevents some
-drivers from working with suspend/resume. The reason is the
-pci_save_state() called in driver's ->suspend doesn't take effect any more,
-since pci bus ->suspend will override it. And the two states might be
-different in some drivers, i.e. e100. I don't know if there are other
-drivers also suffer from it.
+The following patches update the sonypi driver to the latest version.
+
+The main changes in those patches are:
+	- migrate to module_param();
+	- power management: switch to a platform device, drop old PM code;
+	- add full input support for the special keys;
+	- whitespace, coding style related changes.
+
+Full changelog below, the patches will be send as followups to this one.
+
+Please apply.
 
 Thanks,
--yi
+
+Stelian.
 
 
-Signed-off-by: Zhu Yi <yi.zhu@intel.com>
+PATCH 1/8: sonypi: module related fixes
+        * use module_param() instead of MODULE_PARM() and __setup()
+        * use MODULE_VERSION()
 
---- /tmp/e100.c	2004-10-28 16:31:41.000000000 +0800
-+++ drivers/net/e100.c	2004-10-28 16:33:14.000000000 +0800
-@@ -2309,9 +2309,7 @@ static int e100_suspend(struct pci_dev *
- 
--	pci_save_state(pdev);
- 	pci_enable_wake(pdev, state, nic->flags & (wol_magic | e100_asf(nic)));
--	pci_disable_device(pdev);
- 	pci_set_power_state(pdev, state);
- 
- 	return 0;
+PATCH 2/8: sonypi: replace homebrew queue with kfifo
 
+PATCH 3/8: sonypi: power management related fixes
+        * switch from a sysdev to a platform device
+        * drop old style PM code
+        * use pci_get_device()/pci_dev_put() instead of pci_find_device()
+
+PATCH 4/8: sonypi: rework input support
+        * feed most of special keys through the input subsystem
+        * initialize two separate input devices: a mouse like one for
+          the jogdial and a keyboard like one for the special keys
+        * add support for SONYPI_EVENT_FNKEY_RELEASED
+
+PATCH 5/8: sonypi: make CONFIG_SONYPI depend on CONFIG_INPUT since the latter is no more 
+optional.
+
+PATCH 6/8: sonypi: don't suppose the bluetooth subsystem is initialy off,
+          leave the choice to the user.
+
+PATCH 7/8: sonypi: whitespace and coding style fixes
+
+PATCH 8/8: sonypi: bump up the version number
+
+-- 
+Stelian Pop <stelian@popies.net>    

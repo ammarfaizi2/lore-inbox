@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbTEUNNz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 09:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbTEUNNz
+	id S262023AbTEUNXj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 09:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTEUNXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 09:13:55 -0400
-Received: from goliath.sylaba.poznan.pl ([195.216.104.3]:61895 "EHLO
-	goliath.sylaba.poznan.pl") by vger.kernel.org with ESMTP
-	id S262114AbTEUNKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 09:10:40 -0400
-Subject: Wrong DK_MAX_MAJOR in include/linux/kernel_stat.h in 2.4.20
-From: Olaf =?iso-8859-2?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 May 2003 15:25:28 +0200
-Message-Id: <1053523529.22063.6.camel@venus>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from quoted-printable to 8bit by goliath.sylaba.poznan.pl id h4LDNdbb016152
+	Wed, 21 May 2003 09:23:39 -0400
+Received: from navigator.sw.com.sg ([213.247.162.11]:13054 "EHLO
+	navigator.sw.com.sg") by vger.kernel.org with ESMTP id S262023AbTEUNXj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 09:23:39 -0400
+From: Vladimir Serov <vserov@infratel.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <3ECB80D8.8030600@infratel.com>
+Date: Wed, 21 May 2003 17:36:24 +0400
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Subject: Re: [BUG] nfs client stuck in D state in linux 2.4.17 - 2.4.21-pre5
+References: <15993.60520.439204.267818@charged.uio.no> <3E7ADBFD.4060202@infratel.com> <shsof45nf58.fsf@charged.uio.no> <3E7B0051.8060603@infratel.com> <15995.578.341176.325238@charged.uio.no> <3E7B10DF.5070005@infratel.com> <15995.5996.446164.746224@charged.uio.no> <3E7B1DF9.2090401@infratel.com> <15995.10797.983569.410234@charged.uio.no> <3EC8DA1B.50304@infratel.com> <20030521102923.B17709@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Russell King wrote:
 
-This is set to 16. Why?
-All IDE disks above hdb have major bigger than 16.
-For SCSI it is not such pain as it is ok up to sdp.
+>Looking back on stuff which happened a long time ago, there's a
+>possibility that there's an ordering issue with set_current_state.
+>
+>Please note that this is affects _all_ 2.4 architectures.
+>  
+>
+..........................
 
-So I get no stats for disks hdc and up in /proc/stat
+>The attached patch should fix your problem.  It should be applied to
+>2.4.2x.  All architectures which do not provide set_mb() need to be
+>fixed.
+>
+>  
+>
 
-Is it safe to just set DK_MAX_MAJOR 0xFF?
+Thanks a lot !!! It works !!!
 
-Please CC me.
-
-Regards,
-
-Olaf Frączyk
-
-
-
-
-
-
-
-
+With best regards, Vladimir.

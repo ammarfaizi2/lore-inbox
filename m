@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVASERT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVASESB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVASERT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 23:17:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVASERT
+	id S261557AbVASESB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 23:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVASESB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 23:17:19 -0500
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:25324 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261556AbVASERA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 23:17:00 -0500
-Date: Wed, 19 Jan 2005 07:18:23 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Edjard Souza Mota <edjard@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ilias Biris <xyz.biris@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: User space out of memory approach
-In-Reply-To: <4d6522b905011805154bf27b52@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0501190629490.5090@be1.lrz>
-References: <fa.lcmt90h.1j1scpn@ifi.uio.no> <fa.ht4gei4.1g5odia@ifi.uio.no>
-  <E1CqDGM-0000wi-00@be1.7eggert.dyndns.org> <4d6522b905011805154bf27b52@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 18 Jan 2005 23:18:01 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58126 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261557AbVASERl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 23:17:41 -0500
+Date: Wed, 19 Jan 2005 05:17:39 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Steve Snyder <swsnyder@insightbb.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Testing optimize-for-size suitability?
+Message-ID: <20050119041739.GI1841@stusta.de>
+References: <200501161040.12907.swsnyder@insightbb.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501161040.12907.swsnyder@insightbb.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jan 2005, Edjard Souza Mota wrote:
-
-> > If my system needs the OOM killer, it's usurally unresponsive to most
-> > userspace applications. A normal daemon would be swapped out before the
-> > runaway dhcpd grows larger than the web cache. It would have to be a mlocked
-> > RT task started from early userspace. It would be difficult to set up (unless
-> > you upgrade your distro), and almost nobody will feel like tweaking it to
-> > take the benefit (OOM == -ECANNOTHAPPEN).
+On Sun, Jan 16, 2005 at 10:40:12AM -0500, Steve Snyder wrote:
+> Is there a benchmark or set of benchmarks that would allow me to test the 
+> suitability of the CONFIG_CC_OPTIMIZE_FOR_SIZE kernel config option?
 > 
-> Please correct me if I got it wrong: as deamon in this case is not a normal one,
-> since it never gets rate for its own safety,
-
-That's it's own task, it must make sure not to commit suicide. I forgot
-about that.
-
-> then it needs an RT lock whenever
-> system boots.
-
-It may not be blocked by a random RT task iff the RT task is supposed to
-be OOM-killed. Therefore it *MUST* run at the highest priority and be
-locked into the RAM.
-
-It *SHOULD* be run at boot time, too, just in case it's needed early.
-
-> > What about creating a linked list of (stackable) algorhithms which can be
-> > extended by loading modules and resorted using {proc,sys}fs? It will avoid
-> > the extra process, the extra CPU time (and task switches) to frequently
-> > update the list and I think it will decrease the typical amount of used
-> > memory, too.
+> It seems to me that the benefit of this option is very dependant on the 
+> amount of CPU cache installed, with the compiler code generation being a 
+> secondary factor.  The use, or not, of CONFIG_CC_OPTIMIZE_FOR_SIZE is 
+> basically an act of faith without knowing how it impacts my particular 
+> environment.
 > 
-> Wouldn't this bring the (set of ) ranking algorithm(s) back to the kernel? This
-> is exactly what we're trying to avoid.
+> I've got a Pentium4 CPU with 512KB of L2 cache, and I'm using GCC v3.3.3.  
+> How can I determine whether or not CONFIG_CC_OPTIMIZE_FOR_SIZE should be 
+> used for my system?
+> 
+> Thanks.
 
-You're trying to avoid it in order to let admins try other ranking
-algorhithms (at least that's what I read). The module approach seems to be
-flexible enough to do that, and it avoids the mentioned issues. If you
-really want a userspace daemon, it can be controled by a module.-)
+In theory, -O2 should produce faster code.
 
-I 'm thinking of something like that:
+In practice, I don't know about any recent benchmarks comparing -Os/-O2 
+kernels.
 
-[X] support stacking of OOM killer ranking algorhythms
-[X] Task blessing OOM filter
-[X] Userspace OOM ranking daemon
-[X] Default OOM killer ranking
+In practice, I doubt it would make any noticable difference if the 
+kernel might be faster by let's say 1% with one option compared to the 
+other one.
 
--vs-
+The main disadvantage of -Os is that it's much less tested for kernel 
+compilations, and therefore miscompilations are slightly more likely.
 
-[ ] support stacking of OOM killer ranking algorhythms
-( ) Userspace OOM ranking daemon
-(o) Default OOM killer ranking
+cu
+Adrian
 
 -- 
-Exceptions prove the rule, and destroy the battle plan. 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267233AbTAFXo1>; Mon, 6 Jan 2003 18:44:27 -0500
+	id <S267224AbTAFXoH>; Mon, 6 Jan 2003 18:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267237AbTAFXo1>; Mon, 6 Jan 2003 18:44:27 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:11528 "EHLO
-	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267233AbTAFXoV>;
-	Mon, 6 Jan 2003 18:44:21 -0500
-Message-ID: <3E1A16A5.8070903@walrond.org>
-Date: Mon, 06 Jan 2003 23:52:05 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S267233AbTAFXoH>; Mon, 6 Jan 2003 18:44:07 -0500
+Received: from packet.digeo.com ([12.110.80.53]:36595 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267224AbTAFXoG>;
+	Mon, 6 Jan 2003 18:44:06 -0500
+Message-ID: <3E1A16C5.87EDE35A@digeo.com>
+Date: Mon, 06 Jan 2003 15:52:37 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: rms@gnu.org
+To: Chris Wood <cwood@xmission.com>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in non-freedrivers?
-References: <1041725489.1770.36.camel@sbarn.net> <E18VNtv-000065-00@fencepost.gnu.org> <3E19517B.3030805@walrond.org> <E18VeCE-0006XW-00@fencepost.gnu.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: 2.4.20, .text.lock.swap cpu usage? (ibm x440)
+References: <3E1A12B5.4020505@xmission.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Jan 2003 23:52:37.0459 (UTC) FILETIME=[B0DF5A30:01C2B5DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Stallman wrote:
+Chris Wood wrote:
 > 
-> The GNU/Linux system is pretty large.  For that matter, GCC and Linux
-> are pretty large.  So I think you're simply underestimating what we
-> can do ethically, as an excuse for doing it the usual grabbing way.
-> 
+> Due to kswapd problems in Redhat's 2.4.9 kernel, I have had to upgrade
+> to the 2.4.20 kernel with the IBM Summit Patches for our IBM x440.
+> ...
+> 16480 total                                      0.0138
+>    6383 .text.lock.swap                          110.0517
+>    4689 .text.lock.vmscan                         28.2470
+>    4486 shrink_cache                               4.6729
+>     168 rw_swap_page_base                          0.6176
+>     124 prune_icache                               0.5167
 
-Indeed. And the important large like gcc and glibc have substantial 
-corporate sponsorship without which they would be dead in the water.
-Grabbing from the grabbers?
+With six gigs of memory, it looks like the VM has gone nuts
+trying to locate some reclaimable lowmem.
 
-> 
-> Meanwhile, people have already pointed out that there are ways to
-> raise money for some kinds of free software projects.  From what I
-> hear about game product cycles, you might be able to make the game
-> free after a year without losing much in sales.
->
+Suggest you send the contents of /proc/meminfo and /proc/slabinfo,
+captured during a period of misbehaviour.
 
-So If I spend $X developing my game and then sell it closed with the 
-stated intention of opening the source as soon as it has recouped a 
-reasonable return on my investment, this would get your official seal of 
-approval?
-
-But isn't this exactly what Andre has been lambasted for? Perhaps you 
-should step in and say a few words in his defence.
-
-> But if that doesn't work for you, I would not consider it a great loss
-> for the world if your products were not produced.  They contribute
-> something to the world if they are free software, but otherwise not.
-
-Perhaps not. But my 40 software developing staff are still going to be 
-mightily pissed when I don't make payroll.
-
-Richard, you started out with some noble priciples, but seem to have 
-become a little confused somewhere along the way. The 'Don Quixote' 
-hacker knight ;)
-
+Then please apply 
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20aa1.bz2
+and send a report on the outcome.

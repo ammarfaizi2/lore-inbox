@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289020AbSANUZc>; Mon, 14 Jan 2002 15:25:32 -0500
+	id <S288996AbSANUDC>; Mon, 14 Jan 2002 15:03:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289012AbSANUX6>; Mon, 14 Jan 2002 15:23:58 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:53664 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S288992AbSANUXa>; Mon, 14 Jan 2002 15:23:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
-To: Robert Love <rml@tech9.net>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 21:22:32 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Momchil Velikov <velco@fadata.bg>, yodaiken@fsmlabs.com,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <16QBTc-1er7D6C@fwd03.sul.t-online.com> <1011039031.4603.15.camel@phantasy>
-In-Reply-To: <1011039031.4603.15.camel@phantasy>
+	id <S288999AbSANUBt>; Mon, 14 Jan 2002 15:01:49 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:19702 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S288954AbSANUAT>; Mon, 14 Jan 2002 15:00:19 -0500
+Message-ID: <3C433862.D1BF2D37@mvista.com>
+Date: Mon, 14 Jan 2002 11:58:26 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16QDdD-1EqtSyC@fwd03.sul.t-online.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: Andrew Morton <akpm@zip.com.au>, alan@lxorguk.ukuu.org.uk,
+        zippel@linux-m68k.org, rml@tech9.net, ken@canit.se,
+        arjan@fenrus.demon.nl, landley@trommello.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16PvKx-00005L-00@the-village.bc.nu>
+		<200201140033.BAA04292@webserver.ithnet.com>
+		<E16PvKx-00005L-00@the-village.bc.nu>
+		<20020114104532.59950d86.skraw@ithnet.com>
+		<3C42AD48.FCFD6056@zip.com.au> <20020114124755.3b2d6a4d.skraw@ithnet.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 January 2002 21:09, Robert Love wrote:
-> On Mon, 2002-01-14 at 13:04, Oliver Neukum wrote:
-> > It can happen if you sleep with a lock held.
-> > It can not happen at random points in the code.
-> > Thus there is a relation to preemption in kernel mode.
+Stephan von Krawczynski wrote:
+> 
+> On Mon, 14 Jan 2002 02:04:56 -0800
+> Andrew Morton <akpm@zip.com.au> wrote:
+> 
+> > Stephan von Krawczynski wrote:
+> > >
+> > > ...
+> > > Unfortunately me have neither of those. This would mean I cannot benefit
+> from> > _these_ patches, but instead would need _others_
+> [...]
 > >
-> > To cure that problem tasks holding a lock would have to be given
-> > the highest priority of all tasks blocking on that lock. The semaphore
-> > code would get much more complex, even in the succesful code path,
-> > which would hurt a lot.
->
-> No, this isn't needed.  This same problem would occur without
-> preemption.  Our semaphores now have locking rules such that we aren't
-> going to have blatant priority inversion like this (1 holds A needs B, 2
-> holds B needs A).
+> > In 3c59x.c, probably the biggest problem will be the call to issue_and_wait()
+> > in boomerang_start_xmit().  On a LAN which is experiencing heavy collision
+> rates> this can take as long as 2,000 PCI cycles (it's quite rare, and possibly
+> an> erratum).  It is called under at least two spinlocks.
+> >
+> > In via-rhine, wait_for_reset() can busywait for up to ten milliseconds.
+> > via_rhine_tx_timeout() calls it from under a spinlock.
+> >
+> > In eepro100.c, wait_for_cmd_done() can busywait for one millisecond
+> > and is called multiple times under spinlock.
+> 
+> Did I get that right, as long as spinlocked no sense in conditional_schedule()
+> ?
+> 
+> > Preemption will help _some_ of this, but by no means all, or enough.
+> 
+> Maybe we should really try to shorten the lock-times _first_. You mentioned a
+> way to find the bad guys?
 
-No this is a good old deadlock.
-The problem with preemption and SCHED_FIFO is, that due to SCHED_FIFO
-you have no guarantee that any task will make any progress at all.
-Thus a semaphore could basically be held forever.
-That can happen without preemption only if you do something that
-might block.
-
-	Regards
-		Oliver
+Apply the preempt patch and then the preempt-stats patch.  Follow
+instructions that come with the stats patch.  It will report on the
+longest preempt disable times since the last report.  You need to
+provide a load that will exercise the bad code, but it will tell you
+which, where, and how bad.  Note: it measures preempt off time, NOT how
+long it took to get to some task, i.e. it does not depend on requesting
+preemption at the worst possible time.
+-- 
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

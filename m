@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269179AbRHBWPc>; Thu, 2 Aug 2001 18:15:32 -0400
+	id <S269177AbRHBWSC>; Thu, 2 Aug 2001 18:18:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269178AbRHBWPM>; Thu, 2 Aug 2001 18:15:12 -0400
-Received: from h24-76-184-93.vs.shawcable.net ([24.76.184.93]:57513 "HELO
-	md5.ca") by vger.kernel.org with SMTP id <S269177AbRHBWPK>;
-	Thu, 2 Aug 2001 18:15:10 -0400
-Date: Thu, 2 Aug 2001 15:15:06 -0700
-From: Pavel Zaitsev <pavel@md5.ca>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
-        linux-kernel@vger.kernel.org
+	id <S269187AbRHBWRw>; Thu, 2 Aug 2001 18:17:52 -0400
+Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:19613 "EHLO
+	windmill.gghcwest.com") by vger.kernel.org with ESMTP
+	id <S269184AbRHBWRm>; Thu, 2 Aug 2001 18:17:42 -0400
+Date: Thu, 2 Aug 2001 15:17:09 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@heat.gghcwest.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Ongoing 2.4 VM suckage
-Message-ID: <20010802151506.A30906@md5.ca>
-Reply-To: pavel@md5.ca
-In-Reply-To: <20010802234434.E7650@unthought.net> <Pine.LNX.4.33.0108021448400.21298-100000@heat.gghcwest.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.33.0108021448400.21298-100000@heat.gghcwest.com>; from jwbaker@acm.org on Thu, Aug 02, 2001 at 02:52:11PM -0700
-X-Arbitrary-Number-Of-The-Day: 42
+In-Reply-To: <Pine.LNX.4.33L.0108021900080.5582-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0108021508310.21298-100000@heat.gghcwest.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2 Aug 2001, Rik van Riel wrote:
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> If you have a proposal on what to do when both ram
+> and swap fill up and you need more memory, please
+> let me know.
+>
+> Until then, we'll kill processes when we exhaust
+> both memory and swap ;)
 
-Jeffrey W. Baker(jwbaker@acm.org)@Thu, Aug 02, 2001 at 02:52:11PM -0700:
-> Gosh, here's an idea: if there is no memory left and someone malloc()s
-> some more, have malloc() fail?  Kill the process that required the memory?
-> I can't believe the attitude I am hearing.  Userland processes should be
-> able to go around doing whaever the fuck they want and the box should stay
-> alive.  Currently, if a userland process runs amok, the kernel goes into
-> self-fucking mode for the rest of the week.
+I'm telling you that's not what happens.  When memory pressure gets really
+high, the kernel takes all the CPU time and the box is completely useless.
+Maybe the VM sorts itself out but after five minutes of barely responding,
+I usually just power cycle the damn thing.  As I said, this isn't a
+classic thrash because the swap disks only blip perhaps once every ten
+seconds!
 
-Userland process shall be suspended after it reaches certain rate of
-swaps per second. It may resume after short while. Userland process,
-if written properly will see that malloc is failing and inform user.
-If its being bad, then it will be suspended.
-p.
+You don't have to go to extremes to observe this behavior.  Yesterday, I
+had one box where kswapd used 100% of one CPU for 70 minutes straight,
+while user process all ran on the other CPU.  All RAM and half swap was
+used, and I/O was heavy.  The machine had been up for 14 days.  I just
+don't understand why kswapd needs to run and run and run and run and run
+...
 
---=20
-Take out your recursive cannons and shoot!
-110461387
-http://gpg.md5.ca
-http://perlpimp.com
+I'm very familiar with what should happen on a Unix box when user
+processes get huge.  On my FreeBSD and Solaris machines, everything goes
+to shit for a few minutes and then it comes back.  Linux used to work that
+way too, but I can't count on the comeback in 2.4.
 
---M9NhX3UHpAaciwkO
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-jwb
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7adDqEhbFhd1U3E0RAgJ8AKDQP6TLLKgWoaUvzHg6RpTp0Q8aQwCghSl8
-Wzts4Kx/aHaMsvwBau5z0Dg=
-=FO8y
------END PGP SIGNATURE-----
-
---M9NhX3UHpAaciwkO--

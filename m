@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVAUScm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbVAUSif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVAUScm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 13:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVAUScl
+	id S262450AbVAUSif (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 13:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVAUSif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 13:32:41 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:30186 "EHLO vana")
-	by vger.kernel.org with ESMTP id S262459AbVAUSad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 13:30:33 -0500
-Date: Fri, 21 Jan 2005 19:30:29 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Something very strange on x86_64 2.6.X kernels
-Message-ID: <20050121183029.GA26422@vana.vc.cvut.cz>
-References: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org> <20050120162807.GA3174@stusta.de> <20050120164829.GG450@wotan.suse.de> <41F01A50.1040109@cosmosbay.com> <20050121162601.GA8469@vana.vc.cvut.cz> <41F13295.40702@cosmosbay.com>
+	Fri, 21 Jan 2005 13:38:35 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:15503 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262450AbVAUSic
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 13:38:32 -0500
+Date: Fri, 21 Jan 2005 10:38:09 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050121183808.GI14554@atomide.com>
+References: <20050119000556.GB14749@atomide.com> <Pine.LNX.4.61.0501192100060.3010@montezuma.fsmlabs.com> <20050121174831.GE14554@atomide.com> <Pine.LNX.4.61.0501211123260.18199@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41F13295.40702@cosmosbay.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.61.0501211123260.18199@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 21, 2005 at 05:49:25PM +0100, Eric Dumazet wrote:
-> Petr Vandrovec wrote:
+* Zwane Mwaikambo <zwane@arm.linux.org.uk> [050121 10:27]:
+> On Fri, 21 Jan 2005, Tony Lindgren wrote:
 > 
-> >
-> >Maybe I already missed answer, but try patch below.  It is definitely bad
-> >to mark syscall page as global one...
-> >
+> > > This doesn't seem to cover the local APIC timer, what do you do about the 
+> > > 1kHz tick which it's programmed to do?
+> > 
+> > Sorry for the delay in replaying. Thanks for pointing that out, I
+> > don't know yet what to do with the local APIC timer. Have to look at
+> > more.
 > 
-> Hi Petr
+> Pavel does your test system have a Local APIC? If so that may also explain 
+> why you didn't see a difference.
+
+Yeah, that could explain why sleep mode seems to wake up too early.
+
+> Tony, something like the following for oneshot should work, untested of 
+> course. Perhaps you could use that for the wakeup interrupt instead?
 > 
-> If I follow you, any 64 bits program is corrupted as soon one 32bits 
-> program using sysenter starts ?
+> void setup_oneshot_apic_timer(unsigned int count)
+> {
+> 	unsigned int lvtt, tmp_value;
+> 	unsigned long flags;
+> 
+> 	count *= calibration_result;
+> 	local_irq_save(flags);
+> 	lvtt = ~APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
+> 	apic_write_around(APIC_LVTT, lvtt);
+> 	tmp_value = apic_read(APIC_TDCR);
+> 	apic_write_around(APIC_TDCR, (tmp_value
+> 			& ~(APIC_TDR_DIV_1 | APIC_TDR_DIV_TMBASE))
+> 			| APIC_TDR_DIV_16);
+> 
+> 	apic_write_around(APIC_TMICT, count/APIC_DIVISOR);
+> 	local_irq_restore(flags);
+> }
+> 
 
-Yes.  As soon as 32bit app touches sysenter page (execution, read, whatever),
-it is loaded to the processor's TLB, and as page is marked global it is not
-flushed when kernel switches address space to another app - like 64bit
-one.  Fortunately TLB is not that big, so for most of real-world workloads
-you'll not notice, but if you are doing context switches really often,
-sooner or later you'll hit vsyscall page instead of data page your process
-has mapped, and bad things happen.
+Thanks, I'll try it out! As George also pointed out, we should use apic 
+timer if available. Else we can fall back on use PIT.
 
-To get your app (or any other 64bit app...) to work reliably on unpatched
-kernels you should mmap one page at 0xffffe000 and forget about that page
-forever...
-								Petr
-
+Tony

@@ -1,45 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263582AbTDWTiI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 15:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbTDWTiH
+	id S263572AbTDWTfo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 15:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbTDWTfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 15:38:07 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9221 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263582AbTDWThp
+	Wed, 23 Apr 2003 15:35:42 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7685 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263572AbTDWTel
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 15:37:45 -0400
-Date: Wed, 23 Apr 2003 15:44:17 -0400 (EDT)
+	Wed, 23 Apr 2003 15:34:41 -0400
+Date: Wed, 23 Apr 2003 15:41:46 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc1 - unresolved
-In-Reply-To: <200304220915.56757.m.c.p@wolk-project.de>
-Message-ID: <Pine.LNX.3.96.1030423154302.4451G-100000@gatekeeper.tmr.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: Philippe =?ISO-8859-1?B?R3JhbW91bGzp?= 
+	<philippe.gramoulle@mmania.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm4 & IRQ balancing
+In-Reply-To: <20030419133837.0118907b.akpm@digeo.com>
+Message-ID: <Pine.LNX.3.96.1030423153128.4451E-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Apr 2003, Marc-Christian Petersen wrote:
+On Sat, 19 Apr 2003, Andrew Morton wrote:
 
-> On Tuesday 22 April 2003 01:39, Eyal Lebedinsky wrote:
-
-> > /lib/modules/2.4.21-rc1/kernel/drivers/net/fc/iph5526.o
-> > depmod:         fc_type_trans
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.21-rc1/kernel/drivers/net/wan/comx.o
-> > depmod:         proc_get_inode
-> well, I've posted a patch(fix) for all of these some weeks ago. If Marcelo's 
-> focus is on something else ... bla.
+> It's a little radical to go placing userspace daemons into the kernel tree,
+> but I think it is appropriate - this thing is very tightly coupled to the
+> kernel.
 > 
-> Search the archives. I won't post it again and again and again and again 
-> ^again^10.
+> The proposal has these advantages:
+> 
+> - No version skew problems: if the format of /proc/interrupts changes, we
+>   patch the irq balance daemon at the same time.
+> 
+> - Can build irqbalanced into the intial initramfs image as part of kernel
+>   build. (lacking klibc, we would need to statically link against glibc)
 
-It's nice that you posted it, did you try sending it to someone who puts
-things in the kernel?
+Why, please? Unless you postulate that (a) the default kernel balance
+would be so bad the machine wouldn't boot, or (b) that the interface would
+be done only once at boot time, there's no reason for the user program to
+be in initramfs, is there? Let the distribution put it where other system
+things like ifconfig live.
+
+Feel free to explain what I'm missing.
+
+> - Doing it in userspace means that we can do more things.
+> 
+>   - The balancer can "know about" the differences between NICs, disk
+>     controllers, etc.
+> 
+>   - The balancer can be controlled by config files: "I am a router"
+> 
+>   - The balancer can support non-x86 architectures
+> 
+> 
+> Anyway, that's the theory.  None of it has been done yet.
+
+I do agree that the program would have to match the /proc if done as you
+propose, but wouldn't it be better to design an interface once and then
+NOT have it change? And does it belong in /proc at all, given that other
+things are being moved out?
+
+I like the idea of being able to tune the int processing with a user
+program. I don't think I share your vision of making a user program part
+of the kernel to allow diddling an interface which might be better getting
+right the first time, and protecting against "features" being added.
+Hopefully it will be minimalist, and may well benefit from a totally
+different user program for various machine types.
 
 -- 
 bill davidsen <davidsen@tmr.com>

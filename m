@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315170AbSEVOea>; Wed, 22 May 2002 10:34:30 -0400
+	id <S315374AbSEVOfr>; Wed, 22 May 2002 10:35:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315178AbSEVOe3>; Wed, 22 May 2002 10:34:29 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:51657 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315170AbSEVOe1>;
-	Wed, 22 May 2002 10:34:27 -0400
-Date: Wed, 22 May 2002 10:34:27 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Padraig Brady <padraig@antefacto.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <3CEB9A3C.6000102@evision-ventures.com>
-Message-ID: <Pine.GSO.4.21.0205221033220.2737-100000@weyl.math.psu.edu>
+	id <S315423AbSEVOfq>; Wed, 22 May 2002 10:35:46 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43537 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315374AbSEVOfo>; Wed, 22 May 2002 10:35:44 -0400
+Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
+To: ahu@ds9a.nl (bert hubert)
+Date: Wed, 22 May 2002 15:55:56 +0100 (BST)
+Cc: znmeb@aracnet.com (M. Edward Borasky), linux-kernel@vger.kernel.org
+In-Reply-To: <20020522140839.GA9903@outpost.ds9a.nl> from "bert hubert" at May 22, 2002 04:08:39 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17AXWu-0001vL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 22 May 2002, Martin Dalecki wrote:
-
-> > For kbdrate???  sysctl I might see - after all, we are talking about
-> > setting two numbers.  ioctl() to pass a couple of integers to the kernel?
-> > No, thanks.
+> > large machines. I haven't had a chance to run my own test cases on the
+> > 2.4.18 kernel from Red Hat 7.3 yet, so I can't make any personal
+> > contribution to this discussion.
 > 
-> Ahhh and just another note - we are talking about a property of a
-> *device* not a property of the kernel - so ioctl (read io as device)
-> and certainly not sysctl (read sys as kernel).
-> 
-> What could be sonsidered as an *serious* alternative would
-> be to abstract it out even further and implement it on
-> the tset (terminal settings) levels. But *certainly* not sysctl.
+> RedHat has fixed the problem in its kernels. There are fixes out there, but
+> Linus is not applying them. I would venture that this is because they would
+> fix the problems *for the moment* and take away interest in revamping VM for
+> real.
 
-Well...  Point about per-device taken, but strictly speaking we
-do have e.g. per-interface sysctls, etc.
+7.3 has some of what is needed but not all. To go past 16Gb you need highmem
+mapped page tables which I'm pretty sure did not make it in.
 

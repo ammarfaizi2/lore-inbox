@@ -1,34 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263018AbUCSPRd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 10:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbUCSPRd
+	id S263010AbUCSPf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 10:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUCSPf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 10:17:33 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:5005 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S263018AbUCSPRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 10:17:32 -0500
-Message-Id: <5.1.0.14.2.20040319155257.00ac0af8@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 19 Mar 2004 16:17:45 +0100
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: 2.6.xx - linux/firmware.h - missing include
-Cc: ranty@debian.org
+	Fri, 19 Mar 2004 10:35:59 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:31193 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263010AbUCSPf4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 10:35:56 -0500
+Date: Fri, 19 Mar 2004 16:35:54 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Chris Mason <mason@suse.com>
+Subject: [PATCH] barrier patch set
+Message-ID: <20040319153554.GC2933@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: EwzOJ-ZCYeWRfOBEeVvr4NDaYNLUvM9ydW8RdLmLsB32O6E+TBP9cF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The prototype for request_firmware uses a struct device parameter.
-This is only defined if linux/device.h is included.
-Fix is simple : include linux/device.h in linux/firmware.h
-(Yes, I know we can do the include in a driver, as per the
-  example in Documentation;however, the above obviates the need
-  for ugly ifdef's for common 2.4/2.6 code and has no downside)
-Manuel, can you implement if you agree ?
+Hi,
 
+A first release of a collected barrier patchset for 2.6.5-rc1-mm2. I
+have a few changes planned to support dm/md + sata, I'll do those
+changes over the weekend.
+
+Reiser has the best barrier support, ext3 works but only if things don't
+go wrong. So only attempt to use the barrier feature on ext3 if on ide
+drives, not SCSI nor SATA.
+
+Also note that for reiser you need to add:
+
+	-o barrier=flush
+
+while ext3 currently wants:
+
+	-o barrier=1
+
+Cosmetic stuff that will get ironed out. You can find the patches here:
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.5-rc1-mm2/
+
+ide-barrier-2.6.5-rc1-mm2-1
+	ide/core part
+
+ext3-barrier-2.6.5-rc1-mm2-1
+	ext3 part
+
+reiserfs-current-2.6.5-rc1-mm2-1
+	current reiser tree, get it here in parts:
+
+	ftp.suse.com/pub/people/mason/patches/data-logging/experimental/2.6.4
+
+	(use series.mm for apply order)
+
+reiserfs-barrier-2.6.5-rc1-mm2-1
+	reiser part.
+
+or just apply
+
+all-barrier-2.6.5-rc1-mm2-1
+	all rolled up into one patch.
+
+-- 
+Jens Axboe
 

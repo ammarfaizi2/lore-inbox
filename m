@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268064AbUJSIlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268085AbUJSIv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268064AbUJSIlg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 04:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268070AbUJSIlg
+	id S268085AbUJSIv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 04:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268080AbUJSIv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 04:41:36 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:14088 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268064AbUJSIlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 04:41:35 -0400
-Date: Tue, 19 Oct 2004 09:41:32 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: mingo@elte.hu, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH] generic irq subsystem: ppc64 port
-Message-ID: <20041019084131.GA7100@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, mingo@elte.hu,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Paul Mackerras <paulus@samba.org>
-References: <200410190714.i9J7Elnx027734@hera.kernel.org> <1098174500.11449.65.camel@gaston>
+	Tue, 19 Oct 2004 04:51:59 -0400
+Received: from bristol.swissdisk.com ([65.207.35.130]:48285 "EHLO
+	bristol.swissdisk.com") by vger.kernel.org with ESMTP
+	id S268070AbUJSIv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 04:51:56 -0400
+Date: Tue, 19 Oct 2004 03:42:12 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, willy@debian.org,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: [BK PATCH] SCSI updates for 2.6.9
+Message-ID: <20041019074212.GB19186@phunnypharm.org>
+References: <1098137016.2011.339.camel@mulgrave> <200410182341.13648.dtor_core@ameritech.net> <200410190012.28071.dtor_core@ameritech.net> <Pine.LNX.4.58.0410190009260.2287@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098174500.11449.65.camel@gaston>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <Pine.LNX.4.58.0410190009260.2287@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 06:28:20PM +1000, Benjamin Herrenschmidt wrote:
-> Hi !
+On Tue, Oct 19, 2004 at 12:13:08AM -0700, Linus Torvalds wrote:
 > 
-> That patch will unfortunately break a load of ppc64 boxes.
+> Ben,
+>  does this look ok to you?
 > 
-> If you look closely at the ppc64 code, you'll notice we don't
-> use the irq_desc array directly but go through a get_irq_desc()
-> accessor. This is because our interrupt numbers can be very
-> large and scattered, and thus we have a remapping tree.
-> 
-> I still like the idea of the patch, so it would be useful if
-> you added the possibility for us to just change that behaviour,
-> that is replace all occursences of irq_descs + i with get_irq_desc()
-> and provide a generic one that just does that, with a #ifndef so
-> that the architecture can provide it's own. 
-> 
-> If you agree with the principle, though, I suppose I can do it
-> and send a proposed patch tomorrow.
+> Arguably the SCSI layer should also have proper prefixes for its constants
+> - and in fact they do kind of exist as the GPCMD_xxx constants.  Oh, well.
+> Regardless, the sbp2 constants do look like they want prefixing..
 
-The PPC64 changes were actually my fault.  I think get_irq_desc() is okay.
+Looks good to me.
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

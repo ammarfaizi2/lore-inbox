@@ -1,179 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbUJYAtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbUJYBIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbUJYAtb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 20:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbUJYAtb
+	id S261645AbUJYBIg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 21:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUJYBIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 20:49:31 -0400
-Received: from gate.crashing.org ([63.228.1.57]:56268 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261643AbUJYAtQ (ORCPT
+	Sun, 24 Oct 2004 21:08:36 -0400
+Received: from gate.crashing.org ([63.228.1.57]:61644 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261645AbUJYBId (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 20:49:16 -0400
-Subject: [PATCH] ppc64: cleanups of ppc64 pci.c
+	Sun, 24 Oct 2004 21:08:33 -0400
+Subject: [PATCH] ppc64: Some small pci fixes
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+       Linux Kernel list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1098665227.16132.11.camel@gaston>
+Message-Id: <1098666394.16132.14.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 25 Oct 2004 10:47:09 +1000
+Date: Mon, 25 Oct 2004 11:06:34 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
-
-This patch applies on top of previously posted "ppc64: Move PCI IO mapping
-from pSeries_pci.c to pci.c".
-
-It does cosmetic cleanups & add some debug macros to pci.c without actually
-changing any functionality. Further patches against ppc64 pci.c that I'll
-post will be against a file already patched with this one.
+This patch fixes a few issues in the ppc64 pci code, notably some
+incorrect parsing of Open Firmware "ranges" when setting up host
+bridge resources that would cause a problem with some future
+platforms, a default mapping of the ISA IOs if the OF "isa" node
+lacks a "ranges" property, and a safeguard in pci_scan_all_fns()
+in case a pci<->OF node mapping cannot be established.
 
 Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-
 Index: linux-work/arch/ppc64/kernel/pci.c
 ===================================================================
---- linux-work.orig/arch/ppc64/kernel/pci.c	2004-10-25 10:30:34.841855848 +1000
-+++ linux-work/arch/ppc64/kernel/pci.c	2004-10-25 10:36:50.724712968 +1000
-@@ -11,6 +11,8 @@
-  *      2 of the License, or (at your option) any later version.
-  */
+--- linux-work.orig/arch/ppc64/kernel/pci.c	2004-10-25 10:36:50.724712968 +1000
++++ linux-work/arch/ppc64/kernel/pci.c	2004-10-25 11:04:50.070413616 +1000
+@@ -585,9 +585,11 @@
+ 	int rlen = 0;
  
-+#undef DEBUG
-+
- #include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
-@@ -39,6 +41,12 @@
- 
- #include "pci.h"
- 
-+#ifdef DEBUG
-+#define DBG(fmt...) udbg_printf(fmt)
-+#else
-+#define DBG(fmt...)
-+#endif
-+
- unsigned long pci_probe_only = 1;
- unsigned long pci_assign_all_buses = 0;
- 
-@@ -106,11 +114,11 @@
- 			dev->resource[i].flags &= ~IORESOURCE_IO;
+ 	range = (struct isa_range *) get_property(isa_node, "ranges", &rlen);
+-	if (rlen < sizeof(struct isa_range)) {
+-		printk(KERN_ERR "unexpected isa range size: %s\n", 
+-				__FUNCTION__);
++	if (range == NULL || (rlen < sizeof(struct isa_range))) {
++		printk(KERN_ERR "no ISA ranges or unexpected isa range size,"
++		       "mapping 64k\n");
++		__ioremap_explicit(phb_io_base_phys, (unsigned long)phb_io_base_virt, 
++				   0x10000, _PAGE_NO_CACHE);
+ 		return;	
  	}
- }
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_WINBOND, PCI_DEVICE_ID_WINBOND_82C105, fixup_windbond_82c105);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_WINBOND, PCI_DEVICE_ID_WINBOND_82C105,
-+			 fixup_windbond_82c105);
+ 	
+@@ -652,8 +654,7 @@
+ 			cpu_phys_addr = cpu_phys_addr << 32 | ranges[4];
  
--void 
--pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
--			struct resource *res)
-+void  pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
-+			      struct resource *res)
- {
- 	unsigned long offset = 0;
- 	struct pci_controller *hose = PCI_GET_PHB_PTR(dev);
-@@ -215,8 +223,7 @@
- /*
-  * Allocate pci_controller(phb) initialized common variables.
-  */
--struct pci_controller * __init
--pci_alloc_pci_controller(enum phb_types controller_type)
-+struct pci_controller * __init pci_alloc_pci_controller(enum phb_types controller_type)
- {
- 	struct pci_controller *hose;
+ 		size = (unsigned long)ranges[na+3] << 32 | ranges[na+4];
+-
+-		switch (ranges[0] >> 24) {
++		switch ((ranges[0] >> 24) & 0x3) {
+ 		case 1:		/* I/O space */
+ 			hose->io_base_phys = cpu_phys_addr;
+ 			hose->pci_io_size = size;
+@@ -862,6 +863,9 @@
+        else
+                busdn = bus->sysdata;   /* must be a phb */
  
-@@ -246,8 +253,7 @@
- /*
-  * Dymnamically allocate pci_controller(phb), initialize common variables.
-  */
--struct pci_controller *
--pci_alloc_phb_dynamic(enum phb_types controller_type)
-+struct pci_controller * pci_alloc_phb_dynamic(enum phb_types controller_type)
- {
- 	struct pci_controller *hose;
- 
-@@ -430,9 +436,9 @@
-  *
-  * Returns negative error code on failure, zero on success.
-  */
--static __inline__ int
--__pci_mmap_make_offset(struct pci_dev *dev, struct vm_area_struct *vma,
--		       enum pci_mmap_state mmap_state)
-+static __inline__ int __pci_mmap_make_offset(struct pci_dev *dev,
-+					     struct vm_area_struct *vma,
-+					     enum pci_mmap_state mmap_state)
- {
- 	struct pci_controller *hose = PCI_GET_PHB_PTR(dev);
- 	unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
-@@ -487,9 +493,9 @@
-  * Set vm_flags of VMA, as appropriate for this architecture, for a pci device
-  * mapping.
-  */
--static __inline__ void
--__pci_mmap_set_flags(struct pci_dev *dev, struct vm_area_struct *vma,
--		     enum pci_mmap_state mmap_state)
-+static __inline__ void __pci_mmap_set_flags(struct pci_dev *dev,
-+					    struct vm_area_struct *vma,
-+					    enum pci_mmap_state mmap_state)
- {
- 	vma->vm_flags |= VM_SHM | VM_LOCKED | VM_IO;
- }
-@@ -498,9 +504,10 @@
-  * Set vm_page_prot of VMA, as appropriate for this architecture, for a pci
-  * device mapping.
-  */
--static __inline__ void
--__pci_mmap_set_pgprot(struct pci_dev *dev, struct vm_area_struct *vma,
--		      enum pci_mmap_state mmap_state, int write_combine)
-+static __inline__ void __pci_mmap_set_pgprot(struct pci_dev *dev,
-+					     struct vm_area_struct *vma,
-+					     enum pci_mmap_state mmap_state,
-+					     int write_combine)
- {
- 	long prot = pgprot_val(vma->vm_page_prot);
- 
-@@ -613,7 +620,7 @@
- }
- 
- void __devinit pci_process_bridge_OF_ranges(struct pci_controller *hose,
--					struct device_node *dev)
-+					    struct device_node *dev)
- {
- 	unsigned int *ranges;
- 	unsigned long size;
-@@ -654,6 +661,8 @@
- 			res = &hose->io_resource;
- 			res->flags = IORESOURCE_IO;
- 			res->start = pci_addr;
-+			DBG("phb%d: IO 0x%lx -> 0x%lx\n", hose->global_number,
-+				    res->start, res->start + size - 1);
- 			break;
- 		case 2:		/* memory space */
- 			memno = 0;
-@@ -666,6 +675,8 @@
- 				res = &hose->mem_resources[memno];
- 				res->flags = IORESOURCE_MEM;
- 				res->start = cpu_phys_addr;
-+				DBG("phb%d: MEM 0x%lx -> 0x%lx\n", hose->global_number,
-+					    res->start, res->start + size - 1);
- 			}
- 			break;
- 		}
-@@ -873,7 +884,8 @@
- 
- 	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
- 		if (dev->resource[i].flags & IORESOURCE_IO) {
--			unsigned long offset = (unsigned long)hose->io_base_virt - pci_io_base;
-+			unsigned long offset = (unsigned long)hose->io_base_virt
-+				- pci_io_base;
-                         unsigned long start, end, mask;
- 
-                         start = dev->resource[i].start += offset;
++       if (busdn == NULL)
++	       return 0;
++
+        /*
+         * Check to see if there is any of the 8 functions are in the
+         * device tree.  If they are then we need to scan all the
 
 

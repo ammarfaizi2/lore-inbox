@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268401AbUIMPRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268397AbUIMPRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268401AbUIMPRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 11:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268304AbUIMPMu
+	id S268397AbUIMPRI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 11:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268464AbUIMPQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 11:12:50 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:42454 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268092AbUIMO5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 10:57:17 -0400
-Subject: Re: /proc/sys/kernel/pid_max issues
-From: Albert Cahalan <albert@users.sf.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Ingo Molnar <mingo@elte.hu>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>, cw@f00f.org,
-       anton@samba.org
-In-Reply-To: <20040913142437.GB9106@holomorphy.com>
-References: <1095045628.1173.637.camel@cube>
-	 <20040913075743.GA15722@elte.hu> <1095083649.1174.1293.camel@cube>
-	 <20040913142437.GB9106@holomorphy.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095087244.2191.1383.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 13 Sep 2004 10:54:04 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Sep 2004 11:16:28 -0400
+Received: from asplinux.ru ([195.133.213.194]:11783 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S267683AbUIMPJO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 11:09:14 -0400
+Message-ID: <4145BACE.8090005@sw.ru>
+Date: Mon, 13 Sep 2004 19:20:46 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm5
+References: <20040913015003.5406abae.akpm@osdl.org>
+In-Reply-To: <20040913015003.5406abae.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------030307090000020703050802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-13 at 10:24, William Lee Irwin III wrote:
-> On Mon, 2004-09-13 at 03:57, Ingo Molnar wrote:
-> >> this is a pretty sweeping assertion. Would you
-> >> care to mention a few examples of such hazards?
-> 
-> On Mon, Sep 13, 2004 at 09:54:09AM -0400, Albert Cahalan wrote:
-> > kill(12345,9)
-> > setpriority(PRIO_PROCESS,12345,-20)
-> > sched_setscheduler(12345, SCHED_FIFO, &sp)
-> > Prior to the call being handled, the process may
-> > die and be replaced. Some random innocent process,
-> > or a not-so-innocent one, will get acted upon by
-> > mistake. This is broken and dangerous.
-> > Well, it's in the UNIX standard. The best one can
-> > do is to make the race window hard to hit, with LRU.
-> 
-> How do you propose to queue pid's? This is space constrained. I don't
-> believe it's feasible and/or desirable to attempt this, as there are
-> 4 million objects to track independent of machine size.
+This is a multi-part message in MIME format.
+--------------030307090000020703050802
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-As we've seen elsewhere in this thread, things break
-when you go above 0xffff anyway. So 128 KiB of RAM
-should do the job. With a 4-digit PID, 20000 bytes
-would be enough.
+Hello Andrew,
 
-Supposing you fix rwsem counts and /proc inodes and so on,
-a large machine could handle 4 million objects easily.
-A small machine has far, far, less need to support that.
+Please replace patch next_thread-bug-fixes.patch in -mm5 tree with the 
+last diff-next_thread I sent to you.
 
-> The general
-> tactic of cyclic order allocation is oriented toward making this rare
-> and/or hard to trigger by having a reuse period long enough that what
-> processes there are after a pid wrap are likely to have near-indefinite
-> lifetimes. i.e. it's the closest feasible approximation of LRU. If you
-> truly want/need reuse to be gone, 64-bit+ pid's are likely best.
+And it looks like thread loop in do_task_stat() doesn't require siglock 
+lock, so you can add the patch attached to reduce lock area.
 
-That's too unwieldy for the users, it breaks glibc,
-and you'll still hit the problems after wrap-around.
-Besides, Linus vetoed this a year or two ago.
+Kirill
 
-Reducing the dangers of a small PID space allows for
-just the opposite size change, which is much nicer for
-the users.
+--------------030307090000020703050802
+Content-Type: text/plain;
+ name="diff-task_stat-mm5"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-task_stat-mm5"
 
+--- ./fs/proc/array.c.nt	2004-09-13 18:56:17.000000000 +0400
++++ ./fs/proc/array.c	2004-09-13 19:13:03.749684712 +0400
+@@ -338,6 +338,7 @@ static int do_task_stat(struct task_stru
+ 		spin_lock_irq(&task->sighand->siglock);
+ 		num_threads = atomic_read(&task->signal->count);
+ 		collect_sigign_sigcatch(task, &sigign, &sigcatch);
++		spin_unlock_irq(&task->sighand->siglock);
+ 
+ 		/* add up live thread stats at the group level */
+ 		if (whole) {
+@@ -350,8 +351,6 @@ static int do_task_stat(struct task_stru
+ 				t = next_thread(t);
+ 			} while (t != task);
+ 		}
+-
+-		spin_unlock_irq(&task->sighand->siglock);
+ 	}
+ 	if (task->signal) {
+ 		if (task->signal->tty) {
+
+--------------030307090000020703050802--
 

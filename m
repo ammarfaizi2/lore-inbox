@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262742AbTDATDl>; Tue, 1 Apr 2003 14:03:41 -0500
+	id <S262741AbTDATIq>; Tue, 1 Apr 2003 14:08:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262754AbTDATDl>; Tue, 1 Apr 2003 14:03:41 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:7556 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262742AbTDATDk>; Tue, 1 Apr 2003 14:03:40 -0500
-Date: Tue, 1 Apr 2003 11:15:02 -0800 (PST)
-From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-To: Ezra Nugroho <ezran@goshen.edu>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+	id <S262749AbTDATIp>; Tue, 1 Apr 2003 14:08:45 -0500
+Received: from popmail.goshen.edu ([199.8.232.22]:41441 "EHLO mail.goshen.edu")
+	by vger.kernel.org with ESMTP id <S262741AbTDATIo>;
+	Tue, 1 Apr 2003 14:08:44 -0500
 Subject: Re: 2:05 E.T. April 1st
-In-Reply-To: <1049224060.22990.2005.camel@ezran.goshen.edu>
-Message-ID: <Pine.LNX.4.44.0304011109040.14266-100000@shell1.aracnet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Ezra Nugroho <ezran@goshen.edu>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0304011109040.14266-100000@shell1.aracnet.com>
+References: <Pine.LNX.4.44.0304011109040.14266-100000@shell1.aracnet.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
+Date: 01 Apr 2003 14:32:44 -0500
+Message-Id: <1049225564.22990.2037.camel@ezran.goshen.edu>
+Mime-Version: 1.0
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Apr 2003, Ezra Nugroho wrote:
+I really get this joke!
+I was have been trying to download it myself and got several lost
+connections. I bet everyone was like me, and once the connection is lost
+they would try again and again, increasing the DDoS, and producing even
+more lost connections.
 
-> It's 2:05 eastern time on April 1st but we haven't received any mail
-> resignation announcement from Linus; nor anyone who try to spoof him.
-> Is this a joke??
+I though that was kinda funny.
 
-The April Fool's joke is Red Hat Network attempting to keep up with the
-DDoS attack they brought on themselves by releasing the ISOs for RH 9 a
-week early to RHN subscribers. :) Although I did hear a rumor that
-Saddam Hussein got a copy :). Curiously enough, in the long list of
-countries you can't ship RH 9 to, Iraq is conspicuously absent.
+> The April Fool's joke is Red Hat Network attempting to keep up with the
+> DDoS attack they brought on themselves by releasing the ISOs for RH 9 a
+> week early to RHN subscribers. :) Although I did hear a rumor that
+> Saddam Hussein got a copy :). Curiously enough, in the long list of
+> countries you can't ship RH 9 to, Iraq is conspicuously absent.
+> 
+> 
+> -- 
+> M. Edward (Ed) Borasky, MS, MNLP, NST, FBG, PGS & PTA
+> 
+> znmeb@borasky-research.net
+> http://www.borasky-research.net
+> 
+> Have You Hugged Your Saguaro Today?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
--- 
-M. Edward (Ed) Borasky, MS, MNLP, NST, FBG, PGS & PTA
-
-znmeb@borasky-research.net
-http://www.borasky-research.net
-
-Have You Hugged Your Saguaro Today?
 

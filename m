@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136473AbRD3Hqb>; Mon, 30 Apr 2001 03:46:31 -0400
+	id <S136474AbRD3Hvv>; Mon, 30 Apr 2001 03:51:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136474AbRD3HqW>; Mon, 30 Apr 2001 03:46:22 -0400
-Received: from www.wen-online.de ([212.223.88.39]:2316 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S136473AbRD3HqG>;
-	Mon, 30 Apr 2001 03:46:06 -0400
-Date: Mon, 30 Apr 2001 09:45:41 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Frank de Lange <frank@unternet.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Severe trashing in 2.4.4
-In-Reply-To: <20010429200419.C11681@unternet.org>
-Message-ID: <Pine.LNX.4.33.0104300834030.601-100000@mikeg.weiden.de>
+	id <S136475AbRD3Hvc>; Mon, 30 Apr 2001 03:51:32 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:16534 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136474AbRD3Hvb>;
+	Mon, 30 Apr 2001 03:51:31 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15085.6528.594541.837251@pizda.ninka.net>
+Date: Mon, 30 Apr 2001 00:51:28 -0700 (PDT)
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+In-Reply-To: <3AED145F.84E95D8D@transmeta.com>
+In-Reply-To: <3AEBF782.1911EDD2@mandrakesoft.com>
+	<Pine.LNX.4.33.0104290914260.14261-100000@twinlark.arctic.org>
+	<15085.3587.865614.360094@pizda.ninka.net>
+	<3AED145F.84E95D8D@transmeta.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Apr 2001, Frank de Lange wrote:
 
-> On Sun, Apr 29, 2001 at 01:58:52PM -0400, Alexander Viro wrote:
-> > Hmm... I'd say that you also have a leak in kmalloc()'ed stuff - something
-> > in 1K--2K range. From your logs it looks like the thing never shrinks and
-> > grows prettu fast...
->
-> Same goes for buffer_head:
->
-> buffer_head        44236  48520     96 1188 1213    1 :  252  126
->
-> quite high I think. 2.4.3 shows this, after about the same time and activity:
->
-> buffer_head          891   2880     96   72   72    1 :  252  126
+H. Peter Anvin writes:
+ > RDTSC in Crusoe processors does basically this.
 
-hmm:  do_try_to_free_pages() doesn't call kmem_cache_reap() unless
-there's no free page shortage.  If you've got a leak...
+Hmmm, one of the advantages of using a seperate tick register for this
+constant clock is that you can still do cycle accurate asm code
+analysis even when the cpu is down clocked.
 
-	if (free_shortage()) {
-		shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
-		shrink_icache_memory(DEF_PRIORITY, gfp_mask);
-	} else {
-		/*
-		 * Illogical, but true. At least for now.
-		 *
-		 * If we're _not_ under shortage any more, we
-		 * reap the caches. Why? Because a noticeable
-		 * part of the caches are the buffer-heads,
-		 * which we'll want to keep if under shortage.
-		 */
-		kmem_cache_reap(gfp_mask);
-	}
+The joys of compatability I suppose :-)
 
-You might try calling it if free_shortage() + inactive shortage() >
-freepages.high or some such and then see what sticks out.  Or, for
-troubleshooting the leak, just always call it.
-
-Printk says we fail to totally cure the shortage most of the time
-once you start swapping.. likely the same for any sustained IO.
-
-	-Mike
-
-(if you hoard IO until you can't avoid it, there're no cleanable pages
-left in the laundry chute [bye-bye cache] except IO pages.. i digress;)
+Later,
+David S. Miller
+davem@redhat.com
 

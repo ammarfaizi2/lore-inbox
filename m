@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317872AbSGaJ3V>; Wed, 31 Jul 2002 05:29:21 -0400
+	id <S317861AbSGaJ1x>; Wed, 31 Jul 2002 05:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317875AbSGaJ3V>; Wed, 31 Jul 2002 05:29:21 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:64273 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S317872AbSGaJ3U>; Wed, 31 Jul 2002 05:29:20 -0400
-Date: Wed, 31 Jul 2002 11:32:36 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] devfs cleanups for 2.5.29
-In-Reply-To: <200207310032.g6V0WmW12258@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.44.0207311109560.28515-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317864AbSGaJ1x>; Wed, 31 Jul 2002 05:27:53 -0400
+Received: from ns.sysgo.de ([213.68.67.98]:25842 "EHLO dagobert.svc.sysgo.de")
+	by vger.kernel.org with ESMTP id <S317861AbSGaJ1w>;
+	Wed, 31 Jul 2002 05:27:52 -0400
+Date: Wed, 31 Jul 2002 11:28:26 +0200
+From: Soewono Effendi <SEffendi@sysgo.de>
+To: linux-kernel@vger.kernel.org
+Subject: initial ramdisk + devfs
+Message-Id: <20020731112826.61a75ece.SEffendi@sysgo.de>
+Organization: SYSGO Real-Time Solutions GmbH
+X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 30 Jul 2002, Richard Gooch wrote:
-
-> > Are you sure it's save in devfs_open() too?
->
-> Yes. RTFS.
-
-I'm trying - without getting headache.
-In the "devfs=only" case, where is the module count incremented, when a
-block device is opened?
-
-> > Even if it's save/fixed, it's still code duplication.
->
-> No. I leverage fops_get(), a common function.
-
-Which is also insufficiently protected.
-Why do you insist on storing the ops pointer in devfs? As long as devfs is
-an option, that pointer must be managed at two places.
-
-bye, Roman
-
+Hi all!
+ 
+ 
+ I was able to to use linux (2.4.x and 2.5.x) on a floppy with busybox using 
+ this great devfs only, which saves me lots of spaces. I use the initial ram 
+ disk.
+ 
+ But since I downloaded linux-2.5.29, nothing worked anymore.
+ Then I came a long about the problem with ramdisk driver and applied the 
+ patch.
+ To my surprise :) it worked again. I was able to boot again.
+ 
+ As I tried to mount the boot floppy I got instead my floppy(ext2), driverfs 
+ mounted??? How can that be? I'll send you my boot-floppy image, if you ask 
+ me for that.
+ 
+ ---------------------------------------------------------
+ I did the following:
+ 
+ without file system type specified:
+ # mount /dev/floppy/0 /mnt
+ **** driverfs is mounted instead of my ext2-floppy
+ # mount
+ ...
+ /dev/floppy/0 on /mnt type driverfs (rw)
+ 
+ 
+ 
+ with file system type specified: 
+ # mount -t ext2 /dev/floppy/0 /mnt
+ **** I got the following kernel dump
+ generic_make_request: Trying to access nonexistent block-device fd(2,0) (0)
+ Unable to handle kernel NULL pointer dereference at virtual address 000000a0
+ ...
+ ...
+ 
+ floppy0: timeout handler died: floppy shutdown
+ 
+ -----------------------------------------------------------
+ 
+ I have "Kernel automounter version 4 support" compiled in.
+ 
+ Would someone, who has enough time to "break" some linux-API behaviour, also 
+ has time to notes this down!
+ Maybe there should be a kind of separate "WARNING_API_CHANGED" file under 
+ Documentation, so that everybody might keep up with the latest "What might 
+ be broken now?".
+ 
+ 
+ cheers,
+ -sE
+         
+ -- 
+ visit us at http://www.sysgo.de

@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286152AbRLJCun>; Sun, 9 Dec 2001 21:50:43 -0500
+	id <S286151AbRLJDFJ>; Sun, 9 Dec 2001 22:05:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286153AbRLJCue>; Sun, 9 Dec 2001 21:50:34 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:34813 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S286152AbRLJCua>; Sun, 9 Dec 2001 21:50:30 -0500
-Date: Sun, 9 Dec 2001 18:41:47 -0800
-From: Chris Wright <chris@wirex.com>
-To: Britt Park <britt@drscience.sciencething.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The demise of notify_change.
-Message-ID: <20011209184147.A27109@figure1.int.wirex.com>
-Mail-Followup-To: Britt Park <britt@drscience.sciencething.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C11A2E7.5070306@sciencething.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C11A2E7.5070306@sciencething.org>; from britt@drscience.sciencething.org on Fri, Dec 07, 2001 at 09:19:35PM -0800
+	id <S286154AbRLJDE7>; Sun, 9 Dec 2001 22:04:59 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:30735 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S286151AbRLJDEl>; Sun, 9 Dec 2001 22:04:41 -0500
+Date: Sun, 9 Dec 2001 19:06:35 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] Scheduler queue implementation ...
+In-Reply-To: <E16DFcV-0000E0-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0112091839590.996-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Britt Park (britt@drscience.sciencething.org) wrote:
-> Somewhen between 2.2.x and 2.4.x notify_change disappeared from 
-> super_operations.  What is the accepted practice now for updating an 
-> inode's persistent state?  Should one use write_inode for the same 
-> purpose or should one rely on file_operations::setattr (excuse the 
-> c++ism)? Or is there something entirely different that one should do?
+On Mon, 10 Dec 2001, Alan Cox wrote:
 
-read fs/attr.c::notify_change(), i believe the inode_operations->setattr()
-is what you are looking for.
+> > vmstat together with a lat_ctx 32 32 ... ( long list ), you'll see the run
+> > queue length barley reach 3 ( with 32 bouncing tasks ).
+> > It barely reaches 5 with 64 bouncing tasks.
+>
+> Try 250 apache server processes running a mix of mod_perl and static
+> content, you'll see quite a reasonable queue size then, and it isnt all
+> cpu hogs.
 
-cheers,
--chris
+For I/O bound, in this case ( since i use the average run time to weighs
+the scheduler latency ), i mean tasks that runs for a very short time
+before being rescheduled.
+mod_perl is quite heavy from a cpu point of view and the static content,
+as soon it becomes to be cached, will result in unblocking IO.
+Since very likely even the HTTP response is going to be eaten by the
+network layer w/out preemption, you're going to have a cpu path starting
+from the HTTP request receiving from the next request fetch, that is very
+likely run w/out preemption.
+
+
+> Interesting question however. I certainly can't disprove your belief that
+> the queue will be short enough to be worth using multiqueue for the case
+> where its a queue per processor.
+
+My point is, when the scheduler latency is going to have an impact on the
+run task ?
+When the average run time of the task is low.
+But run time low means high dynamic priority ( counter ) that is
+accumulated in consecutive recalc loops.
+By having a tunable trigger point ( counter ) for task classification
+( iobound-rttask or cpubound queue selection ) will make it possible to
+have a runtime tuning of its value.
+
+
+
+
+- Davide
+
+
+
+

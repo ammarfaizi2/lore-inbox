@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129437AbQLILBm>; Sat, 9 Dec 2000 06:01:42 -0500
+	id <S129460AbQLILFl>; Sat, 9 Dec 2000 06:05:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129460AbQLILBb>; Sat, 9 Dec 2000 06:01:31 -0500
-Received: from isolaweb.it ([213.82.132.2]:62471 "EHLO web.isolaweb.it")
-	by vger.kernel.org with ESMTP id <S129437AbQLILBS>;
-	Sat, 9 Dec 2000 06:01:18 -0500
-Message-Id: <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sat, 09 Dec 2000 11:25:09 +0100
-To: Rasmus Andersen <rasmus@jaquet.dk>, torvalds@transmeta.com
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: Re: [PATCH] mm->rss is modified without page_table_lock held
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001208212910.E599@jaquet.dk>
+	id <S131156AbQLILFc>; Sat, 9 Dec 2000 06:05:32 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:16397 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129460AbQLILFY>;
+	Sat, 9 Dec 2000 06:05:24 -0500
+Date: Sat, 9 Dec 2000 11:34:39 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
+        Chris Lattner <sabre@nondot.org>, linux-kernel@vger.kernel.org,
+        orbit-list@gnome.org, korbit-cvs@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+Message-ID: <20001209113439.B12659@pcep-jamie.cern.ch>
+In-Reply-To: <3A31BC6D.1CFB5221@haque.net> <Pine.GSO.4.21.0012090028550.29053-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0012090028550.29053-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Dec 09, 2000 at 12:39:36AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 21.29 08/12/00 +0100, Rasmus Andersen wrote:
+Alexander Viro wrote:
+> > It was just an example. Basically, you'd be able to do in with just
+> > about any language that has ORBit bindings.
+> 
+> Yeah... "Infinitely extendable API" and all such. Roughly translated
+> as "we can't live without API bloat". Frankly, judging by the GNOME
+> codebase people who designed the thing are culturally incompatible with
+> UNIX.
 
->Hi.
->
->The following patch moves the page_table_lock in mm/* to cover the
->modification of mm->rss in 240-test12-pre7. It was inspired by a
->similar patch from davej(?) which covered too much, AFAIR. The item
->is on Tytso's ToDo list.
+Agree.  I remember a big complaint about Windows was the huge APIs,
+compared with Unix' tiny list of syscalls.  And then I saw the GNOME
+docs... ew!
 
-[...snip...]
+> "KISS is tough" -- programmer Barbie.
 
->@@ -1076,7 +1076,9 @@
->                 flush_icache_page(vma, page);
->         }
->
->+       spin_lock(&mm->page_table_lock);
->         mm->rss++;
->+       spin_unlock(&mm->page_table_lock);
->
+;
 
-[...snip...]
-
-Why we couldn't use atomic_inc(&mm->rss) here and below, avoiding to wrap
-the inc with a spin_lock()/spin_unlock() ?
-
-
-
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263339AbTIWKQf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 06:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbTIWKQf
+	id S263341AbTIWKkx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 06:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbTIWKkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 06:16:35 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:50437 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S263339AbTIWKQe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 06:16:34 -0400
-Date: Tue, 23 Sep 2003 11:16:32 +0100
-From: John Levon <levon@movementarian.org>
-To: "Villacis, Juan" <juan.villacis@intel.com>
-Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.x] additional kernel event notifications
-Message-ID: <20030923101632.GA85283@compsoc.man.ac.uk>
-References: <7F740D512C7C1046AB53446D372001732DEC9E@scsmsx402.sc.intel.com>
-Mime-Version: 1.0
+	Tue, 23 Sep 2003 06:40:53 -0400
+Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:35464 "EHLO
+	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261868AbTIWKkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 06:40:51 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7F740D512C7C1046AB53446D372001732DEC9E@scsmsx402.sc.intel.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1A1kDg-00059U-MV*5z/1gJPJUOg*
+Content-Transfer-Encoding: 7bit
+Message-ID: <16240.8965.91289.460763@wombat.chubb.wattle.id.au>
+Date: Tue, 23 Sep 2003 20:40:05 +1000
+To: "David S. Miller" <davem@redhat.com>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, peter@chubb.wattle.id.au, ak@suse.de,
+       iod00d@hp.com, peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+In-Reply-To: <20030922232237.28a5ac4a.davem@redhat.com>
+References: <16234.33565.64383.838490@wombat.disy.cse.unsw.edu.au>
+	<20030919043847.GA2996@cup.hp.com>
+	<20030919044315.GC7666@wotan.suse.de>
+	<16234.36238.848366.753588@wombat.chubb.wattle.id.au>
+	<20030919055304.GE16928@wotan.suse.de>
+	<20030919064922.B3783@kvack.org>
+	<16239.38154.969505.748461@wombat.chubb.wattle.id.au>
+	<20030922203629.B21836@kvack.org>
+	<20030922232237.28a5ac4a.davem@redhat.com>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 06:16:14PM -0700, Villacis, Juan wrote:
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-> There are several languages and tools besides Java which can jit code.
-> Perl6 (using interpreters like Parrot) and Python (using interpreters
-> like Psycho) are examples of this and it is not yet clear what
-> interfaces they will provide to allow for JVMPI like functionality.  We
+David> On Mon, 22 Sep 2003 20:36:29 -0400 Benjamin LaHaise
+David> <bcrl@kvack.org> wrote:
 
-First, "we might need it" is not generally considered a good enough
-rationale for extra code by the kernel  people.
+>> Denied.  Dave, please explain.
 
-Second, if there is no help from a runtime for tracking JITted code
-memory -> source lines, I do not see how your hooks could possibly help.
-Either way you need help from the VM of the target program (be it
-Parrot, Python or whatever).
+David> Why should I have anything to explain? :-)
 
-> would still like to be able to provide something useful to the users of
+David> The fact that ia64 is doing a printk for an unaligned kernel
+David> load or store is what you should be asking questions about :)
 
-What would "something useful" be in particular ?
+How expensive is it to take the trap and do a fix up, compared to
+making an aligned copy?  As it involves raising and handling a fault
+disassembling the instruction that caused the fault, etc., I'd be
+surprised if it's much less than 1000 cycles, even without the printk,
+although I haven't measured it yet, and can't find enough info in the
+architecture manuals to know what it is.
 
-> From what we can see in the Oprofile driver code, if there is no dcookie
-> for a corresponding EIP, the EIP information is discarded and the
+Even if it's only 500 cycles, you can copy and realign a large packet
+in that time. 
 
-Correct.
-
-But we're talking about making oprofile useful for your purposes - that
-can and will involve changes. In particular it's trivial to add an
-option to oprofile to output the raw EIP is no dentry could be matched.
-
-> As long as there exists a userspace API similar to the JVMPI for a
-> particular DGC generator, and as long as the profiling tool is using
-> that API, then yes, it seems like this method would work.  But this
-> isn't the case we are worried about.
-
-I hate to be a pain, but I'm still missing a concrete explanation of an
-*actual* case you are worried about. It's rather difficult to discuss
-this stuff in the abstract.
-
-regards
-john
--- 
-Khendon's Law:
-If the same point is made twice by the same person, the thread is over.
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories,   all slightly different.

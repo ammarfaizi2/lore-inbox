@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVAYBYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVAXUUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbVAYBYP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 20:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVAYBXQ
+	id S261616AbVAXUUs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVAXUTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 20:23:16 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:58583 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261634AbVAYBUp (ORCPT
+	Mon, 24 Jan 2005 15:19:52 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:32004 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261616AbVAXURa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 20:20:45 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 12/13] ACL umask handling workaround in nfs client
-Date: Tue, 25 Jan 2005 02:20:41 +0100
-User-Agent: KMail/1.7.1
-Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Buck Huppmann <buchk@pobox.com>
-References: <20050122203326.402087000@blunzn.suse.de> <20050122203620.108564000@blunzn.suse.de>
-In-Reply-To: <20050122203620.108564000@blunzn.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Mon, 24 Jan 2005 15:17:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=QQB1iyCw1LPcRr8oZbG+gZMmszmUuSguysjgrB3WrZcq7oCa8r8F4xVaqjzr0pqobfo+AV84GFsAbrpyC1J/44z9M2eqFPnKig4IlEbowMt9hnmkk4GMVOkfXjns74+2CsdGN86JVyzZYet3NDEGZ36Z+HGDHs7siHPnooWo7Qk=
+Message-ID: <f071747505012412171470901@mail.gmail.com>
+Date: Mon, 24 Jan 2005 12:17:26 -0800
+From: Aurash Mahbod <amahbod@gmail.com>
+Reply-To: Aurash Mahbod <amahbod@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.27-1-386 compiling 2.6.10 getting errors
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501250220.41618.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I am compiling 2.6.10 and am getting crc errors.
 
-this patch has an NFSv2 problem that I haven't tripped over until today. The 
-fix is this:
+lib/gen_crc32table.c:10: error: parse error before "crc32table_le"
+lib/gen_crc32table.c:10: warning: type defaults to `int' in
+declaration of `crc32table_le'
+lib/gen_crc32table.c:10: warning: data definition has no type or storage class
+lib/gen_crc32table.c:11: error: parse error before "crc32table_be"
+lib/gen_crc32table.c:11: warning: type defaults to `int' in
+declaration of `crc32table_be'
+lib/gen_crc32table.c:11: warning: data definition has no type or storage class
+lib/gen_crc32table.c: In function `crc32init_le':
+lib/gen_crc32table.c:23: error: `uint32_t' undeclared (first use in
+this function)
+lib/gen_crc32table.c:23: error: (Each undeclared identifier is
+reported only once
+lib/gen_crc32table.c:23: error: for each function it appears in.)
+lib/gen_crc32table.c:23: error: parse error before "crc"
+lib/gen_crc32table.c:28: error: `crc' undeclared (first use in this function)
+lib/gen_crc32table.c: In function `crc32init_be':
+lib/gen_crc32table.c:40: error: `uint32_t' undeclared (first use in
+this function)
+lib/gen_crc32table.c:40: error: parse error before "crc"
+lib/gen_crc32table.c:45: error: `crc' undeclared (first use in this function)
+lib/gen_crc32table.c: At top level:
+lib/gen_crc32table.c:51: error: parse error before "table"
+lib/gen_crc32table.c:52: warning: function declaration isn't a prototype
+lib/gen_crc32table.c: In function `output_table':
+lib/gen_crc32table.c:55: error: `len' undeclared (first use in this function)
+lib/gen_crc32table.c:58: error: `trans' undeclared (first use in this function)
+lib/gen_crc32table.c:58: error: `table' undeclared (first use in this function)
+make[2]: *** [lib/gen_crc32table] Error 1
+make[1]: *** [lib] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.6.10'
+make: *** [stamp-build] Error 2
 
-------- 8< -------
-Fix NFSv2 null pointer access
+Motherboard: Soyo Dragon Plus
+CPU: Athlon XP 1800+
+ram: 512MB PC2700
+video card: nvidia GeForce 4 4400ti
 
-With NFSv2 we would try to follow a NULL getacl and setacl function
-pointer here. Add the missing checks.
+thanks for the help!
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
-
-Index: linux-2.6.10/fs/nfs/dir.c
-===================================================================
---- linux-2.6.10.orig/fs/nfs/dir.c
-+++ linux-2.6.10/fs/nfs/dir.c
-@@ -984,6 +984,9 @@ static int nfs_set_default_acl(struct in
- 	struct posix_acl *dfacl, *acl;
- 	int error = 0;
- 
-+	if (NFS_PROTO(inode)->version != 3 ||
-+	    !NFS_PROTO(dir)->getacl || !NFS_PROTO(inode)->setacls)
-+		return 0;
- 	dfacl = NFS_PROTO(dir)->getacl(dir, ACL_TYPE_DEFAULT);
- 	if (IS_ERR(dfacl)) {
- 		error = PTR_ERR(dfacl);
-
-
-Regards,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+-Aurash Mahbod
+amahbod@gmail.com

@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266793AbRGKVoq>; Wed, 11 Jul 2001 17:44:46 -0400
+	id <S266800AbRGKVyp>; Wed, 11 Jul 2001 17:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266801AbRGKVof>; Wed, 11 Jul 2001 17:44:35 -0400
-Received: from fire.osdlab.org ([65.201.151.4]:22172 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S266793AbRGKVoV>;
-	Wed, 11 Jul 2001 17:44:21 -0400
-Message-ID: <3B4CC88C.572DEDA5@osdlab.org>
-Date: Wed, 11 Jul 2001 14:43:40 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: nils@kernelconcepts.de, Alan <alan@lxorguk.ukuu.org.uk>,
-        Linus <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: [patch-v2] i810 TCO Oops
-Content-Type: multipart/mixed;
- boundary="------------DCC47A91C5EBE4218694D80F"
+	id <S266802AbRGKVyg>; Wed, 11 Jul 2001 17:54:36 -0400
+Received: from weta.f00f.org ([203.167.249.89]:64642 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S266800AbRGKVyZ>;
+	Wed, 11 Jul 2001 17:54:25 -0400
+Date: Thu, 12 Jul 2001 09:54:21 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Jes Sorensen <jes@sunsite.dk>
+Cc: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, Ben LaHaise <bcrl@redhat.com>,
+        "\"MEHTA,HIREN (A-SanJose,ex1)\"" <hiren_mehta@agilent.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m
+Message-ID: <20010712095421.A2298@weta.f00f.org>
+In-Reply-To: <3B46FDF1.A38E5BB6@mandrakesoft.com> <E15Ir5R-0005lR-00@the-village.bc.nu> <15175.2003.773317.101601@pizda.ninka.net> <d3y9pv8ee5.fsf@lxplus015.cern.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d3y9pv8ee5.fsf@lxplus015.cern.ch>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------DCC47A91C5EBE4218694D80F
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Wed, Jul 11, 2001 at 09:16:50PM +0200, Jes Sorensen wrote:
 
-Um, having lunch has created a better patch IMO.
-It removes the "if (assignment_and_test)" line
-and still fixes the Oops.
+    The overhead is going be negligeble, the overhead of highmem itself is
+    much worse. Not to mention that today some dma_addr_t's might not be
+    packed properly in data structure hence they ending up taking 8 bytes
+    anyway.
 
-Please apply this one instead if possible...
-to 2.4.7-preX and 2.3.6-acN.
+What kind of packing makes a 32-bit value take 8-bytes on any
+currently supported archicture? The worst-case I can think of is
+7-bytes in the case of misaligned by 3 (e.g. __attribute__((packed))
+struct blah { char foo[3]; long bar }; sort of thing).
 
-Thanks.
--- 
-~Randy
---------------DCC47A91C5EBE4218694D80F
-Content-Type: text/plain; charset=us-ascii;
- name="i810-foundv2.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i810-foundv2.diff"
 
---- linux/drivers/char/i810-tco.c.org	Mon Jul  2 13:56:41 2001
-+++ linux/drivers/char/i810-tco.c	Wed Jul 11 14:25:21 2001
-@@ -261,11 +261,13 @@
- 	 */
- 
- 	pci_for_each_dev(dev) {
--		if (pci_match_device(i810tco_pci_tbl, dev))
-+		if (pci_match_device(i810tco_pci_tbl, dev)) {
-+			i810tco_pci = dev;
- 			break;
-+		}
- 	}
- 
--	if ((i810tco_pci = dev)) {
-+	if (i810tco_pci) {
- 		/*
- 		 *      Find the ACPI base I/O address which is the base
- 		 *      for the TCO registers (TCOBASE=ACPIBASE + 0x60)
 
---------------DCC47A91C5EBE4218694D80F--
 
+  --cw

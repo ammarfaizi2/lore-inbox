@@ -1,134 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129591AbQLKGWl>; Mon, 11 Dec 2000 01:22:41 -0500
+	id <S130026AbQLKGWv>; Mon, 11 Dec 2000 01:22:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130085AbQLKGWb>; Mon, 11 Dec 2000 01:22:31 -0500
-Received: from zero.tech9.net ([209.61.188.187]:2308 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S129591AbQLKGWR>;
-	Mon, 11 Dec 2000 01:22:17 -0500
-Date: Mon, 11 Dec 2000 00:54:49 -0500 (EST)
-From: "Robert M. Love" <rml@tech9.net>
-To: <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.2.18 i815 AGPGART Support
-Message-ID: <Pine.LNX.4.30.0012110049330.6652-200000@phantasy.awol.org>
+	id <S130133AbQLKGWm>; Mon, 11 Dec 2000 01:22:42 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:28681 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S130026AbQLKGWa>; Mon, 11 Dec 2000 01:22:30 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Mon, 11 Dec 2000 16:51:55 +1100 (EST)
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-769988442-976514089=:6652"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14900.27515.416607.892448@notabene.cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: PATCH - use submit_bh in brw_kiovec
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---8323328-769988442-976514089=:6652
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Linus,
+  the new submit_bh function provides functionality that is better
+  suited for brw_kiovec to use than generic_make_request.
 
-this patch is against final 2.2.18, hopefully for inclusion in 2.2.19pre.
+  This patch replaced generic_make_request with submit_bh in
+  brw_kiovec and removed some field initialisation which is no longer
+  required.
 
-the current '440LX/BX/GX and 840' agp driver supports the i815, but does
-not detect it. this patch allows the driver to detect it correctly.
+ patch against 2.4.0-test12-pre8
 
-the current '810/815' driver is only for when the i815 is using its built
-in video, not its AGP slot. the configure help is updated to reflect this
-and show that the above driver now supports i815.
+NeilBrown
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
-
---8323328-769988442-976514089=:6652
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch-rml-2.2.18-i815-AGP"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0012110054490.6652@phantasy.awol.org>
-Content-Description: 
-Content-Disposition: attachment; filename="patch-rml-2.2.18-i815-AGP"
-
-ZGlmZiAtLW5ldy1maWxlIC11IC0tcmVjdXJzaXZlIGxpbnV4fi9DUkVESVRT
-IGxpbnV4L0NSRURJVFMNCi0tLSBsaW51eH4vQ1JFRElUUwlTdW4gRGVjIDEw
-IDE5OjQ5OjQwIDIwMDANCisrKyBsaW51eC9DUkVESVRTCU1vbiBEZWMgMTEg
-MDA6Mjk6MzYgMjAwMA0KQEAgLTEzMzUsNiArMTMzNSwxMyBAQA0KIFM6IE5p
-d290LCBDb2xvcmFkbyA4MDUwMw0KIFM6IFVTQQ0KIA0KK046IFJvYmVydCBN
-LiBMb3ZlDQorRTogcm1sQHRlY2g5Lm5ldA0KK0U6IHJtbEB1ZmwuZWR1DQor
-RDogbWlzYy4ga2VybmVsIGhhY2tpbmcgYW5kIGRlYnVnZ2luZw0KK1M6IEdh
-aW5lc3ZpbGxlLCBGbG9yaWRhIDMyNjA4DQorUzogVVNBDQorDQogTjogSC5K
-LiBMdQ0KIEU6IGhqbEBnbnUuYWkubWl0LmVkdQ0KIEQ6IEdDQyArIGxpYnJh
-cmllcyBoYWNrZXINCmRpZmYgLS1uZXctZmlsZSAtdSAtLXJlY3Vyc2l2ZSBs
-aW51eH4vRG9jdW1lbnRhdGlvbi9Db25maWd1cmUuaGVscCBsaW51eC9Eb2N1
-bWVudGF0aW9uL0NvbmZpZ3VyZS5oZWxwDQotLS0gbGludXh+L0RvY3VtZW50
-YXRpb24vQ29uZmlndXJlLmhlbHAJU3VuIERlYyAxMCAxOTo0OTo0MSAyMDAw
-DQorKysgbGludXgvRG9jdW1lbnRhdGlvbi9Db25maWd1cmUuaGVscAlNb24g
-RGVjIDExIDAwOjMxOjIyIDIwMDANCkBAIC0xMDQ3Niw4ICsxMDQ3Niw4IEBA
-DQogDQogSW50ZWwgNDQwTFgvQlgvR1ggc3VwcG9ydA0KIENPTkZJR19BR1Bf
-SU5URUwNCi0gIFRoaXMgb3B0aW9uIGdpdmUgeW91IEFHUCBzdXBwb3J0IGZv
-ciB0aGUgR0xYIGNvbXBvbmVudCBvZiB0aGUNCi0gICJzb29uIHRvIGJlIHJl
-bGVhc2VkIiBYRnJlZTg2LTQgb24gSW50ZWwgNDQwTFgvQlgvR1ggY2hpcHNl
-dHMuDQorICBUaGlzIG9wdGlvbiBnaXZlcyB5b3UgQUdQIHN1cHBvcnQgZm9y
-IHRoZSBHTFggY29tcG9uZW50IG9mDQorICBYRnJlZTg2IDQueCBvbiBJbnRl
-bCA0NDBMWC9CWC9HWCwgODE1LCBhbmQgODQwIGNoaXBzZXRzLg0KIA0KICAg
-Rm9yIHRoZSBtb21lbnQsIG1vc3QgcGVvcGxlIHNob3VsZCBzYXkgbm8sIHVu
-bGVzcyB5b3Ugd2FudCB0bw0KICAgdGVzdCB0aGUgR0xYIGNvbXBvbmVudCB3
-aGljaCBjYW4gYmUgZG93bmxvYWRlZCBmcm9tDQpAQCAtMTA0ODUsOSArMTA0
-ODUsOSBAQA0KIA0KIEludGVsIEk4MTAvSTgxMCBEQzEwMC9JODEwZSBzdXBw
-b3J0DQogQ09ORklHX0FHUF9JODEwDQotICBUaGlzIG9wdGlvbiBnaXZlIHlv
-dSBBR1Agc3VwcG9ydCBmb3IgdGhlIFhzZXJ2ZXIgZm9yIHRoZSBpbnRlbA0K
-LSAgODEwIGNoaXBzZXQgYm9hcmRzLiBUaGlzIGlzIHJlcXVpcmVkIHRvIGRv
-IGFueSB1c2VmdWwgdmlkZW8NCi0gIG1vZGVzLg0KKyAgVGhpcyBvcHRpb24g
-Z2l2ZXMgeW91IEFHUCBzdXBwb3J0IGZvciBYRnJlZTg2IG9uIHRoZSBJbnRl
-bCA4MTANCisgIGFuZCA4MTUgY2hpcHNldHMgZm9yIHRoZWlyIG9uLWJvYXJk
-IGludGVncmF0ZWQgZ3JhcGhpY3MuIFRoaXMNCisgIGlzIHJlcXVpcmVkIHRv
-IGRvIGFueSB1c2VmdWwgdmlkZW8gbW9kZXMgd2l0aCB0aGVzZSBib2FyZHMu
-DQogDQogVklBIFZQMy9NVlAzL0Fwb2xsbyBQcm8gc3VwcG9ydA0KIENPTkZJ
-R19BR1BfVklBDQpkaWZmIC0tbmV3LWZpbGUgLXUgLS1yZWN1cnNpdmUgbGlu
-dXh+L2RyaXZlcnMvY2hhci9Db25maWcuaW4gbGludXgvZHJpdmVycy9jaGFy
-L0NvbmZpZy5pbg0KLS0tIGxpbnV4fi9kcml2ZXJzL2NoYXIvQ29uZmlnLmlu
-CVN1biBEZWMgMTAgMTk6NDk6NDEgMjAwMA0KKysrIGxpbnV4L2RyaXZlcnMv
-Y2hhci9Db25maWcuaW4JTW9uIERlYyAxMSAwMDozMjoyMiAyMDAwDQpAQCAt
-MTI4LDggKzEyOCw4IEBADQogaWYgWyAiJENPTkZJR19FWFBFUklNRU5UQUwi
-ID0gInkiIF07IHRoZW4NCiAgICB0cmlzdGF0ZSAnL2Rldi9hZ3BnYXJ0IChB
-R1AgU3VwcG9ydCkgKEVYUEVSSU1FTlRBTCknIENPTkZJR19BR1Agbg0KICAg
-IGlmIFsgIiRDT05GSUdfQUdQIiAhPSAibiIgXTsgdGhlbg0KLSAgICAgIGJv
-b2wgJyAgIEludGVsIDQ0MExYL0JYL0dYIHN1cHBvcnQnIENPTkZJR19BR1Bf
-SU5URUwNCi0gICAgICBib29sICcgICBJbnRlbCBJODEwL0k4MTAgREMxMDAv
-STgxMGUgc3VwcG9ydCcgQ09ORklHX0FHUF9JODEwDQorICAgICAgYm9vbCAn
-ICAgSW50ZWwgNDQwTFgvQlgvR1ggYW5kIEk4MTUvODIwIHN1cHBvcnQnIENP
-TkZJR19BR1BfSU5URUwNCisgICAgICBib29sICcgICBJbnRlbCBJODEwL0k4
-MTUgKG9uLWJvYXJkIHZpZGVvKSBzdXBwb3J0JyBDT05GSUdfQUdQX0k4MTAN
-CiAgICAgICBib29sICcgICBWSUEgVlAzL01WUDMvQXBvbGxvIFBybyBzdXBw
-b3J0JyBDT05GSUdfQUdQX1ZJQQ0KICAgICAgIGJvb2wgJyAgIEFNRCBJcm9u
-Z2F0ZSBzdXBwb3J0JyBDT05GSUdfQUdQX0FNRA0KICAgICAgIGJvb2wgJyAg
-IEdlbmVyaWMgU2lTIHN1cHBvcnQnIENPTkZJR19BR1BfU0lTDQpkaWZmIC0t
-bmV3LWZpbGUgLXUgLS1yZWN1cnNpdmUgbGludXh+L2RyaXZlcnMvY2hhci9h
-Z3AvYWdwX2JhY2tlbmQuaCBsaW51eC9kcml2ZXJzL2NoYXIvYWdwL2FncF9i
-YWNrZW5kLmgNCi0tLSBsaW51eH4vZHJpdmVycy9jaGFyL2FncC9hZ3BfYmFj
-a2VuZC5oCVN1biBEZWMgMTAgMTk6NDk6NDEgMjAwMA0KKysrIGxpbnV4L2Ry
-aXZlcnMvY2hhci9hZ3AvYWdwX2JhY2tlbmQuaAlNb24gRGVjIDExIDAwOjMz
-OjMyIDIwMDANCkBAIC00NSw2ICs0NSw3IEBADQogCUlOVEVMX0JYLA0KIAlJ
-TlRFTF9HWCwNCiAJSU5URUxfSTgxMCwNCisJSU5URUxfSTgxNSwNCiAJSU5U
-RUxfSTg0MCwNCiAJVklBX0dFTkVSSUMsDQogCVZJQV9WUDMsDQpkaWZmIC0t
-bmV3LWZpbGUgLXUgLS1yZWN1cnNpdmUgbGludXh+L2RyaXZlcnMvY2hhci9h
-Z3AvYWdwZ2FydF9iZS5jIGxpbnV4L2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2Fy
-dF9iZS5jDQotLS0gbGludXh+L2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9i
-ZS5jCVN1biBEZWMgMTAgMTk6NDk6NDEgMjAwMA0KKysrIGxpbnV4L2RyaXZl
-cnMvY2hhci9hZ3AvYWdwZ2FydF9iZS5jCU1vbiBEZWMgMTEgMDA6MzQ6NDAg
-MjAwMA0KQEAgLTIwMjYsNiArMjAyNiwxMyBAQA0KIAkJIkludGVsIiwNCiAJ
-CSI0NDBHWCIsDQogCQlpbnRlbF9nZW5lcmljX3NldHVwIH0sDQorCS8qIGNv
-dWxkIHdlIGFkZCBzdXBwb3J0IGZvciBQQ0lfREVWSUNFX0lEX0lOVEVMXzgx
-NV8xIHRvbyA/ICovDQorCXsgUENJX0RFVklDRV9JRF9JTlRFTF84MTVfMCwN
-CisJCVBDSV9WRU5ET1JfSURfSU5URUwsDQorCQlJTlRFTF9JODE1LA0KKwkJ
-IkludGVsIiwNCisJCSJpODE1IiwNCisJCWludGVsX2dlbmVyaWNfc2V0dXAg
-fSwNCiAJeyBQQ0lfREVWSUNFX0lEX0lOVEVMXzg0MF8wLA0KIAkJUENJX1ZF
-TkRPUl9JRF9JTlRFTCwNCiAJCUlOVEVMX0k4NDAsDQpkaWZmIC0tbmV3LWZp
-bGUgLXUgLS1yZWN1cnNpdmUgbGludXh+L2luY2x1ZGUvbGludXgvYWdwX2Jh
-Y2tlbmQuaCBsaW51eC9pbmNsdWRlL2xpbnV4L2FncF9iYWNrZW5kLmgNCi0t
-LSBsaW51eH4vaW5jbHVkZS9saW51eC9hZ3BfYmFja2VuZC5oCVN1biBEZWMg
-MTAgMTk6NDk6NDQgMjAwMA0KKysrIGxpbnV4L2luY2x1ZGUvbGludXgvYWdw
-X2JhY2tlbmQuaAlNb24gRGVjIDExIDAwOjMyOjQ2IDIwMDANCkBAIC00NSw2
-ICs0NSw3IEBADQogCUlOVEVMX0JYLA0KIAlJTlRFTF9HWCwNCiAJSU5URUxf
-STgxMCwNCisJSU5URUxfSTgxNSwNCiAJSU5URUxfSTg0MCwNCiAJVklBX0dF
-TkVSSUMsDQogCVZJQV9WUDMsDQo=
---8323328-769988442-976514089=:6652--
+--- ./fs/buffer.c	2000/12/10 23:51:16	1.1
++++ ./fs/buffer.c	2000/12/10 23:55:35	1.2
+@@ -2040,7 +2040,6 @@
+ 	int		pageind;
+ 	int		bhind;
+ 	int		offset;
+-	int		sectors = size>>9;
+ 	unsigned long	blocknr;
+ 	struct kiobuf *	iobuf = NULL;
+ 	struct page *	map;
+@@ -2092,9 +2091,8 @@
+ 				tmp->b_this_page = tmp;
+ 
+ 				init_buffer(tmp, end_buffer_io_kiobuf, iobuf);
+-				tmp->b_rdev = tmp->b_dev = dev;
++				tmp->b_dev = dev;
+ 				tmp->b_blocknr = blocknr;
+-				tmp->b_rsector = blocknr*sectors;
+ 				tmp->b_state = (1 << BH_Mapped) | (1 << BH_Lock) | (1 << BH_Req);
+ 
+ 				if (rw == WRITE) {
+@@ -2108,7 +2106,7 @@
+ 
+ 				atomic_inc(&iobuf->io_count);
+ 
+-				generic_make_request(rw, tmp);
++				submit_bh(rw, tmp);
+ 				/* 
+ 				 * Wait for IO if we have got too much 
+ 				 */
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,268 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316456AbSFPRsr>; Sun, 16 Jun 2002 13:48:47 -0400
+	id <S316477AbSFPSAv>; Sun, 16 Jun 2002 14:00:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316475AbSFPRsq>; Sun, 16 Jun 2002 13:48:46 -0400
-Received: from zwanebloem.xs4all.nl ([213.84.22.107]:35203 "EHLO
-	router.zwanebloem.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316456AbSFPRso>; Sun, 16 Jun 2002 13:48:44 -0400
-Message-ID: <3D0CCF7B.9040709@thuis.zwanebloem.nl>
-Date: Sun, 16 Jun 2002 19:48:43 +0200
-From: Tommy Faasen <it0@thuis.zwanebloem.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020614
-X-Accept-Language: en-us, en
+	id <S316490AbSFPSAu>; Sun, 16 Jun 2002 14:00:50 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36966 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S316477AbSFPSAt>; Sun, 16 Jun 2002 14:00:49 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: Andrea Arcangeli <andrea@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
+       linux-kernel@vger.kernel.org, Richard Brunner <richard.brunner@amd.com>,
+       mark.langsdorf@amd.com
+Subject: Re: another new version of pageattr caching conflict fix for 2.4
+References: <20020614032429.A19018@wotan.suse.de>
+	<20020613213724.C21542@redhat.com>
+	<20020614040025.GA2093@inspiron.birch.net>
+	<20020614001726.D21542@redhat.com>
+	<20020614062754.A11232@wotan.suse.de>
+	<20020614112849.A22888@redhat.com>
+	<20020614181328.A18643@wotan.suse.de>
+	<20020614173133.GH2314@inspiron.paqnet.com>
+	<20020614200537.A5418@wotan.suse.de>
+	<m17kkzv8lq.fsf@frodo.biederman.org>
+	<20020616184801.A15227@wotan.suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Jun 2002 11:50:51 -0600
+In-Reply-To: <20020616184801.A15227@wotan.suse.de>
+Message-ID: <m13cvnun7o.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.21 nvdia kernel module
-Content-Type: multipart/mixed;
- boundary="------------010900050804080805030500"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010900050804080805030500
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Andi Kleen <ak@suse.de> writes:
 
-This makes the NVidia kernel module version 2960 work again with kernel 
-2.5.21.
-Since suser disappeared I replaced it with capable().
+> On Sun, Jun 16, 2002 at 04:08:49AM -0600, Eric W. Biederman wrote:
+> > 
+> > Don't allow the change_page_attr if page->count > 1 is an easy solution,
+> > and it probably suffices.  Beyond that anything mmaped can be found
+> 
+> Erm, what should it do then? Fail the AGP map ?
 
-I hope I did it correctly anyway Quake3 and glxgears worked for me
+Why not.  If user-space has already mapped the memory one way, turning
+around and using it another way is a problem.  If the memory is
+dynamically allocated for AGP I don't even see how this case
+could occur.
 
-Just apply the patch below...
+But the mmap case still has to apply the general cache ability of the
+page from the kernel page tables (or where ever it is cached), if you
+do the operation in the opposite order.
+ 
+> > by walking into the backing address space, and then through the
+> > vm_area_structs found with i_mmap && i_mmap_shared.  Of course the
+> > vm_area_structs may possibly need to break because of the multiple
+> > page protections.
+> 
+> I know that, but it seems rather racy expensive and complicated.
+> 
+> > 
+> > > > > +int change_page_attr(struct page *page, int numpages, pgprot_t prot)
+> > > > > +{
+> > > > 
+> > > > this API not the best, again I would recommend something on these lines:
+> > > 
+> > > Hmm: i would really prefer to do the allocation in the caller.
+> > > If you want your API you could do  just do it as a simple wrapper to
+> > > the existing function (with the new numpages it would be even 
+> > > efficient) 
+> > 
+> > Using pgprot_t to convey the cacheablity of a page appears to be an
+> > abuse.  At the very least we need a PAGE_CACHE_MASK, to find just
+> > the cacheability attributes.
+> 
+> change_page_attr is more than just cachability. You can use it e.g.
+> to write protect kernel pages not (if you wanted to do that for some
+> reason) 
+> The current one is fine with PAGE_KERNEL_NOCACHE, you could eventually
+> define PAGE_KERNEL_WRITECOMBINING too if you wanted.
+> 
 
+Combining different operations like modifying cacheability and the
+page protections worries me.  Unless we name the operations something
+like change_kernel_page_attr() in which case we are only worrying
+about a subset of the problem.  Which it appears that we are.
+ 
+> > And we should really consider using the other cacheability page
+> > attributes on x86, not just cache enable/disable.  Using just mtrr's
+> > is limiting in that you don't always have enough of them, and that
+> > sometimes valid ram is mapped uncacheable, because of the mtrr
+> > alignment restrictions. 
+> 
+> Exposing it to user space in a more general way is tricky because
+> you need to avoid aliases with different caching attributes and also
+> change the kernel map as needed (would be surely an interesting 
+> project, but definitely requires more work) 
 
+The kernel already exposes through /proc/mtrr the ability to
+arbitrarily change the caching of pages.  And since this is a case
+of physical aliasing we need to make certain the mtrr's don't
+conflict.  So much of this is already exposed to user space already.
 
---------------010900050804080805030500
-Content-Type: text/plain;
- name="nvidk2960.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nvidk2960.diff"
+> You can already use WT. DRM does that already in fact. 
+> Newer Intel/AMD CPUs allow to set up a more general PAT table with some
+> more modis, but to be honest I don't see the point in most of them,
+> except perhaps WC. Unfortunately there is no 'weak ordering like alpha/sparc64'
+> mode that could be used in the kernel :-)
 
-diff -urN NVIDIA_kernel-1.0-2960/nv-linux.h NVIDIA_kernel-1.0-2960.mod/nv-linux.h
---- NVIDIA_kernel-1.0-2960/nv-linux.h	Tue May 14 17:26:16 2002
-+++ NVIDIA_kernel-1.0-2960.mod/nv-linux.h	Fri Jun 14 22:41:49 2002
-@@ -38,7 +38,7 @@
- #elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
- #  define KERNEL_2_4
- #elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
--#  error This driver does not support 2.5.x development kernels!
-+//#  error This driver does not support 2.5.x development kernels!
- #  define KERNEL_2_5
- #else
- #  error This driver does not support 2.6.x or newer kernels!
-diff -urN NVIDIA_kernel-1.0-2960/nv.c NVIDIA_kernel-1.0-2960.mod/nv.c
---- NVIDIA_kernel-1.0-2960/nv.c	Tue May 14 17:26:16 2002
-+++ NVIDIA_kernel-1.0-2960.mod/nv.c	Fri Jun 14 22:41:49 2002
-@@ -50,6 +50,12 @@
- #include <linux/devfs_fs_kernel.h>
- #endif
- 
-+/* Since 2.5.x this is needed for the coorect lookup of the page table entry */
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 0)
-+#include <asm/kmap_types.h>
-+#include <linux/highmem.h>
-+#endif
-+
- #include <asm/page.h>
- #include <asm/pgtable.h>  		// pte bit definitions
- #include <asm/system.h>                 // cli(), *_flags
-@@ -1155,11 +1161,22 @@
- 
-     /* for control device, just jump to its open routine */
-     /* after setting up the private data */
-+
-+    /* I don't really know the correct kernel version since when it changed */ 
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0) 
-     if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
-         return nv_kern_ctl_open(inode, file);
--
-+#else
-+    if (NV_DEVICE_IS_CONTROL_DEVICE(kdev_val(inode->i_rdev)))
-+        return nv_kern_ctl_open(inode, file);
-+#endif
-     /* what device are we talking about? */
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-     devnum = NV_DEVICE_NUMBER(inode->i_rdev);
-+#else
-+    devnum = NV_DEVICE_NUMBER(kdev_val(inode->i_rdev));
-+#endif
-     if (devnum >= NV_MAX_DEVICES)
-     {
-         rc = -ENODEV;
-@@ -1265,9 +1282,14 @@
- 
-     /* for control device, just jump to its open routine */
-     /* after setting up the private data */
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-     if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
-+       return nv_kern_ctl_close(inode, file);
-+#else
-+    if(NV_DEVICE_IS_CONTROL_DEVICE(kdev_val(inode->i_rdev)))
-         return nv_kern_ctl_close(inode, file);
--
-+#endif
-     NV_DMSG(nv, "close");
- 
-     nv_unix_free_all_unused_clients(nv, current->pid, (void *) file);
-@@ -1386,11 +1408,21 @@
- #if defined(IA64)
-         vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
- #endif
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-         if (remap_page_range(vma->vm_start,
-                              (u32)(nv->regs.address) + LINUX_VMA_OFFS(vma) - NV_MMAP_REG_OFFSET,
-                              vma->vm_end - vma->vm_start,
-                              vma->vm_page_prot))
-             return -EAGAIN;
-+#else
-+        if (remap_page_range(vma,
-+                            vma->vm_start,
-+                             (u32) (nv->regs.address) + LINUX_VMA_OFFS(vma) - NV_MMAP_REG_OFFSET,
-+                             vma->vm_end - vma->vm_start,
-+                             vma->vm_page_prot))
-+            return -EAGAIN;
-+#endif
- 
-         /* mark it as IO so that we don't dump it on core dump */
-         vma->vm_flags |= VM_IO;
-@@ -1403,11 +1435,20 @@
- #if defined(IA64)
-         vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
- #endif
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-         if (remap_page_range(vma->vm_start,
-                              (u32)(nv->fb.address) + LINUX_VMA_OFFS(vma) - NV_MMAP_FB_OFFSET,
-                              vma->vm_end - vma->vm_start,
-                              vma->vm_page_prot))
-             return -EAGAIN;
-+#else
-+        if (remap_page_range(vma,
-+                            vma->vm_start,
-+                             (u32) (nv->fb.address) + LINUX_VMA_OFFS(vma) - NV_MMAP_FB_OFFSET,
-+                             vma->vm_end - vma->vm_start,
-+                             vma->vm_page_prot))
-+            return -EAGAIN;
-+#endif
- 
-         // mark it as IO so that we don't dump it on core dump
-         vma->vm_flags |= VM_IO;
-@@ -1437,8 +1478,13 @@
-         while (pages--)
-         {
-             page = (unsigned long) at->page_table[i++];
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-             if (remap_page_range(start, page, PAGE_SIZE, PAGE_SHARED))
-               	return -EAGAIN;
-+#else
-+            if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-+                 return -EAGAIN;
-+#endif
-             start += PAGE_SIZE;
-             pos += PAGE_SIZE;
-        	}
-@@ -2273,7 +2319,11 @@
-     pte_kunmap(pte__);
- #else
-     pte__ = NULL;
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-     pte = *pte_offset(pg_mid_dir, address);
-+#else
-+    pte = *pte_offset_map(pg_mid_dir, address);
-+#endif
- #endif
- 
-     if (!pte_present(pte)) 
-diff -urN NVIDIA_kernel-1.0-2960/os-interface.c NVIDIA_kernel-1.0-2960.mod/os-interface.c
---- NVIDIA_kernel-1.0-2960/os-interface.c	Tue May 14 17:26:16 2002
-+++ NVIDIA_kernel-1.0-2960.mod/os-interface.c	Sun Jun 16 19:33:46 2002
-@@ -46,6 +46,7 @@
- #include <linux/delay.h>        // udelay()
- #include <linux/pci.h>          // pci_*() functions
- #include <linux/kmod.h>         // request_module
-+#include <linux/sched.h>	// replacement for suser() is capable();
- #include <asm/io.h>             // ioremap() and iounmap()
- #ifdef CONFIG_MTRR
- #include <asm/mtrr.h>           // mtrr_add()
-@@ -118,7 +119,8 @@
-     PHWINFO pDev
- )
- {
--    return suser();
-+    return capable(CAP_SYS_ADMIN);
-+    //return suser();
- }
- 
- //
-@@ -1458,9 +1460,14 @@
-     uaddr = *priv;
- 
-     /* finally, let's do it! */
--    err = remap_page_range( (size_t) uaddr, (size_t) paddr, size_bytes, 
-+    
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-+    err = remap_page_range( (size_t) uaddr, (size_t) paddr, size_bytes,
-+                           PAGE_SHARED);
-+#else
-+    err = remap_page_range( kaddr, (size_t) uaddr, (size_t) paddr, size_bytes,
-                             PAGE_SHARED);
--
-+#endif
-     if (err != 0)
-     {
-         return (void *) NULL;
-@@ -1485,10 +1492,14 @@
- 
-     uaddr = *priv;
- 
--    /* finally, let's do it! */
--    err = remap_page_range( (size_t) uaddr, (size_t) start, size_bytes, 
-+    /* finally, let's do it! */ 
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-+    err = remap_page_rage( (size_t) uaddr, (size_t) start, size_bytes,
-+                          PAGE_SHARED);    
-+#else
-+    err = remap_page_range( *priv, (size_t) uaddr, (size_t) start, size_bytes, 
-                             PAGE_SHARED);
--
-+#endif
-     if (err != 0)
-     {
-         return (void *) NULL;
-@@ -2032,15 +2043,25 @@
-         return RM_ERROR;
- 
-     agp_addr = agpinfo.aper_base + (agp_data->offset << PAGE_SHIFT);
--
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-     err = remap_page_range(vma->vm_start, (size_t) agp_addr, 
-                            agp_data->num_pages << PAGE_SHIFT,
- #if defined(IA64)
-                            vma->vm_page_prot);
- #else
-                            PAGE_SHARED);
--#endif
--        
-+#endif /* IA64 */
-+
-+#else
-+    err = remap_page_range(vma,
-+                          vma->vm_start, (size_t) agp_addr, 
-+                           agp_data->num_pages << PAGE_SHIFT,
-+#if defined(IA64)
-+                           vma->vm_page_prot);
-+#else
-+                           PAGE_SHARED);
-+#endif /* IA64 */
-+#endif /* LINUX_VERSION_CODE */
-     if (err) {
-         printk(KERN_ERR "NVRM: AGPGART: unable to remap %lu pages\n",
-                (unsigned long)agp_data->num_pages);
+With the PAT table only write-back, write-combining, uncached interest
+me.  Given the number of BIOS's that don't set all of RAM to
+write-back and the major performance penalty of running on uncached
+RAM having the kernel fix it, would reduce a lot of headaches long
+term. 
 
---------------010900050804080805030500--
+Primarily I'm brining up the connections because it may be worth
+considering them.  For 2.4.19 unless the implementation is trivial it
+probably isn't wise to try for more that what is needed.  For later
+kernels 2.4.x, 2.4.20+ it is almost certainly worth doing something.
 
+Eric

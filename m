@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268307AbUHFVHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268317AbUHFVIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268307AbUHFVHP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 17:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268309AbUHFVHO
+	id S268317AbUHFVIn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 17:08:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268318AbUHFVIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 17:07:14 -0400
-Received: from cantor.suse.de ([195.135.220.2]:2275 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268307AbUHFVHI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 17:07:08 -0400
-Date: Fri, 6 Aug 2004 23:07:04 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Pedro Marques <pedro_m@yahoo.com>, linux-kernel@vger.kernel.org,
-       kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de
-Subject: Re: [patch] update email address of Pedro Roque Marques
-Message-ID: <20040806210704.GB19193@pingi3.kke.suse.de>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Pedro Marques <pedro_m@yahoo.com>, linux-kernel@vger.kernel.org,
-	kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de
-References: <20040715210828.GK25633@fs.tum.de> <20040715215542.94441.qmail@web41114.mail.yahoo.com> <20040806200653.GD2746@fs.tum.de>
+	Fri, 6 Aug 2004 17:08:39 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:62082 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268309AbUHFVHc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 17:07:32 -0400
+Subject: Re: [patch] add kobject_get_path
+From: Robert Love <rml@ximian.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1091825763.7939.84.camel@betsy>
+References: <1091824013.7939.66.camel@betsy>
+	 <1091824903.7939.80.camel@betsy>  <20040806205022.GA26135@kroah.com>
+	 <1091825763.7939.84.camel@betsy>
+Content-Type: text/plain
+Date: Fri, 06 Aug 2004 17:07:28 -0400
+Message-Id: <1091826448.7933.85.camel@betsy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040806200653.GD2746@fs.tum.de>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.5-7.95-default i686
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 1.5.8 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 10:06:54PM +0200, Adrian Bunk wrote:
-> On Thu, Jul 15, 2004 at 02:55:42PM -0700, Pedro Marques wrote:
-> > 
-> > btw: i wonder if the PCBIT isdn driver is still used
-> > by anyone. I may be a good idea to just remove it from
-> > the kernel dist. It was never a very popular adapter.
-> >...
-> 
-> There's many strange hardware supported in Linux that surprisingly has 
-> users.
+On Fri, 2004-08-06 at 16:56 -0400, Robert Love wrote:
 
-Yes, unfortunatly we always have some users :-)
-I got patches form users and 2 or 3 questions last year.
+> I presume these functions are still meaningful if !CONFIG_HOTPLUG?
 
-> 
-> But regarding the PCBIT the ISDN maintainers (Cc'ed) should be better to 
-> gave an answer.
-> 
+Compiles, at least.  Just tested.
 
-My plan was to not port this driver (and some others) to the next generation
-linux ISDN driver (or only if here a lot of complains) so it will go away in
-2005 I hope.
+	Robert Love
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+

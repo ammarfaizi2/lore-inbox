@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbUDEWiW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 18:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbUDEWdu
+	id S263001AbUDEWjN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 18:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbUDEWi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 18:33:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7568 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263571AbUDEWcz (ORCPT
+	Mon, 5 Apr 2004 18:38:28 -0400
+Received: from pop.gmx.net ([213.165.64.20]:32398 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263542AbUDEWeQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 18:32:55 -0400
-Date: Mon, 5 Apr 2004 15:35:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp update: supports discontingmem/highmem
-Message-Id: <20040405153507.69e3004d.akpm@osdl.org>
-In-Reply-To: <20040405212354.GA3633@elf.ucw.cz>
-References: <20040405212354.GA3633@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 5 Apr 2004 18:34:16 -0400
+X-Authenticated: #12437197
+Date: Tue, 6 Apr 2004 00:22:56 +0200
+From: Dan Aloni <da-x@colinux.org>
+To: Eyal Lotem <gnupeaker@yahoo.com>
+Cc: Cooperative Linux Development 
+	<colinux-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [coLinux-devel] coLinux benchmarks
+Message-ID: <20040405222256.GA17572@callisto.yi.org>
+References: <20040405131520.GA4395@callisto.yi.org> <20040405201139.73032.qmail@web61108.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040405201139.73032.qmail@web61108.mail.yahoo.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> It makes swsusp behave correctly
-> w.r.t. discontingmem, and adds highmem handling 
+On Mon, Apr 05, 2004 at 01:11:39PM -0700, Eyal Lotem wrote:
 
-Some of those ENOMEM panics in save_highmem_zone() look like they might
-need proper handling instead?
+> I think the reason may be that Windows is using the
+> disks better and making access faster. Perhaps DMA
+> acceleration or some other feature is turned off on
+> the Linux host side, making disk access slower on the
+> Linux side.
 
-The 256 byte automatic array in read_swapfiles() may bring you a visit from
-the stack space police, although I don't think it's really a problem.  256
-bytes for a pathname may be a bit excessive though.
+No Windows was involved with these benchmarks in any way. I ran 
+coLinux on Linux.
 
-Please send me an update patch sometime which makes all the new code go
-away again if !CONFIG_HIGHMEM.
-
-Thanks.
-
+-- 
+Dan Aloni
+da-x@colinux.org

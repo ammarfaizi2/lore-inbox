@@ -1,84 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280938AbRKCKzV>; Sat, 3 Nov 2001 05:55:21 -0500
+	id <S280939AbRKCLFP>; Sat, 3 Nov 2001 06:05:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280939AbRKCKzM>; Sat, 3 Nov 2001 05:55:12 -0500
-Received: from wiproecmx2.wipro.com ([164.164.31.6]:46574 "EHLO
-	wiproecmx2.wipro.com") by vger.kernel.org with ESMTP
-	id <S280938AbRKCKzB>; Sat, 3 Nov 2001 05:55:01 -0500
-Reply-To: <sivakumar.kuppusamy@wipro.com>
-From: "Sivakumar Kuppusamy" <sivakumar.kuppusamy@wipro.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: VM: Killing process
-Date: Fri, 2 Nov 2001 16:49:01 +0530
-Message-ID: <001901c16390$2c815b40$5f08720a@wipro.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S280940AbRKCLFF>; Sat, 3 Nov 2001 06:05:05 -0500
+Received: from jabberwock.ucw.cz ([212.71.128.53]:3859 "EHLO jabberwock.ucw.cz")
+	by vger.kernel.org with ESMTP id <S280939AbRKCLFC>;
+	Sat, 3 Nov 2001 06:05:02 -0500
+Date: Sat, 3 Nov 2001 12:04:55 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Greg Sheard <greg@ecsc.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Intel chipset development documents
+Message-ID: <20011103120455.B676@ucw.cz>
+In-Reply-To: <1004721050.20610.7.camel@lemsip> <20011102183829.A31651@atrey.karlin.mff.cuni.cz> <1004735023.21120.12.camel@lemsip>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1004735023.21120.12.camel@lemsip>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-This is a multi-part message in MIME format.
+> I already have the configuration type down (it's 1), but the 430VX and
+> also the VIA 585 seem only to report host bridges. I'm unable to spot
+> the piece of code which does different PCI-related things for these
+> chipsets in the kernel. Does anybody know if a workaround is applied?
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+It's quite strange -- can you send me 'lspci -vvx -MH1' output, please?
 
-Hi All,
-We are getting the message "VM: Killing process pimd" when we are
-running our application pimd. Found from somewhere that this a OOM
-situation. We used a memory leak finding tool "ccmalloc" and found
-that our applicaition is not leaking any memory. 
-
-Info abt pimd:
-Our application is interacting with the kernel, which(kernel) will 
-give the packets it received from the network to the "pimd"
-through a socket(for taking some decisions). This happens only when 
-the packets arrive at a high data rate(say 100MBPS in ethernet LAN).
-We found that during this happens, the kernel is giving each packet
-(multicast) it receives to the application and the application is 
-dropping it. 
-
-After sometime we get a message "VM:killing process pimd" and pimd
-gets killed. Or we get message for every packet saying copy_to_user()
-failed. 
-
-Is this a 
-- memory leakage problem with our application or
-- Memory leakage with the kernel patches we made or
-- due to packets coming at the very high rate and each packet 
-  is sent to user thru a socket which eventually might get full.
-
-Any idea on how to handle(avoid) this? Are we not supposed to send
-packets at this high rate to the user space? 
-
-Thanks in advance
-Siva
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
------------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-------------------------------------------------------------------------------------------------------------------------
-
---------------InterScan_NT_MIME_Boundary--
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+"Beware of bugs in the above code; I have only proved it correct, not tried it." -- D.E.K.

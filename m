@@ -1,40 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136576AbREDXcJ>; Fri, 4 May 2001 19:32:09 -0400
+	id <S136578AbREDX7r>; Fri, 4 May 2001 19:59:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136577AbREDXcA>; Fri, 4 May 2001 19:32:00 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:47631 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136576AbREDXbs>; Fri, 4 May 2001 19:31:48 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Setting kernel options at compile time.
-Date: 4 May 2001 16:31:13 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9cve41$iq3$1@cesium.transmeta.com>
-In-Reply-To: <H00000650007236c.0989014582.dublin.innovates.com@MHS>
+	id <S136579AbREDX7i>; Fri, 4 May 2001 19:59:38 -0400
+Received: from colorfullife.com ([216.156.138.34]:55054 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S136578AbREDX7W>;
+	Fri, 4 May 2001 19:59:22 -0400
+Message-ID: <3AF3423B.33A3C3AE@colorfullife.com>
+Date: Sat, 05 May 2001 01:58:51 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 3 one-liner bugfixes
+In-Reply-To: <Pine.LNX.4.31.0105041518080.1059-100000@penguin.transmeta.com> <3AF33A76.32C22DA1@colorfullife.com>
+Content-Type: multipart/mixed;
+ boundary="------------75CFEED68E173192975C0043"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <H00000650007236c.0989014582.dublin.innovates.com@MHS>
-By author:    (Chip Schweiss) chip@innovates.com
-In newsgroup: linux.dev.kernel
-> 
-> The catch I'm running into is RPLD cannot pass parameters to the kernel 
-> and without this setting the system has video problem, most likely from 
-> the memory sharing issues.  When the mem parameter is set when using a 
-> disk it doesn't demonstrate any problems.
-> 
+This is a multi-part message in MIME format.
+--------------75CFEED68E173192975C0043
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-What is RPLD?
+Manfred Spraul wrote:
+> 
+> +       else
+> +               fl->fl_type & ~F_INPROGRESS;
+               ^^^^^^
+> +       unlock_kernel();
+> +       return ret;
+>  }
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+The last patch was incorrect. Corrected version attached.
+
+--
+	Manfred
+--------------75CFEED68E173192975C0043
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-fcntl"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-fcntl"
+
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 4
+//  SUBLEVEL = 4
+//  EXTRAVERSION =
+--- 2.4/fs/fcntl.c	Thu Nov 16 07:50:25 2000
++++ build-2.4/fs/fcntl.c	Sat May  5 00:32:17 2001
+@@ -338,7 +338,6 @@
+ 	if (!filp)
+ 		goto out;
+ 
+-	lock_kernel();
+ 	switch (cmd) {
+ 		case F_GETLK64:
+ 			err = fcntl_getlk64(fd, (struct flock64 *) arg);
+@@ -353,7 +352,6 @@
+ 			err = do_fcntl(fd, cmd, arg, filp);
+ 			break;
+ 	}
+-	unlock_kernel();
+ 	fput(filp);
+ out:
+ 	return err;
+--- 2.4/fs/locks.c	Sun Apr 22 13:21:33 2001
++++ build-2.4/fs/locks.c	Sat May  5 01:54:59 2001
+@@ -1157,11 +1157,16 @@
+ int fcntl_getlease(struct file *filp)
+ {
+ 	struct file_lock *fl;
+-	
++	int ret;
++
++	lock_kernel();
+ 	fl = filp->f_dentry->d_inode->i_flock;
+ 	if ((fl == NULL) || ((fl->fl_flags & FL_LEASE) == 0))
+-		return F_UNLCK;
+-	return fl->fl_type & ~F_INPROGRESS;
++		ret = F_UNLCK;
++	else
++		ret = fl->fl_type & ~F_INPROGRESS;
++	unlock_kernel();
++	return ret;
+ }
+ 
+ /* We already had a lease on this file; just change its type */
+@@ -1357,7 +1362,9 @@
+ 		goto out_putf;
+ 
+ 	if (filp->f_op && filp->f_op->lock) {
++		lock_kernel();
+ 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
++		unlock_kernel();
+ 		if (error < 0)
+ 			goto out_putf;
+ 		else if (error == LOCK_USE_CLNT)
+@@ -1481,7 +1488,9 @@
+ 	}
+ 
+ 	if (filp->f_op && filp->f_op->lock != NULL) {
++		lock_kernel();
+ 		error = filp->f_op->lock(filp, cmd, file_lock);
++		unlock_kernel();
+ 		if (error < 0)
+ 			goto out_putf;
+ 	}
+@@ -1522,7 +1531,9 @@
+ 		goto out_putf;
+ 
+ 	if (filp->f_op && filp->f_op->lock) {
++		lock_kernel();
+ 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
++		unlock_kernel();
+ 		if (error < 0)
+ 			goto out_putf;
+ 		else if (error == LOCK_USE_CLNT)
+@@ -1619,7 +1630,9 @@
+ 	}
+ 
+ 	if (filp->f_op && filp->f_op->lock != NULL) {
++		lock_kernel();
+ 		error = filp->f_op->lock(filp, cmd, file_lock);
++		unlock_kernel();
+ 		if (error < 0)
+ 			goto out_putf;
+ 	}
+
+--------------75CFEED68E173192975C0043--
+
+

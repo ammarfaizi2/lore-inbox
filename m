@@ -1,120 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbTDHNrl (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 09:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTDHNrl (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 09:47:41 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:45102 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261452AbTDHNri (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 09:47:38 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200304081359.h38DxGi08829@devserv.devel.redhat.com>
-Subject: Linux 2.5.67-ac1
-To: linux-kernel@vger.kernel.org
-Date: Tue, 8 Apr 2003 09:59:16 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL6]
+	id S261440AbTDHNvm (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 09:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTDHNvm (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 09:51:42 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:13745 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id S261440AbTDHNvk convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 09:51:40 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [BENCHMARK] Lmbench performance 2.5.67
+Date: Tue, 8 Apr 2003 19:33:01 +0530
+Message-ID: <94F20261551DC141B6B559DC4910867238D7BD@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BENCHMARK] Lmbench performance 2.5.67
+Thread-Index: AcL915CoYuEwi3+ITYqOOBYCLqSBTQ==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Apr 2003 14:03:01.0702 (UTC) FILETIME=[91483660:01C2FDD7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Switch the IDE I/O layers to taskfile. This uses the BIO traverse code
-to fix various outstanding problems, cleans up the IDE code a ton and
-opens the door to yet further tidying. I had planned to leave this for
-2.7 but Bartlomiej has done all the work ready for 2.6
+Summary:
+--------------------------------------------------------------------------------------------------------
+			2.5.67		2.5.64
+--------------------------------------------------------------------------------------------------------
+Processor, Processes - times in microseconds - smaller is better
+Exec proc		1150		1292
+--------------------------------------------------------------------------------------------------------
+Context switching - times in microseconds - smaller is better
+2p/0k ctxsw		0.940		1.420
+8p/16k ctxsw		9.04		15
+--------------------------------------------------------------------------------------------------------
+File & VM system latencies in microseconds - smaller is better
+Mmap latency		494		609
+--------------------------------------------------------------------------------------------------------
 
-Handle with care, no naked flames, do not inhale....
+                 L M B E N C H  2 . 0   S U M M A R Y
+                 ------------------------------------
+		 (Alpha software, do not distribute)
 
-Linux 2.5.67-ac1
-o	Fix the problem with Serverworks bootup when	(Robert Hentosh,
-	the BIOS forced PIO modes			 me)
-o	BIO walking functions 			(Bartlomiej Zolnierkiewicz &
-o	BIO walking code documentation		 Suparna Bhattacharya)
-o	Fix ide taskfile for new prehandlers	(Bartlomiej Zolnierkiewicz)
-o	Fix ide taskfile DMA read/write		(Bartlomiej Zolnierkiewicz)
-o	Remove old style non taskfile PIO 	(Bartlomiej Zolnierkiewicz)
-o	Clean up duplicated IDE code		(Bartlomiej Zolnierkiewicz)
-o	Huge update to DVB 				(Martin Hunold)
-	| This reconciles a large fork in DVB development
-o	Fix build for PC164 Alpha			(Marc Zyngier)
-o	Clean up PCI_INTERRUPT_LINE in IDE		(me)
-o	Fix mdelay problem on PPC			(Paul Mackerras)
-o	Add pc9800.h header				(Osamu Tomita)
-o	Add pc9800 uni map files (not console code)	(Osamu Tomita)
-o	Resync 2.4 and 2.5 opl3sa2 support		(Daniel Ritz)
-o	Fix missing include for copy*user in cpufreq	(me)
-o	Fix slip for new module locking on ldisc	(me)
-o	Update lp486e to new style locking etc		(me)
-o	Update 3c574_cs to new style locking		(me)
-o	Clean up scc locking for 2.5			(me)
-o	Merge 2.5.67
-o	Fix mtd build					(me)
-o	FIx 3c505 build					(me)
+Basic system parameters
+----------------------------------------------------
+Host                 OS Description              Mhz
+                                                    
+--------- ------------- ----------------------- ----
+benchtest  Linux 2.5.67       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.67       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.67       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.67       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.67       i686-pc-linux-gnu  790
 
-Linux 2.5.66-ac2
-o	Resync with Linus -bk8
-o	Fix modules build				(me)
-o	Fix arch syscalls to return long		(Randy Dunlap)
-o	USBfs kerneldoc					(David Brownell)
-o	More i2c updates				(Greg Kroah Hartmann)
-	| FIxes several driver compiles
-o	Fix IDE locking/phase handling on timeout	(Manfred Spraul)
-o	C99 initialisers for DMAsound			(Maciej Soltysiak)
-o	C99 initialisers for OSS audio			(Maciej Soltysiak)
-o	C99 intialisers for emu10k1			(Maciej Soltysiak)
-o	Move dead MOD_ calls from floppy driver		(Bob Miller)
-o	Fix macmace abuse of GFP_DMA			(Matthew Wilcox)
-o	Improve hpt kconfig entry			(Adrian Bunk)
-o	Generic HDLC updates				(Krzysztof Halasa)
-o	Fix es968 kmalloc parameters			(Pablo Meinchini)
-o	Fix als100 kmalloc parameters			(Pablo Meinchini)
-o	PC98xx updates to existing merge		(Osamu Tomita)
-	| Keyboard, ALSA, floppy
-o	Fix misc_register fail path for upd4990a	(Stephan Maciej)
-o	Fix pegasus endian bug				(Paul Mackerras)
-o	Wireless needs __init				(Paul Mackerras)
-o	Fix gus compilation when built in (lock		(Peter Waechtler)
-	clash)
-o	Sony PI driver update				(Stelian Pop)
-o	Spelling fixes for Alpha			(Steven Cole)
-o	Spelling fixes for x86-64			(Steven Cole)
-o	Add a "blank now" key mapping			(Pavel Machek)
-o	Remove 23 bogus includes of version.h		(Burton Windle)
-o	Fix cs4232 build				(Daniel Ritz)
-o	Update v850 architecture			(Miles Bader)
-o	Fix taint mishandling for AMD CPU		(Manfred Spraul)
-o	Fix compile of dt019x audio			(John Kim)
-o	Kill "compatmac"				(Adrian Bunk)
-o	Fix via82cxxx_audio build			(me)
-o	Fix acpi build					(me)
-o	Resync with bk9
-o	Fix oprofile build				(John Levon)
-o	PnP updates					(Adam Belay)
-o	Fix visws framebuffer compile			(Andrey Panin)
-o	Avoid LBA48 modes on disks that don't need	(Jens Axboe)
-	them (saves a 2nd command cycle on each I/O
-	as suggested by Mark Lord)
-o	Clean up ide list handling for drives		(Alexander Atanasov)
-o	Remove present check from drivers (now		(Alexander Atanasov)
-	handled by the list stuff)
-o	Fix SMP boot timer oops				(me)
-	| Thanks to Steven Cole for pinning this down to
-	| 5 lines of change
-o	Port ltpc driver to spinlocks			(me)
-o	Fix cadet driver missing symbol			(me)
-o	Fix cops driver locking				(me)
-o	Fix arcnet.c locking				(me)
+Processor, Processes - times in microseconds - smaller is better
+----------------------------------------------------------------
+Host                 OS  Mhz null null      open selct sig  sig  fork exec sh  
+                             call  I/O stat clos TCP   inst hndl proc proc proc
+--------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
+benchtest  Linux 2.5.67  790 0.44 0.77 6.50 8.04    31 1.23 3.85  263 1117 6097
+benchtest  Linux 2.5.67  790 0.44 0.76 6.63 8.14    31 1.23 3.86  267 1127 6049
+benchtest  Linux 2.5.67  790 0.44 0.77 6.61 8.15    30 1.23 3.87  285 1150 6077
+benchtest  Linux 2.5.67  790 0.46 0.76 6.62 8.17    30 1.23 3.86  345 1197 6128
+benchtest  Linux 2.5.67  790 0.44 0.78 6.67 8.19    32 1.23 3.86  292 1189 6084
 
-Linux 2.5.66-ac1
-o	Fix up ESI handling in esp.c			(me)
-	| Lots more needs fixing in this driver yet
-o	Merge Linus 2.5.66
-o	Fix cramfs compile problems			(Jeremy Brown, me)
-o	Fix mad16 breakage				(Adrian Bunk)
-o	Iphase fixes port to 2.5			(Chas Williams,
-							 Eric Leblond)
-o	Fix ipc/msg race				(Manfred Spraul)
-o	Let hdparm know about speed change fails	(Jens Axboe)
-o	Don't issue WIN_SET_MAX on older drivers	(Jens Axboe)
-	(Breaks some Samsung)
-o	Resync with Linus bk3 snapshot
+Context switching - times in microseconds - smaller is better
+-------------------------------------------------------------
+Host                 OS 2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
+                        ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
+--------- ------------- ----- ------ ------ ------ ------ ------- -------
+benchtest  Linux 2.5.67 0.940 4.6100     66 9.0400    176      39     176
+benchtest  Linux 2.5.67 0.920 4.6100     16 9.8600    175      39     175
+benchtest  Linux 2.5.67 0.910 4.5800     14 7.0800    173      37     175
+benchtest  Linux 2.5.67 1.290 4.6100     14     15    177      42     176
+benchtest  Linux 2.5.67 0.940 4.6400     14 8.9400    176      40     176
 
+*Local* Communication latencies in microseconds - smaller is better
+-------------------------------------------------------------------
+Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+                        ctxsw       UNIX         UDP         TCP conn
+--------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+benchtest  Linux 2.5.67 0.940 8.335   12    23    48    30    56  104
+benchtest  Linux 2.5.67 0.920 8.315   12    23    63    30    56  103
+benchtest  Linux 2.5.67 0.910 8.137   12    23    45    30    55  102
+benchtest  Linux 2.5.67 1.290 8.178   12    23    45    30    56  103
+benchtest  Linux 2.5.67 0.940 8.383   12    23    45    30    56  102
+
+File & VM system latencies in microseconds - smaller is better
+--------------------------------------------------------------
+Host                 OS   0K File      10K File      Mmap    Prot    Page	
+                        Create Delete Create Delete  Latency Fault   Fault 
+--------- ------------- ------ ------ ------ ------  ------- -----   ----- 
+benchtest  Linux 2.5.67     87     27    294     76      487 0.583 5.00000
+benchtest  Linux 2.5.67     87     27    291     75      498 0.625 4.00000
+benchtest  Linux 2.5.67     88     27    296     75      502 0.595 4.00000
+benchtest  Linux 2.5.67     88     27    294     75      491 0.582 4.00000
+benchtest  Linux 2.5.67     87     27    297     75      494 0.581 4.00000
+
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+benchtest  Linux 2.5.67  624  562   50    309    357    125    114  358   172
+benchtest  Linux 2.5.67  598  482   51    301    358    125    114  359   171
+benchtest  Linux 2.5.67  616  340   49    308    358    125    114  358   171
+benchtest  Linux 2.5.67  598  539   51    310    357    125    113  358   171
+benchtest  Linux 2.5.67  623  314   50    307    355    125    114  356   171
+
+Memory latencies in nanoseconds - smaller is better
+    (WARNING - may not be correct, check graphs)
+---------------------------------------------------
+Host                 OS   Mhz  L1 $   L2 $    Main mem    Guesses
+--------- -------------  ---- ----- ------    --------    -------
+benchtest  Linux 2.5.67   790 3.798 8.8800    173
+benchtest  Linux 2.5.67   790 3.799 8.8830    173
+benchtest  Linux 2.5.67   790 3.799 8.8820    173
+benchtest  Linux 2.5.67   790 3.800 8.8810    173
+benchtest  Linux 2.5.67   790 3.798 8.8730    174

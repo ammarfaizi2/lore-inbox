@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286210AbRLTIWu>; Thu, 20 Dec 2001 03:22:50 -0500
+	id <S282784AbRLTJJw>; Thu, 20 Dec 2001 04:09:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286214AbRLTIWl>; Thu, 20 Dec 2001 03:22:41 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:44676 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S286210AbRLTIWb>;
-	Thu, 20 Dec 2001 03:22:31 -0500
-Date: Thu, 20 Dec 2001 00:21:26 -0800 (PST)
-Message-Id: <20011220.002126.119272610.davem@redhat.com>
-To: acme@conectiva.com.br
-Cc: SteveW@ACM.org, jschlst@samba.org, ncorbic@sangoma.com, eis@baty.hanse.de,
-        dag@brattli.net, torvalds@transmeta.com, marcelo@conectiva.com.br,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC 3] cleaning up struct sock
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011220012339.A919@conectiva.com.br>
-In-Reply-To: <20011218.130809.22018359.davem@redhat.com>
-	<20011218232222.A1963@conectiva.com.br>
-	<20011220012339.A919@conectiva.com.br>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S282757AbRLTJJn>; Thu, 20 Dec 2001 04:09:43 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:3338 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282784AbRLTJJ1>; Thu, 20 Dec 2001 04:09:27 -0500
+Date: Thu, 20 Dec 2001 09:01:39 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Stevie O <stevie@qrpff.net>
+Cc: "David S. Miller" <davem@redhat.com>, Mika.Liljeberg@welho.com,
+        kuznet@ms2.inr.ac.ru, Mika.Liljeberg@nokia.com,
+        linux-kernel@vger.kernel.org, sarolaht@cs.helsinki.fi
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
+Message-ID: <20011220090139.B29925@flint.arm.linux.org.uk>
+In-Reply-To: <3C1FA558.E889A00D@welho.com> <200112181837.VAA10394@ms2.inr.ac.ru> <3C1FA558.E889A00D@welho.com> <20011218.122813.63057831.davem@redhat.com> <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net>; from stevie@qrpff.net on Thu, Dec 20, 2001 at 02:31:44AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-   Date: Thu, 20 Dec 2001 01:23:39 -0200
+On Thu, Dec 20, 2001 at 02:31:44AM -0500, Stevie O wrote:
+> I don't know what arch you're using, but I work with ARM7TDMI, which has a 
+> behavior I believe can be found documented in some obscure .pdf from arm.com:
 
-   Available at:
-   
-   http://www.kernel.org/pub/linux/kernel/people/acme/v2.5/2.5.1/
-   sock.cleanup-2.5.1.patch.bz2
+Sorry, it's not an obscure PDF.  It's documented in the Architecture
+Reference Manual, which is the main reference for the behaviour of any
+ARM processor.  If you don't have that, then you're missing *vital*
+information.
 
-Looking pretty good.  I have one improvement.
+> At least, that's how ARM's docs seem to describe it. I work with this cpu 
+> embedded in a microcontroller (AT91M40800), and these values result:
+> 
+> *(int*)0x00 == 0x33221100
+> *(int*)0x01 == 0x33221100
+> *(int*)0x02 == 0x33221100
+> *(int*)0x03 == 0x33221100
+> *(int*)0x04 == 0x77665544
 
-I'd rather you pass the "kmem_cache_t" directly into sk_alloc, use
-NULL for "I don't have any extra private area".
+Looks like some random manufacturer decided to do something different.
+Nothing out of the ordinary there. 8(
 
-And then, for the IP case lay it out like this:
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-	struct sock
-	struct ip_opt
-	struct {tcp,raw4,...}_opt
-
-And use different kmem_cache_t's for each protocol instead of
-the same one for tcp, raw4, etc.
-
-RAW/UDP sockets waste a lot of space with your current layout.

@@ -1,128 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTEVS4o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 14:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263132AbTEVS4o
+	id S263146AbTEVTIX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 15:08:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbTEVTIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 14:56:44 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:46756 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263131AbTEVS4l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 14:56:41 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 22 May 2003 21:09:43 +0200 (MEST)
-Message-Id: <UTC200305221909.h4MJ9h903738.aeb@smtp.cwi.nl>
-To: linux-fs@cwi.nl, linux-kernel@vger.kernel.org
-Subject: [patch?] truncate and timestamps
-Cc: torvalds@transmeta.com
+	Thu, 22 May 2003 15:08:23 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:34980 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263146AbTEVTIR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 15:08:17 -0400
+Date: Thu, 22 May 2003 12:21:14 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 739] New: Null pointer dereference in ext3_test_allocatable
+Message-ID: <7240000.1053631274@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Investigating why some SuSE init script no longer works, I find:
-The shell command
-    > file
-does not update the time stamp of file in case it existed and had size 0.
-The corresponding system call is
-    open(file, O_WRONLY | O_TRUNC);
 
-Time stamp here is st_mtime, and the behaviour is not unreasonable:
-after all, the contents do not change.
+           Summary: Null pointer dereference in ext3_test_allocatable
+    Kernel Version: 2.5.69-mm8
+            Status: NEW
+          Severity: normal
+             Owner: akpm@digeo.com
+         Submitter: plars@austin.ibm.com
 
-And indeed, in do_truncate() we have
-    newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
-that is, ATTR_MTIME is not mentioned.
 
-Older Linux systems did update st_mtime, old FreeBSD systems did not,
-SunOS 5.7 does, SunOS 5.8 does not. There is no uniform Unix behaviour.
+Distribution: RH7.3
+Hardware Environment: 8-way PIII-700, 16 GB ram
 
-Remains the question what POSIX says.
-For opening with O_TRUNC, and for the ftruncate system call
-POSIX has always said and still says: st_ctime and st_mtime
-are updated.
-For the truncate call POSIX.1-2001 says: st_ctime and st_mtime
-are updated if the size changed.
+Software Environment:
+anticipatory scheduler, ext3, preempt enabled
 
-If we want to follow this, then do_truncate() needs an additional
-parameter indicating what kind of call we have.
-A little bit ugly. A possible patch follows.
+Problem Description:
+While I was trying to reproduce bug 738, I got this but I believe it is
+sufficiently different enough to call it a new bug.  Apologies in advance if I'm
+wrong on that.  I was also able to produce this one earlier today when I was
+compiling LTP but was unsuccessful upon trying it again.  I didn't have the
+serial console setup during the LTP compile when I produced this bug the first
+time so I missed the output that time, but I recognize the Null pointer and the
+EIP from before.
 
-Andries
+Unable to handle kernel NULL pointer dereference at virtual address 00000010
+ printing eip:
+c0197db3
+*pde = 35b80001
+Oops: 0000 [#1]
+CPU:    3
+EIP:    0060:[<c0197db3>]    Not tainted VLI
+EFLAGS: 00010206
+EIP is at ext3_test_allocatable+0x23/0x40
+eax: 00000000   ebx: f6a9e000   ecx: 00002c76   edx: f6628688
+esi: 00002c76   edi: 00002c60   ebp: 00000000   esp: f6b11a2c
+ds: 007b   es: 007b   ss: 0068
+Process ftest07 (pid: 1354, threadinfo=f6b10000 task=f63a3920)
+Stack: c0197f9f 00002c76 f6628688 00000000 00001000 f6a9e000 00008000 ffffffff
+       f7c6351c f6628688 c01980d6 ffffffff f6628688 00008000 00000000 c0160744
+       f7c5c6dc 001c0000 00001000 00000037 00000038 f7c6351c f6b11ac8 c019848d
+Call Trace:
+ [<c0197f9f>] find_next_usable_block+0x1cf/0x2c0
+ [<c01980d6>] ext3_try_to_allocate+0x46/0x190
+ [<c0160744>] __bread+0x14/0x30
+ [<c019848d>] ext3_new_block+0x26d/0x610
+ [<c011cbb6>] __wake_up+0x66/0xb0
+ [<c019a9cd>] ext3_alloc_block+0x1d/0x30
+ [<c019ad45>] ext3_alloc_branch+0x45/0x280
+ [<c01605fa>] bh_lru_install+0xca/0xf0
+ [<c019b31f>] ext3_get_block_handle+0x20f/0x2f0
+ [<c0162b43>] alloc_buffer_head+0x13/0x60
+ [<c015ff87>] create_buffers+0x57/0xb0
+ [<c019b460>] ext3_get_block+0x60/0x70
+ [<c0161070>] __block_prepare_write+0x140/0x3e0
+ [<c010829c>] __up_wakeup+0x8/0xc
+ [<c0161bf0>] block_prepare_write+0x20/0x40
+ [<c019b400>] ext3_get_block+0x0/0x70
+ [<c019b882>] ext3_prepare_write+0x42/0xe0
+ [<c019b400>] ext3_get_block+0x0/0x70
+ [<c013e12e>] generic_file_aio_write_nolock+0x66e/0xac0
+ [<c013bb9a>] unlock_page+0xa/0x50
+ [<c013c994>] file_read_actor+0x64/0xd0
+ [<c013c9a1>] file_read_actor+0x71/0xd0
+ [<c013c535>] do_generic_mapping_read+0xf5/0x4f0
+ [<c0179a2d>] update_atime+0x6d/0xc0
+ [<c013cbb5>] __generic_file_aio_read+0x1b5/0x1e0
+ [<c013e619>] generic_file_write_nolock+0x99/0xc0
+ [<c0160dc4>] __block_write_full_page+0x284/0x3f0
+ [<c011f7c0>] autoremove_wake_function+0x0/0x40
+ [<c011f7c0>] autoremove_wake_function+0x0/0x40
+ [<c0182174>] mpage_writepages+0x234/0x3d0
+ [<c01657c0>] blkdev_writepage+0x0/0x20
+ [<c0142b89>] check_poison_obj+0x39/0x190
+ [<c0144a5a>] kmalloc+0xfa/0x1c0
+ [<c013e850>] generic_file_writev+0x40/0x60
+ [<c015dc30>] do_readv_writev+0x1c0/0x270
+ [<c015d6d0>] do_sync_write+0x0/0xe0
+ [<c015d07d>] generic_file_llseek+0x2d/0xd0
+ [<c015d050>] generic_file_llseek+0x0/0xd0
+ [<c015dd77>] vfs_writev+0x47/0x50
+ [<c015ddff>] sys_writev+0x2f/0x50
+ [<c01094df>] syscall_call+0x7/0xb
 
-------------------
-diff -u --recursive --new-file -X /linux/dontdiff a/fs/exec.c b/fs/exec.c
---- a/fs/exec.c	Thu May 22 13:17:02 2003
-+++ b/fs/exec.c	Thu May 22 20:14:02 2003
-@@ -1352,7 +1352,7 @@
- 		goto close_fail;
- 	if (!file->f_op->write)
- 		goto close_fail;
--	if (do_truncate(file->f_dentry, 0) != 0)
-+	if (do_truncate(file->f_dentry, 0, 1) != 0)
- 		goto close_fail;
- 
- 	retval = binfmt->core_dump(signr, regs, file);
-diff -u --recursive --new-file -X /linux/dontdiff a/fs/namei.c b/fs/namei.c
---- a/fs/namei.c	Thu May 22 13:17:02 2003
-+++ b/fs/namei.c	Thu May 22 20:13:41 2003
-@@ -1178,7 +1178,7 @@
- 		if (!error) {
- 			DQUOT_INIT(inode);
- 			
--			error = do_truncate(dentry, 0);
-+			error = do_truncate(dentry, 0, 1);
- 		}
- 		put_write_access(inode);
- 		if (error)
-diff -u --recursive --new-file -X /linux/dontdiff a/fs/open.c b/fs/open.c
---- a/fs/open.c	Thu May 22 13:17:02 2003
-+++ b/fs/open.c	Thu May 22 20:15:25 2003
-@@ -75,7 +75,7 @@
- 	return error;
- }
- 
--int do_truncate(struct dentry *dentry, loff_t length)
-+int do_truncate(struct dentry *dentry, loff_t length, int update_timestamp)
- {
- 	int err;
- 	struct iattr newattrs;
-@@ -85,7 +85,9 @@
- 		return -EINVAL;
- 
- 	newattrs.ia_size = length;
--	newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
-+	newattrs.ia_valid = ATTR_SIZE;
-+	if (update_timestamp || length != dentry->d_inode->i_size)
-+		newattrs.ia_valid |= ATTR_CTIME | ATTR_MTIME;
- 	down(&dentry->d_inode->i_sem);
- 	err = notify_change(dentry, &newattrs);
- 	up(&dentry->d_inode->i_sem);
-@@ -142,7 +144,7 @@
- 	error = locks_verify_truncate(inode, NULL, length);
- 	if (!error) {
- 		DQUOT_INIT(inode);
--		error = do_truncate(nd.dentry, length);
-+		error = do_truncate(nd.dentry, length, 0);
- 	}
- 	put_write_access(inode);
- 
-@@ -194,7 +196,7 @@
- 
- 	error = locks_verify_truncate(inode, file, length);
- 	if (!error)
--		error = do_truncate(dentry, length);
-+		error = do_truncate(dentry, length, 1);
- out_putf:
- 	fput(file);
- out:
-diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h	Thu May 22 13:17:05 2003
-+++ b/include/linux/fs.h	Thu May 22 20:14:39 2003
-@@ -1019,7 +1019,7 @@
- 
- asmlinkage long sys_open(const char __user *, int, int);
- asmlinkage long sys_close(unsigned int);	/* yes, it's really unsigned */
--extern int do_truncate(struct dentry *, loff_t start);
-+extern int do_truncate(struct dentry *, loff_t start, int update_timestamp);
- 
- extern struct file *filp_open(const char *, int, int);
- extern struct file * dentry_open(struct dentry *, struct vfsmount *, int);
+Code: 00 8d bc 27 00 00 00 00 8b 54 24 08 8b 4c 24 04 8b 42 18 0f a3 08 19 c0 85
+c0 74 03 31 c0 c3 8b 02 a9 00 04 00 00 74 0a 8b 42 24 <8b> 40 10 85 c0 75 06 b8
+01 00 00 00 c3 0f a3 08 19 d2 31 c0 85
+
+Steps to reproduce:
+from a current CVS of LTP (today is 5/22/2003):
+run ftest07 in one session
+while waiting for that to complete (it takes a while)
+I ran these:
+aio01 -n100000
+aio01 -c10 -n10000
+
+Both completed successfully but when ftest07 finished it had the output above.
+
+

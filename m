@@ -1,81 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310518AbSCPSIN>; Sat, 16 Mar 2002 13:08:13 -0500
+	id <S310514AbSCPSGN>; Sat, 16 Mar 2002 13:06:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310517AbSCPSIE>; Sat, 16 Mar 2002 13:08:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310516AbSCPSHu>; Sat, 16 Mar 2002 13:07:50 -0500
-Date: Sat, 16 Mar 2002 10:06:06 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <15507.12988.581489.554212@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.33.0203160953420.31850-100000@penguin.transmeta.com>
+	id <S310515AbSCPSGE>; Sat, 16 Mar 2002 13:06:04 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21004 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310514AbSCPSFw>;
+	Sat, 16 Mar 2002 13:05:52 -0500
+Message-ID: <3C938966.3080302@mandrakesoft.com>
+Date: Sat, 16 Mar 2002 13:05:26 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Larry McVoy <lm@bitmover.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
+In-Reply-To: <200203161608.g2GG8WC05423@localhost.localdomain> <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com> <20020316093832.F10086@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy wrote:
 
-On Sat, 16 Mar 2002, Paul Mackerras wrote:
-> 
-> > But more importantly than that, the whole point really is that the page
-> > table tree as far as Linux is concerned is nothing but an _abstraction_
-> > of the VM mapping hardware. It so happens that a tree format is the only
-> > sane format to keep full VM information that works well with real loads.
-> 
-> Is that still true when we get to wanting to support a full 64-bit
-> address space?
+>>I think a fair question would be, is this scenario going to occur often? 
+>> I don't know.  But I'll bet you -will- see it come up again in kernel 
+>>development.  Why?  We are exercising the distributed nature of the 
+>>BitKeeper system.  The system currently punishes Joe in Alaska and 
+>>Mikhail in Russia if they independently apply the same GNU patch, and 
+>>then later on wind up attempting to converge trees.
+>>
+>
+>Indeed.  So speak in file systems, because a BK package is basically a file
+>system, with multiple distributed instances, all of which may be out of
+>sync.  The problems show up when the same patch is applied N times and 
+>then comes together.  The inodes collide.  Right now, you think that's
+>the problem, and want BK to fix it.  We can fix that.  But that's not 
+>the real problem.  The real problem is N sets of diffs being applied
+>and then merged.  The revision history ends up with the data inserted N
+>times.
+>
 
-Yup.
+Another thought, that I'm betting you laugh at me for even suggesting :)
 
-We'll end up (probably five years from now) re-doing the thing to allow 
-four levels (so a tired old x86 would fold _two_ levels instead of just 
-one, but I bet they'll still be the majority), simply because with three 
-levels you reasonably reach only about 41 bits of VM space.
+Don't insert the data N times.  Give the user the option to say that one 
+or more changesets are actually the same one.  In filesystem speak, 
+unlink a file B which is a user-confirmed duplicate of file A, and 
+re-create file B as a symlink to file A.  Or just unlink file B without 
+the symlink, whichever metaphor suits you better.  :)
 
-With four levels you get 50+ bits of VM space, and since the kernel etc 
-wants a few bits, we're just in the right range.
+Yes it is "altering history"... but... OTOH the user has just told 
+BitKeeper, in no uncertain terms, that he is altering history only to 
+make it more correct.
 
->		  Given that we can already tolerate losing PTEs for
-> resident pages from the page tables quite happily (since they can be
-> reconstructed from the information in the vm_area_structs and the page
-> cache)
+ From a user interface perspective, the user would pick one of N 
+changeset comments to be considered the "real" one.
 
-Wrong. Look again. The most common case of all (anonymous pages) can NOT 
-be reconstructed.
+    Jeff
 
-You're making the same mistake IBM did originally.
 
-If it needs reconstructing, it's a TLB. 
 
-And if it is a TLB, then it shouldn't be so damn big in the first place, 
-because then you get horrible overhead for flushing.
 
-A in-memory TLB is fine, but it should be understood that that is _all_
-that it is. You can make the in-memory TLB be a tree if you want to, but
-if it depends on reconstructing then the tree is pointless - you might as
-well use something that isn't able to hold the whole address space in the 
-first place.
-
-And a big TLB (whether tree-based or hased or whatever) is bad if it is so 
-big that building it up and tearing it down takes a noticeable amount of 
-time. Which it obviously does on PPC64 - numbers talk.
-
-What IBM should do is 
-
- - face up to their hashes being so big that building them up is a real 
-   performance problem. It was ok for long-running fortran and database 
-   programs, but it _sucks_ for any other load.
-
- - make a nice big on-chip L2 TLB to make their legacy stuff happy (the
-   same legacy stuff that is so slow at filling the TLB in software that
-   they needed the humungous hashtables in the first place).
-
-Repeat after me: there are TLB's (reconstructive caches) and there are 
-page tables (real VM information). Get them straight.
-
-		Linus
 

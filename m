@@ -1,78 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264722AbTF0ToW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 15:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264733AbTF0ToW
+	id S264740AbTF0Tzx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 15:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264753AbTF0Tzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 15:44:22 -0400
-Received: from sponsa.its.UU.SE ([130.238.7.36]:8627 "EHLO sponsa.its.uu.se")
-	by vger.kernel.org with ESMTP id S264722AbTF0ToR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 15:44:17 -0400
-Date: Fri, 27 Jun 2003 21:58:14 +0200 (MEST)
-Message-Id: <200306271958.h5RJwEmw023766@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org, shrybman@sympatico.ca
-Subject: Re: 2.5.73-mm1 Uninitialised timer warnings
+	Fri, 27 Jun 2003 15:55:53 -0400
+Received: from s383.jpl.nasa.gov ([137.79.94.127]:37615 "EHLO
+	s383.jpl.nasa.gov") by vger.kernel.org with ESMTP id S264740AbTF0Tzs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 15:55:48 -0400
+Message-ID: <3EFCA478.7010404@jpl.nasa.gov>
+Date: Fri, 27 Jun 2003 13:09:28 -0700
+From: Bryan Whitehead <driver@jpl.nasa.gov>
+Organization: Jet Propulsion Laboratory
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh-sg, zh-tw, ja
+MIME-Version: 1.0
+To: Svein Ove Aas <svein.ove@aas.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: TCP send behaviour leads to cable modem woes
+References: <200306272020.57502.svein.ove@aas.no>
+In-Reply-To: <200306272020.57502.svein.ove@aas.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Jun 2003 11:23:59 -0400, Shane Shrybman wrote:
->Below is my dmesg output which contains several uninitialized timer
->warnings. I assume someone wants to see them or else why print the
->warning. :-)
->
->BTW: Only three warnings during the compile of this kernel!
->
->Linux version 2.5.73-mm1 (shane@mars.goatskin.org) (gcc version 2.96
->20000731 (Mandrake Linux 8.2 2.96-0.76mdk)) #1 Fri Jun 27 10:47:16 EDT
->2003
-...
->Uninitialised timer!
->This is just a warning.  Your computer is OK
->function=0xc01e9d60, data=0x0
->Call Trace:
-> [<c0123a6e>] check_timer_failed+0x3e/0x50
-> [<c01e9d60>] floppy_shutdown+0x0/0xb0
-> [<c0123de8>] del_timer+0x18/0xb0
-> [<c01e0321>] blk_init_queue+0x111/0x130
-> [<c01e7ac1>] reschedule_timeout+0x21/0xa0
-> [<c0304274>] floppy_init+0x144/0x530
-> [<c01ec080>] do_fd_request+0x0/0x90
-> [<c02f2789>] do_initcalls+0x39/0x90
-> [<c0105098>] init+0x38/0x1a0
-> [<c0105060>] init+0x0/0x1a0
-> [<c0108a19>] kernel_thread_helper+0x5/0xc
->
->Floppy drive(s): fd0 is 1.44M
+Take a look at the wondershaper script.
 
-These warnings as the same as those resulting from building
-2.5.73 with gcc-2.95, i.e., they are the result of gcc miscompiling
-the empty structs that spinlocks reduce to on UP.
+It's helped my DSL get good rates from home both up and down...
 
-It's interesting to note that your Mandrake gcc-2.96 has this bug,
-which previously was thought to be limited to gcc-2.95 and older.
+http://lartc.org/wondershaper/
 
-Anyway, the fix is to revert patch-2.5.73's change to linux/spinlock.h.
-The latest 2.5.73-bk includes the fix, or apply the patch below.
+Svein Ove Aas wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> My internet connection is via a cable modem, and thereon from Telenor. (A 
+> Norwegian ISP.)
+> 
+> In general, when I download something I can get up to 1400-1500 Kb/s, which is 
+> pretty good for a 1024/256 account. (They don't appear to oversubscribe their 
+> lines (yahoo!), but mine is also uncapped when there is spare capacity. Think 
+> traffic-control.)
+> 
+> So far, so good.
+> 
+> My account includes 4 IP addresses, and when I actually have four computers 
+> directly connected I can easily get 7-8Kb/s upload from each of them.
+> Oddly, when one of them is acting as a firewall/bridge for the others or I'm 
+> just uploading from one, I get 7-8Kb/s for *all* of them. (Or the one.)
+> 
+> This is, dare I say, *not* expected behaviour.
+> I've been in contact with telenor about it, and have garnered the following 
+> information.
+> 
+> (A)	Although the line appear to be straight Ethernet attached to a 
+> packet-filtering switch (just ARP-filtering, actually), it's *actually* an 
+> ATM-based line. This should come as no surprise.
+> 
+> (B)	Whatever they have allocating the ATM cells for transfer is doing it in 
+> bursts of about 16KB. Or possibly 32KB. Well, the tech I talked to was pretty 
+> sure it was a power of two, at least.
+> 
+> (C)	This means that while I get 8 bursts (or more) of 16KB per second on 
+> download (empirically confirmed, but the cable modem will tend to space it 
+> out when the line is at capacity), giving me a latency of 128-256 ms and so 
+> on and so forth (which I have), I get only *two* bursts per second to upload 
+> things. I think. You may want to apply a multiplier somewhere.
+> 
+> And, finally, (D):
+> 
+> This thoroughly screws up TCP/IP for uploading purposes. It *completely* 
+> breaks Realtek cards, screws up uploading speeds in Linux and Windows XP (I 
+> assume they think there is a lot of intermittent packet loss because of the 
+> delay), and has no apparent effect on Windows 9x/2000.
+> 
+> The cable modem in question is manufactured by Coresma and is marked NeMo. 
+> It's also supposed to have a pretty large send buffer, so if I could just 
+> force Linux to send at some user-defined speed without being so paranoid 
+> about overloading the line, I could get a lot more use out of it.
+> 
+> For the curious, if I do just that with UDP, I can indeed send at up to 30KB/s 
+> without losing packets. They *do* come in bursts, though.
+> 
+> 
+> Please, save me before I lose my mind!
+> 
+> - - Svein Ove Aas
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.2 (GNU/Linux)
+> 
+> iD8DBQE+/IsG9OlFkai3rMARAmZ4AKCeGIXGhREfh0kcA4Dr8FJs9fNuFgCg1sTb
+> 1bk3+ipUs9tS35oZidxcY4I=
+> =Zz5P
+> -----END PGP SIGNATURE-----
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-/Mikael
 
---- linux-2.5.73/include/linux/spinlock.h.~1~	2003-06-23 13:07:39.000000000 +0200
-+++ linux-2.5.73/include/linux/spinlock.h	2003-06-23 22:58:29.000000000 +0200
-@@ -146,8 +146,13 @@
- /*
-  * gcc versions before ~2.95 have a nasty bug with empty initializers.
-  */
--typedef struct { } spinlock_t;
--#define SPIN_LOCK_UNLOCKED (spinlock_t) { }
-+#if (__GNUC__ > 2)
-+  typedef struct { } spinlock_t;
-+  #define SPIN_LOCK_UNLOCKED (spinlock_t) { }
-+#else
-+  typedef struct { int gcc_is_buggy; } spinlock_t;
-+  #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
-+#endif
- 
- /*
-  * If CONFIG_SMP is unset, declare the _raw_* definitions as nops
+-- 
+Bryan Whitehead
+SysAdmin - JPL - Interferometry and Large Optical Systems
+Phone: 818 354 2903
+driver@jpl.nasa.gov
+

@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265972AbUAKUeR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 15:34:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUAKUeR
+	id S265981AbUAKUsH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 15:48:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbUAKUsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 15:34:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13984 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265972AbUAKUeP
+	Sun, 11 Jan 2004 15:48:07 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:10153 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265981AbUAKUsD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 15:34:15 -0500
-Message-ID: <4001B32B.1030305@pobox.com>
-Date: Sun, 11 Jan 2004 15:33:47 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sun, 11 Jan 2004 15:48:03 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 11 Jan 2004 12:47:12 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to
+ 0x37ffffff" warning.
+In-Reply-To: <1073846854.9096.133.camel@nosferatu.lan>
+Message-ID: <Pine.LNX.4.44.0401111242250.20018-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-To: Christophe Saout <christophe@saout.de>
-CC: dm-devel@sistina.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: partition detection in 2.7
-References: <40016A11.90605@gmx.at> <1073849697.24036.11.camel@leto.cs.pocnet.net>
-In-Reply-To: <1073849697.24036.11.camel@leto.cs.pocnet.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout wrote:
-> The plan for Linux 2.7 is to rip out partition detection from the kernel
-> and do everything in userspace (probably initramfs). So someone could
-> start by making the partition detection code a library.
+On Sun, 11 Jan 2004, Martin Schlemmer wrote:
+
+> On Sun, 2004-01-11 at 20:42, Davide Libenzi wrote:
+> > On Sun, 11 Jan 2004, Martin Schlemmer wrote:
+> > 
+> > > azarah@nosferatu tar $ as << EOF
+> > > > PG=0xC0000000
+> > > > VM=(128 << 20)
+> > > > .long (-PG -VM)
+> > > > .long (~PG + 1 - VM)
+> > > > EOF
+> > > {standard input}: Assembler messages:
+> > > {standard input}:3: Warning: value 0x38000000 truncated to 0x38000000
+> > > {standard input}:4: Warning: value 0x38000000 truncated to 0x38000000
+> > > azarah@nosferatu tar $ objdump -D a.out
+> > >  
+> > > a.out:     file format elf32-i386
+> > >  
+> > > Disassembly of section .text:
+> > >  
+> > > 00000000 <.text>:
+> > >    0:   00 00                   add    %al,(%eax)
+> > >    2:   00 38                   add    %bh,(%eax)
+> > >    4:   00 00                   add    %al,(%eax)
+> > >    6:   00 38                   add    %bh,(%eax)
+> > > azarah@nosferatu tar $
+> > 
+> > This is weird. I also verified the above with:
+> > 
+> > GNU assembler 2.13.90.0.18 20030206
+> > 
+> > and it works fine too.
+> > 
+> 
+> What distro?  Might be an in-house patch ...
+
+The 2.13.90.0.18 is std RH9, while 2.14 is self built.
+Tested also with FC1:
+
+GNU assembler 2.14.90.0.6 20030820
+
+that is fine too.
 
 
-Linus just vehementally stated recently that partition parsing wouldn't 
-be leaving the kernel :)
 
-However, I do think we will eventually move to a middle ground, where 
-partition parsing code will be in the kernel _source_ tree, but it will 
-be in initramfs as you describe.
-
-The reason being is that block device attachment and setup is growing 
-more complicated over time, as people move to things like dm+lvm2+md or 
-iscsi+dm+evms.  Thus, the support code to make those device combinations 
-to be used as a root device will get more and more complex.
-
-RAID and device mapper were actually two big reasons why I am pushing 
-for klibc (pushed back to 2.7 now) and initramfs in the kernel source 
-tree.  LVM, some EFI bits, dm, and md all have boot components are 
-mainly in the kernel because they need to happen (a) early and (b) 
-always, not because they actually need to be compiled into the kernel 
-image itself.
-
-	Jeff
-
+- Davide
 
 

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUKSEsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbUKSFEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUKSEsx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 23:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUKSEsx
+	id S261240AbUKSFEe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 00:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUKSFEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 23:48:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2030 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261252AbUKSEsw (ORCPT
+	Fri, 19 Nov 2004 00:04:34 -0500
+Received: from hera.kernel.org ([63.209.29.2]:27339 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261240AbUKSFEb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 23:48:52 -0500
-Date: Thu, 18 Nov 2004 20:48:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: Six archs are missing atomic_inc_return()
-Message-Id: <20041118204836.09d2d738.akpm@osdl.org>
-In-Reply-To: <200411180148_MC3-1-8EE2-A85D@compuserve.com>
-References: <200411180148_MC3-1-8EE2-A85D@compuserve.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 19 Nov 2004 00:04:31 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: Kernel thoughts of a Linux user
+Date: Fri, 19 Nov 2004 05:04:24 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cnjuso$ukp$1@terminus.zytor.com>
+References: <200411181859.27722.gjwucherpfennig@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1100840664 31386 127.0.0.1 (19 Nov 2004 05:04:24 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 19 Nov 2004 05:04:24 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
+Followup to:  <200411181859.27722.gjwucherpfennig@gmx.net>
+By author:    "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
+In newsgroup: linux.dev.kernel
 >
->  Six archs do not have the atomic_inc_return() macro as of 2.6.10-rc2:
+> - setting up kernel boot parameters with graphical tools is unreliable, 
+> because the system doesn't know which bootloader entry was chosen.
+> One solution to this issue is to create a new kernel parameter "loaderhint"
+> where the bootloader will be able to set the number of the chosen boot entry.
+> In the configuration file of the bootloader this will have to be explicitly 
+> remarked e.g. ... loaderhint=%selection% ... . Unfortunately this could be
+> circumvented, because it isn't mandatory and could be manipulated in the boot 
+> loader configuration. (Other/better suggestions are welcome)
 > 
->    cris
->    h8300
->    m32r
->    ppc
->    ppc64
->    s390
 
-All of these architectures implement atomic_add_return().  So they all need
+Most boot loaders have an BOOT_IMAGE option visible in /proc/cmdline.
 
-	#define atomic_inc_return(v)	atomic_add_return(1, v)
-
-added to their atomic.h.
-
-Wanna send a patch?
+	-hpa

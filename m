@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267766AbTADBYv>; Fri, 3 Jan 2003 20:24:51 -0500
+	id <S267767AbTADBZu>; Fri, 3 Jan 2003 20:25:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267763AbTADBYv>; Fri, 3 Jan 2003 20:24:51 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:61904 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S264976AbTADBYu> convert rfc822-to-8bit; Fri, 3 Jan 2003 20:24:50 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <andre@linux-ide.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Fri, 3 Jan 2003 17:33:18 -0800
-In-Reply-To: <Pine.LNX.4.10.10301030959390.421-100000@master.linux-ide.org>
+	id <S267771AbTADBZu>; Fri, 3 Jan 2003 20:25:50 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:47368
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S267767AbTADBZt>; Fri, 3 Jan 2003 20:25:49 -0500
+Message-ID: <3E163A0E.4060103@rackable.com>
+Date: Fri, 03 Jan 2003 17:34:06 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Lang <david.lang@digitalinsight.com>
+CC: Mark Mielke <mark@mark.mielke.cc>, Andrew Walrond <andrew@walrond.org>,
+       Larry McVoy <lm@bitmover.com>, David Schwartz <davids@webmaster.com>,
+       Marco Monteiro <masm@acm.org>, linux-kernel@vger.kernel.org
 Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030104013319.AAA15829@shell.webmaster.com@whenever>
+References: <Pine.LNX.4.44.0301031712100.23270-100000@dlang.diginsite.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Jan 2003 01:34:15.0515 (UTC) FILETIME=[645B9AB0:01C2B391]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Lang wrote:
 
->Yeah, well I already did work for the SPOOKS of the cloak-n-dagger world
->the help deal with world terrorism and have yet to be paid!  I do
->electronic wire transfers in two stages now.
+>if the server is just a comm relay this is true, but if the server
+>implements real game logic then it's much less of a problem (show me the
+>copycat everquest servers for example)
+>  
+>
+http://www.eqemu.net/
 
-	I've had the opposite experience. I've found that the spooks pay on time and 
-never haggle over price. Though I've had occasional surreal experiences like 
-being asked if I could confirm that my software met a set specifications 
-without being permitted to see those specifications.
 
-	DS
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
 
 

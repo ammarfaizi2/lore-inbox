@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284220AbRLFUl4>; Thu, 6 Dec 2001 15:41:56 -0500
+	id <S284235AbRLFUpQ>; Thu, 6 Dec 2001 15:45:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284211AbRLFUkl>; Thu, 6 Dec 2001 15:40:41 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:2067 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285183AbRLFUkF>; Thu, 6 Dec 2001 15:40:05 -0500
-Message-ID: <3C0FD78D.F567ECBD@zip.com.au>
-Date: Thu, 06 Dec 2001 12:39:41 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: temporarily system freeze with high I/O write to ext2 fs
-In-Reply-To: <Pine.LNX.4.30.0112061458360.15516-100000@mustard.heime.net>
+	id <S284248AbRLFUhu>; Thu, 6 Dec 2001 15:37:50 -0500
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:62725 "EHLO
+	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S284237AbRLFUhB>; Thu, 6 Dec 2001 15:37:01 -0500
+Date: Thu, 6 Dec 2001 13:02:20 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Paul.Clements@steeleye.com
+Cc: Edward Muller <emuller@learningpatterns.com>, linux-kernel@vger.kernel.org
+Subject: Re: Current NBD 'stuff'
+Message-ID: <20011206130220.B49@toy.ucw.cz>
+In-Reply-To: <1007402546.3824.9.camel@akira.learningpatterns.com> <Pine.LNX.4.10.10112041644170.17617-400000@clements.sc.steeleye.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.10.10112041644170.17617-400000@clements.sc.steeleye.com>; from kernel@steeleye.com on Tue, Dec 04, 2001 at 05:26:06PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
+Hi
 > 
-> hi all
+> > Anyone know where I can find the latest NBD stuff? Esp. client/server
+> > code?
 > 
-> why is it that Linux 'hangs' while doing heavy I/O operations (such as dd)
-> to (and perhaps from?) ext2 file systems? I can't see the same behaivour
-> when using other file systems, such as ReiserFS
+> I have the same question. Maybe the user-level stuff is not being 
+> actively maintained?
 > 
+> However, since we couldn't find current versions of this stuff, 
+> my colleagues and I patched nbd-server and the nbd kernel module 
+> to fix a few bugs and to make them a little more robust. I'll
+> attach my versions of those files (which I think are derived from
+> Pavel's .14.tar.gz versions).
 
-A partial fix for this went into 2.4.17-pre2.  What kernel are you
-using?
+Do not comment code by //. Kill if it you want to.
 
-For how long does it "hang"?   What exactly are you doing when it
-occurs?
+You added clean way to stop nbd. Good.
 
-Is your disk system well-tuned?  What throughput do you get with
-`hdparm -t /dev/hdXX'?
+DO NOT USE ALL CAPITALS not even in printks().
 
-It surprises me that resierfs behaves differently...
+Fix those and patch looks ike good idea for 2.5.
 
--
+Look at nbd.sf.net. If you have patches against that, mail them to me. If 
+you are willing to co-develop stuff at nbd.sf.net, I guess we can arrange
+something.
+
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

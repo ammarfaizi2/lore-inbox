@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbUCLKR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 05:17:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUCLKR1
+	id S261417AbUCLKds (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 05:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUCLKds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 05:17:27 -0500
-Received: from mx02.qsc.de ([213.148.130.14]:46474 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S261844AbUCLKRK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 05:17:10 -0500
-Message-ID: <40518CDC.7090805@trash.net>
-Date: Fri, 12 Mar 2004 11:11:40 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ron Peterson <rpeterso@mtholyoke.edu>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: network/performance problem
-References: <20040311152728.GA11472@mtholyoke.edu> <20040311151559.72706624.akpm@osdl.org> <20040311233525.GA14065@mtholyoke.edu>
-In-Reply-To: <20040311233525.GA14065@mtholyoke.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 12 Mar 2004 05:33:48 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:13573 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261417AbUCLKdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 05:33:47 -0500
+Subject: Re: Abysmal network performance since 2.4.25 !!!!!...
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: psycosonic <psycosonic@rootisg0d.org>
+Cc: linux-net@oss.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <004c01c407cf$5fffa270$0700a8c0@darkgod>
+References: <004c01c407cf$5fffa270$0700a8c0@darkgod>
+Content-Type: text/plain
+Message-Id: <1079087525.1145.6.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Fri, 12 Mar 2004 11:32:07 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ron Peterson wrote:
-> On Thu, Mar 11, 2004 at 03:15:59PM -0800, Andrew Morton wrote:
->>The profiles tell a story:
->>
->>c0217fb0 wait_for_packet                               2   0.0063
->>c0256660 arpt_do_table                                 2   0.0019
->>c0265ca0 __generic_copy_to_user                        2   0.0278
->>c0106bd0 system_call                                   3   0.0536
->>c0107e8c handle_IRQ_event                              3   0.0326
->>c014bf10 statm_pgd_range                               3   0.0077
->>c0120ed4 do_wp_page                                    5   0.0101
->>c024c0d4 ip_conntrack_expect_related                  47   0.0368
->>c0105250 default_idle                               2817  70.4250
->>c024bae0 init_conntrack                             3053   3.7232
->>00000000 total                                      5962   0.0041
->>
->>It appears that netfilter has gone berzerk and is taking your machine out.
->>
->>Are you really sure that nothing is sitting there injecting new rules all
->>the time?
+On Fri, 2004-03-12 at 02:14, psycosonic wrote:
+> Hey.
 > 
-> 
-> You mean a script calling 'iptables' to dynamically add rules?  Nothing
-> like that at all.  I dumped the current rules below.
-> 
-> Are you looking at the init_conntrack numbers?  While they seem, in the
-> long run, to be getting larger, they're not increasing monotonically.
-> My ping latencies, and the CPU percentage consumed by ksoftirqd_CPU0
-> just go up and and up (albeit slowly).
-> 
+> I'm having some problems since i updated from kernel 2.4.24 to 2.4.25 .. it
+> seems that 2.4.25 has some real performance problems.
+> The problem is that i can't get the NIC's to work fine.. i don't know why, 
+> i've already used several kernel configurations..
+> i've also tried with patch2.4.25pre4 and... nothin' ...even used another 
+> switch 10/100mbit.. not even with patch-2.4.26pre2 it goes normal,
+> I've compiled the kernel in another computer, with too many different 
+> configurations, different hardware.. etc.. and the result is the same.
+> Some friends of mine are having the same problem.
+> Well.. with kernel 2.4.24 i usually had a max speed of 12Mb/s .. now , with 
+> 2.4.25 it only goes to 2,2Mb/s MAX speed.  :(
+> I've tried to use vsftpd, proftpd, apache 1.3.x, apache 2.x, samba.. etc 
+> etc.. with kernel 2.4.24 works pretty fine... but since 2.4.25.. wow..
+> Not even with the patches 2.4.25rcX it worked.. and.. i don't know what more 
+> to do.
 
-The size-128 slab keeps growing over time, I suspect something is
-registering lots of expectations. init_conntrack has to walk the
-entire list for each new connection. Which helpers are you using ?
-Please also post the content of /proc/net/ip_conntrack and your
-config.
+Suggestion: take a look at the changelog for 2.4.25 and see what changes
+could have effect on your network performance.
 
-Regards
-Patrick
+For example, I had problems with my 3Com card in 2.6.4-mm1, but no on
+2.6.3-mm1, so looking at the changelog I saw changes made into 3c59x.c.
+Reverting one of those changes fixed my problem.
+

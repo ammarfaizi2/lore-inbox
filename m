@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262650AbUDLJIm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 05:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbUDLJIm
+	id S262596AbUDLJMP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 05:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbUDLJMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 05:08:42 -0400
-Received: from bolt.sonic.net ([208.201.242.18]:39648 "EHLO bolt.sonic.net")
-	by vger.kernel.org with ESMTP id S262650AbUDLJIl (ORCPT
+	Mon, 12 Apr 2004 05:12:15 -0400
+Received: from stingr.net ([212.193.32.15]:32990 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id S262596AbUDLJMK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 05:08:41 -0400
-Date: Mon, 12 Apr 2004 02:08:17 -0700
-From: David Hinds <dhinds@sonic.net>
-To: Ivica Ico Bukvic <ico@fuse.net>, daniel.ritz@gmx.ch,
-       "'Tim Blechmann'" <TimBlechmann@gmx.net>,
-       "'Thomas Charbonnel'" <thomas@undata.org>, ccheney@debian.org,
-       linux-pcmcia@lists.infradead.org, alsa-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion -- FIXED!
-Message-ID: <20040412090817.GA3158@sonic.net>
-References: <200404120145.22679.daniel.ritz@gmx.ch> <20040412013949.NJOP1634.smtp3.fuse.net@64BitBadass> <20040412082801.A3972@flint.arm.linux.org.uk>
+	Mon, 12 Apr 2004 05:12:10 -0400
+Date: Mon, 12 Apr 2004 13:10:49 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.5-mm4
+Message-ID: <20040412091049.GQ14129@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>
+References: <20040410200551.31866667.akpm@osdl.org> <20040412064605.GO14129@stingr.net> <20040412004244.0f50a7d4.akpm@osdl.org> <20040412082215.GP14129@stingr.net> <20040412012840.1f3a65e2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20040412082801.A3972@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <20040412012840.1f3a65e2.akpm@osdl.org>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 12, 2004 at 08:28:01AM +0100, Russell King wrote:
+Replying to Andrew Morton:
+> Yes.  The below locking is not correct.
 > 
-> > 3) FOR FURTHER INVESTIGATION: Does linux hdsp driver force the f0
-> > value upon the 0x81 register or is it that in Linux one simply
-> > cannot select d0 value for whatever reason
-> 
-> I suspect it may be caused by using a byte access to a longword-sized
-> register.  0x81 is supposed to be accessed via:
-> 
-> setpci -s a.0 0x80.l
-> 
-> which of course means its bits 8 to 15.
+> > static void unplug_slaves(mddev_t *mddev)
+> > {
+> >         conf_t *conf = mddev_to_conf(mddev);
+> >         int i;
+> >         unsigned long flags;
+> > 
+> >         spin_lock_irqsave(&conf->device_lock, flags);
+> >         for (i=0; i<mddev->raid_disks; i++) {
+> >                 mdk_rdev_t *rdev = conf->mirrors[i].rdev;
+> >                 if (rdev && !rdev->faulty) {
+> >                         request_queue_t *r_queue = bdev_get_queue(rdev->bdev);
+> > 
+> >                         if (r_queue->unplug_fn)
+> >                                 r_queue->unplug_fn(r_queue);
+> >                 }
+> >         }
+> >         spin_unlock_irqrestore(&conf->device_lock, flags);
+> > }
 
-I don't think so; I'm not sure what the PCI spec has to say about it,
-but I have not had problems doing byte reads/writes for longer PCI
-configuration registers.  Bit 9 of the sysctl register for the TI 1410
-is "socket activity"; it is read only and is cleared after each read.
-The key change is setting bit 14 (enable upstream burst reads).
+raid5 version of the same is slightly different:
+static void unplug_slaves(mddev_t *mddev)
+{
+        raid5_conf_t *conf = mddev_to_conf(mddev);
+        int i;
 
-Regarding the register at 0xc9, I don't think that is defined in any
-TI bridge data sheet; it is in a "reserved" range.
+        for (i=0; i<mddev->raid_disks; i++) {
+                mdk_rdev_t *rdev = conf->disks[i].rdev;
+                if (rdev && !rdev->faulty) {
+                        struct block_device *bdev = rdev->bdev;
+                        if (bdev) {
+                                request_queue_t *r_queue = bdev_get_queue(bdev);
+                                if (r_queue && r_queue->unplug_fn)
+                                        r_queue->unplug_fn(r_queue);
+                        }
+                }
+        }
+}
 
--- Dave
+so is it racy or someone just can do the same in raid1?
+
+-- 
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

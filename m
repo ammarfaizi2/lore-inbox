@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267155AbTAPS1k>; Thu, 16 Jan 2003 13:27:40 -0500
+	id <S267189AbTAPSdR>; Thu, 16 Jan 2003 13:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267156AbTAPS1k>; Thu, 16 Jan 2003 13:27:40 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:21007 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267155AbTAPS1f>;
-	Thu, 16 Jan 2003 13:27:35 -0500
-Date: Thu, 16 Jan 2003 10:35:53 -0800
-From: Greg KH <greg@kroah.com>
-To: Torben Mathiasen <torben.mathiasen@hp.com>
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       john.cagle@hp.com, dan.zink@hp.com
-Subject: Re: [PATCH-2.4.20] PCI-X hotplug support for Compaq driver
-Message-ID: <20030116183553.GB32126@kroah.com>
-References: <20030115095513.GA2761@tmathiasen> <20030115230554.GC25816@kroah.com> <20030116114717.GC1222@tmathiasen>
-Mime-Version: 1.0
+	id <S267190AbTAPSdR>; Thu, 16 Jan 2003 13:33:17 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:33552 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267189AbTAPSdQ>; Thu, 16 Jan 2003 13:33:16 -0500
+Message-ID: <3E26F6DC.D9150735@linux-m68k.org>
+Date: Thu, 16 Jan 2003 19:15:56 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Werner Almesberger <wa@almesberger.net>
+CC: Rusty Russell <rusty@rustcorp.com.au>, kuznet@ms2.inr.ac.ru,
+       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Migrating net/sched to new module interface
+References: <20030115063349.A1521@almesberger.net> <20030116013125.ACE0F2C0A3@lists.samba.org> <20030115234258.E1521@almesberger.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030116114717.GC1222@tmathiasen>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 16, 2003 at 12:47:17PM +0100, Torben Mathiasen wrote:
-> Sure. I started out doing the patch for 2.5, but hit some hotplug bugs so I
-> decided to get it working for 2.4 first and then port it to 2.5. I'll get on
-> that.
+Hi,
 
-Thanks.
+Werner Almesberger wrote:
 
-> I wanted the user to be able to know exactly which bus speed/mode the driver
-> switched to in case of a freq/mode change. Besides that it also put the info in
-> proc as you mention.
+> If there's a really nasty case, where you absolutely can't
+> afford to sleep, you need to change the service to split
+> "deregister" into:
+> 
+>  - prepare_deregister (like "deregister", but reversible)
+>  - commit_deregister
+>  - undo_deregister
 
-But that is what the cur_bus_speed and max_bus_speed files in pcihpfs
-for the slot are for, right?  Isn't this just duplicating that
-information?
+You can simplify this. All you need are the following simple functions:
 
-> Sure, we used to ship a system that only supported 50MHz PCI-X, but I'll have
-> to get more details on that.
+- void register();
+- void unregister();
+- int is_registered();
+- void inc_usecount();
+- void dec_usecount();
+- int get_usecount();
 
-So 50MHz PCI-X is not in the spec, right?  If you all supported it, why
-didn't you get it included in the spec?  :)
+It's important to understand that the registered state and the usecount
+are completely independent. As soon as the object is unregistered and
+the usecount is zero, the object can be freed, but it doesn't matter in
+which order it happens.
+The problem is now that we are very limited how we can use these
+functions. We can only unregister an object after the usecount became
+zero, although it's also possible to first unregister the object and
+then wait for the usecount. Only when we can do the latter is it
+possible to safely force the removal of the object.
 
-thanks,
+bye, Roman
 
-greg k-h

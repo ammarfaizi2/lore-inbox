@@ -1,101 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVCDKoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVCDKqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbVCDKoY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 05:44:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVCDKlS
+	id S262700AbVCDKqz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 05:46:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVCDKqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 05:41:18 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53514 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262633AbVCDKke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 05:40:34 -0500
-Date: Fri, 4 Mar 2005 10:40:25 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+	Fri, 4 Mar 2005 05:46:55 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:7043 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S262747AbVCDKqE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 05:46:04 -0500
+Message-ID: <42283C67.4060302@dgreaves.com>
+Date: Fri, 04 Mar 2005 10:45:59 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
        Jeff Garzik <jgarzik@pobox.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+       Andrew James Wade 
+	<ajwade@cpe0020e06a7211-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050304104025.A3932@flint.arm.linux.org.uk>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <42268037.3040300@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42268037.3040300@osdl.org>; from rddunlap@osdl.org on Wed, Mar 02, 2005 at 07:10:47PM -0800
+References: <20050302205826.523b9144.davem@davemloft.net>	<4226C235.1070609@pobox.com>	<20050303080459.GA29235@kroah.com>	<4226CA7E.4090905@pobox.com>	<Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>	<422751C1.7030607@pobox.com>	<20050303181122.GB12103@kroah.com>	<20050303151752.00527ae7.akpm@osdl.org>	<20050303234523.GS8880@opteron.random>	<20050303160330.5db86db7.akpm@osdl.org>	<20050304025746.GD26085@tolot.miese-zwerge.org>	<20050303213005.59a30ae6.akpm@osdl.org>	<1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org>
+In-Reply-To: <20050304005450.05a2bd0c.akpm@osdl.org>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 07:10:47PM -0800, Randy.Dunlap wrote:
-> Dave Jones wrote:
-> > For it to truly be a stable kernel, the only patches I'd expect to
-> > drivers would be ones fixing blindingly obvious bugs. No cleanups.
-> > No new functionality. I'd even question new hardware support if it
-> > wasn't just a PCI ID addition.
-> 
-> Maybe I don't understand?  Is someone expecting distro
-> quality/stability from kernel.org kernels?
-> I don't, but maybe I'm one of those minorities.
 
-Don't say that too loudly or else the embedded people will use it as
-another excuse not to move on to 2.6 kernels.
-
-But yes, _I_ do expect a certain amount of quality and stability from
-kernel.org kernels mainly because there _isn't_ a distro to do that
-for us on ARM.  It's fine in x86 land where there are such things and
-you have One Single Platform(tm), but in ARM land where there's
-numerious platforms, there's very little sense in having a "distro"
-maintained kernel.
-
-For instance, I'd like to upgrade the kernel on the main ARM server
-here from 2.4 to 2.6, but since it requires a number of subsystems to
-work properly (MD, Promise IDE, Ext3, NFS server) which you normally
-wouldn't see on ARM embedded systems, I'm not entirely happy to throw
-a 2.6 kernel on it just yet.
-
-However, coupled with the requirement for quality, some in the ARM
-community expect a certain amount of development to be going on, since
-ARM is a relatively fast moving community [*].  Freezing stuff for 6
-months isn't really practical when you have support for new platforms
-or new drivers wanting to be merged all the time.  Ignoring these
-things for 6 months causes someone to spawn a new tree and that's
-usually the last you see of any contribution from that direction.
-
-So, what I think we need is for core system, subsystem and "service"
-development to slow down a little while still allowing peripheral
-low-impact "new stuff" to be added during a "stablisation" period.
-We also need to qualify what we mean by "stable in relation to the
-resulting kernel - eg, I don't think we should call the "new stuff"
-merged during that time "stable".
-
-This actually brings up an interesting point - if new machine support
-is stablised external to the "stable" tree, and then merged into that
-tree, should it be marked as "experimental"?  Given the previous
-paragraph, I think the answer is "yes" since this will allow people
-to distinguish the recently merged stuff.
+>-rc just means "please start testing", not "deploy me on your corporate
+>database server".
+>  
+>
+Does it? Where on www.kernel.org does it say that?
 
 
+Since people's trust was lost (a bit) when the -rc convention was 
+"embraced and extended", it seems like it would be a good idea to 
+_explicitly publish_ (and promote) the definitions (when they are agreed).
 
-[*] - depends how you understand "fast".  My method of working new
-features into the ARM code in Linus' kernel is via a series of small
-steps (or a series of smaller series of steps) spread out over a
-period of time.
+I am assuming that the problem is still essentially:
+ "We need more testers"
 
-An example of this is the ARM SMP merging, where the low level entry
-code has had to be rewritten.  However, rather than just replace the
-file, it's getting a series of clean ups first which are aimed in the
-direction we want to go.  We're getting towards the state where the
-_major_ difference between todays implementation and the SMP version
-is the code in a small number of macros, rather than virtually every
-line in the file.  However, I do feel like I'm going against the grain
-when Linus says "slow down" and I'm seen to be doing cleanup after
-cleanup with no obvious effect or point.
+And that one objective of this discussion is actually to clarify how the 
+numbering scheme presents the risks and rewards associated with running 
+a particular kernel? (yes, you're also sorting out development workflow 
+but that's another issue)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+Since the "show us the code" principle applies, I'm trying to draft some 
+text that I propose linking to from a prominent place on www.kernel.org
+(yes it may be hosted elsewhere)
+
+My gut-feel working title was : "Our Promises To The Linux Kernel 
+Community" - but I think that's going to be wrong :)
+
+Here's the very very draft text - I've barely proof read it and I've not 
+researched the process so I know it's not expressed well.
+It's the kind of thing I'd want to read to assess which kernels to test 
+- hell, right now it's not even obvious if you _want_ me to test them.
+
+--------------------------------------
+
+Background
+The 'vanilla' linux kernel produced by Linus et al isn't for everyone.
+Many, indeed most, users should be using the kernel that comes with 
+their distribution (Debian, Fedora etc)
+However, if _everyone_ did that then no-one would find the problems with 
+the kernel - the 'many eyes' part of the FOSS community is essential - 
+and you can be an active part of it!
+
+This document aims to describe how people of different skill and 
+experience levels can help.
+Be warned - it can be hard work - but that's what makes it worthwhile.
+
+The Problem
+The kernel developers let you grab hold of a kernel tree at any time - 
+which one should you use?
+
+The key to all this is in the numbering; it indicates what stage of 
+development that particular version of the kernel is at now.
+Broadly the way it works is this(?):
+* Developers send code and fixes to maintainers who have their own tree
+* Maintainers keep an eye on the code quality and send it through to 
+Linus when they think it's ready
+* Linus holds the main, stable(ish) tree
+* Distributions take a stable-ish tree and may apply their own changes 
+and back-port bugs to try and get a very stable tree
+
+Kernel Numbering
+The kernel numbering usually looks like: 2.6.10; The X.Y.Z should be 
+read as:
+* X and Y indicate the main and sub versions of the kernel - probably 
+'2.6' for quite a while yet.
+* The Z indicates incremental 'releases' that the kernel community 
+(Linus) think are OK to use in most 'production' environments.
+
+But the beauty (and complexity) of the linux kernel is that you get to 
+see it whilst it's putting its make-up on!!
+
+Applying the Make-up - Developer Kernels
+There are lots of developers who have their own 'bk' trees of the kernel 
+that have changes applied from minute to minute.
+Eventually the changes in these trees settle down a bit and elements of 
+the trees are pulled into a major maintainers tree (eg -mm,  Andrew 
+Morton's tree - more later)
+Finally they're pulled into Linus' tree.
+
+-pre Kernels
+After a bit Linus feels that there have been quite a few changes and 
+decides to get everyone back on the same page so he releases 2.6.x-pre1.
+This is a developers release.
+It won't be announced on linux-kernel-announce.
+It will have bugs but it should compile cleanly and shouldn't corrupt 
+your data (unless noted). It's very useful if you're helping to test 
+some new hardware or feature and you don't mind if the machine crashes 
+(maybe a lot - and maybe kills your data too!).
+The cycle repeats through -pre2, -pre3 etc until Linus feels that it's 
+time to think about a new proper release. During these cycles, 
+developers can add new features and things that used to work may break.
+
+So he takes the last -preN release and re-releases it as -rc1 ... a 
+Release Candidate.
+
+-rc Kernels
+At this point he's saying that he'd _like_ to release it so it won't 
+corrupt your data and the developers can't find any obvious bugs (unless 
+noted) but there  *will* be some 'cos it's not been tested on every 
+machine on the planet!
+This is a testing release.
+It will be announced on linux-kernel-announce.
+You should be able to run it on normal hardware without crashes or any 
+other problems. But you're part of the test team so there is a risk.
+This cycle repeats through -rc2, -rc3 etc. During these cycles, _NO_ new 
+features will be added. Only bugs will be fixed and it should be very 
+rare for something that worked in -rcX to fail in -rcX+1.
+When the bug reports stop appearing it's time for a release.
+Linus will take the last -rcN and re-release it as 2.6.x (possibly with 
+some errata of known bugs)
+
+2.6.x.y Kernels
+But it doesn't stop there :)
+There may still be unknown bugs because no-one's tested a particular 
+combination of components that triggers them.
+So if a fix for a simple bug is discovered a group of people will review 
+it and, if it's deemed to be very safe they will apply it to the 2.6.x 
+and release 2.6.x.1 (or patches or whatever - yet to be agreed AFAICS)
+It will be announced on linux-kernel-announce.
+
+Wait, There's More...
+Remember about the maintainers kernels? -mm and the like?
+Well there's a list of them <here - where?> which explains how to get 
+them and what their 'manifesto' is.
+For the more sophisticated of you out there it may be worth trying out 
+the -mm kernel (or a friend); they follows the same basic lines as 
+Linus' - (in a sense they're based on them - but they are the leading 
+edge of the linux kernel and have extra features and performance 
+tweaks). They are often more experimental (and risky) than Linus' kernel 
+though some strive to be more stable - read the manifesto to find out more.
+They will be announced on their own lists (see manifesto)
+
+
+So What To Do?
+Join in - run the latest kernel and report back bugs - the kernel 
+community _do_ want your help.
+Just make sure you understand the risks and protect yourself appropriately.
+
+
+To be continued... (mention kernelnewbies or other links, automating the 
+process, ketchup etc - thanks Horst, Jan Dittmer, Andrew James Wade)
+
+
+David
+PS To be clear, I'm contributing this text in case anyone feels they can 
+use it in any way.
+

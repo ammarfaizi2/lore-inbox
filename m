@@ -1,109 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265284AbUEZBym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265289AbUEZC0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265284AbUEZBym (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 21:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265286AbUEZBym
+	id S265289AbUEZC0e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 22:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbUEZC0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 21:54:42 -0400
-Received: from CPE-203-45-91-55.nsw.bigpond.net.au ([203.45.91.55]:28141 "EHLO
-	mudlark.pw.nest") by vger.kernel.org with ESMTP id S265284AbUEZByi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 21:54:38 -0400
-Message-ID: <40B3F8B4.50800@aurema.com>
-Date: Wed, 26 May 2004 11:53:56 +1000
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Tue, 25 May 2004 22:26:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41419 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265287AbUEZC0c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 22:26:32 -0400
+Date: Tue, 25 May 2004 19:26:21 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Matthew Wilcox <willy@debian.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@kvack.org>,
+       linux-mm@kvack.org, Architectures Group <linux-arch@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+In-Reply-To: <20040525224258.GK29378@dualathlon.random>
+Message-ID: <Pine.LNX.4.58.0405251924360.15534@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+ <20040525034326.GT29378@dualathlon.random> <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+ <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org> <20040525212720.GG29378@dualathlon.random>
+ <Pine.LNX.4.58.0405251440120.9951@ppc970.osdl.org> <20040525215500.GI29378@dualathlon.random>
+ <Pine.LNX.4.58.0405251500250.9951@ppc970.osdl.org> <20040526021845.A1302@den.park.msu.ru>
+ <20040525224258.GK29378@dualathlon.random>
 MIME-Version: 1.0
-To: Hubertus Franke <frankeh@watson.ibm.com>
-CC: Shailabh Nagar <nagar@watson.ibm.com>, kanderso@redhat.com,
-       Rik van Riel <riel@redhat.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>, limin@sgi.com, jlan@sgi.com,
-       linux-kernel@vger.kernel.org, jh@sgi.com, Paul Jackson <pj@sgi.com>,
-       gh@us.ibm.com, Erik Jacobson <erikj@subway.americas.sgi.com>,
-       ralf@suse.de, Vivek Kashyap <kashyapv@us.ibm.com>,
-       lse-tech@lists.sourceforge.net, mason@suse.com
-Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
-References: <Pine.LNX.4.44.0405241404080.22438-100000@chimarrao.boston.redhat.com>	<40B2534E.3040302@watson.ibm.com> <40B2A78E.3060302@aurema.com> <40B2CB0E.8030606@aurema.com> <40B3641F.508@watson.ibm.com>
-In-Reply-To: <40B3641F.508@watson.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubertus Franke wrote:
-> Peter Williams wrote:
+
+
+On Wed, 26 May 2004, Andrea Arcangeli wrote:
 > 
->> Peter Williams wrote:
->>
->>> Hubertus Franke wrote:
->>>
->>>>
->>>> One important input the PAGG team could give is some real
->>>> examples where actually multiple associations to different groups
->>>> is required and help us appreciate that position and let us
->>>> see how this would/could be done in CKRM.
->>>
->>>
->>>
->>>
->>> One example would be the implementation of CPU sets (or pools) a la 
->>> Solaris where there are named CPU pools to which processors and 
->>> processes are assigned.   Processors can be moved between CPU pools 
->>> and when this happens it is necessary to visit all the processes that 
->>> are assigned to the pools involved (one losing and one gaining the 
->>> processor) and change their CPU affinity masks to reflect the new 
->>> assignment of processors.  PAGG would be ideal for implementing this.
->>>
->>> At the same time, a resource management client could be controlling 
->>> resources allocated to processes based on some other criteria such as 
->>> the real user or the application being run without regard to which 
->>> CPU pool they are running in.
->>
->>
->>
->> Additionally, it seems to me that even within the field of resource 
->> management it is not necessarily the case that the same grouping is 
->> required for different resource types e.g. the grouping for control of 
->> CPU resources might be different to the grouping for control of 
->> network bandwidth allocation or disk space or disk I/O bandwidth, etc.
->>
->> Peter
+> after various searching on the x86 docs I found:
 > 
+> 	Whenever a page-directory or page-table entry is changed (including when
+> 	the present flag is set to zero), the operating-system must immediately
+> 	invalidate the corresponding entry in the TLB so that it can be updated
+> 	the next time the entry is referenced.
 > 
-> Correct, that is in principle possible. We went through this discussion 
-> on the mailing list  .. (Rik, Shailabh help me out here) and decided 
-> that mostly that is
+> according to the above we'd need to flush the tlb even in
+> do_anonymous_page on x86, or am I reading it wrong?
 
-Mostly isn't good enough :-)
+You're reading it wrong.
 
-> not being required. The extra overhead of putting that we deemed 
-> unnecessary.
+The "including when the present flag is set to zero" part does not mean 
+that the present flag was zero _before_, it means "is being set to zero" 
+as in "having been non-zero before that".
 
-I think that this would be minimal.
+Anytime the P flag was clear _before_, we don't need to invalidate, 
+because non-present entries are not cached in the TLB.
 
-> 
-> Instead, if really desired, one would require a different classtype for 
-> each of those groupings. Note however, our entire infrastructure already 
-> supports that in that RCFS would pick these specialized class types up, 
-> provide the proper hierarchy as an FS subdirectory structure. For us it 
-> was mainly a question how we can get the most out of the initial 
-> prototype without having general users have to go and specify all kinds 
-> of hierarchies, i.e. one per resource.
-
-If that is what you want (and it's not an unreasonable desire) there is 
-nothing to stop CKRM from imposing this view of the world on top but you 
-shouldn't be forcing this view on others.  I.e. it's easy to consolidate 
-separate grouping mechanisms to have a common grouping for all 
-KernelObjects but it would be very close to impossible to try to present 
-separate groupings for each KernelObject if there was only one 
-underlying grouping.
-
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
-
+			Linus

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277471AbRJOL43>; Mon, 15 Oct 2001 07:56:29 -0400
+	id <S277473AbRJOL67>; Mon, 15 Oct 2001 07:58:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277437AbRJOL4T>; Mon, 15 Oct 2001 07:56:19 -0400
-Received: from cogito.cam.org ([198.168.100.2]:54283 "EHLO cogito.cam.org")
-	by vger.kernel.org with ESMTP id <S277434AbRJOL4D>;
-	Mon, 15 Oct 2001 07:56:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@CAM.ORG>
-Organization: me
-To: Chris Mason <mason@suse.com>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: mount hanging 2.4.12
-Date: Mon, 15 Oct 2001 07:50:35 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0110141231570.6026-100000@weyl.math.psu.edu> <2314290000.1003133922@tiny>
-In-Reply-To: <2314290000.1003133922@tiny>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011015115036.1997EC9C4@oscar.casa.dyndns.org>
+	id <S277483AbRJOL6u>; Mon, 15 Oct 2001 07:58:50 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:10508 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S277434AbRJOL6i>;
+	Mon, 15 Oct 2001 07:58:38 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Bjorn Wesen <bjorn@sparta.lu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: crc32 cleanups 
+In-Reply-To: Your message of "Mon, 15 Oct 2001 10:29:39 +0200."
+             <Pine.LNX.3.96.1011015101708.22179A-100000@medusa.sparta.lu.se> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 15 Oct 2001 21:35:09 +1000
+Message-ID: <13954.1003145709@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 15, 2001 04:18 am, Chris Mason wrote:
-> [ bad lvm<->reiserfs locking patch causes hangs ]
+On Mon, 15 Oct 2001 10:29:39 +0200 (MET DST), 
+Bjorn Wesen <bjorn@sparta.lu.se> wrote:
+>On Sat, 13 Oct 2001, Keith Owens wrote:
+>> ???!  __initcall entries are executed in the order that they are linked
+>> into the kernel.  The linkage order is controlled by the order that
+>> Makefiles are processed during kbuild and by line order within each
+>> Makefile.  There is definitely a priority order for __initcall code.
 >
-> Ok, here's an updated patch, one liner fix from the original.
+>Not to mention that as an individual sub-project maintainer you can't go
+>around changing higher level makefiles all the time just to get your
+>particular initcall chain in order (again, in practice).
+>
+>You could _conceivably_ build an initcall dependency system by adding some
+>"initcall_requires" macros which put the dependant other calls into
+>another linker table, which the kernel would resolve at boot. 
 
-An important line though.  It now works.
+Absolutely agree.  I would love to separate the initcall order from
+directory and Makefile order, using a clean and well documented method
+of describing initialisation order.  But there is one massive problem
+with changing the existing method, .... Linus likes it this way.
 
-mount /fuji
-umount /fuji
-change media 
-mount /fuji (which gets an I/0 error reading the boot sector) 
-mount /fuji
+Maybe after kbuild 2.5 is in.  I have learnt to fight one battle at a
+time.
 
-This is using usb-storage and sddr-09 support.
-
-Thanks Everyone
-Ed Tomlinson

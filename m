@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131044AbQKPS3m>; Thu, 16 Nov 2000 13:29:42 -0500
+	id <S131283AbQKPS3x>; Thu, 16 Nov 2000 13:29:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131166AbQKPS3c>; Thu, 16 Nov 2000 13:29:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44351 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131044AbQKPS3R>; Thu, 16 Nov 2000 13:29:17 -0500
-Subject: Re: PATCH: 8139too kernel thread
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Thu, 16 Nov 2000 17:59:58 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, netdev@oss.sgi.com
-In-Reply-To: <200011102129.QAA13369@havoc.gtf.org> from "Jeff Garzik" at Nov 10, 2000 04:29:51 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131166AbQKPS3m>; Thu, 16 Nov 2000 13:29:42 -0500
+Received: from mail.inconnect.com ([209.140.64.7]:45189 "HELO
+	mail.inconnect.com") by vger.kernel.org with SMTP
+	id <S131178AbQKPS3a>; Thu, 16 Nov 2000 13:29:30 -0500
+Date: Thu, 16 Nov 2000 10:59:27 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: APM oops with Dell 5000e laptop
+In-Reply-To: <E13wRYd-0007yS-00@the-village.bc.nu>
+Message-ID: <Pine.SOL.4.30.0011161054420.16124-100000@ultra1.inconnect.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wTKL-000899-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The only disadvantage to this scheme is the added cost of a kernel
-> thread over a kernel timer.  I think this is an ok cost, because this
-> is a low-impact thread that sleeps a lot..
+Alan Cox said once upon a time (Thu, 16 Nov 2000):
 
-8K of memory, two tlb flushes, cache misses on the scheduler. The price is
-actually extremely high.
+> > I just got a Sceptre 6950 (also known as a Dell 5000e), I just installed
+> > Red Hat 7.0 on it, and got an APM related oops at boot.
+>
+> Yep. This is not a Linux problem
+
+The kernel works around/ignores/disables other broken hardware or broken
+features of otherwise working hardware with black lists.  There will be
+many *many* of these laptops sold.
+
+Is there a way to uniquely identify the affected BIOSes at boot time and
+turn off APM?  According to Brad Douglas, the 32-bit Get Power Status
+(0AH) call is broken.
+
+Supposedly there will be a BIOS update in the "future" to correct this
+problem.
+
+Dax
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

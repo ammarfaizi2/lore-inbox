@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131240AbRAVOqd>; Mon, 22 Jan 2001 09:46:33 -0500
+	id <S129835AbRAVPLn>; Mon, 22 Jan 2001 10:11:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131260AbRAVOqX>; Mon, 22 Jan 2001 09:46:23 -0500
-Received: from www.zincro.com ([209.88.62.109]:33288 "EHLO mail.zincro.com")
-	by vger.kernel.org with ESMTP id <S131240AbRAVOqU>;
-	Mon, 22 Jan 2001 09:46:20 -0500
-Date: Mon, 22 Jan 2001 09:48:49 -0500 (COT)
-From: Plinio Barraza <plinio@zincro.com>
+	id <S129846AbRAVPLe>; Mon, 22 Jan 2001 10:11:34 -0500
+Received: from thor.lule.ava.se ([195.100.138.33]:22289 "EHLO thor.lule.ava.se")
+	by vger.kernel.org with ESMTP id <S129835AbRAVPLY>;
+	Mon, 22 Jan 2001 10:11:24 -0500
+Date: Mon, 22 Jan 2001 16:11:21 +0100 (CET)
+From: Listuser AVA System <listuser@thor.lule.ava.se>
 To: linux-kernel@vger.kernel.org
-Subject: Replicating Current Kernell
-In-Reply-To: <003701c08481$2461a300$27f8423e@avenger>
-Message-ID: <Pine.LNX.4.10.10101220939340.3246-100000@mail.zincro.com>
+Subject: Driver crash 2.4.0 nicstar.c
+Message-ID: <Pine.LNX.4.10.10101221606240.15879-100000@thor.lule.ava.se>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I compiled the nicstar ATM nic driver.
+The following happens :
+
+swapper(1): Kernel Bug 1
+pc = [<fffffc0000341df0>] ra = [<fffffc00003c2154>] ps = 0000
+v0 = 0000000000000000 t0 = 0000000000000000 t1 = fffffc0000513c60
+t2 = 0000000000000000 t3 = 0000000000000000 t4 = fffffc87002b00c8
+t5 = 0000000000000000 t6 = 0000000000000000 t7 = fffffc0001cd4000
+a0 = 0000000000000000 a1 = 0000000000000000 a2 = fffffc0001cd4000
+a3 = fffffc0001cd7cc0 a4 = 0000000000000000 a5 = 0000000000000000
+t8 = 0000000000000000 t9 = fffffc0000412448 t10= 0000000000000007
+t11= 000000000000000a pv = fffffc0000341ce0 at = 0000000000000000
+gp = fffffc0000534ec8 sp = fffffc0001cd7d90
+Code: 47ff0400 or zero,zero,v0
+ c3e00006 br .+28
+ 40431402 addq t1,24,t1
+ a4220000 ldq t0,0(t1)
+ f43fffcd bge t0,.-200
+ 00000081 call_pal 129
+*47ff0400 or zero,zero,v0
+ 2fe00000 ldq_u zero,0(v0)
+
+Trace:3c2154 372f68 310000 310080 310080 310098 310630 310080 310604
+3105d8 310604
+
+Kernel panic: Attempted to kill init!
+
+I see there are a lot of unsigned long in the driver and I suspect this
+may be the cause.
+Can someone tell me what happens ? 
+Oh, right, it's a ev56a on a ruffian board, exact kernel is : 2.4.0-ac6
+I hope I typed the oops message correctly, since no drive was mounted as
+it happened. 
 
 
-Dear list,
+Have a nice day.
+//Peter Hellman
 
-I am new to the list so please forgive me if I am repeating a recent
-thread.
 
-I have a kernel that is the result of a Red Hat distribution and works
-great.  Only, I have to recompile the kernel in order to have policy
-routing capabilities.  As I am very inexperienced, I would like to
-replicate my system as close as posible with only  this added issue.  I
-tried recompiling the same kernel and had a little trouble (mainly <Unable
-to mount root fs on 08:0a>).  I figure it had something to do with the RAM
-Disk that boots the system now not being in tune with the new kernel I
-compiled.  As I am working with the same source (2.2.12) I guessed I sould
-be able to use the same initrd file.
-
-My question is:  Is there a way to explore the current kernel
-configuration, or is there a way to enable a feature into the kernel (such
-as advanced routing) without recompiling?
-
-Any pointers or help is much apreciated
-
-Thanks in advance
-
-Plinio
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

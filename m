@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261836AbSKYSQv>; Mon, 25 Nov 2002 13:16:51 -0500
+	id <S262712AbSKYS0w>; Mon, 25 Nov 2002 13:26:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbSKYSQv>; Mon, 25 Nov 2002 13:16:51 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:11680 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S261836AbSKYSQu>;
-	Mon, 25 Nov 2002 13:16:50 -0500
-Date: Mon, 25 Nov 2002 19:23:55 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.4.20-rc2-aa1 with contest
-Message-ID: <20021125182355.GE9623@dualathlon.random>
-References: <200211230929.31413.conman@kolivas.net> <20021124162845.GC12212@dualathlon.random> <200211251744.35509.conman@kolivas.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262780AbSKYS0w>; Mon, 25 Nov 2002 13:26:52 -0500
+Received: from matrix.roma2.infn.it ([141.108.255.2]:57021 "EHLO
+	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
+	id <S262712AbSKYS0v>; Mon, 25 Nov 2002 13:26:51 -0500
+From: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>
+Organization: INFN
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: e7500 and IRQ assignment
+Date: Mon, 25 Nov 2002 19:34:47 +0100
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <233C89823A37714D95B1A891DE3BCE5202AB1994@xch-a.win.zambeel.com> <200211251618.28510.gabrielli@roma2.infn.it> <Pine.LNX.4.50.0211251038280.1462-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0211251038280.1462-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <200211251744.35509.conman@kolivas.net>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Message-Id: <200211251934.47959.gabrielli@roma2.infn.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 25, 2002 at 05:44:30PM +1100, Con Kolivas wrote:
-> will kill it when it finishes testing in that load. To reproduce it
-> yourself, run mem_load then do a kernel compile make -j(4xnum_cpus).
+On 16:41, lunedì 25 novembre 2002, Zwane Mwaikambo wrote:
+> On Mon, 25 Nov 2002, Emiliano Gabrielli wrote:
+> > number of MP IRQ sources: 20.
+> > number of IO-APIC #2 registers: 24.
+> > number of IO-APIC #3 registers: 24.
+> > number of IO-APIC #4 registers: 24.
+> > number of IO-APIC #5 registers: 24.
+> > number of IO-APIC #6 registers: 24.
+> > testing the IO APIC.......................
+>
+> Out of curiosity, does this box really have 5 IOAPICs?
+>
+> 	Zwane
 
-I will try.
+no of course, but something seems to be buggy...
 
-> If that doesnt do it I'm not sure how else you can see it. sys-rq-T
-> shows too much stuff on screen for me to make any sense of it and
-> scrolls away without me being able to scroll up.
+..  nothing changed ;((
 
-you can use as usual a serial or netconsole to log the sysrq+t output.
+I have patched last 2.4.20-rc3 with Ingo patch (irqsharing.patch) or/and 
+apic_route-2.4.18.patch ... patch applies with no problems but no change...
 
-Andrea
+I have downloaded the prepatched kernel from www.aslab.com (linux-2.4.19-1)
+(they affirm their servers use 7500) and even in this case no change 
+appened...
+
+I have HT enabled in the BIOS; SMP and IO-APIC are compiled in the kernel...
+
+but I still receive some buggy messages in dmesg (see attachement), btw my 
+full custom device has IRQ routed to 0 (see my lspci)
+
+If anybody as some IDEA ... I will happy ;P
+
+best regards,
+
+-- 
+Emiliano Gabrielli
+
+dip. di Fisica
+2° Università di Roma "Tor Vergata"
+

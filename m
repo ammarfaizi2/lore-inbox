@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135318AbREHUoB>; Tue, 8 May 2001 16:44:01 -0400
+	id <S135403AbREHVGL>; Tue, 8 May 2001 17:06:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135328AbREHUnm>; Tue, 8 May 2001 16:43:42 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:6050 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S135318AbREHUnb>; Tue, 8 May 2001 16:43:31 -0400
-Date: Tue, 8 May 2001 22:43:00 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>, Xuan Baldauf <xuan--lkml@baldauf.org>,
-        "James H. Puttick" <james.puttick@kvs.com>
-Subject: Re: [PATCH][RFT] smbfs bugfixes for 2.4.4
-In-Reply-To: <9d6mur$df1$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0105082131350.4308-100000@cola.teststation.com>
+	id <S135404AbREHVGC>; Tue, 8 May 2001 17:06:02 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:17537 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S135403AbREHVFt>; Tue, 8 May 2001 17:05:49 -0400
+Date: Tue, 8 May 2001 17:05:27 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+In-Reply-To: <E14xENe-0000aK-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.95.1010508164343.30336A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 May 2001, Linus Torvalds wrote:
+On Tue, 8 May 2001, Alan Cox wrote:
 
-> It has code to do that in smb_revalidate_inode(), but it may be that
-> something else refreshes the inode size _without_ doing the proper
-> invalidation checks. Or maybe Urban broke that logic by mistake while
-> fixing the other one ;)
+> > I have a driver which needs to wait for some hardware.
+> > Basically, it needs to have some code added to the run-queue
+> > so it can get some CPU time even though it's not being called.
+> 
+> Wht does it have to wait ? Why cant it just poll and come back next time ?
+> 
 
-No, I broke it when copying the ncpfs dircache code.
+Good question. I wanted to be able to call the exact same routine(s)
+that other routines (exected from read() and write()), execute.
+These routines are complex and sleep while waiting for events. I
+didn't want to duplicate that code with different time-out mechanisms.
 
-That code will reuse an old inode if it already exists (and thus also any
-pages attached to it), which is what I wanted and should be fine except
-that it needs to invalidate_inode_pages() if something changed.
+GPIB is nasty because you can't do anything unless the 'controller'
+tells you to do it. When "addressed to talk", you have to parse
+all the stuff sent via interrupt (ATN bit set, control byte, which
+address from the control byte, etc.), then let somebody sleeping
+in poll() know that they can now "write()". That can all be handled
+via interrupt. But, now for the receive <grin>. The user-mode code
+needs to be sleeping until some data are available. That data
+may never be available. Something in the driver needs to wait
+until the hardware is addressed to receive. Since it is not now
+receiving, there is no interrupt! It takes time for the controller
+to tell you to listen and then tell somebody else to talk to you.
+This means that I need some timeout to recover from the fact
+that the other guy may never talk.
 
+Once the other guy starts sending data, the interrupts can be
+used to handle the data and, once there are valid data, the
+device owner can be awakened, presumably sleeping in poll() or
+select(). It's the intermediate time where there are no
+interrupts that needs the CPU to determine that we've waited
+too long for interrupts so the device had better get off the
+bus to start the error recovery procedure.
 
-Xuan and James, you have both seen this bug with smbfs not properly
-handling changes made on the server. Could you please test this patch vs
-2.4.4 and let me know if it helps or not.
+Bright an early tommorrow, I will check out both ways. A kernel
+thread might be "neat". However, I may just look to see if
+I can just poll while using existing code.
 
-http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.4-truncate+retry-4.patch
-(Apply with 'patch -p1' in the linux/ source dir)
+Cheers,
+Dick Johnson
 
-/Urban
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

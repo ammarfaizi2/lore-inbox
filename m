@@ -1,46 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317597AbSGOSvv>; Mon, 15 Jul 2002 14:51:51 -0400
+	id <S317598AbSGOSxq>; Mon, 15 Jul 2002 14:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317601AbSGOSvu>; Mon, 15 Jul 2002 14:51:50 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18961 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317597AbSGOSvr>; Mon, 15 Jul 2002 14:51:47 -0400
-Date: Mon, 15 Jul 2002 11:50:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <200207151607.g6FG7In203512@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.33.0207151148080.19586-100000@penguin.transmeta.com>
+	id <S317600AbSGOSxp>; Mon, 15 Jul 2002 14:53:45 -0400
+Received: from lockupnat.curl.com ([216.230.83.254]:41455 "EHLO
+	egghead.curl.com") by vger.kernel.org with ESMTP id <S317598AbSGOSxm>;
+	Mon, 15 Jul 2002 14:53:42 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
+Distribution: local
+References: <20020715075221.GC21470@uncarved.com> <Pine.LNX.3.95.1020715084232.22834A-100000@chaos.analogic.com> <20020715133507.GF32155@merlin.emma.line.org> <s5gwurxt59x.fsf@egghead.curl.com> <20020715151833.GA22828@merlin.emma.line.org> <s5g4rf1t1j6.fsf@egghead.curl.com> <20020715181650.GA20665@merlin.emma.line.org>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 15 Jul 2002 14:56:36 -0400
+In-Reply-To: <mit.lcs.mail.linux-kernel/20020715181650.GA20665@merlin.emma.line.org>
+Message-ID: <s5gwurwstuj.fsf@egghead.curl.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
 
-On Mon, 15 Jul 2002, Albert D. Cahalan wrote:
->
-> It's not a different value in libproc. There's autodetection.
-> I can't just support "the majority of ARM", and people keep
-> giving me shit about HZ supposedly being a per-arch constant.
-> (not that there's a sane way to get a per-arch constant from
-> user code anyway)
+> > For example, a typical MTA might follow this paradigm:
+> > 
+> >     write temp file
+> >     fsync()
+> >     rename temp file to destination
+> >     fsync()
+> 
+> So does fsync() guarantee rename() persistence across crash on all file
+> systems and kernel versions? IIRC, no.
 
-But that's just _wrong_.
+It depends on what you fsync() :-).
 
-There _is_ a sane way to get the per-arch constant, and there has been for 
-a long long time.
+On BSD, fsync() of a file's descriptor will commit the rename of that
+file to disk.
 
-The kernel exports it with the AT_CLKTCK ELF auxiliary note to every ELF
-binary ever loaded, and I think glibc in turn exports that value through
-the regular sysconf(_SC_CLK_TCK) thing. (Yeah, I disagree with some of the
-glibc sysconf implementation, but it sure should be there, and it's
-documented).
+On Linux, fsync() of the *directory's* descriptor is required.  And
+yes, this will work across file systems and Linux versions, according
+to Linus/Alan/etc.
 
-If that doesn't work, then it's a glibc bug (well, in theory there could
-be a kernel bug too, but since it's a one-liner in the kernel I really
-doubt it).
+> That'd be inefficient for the double fsync().
 
-		Linus
+But it is necessary.  See below.
 
+> Postfix is ahead of that: it omits the first fsync() you suggest,
+> because the +x flag, while necessary, is not sufficient to mark the
+> mail as "complete, further processing allowed". The "message file"
+> is a structured file format that has an "end" record at the end of
+> the file.
+
+This is not sufficient!  Data writes are NOT guaranteed to be ordered.
+It is permissible for the file system to flush the first and last
+block of a file to disk BEFORE flushing the middle.  You either need
+the double fsync() or you need a checksum in the file; simple markers
+are not enough to make a real guarantee.  And MTAs should be making
+real guarantees!
+
+> But let's keep this unspecific to the MTA. Unless fsync() is used to
+> enforce ordering, without data=ordered, journalled file systems can
+> "recreate" files that are not there. Undead you may call them if you
+> so like...
+
+No, data=ordered has nothing to do with recreating dead files.  What
+data=ordered does is make sure bogus blocks do not appear in new files
+(or in new extents of old files).
+
+Failing to call fsync() at all (i.e., failing to commit metadata
+updates) is what can recreate dead files.
+
+> Postfix' local(8) daemon additionally relies on rename(2) being
+> synchronous (in Maildir delivery), it does not fsync() after rename.
+> OTOH, the file is completely in Maildir/tmp/somename, so it's not
+> really lost, just invisible.
+
+No, it is lost, because the file's creation is not guaranteed to have
+happened at all!  (Well, depending on the file system and the
+semantics.  I think I need to write this up more clearly.)
+
+> > Summary: *All* MTAs should call fsync() twice.  The only issue is what
+> > descriptors they should call it on, exactly :-).
+> 
+> See above. Before that, we must know that fsync() syncs all directory
+> and file data and metadata (that makes four) all the way up to the mount
+> point. For Linux 2.0, 2.2, 2.4. For any file system and any mount
+> option. See the table project above ;-)
+
+As I said, the issue is what descriptors they should call fsync() on.
+On Linux, fsync() on a file's descriptor will commit the file's
+contents; a second fsync() on the containing directory's descriptor
+will commit the rename()/link().
+
+ - Pat

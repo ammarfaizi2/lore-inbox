@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283288AbRLDTad>; Tue, 4 Dec 2001 14:30:33 -0500
+	id <S283204AbRLDTac>; Tue, 4 Dec 2001 14:30:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282910AbRLDT3T>; Tue, 4 Dec 2001 14:29:19 -0500
-Received: from t2.redhat.com ([199.183.24.243]:18418 "HELO mail.redhat.de")
-	by vger.kernel.org with SMTP id <S283286AbRLDT24>;
-	Tue, 4 Dec 2001 14:28:56 -0500
-Date: Tue, 4 Dec 2001 20:28:54 +0100 (CET)
-From: Bernhard Rosenkraenzer <bero@redhat.de>
-X-X-Sender: brosenkr@bochum.stuttgart.redhat.com
-To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@caldera.de>,
-        Keith Owens <kaos@ocs.com.au>, <kbuild-devel@lists.sourceforge.net>,
-        <torvalds@transmeta.com>
+	id <S283288AbRLDT3P>; Tue, 4 Dec 2001 14:29:15 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:49587 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S282910AbRLDT2B>;
+	Tue, 4 Dec 2001 14:28:01 -0500
+Date: Tue, 4 Dec 2001 20:27:46 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: "Eric S. Raymond" <esr@thyrsus.com>,
+        =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= 
+	<raul@viadomus.com>,
+        linux-kernel@vger.kernel.org, matthias.andree@stud.uni-dortmund.de,
+        hch@caldera.de, kaos@ocs.com.au, kbuild-devel@lists.sourceforge.net,
+        torvalds@transmeta.com
 Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-In-Reply-To: <20011204123831.J16578@thyrsus.com>
-Message-ID: <Pine.LNX.4.42.0112042028080.10518-100000@bochum.stuttgart.redhat.com>
-X-Spam-From: abuse@localhost
-X-Spam-To: uce@ftc.gov
-X-Subliminal-Message: Microsoft sucks! Update your system to Linux today! (http://www.redhat.com/download/)
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20011204202746.G360@khan.acc.umu.se>
+In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com> <20011204194652.F360@khan.acc.umu.se> <20011204134320.P16578@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011204134320.P16578@thyrsus.com>; from esr@thyrsus.com on Tue, Dec 04, 2001 at 01:43:20PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Dec 2001, Eric S. Raymond wrote:
-
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > > I'm pretty sure that's true any more, Alan.  Red Hat shipped Python 2 in
-> > > 7.1, so the RPM-based distros like KRUD and Mandrake have had it for
-> > > seven months. Debian had it before that.   
-> > 
-> > RH shipped python2 beginning RH 7.2.
+On Tue, Dec 04, 2001 at 01:43:20PM -0500, Eric S. Raymond wrote:
+> David Weinehall <tao@acc.umu.se>:
+> > Yeah, let's lose the dependencies on perl, make, awk, sed, ld, ar,
+> > nm, strip, objcopy, objdump, depmod, grep, xargs, find, gzip,
+> > wish, tcl/tk and possibly others. That'd surely shave a lot of diskspace
+> > off my buildsystem. It's not like I use any of them for anything else...
 > 
-> Eh?  I'm going to go check my old 7.1 CDs...
+> I'm going to remove a few of these.
 
-We shipped python2 as an extra package ever since 7.1, but it's not in any 
-of the default installs because the standard tools still use python 1.5.x 
-for compatibility reasons.
+You know, I _was_ ironic about not needing most of those...
 
-LLaP
-bero
 
--- 
-This message is provided to you under the terms outlined at
-http://www.bero.org/terms.html
-
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

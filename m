@@ -1,81 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263173AbUFBP2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263191AbUFBPcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUFBP2f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 11:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUFBP2f
+	id S263191AbUFBPcd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 11:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUFBPcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 11:28:35 -0400
-Received: from CS2075.cs.fsu.edu ([128.186.122.75]:45216 "EHLO mail.cs.fsu.edu")
-	by vger.kernel.org with ESMTP id S263173AbUFBP2a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 11:28:30 -0400
-Message-ID: <1086190109.a0ea5ca71914e@system.cs.fsu.edu>
-Date: Wed,  2 Jun 2004 11:28:29 -0400
-From: khandelw@cs.fsu.edu
-To: jyotiraditya@softhome.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Select/Poll
-References: <courier.40BD66BD.00006D7D@softhome.net>
-In-Reply-To: <courier.40BD66BD.00006D7D@softhome.net>
+	Wed, 2 Jun 2004 11:32:33 -0400
+Received: from web81307.mail.yahoo.com ([206.190.37.82]:13933 "HELO
+	web81307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263199AbUFBPb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 11:31:28 -0400
+Message-ID: <20040602153128.57388.qmail@web81307.mail.yahoo.com>
+Date: Wed, 2 Jun 2004 08:31:28 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: RE: SERIO_USERDEV patch for 2.6
+To: linux-kernel@vger.kernel.org
+Cc: bilotta78@hotpop.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Originating-IP: 12.151.80.14
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-   Can you give more details - Like which machine which vendor etc.,
-On a sony vaio pcg frv31 laptop/ redhat 9.0/ after firing some 36,000+ request
-my select multiplexed server used to fail. With select I believe you not get
-any packet loss...
+Giuseppe Bilotta wrote:
+> Dmitry Torokhov wrote:
+> > On Tuesday 01 June 2004 05:23 pm, Giuseppe Bilotta wrote:
+> > > Dmitry Torokhov wrote:
+> > > > echo "rawdev" > /sys/bus/serio/devices/serio0/driver
+> > > >
+> > > > or something alont these lines. At least that's my grand plan ;)
+> > >
+> > > I like this kind of idea. Many options should be settable this
+> > > way (think for example about Synaptics and ALPS touchpad
+> >
+> > Yes, exactly, it will allow much more flexible option handling. Still,
+> > as far as your examples go:
+> >
+> > > configurations: whether to use multipointers separately or
+> > > together,
+> > - userspace task - always persent separate devices and have
+application
+> >   (GPM or X) multiplex data together.
+> 
+> Ok, in this case your ALPS patch need a little working ;) (Last
+> time I saw it it ORed the touchpad and stick values.)
 
-- Amit
+Yes it needs indeed. I have something here that treats stick as a
+mouse on a passthrough port, much like Synaptics driver. It's not
+ready for publishing yet though.  
 
-PS. If you can post the code that will be great...
+> 
+> > > (de)activation of tapping,
+> > - may be userspace task - i.e can be done in userspace if device can
+> >   report BTN_TOUCH event. If not then kernel has to toggle it.
+> 
+> > > button remapping etc).
+> > - userspace task
+> 
+> When you say "userspace task", are you saying that the
+> filtering out of, say, BTN_TOUCH events should happen at a
+> higher level than the kernel driver not reporting them at all?
+> Say, in gpm?
 
+Exactly. If you check Peter Osterlund's X driver or my GPM patches
+you will see that they get BTN_TOUCH or even ABS_PRESSURE events
+and then decide for themselves what should be considered a tap and
+what is not. And the logic is not dependent on a particular model
+but rather on set of capabilities that device reports.
 
-Quoting jyotiraditya@softhome.net:
+Kernel task is to convert data from individual devices into unified
+representation and userpace task is to do with that data whatever
+it wants. X driver does not (should not) care whether a mouse is a
+serial or PS/2 or USB. It only wants to know that it reports 2
+relative axis motions and has X number of buttons and X number of
+wheels.
 
-> Hello All,
->
-> In one of the threads named: "Linux's implementation of poll() not
-> scalable?'
-> Linus has stated the following:
-> **************
-> Neither poll() nor select() have this problem: they don't get more
-> expensive as you have more and more events - their expense is the number
-> of file descriptors, not the number of events per se. In fact, both poll()
-> and select() tend to perform _better_ when you have pending events, as
-> they are both amenable to optimizations when there is no need for waiting,
-> and scanning the arrays can use early-out semantics.
-> **************
->
-> Please help me understand the above.. I'm using select in a server to read
-> on multiple FDs and the clients are dumping messages (of fixed size) in a
-> loop on these FDs and the server maintainig those FDs is not able to get all
-> the messages.. Some of the last messages sent by each client are lost.
-> If the number of clients and hence the number of FDs (in the server) is
-> increased the loss of data is proportional.
-> eg: 5 clients send messages (100 each) to 1 server and server receives
->    96 messages from each client.
->    10 clients send messages (100 by each) to 1 server and server again
->    receives 96 from each client.
->
-> If a small sleep in introduced between sending messages the loss of data
-> decreases.
-> Also please explain the algorithm select uses to read messages on FDs and
-> how does it perform better when number of FDs increases.
->
-> Thanks and Regards,
-> Jyotiraditya
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Now operation of a touchscreen is different from operation of touchpad
+which is different from standard mouse and userspace has to distinguish
+between these, but that's because they are different classes of input
+devices and should be handled [slightly] differently.
 
+--
+Dmitry
 

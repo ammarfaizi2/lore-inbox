@@ -1,103 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312505AbSC3TvG>; Sat, 30 Mar 2002 14:51:06 -0500
+	id <S312337AbSC3UFs>; Sat, 30 Mar 2002 15:05:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312509AbSC3Tuz>; Sat, 30 Mar 2002 14:50:55 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17671 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312505AbSC3Tue>;
-	Sat, 30 Mar 2002 14:50:34 -0500
-Message-ID: <3CA616B2.1F0D8A76@zip.com.au>
-Date: Sat, 30 Mar 2002 11:49:06 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rwhron@earthlink.net
-CC: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: Linux 2.4.19-pre5
-In-Reply-To: <20020330135333.A16794@rushmore>
+	id <S312348AbSC3UFi>; Sat, 30 Mar 2002 15:05:38 -0500
+Received: from ns.suse.de ([213.95.15.193]:21510 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312337AbSC3UFf>;
+	Sat, 30 Mar 2002 15:05:35 -0500
+Date: Sat, 30 Mar 2002 21:05:34 +0100
+From: Dave Jones <davej@suse.de>
+To: Sebastian Roth <xsebbi@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.7-dj2] No keyboard input?
+Message-ID: <20020330210534.F22329@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Sebastian Roth <xsebbi@gmx.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200203302033.32284@xsebbi.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rwhron@earthlink.net wrote:
-> 
-> > This release has -aa writeout scheduling changes, which should improve IO
-> > performance (and interactivity under heavy write loads).
-> 
-> > _Please_ test that extensively looking for any kind of problems
-> > (performance, interactivity, etc).
-> 
-> 2.4.19-pre5 shows a lot of improvement in the tests
-> I run.  dbench 128 throughput up over 50%
-> 
-> dbench 128 processes
-> 2.4.19-pre4              8.4 ****************
-> 2.4.19-pre5             13.2 **************************
+On Sat, Mar 30, 2002 at 08:37:48PM +0100, Sebastian Roth wrote:
+ > Hi there,
+ > it seems that 2.5.7-dj2 doesn't like my keyboard. I can't type anything 
+ > with it. 
+ > .config is attached. 
+ > Is it possible that I have an mistake at my .config?
 
-dbench throughput is highly dependent upon the amount of memory
-which you allow it to use.  -pre5 is throttling writers based
-on the amount of dirty buffers, not the amount of dirty+locked
-buffers.   Hence this change.
+Yup 8-)
 
-It's worth noting that balance_dirty() basically does this:
+ > # CONFIG_SERIO is not set
+ > # CONFIG_SERIO_I8042 is not set
 
-	if (dirty_memory > size-of-ZONE_NORMAL * ratio)
-		write_stuff();
+You'll need a keyboard controller..
 
-That's rather irrational, because most of the dirty buffers
-will be in ZONE_HIGHMEM.  So hmmmm.  Probably we should go
-across all zones and start writeout if any of them is getting
-full of dirty data.  Which may not make any difference....
+ > # CONFIG_KEYBOARD_ATKBD is not set
+ > # CONFIG_KEYBOARD_SUNKBD is not set
+ > # CONFIG_KEYBOARD_PS2SERKBD is not set
+ > # CONFIG_KEYBOARD_XTKBD is not set
 
-> Tiobench sequential writes:
-> 10-20% more throughput and latency is lower.
+And one of the keyboard types..
 
-The bdflush changes mean that we're doing more write-behind.
-So possibly write throughput only *seems* to be better,
-because more of it is happening after the measurement period
-has ended.  It depends whether tiobench is performing an
-fsync, and is including that fsync time in its reporting.
-It should be.
-
-> Tiobench Sequential reads
-> Down 7-8%.
-
-Dunno.  I can't immediately thing of anything in pre5
-which would cause this.
- 
-> Andrew Morton's read_latency2 patch improves tiobench
-> sequential reads and writes by 10-35% in the tests I've
-> run.  More importantly, read_latency2 drops max latency
-> with 32-128 tiobench threads from 300-600+ seconds
-> down to 2-8 seconds.  (2.4.19-pre5 is still unfair
-> to some read requests when threads >= 32)
-
-These numbers are surprising.  The get_request starvation
-change should have smoothed things out.   Perhaps there's
-something else going on, or it's not working right.  If
-you could please send me all the details to reproduce this
-I'll take a look.  Thanks.
-
-> I'm happy with pre5 and hope more chunks of -aa show
-> up in pre6.  Maybe Andrew will update read_latency2 for
-> inclusion in pre6. :)  It helps tiobench seq writes too.
-> dbench goes down a little though.
-
-http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre5/
-
-
-Nice testing report, BTW.  As we discussed off-list, your
-opinions, observations and summary are even more valuable than
-columns of numbers :)
-
-Have fun with that quad, but don't break it.
-
-I'll get the rest of the -aa VM patches up at the above URL
-soonish.  I seem to have found a nutty workload which is returning
-extremely occasional allocation failures for GFP_HIGHUSER
-requests, which will deliver fatal SIGBUS at pagefault time.
-There's plenty of swap available, so this is a snag.
-
--
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265139AbSKRWFg>; Mon, 18 Nov 2002 17:05:36 -0500
+	id <S265066AbSKRV7N>; Mon, 18 Nov 2002 16:59:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265132AbSKRWEl>; Mon, 18 Nov 2002 17:04:41 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:26506 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S265114AbSKRWEY> convert rfc822-to-8bit; Mon, 18 Nov 2002 17:04:24 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Ragnar =?iso-8859-1?q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
-       Rashmi Agrawal <rashmi.agrawal@wipro.com>
-Subject: Re: Failover in NFS
-Date: Mon, 18 Nov 2002 16:11:06 -0600
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <3DD90197.4DDEEE61@wipro.com> <20021118164408.B30589@vestdata.no>
-In-Reply-To: <20021118164408.B30589@vestdata.no>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211181611.06241.pollard@admin.navo.hpc.mil>
+	id <S265081AbSKRV6Z>; Mon, 18 Nov 2002 16:58:25 -0500
+Received: from picante.ne.client2.attbi.com ([24.91.80.18]:13560 "EHLO
+	habanero.picante.com") by vger.kernel.org with ESMTP
+	id <S265066AbSKRV6E>; Mon, 18 Nov 2002 16:58:04 -0500
+Message-Id: <200211182204.gAIM47mU030748@habanero.picante.com>
+From: Grant Taylor <gtaylor+lkml_cjiia111802@picante.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+Date: Mon, 18 Nov 2002 17:04:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 November 2002 09:44 am, Ragnar Kjørstad wrote:
-> On Mon, Nov 18, 2002 at 08:34:55PM +0530, Rashmi Agrawal wrote:
-> > 1. I have a 4 node cluster and nfsv3 in all the nodes of cluster with
-> > server running in one
-> > of the 2 nodesconnected to shared storage and 2 other nodes are acting
-> > as clients.
-> > 2. If nfs server node crashes, I need to failover to another node
-> > wherein I need to have access
-> > to the lock state of the previous server and I need to tell the clients
-> > that the IP address of the
-> > nfs server node has changed. IS IT POSSIBLE or what can be done to
-> > implement it?
->
-> No, you need to move the IP-address from the old nfs-server to the new
-> one. Then to the clients it will look like a regular reboot. (Check out
-> heartbeat, at http://www.linux-ha.org/)
->
-> You need to make sure that NFS is using the shared ip (the one you move
-> around) rather than the fixed ip. (I assume you will have a fixed ip on
-> each host in addition to the one you move around). Also, you need to put
-> /var/lib/nfs on shared stoarage. See the archive for more details.
+Ulrich Drepper writes:
 
-It would actually be better to use two floating IP numbers. That way during
-normal operation, both servers would be functioning simultaneously
-(based on the shared storage on two nodes).
+>> epoll does hook f_op->poll() and hence uses the asm/poll.h bits.
 
-Then during failover, the floating IP of the failed node is activated on the
-remaining node (total of 3 IP numbers now, one real, two floating). The NFS
-recovery cycle should then cause the clients to remount the filesystem from
-the backup server.
+> It does today. We are talking about "you promise that this will be
+> the case ever after or we'll cut your head off". 
+> [...]
+> it is not you who has to deal with the fallout of a change when it
 
-When the failed node is recovered, the active server should then disable the
-floating IP associated with the recovered server, causing only the mounts
-using that IP number to fall back to the proper node, balancing the load
-again.
+Maybe Davide wouldn't, but *I* do; my project at work runs over epoll,
+and interface changes would require rework by me.
+
+Sensible interface changes in the future won't bother me.  I don't
+expect anything in the future nearly as earth-shattering as this
+current driver/ioctl->syscall transition.
+
+> If epoll is so different from poll (and this is what I've been told
+> frmo Davide) then there should be a clear separation of the
+> interfaces and all those arguing to unify the data types and
+> constants better should rethink there understanding.
+
+The main call returns a subset of the information that poll returns.
+What could be more natural than to name that subset the same thing?
+
+Really, sys_epoll does two things:
+
+ 1 It sets up epoll itself.  
+
+   This interface is entirely epoll-specific, and has all EP-specific
+   constants etc, in <sys/epoll.h>, as well it should.
+
+
+ 2 It returns the set of poll bits that have changed since the last
+   epoll.
+
+   This interface is defined largely in terms of poll, and that's OK.
+   How many changes do you expect in the poll interface?
+
+
+In the end, I don't really feel all that strongly about this bits
+issue (since truth be told the performance impact will be very small
+at most) so it's up to you and Davide.
+
+
+OTOH, I really hate the "user pointer in struct epollfd" thing...
+
 -- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+Grant Taylor - gtaylor<at>picante.com - http://www.picante.com/~gtaylor/
+   Linux Printing Website and HOWTO:  http://www.linuxprinting.org/

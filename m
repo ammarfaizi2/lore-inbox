@@ -1,80 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbTFZA6s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 20:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265252AbTFZA5S
+	id S265258AbTFZAvp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 20:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265281AbTFZAtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 20:57:18 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:56026 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265291AbTFZAzy
+	Wed, 25 Jun 2003 20:49:11 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:46828 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S265276AbTFZAsy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 20:55:54 -0400
-Date: Wed, 25 Jun 2003 18:09:36 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Robert White <rwhite@casabyte.com>, Timothy Miller <miller@techsource.com>,
-       David Woodhouse <dwmw2@infradead.org>, Larry McVoy <lm@bitmover.com>,
-       Werner Almesberger <wa@almesberger.net>,
-       Stephan von Krawczynski <skraw@ithnet.com>, miquels@cistron-office.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030626010936.GA17417@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	Robert White <rwhite@casabyte.com>,
-	Timothy Miller <miller@techsource.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Larry McVoy <lm@bitmover.com>,
-	Werner Almesberger <wa@almesberger.net>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	miquels@cistron-office.nl, linux-kernel@vger.kernel.org
-References: <PEEPIDHAKMCGHDBJLHKGGEEJDBAA.rwhite@casabyte.com> <Pine.LNX.4.44.0306251718120.1870-100000@dlang.diginsite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0306251718120.1870-100000@dlang.diginsite.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Wed, 25 Jun 2003 20:48:54 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Larry McVoy" <lm@bitmover.com>, "Robert White" <rwhite@casabyte.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Date: Wed, 25 Jun 2003 16:05:01 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEOBDOAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030625210944.GB11956@work.bitmover.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2003 at 05:27:42PM -0700, David Lang wrote:
-> Robert, nobody is disagreeing with this part of the discussion, that I
-> hear Larry saying is that this process isn't producing innovations, it is
-> almost exclusivly producing copies.
-> 
-> the companies doing propriatatry work are doing the innovation and the
-> fact that their ideas get copied quickly is reducing/eliminating their
-> return on investment and is killing them (some slowly some quickly)
-> 
-> one big reason why innovation is so much more expensive then copying is
-> that when you are innovating you spend a lot of time going down dead-ends,
-> you have to cover all that time spent and thrown away in the cost of the
-> product that you produce. when you are copying you get to avoid a lot of
-> these dead-ends becouse you know what the final product looks like, it's
-> much easier to work towards a known goal then to work towards something
-> that you think will work.
-> 
-> Then Larry asks the question 'what will we do if we kill off the companies
-> that are paying people to do this innovation and there isn't any more
-> software to copy'
-> 
-> David Lang
 
-Perfect summary.  Thanks.  I know my point of view is somewhat extreme
-but I've always done that.  One of the things I've learned is to ignore
-small adjustments to what is going on right now, look for the asymptote.
-Where are we going if we ignore the next 10 years and look out beyond
-that?  So looking at the place where free software has killed off their
-"hosts" isn't a near term event but it is a fairly likely long term event.
-If the free software doesn't start figuring out how to backfill the
-development efforts which produce new things, the future looks like a
-very dull gray sort of world where all the programmers are the moral
-equivalents of today's COBOL programmers.  Not a place I want to be,
-dunno about you.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> The fact that you aren't someone who has run a business doesn't, as you
+> say, necessarily mean that you are less skilled but it certainly, without
+> any room for disagreement, means you are less experienced.  Experience is
+> a valuable thing, to me if not to you.  A very valuable thing.  I'm not
+> discounting your words, I've read them, thought about them, and decided
+> that I value them less than I value information coming from people with
+> experience in running a business.
+
+	If I see an argument, I don't give a damn who made it. I evaluate the
+argument based upon its merits. If I'm not competent to evaluate the
+argument on its merits, I'm not competent to have an opinion at all.
+Essentially, you're arguing that ad hominem is a valid reasoning tool, even
+to reject arguments in which you see no flaw.
+
+	Sure, if someone is a raving lunatic, you might not bother to look at what
+they're saying at all. On the other hand, if Bill Gates thinks a business
+plan is a good one, you might pay more attention to what he's saying.
+
+	But by your own words, you have already read his argument and thought about
+it. At this point, the argument either stands or falls on its merits. If you
+can't evaluate it, then you couldn't evaluate it regardless of who made it,
+and so you're in no position to have an opinion at all.
+
+	It is definitely inappropriate, once you've committed to discussing
+something, to then turn around and say that you can't evaluate competing
+claims unless you also withdraw your own. If you can't evaluate competing
+claims, then of what value is your opinion to anyone else?
+
+	It is also inappropriate to say "I've talked to experts, this is the
+impression they convey to me." Then when people attempt to refute your
+claims, you say, "well, I trust the experts and that's what they say". Of
+course, you're the one who gets to decide what qualifies as an expert, and
+it's never based upon how well-reasoned their arguments are. Let the experts
+make their own arguments. If you're not competent to defend the points and
+respond to rebuttals, you're not competent to decide who an expert is.
+
+	DS
+
+

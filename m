@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291246AbSBSLOq>; Tue, 19 Feb 2002 06:14:46 -0500
+	id <S291247AbSBSLSE>; Tue, 19 Feb 2002 06:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291247AbSBSLOf>; Tue, 19 Feb 2002 06:14:35 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:11251 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S291246AbSBSLOW>;
-	Tue, 19 Feb 2002 06:14:22 -0500
-Date: Tue, 19 Feb 2002 04:14:09 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ?
-Message-ID: <20020219041409.J24428@lynx.adilger.int>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L2.0202151501220.11494-100000@dragon.pdx.osdl.net> <Pine.LNX.4.33L2.0202151657230.11494-100000@dragon.pdx.osdl.net>
+	id <S291248AbSBSLRy>; Tue, 19 Feb 2002 06:17:54 -0500
+Received: from holomorphy.com ([216.36.33.161]:11926 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S291247AbSBSLRn>;
+	Tue, 19 Feb 2002 06:17:43 -0500
+Date: Tue, 19 Feb 2002 03:13:32 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Samium Gromoff <root@ibe.miee.ru>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Ess Solo-1 interrupt behaviour
+Message-ID: <20020219111332.GJ3511@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Samium Gromoff <root@ibe.miee.ru>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16d81Q-00008y-00@the-village.bc.nu> <200202191344.g1JDiUP12170@ibe.miee.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33L2.0202151657230.11494-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Fri, Feb 15, 2002 at 05:10:48PM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <200202191344.g1JDiUP12170@ibe.miee.ru>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 15, 2002  17:10 -0800, Randy.Dunlap wrote:
-> On Fri, 15 Feb 2002, Randy.Dunlap wrote:
-> | On Fri, 15 Feb 2002, Andreas Dilger wrote:
-> | | HDR=`binoffset $1 0x1f 0x8b 0x08 0x0`
-> | | dd if=$1 bs=1 skip=$HDR | zcat | strings /dev/stdin | grep CONFIG_
-> 
-> Interim report:  I agree with the spirit of no temp. file, but one of
-> zcat or strings isn't working for me when I use only pipes.  The final
-> output file is empty (length = 0).
-> 
-> Hers's the current script:
-> 
-> HDR=`binoffset $1 0x1f 0x8b 0x08 0x0`
-> dd if=$1 bs=1 skip=$HDR | zcat - | strings /dev/stdin \
->   | grep "[A-Za-z_0-9]=[ym]$" | sed "s/^/CONFIG_/" > $1.old.config
+At some point in the past, Samium Gromoff wrote:
+>>>         I`ve recently spotted that a solo1 pci soundcard generates
+>>> 16000+ interrupts/second with esd started idling.
 
-Hmm, I tried this, and it works with 'strings /dev/stdin < tmpfile' but
-not 'cat tmpfile | strings /dev/stdin' which is sort of wierd.
+"  Alan Cox wrote:"
+>> Thats an esd bug. ESD tries to use ridiculously small fragment sizes
 
-I suppose you could always either:
-a) fix 'strings' so that it accepts a '-' parameter to read from stdin
-b) write a special-purpose 'strings | grep | sed' replacement tool for
-   this purpose (or even include the binoffset part and link with zlib
-   to do the decompression part).  No idea how hard it would be.  As
-   for speed, almost anything would be faster in-memory than writing
-   out the temp file.
+I'm not sure what it is, but I traded in esd, the sound card, and the
+scheduler upon gaining greater insight into this.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+On Tue, Feb 19, 2002 at 04:44:28PM +0300, Samium Gromoff wrote:
+>   Wait, wait, but my ISA Vibra 16 generates 20+ times less interrupts, with the
+>   _same_ esd! 
 
+A lot of it is the hardware. I haven't looked very hard at the drivers,
+but my time/money tradeoff seemed to scream "just get new hardware you
+don't have time to look at the code down there". Maybe someone else does...
+
+Any volunteers? I'd at least be willing to run tests. I've seen this too.
+
+Cheers,
+Bill

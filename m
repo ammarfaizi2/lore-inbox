@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVACXKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVACXOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbVACXKn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 18:10:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVACXJi
+	id S261920AbVACXOI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 18:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVACXLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 18:09:38 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:38809 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261931AbVACXGA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:06:00 -0500
-Message-ID: <41D9CFE0.6090002@tmr.com>
-Date: Mon, 03 Jan 2005 18:06:08 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Mon, 3 Jan 2005 18:11:35 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:440 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261920AbVACXKZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 18:10:25 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CACD@exa-atlanta>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'Matt Domsch'" <Matt_Domsch@dell.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Cc: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>, brking@us.ibm.com,
+       linux-kernel@vger.kernel.org,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, bunk@fs.tum.de,
+       Andrew Morton <akpm@osdl.org>, "Ju, Seokmann" <sju@lsil.com>,
+       "Doelfel, Hardy" <hdoelfel@lsil.com>, "Mukker, Atul" <Atulm@lsil.com>
+Subject: RE: How to add/drop SCSI drives from within the driver?
+Date: Mon, 3 Jan 2005 18:02:20 -0500 
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Adrian Bunk <bunk@stusta.de>, William Lee Irwin III <wli@debian.org>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-References: <20050102221534.GG4183@stusta.de><1697129508.20050102210332@dns.toxicfilms.tv> <Pine.LNX.4.61.0501031019110.25392@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0501031019110.25392@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> On Sun, 2 Jan 2005, Adrian Bunk wrote:
-> 
->> The main advantage with stable kernels in the good old days (tm) when 4
-> 
-> 
->> Nowadays in 2.6, every new 2.6 kernel has several regressions compared
->> to the previous one, and additionally obsolete but used code like
-> 
-> 
-> 2.2 before 2.2.20 also had this kind of problem, as did
-> the 2.4 kernel before 2.4.20 or thereabouts.
-> 
-> I'm pretty sure 2.6 is actually doing better than the
-> early 2.0, 2.2 and 2.4 kernels...
-> 
-2.6 is doing better in terms of staying up, not eating my files, etc. 
-I'm less sure about the things being 'changed' (by design) vs. 'broken' 
-(by unintended bug introduction). My sense is that there are people who 
-want to remove features which are not broken nor causing huge overhead 
-or developer effort.
+Hello All,
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+I am trying to stoke this thread once more. Please review the brief summary
+of all discussion and a new sysfs based proposal.
+
+o    The more ideal and long-term way to handle addition and removal of
+devices is through hotplug mechanism. Currently it is not fully developed.
+Moreover, the megaraid SCSI driver doesn't get any event notification from
+the FW that the configuration has been changed.
+
+o    Management App that communicates to FW via driver private ioctls is the
+one that creates/modifies the configuration. This is transparent to the
+driver.
+
+o    Logical drives being "logical", the driver exports the logical drives
+on virtual
+SCSI addresses. The management app that knows about LD0, LD1 .. LDn, does
+not know the LDn to HCTL mapping (Host:Channel:Target:Lun)
+
+o    Everybody understands that as long as the SCSI scan/rescan is triggered
+by 
+the management app, there is no getting around knowing HCTL mapping. The app
+must know the HCTL quad of a logical drive.
+
+o    Our original solution was that the driver returns HCTL of a LD via
+ioctl. This
+has been squarely rejected because kernel cannot add any more private
+ioctls.
+
+Considering that the app has to somehow _know_ the HCTL given a logical
+drive
+(that it has deleted or will be adding), please provide your feedback on the
+following
+proposal. I know that it is not radically different.
+
+The driver would create nodes for all possible logical drives.
+
+/sys/modules
+ |-- megaraid_mbox
+ |   |-- LD0
+ |   |-- LD1
+ |   |-- LD2
+ |   |-- LD(i)
+ |   |-- LD40
+
+One of the attributes of a LD node would be HCTL information. A management
+app
+can then scan, delete the LDs using corresponding HCTL address.
+
+Y'all have a great new year!
+
+Sreenivas
+LSI Logic

@@ -1,84 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129289AbQLSKQA>; Tue, 19 Dec 2000 05:16:00 -0500
+	id <S129228AbQLSL3D>; Tue, 19 Dec 2000 06:29:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129228AbQLSKPu>; Tue, 19 Dec 2000 05:15:50 -0500
-Received: from smtp.alcove.fr ([212.155.209.139]:57358 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S129183AbQLSKPn>;
-	Tue, 19 Dec 2000 05:15:43 -0500
-Date: Tue, 19 Dec 2000 10:45:12 +0100
-From: Stelian Pop <stelian.pop@alcove.fr>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Driver for emulating a tape device on top of a cd writer...
-Message-ID: <20001219104512.A10971@wiliam.alcove-int>
-Reply-To: Stelian Pop <stelian.pop@alcove.fr>
-In-Reply-To: <20001218112529.B6315@wiliam.alcove-int> <20001218190442.B473@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20001218190442.B473@suse.de>; from axboe@suse.de on Mon, Dec 18, 2000 at 07:04:42PM +0100
+	id <S129370AbQLSL2x>; Tue, 19 Dec 2000 06:28:53 -0500
+Received: from [212.32.186.211] ([212.32.186.211]:7108 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S129228AbQLSL2j>; Tue, 19 Dec 2000 06:28:39 -0500
+Date: Tue, 19 Dec 2000 11:58:10 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Hans-Joachim Baader <hjb@pro-linux.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18: Thread problem with smbfs
+In-Reply-To: <20001219093341.E10DC3ED844@grumbeer.hjb.de>
+Message-ID: <Pine.LNX.4.21.0012191057010.8007-100000@cola.svenskatest.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2000 at 07:04:42PM +0100, Jens Axboe wrote:
+On Tue, 19 Dec 2000, Hans-Joachim Baader wrote:
 
-> > Basically, I would like to be able to use a cdwriter as a tape
-> > device, with software like dump(8) or tar(1). With /dev/tcdw
-> > as name (for example), I'd like to be able to do:
-> > [...]
+> and so on, endlessly. So, AFAIK,  smbfs thinks it has lost connection and
+> tells smbmount to re-establish it, which succeeds (at least smbmount
+> thinks so). This happens several times per second.
 
-> What you describe is actually one of the goals of the packet writing
-> driver. To do this reliably you need packet writing, I won't even
-> start to think about the headaches wihtout it...
+-512 means that the recv was interrupted by a signal, or rather, the
+current process has a signal maybe the recv was interrupted, maybe there
+is a problem with the connection, better reconnect.
 
-Yes, I saw your patch for packet writing but:
-- the CD written with packet writing software may not be readable
-  on standard CD-ROM drives (and I want that, because almost 
-  everybody has one).
+Still, it's better than pre-2.2.18 where smbmount wouldn't stay alive ...
 
-- using packet writing you basically write _files_ on top of an
-  UDF filesystem. Tar and dump (or afio, cpio etc) does not
-  support that kind of access, they expect to be given a character
-  device they can stream data to. (Of course, it is possible to
-  add some additionnal level of indirection on top of the packet
-  device and provide character based access to the UDF files, but
-  IMHO _this_ would be overkill).
+I don't really know how signal delivery works within the kernel, but
+smb_trans2_request tries to disable some signals. That does not work
+(completely?) so either it needs fixing or the -512 errno needs to be
+handled.
 
-- data backups are expected to be fast. Writing data in DAO/TAO
-  mode is much quicker than in packet mode.
+Why so bad in gdb? perhaps it causes more signals.
+Why does one thread end up in D state? don't know.
 
-- reliability is a question of implementation. cdrecord can
-  be very reliable. If a user space application can provide this
-  level of reliability, it should be even simpler to achieve it
-  in kernel space (and I plan to use the BurnProof/etc extensions
-  which will be present on all future cdwriters).
 
-> > I'll start to work on this, probably by looking at the cdrecord 
-> > low level code and porting it into kernel space.
-> 
-> Oh god no! You can do all this from user space.
+> Kernel 2.2.18, smbfs as a module. I can provide more info if necessary.
 
-Please pay attention to the fact that I was refering to the 'low level
-code'. I don't intend to write a driver who can replace cdrecord. 
-_This_ would be madness.
+A small testprogram that causes this would be nice. The -512 is easy to
+reproduce but I haven't seen the 'D' before.
 
-What I indend to do is just a 'small' driver, which supports only the
-mmc drives. I expect the driver to be only some hundreds lines long.
+If someone is interested the relevant code is fs/smbfs/sock.c
+(smb_trans2_request, ..., _recvfrom)
 
-Doing that from user space would mean propagating the data from
-the user space application (dump or tar) to a character mode
-driver, and back to a user space application (something like a hacked 
-cdrecord), which will return in kernel space using sg interface...
-It could be easier to write (even if I don't exactly feel confident
-about hacking the cdrecord source :) ), but the reliability and
-the performance would be far far away...
+/Urban
 
--- 
-Stelian Pop <stelian.pop@alcove.fr>
-| Alcôve - http://www.alcove.fr
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

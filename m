@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbUBIObv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 09:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUBIObv
+	id S265238AbUBIOgG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 09:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265242AbUBIOgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 09:31:51 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:24119 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S265227AbUBIObt
+	Mon, 9 Feb 2004 09:36:06 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:63201 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265238AbUBIOgC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 09:31:49 -0500
-Date: Mon, 9 Feb 2004 15:31:46 +0100
-To: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-Cc: Georg M?ller <georgmueller@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: cpufreq - less possible freqs with 2.6.2 and P4M
-Message-ID: <20040209143146.GA16218@poupinou.org>
-References: <402562D4.7010706@gmx.net> <yw1xd68q4h05.fsf@kth.se> <402656CB.7070701@gmx.net> <1076256735.1840.8.camel@LNX.iNES.RO>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Feb 2004 09:36:02 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Subject: Re: Linux 2.6.3-rc1
+Date: Mon, 9 Feb 2004 15:41:32 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0402061823040.30672@home.osdl.org> <4026F312.60703@tomt.net> <200402091341.08526.arekm@pld-linux.org>
+In-Reply-To: <200402091341.08526.arekm@pld-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1076256735.1840.8.camel@LNX.iNES.RO>
-User-Agent: Mutt/1.5.4i
-From: Bruno Ducrot <poup@poupinou.org>
+Message-Id: <200402091541.32130.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 08, 2004 at 06:12:15PM +0200, Dumitru Ciobarcianu wrote:
-> On Sun, 2004-02-08 at 16:33 +0100, Georg M??ller wrote:
-> > M??ns Rullg??rd wrote:
-> > > Which cpufreq module are you using?  With p4-clockmod I get lots of
-> > > choices, with acpi only the two you mentioned.
-> > > 
-> > 
-> > Ok, that works. With P4 clockmod only there are the freqs I wanted :-)
-> 
-> But I don't know it's having the effect you desire... :)
-> 
-> By monitoring /proc/acpi/battery/*/state ("present rate" key) I found
-> that by using p4-clockmod at the lovest rate the processor permits, it's
-> actually using more energy than by using speedstep_ich (only two levels
-> of frequency).
-> 
-> I don't know if this is a bug of p4-clockmod or a hw bug in my machine
-> though... can you please check in your machine?
+On Monday 09 of February 2004 13:41, Arkadiusz Miskiewicz wrote:
+> Dnia Monday 09 of February 2004 03:40, Andre Tomt napisa³:
+> > Ahh, indeed it does, _but_
+> >
+> > pdc202xx_old seems to have the same bug, making via82cxxx crash later on
+> > instead.
+> >
+> > Doing the same change to pdc202xx_old.h (removing __initdata) fixes this
+> > case too :-)
+>
+> What about others?
+>
+> ./pdc202xx_old.h:static ide_pci_host_proc_t pdc202xx_procs[] = {
+> ./hpt34x.h:static ide_pci_host_proc_t hpt34x_procs[] __initdata = {
+> ./alim15x3.h:static ide_pci_host_proc_t ali_procs[] __initdata = {
+> ./amd74xx.h:static ide_pci_host_proc_t amd74xx_procs[] __initdata = {
+> ./cs5530.h:static ide_pci_host_proc_t cs5530_procs[] __initdata = {
+> ./pdc202xx_new.h:static ide_pci_host_proc_t pdcnew_procs[] = {
+> ./piix.h:static ide_pci_host_proc_t piix_procs[] __devinitdata = {
+> ./sc1200.h:static ide_pci_host_proc_t sc1200_procs[] __initdata = {
+> ./slc90e66.h:static ide_pci_host_proc_t slc90e66_procs[] __initdata = {
+> ./serverworks.h:static ide_pci_host_proc_t svwks_procs[] __initdata = {
+> ./cmd64x.h:static ide_pci_host_proc_t cmd64x_procs[] __initdata = {
+> ./aec62xx.h:static ide_pci_host_proc_t aec62xx_procs[] __initdata = {
+> ./siimage.h:static ide_pci_host_proc_t siimage_procs[] __initdata = {
+> ./sis5513.h:static ide_pci_host_proc_t sis_procs[] __initdata = {
+> ./via82cxxx.h:static ide_pci_host_proc_t via_procs[] __initdata = {
+> ./hpt366.h:static ide_pci_host_proc_t hpt366_procs[] __initdata = {
+> ./triflex.h:static ide_pci_host_proc_t triflex_proc __initdata = {
+> ./cs5520.h:static ide_pci_host_proc_t cs5520_procs[] __initdata = {
+>
+> all these __initdata (one __devinitdata) should also be removed?
 
-p4-clockmod offer only the possibility to throtte the cpu (and therefore
-you can get a kind of frequency setting when you change the duty cycle),
-but it do not scale voltage for the processor, whereas speedstep-ich will
-offer you the possibility to scale voltage and frequency by changing
-directly the core multiplier.
+Yes.  Patch should be already in Linus' mailbox.
 
-In fact, if you have at least power control for the processor via ACPI
-(look into /proc/acpi/processor/????/power), and your machine support
-at least the power state C2, and if you are using the p4-clockmod,
-or anything that do throttle the processor, you reduce the windows time
-when the processor can enter at least this C2 power state, and this may
-actually consume *more* power than you would expect, especially if the
-system is mostly idle.
-
-Cheers,
-
--- 
-Bruno Ducrot
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.

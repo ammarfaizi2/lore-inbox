@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313503AbSDGXKP>; Sun, 7 Apr 2002 19:10:15 -0400
+	id <S313507AbSDGXQr>; Sun, 7 Apr 2002 19:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313502AbSDGXKP>; Sun, 7 Apr 2002 19:10:15 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:64252 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S313498AbSDGXKO> convert rfc822-to-8bit; Sun, 7 Apr 2002 19:10:14 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Sun, 7 Apr 2002 16:10:09 -0700
-In-Reply-To: <20020407185603Z313423-22651+1324@vger.kernel.org>
-Subject: Re: Urgent Assistance Needed
+	id <S313508AbSDGXQq>; Sun, 7 Apr 2002 19:16:46 -0400
+Received: from zero.tech9.net ([209.61.188.187]:4875 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313507AbSDGXQp>;
+	Sun, 7 Apr 2002 19:16:45 -0400
+Subject: Re: Linux 2.4.19-pre6
+From: Robert Love <rml@tech9.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>, viro@math.psu.edu
+In-Reply-To: <20020407163026.G46@toy.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 07 Apr 2002 19:16:33 -0400
+Message-Id: <1018221403.913.134.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20020407231011.AAA13684@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2002-04-07 at 12:30, Pavel Machek wrote:
 
->THIS TRANSACTION IS 100% RISK FREE, FOR WE HAVE CONCLUDED EVERY ARRANGEMENT
->TO SAFEGUARD YOU IN THIS TRANSACTION.
+> > <viro@math.psu.edu> (02/04/01 1.322)
+> > 	turns (mount_sem,vfsmntlist,root_vfsmnt) into per-process object
+> > 
+> > <viro@math.psu.edu> (02/04/01 1.323)
+> > 	makes /proc/mounts a symlink to /proc/<pid>/mounts.
+> 
+> I don't see how this could be considered bugfix. Seems like new feature to
+> me, and dangerous one, too.
 
-	This was the best laugh I've had all week. It almost makes it worth enduring 
-the spam.
+It isn't a bugfix, it is a new feature - and I am generally against new
+things in 2.4 like this but it is a pretty sane one.  Further it has
+seen testing in 2.5 and is without a doubt stable.
 
-	DS
+The new semantics are such that applications inherit from their parent
+their namespace, so if user code is not changed everything is the same
+to applications.
 
+Oh, and Al knows what he is doing.
+
+	Robert Love
 

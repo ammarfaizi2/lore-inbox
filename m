@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268540AbTBWTuL>; Sun, 23 Feb 2003 14:50:11 -0500
+	id <S268536AbTBWTzt>; Sun, 23 Feb 2003 14:55:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268542AbTBWTuL>; Sun, 23 Feb 2003 14:50:11 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6406 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268540AbTBWTuK>; Sun, 23 Feb 2003 14:50:10 -0500
-Date: Sun, 23 Feb 2003 19:59:40 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: John Weber <weber@nyc.rr.com>
-Subject: Re: 2.5 weirdness
-Message-ID: <20030223195940.I20405@flint.arm.linux.org.uk>
-References: <20030221221814.GA1316@triplehelix.org> <20030221152502.A9282@sonic.net> <3E592431.3080606@nyc.rr.com> <20030223195200.GA10668@triplehelix.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030223195200.GA10668@triplehelix.org>; from joshk@triplehelix.org on Sun, Feb 23, 2003 at 11:52:00AM -0800
+	id <S268538AbTBWTzt>; Sun, 23 Feb 2003 14:55:49 -0500
+Received: from imo-r07.mx.aol.com ([152.163.225.103]:54004 "EHLO
+	imo-r07.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S268536AbTBWTzs>; Sun, 23 Feb 2003 14:55:48 -0500
+Message-ID: <3E59299B.8090200@netscape.net>
+Date: Sun, 23 Feb 2003 12:05:47 -0800
+From: Sheng Long Gradilla <skamoelf@netscape.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?UTF-8?B?VG9wbGljYSBUYW5hc2tvdmnEhw==?= <toptan@EUnet.yu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
+References: <JJEJKAPBMJAOOFPKFDFKKEKACEAA.camber@yakko.cs.wmich.edu> <200302231450.47506.toptan@EUnet.yu> <3E58F07B.3030801@netscape.net> <200302231921.27024.toptan@EUnet.yu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 11:52:00AM -0800, Joshua Kwan wrote:
-> On Sun, Feb 23, 2003 at 02:42:41PM -0500, John Weber wrote:
-> > The problem is a little stranger than that.  On my system, cardmgr only 
-> > "believes" a card is inserted twice if a card is in the pccard slot when 
-> >  cardmgr is intially run.  Otherwise, cardmgr and the drivers appear to 
-> > function correctly.  Josh, can you try this?
+The "other kernels" I am talking about are 2.4.19 and 2.4.20 with the 
+old agpgart. As I said, the new agpgart module now loads but the results 
+are the same. I yet have to try some other tricks like setting the AGP 
+rate manually.
+
+I am also using the latest nvidia modules, which are 1.0-4191
+
+
+- Sheng Long Gradilla
+
+Toplica Tanasković wrote:
+> Dana nedelja 23. februar 2003. 17:02 napisali ste:
 > 
-> This was true.
+>>I tested on an Asus A7V8X motherboard (KT400) with a GeForce4 Ti 4200
+>>AGP8X. The module loads correctly, at last! It sets the apperture size
+>>correctly and all, but when I start XFree, I get do not get any
+>>graphical screen, but text mode garbage. Characters of all colors, with
+>>no sense at all. I had exactly the same problem in other kernels.
+>>
 > 
-> Dominik's patch which is attached has fixed that for me, at least. This
-> applies with some offset to 2.5.62, but it works.
-
-This is his old patch which has issues with cardbus cards.  If you use
-this, you also need to add the patch Dominik just posted:
-
- Date:   Sun, 23 Feb 2003 20:52:07 +0100
- From:   Dominik Brodowski <linux@brodo.de>
- Subject: [PATCH] pcmcia: cs.c bugfix (Russell King)
- Message-ID: <20030223195207.GA3227@brodo.de>
-
-Or just use his second patch in the same thread this patch came from.
-
- Date: Sun, 23 Feb 2003 13:15:53 +0100
- From: Dominik Brodowski <linux@brodo.de>
- Subject: [UPDATED PATCH] pcmcia: add socket_offset for multiple pci_sockets,
-  correct suspend&resume
- Message-ID: <20030223121553.GA10719@brodo.de>
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+>     What kernels? Are you using old agpgart or new one with other kernels?
+> 
+> 
+>>I played a bit with the NvAGP option on XF86Config file. According to
+>>the documentation, 0 is PCI mode, 1 is NvAGP or fallback to PCI if
+>>failed, 2 is AGPGART mode or fallback to PCI if failed, 3 is autodetect.
+>>If I set it to 2, 3 or comment it, I got the same problem with the
+>>garbage and had to reset the PC. Setting it to 0 would make it run in
+>>PCI mode, and it always works. I tried setting it to 1, thinking that
+>>maybe the documentation is wrong. X started successfully, but the card
+>>was in PCI mode. I read the logs to confirm it, and indeed, the NvAGP
+>>module fails to identify the AGP chipset and falls back to PCI.
+>>
+>>I tried setting NvAGP to 2 again, to read the logs and see if there is
+>>something I could find out, but unfortunately the log had nothing but
+>>garbage. I tried several times with no success. The log is always garbage.
+>>
+> 
+>     Try fetching latest nVidia drivers.
+> 
+>     I'll try to isolate problem, and send patch if neccessery.
+> 
+> 
+>>- Sheng Long Gradilla
+> 
+> 
 

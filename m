@@ -1,78 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284611AbRLIXOK>; Sun, 9 Dec 2001 18:14:10 -0500
+	id <S284604AbRLIXO3>; Sun, 9 Dec 2001 18:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284604AbRLIXN7>; Sun, 9 Dec 2001 18:13:59 -0500
-Received: from pak200.pakuni.net ([207.91.34.200]:19191 "EHLO
-	smp.paktronix.com") by vger.kernel.org with ESMTP
-	id <S284555AbRLIXNo>; Sun, 9 Dec 2001 18:13:44 -0500
-Date: Sun, 9 Dec 2001 17:13:57 -0600 (CST)
-From: "Matthew G. Marsh" <mgm@paktronix.com>
-X-X-Sender: <mgm@netmonster.pakint.net>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Oliver Xymoron <oxymoron@waste.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Default outgoing IP address?
-In-Reply-To: <Pine.LNX.3.96.1011127151949.31174F-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.31.0112091712140.21426-100000@netmonster.pakint.net>
+	id <S284619AbRLIXOU>; Sun, 9 Dec 2001 18:14:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43026 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284555AbRLIXOF>; Sun, 9 Dec 2001 18:14:05 -0500
+Message-ID: <3C13F021.3080307@zytor.com>
+Date: Sun, 09 Dec 2001 15:13:37 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: torvalds@transmeta.com, marcelo@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux/i386 boot protocol version 2.03
+In-Reply-To: <200112090922.BAA11252@tazenda.transmeta.com>	<m17krww8ky.fsf@frodo.biederman.org> <3C13DD48.3070206@zytor.com> <m11yi4vxvb.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001, Bill Davidsen wrote:
+Eric W. Biederman wrote:
 
-> On Mon, 26 Nov 2001, Oliver Xymoron wrote:
->
-> > On a machine with multiple interfaces, is it possible to set the default
-> > outgoing IP address to something other than the address for the interface
-> > on the outgoing route?
+> 
+>>(3) Contradicts (1) as well as issues with older kernels.  Keep in mind what
+>>happens if you violate this limit: the bootloader should be loading the initrd
+>>as high as possible
+>>
+> 
+> Hmm.  Bootloaders have had lots of restrictions on getting up high.  
+> Plus in some real sense it make sense to pack the two as close
+> together as possible.  For 2.5.x and Al Viro's initfs work I'd like
+> to do that.
+> 
+> If you load your ramdisk at the same location every time, after
+> a point you have fewer surprises, and potentially a simpler bootloader.
+> 
 
-Yes.
 
-ip route add 10.1.1.0/24 via 192.168.1.1 src 172.16.1.1
-                                         ^^^
-The src parameter tells the routing code to use this address when sending
-packets. The address only needs to be on the system. IE:
+NO, PLEASE PLEASE PLEASE DON'T DO THAT!!!!
 
-ip addr add 172.16.1.1/32 dev dummy0
+Not only would it royally fuck over people with small amounts of RAM, it 
+would also really fuck over people who use the Linux boot protocol for 
+other purposes, which is getting quite common.
 
-And send the packets out of eth0.
 
-> > For instance, a machine acts as a gateway, with addresses A and B, where A
-> > faces the world (but isn't in DNS) and B is the canonical address.
-> > Outgoing connections from the machine should appear to come from B.
->
-> If you mean having multiple IP addresses on the same NIC, sure you can do
-> that, see the section on DNAT in iptables. However, if you have multiple
-> NICs, you do not want to send a packet from one which has the IP of the
-> other, as your router is very likely to become confused and get its ARP
-> table in a twist.
+> 
+>>, so the only difference is if you get the error message from
+>>
+>>the boot loader or from the kernel later.  If you're going to export a limit,
+>>you better make sure it's right; "8MB except on low memory configurations"
+>>doesn't cut it.  It's exactly on those low memory configurations that this limit
+>>
+>>matters *at all*.
+>>
+> 
+> 8MB is the safe limit.  The only worry some case right now is the
+> bootmem allocator with a darn huge bitmap.  It is allocated
+> dynamically, and it is extremely hard to predict where that will be
+> except in the initial page tables 8MB in size.  If the ugly bitmap
+> is allocated elsewhere the kernel can't use it.
+> 
 
-No need for DNAT. Just routing.
 
-> You can force packets out one NIC or the other, usually using iproute, but
-> I don't think that's what you have in mind, is it? In any case, doable.
->
-> --
-> bill davidsen <davidsen@tmr.com>
->   CTO, TMR Associates, Inc
-> Doing interesting things with little computers since 1979.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+"Safe limit" isn't applicable here.  It either works or it doesn't. 
+You're breaking systems which it would otherwise work on, which is not 
+acceptable.
 
---------------------------------------------------
-Matthew G. Marsh,  President
-Paktronix Systems LLC
-1506 North 59th Street
-Omaha  NE  68104
-Phone: (402) 932-7250 x101
-Email: mgm@paktronix.com
-WWW:  http://www.paktronix.com
---------------------------------------------------
+> So if we are going to fix the fragility please let's handle both ends.
+> Then it will be o.k. to put the ramdisk where ever the kernel says
+> it is safe.  And we can stop this guessing and breaking game.
+
+
+You're giving the boot loader options that are really inappropriate. 
+All that will do is result in more variance between boot loaders and the 
+resulting bugs that will bite some bootloaders and not others.
+
+Allowing unneeded options in protocols is a source of bugs.  You seem to 
+think this is a good idea, it's not.
+
+	-hpa
+
 

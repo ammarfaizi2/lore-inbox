@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262904AbUDANjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 08:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUDANjS
+	id S262907AbUDANtV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 08:49:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUDANtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 08:39:18 -0500
-Received: from mail.shareable.org ([81.29.64.88]:4757 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S262904AbUDANjQ (ORCPT
+	Thu, 1 Apr 2004 08:49:21 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:3339 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262907AbUDANtU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 08:39:16 -0500
-Date: Thu, 1 Apr 2004 14:39:12 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: bert hubert <ahu@ds9a.nl>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: who is merlin.fit.vutbr.cz?
-Message-ID: <20040401133912.GA25163@mail.shareable.org>
-References: <200403290108.i2T18T8d024595@work.bitmover.com> <20040331182039.GA29397@outpost.ds9a.nl> <20040331213143.GC20693@mail.shareable.org> <20040331214517.GB1599@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040331214517.GB1599@outpost.ds9a.nl>
-User-Agent: Mutt/1.4.1i
+	Thu, 1 Apr 2004 08:49:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "n.v.t n.v.t" <joefso@hotmail.com>, kernelnewbies@nl.linux.org
+Subject: RE: Basic terms.
+Date: Thu, 1 Apr 2004 16:48:42 +0300
+X-Mailer: KMail [version 1.4]
+Cc: kernel-doc@nl.linux.org, linux-kernel@vger.kernel.org
+References: <BAY10-F28wGF5ucvpWy0001807e@hotmail.com>
+In-Reply-To: <BAY10-F28wGF5ucvpWy0001807e@hotmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404011648.42537.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
-> On Wed, Mar 31, 2004 at 10:31:43PM +0100, Jamie Lokier wrote:
-> > > RCU for BitKeeper trees? :-)
-> > 
-> > Last I heard, RCU is patented by IBM, with permission to use it in GPL
-> > programs (maybe limited to version 2 of the GPL?), so that Linux can use it.
-> 
-> This is really astonishing. It is not possible to say one thing about
-> bitkeeper without descending into a discussion on patents and licenses!
+On Thursday 01 April 2004 13:17, n.v.t n.v.t wrote:
+> Hello.
+>
+> I'm trying to learn more about the kernel, but when I'm reading
+> articles it has terms that are unfamiliar by me. E.g:
+>                page tables
+>                physical pages of memory
+>                virtual pages
+>                pages
+>                etc..
+>
+> These terms are hard to understand for a newbie like me, is there
+> some page where I might get clear information about what they do?
+> Could someone provide me explanation? Maybe it would be a good idea
+> to do basic term explanations in wiki?
 
-No.  It's an unfortunate coincidence that you mentioned RCU on a
-BitKeeper(tm) thread.  A suggestion to use RCU in, say, Mozilla or
-FreeBSD would have elicited a similar response.
-
-RCU patents were mentioned numerous times in the news when RCU was
-added to the kernel.  One presumes, then, that IBM was keen for it to
-be known the technique is patented, and one would be wise to tread
-carefully if intending to copy the technique as it is used in Linux,
-as you jokingly suggested.
-
-In case you misunderstood, the grandparent post was not an attack on
-BitMover.  Fwiw, I'm on BitMover's side if the RCU patent is relevant,
-which it probably is not.  I doubt if the patent extends beyond task
-scheduling done in a certain way, although as I said I have not read it.
-
--- Jamie
+reading a book about some moderm processor (x86 for example)
+will clear your confusion
+-- 
+vda

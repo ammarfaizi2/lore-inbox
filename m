@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVCOWAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVCOWCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbVCOWAm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVCOWAm
+	id S261913AbVCOWCc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVCOWBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:00:42 -0500
-Received: from fire.osdl.org ([65.172.181.4]:54160 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261910AbVCOWAJ (ORCPT
+	Tue, 15 Mar 2005 17:01:44 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:17384 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S261936AbVCOWAg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:00:09 -0500
-Date: Tue, 15 Mar 2005 14:00:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [WATCHDOG] linux-2.6-watchdog-mm patches
-Message-Id: <20050315140006.552c4c55.akpm@osdl.org>
-In-Reply-To: <20050315214634.GC4909@infomag.infomag.iguana.be>
-References: <20050315214634.GC4909@infomag.infomag.iguana.be>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 15 Mar 2005 17:00:36 -0500
+Date: Tue, 15 Mar 2005 23:00:31 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
+Cc: p_gortmaker@yahoo.com, pavel@suse.cz
+Subject: rtc misses interrupts after resume
+Message-ID: <20050315220031.GD29715@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, p_gortmaker@yahoo.com,
+	pavel@suse.cz
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wim Van Sebroeck <wim@iguana.be> wrote:
->
-> please do a
-> 
-> 	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog-mm
+I recently upgraded my laptop to 2.6.11.3 and removed the notsc boot
+option I added a fairly long time ago to see if things worked properly
+without it now. It seems to work, except that after a resume I get
+an awful lot of these messages:
 
-I do, about three times a day ;) And I resolve conflicts between the bk
-trees and Linus's tree.  And I resolve conflicts if there's a clash between
-one bk tree and another.  And I'll let you know if there's some non-trivial
-conflict looming between your tree and someone else's.  And I'll let you
-know if there's a compile error or bug in your tree and might even have a
-patch for it.
+Mar 15 09:53:04 typhoon kernel: rtc: lost some interrupts at 1024Hz.
+Mar 15 09:53:06 typhoon last message repeated 103 times
 
-The only real problem with this scheme is that you don't know when I'm
-about to release your tree in a -mm kernel.  So I don't support a "this
-change is only half done but I'll check it in now" state.  That hasn't
-caused any problem yet, as far as I know.
+and indeed looking at /proc/interrupts interrupt 8 is not getting hit.
+
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

@@ -1,217 +1,214 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271134AbTHRANT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 20:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271141AbTHRANT
+	id S271158AbTHRAUK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 20:20:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271146AbTHRAUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 20:13:19 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:39436 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S271134AbTHRANO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 20:13:14 -0400
-Date: Sun, 17 Aug 2003 17:13:10 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ioctl vs xattr for the filesystem specific attributes
-Message-ID: <20030818001310.GA10453@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <8765l67rvc.fsf@devron.myhome.or.jp> <bhogm4$2gb$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bhogm4$2gb$1@sea.gmane.org>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: Unauthorised duplication and storage of this email is a violation of international copyright law and is subject to prosecution.
+	Sun, 17 Aug 2003 20:20:10 -0400
+Received: from puffin.mail.pas.earthlink.net ([207.217.120.139]:31190 "EHLO
+	puffin.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S271158AbTHRAT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 20:19:58 -0400
+Message-ID: <3F401B97.5020400@earthlink.net>
+Date: Sun, 17 Aug 2003 20:19:35 -0400
+From: Raptorfan <raptorfan@earthlink.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030712
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-wlan-user@lists.linux-wlan.com
+CC: linux-kernel@vger.kernel.org, raptorfan@earthlink.net
+Subject: oops with wlan-ng & pcmcia in 2.4.22 < pre7
+Content-Type: multipart/mixed;
+ boundary="------------070303000106060508050009"
+X-ELNK-Trace: 35870deef6828a6f85338a7d01cb3b6a7e972de0d01da940dc4eb4ff4bfb6ae25e46d79321033fa0350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 17, 2003 at 07:14:28PM +0100, Rob North wrote:
-> OGAWA Hirofumi wrote:
-> >Hi,
-> >
-> >Bastien Roucaries <roucariesbastien@yahoo.fr> writes:
-> >
-> >
-> >>This patch implement an "extended attributes" (XATTR) hook in aim to read 
-> >>or
-> >>modify specific  fatfs flags' like ARCHIVE or SYSTEM.
-> >>
-> >>I believe it's a good idea  because :
-> >>	- PAX ( GNU replacement of tar) save and restore XATTRs, so you can 
-> >>	make more
-> >>exact save of FATfs without use of specific programs.
-> >>	- It's an elegant means to avoid use of mattrib.
-> >>	- Samba can use this .
-> >>but CONS :
-> >>	- use 2 Kb of kernel memory.
-> >
-> >
-> >Bastien Roucaries <roucariesbastien@yahoo.fr> writes:
-> >
-> >
-> >>Indeed some flags are shared by many namespace for instance immutable is 
-> >>shared by xfs,ext2/3,jfs and by the fat ( with a special mount option). 
-> >>Compress also is a very common flag
-> >>This flags are in the "common" sub-namespace.
-> >>
-> >>But some are fs specifics for instance notail attr of reiserfs,shortname 
-> >>of fat.They are in the the "spec"sub-namespace
-> >
-> >
-> >I received the above email.
-> >
-> >This read/modify the file attributes of filesystem specific via xattr
-> >interface (in this case, ARCHIVE, SYSTEM, HIDDEN flags of fatfs).
-> >
-> >Yes, also we can provide it via ioctl like ext2/ext3 does now.
-> >
-> >But if those flags provides by xattr interfaces and via one namespace
-> >prefix, I guess the app can save/restore easy without dependency of
-> >one fs.
-> >
-> >Which interface would we use for attributes of filesystem specific?
-> >Also if we use xattr, what namepace prefix should be used?
-> >
-> >Any idea?
-> >
-> >Thanks.
-> >
+This is a multi-part message in MIME format.
+--------------070303000106060508050009
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I suggested something like this to Andreas Gruenbacher in
-March.  We dialoged briefly about it and I've heard nothing
-since.
+Howdy. Since somewhere around the .22-pre7 (or -pre6) area wlan-ng
+stopped working. I've tried the wlan-ng-2.4.1-pre1[01] drivers with
+various pristine and -ac kernels since .22-pre8 and
 
-> I like the ideas that the patch seems to propose.
-> Infact I'd like to see the use of xattr used for non-standard attributes
-> applied to all fs.
-> Specifically, I want to backup all partitions, and attribs from one OS:
-> Linux. I do not want to loose fat attributes during backup.
-> This would also be useful for the Wine developers.
-> 
-> 
-> If you haven't got a response to your questions, maybe make your own 
-> decisions and submit a patch anyway.
-> 
-> 
-> One question:
-> How does the patch deal with the fact that only some named xattrs are
-> permitted?
-> 
-> I see 2 options:
-> 1. all files/dirs in fat mount posess fat-specific xattrs. These xattrs 
-> are initialised at file/dir create. No further attribs can be added, 
-> none can be deleted. the fat attribute's Boolean value is defined by 
-> extended attribute's value.
-> 2. all fat-specific attribs are optional, absence/presence defines
-> boolean value. All operations are permitted, but can only add the
-> fat-specific attributes.
-> 
-> I prefer option 1, as it makes clear what attributes are available.
+The file oops.txt is generated when trying to load prism2_cs in a
+2.4.22-rc2-ac3 kernel; the file oopsout.txt is from 2.4.22-rc2. Both are
+trying to load the wlan-ng 2.4.1-pre11 driver. It looks like a problem
+within prism2_cs.. but the drivers work with 2.4.21* so my ignorant guts
+tell me it's more likely pcmcia has changed somehow to affect this.
 
-My suggested approach was to only read and write the
-attributes as a complete set.  Modification would require a
-read, modify what is read, write.  The EA name i suggested
-was system.file-attr.  Unsupported attributes would be
-silently ignored (no error).  If you wished to save unsupported
-attributes for use in a foreign filesystem they could be
-preserved in a user.* attribute.
+Let me know if anyone requires further info. I'll do what I can.
 
-The primary purpose of my suggestion was backups and file
-transfers but this could easily be built on to make a
-chattr/mattrib type utility that is filesystem agnostic.
-
-The following is extracted from my portions of the exchange.
-
-| It occurred to me that it might be desirable to added a
-| facility to the extended attributes to allow reading and
-| setting (as a block) the ext2 file attributes.
-| 
-| I'm referring to the file attributes mentioned in the chattr
-| command.
-| 
-| Adding this facility would allow saving and restoring of
-| these attributes with utilities not having specific ext[23]
-| support.
-| 
-| I'd suggest using long attribute names consistent with mount
-| options with comma delimiters.  I'd suggest the names:
-| 	noatime
-| 	append
-| 	compress
-| 	nodump
-| 	immutable|readonly
-| 	journal
-| 	zero|scrub
-| 	sync
-| 	notail
-| 	undelete
-
-To this you could add archive, system and hidden for FAT.
-
-| The extended attribute might look like
-| 	system.file-attr: noatime,notail
-| 	
-| It might be reasonable to discuss this with the other
-| filesystem groups so that a common set of attribute names
-| could be agreed upon.  Unrecognized attributes would be
-| silently ignored.
-
-| i wasn't suggesting that. [referring to [no]option to set/unset
-| attributes]  When i suggested notail
-| and noatime options i was just aligning it with the mount
-| options to which the attribute bits matched.  The flag tail
-| would not exist or would be the same as as notail.  I wasn't
-| suggesting that
-| 	setfattr -n system.file-attr -v notail,append myfile
-| would modify the flags but that it
-| would replace the file attributes of myfile like
-| 	chattr =ta myfile
-|
-| Attributes not listed in a setfattr call would be cleared.
-| 
-| It would be something like (borrowed from ext2/super.c:parse_options)
-| 
-| 	__u32 flags = 0;
-|         for (this_char = strtok (options, ",");
-|              this_char != NULL;
-|              this_char = strtok (NULL, ",")) {
-| 		if (!strcmp (this_char, "noatime"))
-| 			flags |= EXT2_NOATIME_FL;
-| 		else if (!strcmp (this_char, "append"))
-| 			flags |= EXT2_APPEND_FL;
-| 		else if (!strcmp (this_char, "compress"))
-| 			flags |= EXT2_COMPR_FL;
-| 		else if (!strcmp (this_char, "nodump"))
-| 			flags |= EXT2_NODUMP_FL;
-| 		else if (!strcmp (this_char, "readonly")
-| 		      || !strcmp (this_char, "immutable"))
-| 			flags |= EXT2_immutable_FL;
-| 		else if (!strcmp (this_char, "scrub"))
-| 			flags |= EXT2_SECRM_FL;
-| 		else if (!strcmp (this_char, "undelete"))
-| 			flags |= EXT2_UNRM_FL;
-| 		else if (!strcmp (this_char, "sync"))
-| 			flags |= EXT2_SYNC_FL;
-| 		else if (!strcmp (this_char, "undelete"))
-| 			flags |= EXT2_UNRM_FL;
-| 	}
-| 	inode->i_flags = flags;
-| 
-| outputting the flag set would be much easier.
-                        
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+-r
 
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+--------------070303000106060508050009
+Content-Type: text/plain;
+ name="oops.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="oops.txt"
 
-		Remember Cernan and Schmitt
+ksymoops 2.4.8 on i686 2.4.22-rc2-ac3.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-rc2-ac3/ (default)
+     -m /boot/System.map (specified)
+
+Dell Latitude C600 machine detected. Mousepad Resume Bug workaround enabled.
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xcffff 0xf0000-0xfffff
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+e0896321
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<e0896321>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010017
+eax: 00000000   ebx: df87d0dc   ecx: 00000246   edx: 00000000
+esi: df87d000   edi: df87d000   ebp: df6f9c8c   esp: df6f9c7c
+ds: 0018   es: 0018   ss: 0018
+Process cardmgr (pid: 67, stackpage=df6f9000)
+Stack: e089192f df9e1600 df9a2800 c15ffed4 df6f9ca8 e08a5505 df87d000 c15ffdcc 
+       df7e2884 e08a5400 df6f9cee df6f9cc4 e088a993 c15ffed4 dfe4beac 00000000 
+       4050643f 00000050 df6f9f90 e088b19b 00000000 df6f9ce4 00000050 00000000 
+Call Trace:    [<e089192f>] [<e08a5505>] [<e08a5400>] [<e088a993>] [<e088b19b>]
+  [<c01665f3>] [<c0152c72>] [<c0135600>] [<c01c0677>] [<c01c1fc2>] [<c01c1286>]
+  [<c01c4373>] [<c01b4f3d>] [<c01b49b0>] [<c01357bd>] [<c0125ad7>] [<c013f328>]
+  [<c014cc01>] [<c013da6f>] [<c0107367>]
+Code: 8b 00 ff 4b 08 c7 42 08 00 00 00 00 89 58 04 89 86 dc 00 00 
+
+
+>>EIP; e0896321 <[prism2_cs]hfa384x_destroy+61/110>   <=====
+
+>>ebx; df87d0dc <_end+1f55aa24/205229a8>
+>>esi; df87d000 <_end+1f55a948/205229a8>
+>>edi; df87d000 <_end+1f55a948/205229a8>
+>>ebp; df6f9c8c <_end+1f3d75d4/205229a8>
+>>esp; df6f9c7c <_end+1f3d75c4/205229a8>
+
+Trace; e089192f <[p80211]wlan_unsetup+6f/a0>
+Trace; e08a5505 <[prism2_cs]prism2sta_detach+105/190>
+Trace; e08a5400 <[prism2_cs]prism2sta_detach+0/190>
+Trace; e088a993 <[ds]unbind_request+a3/100>
+Trace; e088b19b <[ds]ds_ioctl+42b/730>
+Trace; c01665f3 <ext3_getblk+93/2f0>
+Trace; c0152c72 <inode_init_once+22/f0>
+Trace; c0135600 <kmem_cache_init_objs+130/140>
+Trace; c01c0677 <scrup+117/130>
+Trace; c01c1fc2 <lf+72/80>
+Trace; c01c1286 <hide_cursor+66/a0>
+Trace; c01c4373 <do_con_write+2b3/6b0>
+Trace; c01b4f3d <tty_fasync+8d/140>
+Trace; c01b49b0 <release_dev+6a0/6f0>
+Trace; c01357bd <kmem_cache_free_one+fd/210>
+Trace; c0125ad7 <sys_rt_sigaction+77/b0>
+Trace; c013f328 <fput+c8/120>
+Trace; c014cc01 <sys_ioctl+b1/240>
+Trace; c013da6f <sys_close+4f/60>
+Trace; c0107367 <system_call+33/38>
+
+Code;  e0896321 <[prism2_cs]hfa384x_destroy+61/110>
+00000000 <_EIP>:
+Code;  e0896321 <[prism2_cs]hfa384x_destroy+61/110>   <=====
+   0:   8b 00                     mov    (%eax),%eax   <=====
+Code;  e0896323 <[prism2_cs]hfa384x_destroy+63/110>
+   2:   ff 4b 08                  decl   0x8(%ebx)
+Code;  e0896326 <[prism2_cs]hfa384x_destroy+66/110>
+   5:   c7 42 08 00 00 00 00      movl   $0x0,0x8(%edx)
+Code;  e089632d <[prism2_cs]hfa384x_destroy+6d/110>
+   c:   89 58 04                  mov    %ebx,0x4(%eax)
+Code;  e0896330 <[prism2_cs]hfa384x_destroy+70/110>
+   f:   89 86 dc 00 00 00         mov    %eax,0xdc(%esi)
+
+ac97_codec: AC97 Audio codec, id: 0x8384:0x7609 (SigmaTel STAC9721/23)
+
+
+--------------070303000106060508050009
+Content-Type: text/plain;
+ name="oopsout.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="oopsout.txt"
+
+ksymoops 2.4.8 on i686 2.4.22-rc2.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-rc2/ (default)
+     -m /boot/System.map (specified)
+
+cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xcffff 0xf0000-0xfffff
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+e08bd321
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<e08bd321>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010017
+eax: 00000000   ebx: df72c0dc   ecx: 00000246   edx: 00000000
+esi: df72c000   edi: df72c000   ebp: df71fc8c   esp: df71fc7c
+ds: 0018   es: 0018   ss: 0018
+Process cardmgr (pid: 67, stackpage=df71f000)
+Stack: e08b88df dfe3fa00 df6d2064 df901000 df71fca8 e08cc57c df72c000 c1592ed4 
+       df86cab4 dfe3b8a6 df71fcee df71fcc4 e08b1983 df6d2064 df7a82b4 00000000 
+       4050643f 00000050 df71ff90 e08b2157 00000000 df71fce4 00000050 00000000 
+Call Trace:    [<e08b88df>] [<e08cc57c>] [<e08b1983>] [<e08b2157>] [<c013a61f>]
+  [<c015fc48>] [<c014c862>] [<c0131d3b>] [<c0130116>] [<c01b72d0>] [<c01b8c02>]
+  [<c01b7e94>] [<c01bae7e>] [<c01ac0de>] [<c01abb9a>] [<c01302c3>] [<c012201c>]
+  [<c0139562>] [<c0146931>] [<c0137cdf>] [<c01073cf>]
+Code: 8b 00 ff 4b 08 c7 42 08 00 00 00 00 89 58 04 89 86 dc 00 00 
+
+
+>>EIP; e08bd321 <[prism2_cs]hfa384x_destroy+61/110>   <=====
+
+>>ebx; df72c0dc <_end+1f437e3c/20550dc0>
+>>esi; df72c000 <_end+1f437d60/20550dc0>
+>>edi; df72c000 <_end+1f437d60/20550dc0>
+>>ebp; df71fc8c <_end+1f42b9ec/20550dc0>
+>>esp; df71fc7c <_end+1f42b9dc/20550dc0>
+
+Trace; e08b88df <[p80211]wlan_unsetup+6f/a0>
+Trace; e08cc57c <[prism2_cs]prism2sta_detach+10c/190>
+Trace; e08b1983 <[ds]unbind_request+a3/100>
+Trace; e08b2157 <[ds]ds_ioctl+3e7/700>
+Trace; c013a61f <getblk+4f/60>
+Trace; c015fc48 <ext3_getblk+88/2d0>
+Trace; c014c862 <inode_init_once+22/f0>
+Trace; c0131d3b <__alloc_pages+4b/190>
+Trace; c0130116 <kmem_cache_init_objs+126/130>
+Trace; c01b72d0 <scrup+110/130>
+Trace; c01b8c02 <lf+72/80>
+Trace; c01b7e94 <hide_cursor+64/b0>
+Trace; c01bae7e <do_con_write+2be/6f0>
+Trace; c01ac0de <tty_fasync+7e/140>
+Trace; c01abb9a <release_dev+54a/590>
+Trace; c01302c3 <kmem_cache_free_one+f3/210>
+Trace; c012201c <sys_rt_sigaction+7c/b0>
+Trace; c0139562 <fput+c2/110>
+Trace; c0146931 <sys_ioctl+b1/240>
+Trace; c0137cdf <sys_close+4f/60>
+Trace; c01073cf <system_call+33/38>
+
+Code;  e08bd321 <[prism2_cs]hfa384x_destroy+61/110>
+00000000 <_EIP>:
+Code;  e08bd321 <[prism2_cs]hfa384x_destroy+61/110>   <=====
+   0:   8b 00                     mov    (%eax),%eax   <=====
+Code;  e08bd323 <[prism2_cs]hfa384x_destroy+63/110>
+   2:   ff 4b 08                  decl   0x8(%ebx)
+Code;  e08bd326 <[prism2_cs]hfa384x_destroy+66/110>
+   5:   c7 42 08 00 00 00 00      movl   $0x0,0x8(%edx)
+Code;  e08bd32d <[prism2_cs]hfa384x_destroy+6d/110>
+   c:   89 58 04                  mov    %ebx,0x4(%eax)
+Code;  e08bd330 <[prism2_cs]hfa384x_destroy+70/110>
+   f:   89 86 dc 00 00 00         mov    %eax,0xdc(%esi)
+
+
+
+--------------070303000106060508050009--
+

@@ -1,187 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269280AbUJFPcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269303AbUJFPei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269280AbUJFPcG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 11:32:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269171AbUJFPcG
+	id S269303AbUJFPei (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 11:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269171AbUJFPeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 11:32:06 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:8416 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262406AbUJFPbF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 11:31:05 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230C995@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'James Bottomley'" <James.Bottomley@SteelEye.com>
-Cc: "Mukker, Atul" <Atulm@lsil.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
-       "Ju, Seokmann" <sju@lsil.com>
-Subject: RE: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
-Date: Wed, 6 Oct 2004 11:23:10 -0400 
+	Wed, 6 Oct 2004 11:34:20 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17053 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S269303AbUJFPdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 11:33:52 -0400
+Message-ID: <41641007.5020702@sgi.com>
+Date: Wed, 06 Oct 2004 10:32:23 -0500
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C4ABB8.63AE0E60"
+To: "Luck, Tony" <tony.luck@intel.com>
+CC: cngam@sgi.com, Matthew Wilcox <matthew@wil.cx>,
+       Grant Grundler <iod00d@hp.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
-
-------_=_NextPart_000_01C4ABB8.63AE0E60
-Content-Type: text/plain;
-	charset="iso-8859-1"
-
-James,
-
-Here is the patch that removes the CONFIG_COMPAT.
-
-Thank you,
-Sreenivas
-
----
-
-diff -Naur megaraid-compat/drivers/scsi/megaraid/megaraid_mm.c
-megaraid-nocompat/drivers/scsi/megaraid/megaraid_mm.c
---- megaraid-compat/drivers/scsi/megaraid/megaraid_mm.c	2004-09-28
-17:33:58.000000000 -0400
-+++ megaraid-nocompat/drivers/scsi/megaraid/megaraid_mm.c	2004-10-06
-10:52:58.704174728 -0400
-@@ -10,7 +10,7 @@
-  *	   2 of the License, or (at your option) any later version.
-  *
-  * FILE		: megaraid_mm.c
-- * Version	: v2.20.2.0 (August 19 2004)
-+ * Version	: v2.20.2.1 (Oct 06 2004)
-  *
-  * Common management module
-  */
-@@ -60,7 +60,7 @@
- EXPORT_SYMBOL(mraid_mm_unregister_adp);
- 
- static int majorno;
--static uint32_t drvr_ver	= 0x02200100;
-+static uint32_t drvr_ver	= 0x02200201;
- 
- static int adapters_count_g;
- static struct list_head adapters_list_g;
-@@ -1120,9 +1120,7 @@
- 
- 	INIT_LIST_HEAD(&adapters_list_g);
- 
--#ifdef CONFIG_COMPAT
- 	register_ioctl32_conversion(MEGAIOCCMD, mraid_mm_compat_ioctl);
--#endif
- 
- 	return 0;
- }
-diff -Naur megaraid-compat/drivers/scsi/megaraid/megaraid_mm.h
-megaraid-nocompat/drivers/scsi/megaraid/megaraid_mm.h
---- megaraid-compat/drivers/scsi/megaraid/megaraid_mm.h	2004-09-28
-17:33:58.000000000 -0400
-+++ megaraid-nocompat/drivers/scsi/megaraid/megaraid_mm.h	2004-10-06
-11:12:53.064604344 -0400
-@@ -29,9 +29,9 @@
- #include "megaraid_ioctl.h"
- 
- 
--#define LSI_COMMON_MOD_VERSION	"2.20.2.0"
-+#define LSI_COMMON_MOD_VERSION	"2.20.2.1"
- #define LSI_COMMON_MOD_EXT_VERSION	\
--		"(Release Date: Thu Aug 19 09:58:33 EDT 2004)"
-+		"(Release Date: Wed Oct 06 11:15:29 EDT 2004)"
- 
- 
- #define LSI_DBGLVL			dbglevel
-
----
-
->-----Original Message-----
->From: James Bottomley [mailto:James.Bottomley@SteelEye.com]
->Sent: Tuesday, October 05, 2004 3:28 PM
->To: Bagalkote, Sreenivas
->Cc: Mukker, Atul; 'linux-kernel@vger.kernel.org';
->'linux-scsi@vger.kernel.org'; 'bunk@fs.tum.de'; 'Andrew Morton';
->'Matt_Domsch@dell.com'; Ju, Seokmann
->Subject: RE: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
->
->
->On Tue, 2004-10-05 at 14:15, Bagalkote, Sreenivas wrote:
->> The latest megaraid driver on 
->bk://linux-scsi.bkbits.net/scsi-misc-2.6 still
->> has
->> CONFIG_COMPAT around register_ioctl32_conversion. Will it 
->remain in the
->> source
->> or should it go?
->
->I'd like to see a patch taking it out, please.
->
->James
->
->
+Luck, Tony wrote:
+>>It had been suggested that we submit this as new code - since 
+>>it can't be transitioned to. And I thought that was what we
+>>had decided on - a 'kill' patch and an 'add' patch.
+> 
+> 
+> Sorry ... I must have missed that.
+> 
+> 
+>>I can remove any Lindent'ing of older files if you don't want that.
+> 
+> 
+> Yes please.
+> 
+> 
+>>I will take out the Kconfig mod.
+> 
+> 
+> Good.
+> 
+> 
+>>I believe Christoph is the maintainer of the qla driver (he was one of 
+>>the reviewers).
+> 
+> 
+> His fingerprints are all over the revision history.  It looks like the
+> only real change you want here is deleting the ugly hack for SN2:
+> 
+> < #if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_SGI_SN2)
+> < #include <asm/sn/pci/pciio.h>
+> < /* Ugly hack needed for the virtual channel fix on SN2 */
+> < extern int snia_pcibr_rrb_alloc(struct pci_dev *pci_dev,
+> < 				int *count_vchan0, int *count_vchan1);
+> < #endif
+> 
+> If Christoph signs off on that, then I can feed a separate patch
+> that does that at the same time as the kill/add.
+> 
+> -Tony
+> 
 
 
-------_=_NextPart_000_01C4ABB8.63AE0E60
-Content-Type: application/octet-stream;
-	name="megaraid-nocompat.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="megaraid-nocompat.patch"
+Tony,
 
-diff -Naur megaraid-compat/drivers/scsi/megaraid/megaraid_mm.c =
-megaraid-nocompat/drivers/scsi/megaraid/megaraid_mm.c=0A=
---- megaraid-compat/drivers/scsi/megaraid/megaraid_mm.c	2004-09-28 =
-17:33:58.000000000 -0400=0A=
-+++ megaraid-nocompat/drivers/scsi/megaraid/megaraid_mm.c	2004-10-06 =
-10:52:58.704174728 -0400=0A=
-@@ -10,7 +10,7 @@=0A=
-  *	   2 of the License, or (at your option) any later version.=0A=
-  *=0A=
-  * FILE		: megaraid_mm.c=0A=
-- * Version	: v2.20.2.0 (August 19 2004)=0A=
-+ * Version	: v2.20.2.1 (Oct 06 2004)=0A=
-  *=0A=
-  * Common management module=0A=
-  */=0A=
-@@ -60,7 +60,7 @@=0A=
- EXPORT_SYMBOL(mraid_mm_unregister_adp);=0A=
- =0A=
- static int majorno;=0A=
--static uint32_t drvr_ver	=3D 0x02200100;=0A=
-+static uint32_t drvr_ver	=3D 0x02200201;=0A=
- =0A=
- static int adapters_count_g;=0A=
- static struct list_head adapters_list_g;=0A=
-@@ -1120,9 +1120,7 @@=0A=
- =0A=
- 	INIT_LIST_HEAD(&adapters_list_g);=0A=
- =0A=
--#ifdef CONFIG_COMPAT=0A=
- 	register_ioctl32_conversion(MEGAIOCCMD, mraid_mm_compat_ioctl);=0A=
--#endif=0A=
- =0A=
- 	return 0;=0A=
- }=0A=
-diff -Naur megaraid-compat/drivers/scsi/megaraid/megaraid_mm.h =
-megaraid-nocompat/drivers/scsi/megaraid/megaraid_mm.h=0A=
---- megaraid-compat/drivers/scsi/megaraid/megaraid_mm.h	2004-09-28 =
-17:33:58.000000000 -0400=0A=
-+++ megaraid-nocompat/drivers/scsi/megaraid/megaraid_mm.h	2004-10-06 =
-11:12:53.064604344 -0400=0A=
-@@ -29,9 +29,9 @@=0A=
- #include "megaraid_ioctl.h"=0A=
- =0A=
- =0A=
--#define LSI_COMMON_MOD_VERSION	"2.20.2.0"=0A=
-+#define LSI_COMMON_MOD_VERSION	"2.20.2.1"=0A=
- #define LSI_COMMON_MOD_EXT_VERSION	\=0A=
--		"(Release Date: Thu Aug 19 09:58:33 EDT 2004)"=0A=
-+		"(Release Date: Wed Oct 06 11:15:29 EDT 2004)"=0A=
- =0A=
- =0A=
- #define LSI_DBGLVL			dbglevel=0A=
+I've updated our ftp site with a new patch.
 
-------_=_NextPart_000_01C4ABB8.63AE0E60--
+o Took out the Hotplug Kconfig mod (Tony's request)
+o removed Lindent changes for non-sn files (Tony's request)
+o SN_SAL_IOIF_RRB_ALLOC is gone (Christoph's request)
+o added domain arg to the SAL calls that had bus/device (Christoph's request)
+o improved pci_dma.c (Christoph's request)
+o removed unused SNDRV_SHUB_??? defs (Christoph's request)
+o added our own pci_ops (Grant/Matthew's request)
+
+Patches are here:
+ftp://oss.sgi.com/projects/sn2/sn2-update/001-kill-files
+ftp://oss.sgi.com/projects/sn2/sn2-update/002-add-files
+
+I also put a separate patch for the qla code:
+ftp://oss.sgi.com/projects/sn2/sn2-update/003-qla-mod
+
+

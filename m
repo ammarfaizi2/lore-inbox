@@ -1,59 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266564AbSKOS67>; Fri, 15 Nov 2002 13:58:59 -0500
+	id <S266654AbSKOTE1>; Fri, 15 Nov 2002 14:04:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266565AbSKOS67>; Fri, 15 Nov 2002 13:58:59 -0500
-Received: from mailhost.cotse.com ([216.112.42.58]:10514 "EHLO
-	mailhost.cotse.com") by vger.kernel.org with ESMTP
-	id <S266564AbSKOS65>; Fri, 15 Nov 2002 13:58:57 -0500
-Message-ID: <YWxhbg==.c702915e20b358591f77f3acb03c71fa@1037386739.cotse.net>
-Date: Fri, 15 Nov 2002 13:58:59 -0500 (EST)
-X-Abuse-To: abuse@cotse.com
-Subject: Re: CD IO error
-From: "Alan Willis" <alan@cotse.net>
-To: <lgouv@pi.be>
-In-Reply-To: <20021115183525.GA1285@gouv>
-References: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
-        <20021115183525.GA1285@gouv>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: alan@cotse.com
-X-Mailer: www.cotse.net
+	id <S266650AbSKOTE1>; Fri, 15 Nov 2002 14:04:27 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:35213 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266645AbSKOTE0>;
+	Fri, 15 Nov 2002 14:04:26 -0500
+Subject: Re: Non-blocking lock requests during the grace period
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OF5A692563.A6ED6EBB-ON87256C72.0068B38D@us.ibm.com>
+From: Juan Gomez <juang@us.ibm.com>
+Date: Fri, 15 Nov 2002 11:09:44 -0800
+X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|November 8, 2002) at
+ 11/15/2002 12:10:48
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->  Same here. I have disabled DMA for cdrom(CONFIG_IDEDMA_ONLYDISK=y) and
-> things are working again, perhaps with a loss operformance?
->  Hope it helps.
 
-  Unfortunately it doesnt, I still get the err with DMA disabled on hdc.
 
--alan
 
-ide: Assuming 66MHz system bus speed for PIO modes
-ICH: IDE controller at PCI slot 00:1f.1
-ICH: chipset revision 2
-ICH: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: Maxtor 2B020H1, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: Lite-On LTN486 48x Max, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 39062500 sectors (20000 MB) w/2048KiB Cache, CHS=2431/255/63, UDMA(66)
- hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
-hdc: DMA disabled
-end_request: I/O error, dev hdc, sector 0
-hdc: ATAPI 48X CD-ROM drive, 120kB Cache
-Uniform CD-ROM driver Revision: 3.12
-end_request: I/O error, dev hdc, sector 0
+On second thoughts, I think I wonder if we want to fail F_GETLK while in
+the grace period? seems like we won't there it makes sense to hold until
+the grace period clears otherwise the client app may think there is
+something wrong (note that F_GETLK man page does not provide EAGAIN as
+a possible error code).
+The case for F_SETLK is different as the result is expected when the lock
+is not available due to a previous holder (or, as I want to do it, when the
+lock is not available ether by previous holder or grace period).
+
+
+Juan
+
+
+
+|---------+---------------------------->
+|         |           Trond Myklebust  |
+|         |           <trond.myklebust@|
+|         |           fys.uio.no>      |
+|         |                            |
+|         |           11/15/02 09:35 AM|
+|         |           Please respond to|
+|         |           trond.myklebust  |
+|         |                            |
+|---------+---------------------------->
+  >-------------------------------------------------------------------------------------------------------------------------|
+  |                                                                                                                         |
+  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                            |
+  |       cc:       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net                                                 |
+  |       Subject:  Re: Non-blocking lock requests during the grace period                                                  |
+  |                                                                                                                         |
+  |                                                                                                                         |
+  >-------------------------------------------------------------------------------------------------------------------------|
+
+
+
+
+     > 2.-I also have this part enclosed in the if(resp->status ==
+     > NLM_LCK_DENIED_GRACE_PERIOD) as follows:
+
+     > if(resp->status == NLM_LCK_DENIED_GRACE_PERIOD) {
+
+     >       blah blah...
+
+     > wait_on_grace:
+     >                          if ((proc == NLMPROC_LOCK) &&
+     >                          !argp->block)
+     >                                      return -EAGAIN
+     > } else {
+
+     >       ....
+     > }
+
+     > This with the intention to be very specific as to when we want
+     > the return -EAGAIN to be called.
+
+The above means that you will still block on a F_GETLK query...
+
+In any case, why would we want to return -EAGAIN in one case where
+argp->block isn't set, and not in another? If there are cases where we
+want to block and where we are not currently setting argp->block (the
+only one I can think of might be NLMPROC_UNLOCK), then we should fix
+the caller.
+
+Cheers,
+  Trond
 
 
 

@@ -1,44 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271959AbRHVKtN>; Wed, 22 Aug 2001 06:49:13 -0400
+	id <S271953AbRHVKnn>; Wed, 22 Aug 2001 06:43:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271149AbRHVKtD>; Wed, 22 Aug 2001 06:49:03 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:17163 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S271982AbRHVKsz>; Wed, 22 Aug 2001 06:48:55 -0400
-Date: Wed, 22 Aug 2001 11:48:02 +0100 (BST)
-From: Steve Hill <steve@navaho.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Taylor Carpenter <taylorcc@codecafe.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Oops when accessing /dev/fd0 (kernel 2.4.7 and devfsd 1.3.11)
-In-Reply-To: <E15ZVXa-0001Jb-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0108221146270.18880-100000@sorbus.navaho>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271958AbRHVKnd>; Wed, 22 Aug 2001 06:43:33 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:12810 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S271953AbRHVKnY>;
+	Wed, 22 Aug 2001 06:43:24 -0400
+Date: Wed, 22 Aug 2001 12:43:22 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Memory Problem in 2.4.9 ?
+Message-Id: <20010822124322.708aec3d.skraw@ithnet.com>
+In-Reply-To: <20010822010649Z16145-32383+774@humbolt.nl.linux.org>
+In-Reply-To: <Pine.LNX.4.33L.0108212146470.5646-100000@imladris.rielhome.conectiva>
+	<20010822010649Z16145-32383+774@humbolt.nl.linux.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Alan Cox wrote:
+On Wed, 22 Aug 2001 03:13:23 +0200
+Daniel Phillips <phillips@bonn-fries.net> wrote:
 
-> > I've noticed kernels 2.4.7, 2.4.8 and 2.4.9 can oops when modprobing
-> > floppy.o under certain circumstances (specifically I've noticed it when
+> Oops, yes, I forgot for the moment that we no longer age up in 
+> __find_page_nolock.  Lets try this instead, which should capture the intended 
+> effect of requiring 4 hits to activate a page (n.b., it's just a test):
 > 
-> floppy.o crashes the box or prints bad things if there is no floppy 
-> controller. I've not yet had time to investigate
+> --- ../2.4.9.clean/mm/filemap.c	Thu Aug 16 14:12:07 2001
+> +++ ./mm/filemap.c	Wed Aug 22 02:02:24 2001
+> @@ -980,10 +980,9 @@
+>  static inline void check_used_once (struct page *page)
+>  {
+>  	if (!PageActive(page)) {
+> -		if (page->age)
+> +		if (++page->age >= 4)
+>  			activate_page(page);
+>  		else {
+> -			page->age = PAGE_AGE_START;
+>  			ClearPageReferenced(page);
+>  		}
+>  	}
+> 
 
-Ok - it's no big problem, I just don't compile it as a module now (the
-kernel is used on both boxes with floppy and without, so it needs to be
-there, but I have no problem with compiling it into the kernel - it
-doesn't seem to break, just says "no floppy controller present" on the
-floppy-less boxes.)
+Ok. I applied this patch. What I experience is this:
 
--- 
+meminfo Before test:
 
-- Steve Hill
-System Administrator         Email: steve@navaho.co.uk
-Navaho Technologies Ltd.       Tel: +44-870-7034015
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  921726976 87789568 833937408        0  6705152 37306368
+Swap: 271392768        0 271392768
+MemTotal:       900124 kB
+MemFree:        814392 kB
+MemShared:           0 kB
+Buffers:          6548 kB
+Cached:          36432 kB
+SwapCached:          0 kB
+Active:           2944 kB
+Inact_dirty:     40036 kB
+Inact_clean:         0 kB
+Inact_target:      868 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       900124 kB
+LowFree:        814392 kB
+SwapTotal:      265032 kB
+SwapFree:       265032 kB
 
-        ... Alcohol and calculus don't mix - Don't drink and derive! ...
+meminfo after test:
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  921726976 918429696  3297280        0  9211904 792858624
+Swap: 271392768        0 271392768
+MemTotal:       900124 kB
+MemFree:          3220 kB
+MemShared:           0 kB
+Buffers:          8996 kB
+Cached:         774276 kB
+SwapCached:          0 kB
+Active:          46776 kB
+Inact_dirty:    731852 kB
+Inact_clean:      4644 kB
+Inact_target:     8460 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       900124 kB
+LowFree:          3220 kB
+SwapTotal:      265032 kB
+SwapFree:       265032 kB
 
+I see the cache grow slowly but constantly during file-copy. I stopped the test, when the first errors occured from NFS at client side (cp: /backup/Aug/day_18_10.gz: Stale NFS file handle). Interestingly the errors came up, when all physical memory was eaten up by the cache, the free section was very low, but no swapping occured (swap _is_ turned on).
+I could copy 766389 kB in total which looks roughly like cached-value. I guess there is simply no release done. Does the aging algorithm really work (as expected)?
 
+Regards, Stephan

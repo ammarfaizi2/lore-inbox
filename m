@@ -1,120 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUCDBSw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 20:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbUCDBSw
+	id S261364AbUCDBTd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 20:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUCDBTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 20:18:52 -0500
-Received: from thumbler.kulnet.kuleuven.ac.be ([134.58.240.45]:40589 "EHLO
-	thumbler.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S261225AbUCDBSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 20:18:49 -0500
-Message-ID: <4046840D.8020200@mech.kuleuven.ac.be>
-Date: Thu, 04 Mar 2004 02:19:09 +0100
-From: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: thread creation problem
-Content-Type: multipart/mixed;
- boundary="------------030504010904050302050803"
+	Wed, 3 Mar 2004 20:19:33 -0500
+Received: from mail.kroah.org ([65.200.24.183]:50090 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261364AbUCDBTa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 20:19:30 -0500
+Date: Wed, 3 Mar 2004 17:19:20 -0800
+From: Greg KH <greg@kroah.com>
+To: Michael Weiser <michael@weiser.dinsnail.net>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 021 release
+Message-ID: <20040304011919.GA2207@kroah.com>
+References: <20040303000957.GA11755@kroah.com> <20040303095615.GA89995@weiser.dinsnail.net> <20040303151500.GD25687@kroah.com> <20040303235629.GA80132@weiser.dinsnail.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040303235629.GA80132@weiser.dinsnail.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030504010904050302050803
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Mar 04, 2004 at 12:56:29AM +0100, Michael Weiser wrote:
+> On Wed, Mar 03, 2004 at 07:15:00AM -0800, Greg KH wrote:
+> > > > Major changes from the 019 version:
+> > > > 	- new variable $local for the udev.permission file allows
+> > > > 	  permissions to be set for the currently logged in user.
+> > > Yay, just the other day I thought that might be a nice feature in
+> > > concert with RedHat's/Fedora's pam_console module. Am I right in
+> > > assuming that the current utmp based code will give the file to the user
+> > > that most recently logged into the local console? This could cause some
+> > > confusion with the pam_console-method which gives files to the user that
+> > > logged in *first* on a local console.
+> > I don't know, care to test it out?
+> Aye. It's even worse. The user logged into the lowest-numbered console
+> will get owner of the newly created file when using $local.
+> 
+> So if I log into tty2 and plug in my USB stick I will be owner of
+> /dev/sda1. If another guy comes along, logs into tty1, unplugs my USB
+> stick and replugs it, he'll be owner of /dev/sda1. But if I log out now,
+> re-login on tty2 and replug the stick again, I won't get the owner of
+> /dev/sda1 but the other guy again. This will certainly break things - at
+> least on Fedora Core 1. Maybe it's different with other
+> distributions/glibc/utmp variants/versions.
 
-Hi,
+Ick, well you are describing a pretty pathalogical situation.  I suspect
+for 99.9% of the users who would use this option, it will work just
+fine, as they only have 1 user on the system at a time.
 
-Creating a thread and afterwards changing the priority and policy does 
-work. But setting the priority and policy when creating a thread doesn't 
-seem to work any more on 2.6.x/NPTL systems.
+So, if you have multiple users on the physical system, then don't use
+$local :)
 
-After invoking the following:
-pthread_attr_init
-pthread_attr_setschedpolicy FIFO
-pthread_attr_setschedparam 99
-pthread_create
+Feel free to send a update to the documentation that illustrates this
+limitation of the feature.
 
-The output of pthread_getschedparam within this thread seemed strange to me:
+thanks,
 
-./thr_prio_basic
-max priority 99
-policy: 0 priority: 0
-thread succesfully created
-
-LD_ASSUME_KERNEL=2.4.1  ./thr_prio_basic
-max priority 99
-policy: 1 priority: 99
-thread succesfully created
-
-Is it because of stricter POSIX compliance of NPTL?
-
-Using ltrace and strace didn't really make it clear to me what is going 
-wrong here.
-In the LinuxThread case, I could clearly see the cloning happening and 
-afterwards the calls to "sched_setscheduler". In the NPTL case, there is 
-just a call to clone with more params. No calls to change scheduler 
-params. Does one of the params  contain the scheduler options? If not, 
-how is the kernel supposed to get that information?
-
-I really don't understand why this is happing, any explanation is 
-greatly appreciated.
-
-With friendly regards,
-Takis
-
-PS: I wasn't sure if I should ask this on the glibc mailinglist or this 
-mailinglist. My apologies if this is off-topic.
-
---------------030504010904050302050803
-Content-Type: text/x-c;
- name="thr_prio_basic.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="thr_prio_basic.c"
-
-#include <string.h>
-#include <stdio.h>
-#include <pthread.h>
-#include <unistd.h>
-
-void* foo( void*p )
-{
-    int policy;
-    struct sched_param param;
-    if ( pthread_getschedparam( pthread_self(), &policy, &param ) == 0 )
-        printf( "policy: %d priority: %d\n", policy, param.sched_priority );
-}
-
-int main()
-{
-    pthread_t p;
-    struct sched_param param;
-    pthread_attr_t attr;
-    memset( &param, 0, sizeof( param ) );
-    param.sched_priority = sched_get_priority_max( SCHED_FIFO );
-#if 0
-    if ( sched_setscheduler( 0, SCHED_FIFO, &param ) == 0 )
-        printf( "succesfully selected FIFO scheduler\n" );
-#endif
-    printf( "max priority %d\n", param.sched_priority );
-    if ( pthread_attr_init( &attr ) )
-        printf( "problem attr init\n" );
-    if ( pthread_attr_setschedpolicy( &attr, SCHED_FIFO ) )
-        printf( "problem setschedpolicy\n" );
-    pthread_attr_setscope( &attr, PTHREAD_SCOPE_SYSTEM );
-    if ( pthread_attr_setschedparam( &attr, &param ) )
-        printf( "problem setschedparam\n" );
-    if ( pthread_create( &p, &attr, foo, 0 ) == 0 )
-        printf( "thread succesfully created\n" );
-    else
-        printf( "problem creating thread\n" );
-    pthread_attr_destroy( &attr );
-    usleep( 1000000UL );
-}
-
---------------030504010904050302050803--
+greg k-h

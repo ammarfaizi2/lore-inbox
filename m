@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287488AbSAQBEg>; Wed, 16 Jan 2002 20:04:36 -0500
+	id <S287490AbSAQBHq>; Wed, 16 Jan 2002 20:07:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287490AbSAQBE1>; Wed, 16 Jan 2002 20:04:27 -0500
-Received: from chiark.greenend.org.uk ([212.22.195.2]:13060 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id <S287488AbSAQBEV>; Wed, 16 Jan 2002 20:04:21 -0500
-Date: Thu, 17 Jan 2002 01:04:20 +0000
-From: Andrew Kanaber <akanaber@chiark.greenend.org.uk>
+	id <S287571AbSAQBHg>; Wed, 16 Jan 2002 20:07:36 -0500
+Received: from unknown.Level3.net ([64.152.86.3]:33822 "HELO [64.152.86.3]")
+	by vger.kernel.org with SMTP id <S287490AbSAQBHS>;
+	Wed, 16 Jan 2002 20:07:18 -0500
+Message-ID: <3C4624CC.7020401@esstech.com>
+Date: Wed, 16 Jan 2002 19:11:40 -0600
+From: Gerald Champagne <gerald.champagne@esstech.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] cs46xx: sound distortion after hours of use
-Message-ID: <20020117010420.B31976@chiark.greenend.org.uk>
-In-Reply-To: <200201151224.g0FCO8E06163@Port.imtp.ilyichevsk.odessa.ua> <3C449426.6000300@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <3C449426.6000300@us.ibm.com>; from haveblue@us.ibm.com on Tue, Jan 15, 2002 at 09:32:01PM +0000
+Subject: Promise 20268 PCI register decoding
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 09:32:01PM +0000, David C. Hansen wrote:
-> BTW, I have a Thinkpad T21.  Do any of you have a non-IBM notebook?
+I thought I understood the way PCI devices are accessed in Linux,
+but the code for the Promise PCI controllers has me confused.  To
+me it looks like the code is accessing registers outside the area
+allocated to the PCI device during initialization.
 
-I have a non-IBM non-notebook apparently with this problem. It's an Athlon
-XP/Via KT266A desktop system with a Turtle Beach Santa Cruz soundcard,
-running kernel 2.4.17 with cs46xx as a module and APM compiled in. Sound
-became very distorted playing MP3s, rmmod cs46xx followed by modprobe cs46xx
-fixed the problem. It's only happened once so far, but I've only had this
-machine for two weeks.
+The device is configured with the following resources (on a Mips-based
+platform):
 
-I'm afraid cat /proc/apm doesn't seem to reproduce the problem for me
-either.
+00:08.0 Class 0180: 105a:4d68 (rev 01)
+         I/O at 0x00000080 [size=0x8]
+         I/O at 0x00000088 [size=0x4]
+         I/O at 0x00000090 [size=0x8]
+         I/O at 0x00000098 [size=0x4]
+         I/O at 0x000000a0 [size=0x10]
+         Mem at 0x08004000 [size=0x4000]
 
-Andrew
+The Promise code uses registers specified using bar4 but it uses offsets
+above 0x0f.  Here's an example of the code in drivers/ide/pdc202xx.c:
+
+void pdc202xx_reset (ide_drive_t *drive)
+{
+         unsigned long high_16   = pci_resource_start(HWIF(drive)->pci_dev, 4);
+         byte udma_speed_flag    = inb(high_16 + 0x001f);
+
+         OUT_BYTE(udma_speed_flag | 0x10, high_16 + 0x001f);
+         mdelay(100);
+         OUT_BYTE(udma_speed_flag & ~0x10, high_16 + 0x001f);
+         mdelay(2000);           /* 2 seconds ?! */
+}
+
+How can the code above try to write to a register 0x1f into a region with
+a size of 0x10?  Wouldn't that stomp on the registers of some other PCI device?
+
+Thanks.
+
+Gerald
+

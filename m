@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262997AbTCLA3W>; Tue, 11 Mar 2003 19:29:22 -0500
+	id <S263049AbTCLAzp>; Tue, 11 Mar 2003 19:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262994AbTCLA3V>; Tue, 11 Mar 2003 19:29:21 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48134 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262997AbTCLA25>; Tue, 11 Mar 2003 19:28:57 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
-Date: 11 Mar 2003 16:39:30 -0800
-Organization: Transmeta Corporation
-Message-ID: <b4lvk2$vcd$1@cesium.transmeta.com>
-References: <32835.4.64.238.61.1047269795.squirrel@www.osdl.org> <Pine.LNX.4.30.0303100723300.2790-100000@divine.city.tvnet.hu>
+	id <S263093AbTCLAzp>; Tue, 11 Mar 2003 19:55:45 -0500
+Received: from ns.splentec.com ([209.47.35.194]:30733 "EHLO pepsi.splentec.com")
+	by vger.kernel.org with ESMTP id <S263049AbTCLAzo>;
+	Tue, 11 Mar 2003 19:55:44 -0500
+Message-ID: <3E6E880F.8050101@splentec.com>
+Date: Tue, 11 Mar 2003 20:06:23 -0500
+From: Luben Tuikov <luben@splentec.com>
+Organization: Splentec Ltd.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] missing header file in asm-i386/xor.h
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.30.0303100723300.2790-100000@divine.city.tvnet.hu>,
-Szakacsits Szabolcs  <szaka@sienet.hu> wrote:
->
->At least spinlock debugging triggers this bad code generation in the
->widely used init_waitqueue_head() but quite probably there are others.
->AFAIK fomit-frame-pointer was used earlier to workaround this but
->apparently not anymore, so the bug came back. Maybe the new kernel
->build broke it or it was just forgotten or it's a new policy not
->supporting broken compilers, etc. I don't know.
->
->But something should be done about it, IMHO.
+Missing include macro for header file asm/i387.h in asm-i386/xor.h
+for kernel_fpu_begin() and kernel_fpu_end().
 
-Ouch, hell yes. Compiler bugs are nasty to chase down.
+I get compilation warnings/linkage problems.
 
-If there is a well-known list of compilers, we should put a BIG warning
-in some core kernel file to guide people to upgrade (or maybe work
-around it by forcing -fno-frame-pointer if that fixes it for the
-affected compilers).
+-- 
+Luben
 
-Do we have a list?
 
-			Linus
+--- linux-2.5.64bk6/include/asm-i386/xor.h.orig	2003-03-11 19:15:36.000000000 -0500
++++ linux-2.5.64bk6/include/asm-i386/xor.h	2003-03-11 17:04:35.000000000 -0500
+@@ -18,6 +18,8 @@
+   * Copyright (C) 1998 Ingo Molnar.
+   */
+
++#include <asm/i387.h>
++
+  #define LD(x,y)		"       movq   8*("#x")(%1), %%mm"#y"   ;\n"
+  #define ST(x,y)		"       movq %%mm"#y",   8*("#x")(%1)   ;\n"
+  #define XO1(x,y)	"       pxor   8*("#x")(%2), %%mm"#y"   ;\n"
+

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285122AbRLQM4K>; Mon, 17 Dec 2001 07:56:10 -0500
+	id <S285120AbRLQNBa>; Mon, 17 Dec 2001 08:01:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285125AbRLQM4A>; Mon, 17 Dec 2001 07:56:00 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18707 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S285122AbRLQMzw>; Mon, 17 Dec 2001 07:55:52 -0500
-Date: Fri, 14 Dec 2001 12:50:18 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: "Eric S. Raymond" <esr@thyrsus.com>, jaharkes@cs.cmu.edu,
-        Cameron Simpson <cs@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@caldera.de>,
-        Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
-        torvalds@transmeta.com
-Subject: Re: CML2 with python1
-Message-ID: <20011214125017.A37@toy.ucw.cz>
-In-Reply-To: <20011204120305.A16578@thyrsus.com> <E16BJcB-0002o7-00@the-village.bc.nu> <20011205125938.A21170@zapff.research.canon.com.au> <20011205032954.B4836@thyrsus.com> <20011205051734.A22345@cs.cmu.edu> <20011212021709.A8076@thyrsus.com>
+	id <S285127AbRLQNBU>; Mon, 17 Dec 2001 08:01:20 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:20490 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S285120AbRLQNBP>;
+	Mon, 17 Dec 2001 08:01:15 -0500
+Date: Mon, 17 Dec 2001 14:00:36 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Yoshiki Hayashi <yoshiki@xemacs.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] 2.4.16 Fix NULL pointer dereferencing in agpgart_be.c
+Message-Id: <20011217140036.4a0e8969.skraw@ithnet.com>
+In-Reply-To: <87zo4iroxw.fsf@u.sanpo.t.u-tokyo.ac.jp>
+In-Reply-To: <87zo4iroxw.fsf@u.sanpo.t.u-tokyo.ac.jp>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011212021709.A8076@thyrsus.com>; from esr@thyrsus.com on Wed, Dec 12, 2001 at 02:17:09AM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On 17 Dec 2001 21:50:03 +0900
+Yoshiki Hayashi <yoshiki@xemacs.org> wrote:
 
-> > But it _is_ entirely practical to run CML2 with a bog-standard python
-> > 1.5 interpreter. I just did a search/replace for the python2-ism's like
-> > 
-> >  <x> += <y>           =>  <x> = <x> + <y>, and
-> >  <string>.<op>(<arg>) => string.<op>(<string>, <arg>)
-> > 
-> > Worked around some missing functionality in the older shlex and curses
-> > modules and I can now use oldconfig, menuconfig, xconfig, and cmladvent
-> > with CML2 and a python1 interpreter. It also still works fine with
-> > python2 as well.
-> > 
-> > 	http://ravel.coda.cs.cmu.edu/cml2-1.9.4-python1.patch (36K)
-> > 
-> > 36K might sound like a lot, but given the fact that the CML python
-> > sources totals about 280KB, it is a pretty small diff, and the whole
-> > "but python2 isn't standard in distributions and the license is bad"
-> > argument can be dropped and we can get on with life.
+> This patch is against 2.4.16.  I couldn't find maintainer in
+> MAINTAINERS file so I'm simply sending this to Linus and
+> linux-kernel list.
 > 
-> It's a good try.  But there are some important things missing from
-> this patch -- notably the Textpad class, which is needed for doing
-> popup queries correctly.  
-...
-> I personally added the ncurses/Textpad/ascii features to the Python
-> libraries shipped in 2.0, and I did it for a reason -- to support what
+> In apggart_be.c, if the chip is i830M and the secondary device is not
+> found, linux kernel tries to dereference NULL pointer.  It checks NULL
+> and returns from the function in the next statement but it's too late.
 > 
+> The attached patch add NULL check before dereferencing the
+> pointer to fix the problem.
+
+This was solved some weeks ago and the patch is pending somewhere (marcelo?).
+Unfortunately the complete cure is inside this pending patch, because there are
+other small tweaks for i830M. The NULL-check is sufficient for non-oops, but
+i830-register size is smaller than the further ongoings inside agpgart_be.c.
+
+Regards,
+Stephan
+
+

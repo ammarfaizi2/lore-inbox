@@ -1,65 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270833AbTHOUqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 16:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270835AbTHOUqZ
+	id S270831AbTHOUf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 16:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270833AbTHOUf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 16:46:25 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16602 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270833AbTHOUqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 16:46:23 -0400
-Date: Fri, 15 Aug 2003 22:46:14 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] ISDN PCBIT: #ifdef MODULE some code
-Message-ID: <20030815204614.GX569@fs.tum.de>
-References: <20030728202500.GM25402@fs.tum.de> <20030815184720.B0E502CE86@lists.samba.org>
+	Fri, 15 Aug 2003 16:35:27 -0400
+Received: from main.gmane.org ([80.91.224.249]:37054 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270831AbTHOUfR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 16:35:17 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
+Subject: Re: Centrino support
+Date: Fri, 15 Aug 2003 13:35:17 -0700
+Message-ID: <m2oeyq3bi2.fsf@tnuctip.rychter.com>
+References: <m2wude3i2y.fsf@tnuctip.rychter.com> <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030815184720.B0E502CE86@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@sea.gmane.org
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:Exp7zN4QUesP6u+9f4ZZhPhqvV0=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 02:51:20AM +1000, Rusty Russell wrote:
-> In message <20030728202500.GM25402@fs.tum.de> you write:
-> > I got the following error at the final linkage of 2.6.0-test2 if 
-> > CONFIG_ISDN_DRV_PCBIT is compiled statically:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   LD      .tmp_vmlinux1
-> > ...
-> > drivers/built-in.o(.exit.text+0xe183): In function `pcbit_exit':
-> > : undefined reference to `pcbit_terminate'
-> > make: *** [.tmp_vmlinux1] Error 1
-> 
-> AFAICT This is also broken in 2.4.22-rc2, which makes me wonder if
-> anyone actually cares about this driver?
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-It doesn't cause a compile error in 2.4.
+>>>>> "Bryan" =3D=3D Bryan O'Sullivan <bos@serpentine.com>:
+ Bryan> On Fri, 2003-08-15 at 11:13, Jan Rychter wrote:
+ >> Well, that was almost 5 months ago. So I figured I'd ask if there's
+ >> any progress -- so far the built-in wireless in my notebook still
+ >> doesn't work with Linux and the machine is monstrously power-hungry
+ >> because Linux doesn't scale the CPU frequency.
 
-This is inside an __exit function and in 2.4 __exit functions are 
-discarded at link time when compiling a driver statically.
+ Bryan> Intel shows no inclination to release Centrino wireless drivers
+ Bryan> for Linux.  There have been vague insinuations that this is due
+ Bryan> to excessive software controllability, but no public
+ Bryan> explanations have been given, beyond "we're not doing it at this
+ Bryan> moment".
 
-Due to changes Andi Kleen did in 2.6 __exit functions are no longer
-discarded at link time when compiling a driver statically (they are
-discarded at runtime).
+ Bryan> If you want built-in wireless in the nearish term, you'll have
+ Bryan> to get a supported MiniPCI card and replace your Centrino card.
 
-> Taken anyway, for both.
-> Rusty.
+That's what I find extremely annoying. Especially in the context of
+Intel's trumpeted announcements about support for Linux (see the URL in
+my previous E-mail). I mean, you either support Linux, or you
+don't. Intel announced that support is coming and then hasn't delivered
+it.
 
-cu
-Adrian
+This is offtopic on this list, but frankly, I'm surprised why RedHat (or
+any other Linux company for that matter) hasn't filed an unfair
+competition suit yet. Intel's approach basically favors Microsoft over
+other companies by giving them a year or so headway before anybody else
+has a chance of getting the hardware supported. That surely sounds like
+an unfair practice to me.
 
--- 
+ Bryan> As far as CPU is concerned, if you're using recent 2.5 or 2.6
+ Bryan> kernels, there's Pentium M support in cpufreq.  Jeremy
+ Bryan> Fitzhardinge has written a userspace daemon that varies the
+ Bryan> Pentium M CPU frequency in response to load.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I keep dreaming about the day when I'll be able to have a modern laptop
+with a stable Linux kernel. As for now, it has taken me (on one of my
+laptops) about 1.5 years to get to a point where 2.4 works, most of my
+hardware works, and software suspend (pretty much a requirement for
+laptops) works. I'm not about to give that up easily, so I'm not that
+eager to jump to 2.5/2.6.
+
+Question time:
+
+1. Will cpufreq make it into the standard 2.4 kernels?
+2. If not, will Alan incorporate swsusp into -ac kernels? (given that
+   -ac kernels seem to have cpufreq included)
+3. Where does one get 2.4 cpufreq?
+
+thanks,
+=2D-J.
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/PUQGLth4/7/QhDoRAkrXAKDcvBdOeO2/q+OTsgAPwFo9m4sn7wCdGwa1
+RzNfrFQdRMDAs9VUziI/Pek=
+=dsif
+-----END PGP SIGNATURE-----
+--=-=-=--
 

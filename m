@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269903AbTGOXxe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 19:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269906AbTGOXxe
+	id S269886AbTGOX4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 19:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269895AbTGOX4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 19:53:34 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:40954 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S269903AbTGOXxd
+	Tue, 15 Jul 2003 19:56:55 -0400
+Received: from smtp2.brturbo.com ([200.199.201.30]:26507 "EHLO
+	smtp.brturbo.com") by vger.kernel.org with ESMTP id S269886AbTGOX4y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 19:53:33 -0400
-Message-ID: <3F149747.3090107@mvista.com>
-Date: Tue, 15 Jul 2003 17:07:35 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Tue, 15 Jul 2003 19:56:54 -0400
+From: Marcelo Penna Guerra <eu@marcelopenna.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.0-test1: include/linux/pci.h inconsistency?
+Date: Tue, 15 Jul 2003 20:59:31 -0300
+User-Agent: KMail/1.5.9
+Cc: Lars Duesing <ld@stud.fh-muenchen.de>, linux-kernel@vger.kernel.org
+References: <1058195165.4131.6.camel@ws1.intern.stud.fh-muenchen.de> <200307151027.06474.eu@marcelopenna.org> <20030715144212.GB13207@gtf.org>
+In-Reply-To: <20030715144212.GB13207@gtf.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: bernie@develer.com, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
-       torvalds@osdl.org
-Subject: Re: do_div64 generic
-References: <3F1360F4.2040602@mvista.com>	<200307150717.54981.bernie@develer.com>	<20030714223805.4e5bee3f.akpm@osdl.org>	<200307150823.01602.bernie@develer.com>	<3F1477B2.6090106@mvista.com> <20030715150645.4fa11de7.akpm@osdl.org>
-In-Reply-To: <20030715150645.4fa11de7.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200307152059.31746.eu@marcelopenna.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> george anzinger <george@mvista.com> wrote:
-> 
->>>George, do you agree? May I go on and post a patch killing
->>>div_long_long_rem() everywhere?
->>
->>The issue is that div is a very long instruction and the do_div() 
->>thing uses 2 or three of them, while the div_long_long_rem() is just 
->>1.  Also, a lot of archs already have the required div by a different 
->>name.  It all boils down to a performance thing.
-> 
-> 
-> It is only used in nanosleep(), and then only in the case where the sleep
-> terminated early.
-> 
-> If someone is calling nanosleep() so frequently for this to matter, the
-> time spent in divide is the least of their problems.  Unless you have some
-> real-worldish benchmarks to demonstrate otherwise?
+Hi Jeff,
 
-It is also used in the jiffies to timespec and jiffies to timeval code 
-in timer.h, if memory serves.
-> 
-> You know what they say about premtur optmstns, and having to propagate
-> funky new divide primitives across N architectures is indeed evil.
+I tried adding the PCI ids from the nvnet "source" to amd8111e.c, but it 
+didn't work. I didn't do any debugging. I'll try with pcnet32 now to see what 
+happens and do some debugging later.
 
-Hm.  I only want the simple div.  64-bit/32-bit in two 32-bit results. 
-  Is this funky?  And the "evil" #ifdef allows archs to not do it.
-> 
-> Bernardo, can you do the patch please?
-> 
-> 
+Thank you for the tip,
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Marcelo Penna Guerra
 
+On Tuesday 15 July 2003 11:42, Jeff Garzik wrote:
+> On Tue, Jul 15, 2003 at 10:27:06AM -0300, Marcelo Penna Guerra wrote:
+> I really would love some person with an nForce NIC to try and use
+> amd8111e.c or pcnet32.c with their nForce2 NIC, and see what happens.
+>
+> (you would need to add PCI ids, obviously, and perhaps turn on debugging
+> to see what happens)
+>
+> 	Jeff

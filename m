@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316965AbSFKJXu>; Tue, 11 Jun 2002 05:23:50 -0400
+	id <S316970AbSFKJY6>; Tue, 11 Jun 2002 05:24:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316968AbSFKJXt>; Tue, 11 Jun 2002 05:23:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35597 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316965AbSFKJXs>;
-	Tue, 11 Jun 2002 05:23:48 -0400
-Message-ID: <3D05C27D.186DC066@zip.com.au>
-Date: Tue, 11 Jun 2002 02:27:25 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        k-suganuma@mvj.biglobe.ne.jp
-Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
-In-Reply-To: Your message of "Tue, 11 Jun 2002 00:42:32 MST."
-	             <3D05A9E8.FF0DA223@zip.com.au> <E17Hheq-0007r7-00@wagner.rustcorp.com.au>
+	id <S316971AbSFKJY4>; Tue, 11 Jun 2002 05:24:56 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10255 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316970AbSFKJY0>; Tue, 11 Jun 2002 05:24:26 -0400
+Date: Tue, 11 Jun 2002 10:24:21 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.21 no source for several objects
+Message-ID: <20020611102421.E1346@flint.arm.linux.org.uk>
+In-Reply-To: <8028.1023759039@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> 
-> ...
-> Let's not perpetuate the myth that everything in the kernel needs to
-> be tuned to the last cycle at all costs, hm?
+On Tue, Jun 11, 2002 at 11:30:39AM +1000, Keith Owens wrote:
+> drivers/acorn/char/Makefile
+> obj-$(CONFIG_L7200_KEYB)        += defkeymap-l7200.o keyb_l7200.o - no source for keyb_l7200.o
+> drivers/char/Makefile
+> obj-$(CONFIG_SERIAL_SA1100) += serial_sa1100.o
+>
+> None of these were picked up by the existing build system, they were
+> all detected by kbuild 2.5.  This is one of the advantages of having a
+> build system that knows about everything.
 
-I was more concerned about the RAM use, actually.
+Sounds like kbuild 2.5 is more a feature bloated Big Brother Build System.
 
-This patch is an additional reason for CONFIG_NR_CPUS, but I've rather
-gone cold on that idea because the "proper fix" is to make all those
-huge per-cpu arrays dynamically allocated.   So you can run a 64p kernel
-on 2p without losing hundreds of k of memory and kernel address space.
+The serial stuff has moved in the -rmk tree, and the above drivers/char
+is no longer relevant.  Removing it and the other ARM serial drivers
+in drivers/char would make the -rmk patches smaller. 8)
 
-But it looks like all those dynamically-allocated structures would
-have to be allocated out to NR_CPUS anyway, to support hotplug, yes?
+The keyboard driver for the Linkup Systems L7200 stuff was never merged.
+People keep talking about fixing that, but seems that no one has the
+information to write such a thing, and Steven Hill (iirc) has since
+moved onto greater things.  I believe people do use Linux on L720x
+without the keyboard driver though!
 
-In which case, CONFIG_NR_CPUS is the only way to get the memory
-back...
+However, since the ARM community is mostly centred around embedded stuff,
+it is impossible to judge the size or use of any part of the ARM Linux
+kernel.  It's also gradually sliding towards a completely closed, non-
+sharing development community.
 
--
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

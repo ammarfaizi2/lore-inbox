@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbULAPi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbULAPmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbULAPi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 10:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbULAPi1
+	id S261282AbULAPmu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 10:42:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbULAPmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 10:38:27 -0500
-Received: from alog0242.analogic.com ([208.224.222.18]:2176 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261279AbULAPiW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 10:38:22 -0500
-Date: Wed, 1 Dec 2004 10:38:04 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: John Que <qwejohn@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: intird.img file missing - cannot boot.
-In-Reply-To: <BAY14-F2141AE33478CA464C1B3C7AFBF0@phx.gbl>
-Message-ID: <Pine.LNX.4.61.0412011031460.4358@chaos.analogic.com>
-References: <BAY14-F2141AE33478CA464C1B3C7AFBF0@phx.gbl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 1 Dec 2004 10:42:50 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:48558 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261283AbULAPl0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 10:41:26 -0500
+Date: Wed, 1 Dec 2004 16:40:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
+Message-ID: <20041201154046.GA15244@elte.hu>
+References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <20041129111634.GB10123@elte.hu> <41358.195.245.190.93.1101734020.squirrel@195.245.190.93> <20041129143316.GA3746@elte.hu> <20041129152344.GA9938@elte.hu> <48590.195.245.190.94.1101810584.squirrel@195.245.190.94> <20041130131956.GA23451@elte.hu> <17532.195.245.190.94.1101829198.squirrel@195.245.190.94> <20041201103251.GA18838@elte.hu> <32831.192.168.1.5.1101905229.squirrel@192.168.1.5>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32831.192.168.1.5.1101905229.squirrel@192.168.1.5>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Dec 2004, John Que wrote:
 
-> Hello,
->
-> I had made some tests with mkinitrd , I deleted /boot/intird-2.6.7.img
-> and booted (without renaming the /boot/intird-2.6.7.img.old I have to 
-> intird-2.6.7.img).
->
-> I use this intird-2.6.7.img image in boot (ext3 is not part of the kernel 
-> image).
-> (I am working with Fedora with 2.6.7 , and with grub).
->
-> So when booting I get the mesages:
-> ....
-> /intrd/intird-2.6.7.img
-> error 15: File Mot Fount
-> ...
->
-> what should I do ? can I use a Fedora boot diskette and then
-> mount the boot partition and rename the file ? (the intird-2.6.7.img.old is , 
-> as
-> I said,under boot)
-> How can I do this mounting?
-> (If I remember well , a boot CD like KNPOIX does not have write permissions.)
->
-> Regards,
-> John
->
+ok, got the latest traces from Rui offlist.
 
-When you get to the blue boot screen, just select another boot image
-and boot that.
+here's a summary of an xrun that went like this:
 
-If you have mucked with the original and have no others, boot
-from the installation CD. Follow the "repair" prompts. Eventually
-your partition will be mounted somewhere and you can fix it.
-If you have a seperate /boot partition, just mount that and
-rename the file back or edit grub.conf to show the right one
-that goes with the right image.
+   jackd-4711  00000000 0.002ms (+0.000ms): do_poll (sys_poll)
+   ...
+   jackd-4711  80000002 0.012ms (+0.000ms): dequeue_task (deactivate_task)
+   ...
+   IRQ 5-3052  ........ 1.946ms (+0.000ms): ->    jackd-4711
+                     [ 00000027 00000001 ]: try_to_wake_up
+   ...
+qjackctl-4719  ........ 2.362ms (+0.000ms): common_interrupt:
+                     [ b75e9090 00000005 00000000 ]
+   ...
+   IRQ 5-3052  00000000 2.473ms (+0.000ms): xrun (snd_pcm_period_elapsed)
+   ...
 
-FYI, this is not a kernel problem.
+this shows an interesting phenomenon: for whatever reason IRQ5's thread
+didnt run until timestamp 1.946ms. There is lots of idle time between
+timestamps 0.012ms and 1.946ms, so this must be some weird condition. 
 
+Rui, could you activate trace_freerunning and send me a couple of 'big'
+traces that result out of it? Apparently there is some other, earlier
+activity that caused this to happen to IRQ5. Nothing seems to have woken
+up IRQ5 when it ran, which is weird by itself too.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+if IRQ thread 5 got delayed somehow that might explain the xrun: the
+hardware interrupt had no chance to run. But how IRQ5 could stay on the
+runqueue while the idle thread managed to run is strange.
+
+	Ingo

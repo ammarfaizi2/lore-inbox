@@ -1,73 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266117AbUF2WU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266120AbUF2WZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266117AbUF2WU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 18:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266121AbUF2WU0
+	id S266120AbUF2WZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 18:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266121AbUF2WZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 18:20:26 -0400
-Received: from burro.logi-track.com ([213.239.193.212]:20879 "EHLO
-	mail.logi-track.com") by vger.kernel.org with ESMTP id S266117AbUF2WUR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 18:20:17 -0400
-Date: Wed, 30 Jun 2004 00:20:14 +0200
-From: Markus Schaber <schabios@logi-track.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Block Device Caching
-Message-Id: <20040630002014.4970b82d@kingfisher.intern.logi-track.com>
-Organization: logi-track ag, =?ISO-8859-15?Q?z=FCrich?=
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-X-Face: Nx5T&>Nj$VrVPv}sC3IL&)TqHHOKCz/|)R$i"*r@w0{*I6w;UNU_hdl1J4NI_m{IMztq=>cmM}1gCLbAF+9\#CGkG8}Y{x%SuQ>1#t:;Z(|\qdd[i]HStki~#w1$TPF}:0w-7"S\Ev|_a$K<GcL?@F\BY,ut6tC0P<$eV&ypzvlZ~R00!A
-X-PGP-Key: http://schabi.de/pubkey.asc
+	Tue, 29 Jun 2004 18:25:29 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:10895 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266120AbUF2WZT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 18:25:19 -0400
+Subject: Re: per-process namespace?
+From: Ram Pai <linuxram@us.ibm.com>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+In-Reply-To: <40E1DABD.9000202@sun.com>
+References: <1088534826.2816.38.camel@dyn319623-009047021109.beaverton.ibm.com>
+	 <40E1DABD.9000202@sun.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1088547899.4788.41.camel@dyn319623-009047021109.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 29 Jun 2004 15:25:00 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 2004-06-29 at 14:10, Mike Waychison wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Ram Pai wrote:
+> > Is there a way for an application to
+> > 1. fork its own namespace and modify it, and
+> > 2. still be able to see changes to the system namespace?
+> >
+> > Al Viro's Per-process namespace implementation provides the first
+> > feature.  But is there any work done to do the second part? Is it worth
+> > doing?
+> >
+> > RP
+> 
+> In what sense?
+> 
+> The current model has no definition for a 'system namespace'.
 
-During our application testing, we noticed that our application (that
-operates directly on a LVM volume) we noticed that it seems the read
-data does not go into any cache.
+by 'system namespace' I mean the very first initial  hand-crafted
+namespace. 
 
-Now we did some tests using dd blocksize=1M count=1000:
+> 
+> Accessing /proc/<pid>/mounts where <pid> is running in a different
+> namespace appears to work.
 
-Using dd directly on the /dev/daten/testing lvm volume, we read about 95
-MBytes/Seconds. Issuing multiple dds in sequence gives little variance in IO
-speed (between 90 and 100 MB/sec).
+Are you sure? I dont see it to be the case. I just verified it  on 2.6.7
+/proc/<pid>/mounts is a file. However /proc/pid/root is a symbolic link 
+to the root directory of the process. So the process with a cloned
+namespace wont be able to access it through its namespace.
 
-When we create a file system on this volume, and mount it, and we create
-a 1G file there, the dd gives us the same 95 MB/sec on the first read
-after the mount, and approx. 480 MB/Sec on subsequent reads.
 
-The machine runs Kernel 2.6.5 SMP on a dual SMT Itanium HP Box.
+>   As well, you can always fchdir back into
+> another namespace temporarily.  As long as you don't reference any
+> file/directories using absolute paths (including following symlinks),
+> then you can already navigate the entire namespace.
 
-This lead us to the conclusion that block devices do not cache, but the
-filesystem does. But subsequently, I ran some tests on my developer
-machine (Pentium 4 Mobile Laptop).
+If this feature is available then great!
 
-dd'ing 16MB from an usb 1.1 stick present as /dev/sda, I got about
-900k/sec on every read, so this seems to be uncached access, too.
+> 
+> This falls apart though when there are no longer any processes keeping
+> that namespace alive.  When this happens, the vfsmount's are unstitched
+> and you end up 'stuck' on a given mount :(.
 
-When dd'ing 100MB from /dev/hda5, the first read gives about
-22MBytes/Sek (which seems okay for a 2.5" IDE Disk), but subsequend
-reads give about 389MBytes/sek (which is impossible to achieve using
-such hardware). Interestingly, this happens on a mounted partition,
-while when unmounting the partition, caching does not work. But for the
-/dev/daten/testing above, mounting a filesystem on the partition does
-not help in caching.
+> Another caveat is that the current system disallows you from doing any
+> mount/umount's in another namespace (bogus security?)
+> .
+> 
+> - --
+> Mike Waychison
+> Sun Microsystems, Inc.
+> 1 (650) 352-5299 voice
+> 1 (416) 202-8336 voice
+> http://www.sun.com
+> 
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> NOTICE:  The opinions expressed in this email are held by me,
+> and may not represent the views of Sun Microsystems, Inc.
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.4 (GNU/Linux)
+> 
+> iD8DBQFA4dq9dQs4kOxk3/MRApkaAKCPe0Nw9QBZH425SZeOIvIzSzksUACfQk5D
+> xLgBDN/dsmVMkAAD73mugiY=
+> =8OEy
+> -----END PGP SIGNATURE-----
+> 
 
-Can anyone give us a hint what's happening here, or even tell us how to
-use a block device via the kernel caching (and memory mapping does not
-work easily, as the production lvm volume is about 600 Gig on said
-32-bit X86 machine.
-
-Thanks,
-Markus
-
-PS: I subscribed to the list, so no Cc:-ing required.
--- 
-markus schaber | dipl. informatiker
-logi-track ag | rennweg 14-16 | ch 8001 zürich
-phone +41-43-888 62 52 | fax +41-43-888 62 53
-mailto:schabios@logi-track.com | www.logi-track.com

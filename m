@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbTENQBg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 12:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbTENQBf
+	id S262038AbTENQAW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTENQAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 12:01:35 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:50642 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262069AbTENQBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 12:01:34 -0400
-Date: Wed, 14 May 2003 17:14:54 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Henning Schmiedehausen <hps@intermeta.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What exactly does "supports Linux" mean?
-Message-ID: <20030514161454.GA17558@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Henning Schmiedehausen <hps@intermeta.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200305131114_MC3-1-38B0-3C13@compuserve.com> <yw1x3cjifutq.fsf@zaphod.guide> <b9timt$e3m$3@tangens.hometree.net> <20030514144443.GA7203@suse.de> <1052927883.18046.86.camel@forge.intermeta.de>
+	Wed, 14 May 2003 12:00:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59621 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262038AbTENQAV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 12:00:21 -0400
+Date: Wed, 14 May 2003 17:13:08 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Dean McEwan <dean_mcewan@linuxmail.org>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Digital Rights Management - An idea (limited lease, renting, expiration, verification) NON HAR*D*WARE BASED.
+Message-ID: <20030514161308.GA10374@parcelfarce.linux.theplanet.co.uk>
+References: <20030514152247.4146.qmail@linuxmail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1052927883.18046.86.camel@forge.intermeta.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030514152247.4146.qmail@linuxmail.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 05:58:03PM +0200, Henning Schmiedehausen wrote:
- > Using a "2.5.xxx" number was a bad example. Consider it replaced by
- > "2.4.17" and "2.4.18". 
+On Wed, May 14, 2003 at 03:22:46PM +0000, Dean McEwan wrote:
+> > That way around doesnt actually work because I'll simply lie, fake the server or firewall you
+> 
+> Encrypted binary, in a XML wrapper that needs decryption key from owners site.
+> Uses port 80...
 
-There's typically several months between stable releases.
-That's more than adequate for driver certification.
+... and is declared a firing offense.  BTW, the privacy issues (and related
+information leak/blackmail potential) are mind-boggling - it's not just
+"some guy bought $material", it's "this guy had accessed $material at
+$list_of_times".
 
-		Dave
+And that's besides being unable to use the FPOS in question on a laptop,
+going tits-up whenever a backhoe finds your cable, doing the same when
+vendor's boxen get screwed, yadda, yadda.
 
+Crap idea.

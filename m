@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282707AbRLVWKe>; Sat, 22 Dec 2001 17:10:34 -0500
+	id <S282781AbRLVWP1>; Sat, 22 Dec 2001 17:15:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282781AbRLVWKY>; Sat, 22 Dec 2001 17:10:24 -0500
-Received: from mail5.svr.pol.co.uk ([195.92.193.20]:23820 "EHLO
-	mail5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S282707AbRLVWKR>; Sat, 22 Dec 2001 17:10:17 -0500
-Message-ID: <002201c18b35$4def71f0$0801a8c0@Stev.org>
-Reply-To: "James Stevenson" <mistral@stev.org>
-From: "James Stevenson" <mail-lists@stev.org>
-To: "John Weber" <weber@nyc.rr.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C24D5F1.3FF73EE0@nyc.rr.com>
-Subject: Re: 2.4.17 OOPS: on Boot loading floppy driver
-Date: Sat, 22 Dec 2001 22:09:18 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S282838AbRLVWPO>; Sat, 22 Dec 2001 17:15:14 -0500
+Received: from gzp.hu ([212.184.222.124]:2057 "EHLO gzp11.gzp")
+	by vger.kernel.org with ESMTP id <S282781AbRLVWO6>;
+	Sat, 22 Dec 2001 17:14:58 -0500
+To: linux-kernel@vger.kernel.org
+From: "Gabor Z. Papp" <gzp@myhost.mynet>
+Subject: devfs permissions
+In-Reply-To: <20011207084910.7ec3b9c3.rene.rebe@gmx.net> <20011207003528.1448673e.rene.rebe@gmx.net> <200112070609.fB769Eo08508@vindaloo.ras.ucalgary.ca> <20011207084910.7ec3b9c3.rene.rebe@gmx.net> <200112071641.fB7GfpS14840@vindaloo.ras.ucalgary.ca>
+Organization: gzp
+Message-ID: <27e4.3c2505d3.14a5@gzp1.gzp>
+Date: Sat, 22 Dec 2001 22:14:42 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Richard Gooch <rgooch@ras.ucalgary.ca>:
 
-> Unable to handle kernel paging request at virtual address 0000413d
->  print eip:
-> c0106ea6
-> *pde = 00000000
-> Oops: 0000
-> CPU: 0
-> EIP: 0010:[<c0106ea6>]    Not tained
+|> (which worked before but won't any more) do:
+|>     REGISTER ^sound/.* PERMISSIONS root.audio 0664
+|> or something similar.
 
-what does the EIP value match in System.map ?
-or from the kernel file ?
+And what about subdirs, like in case of /dev/ide/...
 
-> EFLAGS: 00010286
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	REGISTER ^ide/.* PERMISSIONS root.disk 0660
 
+sets the permission 0660 on /dev/ide/host0/ also.
 

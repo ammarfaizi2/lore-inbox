@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVCYPAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVCYPmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbVCYPAB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 10:00:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVCYPAB
+	id S261673AbVCYPmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 10:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVCYPmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 10:00:01 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:59817 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261669AbVCYO7l (ORCPT
+	Fri, 25 Mar 2005 10:42:55 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11662 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261673AbVCYPmw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 09:59:41 -0500
-Date: Fri, 25 Mar 2005 15:59:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
-Message-ID: <20050325145908.GA7146@elte.hu>
+	Fri, 25 Mar 2005 10:42:52 -0500
+Date: Fri, 25 Mar 2005 16:42:37 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Message-ID: <20050325154237.GB3738@elf.ucw.cz>
+References: <20050323184919.GA23486@hexapodia.org> <4242CE43.1020806@suse.de> <20050324181059.GA18490@hexapodia.org> <4243252D.6090206@suse.de> <20050324235439.GA27902@hexapodia.org> <4243D854.2010506@suse.de> <20050325101344.GA1297@elf.ucw.cz> <d120d500050325061963fb13db@mail.gmail.com> <20050325142414.GF23602@elf.ucw.cz> <d120d50005032506526f6b9304@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <d120d50005032506526f6b9304@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-i have released the -V0.7.41-10 Real-Time Preemption patch, which can be 
-downloaded from the usual place:
+> > > This is more of a general swsusp problem I believe - the second phase
+> > > when it blindly resumes entire system. Resume of a device can fail
+> > > (any reason whatsoever) and it will attempt to clean up after itself,
+> > > but userspace is dead and hotplug never completes. While I am
+> > > interested to know why ALPS does not want to resume on ANdy's laptop
+> > > the issue will never be completely resolved from within the input
+> > > system.
+> > 
+> > When device fails to resume, what should I do? I think I could
+> > 
+> >        if (error)
+> >                panic("Device resume failed\n");
+> > 
+> > , but... that does not look like what you want.
+> 
+> Oh, always panic-happy Pavel ;). It really depends on what kind of
+> device has faled to resume. If the device is really needed for writing
+> image then panic is the only recourse, but if it some other device you
+> resuming just ignore it, who cares...
 
-   http://redhat.com/~mingo/realtime-preempt/
+You are right, for resume-during-suspend, we may as well risk it. We
+have consistent state, and if we happen to write it on disk,
+everything is okay.
 
-this release fixes two bugs:
+For resume-during-resume, I don't really know how we can handle
+that. Running with some devices non-working seems dangerous to me.
 
- - one affecting SMP systems & RCU (the missing smp_mb()s)
+> Btw, I dont think that doing selective resume (as opposed to selective
+> suspend and Nigel's partial device trees) would be so much
+> complicated. You'd always resume sysdevs and then, when iterating over
+> "normal" devices, just skip ones not in resume path. It can all be
+> contained in driver core I believe (sorry but no patch, for now at
+> least).
 
- - the other one in net/xfrm/xfrm_policy.c, affecting systems where 
-   network interfaces (or pseudo-interfaces) are frequently 
-   created/destroyed
+:-) I think we can simply make device freeze/unfreeze fast enough.
+[We do not need to do full suspend/resume; freeze is enough].
 
-i've also added a new debugging feature which is activated if 
-RT_DEADLOCK_DETECT is enabled: the checking of active locks in freed 
-memory.
-
-This catches a dangerous category of bugs which the upstream kernel can 
-silently ignore (because there locks are quite 'passive'), while the -RT 
-kernel will often go down in flames sometime later (it has lists within 
-the lock, etc.). This mechanism found the xfrm_policy.c bug:
-
- BUG: events/0/4, active lock [e94a8cdc(e94a8cd0-e94a90dc)] freed!
-  [<c0103e31>] dump_stack+0x1e/0x20 (20)
-  [<c0136fa2>] check_no_locks_freed+0x158/0x210 (60)
-  [<c01477e9>] kfree+0x59/0x15a (48)
-  [<c03638db>] xfrm_policy_gc_task+0x6f/0x7e (28)
-  [<c012f3c7>] worker_thread+0x1c1/0x26c (132)
-  [<c01333e9>] kthread+0x95/0xbd (48)
-  [<c01012c9>] kernel_thread_helper+0x5/0xb (1039269908)
-
-so i'd expect more such bugs to be found. If you had stability problems 
-under PREEMPT_RT (hangs, crashes), please enable RT_DEADLOCK_DETECT and 
-try to reproduce the problem and send me the resulting log messages.
-
-to create a -V0.7.41-10 tree from scratch, the patching order is:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc1.bz2
-  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc1-V0.7.41-10
-
-	Ingo
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

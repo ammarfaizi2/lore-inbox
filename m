@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSFES4V>; Wed, 5 Jun 2002 14:56:21 -0400
+	id <S315806AbSFETAf>; Wed, 5 Jun 2002 15:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316089AbSFES4U>; Wed, 5 Jun 2002 14:56:20 -0400
-Received: from unicorn.it.wsu.edu ([134.121.1.1]:3344 "EHLO unicorn.it.wsu.edu")
-	by vger.kernel.org with ESMTP id <S316088AbSFES4S>;
-	Wed, 5 Jun 2002 14:56:18 -0400
-Date: Wed, 5 Jun 2002 11:56:08 -0700 (PDT)
-From: Eric Kristopher Sandall <sandalle@wsunix.wsu.edu>
-To: Michael Zhu <mylinuxk@yahoo.ca>
-cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Load kernel module automatically
-In-Reply-To: <20020604193806.58478.qmail@web14905.mail.yahoo.com>
-Message-ID: <Pine.OSF.4.10.10206051153300.304-100000@unicorn.it.wsu.edu>
+	id <S315971AbSFETAe>; Wed, 5 Jun 2002 15:00:34 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:58760 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S315806AbSFETAd>;
+	Wed, 5 Jun 2002 15:00:33 -0400
+Date: Wed, 5 Jun 2002 11:56:30 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+cc: <linux-kernel@vger.kernel.org>, Arnd Bergmann <arndb@de.ibm.com>
+Subject: Re: device model documentation 3/3
+In-Reply-To: <200206051224.g55COIZ208776@d06relay02.portsmouth.uk.ibm.com>
+Message-ID: <Pine.LNX.4.33.0206051128150.654-100000@geena.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jun 2002, Michael Zhu wrote:
 
-> Hi, I built a kernel module. I can load it into the
-> kernle using insmod command. But each time when I
-> reboot my computer I couldn't find it any more. I mean
-> I need to use the insmod to load the module each time
-> I reboot the computer. How can I modify the
-> configuration so that the Linux OS can load my module
-> automatically during reboot? I need to copy my module
-> to the following directory?
->   /lib/modules/2.4.7-10/
+On Wed, 5 Jun 2002, Arnd Bergmann wrote:
 
-You don't need to do this, actually, you should _not_ do this.
- 
-> I've done that. But it doesn't work.
+> On Tue Jun 04 2002 - 11:25:19 EST,
+> Patrick Mochel <mochel@osdl.org> wrote:
 > 
-> Any help will be appreciated.
+> > When a driver is removed, the list of devices that it supports is 
+> > iterated over, and the driver's remove callback is called for each 
+> > one. The device is removed from that list and the symlinks removed. 
+> 
+> Maybe I'm blind, but I can't see how this works without races for
+> bridge device drivers. Imagine for example what happens when I rmmod
+> a usb hcd driver. Its module use count should be zero as long as the 
+> devices attached to it are not in use, right?
+> When I e.g. open a file in directory of a device behind my hcd, the 
+> devices use count is incremented but can still remove the driver.
+> Reading the file after module unload then can do bad things if the
+> show() callback was inside the hcd driver.
+> Did I miss the obvious anywhere?
 
-Just put the module name in /etc/modules
-example: I want my network card (3Com 3c905c - 3c59x module), vfat, and
-ide-scsi (for my IDE burner) to load at
-boot, so I have in my /etc/modules:
+No, that's a race that would affect all modular drivers. Ideally, we would 
+want to pin the module in memory on file open, then decrement the usage 
+count on close. We could do this by adding a struct module field to struct 
+driver_file_entry...
 
-3c59x
-ide-scsi
-vfat
-
-The order does not matter.
-
--ES
-
-Try out Source Mage GNU/Linux now!  It's magic!  (http://sourcemage.org)
-
---
-Eric Sandall                  |   (P)e-mail: sandalle@mail.wsu.edu
-Debian Linux Beowulf Cluster  |      (P)web: http://hellhound.homeip.net/
-ICQ: 667348                   | User 196285: http://counter.li.org/
-SysAdmin, Shock Physics, WSU  |      (W)web: http://www.shock.wsu.edu/
+	-pat
 

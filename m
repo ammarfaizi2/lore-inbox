@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263078AbTCNNOQ>; Fri, 14 Mar 2003 08:14:16 -0500
+	id <S263060AbTCNNUi>; Fri, 14 Mar 2003 08:20:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263085AbTCNNOQ>; Fri, 14 Mar 2003 08:14:16 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:11730
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263078AbTCNNOQ> convert rfc822-to-8bit; Fri, 14 Mar 2003 08:14:16 -0500
-Subject: Re: Problems with ide-default.c and my hdd (2.5.64-ac3)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mauricio =?ISO-8859-1?Q?Nu=F1ez?= <mauricio@chile.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200303132203.53524.mauricio@chile.com>
-References: <200303132203.53524.mauricio@chile.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1047652417.27699.9.camel@irongate.swansea.linux.org.uk>
+	id <S263085AbTCNNUi>; Fri, 14 Mar 2003 08:20:38 -0500
+Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:34432 "EHLO
+	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id <S263060AbTCNNUh>; Fri, 14 Mar 2003 08:20:37 -0500
+From: jlnance@unity.ncsu.edu
+Date: Fri, 14 Mar 2003 08:31:26 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.64-mm6
+Message-ID: <20030314133126.GB2679@ncsu.edu>
+References: <20030313032615.7ca491d6.akpm@digeo.com> <1047572586.1281.1.camel@ixodes.goop.org> <20030313113448.595c6119.akpm@digeo.com> <1047611104.14782.5410.camel@spc1.mesatop.com> <20030313192809.17301709.akpm@digeo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 14 Mar 2003 14:33:38 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030313192809.17301709.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-14 at 02:03, Mauricio Nuñez wrote:
-> Hi
-> 
-> I'm booting 2.5.64-ac3 with hdd=none because I got a Kernel Panic default 
-> attach failed.
-> 
-> With 2.4 not problems. What feedback can i send to you?
+On Thu, Mar 13, 2003 at 07:28:09PM -0800, Andrew Morton wrote:
 
-It appears some drivers are registering empty device slots. Thats
-harmless with the old code, and not allowed with the new. I'm still
-investigating
+> One subtlety: the linker (ld) lays files out very poorly.  So the prefaulting
+> trick will not help much when run against an executable which was written by
+> ld.  But if you've copied it into /bin (make install) then it will work well.
+> That's something to watch out for.
 
+Andrew,
+    I am not sure what you mean by this.  Are you saying that the way ld
+accesses files causes the blocks on the disk to be layed out poorly?
+That is the only thing I can think of that would get fixed by copying.
+
+Thanks,
+
+Jim

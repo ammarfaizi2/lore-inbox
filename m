@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263135AbSKHX3F>; Fri, 8 Nov 2002 18:29:05 -0500
+	id <S263281AbSKHXnk>; Fri, 8 Nov 2002 18:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263216AbSKHX3F>; Fri, 8 Nov 2002 18:29:05 -0500
-Received: from thunk.org ([140.239.227.29]:62885 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S263135AbSKHX3F>;
-	Fri, 8 Nov 2002 18:29:05 -0500
-Date: Fri, 8 Nov 2002 18:35:30 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Ross Biro <rossb@google.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Failed writes marked clean?
-Message-ID: <20021108233530.GA23888@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Andrew Morton <akpm@digeo.com>, Ross Biro <rossb@google.com>,
-	linux-kernel@vger.kernel.org
-References: <3DCC1EB5.4020303@google.com> <3DCC252F.65C0F70B@digeo.com>
+	id <S263290AbSKHXnj>; Fri, 8 Nov 2002 18:43:39 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:7153 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263281AbSKHXnj>; Fri, 8 Nov 2002 18:43:39 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <aqhhft$19b$1@penguin.transmeta.com> 
+References: <aqhhft$19b$1@penguin.transmeta.com>  <24305.1036795742@passion.cambridge.redhat.com> 
+To: torvalds@transmeta.com (Linus Torvalds)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: mmap(PROT_READ, MAP_SHARED) fails if !writepage. 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DCC252F.65C0F70B@digeo.com>
-User-Agent: Mutt/1.3.28i
+Date: Fri, 08 Nov 2002 23:50:19 +0000
+Message-ID: <25622.1036799419@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 12:57:19PM -0800, Andrew Morton wrote:
-> Well before going and changing stuff, we need to decide what to
-> change it _to_.  What do we want to happen if there's a read error?
-> And a write error?
-> 
-> For reads, it makes sense for the page/buffer to be left not uptodate,
-> and return an error.
 
-In some circumstances, it may actually make sense to try writing a
-random block of data to the disk, since that may force the disk to
-remap the block.  (Disks generally only remap a block from the pool of
-spare blocks on writes, not on reads.)
 
-Unfortuantely, if the error was just a transient one, you might end up
-smashing the block when you write random garbage in an attempt to
-remap the block.  So perhaps the answer is to retry the read, and if
-that fails, *then* try to do a forced rewrite of the block.
+torvalds@transmeta.com said:
+>  This is broken. Since it has VM_MAYWRITE, a subsequent mprotect() may
+> mark it writable, and you you went boom.
 
-The next question is whether to do this in userspace or in the kernel.
-And if in the kernel, whether it should be done at the device driver
-layer, or in the block I/O layer, or in the filesystem?  
+Er, we clear VM_MAYWRITE...
 
-I can make a case for doing it in userspace, since that gives us the
-most amount of flexibility, and it gives us ample opportunity to do
-special things, such as paging an operator for help, etc.  On the
-other hand, there are arguments for doing it in the kernel.  It may be
-that an appropriately clever filesystem might be able to do more
-intelligent recovery while keeping the filesystem mounted.  
++               if (vma->vm_flags & VM_WRITE)
+                        return -EINVAL;
++               else
++                       vma->vm_flags &= ~VM_MAYWRITE;
 
-						- Ted
+> If you really want a shared mapping, you'd better open with O_RDONLY,
+> at which point the existing code should be perfectly happy and does
+> the right thing. 
+
+It's a read-only mapping. Whether it's shared or private is not relevant,
+surely, since those affect only the behaviour if we write to it -- which we 
+can't. 
+
+I don't _really_ want a shared mapping; all I want is for the fsx-linux
+stress test to run, and find interesting breakage on my file system to keep
+me from getting bored (what are Friday nights for, after all?).
+
+As shipped, fsx-linux uses PROT_READ, MAP_SHARED on its test file, which
+definitely needs to be opened for write. For now, I've just changed it to
+use MAP_PRIVATE. I'm just a bit concerned about having to change the test to
+get it to work though, and don't see why a _readonly_ mmap should fail due 
+to lack of writepage.
+
+--
+dwmw2
+
+

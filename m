@@ -1,72 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263967AbUDQMHw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 08:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbUDQMHv
+	id S262862AbUDQMQI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 08:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDQMQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 08:07:51 -0400
-Received: from ozlabs.org ([203.10.76.45]:1474 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263968AbUDQMHs (ORCPT
+	Sat, 17 Apr 2004 08:16:08 -0400
+Received: from mail.gmx.de ([213.165.64.20]:9614 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262862AbUDQMQD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 08:07:48 -0400
-Date: Sat, 17 Apr 2004 22:05:40 +1000
-From: "'David Gibson'" <david@gibson.dropbear.id.au>
-To: Ray Bryant <raybry@sgi.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       "'Andy Whitcroft'" <apw@shadowen.org>,
-       "'Andrew Morton'" <akpm@osdl.org>
-Subject: Re: hugetlb demand paging patch part [2/3]
-Message-ID: <20040417120540.GC32444@zax>
-Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
-	Ray Bryant <raybry@sgi.com>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	lse-tech@lists.sourceforge.net, 'Andy Whitcroft' <apw@shadowen.org>,
-	'Andrew Morton' <akpm@osdl.org>
-References: <20040416032725.GG12735@zax> <200404160413.i3G4DcF13729@unix-os.sc.intel.com> <20040416044917.GB26707@zax> <40802E69.7040506@sgi.com>
+	Sat, 17 Apr 2004 08:16:03 -0400
+X-Authenticated: #1226656
+Date: Sat, 17 Apr 2004 14:15:37 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: Willy Tarreau <w@w.ods.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux on UltraSparcII E450
+Message-Id: <20040417141537.2986af5a@vaio.gigerstyle.ch>
+In-Reply-To: <20040417100630.GG596@alpha.home.local>
+References: <20040417105303.7936e413@vaio.gigerstyle.ch>
+	<20040417100630.GG596@alpha.home.local>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40802E69.7040506@sgi.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 16, 2004 at 02:05:13PM -0500, Ray Bryant wrote:
-> David,
+On Sat, 17 Apr 2004 12:06:30 +0200
+Willy Tarreau <w@w.ods.org> wrote:
+
+> Hmmm, I believe you forgot to tell which kernel version you used, and
+> how you configured it :-)
 > 
-> Is there a big user demand for copy-on-write support for hugetlb pages?
-> I can understand the rationale for making hugetlb pages behave more like 
-> user pages, and fixing the problem that hugetlb pages are shared across 
-> fork via MAP_SHARE semantics regardless of whether the user requests 
-> MAP_PRIVATE or not, but it just doesn't strike me as something that anyone 
-> who uses hugetlb pages would actually want.
+> Willy
 
-My main interest in it is as a prerequisite for various methods of
-"automatically" using hugepages for programs where it is difficult to
-manually code them to use hugetlbfs.  In particular, think HPC
-monsters written in FORTRAN.  e.g. automatically putting suitable
-aligned anonymous mmap()s in hugepages under some circumstances (I
-can't say I like that idea much), using an LD_PRELOAD to put
-malloc()ated memory into hugepages, or using a hacked ELF loader to
-put the BSS section (again, think FORTRAN) into hugepages (actually
-easier and less ugly than it sounds).
+Oh f**k:-) Sorry for that.
 
-In any of these cases having the memory have different semantics
-(MAP_SHARED) to normal anonymous memory would clearly be a Bad Thing.
+It is 2.4.26.
 
-> Of course, YRMV (your requirements may vary).  :-)
+Sorry, I can't attach the .config because I'm not near the machine...
+
+RAID1 + RAID5 code in kernel.
+No preempt but SMP.
+ext3 fs on all disks.
+Most other code as modules configured.
+
+Hopefully nothing forgotten this time.
+
+Thank you!
+
+Regards
+
+Marc
+
 > 
-> 'David Gibson' wrote:
-> >
-> >Well, I'm attempting to understand the hugepage code across all the
-> >archs, so that I can try to implement copy-on-write with a minimum of
-> >arch specific gunk.  Simplifying and consolidating the existing code
-> >across archs would be a helpful first step, if possible.
-
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+> On Sat, Apr 17, 2004 at 10:53:03AM +0200, Marc Giger wrote:
+> > Hi All,
+> > 
+> > Last week I had the honor to install Linux on a E450 with 2 cpu's.
+> > All went fine at first. Long compiling sessions were no problem for
+> > the machine. Later we installed 16 additional SCSI disks and we
+> > built 4 x Soft-RAID5 groups with 4 disks each.
+> > After some time during the sync processes the machine stops
+> > responding. Simply dead. The same thing happens after every boot
+> > when the sync process is in action.
+> > 
+> > My question now is: Is it a hardware or a kernel problem? I now it
+> > isn't a simple question with the given infos.
+> > Is it possible that the 4 parallel sync processes are to much for
+> > the SCSI (standard LSI) controllers?
+> > I assume that the kernel RAID5 code is stable on sparc?!
+> > 
+> > Thank you
+> > 
+> > Regards
+> > 
+> > Marc
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> > linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 

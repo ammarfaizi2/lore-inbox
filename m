@@ -1,63 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUKGNKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbUKGNQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbUKGNKu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 08:10:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbUKGNKu
+	id S261612AbUKGNQr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 08:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbUKGNQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 08:10:50 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:56508 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261610AbUKGNKj (ORCPT
+	Sun, 7 Nov 2004 08:16:47 -0500
+Received: from fep18.inet.fi ([194.251.242.243]:58617 "EHLO fep18.inet.fi")
+	by vger.kernel.org with ESMTP id S261612AbUKGNQn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 08:10:39 -0500
-From: "Christian Kujau" <evil@g-house.de>
+	Sun, 7 Nov 2004 08:16:43 -0500
+Date: Sun, 7 Nov 2004 15:16:41 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
 To: linux-kernel@vger.kernel.org
-Cc: alsa-devel@lists.sourceforge.net, perex@suse.cz
-Reply-To: evil@g-house.de
-Subject: Re: Oops in 2.6.10-rc1
-Date: Sun, 7 Nov 2004 14:10:34 +0100
-Message-Id: <20041107130553.M49691@g-house.de>
-In-Reply-To: <Pine.LNX.4.58.0411062244150.2223@ppc970.osdl.org>
-References: <4180F026.9090302@g-house.de> <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz> <4180FDB3.8080305@g-house.de> <418A47BB.5010305@g-house.de> <418D7959.4020206@g-house.de> <Pine.LNX.4.58.0411062244150.2223@ppc970.osdl.org>
-X-Mailer: Open WebMail 2.41 20040926
-X-OriginatingIP: 192.168.10.11 (evil)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=utf-8
+Subject: Re: kernel panic while using netcat since linux-2.6.9
+Message-ID: <20041107131641.GA6312@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20041106202600.GA1002@debbie> <418E1CB4.2040805@rainbow-software.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <418E1CB4.2040805@rainbow-software.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Nov 2004 23:02:28 -0800 (PST), Linus Torvalds wrote
->
-> Since you seem to be a BK user, try doing a
-
-s/BK user/BK beginner/
-
+On Sun, Nov 07, 2004 at 02:01:40PM +0100, Ondrej Zary wrote:
+> Ramsés Rodríguez Martínez wrote:
+> >Hi,
+> >Sorry i don't include any dump, but it seems kernel-patch-lkcd for 2.6.9 is
+> >not available yet. I could handcopy the kernel-oops if you want. I think
+> >it'll be something related with bind() as it fails with "netcat".
+> >
+> >The problem is only present with 2.6.9 (or at least not with 2.6.8 nor
+> >2.6.5)
+> >
+> >------------------------
+> >SCRIPT TO REPRODUCE:
+> >  
+> >su
+> >apt-get install nc
+> >exit
+> >nc -p2000 127.0.0.1 2000        # kernel panic
+> >
+> >------------------------
 > 
-> 	bk revtool sound/pci/ens1370.c
-> 
-> and see if you can find the change that caused your problem.
+> It does the same thing for me. Here's the BUG output from serial console.
 
-hm, i already found the ChangeSet (ChangeSet@1.2000.7.1), but it seems
-the ChangeSets get renumbered when linux makes progress. the issuer of
-this changeset did not comment yet.
+can you confirm does this patch fix the issue.
+http://linux.bkbits.net:8080/linux-2.6/gnupatch@4175f00ayR2dZynZ8yUWYSVkL6Z5og
 
-> Of course, the real change might be somewhere else in the 
-> sound driver initialization path, so it's not like just that 
-> one file might be the cause. RegardÃ¶ess, the more you can 
-> pinpoint when the problem started, the better.
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/10/19 21:56:42-07:00 herbert@gondor.apana.org.au 
+#   [NET]: Make sure to copy TSO fields in copy_skb_header().
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+# net/core/skbuff.c
+#   2004/10/19 21:56:24-07:00 herbert@gondor.apana.org.au +2 -4
+#   [NET]: Make sure to copy TSO fields in copy_skb_header().
+#   
+#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+diff -Nru a/net/core/skbuff.c b/net/core/skbuff.c
+--- a/net/core/skbuff.c	2004-11-07 05:16:05 -08:00
++++ b/net/core/skbuff.c	2004-11-07 05:16:05 -08:00
+@@ -394,6 +394,8 @@
+ 	new->tc_index	= old->tc_index;
+ #endif
+ 	atomic_set(&new->users, 1);
++	skb_shinfo(new)->tso_size = skb_shinfo(old)->tso_size;
++	skb_shinfo(new)->tso_segs = skb_shinfo(old)->tso_segs;
+ }
+ 
+ /**
+@@ -483,8 +485,6 @@
+ 		}
+ 		skb_shinfo(n)->nr_frags = i;
+ 	}
+-	skb_shinfo(n)->tso_size = skb_shinfo(skb)->tso_size;
+-	skb_shinfo(n)->tso_segs = skb_shinfo(skb)->tso_segs;
+ 
+ 	if (skb_shinfo(skb)->frag_list) {
+ 		skb_shinfo(n)->frag_list = skb_shinfo(skb)->frag_list;
+@@ -631,8 +631,6 @@
+ 		BUG();
+ 
+ 	copy_skb_header(n, skb);
+-	skb_shinfo(n)->tso_size = skb_shinfo(skb)->tso_size;
+-	skb_shinfo(n)->tso_segs = skb_shinfo(skb)->tso_segs;
+ 
+ 	return n;
+ }
 
-yes.
-
-> 
-> Also, if you enable frame pointers (under kernel debugging), 
-> the traceback will look a bit better. As it is, your oops 
-
-ah, ok, will do.
-
-thank you for your time,
-Christian.
--- 
-BOFH excuse #206:
-
-Police are examining all internet packets in the search for a
-narco-net-trafficker

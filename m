@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266474AbUJIEzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUJIE5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266474AbUJIEzo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 00:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266467AbUJIEzo
+	id S266467AbUJIE5N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 00:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUJIE5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 00:55:44 -0400
-Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:55442 "EHLO
-	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
-	id S266474AbUJIEzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 00:55:42 -0400
-Message-ID: <313680C9A886D511A06000204840E1CF0A647234@whq-msgusr-02.pit.comms.marconi.com>
-From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Linux 2.6.8-rc4 Oops: machine check, sig: 7 [#1]
-Date: Sat, 9 Oct 2004 00:55:38 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sat, 9 Oct 2004 00:57:13 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:47520 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266467AbUJIE5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 00:57:06 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+In-Reply-To: <20041007105230.GA17411@elte.hu>
+References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>
+	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
+	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
+	 <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>
+	 <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>
+	 <20041007105230.GA17411@elte.hu>
+Content-Type: text/plain
+Message-Id: <1097297824.1442.132.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 09 Oct 2004 00:57:05 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# uname -a
-Linux 192.168.0.5 2.6.8-rc4 #6 Wed Sep 29 13:33:22 EDT 2004 ppc unknown
+On Thu, 2004-10-07 at 06:52, Ingo Molnar wrote:
+> i've released the -T3 VP patch:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
+> 
 
-# reboot
+With VP and PREEMPT in general, does the scheduler always run the
+highest priority process, or do we only preempt if a SCHED_FIFO process
+is runnable?
 
-The system is going down NOW !!
-Sending SIGKILL to all processes.
-Please stand by while rebooting the system.
-Restarting systemsteMachine check in kernel mode.
-Caused by (from SRR1=41000): Transfer error ack signal
-Oops: machine check, sig: 7 [#1]
-PREEMPT
-NIP: FF000104 LR: FF000104 SP: C1A25E00 REGS: c1a25d50 TRAP: 0200    Not
-tainted
-MSR: 00041000 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 00
-TASK = c1b9f890[1] 'init' THREAD: c1a24000Last syscall: 162
-GPR00: 00001032 C1A25E00 C1B9F890 001EF90C FF000104 00001002 000037D4
-F00000A0
-GPR08: 00000013 C0012E30 0000C000 00100088 0000000D 10063E5C 02000000
-00000000
-GPR16: 00000001 00000001 FFFFFFFF 007FFF00 01FFA834 00000000 00000003
-01BCE2A0
-GPR24: 00000000 10041550 7FFFFE68 10060000 00000000 00000000 FF000104
-00000000
-Call trace:
+Lee
+

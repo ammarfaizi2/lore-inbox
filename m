@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313339AbSC2DQi>; Thu, 28 Mar 2002 22:16:38 -0500
+	id <S312450AbSC2EBK>; Thu, 28 Mar 2002 23:01:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313340AbSC2DQ2>; Thu, 28 Mar 2002 22:16:28 -0500
-Received: from ip68-6-164-6.sd.sd.cox.net ([68.6.164.6]:12237 "EHLO
-	rei.moonkingdom.net") by vger.kernel.org with ESMTP
-	id <S313339AbSC2DQV>; Thu, 28 Mar 2002 22:16:21 -0500
-Date: Thu, 28 Mar 2002 19:16:20 -0800
-From: Marc Wilson <msw@cox.net>
-To: linux-kernel@vger.kernel.org
-Cc: Marc Wilson <msw@cox.net>
-Subject: Re: Screen corruption in 2.4.18
-Message-ID: <20020329031620.GC5099@moonkingdom.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org, Marc Wilson <msw@cox.net>
-In-Reply-To: <200203192112.WAA09721@jagor.srce.hr> <20020323160647.GA22958@hapablap.dyn.dhs.org> <1016953516.189201.5912.nullmailer@bozar.algorithm.com.au> <200203241507.g2OF7WN26069@ls401.hinet.hr> <1017020598.420771.13343.nullmailer@bozar.algorithm.com.au> <20020325085053.GB1382@moonkingdom.net> <1017367599.231295.13364.nullmailer@bozar.algorithm.com.au>
+	id <S312695AbSC2EA7>; Thu, 28 Mar 2002 23:00:59 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:32433 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S312450AbSC2EAn>; Thu, 28 Mar 2002 23:00:43 -0500
+Date: Thu, 28 Mar 2002 23:00:32 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Matthew Walburn <matt@math.mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mkinitrd w/ 2.4.18
+Message-ID: <20020328230032.A2627@devserv.devel.redhat.com>
+In-Reply-To: <mailman.1017365942.20950.linux-kernel2news@redhat.com> <200203290248.g2T2mDA29032@devserv.devel.redhat.com> <20020328220130.A2627@math.mit.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 29, 2002 at 01:06:39PM +1100, Andre Pang wrote:
-> On Mon, Mar 25, 2002 at 12:50:53AM -0800, Marc Wilson wrote:
-> > It's an Abit KT7A-RAID, which is a KT133A.
-> > 
-> > Having said that, I've been seeing odd video artifacts in xawtv windows
-> > since the patch was expanded from merely clearing bit 7. :)
-> 
-> What kind of video card do you have?
+> Date: Thu, 28 Mar 2002 22:01:30 -0500
+> From: Matthew Walburn <matt@math.mit.edu>
 
-A Matrox G550 VGA/DVI in dual-head mode... why?
+> Specifically, i get the error message:
+> "all of your loopback devices are in use"
 
--- 
-Marc Wilson
-msw@cox.net
-http://members.cox.net/msw
+Unfortunately, it only says that setting up the loopback failed.
+You are not necesserily running out of free loopback devices.
+Does mounting anything on the loopback work?
+mount -t iso9660 -o loop /your/favourite/something.iso /mnt/cdrom
 
+I'll drop cc on the next round.
+
+-- Pete

@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263794AbSLUTcJ>; Sat, 21 Dec 2002 14:32:09 -0500
+	id <S263899AbSLUTcu>; Sat, 21 Dec 2002 14:32:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263899AbSLUTcI>; Sat, 21 Dec 2002 14:32:08 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:23301 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S263794AbSLUTcI>;
-	Sat, 21 Dec 2002 14:32:08 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212211951.gBLJpREc001843@darkstar.example.net>
-Subject: Re: Fw: PROBLEM: Keyboard not found, but it exists!
-To: vojtech@suse.cz (Vojtech Pavlik)
-Date: Sat, 21 Dec 2002 19:51:27 +0000 (GMT)
-Cc: prez@goth.net, jsimmons@infradead.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20021221201918.A31050@ucw.cz> from "Vojtech Pavlik" at Dec 21, 2002 08:19:18 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S264010AbSLUTcu>; Sat, 21 Dec 2002 14:32:50 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29447 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263899AbSLUTcs>; Sat, 21 Dec 2002 14:32:48 -0500
+Date: Sat, 21 Dec 2002 11:39:46 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Ulrich Drepper <drepper@redhat.com>, <bart@etpmod.phys.tue.nl>,
+       <davej@codemonkey.org.uk>, <hpa@transmeta.com>,
+       <terje.eggestad@scali.com>, <matti.aarnio@zmailer.org>,
+       <hugh@veritas.com>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <20021221171808.GA23577@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.44.0212211127240.2168-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > [3.] Keywords (i.e., modules, networking, kernel):
-> > > 2.4.19 keyboard ps2
-> 
-> I hate bugreports done by exactly following the bugreport cookbook. ;)
-> 
-> > > [6.] A small shell script or example program which triggers the
-> > >      problem (if possible)
-> > > N/A
-> 
-> ... because I don't need to know a small shell script isn't applicable,
-> for example ...
 
-Quoting the FAQ:
+On Sat, 21 Dec 2002, Jamie Lokier wrote:
+>
+> Linus Torvalds wrote:
+> > Yes, you can make the "clobbers %eax/%edx/%ecx" argument, but the fact is,
+> > we quite fundamentally need to save %edx/%ecx _anyway_.
+>
+> On the kernel side, yes.  In the userspace trampoline, it's not required.
 
-"Don't attach huge files to your post.  One major culprit is people
-attaching their kernel .config file to their post."
+No, it _is_ required.
 
-These days people get flamed for _not_ attaching their .config to
-their post :-)
+There are a few registers that _have_ to be saved on the user side,
+because the kernel will trash them. Those registers are:
 
-Also:
+ - eflags (kernel has no sane way to restore things like TF in it
+   atomically with a sysexit)
+ - ebp (kernel has to reload it with arg-6)
+ - ecx/edx (kernel _cannot_ restore them).
 
-"Stick to the subject.  This is a Linux kernel list, mainly for
-developers."
+Your games with looking at %eip are fragile as hell.
 
---- developers."
-+++ developers to discuss technical issues, start flame wars, and
-+++ generally use at least 50% of the bandwidth on non-kernel issues.
+> You're optimising the _rare_ case.
 
-:-)
+NO. I'm making it WORK.
 
-John.
+> This is accompanied by changing this line in arch/i386/kernel/signal.c:
+>
+> 	regs->eip -= 2;
+
+You're full of it.
+
+You're adding fundamental complexity and special cases, because you have
+a political agenda that you want to support, that is not really
+supportable.
+
+The fact is, system calls have a special calling convention anyway, and
+doing them the way we're doing them now is a hell of a lot saner than
+making much more complex code. Saving and restoring the two registers
+means that they get easier and more efficient to use from inline asms for
+example, and means that the code is simpler.
+
+Your suggestion has _zero_ advantages. Doing two register pop's takes a
+cycle, and means that the calling sequence is simple and has no special
+cases.
+
+Th eexample code you posted is fragile as hell. Looking at "eip" means
+that the different system call entry points now have to be extra careful
+not to have the same return points, which is just _bad_ programming.
+
+		Linus
+
+

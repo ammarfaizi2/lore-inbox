@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266953AbTBXMfs>; Mon, 24 Feb 2003 07:35:48 -0500
+	id <S263321AbTBXMc0>; Mon, 24 Feb 2003 07:32:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266978AbTBXMfr>; Mon, 24 Feb 2003 07:35:47 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:49336 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S266953AbTBXMfr>;
-	Mon, 24 Feb 2003 07:35:47 -0500
-Date: Mon, 24 Feb 2003 13:45:48 +0100 (CET)
+	id <S264706AbTBXMc0>; Mon, 24 Feb 2003 07:32:26 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:44726 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S263321AbTBXMcZ>;
+	Mon, 24 Feb 2003 07:32:25 -0500
+Date: Mon, 24 Feb 2003 13:41:08 +0100 (CET)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: Ingo Molnar <mingo@elte.hu>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: procps-list@redhat.com, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, <alexl@redhat.com>, <viro@math.psu.edu>
+To: procps-list@redhat.com
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <alexl@redhat.com>, Alexander Viro <viro@math.psu.edu>
 Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
 In-Reply-To: <200302241229.h1OCTRF331287@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.44.0302241341240.26626-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0302241333140.26508-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,18 +24,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Mon, 24 Feb 2003, Albert D. Cahalan wrote:
 
-> Sorting is not default because of the memory requirements and because
-> there have been many kernel bugs that cause ps to hang when it hits a
-> particular process. Sorting may mean that ps hangs or is killed before
-> producing anything.
+> It's fine to mix up thread order, but bad to interleave the threads of
+> unrelated processes.
 
-in fact there was an unconditional qsort() done after scanning all tasks,
-until i pointed it out to Alex. It never caused any problems, and sorting
-never showed up as a source of overhead in the profiler, so i'm not sure
-why you insist on sorting so much.
+this is very simple to do, and does not necessiate thread-directories.  
+There's a PID and TGid field in /proc/PID/status. Just link the task to
+the TGid-task, and you have instant access to all threads per TGid. In the
+'groupped output' case you have to scan & access all threads anyway. Ok?
 
-if procps hangs then that's a bug in procps. I'm not quite sure what you
-mean by 'it hits a particular process'.
+(but this is way offtopic. The changes we posted address the normal case
+of process-listing. (no -m option.) If there are tons of threads around
+then any discussed variant of 'ps -m' will be slow.)
 
 	Ingo
 

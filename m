@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319340AbSIFTDl>; Fri, 6 Sep 2002 15:03:41 -0400
+	id <S319338AbSIFTOS>; Fri, 6 Sep 2002 15:14:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319341AbSIFTDl>; Fri, 6 Sep 2002 15:03:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:26247 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319340AbSIFTDk>;
-	Fri, 6 Sep 2002 15:03:40 -0400
-Date: Fri, 06 Sep 2002 12:01:04 -0700 (PDT)
-Message-Id: <20020906.120104.125944656.davem@redhat.com>
-To: gh@us.ibm.com
-Cc: Martin.Bligh@us.ibm.com, hadi@cyberus.ca, tcw@tempest.prismnet.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E17nOQ8-0003a8-00@w-gerrit2>
-References: <20020906.114815.127906065.davem@redhat.com>
-	<E17nOQ8-0003a8-00@w-gerrit2>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S319341AbSIFTOS>; Fri, 6 Sep 2002 15:14:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30982 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319338AbSIFTOS>;
+	Fri, 6 Sep 2002 15:14:18 -0400
+Date: Fri, 6 Sep 2002 20:18:56 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: minyard@acm.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Version 2 of the Linux IPMI driver
+Message-ID: <20020906201856.F26580@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Gerrit Huizenga <gh@us.ibm.com>
-   Date: Fri, 06 Sep 2002 12:05:27 -0700
-   
-   So, any comments I made which might have implied that Tux/Tux2 made things
-   worse have no substantiated data to prove that and it is quite possible
-   that there is no such problem.  Also, this was run nearly a year ago and
-   the state of Tux/Tux2 might have been a bit different at the time.
 
-Thanks for clearing things up.
+> The lanana guy is not available for a while, so I'm not getting a device
+> number in the near future, but I think it's ready for the 2.5 release.
+> Does this need more time, or is it ready for inclusion?
+
+I don't think you should be using a device number at all.  ioctl is Evil
+(TM) and it's perfectly possible to write an IPMI driver which uses
+neither an ioctl nor a chaacter device.  Voila:
+
+http://ftp.linux.org.uk/pub/linux/willy/patches/bmc.diff
+
+yes, it was stupid to call it BMC instead of IPMI.  i was handed a pile
+of junk that'd been half-heartedly ported from windows.  however, the
+principle is sound, you don't need ioctl, nor a character device.
+
+-- 
+Revolutions do not require corporate support.

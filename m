@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267503AbUGWCkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUGWC6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267503AbUGWCkj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 22:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267504AbUGWCkj
+	id S267507AbUGWC6g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 22:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267508AbUGWC6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 22:40:39 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:62594 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267503AbUGWCkh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 22:40:37 -0400
-Date: Thu, 22 Jul 2004 22:39:24 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Maikon Bueno <maikon@gmail.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: interrupt function
-In-Reply-To: <757c55c604072219086df290f6@mail.gmail.com>
-Message-ID: <Pine.LNX.4.53.0407222234120.21588@chaos>
-References: <757c55c604072219086df290f6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Jul 2004 22:58:36 -0400
+Received: from [216.208.38.106] ([216.208.38.106]:42741 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267507AbUGWC6d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 22:58:33 -0400
+Date: Fri, 23 Jul 2004 03:05:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nathan Bryant <nbryant@optonline.net>
+Cc: Luben Tuikov <luben_tuikov@adaptec.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, random1@o-o.yi.org
+Subject: Re: [PATCH] prelim ACPI support for aic7xxx
+Message-ID: <20040723010539.GA1477@elf.ucw.cz>
+References: <41006A88.9040700@optonline.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41006A88.9040700@optonline.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-If the device at 0x300 was interrupting, you would get an
-interrupt and it will bump the count shown in your ISR.
+> This patch (against arjanv's latest kernel, but should apply to 
+> 2.6.8-rc) is still a little messy and NOT ready to go into the mainline 
+> kernel... Luben hasn't seen it yet (Hi Luben!), so the usual disclaimers 
+> apply. But it's time to get some more eyes on it. The good news is it 
+> works, the bad news is there is no support for error recovery during 
+> those few seconds when the bus is setttling and hard disk is powering up 
+> after a resume. (Need suggestions on how best to attack that part, I 
+> really don't know anything about SCSI...) It works, after a few 
+> residuals if your filesystems are mounted read-only, however. If you are 
+> mounted read-write then you will get aborted commands, ext3 will 
+> complain, and remount your fs read-only until you reboot. To avoid this, 
+> remount read-only, suspend/resume, then remount read-write manually 
+> after everything starts working.
 
-Whatever that device at 0x300 is, needs to be programmed
-to generate hardware interrupts. They don't happen by
-magic. Usually, if edge triggered, you will only get
-one interrupt until you put some code in your ISR to
-handle that interrpt (make the hardware happy so it will
-generate another).
-
-If the interrupt is level triggered, code such as yours
-will hang the machine because there is no ISR code to
-service the hardware so the interrupt will be TRUE forever.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+If ou are playing with this kind of stuff, I suggest you to use ext2
+(not ext3) or at least fsck *very* often.
+								Pavel
+-- 
+When do you have heart between your knees?

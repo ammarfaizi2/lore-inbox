@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272326AbRHXVFh>; Fri, 24 Aug 2001 17:05:37 -0400
+	id <S272327AbRHXVMi>; Fri, 24 Aug 2001 17:12:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272327AbRHXVF1>; Fri, 24 Aug 2001 17:05:27 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:36101 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S272326AbRHXVFM>; Fri, 24 Aug 2001 17:05:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Date: Fri, 24 Aug 2001 23:11:58 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        "Marc A. Lehmann" <pcg@goof.com>, <linux-kernel@vger.kernel.org>,
-        <oesi@plan9.de>
-In-Reply-To: <Pine.LNX.4.33L.0108241713420.31410-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0108241713420.31410-100000@duckman.distro.conectiva>
+	id <S272329AbRHXVM2>; Fri, 24 Aug 2001 17:12:28 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56837 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272327AbRHXVMN>; Fri, 24 Aug 2001 17:12:13 -0400
+Subject: Re: Is it bad to have lots of sleeping tasks?
+To: hzhong@cisco.com (Hua Zhong)
+Date: Fri, 24 Aug 2001 22:15:21 +0100 (BST)
+Cc: ddade@digitalstatecraft.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <005a01c12cd9$2f153950$103147ab@cisco.com> from "Hua Zhong" at Aug 24, 2001 01:13:04 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010824210523Z16096-32383+1216@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15aOIT-0006Xa-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 24, 2001 10:19 pm, Rik van Riel wrote:
-> On Fri, 24 Aug 2001, Daniel Phillips wrote:
-> > On August 24, 2001 07:43 pm, Rik van Riel wrote:
-> 
-> > > 1) under memory pressure, the inactive_dirty list is
-> > >    only as large as 1 second of pageout IO, meaning
-> > 		      ^^^^^^^^
-> > This is the problem.  In the absense of competition and truly
-> > active pages, the inactive queue should just grow until it is
-> > much larger than the active ring.  Then the replacement policy
-> > will naturally become fifo, which is exactly what you want in
-> > your example.
-> 
-> Actually, no.  FIFO would be ok if you had ONE readahead
-> stream going on, but when you have multiple readahead
-> streams going on you want to evict the data each of the
-> streams has already used, and not all the readahead data
-> which happened to be read in first.
+> So why not do it?  Or implement a nicer scheduler?  There are many good
+> ones.  There are o(1) schedulers that provide much better proportional
+> sharing.  They scale and also perform well even in "few running processes"
+> case.  They are also not hard to implement (I once implemented such a
+> scheduler with 100 lines of patch, and that fitted in the existing Linux
+> runqueue framework).  What's the resistence to scheduler changes?
 
-We will be fine up until the point that the set of all readahead fills the 
-entire cache, then we will start dropping *some* of the readahead.  This will 
-degrade gracefully: if the set of readahead is twice as large as cache then 
-half the readahead will be dropped.  We will drop the readahead in coherent 
-chunks so that it can be re-read in one disk seek.  This is not such bad 
-behaviour.
+The resistance I've seen has been to schedulers that perform more poorly
+with < 3 running processes - that being the normal case.
 
-All this assuming you don't enforce the 1 second size limit on the inactive 
-queue, of course.
+Its also suprisingly hard to find a very simple scheduler that provides
+fairness and cache optimal behaviour while working well SMP. Uniprocessor
+is easy, uniprocessor with real time isnt too bad, SMP gets tricky.
 
-We probably could squeeze a little better performance out of this case by 
-magically knowing that no input page will ever be reused, as you suggest.  
-We risk getting such an improvement at the expensive of other, more typical 
-loads.
+I'd definitely like to see a better scheduler in the kernel, providing its
+as fast for the < 3 processes case too.
 
-That said, I think I might be able to come up with something that uses 
-specific knowledge about readahead to squeeze a little better performance out 
-of your example case without breaking loads that are already working pretty 
-well.  It will require another lru list - this is not something we want to do 
-right now, don't you agree?
-
---
-Daniel
+Alan

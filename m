@@ -1,45 +1,27 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317249AbSEXUoJ>; Fri, 24 May 2002 16:44:09 -0400
+	id <S290289AbSEXUsw>; Fri, 24 May 2002 16:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315111AbSEXUoI>; Fri, 24 May 2002 16:44:08 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:30711 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S315166AbSEXUoH> convert rfc822-to-8bit; Fri, 24 May 2002 16:44:07 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Fri, 24 May 2002 13:44:03 -0700
-In-Reply-To: <20020524105348.T13411@devserv.devel.redhat.com>
-Subject: Re: negative dentries wasting ram
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020524204404.AAA21553@shell.webmaster.com@whenever>
+	id <S312590AbSEXUr6>; Fri, 24 May 2002 16:47:58 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:15744 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S315119AbSEXUrs>; Fri, 24 May 2002 16:47:48 -0400
+Date: Fri, 24 May 2002 14:47:49 -0600
+Message-Id: <200205242047.g4OKlnR01444@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre8 breaks apm=power-off on Asus A7M266-D
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi, all. I've found that 2.4.19-pre8 (actually Marcelo's current
+tree) breaks apm=power-off on a dual-Athalon Asus A7M266-D. I get
+either an Oops or a silent hang during APM setup.
 
->In glibc 2.3 this will be open("/usr/lib/locale/locale-archive", ), so
->negative dentries won't be useful for glibc locale handling (that
->doesn't mean negative dentries won't be useful for other things, including
->exec?p or searching libraries if $LD_LIBRARY_PATH is used).
->
->    Jakub
+2.4.19-pre6 did not have this problem.
 
-	Web servers tend to look for all kinds of things that don't exist. For 
-example, if you hit "http://www.mydomain.com/foo" is there a file called 
-"foo" in the root document directory? Or is "foo" a directory with an 
-"index.html" file in it?
+				Regards,
 
-	And what if index files can be "index.html", "index.htm", or "index.cgi"? A 
-single URL hit can easily involve looking for five files that don't exist 
-before you find the one that does.
-
-	Of course, some web servers have their own internal URL->file mapping 
-caches. The ideal solution would be to get rid of the negative dentries we 
-aren't using (much? recently?) when we want to get some more free memory.
-
-	DS
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

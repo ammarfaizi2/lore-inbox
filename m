@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263622AbTLONaK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 08:30:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTLONaK
+	id S263568AbTLON1l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 08:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTLON1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 08:30:10 -0500
-Received: from asclepius.uwa.edu.au ([130.95.128.56]:17537 "EHLO
-	asclepius.uwa.edu.au") by vger.kernel.org with ESMTP
-	id S263622AbTLONaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 08:30:06 -0500
-Subject: Re: cdrecord hangs my computer
-From: Paul Marinceu <elixxir@ucc.asn.au>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1071494967.2503.82.camel@localhost>
+	Mon, 15 Dec 2003 08:27:40 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:34244 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263568AbTLON1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 08:27:40 -0500
+Date: Mon, 15 Dec 2003 14:26:21 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Rob Landley <rob@landley.net>
+Cc: Vladimir Saveliev <vs@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Message-ID: <20031215132621.GB1286@wohnheim.fh-wedel.de>
+References: <20031211125806.B2422@hexapodia.org> <200312121535.22375.rob@landley.net> <1071482402.11042.36.camel@tribesman.namesys.com> <200312150552.22805.rob@landley.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 15 Dec 2003 21:29:27 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200312150552.22805.rob@landley.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just thought I'd add some positive feedback to this thread, if a bit
-late (and not really related to cdrecord).
+On Mon, 15 December 2003 05:52:22 -0600, Rob Landley wrote:
+> 
+> The earlier suggestion I was disagreeing with would automatically create holes 
+> in any file that wrote a sufficiently large range of zero bytes.  Hence the 
+> cache poisoning and general defeating the purpose of DMA and such.  Neither 
+> truncate, nor a punch syscall, would mess with the normal "write" path 
+> (beyond locking so write and truncate/punch didn't stomp each other).
 
-I updated my laptop to -test11 a couple of hours ago and burnt my first
-cd using ide-cd. Not having made (nor planning to make) any benchmarks,
-the following is to be taken with a grain of salt:
+And the suggestor remains convinced that this is a good idea.  It
+would be perfectly ok to defer actually looking at the data to later,
+move that functionality to a journald or gcd or so, but the principle
+mains unchanged.
 
-I used a recent xcdroast with a Matshita (Panasonic) ATAPI CD-RW/DVD-ROM
-combo drive (model UJDA740) and was impressed. It Just Worked (TM) and
-performance was excellent (at 16x), barely using any cpu at all.
-
-Although ide-scsi has been faithful to me, I'm glad that the legacy
-emulated scsi code has finally been replaced in favour of native
-ide/atapi. I don't really care whether it's dev=0,0,0 or dev=/dev/cdrom,
-though from a HCI point of view, the latter is better, but I definitely
-want to thank those responsible. I'm sure that a lot of effort has gone
-into making this possible.
-
-My laptop _doesn't have_ any scsi hardware, so why should I then have to
-select the scsi tree in my kernel config?? Happily, no more.
-
+Jörn
 
 -- 
- Paul Marinceu
- http://elixxir.ucc.asn.au
-
-
+And spam is a useful source of entropy for /dev/random too!
+-- Jasmine Strong

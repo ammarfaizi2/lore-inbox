@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265089AbSJRNxg>; Fri, 18 Oct 2002 09:53:36 -0400
+	id <S265109AbSJROP7>; Fri, 18 Oct 2002 10:15:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265090AbSJRNxg>; Fri, 18 Oct 2002 09:53:36 -0400
-Received: from mail.powweb.com ([63.251.213.34]:38111 "EHLO mail.powweb.com")
-	by vger.kernel.org with ESMTP id <S265089AbSJRNxf> convert rfc822-to-8bit;
-	Fri, 18 Oct 2002 09:53:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Gross <mark@thegnar.org>
-Organization: thegnar
-To: phil-list@redhat.com, Daniel Jacobowitz <dan@debian.org>,
-       Mark Kettenis <kettenis@gnu.org>, mgross <mgross@unix-os.sc.intel.com>
-Subject: Re: [patch] thread-aware coredumps, 2.5.43-C3
-Date: Fri, 18 Oct 2002 06:57:38 -0700
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org,
-       NPT library mailing list <phil-list@redhat.com>
-References: <Pine.LNX.4.44.0210171009240.12653-100000@localhost.localdomain> <200210180004.g9I04OP17510@unix-os.sc.intel.com> <20021018004847.GA27817@nevyn.them.org>
-In-Reply-To: <20021018004847.GA27817@nevyn.them.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210180657.38291.mark@thegnar.org>
+	id <S265110AbSJROP7>; Fri, 18 Oct 2002 10:15:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6410 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265109AbSJROP6>; Fri, 18 Oct 2002 10:15:58 -0400
+Date: Fri, 18 Oct 2002 15:21:55 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: jbradford@dial.pipex.com
+Cc: _deepfire@mail.ru, linux-kernel@vger.kernel.org
+Subject: Re: 2.5 and lowmemory boxens
+Message-ID: <20021018152155.A5437@flint.arm.linux.org.uk>
+References: <E182V29-000Pfa-00@f15.mail.ru> <200210181154.g9IBsG2A001135@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210181154.g9IBsG2A001135@darkstar.example.net>; from jbradford@dial.pipex.com on Fri, Oct 18, 2002 at 12:54:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I fixed it to set namesz to 5, with the +1 it was making it 6.  My 
-patch is supposed to remove the +1.
+On Fri, Oct 18, 2002 at 12:54:15PM +0100, jbradford@dial.pipex.com wrote:
+> >  the one problem was the ppp over serial not working, but i suspect
+> >  that it just needs to be recompiled with 2.5 headers (am i right?).
+> 
+> I have found that 16450-based serial ports are unreliable under
+> 2.5.x.  Enabling interrupt un-masking didn't help, and I suspect that
+> it is just the generally more bloated kernel making the cache, (or in
+> the case of a 386, the pre-fetch unit :-) ), less efficient, and
+> causing data to be lost.
 
-The value for men-name for the extended registers case is "LINUX".
+Well, finding the cause of this is going to be such a pain in the ass.
+With the major IDE change after the serial code went in 2.5, there is
+no one kernel I can say "could you try to see what effect that kernel
+has" to narrow it down to whether it is really due to the new serial
+or due to other changes elsewhere.
 
---mgross
+You seem to imply that you loose received characters when you get IDE
+activity.  It would be nice to find out if how old serial + new IDE or
+new serial + old IDE behave.  (Such kernels do not exist.)  Unfortunately,
+neither is possible without lots of work, and there presently aren't
+enough hours in the day to put together such kernels without co-operation
+of other kernel developers.
 
-On Thursday 17 October 2002 05:48 pm, Daniel Jacobowitz wrote:
-> You'd have to ask Mark Kettenis about that.  Mark, it looks like you
-> updated the kernel to write namesz == 6, but BFD still expects 5 (and
-> elfcore_write_note writes 6)?  Shouldn't we accept both, anyway?
->
-> On Thu, Oct 17, 2002 at 05:07:41PM -0400, mgross wrote:
-> > This patch is working pretty well for me with only one problem, which
-> > seems to have happened indepently of Ingo's patch.
-> >
-> > Extended floating point note sections are no longer getting recognized by
-> > GDB 5.x.
-> >
-> > After a bit of poking around in the GDB 5.2.1 code (line 6399 bfd/efl.c)
-> > I noticed that there is a n_namesz test for the reg-xfp section parsing.
-> >
-> > The following minor tweak on top of Ingo's patch  to binfmt_elf.c fixes
-> > the problem.
-> >
-> > diff -urN -X dontdiff linux-2.5.43/fs/binfmt_elf.c
-> > linux-2.5.43.xfp/fs/binfmt_elf.c
-> > --- linux-2.5.43/fs/binfmt_elf.c      Thu Oct 17 16:54:13 2002
-> > +++ linux-2.5.43.xfp/fs/binfmt_elf.c  Thu Oct 17 16:53:00 2002
-> > @@ -964,7 +964,9 @@
-> >  {
-> >       struct elf_note en;
-> >  
-> > -     en.n_namesz = strlen(men->name) + 1;
-> > +     en.n_namesz = strlen(men->name);
-> > +     /* en.n_namesz = strlen(men->name) + 1;  gdb checks namez and the +
-> > 1 */ +                                     /*breaks xfp core file note
-> > sections. */ en.n_descsz = men->datasz;
-> >       en.n_type = men->type;
-> >  
-> >
-> >
-> > I don't know when this +1 was added to writenote binfmt_elf.c or why.  I
-> > do know that newer than July and it isn't in 2.4
-> >
-> > If there the + 1 is needed of others then we may need to special case the
-> > NT_PRXFPREG note sections.
-> >
-> > --mgross
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315928AbSEGSJD>; Tue, 7 May 2002 14:09:03 -0400
+	id <S315930AbSEGSJF>; Tue, 7 May 2002 14:09:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315931AbSEGSJB>; Tue, 7 May 2002 14:09:01 -0400
-Received: from holomorphy.com ([66.224.33.161]:37610 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315928AbSEGSI5>;
-	Tue, 7 May 2002 14:08:57 -0400
-Date: Tue, 7 May 2002 11:07:25 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Love <rml@tech9.net>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4-ac: migration_init improvements
-Message-ID: <20020507180725.GV32767@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Love <rml@tech9.net>, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <1020794038.806.25.camel@bigsur>
-Mime-Version: 1.0
+	id <S315931AbSEGSJE>; Tue, 7 May 2002 14:09:04 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31748 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315930AbSEGSI6>; Tue, 7 May 2002 14:08:58 -0400
+Subject: Re: [PATCH] 2.5.14 IDE 56
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 7 May 2002 19:26:29 +0100 (BST)
+Cc: rgooch@ras.ucalgary.ca (Richard Gooch), benh@kernel.crashing.org,
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        padraig@antefacto.com (Padraig Brady),
+        aia21@cantab.net (Anton Altaparmakov),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.44.0205071103040.975-100000@home.transmeta.com> from "Linus Torvalds" at May 07, 2002 11:05:14 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1759fR-0008Dg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 07, 2002 at 10:53:57AM -0700, Robert Love wrote:
-> The attached patch simplifies the migration_init code (an ugly lot) with
-> a simpler mechanism.  This is Erich Focht's version which is now in
-> 2.5.  It has proved stable both there and in my testing.
-> The new method is to bring up the first migration_thread, and then use
-> it to migrate the remaining threads to their respective CPUs.  The
-> method makes sense and removes a lot of code.
-> This patch also includes a boot hang fix demonstrated on arches where
-> logical CPU mapping != physical CPU mapping.  The bug was reported and
-> fixed by James Bottomley in 2.5.
-> Patch is against 2.4.19-pre7-ac4, please apply.
-> 	Robert Love
+> > Fugly. What's wrong with readlink(2) as this "magic syscall"?
+> Ehh - like the fact that it doesn't work on device files?
 
-No objections here. Focht's code works just as well or better, and has
-further advantages with respect to hotplug cpu support.
-
-
-Cheers,
-Bill
+I can't find anything in Posix/SuS that says it isnt allowed to however 8)

@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269801AbRHGXGT>; Tue, 7 Aug 2001 19:06:19 -0400
+	id <S269649AbRHGXBT>; Tue, 7 Aug 2001 19:01:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270199AbRHGXGJ>; Tue, 7 Aug 2001 19:06:09 -0400
-Received: from mail004.mail.bellsouth.net ([205.152.58.24]:35697 "EHLO
-	imf04bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S269801AbRHGXGB>; Tue, 7 Aug 2001 19:06:01 -0400
-Message-ID: <3B70746B.57C061C5@Bellsouth.net>
-Date: Tue, 07 Aug 2001 19:06:19 -0400
-From: Josh Wyatt <jdwyatt@Bellsouth.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
+	id <S269801AbRHGXBJ>; Tue, 7 Aug 2001 19:01:09 -0400
+Received: from battlejitney.wdhq.scyld.com ([216.254.93.178]:48116 "EHLO
+	vaio.greennet") by vger.kernel.org with ESMTP id <S269649AbRHGXBC>;
+	Tue, 7 Aug 2001 19:01:02 -0400
+Date: Tue, 7 Aug 2001 19:02:21 -0400 (EDT)
+From: Donald Becker <becker@scyld.com>
+To: Ben Greear <greearb@candelatech.com>
+cc: LKML <linux-kernel@vger.kernel.org>,
+        "eepro100@scyld.com" <eepro100@scyld.com>
+Subject: Re: [eepro100] Problem with Linux 2.4.7 and builtin eepro on
+ Intel'sEEA2  motherboard.
+In-Reply-To: <3B7069ED.E4F77B68@candelatech.com>
+Message-ID: <Pine.LNX.4.10.10108071900340.976-100000@vaio.greennet>
 MIME-Version: 1.0
-To: Tim Jansen <tim@tjansen.de>
-CC: Mark Atwood <mra@pobox.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-In-Reply-To: <Pine.LNX.4.33.0108071925040.27407-100000@infradead.org> <m3g0b3v8zq.fsf@flash.localdomain> <15UFO2-0nphWSC@fmrl03.sul.t-online.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Jansen wrote:
+On Tue, 7 Aug 2001, Ben Greear wrote:
+> Donald Becker wrote:
+> > On Tue, 7 Aug 2001, Ben Greear wrote:
+> > 
+> > > Subject: [eepro100] Problem with Linux 2.4.7 and builtin eepro on Intel's
+> >     EEA2 motherboard.
+> > >
+> > > The driver seems to lock up for a while and then recover...
+> > 
+> > Presumably this is the driver in the 2.4.7 kernel, not the Scyld driver.
 > 
-> On Tuesday 07 August 2001 23:46, Mark Atwood wrote:
-> > Userspace init scripts point the finger at kernel, saying "there is no
-> > good and no well documented mapping method". Kernel points its finger
-> > at userspace, saying "this is the way we do it" and "we cant guarantee
-> > a perfect 100% mapping solution, so we're not even going to try for
-> > 90%" and "futz with your drivers and modules.conf and init scripts
-> > till you get something that works".
-> 
-> I'm working on one a possible solution, the Device Registry
-> (www.tjansen.de/devreg). It solves this problem by assigning device ids to
-> physical devices. This allows you to identify a physical device, even after
-> you changed tge port.
+> Yes, I'm under the impression that the Scyld driver for 2.4.7 is not
+> prime-time yet.  I wouldn't mind being wrong!
 
-Sounds interestingly like the solaris solution to the problem,
-/etc/path_to_inst.
-Thanks,
-Josh
+We don't validate on the 2.4 kernels, but the drivers should all
+nominally work with 2.4.  It will at least provide a useful reference
+point.
+
+The current public version of eepro100.c is v1.17.
+
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
 

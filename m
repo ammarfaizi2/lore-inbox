@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVAJQKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbVAJQPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbVAJQKT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 11:10:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVAJQKT
+	id S262310AbVAJQPa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 11:15:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbVAJQPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 11:10:19 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:53951 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262308AbVAJQKO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 11:10:14 -0500
-To: brking@us.ibm.com
-Cc: paulus@samba.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-References: <200501101449.j0AEnWYF020850@d03av01.boulder.ibm.com>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 10 Jan 2005 17:10:12 +0100
-In-Reply-To: <200501101449.j0AEnWYF020850@d03av01.boulder.ibm.com> (brking@us.ibm.com's
- message of "Mon, 10 Jan 2005 08:49:31 -0600")
-Message-ID: <m14qhpxo2j.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Mon, 10 Jan 2005 11:15:30 -0500
+Received: from [143.247.20.203] ([143.247.20.203]:12975 "EHLO
+	cgx-mail.capitalgenomix.com") by vger.kernel.org with ESMTP
+	id S262310AbVAJQPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 11:15:23 -0500
+Message-ID: <41E2AA19.70603@capitalgenomix.com>
+Date: Mon, 10 Jan 2005 11:15:21 -0500
+From: "Fao, Sean" <sean.fao@capitalgenomix.com>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux lover <linux_lover2004@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to read file in kernel module?
+References: <20050110133046.61383.qmail@web52210.mail.yahoo.com>
+In-Reply-To: <20050110133046.61383.qmail@web52210.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-brking@us.ibm.com writes:
+linux lover wrote:
 
-> Some PCI adapters (eg. ipr scsi adapters) have an exposure today in that 
-> they issue BIST to the adapter to reset the card. If, during the time
-> it takes to complete BIST, userspace attempts to access PCI config space, 
-> the host bus bridge will master abort the access since the ipr adapter 
-> does not respond on the PCI bus for a brief period of time when running BIST. 
-> On PPC64 hardware, this master abort results in the host PCI bridge
-> isolating that PCI device from the rest of the system, making the device
-> unusable until Linux is rebooted. This patch is an attempt to close that
-> exposure by introducing some blocking code in the PCI code. When blocked,
-> writes will be humored and reads will return the cached value. Ben
-> Herrenschmidt has also mentioned that he plans to use this in PPC power
-> management.
+>             I want to read file in kernel module. can
+>anybody help me by giving code for that?
+>Also whats suitable way to do that in kernel /proc or
+>shared memory? what i want is to read and write a user
+>file frequently.
+>regards,
+>
 
-I think it would be better to do this check higher level in the driver.
-IMHO pci_*_config should stay lean and fast low level functions without
-such baggage. 
+Linux Lover,
 
--Andi
+After reading a number of posts from you in the past couple of months, 
+it's become rather obvious that you're taking a brute force approach to 
+Linux kernel development rather than starting from the beginning and 
+working your way up.  Furthermore, some of the questions you ask 
+indicate that you're approaching kernel programming the same way you 
+would program in user space.
+
+Others (myself included) have suggested a couple of books to get you 
+started quickly.  It will take some work on your part, however, if you 
+ever want to be a proficient kernel developer.  Examples are good to 
+back up theory, but are a horrible way to learn any kind of programming.
+
+Please take us up on our advise to do some reading.  I can promiss you 
+that the energy you spend on reading will be time well spent if Linux 
+kernel programming is for you.  If you have questions about portions you 
+read in the book, somebody here might be willing to give you a hand.
+
+Please do not take this as an insult.  You sound like you have a lot of 
+interest in Kernel development.  If that's the case, I'd like to see you 
+turn into a good developer, not just another "so-so" programmer.
+
+Good luck,
+
+-- 
+Sean

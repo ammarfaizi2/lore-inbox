@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269318AbRHaUhx>; Fri, 31 Aug 2001 16:37:53 -0400
+	id <S269206AbRHaUgn>; Fri, 31 Aug 2001 16:36:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269254AbRHaUho>; Fri, 31 Aug 2001 16:37:44 -0400
-Received: from anime.net ([63.172.78.150]:45833 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S269229AbRHaUhh>;
-	Fri, 31 Aug 2001 16:37:37 -0400
-Date: Fri, 31 Aug 2001 13:37:16 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        David Hollister <david@digitalaudioresources.org>,
-        Jan Niehusmann <jan@gondor.com>, <linux-kernel@vger.kernel.org>,
-        <rgooch@atnf.csiro.au>
-Subject: Re: Athlon doesn't like Athlon optimisation?
-In-Reply-To: <E15coqr-0003DR-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0108311335150.9298-100000@anime.net>
+	id <S269229AbRHaUgd>; Fri, 31 Aug 2001 16:36:33 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:29398 "EHLO
+	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S269206AbRHaUgV>; Fri, 31 Aug 2001 16:36:21 -0400
+Message-ID: <3B8FF504.1985B0FF@vnet.ibm.com>
+Date: Fri, 31 Aug 2001 20:35:16 +0000
+From: Tom Gall <tom_gall@vnet.ibm.com>
+Reply-To: tom_gall@vnet.ibm.com
+Organization: IBM
+X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+CC: engebret@us.ibm.com, linuxppc64-dev@lists.linuxppc.org
+Subject: PATCH: iSeries Device Drives Update 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Aug 2001, Alan Cox wrote:
-> > So what happens when someone is able to duplicate the problem on say AMD
-> > 760MP chipset with registered ECC PC2100 ram and 450W power supply?
-> > Not to say it has happened yet (I havent got my dual Tyan Tiger MP yet :-)
-> > but where would the finger start pointing then?
-> That would make it a lot more complex. There were a few cases much earlier
-> on with AMD chipset lockups but those have been cured (and were an Athlon
-> processor errata where a prefetch of an uncacheable line made a very very
-> nasty mess).
+Greetings,
 
-Can you define a hardware configuration that if it fails under athlon
-optimizations, you would consider a falsification of the "marginal
-hardware" theory?
+Enclosed is a patch to update/include the virtual iSeries device drivers. This
+patch is against 2.4.9-ac5.
 
-I want a hardware config that will get everyones attention if it fails.
+Both the ppc32 and ppc64 architectures are now supported.
 
--Dan
+In these device drivers are support for:
+
+Virtual Ethernet
+Virtual Harddrive (or DASD in IBM parlance)
+Virtual Tape
+Virtual CD
+
+Rather than clog up the email system, please pick up the patch from:
+
+ftp.kernel.org/pub/linux/kernel/people/tgall/iSeriesDDvs2.4.9-ac5.patch.gz
+
+Regards,
+
+Tom
 
 -- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
-
+Tom Gall - PPC64 Code Monkey     "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://www.ibm.com/linux/ltc/projects/ppc

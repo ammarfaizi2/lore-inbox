@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289905AbSAWQkY>; Wed, 23 Jan 2002 11:40:24 -0500
+	id <S289906AbSAWQoY>; Wed, 23 Jan 2002 11:44:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289906AbSAWQkP>; Wed, 23 Jan 2002 11:40:15 -0500
-Received: from hal.grips.com ([62.144.214.40]:62851 "EHLO hal.grips.com")
-	by vger.kernel.org with ESMTP id <S289905AbSAWQkA>;
-	Wed, 23 Jan 2002 11:40:00 -0500
-Message-Id: <200201231639.g0NGdlo18812@hal.grips.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Gerold Jury <gjury@hal.grips.com>
-To: Benjamin LaHaise <bcrl@redhat.com>, linux-aio@kvack.org
-Subject: Re: aio-0.3.7
-Date: Wed, 23 Jan 2002 17:39:47 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020123015531.A30901@redhat.com>
-In-Reply-To: <20020123015531.A30901@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S289907AbSAWQoO>; Wed, 23 Jan 2002 11:44:14 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:52509 "EHLO
+	wierzbowski.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S289906AbSAWQn7>; Wed, 23 Jan 2002 11:43:59 -0500
+Date: Wed, 23 Jan 2002 11:43:57 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: Denis Oliver Kropp <dok@directfb.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NeoMagic Framebuffer Driver
+Message-ID: <20020123114357.A29331@wierzbowski.devel.redhat.com>
+Mail-Followup-To: Denis Oliver Kropp <dok@directfb.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020110161922.GA27357@skunk.convergence.de> <20020123132940.GA30417@skunk.convergence.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020123132940.GA30417@skunk.convergence.de>; from dok@directfb.org on Wed, Jan 23, 2002 at 02:29:40PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Benjamin
+Denis Oliver Kropp (dok@directfb.org) said: 
+> this version has a MODULE_LICENSE, applies fine to linux-2.4.18-pre6.
 
-TODO is pretty empty.
-Does it mean transmit on sockets works too ?
+This seems to react rather badly when loaded from within X; I managed
+to lock the machine trying to switch VCs after doing so (for example,
+when I tried with matroxfb, it only screwed up the display.)
 
-Regards
-Gerold
+Yes, I know this falls into the 'don't *DO* that' category. :)
 
-On Wednesday 23 January 2002 07:55, Benjamin LaHaise wrote:
-> Hello all,
->
-> What can be called aio-0.3.7 is now released.  It consists of
-> libaio-0.3.7.tar plus the aio-20020123 patchset (provided for both
-> rh-2.4.9 and 2.4.18-pre3).   Note that the 2.4.18-pre3 patchset
-> is completely untested, but it looked right and I seem to do okay
-> at merging patches usually...  Bug reports and comments welcome.
->
+Bill

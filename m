@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266882AbUHISvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267175AbUHITyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266882AbUHISvH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266853AbUHISuf
+	id S267175AbUHITyP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 15:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUHITyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:50:35 -0400
-Received: from thunk.org ([140.239.227.29]:41681 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S266870AbUHISri (ORCPT
+	Mon, 9 Aug 2004 15:54:09 -0400
+Received: from holomorphy.com ([207.189.100.168]:27618 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266921AbUHITxh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:47:38 -0400
-Date: Mon, 9 Aug 2004 14:43:24 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: James Morris <jmorris@redhat.com>,
-       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-       mludvig@suse.cz, cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       davem@redhat.com
-Subject: Re: [PATCH]
-Message-ID: <20040809184324.GA22741@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jean-Luc Cooke <jlcooke@certainkey.com>,
-	James Morris <jmorris@redhat.com>,
-	"YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-	mludvig@suse.cz, cryptoapi@lists.logix.cz,
-	linux-kernel@vger.kernel.org, davem@redhat.com
-References: <20040806042852.GD23994@certainkey.com> <Xine.LNX.4.44.0408060040360.20834-100000@dhcp83-76.boston.redhat.com> <20040806125427.GE23994@certainkey.com> <20040807222634.GA15806@thunk.org> <20040808153846.GR23994@certainkey.com>
+	Mon, 9 Aug 2004 15:53:37 -0400
+Date: Mon, 9 Aug 2004 12:53:23 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040809195323.GU11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+	Nick Piggin <nickpiggin@yahoo.com.au>
+References: <20040808152936.1ce2eab8.akpm@osdl.org> <20040809112550.2ea19dbf.akpm@osdl.org> <200408091132.39752.jbarnes@engr.sgi.com> <200408091217.50786.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040808153846.GR23994@certainkey.com>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <200408091217.50786.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 08, 2004 at 11:38:46AM -0400, Jean-Luc Cooke wrote:
-> In our paper (I'm testing the patch now) we'll be proposing using the Fortuna
-> PRNG inplace of the current design.  It only uses SHA256 and AES256 (or any
-> message digest & block cipher combo).  The primary advantages of this design
-> would be:
->  - It's simpler
->  - It's faster
->  - It doesn't "rool your own" crypto
+At some point in the past, akpm wrote:
+>>> I'd be suspecting one of the CPU scheduler patches.
 
-SHA is not going to be faster than the cut-down MD4 --- and you can't
-use a pure random sequence number for the initial TCP sequence number,
-lest a packet from a previous TCP connection get mistaken as belong to
-the newly created TCP stream.  See Bellovin's recommendations for
-secure TCP sequnce number genreation for a discussion of the
-constraints.  
+On Monday, August 9, 2004 11:32 am, Jesse Barnes wrote:
+>> Yep, that's what I'm looking at now...
 
-> If you pass all input data into a Yarrow-type PRNG - like the Fortuna PRNG
-> we're going to propose - you will never care about this since the current
-> state of the pools are always based on all the previous input.
+On Mon, Aug 09, 2004 at 12:17:50PM -0700, Jesse Barnes wrote:
+> If I apply everything up to and including schedstat-v10.patch, it
+> boots fine. So it might be sched-init_idle-fork_by_hand-consolidation.patch
+> or something nearby...  Just reverting the sched-single-array.patch
+> wasn't enough.
 
-The Yarrow-type PRNG suffers from the problem that the entropy pool is
-pathetically small.  It fundamentally assumes that the crypto checksum
-is secure, and it is really much more of a *P*RNG than anything else.
-The scheme used in the current /dev/random design is much closer to
-that used by GPG, and relies on a large pool so that we can collect as
-much entropy as possible from the hardware sources available to the
-kernel.  I'm not familiar with the Fortuna PRNG that you're going to
-propose, but my guess is that it will have a similar, much heavier
-dependence on the crypto algorithms in terms of its assumptions.
+I can reproduce here (ia64/Altix). Fixing.
 
-						- Ted
+
+-- wli

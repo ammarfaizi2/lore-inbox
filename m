@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266194AbUAOH0C (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 02:26:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUAOH0C
+	id S264415AbUAOHXt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 02:23:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUAOHXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 02:26:02 -0500
-Received: from gprs178-245.eurotel.cz ([160.218.178.245]:50560 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S266194AbUAOHZ7
+	Thu, 15 Jan 2004 02:23:48 -0500
+Received: from gprs178-245.eurotel.cz ([160.218.178.245]:49792 "EHLO
+	midnight.ucw.cz") by vger.kernel.org with ESMTP id S264415AbUAOHXs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 02:25:59 -0500
-Date: Thu, 15 Jan 2004 08:26:23 +0100
+	Thu, 15 Jan 2004 02:23:48 -0500
+Date: Thu, 15 Jan 2004 08:24:11 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Markus =?iso-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Same keyboard.c as in 2.6.0
-Message-ID: <20040115072623.GB526@ucw.cz>
-References: <1074124061.1278.5.camel@midux>
+To: Murilo Pontes <murilo_pontes@yahoo.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] ABNT2 keyboards not work with >= 2.6.1 with or without -mm patchs
+Message-ID: <20040115072411.GA526@ucw.cz>
+References: <200401142326.21543.murilo_pontes@yahoo.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1074124061.1278.5.camel@midux>
+In-Reply-To: <200401142326.21543.murilo_pontes@yahoo.com.br>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 01:47:41AM +0200, Markus Hästbacka wrote:
+On Wed, Jan 14, 2004 at 11:26:21PM +0000, Murilo Pontes wrote:
 
-> Hi list,
-> I think many of you have run into this problem:
-> Some of your keys doesn't work in 2.6.1. 
-> 
-> If you linux gurus know a better way to do this - please tell.
-> 
-> Compiled and tested against 2.6.1-bk2
-> 
+> BUG: ABNT2 keyboards not work with >= 2.6.1 with or without -mm patchs
+> DESCRIPTION: The "/ ?" not work on console-framebuffer
 
-Please try latest 2.6.1-mm. It should be all fixed there.
-
-Note that if just your extra special multimedia keys don't work in
-2.6.1-mm, then that's intentional, and you'll have to use setkeycodes
-to make them work. Maintaining all the special keys proved to be very
-nightmarish for me.
+Known problem. They should work with recent -mm (if Andrew applied my
+patch), and that patch should go to 2.6.2 soon. Please test if it works
+correctly with latest -mm kernel. 
 
 -- 
 Vojtech Pavlik

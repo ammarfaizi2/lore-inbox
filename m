@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266917AbSKLW0j>; Tue, 12 Nov 2002 17:26:39 -0500
+	id <S266957AbSKLWcC>; Tue, 12 Nov 2002 17:32:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266979AbSKLW0j>; Tue, 12 Nov 2002 17:26:39 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:10945 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266917AbSKLW0i>;
-	Tue, 12 Nov 2002 17:26:38 -0500
-Date: Tue, 12 Nov 2002 14:31:43 -0800 (PST)
-Message-Id: <20021112.143143.100089039.davem@redhat.com>
-To: roland@topspin.com
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <52adkele4l.fsf@topspin.com>
-References: <521y5qn7l5.fsf@topspin.com>
-	<1037116836.8500.55.camel@irongate.swansea.linux.org.uk>
-	<52adkele4l.fsf@topspin.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266996AbSKLWcB>; Tue, 12 Nov 2002 17:32:01 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:53259 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S266957AbSKLWb7>; Tue, 12 Nov 2002 17:31:59 -0500
+To: linux-kernel@vger.kernel.org
+Subject: pci_unregister_driver() problem?
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 13 Nov 2002 07:38:43 +0900
+Message-ID: <87el9ql8gc.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roland Dreier <roland@topspin.com>
-   Date: 12 Nov 2002 12:36:10 -0800
+Hi,
 
-   Dave, Alan, if I wrote a patch to do this would you accept it?  (And
-   following that increase MAX_ADDR_LEN?)
+I'm playing the pcmcia of 2.5.47 on my new machine. And, I got the
+Oops after yenta_socket.o was unloaded. It seems pci_unregister_driver()
+doesn't call pci_driver->remove().  So, pcmcia driver couldn't release
+the resouce.
 
-I would have to see it first, but likely yes.
+This reproduce it,
+
+    # modprobe yenta_socket
+    # modprobe -r yenta_socket
+    ... happen the interrupt, because it was shared irq
+    Oops
+
+I think driver-model(?) expects using dev->release(), in this
+case. Corrent?  And, How should it fix?
+
+Regards
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

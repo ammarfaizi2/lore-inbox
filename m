@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S262475AbUKDWEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S262711AbUKEQEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbUKDWEz (ORCPT <rfc822;akpm@zip.com.au>);
-	Thu, 4 Nov 2004 17:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbUKDWCk
+	id S262711AbUKEQEv (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 5 Nov 2004 11:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbUKEQEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 17:02:40 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:10886 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262454AbUKDV5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 16:57:44 -0500
-Date: Thu, 4 Nov 2004 22:58:05 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Roland Mas <roland.mas@free.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: meye bug? (was: meye driver update)
-Message-ID: <20041104215805.GB3996@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Roland Mas <roland.mas@free.fr>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20041104111231.GF3472@crusoe.alcove-fr> <87zn1xjoqo.fsf@mirexpress.internal.placard.fr.eu.org>
+	Fri, 5 Nov 2004 11:04:50 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:12160 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261153AbUKEQEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 11:04:20 -0500
+Message-Id: <200411050433.iA54XBGq004923@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: linux-kernel@vger.kernel.org, mailinglisten@hentges.net
+Subject: Re: [2.6.10-rc1-mm2] keyboard / synaptics not working 
+In-Reply-To: Your message of "Thu, 04 Nov 2004 13:15:13 +0100."
+             <418A1D51.4010504@free.fr> 
+From: Valdis.Kletnieks@vt.edu
+References: <418A1D51.4010504@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87zn1xjoqo.fsf@mirexpress.internal.placard.fr.eu.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_494204241P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 04 Nov 2004 23:33:11 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 10:19:59PM +0100, Roland Mas wrote:
+--==_Exmh_494204241P
+Content-Type: text/plain; charset=us-ascii
 
->   I'd like to take the opportunity to report a bug with meye.  I've
-> ran various 2.6.* kernels on this recently acquired laptop, including
-> 2.6.10-rc1 with your patches, all that with a Debian system on it
-> (Sarge/testing).  I figured the simplest way to test the meye driver,
-> and to grab a shot from it, would be to use "motioneye -j foo.jpeg".
-> Everytime I run that, though, the motioneye process gets stuck into an
-> apparently endless loop.  top shows it alternatively at states R and
-> D, I can't kill it (even -9), and the kernel repeatedly complains
-> "meye: need to reset HIC!".  Repeatedly, as in about twice a second
-> until reboot.  Oh, and no picture ever comes out, either :-)
-[...]
-> sonypi: detected type1 model, verbose = 0, fnkeyinit = off, camera = off, compat = off, mask = 0xffffffff, useinput = on, acpi = on
-                                                              ^^^^^^^^^^^^
+On Thu, 04 Nov 2004 13:15:13 +0100, matthieu castet said:
 
-:)
+> Could you try these 2 patchs with CONFIG_PNPACPI=y ?
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+>  filename="pnpacpi.patch"
+
+>  filename="i8042_pnp.patch"
+
+Just confirming that my Dell Latitude C840 had the same "no keyboard"
+issues with -rc1-mm2, and these 2 patches result in a working keyboard
+with CONFIG_PNPACPI.
+
+--==_Exmh_494204241P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBiwKHcC3lWbTT17ARAhNvAKDFmqk/MHPQWRzyBfNsQnhrqjYcuACg/FnY
+ACi06BCkgzinmrbdKOR7soc=
+=XUoY
+-----END PGP SIGNATURE-----
+
+--==_Exmh_494204241P--

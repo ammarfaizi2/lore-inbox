@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289260AbSAVKxQ>; Tue, 22 Jan 2002 05:53:16 -0500
+	id <S289255AbSAVKyH>; Tue, 22 Jan 2002 05:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289270AbSAVKxG>; Tue, 22 Jan 2002 05:53:06 -0500
-Received: from mail.loewe-komp.de ([62.156.155.230]:51217 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S289260AbSAVKxB>; Tue, 22 Jan 2002 05:53:01 -0500
-Message-ID: <3C4D457C.4E5E2A14@loewe-komp.de>
-Date: Tue, 22 Jan 2002 11:57:00 +0100
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: LOEWE. Hannover
-X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <Pine.LNX.4.33.0201211418050.17139-100000@coffee.psychology.mcmaster.ca>
+	id <S289270AbSAVKx4>; Tue, 22 Jan 2002 05:53:56 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:7940 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S289255AbSAVKxk>;
+	Tue, 22 Jan 2002 05:53:40 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
+Subject: Re: CML2-2.1.3 is available 
+In-Reply-To: Your message of "Tue, 22 Jan 2002 11:48:06 BST."
+             <3C4D4366.9020406@debian.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 22 Jan 2002 21:53:22 +1100
+Message-ID: <15543.1011696802@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn schrieb:
-> 
-> > > > To me the benefit is clear enough: ASAP scheduling of IO threads, a
-> > > > simple heuristic that improves both throughput and latency.
-> > >
-> > > I think of "benefit", perhaps naiively, in terms of something that can
-> > > be measured or demonstrated rather than just announced.
-> >
-> > But you see why asap scheduling improves latency/throughput *in theory*,
-> > don't you?
-> 
-> NO, IT DOES NOT. why can't you preempt-ophiles get that through your heads?
-> 
->         eager scheduling is NOT optimal in general.
-> 
-> for instance, suppose my disk can only read a sector at a time.
-> scheduling my sequentially-reading process to wake eagerly
-> is most definitly PESSIMAL.  laziness is a cardinal virtue!
-> this doesn't preclude heuristics to sometimes short-cut the laziness.
-> 
+On Tue, 22 Jan 2002 11:48:06 +0100, 
+Giacomo Catenazzi <cate@debian.org> wrote:
+>My question: where do you find
+>
+>autoconf autoconfigure: symlinks
+>    $(SHELL_SCRIPT) script/...
 
-Do you think there are no other benefits besides the scheduling latency in
-a realtime system?
+You don't.  That was an example of how you can have multiple targets
+pointing to the same code, it is not in kbuild yet.
 
-In a realtime system you want your event handling code (outside of the
-interrupt handler [on Linux: bottom halves/tasklets/sorftirq?) get running 
-on the CPU as fast as possible. Therefore a realtime kernel is often fully 
-preemptible (well, there are always critical sections that has to disable 
-interrupts).
+>BTW: I used 'make autoprobe' because of possible confutions, in
+>latter version. Now Eric will use both 'make autoconfig' and
+>'make autoprobe'.
 
-So the time between the interrupt handler wanting to schedule a specific 
-task/thread and the next scheduling decision is crucial, right? 
+FWIW, I prefer autoprobe.
 
-I have no hard numbers, but I can imagine that this can also lead to
-better IO (in terms of latency AND IO throughput but with the cost of 
-cpu cycles [user space CPU throughput]).
-
-I don't know the Linux kernel good enough right now, but if you shorten
-the scheduling latency: that could be a win for faster IO. But there's always
-a tradeoff: if you spent too much time in scheduling decisions/preparations
-the overhead eats the lower latency (especially if your mutexes have to deal
-with priority inversion, giving a lock holder at least the same priority as
-the lock contender for the period it holds the lock).

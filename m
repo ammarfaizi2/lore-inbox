@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317738AbSFSCL7>; Tue, 18 Jun 2002 22:11:59 -0400
+	id <S317744AbSFSCS2>; Tue, 18 Jun 2002 22:18:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317737AbSFSCL7>; Tue, 18 Jun 2002 22:11:59 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:58011 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S317736AbSFSCLz> convert rfc822-to-8bit; Tue, 18 Jun 2002 22:11:55 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <stevie@qrpff.net>, <rml@tech9.net>,
-       Chris Friesen <cfriesen@nortelnetworks.com>
-CC: <mgix@mgix.com>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Tue, 18 Jun 2002 19:11:52 -0700
-In-Reply-To: <5.1.0.14.2.20020618184424.00ab6418@whisper.qrpff.net>
-Subject: Re: Question about sched_yield()
+	id <S317746AbSFSCS1>; Tue, 18 Jun 2002 22:18:27 -0400
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:15364
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S317744AbSFSCS0>; Tue, 18 Jun 2002 22:18:26 -0400
+X-All-Your-Base: Are Belong To Us!!!
+X-Envelope-Recipient: imipak@yahoo.com
+X-Envelope-Sender: stevie@qrpff.net
+Message-Id: <5.1.0.14.2.20020618213403.00aa4720@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 18 Jun 2002 22:11:49 -0400
+To: Myrddin Ambrosius <imipak@yahoo.com>, root@chaos.analogic.com
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: Drivers, Hardware, and their relationship to Bagels.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020618183515.13963.qmail@web12302.mail.yahoo.com>
+References: <Pine.LNX.3.95.1020618111156.3808B-100000@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020619021154.AAA2518@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 11:35 AM 6/18/2002 -0700, Myrddin Ambrosius wrote:
+>The problem with priviliged tasks is that (in general)
+>they run with absolute privilige. Sure, some of these
+>priviliges can be turned off, but if /dev/mem is
+>reachable, then they can be turned back on again,
+>precicely for the reasons you give.
+
+What about the bagels? I like bagels! ;)
+
+I agree that this is a problem.  A very, very good example of this is 'binding to a reserved port (<1024)'. A number of programs that should never need to run as root, do, some for the sole purpose of binding to a "reserved port":
+        * Webservers in a relatively simple configuration (ex: my Apache install)
+        * BIND (which doesn't even drop root. A security nightmare.)
+        * identd
+
+There are kernel patches that can help solve this problem. One, found at ftp://ftp.v-lo.krakow.pl/pub/linux/patches/, creates 'magic' GIDs that give special limited privileges like binding to a reserved port (above list) or creating a raw socket (ping, traceroute).
+
+If I recall the Capabilities FAQ correctly, I think there's something relating to PAM that might let you give partial capabilities to certain users who login (like CAP_SYS_TIME to your normal desktop login, so you can set the clock without using 'su'). It would be nice to be able to (relatively easily) create certain uids/gids (or names) that get special privileges automatically... then certain apps (like ping, traceroute) could be setuid something-less-powerful-than-root.  I think that'd be an interesting project to work on when I'm bored... anybody on this list think it's worthy of discussion (or not worthy -- arguing is fun, it makes for more active threads!) ?
+
+Just remember -- we need root/uid0/whatever, because in the end, the computers are here to serve US, to do OUR bidding. And using root is what I like to term an 'executive override' -- it cuts through all the protections and guards that the kernel has, and makes the computer do what we say. That's why we don't protect root from itself.
 
 
-On Tue, 18 Jun 2002 18:45:55 -0400, Stevie O wrote:
+--
+Stevie-O
 
->At 11:00 AM 6/18/2002 -0700, David Schwartz wrote:
-
->>This is the same error repeated again. Since you realize that an endless
->>loop on sched_yield is *not* equivalent to blocking, why do you then say
->>"in
->>fact doing useful work"? By what form of ESP is the kernel supposed to
->>determine that the sched_yield task is not 'doing useful work' and the
->>other
->>task is?
-
->By this form of ESP: sched_yield() means "I have nothing better to do right
->now, give my time to someone who does".
-
-	No, this is not what sched_yield means. What 'sched_yield' means is that 
-you're at a point where it's convenient for another process to run. For 
-example, perhaps you just released a mutex that you held for a long period of 
-time, or perhaps you could function more efficiently if you could acquire a 
-resource another thread holds.
-
->If a thread is doing useful work,
->why would it call sched_yield() ?!?
-
-	Perhaps to allow other threads to make forward progress. Perhaps to give 
-other threads a chance to use a resource it just released. Perhaps in hopes 
-that another thread will release a resource it could benefit from being able 
-to acquire.
-
-	DS
-
+Real programmers use COPY CON PROGRAM.EXE
 

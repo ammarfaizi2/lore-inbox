@@ -1,117 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264527AbUFNWUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264541AbUFNWXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbUFNWUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 18:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUFNWUZ
+	id S264541AbUFNWXg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 18:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbUFNWXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 18:20:25 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:43155 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264527AbUFNWUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 18:20:16 -0400
-From: Mark Gross <mgross@linux.jf.intel.com>
-Organization: Intel
-To: ganzinger@mvista.com, George Anzinger <george@mvista.com>,
-       Mark Gross <mgross@linux.jf.intel.com>
-Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
-Date: Mon, 14 Jun 2004 15:20:20 -0700
-User-Agent: KMail/1.5.4
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Geoff Levand <geoffrey.levand@am.sony.com>,
-       high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <40C7BE29.9010600@am.sony.com> <200406140828.08924.mgross@linux.intel.com> <40CE0F2B.2000408@mvista.com>
-In-Reply-To: <40CE0F2B.2000408@mvista.com>
+	Mon, 14 Jun 2004 18:23:35 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:64251 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264541AbUFNWXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 18:23:34 -0400
+Message-ID: <40CE2538.4060603@nortelnetworks.com>
+Date: Mon, 14 Jun 2004 18:22:48 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Bernd Petrovitsch <bernd@firmix.at>
+CC: Oliver Neukum <oliver@neukum.org>, Steve French <smfltc@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: upcalls from kernel code to user space daemons
+References: <1087250925.8828.3.camel@gimli.at.home>
+In-Reply-To: <1087250925.8828.3.camel@gimli.at.home>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406141520.20971.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 June 2004 13:48, George Anzinger wrote:
-> Mark Gross wrote:
-> > On Friday 11 June 2004 15:33, George Anzinger wrote:
-> >>I have been thinking of a major rewrite which would leave this code
-> >> alone, but would introduce an additional list and, of course, overhead
-> >> for high-res timers. This will take some time and be sub optimal, so I
-> >> wonder if it is needed.
-> >
-> > What would your goal for the major rewrite be?
-> > Redesign the implementation?
-> > Clean up / re-factor the current design?
-> > Add features?
->
-> Mostly I would like to make it "clean" enough to get the community to
-> accept it. As I look at the current implemtation, the biggest intrusion
-> into the "normal" kernel is in the timer list area.  Thus, my thinking is
-> to introduce a second or slave list which would only be used by HR timers. 
-> This list would be "checked" by putting a "normal" i.e. add_timer, timer in
-> place to mark the jiffie that a HR timer was to expire in.  The "check"
-> code would then set up the HR interrupt to expire the timer.
->
-> I am also considering removing a lot of the ifdefs one way or another. 
-> AND, I think I can make the whole thing configureable at boot time just as
-> the pm/TSC/etc. timers are.
->
+Bernd Petrovitsch wrote:
+> On Mon, 2004-06-14 at 23:57, Chris Friesen wrote:
+>  > Oliver Neukum wrote:
+>  >
+>  > >  > userspace daemon loops on ioctl()
+>  > >  > kernel portion of ioctl call goes to sleep until something to do
+>  > >  > when needed, fill in data and return to userspace
+>  > >  > userspace does stuff, then passes data back down via ioctl()
+>  > >  > ioctl() puts userspace back to sleep and continues on with other 
+> work
+>  > >
+>  > > You could just as well implement an ordinary read()
+>  >
+>  > Not quite.  The userspace is passing data down as well.  I don't know 
+> how you'd
+>  > do that with read().
+> 
+> For this you use write().
 
-Sounds good to me.  The higher level code can use this type of clean up.
+And you eat another syscall per userspace call.  For the ioctl() case, you only 
+need to issue a single call to ioctl().  You pass the result of the previous 
+request down, and then when it returns you get the data for the next request.
 
-> > I've been wondering lately if a significant restructuring of the
-> > implementation could be done.  Something bottom's up that enabled
-> > changing / using different time bases without rebooting and coexisted
-> > nicely with HPET.
-> >
-> > Something along the lines of;
-> > * abstracting the time base's, calibration and computation of the next
-> > interrupt time into a polymorphic interface along with the implementation
-> > of a few of your time bases (ACPI, TSC) as a stand allown patch.
->
-> Uh, is this something like the current TSC/ pmtimer/ HPET/ PIT selection
-> code in the x86?  Or do you have something else in mind here.  Given the
-> goal of integration with and inclusion in the kernel.org kernel, I don't
-> want to wander too far from what they are doing now.
->
+Although I have to admit it's not pretty, and the performance improvements may 
+not be worth the obfuscation of the code.
 
-Sort of but implemented with a dynamic binding as opposed to the current 
-compile time binding via ifdefs.
-
-The current HRT code implements a kind of static / compile time polymorphism 
-that is hard for me to read and keep straight.  It implements N time bases, 
-with M interrupt sources for K architectures.  Implementing the binding logic 
-between all these at compile time leads to a lot of ifdefs and hard to grok 
-code.
-
-
-> > * implement yet another polymorphic interface for the interrupt source
-> > used by the patch, along with a few interrupt sources (PIT, APIC, HPET
-> > <-- new ) * Implement a simple RTC-like charactor driver using the above
-> > for testing and integration.
->
-> I am not sure what wants to be done here.  I have to keep in mind that x86
-> is only one of many archs.  I would like to keep it as simple as possible
-> in this area.  See the include/linux/hrtime.h file for the arch interface
-> we are now using.
->
-
-yes but the code in the include/linux/hrtime.h file exports zero abstractions 
-to the architecture independent kernel.  
-
-Its mostly a documentation header file, that includes the architecture 
-dependent exports, that then need to be used by the architecture independent 
-code.  Its all wrapped up in macros and what not to make it work across a 
-handful of architectures but its still a significant CTAGS work out to follow 
-the logic.
-
-I think that re-working the lower level HRT code to be more object based (like 
-pci and net devices for example) with a layered design would significantly 
-simplify the code and improve the extensibility across architectures and 
-platform hardware time based interrupt sources.
-
-The only performance hit would be that some of the in-lined and compile time 
-macro code would no longer be inline-able.
-
---mgross
-
+Chris

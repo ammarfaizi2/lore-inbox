@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289085AbSA3KhH>; Wed, 30 Jan 2002 05:37:07 -0500
+	id <S289091AbSA3Kjh>; Wed, 30 Jan 2002 05:39:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289082AbSA3Kg5>; Wed, 30 Jan 2002 05:36:57 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59909 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289093AbSA3Kgs>; Wed, 30 Jan 2002 05:36:48 -0500
-Date: Wed, 30 Jan 2002 10:36:40 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Robert Love <rml@tech9.net>
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: push BKL out of llseek
-Message-ID: <20020130103640.D16937@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>, <Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com> <1012351309.813.56.camel@phantasy> <3C574BD1.E5343312@zip.com.au> <1012357211.817.67.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1012357211.817.67.camel@phantasy>; from rml@tech9.net on Tue, Jan 29, 2002 at 09:20:10PM -0500
+	id <S289092AbSA3Kj2>; Wed, 30 Jan 2002 05:39:28 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:19207 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S289091AbSA3KjS>; Wed, 30 Jan 2002 05:39:18 -0500
+Date: Wed, 30 Jan 2002 11:39:02 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
+        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <E16Vi1x-0000Aw-00@starship.berlin>
+Message-ID: <Pine.LNX.4.33.0201301123350.7341-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 09:20:10PM -0500, Robert Love wrote:
-> On Tue, 2002-01-29 at 20:26, Andrew Morton wrote:
-> > Just a little word of caution here.  Remember the
-> > apache-flock-synchronisation fiasco, where removal
-> > of the BKL halved Apache throughput on 8-way x86.
-> > 
-> > This was because the BKL removal turned serialisation
-> > on a quick codepath from a spinlock into a schedule().
-> 
-> I feared this too, but eventually I decided it was worth it and
-> benchmarks backed that up.  If nothing else this is yet-another-excuse
-> for locks that can spin-then-sleep.
-> 
-> I posted dbench results, which show a positive gain even on 2-way for
-> multiple client loads.
+Hi,
 
-Luckily, apache on its own doesn't seem to use lseek() when sending the
-file - it seems to be an open, mmap, write.  (apache 1.3.22)
+On Wed, 30 Jan 2002, Daniel Phillips wrote:
 
-However, php with apache does do an lseek on the target script.  Now
-remember the /. effect...  You'll be accessing the same file from
-several apache or php processes.
+> Yes, we should cc our patches to a patchbot:
+>
+>   patches-2.5@kernel.org -> goes to linus
+>   patches-2.4@kernel.org -> goes to marcello
+>   patches-usb@kernel.org -> goes to gregkh, regardless of 2.4/2.5
+>   etc.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+I'd rather make the patchbot more intelligent, that means it analyzes the
+patch and produces a list of touched files. People can now register to get
+notified about patches, which changes areas they are interested in.
+In the simplest configuration nothing would change for Linus, but patches
+wouldn't get lost and people could be notified if their patch was applied
+or if it doesn't apply anymore. Other people have a place to search for
+patches and they can check whether something was already fixed.
+
+bye, Roman
+
